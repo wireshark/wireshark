@@ -1,9 +1,9 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-tcap.c                                                            */
-/* ../../../tools/asn2wrs.py -b -p tcap -c ../../../asn1/tcap/tcap.cnf -s ../../../asn1/tcap/packet-tcap-template -D ../../../asn1/tcap tcap.asn */
+/* packet-tcap.c                                                              */
+/* ../../tools/asn2wrs.py -b -X -T -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
 
-/* Input file: ../../../asn1/tcap/packet-tcap-template.c */
+/* Input file: packet-tcap-template.c */
 
 #line 1 "packet-tcap-template.c"
 /* packet-tcap-template.c
@@ -112,7 +112,7 @@ static int hf_tcap_dtid = -1;                     /* DestTransactionID */
 static int hf_tcap_reason = -1;                   /* Reason */
 static int hf_tcap_p_abortCause = -1;             /* P_AbortCause */
 static int hf_tcap_u_abortCause = -1;             /* DialoguePortion */
-static int hf_tcap_ComponentPortion_item = -1;    /* Component */
+static int hf_tcap__untag_item = -1;              /* Component */
 static int hf_tcap_invoke = -1;                   /* Invoke */
 static int hf_tcap_returnResultLast = -1;         /* ReturnResult */
 static int hf_tcap_returnError = -1;              /* ReturnError */
@@ -151,7 +151,7 @@ static int hf_tcap_confidentiality = -1;          /* Confidentiality */
 static int hf_tcap_confidentialityId = -1;        /* T_confidentialityId */
 static int hf_tcap_integerConfidentialityId = -1;  /* INTEGER */
 static int hf_tcap_objectConfidentialityId = -1;  /* OBJECT_IDENTIFIER */
-static int hf_tcap_ComponentSequence_item = -1;   /* ComponentPDU */
+static int hf_tcap__untag_item_01 = -1;           /* ComponentPDU */
 static int hf_tcap_invokeLastansi = -1;           /* InvokePDU */
 static int hf_tcap_returnResultLastansi = -1;     /* ReturnResultPDU */
 static int hf_tcap_returnErroransi = -1;          /* ReturnErrorPDU */
@@ -218,18 +218,18 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 /*--- Included file: packet-tcap-ett.c ---*/
 #line 1 "packet-tcap-ett.c"
 static gint ett_tcap_DialoguePDU = -1;
-static gint ett_tcap_ExternalPDU = -1;
-static gint ett_tcap_UserInformation = -1;
-static gint ett_tcap_AARQ_apdu = -1;
+static gint ett_tcap_ExternalPDU_U = -1;
+static gint ett_tcap_UserInformation_U = -1;
+static gint ett_tcap_AARQ_apdu_U = -1;
 static gint ett_tcap_T_protocol_versionrq = -1;
-static gint ett_tcap_AARE_apdu = -1;
+static gint ett_tcap_AARE_apdu_U = -1;
 static gint ett_tcap_T_protocol_versionre = -1;
-static gint ett_tcap_RLRQ_apdu = -1;
-static gint ett_tcap_RLRE_apdu = -1;
-static gint ett_tcap_ABRT_apdu = -1;
+static gint ett_tcap_RLRQ_apdu_U = -1;
+static gint ett_tcap_RLRE_apdu_U = -1;
+static gint ett_tcap_ABRT_apdu_U = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 static gint ett_tcap_UniDialoguePDU = -1;
-static gint ett_tcap_AUDT_apdu = -1;
+static gint ett_tcap_AUDT_apdu_U = -1;
 static gint ett_tcap_T_protocol_version3 = -1;
 static gint ett_tcap_TCMessage = -1;
 static gint ett_tcap_Unidirectional = -1;
@@ -238,7 +238,7 @@ static gint ett_tcap_End = -1;
 static gint ett_tcap_Continue = -1;
 static gint ett_tcap_Abort = -1;
 static gint ett_tcap_Reason = -1;
-static gint ett_tcap_ComponentPortion = -1;
+static gint ett_tcap_SEQUENCE_SIZE_1_MAX_OF_Component = -1;
 static gint ett_tcap_Component = -1;
 static gint ett_tcap_Invoke = -1;
 static gint ett_tcap_ReturnResult = -1;
@@ -253,12 +253,12 @@ static gint ett_tcap_UniTransactionPDU = -1;
 static gint ett_tcap_TransactionPDU = -1;
 static gint ett_tcap_AbortPDU = -1;
 static gint ett_tcap_T_causeInformation = -1;
-static gint ett_tcap_DialoguePortionANSI = -1;
+static gint ett_tcap_DialoguePortionANSI_U = -1;
 static gint ett_tcap_T_applicationContext = -1;
 static gint ett_tcap_T_securityContext = -1;
 static gint ett_tcap_Confidentiality = -1;
 static gint ett_tcap_T_confidentialityId = -1;
-static gint ett_tcap_ComponentSequence = -1;
+static gint ett_tcap_SEQUENCE_OF_ComponentPDU = -1;
 static gint ett_tcap_ComponentPDU = -1;
 static gint ett_tcap_InvokePDU = -1;
 static gint ett_tcap_ANSIparamch = -1;
@@ -340,9 +340,6 @@ dissector_handle_t get_itu_tcap_subdissector(guint32 ssn) {
 
 /*--- Included file: packet-tcap-fn.c ---*/
 #line 1 "packet-tcap-fn.c"
-/*--- Fields for imported types ---*/
-
-
 
 static const asn_namedbit T_protocol_versionrq_bits[] = {
   {  0, &hf_tcap_T_protocol_versionrq_version1, -1, -1, "version1", NULL },
@@ -356,9 +353,6 @@ dissect_tcap_T_protocol_versionrq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                     NULL);
 
   return offset;
-}
-static int dissect_protocol_versionrq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_protocol_versionrq(TRUE, tvb, offset, actx, tree, hf_tcap_protocol_versionrq);
 }
 
 
@@ -374,9 +368,6 @@ dissect_tcap_Applicationcontext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
   return offset;
-}
-static int dissect_application_context_name(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Applicationcontext(FALSE, tvb, offset, actx, tree, hf_tcap_application_context_name);
 }
 
 
@@ -405,27 +396,31 @@ return offset+len;
 
   return offset;
 }
-static int dissect_user_information_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_User_information(TRUE, tvb, offset, actx, tree, hf_tcap_user_information);
-}
 
 
-static const ber_old_sequence_t AARQ_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_versionrq_impl },
-  { BER_CLASS_CON, 1, 0, dissect_application_context_name },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AARQ_apdu_U_sequence[] = {
+  { &hf_tcap_protocol_versionrq, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_versionrq },
+  { &hf_tcap_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_Applicationcontext },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AARQ_apdu_sequence, hf_index, ett_tcap_AARQ_apdu);
+dissect_tcap_AARQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AARQ_apdu_U_sequence, hf_index, ett_tcap_AARQ_apdu_U);
 
   return offset;
 }
-static int dissect_dialogueRequest(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_AARQ_apdu(FALSE, tvb, offset, actx, tree, hf_tcap_dialogueRequest);
+
+
+
+static int
+dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AARQ_apdu_U);
+
+  return offset;
 }
 
 
@@ -442,9 +437,6 @@ dissect_tcap_T_protocol_versionre(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_protocol_versionre_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_protocol_versionre(TRUE, tvb, offset, actx, tree, hf_tcap_protocol_versionre);
-}
 
 
 static const value_string tcap_Associate_result_vals[] = {
@@ -460,9 +452,6 @@ dissect_tcap_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
                                   NULL);
 
   return offset;
-}
-static int dissect_result(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Associate_result(FALSE, tvb, offset, actx, tree, hf_tcap_result);
 }
 
 
@@ -481,9 +470,6 @@ dissect_tcap_T_dialogue_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_dialogue_service_user(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_dialogue_service_user(FALSE, tvb, offset, actx, tree, hf_tcap_dialogue_service_user);
-}
 
 
 static const value_string tcap_T_dialogue_service_provider_vals[] = {
@@ -501,9 +487,6 @@ dissect_tcap_T_dialogue_service_provider(gboolean implicit_tag _U_, tvbuff_t *tv
 
   return offset;
 }
-static int dissect_dialogue_service_provider(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_dialogue_service_provider(FALSE, tvb, offset, actx, tree, hf_tcap_dialogue_service_provider);
-}
 
 
 static const value_string tcap_Associate_source_diagnostic_vals[] = {
@@ -512,43 +495,47 @@ static const value_string tcap_Associate_source_diagnostic_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Associate_source_diagnostic_choice[] = {
-  {   1, BER_CLASS_CON, 1, 0, dissect_dialogue_service_user },
-  {   2, BER_CLASS_CON, 2, 0, dissect_dialogue_service_provider },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Associate_source_diagnostic_choice[] = {
+  {   1, &hf_tcap_dialogue_service_user, BER_CLASS_CON, 1, 0, dissect_tcap_T_dialogue_service_user },
+  {   2, &hf_tcap_dialogue_service_provider, BER_CLASS_CON, 2, 0, dissect_tcap_T_dialogue_service_provider },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Associate_source_diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Associate_source_diagnostic_choice, hf_index, ett_tcap_Associate_source_diagnostic,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Associate_source_diagnostic_choice, hf_index, ett_tcap_Associate_source_diagnostic,
+                                 NULL);
 
   return offset;
 }
-static int dissect_result_source_diagnostic(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Associate_source_diagnostic(FALSE, tvb, offset, actx, tree, hf_tcap_result_source_diagnostic);
-}
 
 
-static const ber_old_sequence_t AARE_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_versionre_impl },
-  { BER_CLASS_CON, 1, 0, dissect_application_context_name },
-  { BER_CLASS_CON, 2, 0, dissect_result },
-  { BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_result_source_diagnostic },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AARE_apdu_U_sequence[] = {
+  { &hf_tcap_protocol_versionre, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_versionre },
+  { &hf_tcap_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_Applicationcontext },
+  { &hf_tcap_result         , BER_CLASS_CON, 2, 0, dissect_tcap_Associate_result },
+  { &hf_tcap_result_source_diagnostic, BER_CLASS_CON, 3, BER_FLAGS_NOTCHKTAG, dissect_tcap_Associate_source_diagnostic },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AARE_apdu_sequence, hf_index, ett_tcap_AARE_apdu);
+dissect_tcap_AARE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AARE_apdu_U_sequence, hf_index, ett_tcap_AARE_apdu_U);
 
   return offset;
 }
-static int dissect_dialogueResponse(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_AARE_apdu(FALSE, tvb, offset, actx, tree, hf_tcap_dialogueResponse);
+
+
+
+static int
+dissect_tcap_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 1, TRUE, dissect_tcap_AARE_apdu_U);
+
+  return offset;
 }
 
 
@@ -566,26 +553,30 @@ dissect_tcap_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
   return offset;
 }
-static int dissect_abort_source_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ABRT_source(TRUE, tvb, offset, actx, tree, hf_tcap_abort_source);
-}
 
 
-static const ber_old_sequence_t ABRT_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_abort_source_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ABRT_apdu_U_sequence[] = {
+  { &hf_tcap_abort_source   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_ABRT_source },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ABRT_apdu_sequence, hf_index, ett_tcap_ABRT_apdu);
+dissect_tcap_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ABRT_apdu_U_sequence, hf_index, ett_tcap_ABRT_apdu_U);
 
   return offset;
 }
-static int dissect_dialogueAbort(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ABRT_apdu(FALSE, tvb, offset, actx, tree, hf_tcap_dialogueAbort);
+
+
+
+static int
+dissect_tcap_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 4, TRUE, dissect_tcap_ABRT_apdu_U);
+
+  return offset;
 }
 
 
@@ -596,18 +587,18 @@ const value_string tcap_DialoguePDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t DialoguePDU_choice[] = {
-  {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_dialogueRequest },
-  {   1, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_dialogueResponse },
-  {   4, BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_dialogueAbort },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t DialoguePDU_choice[] = {
+  {   0, &hf_tcap_dialogueRequest, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_tcap_AARQ_apdu },
+  {   1, &hf_tcap_dialogueResponse, BER_CLASS_APP, 1, BER_FLAGS_NOOWNTAG, dissect_tcap_AARE_apdu },
+  {   4, &hf_tcap_dialogueAbort  , BER_CLASS_APP, 4, BER_FLAGS_NOOWNTAG, dissect_tcap_ABRT_apdu },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_tcap_DialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     DialoguePDU_choice, hf_index, ett_tcap_DialoguePDU,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 DialoguePDU_choice, hf_index, ett_tcap_DialoguePDU,
+                                 NULL);
 
   return offset;
 }
@@ -619,18 +610,6 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
-}
-static int dissect_oid(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_tcap_oid);
-}
-static int dissect_globalValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OBJECT_IDENTIFIER(FALSE, tvb, offset, actx, tree, hf_tcap_globalValue);
-}
-static int dissect_objectSecurityId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_tcap_objectSecurityId);
-}
-static int dissect_objectConfidentialityId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OBJECT_IDENTIFIER(TRUE, tvb, offset, actx, tree, hf_tcap_objectConfidentialityId);
 }
 
 
@@ -653,16 +632,23 @@ dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_dialog_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Dialog1(TRUE, tvb, offset, actx, tree, hf_tcap_dialog);
+
+
+static const ber_sequence_t ExternalPDU_U_sequence[] = {
+  { &hf_tcap_oid            , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tcap_OBJECT_IDENTIFIER },
+  { &hf_tcap_dialog         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_Dialog1 },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_tcap_ExternalPDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ExternalPDU_U_sequence, hf_index, ett_tcap_ExternalPDU_U);
+
+  return offset;
 }
 
 
-static const ber_old_sequence_t ExternalPDU_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_oid },
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_dialog_impl },
-  { 0, 0, 0, NULL }
-};
 
 static int
 dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -675,8 +661,8 @@ gint8 class;
 	/* Workaround for tagged fields */
 offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
 offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ExternalPDU_sequence, hf_index, ett_tcap_ExternalPDU);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_UNI, 8, FALSE, dissect_tcap_ExternalPDU_U);
 
 
 
@@ -695,9 +681,6 @@ dissect_tcap_UserInfoOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
   return offset;
-}
-static int dissect_useroid(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_UserInfoOID(FALSE, tvb, offset, actx, tree, hf_tcap_useroid);
 }
 
 
@@ -732,26 +715,30 @@ return comp_offset+len;
 
   return offset;
 }
-static int dissect_externuserinfo_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ExternUserInfo(TRUE, tvb, offset, actx, tree, hf_tcap_externuserinfo);
-}
 
 
-static const ber_old_sequence_t UserInformation_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_useroid },
-  { BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_externuserinfo_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UserInformation_U_sequence[] = {
+  { &hf_tcap_useroid        , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tcap_UserInfoOID },
+  { &hf_tcap_externuserinfo , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_ExternUserInfo },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       UserInformation_sequence, hf_index, ett_tcap_UserInformation);
+dissect_tcap_UserInformation_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UserInformation_U_sequence, hf_index, ett_tcap_UserInformation_U);
 
   return offset;
 }
-static int dissect_userInformation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_UserInformation(FALSE, tvb, offset, actx, tree, hf_tcap_userInformation);
+
+
+
+static int
+dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_UserInformation_U);
+
+  return offset;
 }
 
 
@@ -770,21 +757,28 @@ dissect_tcap_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
   return offset;
 }
-static int dissect_reasonrq_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Release_request_reason(TRUE, tvb, offset, actx, tree, hf_tcap_reasonrq);
-}
 
 
-static const ber_old_sequence_t RLRQ_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonrq_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RLRQ_apdu_U_sequence[] = {
+  { &hf_tcap_reasonrq       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_Release_request_reason },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
+dissect_tcap_RLRQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RLRQ_apdu_U_sequence, hf_index, ett_tcap_RLRQ_apdu_U);
+
+  return offset;
+}
+
+
+
+static int
 dissect_tcap_RLRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RLRQ_apdu_sequence, hf_index, ett_tcap_RLRQ_apdu);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 2, TRUE, dissect_tcap_RLRQ_apdu_U);
 
   return offset;
 }
@@ -805,21 +799,28 @@ dissect_tcap_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
   return offset;
 }
-static int dissect_reasonre_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Release_response_reason(TRUE, tvb, offset, actx, tree, hf_tcap_reasonre);
-}
 
 
-static const ber_old_sequence_t RLRE_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_reasonre_impl },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RLRE_apdu_U_sequence[] = {
+  { &hf_tcap_reasonre       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_Release_response_reason },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
+dissect_tcap_RLRE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RLRE_apdu_U_sequence, hf_index, ett_tcap_RLRE_apdu_U);
+
+  return offset;
+}
+
+
+
+static int
 dissect_tcap_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RLRE_apdu_sequence, hf_index, ett_tcap_RLRE_apdu);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 3, TRUE, dissect_tcap_RLRE_apdu_U);
 
   return offset;
 }
@@ -838,27 +839,31 @@ dissect_tcap_T_protocol_version3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
   return offset;
 }
-static int dissect_protocol_version3_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_protocol_version3(TRUE, tvb, offset, actx, tree, hf_tcap_protocol_version3);
-}
 
 
-static const ber_old_sequence_t AUDT_apdu_sequence[] = {
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_protocol_version3_impl },
-  { BER_CLASS_CON, 1, 0, dissect_application_context_name },
-  { BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_user_information_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AUDT_apdu_U_sequence[] = {
+  { &hf_tcap_protocol_version3, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_T_protocol_version3 },
+  { &hf_tcap_application_context_name, BER_CLASS_CON, 1, 0, dissect_tcap_Applicationcontext },
+  { &hf_tcap_user_information, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_User_information },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_AUDT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AUDT_apdu_sequence, hf_index, ett_tcap_AUDT_apdu);
+dissect_tcap_AUDT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AUDT_apdu_U_sequence, hf_index, ett_tcap_AUDT_apdu_U);
 
   return offset;
 }
-static int dissect_unidialoguePDU(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_AUDT_apdu(FALSE, tvb, offset, actx, tree, hf_tcap_unidialoguePDU);
+
+
+
+static int
+dissect_tcap_AUDT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 0, TRUE, dissect_tcap_AUDT_apdu_U);
+
+  return offset;
 }
 
 
@@ -867,16 +872,16 @@ const value_string tcap_UniDialoguePDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t UniDialoguePDU_choice[] = {
-  {   0, BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_unidialoguePDU },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t UniDialoguePDU_choice[] = {
+  {   0, &hf_tcap_unidialoguePDU , BER_CLASS_APP, 0, BER_FLAGS_NOOWNTAG, dissect_tcap_AUDT_apdu },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 int
 dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     UniDialoguePDU_choice, hf_index, ett_tcap_UniDialoguePDU,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 UniDialoguePDU_choice, hf_index, ett_tcap_UniDialoguePDU,
+                                 NULL);
 
   return offset;
 }
@@ -916,15 +921,10 @@ return offset+len;
 
 static int
 dissect_tcap_DialoguePortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_tcap_DialogueOC(implicit_tag, tvb, offset, actx, tree, hf_index);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 11, TRUE, dissect_tcap_DialogueOC);
 
   return offset;
-}
-static int dissect_dialoguePortion(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_DialoguePortion(FALSE, tvb, offset, actx, tree, hf_tcap_dialoguePortion);
-}
-static int dissect_u_abortCause(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_DialoguePortion(FALSE, tvb, offset, actx, tree, hf_tcap_u_abortCause);
 }
 
 
@@ -936,15 +936,6 @@ dissect_tcap_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   return offset;
 }
-static int dissect_invokeID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokeIdType(FALSE, tvb, offset, actx, tree, hf_tcap_invokeID);
-}
-static int dissect_linkedID_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokeIdType(TRUE, tvb, offset, actx, tree, hf_tcap_linkedID);
-}
-static int dissect_derivable(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokeIdType(FALSE, tvb, offset, actx, tree, hf_tcap_derivable);
-}
 
 
 
@@ -955,21 +946,6 @@ dissect_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   return offset;
 }
-static int dissect_localValue(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER(FALSE, tvb, offset, actx, tree, hf_tcap_localValue);
-}
-static int dissect_integerSecurityId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER(TRUE, tvb, offset, actx, tree, hf_tcap_integerSecurityId);
-}
-static int dissect_integerConfidentialityId_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER(TRUE, tvb, offset, actx, tree, hf_tcap_integerConfidentialityId);
-}
-static int dissect_private_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER(TRUE, tvb, offset, actx, tree, hf_tcap_private);
-}
-static int dissect_privateer_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER(TRUE, tvb, offset, actx, tree, hf_tcap_privateer);
-}
 
 
 static const value_string tcap_OPERATION_vals[] = {
@@ -978,22 +954,19 @@ static const value_string tcap_OPERATION_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t OPERATION_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t OPERATION_choice[] = {
+  {   0, &hf_tcap_localValue     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_INTEGER },
+  {   1, &hf_tcap_globalValue    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tcap_OBJECT_IDENTIFIER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     OPERATION_choice, hf_index, ett_tcap_OPERATION,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 OPERATION_choice, hf_index, ett_tcap_OPERATION,
+                                 NULL);
 
   return offset;
-}
-static int dissect_opCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OPERATION(FALSE, tvb, offset, actx, tree, hf_tcap_opCode);
 }
 
 
@@ -1024,67 +997,52 @@ if (!next_tvb)
 
   return offset;
 }
-static int dissect_parameter(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Parameter(FALSE, tvb, offset, actx, tree, hf_tcap_parameter);
-}
 
 
-static const ber_old_sequence_t Invoke_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_linkedID_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Invoke_sequence[] = {
+  { &hf_tcap_invokeID       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_InvokeIdType },
+  { &hf_tcap_linkedID       , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_InvokeIdType },
+  { &hf_tcap_opCode         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_OPERATION },
+  { &hf_tcap_parameter      , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_Parameter },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Invoke_sequence, hf_index, ett_tcap_Invoke);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Invoke_sequence, hf_index, ett_tcap_Invoke);
 
   return offset;
 }
-static int dissect_invoke_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Invoke(TRUE, tvb, offset, actx, tree, hf_tcap_invoke);
-}
 
 
-static const ber_old_sequence_t T_resultretres_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_opCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t T_resultretres_sequence[] = {
+  { &hf_tcap_opCode         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_OPERATION },
+  { &hf_tcap_parameter      , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_Parameter },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_resultretres(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       T_resultretres_sequence, hf_index, ett_tcap_T_resultretres);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   T_resultretres_sequence, hf_index, ett_tcap_T_resultretres);
 
   return offset;
 }
-static int dissect_resultretres(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_resultretres(FALSE, tvb, offset, actx, tree, hf_tcap_resultretres);
-}
 
 
-static const ber_old_sequence_t ReturnResult_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_resultretres },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnResult_sequence[] = {
+  { &hf_tcap_invokeID       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_InvokeIdType },
+  { &hf_tcap_resultretres   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_T_resultretres },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnResult_sequence, hf_index, ett_tcap_ReturnResult);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnResult_sequence, hf_index, ett_tcap_ReturnResult);
 
   return offset;
-}
-static int dissect_returnResultLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnResult(TRUE, tvb, offset, actx, tree, hf_tcap_returnResultLast);
-}
-static int dissect_returnResultNotLast_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnResult(TRUE, tvb, offset, actx, tree, hf_tcap_returnResultNotLast);
 }
 
 
@@ -1096,12 +1054,6 @@ dissect_tcap_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
   return offset;
 }
-static int dissect_national_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER_M32768_32767(TRUE, tvb, offset, actx, tree, hf_tcap_national);
-}
-static int dissect_nationaler_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_INTEGER_M32768_32767(TRUE, tvb, offset, actx, tree, hf_tcap_nationaler);
-}
 
 
 static const value_string tcap_ErrorCode_vals[] = {
@@ -1110,41 +1062,35 @@ static const value_string tcap_ErrorCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ErrorCode_choice[] = {
-  {  19, BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_nationaler_impl },
-  {  20, BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_privateer_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ErrorCode_choice[] = {
+  {  19, &hf_tcap_nationaler     , BER_CLASS_PRI, 19, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER_M32768_32767 },
+  {  20, &hf_tcap_privateer      , BER_CLASS_PRI, 20, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ErrorCode_choice, hf_index, ett_tcap_ErrorCode,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ErrorCode_choice, hf_index, ett_tcap_ErrorCode,
+                                 NULL);
 
   return offset;
 }
-static int dissect_errorCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ErrorCode(FALSE, tvb, offset, actx, tree, hf_tcap_errorCode);
-}
 
 
-static const ber_old_sequence_t ReturnError_sequence[] = {
-  { BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_invokeID },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_parameter },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnError_sequence[] = {
+  { &hf_tcap_invokeID       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_InvokeIdType },
+  { &hf_tcap_errorCode      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_ErrorCode },
+  { &hf_tcap_parameter      , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_Parameter },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnError_sequence, hf_index, ett_tcap_ReturnError);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnError_sequence, hf_index, ett_tcap_ReturnError);
 
   return offset;
-}
-static int dissect_returnError_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnError(TRUE, tvb, offset, actx, tree, hf_tcap_returnError);
 }
 
 
@@ -1155,9 +1101,6 @@ dissect_tcap_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
   return offset;
 }
-static int dissect_not_derivable(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_NULL(FALSE, tvb, offset, actx, tree, hf_tcap_not_derivable);
-}
 
 
 static const value_string tcap_T_invokeIDRej_vals[] = {
@@ -1166,22 +1109,19 @@ static const value_string tcap_T_invokeIDRej_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_invokeIDRej_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_derivable },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_not_derivable },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_invokeIDRej_choice[] = {
+  {   0, &hf_tcap_derivable      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_InvokeIdType },
+  {   1, &hf_tcap_not_derivable  , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_tcap_NULL },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_invokeIDRej(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_invokeIDRej_choice, hf_index, ett_tcap_T_invokeIDRej,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_invokeIDRej_choice, hf_index, ett_tcap_T_invokeIDRej,
+                                 NULL);
 
   return offset;
-}
-static int dissect_invokeIDRej(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_invokeIDRej(FALSE, tvb, offset, actx, tree, hf_tcap_invokeIDRej);
 }
 
 
@@ -1199,9 +1139,6 @@ dissect_tcap_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
                                   NULL);
 
   return offset;
-}
-static int dissect_generalProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_GeneralProblem(TRUE, tvb, offset, actx, tree, hf_tcap_generalProblem);
 }
 
 
@@ -1225,9 +1162,6 @@ dissect_tcap_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
   return offset;
 }
-static int dissect_invokeProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokeProblem(TRUE, tvb, offset, actx, tree, hf_tcap_invokeProblem);
-}
 
 
 static const value_string tcap_ReturnResultProblem_vals[] = {
@@ -1244,9 +1178,6 @@ dissect_tcap_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
                                   NULL);
 
   return offset;
-}
-static int dissect_returnResultProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnResultProblem(TRUE, tvb, offset, actx, tree, hf_tcap_returnResultProblem);
 }
 
 
@@ -1267,9 +1198,6 @@ dissect_tcap_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
   return offset;
 }
-static int dissect_returnErrorProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnErrorProblem(TRUE, tvb, offset, actx, tree, hf_tcap_returnErrorProblem);
-}
 
 
 static const value_string tcap_T_problem_vals[] = {
@@ -1280,42 +1208,36 @@ static const value_string tcap_T_problem_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_problem_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_generalProblem_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invokeProblem_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultProblem_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnErrorProblem_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_problem_choice[] = {
+  {   0, &hf_tcap_generalProblem , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_GeneralProblem },
+  {   1, &hf_tcap_invokeProblem  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tcap_InvokeProblem },
+  {   2, &hf_tcap_returnResultProblem, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnResultProblem },
+  {   3, &hf_tcap_returnErrorProblem, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnErrorProblem },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_problem_choice, hf_index, ett_tcap_T_problem,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_problem_choice, hf_index, ett_tcap_T_problem,
+                                 NULL);
 
   return offset;
 }
-static int dissect_problem(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_problem(FALSE, tvb, offset, actx, tree, hf_tcap_problem);
-}
 
 
-static const ber_old_sequence_t Reject_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_invokeIDRej },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_problem },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Reject_sequence[] = {
+  { &hf_tcap_invokeIDRej    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_T_invokeIDRej },
+  { &hf_tcap_problem        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_T_problem },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Reject_sequence, hf_index, ett_tcap_Reject);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Reject_sequence, hf_index, ett_tcap_Reject);
 
   return offset;
-}
-static int dissect_reject_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Reject(TRUE, tvb, offset, actx, tree, hf_tcap_reject);
 }
 
 
@@ -1328,13 +1250,13 @@ static const value_string tcap_Component_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Component_choice[] = {
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_invoke_impl },
-  {   2, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_returnResultLast_impl },
-  {   3, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_returnError_impl },
-  {   4, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_reject_impl },
-  {   7, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_returnResultNotLast_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Component_choice[] = {
+  {   1, &hf_tcap_invoke         , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tcap_Invoke },
+  {   2, &hf_tcap_returnResultLast, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnResult },
+  {   3, &hf_tcap_returnError    , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnError },
+  {   4, &hf_tcap_reject         , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_tcap_Reject },
+  {   7, &hf_tcap_returnResultNotLast, BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnResult },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -1355,9 +1277,9 @@ next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-o
 if (!next_tvb)
   return comp_offset;
 
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Component_choice, hf_index, ett_tcap_Component,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Component_choice, hf_index, ett_tcap_Component,
+                                 NULL);
 
 
  dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
@@ -1368,42 +1290,53 @@ if (!next_tvb)
 
   return offset;
 }
-static int dissect_ComponentPortion_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Component(FALSE, tvb, offset, actx, tree, hf_tcap_ComponentPortion_item);
-}
 
 
-static const ber_old_sequence_t ComponentPortion_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ComponentPortion_item },
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Component_sequence_of[1] = {
+  { &hf_tcap__untag_item    , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_Component },
 };
 
 static int
-dissect_tcap_ComponentPortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ComponentPortion_sequence_of, hf_index, ett_tcap_ComponentPortion);
+dissect_tcap_SEQUENCE_SIZE_1_MAX_OF_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_Component_sequence_of, hf_index, ett_tcap_SEQUENCE_SIZE_1_MAX_OF_Component);
 
   return offset;
 }
-static int dissect_components(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ComponentPortion(FALSE, tvb, offset, actx, tree, hf_tcap_components);
+
+
+
+static int
+dissect_tcap_ComponentPortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 12, TRUE, dissect_tcap_SEQUENCE_SIZE_1_MAX_OF_Component);
+
+  return offset;
 }
 
 
-static const ber_old_sequence_t Unidirectional_sequence[] = {
-  { BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortion },
-  { BER_CLASS_APP, 12, BER_FLAGS_NOOWNTAG, dissect_components },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Unidirectional_sequence[] = {
+  { &hf_tcap_dialoguePortion, BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortion },
+  { &hf_tcap_components     , BER_CLASS_APP, 12, BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentPortion },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Unidirectional(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Unidirectional_sequence, hf_index, ett_tcap_Unidirectional);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Unidirectional_sequence, hf_index, ett_tcap_Unidirectional);
 
   return offset;
 }
-static int dissect_unidirectional_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Unidirectional(TRUE, tvb, offset, actx, tree, hf_tcap_unidirectional);
+
+
+
+static int
+dissect_tcap_OCTET_STRING_SIZE_1_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
 }
 
 
@@ -1439,10 +1372,10 @@ if (parameter_tvb){
 	}
 
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "otid(");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
         		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
+        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
 }
@@ -1452,16 +1385,13 @@ if (parameter_tvb){
 
   return offset;
 }
-static int dissect_otid(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OrigTransactionID(FALSE, tvb, offset, actx, tree, hf_tcap_otid);
-}
 
 
-static const ber_old_sequence_t Begin_sequence[] = {
-  { BER_CLASS_APP, 8, BER_FLAGS_NOOWNTAG, dissect_otid },
-  { BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortion },
-  { BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_components },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Begin_sequence[] = {
+  { &hf_tcap_otid           , BER_CLASS_APP, 8, BER_FLAGS_NOOWNTAG, dissect_tcap_OrigTransactionID },
+  { &hf_tcap_dialoguePortion, BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortion },
+  { &hf_tcap_components     , BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentPortion },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -1477,15 +1407,12 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  put that info there should call col_set_fence() to protect it.
  */
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Begin_sequence, hf_index, ett_tcap_Begin);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Begin_sequence, hf_index, ett_tcap_Begin);
 
   return offset;
-}
-static int dissect_begin_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Begin(TRUE, tvb, offset, actx, tree, hf_tcap_begin);
 }
 
 
@@ -1521,26 +1448,23 @@ if (parameter_tvb){
 	}
 
 	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "dtid(");
+		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
           		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_fstr(actx->pinfo->cinfo, COL_INFO, ") ");
+        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
 	   }
 }
 
 
   return offset;
 }
-static int dissect_dtid(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_DestTransactionID(FALSE, tvb, offset, actx, tree, hf_tcap_dtid);
-}
 
 
-static const ber_old_sequence_t End_sequence[] = {
-  { BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_dtid },
-  { BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortion },
-  { BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_components },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t End_sequence[] = {
+  { &hf_tcap_dtid           , BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_tcap_DestTransactionID },
+  { &hf_tcap_dialoguePortion, BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortion },
+  { &hf_tcap_components     , BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentPortion },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -1549,24 +1473,21 @@ dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 gp_tcapsrt_info->ope=TC_END;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "End ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
 
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       End_sequence, hf_index, ett_tcap_End);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   End_sequence, hf_index, ett_tcap_End);
 
   return offset;
 }
-static int dissect_end_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_End(TRUE, tvb, offset, actx, tree, hf_tcap_end);
-}
 
 
-static const ber_old_sequence_t Continue_sequence[] = {
-  { BER_CLASS_APP, 8, BER_FLAGS_NOOWNTAG, dissect_otid },
-  { BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_dtid },
-  { BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortion },
-  { BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_components },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Continue_sequence[] = {
+  { &hf_tcap_otid           , BER_CLASS_APP, 8, BER_FLAGS_NOOWNTAG, dissect_tcap_OrigTransactionID },
+  { &hf_tcap_dtid           , BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_tcap_DestTransactionID },
+  { &hf_tcap_dialoguePortion, BER_CLASS_APP, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortion },
+  { &hf_tcap_components     , BER_CLASS_APP, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentPortion },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -1575,19 +1496,16 @@ dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 gp_tcapsrt_info->ope=TC_CONT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Continue_sequence, hf_index, ett_tcap_Continue);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Continue_sequence, hf_index, ett_tcap_Continue);
 
   return offset;
 }
-static int dissect_continue_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Continue(TRUE, tvb, offset, actx, tree, hf_tcap_continue);
-}
 
 
-static const value_string tcap_P_AbortCause_vals[] = {
+static const value_string tcap_P_AbortCause_U_vals[] = {
   {   0, "unrecognizedMessageType" },
   {   1, "unrecognizedTransactionID" },
   {   2, "badlyFormattedTransactionPortion" },
@@ -1598,14 +1516,21 @@ static const value_string tcap_P_AbortCause_vals[] = {
 
 
 static int
-dissect_tcap_P_AbortCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcap_P_AbortCause_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_p_abortCause(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_P_AbortCause(FALSE, tvb, offset, actx, tree, hf_tcap_p_abortCause);
+
+
+
+static int
+dissect_tcap_P_AbortCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_APP, 10, TRUE, dissect_tcap_P_AbortCause_U);
+
+  return offset;
 }
 
 
@@ -1615,29 +1540,26 @@ static const value_string tcap_Reason_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t Reason_choice[] = {
-  {  10, BER_CLASS_APP, 10, BER_FLAGS_NOOWNTAG, dissect_p_abortCause },
-  {  11, BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_u_abortCause },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t Reason_choice[] = {
+  {  10, &hf_tcap_p_abortCause   , BER_CLASS_APP, 10, BER_FLAGS_NOOWNTAG, dissect_tcap_P_AbortCause },
+  {  11, &hf_tcap_u_abortCause   , BER_CLASS_APP, 11, BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortion },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     Reason_choice, hf_index, ett_tcap_Reason,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Reason_choice, hf_index, ett_tcap_Reason,
+                                 NULL);
 
   return offset;
 }
-static int dissect_reason(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Reason(FALSE, tvb, offset, actx, tree, hf_tcap_reason);
-}
 
 
-static const ber_old_sequence_t Abort_sequence[] = {
-  { BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_dtid },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_reason },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Abort_sequence[] = {
+  { &hf_tcap_dtid           , BER_CLASS_APP, 9, BER_FLAGS_NOOWNTAG, dissect_tcap_DestTransactionID },
+  { &hf_tcap_reason         , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_Reason },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -1646,21 +1568,18 @@ dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 gp_tcapsrt_info->ope=TC_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Abort_sequence, hf_index, ett_tcap_Abort);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Abort_sequence, hf_index, ett_tcap_Abort);
 
   return offset;
-}
-static int dissect_abort_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Abort(TRUE, tvb, offset, actx, tree, hf_tcap_abort);
 }
 
 
 
 static int
-dissect_tcap_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcap_TransactionID_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 351 "tcap.cnf"
 
 tvbuff_t *next_tvb;
@@ -1693,46 +1612,55 @@ if(next_tvb) {
 
   return offset;
 }
-static int dissect_identifier(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_TransactionID(FALSE, tvb, offset, actx, tree, hf_tcap_identifier);
+
+
+
+static int
+dissect_tcap_TransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 7, TRUE, dissect_tcap_TransactionID_U);
+
+  return offset;
+}
+
+
+
+static int
+dissect_tcap_OCTET_STRING_SIZE_1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
 }
 
 
 
 static int
 dissect_tcap_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 26, TRUE, dissect_tcap_OCTET_STRING_SIZE_1);
 
   return offset;
-}
-static int dissect_version(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ProtocolVersion(FALSE, tvb, offset, actx, tree, hf_tcap_version);
 }
 
 
 
 static int
 dissect_tcap_IntegerApplicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 27, TRUE, dissect_tcap_INTEGER);
 
   return offset;
-}
-static int dissect_integerApplicationId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_IntegerApplicationContext(FALSE, tvb, offset, actx, tree, hf_tcap_integerApplicationId);
 }
 
 
 
 static int
 dissect_tcap_ObjectIDApplicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 28, TRUE, dissect_tcap_OBJECT_IDENTIFIER);
 
   return offset;
-}
-static int dissect_objectApplicationId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ObjectIDApplicationContext(FALSE, tvb, offset, actx, tree, hf_tcap_objectApplicationId);
 }
 
 
@@ -1742,22 +1670,19 @@ static const value_string tcap_T_applicationContext_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_applicationContext_choice[] = {
-  {  27, BER_CLASS_PRI, 27, BER_FLAGS_NOOWNTAG, dissect_integerApplicationId },
-  {  28, BER_CLASS_PRI, 28, BER_FLAGS_NOOWNTAG, dissect_objectApplicationId },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_applicationContext_choice[] = {
+  {  27, &hf_tcap_integerApplicationId, BER_CLASS_PRI, 27, BER_FLAGS_NOOWNTAG, dissect_tcap_IntegerApplicationContext },
+  {  28, &hf_tcap_objectApplicationId, BER_CLASS_PRI, 28, BER_FLAGS_NOOWNTAG, dissect_tcap_ObjectIDApplicationContext },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_applicationContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_applicationContext_choice, hf_index, ett_tcap_T_applicationContext,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_applicationContext_choice, hf_index, ett_tcap_T_applicationContext,
+                                 NULL);
 
   return offset;
-}
-static int dissect_applicationContext(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_applicationContext(FALSE, tvb, offset, actx, tree, hf_tcap_applicationContext);
 }
 
 
@@ -1767,22 +1692,19 @@ static const value_string tcap_T_securityContext_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_securityContext_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_integerSecurityId_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_objectSecurityId_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_securityContext_choice[] = {
+  {   0, &hf_tcap_integerSecurityId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER },
+  {   1, &hf_tcap_objectSecurityId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tcap_OBJECT_IDENTIFIER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_securityContext(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_securityContext_choice, hf_index, ett_tcap_T_securityContext,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_securityContext_choice, hf_index, ett_tcap_T_securityContext,
+                                 NULL);
 
   return offset;
-}
-static int dissect_securityContext(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_securityContext(FALSE, tvb, offset, actx, tree, hf_tcap_securityContext);
 }
 
 
@@ -1792,60 +1714,61 @@ static const value_string tcap_T_confidentialityId_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_confidentialityId_choice[] = {
-  {   0, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_integerConfidentialityId_impl },
-  {   1, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_objectConfidentialityId_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_confidentialityId_choice[] = {
+  {   0, &hf_tcap_integerConfidentialityId, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER },
+  {   1, &hf_tcap_objectConfidentialityId, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_tcap_OBJECT_IDENTIFIER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_confidentialityId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_confidentialityId_choice, hf_index, ett_tcap_T_confidentialityId,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_confidentialityId_choice, hf_index, ett_tcap_T_confidentialityId,
+                                 NULL);
 
   return offset;
 }
-static int dissect_confidentialityId(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_confidentialityId(FALSE, tvb, offset, actx, tree, hf_tcap_confidentialityId);
-}
 
 
-static const ber_old_sequence_t Confidentiality_sequence[] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_confidentialityId },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t Confidentiality_sequence[] = {
+  { &hf_tcap_confidentialityId, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_T_confidentialityId },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_Confidentiality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       Confidentiality_sequence, hf_index, ett_tcap_Confidentiality);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   Confidentiality_sequence, hf_index, ett_tcap_Confidentiality);
 
   return offset;
 }
-static int dissect_confidentiality_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_Confidentiality(TRUE, tvb, offset, actx, tree, hf_tcap_confidentiality);
-}
 
 
-static const ber_old_sequence_t DialoguePortionANSI_sequence[] = {
-  { BER_CLASS_PRI, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_version },
-  { BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_applicationContext },
-  { BER_CLASS_UNI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_userInformation },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_securityContext },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_confidentiality_impl },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t DialoguePortionANSI_U_sequence[] = {
+  { &hf_tcap_version        , BER_CLASS_PRI, 26, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ProtocolVersion },
+  { &hf_tcap_applicationContext, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_tcap_T_applicationContext },
+  { &hf_tcap_userInformation, BER_CLASS_UNI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_UserInformation },
+  { &hf_tcap_securityContext, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_T_securityContext },
+  { &hf_tcap_confidentiality, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_Confidentiality },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_tcap_DialoguePortionANSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       DialoguePortionANSI_sequence, hf_index, ett_tcap_DialoguePortionANSI);
+dissect_tcap_DialoguePortionANSI_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   DialoguePortionANSI_U_sequence, hf_index, ett_tcap_DialoguePortionANSI_U);
 
   return offset;
 }
-static int dissect_dialoguePortionansi(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_DialoguePortionANSI(FALSE, tvb, offset, actx, tree, hf_tcap_dialoguePortionansi);
+
+
+
+static int
+dissect_tcap_DialoguePortionANSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 25, TRUE, dissect_tcap_DialoguePortionANSI_U);
+
+  return offset;
 }
 
 
@@ -1857,9 +1780,6 @@ dissect_tcap_OCTET_STRING_SIZE_0_2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
   return offset;
 }
-static int dissect_componentIDs_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OCTET_STRING_SIZE_0_2(TRUE, tvb, offset, actx, tree, hf_tcap_componentIDs);
-}
 
 
 static const value_string tcap_OperationCode_vals[] = {
@@ -1868,22 +1788,19 @@ static const value_string tcap_OperationCode_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t OperationCode_choice[] = {
-  {  16, BER_CLASS_PRI, 16, BER_FLAGS_IMPLTAG, dissect_national_impl },
-  {  17, BER_CLASS_PRI, 17, BER_FLAGS_IMPLTAG, dissect_private_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t OperationCode_choice[] = {
+  {  16, &hf_tcap_national       , BER_CLASS_PRI, 16, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER_M32768_32767 },
+  {  17, &hf_tcap_private        , BER_CLASS_PRI, 17, BER_FLAGS_IMPLTAG, dissect_tcap_INTEGER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     OperationCode_choice, hf_index, ett_tcap_OperationCode,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 OperationCode_choice, hf_index, ett_tcap_OperationCode,
+                                 NULL);
 
   return offset;
-}
-static int dissect_operationCode(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_OperationCode(FALSE, tvb, offset, actx, tree, hf_tcap_operationCode);
 }
 
 
@@ -1904,193 +1821,97 @@ offset = dissect_ber_octet_string(TRUE, actx, tree, tvb, 0, hf_index,
 
   return offset;
 }
-static int dissect_ansiparams(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams);
-}
-static int dissect_ansiparams1(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams1);
-}
-static int dissect_ansiparams2(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams2);
-}
-static int dissect_ansiparams3(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams3);
-}
-static int dissect_ansiparams4(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams4);
-}
-static int dissect_ansiparams5(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams5);
-}
-static int dissect_ansiparams6(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams6);
-}
-static int dissect_ansiparams7(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams7);
-}
-static int dissect_ansiparams8(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams8);
-}
-static int dissect_ansiparams9(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams9);
-}
-static int dissect_ansiparams10(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams10);
-}
-static int dissect_ansiparams11(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams11);
-}
-static int dissect_ansiparams12(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams12);
-}
-static int dissect_ansiparams13(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams13);
-}
-static int dissect_ansiparams14(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams14);
-}
-static int dissect_ansiparams15(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams15);
-}
-static int dissect_ansiparams16(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams16);
-}
-static int dissect_ansiparams17(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams17);
-}
-static int dissect_ansiparams18(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams18);
-}
-static int dissect_ansiparams19(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams19);
-}
-static int dissect_ansiparams20(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams20);
-}
-static int dissect_ansiparams21(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIParameters(FALSE, tvb, offset, actx, tree, hf_tcap_ansiparams21);
-}
 
 
-static const ber_old_sequence_t ANSIparamch_sequence[] = {
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams1 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams2 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams3 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams4 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams5 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams6 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams7 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams8 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams9 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams10 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams11 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams12 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams13 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams14 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams15 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams16 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams17 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams18 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams19 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams20 },
-  { BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ansiparams21 },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ANSIparamch_sequence[] = {
+  { &hf_tcap_ansiparams     , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams1    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams2    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams3    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams4    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams5    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams6    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams7    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams8    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams9    , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams10   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams11   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams12   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams13   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams14   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams15   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams16   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams17   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams18   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams19   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams20   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { &hf_tcap_ansiparams21   , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIParameters },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ANSIparamch(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ANSIparamch_sequence, hf_index, ett_tcap_ANSIparamch);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ANSIparamch_sequence, hf_index, ett_tcap_ANSIparamch);
 
   return offset;
 }
-static int dissect_parameterinv(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIparamch(FALSE, tvb, offset, actx, tree, hf_tcap_parameterinv);
-}
-static int dissect_parameterrr(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIparamch(FALSE, tvb, offset, actx, tree, hf_tcap_parameterrr);
-}
-static int dissect_parameterre(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIparamch(FALSE, tvb, offset, actx, tree, hf_tcap_parameterre);
-}
-static int dissect_parameterrj(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ANSIparamch(FALSE, tvb, offset, actx, tree, hf_tcap_parameterrj);
-}
 
 
-static const ber_old_sequence_t InvokePDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_componentIDs_impl },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_operationCode },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_parameterinv },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t InvokePDU_sequence[] = {
+  { &hf_tcap_componentIDs   , BER_CLASS_PRI, 15, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_tcap_OCTET_STRING_SIZE_0_2 },
+  { &hf_tcap_operationCode  , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_OperationCode },
+  { &hf_tcap_parameterinv   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIparamch },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_InvokePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       InvokePDU_sequence, hf_index, ett_tcap_InvokePDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   InvokePDU_sequence, hf_index, ett_tcap_InvokePDU);
 
   return offset;
-}
-static int dissect_invokeLastansi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokePDU(TRUE, tvb, offset, actx, tree, hf_tcap_invokeLastansi);
-}
-static int dissect_invokeNotLastansi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_InvokePDU(TRUE, tvb, offset, actx, tree, hf_tcap_invokeNotLastansi);
 }
 
 
 
 static int
 dissect_tcap_ComponentID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 15, TRUE, dissect_tcap_OCTET_STRING_SIZE_1);
 
   return offset;
 }
-static int dissect_componentID(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ComponentID(FALSE, tvb, offset, actx, tree, hf_tcap_componentID);
-}
 
 
-static const ber_old_sequence_t ReturnResultPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_parameterrr },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnResultPDU_sequence[] = {
+  { &hf_tcap_componentID    , BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentID },
+  { &hf_tcap_parameterrr    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIparamch },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ReturnResultPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnResultPDU_sequence, hf_index, ett_tcap_ReturnResultPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnResultPDU_sequence, hf_index, ett_tcap_ReturnResultPDU);
 
   return offset;
 }
-static int dissect_returnResultLastansi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnResultPDU(TRUE, tvb, offset, actx, tree, hf_tcap_returnResultLastansi);
-}
-static int dissect_returnResultNotLastansi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnResultPDU(TRUE, tvb, offset, actx, tree, hf_tcap_returnResultNotLastansi);
-}
 
 
-static const ber_old_sequence_t ReturnErrorPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_errorCode },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_parameterre },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t ReturnErrorPDU_sequence[] = {
+  { &hf_tcap_componentID    , BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentID },
+  { &hf_tcap_errorCode      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_ErrorCode },
+  { &hf_tcap_parameterre    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIparamch },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ReturnErrorPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       ReturnErrorPDU_sequence, hf_index, ett_tcap_ReturnErrorPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ReturnErrorPDU_sequence, hf_index, ett_tcap_ReturnErrorPDU);
 
   return offset;
-}
-static int dissect_returnErroransi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ReturnErrorPDU(TRUE, tvb, offset, actx, tree, hf_tcap_returnErroransi);
 }
 
 
@@ -2109,27 +1930,21 @@ dissect_tcap_ProblemPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   return offset;
 }
-static int dissect_rejectProblem_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ProblemPDU(TRUE, tvb, offset, actx, tree, hf_tcap_rejectProblem);
-}
 
 
-static const ber_old_sequence_t RejectPDU_sequence[] = {
-  { BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_componentID },
-  { BER_CLASS_PRI, 21, BER_FLAGS_IMPLTAG, dissect_rejectProblem_impl },
-  { BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_parameterrj },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t RejectPDU_sequence[] = {
+  { &hf_tcap_componentID    , BER_CLASS_PRI, 15, BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentID },
+  { &hf_tcap_rejectProblem  , BER_CLASS_PRI, 21, BER_FLAGS_IMPLTAG, dissect_tcap_ProblemPDU },
+  { &hf_tcap_parameterrj    , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_tcap_ANSIparamch },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_RejectPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       RejectPDU_sequence, hf_index, ett_tcap_RejectPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   RejectPDU_sequence, hf_index, ett_tcap_RejectPDU);
 
   return offset;
-}
-static int dissect_rejectansi_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_RejectPDU(TRUE, tvb, offset, actx, tree, hf_tcap_rejectansi);
 }
 
 
@@ -2143,14 +1958,14 @@ static const value_string tcap_ComponentPDU_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ComponentPDU_choice[] = {
-  {   9, BER_CLASS_PRI, 9, BER_FLAGS_IMPLTAG, dissect_invokeLastansi_impl },
-  {  10, BER_CLASS_PRI, 10, BER_FLAGS_IMPLTAG, dissect_returnResultLastansi_impl },
-  {  11, BER_CLASS_PRI, 11, BER_FLAGS_IMPLTAG, dissect_returnErroransi_impl },
-  {  12, BER_CLASS_PRI, 12, BER_FLAGS_IMPLTAG, dissect_rejectansi_impl },
-  {  13, BER_CLASS_PRI, 13, BER_FLAGS_IMPLTAG, dissect_invokeNotLastansi_impl },
-  {  14, BER_CLASS_PRI, 14, BER_FLAGS_IMPLTAG, dissect_returnResultNotLastansi_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ComponentPDU_choice[] = {
+  {   9, &hf_tcap_invokeLastansi , BER_CLASS_PRI, 9, BER_FLAGS_IMPLTAG, dissect_tcap_InvokePDU },
+  {  10, &hf_tcap_returnResultLastansi, BER_CLASS_PRI, 10, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnResultPDU },
+  {  11, &hf_tcap_returnErroransi, BER_CLASS_PRI, 11, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnErrorPDU },
+  {  12, &hf_tcap_rejectansi     , BER_CLASS_PRI, 12, BER_FLAGS_IMPLTAG, dissect_tcap_RejectPDU },
+  {  13, &hf_tcap_invokeNotLastansi, BER_CLASS_PRI, 13, BER_FLAGS_IMPLTAG, dissect_tcap_InvokePDU },
+  {  14, &hf_tcap_returnResultNotLastansi, BER_CLASS_PRI, 14, BER_FLAGS_IMPLTAG, dissect_tcap_ReturnResultPDU },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -2171,9 +1986,9 @@ next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-o
 if (!next_tvb)
   return offset;
 
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ComponentPDU_choice, hf_index, ett_tcap_ComponentPDU,
+                                 NULL);
 
 
 dissect_tcap_ANSI_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
@@ -2182,57 +1997,58 @@ dissect_tcap_ANSI_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, h
 
   return offset;
 }
-static int dissect_ComponentSequence_item(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ComponentPDU(FALSE, tvb, offset, actx, tree, hf_tcap_ComponentSequence_item);
-}
 
 
-static const ber_old_sequence_t ComponentSequence_sequence_of[1] = {
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ComponentSequence_item },
+static const ber_sequence_t SEQUENCE_OF_ComponentPDU_sequence_of[1] = {
+  { &hf_tcap__untag_item_01 , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_ComponentPDU },
 };
 
 static int
-dissect_tcap_ComponentSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                          ComponentSequence_sequence_of, hf_index, ett_tcap_ComponentSequence);
+dissect_tcap_SEQUENCE_OF_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ComponentPDU_sequence_of, hf_index, ett_tcap_SEQUENCE_OF_ComponentPDU);
 
   return offset;
 }
-static int dissect_componentPortion(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_ComponentSequence(FALSE, tvb, offset, actx, tree, hf_tcap_componentPortion);
+
+
+
+static int
+dissect_tcap_ComponentSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 8, TRUE, dissect_tcap_SEQUENCE_OF_ComponentPDU);
+
+  return offset;
 }
 
 
-static const ber_old_sequence_t UniTransactionPDU_sequence[] = {
-  { BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_identifier },
-  { BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortionansi },
-  { BER_CLASS_PRI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_componentPortion },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t UniTransactionPDU_sequence[] = {
+  { &hf_tcap_identifier     , BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_tcap_TransactionID },
+  { &hf_tcap_dialoguePortionansi, BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortionANSI },
+  { &hf_tcap_componentPortion, BER_CLASS_PRI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentSequence },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_UniTransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       UniTransactionPDU_sequence, hf_index, ett_tcap_UniTransactionPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   UniTransactionPDU_sequence, hf_index, ett_tcap_UniTransactionPDU);
 
   return offset;
 }
-static int dissect_ansiunidirectional_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_UniTransactionPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiunidirectional);
-}
 
 
-static const ber_old_sequence_t TransactionPDU_sequence[] = {
-  { BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_identifier },
-  { BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortionansi },
-  { BER_CLASS_PRI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_componentPortion },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t TransactionPDU_sequence[] = {
+  { &hf_tcap_identifier     , BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_tcap_TransactionID },
+  { &hf_tcap_dialoguePortionansi, BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortionANSI },
+  { &hf_tcap_componentPortion, BER_CLASS_PRI, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_ComponentSequence },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_TransactionPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   TransactionPDU_sequence, hf_index, ett_tcap_TransactionPDU);
 
   return offset;
 }
@@ -2244,14 +2060,11 @@ dissect_tcap_T_ansiqueryWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 #line 327 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithPerm ");
 
   offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ansiqueryWithPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_ansiqueryWithPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithPerm);
 }
 
 
@@ -2261,14 +2074,11 @@ dissect_tcap_T_ansiqueryWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 #line 331 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "QueryWithOutPerm ");
 
   offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ansiqueryWithoutPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_ansiqueryWithoutPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiqueryWithoutPerm);
 }
 
 
@@ -2278,14 +2088,11 @@ dissect_tcap_T_ansiresponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 #line 335 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "Response ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "Response ");
 
   offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ansiresponse_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_ansiresponse(TRUE, tvb, offset, actx, tree, hf_tcap_ansiresponse);
 }
 
 
@@ -2295,14 +2102,11 @@ dissect_tcap_T_ansiconversationWithPerm(gboolean implicit_tag _U_, tvbuff_t *tvb
 #line 339 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithPerm ");
 
   offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
-}
-static int dissect_ansiconversationWithPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_ansiconversationWithPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithPerm);
 }
 
 
@@ -2312,19 +2116,16 @@ dissect_tcap_T_ansiconversationWithoutPerm(gboolean implicit_tag _U_, tvbuff_t *
 #line 343 "tcap.cnf"
 gp_tcapsrt_info->ope=TC_ANSI_ALL;
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-				col_add_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
+				col_set_str(actx->pinfo->cinfo, COL_INFO, "ConversationWithoutPerm ");
 
 
   offset = dissect_tcap_TransactionPDU(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
 }
-static int dissect_ansiconversationWithoutPerm_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_ansiconversationWithoutPerm(TRUE, tvb, offset, actx, tree, hf_tcap_ansiconversationWithoutPerm);
-}
 
 
-static const value_string tcap_P_Abort_cause_vals[] = {
+static const value_string tcap_P_Abort_cause_U_vals[] = {
   {   1, "unrecognizedPackageType" },
   {   2, "incorrestTransactionPortion" },
   {   3, "badlyStructuredTransactionPortion" },
@@ -2340,14 +2141,21 @@ static const value_string tcap_P_Abort_cause_vals[] = {
 
 
 static int
-dissect_tcap_P_Abort_cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcap_P_Abort_cause_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
   return offset;
 }
-static int dissect_abortCause(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_P_Abort_cause(FALSE, tvb, offset, actx, tree, hf_tcap_abortCause);
+
+
+
+static int
+dissect_tcap_P_Abort_cause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+                                      hf_index, BER_CLASS_PRI, 23, TRUE, dissect_tcap_P_Abort_cause_U);
+
+  return offset;
 }
 
 
@@ -2357,30 +2165,27 @@ static const value_string tcap_T_causeInformation_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t T_causeInformation_choice[] = {
-  {   0, BER_CLASS_PRI, 23, BER_FLAGS_NOOWNTAG, dissect_abortCause },
-  {   1, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_userInformation },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t T_causeInformation_choice[] = {
+  {   0, &hf_tcap_abortCause     , BER_CLASS_PRI, 23, BER_FLAGS_NOOWNTAG, dissect_tcap_P_Abort_cause },
+  {   1, &hf_tcap_userInformation, BER_CLASS_UNI, 8, BER_FLAGS_NOOWNTAG, dissect_tcap_UserInformation },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_T_causeInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     T_causeInformation_choice, hf_index, ett_tcap_T_causeInformation,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 T_causeInformation_choice, hf_index, ett_tcap_T_causeInformation,
+                                 NULL);
 
   return offset;
 }
-static int dissect_causeInformation(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_T_causeInformation(FALSE, tvb, offset, actx, tree, hf_tcap_causeInformation);
-}
 
 
-static const ber_old_sequence_t AbortPDU_sequence[] = {
-  { BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_identifier },
-  { BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dialoguePortionansi },
-  { BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_causeInformation },
-  { 0, 0, 0, NULL }
+static const ber_sequence_t AbortPDU_sequence[] = {
+  { &hf_tcap_identifier     , BER_CLASS_PRI, 7, BER_FLAGS_NOOWNTAG, dissect_tcap_TransactionID },
+  { &hf_tcap_dialoguePortionansi, BER_CLASS_PRI, 25, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_tcap_DialoguePortionANSI },
+  { &hf_tcap_causeInformation, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_tcap_T_causeInformation },
+  { NULL, 0, 0, 0, NULL }
 };
 
 static int
@@ -2389,15 +2194,12 @@ dissect_tcap_AbortPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 gp_tcapsrt_info->ope=TC_ANSI_ABORT;
 
 if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
-  offset = dissect_ber_old_sequence(implicit_tag, actx, tree, tvb, offset,
-                                       AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AbortPDU_sequence, hf_index, ett_tcap_AbortPDU);
 
   return offset;
-}
-static int dissect_ansiabort_impl(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {
-  return dissect_tcap_AbortPDU(TRUE, tvb, offset, actx, tree, hf_tcap_ansiabort);
 }
 
 
@@ -2417,27 +2219,27 @@ static const value_string tcap_TCMessage_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t TCMessage_choice[] = {
-  {   0, BER_CLASS_APP, 1, BER_FLAGS_IMPLTAG, dissect_unidirectional_impl },
-  {   1, BER_CLASS_APP, 2, BER_FLAGS_IMPLTAG, dissect_begin_impl },
-  {   2, BER_CLASS_APP, 4, BER_FLAGS_IMPLTAG, dissect_end_impl },
-  {   3, BER_CLASS_APP, 5, BER_FLAGS_IMPLTAG, dissect_continue_impl },
-  {   4, BER_CLASS_APP, 7, BER_FLAGS_IMPLTAG, dissect_abort_impl },
-  {   5, BER_CLASS_PRI, 1, BER_FLAGS_IMPLTAG, dissect_ansiunidirectional_impl },
-  {   6, BER_CLASS_PRI, 2, BER_FLAGS_IMPLTAG, dissect_ansiqueryWithPerm_impl },
-  {   7, BER_CLASS_PRI, 3, BER_FLAGS_IMPLTAG, dissect_ansiqueryWithoutPerm_impl },
-  {   8, BER_CLASS_PRI, 4, BER_FLAGS_IMPLTAG, dissect_ansiresponse_impl },
-  {   9, BER_CLASS_PRI, 5, BER_FLAGS_IMPLTAG, dissect_ansiconversationWithPerm_impl },
-  {  10, BER_CLASS_PRI, 6, BER_FLAGS_IMPLTAG, dissect_ansiconversationWithoutPerm_impl },
-  {  11, BER_CLASS_PRI, 22, BER_FLAGS_IMPLTAG, dissect_ansiabort_impl },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t TCMessage_choice[] = {
+  {   0, &hf_tcap_unidirectional , BER_CLASS_APP, 1, BER_FLAGS_IMPLTAG, dissect_tcap_Unidirectional },
+  {   1, &hf_tcap_begin          , BER_CLASS_APP, 2, BER_FLAGS_IMPLTAG, dissect_tcap_Begin },
+  {   2, &hf_tcap_end            , BER_CLASS_APP, 4, BER_FLAGS_IMPLTAG, dissect_tcap_End },
+  {   3, &hf_tcap_continue       , BER_CLASS_APP, 5, BER_FLAGS_IMPLTAG, dissect_tcap_Continue },
+  {   4, &hf_tcap_abort          , BER_CLASS_APP, 7, BER_FLAGS_IMPLTAG, dissect_tcap_Abort },
+  {   5, &hf_tcap_ansiunidirectional, BER_CLASS_PRI, 1, BER_FLAGS_IMPLTAG, dissect_tcap_UniTransactionPDU },
+  {   6, &hf_tcap_ansiqueryWithPerm, BER_CLASS_PRI, 2, BER_FLAGS_IMPLTAG, dissect_tcap_T_ansiqueryWithPerm },
+  {   7, &hf_tcap_ansiqueryWithoutPerm, BER_CLASS_PRI, 3, BER_FLAGS_IMPLTAG, dissect_tcap_T_ansiqueryWithoutPerm },
+  {   8, &hf_tcap_ansiresponse   , BER_CLASS_PRI, 4, BER_FLAGS_IMPLTAG, dissect_tcap_T_ansiresponse },
+  {   9, &hf_tcap_ansiconversationWithPerm, BER_CLASS_PRI, 5, BER_FLAGS_IMPLTAG, dissect_tcap_T_ansiconversationWithPerm },
+  {  10, &hf_tcap_ansiconversationWithoutPerm, BER_CLASS_PRI, 6, BER_FLAGS_IMPLTAG, dissect_tcap_T_ansiconversationWithoutPerm },
+  {  11, &hf_tcap_ansiabort      , BER_CLASS_PRI, 22, BER_FLAGS_IMPLTAG, dissect_tcap_AbortPDU },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     TCMessage_choice, hf_index, ett_tcap_TCMessage,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 TCMessage_choice, hf_index, ett_tcap_TCMessage,
+                                 NULL);
 
   return offset;
 }
@@ -2449,17 +2251,17 @@ static const value_string tcap_ERROR_vals[] = {
   { 0, NULL }
 };
 
-static const ber_old_choice_t ERROR_choice[] = {
-  {   0, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_localValue },
-  {   1, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_globalValue },
-  { 0, 0, 0, 0, NULL }
+static const ber_choice_t ERROR_choice[] = {
+  {   0, &hf_tcap_localValue     , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_tcap_INTEGER },
+  {   1, &hf_tcap_globalValue    , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_tcap_OBJECT_IDENTIFIER },
+  { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
 dissect_tcap_ERROR(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_old_choice(actx, tree, tvb, offset,
-                                     ERROR_choice, hf_index, ett_tcap_ERROR,
-                                     NULL);
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ERROR_choice, hf_index, ett_tcap_ERROR,
+                                 NULL);
 
   return offset;
 }
@@ -2812,7 +2614,7 @@ proto_register_tcap(void)
         "tcap.AbortPDU", HFILL }},
     { &hf_tcap_dialoguePortion,
       { "dialoguePortion", "tcap.dialoguePortion",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "tcap.DialoguePortion", HFILL }},
     { &hf_tcap_components,
       { "components", "tcap.components",
@@ -2832,14 +2634,14 @@ proto_register_tcap(void)
         "tcap.Reason", HFILL }},
     { &hf_tcap_p_abortCause,
       { "p-abortCause", "tcap.p_abortCause",
-        FT_UINT32, BASE_DEC, VALS(tcap_P_AbortCause_vals), 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "tcap.P_AbortCause", HFILL }},
     { &hf_tcap_u_abortCause,
       { "u-abortCause", "tcap.u_abortCause",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "tcap.DialoguePortion", HFILL }},
-    { &hf_tcap_ComponentPortion_item,
-      { "Item", "tcap.ComponentPortion_item",
+    { &hf_tcap__untag_item,
+      { "Item", "tcap._untag_item",
         FT_UINT32, BASE_DEC, VALS(tcap_Component_vals), 0,
         "tcap.Component", HFILL }},
     { &hf_tcap_invoke,
@@ -2944,7 +2746,7 @@ proto_register_tcap(void)
         "tcap.T_causeInformation", HFILL }},
     { &hf_tcap_abortCause,
       { "abortCause", "tcap.abortCause",
-        FT_INT32, BASE_DEC, VALS(tcap_P_Abort_cause_vals), 0,
+        FT_INT32, BASE_DEC, NULL, 0,
         "tcap.P_Abort_cause", HFILL }},
     { &hf_tcap_userInformation,
       { "userInformation", "tcap.userInformation",
@@ -2994,8 +2796,8 @@ proto_register_tcap(void)
       { "objectConfidentialityId", "tcap.objectConfidentialityId",
         FT_OID, BASE_NONE, NULL, 0,
         "tcap.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_tcap_ComponentSequence_item,
-      { "Item", "tcap.ComponentSequence_item",
+    { &hf_tcap__untag_item_01,
+      { "Item", "tcap._untag_item",
         FT_UINT32, BASE_DEC, VALS(tcap_ComponentPDU_vals), 0,
         "tcap.ComponentPDU", HFILL }},
     { &hf_tcap_invokeLastansi,
@@ -3186,18 +2988,18 @@ proto_register_tcap(void)
 /*--- Included file: packet-tcap-ettarr.c ---*/
 #line 1 "packet-tcap-ettarr.c"
     &ett_tcap_DialoguePDU,
-    &ett_tcap_ExternalPDU,
-    &ett_tcap_UserInformation,
-    &ett_tcap_AARQ_apdu,
+    &ett_tcap_ExternalPDU_U,
+    &ett_tcap_UserInformation_U,
+    &ett_tcap_AARQ_apdu_U,
     &ett_tcap_T_protocol_versionrq,
-    &ett_tcap_AARE_apdu,
+    &ett_tcap_AARE_apdu_U,
     &ett_tcap_T_protocol_versionre,
-    &ett_tcap_RLRQ_apdu,
-    &ett_tcap_RLRE_apdu,
-    &ett_tcap_ABRT_apdu,
+    &ett_tcap_RLRQ_apdu_U,
+    &ett_tcap_RLRE_apdu_U,
+    &ett_tcap_ABRT_apdu_U,
     &ett_tcap_Associate_source_diagnostic,
     &ett_tcap_UniDialoguePDU,
-    &ett_tcap_AUDT_apdu,
+    &ett_tcap_AUDT_apdu_U,
     &ett_tcap_T_protocol_version3,
     &ett_tcap_TCMessage,
     &ett_tcap_Unidirectional,
@@ -3206,7 +3008,7 @@ proto_register_tcap(void)
     &ett_tcap_Continue,
     &ett_tcap_Abort,
     &ett_tcap_Reason,
-    &ett_tcap_ComponentPortion,
+    &ett_tcap_SEQUENCE_SIZE_1_MAX_OF_Component,
     &ett_tcap_Component,
     &ett_tcap_Invoke,
     &ett_tcap_ReturnResult,
@@ -3221,12 +3023,12 @@ proto_register_tcap(void)
     &ett_tcap_TransactionPDU,
     &ett_tcap_AbortPDU,
     &ett_tcap_T_causeInformation,
-    &ett_tcap_DialoguePortionANSI,
+    &ett_tcap_DialoguePortionANSI_U,
     &ett_tcap_T_applicationContext,
     &ett_tcap_T_securityContext,
     &ett_tcap_Confidentiality,
     &ett_tcap_T_confidentialityId,
-    &ett_tcap_ComponentSequence,
+    &ett_tcap_SEQUENCE_OF_ComponentPDU,
     &ett_tcap_ComponentPDU,
     &ett_tcap_InvokePDU,
     &ett_tcap_ANSIparamch,

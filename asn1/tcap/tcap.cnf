@@ -347,7 +347,7 @@ if (check_col(actx->pinfo->cinfo, COL_INFO))
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY TransactionID VAL_PTR = &next_tvb
+#.FN_BODY TransactionID/_untag VAL_PTR = &next_tvb
 
 tvbuff_t *next_tvb;
 guint8 len;

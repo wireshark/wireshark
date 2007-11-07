@@ -23,15 +23,17 @@ EventParamValue
 ContextID
 
 #.TYPE_RENAME
-IndAudMediaDescriptor/streams			indAudMediaDescriptorStreams
-ActionRequest/contextId					contextId
-ActionReply/contextId					contextId
-TransactionRequest/transactionId		transactionId
-TransactionPending/transactionId		transactionId
-TransactionReply/transactionId			transactionId
+IndAudMediaDescriptor/streams			IndAudMediaDescriptorStreams
+ActionRequest/contextId					ContextId
+ActionReply/contextId					ContextId
+TransactionPending/transactionId		TransactionId
+TransactionReply/transactionId			TransactionId
 StatisticsParameter/statName			StatName
 StatisticsParameter/statValue			StatValue
 PropertyParm/propertyName				PropertyName
+EventParameter/extraInfo				EventPar_extraInfo
+PropertyParm/extraInfo					PropParm_extraInfo
+ContextRequest/iepscallind				Iepscallind_BOOL
 
 #.FIELD_RENAME
 IP4Address/address		iP4Address
@@ -74,7 +76,9 @@ NotifyReply/terminationID			terminationIDList
 ServiceChangeRequest/terminationID			terminationIDList
 ServiceChangeReply/terminationID			terminationIDList
 IndAudStatisticsDescriptor/statName		iAStatName
-
+EventParameter/extraInfo				eventPar_extraInfo
+PropertyParm/extraInfo					propParm_extraInfo
+ContextRequest/iepscallind				iepscallind_BOOL
 
 #.FN_HDR Message
     curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
