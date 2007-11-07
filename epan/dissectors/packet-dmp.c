@@ -843,7 +843,7 @@ static const gchar *msg_type_to_str (void)
   return val_to_str (dmp.msg_type, type_vals, "Unknown");
 }
 
-static const gchar *non_del_reason_str (guint8 value)
+static const gchar *non_del_reason_str (guint32 value)
 {
   if (value < 0x3D) {
     /* Standard values according to X.411 */
@@ -853,7 +853,7 @@ static const gchar *non_del_reason_str (guint8 value)
   }
 }
 
-static const gchar *non_del_diagn_str (guint8 value)
+static const gchar *non_del_diagn_str (guint32 value)
 {
   if (value < 0x7C) {
     /* Standard values according to X.411 */
@@ -863,13 +863,13 @@ static const gchar *non_del_diagn_str (guint8 value)
   }
 }
 
-static const gchar *nrn_reason_str (guint8 value)
+static const gchar *nrn_reason_str (guint32 value)
 {
   /* Standard values according to X.420 */
   return val_to_str (value, x420_NonReceiptReasonField_vals, "Reserved");
 }
 
-static const gchar *discard_reason_str (guint8 value)
+static const gchar *discard_reason_str (guint32 value)
 {
   if (value < 0xFE) {
     /* Standard values according to X.420 */
@@ -952,7 +952,7 @@ static gint32 dmp_dec_del_time (guint8 delivery_time)
 }
 
 /* Ref chapter 6.3.7.2.11 DTG */
-static gint32 dmp_dec_dtg (guint8 dtg)
+static gint32 dmp_dec_dtg (guint32 dtg)
 {
   gint32 value;
 
@@ -1695,7 +1695,9 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo _U_,
   }
 
   if (type == ASN1_BER) {
-    dissect_x411_ORName (FALSE, tvb, offset, &asn1_ctx, ext_tree,
+    tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, length);
+
+    dissect_x411_ORName (FALSE, next_tvb, 0, &asn1_ctx, ext_tree,
 			 hf_addr_ext_asn1_ber);
   } else if (type == ASN1_PER) {
     proto_tree_add_item (ext_tree, hf_addr_ext_asn1_per, tvb, offset,
@@ -2767,7 +2769,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo _U_,
 				     tvb, offset, 1, report,
 				     "Reason%s: %s (%d)",
 				     ((report & 0x3F) < 0x3D) ? " (X.411)":"",
-				     non_del_reason_str ((guint8)(report & 0x3F)),
+				     non_del_reason_str (report & 0x3F),
 				     report & 0x3F);
     field_tree = proto_item_add_subtree (tf, ett_report_reason);
     proto_tree_add_item (field_tree, hf_report_reason, tvb,
@@ -2792,7 +2794,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo _U_,
 				     tvb, offset, 1, report,
 				     "Diagnostic%s: %s (%d)",
 				     ((report & 0x7F) < 0x7C) ? " (X.411)":"",
-				     non_del_diagn_str ((guint8)(report & 0x7F)),
+				     non_del_diagn_str (report & 0x7F),
 				     report & 0x7F);
     field_tree = proto_item_add_subtree (tf, ett_report_diagn);
     proto_tree_add_item (field_tree, hf_report_diagn, tvb,
@@ -3248,7 +3250,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo _U_,
 			 1, FALSE);
     proto_tree_add_item (field_tree, hf_message_dtg_val, tvb, offset,
 			 1, FALSE);
-    secs = dmp_dec_dtg ((guint8)(dtg & 0x7F));
+    secs = dmp_dec_dtg (dtg & 0x7F);
     if (dtg == 0) {
       proto_item_append_text (tf, "Not present");
     } else if (secs == -1 || secs == -2) {
