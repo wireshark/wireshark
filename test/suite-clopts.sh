@@ -95,7 +95,7 @@ clopts_suite_valid_chars() {
 clopts_suite_interface_chars() {
 	for index in D L
 	do
-          if [ "$WS_SYSTEM" = "Windows" ] ; then
+          if [ "$SKIP_CAPTURE" -eq 0 ] ; then
 	    test_step_add "Valid TShark parameter -$index, exit status must be $EXIT_OK" "test_single_char_options $TSHARK $index $EXIT_OK"
           else
 	    test_step_add "Invalid permissions for TShark parameter -$index, exit status must be $EXIT_ERROR" "test_single_char_options $TSHARK $index $EXIT_ERROR"

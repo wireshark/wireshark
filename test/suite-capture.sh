@@ -29,11 +29,6 @@ EXIT_OK=0
 EXIT_COMMAND_LINE=1
 EXIT_ERROR=2
 
-case $WS_SYSTEM in
-	Windows|SunOS) SKIP_CAPTURE=0 ;;
-	*) SKIP_CAPTURE=1 ;;
-esac
-
 capture_test_output_print() {
 	wait
 	for f in "$@"; do
@@ -49,7 +44,7 @@ traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
 	{
-	date 
+	date
 	for (( x=20; x<=50; x++ )) # in effect: number the packets
 	do
 		# How does ping _not_ have a standard set of arguments?

@@ -31,11 +31,17 @@ else
 	WS_SYSTEM=`uname -s`
 fi
 
-# path to the Wireshark binaries, only used for the settings below
+
+# Path to the Wireshark binaries, only used for the settings below
+WS_BIN_PATH=..
+
+# Are we allowed to open interfaces or capture on this system?
+SKIP_CAPTURE=${SKIP_CAPTURE:-1}
+
+# Override the last two items if we're running Windows
 if [ "$WS_SYSTEM" = "Windows" ] ; then
 	WS_BIN_PATH=../wireshark-gtk2
-else
-	WS_BIN_PATH=..
+	SKIP_CAPTURE=0
 fi
 
 # Tweak the following to your liking.
@@ -64,11 +70,11 @@ TRAFFIC_CAPTURE_DURATION=60
 # if you need promiscuous mode, comment this line out
 TRAFFIC_CAPTURE_PROMISC=-p
 
-# only test capturing from a fifo if we're not on Windows 
-#  and we have a mkfifo. (Windows cygwin has a mkfifo but 
-#   Windows dumpcap & etc use Windows named pipes which 
-#   are different than the cygwin named pipes). 
-#  
+# only test capturing from a fifo if we're not on Windows
+#  and we have a mkfifo. (Windows cygwin has a mkfifo but
+#   Windows dumpcap & etc use Windows named pipes which
+#   are different than the cygwin named pipes).
+#
 if [ "$WS_SYSTEM" != "Windows" ] && which mkfifo &>/dev/null ; then
     TEST_FIFO=1
 fi
