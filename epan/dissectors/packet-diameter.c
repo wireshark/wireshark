@@ -402,8 +402,6 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	return len;
 }
 
-
-
 static const char* address_rfc_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	char* label = ep_alloc(ITEM_LABEL_LENGTH+1);
 	address_avp_t* t = a->type_data;
@@ -487,13 +485,13 @@ static const char* address_v16_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) 
 
 	switch (len) {
 		case 4:
-			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,0,4,FALSE);
 			break;
 		case 16:
-			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,2,16,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,0,16,FALSE);
 			break;
 		default:
-			pi = proto_tree_add_item(pt,t->hf_other,tvb,2,len,FALSE);
+			pi = proto_tree_add_item(pt,t->hf_other,tvb,0,len,FALSE);
 			pt = proto_item_add_subtree(pi,t->ett);
 			expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
 								   "Bad Address Length (%u)", len);
@@ -705,7 +703,7 @@ get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static gboolean
 check_diameter(tvbuff_t *tvb)
 {
-	if (!tvb_bytes_exist(tvb, 0, 1))
+	if (tvb_length(tvb) < 1)
 		return FALSE;   /* not enough bytes to check the version */
 
 	if (tvb_get_guint8(tvb, 0) != 1)
@@ -804,8 +802,35 @@ static diam_avp_t* build_address_avp(const avp_type_t* type _U_,
 
 	a->code = code;
 	a->vendor = vendor;
+/*
+It seems like the radius AVP:s 1-255 will use the defs from RADIUS in which case:
+http://www.ietf.org/rfc/rfc2865.txt?number=2865
+Address
+
+      The Address field is four octets.  The value 0xFFFFFFFF indicates
+      that the NAS Should allow the user to select an address (e.g.
+      Negotiated).  The value 0xFFFFFFFE indicates that the NAS should
+      select an address for the user (e.g. Assigned from a pool of
+      addresses kept by the NAS).  Other valid values indicate that the
+      NAS should use that value as the user's IP address.
+Where as in Diameter:
+RFC3588
+   Address
+      The Address format is derived from the OctetString AVP Base
+      Format.  It is a discriminated union, representing, for example a
+      32-bit (IPv4) [IPV4] or 128-bit (IPv6) [IPV6] address, most
+      significant octet first.  The first two octets of the Address
+      AVP represents the AddressType, which contains an Address Family
+      defined in [IANAADFAM].  The AddressType is used to discriminate
+      the content and format of the remaining octets.
+
+*/
 	a->dissector_v16 = address_v16_avp;
-	a->dissector_rfc = address_rfc_avp;
+	if (code<256){
+		a->dissector_rfc = address_v16_avp;
+	}else{
+		a->dissector_rfc = address_rfc_avp;
+	}
 	a->ett = -1;
 	a->hf_value = -1;
 	a->type_data = t;
