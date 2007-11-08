@@ -338,6 +338,9 @@ tcp_calculate_timestamps(packet_info *pinfo, struct tcp_analysis *tcpd,
 		p_add_proto_data(pinfo->fd, proto_tcp, tcppd);
 	}
 
+	if (!tcpd)
+		return;
+
 	nstime_delta(&tcppd->ts_del, &pinfo->fd->abs_ts, &tcpd->ts_prev);
 
 	tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
@@ -351,6 +354,9 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
 	proto_item	*item;
 	proto_tree	*tree;
 	nstime_t	ts;
+
+	if (!tcpd)
+		return;
 
 	item=proto_tree_add_text(parent_tree, tvb, 0, 0, "Timestamps");
 	PROTO_ITEM_SET_GENERATED(item);
@@ -508,7 +514,8 @@ verify_tcp_window_scaling(struct tcp_analysis *tcpd)
 static void
 pdu_store_window_scale_option(guint8 ws, struct tcp_analysis *tcpd)
 {
-	tcpd->fwd->win_scale=ws;
+	if (tcpd)
+		tcpd->fwd->win_scale=ws;
 }
 
 static void
@@ -529,6 +536,9 @@ tcp_get_relative_seq_ack(guint32 *seq, guint32 *ack, guint32 *win, struct tcp_an
 static void
 tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag, struct tcp_analysis *tcpd)
 {
+	if (!tcpd)
+		return;
+
 	tcpd->ta=se_tree_lookup32(tcpd->acked_table, frame);
 	if((!tcpd->ta) && createflag){
 		tcpd->ta=se_alloc(sizeof(struct tcp_acked));
@@ -1689,7 +1699,7 @@ again:
 	     * reassembled PDUs later down in dissect_tcp() when checking
 	     * for the FIN flag.
 	     */
-	    if(pinfo->desegment_len==DESEGMENT_UNTIL_FIN){
+	    if(tcpd && pinfo->desegment_len==DESEGMENT_UNTIL_FIN) {
 		tcpd->fwd->flags|=TCP_FLOW_REASSEMBLE_UNTIL_FIN;
 	    }
 	    /*
@@ -1704,7 +1714,7 @@ again:
 	     */
 	    deseg_seq = seq + (deseg_offset - offset);
 
-	    if( ((nxtseq - deseg_seq) <= 1024*1024)
+	    if(tcpd && ((nxtseq - deseg_seq) <= 1024*1024)
 	    &&  (!pinfo->fd->flags.visited) ){
 		if(pinfo->desegment_len==DESEGMENT_ONE_MORE_SEGMENT){
 			/* The subdissector asked to reassemble using the
@@ -2027,7 +2037,9 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     /* find(or create if needed) the conversation for this tcp session */
     tcpd=get_tcp_conversation_data(pinfo);
 
-    base_ack=tcpd->rev->base_seq;
+    if (tcpd) {
+      base_ack=tcpd->rev->base_seq;
+    }
   }
 
   tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
@@ -2400,7 +2412,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 	TRY {
 		if(is_tcp_segment){
 			/*qqq   see if it is an unaligned PDU */
-			if(tcp_analyze_seq && (!tcp_desegment)){
+			if(tcpd && tcp_analyze_seq && (!tcp_desegment)){
 				if(seq || nxtseq){
 					offset=scan_for_next_pdu(tvb, tcp_tree, pinfo, offset,
 						seq, nxtseq, tcpd->fwd->multisegment_pdus);
@@ -2423,7 +2435,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			if(is_tcp_segment){
 				/* if !visited, check want_pdu_tracking and
 				   store it in table */
-				if((!pinfo->fd->flags.visited) &&
+				if(tcpd && (!pinfo->fd->flags.visited) &&
 				    tcp_analyze_seq && pinfo->want_pdu_tracking){
 					if(seq || nxtseq){
 						pdu_store_sequencenumber_of_next_pdu(
@@ -2454,7 +2466,7 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 			 * if !visited, check want_pdu_tracking and store it
 			 * in table
 			 */
-			if((!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking){
+			if(tcpd && (!pinfo->fd->flags.visited) && tcp_analyze_seq && pinfo->want_pdu_tracking){
 				if(seq || nxtseq){
 					pdu_store_sequencenumber_of_next_pdu(pinfo,
         	                            seq,
@@ -2605,7 +2617,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * the base_seq, then do nothing so it will be marked as a retrans-
    * mission later.
    */
-  if( ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
+  if(tcpd && ((tcph->th_flags&(TH_SYN|TH_ACK))==TH_SYN) &&
       (tcpd->fwd->base_seq!=0) &&
       (tcph->th_seq!=tcpd->fwd->base_seq) ) {
     if (!(pinfo->fd->flags.visited))
@@ -2628,7 +2640,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     /* Fill the conversation timestamp columns */
-    if (check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
+    if (tcpd && check_col(pinfo->cinfo, COL_REL_CONV_TIME)) {
       nstime_delta(&ts, &pinfo->fd->abs_ts, &tcpd->ts_first);
       col_set_time(pinfo->cinfo, COL_REL_CONV_TIME, &ts, "tcp.time_relative");
     }
@@ -3070,8 +3082,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* A FIN packet might complete reassembly so we need to explicitly
    * check for this here.
    */
-  if( (tcph->th_flags & TH_FIN)
-  &&  (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ){
+  if(tcpd && (tcph->th_flags & TH_FIN)
+      && (tcpd->fwd->flags&TCP_FLOW_REASSEMBLE_UNTIL_FIN) ){
     struct tcp_multisegment_pdu *msp;
 
     /* find the most previous PDU starting before this sequence number */
