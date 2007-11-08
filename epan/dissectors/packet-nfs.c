@@ -945,20 +945,18 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	fsid_major = ( temp>>18 ) &  0x3fff; /* 14 bits */
 	fsid_minor = ( temp     ) & 0x3ffff; /* 18 bits */
 	if (tree) {
-		proto_item* fsid_item = NULL;
-		proto_tree* fsid_tree = NULL;
+		proto_item* fsid_item;
+		proto_tree* fsid_tree;
 
 		fsid_item = proto_tree_add_text(tree, tvb,
 			fsid_O, fsid_L,
 			"file system ID: %d,%d", fsid_major, fsid_minor);
-		if (fsid_item) {
-			fsid_tree = proto_item_add_subtree(fsid_item,
+		fsid_tree = proto_item_add_subtree(fsid_item,
 					ett_nfs_fh_fsid);
-			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
 				tvb, fsid_O,   2, fsid_major);
-			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
 				tvb, fsid_O+1, 3, fsid_minor);
-		}
 	}
 	nof = fsid_O + fsid_L;
 	}
@@ -1007,21 +1005,19 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	gen = tvb_get_ntohl(tvb, fn_data_gen_O);
 	fn_L = fn_len_L + fn_len;
 	if (tree) {
-		proto_item* fn_item = NULL;
-		proto_tree* fn_tree = NULL;
+		proto_item* fn_item;
+		proto_tree* fn_tree;
 
 		fn_item = proto_tree_add_uint(tree, hf_nfs_fh_fn, tvb,
 			fn_O, fn_L, inode);
-		if (fn_item) {
-			fn_tree = proto_item_add_subtree(fn_item,
+		fn_tree = proto_item_add_subtree(fn_item,
 					ett_nfs_fh_fn);
-			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_len,
+		proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_len,
 				tvb, fn_len_O, fn_len_L, fn_len);
-			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_inode,
+		proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_inode,
 				tvb, fn_data_inode_O, fn_data_inode_L, inode);
-			proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_generation,
+		proto_tree_add_uint(fn_tree, hf_nfs_fh_fn_generation,
 				tvb, fn_data_gen_O, fn_data_gen_L, gen);
-		}
 	}
 	nof = fn_O + fn_len_L + fn_len;
 	}
@@ -1054,21 +1050,19 @@ dissect_fhandle_data_SVR4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tre
 	xgen = tvb_get_ntohl(tvb, xfn_data_gen_O);
 	xfn_L = xfn_len_L + xfn_len;
 	if (tree) {
-		proto_item* xfn_item = NULL;
-		proto_tree* xfn_tree = NULL;
+		proto_item* xfn_item;
+		proto_tree* xfn_tree;
 
 		xfn_item = proto_tree_add_uint(tree, hf_nfs_fh_xfn, tvb,
 			xfn_O, xfn_L, xinode);
-		if (xfn_item) {
-			xfn_tree = proto_item_add_subtree(xfn_item,
+		xfn_tree = proto_item_add_subtree(xfn_item,
 					ett_nfs_fh_xfn);
-			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_len,
+		proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_len,
 				tvb, xfn_len_O, xfn_len_L, xfn_len);
-			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_inode,
+		proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_inode,
 				tvb, xfn_data_inode_O, xfn_data_inode_L, xinode);
-			proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_generation,
+		proto_tree_add_uint(xfn_tree, hf_nfs_fh_xfn_generation,
 				tvb, xfn_data_gen_O, xfn_data_gen_L, xgen);
-		}
 	}
 	}
 }
@@ -1119,32 +1113,28 @@ dissect_fhandle_data_LINUX_KNFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto
 		fsid_item = proto_tree_add_text(tree, tvb,
 			offset+12, 4,
 			"file system ID: %d,%d", fsid_major, fsid_minor);
-		if (fsid_item) {
-			fsid_tree = proto_item_add_subtree(fsid_item,
+		fsid_tree = proto_item_add_subtree(fsid_item,
 					ett_nfs_fh_fsid);
-			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
 				tvb, offset+13, 1, fsid_major);
-			proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+		proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
 				tvb, offset+12, 1, fsid_minor);
-		}
 		}
 
 		/* exported file system id (device) */
 		{
-		proto_item* xfsid_item = NULL;
-		proto_tree* xfsid_tree = NULL;
+		proto_item* xfsid_item;
+		proto_tree* xfsid_tree;
 
 		xfsid_item = proto_tree_add_text(tree, tvb,
 			offset+16, 4,
 			"exported file system ID: %d,%d", xfsid_major, xfsid_minor);
-		if (xfsid_item) {
-			xfsid_tree = proto_item_add_subtree(xfsid_item,
+		xfsid_tree = proto_item_add_subtree(xfsid_item,
 					ett_nfs_fh_xfsid);
-			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_major,
+		proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_major,
 				tvb, offset+17, 1, xfsid_major);
-			proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_minor,
+		proto_tree_add_uint(xfsid_tree, hf_nfs_fh_xfsid_minor,
 				tvb, offset+16, 1, xfsid_minor);
-		}
 		}
 
 		proto_tree_add_uint(tree, hf_nfs_fh_xfn_inode,
@@ -1178,26 +1168,22 @@ dissect_fhandle_data_LINUX_NFSD_LE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_
 
 	hashlen  = tvb_get_guint8(tvb, offset+4);
 	if (tree) {
-		proto_item* hash_item = NULL;
-		proto_tree* hash_tree = NULL;
+		proto_item* hash_item;
+		proto_tree* hash_tree;
 
 		hash_item = proto_tree_add_text(tree, tvb, offset+4,
 				hashlen + 1,
 				"hash path: %s",
 				tvb_bytes_to_str(tvb,offset+5,hashlen));
-		if (hash_item) {
-			hash_tree = proto_item_add_subtree(hash_item,
+		hash_tree = proto_item_add_subtree(hash_item,
 					ett_nfs_fh_hp);
-			if (hash_tree) {
-		 		proto_tree_add_uint(hash_tree,
+		proto_tree_add_uint(hash_tree,
 					hf_nfs_fh_hp_len, tvb, offset+4, 1,
 					hashlen);
-				proto_tree_add_text(hash_tree, tvb, offset+5,
+		proto_tree_add_text(hash_tree, tvb, offset+5,
 					hashlen,
 					"key: %s",
 					tvb_bytes_to_str(tvb,offset+5,hashlen));
-			}
-		}
 	}
 	}
 }
@@ -1648,17 +1634,16 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 					offset + 1, 3,
 					"encoding: %u %u %u",
 					auth_type, fsid_type, fileid_type);
-				if (encoding_item) {
+				{
 					proto_tree* encoding_tree = proto_item_add_subtree(encoding_item,
 						ett_nfs_fh_encoding);
-					if (encoding_tree) {
-						proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
+						
+					proto_tree_add_uint(encoding_tree, hf_nfs_fh_auth_type,
 							tvb, offset+1, 1, auth_type);
-						proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
+					proto_tree_add_uint(encoding_tree, hf_nfs_fh_fsid_type,
 							tvb, offset+2, 1, fsid_type);
-						proto_tree_add_uint(encoding_tree, hf_nfs_fh_fileid_type,
+					proto_tree_add_uint(encoding_tree, hf_nfs_fh_fileid_type,
 							tvb, offset+3, 1, fileid_type);
-					}
 				}
 			}
 			offset += 4;
@@ -1698,17 +1683,16 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 					offset+0, 8,
 					"file system ID: %u,%u (inode %u)",
 					fsid_major, fsid_minor, fsid_inode);
-				if (fsid_item) {
+				{
 					proto_tree* fsid_tree = proto_item_add_subtree(fsid_item,
 						ett_nfs_fh_fsid);
-					if (fsid_tree) {
-						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
+
+					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_major,
 							tvb, offset+0, 2, fsid_major);
-						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
+					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_minor,
 							tvb, offset+2, 2, fsid_minor);
-						proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_inode,
+					proto_tree_add_uint(fsid_tree, hf_nfs_fh_fsid_inode,
 							tvb, offset+4, 4, fsid_inode);
-					}
 				}
 			}
 			offset += 8;
@@ -1739,15 +1723,14 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 					offset+0, 8,
 					"file ID: %u (%u)",
 					inode, generation);
-				if (fileid_item) {
+				{
 					proto_tree* fileid_tree = proto_item_add_subtree(
 						fileid_item, ett_nfs_fh_fn);
-					if (fileid_tree) {
-						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+				
+					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
 						tvb, offset+0, 4, inode);
-						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
 						tvb, offset+4, 4, generation);
-					}
 				}
 			}
 
@@ -1767,17 +1750,16 @@ dissect_fhandle_data_LINUX_KNFSD_NEW(tvbuff_t* tvb, packet_info *pinfo _U_, prot
 					offset+0, 8,
 					"file ID: %u (%u)",
 					inode, generation);
-				if (fileid_item) {
+				 {
 					proto_tree* fileid_tree = proto_item_add_subtree(
 						fileid_item, ett_nfs_fh_fn);
-					if (fileid_tree) {
-						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
+
+					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_inode,
 						tvb, offset+0, 4, inode);
-						proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
+					proto_tree_add_uint(fileid_tree, hf_nfs_fh_fn_generation,
 						tvb, offset+4, 4, generation);
-						proto_tree_add_uint(fileid_tree, hf_nfs_fh_dirinode,
+					proto_tree_add_uint(fileid_tree, hf_nfs_fh_dirinode,
 						tvb, offset+8, 4, parent_inode);
-					}
 				}
 			}
 
@@ -2131,9 +2113,10 @@ dissect_ftype(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	};
 
 	ftype = tvb_get_ntohl(tvb, offset+0);
-	ftype_name = val_to_str(ftype, nfs2_ftype, "%u");
 
 	if (tree) {
+		ftype_name = val_to_str(ftype, nfs2_ftype, "%u");
+
 		proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: %s (%u)", name, ftype_name, ftype);
 	}
@@ -2154,8 +2137,8 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 		fitem = proto_tree_add_text(tree, tvb, offset, FHSIZE,
 			"%s", name);
-		if (fitem)
-			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
+
+		ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
 	}
 
 	/* are we snooping fh to filenames ?*/
@@ -2245,7 +2228,7 @@ dissect_timeval(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_time, int hf
 	nstime_t ts;
 
 	proto_item* time_item;
-	proto_tree* time_tree = NULL;
+	proto_tree* time_tree;
 
 	seconds = tvb_get_ntohl(tvb, offset+0);
 	useconds = tvb_get_ntohl(tvb, offset+4);
@@ -2255,11 +2238,9 @@ dissect_timeval(tvbuff_t *tvb, int offset, proto_tree *tree, int hf_time, int hf
 	if (tree) {
 		time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8,
 				&ts);
-		if (time_item)
-			time_tree = proto_item_add_subtree(time_item, ett_nfs_timeval);
-	}
 
-	if (time_tree) {
+		time_tree = proto_item_add_subtree(time_item, ett_nfs_timeval);
+
 		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
 					seconds);
 		proto_tree_add_uint(time_tree, hf_time_usec, tvb, offset+4, 4,
@@ -2285,19 +2266,17 @@ static int
 dissect_mode(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 {
 	guint32 mode;
-	proto_item* mode_item = NULL;
-	proto_tree* mode_tree = NULL;
+	proto_item* mode_item;
+	proto_tree* mode_tree;
 
 	mode = tvb_get_ntohl(tvb, offset+0);
 
 	if (tree) {
 		mode_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: 0%o", name, mode);
-		if (mode_item)
-			mode_tree = proto_item_add_subtree(mode_item, ett_nfs_mode);
-	}
 
-	if (mode_tree) {
+		mode_tree = proto_item_add_subtree(mode_item, ett_nfs_mode);
+
 		proto_tree_add_text(mode_tree, tvb, offset, 4, "%s",
 			decode_enumerated_bitfield(mode,  0160000, 16,
 			nfs2_mode_names, "%s"));
@@ -3200,8 +3179,8 @@ static int
 dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name, guint32 *mode)
 {
 	guint32 mode3;
-	proto_item* mode3_item = NULL;
-	proto_tree* mode3_tree = NULL;
+	proto_item* mode3_item;
+	proto_tree* mode3_tree;
 
 	mode3 = tvb_get_ntohl(tvb, offset+0);
 	if(mode){
@@ -3211,12 +3190,10 @@ dissect_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name, gui
 	if (tree) {
 		mode3_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: 0%o", name, mode3);
-		if (mode3_item)
-			mode3_tree = proto_item_add_subtree(mode3_item, ett_nfs_mode3);
-	}
 
-	/* RFC 1813, Page 23 */
-	if (mode3_tree) {
+		mode3_tree = proto_item_add_subtree(mode3_item, ett_nfs_mode3);
+
+		/* RFC 1813, Page 23 */
 		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,   0x800, 12, "Set user id on exec", "not SUID"));
 		proto_tree_add_text(mode3_tree, tvb, offset, 4, "%s",
@@ -3347,7 +3324,7 @@ dissect_specdata3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	guint32	specdata2;
 
 	proto_item* specdata3_item;
-	proto_tree* specdata3_tree = NULL;
+	proto_tree* specdata3_tree;
 
 	specdata1 = tvb_get_ntohl(tvb, offset+0);
 	specdata2 = tvb_get_ntohl(tvb, offset+4);
@@ -3355,12 +3332,10 @@ dissect_specdata3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	if (tree) {
 		specdata3_item = proto_tree_add_text(tree, tvb, offset, 8,
 			"%s: %u,%u", name, specdata1, specdata2);
-		if (specdata3_item)
-			specdata3_tree = proto_item_add_subtree(specdata3_item,
+		
+		specdata3_tree = proto_item_add_subtree(specdata3_item,
 					ett_nfs_specdata3);
-	}
 
-	if (specdata3_tree) {
 		proto_tree_add_text(specdata3_tree, tvb,offset+0,4,
 					"specdata1: %u", specdata1);
 		proto_tree_add_text(specdata3_tree, tvb,offset+4,4,
@@ -3391,8 +3366,8 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (tree) {
 		fitem = proto_tree_add_text(tree, tvb, offset, 4+fh3_len_full,
 			"%s", name);
-		if (fitem)
-			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
+		
+		ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
 	/* are we snooping fh to filenames ?*/
@@ -3452,7 +3427,7 @@ dissect_nfstime3(tvbuff_t *tvb, int offset,
 	nstime_t ts;
 
 	proto_item* time_item;
-	proto_tree* time_tree = NULL;
+	proto_tree* time_tree;
 
 	seconds = tvb_get_ntohl(tvb, offset+0);
 	nseconds = tvb_get_ntohl(tvb, offset+4);
@@ -3462,11 +3437,9 @@ dissect_nfstime3(tvbuff_t *tvb, int offset,
 	if (tree) {
 		time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8,
 				&ts);
-		if (time_item)
-			time_tree = proto_item_add_subtree(time_item, ett_nfs_nfstime3);
-	}
 
-	if (time_tree) {
+		time_tree = proto_item_add_subtree(time_item, ett_nfs_nfstime3);
+
 		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
 					seconds);
 		proto_tree_add_uint(time_tree, hf_time_nsec, tvb, offset+4, 4,
@@ -3566,14 +3539,12 @@ dissect_nfs_fattr3(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tr
 	}
 	/* populate the expansion lines with some nice useable info */
 	while( fattr3_tree && levels-- ){
-		if(fattr3_tree){
-			proto_item_append_text(fattr3_tree, "  %s mode:%04o uid:%d gid:%d",
+		proto_item_append_text(fattr3_tree, "  %s mode:%04o uid:%d gid:%d",
 				val_to_str(type, names_nfs_ftype3,"Unknown Type:0x%x"),
 				mode&0x0fff,
 				uid,
 				gid
 			);
-		}
 		fattr3_tree=fattr3_tree->parent;
 	}
 
@@ -3777,18 +3748,18 @@ dissect_set_mode3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		
 		set_mode3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_mode3_tree = proto_item_add_subtree(set_mode3_item,
 			ett_nfs_set_mode3);
-	}
 
-	if (set_mode3_tree)
 		proto_tree_add_text(set_mode3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
+	}
 
 	offset += 4;
 
@@ -3822,19 +3793,18 @@ dissect_set_uid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+
 		set_uid3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_uid3_tree = proto_item_add_subtree(set_uid3_item,
 			ett_nfs_set_uid3);
-	}
 
-	if (set_uid3_tree)
 		proto_tree_add_text(set_uid3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-
+	}
 	offset += 4;
 
 	switch (set_it) {
@@ -3867,18 +3837,16 @@ dissect_set_gid3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,value_follows,"Unknown");
 		set_gid3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_gid3_tree = proto_item_add_subtree(set_gid3_item,
 			ett_nfs_set_gid3);
-	}
-
-	if (set_gid3_tree)
 		proto_tree_add_text(set_gid3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
+	}
 
 	offset += 4;
 
@@ -3912,18 +3880,17 @@ dissect_set_size3(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,value_follows,"Unknown");
+		
 		set_size3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_size3_tree = proto_item_add_subtree(set_size3_item,
 			ett_nfs_set_size3);
-	}
-
-	if (set_size3_tree)
 		proto_tree_add_text(set_size3_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
+	}
 
 	offset += 4;
 
@@ -3971,19 +3938,18 @@ dissect_set_atime(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,time_how,"Unknown");
+		
 		set_atime_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_atime_tree = proto_item_add_subtree(set_atime_item,
 			ett_nfs_set_atime);
-	}
 
-	if (set_atime_tree)
 		proto_tree_add_text(set_atime_tree, tvb, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
-
+	}
 	offset += 4;
 
 	switch (set_it) {
@@ -4018,18 +3984,17 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, proto_tree *tree, const char* name)
 	const char* set_it_name;
 
 	set_it = tvb_get_ntohl(tvb, offset+0);
-	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
+		set_it_name = val_to_str(set_it,time_how,"Unknown");
+
 		set_mtime_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, set_it_name);
 		set_mtime_tree = proto_item_add_subtree(set_mtime_item,
 			ett_nfs_set_mtime);
-	}
-
-	if (set_mtime_tree)
 		proto_tree_add_text(set_mtime_tree, tvb, offset, 4,
 				"set_it: %s (%u)", set_it_name, set_it);
+	}
 
 	offset += 4;
 
@@ -4202,11 +4167,9 @@ dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
 	if (tree) {
 		access_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: 0x%02x", name, access);
-		if (access_item)
-			access_tree = proto_item_add_subtree(access_item, ett_nfs_access);
-	}
 
-	if (access_tree) {
+		access_tree = proto_item_add_subtree(access_item, ett_nfs_access);
+
 		proto_tree_add_text(access_tree, tvb, offset, 4, "%s READ",
 		decode_boolean_bitfield(access,  0x001, 6, "allow", "not allow"));
 		proto_tree_add_text(access_tree, tvb, offset, 4, "%s LOOKUP",
@@ -4283,18 +4246,19 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, proto_tree* tree, const char *nam
 	const char* check_name;
 
 	check = tvb_get_ntohl(tvb, offset+0);
-	check_name = val_to_str(check,value_follows,"Unknown");
 
 	if (tree) {
+		check_name = val_to_str(check,value_follows,"Unknown");
+
 		sattrguard3_item = proto_tree_add_text(tree, tvb, offset, -1,
 			"%s: %s", name, check_name);
 		sattrguard3_tree = proto_item_add_subtree(sattrguard3_item,
 			ett_nfs_sattrguard3);
-	}
 
-	if (sattrguard3_tree)
 		proto_tree_add_text(sattrguard3_tree, tvb, offset, 4,
 			"check: %s (%u)", check_name, check);
+	}
+
 
 	offset += 4;
 
@@ -5494,38 +5458,37 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				properties_item = proto_tree_add_uint(tree,
 				hf_nfs_fsinfo_properties,
 				tvb, offset+0, 4, properties);
-				if (properties_item)
-					properties_tree = proto_item_add_subtree(properties_item,
+
+				properties_tree = proto_item_add_subtree(properties_item,
 						ett_nfs_fsinfo_properties);
-				if (properties_tree) {
-					proto_tree_add_text(properties_tree, tvb,
+				
+				proto_tree_add_text(properties_tree, tvb,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_CANSETTIME,5,
 					"SETATTR can set time on server",
 					"SETATTR can't set time on server"));
 
-					proto_tree_add_text(properties_tree, tvb,
+				proto_tree_add_text(properties_tree, tvb,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_HOMOGENEOUS,5,
 					"PATHCONF is valid for all files",
 					"PATHCONF should be get for every single file"));
 
-					proto_tree_add_text(properties_tree, tvb,
+				proto_tree_add_text(properties_tree, tvb,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_SYMLINK,5,
 					"File System supports symbolic links",
 					"File System does not symbolic hard links"));
 
-					proto_tree_add_text(properties_tree, tvb,
+				proto_tree_add_text(properties_tree, tvb,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_LINK,5,
 					"File System supports hard links",
 					"File System does not support hard links"));
-				}
 			}
 			offset += 4;
 
@@ -5807,11 +5770,8 @@ dissect_nfs_lock_owner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	{
 		newftree = proto_item_add_subtree(fitem, ett_nfs_lock_owner4);
 
-		if (newftree)
-		{
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
-			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
-		}
+		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+		offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 	}
 
 	return offset;
@@ -5833,12 +5793,9 @@ dissect_nfs_pathname4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	{
 		newftree = proto_item_add_subtree(fitem, ett_nfs_pathname4);
 
-		if (newftree)
-		{
-			for (i = 0; i < comp_count; i++)
+		for (i = 0; i < comp_count; i++)
 				offset = dissect_nfs_utf8string(tvb, offset, newftree,
 					hf_nfs_component4, NULL);
-		}
 	}
 
 	return offset;
@@ -6048,8 +6005,7 @@ dissect_nfs_ace4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		ace_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"ACE");
 
-		if (ace_item)
-			ace_tree = proto_item_add_subtree(ace_item, ett_nfs_ace4);
+		ace_tree = proto_item_add_subtree(ace_item, ett_nfs_ace4);
 	}
 
 	if (ace_tree) {
@@ -6135,8 +6091,6 @@ dissect_nfs_fs_location4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fs_location4);
 
-	if (newftree == NULL) return offset;
-
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_server, NULL);
 
 	return offset;
@@ -6154,8 +6108,6 @@ dissect_nfs_fs_locations4(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	if (fitem == NULL) return offset;
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fs_locations4);
-
-	if (newftree == NULL) return offset;
 
 	offset = dissect_nfs_pathname4(tvb, offset, newftree);
 
@@ -6200,8 +6152,8 @@ dissect_nfs_fattr4_fh_expire_type(tvbuff_t *tvb, int offset, proto_tree *tree)
 	{
 		expire_type_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"fattr4_fh_expire_type: 0x%08x", expire_type);
-		if (expire_type_item)
-			expire_type_tree = proto_item_add_subtree(expire_type_item,
+		
+		expire_type_tree = proto_item_add_subtree(expire_type_item,
 				ett_nfs_fattr4_fh_expire_type);
 	}
 
@@ -6823,10 +6775,9 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset,
 	if (fitem) {
 		newftree = proto_item_add_subtree(fitem, ett_nfs_open_claim4);
 
-		if (newftree) {
 
-			switch(open_claim_type4)
-			{
+		switch(open_claim_type4)
+		{
 			case CLAIM_NULL:
 				offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
 				break;
@@ -6847,7 +6798,6 @@ dissect_nfs_open_claim4(tvbuff_t *tvb, int offset,
 
 			default:
 				break;
-			}
 		}
 	}
 
@@ -6907,17 +6857,14 @@ dissect_nfs_openflag4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (fitem) {
 		newftree = proto_item_add_subtree(fitem, ett_nfs_opentype4);
 
-		if (newftree) {
-
-			switch(opentype4)
-			{
+		switch(opentype4)
+		{
 			case OPEN4_CREATE:
 				offset = dissect_nfs_createhow4(tvb, offset, pinfo, newftree);
 				break;
 
 			default:
 				break;
-			}
 		}
 	}
 
@@ -7100,14 +7047,12 @@ dissect_nfs_change_info4(tvbuff_t *tvb, int offset,
 	if (fitem) {
 		newftree = proto_item_add_subtree(fitem, ett_nfs_change_info4);
 
-		if (newftree) {
-			offset = dissect_rpc_bool(tvb, newftree,
+		offset = dissect_rpc_bool(tvb, newftree,
 				hf_nfs_change_info4_atomic, offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
+		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_before,
 				offset);
-			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
+		offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_changeid4_after,
 				offset);
-		}
 	}
 
 	return offset;
@@ -7165,21 +7110,17 @@ dissect_nfs_open4_rflags(tvbuff_t *tvb, int offset,
 		rflags_item = proto_tree_add_text(tree, tvb, offset, 4,
 			"%s: 0x%08x", name, rflags);
 
-		if (rflags_item)
 		{
 			rflags_tree = proto_item_add_subtree(rflags_item,
 				ett_nfs_open4_result_flags);
 
-			if (rflags_tree)
-			{
-				proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
+			proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
 					decode_enumerated_bitfield(rflags, OPEN4_RESULT_MLOCK, 2,
 					names_open4_result_flags, "%s"));
 
-				proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
+			proto_tree_add_text(rflags_tree, tvb, offset, 4, "%s",
 					decode_enumerated_bitfield(rflags, OPEN4_RESULT_CONFIRM, 2,
 					names_open4_result_flags, "%s"));
-			}
 		}
 	}
 
@@ -7635,23 +7576,16 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree *callback_tree = NULL;
 
 				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "client");
-				if (fitem)
-				{
-					client_tree = proto_item_add_subtree(fitem, ett_nfs_client_id4);
+				
+				client_tree = proto_item_add_subtree(fitem, ett_nfs_client_id4);
 
-					if (client_tree)
-						offset = dissect_nfs_client_id4(tvb, offset, client_tree);
-				}
+				offset = dissect_nfs_client_id4(tvb, offset, client_tree);
 
 				fitem = proto_tree_add_text(newftree, tvb, offset, 0, "callback");
-				if (fitem)
-				{
-					callback_tree = proto_item_add_subtree(fitem,
+				callback_tree = proto_item_add_subtree(fitem,
 						ett_nfs_cb_client4);
 
-					if (callback_tree)
-						offset = dissect_nfs_cb_client4(tvb, offset, callback_tree);
-				}
+				offset = dissect_nfs_cb_client4(tvb, offset, callback_tree);
 
 				offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_callback_ident,
 					offset);
