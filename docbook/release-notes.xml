@@ -95,6 +95,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The NCP dissector could cause a crash.
+            <!-- Fixed in r23398 -->
+          </para>
+          <para>Versions affected: 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <!-- iSeries -->
+        <!-- rtsp? -->
       </itemizedlist>
 
     </para>
