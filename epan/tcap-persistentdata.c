@@ -332,9 +332,9 @@ append_tcaphash_begincall(struct tcaphash_begincall_t *prev_begincall,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_begincall = g_malloc0(sizeof(struct tcaphash_begincall_t));
-#else  
+#else
   p_new_tcaphash_begincall = se_alloc0(sizeof(struct tcaphash_begincall_t));
-#endif  
+#endif
   p_new_tcaphash_begincall->context=p_tcaphash_context;
   p_tcaphash_context->begincall=p_new_tcaphash_begincall;
   p_new_tcaphash_begincall->beginkey=prev_begincall->beginkey;
@@ -386,8 +386,8 @@ append_tcaphash_ansicall(struct tcaphash_ansicall_t *prev_ansicall,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_ansicall = g_malloc0(sizeof(struct tcaphash_ansicall_t));
-#else 
-  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t)); 
+#else
+  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t));
 #endif
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
@@ -423,9 +423,9 @@ append_tcaphash_contcall(struct tcaphash_contcall_t *prev_contcall,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_contcall = g_malloc0(sizeof(struct tcaphash_contcall_t));
-#else 
+#else
   p_new_tcaphash_contcall = se_alloc0(sizeof(struct tcaphash_contcall_t));
-#endif 
+#endif
   p_new_tcaphash_contcall->context=p_tcaphash_context;
   p_tcaphash_context->contcall=p_new_tcaphash_contcall;
   p_new_tcaphash_contcall->contkey=prev_contcall->contkey;
@@ -453,9 +453,9 @@ append_tcaphash_endcall(struct tcaphash_endcall_t *prev_endcall,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_endcall = g_malloc0(sizeof(struct tcaphash_endcall_t));
-#else 
-  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t)); 
-#endif 
+#else
+  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t));
+#endif
   p_new_tcaphash_endcall->context=p_tcaphash_context;
   p_tcaphash_context->endcall=p_new_tcaphash_endcall;
   p_new_tcaphash_endcall->endkey=prev_endcall->endkey;
@@ -626,16 +626,16 @@ new_tcaphash_context(struct tcaphash_context_key_t *p_tcaphash_context_key,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_context_key = g_malloc(sizeof(struct tcaphash_context_key_t));
-#else 
+#else
   p_new_tcaphash_context_key = se_alloc(sizeof(struct tcaphash_context_key_t));
-#endif 
+#endif
   p_new_tcaphash_context_key->session_id = p_tcaphash_context_key->session_id;
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_context = g_malloc0(sizeof(struct tcaphash_context_t));
 #else
-  p_new_tcaphash_context = se_alloc0(sizeof(struct tcaphash_context_t)); 
-#endif 
+  p_new_tcaphash_context = se_alloc0(sizeof(struct tcaphash_context_t));
+#endif
   p_new_tcaphash_context->key = p_new_tcaphash_context_key;
   p_new_tcaphash_context->session_id = p_tcaphash_context_key->session_id;
   p_new_tcaphash_context->first_frame = pinfo->fd->num;
@@ -664,17 +664,17 @@ new_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_begin_key = g_malloc(sizeof(struct tcaphash_begin_info_key_t));
 #else
-  p_new_tcaphash_begin_key = se_alloc(sizeof(struct tcaphash_begin_info_key_t)); 
-#endif 
+  p_new_tcaphash_begin_key = se_alloc(sizeof(struct tcaphash_begin_info_key_t));
+#endif
   p_new_tcaphash_begin_key->hashKey = p_tcaphash_begin_key->hashKey;
   p_new_tcaphash_begin_key->tid = p_tcaphash_begin_key->tid;
   p_new_tcaphash_begin_key->opc_hash = p_tcaphash_begin_key->opc_hash;
   p_new_tcaphash_begin_key->dpc_hash = p_tcaphash_begin_key->dpc_hash;
 
-#ifdef MEM_TCAPSRT 
+#ifdef MEM_TCAPSRT
   p_new_tcaphash_begincall = g_malloc0(sizeof(struct tcaphash_begincall_t));
-#else 
- p_new_tcaphash_begincall = se_alloc0(sizeof(struct tcaphash_begincall_t)); 
+#else
+ p_new_tcaphash_begincall = se_alloc0(sizeof(struct tcaphash_begincall_t));
 #endif
   p_new_tcaphash_begincall->beginkey=p_new_tcaphash_begin_key;
   p_new_tcaphash_begincall->context=p_tcaphash_context;
@@ -707,11 +707,11 @@ new_tcaphash_cont(struct tcaphash_cont_info_key_t *p_tcaphash_cont_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT 
+#ifdef MEM_TCAPSRT
   p_new_tcaphash_cont_key = g_malloc(sizeof(struct tcaphash_cont_info_key_t));
 #else
-  p_new_tcaphash_cont_key = se_alloc(sizeof(struct tcaphash_cont_info_key_t)); 
-#endif 
+  p_new_tcaphash_cont_key = se_alloc(sizeof(struct tcaphash_cont_info_key_t));
+#endif
   p_new_tcaphash_cont_key->hashKey = p_tcaphash_cont_key->hashKey;
   p_new_tcaphash_cont_key->src_tid = p_tcaphash_cont_key->src_tid;
   p_new_tcaphash_cont_key->dst_tid = p_tcaphash_cont_key->dst_tid;
@@ -753,21 +753,21 @@ new_tcaphash_end(struct tcaphash_end_info_key_t *p_tcaphash_end_key,
      with the tcap transaction Id as Main Key
      Once created, this entry will be updated later */
 
-#ifdef MEM_TCAPSRT 
+#ifdef MEM_TCAPSRT
   p_new_tcaphash_end_key = g_malloc(sizeof(struct tcaphash_end_info_key_t));
 #else
-  p_new_tcaphash_end_key = se_alloc(sizeof(struct tcaphash_end_info_key_t)); 
-#endif 
+  p_new_tcaphash_end_key = se_alloc(sizeof(struct tcaphash_end_info_key_t));
+#endif
   p_new_tcaphash_end_key->hashKey = p_tcaphash_end_key->hashKey;
   p_new_tcaphash_end_key->tid = p_tcaphash_end_key->tid;
   p_new_tcaphash_end_key->opc_hash = p_tcaphash_end_key->opc_hash;
   p_new_tcaphash_end_key->dpc_hash = p_tcaphash_end_key->dpc_hash;
 
-#ifdef MEM_TCAPSRT 
+#ifdef MEM_TCAPSRT
   p_new_tcaphash_endcall = g_malloc0(sizeof(struct tcaphash_endcall_t));
 #else
-  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t));  
-#endif 
+  p_new_tcaphash_endcall = se_alloc0(sizeof(struct tcaphash_endcall_t));
+#endif
   p_new_tcaphash_endcall->endkey=p_new_tcaphash_end_key;
   p_new_tcaphash_endcall->context=p_tcaphash_context;
   p_tcaphash_context->endcall=p_new_tcaphash_endcall;
@@ -799,8 +799,8 @@ new_tcaphash_ansi(struct tcaphash_ansi_info_key_t *p_tcaphash_ansi_key,
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_ansi_key = g_malloc(sizeof(struct tcaphash_ansi_info_key_t));
 #else
-  p_new_tcaphash_ansi_key = se_alloc(sizeof(struct tcaphash_ansi_info_key_t)); 
-#endif 
+  p_new_tcaphash_ansi_key = se_alloc(sizeof(struct tcaphash_ansi_info_key_t));
+#endif
   p_new_tcaphash_ansi_key->hashKey = p_tcaphash_ansi_key->hashKey;
   p_new_tcaphash_ansi_key->tid = p_tcaphash_ansi_key->tid;
   p_new_tcaphash_ansi_key->opc_hash = p_tcaphash_ansi_key->opc_hash;
@@ -808,9 +808,9 @@ new_tcaphash_ansi(struct tcaphash_ansi_info_key_t *p_tcaphash_ansi_key,
 
 #ifdef MEM_TCAPSRT
   p_new_tcaphash_ansicall = g_malloc0(sizeof(struct tcaphash_ansicall_t));
-#else 
-  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t));  
-#endif 
+#else
+  p_new_tcaphash_ansicall = se_alloc0(sizeof(struct tcaphash_ansicall_t));
+#endif
   p_new_tcaphash_ansicall->ansikey=p_new_tcaphash_ansi_key;
   p_new_tcaphash_ansicall->context=p_tcaphash_context;
   p_tcaphash_context->ansicall=p_new_tcaphash_ansicall;
@@ -965,14 +965,14 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		      struct tcapsrt_info_t *p_tcapsrt_info)
 {
   struct tcaphash_context_t *tcap_context=NULL;
-	
+
   /* if this packet isn't loaded because of a read filter, don't output anything */
   if(pinfo == NULL || pinfo->fd->num == 0) {
     return NULL;
   }
-  
+
   switch (p_tcapsrt_info->ope) {
-    
+
   case TC_BEGIN:
 #ifdef DEBUG_TCAPSRT
     dbg(1,"TC_BEGIN ");
@@ -1008,7 +1008,7 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     tcap_context=tcaphash_ansi_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
-    
+
   default:
 #ifdef DEBUG_TCAPSRT
     dbg(1,"Unknow %d ", p_tcapsrt_info->ope);
@@ -1045,8 +1045,16 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
-  tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-  tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  {
+    /* We have MTP3 PCs (so we can safely do this cast) */
+    tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  } else {
+    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+    tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+  }
   tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
   /* look up the request */
@@ -1056,10 +1064,10 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dbg(51,"PC %s %s ",address_to_str(&pinfo->src), address_to_str(&pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
 #endif
- 
+
   p_tcaphash_begincall = (struct tcaphash_begincall_t *)
   g_hash_table_lookup(tcaphash_begin, &tcaphash_begin_key);
-  
+
   if (p_tcaphash_begincall) {
     /* Walk through list of transaction with identical keys */
     do {
@@ -1138,7 +1146,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
 	    dbg(21,"Display_duplicate %d ",p_tcaphash_begincall->context->first_frame);
 #endif
-	    p_tcaphash_context=p_tcaphash_begincall->context; 
+	    p_tcaphash_context=p_tcaphash_begincall->context;
 	    if (gtcap_DisplaySRT && tree) {
 	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
@@ -1158,16 +1166,16 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       p_tcaphash_begincall = p_tcaphash_begincall->next_begincall;
     } while (p_tcaphash_begincall != NULL );
     /*
-     * End of analyze for the list be TC_BEGIN with same transaction ID 
+     * End of analyze for the list be TC_BEGIN with same transaction ID
      */
   } else { /* p_tcaphash_begincall has not been found */
-    /* 
-     * Create a new TCAP context 
+    /*
+     * Create a new TCAP context
      */
 #ifdef DEBUG_TCAPSRT
     dbg(10,"New key %lx ",tcaphash_begin_key.hashKey);
 #endif
-    
+
     tcaphash_context_key.session_id = tcapsrt_global_SessionId++;
     p_tcaphash_context = new_tcaphash_context(&tcaphash_context_key, pinfo);
     p_tcaphash_begincall = new_tcaphash_begin(&tcaphash_begin_key, p_tcaphash_context);
@@ -1180,7 +1188,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   /* display tcap session, if available */
-  if ( gtcap_DisplaySRT && tree && 
+  if ( gtcap_DisplaySRT && tree &&
        p_tcaphash_context &&
        p_tcaphash_context->session_id) {
     stat_item = proto_tree_add_text(tree, tvb, 0, 0, "Stat");
@@ -1206,13 +1214,13 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-/* 
-* Try to find a TCAP session according to the source and destination 
+/*
+* Try to find a TCAP session according to the source and destination
 * Identifier given in the TC_CONT
 * If nothing is found, it is probably a session in opening state, so try to find
 * a tcap session registered with a TC_BEGIN "key", matching the destination Id of the TC_CONT
 * Then associate the TC_CONT "key" to the TCAP context, and create a TC_END "key"
-* and display the available info for the TCAP context 
+* and display the available info for the TCAP context
 */
 static struct tcaphash_context_t *
 tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1236,8 +1244,16 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* look only for matching request, if matching conversation is available. */
   tcaphash_cont_key.src_tid = p_tcapsrt_info->src_tid;
   tcaphash_cont_key.dst_tid = p_tcapsrt_info->dst_tid;
-  tcaphash_cont_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-  tcaphash_cont_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  {
+    /* We have MTP3 PCs (so we can safely do this cast) */
+    tcaphash_cont_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_cont_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  } else {
+    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    tcaphash_cont_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+    tcaphash_cont_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+  }
   tcaphash_cont_key.hashKey=tcaphash_cont_calchash(&tcaphash_cont_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1257,8 +1273,16 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
     /* Find the TCAP transaction according to the TC_BEGIN */
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    tcaphash_begin_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-    tcaphash_begin_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    {
+      /* We have MTP3 PCs (so we can safely do this cast) */
+      tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+      tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    } else {
+      /* Don't have MTP3 PCs (maybe we're over SUA?) */
+      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+    }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1283,8 +1307,16 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 p_tcaphash_begincall->context);
 
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
-      tcaphash_end_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-      tcaphash_end_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+      if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+      {
+	/* We have MTP3 PCs (so we can safely do this cast) */
+	tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+	tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+      } else {
+	/* Don't have MTP3 PCs (maybe we're over SUA?) */
+	tcaphash_end_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+	tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+      }
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1303,26 +1335,26 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* display tcap session, if available */
   if (gtcap_DisplaySRT && tree &&
       p_tcaphash_context &&
-      p_tcaphash_context->session_id) {	
+      p_tcaphash_context->session_id) {
     stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
     PROTO_ITEM_SET_GENERATED(stat_item);
     stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
     pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
     PROTO_ITEM_SET_GENERATED(pi);
   }
-  
+
   return p_tcaphash_context;
 }
 
-/* 
+/*
 * Try to find a TCAP session according to the destination Identifier given in the TC_END/TC_ABORT
-* If nothing is found, 
-* - either it is a session in opening state, 
-* - or the session is closed/aborted by the remote, ( so we switch the src and dst tid )  
-* so try to find a tcap session registered with a TC_BEGIN "key", 
+* If nothing is found,
+* - either it is a session in opening state,
+* - or the session is closed/aborted by the remote, ( so we switch the src and dst tid )
+* so try to find a tcap session registered with a TC_BEGIN "key",
 * matching the destination Id of the TC_END
 * Then associate the TC_CONT "key" to the TCAP context
-* and display the available info for the TCAP context 
+* and display the available info for the TCAP context
 */
 
 static struct tcaphash_context_t *
@@ -1346,8 +1378,16 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
   /* look only for matching request, if matching conversation is available. */
   tcaphash_end_key.tid = p_tcapsrt_info->dst_tid;
-  tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-  tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  {
+    /* We have MTP3 PCs (so we can safely do this cast) */
+    tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  } else {
+    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    tcaphash_end_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+    tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+  }
   tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1362,8 +1402,16 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dbg(12,"EnotFound ");
 #endif
     tcaphash_begin_key.tid = p_tcapsrt_info->dst_tid;
-    tcaphash_begin_key.opc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-    tcaphash_begin_key.dpc_hash=mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+    {
+      /* We have MTP3 PCs (so we can safely do this cast) */
+      tcaphash_begin_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+      tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+    } else {
+      /* Don't have MTP3 PCs (maybe we're over SUA?) */
+      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+    }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
@@ -1375,7 +1423,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(!p_tcaphash_begincall) {
 #ifdef DEBUG_TCAPSRT
       dbg(12,"BnotFound ");
-#endif  
+#endif
     }
   }
   if (p_tcaphash_endcall) {
@@ -1385,9 +1433,9 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Use the TC_BEGIN Source reference */
     p_tcaphash_context=p_tcaphash_begincall->context;
   }
-  
+
   if (p_tcaphash_context) {
-    
+
 #ifdef DEBUG_TCAPSRT
     dbg(12,"Found, req=%d ",p_tcaphash_context->first_frame);
 #endif
@@ -1395,7 +1443,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
       PROTO_ITEM_SET_GENERATED(stat_item);
       stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
-      
+
       pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
       PROTO_ITEM_SET_GENERATED(pi);
     }
@@ -1423,7 +1471,7 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } else {/* context present */
 #ifdef DEBUG_TCAPSRT
     dbg(12,"Context notFound ");
-#endif 
+#endif
   }
   return p_tcaphash_context;
 }
@@ -1453,8 +1501,16 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* prepare the key data */
   tcaphash_ansi_key.tid = p_tcapsrt_info->src_tid;
-  tcaphash_ansi_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-  tcaphash_ansi_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
+  {
+    /* We have MTP3 PCs (so we can safely do this cast) */
+    tcaphash_ansi_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+    tcaphash_ansi_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+  } else {
+    /* Don't have MTP3 PCs (maybe we're over SUA?) */
+    tcaphash_ansi_key.opc_hash = g_str_hash(address_to_str(&pinfo->src));
+    tcaphash_ansi_key.dpc_hash = g_str_hash(address_to_str(&pinfo->dst));
+  }
   tcaphash_ansi_key.hashKey=tcaphash_ansi_calchash(&tcaphash_ansi_key);
 
   /* look up the request */
@@ -1475,7 +1531,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* We have seen this request before -> do nothing */
 #ifdef DEBUG_TCAPSRT
 	dbg(22,"Request already seen ");
-#endif 
+#endif
 	isResponse=FALSE;
 	p_tcaphash_context=p_tcaphash_ansicall->context;
 	break;
@@ -1486,13 +1542,13 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* We have seen this response before -> do nothing */
 #ifdef DEBUG_TCAPSRT
 	dbg(22,"Response already seen ");
-#endif 
+#endif
 	isResponse=TRUE;
 	p_tcaphash_context=p_tcaphash_ansicall->context;
 	break;
       }
 
-      /* Check for the first Request without Response 
+      /* Check for the first Request without Response
        received before this frame */
       if ( pinfo->fd->num > p_tcaphash_ansicall->context->first_frame &&
 	   p_tcaphash_ansicall->context->last_frame==0 ) {
@@ -1500,9 +1556,9 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 #ifdef DEBUG_TCAPSRT
 	dbg(12,"Update key %lx ",tcaphash_ansi_key.hashKey);
-#endif  
+#endif
 	p_tcaphash_ansicall->context->last_frame = pinfo->fd->num;
-	p_tcaphash_ansicall->context->responded = TRUE; 
+	p_tcaphash_ansicall->context->responded = TRUE;
 	p_tcaphash_ansicall->context->closed = TRUE;
 	p_tcaphash_context=p_tcaphash_ansicall->context;
 	isResponse=TRUE;
@@ -1511,10 +1567,10 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
 	  PROTO_ITEM_SET_GENERATED(stat_item);
 	  stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
-	  
+
 	  pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	  PROTO_ITEM_SET_GENERATED(pi);
-	  
+
 #ifdef DEBUG_TCAPSRT
 	  dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
@@ -1526,7 +1582,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  PROTO_ITEM_SET_GENERATED(pi);
 	  /* Calculate Service Response Time */
 	  nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
-	  
+
 	  /* display Service Response Time and make it filterable */
 	  pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
 	  PROTO_ITEM_SET_GENERATED(pi);
@@ -1604,10 +1660,10 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      stat_item = proto_tree_add_text(tree, tvb, 0, -1, "Stat");
 	      PROTO_ITEM_SET_GENERATED(stat_item);
 	      stat_tree = proto_item_add_subtree(stat_item, ett_tcap_stat);
-	      
+
 	      pi = proto_tree_add_uint(stat_tree, hf_tcapsrt_SessionId, tvb, 0,0, p_tcaphash_context->session_id);
 	      PROTO_ITEM_SET_GENERATED(pi);
-	      
+
 #ifdef DEBUG_TCAPSRT
 	      dbg(20,"Display framereqlink %d ",p_tcaphash_context->first_frame);
 #endif
@@ -1619,7 +1675,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	      PROTO_ITEM_SET_GENERATED(pi);
 	      /* Calculate Service Response Time */
 	      nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
-	      
+
 	      /* display Service Response Time and make it filterable */
 	      pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
 	      PROTO_ITEM_SET_GENERATED(pi);
@@ -1687,7 +1743,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	PROTO_ITEM_SET_GENERATED(pi);
 	/* Calculate Service Response Time */
 	nstime_delta(&delta, &pinfo->fd->abs_ts, &p_tcaphash_context->begin_time);
-	
+
 	/* display Service Response Time and make it filterable */
 	pi = proto_tree_add_time(stat_tree, hf_tcapsrt_SessionTime, tvb, 0, 0, &delta);
 	PROTO_ITEM_SET_GENERATED(pi);
@@ -1747,7 +1803,7 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
 	  g_hash_table_remove(tcaphash_end, p_tcaphash_context->endcall->endkey);
 #ifdef MEM_TCAPSRT
 	  g_free(p_tcaphash_context->endcall);
-#endif 
+#endif
 	} else {
 	  /* cannot remove the father */
 #ifdef DEBUG_TCAPSRT
@@ -1815,7 +1871,7 @@ tcapsrt_close(struct tcaphash_context_t *p_tcaphash_context,
 	    = p_tcaphash_context->begincall->next_begincall;
 	  p_tcaphash_context->begincall->next_begincall->previous_begincall
 	    = p_tcaphash_context->begincall->previous_begincall;
-	  g_hash_table_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey); 
+	  g_hash_table_remove(tcaphash_begin, p_tcaphash_context->begincall->beginkey);
 #ifdef MEM_TCAPSRT
 	  g_free(p_tcaphash_context->begincall);
 #endif
