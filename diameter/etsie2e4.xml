@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- $Id$ -->
-
+<!-- ETSI ES 283 034 V1.2.0 (2007-05) -->
+<!-- ETSI ES 283 035 V1.2.1 (2007-06) -->
 
 	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
 
@@ -10,8 +11,8 @@
 
 		<avp name="Globally-Unique-Address" code="300" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<grouped>
-				<gavp name="Frame-IP-Address"/>
-				<gavp name="Frame-IPv6-Prefix"/>
+				<gavp name="Framed-IP-Address"/>
+				<gavp name="Framed-IPv6-Prefix"/>
 				<gavp name="Address-Realm"/>
 			</grouped>
 		</avp>
@@ -78,7 +79,9 @@
 		<!-- ************************* e2 AVPs ************************ -->
 
 		<avp name="Location-Information" code="350" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-			<type type-name="OctetString"/>
+			<grouped>
+				<gavp name="Line-Identifier"/>
+			</grouped>
 		</avp>
 		<avp name="RACS-Contact-Point" code="351" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="DiameterIdentity"/>
@@ -100,5 +103,110 @@
 				<enum name="QOS-PROFILE" code="9"/>
 				<enum name="IP-CONNECTIVITY-STATUS" code="10"/>
 		</avp>
+		<!--- ETSI TS 183 033 V1.2.0 (2007-10) -->
+		<!-- The Line-Identifier AVP has a Vendor-Id header set to ETSI (13019). 
+		6.3.34 Line-Identifier AVP
+		The Line-Identifier AVP is of type OctetString. This AVP contains a fixed broadband access line identifier
+		 associated to the user.
+		-->
+		<avp name="Line-Identifier" code="500" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="OctetString"/>
+		</avp>
+		<!-- The following table describes the Diameter AVPs defined for the Cx interface protocol in support of
+			 HTTP Digest, their AVP Code values, types, possible flag values and whether or not the AVP may be 
+			 encrypted. The Vendor-Id header of all AVPs defined in the present document shall be set to ETSI (13019). -->
 
+		<avp name="ETSI-SIP-Authenticate" code="501" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<grouped>
+				<gavp name="ETSI-Digest-Realm"/>
+				<gavp name="ETSI-Digest-Nonce"/>
+				<gavp name="ETSI-Digest-Domain"/>
+				<gavp name="ETSI-Digest-Opaque"/>
+				<gavp name="ETSI-Digest-Stale"/>
+				<gavp name="ETSI-Digest-Algorithm"/>
+				<gavp name="ETSI-Digest-QoP"/>
+				<gavp name="ETSI-Digest-HA1"/>
+				<gavp name="ETSI-Digest-Auth-Param"/>			
+			</grouped>
+		</avp>
+		<avp name="ETSI-SIP-Authorization" code="502" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<grouped>
+				<gavp name="ETSI-Digest-Username"/>
+				<gavp name="ETSI-Digest-Realm"/>
+				<gavp name="ETSI-Digest-Nonce"/>
+				<gavp name="ETSI-Digest-URI"/>
+				<gavp name="ETSI-Digest-Response"/>
+				<gavp name="ETSI-Digest-Algorithm"/>
+				<gavp name="ETSI-Digest-CNonce"/>
+				<gavp name="ETSI-Digest-Opaque"/>
+				<gavp name="ETSI-Digest-QoP"/>
+				<gavp name="ETSI-Digest-Nonce-Count"/>
+				<gavp name="ETSI-Digest-Method"/>
+				<gavp name="ETSI-Digest-Entity-Body-Hash"/>
+				<gavp name="ETSI-Digest-Auth-Param"/>
+			</grouped>
+		</avp>
+		<avp name="ETSI-SIP-Authentication-Info" code="503" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<grouped>
+				<gavp name="ETSI-Digest-Nextnonce"/>
+				<gavp name="ETSI-Digest-QoP"/>
+				<gavp name="ETSI-Digest-Response-Auth"/>
+				<gavp name="ETSI-Digest-CNonce"/>
+				<gavp name="ETSI-Digest-Nonce-Count"/>
+			</grouped>
+		</avp>
+		<avp name="ETSI-Digest-Realm" code="504" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Nonce" code="505" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Domain" code="506" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Opaque" code="507" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Stale" code="508" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Algorithm" code="509" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-QoP" code="510" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-HA1" code="511" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Auth-Param" code="512" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Username" code="513" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-URI" code="514" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Response" code="515" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-CNonce" code="516" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Nonce-Count" code="517" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Method" code="518" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Entity-Body-Hash" code="519" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Nextnonce" code="520" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="ETSI-Digest-Response-Auth" code="521" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="UTF8String"/>
+		</avp>
 	</application>
