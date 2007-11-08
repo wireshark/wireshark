@@ -159,8 +159,8 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti_main, *ti_hdr, *ti_trlr;
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
-    int offset = 0,
-        pktlen;
+    int offset = 0;
+    guint    pktlen;
     tvbuff_t *next_tvb;
     guint8 sof, eof;
     guint16 vsan;
@@ -180,7 +180,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     span_id = (tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
     
     /* The Mdshdr trailer is at the end of the frame */
-    if (tvb_bytes_exist (tvb, 0, MDSHDR_HEADER_SIZE + pktlen)) {
+    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
         trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE; 
     
         eof = tvb_get_guint8 (tvb, trailer_start);
@@ -243,7 +243,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    MDSHDR_SIZE_BYTE, span_id);
         
         /* Add Mdshdr Trailer part */
-        if (tvb_bytes_exist (tvb, 0, MDSHDR_HEADER_SIZE+pktlen)) {
+        if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
             ti_trlr = proto_tree_add_text (mdshdr_tree_main, tvb, trailer_start,
                                            MDSHDR_TRAILER_SIZE,
                                            "MDS Trailer");
@@ -257,7 +257,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
-    if (tvb_bytes_exist (tvb, 0, MDSHDR_HEADER_SIZE+pktlen)) {
+    if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {
         next_tvb = tvb_new_subset (tvb, MDSHDR_HEADER_SIZE, pktlen, pktlen);
     }
     else {

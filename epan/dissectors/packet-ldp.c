@@ -2393,7 +2393,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * packets that happen to be going to or from the
 	 * LDP port but that aren't LDP packets.
 	 */
-	if (!tvb_bytes_exist(tvb, 0, 2)) {
+	if (tvb_length(tvb) < 2) {
 		/*
 		 * Not enough information to tell.
 		 */

@@ -315,7 +315,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 	
 	/* Do we have the version number? */
-	if (!tvb_bytes_exist(tvb, 0, 1)) {
+	if (tvb_length(tvb) <  1) {
 		/* No - reject this packet. */
 		return 0;
 	}

@@ -719,7 +719,7 @@ dissect_enip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    g_tree = tree;
 
    /* An ENIP packet is at least 4 bytes long - we need the command type. */
-   if (!tvb_bytes_exist(tvb, 0, 4))
+   if (tvb_length(tvb) < 4)
       return 0;
 
    /* Get the command type and see if it's valid. */
@@ -739,7 +739,7 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    g_tree = tree;
 
    /* An ENIP packet is at least 4 bytes long - we need the command type. */
-   if (!tvb_bytes_exist(tvb, 0, 4))
+   if (tvb_length(tvb) < 4)
       return 0;
 
    /* Get the command type and see if it's valid. */

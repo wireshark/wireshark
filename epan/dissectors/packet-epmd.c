@@ -191,7 +191,7 @@ check_epmd(tvbuff_t *tvb)
      * It's possible to start checking lengths but imho that
      * doesn't bring very much.
      */
-    if (!tvb_bytes_exist(tvb, 0, 3))
+    if (tvb_length(tvb) < 3)
 	return(FALSE);
 
     type = tvb_get_guint8(tvb, 0);

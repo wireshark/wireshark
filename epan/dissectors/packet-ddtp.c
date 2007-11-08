@@ -97,7 +97,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * If we don't recognize the version number, don't dissect this.
      */
-    if (tvb_bytes_exist(tvb, 0, 4)) {
+    if (tvb_length(tvb) >= 4) {
 	if (match_strval(tvb_get_ntohl(tvb, 0), vals_ddtp_version) == NULL)
 	    return 0;
     }

@@ -1699,7 +1699,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * as they might not be L2TP packets even though they happen
 	 * to be coming from or going to the L2TP port.
 	 */
-	if (!tvb_bytes_exist(tvb, 0, 2))
+	if (tvb_length(tvb) < 2)
 		return 0;	/* not enough information to check */
 	control = tvb_get_ntohs(tvb, 0);
 	switch (L2TP_VERSION(control)) {

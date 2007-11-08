@@ -111,7 +111,7 @@ dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 packet_len;
 	
 	/* Does this packet have a valid message type at the beginning? */
-	if (!tvb_bytes_exist(tvb, 0, 2))
+	if (tvb_length(tvb) < 2)
 		return 0;	/* not enough bytes for the packet length */
 	packet_len = tvb_get_ntohs(tvb, 0);
 	if (packet_len < 4)

@@ -4338,7 +4338,7 @@ dissect_ndps_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    int                 len=0;
+    guint                 len=0;
     tvbuff_t            *next_tvb = NULL;
     fragment_data       *fd_head;
     spx_info            *spx_info;
@@ -4399,8 +4399,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Fragment
          */
         tid = (pinfo->srcport+pinfo->destport);
-        len = tvb_reported_length_remaining(tvb, 0);
-        if (tvb_bytes_exist(tvb, 0, len))
+        len = tvb_reported_length(tvb);
+        if (tvb_length(tvb) >= len)
         {
             fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, ndps_fragment_table, ndps_reassembled_table, len, !spx_info->eom);
             if (fd_head != NULL)

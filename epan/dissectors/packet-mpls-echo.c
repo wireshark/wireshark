@@ -945,7 +945,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         const guint8 *ts_sent, *ts_rec;
 
         /* If version != 1 we assume it's not an mpls ping packet */
-        if (!tvb_bytes_exist(tvb, 0, 5)) {
+        if (tvb_length(tvb) < 5) {
                 return; /* Not enough information to tell version and message type. */
         }
         if (tvb_get_ntohs(tvb, 0) != 1) {

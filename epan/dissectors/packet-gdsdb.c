@@ -420,7 +420,7 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *pref_tree;
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -488,7 +488,7 @@ gdsdb_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -509,7 +509,7 @@ gdsdb_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -533,7 +533,7 @@ gdsdb_attach(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -564,7 +564,7 @@ gdsdb_compile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -584,7 +584,7 @@ gdsdb_receive(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -622,7 +622,7 @@ gdsdb_send(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -652,7 +652,7 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (!tvb_bytes_exist(tvb, 0, 32)) {
+	if (tvb_length(tvb) < 32) {
 		return 0;
 	}
 	if (tree) {
@@ -680,7 +680,7 @@ gdsdb_transact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 	if (tree) {
@@ -701,7 +701,7 @@ gdsdb_transact_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 8)) {
+	if (tvb_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
@@ -743,7 +743,7 @@ gdsdb_open_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset;
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -763,7 +763,7 @@ gdsdb_segment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -780,7 +780,7 @@ gdsdb_seek_blob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -796,7 +796,7 @@ gdsdb_reconnect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -813,7 +813,7 @@ gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int length;
 	guint opcode;
 
-	if (!tvb_bytes_exist(tvb, 0, 20)) {
+	if (tvb_length(tvb) < 20) {
 		return 0;
 	}
 
@@ -845,7 +845,7 @@ gdsdb_service_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -863,7 +863,7 @@ gdsdb_release(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 8)) {
+	if (tvb_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
@@ -879,7 +879,7 @@ gdsdb_prepare2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -895,7 +895,7 @@ gdsdb_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	 /* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 24)) {
+	if (tvb_length(tvb) < 24) {
 		return 0;
 	}
 	if (tree) {
@@ -913,7 +913,7 @@ gdsdb_cancel_events(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -928,7 +928,7 @@ gdsdb_ddl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -945,7 +945,7 @@ gdsdb_slice(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 24)) {
+	if (tvb_length(tvb) < 24) {
 		return 0;
 	}
 	if (tree) {
@@ -963,7 +963,7 @@ gdsdb_slice_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 8)) {
+	if (tvb_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
@@ -978,7 +978,7 @@ gdsdb_execute(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -996,7 +996,7 @@ gdsdb_exec_immediate2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 44)) {
+	if (tvb_length(tvb) < 44) {
 		return 0;
 	}
 	if (tree) {
@@ -1016,7 +1016,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	int offset;
 	int length;
 
-	if (!tvb_bytes_exist(tvb, 0, 32)) {
+	if (tvb_length(tvb) < 32) {
 		return 0;
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -1056,7 +1056,7 @@ gdsdb_fetch(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1073,7 +1073,7 @@ gdsdb_fetch_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -1089,7 +1089,7 @@ gdsdb_free_statement(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 12)) {
+	if (tvb_length(tvb) < 12) {
 		return 0;
 	}
 	if (tree) {
@@ -1105,7 +1105,7 @@ gdsdb_insert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1122,7 +1122,7 @@ gdsdb_cursor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 16)) {
+	if (tvb_length(tvb) < 16) {
 		return 0;
 	}
 	if (tree) {
@@ -1138,7 +1138,7 @@ gdsdb_sql_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	/* int offset; */
 
-	if (!tvb_bytes_exist(tvb, 0, 8)) {
+	if (tvb_length(tvb) < 8) {
 		return 0;
 	}
 	if (tree) {
@@ -1249,7 +1249,7 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gdsdb_tree = NULL; /* So the opcode functions can check on if(tree) */
 	nopi.cinfo = NULL;
 
-	if (!tvb_bytes_exist(tvb, 0, 4))
+	if (tvb_length(tvb) < 4) 
 		return 0;
 
 	opcode = tvb_get_ntohl(tvb, 0);

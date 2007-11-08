@@ -427,7 +427,7 @@ test_tapa_discover(tvbuff_t *tvb)
 	guint8 type, unknown, req_type;
 	guint16 length;
 
-	if (!tvb_bytes_exist(tvb, 0, 4))
+	if (tvb_length(tvb) < 4)
 		return FALSE;
 
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
@@ -453,7 +453,7 @@ test_tapa_tunnel(tvbuff_t *tvb)
 {
 	/* If it isn't IPv4, it's TAPA. IPv4: Version(1 byte) = 4,
 		length(2 bytes) >= 20 */
-	if (!tvb_bytes_exist(tvb, 0, 4) ||
+	if (tvb_length(tvb) < 4 ||
 	    (tvb_get_guint8(tvb, 0) & 0xF0) >= 0x40 ||
 	    tvb_get_ntohs(tvb, 2) > 0 ||
 	    tvb_get_guint8(tvb, 1) > 1) {	/* Is tunnel type known? */

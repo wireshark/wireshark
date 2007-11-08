@@ -118,7 +118,7 @@ static int dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Do we have the full version number and, if so, is it zero?
    * If we have it but it's not zero, reject this segment.
    */
-  if (tvb_bytes_exist(tvb, 0, 2)) {
+  if (tvb_length(tvb) >= 2) {
     if (tvb_get_ntohs(tvb, 0) != 0)
       return 0;
   }

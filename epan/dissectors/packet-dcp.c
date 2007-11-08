@@ -576,7 +576,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	e_dcphdr   *dcph;
 
 	/* get at least a full message header */
-	if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN_MIN)) {
+	if(tvb_length(tvb) < DCCP_HDR_LEN_MIN) {
 		/* DBG("malformed\n"); */
 		if (tree)
 			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
@@ -626,7 +626,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dcph->x=tvb_get_guint8(tvb, offset+8)&0x01;
 	/* DBG("dcph->x: %d\n", dcph->x); */
 	if(dcph->x) {
-		if(!tvb_bytes_exist(tvb, 0, DCCP_HDR_LEN)) { /* at least 16 bytes */
+		if(tvb_length(tvb) < DCCP_HDR_LEN) { /* at least 16 bytes */
 			/* DBG("malformed\n"); */
 			proto_tree_add_boolean_hidden(dcp_tree, hf_dcp_malformed, tvb, offset, 0, TRUE);
 			THROW(ReportedBoundsError);
@@ -934,7 +934,7 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 	}
 
-	if(!tvb_bytes_exist(tvb, 0, advertised_dccp_header_len)) {
+	if(tvb_length(tvb) < advertised_dccp_header_len) {
 		if(tree)
 			proto_tree_add_text(dcp_tree, tvb, offset, -1, "too short packet: missing %d bytes of DCCP header",
 					    advertised_dccp_header_len - tvb_reported_length_remaining(tvb, offset));

@@ -4339,7 +4339,7 @@ dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        All krb5 commands start with an APPL tag and thus is >=0x60
        so if first byte is <=16  just blindly assume it is krb4 then
     */
-    if(tvb_bytes_exist(tvb, 0, 1) && tvb_get_guint8(tvb, 0)<=0x10){
+    if(tvb_length(tvb) >= 1 && tvb_get_guint8(tvb, 0)<=0x10){
       if(krb4_handle){
 	gboolean res;
 

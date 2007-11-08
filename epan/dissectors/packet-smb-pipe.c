@@ -3281,7 +3281,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	pinfo->desegment_offset = 0;
 	pinfo->desegment_len = 0;
 	reported_len = tvb_reported_length(d_tvb);
-	if(smb_dcerpc_reassembly && tvb_bytes_exist(d_tvb, 0, reported_len)){
+	if(smb_dcerpc_reassembly && tvb_length(d_tvb) >= reported_len){
 		pinfo->can_desegment=2;
 	}
 

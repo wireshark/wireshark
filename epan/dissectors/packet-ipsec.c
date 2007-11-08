@@ -1663,7 +1663,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if(get_address_ok)
 	{
 	  /* Get the SPI */
-	  if(tvb_bytes_exist(tvb, 0, 4))
+	  if (tvb_length(tvb) >= 4) 
 	    {
 	      spi = tvb_get_ntohl(tvb, 0);
 	    }
@@ -2268,7 +2268,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		      /* Handler to free the Decrypted Data Buffer. */
 		      tvb_set_free_cb(tvb_decrypted,g_free);
-
+		      
 		      if(tvb_bytes_exist(tvb_decrypted, 0, esp_iv_len))
 			{
 			  if(esp_iv_len > 0)
