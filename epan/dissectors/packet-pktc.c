@@ -489,7 +489,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     offset+=1;
 
     if (check_col(pinfo->cinfo, COL_INFO))
-        col_set_str(pinfo->cinfo, COL_INFO,
+        col_add_str(pinfo->cinfo, COL_INFO,
                    val_to_str(msgtype, pktc_mtafqdn_msgtype_vals, "MsgType %u"));
 
     /* enterprise */

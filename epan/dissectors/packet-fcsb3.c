@@ -770,7 +770,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     type = get_fc_sbccs_iu_type (tvb, offset);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_set_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
     }
     
@@ -1027,7 +1027,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     get_fc_sbccs_conv_data (tvb, offset, &ch_cu_id, &dev_addr, &ccw);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_set_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
+        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
     }
     

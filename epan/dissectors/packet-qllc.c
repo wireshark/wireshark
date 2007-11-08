@@ -147,7 +147,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         /* Non-ambiguous control field value */
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_set_str(pinfo->cinfo, COL_INFO,
+            col_add_str(pinfo->cinfo, COL_INFO,
                     val_to_str(ctrl, qllc_control_vals,
                         "Control Field: 0x%02x (unknown)"));
         }

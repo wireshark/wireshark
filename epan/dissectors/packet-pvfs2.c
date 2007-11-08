@@ -3202,7 +3202,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Update column info display */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_set_str(pinfo->cinfo, COL_INFO, 
+		col_add_str(pinfo->cinfo, COL_INFO, 
 				val_to_str(server_op, names_pvfs_server_op, "%u (unknown)"));
 
 		col_append_str(pinfo->cinfo, COL_INFO, 

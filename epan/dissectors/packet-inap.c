@@ -1195,7 +1195,7 @@ dissect_inap_INAPLocalErrorcode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset, hf_index, &errorCode);
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)){
-    col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_error_code_strings, "Unknown Inap (%u)"));
+    col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(errorCode, inap_error_code_strings, "Unknown Inap (%u)"));
   }
 
 

@@ -574,7 +574,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* Put in something, and replace it later */
-		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 	}
 
 
@@ -819,7 +819,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* Put in something, and replace it later */
-		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 	}
 
 

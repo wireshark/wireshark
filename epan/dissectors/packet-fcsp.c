@@ -413,7 +413,7 @@ static void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     opcode = tvb_get_guint8 (tvb, 2);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_set_str (pinfo->cinfo, COL_INFO,
+        col_add_str (pinfo->cinfo, COL_INFO,
                      val_to_str (opcode, fcauth_msgcode_vals, "0x%x"));
     }
     

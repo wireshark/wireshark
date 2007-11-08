@@ -633,7 +633,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     r_ctl &= 0xF;
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
-        col_set_str (pinfo->cinfo, COL_INFO, val_to_str (r_ctl, fcp_iu_val,
+        col_add_str (pinfo->cinfo, COL_INFO, val_to_str (r_ctl, fcp_iu_val,
                                                       "0x%x"));
     }
 

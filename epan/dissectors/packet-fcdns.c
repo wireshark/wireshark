@@ -1579,7 +1579,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             g_hash_table_insert (fcdns_req_hash, req_key, cdata);
         }
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_set_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
+            col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, fc_dns_opcode_val,
                                                           "0x%x"));
         }
     }
@@ -1592,7 +1592,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!conversation) {
             if (tree && (opcode == FCCT_MSG_ACC)) {
                 if (check_col (pinfo->cinfo, COL_INFO)) {
-                    col_set_str (pinfo->cinfo, COL_INFO,
+                    col_add_str (pinfo->cinfo, COL_INFO,
                                  val_to_str (opcode, fc_dns_opcode_val,
                                              "0x%x"));
                 }

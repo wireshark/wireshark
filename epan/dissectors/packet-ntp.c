@@ -452,7 +452,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, 
+		col_add_str(pinfo->cinfo, COL_INFO, 
 			val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	if (tree) {

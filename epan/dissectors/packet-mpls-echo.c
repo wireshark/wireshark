@@ -976,7 +976,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         if (check_col(pinfo->cinfo, COL_INFO))
-            col_set_str(pinfo->cinfo, COL_INFO,
+            col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(msgtype, mpls_echo_msgtype, "Unknown Message Type (0x%02X)"));
 
 

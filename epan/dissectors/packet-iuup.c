@@ -647,7 +647,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
     }
     
     switch(pdutype) {

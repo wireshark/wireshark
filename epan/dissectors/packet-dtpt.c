@@ -734,7 +734,7 @@ dissect_dtpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTPT");
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, match_strval(message_type, names_message_type));
+		col_add_str(pinfo->cinfo, COL_INFO, match_strval(message_type, names_message_type));
 
 	if (message_type == LookupBeginRequest) {
 		conversation_t *c;
