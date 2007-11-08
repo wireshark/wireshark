@@ -1431,8 +1431,8 @@ static int
 dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, const char *type)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -1440,18 +1440,18 @@ dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, const char *t
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"%s Access: 0x%04x", type, mask);
 		tree = proto_item_add_subtree(item, ett_smb_desiredaccess);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_access_writetru,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_access_caching,
-		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_access_locality,
-		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_access_sharing,
-		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_access_mode,
-		tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_access_writetru,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_access_caching,
+			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_access_locality,
+			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_access_sharing,
+			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_access_mode,
+			tvb, offset, 2, mask);
+	}
 
 	offset += 2;
 
@@ -1549,8 +1549,8 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			int bytes)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	if (bytes != 2 && bytes != 4) {
 		THROW(ReportedBoundsError);
@@ -1566,38 +1566,39 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		item = proto_tree_add_text(parent_tree, tvb, offset, bytes,
 			"File Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
-	}
-	proto_tree_add_boolean(tree, hf_smb_file_attr_encrypted, 
-			       tvb, offset, bytes, mask);	
-	proto_tree_add_boolean(tree, hf_smb_file_attr_not_content_indexed, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_offline, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_compressed, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_reparse, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_sparse, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_temporary, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_normal, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_device, 
-			       tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
-		tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_directory_16bit,
-		tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_volume_16bit,
-		tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_system_16bit,
-		tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_16bit,
-		tvb, offset, bytes, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
-		tvb, offset, bytes, mask);
 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_encrypted, 
+				       tvb, offset, bytes, mask);	
+		proto_tree_add_boolean(tree, hf_smb_file_attr_not_content_indexed, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_offline, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_compressed, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_reparse, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_sparse, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_temporary, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_normal, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_device, 
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
+				tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_directory_16bit,
+				tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_volume_16bit,
+				tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_system_16bit,
+				tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_16bit,
+				tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
+				tvb, offset, bytes, mask);
+	}
+	
 	offset += bytes;
 
 	return offset;
@@ -1608,55 +1609,55 @@ static int
 dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
     int len, guint32 mask)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 			"File Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
+
+		/*
+		 * XXX - Network Monitor disagrees on some of the
+		 * bits, e.g. the bits above temporary are "atomic write"
+		 * and "transaction write", and it says nothing about the
+		 * bits above that.
+		 *
+		 * Does the Win32 API documentation, or the NT Native API book,
+		 * suggest anything?
+		 */
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_offline,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_compressed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_reparse,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_sparse,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_temporary,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_normal,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_device,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_archive,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_directory,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_volume,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_system,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_hidden,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
+			tvb, offset, len, mask);
 	}
-
-	/*
-	 * XXX - Network Monitor disagrees on some of the
-	 * bits, e.g. the bits above temporary are "atomic write"
-	 * and "transaction write", and it says nothing about the
-	 * bits above that.
-	 *
-	 * Does the Win32 API documentation, or the NT Native API book,
-	 * suggest anything?
-	 */
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_offline,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_compressed,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_reparse,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_sparse,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_temporary,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_normal,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_device,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_archive,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_directory,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_volume,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_system,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_hidden,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
-		tvb, offset, len, mask);
-
+	
 	offset += len;
 
 	return offset;
@@ -1679,8 +1680,8 @@ static int
 dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_guint8(tvb, offset);
 
@@ -1688,19 +1689,20 @@ dissect_dir_info_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int off
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 			"File Attributes: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
+
+		proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_8bit,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_8bit,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_system_8bit,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_volume_8bit,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_directory_8bit,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_archive_8bit,
+			tvb, offset, 1, mask);
 	}
-	proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_8bit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_hidden_8bit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_system_8bit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_volume_8bit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_directory_8bit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_file_attr_archive_8bit,
-		tvb, offset, 1, mask);
 
 	offset += 1;
 
@@ -1736,8 +1738,8 @@ static int
 dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -1745,20 +1747,20 @@ dissect_search_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Search Attributes: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_search);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_read_only,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_hidden,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_system,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_volume,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_directory,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_search_attribute_archive,
-		tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_read_only,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_hidden,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_system,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_volume,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_directory,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_search_attribute_archive,
+			tvb, offset, 2, mask);
+	}
 
 	offset += 2;
 	return offset;
@@ -1775,8 +1777,8 @@ static int
 dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
@@ -1922,55 +1924,55 @@ static int
 dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4, "Capabilities: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_capabilities);
+
+		proto_tree_add_boolean(tree, hf_smb_server_cap_raw_mode,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_mpx_mode,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_unicode,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_large_files,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_nt_smbs,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_rpc_remote_apis,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_nt_status,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_level_ii_oplocks,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_lock_and_read,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_nt_find,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_dfs,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_infolevel_passthru,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_large_readx,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_large_writex,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_unix,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_reserved,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_bulk_transfer,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_compressed_data,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_extended_security,
+			tvb, offset, 4, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_server_cap_raw_mode,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_mpx_mode,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_unicode,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_large_files,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_smbs,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_rpc_remote_apis,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_status,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_level_ii_oplocks,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_lock_and_read,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_find,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_dfs,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_infolevel_passthru,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_large_readx,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_large_writex,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_unix,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_reserved,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_bulk_transfer,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_compressed_data,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_server_cap_extended_security,
-		tvb, offset, 4, mask);
-
+	
 	return mask;
 }
 
@@ -1989,18 +1991,18 @@ static int
 dissect_negprot_rawmode(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2, "Raw Mode: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_rm_read, tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_rm_write, tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_rm_read, tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_rm_write, tvb, offset, 2, mask);
+	}
 
 	offset += 2;
 
@@ -3155,63 +3157,62 @@ static int
 dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, int len, guint32 mask)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	if(parent_tree){
 		item = proto_tree_add_uint(parent_tree, hf_smb_access_mask, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
+
+		/*
+		 * Some of these bits come from
+		 *
+		 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+		 *
+		 * and others come from the section on ZwOpenFile in "Windows(R)
+		 * NT(R)/2000 Native API Reference".
+		 */
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
+			tvb, offset, len, mask);
 	}
-
-	/*
-	 * Some of these bits come from
-	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
-	 *
-	 * and others come from the section on ZwOpenFile in "Windows(R)
-	 * NT(R)/2000 Native API Reference".
-	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_attributes,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_attributes,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete_child,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_execute,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_ea,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_ea,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_append,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read,
-		tvb, offset, len, mask);
-
 	offset += len;
 
 	return offset;
@@ -3238,32 +3239,32 @@ static int
 dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, int len, guint32 mask)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	if(parent_tree){
 		item = proto_tree_add_uint(parent_tree, hf_smb_share_access, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
-		tvb, offset, len, mask);
-	if(mask&SHARE_ACCESS_DELETE){
-		proto_item_append_text(item, " SHARE_DELETE");
-	}
+		proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
+			tvb, offset, len, mask);
+		if(mask&SHARE_ACCESS_DELETE){
+			proto_item_append_text(item, " SHARE_DELETE");
+		}
 
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
-		tvb, offset, len, mask);
-	if(mask&SHARE_ACCESS_WRITE){
-		proto_item_append_text(item, " SHARE_WRITE");
-	}
+		proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
+			tvb, offset, len, mask);
+		if(mask&SHARE_ACCESS_WRITE){
+			proto_item_append_text(item, " SHARE_WRITE");
+		}
 
-	proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
-		tvb, offset, len, mask);
-	if(mask&SHARE_ACCESS_READ){
-		proto_item_append_text(item, " SHARE_READ");
+		proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
+			tvb, offset, len, mask);
+		if(mask&SHARE_ACCESS_READ){
+			proto_item_append_text(item, " SHARE_READ");
+		}
 	}
-
+	
 	offset += len;
 
 	return offset;
@@ -3286,60 +3287,59 @@ static int
 dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
     int offset, int len, guint32 mask)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	if(parent_tree){
 		item = proto_tree_add_uint(parent_tree, hf_smb_create_options, tvb, offset, len, mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_options);
+
+		/*
+		 * From
+		 *
+		 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
+		 */
+		 proto_tree_add_boolean(tree, hf_smb_nt_create_options_directory_file,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_intermediate_buffering,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_create_tree_connection,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_complete_if_oplocked,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_eight_dot_three_only,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_compression,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_reserve_opfilter,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_reparse_point,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_no_recall,
+			tvb, offset, len, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_for_free_space_query,
+			tvb, offset, len, mask);
 	}
-
-	/*
-	 * From
-	 *
-	 *	http://www.samba.org/samba/ftp/specs/smb-nt01.doc
-	 */
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_directory_file,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_write_through,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sequential_only,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_intermediate_buffering,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_alert,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_sync_io_nonalert,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_non_directory_file,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_create_tree_connection,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_complete_if_oplocked,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_ea_knowledge,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_eight_dot_three_only,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_random_access,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_delete_on_close,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_by_fileid,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_backup_intent,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_no_compression,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_reserve_opfilter,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_reparse_point,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_no_recall,
-		tvb, offset, len, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_create_options_open_for_free_space_query,
-		tvb, offset, len, mask);
-
 	offset += len;
 
 	return offset;
@@ -4841,8 +4841,8 @@ static int
 dissect_write_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -4850,27 +4850,27 @@ dissect_write_mode(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Write Mode: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_rawmode);
-	}
 
-	if(bm&WRITE_MODE_CONNECTIONLESS){
-		proto_tree_add_boolean(tree, hf_smb_write_mode_connectionless,
-			tvb, offset, 2, mask);
-	}
-	if(bm&WRITE_MODE_MESSAGE_START){
-		proto_tree_add_boolean(tree, hf_smb_write_mode_message_start,
-			tvb, offset, 2, mask);
-	}
-	if(bm&WRITE_MODE_RAW){
-		proto_tree_add_boolean(tree, hf_smb_write_mode_raw,
-			tvb, offset, 2, mask);
-	}
-	if(bm&WRITE_MODE_RETURN_REMAINING){
-		proto_tree_add_boolean(tree, hf_smb_write_mode_return_remaining,
-			tvb, offset, 2, mask);
-	}
-	if(bm&WRITE_MODE_WRITE_THROUGH){
-		proto_tree_add_boolean(tree, hf_smb_write_mode_write_through,
-			tvb, offset, 2, mask);
+		if(bm&WRITE_MODE_CONNECTIONLESS){
+			proto_tree_add_boolean(tree, hf_smb_write_mode_connectionless,
+				tvb, offset, 2, mask);
+		}
+		if(bm&WRITE_MODE_MESSAGE_START){
+			proto_tree_add_boolean(tree, hf_smb_write_mode_message_start,
+				tvb, offset, 2, mask);
+				}
+		if(bm&WRITE_MODE_RAW){
+			proto_tree_add_boolean(tree, hf_smb_write_mode_raw,
+				tvb, offset, 2, mask);
+		}
+		if(bm&WRITE_MODE_RETURN_REMAINING){
+			proto_tree_add_boolean(tree, hf_smb_write_mode_return_remaining,
+				tvb, offset, 2, mask);
+		}
+		if(bm&WRITE_MODE_WRITE_THROUGH){
+			proto_tree_add_boolean(tree, hf_smb_write_mode_write_through,
+				tvb, offset, 2, mask);
+		}
 	}
 
 	offset += 2;
@@ -5436,17 +5436,18 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		litem = proto_tree_add_text(tree, tvb, offset, 1,
 			"Lock Type: 0x%02x", lt);
 		ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
+
+		proto_tree_add_boolean(ltree, hf_smb_lock_type_large,
+			tvb, offset, 1, lt);
+		proto_tree_add_boolean(ltree, hf_smb_lock_type_cancel,
+			tvb, offset, 1, lt);
+		proto_tree_add_boolean(ltree, hf_smb_lock_type_change,
+			tvb, offset, 1, lt);
+		proto_tree_add_boolean(ltree, hf_smb_lock_type_oplock,
+			tvb, offset, 1, lt);
+		proto_tree_add_boolean(ltree, hf_smb_lock_type_shared,
+			tvb, offset, 1, lt);
 	}
-	proto_tree_add_boolean(ltree, hf_smb_lock_type_large,
-		tvb, offset, 1, lt);
-	proto_tree_add_boolean(ltree, hf_smb_lock_type_cancel,
-		tvb, offset, 1, lt);
-	proto_tree_add_boolean(ltree, hf_smb_lock_type_change,
-		tvb, offset, 1, lt);
-	proto_tree_add_boolean(ltree, hf_smb_lock_type_oplock,
-		tvb, offset, 1, lt);
-	proto_tree_add_boolean(ltree, hf_smb_lock_type_shared,
-		tvb, offset, 1, lt);
 	offset += 1;
 
 	/* oplock level */
@@ -5693,42 +5694,42 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 		ld = si->sip->extra_info;
 		if (ld != NULL) {
-			proto_item *lit = NULL;
-			proto_tree *ltr = NULL;
+			proto_item *lit;
+			proto_tree *ltr;
 			smb_lock_info_t *li;
 			if(tree){
 				litem = proto_tree_add_text(tree, tvb, 0, 0,
 					"Lock Type: 0x%02x", ld->type);
 				PROTO_ITEM_SET_GENERATED(litem);
 				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
-			}
 
-			proto_tree_add_boolean(ltree, hf_smb_lock_type_large, tvb, 0, 0, ld->type);
-			proto_tree_add_boolean(ltree, hf_smb_lock_type_cancel, tvb, 0, 0, ld->type);
-			proto_tree_add_boolean(ltree, hf_smb_lock_type_change, tvb, 0, 0, ld->type);
-			proto_tree_add_boolean(ltree, hf_smb_lock_type_oplock, tvb, 0, 0, ld->type);
-			proto_tree_add_boolean(ltree, hf_smb_lock_type_shared, tvb, 0, 0, ld->type);
-			proto_tree_add_uint(ltree, hf_smb_locking_ol, tvb, 0, 0, ld->oplock_level);
-			proto_tree_add_uint(ltree, hf_smb_number_of_unlocks, tvb, 0, 0, ld->num_unlock);
-			proto_tree_add_uint(ltree, hf_smb_number_of_locks, tvb, 0, 0, ld->num_lock);
+				proto_tree_add_boolean(ltree, hf_smb_lock_type_large, tvb, 0, 0, ld->type);
+				proto_tree_add_boolean(ltree, hf_smb_lock_type_cancel, tvb, 0, 0, ld->type);
+				proto_tree_add_boolean(ltree, hf_smb_lock_type_change, tvb, 0, 0, ld->type);
+				proto_tree_add_boolean(ltree, hf_smb_lock_type_oplock, tvb, 0, 0, ld->type);
+				proto_tree_add_boolean(ltree, hf_smb_lock_type_shared, tvb, 0, 0, ld->type);
+				proto_tree_add_uint(ltree, hf_smb_locking_ol, tvb, 0, 0, ld->oplock_level);
+				proto_tree_add_uint(ltree, hf_smb_number_of_unlocks, tvb, 0, 0, ld->num_unlock);
+				proto_tree_add_uint(ltree, hf_smb_number_of_locks, tvb, 0, 0, ld->num_lock);
 				
-			lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
-			ltr = proto_item_add_subtree(lit, ett_smb_lock);
-			li=ld->locks;
-			while(li){
-				proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
-				proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
-				proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
-				li=li->next;
-			}
-			lit = proto_tree_add_text(ltree, tvb, 0, 0, "Unlocks");
-			ltr = proto_item_add_subtree(lit, ett_smb_unlock);
-			li=ld->unlocks;
-			while(li){
-				proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
-				proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
-				proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
-				li=li->next;
+				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
+				ltr = proto_item_add_subtree(lit, ett_smb_lock);
+				li=ld->locks;
+				while(li){
+					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
+					proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
+					proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
+					li=li->next;
+				}
+				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Unlocks");
+				ltr = proto_item_add_subtree(lit, ett_smb_unlock);
+				li=ld->unlocks;
+				while(li){
+					proto_tree_add_uint(ltr, hf_smb_pid, tvb, 0, 0, li->pid);
+					proto_tree_add_uint64(ltr, hf_smb_lock_long_offset, tvb, 0, 0, li->offset);
+					proto_tree_add_uint64(ltr, hf_smb_lock_long_length, tvb, 0, 0, li->length);
+					li=li->next;
+				}
 			}
 		}
 	}
@@ -5785,8 +5786,8 @@ static int
 dissect_open_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -5794,13 +5795,12 @@ dissect_open_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Action: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_open_action);
+
+		proto_tree_add_boolean(tree, hf_smb_open_action_lock,
+			tvb, offset, 2, mask);
+		proto_tree_add_uint(tree, hf_smb_open_action_open,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_open_action_lock,
-		tvb, offset, 2, mask);
-	proto_tree_add_uint(tree, hf_smb_open_action_open,
-		tvb, offset, 2, mask);
-
 	offset += 2;
 
 	return offset;
@@ -5826,8 +5826,8 @@ static int
 dissect_open_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -5835,23 +5835,23 @@ dissect_open_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int bm)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_open_flags);
-	}
 
-	if(bm&0x0001){
-		proto_tree_add_boolean(tree, hf_smb_open_flags_add_info,
-			tvb, offset, 2, mask);
-	}
-	if(bm&0x0002){
-		proto_tree_add_boolean(tree, hf_smb_open_flags_ex_oplock,
-			tvb, offset, 2, mask);
-	}
-	if(bm&0x0004){
-		proto_tree_add_boolean(tree, hf_smb_open_flags_batch_oplock,
-			tvb, offset, 2, mask);
-	}
-	if(bm&0x0008){
-		proto_tree_add_boolean(tree, hf_smb_open_flags_ealen,
-			tvb, offset, 2, mask);
+		if(bm&0x0001){
+			proto_tree_add_boolean(tree, hf_smb_open_flags_add_info,
+				tvb, offset, 2, mask);
+		}
+		if(bm&0x0002){
+			proto_tree_add_boolean(tree, hf_smb_open_flags_ex_oplock,
+				tvb, offset, 2, mask);
+		}
+		if(bm&0x0004){
+			proto_tree_add_boolean(tree, hf_smb_open_flags_batch_oplock,
+				tvb, offset, 2, mask);
+		}
+		if(bm&0x0008){
+			proto_tree_add_boolean(tree, hf_smb_open_flags_ealen,
+				tvb, offset, 2, mask);
+		}
 	}
 
 	offset += 2;
@@ -5981,8 +5981,8 @@ dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
     gboolean setstate)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -5990,21 +5990,21 @@ dissect_ipc_state(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"IPC State: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_ipc_state);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
-		tvb, offset, 2, mask);
-	if (!setstate) {
-		proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
+		proto_tree_add_boolean(tree, hf_smb_ipc_state_nonblocking,
 			tvb, offset, 2, mask);
-		proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
+		if (!setstate) {
+			proto_tree_add_uint(tree, hf_smb_ipc_state_endpoint,
+				tvb, offset, 2, mask);
+			proto_tree_add_uint(tree, hf_smb_ipc_state_pipe_type,
+				tvb, offset, 2, mask);
+		}
+		proto_tree_add_uint(tree, hf_smb_ipc_state_read_mode,
 			tvb, offset, 2, mask);
-	}
-	proto_tree_add_uint(tree, hf_smb_ipc_state_read_mode,
-		tvb, offset, 2, mask);
-	if (!setstate) {
-		proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
-			tvb, offset, 2, mask);
+		if (!setstate) {
+			proto_tree_add_uint(tree, hf_smb_ipc_state_icount,
+				tvb, offset, 2, mask);
+		}
 	}
 
 	offset += 2;
@@ -6607,8 +6607,8 @@ static int
 dissect_setup_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -6616,11 +6616,10 @@ dissect_setup_action(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Action: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_setup_action);
+
+		proto_tree_add_boolean(tree, hf_smb_setup_action_guest,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_setup_action_guest,
-		tvb, offset, 2, mask);
-
 	offset += 2;
 
 	return offset;
@@ -7194,8 +7193,8 @@ static int
 dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -7203,13 +7202,13 @@ dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Optional Support: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_connect_support_bits);
+
+		proto_tree_add_boolean(tree, hf_smb_connect_support_search,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_connect_support_in_dfs,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_connect_support_search,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_connect_support_in_dfs,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 
 	return offset;
@@ -7224,8 +7223,8 @@ static int
 dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -7233,11 +7232,11 @@ dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_connect_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_connect_flags_dtid,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_connect_flags_dtid,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 
 	return offset;
@@ -7808,8 +7807,8 @@ static int
 dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_guint8(tvb, offset);
 
@@ -7817,13 +7816,13 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 			"Security Flags: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_security_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_nt_security_flags_context_tracking,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_security_flags_effective_only,
+			tvb, offset, 1, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_security_flags_context_tracking,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_security_flags_effective_only,
-		tvb, offset, 1, mask);
-
+	
 	offset += 1;
 
 	return offset;
@@ -7931,8 +7930,8 @@ int
 dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
@@ -7940,33 +7939,33 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
 			"Completion Filter: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_notify_completion_filter);
+
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_size,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_name,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_security,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_ea,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_creation,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_access,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_last_write,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_size,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_attributes,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_dir_name,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
+			tvb, offset, 4, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_size,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_name,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_security,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_ea,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_creation,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_last_access,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_last_write,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_size,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_attributes,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_dir_name,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
-		tvb, offset, 4, mask);
-
+	
 	offset += 4;
 	return offset;
 }
@@ -7975,8 +7974,8 @@ static int
 dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_guint8(tvb, offset);
 
@@ -7984,11 +7983,11 @@ dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 			"Completion Filter: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_nt_ioctl_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_nt_ioctl_flags_root_handle,
+			tvb, offset, 1, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_ioctl_flags_root_handle,
-		tvb, offset, 1, mask);
-
+	
 	offset += 1;
 	return offset;
 }
@@ -8026,8 +8025,8 @@ int
 dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
@@ -8035,17 +8034,17 @@ dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int of
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
 			"Security Information: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_security_information_mask);
+
+		proto_tree_add_boolean(tree, hf_smb_nt_qsd_owner,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_qsd_group,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_qsd_dacl,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_nt_qsd_sacl,
+			tvb, offset, 4, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_nt_qsd_owner,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_qsd_group,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_qsd_dacl,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_nt_qsd_sacl,
-		tvb, offset, 4, mask);
-
+	
 	offset += 4;
 
 	return offset;
@@ -10265,19 +10264,19 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_find_first2_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_ff2_backup,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_ff2_continue,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_ff2_resume,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_ff2_close_eos,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_ff2_close,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_ff2_backup,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_ff2_continue,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_ff2_resume,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_ff2_close_eos,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_ff2_close,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 
 	return offset;
@@ -10288,8 +10287,8 @@ static int
 dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -10297,13 +10296,13 @@ dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"IO Flag: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_ioflag);
+
+		proto_tree_add_boolean(tree, hf_smb_sfi_writetru,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_sfi_caching,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_sfi_writetru,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_sfi_caching,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 
 	return offset;
@@ -10778,8 +10777,8 @@ static guint16
 dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -10787,13 +10786,13 @@ dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_transaction_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_transaction_flags_owt,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_transaction_flags_dtid,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_transaction_flags_owt,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_transaction_flags_dtid,
-		tvb, offset, 2, mask);
-
+	
 	return mask;
 }
 
@@ -10802,8 +10801,8 @@ static int
 dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -10811,13 +10810,13 @@ dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_get_dfs_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_get_dfs_server_hold_storage,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_get_dfs_fielding,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_get_dfs_server_hold_storage,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_get_dfs_fielding,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 	return offset;
 }
@@ -10826,8 +10825,8 @@ static int
 dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -10835,11 +10834,11 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_dfs_referral_flags);
+
+		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_strip,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_strip,
-		tvb, offset, 2, mask);
-
+	
 	offset += 2;
 
 	return offset;
@@ -12250,8 +12249,8 @@ static void
 dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_guint8(tvb, offset);
 
@@ -12260,21 +12259,21 @@ dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			"Quota Flags: 0x%02x %s", mask,
 			mask?"Enabled":"Disabled");
 		tree = proto_item_add_subtree(item, ett_smb_quotaflags);
-	}
 
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
-		tvb, offset, 1, mask);
-
-	if(mask && (!(mask&0x01))){
-		proto_tree_add_boolean_hidden(tree, hf_smb_quota_flags_enabled,
-			tvb, offset, 1, 0x01);
-	} else {
-		proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_limit,
 			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_log_warning,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
+			tvb, offset, 1, mask);
+	
+		if(mask && (!(mask&0x01))){
+			proto_tree_add_boolean_hidden(tree, hf_smb_quota_flags_enabled,
+				tvb, offset, 1, 0x01);
+		} else {
+			proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
+				tvb, offset, 1, mask);
+		}
 	}
 
 }
@@ -13714,8 +13713,8 @@ static int
 dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
@@ -13723,54 +13722,53 @@ dissect_fs_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
 			"FS Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_fs_attributes);
+
+		/* case sensitive search */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_css,
+			tvb, offset, 4, mask);
+		/* case preserved names */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_cpn,
+			tvb, offset, 4, mask);
+		/* unicode on disk */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_uod,
+			tvb, offset, 4, mask);
+		/* persistent acls */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_pacls,
+			tvb, offset, 4, mask);
+		/* file compression */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_fc,
+			tvb, offset, 4, mask);
+		/* volume quotas */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_vq,
+			tvb, offset, 4, mask);
+		/* sparse files */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_ssf,
+			tvb, offset, 4, mask);
+		/* reparse points */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_srp,
+			tvb, offset, 4, mask);
+		/* remote storage */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_srs,
+			tvb, offset, 4, mask);
+		/* lfn apis */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_sla,
+			tvb, offset, 4, mask);
+		/* volume is compressed */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_vic,
+			tvb, offset, 4, mask);
+		/* support oids */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_soids,
+			tvb, offset, 4, mask);
+		/* encryption */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_se,
+			tvb, offset, 4, mask);
+		/* named streams */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_ns,
+			tvb, offset, 4, mask);
+		/* read only volume */
+		proto_tree_add_boolean(tree, hf_smb_fs_attr_rov,
+			tvb, offset, 4, mask);
 	}
-
-	/* case sensitive search */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_css,
-		tvb, offset, 4, mask);
-	/* case preserved names */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_cpn,
-		tvb, offset, 4, mask);
-	/* unicode on disk */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_uod,
-		tvb, offset, 4, mask);
-	/* persistent acls */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_pacls,
-		tvb, offset, 4, mask);
-	/* file compression */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_fc,
-		tvb, offset, 4, mask);
-	/* volume quotas */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_vq,
-		tvb, offset, 4, mask);
-	/* sparse files */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_ssf,
-		tvb, offset, 4, mask);
-	/* reparse points */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_srp,
-		tvb, offset, 4, mask);
-	/* remote storage */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_srs,
-		tvb, offset, 4, mask);
-	/* lfn apis */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_sla,
-		tvb, offset, 4, mask);
-	/* volume is compressed */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_vic,
-		tvb, offset, 4, mask);
-	/* support oids */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_soids,
-		tvb, offset, 4, mask);
-	/* encryption */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_se,
-		tvb, offset, 4, mask);
-	/* named streams */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_ns,
-		tvb, offset, 4, mask);
-	/* read only volume */
-	proto_tree_add_boolean(tree, hf_smb_fs_attr_rov,
-		tvb, offset, 4, mask);
-
 
 	offset += 4;
 	return offset;
@@ -13781,8 +13779,8 @@ static int
 dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohl(tvb, offset);
 
@@ -13790,23 +13788,23 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
 			"Device Characteristics: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_device_characteristics);
+
+		proto_tree_add_boolean(tree, hf_smb_device_char_removable,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_read_only,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_floppy,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_write_once,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_remote,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_mounted,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_device_char_virtual,
+			tvb, offset, 4, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_device_char_removable,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_read_only,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_floppy,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_write_once,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_remote,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_mounted,
-		tvb, offset, 4, mask);
-	proto_tree_add_boolean(tree, hf_smb_device_char_virtual,
-		tvb, offset, 4, mask);
-
+	
 	offset += 4;
 	return offset;
 }
@@ -15852,8 +15850,8 @@ static int
 dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint8 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_guint8(tvb, offset);
 
@@ -15861,21 +15859,23 @@ dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
 			"Flags: 0x%02x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_flags);
- 	}
-	proto_tree_add_boolean(tree, hf_smb_flags_response,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_notify,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_oplock,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_canon,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_caseless,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_receive_buffer,
-		tvb, offset, 1, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags_lock,
-		tvb, offset, 1, mask);
+
+		proto_tree_add_boolean(tree, hf_smb_flags_response,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_notify,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_oplock,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_canon,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_caseless,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_receive_buffer,
+			tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags_lock,
+			tvb, offset, 1, mask);
+	}
+	
 	offset += 1;
 	return offset;
 }
@@ -15922,8 +15922,8 @@ static int
 dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint16 mask;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 
 	mask = tvb_get_letohs(tvb, offset);
 
@@ -15931,27 +15931,26 @@ dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
 			"Flags2: 0x%04x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_flags2);
+
+		proto_tree_add_boolean(tree, hf_smb_flags2_string,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_nt_error,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_roe,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_dfs,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_esn,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_long_names_used,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_ea,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_long_names_allowed,
+			tvb, offset, 2, mask);
 	}
-
-	proto_tree_add_boolean(tree, hf_smb_flags2_string,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_nt_error,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_roe,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_dfs,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_esn,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_long_names_used,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_ea,
-		tvb, offset, 2, mask);
-	proto_tree_add_boolean(tree, hf_smb_flags2_long_names_allowed,
-		tvb, offset, 2, mask);
-
 	offset += 2;
 	return offset;
 }
