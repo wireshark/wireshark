@@ -31,6 +31,7 @@
 
 enum
 {
+    WIMAXASNCP_TLV_UNKNOWN,
     WIMAXASNCP_TLV_TBD,
     WIMAXASNCP_TLV_COMPOUND,
     WIMAXASNCP_TLV_BYTES,
@@ -74,6 +75,19 @@ typedef struct _wimaxasncp_dict_tlv_t {
     gchar *name;
     gchar *description;
     gint decoder;
+    int hf_root;
+    int hf_value;
+    int hf_ipv4;
+    int hf_ipv6;
+    int hf_bsid;
+    int hf_protocol;
+    int hf_port_low;
+    int hf_port_high;
+    int hf_ipv4_mask;
+    int hf_ipv6_mask;
+    int hf_vendor_id;
+    int hf_vendor_rest_of_info;
+    value_string *enum_vs;
     wimaxasncp_dict_enum_t *enums;
     struct _wimaxasncp_dict_tlv_t *next;
 } wimaxasncp_dict_tlv_t;

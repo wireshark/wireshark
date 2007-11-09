@@ -132,7 +132,9 @@ EXTRA_DIST = \
 
 RUNLEX = $(top_srcdir)/tools/runlex.sh
 
-wimaxasncp_dict_lex.h : wimaxasncp_dict.c
+wimaxasncp_dict_lex.h:	wimaxasncp_dict.c
+
+wimaxasncp_dict.c:	wimaxasncp_dict.h
 
 #
 # Install the wimaxasncp DTD and XML files in the "wimaxasncp"
