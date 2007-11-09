@@ -1888,7 +1888,7 @@ dissect_tds_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If we don't have even enough data for a Netlib header,
 	 * just say it's not TDS.
 	 */
-	if (!tvb_bytes_exist(tvb, offset, 8))
+	if (tvb_length(tvb) < 8)
 		return FALSE;
 
 	/*

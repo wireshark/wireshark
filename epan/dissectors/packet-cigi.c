@@ -1875,7 +1875,7 @@ packet_is_cigi(tvbuff_t *tvb)
     guint8 reserved;
 
 
-    if (!tvb_bytes_exist(tvb, 0, 3)) {
+    if (tvb_length(tvb) < 3) {
         /* Not enough data available to check */
         return FALSE;
     }

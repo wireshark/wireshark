@@ -1805,7 +1805,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint16 len;
 
 	/* first, check do we have at least 4 bytes (type+length) */
-	if (!tvb_bytes_exist(tvb, 0, 2))
+	if (tvb_length(tvb) < 2)
 		return FALSE;	/* no */
 
 	/* can we recognize session PDU ? Return FALSE if  not */
@@ -1833,7 +1833,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * misinterpreted as SES.
 	 * the starter in this case is fixed to 0x32 (SES_MINOR_SYNC_ACK for SES), 
 	 * so if the parameter type is unknown, it's probably SIMATIC */
-	if(type == 0x32 && tvb_bytes_exist(tvb, 0, 3)) {
+	if(type == 0x32 && tvb_length(tvb) >= 3) {
 		type = tvb_get_guint8(tvb, offset+2);
 		if (match_strval(type, param_vals) == NULL) {
 			return FALSE; /* it's probably a SIMATIC protocol */
@@ -1847,7 +1847,7 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/*  add header length     */
 	len+=len_len;
 	/* do we have enough bytes ? */
-	if (!tvb_bytes_exist(tvb, 0, len))
+	if (tvb_length(tvb) < len)
 		return FALSE;	/* no */
 
 	dissect_ses(tvb, pinfo, parent_tree);

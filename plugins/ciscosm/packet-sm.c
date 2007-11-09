@@ -122,6 +122,8 @@ static int hf_sm_channel = -1;
 static int hf_sm_bearer = -1;
 static int hf_sm_len = -1;
 static int hf_sm_ip_addr = -1;
+static int hf_sm_context = -1;
+static int hf_sm_eisup_msg_id = -1;
 static int hf_sm_tag = -1;
 
 /* Initialize the subtree pointers */
@@ -166,7 +168,12 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = offset + 2;
 			switch(protocol){
 			case SM_PROTOCOL_X101:
-				/* XXX Reveres enginered so this may not be correct!!! */
+				/* XXX Reveres enginered so this may not be correct!!! 
+				 * EISUP - used between Cisco HSI and Cisco PGW devices, 
+				 * uses RUDP with default port number 8003. 
+				 * Protocol stack is RUDP->Cisco SM->SDP. 
+				 * This implementation is PROPRIETARY 
+				 */
 				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
 				length = tvb_get_ntohs(tvb,offset);
 				offset = offset + 2;
@@ -174,10 +181,12 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* The next stuff seems to be IP addr */
 				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
 				offset = offset + 4;
-				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-				offset = offset +2;
-				proto_tree_add_text(sm_tree, tvb, offset,3,"[unknown]");
-				offset = offset + 3;
+				/* This part looks to be the same per session */
+				proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+				offset = offset +4;
+				/* Some sort of message type? */
+				proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+				offset = offset + 1;
 				/* XXX Problem are tags 1 or two bytes???*/
 				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
 				
@@ -203,10 +212,11 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				/* The next stuff seems to be IP addr */
 				proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
 				offset = offset + 4;
-				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
-				offset = offset +2;
-				proto_tree_add_text(sm_tree, tvb, offset,3,"[unknown]");
-				offset = offset + 3;
+				proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+				offset = offset +4;
+				/* Some sort of message type? */
+				proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+				offset = offset + 1;
 				/* XXX Problem are tags 1 or two bytes???*/
 				proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
 				
@@ -297,6 +307,16 @@ proto_register_sm(void)
 			{ "IPv4 address","sm.ip_addr",
 			FT_IPv4,BASE_NONE,  NULL, 0x0,          
 			"IPv4 address", HFILL }
+		},
+		{ &hf_sm_context,
+			{ "Context","sm.context",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Context(guesswork!)", HFILL }
+		},
+		{ &hf_sm_eisup_msg_id,
+			{ "Message id","sm.eisup_message_id",
+			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"Message id(guesswork!)", HFILL }
 		},
 		{ &hf_sm_tag,
 			{ "Tag","sm.tag",

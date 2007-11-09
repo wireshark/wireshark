@@ -223,7 +223,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* get at least a full packet structure */
-	if ( !tvb_bytes_exist(tvb, 0, sizeof(DCC_HDR)) ) {
+	if ( tvb_length(tvb) < sizeof(DCC_HDR) ) {
 		/* Doesn't have enough bytes to contain packet header. */
 		return FALSE;
 	}
@@ -251,7 +251,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(dccp_tree, hf_dccp_len, tvb,
 			offset, 2, FALSE);
 
-		if ( !tvb_bytes_exist(tvb, 0, tvb_get_ntohs(tvb, offset))) {
+		if ( tvb_length(tvb) < tvb_get_ntohs(tvb, offset)) {
 			/* Doesn't have number of bytes that header claims. */
 			proto_tree_add_text(dccp_tree, tvb, offset, 2, "Error - packet is shorter than header claims!");
 		}

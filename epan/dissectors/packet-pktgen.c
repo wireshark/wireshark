@@ -73,7 +73,7 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     nstime_t tstamp;
 
     /* check for min size */
-    if(!tvb_bytes_exist(tvb, 0, 16)) { 	/* Not a PKTGEN packet. */
+    if(tvb_length(tvb) < 16) { 	/* Not a PKTGEN packet. */
 	return FALSE;
     }
     

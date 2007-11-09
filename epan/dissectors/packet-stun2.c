@@ -104,7 +104,7 @@ static gint ett_stun2_att = -1;
 #define UDP_PORT_STUN2 	3478
 #define TCP_PORT_STUN2	3478
 
-#define STUN2_HDR_LEN	20	/* STUN2 message header length */
+#define STUN2_HDR_LEN	((guint)20)	/* STUN2 message header length */
 #define ATTR_HDR_LEN	4	/* STUN2 attribute header length */
 
 
@@ -165,13 +165,15 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 offset;
 	guint i;
 	guint transaction_id_first_word;
+	guint   len;
 
 	/*
 	 * First check if the frame is really meant for us.
 	 */
 
+	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
-	if (!tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN))
+	if (len < STUN2_HDR_LEN)
 		return;
 
 	msg_type = tvb_get_ntohs(tvb, 0);
@@ -182,11 +184,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	/* check if payload enough */
-	if (!tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN+msg_length))
-		return;
-
-	/* Check if too much payload */
-	if (tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN+msg_length+1))
+	if (len != STUN2_HDR_LEN+msg_length)
 		return;
 
 	/* The message seems to be a valid STUN2 message! */
@@ -404,9 +402,11 @@ dissect_stun2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 msg_type;
 	guint16 msg_length;
+	guint   len;
 
 	/* First, make sure we have enough data to do the check. */
-	if (!tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN))
+	len = tvb_length(tvb);
+	if (len < STUN2_HDR_LEN)
 		return FALSE;
 
 	msg_type = tvb_get_ntohs(tvb, 0);
@@ -417,12 +417,9 @@ dissect_stun2_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 
 	/* check if payload enough */
-	if (!tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN+msg_length))
+	if (len != STUN2_HDR_LEN+msg_length)
 		return FALSE;
 
-	/* Check if too much payload */
-	if (tvb_bytes_exist(tvb, 0, STUN2_HDR_LEN+msg_length+1))
-		return FALSE;
 	dissect_stun2_message(tvb, pinfo, tree);
 	return TRUE;
 }

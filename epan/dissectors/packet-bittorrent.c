@@ -761,9 +761,10 @@ static gboolean test_bittorrent_packet (tvbuff_t *tvb, packet_info *pinfo,
 {
    conversation_t *conversation;
 
-   if (tvb_bytes_exist(tvb, 0, 20) &&
+   if (tvb_length(tvb) >= 20 &&
        tvb_get_guint8(tvb, 0) == 19 &&
        tvb_memeql(tvb, 1, "BitTorrent protocol", 19) == 0) {
+      /* XXXX why new ? */
       conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
       conversation_set_dissector(conversation, dissector_handle);

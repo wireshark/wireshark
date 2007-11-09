@@ -655,7 +655,7 @@ dissect_norm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 byte1;
 	if (!global_norm_heur)
 		return FALSE;
-	if (!tvb_bytes_exist(tvb, 0, 2))
+	if (tvb_length(tvb) < 2)
 		return FALSE;	/* not enough to check */
 	byte1 = tvb_get_guint8(tvb, 0);
 

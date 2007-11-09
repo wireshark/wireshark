@@ -185,7 +185,7 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	/* get at least a full packet structure */
-	if ( !tvb_bytes_exist(tvb, 0, sizeof(struct yahoo_rawpacket)) ) {
+	if ( tvb_length(tvb) < sizeof(struct yahoo_rawpacket) ) {
 		/* Not enough data captured; maybe it is a Yahoo
 		   Messenger packet, but it contains too little data to
 		   tell. */

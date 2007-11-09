@@ -4741,7 +4741,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * have an 80 byte header on them.  Which starts with
      * version (4), pkt_type.
      */
-    if (!tvb_bytes_exist (tvb, 0, sizeof (hdr))) {
+    if (tvb_length (tvb) < sizeof (hdr)) {
         return FALSE;
     }
 

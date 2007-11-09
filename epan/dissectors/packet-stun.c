@@ -129,7 +129,7 @@ static gint ett_stun_att = -1;
 #define TCP_PORT_STUN	3478
 
 
-#define STUN_HDR_LEN	20	/* STUN message header length */
+#define STUN_HDR_LEN	((guint)20)	/* STUN message header length */
 #define ATTR_HDR_LEN	4	/* STUN attribute header length */
 
 
@@ -208,14 +208,15 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 att_type;
 	guint16 att_length;
 	guint16 offset;
+	guint   len;
 	guint i;
 
 	/*
 	 * First check if the frame is really meant for us.
 	 */
-
+	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
-	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN))
+	if (len < STUN_HDR_LEN)
 		return 0;
 	
 	msg_type = tvb_get_ntohs(tvb, 0);
@@ -228,11 +229,7 @@ dissect_stun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	msg_length = tvb_get_ntohs(tvb, 2);
 	
 	/* check if payload enough */
-	if (!tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+msg_length))
-		return 0;
-
-	/* Check if too much payload */
-	if (tvb_bytes_exist(tvb, 0, STUN_HDR_LEN+msg_length+1))
+	if (len != STUN_HDR_LEN+msg_length)
 		return 0;
 
 	/* The message seems to be a valid STUN message! */

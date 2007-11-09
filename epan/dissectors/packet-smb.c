@@ -16508,7 +16508,7 @@ static gboolean
 dissect_smb_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	/* must check that this really is a smb packet */
-	if (!tvb_bytes_exist(tvb, 0, 4))
+	if (tvb_length(tvb) < 4)
 		return FALSE;
 
 	if( (tvb_get_guint8(tvb, 0) != 0xff)
