@@ -1076,7 +1076,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
     if (check_col(pinfo->cinfo, COL_INFO)) 
-	col_set_str(pinfo->cinfo, COL_INFO, info_str);
+	col_add_str(pinfo->cinfo, COL_INFO, info_str);
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
