@@ -418,22 +418,20 @@ call_dissector_through_handle(dissector_handle_t handle, tvbuff_t *tvb,
  * dissector and return its return value, otherwise call it and return
  * the length of the tvbuff pointed to by the argument.
  */
+
+static int
+call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo_arg, proto_tree *tree);
+
 static int
 call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo_arg, proto_tree *tree)
 {
-	packet_info *volatile pinfo = pinfo_arg;
+ 	packet_info *pinfo = pinfo_arg;
 	const char *saved_proto;
 	guint16 saved_can_desegment;
-	volatile int ret = 0;
-	gboolean save_writable;
-	volatile address save_dl_src;
-	volatile address save_dl_dst;
-	volatile address save_net_src;
-	volatile address save_net_dst;
-	volatile address save_src;
-	volatile address save_dst;
-	volatile gint saved_layer_names_len = 0;
+	int ret;
+	gint saved_layer_names_len = 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -479,86 +477,83 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 	}
 
 	if (pinfo->in_error_pkt) {
+		ret = call_dissector_work_error(handle, tvb, pinfo, tree);
+	} else {
 		/*
-		 * This isn't a packet being transported inside
-		 * the protocol whose dissector is calling us,
-		 * it's a copy of a packet that caused an error
-		 * in some protocol included in a packet that
-		 * reports the error (e.g., an ICMP Unreachable
-		 * packet).
-		 */
-
+ 		 * Just call the subdissector.
+ 		 */
+		ret = call_dissector_through_handle(handle, tvb, pinfo, tree);
+	}
+	if (ret == 0) {
 		/*
-		 * Save the current state of the writability of
-		 * the columns, and restore them after the
-		 * dissector returns, so that the columns
-		 * don't reflect the packet that got the error,
-		 * they reflect the packet that reported the
-		 * error.
+ 		 * That dissector didn't accept the packet, so
+ 		 * remove its protocol's name from the list
+ 		 * of protocols.
 		 */
-		save_writable = col_get_writable(pinfo->cinfo);
-		col_set_writable(pinfo->cinfo, FALSE);
-	 	save_dl_src = pinfo->dl_src;
-		save_dl_dst = pinfo->dl_dst;
-		save_net_src = pinfo->net_src;
-		save_net_dst = pinfo->net_dst;
-		save_src = pinfo->src;
-		save_dst = pinfo->dst;
-
-		/* Dissect the contained packet. */
-		TRY {
-			ret = call_dissector_through_handle(handle, tvb,
-			    pinfo, tree);
+ 		if (pinfo->layer_names != NULL) {
+ 			g_string_truncate(pinfo->layer_names,
+ 			    saved_layer_names_len);
 		}
-		CATCH(BoundsError) {
-			/*
-			 * Restore the column writability and addresses.
-			 */
-			col_set_writable(pinfo->cinfo, save_writable);
-			pinfo->dl_src = save_dl_src;
-			pinfo->dl_dst = save_dl_dst;
-			pinfo->net_src = save_net_src;
-			pinfo->net_dst = save_net_dst;
-			pinfo->src = save_src;
-			pinfo->dst = save_dst;
+ 	}
+ 	pinfo->current_proto = saved_proto;
+ 	pinfo->can_desegment = saved_can_desegment;
+ 	return ret;
+}
 
-			/*
-			 * Restore the current protocol, so any
-			 * "Short Frame" indication reflects that
-			 * protocol, not the protocol for the
-			 * packet that got the error.
-			 */
-			pinfo->current_proto = saved_proto;
 
-			/*
-			 * Restore the desegmentability state.
-			 */
-			pinfo->can_desegment = saved_can_desegment;
+static int
+call_dissector_work_error(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo_arg, proto_tree *tree)
+{
+	packet_info *pinfo = pinfo_arg;
+	const char *saved_proto;
+	guint16 saved_can_desegment;
+	volatile int ret = 0;
+	gboolean save_writable;
+	address save_dl_src;
+	address save_dl_dst;
+	address save_net_src;
+	address save_net_dst;
+	address save_src;
+	address save_dst;
 
-			/*
-			 * Rethrow the exception, so this will be
-			 * reported as a short frame.
-			 */
-			RETHROW;
-		}
-		CATCH(ReportedBoundsError) {
-			/*
-			 * "ret" wasn't set because an exception was thrown
-			 * before "call_dissector_through_handle()" returned.
-			 * As it called something, at least one dissector
-			 * accepted the packet, and, as an exception was
-			 * thrown, not only was all the tvbuff dissected,
-			 * a dissector tried dissecting past the end of
-			 * the data in some tvbuff, so we'll assume that
-			 * the entire tvbuff was dissected.
-			 */
-			ret = tvb_length(tvb);
-		}
-	        CATCH(OutOfMemoryError) {
-		        RETHROW;
-	        }
-		ENDTRY;
+	/*
+	* This isn't a packet being transported inside
+	* the protocol whose dissector is calling us,
+	* it's a copy of a packet that caused an error
+	* in some protocol included in a packet that
+	* reports the error (e.g., an ICMP Unreachable
+	* packet).
+	*/
 
+	/*
+	* Save the current state of the writability of
+	* the columns, and restore them after the
+	* dissector returns, so that the columns
+	* don't reflect the packet that got the error,
+	* they reflect the packet that reported the
+	* error.
+	*/
+	saved_proto = pinfo->current_proto;
+	saved_can_desegment = pinfo->can_desegment;
+
+	save_writable = col_get_writable(pinfo->cinfo);
+	col_set_writable(pinfo->cinfo, FALSE);
+	save_dl_src = pinfo->dl_src;
+	save_dl_dst = pinfo->dl_dst;
+	save_net_src = pinfo->net_src;
+	save_net_dst = pinfo->net_dst;
+	save_src = pinfo->src;
+	save_dst = pinfo->dst;
+
+	/* Dissect the contained packet. */
+	TRY {
+		ret = call_dissector_through_handle(handle, tvb,pinfo, tree);
+	}
+	CATCH(BoundsError) {
+		/*
+		* Restore the column writability and addresses.
+		*/
 		col_set_writable(pinfo->cinfo, save_writable);
 		pinfo->dl_src = save_dl_src;
 		pinfo->dl_dst = save_dl_dst;
@@ -566,27 +561,52 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb,
 		pinfo->net_dst = save_net_dst;
 		pinfo->src = save_src;
 		pinfo->dst = save_dst;
-		pinfo->want_pdu_tracking = 0;
-	} else {
-		/*
-		 * Just call the subdissector.
-		 */
-		ret = call_dissector_through_handle(handle, tvb, pinfo, tree);
-	}
 
-	if (ret == 0) {
 		/*
-		 * That dissector didn't accept the packet, so
-		 * remove its protocol's name from the list
-		 * of protocols.
-		 */
-		if (pinfo->layer_names != NULL) {
-			g_string_truncate(pinfo->layer_names,
-			    saved_layer_names_len);
-		}
+		* Restore the current protocol, so any
+		* "Short Frame" indication reflects that
+		* protocol, not the protocol for the
+		* packet that got the error.
+		*/
+		pinfo->current_proto = saved_proto;
+
+		/*
+		* Restore the desegmentability state.
+		*/
+		pinfo->can_desegment = saved_can_desegment;
+
+		/*
+		* Rethrow the exception, so this will be
+		* reported as a short frame.
+		*/
+		RETHROW;
 	}
-	pinfo->current_proto = saved_proto;
-	pinfo->can_desegment = saved_can_desegment;
+	CATCH(ReportedBoundsError) {
+		/*
+		* "ret" wasn't set because an exception was thrown
+		* before "call_dissector_through_handle()" returned.
+		* As it called something, at least one dissector
+		* accepted the packet, and, as an exception was
+		* thrown, not only was all the tvbuff dissected,
+		* a dissector tried dissecting past the end of
+		* the data in some tvbuff, so we'll assume that
+		* the entire tvbuff was dissected.
+		*/
+		ret = tvb_length(tvb);
+	}
+	CATCH(OutOfMemoryError) {
+		RETHROW;
+        }
+	ENDTRY;
+
+	col_set_writable(pinfo->cinfo, save_writable);
+	pinfo->dl_src = save_dl_src;
+	pinfo->dl_dst = save_dl_dst;
+	pinfo->net_src = save_net_src;
+	pinfo->net_dst = save_net_dst;
+	pinfo->src = save_src;
+	pinfo->dst = save_dst;
+	pinfo->want_pdu_tracking = 0;
 	return ret;
 }
 
