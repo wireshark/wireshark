@@ -2039,14 +2039,28 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 
 } /* add_ipv6_name */
 
+/* -----------------
+ * unsigned integer to ascii
+*/
+static gchar *ep_utoa(guint port)
+{
+  gchar *bp = ep_alloc(MAXNAMELEN);
+  
+  bp = &bp[MAXNAMELEN -1];
+  
+  *bp = 0;
+  do {
+      *--bp = (port % 10) +'0';
+  } while ((port /= 10) != 0);
+  return bp;
+}
+
+
 extern gchar *get_udp_port(guint port)
 {
-  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    cur=ep_alloc(MAXNAMELEN);
-    g_snprintf(cur, MAXNAMELEN, "%u", port);
-    return cur;
+    return ep_utoa(port);
   }
 
   return serv_name_lookup(port, PT_UDP);
@@ -2055,12 +2069,9 @@ extern gchar *get_udp_port(guint port)
 
 extern gchar *get_dccp_port(guint port)
 {
-  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    cur=ep_alloc(MAXNAMELEN);
-    g_snprintf(cur, MAXNAMELEN, "%u", port);
-    return cur;
+    return ep_utoa(port);
   }
 
   return serv_name_lookup(port, PT_DCCP);
@@ -2070,12 +2081,9 @@ extern gchar *get_dccp_port(guint port)
 
 extern gchar *get_tcp_port(guint port)
 {
-  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    cur=ep_alloc(MAXNAMELEN);
-    g_snprintf(cur, MAXNAMELEN, "%u", port);
-    return cur;
+    return ep_utoa(port);
   }
 
   return serv_name_lookup(port, PT_TCP);
@@ -2084,12 +2092,9 @@ extern gchar *get_tcp_port(guint port)
 
 extern gchar *get_sctp_port(guint port)
 {
-  gchar *cur;
 
   if (!(g_resolv_flags & RESOLV_TRANSPORT)) {
-    cur=ep_alloc(MAXNAMELEN);
-    g_snprintf(cur, MAXNAMELEN, "%u", port);
-    return cur;
+    return ep_utoa(port);
   }
 
   return serv_name_lookup(port, PT_SCTP);
