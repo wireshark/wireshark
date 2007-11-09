@@ -192,7 +192,7 @@ check_timestamp(wtap *wth)
   struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
 
   if (!((i++)%250))
-    printf("== %d starttime=%lu stoptime=%lu ts=%lu",i,
+    printf("== %d starttime=%lu stoptime=%lu ts=%lu\n",i,
            (unsigned long)starttime,
 	   (unsigned long)stoptime,
 	   (unsigned long)pkthdr->ts.secs);
@@ -395,7 +395,7 @@ int main(int argc, char *argv[])
   gboolean check_ts;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
-  
+
   /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
 	  g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
@@ -405,7 +405,7 @@ int main(int argc, char *argv[])
 		init_plugins();
     }
 #endif
-  
+
   /* Process the options */
   while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
 
@@ -665,9 +665,9 @@ int main(int argc, char *argv[])
 
 	}
       }
-	
+
       check_ts = check_timestamp(wth);
-		
+
       if ( ((check_startstop && check_ts) || (!check_startstop && !check_ts)) && ((!selected(count) && !keep_em) ||
           (selected(count) && keep_em)) ) {
 
