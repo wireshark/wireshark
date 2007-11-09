@@ -106,6 +106,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The HTTP dissector could crash on some systems while decoding
+            chunked messages.
+            <!-- Fixed in r2415 -->
+          </para>
+          <para>Versions affected: 0.10.14 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
         <!-- iSeries -->
         <!-- rtsp? -->
       </itemizedlist>

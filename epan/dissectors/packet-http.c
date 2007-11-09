@@ -1083,12 +1083,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				add_new_data_source(pinfo, next_tvb,
 				    "Uncompressed entity body");
 			} else {
-				if (chunks_decoded > 1) {
-					tvb_set_child_real_data_tvbuff(tvb,
-					    next_tvb);
-					add_new_data_source(pinfo, next_tvb,
-					    "Compressed entity body");
-				}
 				call_dissector(data_handle, next_tvb, pinfo,
 				    e_tree);
 
