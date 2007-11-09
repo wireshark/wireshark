@@ -1396,18 +1396,20 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
   SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, src_addr);
   if (tree) {
+    char *src_host;
+
     memcpy(&addr, iph->ip_src.data, 4);
+    src_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Src: %s (%s)",
-		get_hostname(addr), ip_to_str(iph->ip_src.data));
+      proto_item_append_text(ti, ", Src: %s (%s)", src_host, ip_to_str(iph->ip_src.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4, get_hostname(addr));
+    item = proto_tree_add_string(ip_tree, hf_ip_src_host, tvb, offset + 12, 4, src_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4, get_hostname(addr));
+    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 12, 4, src_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
   }
@@ -1436,18 +1438,20 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   if (tree) {
+    char *dst_host;
+
     memcpy(&addr, iph->ip_dst.data, 4);
+    dst_host = get_hostname(addr);
     if (ip_summary_in_tree) {
-      proto_item_append_text(ti, ", Dst: %s (%s)",
-		get_hostname(addr), ip_to_str(iph->ip_dst.data));
+      proto_item_append_text(ti, ", Dst: %s (%s)", dst_host, ip_to_str(iph->ip_dst.data));
     }
     proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
     item = proto_tree_add_ipv4(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, get_hostname(addr));
+    item = proto_tree_add_string(ip_tree, hf_ip_dst_host, tvb, offset + 16, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
-    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 16, 4, get_hostname(addr));
+    item = proto_tree_add_string(ip_tree, hf_ip_host, tvb, offset + 16, 4, dst_host);
     PROTO_ITEM_SET_GENERATED(item);
     PROTO_ITEM_SET_HIDDEN(item);
   }
@@ -2042,7 +2046,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     icmp_code;
   guint      length, reported_length;
   guint16    cksum, computed_cksum;
-  gchar      *type_str, *code_str;
+  const gchar *type_str, *code_str;
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
   int        i;
@@ -2051,9 +2055,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *item;
 
   type_str="";
+  code_str="";
 
-  code_str=ep_alloc(64);
-  code_str[0]=0;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
@@ -2072,9 +2075,9 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_UNREACH:
       type_str="Destination unreachable";
       if (icmp_code < N_UNREACH) {
-        g_snprintf(code_str, 64, "(%s)", unreach_str[icmp_code]);
+        code_str = unreach_str[icmp_code];
       } else {
-        g_snprintf(code_str, 64, "(Unknown - error?)");
+        code_str = "Unknown - error?";
       }
       break;
     case ICMP_SOURCEQUENCH:
@@ -2083,9 +2086,9 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_REDIRECT:
       type_str="Redirect";
       if (icmp_code < N_REDIRECT) {
-        g_snprintf(code_str, 64, "(%s)", redir_str[icmp_code]);
+        code_str = redir_str[icmp_code];
       } else {
-        g_snprintf(code_str, 64, "(Unknown - error?)");
+        code_str = "Unknown - error?";
       }
       break;
     case ICMP_ECHO:
@@ -2108,17 +2111,17 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ICMP_TIMXCEED:
       type_str="Time-to-live exceeded";
       if (icmp_code < N_TIMXCEED) {
-        g_snprintf(code_str, 64, "(%s)", ttl_str[icmp_code]);
+        code_str = ttl_str[icmp_code];
       } else {
-        g_snprintf(code_str, 64, "(Unknown - error?)");
+        code_str = "Unknown - error?";
       }
       break;
     case ICMP_PARAMPROB:
       type_str="Parameter problem";
       if (icmp_code < N_PARAMPROB) {
-        g_snprintf(code_str, 64, "(%s)", par_str[icmp_code]);
+        code_str = par_str[icmp_code];
       } else {
-        g_snprintf(code_str, 64, "(Unknown - error?)");
+        code_str = "Unknown - error?";
       }
       break;
     case ICMP_TSTAMP:
@@ -2147,7 +2150,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_set_str(pinfo->cinfo, COL_INFO, type_str);
     if (code_str[0] != '\0')
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", code_str);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
   }
 
   if (tree) {
@@ -2161,7 +2164,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       icmp_type, type_str);
     proto_tree_add_uint_format(icmp_tree, hf_icmp_code, tvb, 1, 1,
 			       icmp_code,
-			       "Code: %u %s",
+			       "Code: %u (%s)",
 			       icmp_code, code_str);
 
     if (!pinfo->fragmented && length >= reported_length) {
