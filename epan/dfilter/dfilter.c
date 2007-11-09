@@ -131,6 +131,7 @@ free_insns(GPtrArray *insns)
 		insn = g_ptr_array_index(insns, i);
 		dfvm_insn_free(insn);
 	}
+	g_ptr_array_free(insns, TRUE);
 }
 
 void
