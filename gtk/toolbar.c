@@ -302,11 +302,6 @@ toolbar_redraw_all(void)
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
 
-#if GTK_CHECK_VERSION(2,4,0)
-    gtk_toolbar_set_show_arrow(GTK_TOOLBAR(main_tb),
-			       prefs.gui_toolbar_arrow);
-#endif
-
 #if GTK_MAJOR_VERSION < 2
     /* In GTK+ 1.2[.x], the toolbar takes the maximum vertical size it ever
      * had, even if you change the style in such a way as to reduce its

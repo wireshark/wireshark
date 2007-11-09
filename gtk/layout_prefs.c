@@ -255,9 +255,6 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data _U_)
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
 #define GUI_TOOLBAR_STYLE_KEY           "toolbar_style"
-#if GTK_CHECK_VERSION(2,4,0)
-#define GUI_TOOLBAR_ARROW_KEY           "toolbar_arrow"
-#endif
 #define GUI_WINDOW_TITLE_KEY            "window_title"
 
 
@@ -311,13 +308,6 @@ static const enum_val_t toolbar_style_vals[] = {
     { "BOTH",  "Icons & Text",   TB_STYLE_BOTH },
     { NULL,    NULL,             0 }
 };
-#if GTK_CHECK_VERSION(2,4,0)
-static const enum_val_t toolbar_arrow_vals[] = {
-    { "TRUE",  "Show",         TRUE },
-    { "FALSE", "Do not show", FALSE },
-    { NULL,    NULL,              0 }
-};
-#endif
 
 GtkWidget*
 layout_prefs_show(void)
@@ -339,9 +329,6 @@ layout_prefs_show(void)
 #endif
     GtkWidget *highlight_style_om;
     GtkWidget *toolbar_style_om;
-#if GTK_CHECK_VERSION(2,4,0)
-    GtkWidget *toolbar_arrow_om;
-#endif
     GtkWidget *filter_toolbar_placement_om;
     GtkWidget *window_title_te;
 
@@ -497,16 +484,6 @@ layout_prefs_show(void)
         "toolbar will be displayed.", NULL);
     OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
-#if GTK_CHECK_VERSION(2,4,0)
-    toolbar_arrow_om = create_preference_option_menu(main_tb, pos++,
-        "Toolbar arrow:", NULL, toolbar_arrow_vals,
-        prefs.gui_toolbar_arrow);
-    gtk_tooltips_set_tip(tooltips, toolbar_arrow_om, 
-        "Select whether or not to show an arrow at the end of the toolbar "
-        "that allows access to buttons that do not fit on the screen.", NULL);
-    OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_ARROW_KEY, toolbar_arrow_om);
-#endif
-
     /* Placement of Filter toolbar */
     filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
         "Filter toolbar placement:", NULL,
@@ -569,10 +546,6 @@ layout_prefs_fetch(GtkWidget *w)
         OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),  highlight_style_vals);
     prefs.gui_toolbar_main_style = fetch_enum_value(
         OBJECT_GET_DATA(w, GUI_TOOLBAR_STYLE_KEY), toolbar_style_vals);
-#if GTK_CHECK_VERSION(2,4,0)
-    prefs.gui_toolbar_arrow = fetch_enum_value(
-        OBJECT_GET_DATA(w, GUI_TOOLBAR_ARROW_KEY), toolbar_arrow_vals);
-#endif
 
     if (prefs.gui_window_title != NULL)
         g_free(prefs.gui_window_title);

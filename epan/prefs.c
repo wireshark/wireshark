@@ -1118,7 +1118,6 @@ init_prefs(void) {
   prefs.gui_hex_dump_highlight_style = 1;
   prefs.filter_toolbar_show_in_statusbar = FALSE;
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
-  prefs.gui_toolbar_arrow = TRUE;
 #ifdef _WIN32
   /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
    * for gui_font_name1. Maybe it's dependant on the windows version running?!
@@ -1556,7 +1555,6 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_GEOMETRY_MAIN_HEIGHT     "gui.geometry.main.height"
 #define PRS_GUI_TOOLBAR_MAIN_SHOW        "gui.toolbar_main_show"
 #define PRS_GUI_TOOLBAR_MAIN_STYLE       "gui.toolbar_main_style"
-#define PRS_GUI_TOOLBAR_ARROW            "gui.toolbar_arrow"
 #define PRS_GUI_WEBBROWSER               "gui.webbrowser"
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
@@ -1812,13 +1810,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 	prefs.gui_toolbar_main_style =
 	    find_index_from_string_array(value, gui_toolbar_style_text,
 				     TB_STYLE_ICONS);
-  } else if (strcmp(pref_name, PRS_GUI_TOOLBAR_ARROW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
-	    prefs.gui_toolbar_arrow = TRUE;
-    }
-    else {
-	    prefs.gui_toolbar_arrow = FALSE;
-    }
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
     if (prefs.gui_font_name1 != NULL)
       g_free(prefs.gui_font_name1);
@@ -2498,11 +2489,6 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# One of: ICONS, TEXT, BOTH\n");
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
 		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
-
-  fprintf(pf, "\n# Show toolbar arrow (GTK2.4+ only)?\n");
-  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(pf, PRS_GUI_TOOLBAR_ARROW ": %s\n",
-		  prefs.gui_toolbar_arrow == TRUE ? "TRUE" : "FALSE");
 
   fprintf(pf, "\n# Save window position at exit?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
