@@ -171,20 +171,22 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
   }
 }
 
+static gboolean chek_is_802_2(tvbuff_t *tvb);
+
 static void
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	int fcs_len)
 {
   proto_item		*ti;
-  eth_hdr 		*volatile ehdr;
-  volatile gboolean	is_802_2;
-  proto_tree		*volatile fh_tree = NULL;
+  eth_hdr 		*ehdr;
+  gboolean		is_802_2;
+  proto_tree		*fh_tree = NULL;
   const guint8		*src_addr, *dst_addr;
   static eth_hdr 	ehdrs[4];
   static int		ehdr_num=0;
-  proto_tree		*volatile tree;
+  proto_tree		*tree;
   proto_item		*addr_item;
-  proto_tree		*volatile addr_tree=NULL;
+  proto_tree		*addr_tree=NULL;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -252,23 +254,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
    * an ethernet type of ETHERTYPE_UNK.
    */
   if (ehdr->type <= IEEE_802_3_MAX_LEN && ehdr->type != ETHERTYPE_UNK) {
-    /* Is there an 802.2 layer? I can tell by looking at the first 2
-       bytes after the 802.3 header. If they are 0xffff, then what
-       follows the 802.3 header is an IPX payload, meaning no 802.2.
-       (IPX/SPX is they only thing that can be contained inside a
-       straight 802.3 packet). A non-0xffff value means that there's an
-       802.2 layer inside the 802.3 layer */
-    is_802_2 = TRUE;
-    TRY {
-	    if (tvb_get_ntohs(tvb, 14) == 0xffff) {
-	      is_802_2 = FALSE;
-	    }
-    }
-    CATCH2(BoundsError, ReportedBoundsError) {
-	    ; /* do nothing */
 
-    }
-    ENDTRY;
+    is_802_2 = chek_is_802_2(tvb);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
@@ -347,6 +334,34 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
           hf_eth_trailer, fcs_len);
   }
 }
+
+/* -------------- */
+static gboolean chek_is_802_2(tvbuff_t *tvb)
+{
+  volatile gboolean	is_802_2;
+  
+  is_802_2 = TRUE;
+
+    /* Is there an 802.2 layer? I can tell by looking at the first 2
+       bytes after the 802.3 header. If they are 0xffff, then what
+       follows the 802.3 header is an IPX payload, meaning no 802.2.
+       (IPX/SPX is they only thing that can be contained inside a
+       straight 802.3 packet). A non-0xffff value means that there's an
+       802.2 layer inside the 802.3 layer */
+  
+  TRY {
+  	if (tvb_get_ntohs(tvb, 14) == 0xffff) {
+	    is_802_2 = FALSE;
+	}
+  }
+  CATCH2(BoundsError, ReportedBoundsError) {
+	    ; /* do nothing */
+
+  }
+  ENDTRY;
+  return is_802_2;
+}
+
 
 /*
  * Add an Ethernet trailer - which, for some captures, might be the FCS
