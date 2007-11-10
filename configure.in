@@ -360,9 +360,9 @@ AC_SUBST(LDFLAGS_SHAREDLIB)
 case "$host_os" in
 
 darwin*)
-	AC_MSG_CHECKING(whether we can build with Core Foundation and Launch Services)
+	AC_MSG_CHECKING(whether we can build with Core Foundation Launch Services and CoreServices)
 	ac_save_LIBS="$LIBS"
-	ac_frameworks="-framework ApplicationServices -framework CoreFoundation"
+	ac_frameworks="-framework ApplicationServices -framework CoreFoundation -framework CoreServices"
 	LIBS="$LIBS $ac_frameworks"
 	AC_TRY_LINK(
 	   [
@@ -370,20 +370,24 @@ darwin*)
 #       include <CoreFoundation/CFString.h>
 #       include <CoreFoundation/CFURL.h>
 #       include <ApplicationServices/ApplicationServices.h>
+#	include <CoreServices/CoreServices.h>
 	   ],
 	   [
 	CFStringRef url_CFString;
 	CFURLRef url_CFURL;
 	OSStatus status;
+	long os_version;
 
 	url_CFString = CFStringCreateWithCString(NULL, "", kCFStringEncodingASCII);
 	url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
 	status = LSOpenCFURLRef(url_CFURL, NULL);
+
+	Gestalt(gestaltSystemVersion, &os_version);
 	   ],
-	   ac_cv_can_use_cf_and_ls=yes,
-	   ac_cv_can_use_cf_and_ls=no,
+	   ac_cv_can_use_osx_frameworks=yes,
+	   ac_cv_can_use_osx_frameworks=no,
 	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
-	if test "$ac_cv_can_use_cf_and_ls" = yes ; then
+	if test "$ac_cv_can_use_osx_frameworks" = yes ; then
 		AC_DEFINE(HAVE_OS_X_FRAMEWORKS, 1, [Define to 1 if you have OS X frameworks])
 		FRAMEWORKS="$ac_frameworks"
 		AC_MSG_RESULT(yes)

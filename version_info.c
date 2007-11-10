@@ -73,7 +73,11 @@
 #ifdef HAVE_LIBSMI
 #include <smi.h>
 #endif
- 
+
+#ifdef HAVE_OS_X_FRAMEWORKS
+#include <CoreServices/CoreServices.h>
+#endif
+
 #ifdef SVNVERSION
 	const char *wireshark_svnversion = " (" SVNVERSION ")";
 #else
@@ -256,6 +260,9 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 #elif defined(HAVE_SYS_UTSNAME_H)
 	struct utsname name;
 #endif
+#if HAVE_OS_X_FRAMEWORKS
+	long macosx_ver, macosx_major_ver, macosx_minor_ver, macosx_bugfix_ver;
+#endif
 
 	g_string_append(str, "on ");
 
@@ -408,6 +415,26 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * thing.
 		 */
 		g_string_sprintfa(str, "%s %s", name.sysname, name.release);
+#ifdef HAVE_OS_X_FRAMEWORKS
+		Gestalt(gestaltSystemVersion, &macosx_ver);
+
+		/* The following functions are only available in MacOS 10.4+ */
+		if(macosx_ver >= 0x1040) {
+			Gestalt(gestaltSystemVersionMajor, &macosx_major_ver);
+			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
+			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
+			
+			g_string_sprintfa(str, " (MacOS %ld.%ld.%ld)",
+					  macosx_major_ver,
+					  macosx_minor_ver,
+					  macosx_bugfix_ver);
+		} else {
+			g_string_sprintfa(str, " (MacOS X < 10.4 [%lx])",
+					  macosx_ver);
+			/* See Apple's Gestalt Manager Reference for meanings
+			 * of the macosx_ver values. */
+		}
+#endif /* HAVE_OS_X_FRAMEWORKS */
 	}
 #else
 	g_string_append(str, "an unknown OS");

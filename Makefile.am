@@ -321,7 +321,8 @@ tshark_LDADD = \
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
+	@FRAMEWORKS@			\
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@
@@ -376,7 +377,7 @@ dumpcap_LDADD = \
 	wiretap/libwiretap.la		\
 	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ \
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @FRAMEWORKS@ \
 	@LIBGCRYPT_LIBS@
 
 # Common headers
