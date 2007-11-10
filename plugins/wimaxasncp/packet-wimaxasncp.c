@@ -2196,7 +2196,7 @@ static char *alnumerize(
     
     for ( ; (c = *r); ++r) 
     {
-        if (isalnum(c) || c == '_' || c == '.') 
+        if (isalnum((unsigned char)c) || c == '_' || c == '.') 
         {
             *(w++) = c;
         }
