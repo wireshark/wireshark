@@ -685,9 +685,9 @@ remember_selected_row(GtkCList *clist, gint row, gint column _U_,
     button = (GtkWidget *)OBJECT_GET_DATA(clist, COLOR_EDIT_LB);
     gtk_widget_set_sensitive (button, TRUE);
     button = (GtkWidget *)OBJECT_GET_DATA(clist, COLOR_ENABLE_LB);
-    gtk_widget_set_sensitive(button, TRUE);
+    gtk_widget_set_sensitive(button, colorf->disabled);
     button = (GtkWidget *)OBJECT_GET_DATA(clist, COLOR_DISABLE_LB);
-    gtk_widget_set_sensitive(button, TRUE);
+    gtk_widget_set_sensitive(button, !colorf->disabled);
     button = (GtkWidget *)OBJECT_GET_DATA(clist, COLOR_DELETE_LB);
     gtk_widget_set_sensitive(button, TRUE);
 
@@ -699,6 +699,8 @@ struct remember_data
     gint count;               /* count of selected filters */
     gboolean first_selected;  /* true if the first filter in the list is selected */
     gboolean last_selected;   /* true if the last filter in the list is selected */
+    gboolean all_enabled;     /* true if all selected coloring rules are enabled */
+    gboolean all_disabled;    /* true if all selected coloring rules are disabled */
     gpointer color_filters;
 };
 /* called for each selected row in the tree.
@@ -711,6 +713,9 @@ static void remember_this_row (GtkTreeModel *model, GtkTreePath *path, GtkTreeIt
 
     gtk_tree_model_get(model, iter, 5, &colorf, -1);
     colorf->selected = TRUE;
+
+    data->all_enabled  &= (!colorf->disabled);
+    data->all_disabled &= colorf->disabled;
 
     path_index = gtk_tree_path_get_indices(path);   /* not to be freed */
     if (path_index == NULL)       /* can return NULL according to API doc.*/
@@ -746,6 +751,7 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
     struct remember_data data;
 
     data.first_selected = data.last_selected = FALSE;
+    data.all_enabled = data.all_disabled = TRUE;
     data.count = 0;
     data.color_filters = color_filters;
 
@@ -764,11 +770,11 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
 
       /* We can enable any number of filters */
       button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_ENABLE_LB);
-      gtk_widget_set_sensitive (button, TRUE);
+      gtk_widget_set_sensitive (button, !data.all_enabled);
 
       /* We can disable any number of filters */
       button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DISABLE_LB);
-      gtk_widget_set_sensitive (button, TRUE);
+      gtk_widget_set_sensitive (button, !data.all_disabled);
 
       /* We can delete any number of filters */
       button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DELETE_LB);
@@ -1035,6 +1041,7 @@ static void
 color_disable_cb(GtkWidget *widget, gboolean action_disable)
 {
   gint filter_number;
+  GtkWidget *button;
   GtkWidget * color_filters;
   color_filter_t *colorf;
 #if GTK_MAJOR_VERSION < 2
@@ -1067,7 +1074,6 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
       gtk_clist_set_background(GTK_CLIST(color_filters), filter_number,
 	      colorf->disabled ? &WHITE : &bg);
     }
-
 #else
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, filter_number);
@@ -1079,6 +1085,10 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
     }
 #endif
   }
+  button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_ENABLE_LB);
+  gtk_widget_set_sensitive(button, action_disable);
+  button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DISABLE_LB);
+  gtk_widget_set_sensitive(button, !action_disable);
 }
 
 /* Delete a single color filter from the list and elsewhere. */
