@@ -31,6 +31,9 @@
 /** The color white. */
 extern GdkColor WHITE;
 
+/** The color light-grey. */
+extern GdkColor LTGREY;
+
 /** The color black. */
 extern GdkColor BLACK;
 

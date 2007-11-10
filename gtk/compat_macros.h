@@ -220,6 +220,8 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define WIRESHARK_STOCK_FILE_SET_NEXT            "Next File"
 #define WIRESHARK_STOCK_FILE_SET_PREVIOUS        "Previous File"
 #define WIRESHARK_STOCK_FILTER_OUT_STREAM        "Filter Out This Stream"
+#define WIRESHARK_STOCK_ENABLE                   "Enable"
+#define WIRESHARK_STOCK_DISABLE                  "Disable"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -355,6 +357,8 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_LABEL_FILE_SET_NEXT            "Next File"
 #define WIRESHARK_STOCK_LABEL_FILE_SET_PREVIOUS        "Previous File"
 #define WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM        "Filter Out This Stream"
+#define WIRESHARK_STOCK_LABEL_ENABLE                   "Enable"
+#define WIRESHARK_STOCK_LABEL_DISABLE                  "Disable"
 
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_CAPTURE_INTERFACES       "Wireshark_Stock_CaptureInterfaces"
@@ -395,6 +399,8 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_FILE_SET_NEXT            "Wireshark_Stock_File_Set_Next"
 #define WIRESHARK_STOCK_FILE_SET_PREVIOUS        "Wireshark_Stock_File_Set_Previous"
 #define WIRESHARK_STOCK_FILTER_OUT_STREAM        "Wireshark_Stock_Filter_Out_This_Stream"
+#define WIRESHARK_STOCK_ENABLE                   "Wireshark_Stock_Enable"
+#define WIRESHARK_STOCK_DISABLE                  "Wireshark_Stock_Disable"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);

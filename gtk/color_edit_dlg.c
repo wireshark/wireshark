@@ -60,6 +60,9 @@ static void edit_color_filter_destroy_cb(GObject *object, gpointer user_data);
 #endif
 static void edit_color_filter_fg_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_bg_cb(GtkButton *button, gpointer user_data);
+/*
+static void edit_disabled_cb_cb(GtkButton *button, gpointer user_data);
+*/
 static void edit_color_filter_ok_cb(GtkButton *button, gpointer user_data);
 static void edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data);
 
@@ -80,6 +83,7 @@ static void color_sel_cancel_cb(GtkObject *object, gpointer user_data);
    open, so these shouldn't be global. */
 static GtkWidget *filt_name_entry;
 static GtkWidget *filt_text_entry;
+static GtkWidget *disabled_cb;
 
 
 static void
@@ -110,10 +114,15 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     GtkWidget *add_expression_bt;
     GtkWidget *color_filter_text;
 
+    GtkWidget *settings_hbox;
+
     GtkWidget *colorize_fr;
     GtkWidget *colorize_hbox;
     GtkWidget *colorize_filter_fg;
     GtkWidget *colorize_filter_bg;
+
+    GtkWidget *status_fr;
+    GtkWidget *status_vbox;
 
     GtkWidget *bbox;
     GtkWidget *edit_color_filter_ok;
@@ -128,7 +137,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
 
     gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);
-    gtk_tree_model_get(model, &iter, 4, &colorf, -1);
+    gtk_tree_model_get(model, &iter, 5, &colorf, -1);
 
 #else
     colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row_selected);
@@ -203,9 +212,13 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     /* Show the (in)validity of the default filter string */
     filter_te_syntax_check_cb(filt_text_entry);
 
+    /* settings-hbox for "choose color frame" and "status frame" */
+    settings_hbox = gtk_hbox_new (FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (dialog_vbox), settings_hbox, FALSE, FALSE, 0);
+
     /* choose color frame */
     colorize_fr = gtk_frame_new("Display Colors");
-    gtk_box_pack_start (GTK_BOX (dialog_vbox), colorize_fr, FALSE, FALSE, 0);
+    gtk_box_pack_start (GTK_BOX (settings_hbox), colorize_fr, TRUE, TRUE, 0);
 
     colorize_hbox = gtk_hbox_new (FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (colorize_hbox), 5);
@@ -219,7 +232,19 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_box_pack_start (GTK_BOX (colorize_hbox), colorize_filter_bg, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, colorize_filter_bg, ("Select background color for data display"), NULL);
 
+    /* status frame */
+    status_fr = gtk_frame_new("Status");
+    gtk_box_pack_start (GTK_BOX (settings_hbox), status_fr, TRUE, TRUE, 0);
 
+    status_vbox = gtk_vbox_new (FALSE, 0);
+    gtk_container_set_border_width  (GTK_CONTAINER (status_vbox), 5);
+    gtk_container_add(GTK_CONTAINER(status_fr), status_vbox);
+
+    disabled_cb = gtk_check_button_new_with_label("Disabled");
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(disabled_cb), colorf->disabled);
+    gtk_box_pack_start (GTK_BOX (status_vbox), disabled_cb, TRUE, FALSE, 0);
+    gtk_tooltips_set_tip (tooltips, disabled_cb, ("Color rule won't be checked if this box is selected"), NULL);
+    
     /* button box */
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), bbox, FALSE, FALSE, 0);
@@ -240,6 +265,8 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     SIGNAL_CONNECT(colorize_filter_fg, "clicked", edit_color_filter_fg_cb, NULL);
     OBJECT_SET_DATA(colorize_filter_bg, COLOR_FILTER, colorf);
     SIGNAL_CONNECT(colorize_filter_bg, "clicked", edit_color_filter_bg_cb, NULL);
+    OBJECT_SET_DATA(disabled_cb, COLOR_FILTER, colorf);
+/*    SIGNAL_CONNECT(disabled_cb, "clicked", edit_disabled_cb_cb, NULL);*/
     OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTERS_CL, color_filters);
     OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTER, colorf);
     SIGNAL_CONNECT(edit_color_filter_ok, "clicked", edit_color_filter_ok_cb, edit_dialog);
@@ -331,6 +358,21 @@ edit_color_filter_bg_cb                (GtkButton       *button,
   }
 }
 
+/* Toggle the disabled flag */
+/*
+static void
+edit_disabled_cb_cb 	               (GtkButton       *button,
+                                        gpointer         user_data _U_)
+{
+  color_filter_t *colorf;
+
+  colorf = (color_filter_t *)OBJECT_GET_DATA(button, COLOR_FILTER);
+  colorf->disabled = GTK_TOGGLE_BUTTON (button)->active;
+
+  printf("Colorfilter %s is now %s\n",colorf->filter_name,colorf->disabled?"disabled":"enabled");
+}
+*/
+
 /* accept color (and potential content) change */
 static void
 edit_color_filter_ok_cb                (GtkButton       *button,
@@ -342,6 +384,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     GdkColor        new_bg_color;
     gchar          *filter_name;
     gchar          *filter_text;
+    gboolean        filter_disabled;
     color_filter_t *colorf;
     dfilter_t      *compiled_filter;
     GtkWidget      *color_filters;
@@ -359,6 +402,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 
     filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
     filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
+    filter_disabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(disabled_cb));
 
     if(strchr(filter_name,'@') || strchr(filter_text,'@')){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -384,13 +428,20 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         if (colorf->filter_text != NULL)
             g_free(colorf->filter_text);
         colorf->filter_text = filter_text;
+	colorf->disabled = filter_disabled;
         gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
         gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);
 #if GTK_MAJOR_VERSION < 2
-        gtk_clist_set_foreground(GTK_CLIST(color_filters), row_selected,
-                                 &new_fg_color);
-        gtk_clist_set_background(GTK_CLIST(color_filters), row_selected,
-                                 &new_bg_color);
+
+	/* XXX Using light-gray on white for disabled coloring-rules is a
+	 * workaround to using strikethrough as I don't know how to set
+	 * text to strikethrough in GTK1. This needs to be changed to
+	 * keep the GTK1 and GTK2 version simular
+	 */
+	gtk_clist_set_foreground(GTK_CLIST(color_filters), row_selected,
+				filter_disabled ? &LTGREY : &new_fg_color);
+	gtk_clist_set_background(GTK_CLIST(color_filters), row_selected,
+				filter_disabled ? &WHITE : &new_bg_color);
 #else
         g_snprintf(fg_str, 14, "#%04X%04X%04X",
                 new_fg_color.red, new_fg_color.green, new_fg_color.blue);
@@ -399,7 +450,8 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
         gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, filter_name,
-                           1, filter_text, 2, fg_str, 3, bg_str, -1);
+                           1, filter_text, 2, fg_str, 3, bg_str,
+			   4, filter_disabled, -1);
 #endif
         if(colorf->c_colorfilter != NULL)
             dfilter_free(colorf->c_colorfilter);

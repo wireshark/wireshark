@@ -63,7 +63,8 @@ color_filter_t *
 color_filter_new(const gchar *name,    /* The name of the filter to create */
                  const gchar *filter_string, /* The string representing the filter */
                  color_t *bg_color,    /* The background color */
-                 color_t *fg_color)    /* The foreground color */
+                 color_t *fg_color,    /* The foreground color */
+                 gboolean disabled)     /* Is the filter disabled? */
 {
 	color_filter_t *colorf;
 
@@ -72,6 +73,7 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 	colorf->filter_text = g_strdup(filter_string);
 	colorf->bg_color = *bg_color;
 	colorf->fg_color = *fg_color;
+	colorf->disabled = disabled;
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	colorf->selected = FALSE;
@@ -120,6 +122,7 @@ color_filter_clone(color_filter_t *colorf)
 	new_colorf->filter_text = g_strdup(colorf->filter_text);
 	new_colorf->bg_color = colorf->bg_color;
 	new_colorf->fg_color = colorf->fg_color;
+	new_colorf->disabled = colorf->disabled;
 	new_colorf->c_colorfilter = NULL;
 	new_colorf->edit_dialog = NULL;
 	new_colorf->selected = FALSE;
@@ -284,6 +287,7 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
         while(curr != NULL) {
             colorf = curr->data;
             if ((colorf->c_colorfilter != NULL) &&
+		(!colorf->disabled) &&
                  dfilter_apply_edt(colorf->c_colorfilter, edt)) {
                     /* this is the filter to use, apply it to the packet list */
                     packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
@@ -310,6 +314,7 @@ read_filters_file(FILE *f, gpointer user_data)
 	guint32 i = 0;
 	gint32  c;
 	guint16 fg_r, fg_g, fg_b, bg_r, bg_g, bg_b;
+	gboolean disabled = FALSE;
 	gboolean skip_end_of_line = FALSE;
 
 	name = g_malloc(name_len + 1);
@@ -323,6 +328,7 @@ read_filters_file(FILE *f, gpointer user_data)
 			} while (c != EOF && c != '\n');
 			if (c == EOF)
 				break;
+			disabled = FALSE;
 			skip_end_of_line = FALSE;
 		}
 
@@ -334,6 +340,11 @@ read_filters_file(FILE *f, gpointer user_data)
 
 		if (c == EOF)
 			break;
+
+		if (c == '!') {
+			disabled = TRUE;
+			continue;
+		}
 
 		/* skip # comments and invalid lines */
 		if (c != '@') {	
@@ -428,7 +439,7 @@ read_filters_file(FILE *f, gpointer user_data)
 			}
 
 			colorf = color_filter_new(name, filter_exp, &bg_color,
-			    &fg_color);
+			    &fg_color, disabled);
                         if(user_data == &color_filter_list) {
                                 GSList **cfl = (GSList **)user_data;
 
@@ -539,7 +550,8 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 	FILE *f = data->f;
 
 	if (colorf->selected || !data->only_selected) {
-		fprintf(f,"@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
+		fprintf(f,"%s@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
+		    colorf->disabled ? "!" : "",
 		    colorf->filter_name,
 		    colorf->filter_text,
 		    colorf->bg_color.red,

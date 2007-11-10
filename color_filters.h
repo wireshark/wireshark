@@ -34,6 +34,7 @@ typedef struct _color_filter {
         gchar     *filter_text;   /* text of the filter expression */
         color_t    bg_color;      /* background color for packets that match */
         color_t    fg_color;      /* foreground color for packets that match */
+	gboolean   disabled;      /* set if the filter is disabled */
 	gboolean   selected;      /* set if the filter is selected in the color dialog box */
 
         /* only used inside of color_filters.c */
@@ -149,7 +150,7 @@ gboolean color_filters_export(gchar *path, GSList *cfl, gboolean only_selected);
  */
 color_filter_t *color_filter_new(
     const gchar *name, const gchar *filter_string,
-    color_t *bg_color, color_t *fg_color);
+    color_t *bg_color, color_t *fg_color, gboolean disabled);
 
 /** Delete a single color filter (g_free'ed).
  *

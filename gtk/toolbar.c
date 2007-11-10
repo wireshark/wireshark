@@ -142,6 +142,7 @@
 #include "../image/toolbar/file_set_list_16.xpm"
 #include "../image/toolbar/file_set_next_16.xpm"
 #include "../image/toolbar/file_set_previous_16.xpm"
+#include "../image/toolbar/stock_close_24.xpm"
 #endif
 
 
@@ -219,7 +220,9 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_FILE_SET_LIST,         WIRESHARK_STOCK_LABEL_FILE_SET_LIST,         0, 0, NULL },
         { WIRESHARK_STOCK_FILE_SET_NEXT,         WIRESHARK_STOCK_LABEL_FILE_SET_NEXT,         0, 0, NULL },
         { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     WIRESHARK_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL },
-        { WIRESHARK_STOCK_FILTER_OUT_STREAM,     WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL }
+        { WIRESHARK_STOCK_FILTER_OUT_STREAM,     WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL },
+        { WIRESHARK_STOCK_ENABLE,                WIRESHARK_STOCK_LABEL_ENABLE,                0, 0, NULL },
+        { WIRESHARK_STOCK_DISABLE,               WIRESHARK_STOCK_LABEL_DISABLE,               0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -260,6 +263,8 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_FILE_SET_NEXT,         file_set_next_16_xpm},
         { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     file_set_previous_16_xpm},
         { WIRESHARK_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
+        { WIRESHARK_STOCK_ENABLE,                checkbox_16_xpm},
+        { WIRESHARK_STOCK_DISABLE,               stock_close_24_xpm},
         { NULL, NULL }
     };
 

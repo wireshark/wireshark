@@ -39,6 +39,7 @@ static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;
 
 GdkColor	WHITE = { 0, 65535, 65535, 65535 };
+GdkColor	LTGREY = { 0, 57343, 57343, 57343 };
 GdkColor	BLACK = { 0, 0, 0, 0 };
 
 /* Initialize the colors */
