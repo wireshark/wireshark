@@ -356,7 +356,7 @@ AC_SUBST(LDFLAGS_SHAREDLIB)
 case "$host_os" in
 
 darwin*)
-	AC_MSG_CHECKING(whether we can build with Core Foundation, Launch Services, and Core Services)
+	AC_MSG_CHECKING([whether we can build with Core Foundation, Launch Services, and Core Services])
 	ac_save_LIBS="$LIBS"
 	ac_frameworks="-framework ApplicationServices -framework CoreFoundation -framework CoreServices"
 	LIBS="$LIBS $ac_frameworks"
