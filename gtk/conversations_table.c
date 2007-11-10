@@ -341,8 +341,8 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	guint32 idx1, idx2;
 	conversations_table *ct = OBJECT_GET_DATA(clist, CONV_PTR_KEY);
-	conversation_t *conv1 = NULL;
-	conversation_t *conv2 = NULL;
+	conv_t *conv1 = NULL;
+	conv_t *conv2 = NULL;
 
 	const GtkCListRow *row1 = ptr1;
 	const GtkCListRow *row2 = ptr2;
@@ -1568,7 +1568,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
 {
     const address *addr1, *addr2;
     guint32 port1, port2;
-    conversation_t *conversation=NULL;
+    conv_t *conversation=NULL;
     int conversation_idx=0;
     gboolean new_conversation;
 
@@ -1600,7 +1600,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
        instead of just one */
     /* if we dont have any entries at all yet */
     if(ct->conversations==NULL){
-        ct->conversations=g_malloc(sizeof(conversation_t));
+        ct->conversations=g_malloc(sizeof(conv_t));
         ct->num_conversations=1;
         conversation=&ct->conversations[0];
         conversation_idx=0;
@@ -1629,7 +1629,7 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
     if(conversation==NULL){
         new_conversation=TRUE;
         ct->num_conversations++;
-        ct->conversations=g_realloc(ct->conversations, ct->num_conversations*sizeof(conversation_t));
+        ct->conversations=g_realloc(ct->conversations, ct->num_conversations*sizeof(conv_t));
         conversation=&ct->conversations[ct->num_conversations-1];
         conversation_idx=ct->num_conversations-1;
     }

@@ -43,7 +43,7 @@ typedef struct _conversation_t {
 	guint64 tx_frames;      /**< number of transmitted packets */
 	guint64 rx_bytes;       /**< number of received bytes */
 	guint64 tx_bytes;       /**< number of transmitted bytes */
-} conversation_t;
+} conv_t;
 
 /** Conversation widget */
 typedef struct _conversations_table {
@@ -57,7 +57,7 @@ typedef struct _conversations_table {
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_conversations;  /**< number of conversations */
-	conversation_t      *conversations;     /**< array of conversation values */
+	conv_t              *conversations;     /**< array of conversation values */
 	gboolean            resolve_names;      /**< resolve address names? */
 } conversations_table;
 
