@@ -346,21 +346,17 @@ esac
 AC_SUBST(LDFLAGS_SHAREDLIB)
 
 #
-# On OS X, if we find the headers for Core Foundation and Launch Services,
-# add -framework options to link with Application Services (of which
-# Launch Services is a subframework) and Core Foundation (required by
-# the Launch Services APIs), so we can use that to launch a Web browser
-# from the Help menu.
-#
-# (Do those headers exist on pure Darwin?  If so, does the CoreFoundation
-# *and* Launch Services code exist there, or are those headers just stubs?
-# If the frameworks aren't present on Darwin, how *should* we check for
-# their existence?)
+# On OS X, if we find the headers for Core Foundation, Launch Services,
+# and Core Services, add -framework options to link with Application
+# Services (of which Launch Services is a subframework), Core Foundation
+# (required by the Launch Services APIs), and Core Services, so we can
+# use them to launch a Web browser from the Help menu and to use
+# Gestalt() to get the Mac OS X version number.
 #
 case "$host_os" in
 
 darwin*)
-	AC_MSG_CHECKING(whether we can build with Core Foundation Launch Services and CoreServices)
+	AC_MSG_CHECKING(whether we can build with Core Foundation, Launch Services, and Core Services)
 	ac_save_LIBS="$LIBS"
 	ac_frameworks="-framework ApplicationServices -framework CoreFoundation -framework CoreServices"
 	LIBS="$LIBS $ac_frameworks"
