@@ -53,16 +53,18 @@ static GMemChunk *fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
 
-#define LINK_FRAG(fd_head,fd)					\
-	{ 	fragment_data *fd_i;				\
-		/* add fragment to list, keep list sorted */		\
-		for(fd_i=(fd_head);fd_i->next;fd_i=fd_i->next){	\
-			if( ((fd)->offset) < (fd_i->next->offset) )	\
-				break;					\
-		}							\
-		(fd)->next=fd_i->next;				\
-		fd_i->next=(fd);					\
+static void LINK_FRAG(fragment_data *fd_head,fragment_data *fd)
+{ 	
+	fragment_data *fd_i;
+
+	/* add fragment to list, keep list sorted */
+	for(fd_i= fd_head; fd_i->next;fd_i=fd_i->next) {
+		if (fd->offset < fd_i->next->offset )
+			break;
 	}
+	fd->next=fd_i->next;
+	fd_i->next=fd;
+}
 
 /* copy a fragment key to heap store to insert in the hash */
 static void *fragment_key_copy(const void *k)
@@ -228,6 +230,21 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 	}
 
 	return TRUE;
+}
+
+/* ------------------------- */
+static fragment_data *new_head(guint32 flags)
+{
+	fragment_data *fd_head;
+	/* head/first structure in list only holds no other data than
+         * 'datalen' then we don't have to change the head of the list
+         * even if we want to keep it sorted
+         */
+	fd_head=g_mem_chunk_alloc(fragment_data_chunk);
+	memset(fd_head, 0, sizeof(fragment_data));
+        
+	fd_head->flags=flags;
+	return fd_head;
 }
 
 /*
@@ -635,6 +652,8 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	fd->next = NULL;
 	fd->flags = 0;
 	fd->frame = pinfo->fd->num;
+	if (fd->frame > fd_head->frame)
+	    fd_head->frame = fd->frame;
 	fd->offset = frag_offset;
 	fd->len  = frag_data_len;
 	fd->data = NULL;
@@ -697,16 +716,12 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 		if (fd->offset + fd->len > fd_head->datalen) {
 			fd->flags      |= FD_TOOLONGFRAGMENT;
 			fd_head->flags |= FD_TOOLONGFRAGMENT;
-			LINK_FRAG(fd_head,fd);
-			return TRUE;
 		}
 		/* make sure it doesnt conflict with previous data */
-		if ( memcmp(fd_head->data+fd->offset,
+		else if ( memcmp(fd_head->data+fd->offset,
 			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
 			fd->flags      |= FD_OVERLAPCONFLICT;
 			fd_head->flags |= FD_OVERLAPCONFLICT;
-			LINK_FRAG(fd_head,fd);
-			return TRUE;
 		}
 		/* it was just an overlap, link it and return */
 		LINK_FRAG(fd_head,fd);
@@ -896,9 +911,11 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 	 * are in one PDU.
 	 */
 	if (!already_added && check_already_added && fd_head != NULL) {
-		for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
-			if(pinfo->fd->num==fd_item->frame && frag_offset==fd_item->offset){
-				already_added=TRUE;
+		if (pinfo->fd->num <= fd_head->frame) {
+			for(fd_item=fd_head->next;fd_item;fd_item=fd_item->next){
+				if(pinfo->fd->num==fd_item->frame && frag_offset==fd_item->offset){
+					already_added=TRUE;
+				}
 			}
 		}
 	}
@@ -915,19 +932,7 @@ fragment_add_common(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		/* not found, this must be the first snooped fragment for this
                  * packet. Create list-head.
 		 */
-		fd_head=g_mem_chunk_alloc(fragment_data_chunk);
-
-		/* head/first structure in list only holds no other data than
-                 * 'datalen' then we don't have to change the head of the list
-                 * even if we want to keep it sorted
-                 */
-		fd_head->next=NULL;
-		fd_head->datalen=0;
-		fd_head->offset=0;
-		fd_head->len=0;
-		fd_head->flags=0;
-		fd_head->data=NULL;
-		fd_head->reassembled_in=0;
+		fd_head = new_head(0);
 
 		/*
 		 * We're going to use the key to insert the fragment,
@@ -1010,19 +1015,7 @@ fragment_add_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* not found, this must be the first snooped fragment for this
                  * packet. Create list-head.
 		 */
-		fd_head=g_mem_chunk_alloc(fragment_data_chunk);
-
-		/* head/first structure in list only holds no other data than
-                 * 'datalen' then we don't have to change the head of the list
-                 * even if we want to keep it sorted
-                 */
-		fd_head->next=NULL;
-		fd_head->datalen=0;
-		fd_head->offset=0;
-		fd_head->len=0;
-		fd_head->flags=0;
-		fd_head->data=NULL;
-		fd_head->reassembled_in=0;
+		fd_head = new_head(0);
 
 		/*
 		 * We're going to use the key to insert the fragment,
@@ -1342,6 +1335,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 
 	/* check if we have received the entire fragment
 	 * this is easy since the list is sorted and the head is faked.
+	 * common case the whole list is scanned.
 	 */
 	max = 0;
 	for(fd_i=fd_head->next;fd_i;fd_i=fd_i->next) {
@@ -1447,19 +1441,7 @@ fragment_add_seq_key(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* not found, this must be the first snooped fragment for this
                  * packet. Create list-head.
 		 */
-		fd_head=g_mem_chunk_alloc(fragment_data_chunk);
-
-		/* head/first structure in list only holds no other data than
-                 * 'datalen' then we don't have to change the head of the list
-                 * even if we want to keep it sorted
-                 */
-		fd_head->next=NULL;
-		fd_head->datalen=0;
-		fd_head->offset=0;
-		fd_head->len=0;
-		fd_head->flags=FD_BLOCKSEQUENCE;
-		fd_head->data=NULL;
-		fd_head->reassembled_in=0;
+		fd_head= new_head(FD_BLOCKSEQUENCE);
 
 		if((flags & (REASSEMBLE_FLAGS_NO_FRAG_NUMBER|REASSEMBLE_FLAGS_802_11_HACK))
 		   && !more_frags) {
