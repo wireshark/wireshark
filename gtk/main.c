@@ -1549,6 +1549,9 @@ main_cf_cb_file_read_start(capture_file *cf)
   const gchar *name_ptr;
   gchar       *load_msg;
 
+  /* Ensure we pop any previous loaded filename */
+  statusbar_pop_file_msg();
+
   name_ptr = get_basename(cf->filename);
 
   load_msg = g_strdup_printf(" Loading: %s", name_ptr);
