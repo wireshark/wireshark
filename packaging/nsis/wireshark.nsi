@@ -637,8 +637,8 @@ IfErrors lbl_winpcap_notinstalled ;if RegKey is unavailable, WinPcap is not inst
 ;DetailPrint "WinPcap uninstaller returned $0"
 lbl_winpcap_notinstalled:
 SetOutPath $INSTDIR
-File "WinPcap_4_0_1.exe"
-ExecWait '"$INSTDIR\WinPcap_4_0_1.exe"' $0
+File "WinPcap_4_0_2.exe"
+ExecWait '"$INSTDIR\WinPcap_4_0_2.exe"' $0
 DetailPrint "WinPcap installer returned $0"
 SecRequired_skip_Winpcap:
 
@@ -1259,7 +1259,7 @@ lbl_ignore_wimp:
 
 
 	; detect if WinPcap should be installed
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0.1"
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0.2"
 	ReadRegStr $WINPCAP_NAME HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayName"
 	IfErrors 0 lbl_winpcap_installed ;if RegKey is available, WinPcap is already installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 2" "Text" "WinPcap is currently not installed"
@@ -1272,7 +1272,7 @@ lbl_winpcap_installed:
 	; Compare the installed build against the one we have.
 	ReadRegStr $WINPCAP_VERSION HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\WinPcapInst" "DisplayVersion"
 	StrCmp $WINPCAP_VERSION "" lbl_winpcap_do_install ; WinPcap is really old(?) or installed improperly.
-	${VersionCompare} $WINPCAP_VERSION "4.0.0.901" $1 ; WinPcap 4.0.1
+	${VersionCompare} $WINPCAP_VERSION "4.0.0.1040" $1 ; WinPcap 4.0.2
 	StrCmp $1 "2" lbl_winpcap_do_install
 
 ;lbl_winpcap_dont_install:
