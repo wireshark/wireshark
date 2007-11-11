@@ -77,6 +77,7 @@ static void destroy_edit_dialog_cb(gpointer filter_arg, gpointer dummy);
 static void create_new_color_filter(GtkButton *button, const char *filter);
 static void color_new_cb(GtkButton *button, gpointer user_data);
 static void color_edit_cb(GtkButton *button, gpointer user_data);
+static gint color_filters_button_cb(GtkWidget *, GdkEventButton *, gpointer);
 static void color_disable_cb(GtkWidget *widget, gboolean user_data);
 static void color_delete_cb(GtkWidget *widget, gpointer user_data);
 static void color_save_cb(GtkButton *button, gpointer user_data);
@@ -454,6 +455,7 @@ colorize_dialog_new (char *filter)
 #else
   SIGNAL_CONNECT(selection, "changed", remember_selected_row, color_filters);
 #endif
+  SIGNAL_CONNECT(color_filters, "button_press_event", color_filters_button_cb, NULL);
   OBJECT_SET_DATA(color_filters, COLOR_UP_LB, color_filter_up);
   OBJECT_SET_DATA(color_filters, COLOR_DOWN_LB, color_filter_down);
   OBJECT_SET_DATA(color_filters, COLOR_EDIT_LB, color_edit);
@@ -1021,7 +1023,7 @@ color_new_cb(GtkButton *button, gpointer user_data _U_)
 }
 
 /* User pressed the "Edit" button: Pop up an "Edit color filter" dialog box
-   to edit an existing filter. */
+ * to edit an existing filter. */
 static void
 color_edit_cb(GtkButton *button, gpointer user_data _U_)
 {
@@ -1030,6 +1032,18 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
   color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
   g_assert(row_selected != -1);
   edit_color_filter_dialog(color_filters, FALSE /* is not a new filter */);
+}
+
+/* User double-clicked on the coloring rule */
+static gint
+color_filters_button_cb(GtkWidget *list, GdkEventButton *event,
+                          gpointer data _U_)
+{
+  if (event->type == GDK_2BUTTON_PRESS) {
+    edit_color_filter_dialog(list, FALSE);
+  }
+
+  return FALSE;
 }
 
 /* action_disable==TRUE  ==> User pressed the "Disable" button:
