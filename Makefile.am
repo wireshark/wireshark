@@ -210,6 +210,15 @@ radius_DATA = \
 	radius/dictionary.xedia
 
 #
+# Install the tpncp directory files in the "tpncp" subdirectory
+# of that directory
+#
+tpncpdir = $(pkgdatadir)/tpncp
+tpncp_DATA = \
+	tpncp/tpncp.dat
+
+
+#
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
 # of that directory
 #
@@ -680,6 +689,7 @@ EXTRA_DIST = \
 	$(diameter_DATA)	\
 	$(dtds_DATA)		\
 	$(radius_DATA)		\
+	$(tpncp_DATA)		\
 	$(wimaxasncp_DATA)		\
 	randpkt.c		\
 	rdps.c			\

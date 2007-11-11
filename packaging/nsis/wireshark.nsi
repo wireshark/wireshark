@@ -492,6 +492,10 @@ File "..\..\dtds\xcap-error.dtd"
 File "..\..\dtds\watcherinfo.dtd"
 SetOutPath $INSTDIR
 
+; Install the TPNCP DAT file in the "tpncp" subdirectory
+; of the installation directory.
+SetOutPath $INSTDIR\tpncp
+File "..\..\tpncp\tpncp.dat"
 
 ;
 ; install the wimaxasncp TLV definitions in the wimaxasncp subdirectory

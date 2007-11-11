@@ -898,6 +898,8 @@ install-common-files:
 	if not exist $(INSTALL_DIR)\diameter mkdir $(INSTALL_DIR)\diameter
 	xcopy ".\diameter\*.dtd" $(INSTALL_DIR)\diameter /d
 	xcopy ".\diameter\*.xml" $(INSTALL_DIR)\diameter /d
+	if not exist $(INSTALL_DIR)\tpncp mkdir $(INSTALL_DIR)\tpncp
+	xcopy ".\tpncp\*.dat" $(INSTALL_DIR)\tpncp /d
 	if not exist $(INSTALL_DIR)\wimaxasncp mkdir $(INSTALL_DIR)\wimaxasncp
 	xcopy ".\wimaxasncp\*.*" $(INSTALL_DIR)\wimaxasncp /d
 	if not exist $(INSTALL_DIR)\plugins\$(VERSION) mkdir $(INSTALL_DIR)\plugins\$(VERSION)

@@ -412,7 +412,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-gvrp.c		\
 	packet-h1.c		\
 	packet-h221_nonstd.c	\
-        packet-h223.c		\
+	packet-h223.c		\
 	packet-h248_annex_c.c 	\
 	packet-h248_annex_e.c 	\
 	packet-h248_3gpp.c 	\
@@ -716,6 +716,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-tnef.c		\
 	packet-tns.c		\
 	packet-tpkt.c		\
+	packet-tpncp.c	\
 	packet-tr.c		\
 	packet-trmac.c		\
 	packet-tsp.c		\
