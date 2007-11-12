@@ -110,7 +110,7 @@ static int proto_snmp = -1;
 static int proto_smux = -1;
 
 static gboolean display_oid = TRUE;
-static gboolean snmp_var_in_tree = TRUE; 
+static gboolean snmp_var_in_tree = TRUE;
 
 static gboolean snmp_usm_auth_md5(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 static gboolean snmp_usm_auth_sha1(snmp_usm_params_t* p, guint8**, guint*, gchar const**);
@@ -298,8 +298,8 @@ dissector_table_t value_sub_dissectors_table;
  * XXX: the length of this function (~400 lines) is an aberration!
  *  oid_key_t:key_type could become a series of callbacks instead of an enum
  *  the (! oid_info_is_ok) switch could be made into an array (would be slower)
- *  
-  
+ *
+
 	NetworkAddress ::=  CHOICE { internet IpAddress }
 	IpAddress ::= [APPLICATION 0] IMPLICIT OCTET STRING (SIZE (4))
 	TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
@@ -312,7 +312,7 @@ dissector_table_t value_sub_dissectors_table;
 	Integer32 ::= INTEGER (-2147483648..2147483647)
 	ObjectID-value ::= OBJECT IDENTIFIER
 	Empty ::= NULL
-	TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295) 
+	TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
 	Opaque ::= [APPLICATION 4] IMPLICIT OCTET STRING
 	Counter64 ::= [APPLICATION 6] IMPLICIT INTEGER (0..18446744073709551615)
 
@@ -349,7 +349,7 @@ dissector_table_t value_sub_dissectors_table;
 	   name ObjectName,
 	   valueType ValueType
 	}
- 
+
  */
 
 extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
@@ -380,53 +380,53 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	enum {BER_NO_ERROR, BER_WRONG_LENGTH, BER_WRONG_TAG} format_error = BER_NO_ERROR;
 
 	seq_offset = offset;
-	
+
 	/* first have the VarBind's sequence header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	offset = get_ber_length(tvb, offset, &seq_len, &ind);
-	
+
 	seq_len += offset - seq_offset;
-	
+
 	if (!pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_SEQUENCE) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"VarBind must be an universal class sequence");
 		pt = proto_item_add_subtree(pi,ett_decoding_error);
 		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "VarBind is not an universal class sequence");
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
-	
+
 	if (ind){
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"Indicator must be clear in VarBind");
 		pt = proto_item_add_subtree(pi,ett_decoding_error);
 		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "VarBind has indicator set");
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
-	
+
 	/* then we have the ObjectName's header */
-	
+
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	name_offset = offset = get_ber_length(tvb, offset, &name_len, &ind);
-	
+
 	if (! ( !pc && ber_class==BER_CLASS_UNI && tag==BER_UNI_TAG_OID) ) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"ObjectName must be an OID in primitive encoding");
 		pt = proto_item_add_subtree(pi,ett_decoding_error);
 		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "ObjectName not an OID");
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
-	
+
 	if (ind){
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"Indicator must be clear in ObjectName");
 		pt = proto_item_add_subtree(pi,ett_decoding_error);
 		expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "ObjectName has indicator set");
 		return dissect_unknown_ber(actx->pinfo, tvb, seq_offset, pt);
 	}
-	
+
 	offset += name_len;
 	value_start = offset;
-	
+
 	/* then we have the  value's header */
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	value_offset = offset = get_ber_length(tvb, offset, &value_len, &ind);
-	
+
 	if (! (!pc) ) {
 		proto_item* pi = proto_tree_add_text(tree, tvb, seq_offset, seq_len,"the value must be in primitive encoding");
 		pt = proto_item_add_subtree(pi,ett_decoding_error);
@@ -435,29 +435,29 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	}
 
 	/* Now, we know where everithing is */
-	
+
 
 
 	/* we add the varbind tree root with a dummy label we'll fill later on */
 	pi_varbind = proto_tree_add_text(tree,tvb,seq_offset,seq_len,"VarBind");
 	pt_varbind = proto_item_add_subtree(pi_varbind,ett_varbind);
 	*label = '\0';
-	
+
 	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,FALSE);
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
-	
-	
-	
+
+
+
 	if (ber_class == BER_CLASS_CON) {
 		/* if we have an error value just add it and get out the way ASAP */
 		proto_item* pi;
 		const char* note;
-		
-		if (value_len != 0) { 
+
+		if (value_len != 0) {
 			min_len = max_len = 0;
 			format_error = BER_WRONG_LENGTH;
 		}
-		
+
 		switch (tag) {
 			case SERR_NSO:
 				hfid = hf_snmp_noSuchObject;
@@ -476,24 +476,24 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 				pt = proto_item_add_subtree(pi,ett_decoding_error);
 				expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "Wrong tag for SNMP VarBind error value");
 				return dissect_unknown_ber(actx->pinfo, tvb, value_start, pt);
-			}				
+			}
 		}
-		
+
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		expert_add_info_format(actx->pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "%s",note);
 		goto set_label;
 	}
-	
+
 	/* fetch ObjectName and its relative oid_info */
 	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
 	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
-	
+
 	add_oid_debug_subtree(oid_info,pt_name);
 
 	if (subids && oid_matched+oid_left) {
 		oid_string = oid_subid2string(subids,oid_matched+oid_left);
-	} 
-	
+	}
+
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
 	switch (oid_info->kind) {
 		case OID_KIND_SCALAR:
@@ -532,19 +532,19 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
 					goto set_label;
 				}
-				
+
 				if (k) {
 					for (;k;k = k->next) {
 						guint suboid_len;
-						
+
 						if (key_start >= oid_matched+oid_left) {
 							proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid shorter than expected");
 							expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid shorter than expected");
 							oid_info_is_ok = FALSE;
 							goto indexing_done;
 						}
-						
-						switch(k->key_type) {							
+
+						switch(k->key_type) {
 							case OID_KEY_TYPE_WRONG: {
 								proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"OID instaces not handled, if you want this implemented please contact the wireshark developpers");
 								expert_add_info_format(actx->pinfo, pi, PI_UNDECODED, PI_WARN, "Unimplemented instance index");
@@ -561,7 +561,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								suboid_len = key_len;
 
 								goto show_oid_index;
-								
+
 							case OID_KEY_TYPE_OID: {
 								guint8* suboid_buf;
 								guint suboid_buf_len;
@@ -569,7 +569,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 								suboid_len = subids[key_start++];
 								key_len--;
-								
+
 show_oid_index:
 								suboid = &(subids[key_start]);
 
@@ -579,20 +579,20 @@ show_oid_index:
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
-								
+
 								if( key_len < suboid_len ) {
 									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index sub-oid should not be longer than remaining oid size");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index sub-oid longer than remaining oid size");
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
-								
+
 								suboid_buf_len = oid_subid2encoded(suboid_len, suboid, &suboid_buf);
-								
+
 								DISSECTOR_ASSERT(suboid_buf_len);
 
 								proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
-								
+
 								key_start += suboid_len;
 								key_len -= suboid_len + 1;
 								continue; /* k->next */
@@ -602,8 +602,8 @@ show_oid_index:
 								guint buf_len;
 								guint32* suboid;
 								guint i;
-								
-								
+
+
 								switch (k->key_type) {
 									case OID_KEY_TYPE_IPADDR:
 										suboid = &(subids[key_start]);
@@ -617,27 +617,27 @@ show_oid_index:
 									default:
 										buf_len = k->num_subids;
 										suboid = &(subids[key_start]);
-										
+
 										if(!buf_len) {
 											buf_len = *suboid++;
 											key_len--;
 											key_start++;
 										}
 										break;
-								} 
-								
+								}
+
 								if( key_len < buf_len ) {
 									proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"index string should not be longer than remaining oid size");
 									expert_add_info_format(actx->pinfo, pi, PI_MALFORMED, PI_WARN, "index string longer than remaining oid size");
 									oid_info_is_ok = FALSE;
 									goto indexing_done;
 								}
-								
+
 								buf = ep_alloc(buf_len+1);
 								for (i = 0; i < buf_len; i++)
 									buf[i] = (guint8)suboid[i];
 								buf[i] = '\0';
-								
+
 								switch(k->key_type) {
 									case OID_KEY_TYPE_STRING:
 									case OID_KEY_TYPE_IMPLIED_STRING:
@@ -645,7 +645,7 @@ show_oid_index:
 										break;
 									case OID_KEY_TYPE_BYTES:
 									case OID_KEY_TYPE_NSAP:
-									case OID_KEY_TYPE_IMPLIED_BYTES: 
+									case OID_KEY_TYPE_IMPLIED_BYTES:
 										proto_tree_add_bytes(pt_name,k->hfid,tvb,name_offset,buf_len, buf);
 										break;
 									case OID_KEY_TYPE_IPADDR: {
@@ -657,7 +657,7 @@ show_oid_index:
 										break;
 									}
 								}
-								
+
 								key_start += buf_len;
 								key_len -= buf_len;
 								continue; /* k->next*/
@@ -685,7 +685,7 @@ show_oid_index:
 		}
 	}
 indexing_done:
-	
+
 	if (oid_info_is_ok) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
@@ -693,24 +693,24 @@ indexing_done:
 			if ((oid_info->value_type->ber_class != BER_CLASS_ANY) &&
 				(ber_class != oid_info->value_type->ber_class))
 				format_error = BER_WRONG_TAG;
-			
+
 			if ((oid_info->value_type->ber_tag != BER_TAG_ANY) &&
 				(tag != oid_info->value_type->ber_tag))
 				format_error = BER_WRONG_TAG;
-			
+
 			max_len = oid_info->value_type->max_len == -1 ? 0xffffff : oid_info->value_type->max_len;
 			min_len  = oid_info->value_type->min_len;
-			
+
 			if ((int)value_len < min_len || (int)value_len > max_len)
 				format_error = BER_WRONG_LENGTH;
-			
+
 			pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
 			case BER_CLASS_UNI|(BER_UNI_TAG_INTEGER<<4):
 				max_len = 4; min_len = 1;
-				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = BER_WRONG_LENGTH; 
+				if (value_len > (guint)max_len && value_len < (guint)min_len) format_error = BER_WRONG_LENGTH;
 				hfid = hf_snmp_integer32_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
@@ -718,12 +718,12 @@ indexing_done:
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
 				max_len = -1; min_len = 1;
-				if (value_len < (guint)min_len) format_error = BER_WRONG_LENGTH; 
+				if (value_len < (guint)min_len) format_error = BER_WRONG_LENGTH;
 				hfid = hf_snmp_oid_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_NULL<<4):
 				max_len = 0; min_len = 0;
-				if (value_len != 0) format_error = BER_WRONG_LENGTH; 
+				if (value_len != 0) format_error = BER_WRONG_LENGTH;
 				hfid = hf_snmp_null_value;
 				break;
 			case BER_CLASS_APP: /* | (SNMP_IPA<<4)*/
@@ -754,28 +754,28 @@ indexing_done:
 			case BER_CLASS_APP|(SNMP_C64<<4):
 				hfid = hf_snmp_big_counter_value;
 				break;
-			default: 
+			default:
 				hfid = hf_snmp_unknown_value;
 				break;
 		}
-		
+
 		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
 		oid_info_is_ok = FALSE;
-	} 
-	
+	}
+
 	pt_value = proto_item_add_subtree(pi_value,ett_value);
-	
+
 	if (value_len > 0 && oid_string) {
 		tvbuff_t* sub_tvb = tvb_new_subset(tvb, value_offset, value_len, value_len);
-		
+
 		next_tvb_add_string(&var_list, sub_tvb, (snmp_var_in_tree) ? pt_value : NULL, value_sub_dissectors_table, oid_string);
 	}
-	
-	
+
+
 set_label:
 	if (pi_value) proto_item_fill_label(pi_value->finfo, label);
-	
+
 	if (oid_info && oid_info->name) {
 		if (oid_left >= 1) {
 			repr  = ep_strdup_printf("%s.%s (%s)",
@@ -788,14 +788,14 @@ set_label:
 									 oid_subid2string(subids,oid_matched));
 		}
 	} else {
-		repr  = ep_strdup_printf("%s", oid_string);			
+		repr  = ep_strdup_printf("%s", oid_string);
 	}
-	
+
 	valstr = strstr(label,": ");
 	valstr = valstr ? valstr+2 : label;
-	
+
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
-	
+
 	switch (format_error) {
 		case BER_WRONG_LENGTH: {
 			proto_tree* pt = proto_item_add_subtree(pi_value,ett_decoding_error);
@@ -821,7 +821,7 @@ set_label:
 		default:
 			break;
 	}
-	
+
 	return seq_offset + seq_len;
 }
 
@@ -1637,6 +1637,8 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *smux_tree = NULL;
 	proto_item *item = NULL;
 
+	next_tvb_init(&var_list);
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
@@ -1873,7 +1875,7 @@ void proto_register_snmp(void) {
   { &hf_snmp_noSuchInstance, { "noSuchInstance", "snmp.noSuchInstance", FT_NONE, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_endOfMibView, { "endOfMibView", "snmp.endOfMibView", FT_NONE, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_unSpecified, { "unSpecified", "snmp.unSpecified", FT_NONE, BASE_DEC,  NULL, 0, "", HFILL }},
-	  
+
   { &hf_snmp_integer32_value, { "Value (Integer32)", "snmp.value.int", FT_INT64, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_octestring_value, { "Value (OctetString)", "snmp.value.octets", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_oid_value, { "Value (OID)", "snmp.value.oid", FT_OID, BASE_NONE,  NULL, 0, "", HFILL }},
@@ -1890,8 +1892,8 @@ void proto_register_snmp(void) {
   { &hf_snmp_opaque_value, { "Value (Opaque)", "snmp.value.opaque", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_objectname, { "Object Name", "snmp.name", FT_OID, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_scalar_instance_index, { "Scalar Instance Index", "snmp.name.index", FT_UINT64, BASE_DEC,  NULL, 0, "", HFILL }},
-  
-  
+
+
 #include "packet-snmp-hfarr.c"
   };
 
@@ -1920,7 +1922,7 @@ void proto_register_snmp(void) {
 	  UAT_FLD_LSTRING(snmp_users,privPassword,"The password used for encrypting packets for this entry"),
 	  UAT_END_FIELDS
   };
-  
+
   assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
@@ -1932,7 +1934,7 @@ void proto_register_snmp(void) {
 					   snmp_users_update_cb,
 					   snmp_users_free_cb,
 					   users_fields);
-  
+
   /* Register protocol */
   proto_snmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
   new_register_dissector("snmp", dissect_snmp, proto_snmp);
@@ -1961,16 +1963,16 @@ void proto_register_snmp(void) {
   prefs_register_bool_preference(snmp_module, "var_in_tree",
 		"Display dissected variables inside SNMP tree",
 		"ON - display dissected variables inside SNMP tree, OFF - display dissected variables in root tree after SNMP",
-		&snmp_var_in_tree); 
+		&snmp_var_in_tree);
 
   prefs_register_uat_preference(snmp_module, "users_table",
 								"Users Table",
 								"Table of engine-user associations used for authentication and decryption",
 								assocs_uat);
-  
-  
+
+
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
-	
+
 	register_init_routine(renew_ue_cache);
 }
 
