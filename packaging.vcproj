@@ -16,7 +16,7 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="nsis|Win32"
+			Name="NSIS|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="0"
@@ -88,6 +88,26 @@
 				CleanCommandLine=""
 				Output=""
 				PreprocessorDefinitions="WIN32;_DEBUG"
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="PortableApps|Win32"
+			OutputDirectory="$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="0"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="nmake -f Makefile.nmake packaging_papps"
+				ReBuildCommandLine=""
+				CleanCommandLine=""
+				Output=""
+				PreprocessorDefinitions="WIN32;NDEBUG"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
@@ -180,6 +200,34 @@
 			</File>
 			<File
 				RelativePath=".\packaging\nsis\wireshark.nsi"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="PortableApps"
+			>
+			<File
+				RelativePath=".\packaging\portableapps\win32\appinfo.tmpl"
+				>
+			</File>
+			<File
+				RelativePath=".\packaging\portableapps\win32\Installer.nsi"
+				>
+			</File>
+			<File
+				RelativePath=".\packaging\portableapps\win32\makefile.nmake"
+				>
+			</File>
+			<File
+				RelativePath=".\packaging\portableapps\win32\readme.txt"
+				>
+			</File>
+			<File
+				RelativePath=".\packaging\portableapps\win32\WiresharkPortable.ini"
+				>
+			</File>
+			<File
+				RelativePath=".\packaging\portableapps\win32\WiresharkPortable.nsi"
 				>
 			</File>
 		</Filter>
