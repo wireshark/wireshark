@@ -1285,7 +1285,7 @@ lbl_winpcap_installed:
 	; force the user to upgrade by hand
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "State" "0"
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Flags" "DISABLED"
-	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0.1, please uninstall $WINPCAP_NAME manually first."
+	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Text" "If you wish to install WinPcap 4.0.2, please uninstall $WINPCAP_NAME manually first."
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 5" "Flags" "DISABLED"
 	Goto lbl_winpcap_done
 

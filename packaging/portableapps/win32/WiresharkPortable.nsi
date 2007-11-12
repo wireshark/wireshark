@@ -31,7 +31,7 @@
 !define DEFAULTEXE "wireshark.exe"
 !define DEFAULTAPPDIR "Wireshark"
 !define DEFAULTSETTINGSDIR "settings"
-!define DEFAULTWINPCAP "WinPcap_4_0_1.exe"
+!define DEFAULTWINPCAP "WinPcap_4_0_2.exe"
 
 ;=== Program Details
 Name "${FULLNAME}"
