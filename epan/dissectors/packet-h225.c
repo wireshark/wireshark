@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h225.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template H323-MESSAGES.asn */
+/* ../../tools/asn2wrs.py -e -p h225 -c ./h225.cnf -s ./packet-h225-template -D . H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.c */
 
@@ -1586,7 +1586,7 @@ dissect_h225_DialedDigits(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                                       1, 128, "0123456789#*,", 13,
                                                       &value_tvb);
 
-  if (h225_pi->is_destinationInfo == TRUE) {
+  if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
       /* XXX - should this be allocated as an ephemeral string? */

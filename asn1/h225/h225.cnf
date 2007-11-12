@@ -302,7 +302,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   guint len = 0;
 
 %(DEFAULT_BODY)s
-  if (h225_pi->is_destinationInfo == TRUE) {
+  if (h225_pi && h225_pi->is_destinationInfo == TRUE) {
     if (value_tvb) {
       len = tvb_length(value_tvb);
       /* XXX - should this be allocated as an ephemeral string? */
