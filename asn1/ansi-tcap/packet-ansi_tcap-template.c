@@ -97,6 +97,7 @@ static dissector_handle_t ansi_map_handle;
 
 
 struct ansi_tcap_private_t ansi_tcap_private;
+#define MAX_TID_STR_LEN 1024
 
 static void ansi_tcap_ctx_init(struct ansi_tcap_private_t *a_tcap_ctx) {
   memset(a_tcap_ctx, '\0', sizeof(*a_tcap_ctx));
@@ -130,10 +131,10 @@ dissector_handle_t get_ansi_tcap_subdissector(guint32 ssn) {
 /* Transaction tracking */
 /* Transaction table */
 struct ansi_tcap_invokedata_t {
-    gint OperationCode;  
-      /* 
-         0 : national, 
-         1 : private 
+    gint OperationCode;
+      /*
+         0 : national,
+         1 : private
       */
     gint32 OperationCode_private;
     gint32 OperationCode_national;
@@ -174,7 +175,7 @@ static void
 ansi_tcap_init_protocol(void)
 {
 	ansi_tcap_init_transaction_table();
-} 
+}
 
 /* Store Invoke information needed for the corresponding reply */
 static void
@@ -182,23 +183,17 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
   address* src = &(pinfo->src);
   address* dst = &(pinfo->dst);
-  guint8 *src_str;
-  guint8 *dst_str;
   char *buf;
 
-  buf=ep_alloc(1024);
-
-  src_str = address_to_str(src);
-  dst_str = address_to_str(dst);
-
-  
   if ((!pinfo->fd->flags.visited)&&(ansi_tcap_private.TransactionID_str)){
+
 	  /* Only do this once XXX I hope its the right thing to do */
-	  strcpy(buf, ansi_tcap_private.TransactionID_str);
   	  /* The hash string needs to contain src and dest to distiguish differnt flows */
-	  strcat(buf,src_str);
-	  strcat(buf,dst_str);
-	  strcat(buf,"\0");
+	  buf = ep_alloc(MAX_TID_STR_LEN);
+	  buf[0] = '\0';
+          g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
+		ansi_tcap_private.TransactionID_str, address_to_str(src),
+		address_to_str(dst));
 
 	  /* If the entry allready exists don't owervrite it */
 	  ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
@@ -210,13 +205,13 @@ save_invoke_data(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U_){
 	  ansi_tcap_saved_invokedata->OperationCode_national = ansi_tcap_private.d.OperationCode_national;
 	  ansi_tcap_saved_invokedata->OperationCode_private = ansi_tcap_private.d.OperationCode_private;
 
-	  g_hash_table_insert(TransactionId_table, 
+	  g_hash_table_insert(TransactionId_table,
 			g_strdup(buf),
 			ansi_tcap_saved_invokedata);
 	  /*
 	  g_warning("Tcap Invoke Hash string %s",buf);
 	  */
-  }	
+  }
 }
 
 static gboolean
@@ -224,22 +219,20 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
   struct ansi_tcap_invokedata_t *ansi_tcap_saved_invokedata;
   address* src = &(pinfo->src);
   address* dst = &(pinfo->dst);
-  guint8 *src_str;
-  guint8 *dst_str;
   char *buf;
 
-  buf=ep_alloc(1024);
-  src_str = address_to_str(src);
-  dst_str = address_to_str(dst);
+  if (!ansi_tcap_private.TransactionID_str) {
+    return FALSE;
+  }
 
   /* The hash string needs to contain src and dest to distiguish differnt flows */
-  src_str = address_to_str(src);
-  dst_str = address_to_str(dst);
-  strcpy(buf, ansi_tcap_private.TransactionID_str);
+  buf = ep_alloc(MAX_TID_STR_LEN);
+  buf[0] = '\0';
   /* Reverse order to invoke */
-  strcat(buf,dst_str);
-  strcat(buf,src_str);
-  strcat(buf,"\0");
+  g_snprintf(buf, MAX_TID_STR_LEN, "%s%s%s",
+	ansi_tcap_private.TransactionID_str, address_to_str(dst),
+	address_to_str(src));
+
   ansi_tcap_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
   if(ansi_tcap_saved_invokedata){
 	  ansi_tcap_private.d.OperationCode			 = ansi_tcap_saved_invokedata->OperationCode;
@@ -253,9 +246,9 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
 /* As currently ANSI MAP is the only possible sub dissector this function
  *  must be improved to handle general cases.
  *
- * 
  *
- * TODO: 
+ *
+ * TODO:
  * 1)Handle national codes
  *     Design option
  *     - Create a ansi.tcap.national dissector table and have dissectors for
@@ -267,7 +260,7 @@ find_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb _U
  *
  */
 static gboolean
-find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
+find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 	proto_item *item;
 
 	/* If "DialoguePortion objectApplicationId ObjectIDApplicationContext
@@ -296,7 +289,7 @@ find_tcap_subdisector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 	}
 	if(ansi_tcap_private.d.OperationCode == 0){
 		/* national */
-		item = proto_tree_add_text(tree, tvb, 0, -1, 
+		item = proto_tree_add_text(tree, tvb, 0, -1,
 			"Dissector for ANSI TCAP NATIONAL code:%u not implemented. Contact Wireshark developers if you want this supported",
 			ansi_tcap_private.d.OperationCode_national);
 		PROTO_ITEM_SET_GENERATED(item);
