@@ -67,6 +67,7 @@
 		<vendor vendor-id="TGPPCX" code="16777216" name="3GPP CX/DX"/>
 		<vendor vendor-id="Ericsson"  code="193" name="Ericsson"/>
 		<vendor vendor-id="ETSI"  code="13019" name="ETSI"/>
+		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<!-- *********************** End Vendors ************************** -->
 		<!-- ************************ typedefn's ************************** -->
 		<typedefn type-name="OctetString"/>
@@ -1163,6 +1164,7 @@
 		</avp>
 		<!-- 301-317    Unallocated -->
 <!-- AVP:s 317 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
+<!-- AVP:s 349-362        Unassigned -->
 <!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
 <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
 <!-- 466-479    Unallocated -->
@@ -1259,11 +1261,24 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 504 AF-Application-Identifier OctetString
 505 AF-Charging-Identifier OctetString
 506 Authorization-Token OctetString
-507 Flow-Description IPFilterRule
+-->
+		<avp name="Flow-Description" code="507" vendor-id="3GPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+			<type type-name="IPFilterRule"/>
+		</avp>
+<!--
 508 Flow-Grouping Grouped
 509 Flow-Number Unsigned32
 510 Flows Grouped
-511 Flow-Status Enumerated
+-->
+		<avp name="Flow-Status" code="511" vendor-id="3GPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+			<enum name="ENABLED_UPLINK" code="0"/>
+			<enum name="ENABLED_DOWNLINK" code="1"/>
+			<enum name="ENABLED" code="2"/>
+			<enum name="DISABLED" code="3"/>
+			<enum name="REMOVED" code="4"/>
+		</avp>
+<!--
 512 Flow-Usage Enumerated
 513 Specific-Action Enumerated
 514 Max-Requested-Bandwidth Unsigned32
@@ -1852,15 +1867,29 @@ Note: The AVP codes from 915 to 999 are reserved for TS 29.061
 -->
 		<avp name="Bearer-Usage" code="1000">
 			<type type-name="Enumerated"/>
+			<enum name="GENERAL" code="0"/>
+			<enum name="IMS SIGNALLING" code="1"/>
+			<enum name="DEDICATED" code="2"/>
 		</avp>
 		<avp name="Charging-Rule-Install" code="1001">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Charging-Rule-Definition"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Remove" code="1002">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Charging-Rule-Name"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Definition" code="1003">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Rating-Group"/>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Flow-Description"/>
+				<gavp name="Flow-Status"/>
+				<gavp name="Precedence"/>
+				<gavp name="Reporting-Level"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" mandatory="must" may-encrypt="no" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -1870,27 +1899,46 @@ Note: The AVP codes from 915 to 999 are reserved for TS 29.061
 		</avp>
 		<avp name="Event-Trigger" code="1006">
 			<type type-name="Enumerated"/>
+			  <enum name="SGSN CHANGE" code="0"/>
+			  <enum name="QOS CHANGE" code="1"/>
+			  <enum name="RAT CHANGE" code="2"/>
+			  <enum name="TFT CHANGE" code="3"/>
+			  <enum name="PLMN CHANGE" code="4"/>
+			  <enum name="TFT DELETED" code="1000"/>
+			  <enum name="LOSS OF BEARER" code="1001"/>
+			  <enum name="RECOVERY OF BEARER" code="1002"/>
+			  <enum name="POLICY ENFORCEMENT FAILED" code="1003"/>
 		</avp>
 		<avp name="Metering-Method" code="1007">
 			<type type-name="Enumerated"/>
 		</avp>
 		<avp name="Offline" code="1008">
 			<type type-name="Enumerated"/>
+			<enum name="DISABLE_OFFLINE" code="0"/>
+			<enum name="ENABLE_OFFLINE" code="1"/>
 		</avp>
 		<avp name="Online" code="1009">
 			<type type-name="Enumerated"/>
+			<enum name="DISABLE_ONLINE" code="0"/>
+			<enum name="ENABLE_ONLINE" code="1"/>
 		</avp>
 		<avp name="Precedence" code="1010">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Reporting-Level" code="1011">
 			<type type-name="Enumerated"/>
+			<enum name="CHARGING RULE LEVEL" code="0"/>
+			<enum name="RATING GROUP LEVEL" code="1"/>
 		</avp>
 		<avp name="TFT-Filter" code="1012">
 			<type type-name="IPFilterRule"/>
 		</avp>
 		<avp name="TFT-Packet-Filter-Information" code="1013">
-			<type type-name="Enumerated"/>
+			<grouped>
+				<gavp name="Precedence"/>
+				<gavp name="TFT-Filter"/>
+				<gavp name="TOS-Traffic-Class"/>
+			</grouped>		
 		</avp>
 		<avp name="ToS-Traffic-Class" code="1014">
 		<type type-name="OctetString"/>
