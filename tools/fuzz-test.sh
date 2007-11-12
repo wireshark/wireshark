@@ -103,9 +103,14 @@ trap "rm -f $TMP_DIR/$TMP_FILE $TMP_DIR/$ERR_FILE; echo ""; exit 1" HUP INT TERM
 PASS=0
 while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
     PASS=`expr $PASS + 1`
-    echo "Pass $PASS:"
+    echo "Starting pass $PASS:"
+    RUN=0
 
     for CF in "$@" ; do
+        RUN=$(( $RUN + 1 ))
+        if [ $(( $RUN % 50 )) -eq 0 ] ; then
+            echo "    [Pass $PASS]"
+        fi
 	echo -n "    $CF: "
 
 	"$CAPINFOS" "$CF" > /dev/null 2>&1
