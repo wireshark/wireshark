@@ -46,7 +46,7 @@
 #define SHELL_OPEN_COMMAND   "\\Shell\\open\\command"
 #define DEFAULT_ICON         "\\DefaultIcon"
 
-#define WINPCAP_PACKAGE      "\\WinPcap_4_0_1.exe"
+#define WINPCAP_PACKAGE      "\\WinPcap_4_0_2.exe"
 #define WINPCAP_KEY          "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\WinPcapInst"
 #define WINPCAP_UNINSTALL    "UninstallString"
 #define WINPCAP_U3INSTALLED  "U3Installed"  /* indicate the U3 device that installed WinPcap */
