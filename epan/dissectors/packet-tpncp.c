@@ -679,7 +679,6 @@ static gint init_tpncp_db() {
     g_snprintf(tpncp_dat_file_path, MAX_TPNCP_DAT_FILE_PATH_LEN, "%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
 
     /* Open file with TPNCP data. */
-	g_warning("filepath %s",tpncp_dat_file_path);
     if ((file = eth_fopen(tpncp_dat_file_path, "r")) == NULL)
         return (-1);
 
