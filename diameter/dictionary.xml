@@ -1250,9 +1250,10 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="Access-Network-Charging-Identifier" code="502" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Access-Network-Charging-Identifier-Value"/>
 				<gavp name="Flows"/>
+			</grouped>
 		</avp>
 		<avp name="Access-Network-Charging-Identifier-value" code="503" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
@@ -1764,22 +1765,23 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			</grouped>
 		</avp>
 		<avp name="WAG-Address" code="890">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="WAG-PLMN-Id" code="891">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="WLAN-Radio-Container" code="892">
-			<type type-name="Grouped"/>
+			<grouped>
+			</grouped>
 		</avp>
 		<avp name="WLAN-Technology" code="893">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="WLAN-UE-Local-IPAddress" code="894">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="PDG-Address" code="895">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="PDG-Charging-Id" code="896">
 			<type type-name="Unsigned32"/>
@@ -1788,7 +1790,8 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Address-Domain" code="898">
-			<type type-name="Grouped"/>
+			<grouped>
+			</grouped>
 		</avp>
 		<avp name="Address-Type" code="899">
 			<type type-name="Enumerated"/>
@@ -1949,63 +1952,100 @@ Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
 -->
 <!-- Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210 -->
+<!-- ETSI TS 129 140 V6.3.0 (2005-12) -->
 		<avp name="Served-User-Identity" code="1100">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="MSISDN"/>
+				<gavp name="VASP-ID"/>
+				<gavp name="VAS-ID"/>
+			</grouped>		
 		</avp>
 		<avp name="VASP-ID" code="1101">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="VAS-ID" code="1102">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Trigger-Event" code="1103">
 			<type type-name="Enumerated"/>
+			<enum name="MM1 Message Submission, Profile based" code="0"/>
+			<enum name="MM1 Message Submission, Address based" code="1"/>
+			<enum name="MM1 Message Delivery" code="2"/>
+			<enum name="MM7 Message Submission, Profile based" code="3"/>
+			<enum name="MM7 Message Submission, Address based" code="4"/>
 		</avp>
 		<avp name="Sender-Address" code="1104">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Initial-Recipient-Address" code="1105">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Sequence-Number"/>
+				<gavp name="Recipient-Address"/>
+			</grouped>		
 		</avp>
 		<avp name="Result-Recipient-Address" code="1106">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Sequence-Number"/>
+				<gavp name="Recipient-Address"/>
+				<gavp name="Routeing-Address"/>
+				<gavp name="Sender-Address"/>
+			</grouped>		
 		</avp>
 		<avp name="Sequence-Number" code="1107">
-			<type type-name="Unsigned"/>
+			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Recipient-Address" code="1108">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Routeing-Address" code="1109">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Originating-Interface" code="1110">
 			<type type-name="Enumerated"/>
+			<enum name="MM1" code="0"/>
+			<enum name="MM3" code="1"/>
+			<enum name="MM4" code="2"/>
+			<enum name="MM7" code="3"/>
 		</avp>
 		<avp name="Delivery-Report" code="1111">
 			<type type-name="Enumerated"/>
+			<enum name="No Delivery Report Requested" code="0"/>
+			<enum name="Delivery Report Requested" code="1"/>
 		</avp>
 		<avp name="Read-Reply" code="1112">
 			<type type-name="Enumerated"/>
+			<enum name="No Read Reply Requested" code="0"/>
+			<enum name="Read Reply Requested" code="1"/>
 		</avp>
 		<avp name="Sender-Visibility" code="1113">
 			<type type-name="Enumerated"/>
+			<enum name="Sender Identification requested not to be hidden" code="0"/>
+			<enum name="Sender Identification requested to be hidden" code="1"/>
 		</avp>
 		<avp name="Service-Key" code="1114">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Billing-Information" code="1115">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Status" code="1116">
-			<type type-name="Group"/>
+			<grouped>
+				<gavp name="Status-Code"/>
+				<gavp name="Status-Text"/>
+			</grouped>		
 		</avp>
 		<avp name="Status-Code" code="1117">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Status-Text" code="1118">
-			<type type-name="UTF8Str"/>
+			<type type-name="UTF8String"/>
 		</avp>
+		<avp name="Routeing-Address-Resolution" code="1119">
+			<type type-name="Enumerated"/>
+			<enum name="unresolved" code="0"/>
+			<enum name="resolved" code="1"/>
+		</avp>
+
 <!--29.140 [16]
 Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 32.299
@@ -2014,16 +2054,47 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Recipient-Address" code="1201">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Address-Type"/>
+				<gavp name="Address-Data"/>
+				<gavp name="Address-Domain"/>
+				<gavp name="Addressee-Type"/>
+			</grouped>		
 		</avp>
 		<avp name="Submission-Time" code="1202">
 			<type type-name="Time"/>
 		</avp>
 		<avp name="MM-Content-Type" code="1203">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Type-Number"/>
+				<gavp name="Additional-Type-Information"/>
+				<gavp name="Content-Size"/>
+				<gavp name="Additional-Content-Information"/>
+			</grouped>
 		</avp>
+<!-- The Type-Number AVP (AVP code1204) is of type Enumerated and identifies the well-known -->
+<!-- media types. The values are taken from OMNA WSP Content Type Codes database -->
+<!-- http://www.openmobilealliance.org/tech/omna/omna-wsp-content-type.htm -->
 		<avp name="Type-Number" code="1204">
 			<type type-name="Enumerated"/>
+			<enum name="text/*" code="0"/>
+			<enum name="text/html" code="2"/> 
+			<enum name="text/plain" code="3"/> 
+			<enum name="text/x-hdml" code="4"/> 
+			<enum name="text/x-ttml" code="5"/>
+			<enum name="text/x-vCalendar" code="6"/>
+			<enum name="text/x-vCard" code="7"/>
+			<enum name="text/vnd.wap.wml" code="9"/>
+			<enum name="text/vnd.wap.wmlscript" code="9"/>
+			<enum name="text/vnd.wap.wta-event" code="10"/>
+			<enum name="multipart/*" code="11"/>
+			<enum name="multipart/mixed" code="12"/>
+			<enum name="multipart/form-data" code="13"/>
+			<enum name="multipart/byterantes" code="14"/>
+			<enum name="multipart/alternative" code="15"/>
+			<enum name="application/*" code="16"/>
+			<enum name="application/java-vm" code="17"/> 
+			<enum name="application/x-www-form-urlencoded" code="18"/>
 		</avp>
 		<avp name="Additional-Type-Information" code="1205">
 			<type type-name="UTF8String"/>
@@ -2042,30 +2113,59 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="Priority" code="1209">
 			<type type-name="Enumerated"/>
+			<enum name="Low" code="0"/>
+			<enum name="Normal" code="2"/> 
+			<enum name="High" code="3"/> 
 		</avp>
 		<avp name="Message-ID" code="1210">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Message-Type" code="1211">
 			<type type-name="Enumerated"/>
+			<enum name="m-send-req" code="1"/>
+			<enum name="m-send-conf" code="2"/>
+			<enum name="m-notification-ind" code="3"/>
+			<enum name="m-notifyresp-ind" code="4"/>
+			<enum name="m-retrieve-conf" code="5"/>
+			<enum name="m-acknowledge-ind" code="6"/>
+			<enum name="m-delivery-ind" code="7"/>
+			<enum name="m-read-rec-ind" code="8"/>
+			<enum name="m-read-orig-ind" code="9"/>
+			<enum name="m-forward-req" code="10"/>
+			<enum name="m-forward-conf" code="11"/>
+			<enum name="m-mbox-store-conf" code="12"/>
+			<enum name="m-mbox-view-conf" code="13"/>
+			<enum name="m-mbox-upload-conf" code="14"/>
+			<enum name="m-mbox-delete-conf" code="15"/>
 		</avp>
 		<avp name="Message-Size" code="1212">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Message-Class" code="1213">
-			<type type-name="Grouped"/>
+			<grouped>
+				<gavp name="Class-Identifier"/>
+				<gavp name="Token-Text"/>
+			</grouped>
 		</avp>
 		<avp name="Class-Identifier" code="1214">
 			<type type-name="Enumerated"/>
+			<enum name="Personal" code="0"/>
+			<enum name="Advertisement" code="1"/>
+			<enum name="Informational" code="2"/>
+			<enum name="Auto" code="3"/>
 		</avp>
 		<avp name="Token-Text" code="1215">
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Delivery-Report-Requested" code="1216">
 			<type type-name="Enumerated"/>
+			<enum name="No" code="0"/>
+			<enum name="Yes" code="1"/>
 		</avp>
 		<avp name="Adaptations" code="1217">
 			<type type-name="Enumerated"/>
+			<enum name="No" code="0"/>
+			<enum name="Yes" code="1"/>
 		</avp>
 		<avp name="Applic-ID" code="1218">
 			<type type-name="UTF8String"/>
@@ -2075,9 +2175,19 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="Content-Class" code="1220">
 			<type type-name="Enumerated"/>
+			<enum name="text" code="0"/>
+			<enum name="image-basic" code="1"/>
+			<enum name="image-rich" code="2"/>
+			<enum name="video-basic" code="3"/>
+			<enum name="video-rich" code="4"/>
+			<enum name="megapixel" code="5"/>
+			<enum name="content-basic" code="6"/>
+			<enum name="content-rich" code="7"/>
 		</avp>
 		<avp name="DRM-Content" code="1221">
 			<type type-name="Enumerated"/>
+			<enum name="No" code="0"/>
+			<enum name="Yes" code="1"/>
 		</avp>
 		<avp name="Read-Reply-Report-Requested" code="1222">
 			<type type-name="Enumerated"/>
@@ -2087,18 +2197,22 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="File-Repair-Supported" code="1224">
 			<type type-name="Enumerated"/>
+			<enum name="SUPPORTED" code="1"/>
+			<enum name="NOT_SUPPORTED" code="2"/>
 		</avp>
 		<avp name="MBMS-User-Service-Type" code="1225">
 			<type type-name="Enumerated"/>
+			<enum name="DOWNLOAD" code="1"/>
+			<enum name="STREAMING" code="2"/>
 		</avp>
 		<avp name="Unit-Quota-Threshold" code="1226">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="PDP-Address" code="1227">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="SGSN-Address" code="1228">
-			<type type-name="Address"/>
+			<type type-name="IPAddress"/>
 		</avp>
 		<avp name="PoC-Session-Id" code="1229" mandatory="must" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -2187,9 +2301,13 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 		<avp name="PDP-Context-Type" code="1247" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
+			<enum name="PRIMARY" code="0"/>
+			<enum name="SECONDARY" code="1"/>
 		</avp>
 		<avp name="MMBox-Storage-Requested" code="1248" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
+			<enum name="No" code="0"/>
+			<enum name="Yes" code="1"/>
 		</avp>
 		<avp name="Number-Of-Talk-Burst" code="1249" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -2206,7 +2324,8 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 1254 Reserved
 -->
 		<avp name="Talk-Burst-Exchange" code="1255" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Grouped"/>
+			<grouped>
+			</grouped>
 		</avp>
 		<avp name="Talk-Burst-Volume" code="1256" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -2231,21 +2350,43 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		</avp>
 <!--
 		<avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP"><type type-name="OctetString"/></avp>
-		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>
+		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+
+		</avp>
 		<avp name="Base-Time-Interval" code="1265" vendor-bit="must" vendor-id="TGPP"><type type-name="Unsigned32"/></avp>
-		<avp name="Envelope" code="1266" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>
+		<avp name="Envelope" code="1266" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>
 		<avp name="Envelope-End-Time" code="1267" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
 		<avp name="Envelope-Reporting" code="1268" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>
 		<avp name="Envelope-Start-Time" code="1269" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
-		<avp name="Time-Quota-Mechanism" code="1270" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>	
+		<avp name="Time-Quota-Mechanism" code="1270" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>	
 		<avp name="Time-Quota-Type" code="1271" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>
-		<avp name="Early-Media-Description" code="1272" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>
-		<avp name="SDP-TimeStamps" code="1273" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>
+		<avp name="Early-Media-Description" code="1272" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>
+		<avp name="SDP-TimeStamps" code="1273" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>
 		<avp name="SDP-Offer-Timestamp" code="1274" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
 		<avp name="SDP-Answer-Timestamp" code="1275" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
-		<avp name="AF-Correlation-Information" code="1276" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>	
+		<avp name="AF-Correlation-Information" code="1276" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>	
 		<avp name="PoC-Session-Initiation-type" code="1277"><type type-name="Enumerated"/></avp>
-		<avp name="Offline-Charging" code="1278" vendor-bit="must" vendor-id="TGPP"><type type-name="Grouped"/></avp>
+		<avp name="Offline-Charging" code="1278" vendor-bit="must" vendor-id="TGPP">
+					<grouped>
+					</grouped>
+		</avp>
 		<avp name="User-Participating-Type" code="1279" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>	
 		<avp name="Alternate-Charged-Party-Address" code="1280" vendor-bit="must" vendor-id="TGPP"><type type-name="UTF8String"/></avp>
 Note: The AVP codes from 1281 to 1299 are reserved for TS 32.299
@@ -2259,18 +2400,20 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 			<enum name="IMS_SIGNALLING" code="1"/>
 		</avp>
 		<avp name="Charging-Rule-Install" code="1001" vendor-bit="must" vendor-id="3GPP2">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Charging-Rule-Definition"/>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Remove" code="1002" vendor-bit="must" vendor-id="3GPP2">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Charging-Rule-Base-Name"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Definition" code="1003" vendor-bit="must" vendor-id="3GPP2">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Charging-Rule-Name"/>
 				<gavp name="Service-Identifier"/>
 				<gavp name="Rating-Group"/>
@@ -2282,6 +2425,7 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 				<gavp name="Precedence"/>
 				<gavp name="AF-Charging-Identifier"/>
 				<gavp name="Flows"/>
+			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Base-Name" code="1004" vendor-bit="must" vendor-id="3GPP2">
 			<type type-name="OctetString"/>
@@ -2336,10 +2480,11 @@ http://www.3gcn.org/3gpp2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 			<type type-name="IPFilterRule"/>
 		</avp>
 		<avp name="TFT-Packet-Filter-Information" code="1018" vendor-bit="must" vendor-id="3GPP2">
-			<type type-name="Grouped"/>
+			<grouped>
 				<gavp name="Precedence"/>
 				<gavp name="TFT-Filter"/>
 				<gavp name="ToS-Traffic-Class"/>
+			</grouped>
 		</avp>
 		<avp name="ToS-Traffic-Class" code="1019" vendor-bit="must" vendor-id="3GPP2">
 			<type type-name="OctetString"/>
