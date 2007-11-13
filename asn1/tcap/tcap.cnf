@@ -25,91 +25,28 @@ UniDialoguePDU B "0.0.17.773.1.2.1"  "uniDialogue-as-id"
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY DialogueOC
-tvbuff_t	*next_tvb;
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len;
-	gint ind_field;
 
-
-offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-
-
- if (!next_tvb)
-	return offset;
-
-  dissect_tcap_ExternalPDU(TRUE, next_tvb, 0, actx, tree, -1);
-
-
-return offset+len;
+return dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY ExternalPDU
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len;
-	gint ind_field;
-	/* Workaround for tagged fields */
-offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
+
 %(DEFAULT_BODY)s
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY Dialog1 VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb;
+#.FN_BODY Dialog1 
 
-%(DEFAULT_BODY)s
-
- if (!parameter_tvb)
-	return offset;
-
- dissect_tcap_DialoguePDU(TRUE, tvb, 0, actx, tree, -1);
-
-#.END
+return dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY Parameter
-tvbuff_t	*next_tvb;
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len;
-	gint ind_field;
 
-
- offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
- offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-	/* need to strip the EOC off the next_tvb */
-	next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-
-if (!next_tvb)
-	return offset;
- dissect_tcap_param(actx,tree,tvb,0);
-
- return offset+len;
+return dissect_tcap_param(actx,tree,tvb,offset);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY User-information
-tvbuff_t	*next_tvb;
-gint8 class;
-	gboolean pc;
-	gint tag;
-	guint32 len;
-	gint ind_field;
 
-
-offset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-offset = dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, &ind_field);
-next_tvb = tvb_new_subset(tvb, offset, len-(2*ind_field), len-(2*ind_field));
-if (!next_tvb)
-	return offset+len;
-dissect_tcap_UserInformation(TRUE, next_tvb, 0, actx, tree, -1);
-
-return offset+len;
+return dissect_tcap_UserInformation(FALSE, tvb, offset, actx, tree, -1);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY Component

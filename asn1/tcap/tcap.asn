@@ -20,7 +20,7 @@ DialoguePDU ::= 	CHOICE {
 							dialogueAbort		ABRT-apdu }
 
 
-ExternalPDU ::= [UNIVERSAL 8] SEQUENCE
+ExternalPDU ::= [UNIVERSAL 8] IMPLICIT SEQUENCE
 					{
 					oid OBJECT IDENTIFIER,
 					dialog [0] IMPLICIT Dialog1 

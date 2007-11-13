@@ -330,6 +330,24 @@ int dissect_ber_tagged_type(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
  tvbuff_t *next_tvb = tvb;
  proto_item *cause;
 
+#ifdef DEBUG_BER
+{
+const char *name;
+header_field_info *hfinfo;
+if(hf_id>=0){
+hfinfo = proto_registrar_get_nth(hf_id);
+name=hfinfo->name;
+} else {
+name="unnamed";
+}
+if(tvb_length_remaining(tvb,offset)>3){
+printf("dissect_ber_tagged_type(%s) entered implicit_tag:%d offset:%d len:%d %02x:%02x:%02x\n",name,implicit_tag,offset,tvb_length_remaining(tvb,offset),tvb_get_guint8(tvb,offset),tvb_get_guint8(tvb,offset+1),tvb_get_guint8(tvb,offset+2));
+}else{
+printf("dissect_ber_tagged_type(%s) entered\n",name);
+}
+}
+#endif
+
  if (implicit_tag) {
 	offset = type(tag_impl, tvb, offset, actx, tree, hf_id);
 	return offset;
