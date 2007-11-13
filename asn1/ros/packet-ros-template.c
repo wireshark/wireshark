@@ -242,14 +242,18 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   if(rcrp){ /* we have found a match */
+    proto_item *item = NULL;
 
     if(rcrp->is_request){
-      proto_tree_add_uint(tree, hf_ros_response_in, tvb, 0, 0, rcrp->rep_frame);
+      item=proto_tree_add_uint(tree, hf_ros_response_in, tvb, 0, 0, rcrp->rep_frame);
+      PROTO_ITEM_SET_GENERATED (item);
     } else {
       nstime_t ns;
-      proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
+      item=proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
+      PROTO_ITEM_SET_GENERATED (item);
       nstime_delta(&ns, &pinfo->fd->abs_ts, &rcrp->req_time);
-      proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
+      item=proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED (item);
     }
   }
   

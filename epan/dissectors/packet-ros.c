@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ros.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -X -T -p ros -c ros.cnf -s packet-ros-template ros.asn */
+/* ../../tools/asn2wrs.py -b -e -X -T -p ros -c ./ros.cnf -s ./packet-ros-template -D . ros.asn */
 
 /* Input file: packet-ros-template.c */
 
@@ -296,14 +296,18 @@ ros_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   if(rcrp){ /* we have found a match */
+    proto_item *item = NULL;
 
     if(rcrp->is_request){
-      proto_tree_add_uint(tree, hf_ros_response_in, tvb, 0, 0, rcrp->rep_frame);
+      item=proto_tree_add_uint(tree, hf_ros_response_in, tvb, 0, 0, rcrp->rep_frame);
+      PROTO_ITEM_SET_GENERATED (item);
     } else {
       nstime_t ns;
-      proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
+      item=proto_tree_add_uint(tree, hf_ros_response_to, tvb, 0, 0, rcrp->req_frame);
+      PROTO_ITEM_SET_GENERATED (item);
       nstime_delta(&ns, &pinfo->fd->abs_ts, &rcrp->req_time);
-      proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
+      item=proto_tree_add_time(tree, hf_ros_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED (item);
     }
   }
   
@@ -828,7 +832,7 @@ dissect_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 260 "packet-ros-template.c"
+#line 264 "packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1063,7 +1067,7 @@ void proto_register_ros(void) {
         "ros.OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 382 "packet-ros-template.c"
+#line 386 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1084,7 +1088,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 389 "packet-ros-template.c"
+#line 393 "packet-ros-template.c"
   };
 
   /* Register protocol */
