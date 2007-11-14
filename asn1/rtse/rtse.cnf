@@ -3,7 +3,6 @@ RTORQapdu
 RTOACapdu
 RTORJapdu
 RTABapdu
-EXTERNALt
 
 #.FN_BODY RTORJapdu/userDataRJ
 	char *oid = NULL;
@@ -89,28 +88,8 @@ EXTERNALt
 		if(session)
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 
-		offset = dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, actx, tree, -1);
-
+		offset = dissect_ber_external_type(FALSE, tree, next_tvb, 0, actx,  -1, call_rtse_external_type_callback);
 	}
-
-#.FN_BODY EXTERNALt/_untag/indirect-reference
-  char *oid;
-
-  offset = dissect_ber_integer(FALSE, actx, tree, tvb, offset,
-                hf_rtse_indirect_reference,
-                &indir_ref);
-
-  /* look up the indirect reference */
-  if((oid = find_oid_by_pres_ctx_id(actx->pinfo, indir_ref)) != NULL) {
-    object_identifier_id = ep_strdup_printf("%%s", oid);
-  } else if (object_identifier_id) {
-	*object_identifier_id = '\0';
-  }
-	
-
-#.FN_BODY EXTERNALt/_untag/encoding/single-ASN1-type
-  if (object_identifier_id) 
-    offset=call_rtse_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree);
 
 
 #.FN_BODY RTORQapdu/applicationProtocol

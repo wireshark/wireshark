@@ -3873,6 +3873,7 @@ static int
 dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &actx->external.indirect_reference);
+  actx->external.indirect_ref_present = TRUE;
 
   return offset;
 }
@@ -3887,6 +3888,8 @@ dissect_ber_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 static int
 dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
+  actx->external.direct_ref_present = TRUE;
+
   return offset;
 }
 
@@ -3905,7 +3908,7 @@ dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 	if(!actx->external.u.ber.ber_callback){
 		offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
 	}else{
-		/* FIX ME */
+		offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
 	}
 	return offset;
 }

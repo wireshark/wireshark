@@ -52,7 +52,6 @@ int proto_rtse = -1;
 
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
-static char* object_identifier_id;
 static gboolean open_request=FALSE;
 /* indirect_reference, used to pick up the signalling so we know what
    kind of data is transferred in SES_DATA_TRANSFER_PDUs */
@@ -160,6 +159,23 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 	return offset;
 }
 
+static int
+call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
+{
+	const char	*oid = NULL;
+
+        if (actx->external.indirect_ref_present) {
+		oid = (const char *)find_oid_by_pres_ctx_id(actx->pinfo, actx->external.indirect_reference);
+	} else if (actx->external.direct_ref_present) {
+    		oid = actx->external.direct_reference;
+	}
+
+	if (oid)
+    		offset = call_rtse_oid_callback(oid, tvb, offset, actx->pinfo, top_tree ? top_tree : tree);
+
+	return offset;
+}
+
 #include "packet-rtse-fn.c"
 
 /*
@@ -254,7 +270,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if (next_tvb) {
 			/* ROS won't do this for us */
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
-			offset=dissect_rtse_EXTERNALt(FALSE, next_tvb, 0, &asn1_ctx, tree, -1);
+			offset=dissect_ber_external_type(FALSE, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
 		} else {
 			offset = tvb_length (tvb);
 		}
