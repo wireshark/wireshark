@@ -2118,7 +2118,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
      * as a pixmap.
      */
     /* Check if we are on packet_list object */
-    if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
+    if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY) &&
+	((GdkEventButton *)event)->button != 1) {
         if (packet_list_get_event_row_column(widget, (GdkEventButton *)event,
                                              &row, &column)) {
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
