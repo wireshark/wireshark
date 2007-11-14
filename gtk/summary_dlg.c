@@ -310,7 +310,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (summary.packet_count > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-      (float) (gint64) (summary.bytes/summary.packet_count) );
+      (float) (gint64) summary.bytes/summary.packet_count);
   } else {
     strcpy(string_buff, "");
   }
