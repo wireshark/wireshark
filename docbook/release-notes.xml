@@ -110,9 +110,21 @@ Wireshark Info
           <para>
             The HTTP dissector could crash on some systems while decoding
             chunked messages.
-            <!-- Fixed in r2415 -->
+            <!-- Fixed in r23415 -->
           </para>
           <para>Versions affected: 0.10.14 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The MEGACO dissector could enter a large loop and consume
+            system resources.
+            <!-- Fixed in r23449 -->
+          </para>
+          <para>Versions affected: 0.9.14 to 0.99.6</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
