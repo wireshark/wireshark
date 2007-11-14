@@ -310,14 +310,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   if (summary.packet_count > 0){
     g_snprintf(string_buff, SUM_STR_MAX, "%.3f bytes",
       /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-      (float) (gint64) summary.bytes/summary.packet_count);
+      (float) ((gint64) summary.bytes)/summary.packet_count);
   } else {
     strcpy(string_buff, "");
   }
   if (summary.dfilter && summary.filtered_count > 0){
     g_snprintf(string_buff2, SUM_STR_MAX, "%.3f bytes",
-          /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-          (float) (gint64) summary.filtered_bytes/summary.filtered_count);
+      /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
+      (float) ((gint64) summary.filtered_bytes)/summary.filtered_count);
   } else {
     strcpy(string_buff2, "");
   }
@@ -335,13 +335,13 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Bytes per second */
   if (seconds > 0){
     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes)/seconds );
+    g_snprintf(string_buff, SUM_STR_MAX, "%.3f", ((gint64) summary.bytes)/seconds);
   } else {
     strcpy(string_buff, "");
   }
   if (summary.dfilter && disp_seconds > 0){
     /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", ((gint64) summary.filtered_bytes)/disp_seconds );
+    g_snprintf(string_buff2, SUM_STR_MAX, "%.3f", ((gint64) summary.filtered_bytes)/disp_seconds);
   } else {
     strcpy(string_buff2, "");
   }
