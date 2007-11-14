@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 acEV_NONE 0
 acEV_ERROR 1
 acEV_DIGIT 2
@@ -6894,8 +6894,6 @@ FirmwareModule HA_MODULE_BOUNDARY 26
 7 length 1 8 0 0 primitive
 7 error_string 0 8 255 0 primitive
 #####
-21 channel_id 0 32 0 0 primitive
-21 analog_if_hook_state 0 32 0 0 primitive
 229 channel_id 0 32 0 0 primitive
 229 ring_state 0 32 0 0 primitive
 229 ring_type 0 32 0 0 primitive
@@ -6952,8 +6950,6 @@ FirmwareModule HA_MODULE_BOUNDARY 26
 226 analog_if_polarity_state 0 32 0 0 primitive
 228 channel_id 0 32 0 0 primitive
 228 analog_if_flash_duration 0 32 0 0 primitive
-21 channel_id 0 32 0 0 primitive
-21 hook_state 0 32 0 0 primitive
 21 channel_id 0 32 0 0 primitive
 21 hook_state 0 32 0 0 primitive
 225 channel_id 0 32 0 0 primitive
