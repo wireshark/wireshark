@@ -175,6 +175,7 @@ static const gchar* default_media_types[] = {
 	"application/x-wms-logconnectstats",
 	"application/x-wms-logplaystats",
 	"application/x-wms-sendevent",
+	"application/rss+xml",   
 	"image/svg+xml",
 };
 
