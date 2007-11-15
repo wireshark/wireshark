@@ -80,6 +80,13 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 
 #.FN_FTR ProtocolOp
 
+  if (ProtocolOp == -1) {
+    return offset;
+  }
+
+  /* ProtocolOp is the index, not the tag so convert it to the tag value */
+  ProtocolOp = ldap_ProtocolOp_choice_vals[ProtocolOp].value;
+
   lcrp=ldap_match_call_response(tvb, actx->pinfo, tree, MessageID, ProtocolOp);
   if(lcrp){
     tap_queue_packet(ldap_tap, actx->pinfo, lcrp);
