@@ -1263,7 +1263,7 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 505 AF-Charging-Identifier OctetString
 506 Authorization-Token OctetString
 -->
-		<avp name="Flow-Description" code="507" vendor-id="3GPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+		<avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
 			<type type-name="IPFilterRule"/>
 		</avp>
 <!--
@@ -1271,7 +1271,7 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 509 Flow-Number Unsigned32
 510 Flows Grouped
 -->
-		<avp name="Flow-Status" code="511" vendor-id="3GPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+		<avp name="Flow-Status" code="511" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
 			<type type-name="Unsigned32"/>
 			<enum name="ENABLED_UPLINK" code="0"/>
 			<enum name="ENABLED_DOWNLINK" code="1"/>
