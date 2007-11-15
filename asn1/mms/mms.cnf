@@ -36,7 +36,8 @@ MMSpdu
 
 %(DEFAULT_BODY)s
 
-  if(check_col(actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(branch_taken, mms_MMSpdu_vals, "Unknown"));
-
+  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+    if(check_col(actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", mms_MMSpdu_vals[branch_taken].strptr);
+  }
 
