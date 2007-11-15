@@ -290,6 +290,11 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	  current_findex = 0;
       for(i=0; i<fragments; i++) {
 	    guint next_fragment_we_have = got[i];
+            if (next_fragment_we_have > MAX_FRAGMENTS) {
+              if (tree)
+                proto_tree_add_text(tree, tvb , 0, -1, "[Reassembly of %d fragments not attempted]", next_fragment_we_have);
+                return NULL;
+            }
         for(; current_findex<next_fragment_we_have; current_findex++) {
           frag = fragment_add_seq_check (dummytvb, 0, pinfo, seq,
             dcp_fragment_table, dcp_reassembled_table, current_findex, plen, (current_findex+1!=fcount));
