@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-mms.c                                                             */
-/* ../../tools/asn2wrs.py -b -X -T -e -p mms -c mms.cnf -s packet-mms-template mms.asn */
+/* packet-mms.c                                                               */
+/* ../../tools/asn2wrs.py -b -X -T -p mms -c ./mms.cnf -s ./packet-mms-template -D . mms.asn */
 
 /* Input file: packet-mms-template.c */
 
@@ -6871,9 +6871,10 @@ dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
                                  &branch_taken);
 
 
-  if(check_col(actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", val_to_str(branch_taken, mms_MMSpdu_vals, "Unknown"));
-
+  if( (branch_taken!=-1) && mms_MMSpdu_vals[branch_taken].strptr ){
+    if(check_col(actx->pinfo->cinfo, COL_INFO))
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", mms_MMSpdu_vals[branch_taken].strptr);
+  }
 
 
 
