@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x411.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -X -T -p x411 -c x411.cnf -s packet-x411-template x411.asn */
+/* ../../tools/asn2wrs.py -b -e -X -T -p x411 -c ./x411.cnf -s ./packet-x411-template -D . x411.asn */
 
 /* Input file: packet-x411-template.c */
 
@@ -971,16 +971,17 @@ static const ber_choice_t Credentials_choice[] = {
 static int
 dissect_x411_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 743 "x411.cnf"
-  guint32 credentials;
+  gint credentials;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Credentials_choice, hf_index, ett_x411_Credentials,
                                  &credentials);
 
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	if(credentials == -1) credentials = 0;
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%d)"));
+  if( (credentials!=-1) && x411_Credentials_vals[credentials].strptr ){
+    if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x411_Credentials_vals[credentials].strptr);
+    }
   }
 
 
@@ -2415,7 +2416,7 @@ dissect_x411_T_bilateral_domain(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x411_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 772 "x411.cnf"
+#line 773 "x411.cnf"
 	proto_item *item = NULL;
 	int 	    loffset = 0;
 	guint32	    len = 0;
@@ -3235,16 +3236,18 @@ static const ber_choice_t ReportType_choice[] = {
 
 static int
 dissect_x411_ReportType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 802 "x411.cnf"
-	int report = -1;
+#line 805 "x411.cnf"
+	gint report = -1;
 
   	  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ReportType_choice, hf_index, ett_x411_ReportType,
                                  &report);
 
 	
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(report, x411_ReportType_vals, "report-type(%d)"));
+        if( (report!=-1) && x411_ReportType_vals[report].strptr ){
+		if(check_col(actx->pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x411_ReportType_vals[report].strptr);
+		}
 	}
 
 
@@ -3458,16 +3461,18 @@ static const ber_choice_t MTS_APDU_choice[] = {
 
 static int
 dissect_x411_MTS_APDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 790 "x411.cnf"
-	int apdu = -1;
+#line 791 "x411.cnf"
+	gint apdu = -1;
 
   	  offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MTS_APDU_choice, hf_index, ett_x411_MTS_APDU,
                                  &apdu);
 
 	
-	if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(apdu, x411_MTS_APDU_vals, "MTS-APDU(%d)"));
+	if( (apdu!=-1) && x411_MTS_APDU_vals[apdu].strptr ){
+		if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", x411_MTS_APDU_vals[apdu].strptr);
+		}
 	}
 
 
@@ -6502,7 +6507,7 @@ dissect_x411_TokenDataType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_x411_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 756 "x411.cnf"
+#line 757 "x411.cnf"
 
 	proto_item_append_text(tree, " (%s)", val_to_str(extension_id, x411_TokenDataType_vals, "tokendata-type %d")); 
 	if (dissector_try_port(x411_tokendata_dissector_table, extension_id, tvb, actx->pinfo, tree)) {
