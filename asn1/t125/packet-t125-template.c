@@ -22,14 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * To quote the author of the previous H245 dissector:
- *   "This is a complete replacement of the previous limitied dissector
- * that Ronnie was crazy enough to write by hand. It was a lot of time
- * to hack it by hand, but it is incomplete and buggy and it is good when
- * it will go away."
- * Ronnie did a great job and all the VoIP users had made good use of it!
- * Credit to Tomas Kukosa for developing the asn2wrs compiler.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -68,6 +60,9 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)){
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
@@ -79,8 +74,13 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), FALSE);
   tree = proto_item_add_subtree(item, ett_t125);
 
+  get_ber_identifier(tvb, 0, &class, &pc, &tag);
 
-  dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
+  if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
+    dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
+  } else {
+    proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
+  }
 
   return tvb_length(tvb);
 }

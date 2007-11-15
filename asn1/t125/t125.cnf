@@ -19,22 +19,24 @@ DomainMCSPDU
 #----------------------------------------------------------------------------------------
 
 #.FN_BODY ConnectMCSPDU  VAL_PTR = &connectmcs_value
-  	guint32 connectmcs_value;
+  	gint connectmcs_value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ",
-			val_to_str(connectmcs_value, t125_ConnectMCSPDU_vals, "<unknown>"));
+	if( (connectmcs_value!=-1) && t125_ConnectMCSPDU_vals[connectmcs_value].strptr ){
+		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+			col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ", t125_ConnectMCSPDU_vals[connectmcs_value].strptr);
+		}
 	}
 #.END
 
 #.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
-  	guint32 domainmcs_value;
+  	gint domainmcs_value;
 
 %(DEFAULT_BODY)s
-	if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-		col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ",
-			val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "<unknown>"));
+	if( (domainmcs_value!=-1) && t125_DomainMCSPDU_vals[domainmcs_value].strptr ){
+		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
+			col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ", t125_DomainMCSPDU_vals[domainmcs_value].strptr);
+		}
 	}
 #.END
 
