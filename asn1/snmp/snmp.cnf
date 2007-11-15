@@ -25,8 +25,10 @@ BulkPDU/request-id bulkPDU_request-id
 gint pdu_type;
 
 %(DEFAULT_BODY)s
+  if( (pdu_type!=-1) && snmp_PDUs_vals[pdu_type].strptr ){
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(pdu_type, snmp_PDUs_vals,"Unknown PDU type (%%u)"));
+		col_add_str(actx->pinfo->cinfo, COL_INFO, snmp_PDUs_vals[pdu_type].strptr);
+  }
 
 #.FN_BODY PDUs/trap
  offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
