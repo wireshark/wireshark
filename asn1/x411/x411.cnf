@@ -740,13 +740,14 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	VAL_PTR = &credentials
 
 #.FN_BODY Credentials
-  guint32 credentials;
+  gint credentials;
 
   %(DEFAULT_BODY)s
 
-  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-	if(credentials == -1) credentials = 0;
-	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(credentials, x411_Credentials_vals, "Credentials(%%d)"));
+  if( (credentials!=-1) && x411_Credentials_vals[credentials].strptr ){
+    if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+      col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x411_Credentials_vals[credentials].strptr);
+    }
   }
 
 #.FN_PARS TokenDataType
@@ -787,24 +788,28 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	VAL_PTR = &apdu
 
 #.FN_BODY MTS-APDU
-	int apdu = -1;
+	gint apdu = -1;
 
   	%(DEFAULT_BODY)s
 	
-	if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(apdu, x411_MTS_APDU_vals, "MTS-APDU(%%d)"));
+	if( (apdu!=-1) && x411_MTS_APDU_vals[apdu].strptr ){
+		if(check_col(actx->pinfo->cinfo, COL_INFO) && (apdu != 0)) { /* we don't show "message" - sub-dissectors have better idea */
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x411_MTS_APDU_vals[apdu].strptr);
+		}
 	}
 
 #.FN_PARS ReportType
 	VAL_PTR = &report
 
 #.FN_BODY ReportType
-	int report = -1;
+	gint report = -1;
 
   	%(DEFAULT_BODY)s
 	
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", val_to_str(report, x411_ReportType_vals, "report-type(%%d)"));
+        if( (report!=-1) && x411_ReportType_vals[report].strptr ){
+		if(check_col(actx->pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", x411_ReportType_vals[report].strptr);
+		}
 	}
 
 #.END
