@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t125.c                                                              */
-/* ../../tools/asn2wrs.py -b -X -T -p t125 -c t125.cnf -s packet-t125-template MCS-PROTOCOL.asn */
+/* ../../tools/asn2wrs.py -b -X -T -p t125 -c ./t125.cnf -s ./packet-t125-template -D . MCS-PROTOCOL.asn */
 
 /* Input file: packet-t125-template.c */
 
@@ -29,14 +29,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- * To quote the author of the previous H245 dissector:
- *   "This is a complete replacement of the previous limitied dissector
- * that Ronnie was crazy enough to write by hand. It was a lot of time
- * to hack it by hand, but it is incomplete and buggy and it is good when
- * it will go away."
- * Ronnie did a great job and all the VoIP users had made good use of it!
- * Credit to Tomas Kukosa for developing the asn2wrs compiler.
  *
  */
 
@@ -186,7 +178,7 @@ static int hf_t125_Segmentation_begin = -1;
 static int hf_t125_Segmentation_end = -1;
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 59 "packet-t125-template.c"
+#line 51 "packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
@@ -262,7 +254,7 @@ static gint ett_t125_ConnectMCSPDU = -1;
 static gint ett_t125_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 63 "packet-t125-template.c"
+#line 55 "packet-t125-template.c"
 
 
 /*--- Included file: packet-t125-fn.c ---*/
@@ -1993,15 +1985,16 @@ static const ber_choice_t ConnectMCSPDU_choice[] = {
 static int
 dissect_t125_ConnectMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 22 "t125.cnf"
-  	guint32 connectmcs_value;
+  	gint connectmcs_value;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ConnectMCSPDU_choice, hf_index, ett_t125_ConnectMCSPDU,
                                  &connectmcs_value);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ",
-			val_to_str(connectmcs_value, t125_ConnectMCSPDU_vals, "<unknown>"));
+	if( (connectmcs_value!=-1) && t125_ConnectMCSPDU_vals[connectmcs_value].strptr ){
+		if (check_col(actx->pinfo->cinfo, COL_INFO)){
+			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ", t125_ConnectMCSPDU_vals[connectmcs_value].strptr);
+		}
 	}
 
 
@@ -2105,16 +2098,17 @@ static const ber_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t125_DomainMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "t125.cnf"
-  	guint32 domainmcs_value;
+#line 33 "t125.cnf"
+  	gint domainmcs_value;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  DomainMCSPDU_choice, hf_index, ett_t125_DomainMCSPDU,
                                  &domainmcs_value);
 
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ",
-			val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "<unknown>"));
+	if( (domainmcs_value!=-1) && t125_DomainMCSPDU_vals[domainmcs_value].strptr ){
+		if (check_col(actx->pinfo->cinfo, COL_INFO)){
+			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ", t125_DomainMCSPDU_vals[domainmcs_value].strptr);
+		}
 	}
 
 
@@ -2140,13 +2134,16 @@ static int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 65 "packet-t125-template.c"
+#line 57 "packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL)){
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
@@ -2158,8 +2155,13 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   item = proto_tree_add_item(parent_tree, proto_t125, tvb, 0, tvb_length(tvb), FALSE);
   tree = proto_item_add_subtree(item, ett_t125);
 
+  get_ber_identifier(tvb, 0, &class, &pc, &tag);
 
-  dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
+  if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
+    dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
+  } else {
+    proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
+  }
 
   return tvb_length(tvb);
 }
