@@ -46,6 +46,7 @@
  */
 
 static int proto_lapd = -1;
+static int hf_lapd_direction = -1;
 static int hf_lapd_address = -1;
 static int hf_lapd_sapi = -1;
 static int hf_lapd_gsm_sapi = -1;
@@ -90,6 +91,12 @@ static dissector_handle_t tei_handle;
 #define	LAPD_TEI		0x00fe	/* Terminal Endpoint Identifier */
 #define LAPD_TEI_SHIFT	1
 #define	LAPD_EA2		0x0001	/* Second Address Extension bit */
+
+static const value_string lapd_direction_vals[] = {
+	{ P2P_DIR_RECV, "Network->User"},
+	{ P2P_DIR_SENT, "User->Network"},
+	{ 0,			NULL }
+};
 
 static const value_string lapd_sapi_vals[] = {
 	{ LAPD_SAPI_Q931,		"Q.931 Call control procedure" },
@@ -215,9 +222,15 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, dstname);
 
 	if (tree) {
+		proto_item *direction_ti;
+
 		lapd_ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, -1,
 		    FALSE);
 		lapd_tree = proto_item_add_subtree(lapd_ti, ett_lapd);
+
+		direction_ti = proto_tree_add_uint(lapd_tree, hf_lapd_direction,
+		                                   tvb, 0, 0, pinfo->p2p_dir);
+		PROTO_ITEM_SET_GENERATED(direction_ti);
 
 		addr_ti = proto_tree_add_uint(lapd_tree, hf_lapd_address, tvb,
 		    0, 2, address);
@@ -279,6 +292,11 @@ void
 proto_register_lapd(void)
 {
     static hf_register_info hf[] = {
+
+	{ &hf_lapd_direction,
+	  { "Direction", "lapd.direction", FT_UINT8, BASE_DEC, VALS(lapd_direction_vals), 0x0,
+	  	"Direction", HFILL }},
+
 	{ &hf_lapd_address,
 	  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"Address", HFILL }},
