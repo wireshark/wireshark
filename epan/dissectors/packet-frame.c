@@ -440,7 +440,7 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-			    "[Unreassembled Packet%s]",
+			    "[Unreassembled Packet%s] ",
 			    pinfo->noreassembly_reason);
 		item = proto_tree_add_protocol_format(tree, proto_unreassembled,
 		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",

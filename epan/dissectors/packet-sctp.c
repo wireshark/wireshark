@@ -60,6 +60,7 @@
 #include <epan/sctpppids.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <packet-frame.h>
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)
 
@@ -2622,12 +2623,14 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
   /* add fragement to list of known fragments. returns NULL if segment is a duplicate */
   fragment = add_fragment(payload_tvb, pinfo, chunk_tree, tsn, stream_id, stream_seq_num, b_bit, e_bit);
 
-  if (fragment) new_tvb = fragment_reassembly(payload_tvb, fragment, pinfo, chunk_tree, stream_id, stream_seq_num);
+  if (fragment)
+    new_tvb = fragment_reassembly(payload_tvb, fragment, pinfo, chunk_tree, stream_id, stream_seq_num);
 
   /* pass reassembled data to next dissector, if possible */
-  if (new_tvb) return dissect_payload(new_tvb, pinfo, tree, ppi);
+  if (new_tvb)
+    return dissect_payload(new_tvb, pinfo, tree, ppi);
 
-  /* no reasemmbly done, do nothing */
+  /* no reassembly done, do nothing */
   return TRUE;
 }
 
@@ -2740,14 +2743,38 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        *  almost certainly not understand the data.
        */
       if (b_bit)
-	return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+      {
+	gboolean retval;
+
+	/*
+	 * If this particular fragment happens to get a ReportedBoundsError
+	 * exception (which in fact we expect it to since it's a fragment),
+	 * don't stop dissecting chunks within this frame.
+	 *
+	 * If it gets a BoundsError, we can stop, as there's nothing more to
+	 * see, so we just re-throw it.
+	 */
+	TRY {
+	  retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+	}
+	CATCH(BoundsError) {
+	  RETHROW;
+	}
+	CATCH(ReportedBoundsError) {
+	  show_reported_bounds_error(payload_tvb, pinfo, tree);
+	}
+	ENDTRY;
+
+	return retval;
+      }
 
       /* else */
       return FALSE;
     }
 
     /* if unordered set stream_seq_num to 0 for easier handling */
-    if (u_bit) stream_seq_num = 0;
+    if (u_bit)
+      stream_seq_num = 0;
 
     /* start reassembly */
     return dissect_fragmented_payload(payload_tvb, pinfo, tree, chunk_tree, tsn, payload_proto_id, stream_id, stream_seq_num, b_bit, e_bit);
