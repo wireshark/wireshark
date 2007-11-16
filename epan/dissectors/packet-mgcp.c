@@ -281,6 +281,7 @@ static void dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb
 static void dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb,
                                                 gint offset, gint param_type_len,
                                                 gint param_val_len);
+
                                           
 static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
@@ -294,7 +295,11 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_o
 static gboolean is_rfc2234_alpha(guint8 c);
 
 static dissector_handle_t sdp_handle;
-
+static dissector_handle_t mgcp_handle;
+extern void
+dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+     dissector_handle_t subdissector_handle);
+extern guint16 is_asciitpkt(tvbuff_t *tvb);
 
 /*
  * Init Hash table stuff
@@ -327,7 +332,6 @@ static guint mgcp_call_hash(gconstpointer k)
 
 	return key->transid  + key->conversation->index;
 }
-
 
 
 /************************************************************************
@@ -430,6 +434,34 @@ static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
 		}
 	}
+}
+/************************************************************************
+ * dissect_tpkt_mgcp - The dissector for the ASCII TPKT Media Gateway Control Protocol
+ ************************************************************************/
+static void dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint16 ascii_tpkt;
+
+     /* Check whether this looks like a ASCII TPKT-encapsulated
+      *  MGCP packet.
+      */
+    ascii_tpkt = is_asciitpkt(tvb);
+
+    if (ascii_tpkt == 0 )
+       {
+         /*
+          * It's not a ASCII TPKT packet
+          * in MGCP
+          */
+           dissect_mgcp(tvb, pinfo, tree);
+        }
+     else
+        {
+           /*
+            * Dissect ASCII TPKT header
+            */
+           dissect_asciitpkt(tvb, pinfo, tree, mgcp_handle);
+        }
 }
 
 #define MAX_MGCP_MESSAGES_IN_PACKET 5
@@ -908,21 +940,21 @@ void proto_register_mgcp(void)
 void proto_reg_handoff_mgcp(void)
 {
 	static int mgcp_prefs_initialized = FALSE;
-	static dissector_handle_t mgcp_handle;
-
+	static dissector_handle_t mgcp_tpkt_handle;
 	/* Get a handle for the SDP dissector. */
 	sdp_handle = find_dissector("sdp");
 
 	if (!mgcp_prefs_initialized)
 	{
 		mgcp_handle = create_dissector_handle(dissect_mgcp, proto_mgcp);
+		mgcp_tpkt_handle = create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
 		mgcp_prefs_initialized = TRUE;
 	}
 	else
 	{
-		dissector_delete("tcp.port", gateway_tcp_port, mgcp_handle);
+		dissector_delete("tcp.port", gateway_tcp_port, mgcp_tpkt_handle);
 		dissector_delete("udp.port", gateway_udp_port, mgcp_handle);
-		dissector_delete("tcp.port", callagent_tcp_port, mgcp_handle);
+		dissector_delete("tcp.port", callagent_tcp_port, mgcp_tpkt_handle);
 		dissector_delete("udp.port", callagent_udp_port, mgcp_handle);
 	}
 
@@ -933,9 +965,9 @@ void proto_reg_handoff_mgcp(void)
 	callagent_tcp_port = global_mgcp_callagent_tcp_port;
 	callagent_udp_port = global_mgcp_callagent_udp_port;
 
-	dissector_add("tcp.port", global_mgcp_gateway_tcp_port, mgcp_handle);
+	dissector_add("tcp.port", global_mgcp_gateway_tcp_port, mgcp_tpkt_handle);
 	dissector_add("udp.port", global_mgcp_gateway_udp_port, mgcp_handle);
-	dissector_add("tcp.port", global_mgcp_callagent_tcp_port, mgcp_handle);
+	dissector_add("tcp.port", global_mgcp_callagent_tcp_port, mgcp_tpkt_handle);
 	dissector_add("udp.port", global_mgcp_callagent_udp_port, mgcp_handle);
 }
 

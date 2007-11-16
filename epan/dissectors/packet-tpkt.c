@@ -41,13 +41,14 @@
 #include "packet-tpkt.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
-
+#include <ctype.h>
 /* TPKT header fields             */
 static int proto_tpkt          = -1;
 static protocol_t *proto_tpkt_ptr;
 static int hf_tpkt_version     = -1;
 static int hf_tpkt_reserved    = -1;
 static int hf_tpkt_length      = -1;
+
 
 /* TPKT fields defining a sub tree */
 static gint ett_tpkt           = -1;
@@ -109,6 +110,253 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 	 * Return the length from the header.
 	 */
 	return pkt_len;
+}
+guint16 is_asciitpkt(tvbuff_t *tvb)
+{
+    guint16 count;
+        /*
+         * If TPKT is disabled, don't dissect it, just return -1, meaning
+         * "this isn't TPKT".
+         */
+    if (!proto_is_protocol_enabled(proto_tpkt_ptr))
+       return -1;
+
+          /* There should at least be 8 bytes left in the frame */
+    if (!tvb_bytes_exist(tvb, 0, 8))
+        return -1;      /* there aren't */
+
+        /*
+         * The first four  octets should be ASCII
+         */
+    for (count = 0; count <=7 ; count ++)
+        {
+        if(!isalnum(tvb_get_guint8(tvb,count)))
+          {
+          return 0;
+          }
+        }
+     return 1;
+
+
+}
+int parseLengthText ( guint8* pTpktData )
+{
+    int value = 0;
+    const guint8 * pData = pTpktData;
+    int bitvalue = 0, count1 = 3;
+    int count;
+    for (count = 0; count <= 3; count++)
+        {
+        if (('0' <= *(pData + count)) && (*(pData + count) <= '9'))
+            bitvalue = *(pData + count) - 48;
+        else if (('a' <= *(pData + count)) && (*(pData + count) <= 'f' ))
+            bitvalue = *(pData + count) - 87;
+        else if (('A' <= *(pData + count)) && (*(pData + count) <= 'F' ))
+            bitvalue = *(pData + count) - 55;
+
+        value += bitvalue << (4*count1);
+        count1--;
+        }
+    return value;
+}
+int parseVersionText ( guint8* pTpktData )
+{
+    int value = 0;
+    guint8 * pData = pTpktData;
+    int bitvalue = 0, count1 = 1;
+    int count;
+    for (count = 0; count <= 1; count++)
+        {
+        if (('0' <= *(pData + count)) && (*(pData + count) <= '9'))
+            bitvalue = *(pData + count) - 48;
+        else if (('a' <= *(pData + count)) && (*(pData + count) <= 'f' ))
+            bitvalue = *(pData + count) - 87;
+        else if (('A' <= *(pData + count)) && (*(pData + count) <= 'F' ))
+            bitvalue = *(pData + count) - 55;
+
+        value += bitvalue << (4*count1);
+        count1--;
+        }
+
+    return value;
+}
+int parseReservedText ( guint8* pTpktData )
+{
+    int value = 0;
+    guint8 * pData = pTpktData;
+    int bitvalue = 0, count1 = 1;
+    int count;
+    for (count = 0; count <= 1; count++)
+        {
+        if (('0' <= *(pData + count)) && (*(pData + count) <= '9'))
+            bitvalue = *(pData + count) - 48;
+        else if (('a' <= *(pData + count)) && (*(pData + count) <= 'f' ))
+            bitvalue = *(pData + count) - 87;
+        else if (('A' <= *(pData + count)) && (*(pData + count) <= 'F' ))
+            bitvalue = *(pData + count) - 55;
+
+        value += bitvalue << (4*count1);
+        count1--;
+        }
+
+    return value;
+}
+/*
+ * Dissect ASCII TPKT-encapsulated data in a TCP stream.
+ */
+void
+dissect_asciitpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    dissector_handle_t subdissector_handle)
+{
+    proto_item *ti = NULL;
+    proto_tree *tpkt_tree = NULL;
+    volatile int offset = 0;
+    int length_remaining;
+    int data_len;
+    int mgcp_packet_len = 0;
+    int mgcp_version = 0;
+    int mgcp_reserved = 0;
+    volatile int length;
+    tvbuff_t *next_tvb;
+    const char *saved_proto;
+    guint8 string[4];
+    /*
+     * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
+     * column, so subdissectors can append information
+     * without having to worry about emptying the column.
+     *
+     * We use "col_add_str()" because the subdissector
+     * might be appending information to the column, in
+     * which case we'd have to zero the buffer out explicitly
+     * anyway.
+     */
+    if (tpkt_desegment && check_col(pinfo->cinfo, COL_INFO))
+        col_add_str(pinfo->cinfo, COL_INFO, "");
+
+    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+        /*
+         * Is the first byte of this putative TPKT header
+         * a valid TPKT version number, i.e. 3?
+         */
+        if (tvb_get_guint8(tvb, offset) != 48) {
+            /*
+             * No, so don't assume this is a TPKT header;
+             * we might be in the middle of TPKT data,
+             * so don't get the length and don't try to
+             * do reassembly.
+             */
+            if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+            if (tree) {
+                ti = proto_tree_add_item(tree, proto_tpkt, tvb,
+                    offset, -1, FALSE);
+                tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+                proto_item_set_text(ti, "TPKT");
+
+                proto_tree_add_text(tpkt_tree, tvb, offset, -1,
+                    "Continuation data");
+            }
+            return;
+        }
+
+        length_remaining = tvb_length_remaining(tvb, offset);
+
+        /*
+         * Get the length from the TPKT header.
+         */
+
+        tvb_memcpy(tvb, (guint8 *)string, offset, 2);
+        mgcp_version = parseVersionText(string);
+        tvb_memcpy(tvb, (guint8 *)string, offset +2, 2);
+        mgcp_reserved = parseReservedText(string);
+        tvb_memcpy(tvb, (guint8 *)string, offset + 4, 4);
+        mgcp_packet_len = parseLengthText(string);
+        data_len = mgcp_packet_len;
+
+        /*
+         * Dissect the TPKT header.
+         * Save and restore "pinfo->current_proto".
+         */
+        saved_proto = pinfo->current_proto;
+        pinfo->current_proto = "TPKT";
+
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+            col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
+        /*
+         * Don't add the TPKT header information if we're
+         * reassembling segmented TPKT PDUs or if this
+         * PDU isn't reassembled.
+         *
+         * XXX - the first is so that subdissectors can append
+         * information without getting TPKT stuff in the middle;
+         * why the second?
+         */
+        if (!tpkt_desegment && !pinfo->fragmented
+            && check_col(pinfo->cinfo, COL_INFO)) {
+            col_add_fstr(pinfo->cinfo, COL_INFO,
+                "TPKT Data length = %u", data_len);
+        }
+
+        if (tree) {
+            ti = proto_tree_add_item(tree, proto_tpkt, tvb,
+                offset, 8, FALSE);
+            tpkt_tree = proto_item_add_subtree(ti, ett_tpkt);
+            proto_item_set_text(ti, "TPKT");
+
+            /* Version */
+            proto_tree_add_uint(tpkt_tree, hf_tpkt_version, tvb,
+                            offset, 2, mgcp_version);
+
+            /* Reserved octet*/
+            proto_tree_add_uint(tpkt_tree, hf_tpkt_reserved, tvb,
+                            offset + 2, 2, mgcp_reserved);
+
+            /* Length */
+            proto_tree_add_uint(tpkt_tree, hf_tpkt_length, tvb,
+                            offset + 4, 4, mgcp_packet_len);
+        }
+        pinfo->current_proto = saved_proto;
+
+        /* Skip the TPKT header. */
+        offset += TEXT_LAYER_LENGTH;
+        length = length_remaining - TEXT_LAYER_LENGTH;
+        if (length > data_len)
+            length = data_len;
+
+        next_tvb = tvb_new_subset(tvb, offset,length, data_len);
+
+        /*
+         * Call the subdissector.
+         *
+         * Catch the ReportedBoundsError exception; if this
+         * particular message happens to get a ReportedBoundsError
+         * exception, that doesn't mean that we should stop
+         * dissecting TPKT messages within this frame or chunk
+         * of reassembled data.
+         *
+         * If it gets a BoundsError, we can stop, as there's nothing
+         * more to see, so we just re-throw it.
+         */
+
+        TRY {
+            call_dissector(subdissector_handle, next_tvb, pinfo,
+                tree);
+        }
+        CATCH(BoundsError) {
+            RETHROW;
+        }
+        CATCH(ReportedBoundsError) {
+            show_reported_bounds_error(tvb, pinfo, tree);
+        }
+        ENDTRY;
+
+        /*
+         * Skip the payload.
+         */
+        offset += data_len;
+    }
 }
 
 /*
@@ -340,6 +588,15 @@ dissect_tpkt_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, x224_handle);
 }
+/*
+ * Dissect ASCII TPKT, which wraps a ASCII TPKT header around an OSI TP
+ * PDU.
+ */
+static void
+dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+        dissect_asciitpkt(tvb, pinfo, tree, osi_tp_handle);
+}
 
 void
 proto_register_tpkt(void)
@@ -395,7 +652,7 @@ proto_register_tpkt(void)
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("tpkt", dissect_tpkt, proto_tpkt);
-
+	
 	tpkt_module = prefs_register_protocol(proto_tpkt, NULL);
 	prefs_register_bool_preference(tpkt_module, "desegment",
 	    "Reassemble TPKT messages spanning multiple TCP segments",
@@ -416,4 +673,9 @@ proto_reg_handoff_tpkt(void)
 	x224_handle = find_dissector("x224");
 	tpkt_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
 	dissector_add("tcp.port", TCP_PORT_TPKT_X224, tpkt_handle);
+	
+        tpkt_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
+        dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
+
+	
 }
