@@ -46,6 +46,7 @@
 #include <epan/expert.h>
 #include <epan/filesystem.h>
 #include <epan/report_err.h>
+#include <epan/eap.h>
 
 /* TODO: delete?. */
 #include "packet-wimaxasncp.h"
@@ -86,9 +87,14 @@ static int hf_wimaxasncp_tlv_value_bitflags32   = -1;
 static int hf_wimaxasncp_tlv_value_protocol     = -1;
 static int hf_wimaxasncp_tlv_value_vendor_id    = -1;
 
-/* preferences */
+/* Preferences */
 static gboolean show_transaction_id_d_bit      = FALSE;
 static gboolean debug_enabled                  = FALSE;
+
+/* Default WiMAX ASN control protocol port */
+#define WIMAXASNCP_DEF_UDP_PORT     2231
+static guint global_wimaxasncp_udp_port = WIMAXASNCP_DEF_UDP_PORT;
+
 
 /* Initialize the subtree pointers */
 static gint ett_wimaxasncp                                       = -1;
@@ -100,6 +106,7 @@ static gint ett_wimaxasncp_tlv_protocol_list                     = -1;
 static gint ett_wimaxasncp_tlv_port_range_list                   = -1;
 static gint ett_wimaxasncp_tlv_ip_address_mask_list              = -1;
 static gint ett_wimaxasncp_tlv_ip_address_mask                   = -1;
+static gint ett_wimaxasncp_tlv_eap                               = -1;
 static gint ett_wimaxasncp_tlv_vendor_specific_information_field = -1;
 
 /* Header size, up to, but not including, the TLV fields. */
@@ -130,6 +137,8 @@ static wimaxasncp_dict_tlv_t wimaxasncp_tlv_not_found =
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     NULL, NULL, NULL
 };
+
+static dissector_handle_t eap_handle;
 
 /* ------------------------------------------------------------------------- */
 
@@ -1440,6 +1449,71 @@ static void wimaxasncp_dissect_tlv_value(
 
         return;
     }
+    case WIMAXASNCP_TLV_EAP:
+    {
+        /*
+         *   EAP payload, call eap dissector to dissect eap payload
+         */
+        guint8 eap_code;
+        guint8 eap_type = 0;
+
+        /* Get code */
+        eap_code = tvb_get_guint8(tvb, offset);
+        if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
+        {
+            /* Get type */
+            eap_type = tvb_get_guint8(tvb, offset + 4);
+        }
+
+        /* Add code and type to info column */
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, " [");
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                            val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+
+            if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                                val_to_str(eap_type, eap_type_vals, "Unknown type (0x%02X)"));
+            }
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+        }
+
+
+        if (tree)
+        {
+            proto_tree *eap_tree;
+            proto_item *item;
+            gboolean save_writable;
+            tvbuff_t *eap_tvb;
+
+            /* Create EAP subtree */
+            item = proto_tree_add_item(tree, tlv_info->hf_value, tvb,
+                                       offset, length, FALSE);
+            proto_item_set_text(item, "Value");
+            eap_tree = proto_item_add_subtree(item, ett_wimaxasncp_tlv_eap);
+
+            /* Extract remaining bytes into new tvb */
+            eap_tvb = tvb_new_subset(tvb, offset, length,
+                                     tvb_length_remaining(tvb, offset));
+
+            /* Disable writing to info column while calling eap dissector */
+            save_writable = col_get_writable(pinfo->cinfo);
+            col_set_writable(pinfo->cinfo, FALSE);
+
+            /* Call the EAP dissector. */
+            call_dissector(eap_handle, eap_tvb, pinfo, eap_tree);
+
+            /* Restore previous writable state of info column */
+            col_set_writable(pinfo->cinfo, save_writable);
+        }
+
+        return;
+    }
+
     case WIMAXASNCP_TLV_VENDOR_SPECIFIC:
     {
         /* --------------------------------------------------------------------
@@ -1730,6 +1804,10 @@ static guint dissect_wimaxasncp_backend(
     guint16 ui16;
     guint32 ui32;
     const guint8 *p;
+    guint8 *pmsid = NULL;
+    guint16 tid = 0;
+    gboolean dbit_show;
+
 
     /* ------------------------------------------------------------------------
      * MSID
@@ -1744,11 +1822,7 @@ static guint dissect_wimaxasncp_backend(
             tree, hf_wimaxasncp_msid,
             tvb, offset, 6, p);
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_append_fstr(
-                pinfo->cinfo, COL_INFO, " - MSID:%s", ether_to_str(p));
-        }
+        pmsid = ether_to_str(p);
     }
 
     offset += 6;
@@ -1774,6 +1848,7 @@ static guint dissect_wimaxasncp_backend(
      * ------------------------------------------------------------------------
      */
 
+    dbit_show = FALSE;
     ui16 = tvb_get_ntohs(tvb, offset);
 
     if (tree)
@@ -1789,11 +1864,8 @@ static guint dissect_wimaxasncp_backend(
                     tvb, offset, 2, ui16,
                     "Transaction ID: D + 0x%04x (0x%04x)", mask & ui16, ui16);
 
-                if (check_col(pinfo->cinfo, COL_INFO))
-                {
-                    col_append_fstr(
-                        pinfo->cinfo, COL_INFO, ", TID:D+0x%04x", mask & ui16);
-                }
+                tid = ui16 & mask;
+                dbit_show = TRUE;
             }
             else
             {
@@ -1802,11 +1874,7 @@ static guint dissect_wimaxasncp_backend(
                     tvb, offset, 2, ui16,
                     "Transaction ID: 0x%04x", ui16);
 
-                if (check_col(pinfo->cinfo, COL_INFO))
-                {
-                    col_append_fstr(
-                        pinfo->cinfo, COL_INFO, ", TID:0x%04x", ui16);
-                }
+                tid = ui16;
             }
         }
         else
@@ -1815,11 +1883,7 @@ static guint dissect_wimaxasncp_backend(
                 tree, hf_wimaxasncp_transaction_id,
                 tvb, offset, 2, ui16);
 
-            if (check_col(pinfo->cinfo, COL_INFO))
-            {
-                col_append_fstr(
-                    pinfo->cinfo, COL_INFO, ", TID:0x%04x", ui16);
-            }
+            tid = ui16;
         }
     }
 
@@ -1856,6 +1920,19 @@ static guint dissect_wimaxasncp_backend(
             tvb_length(tvb) - offset);
 
         offset += dissect_wimaxasncp_tlvs(tlv_tvb, pinfo, tree);
+    }
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - MSID:%s", pmsid);
+        if (dbit_show)
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:D+0x%04x", tid);
+        }
+        else
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", TID:0x%04x", tid);
+        }
     }
 
     return offset;
@@ -2542,6 +2619,14 @@ static void add_tlv_reg_info(
 
         break;
 
+    case WIMAXASNCP_TLV_EAP:
+        blurb = g_strdup_printf("EAP payload embedded in %s", name);
+
+        add_reg_info(
+            &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
+        break;
+
+
     default:
         add_reg_info(
             &tlv->hf_value, name, abbrev, FT_BYTES, BASE_HEX, blurb);
@@ -2972,6 +3057,7 @@ proto_register_wimaxasncp(void)
             &ett_wimaxasncp_tlv_port_range_list,
             &ett_wimaxasncp_tlv_ip_address_mask_list,
             &ett_wimaxasncp_tlv_ip_address_mask,
+            &ett_wimaxasncp_tlv_eap,
             &ett_wimaxasncp_tlv_vendor_specific_information_field
     };
 
@@ -3141,6 +3227,14 @@ proto_register_wimaxasncp(void)
             "Enable debug output",
             "Print debug output to the console.",
             &debug_enabled);
+
+    prefs_register_uint_preference(
+        wimaxasncp_module, 
+        "udp.wimax_port",
+        "UDP Port for WiMAX ASN Control Plane Protocol",
+        "Set UDP port for WiMAX ASN Control Plane Protocol",
+        10, &global_wimaxasncp_udp_port);
+
 }
 
 /* ========================================================================= */
@@ -3156,10 +3250,13 @@ void
 proto_reg_handoff_wimaxasncp(void)
 {
     static gboolean inited = FALSE;
+    dissector_handle_t wimaxasncp_handle;
+    static int currentPort = -1;
 
-    if ( ! inited)
+    memset(&wimaxasncp_handle, 0, sizeof(dissector_handle_t));
+
+    if (!inited)
     {
-        dissector_handle_t wimaxasncp_handle;
 
         /*  Use new_create_dissector_handle() to indicate that
          *  dissect_wimaxasncp() returns the number of bytes it dissected (or
@@ -3170,8 +3267,20 @@ proto_reg_handoff_wimaxasncp(void)
              dissect_wimaxasncp,
              proto_wimaxasncp);
 
-         dissector_add("udp.port", 2231, wimaxasncp_handle);
 
          inited = TRUE;
     }
+
+    if (currentPort != -1)
+    {
+        /* Remove any previous registered port */
+        dissector_delete("udp.port", currentPort, wimaxasncp_handle);
+    }
+
+    /* Add the new one from preferences */
+    currentPort = global_wimaxasncp_udp_port;
+    dissector_add("udp.port", currentPort, wimaxasncp_handle);
+
+    /* Find the EAP dissector */
+    eap_handle = find_dissector("eap");
 }

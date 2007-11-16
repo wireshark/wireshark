@@ -677,7 +677,7 @@
 
     <tlv name="EAP Payload"
          type="62"
-         decoder="WIMAXASNCP_TLV_TBD">
+         decoder="WIMAXASNCP_TLV_EAP">
     </tlv>
 
     <!-- ****************************************************************** -->

@@ -34,6 +34,8 @@
 #include <epan/reassemble.h>
 #include <epan/emem.h>
 
+#include <epan/eap.h>
+
 static int proto_eap = -1;
 static int hf_eap_code = -1;
 static int hf_eap_identifier = -1;
@@ -45,12 +47,9 @@ static gint ett_eap = -1;
 
 static dissector_handle_t ssl_handle;
 
-#define EAP_REQUEST	1
-#define EAP_RESPONSE	2
-#define EAP_SUCCESS	3
-#define EAP_FAILURE	4
 
-static const value_string eap_code_vals[] = {
+
+const value_string eap_code_vals[] = {
     { EAP_REQUEST,  "Request" },
     { EAP_RESPONSE, "Response" },
     { EAP_SUCCESS,  "Success" },
@@ -68,20 +67,8 @@ References:
   5) http://www.iana.org/assignments/eap-numbers	EAP registry( updated 2006-10-23)
 */
 
-#define EAP_TYPE_ID     1
-#define EAP_TYPE_NOTIFY 2
-#define EAP_TYPE_NAK    3
-#define EAP_TYPE_MD5	4
-#define EAP_TYPE_TLS	13
-#define EAP_TYPE_LEAP	17
-#define EAP_TYPE_SIM	18
-#define EAP_TYPE_TTLS	21
-#define EAP_TYPE_AKA	23
-#define EAP_TYPE_PEAP	25
-#define EAP_TYPE_MSCHAPV2 26
-#define EAP_TYPE_FAST	43
 
-static const value_string eap_type_vals[] = {
+const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC3748]" },
   {EAP_TYPE_NOTIFY,"Notification [RFC3748]" },
   {EAP_TYPE_NAK, "Legacy Nak (Response only) [RFC3748]" },
