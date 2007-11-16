@@ -142,7 +142,18 @@ Wireshark Info
           </para>
         </listitem>
 
-        <!-- iSeries -->
+        <listitem>
+          <para>
+            Fabiodds discovered a buffer overflow in the iSeries (OS/400) Communication trace file parser.
+            <!-- Fixed in r23232 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1926">1926</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.0 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
         <!-- rtsp? -->
       </itemizedlist>
 
@@ -156,6 +167,10 @@ Wireshark Info
 
         <listitem><para>
             Wireshark could crash while editing a coloring rule.
+        </para></listitem>
+
+        <listitem><para>
+            The display filter code could crash while bitwise ANDing an IPv4 address.
         </para></listitem>
 
       </itemizedlist>
@@ -180,7 +195,63 @@ Wireshark Info
 
         <listitem>
           <para>
+            Many display filter names have been cleaned up.  If your favorite display filter just went missing, please consult the <ulink url="http://www.wireshark.org/docs/dfref/">display filter reference</ulink> to find out where it ended up.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             You can now filter directly on SNMP OIDs.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            IO graphs have more display options, and you can now export graphs.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now follow UDP streams in addition to TCP and SSL streams.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now disable coloring rules without deleting them.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Main window toolbar buttons are now available even when the window is small.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The version of WinPcap that ships with the Windows installers has been updated to 4.0.2.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The Windows installers now include a "services" file, which maps port numbers to names.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The Windows installer now enables npf.sys by default under Vista.
+            Wireshark will print a warning at startup if npf.sys isn't loaded
+            under Vista.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Optimizations have been applied in some places to make Wireshark start up and run faster.
           </para>
         </listitem>
 
@@ -192,16 +263,192 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+ANSI TCAP,
+application/xcap-error (MIME type),
+CFM,
+DPNSS,
+EtherCAT,
+ETSI e2/e4,
+H.282,
+H.460,
+H.501,
+IEEE 802.1ad and 802.1ah,
+IMF (RFC 2822),
+RSL,
+SABP,
+T.125,
+TNEF,
+TPNCP,
+UNISTIM,
+Wake on LAN,
+WiMAX ASN Control Plane,
+X.224,
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+3Com XNS,
+3G A11,
+ACN,
+ACP123,
+ACSE,
+AIM,
+ANSI IS-637-A,
+ANSI MAP,
+Armagetronad,
+BACapp,
+BACnet,
+BER,
+BFD,
+BGP,
+Bluetooth,
+CAMEL,
+CDT,
+CFM,
+CIP,
+Cisco ERSPAN,
+CLNP,
+CMIP,
+CMS,
+COPS,
+CTDB,
+DCCP,
+DCERPC ATSVC,
+DCERPC PNIO,
+DCERPC SAMR,
+DCERPC,
+DCOM CBA-ACCO,
+DCP ETSI,
+DEC DNA,
+DFS,
+DHCP/BOOTP,
+DHCPv6,
+DIAMETER,
+DISP,
+DMP,
+DNP,
+DNS,
+DOP,
+DTLS,
+DUA,
+eDonkey,
+ELSM,
+ESL,
+Ethernet,
+FC ELS,
+FC,
+FCOE,
+FTAM,
+FTP,
+GDSDB,
+GIOP,
+GPRS-LLC,
+GSM A,
+GSM MAP,
+GTP,
+HSRP,
+HTTP,
+IAX2,
+ICMPv6,
+IEEE 802.11,
+INAP,
+IP,
+IPMI,
+IPv6,
+ISAKMP,
+ISIS,
+iSNS,
+ISUP,
+IUUP,
+JXTA,
+K12,
+Kerberos,
+L2TP,
+LAPD,
+LDAP,
+LINX,
+LPD,
+LWAPP,
+MEGACO,
+MIKEY,
+MIME Multipart,
+MMS,
+MP2T,
+MPEG PES,
+MPEG,
+MTP2,
+MySQL,
+NBAP,
+NetFlow,
+nettl,
+NFS,
+NSIP,
+OSPF,
+P_MUL,
+PANA,
+PER,
+PKCS#12,
+PMIPv6,
+PN-PTCP,
+PN-RT,
+PPI,
+PPPoE,
+PRES,
+PROFINET,
+PTP,
+Q.932 ROS,
+Q.932,
+QSIG,
+Radiotap,
+RADIUS,
+RANAP,
+RNSAP,
+ROS,
+RTCP,
+RTP,
+RTSE,
+RTSP,
+SCCP,
+SCTP,
+SDP,
+SIGCOMP,
+SIP,
+Slow Protocols,
+SMB,
+SMPP,
+SMTP,
+SNDCP,
+SNMP,
+SRP,
+SSL,
+STANAG 4406,
+STUN2,
+TCAP,
+TCP,
+text/media,
+TIPC,
+ULP,
+UMA,
+UMTS FP,
+V5UA,
+VNC,
+WiMAX M2M,
+WiMAX,
+WLCCP,
+X.411,
+X.420,
+X.509 SAT,
+XML,
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
+
+Catapult DCT 2000, Endace ERF, Juniper NetScreen snoop, Visual Networks, Windows Sniffer (NetXRay)
 
     </para>
     </section>
