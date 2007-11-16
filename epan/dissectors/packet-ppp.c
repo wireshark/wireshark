@@ -185,7 +185,7 @@ static int proto_ipv6cp = -1;  /* IPv6CP vars */
 static gint ett_ipv6cp = -1;
 static gint ett_ipv6cp_options = -1;
 static gint ett_ipv6cp_if_id_opt = -1;
-static gint ett_ipv6cp_compress_opt = -1;  
+static gint ett_ipv6cp_compress_opt = -1;
 
 static int proto_iphc_crtp = -1;	    /* CRTP vars */
 static int hf_iphc_crtp_cid8 = -1;
@@ -2109,7 +2109,7 @@ static void dissect_ipcp_compress_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
 	    }
 	    break;
 
-	    
+
 	case IPCP_COMPRESS_IPHC:
 	    if ( length < 2 ) {
 		break;
@@ -2815,7 +2815,7 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_lcp_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts, N_LCP_OPTS, 
+  dissect_ip_tcp_options(tvb, 0, tvb_reported_length(tvb), lcp_opts, N_LCP_OPTS,
             -1, pinfo, tree);
 }
 
@@ -3106,9 +3106,9 @@ static const value_string iphc_crtp_cs_flags[] = {
 	{0,          	NULL }
 };
 
-/* 
- * 0x61 Packets: Full IP/UDP Header 
- */ 
+/*
+ * 0x61 Packets: Full IP/UDP Header
+ */
 
 static void
 dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -3145,7 +3145,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
 
-    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
 					"%s", val_to_str(PPP_RTP_FH, ppp_vals, "Unknown"));
     fh_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
@@ -3153,13 +3153,13 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* calculate length of IP header, assume IPv4 */
     ip_hdr_len = (tvb_get_guint8(tvb, 0) & 0x0f) * 4;
-    
+
     /* calculate total hdr length, assume UDP */
     hdr_len = ip_hdr_len + 8;
 
     /* flags field */
     ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_fh_flags, tvb, 2, 1, FALSE);
-    
+
     /* generation field */
     ti = proto_tree_add_item(fh_tree, hf_iphc_crtp_gen, tvb, 2, 1, FALSE);
 
@@ -3182,7 +3182,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* information field */
-    tvb_ensure_bytes_exist (tvb, 0, length);
+    tvb_ensure_bytes_exist (tvb, 0, hdr_len);
     ti = proto_tree_add_text(fh_tree, tvb, 0,length,"Information Field");
     info_tree = proto_item_add_subtree(ti,ett_iphc_crtp_info);
 
@@ -3207,7 +3207,7 @@ dissect_iphc_crtp_fh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* if tree */
 }
 
-/* 
+/*
  * 0x2067 Packets:  Compressed UDP with 16-bit Context Identifier
  */
 static void
@@ -3228,7 +3228,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_reported_length(tvb);
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
 					"%s", val_to_str(PPP_RTP_CUDP16, ppp_vals, "Unknown"));
     cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
@@ -3244,7 +3244,7 @@ dissect_iphc_crtp_cudp16(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* if tree */
 }
 
-/* 
+/*
  * 0x67 Packets:  Compressed UDP with 8-bit Context Identifier
  */
 static void
@@ -3265,7 +3265,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   length = tvb_reported_length(tvb);
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
 					"%s", val_to_str(PPP_RTP_CUDP8, ppp_vals, "Unknown"));
     cudp_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
@@ -3282,7 +3282,7 @@ dissect_iphc_crtp_cudp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* 
+/*
  * 0x2065 Packets:  Context State
  */
 static void
@@ -3301,10 +3301,10 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_INFO, "Context State");
 
   if (tree) {
-    
-    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1, 
+
+    ti = proto_tree_add_protocol_format(tree, proto_iphc_crtp, tvb, 0, -1,
 					"%s", val_to_str(PPP_RTP_CS, ppp_vals, "Unknown"));
-    
+
     cs_tree = proto_item_add_subtree(ti, ett_iphc_crtp);
 
     ti = proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_flags, tvb, 0, 1, FALSE);
@@ -3323,7 +3323,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       cid_size = 2;
       length = 4 * cnt;
     }
- 
+
     tvb_ensure_bytes_exist(tvb, offset, length);
 
     while (offset < length) {
@@ -3535,7 +3535,7 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
   int		scanned_len = 0;
   guint8	octet;
   tvbuff_t  *next_tvb;
-	
+
   buff = g_malloc(length);
   i = 0;
   while ( scanned_len < length ){
@@ -3561,7 +3561,7 @@ remove_escape_chars(tvbuff_t *tvb, int offset, int length)
   next_tvb = tvb_new_real_data(buff,i,i);
 
   /* Arrange that the allocated packet data copy be freed when the
-   * tvbuff is freed. 
+   * tvbuff is freed.
    */
   tvb_set_free_cb( next_tvb, g_free );
 
@@ -3864,7 +3864,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     /* Identifier */
     proto_tree_add_item(fh_tree, hf_chap_identifier, tvb, 1, 1, FALSE);
   }
-    
+
   /* Length - make sure it's valid */
   length = tvb_get_ntohs(tvb, 2);
   if(length < 4) {
@@ -3877,12 +3877,12 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   }
   proto_item_set_len(ti, length);
   if(tree) {
-    proto_tree_add_item(fh_tree, hf_chap_length, tvb, 2, 2, FALSE);    
+    proto_tree_add_item(fh_tree, hf_chap_length, tvb, 2, 2, FALSE);
   }
 
   /* Offset moved to after length field */
   offset = 4;
-  /* Length includes previous 4 bytes, subtract */ 
+  /* Length includes previous 4 bytes, subtract */
   length -= 4;
 
   switch (code) {
@@ -3951,7 +3951,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
           proto_tree_add_item(fh_tree, hf_chap_message, tvb, offset, length, FALSE);
         }
       }
-      
+
       /* Show message in info column */
       if(check_col(pinfo->cinfo, COL_INFO)){
         col_append_fstr(pinfo->cinfo, COL_INFO, " (MESSAGE='%s')",
@@ -4525,7 +4525,7 @@ proto_reg_handoff_chap(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_CHAP, chap_handle);
-  
+
   /*
    * for GSM-A / MobileL3 / GPRS SM / PCO
    */
@@ -4570,10 +4570,10 @@ proto_register_pppmux(void)
   {
     { &hf_pppmux_protocol,
       { "Protocol", "ppp.protocol", FT_UINT16, BASE_HEX,
-        VALS(ppp_vals), 0x0, 
+        VALS(ppp_vals), 0x0,
         "The protocol of the sub-frame.", HFILL }},
   };
-	
+
   static gint *ett[] = {
     &ett_pppmux,
     &ett_pppmux_subframe,
@@ -4768,7 +4768,7 @@ proto_register_iphc_crtp(void)
       }
     },
  };
-	
+
   static gint *ett[] = {
     &ett_iphc_crtp,
     &ett_iphc_crtp_hdr,
