@@ -1507,9 +1507,9 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 	guint16	value = 0;
 	guint8	tot_no_bits;
 
-	if (no_of_bits>8)
+	if (no_of_bits>8) {
 		DISSECTOR_ASSERT_NOT_REACHED();
-
+	}
 	/* Byte align offset */
 	offset = bit_offset>>3;
 
@@ -1548,9 +1548,10 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 	guint32	value = 0;
 	guint8	tot_no_bits;
 
-	if ((no_of_bits<8)||(no_of_bits>16))
+	if ((no_of_bits<8)||(no_of_bits>16)) {
 		/* If bits < 8 use tvb_get_bits8 */
 		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 	if(little_endian){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
@@ -1594,9 +1595,10 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 	guint64	value = 0;
 	guint8	tot_no_bits;
 
-	if ((no_of_bits<17)||(no_of_bits>32))
+	if ((no_of_bits<17)||(no_of_bits>32)) {
 		/* If bits < 17 use tvb_get_bits8 or tvb_get_bits_ntohs */
 		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 	if(little_endian){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
@@ -1627,9 +1629,10 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, gint no_of_bits, gboolean little_
 	guint64	tempval = 0;
 	guint8	tot_no_bits;
 
-	if ((no_of_bits<32)||(no_of_bits>64))
+	if ((no_of_bits<32)||(no_of_bits>64)) {
 		/* If bits < 17 use tvb_get_bits8 or tvb_get_bits_ntohs */
 		DISSECTOR_ASSERT_NOT_REACHED();
+	}
 	if(little_endian){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
