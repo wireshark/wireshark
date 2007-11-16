@@ -4,7 +4,7 @@ $Id$
 
 Writing a "plugin" dissector is not very different from writing a
 standard one.  In fact all of the functions described in
-README.developer can be used in the plugins exactly as the are used in
+README.developer can be used in the plugins exactly as they are used in
 standard dissectors.
 
 (Note, however, that not all OSes on which Wireshark runs can support
