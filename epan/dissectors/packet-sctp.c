@@ -2733,8 +2733,18 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     /* Yes. */
     pinfo->fragmented = TRUE;
 
-    /* if reassembly off just mark as fragment for next dissector and proceed */
-	if (!use_reassembly) return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+    /* if reassembly is off just mark as fragment for next dissector and proceed */
+    if (!use_reassembly)
+    {
+      /*  Don't pass on non-first fragments since the next dissector will
+       *  almost certainly not understand the data.
+       */
+      if (b_bit)
+	return dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+
+      /* else */
+      return FALSE;
+    }
 
     /* if unordered set stream_seq_num to 0 for easier handling */
     if (u_bit) stream_seq_num = 0;
