@@ -22,7 +22,7 @@
 		<avp name="Logical-Access-Id" code="302" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Initial-Gate-Setting" code="303" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+		<avp name="Initial-Gate-Setting" code="303" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<grouped>
 				<gavp name="NAS-Filter-Rule"/>
 				<gavp name="Maximum-Allowed-Bandwidth-UL"/>
@@ -62,9 +62,11 @@
 		<avp name="Maximum-Allowed-Bandwidth-DL" code="309" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Maximum-PriorityL" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+		<!-- Removed from ETSI ES 283 034 V1.2.0 (2007-05) 
+		<avp name="Maximum-Priority" code="310" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
+		-->
 		<avp name="Transport-Class" code="311" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
@@ -96,6 +98,8 @@
 				<enum name="RACS-CONTACT-POINT" code="2"/>
 				<enum name="ACCESS-NETWORK-TYPE" code="3"/>
 				<enum name="TERMINAL-TYPE" code="4"/>
+				<!-- The following values are reserved for future use and 
+				     are out of scope in ETSI ES 283 035 V1.2.1 (2007-06). -->
 				<enum name="LOGICAL-ACCESS-ID" code="5"/>
 				<enum name="PHYSICAL-ACCESS-ID" code="6"/>
 				<enum name="ACCESS-NETWORK-TYPE" code="7"/>
