@@ -1,6 +1,6 @@
-/* packet-x411.h
- * Routines forX.411 (X.400 Message Transfer) packet dissection
- * Graeme Lunt 2005
+/* packet-p7.h
+ * Routines for X.413 (P7) packet dissection
+ * Graeme Lunt 2007
  *
  * $Id$
  *
@@ -23,11 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_X411_H
-#define PACKET_X411_H
+#ifndef PACKET_P7_H
+#define PACKET_P7_H
 
-char* x411_get_last_oraddress(void);
-void dissect_x411_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree);
-#include "packet-x411-exp.h"
+/* #include "packet-p7-exp.h" */
 
-#endif  /* PACKET_X411_H */
+#endif  /* PACKET_P7_H */

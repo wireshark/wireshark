@@ -8,24 +8,39 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.IMPORT ../x509af/x509af-exp.cnf
 
 #.EXPORTS
+Content
+ContentIdentifier
 ContentLength
+Credentials
 EncodedInformationTypes
 EncodedInformationTypesConstraints
 ExtendedCertificates
 ExtendedContentType
+ExtensionField
 G3FacsimileNonBasicParameters
+ImproperlySpecifiedRecipients
+InitiatorCredentials
 MessageDeliveryIdentifier
 MessageDeliveryTime
 MessageSecurityLabel
 MessageSubmissionEnvelope
+MessageSubmissionIdentifier
+MessageSubmissionTime
+MessageToken
 ORAddress
+ORAddressAndOrDirectoryName
 ORName
 OriginatingMTACertificate
 OtherMessageDeliveryFields
+ProbeSubmissionEnvelope
+ProbeSubmissionIdentifier
+ProbeSubmissionTime
 ProofOfSubmission
 RequestedDeliveryMethod
+ResponderCredentials
 SecurityContext
 SecurityLabel
+SecurityProblem
 SupplementaryInformation
 TeletexNonBasicParameters
 UniversalOrBMPString
@@ -230,6 +245,60 @@ ExtendedEncodedInformationType	B "2.6.5.2.18" "id-at-mhs-unacceptable-eits"
 # ACP133 - see master list in acp133.cnf
 ORName							B "2.16.840.1.101.2.1.5.47" "id-at-aLExemptedAddressProcessor"
 ORAddress						B "2.16.840.1.101.2.2.1.134.1" "id-at-collective-mhs-or-addresses"
+
+# MSGeneralAttributeTypes - see master list in p7.cnf
+CertificateSelectors			B	"2.6.4.3.80"	"id-att-certificate-selectors"
+Content					B	"2.6.4.3.1"	"id-att-content"
+ContentCorrelator			B	"2.6.4.3.3"	"id-att-content-correlator"
+ContentIdentifier			B	"2.6.4.3.4"	"id-att-content-identifier"
+ContentIntegrityCheck			B	"2.6.4.3.5"	"id-att-content-inetgrity-check"
+ContentLength				B	"2.6.4.3.6"	"id-att-content-length"
+ConversionWithLossProhibited		B	"2.6.4.3.9"	"id-att-conversion-with-loss-prohibited"
+DeferredDeliveryTime			B	"2.6.4.3.51"	"id-att-deferred-delivery-time"
+DeliveryFlags				B	"2.6.4.3.13"	"id-att-delivery-flags"
+ORName					B	"2.6.4.3.78"	"id-att-dl-exempted-recipients"
+DLExpansion				B	"2.6.4.3.14"	"id-att-dl-expansion-history"
+DLExpansionProhibited			B	"2.6.4.3.53"	"id-att-dl-expansion-prohibited"
+InternalTraceInformationElement		B	"2.6.4.3.54"	"id-att-internal-trace-information"
+LatestDeliveryTime			B	"2.6.4.3.55"	"id-att-latest-delivery-time"
+MessageDeliveryEnvelope			B	"2.6.4.3.18"	"id-att-message-delivery-envelope"
+MessageDeliveryTime			B	"2.6.4.3.20"	"id-att-message-delivery-time"
+MTSIdentifier				B	"2.6.4.3.19"	"id-att-message-identifier"
+MessageOriginAuthenticationCheck	B	"2.6.4.3.21"	"id-at-message-orgin-authentication-check"
+MessageSecurityLabel			B	"2.6.4.3.22"	"id-att-message-security-label"
+MessageSubmissionEnvelope		B	"2.6.4.3.59"	"id-att-message-submission-envelope"
+MessageSubmissionTime			B	"2.6.4.3.23"	"id-att-message-submission-time"
+MessageToken				B	"2.6.4.3.24"	"id-att-message-token"
+ExtendedCertificates			B	"2.6.4.3.81"	"id-att-multiple-originator-certificates"
+ORName					B	"2.6.4.3.17"	"id-att-originally-intended-recipient-name"
+OriginatingMTACertificate		B	"2.6.4.3.62"	"id-att-originating-MTA-certificate"
+OriginatorCertificate			B	"2.6.4.3.26"	"id-att-originator-certificate"
+ORName					B	"2.6.4.3.27"	"id-att-originator-name"
+OriginatorReportRequest			B	"2.6.4.3.63"	"id-att-originator-report-request"
+OriginatorReturnAddress			B	"2.6.4.3.64"	"id-att-originator-return-address"
+ORName					B	"2.6.4.3.28"	"id-att-other-recipient-names"
+PerMessageIndicators			B	"2.6.4.3.65"	"id-att-per-message-indicators"
+PerRecipientMessageSubmissionFields	B	"2.6.4.3.66"	"id-att-per-recipient-message-submission-fields"
+PerRecipientProbeSubmissionFields	B	"2.6.4.3.67"	"id-att-per-recipient-probe-submission-fields"
+PerRecipientReportDeliveryFields	B	"2.6.4.3.30"	"id-att-per-recipient-report-delivery-fields"
+Priority				B	"2.6.4.3.31"	"id-att-priority"
+ProbeOriginAuthenticationCheck		B	"2.6.4.3.68"	"id-att-probe-origin-authentication-check"
+ProbeSubmissionEnvelope			B	"2.6.4.3.69"	"id-att-probe-submission-envelope"
+ProofOfDeliveryRequest			B	"2.6.4.3.32"	"id-att-proof-of-delivery-request"
+ProofOfSubmission			B	"2.6.4.3.70"	"id-att-proof-of-submission"
+ExtendedCertificates			B	"2.6.4.3.82"	"id-att-recipient-certificate"
+ORName					B	"2.6.4.3.71"	"id-att-recipient-names"
+RecipientReassignmentProhibited		B	"2.6.4.3.72"	"id-att-recipient-reassignment-prohibited"
+Redirection				B	"2.6.4.3.33"	"id-at-redirection-history"
+ReportDeliveryEnvelope			B	"2.6.4.3.34"	"id-att-report-delivery-envelope"
+ReportingDLName				B	"2.6.4.3.35"	"id-att-reporting-DL-name"
+ReportingMTACertificate			B	"2.6.4.3.36"	"id-att-reporting-MTA-certificate"
+ReportOriginAuthenticationCheck		B	"2.6.4.3.37"	"id-att-report-origin-authentication-check"
+SecurityClassification			B	"2.6.4.3.38"	"id-att-security-classification"
+SubjectSubmissionIdentifier		B	"2.6.4.3.40"	"id-att-subject-submission-identifier"
+ORName					B	"2.6.4.3.41"	"id-att-this-recipient-name"
+TraceInformationElement			B	"2.6.4.3.75"	"id-att-trace-information"
+
 
 #.FN_BODY AdditionalInformation
    proto_item *item = NULL;

@@ -96,6 +96,7 @@ static dissector_table_t x411_tokendata_dissector_table;
 
 #include "packet-x411-fn.c"
 
+char* x411_get_last_oraddress() { return oraddress; }
 
 /*
  * Dissect X411 MTS APDU
@@ -136,7 +137,7 @@ dissect_x411(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree *tree=NULL;
 	int (*x411_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_) = NULL;
 	char *x411_op_name;
-	int hf_x411_index;
+	int hf_x411_index = -1;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
@@ -240,11 +241,7 @@ void proto_register_x411(void) {
 
   /* Register our configuration options for X411, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   x411_module = prefs_register_protocol_subtree("OSI/X.400", proto_x411, prefs_register_x411);
-#else
-  x411_module = prefs_register_protocol(proto_x411, prefs_register_x411);
-#endif 
 
   prefs_register_uint_preference(x411_module, "tcp.port", "X.411 TCP Port",
 				 "Set the port for P1 operations (if other"

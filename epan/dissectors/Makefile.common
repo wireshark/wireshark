@@ -118,6 +118,7 @@ ASN_DISSECTOR_SRC = \
 	packet-nbap.c \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
+	packet-p7.c \
 	packet-pkcs12.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
@@ -955,6 +956,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ocsp.h	\
 	packet-osi-options.h	\
 	packet-osi.h	\
+	packet-p7.h \
 	packet-pcnfsd.h	\
 	packet-per.h	\
 	packet-pflog.h	\
