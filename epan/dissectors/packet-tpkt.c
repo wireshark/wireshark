@@ -674,8 +674,9 @@ proto_reg_handoff_tpkt(void)
 	tpkt_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
 	dissector_add("tcp.port", TCP_PORT_TPKT_X224, tpkt_handle);
 	
-        tpkt_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
-        dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
-
+	/*
+	tpkt_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
+	dissector_add("tcp.port", TCP_PORT_TPKT, tpkt_handle);
+	*/
 	
 }
