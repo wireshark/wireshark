@@ -2131,7 +2131,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     }
 
     /* Check if we are on tree_view object */
-    if (widget == tree_view) {
+    if (widget == tree_view && ((GdkEventButton *)event)->button != 1) {
         tree_view_select(widget, (GdkEventButton *) event);
     }
 

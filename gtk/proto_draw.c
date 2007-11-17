@@ -324,7 +324,8 @@ toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
 				   3 characters per byte of hex dump,
 				   2 blanks separating hex from ASCII,
 				   1 character per byte of ASCII dump */
-#define MAX_LINE_LEN	(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
+#define MAX_LINES       100
+#define MAX_LINE_LEN	(MAX_LINES *(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN))
 				/* number of characters per line;
 				   offset, 2 blanks separating offset
 				   from data dump, data dump */
@@ -1172,8 +1173,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
   GtkTextIter    iter;
   const char    *revstyle;
-  gchar         *convline;
-  gsize          newsize;
   GtkTextMark   *mark = NULL;
 #endif
 
@@ -1200,6 +1199,8 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 #else
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
+  g_object_ref(buf);  
+  gtk_text_view_set_buffer( bv_text_view, NULL);
 #endif
 
   /*
@@ -1232,6 +1233,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   progbar_stop_flag = FALSE;
   g_get_current_time(&progbar_start_time);
 
+  cur = 0;
   while (i < len) {
     /* Create the progress bar if necessary.
        We check on every iteration of the loop, so that it takes no
@@ -1275,7 +1277,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 
     /* Print the line number */
     j = use_digits;
-    cur = 0;
     do {
       j--;
       c = (i >> (j*4)) & 0xF;
@@ -1283,12 +1284,11 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     } while (j != 0);
     line[cur++] = ' ';
     line[cur++] = ' ';
-    line[cur] = '\0';
 
     /* Display with inverse video ? */
 #if GTK_MAJOR_VERSION < 2
     if (prefs.gui_hex_dump_highlight_style) {
-      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, -1);
+      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, cur);
       /* Do we start in reverse? */
       reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       fg = reverse ? &WHITE : &BLACK;
@@ -1384,14 +1384,12 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	reverse = newreverse;
       }
       /* Print remaining part of line */
+      line[cur++] = '\n';
       gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
       cur = 0;
-      line[cur++] = '\n';
-      line[cur]   = '\0';
-      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, -1);
     }
     else {
-      gtk_text_insert(bv_text, user_font_get_regular(), NULL, NULL, line, -1);
+      gtk_text_insert(bv_text, user_font_get_regular(), NULL, NULL, line, cur);
       /* Do we start in bold? */
       cur_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
       j   = i;
@@ -1451,8 +1449,8 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 	}
       }
       line[cur++] = '\n';
-      line[cur]   = '\0';
-      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, -1);
+      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
+      cur = 0;
     }
 #else
     if (prefs.gui_hex_dump_highlight_style)
@@ -1460,13 +1458,15 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     else
       revstyle = "bold";
 
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, -1,
-					     "plain", NULL);
     /* Do we start in reverse? */
     reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
     j   = i;
     k   = i + BYTE_VIEW_WIDTH;
-    cur = 0;
+    if (reverse) {
+      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+					     "plain", NULL);
+      cur = 0;
+    }
     /* Print the hex bit */
     while (i < k) {
       if (i < len) {
@@ -1500,21 +1500,26 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       }
       reverse = newreverse;
     }
-    /* Print remaining part of line */
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             reverse ? revstyle : "plain",
-                                             NULL);
-    cur = 0;
+    if (reverse) {
+      /* Print remaining part of line */
+      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+                                             revstyle, NULL);
+      cur = 0;
+    }
+
     /* Print some space at the end of the line */
     line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
-                                             "plain", NULL);
-    cur = 0;
 
     /* Print the ASCII bit */
     i = j;
     /* Do we start in reverse? */
     reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
+    if (reverse) {
+      gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+                                             "plain",NULL);
+      cur = 0;
+    }
+
     while (i < k) {
       if (i < len) {
         if (encoding == CHAR_ASCII) {
@@ -1534,10 +1539,9 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
       /* Have we gone from reverse to plain? */
       if (reverse && (reverse != newreverse)) {
-	convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  revstyle, NULL);
-        g_free( (gpointer) convline);
+        
         cur = 0;
       }
       if (i < k) {
@@ -1548,24 +1552,24 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       }
       /* Have we gone from plain to reversed? */
       if (!reverse && (reverse != newreverse)) {
-	convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
-        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  "plain", NULL);
-        g_free( (gpointer) convline);
         cur = 0;
       }
       reverse = newreverse;
     }
     /* Print remaining part of line */
-    convline = g_locale_to_utf8(line, cur, NULL, &newsize, NULL);
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, convline, newsize,
-                                             reverse ? revstyle : "plain",
-                                             NULL);
-    g_free( (gpointer) convline);
-    cur = 0;
+    if (reverse) {
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+                                             revstyle, NULL);
+        cur = 0;
+    }
     line[cur++] = '\n';
-    gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+    if (cur >= MAX_LINE_LEN) {
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                              "plain", NULL);
+        cur = 0;
+    }
 #endif
   }
 
@@ -1588,10 +1592,17 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     gtk_adjustment_set_value(bv_text->vadj, scrollval);
   }
 #else
+  if (cur) {
+        gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
+                                             "plain", NULL);
+  }
+  gtk_text_view_set_buffer( bv_text_view, buf);
+  
   if (mark) {
     gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
     gtk_text_buffer_delete_mark(buf, mark);
   }
+  g_object_unref(buf);  
 #endif
 }
 
