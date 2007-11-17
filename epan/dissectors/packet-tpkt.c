@@ -591,12 +591,13 @@ dissect_tpkt_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * Dissect ASCII TPKT, which wraps a ASCII TPKT header around an OSI TP
  * PDU.
- */
+
 static void
 dissect_ascii_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         dissect_asciitpkt(tvb, pinfo, tree, osi_tp_handle);
 }
+ */
 
 void
 proto_register_tpkt(void)
