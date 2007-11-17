@@ -51,6 +51,7 @@
 #define ppp_min(a, b)  ((a<b) ? a : b)
 
 static int proto_ppp = -1;
+static int hf_ppp_direction = -1;
 static int hf_ppp_address = -1;
 static int hf_ppp_control = -1;
 static int hf_ppp_protocol = -1;
@@ -206,6 +207,12 @@ static dissector_handle_t chdlc_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t eth_withfcs_handle;
 
+static const value_string ppp_direction_vals[] = {
+    { P2P_DIR_RECV, "DCE->DTE"},
+    { P2P_DIR_SENT, "DTE->DCE"},
+    { 2,            "N/A"},
+    { 0,            NULL }
+};
 
 /* options */
 static gint ppp_fcs_decode = 0; /* 0 = No FCS, 1 = 16 bit FCS, 2 = 32 bit FCS */
@@ -2778,6 +2785,13 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int     proto_len;
   tvbuff_t	*next_tvb;
 
+  /* Make direction information filterable */
+  if (tree) {
+    proto_item *direction_ti = proto_tree_add_uint(tree, hf_ppp_direction,
+                                                   tvb, 0, 0, pinfo->p2p_dir);
+    PROTO_ITEM_SET_GENERATED(direction_ti);
+  }
+
   ppp_prot = tvb_get_guint8(tvb, 0);
   if (ppp_prot & PFC_BIT) {
     /* Compressed protocol field - just the byte we fetched. */
@@ -3999,6 +4013,10 @@ void
 proto_register_ppp(void)
 {
   static hf_register_info hf[] = {
+    { &hf_ppp_direction,
+    { "Direction", "ppp.direction", FT_UINT8, BASE_DEC,
+        VALS(ppp_direction_vals), 0x0, "PPP direction", HFILL }},
+
     { &hf_ppp_address,
     { "Address", "ppp.address", FT_UINT8, BASE_HEX,
         NULL, 0x0, "", HFILL }},
