@@ -2560,6 +2560,14 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 	offset=get_ber_length(tvb, offset, &len, &ind);
 	  end_offset = offset + len ;
 
+	/* do not stop processing if the length has the (illegal) value of zero */
+	if(len == 0) {
+		item = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Empty choice field was found");
+		proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
+		return offset;
+	}
+
 	/* Some sanity checks.
 	 * The hf field passed to us MUST be an integer type
 	 */
@@ -2785,6 +2793,14 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(tvb, offset, &len, &ind);
 	  end_offset = offset + len ;
+
+	/* do not stop processing if the length has the (illegal) value of zero */
+	if(len == 0) {
+		item = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Empty choice field was found");
+		proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+		expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
+		return offset;
+	}
 
 	/* Some sanity checks.
 	 * The hf field passed to us MUST be an integer type
