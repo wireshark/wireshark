@@ -180,7 +180,11 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
     color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
+#if GTK_MAJOR_VERSION < 2
+    color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
+#else
     color_t_to_gdkcolor(&style->text[GTK_STATE_NORMAL], &colorf->fg_color);
+#endif
     gtk_widget_set_style(filt_name_entry, style);
 
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
