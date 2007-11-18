@@ -98,6 +98,7 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\diameter\sip.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\sunping.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\diameter\TGPPSh.xml $(DEVICE)\diameter $(COPY_FLAGS)
+	$(COPY) $(TOPDIR)\diameter\Ericsson.xml $(DEVICE)\diameter $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\dc.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\itunes.dtd $(DEVICE)\dtds $(COPY_FLAGS)
 	$(COPY) $(TOPDIR)\dtds\mscml.dtd $(DEVICE)\dtds $(COPY_FLAGS)
@@ -329,7 +330,16 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\tshark.exe $(HOST) $(COPY_FLAGS)
 	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
 
-test:		distribution
+pack:	distribution
+!IFDEF UPX
+	$(UPX) $(DEVICE)\plugins\$(VERSION)\*.dll
+	$(UPX) $(HOST)\*.dll
+	$(UPX) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
+	$(UPX) $(HOST)\$(GTK_WIMP_DLLDST_DIR)\*.dll
+	$(UPX) $(HOST)\*.exe	
+!ENDIF
+
+test:		pack
 	wireshark.bat -D
 
 package:	test

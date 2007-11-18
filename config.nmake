@@ -373,6 +373,19 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 #
 HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 
+#
+# Optional: To reduce the size of dlls and exes, which is especially useful for USB device distributions (U3, PortableApps)
+#
+# If you have the UPX package, set this to the upx.exe executable.
+#
+# UPX can be downloaded from:
+#   http://upx.sourceforge.net/
+#
+# If you don't have UPX, comment this line out, so that UPX
+# isn't defined.
+#
+
+#UPX="c:\upx301w\upx.exe"
 
 ##### Flags, PATHs and Miscellaneous #####
 

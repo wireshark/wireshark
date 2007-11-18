@@ -21,6 +21,11 @@ A few minor changes have been made to Wireshark itself:
 
 There is a [self-]certification process for U3 packages which could be undertaken if there is sufficient interest for this package format. Wireshark could then be placed on Software Central - http://software.u3.com/SoftwareCentral.aspx?skip=1.
 
+UPX
+===
+
+If the Ultimate Packer for eXecutables (UPX) (http://upx.sourceforge.net) is downloaded and configured in config.nmake, the packaging process will pack all of the dll and exes before putting them into the U3 pacakage. This can significantly reduce the size of the U3 package - by about 40%.
+
 Known Issues:
 =============
 

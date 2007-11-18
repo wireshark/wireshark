@@ -18,7 +18,6 @@ U3DIST		= ..\..\u3\win32
 COPY		= xcopy
 MKDIR		= mkdir
 COPY_FLAGS	= /d /y
-UPX		= upx301w\upx.exe
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
 
