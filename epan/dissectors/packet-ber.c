@@ -2562,6 +2562,10 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 
 	/* do not stop processing if the length has the (illegal) value of zero */
 	if(len == 0) {
+		if(show_internal_ber_fields) {
+			offset=dissect_ber_identifier(actx->pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
+			offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+		}
 		item = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Empty choice field was found");
 		proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
@@ -2796,6 +2800,10 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
 
 	/* do not stop processing if the length has the (illegal) value of zero */
 	if(len == 0) {
+		if(show_internal_ber_fields) {
+			offset=dissect_ber_identifier(actx->pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
+			offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, NULL, NULL);
+		}
 		item = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Empty choice field was found");
 		proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
 		expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
