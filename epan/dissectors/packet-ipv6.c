@@ -61,6 +61,7 @@
 
 static int proto_ipv6		  = -1;
 static int hf_ipv6_version	  = -1;
+static int hf_ip_version      = -1;
 static int hf_ipv6_class	  = -1;
 static int hf_ipv6_flow		  = -1;
 static int hf_ipv6_plen		  = -1;
@@ -136,6 +137,7 @@ static int hf_ipv6_shim6_opt_elemlen  = -1;
 static int hf_ipv6_shim6_opt_fii      = -1;
 
 static gint ett_ipv6			  = -1;
+static gint ett_ipv6_version	= -1;
 static gint ett_ipv6_shim6		  = -1;
 static gint ett_ipv6_shim6_option	  = -1;
 static gint ett_ipv6_shim6_locators	  = -1;
@@ -1260,13 +1262,20 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&pinfo->dst, AT_IPv6, 16, tvb_get_ptr(tvb, offset + IP6H_DST, 16));
 
   if (tree) {
+    proto_tree* pt;
+    proto_item* pi;    
+    
     /* !!! specify length */
     ti = proto_tree_add_item(tree, proto_ipv6, tvb, offset, 40, FALSE);
     ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
 
     /* !!! warning: version also contains 4 Bit priority */
-    proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb, 
-			offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
+    pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb, 
+ 			offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
+	pt = proto_item_add_subtree(pi,ett_ipv6_version);
+    pi = proto_tree_add_item(pt, hf_ip_version, tvb,
+						offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
+	PROTO_ITEM_SET_GENERATED(pi);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb, 
 			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
@@ -1506,6 +1515,9 @@ proto_register_ipv6(void)
   static hf_register_info hf[] = {
     { &hf_ipv6_version,
       { "Version",		"ipv6.version",
+				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }},
+    { &hf_ip_version,
+      { "This field makes the filter \"ip.version == 6\" possible",		"ip.version",
 				FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL }},
     { &hf_ipv6_class,
       { "Traffic class",	"ipv6.class",
@@ -1830,6 +1842,7 @@ proto_register_ipv6(void)
   };
   static gint *ett[] = {
     &ett_ipv6,
+    &ett_ipv6_version, 
     &ett_ipv6_shim6,
     &ett_ipv6_shim6_option,
     &ett_ipv6_shim6_locators,
