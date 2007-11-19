@@ -203,6 +203,7 @@ static int hf_sctp_rto = -1;
 static int hf_sctp_ack_tsn = -1;
 static int hf_sctp_ack_frame = -1;
 static int hf_sctp_acked = -1;
+static int hf_sctp_retransmitted_after_ack = -1;
 
 static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
@@ -698,11 +699,23 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 		pi = proto_tree_add_uint(tsn_tree, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
 		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
 		PROTO_ITEM_SET_GENERATED(pi);
-		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "Duplicate TSN");
+		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Retransmitted TSN");
 
 		nstime_delta( &rto, &pinfo->fd->abs_ts, &(t->first_transmit.ts) );
 		pi = proto_tree_add_time(pt, hf_sctp_rto, tvb, 0, 0, &rto);
 		PROTO_ITEM_SET_GENERATED(pi);
+
+		/* Detect reneged acks */
+		/* XXX what if the frames aren't sorted by time? */
+		if (t->ack.framenum && t->ack.framenum < framenum)
+		{
+			pi = proto_tree_add_uint_format(pt, hf_sctp_retransmitted_after_ack, tvb, 0, 0, t->ack.framenum,
+							   "This TSN was acked (in frame %u) prior to this retransmission (reneged ack?)",
+							   t->ack.framenum);
+			PROTO_ITEM_SET_GENERATED(pi);
+			expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN,
+					       "This TSN was acked prior to this retransmission (reneged ack?)");
+		}
 	} else if (t->retransmit) {
 		struct _retransmit_t **r;
 		nstime_t rto;
@@ -716,7 +729,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 		pi = proto_tree_add_uint_format(tsn_tree,
 						hf_sctp_retransmitted_count,
 						tvb, 0, 0, t->retransmit_count,
-						"This TSN was retransmitted %d time%s%s",
+						"This TSN was retransmitted %u time%s%s",
 						t->retransmit_count,
 						plurality(t->retransmit_count, "", "s"),
 						ds);
@@ -730,7 +743,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 							hf_sctp_retransmitted,
 							tvb, 0, 0,
 							(*r)->framenum,
-							"This TSN was retransmitted in frame %d (%s seconds after this frame)",
+							"This TSN was retransmitted in frame %u (%s seconds after this frame)",
 							(*r)->framenum,
 							rel_time_to_secs_str(&rto));
 			PROTO_ITEM_SET_GENERATED(pi);
@@ -2955,7 +2968,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
      *  number: it could be tuned.
      */
     if (tsns_gap_acked > 100)
-      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "More than 100 TSNs were gap-acknowledged in this SACK");
+      expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK");
 
   }
 
@@ -3809,27 +3822,20 @@ proto_register_sctp(void)
     { &hf_pktdrop_chunk_reserved,                   { "Reserved",                                    "sctp.pktdrop_reserved",                                FT_UINT16,  BASE_DEC,  NULL,                                           0x0,                                "", HFILL } },
     { &hf_pktdrop_chunk_data_field,                 { "Data field",                                  "sctp.pktdrop_datafield",                               FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
 
-    { &hf_sctp_fragment,                            { "SCTP Fragment", "sctp.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,NULL, HFILL }},
-    { &hf_sctp_fragments,                           { "Reassembled SCTP Fragments", "sctp.fragments", FT_NONE, BASE_NONE, NULL, 0x0,NULL, HFILL }},
-    { &hf_sctp_reassembled_in,                      { "Reassembled Message in frame", "sctp.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
-    { &hf_sctp_duplicate,                           { "Fragment already seen in frame", "sctp.duplicate", FT_FRAMENUM, BASE_NONE, NULL, 0x0,	NULL, HFILL }},
+    { &hf_sctp_fragment,                            { "SCTP Fragment",                               "sctp.fragment",                                        FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_fragments,                           { "Reassembled SCTP Fragments",                  "sctp.fragments",                                       FT_NONE,    BASE_NONE, NULL,                                           0x0,                                "", HFILL } },
+    { &hf_sctp_reassembled_in,                      { "Reassembled Message in frame",                "sctp.reassembled_in",                                  FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_duplicate,                           { "Fragment already seen in frame",              "sctp.duplicate",                                       FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
 
-    { &hf_sctp_rtt,
-	    { "The RTT to ACK the chunk was", "sctp.rtt", FT_RELATIVE_TIME, BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_sctp_rto,
-	    { "Retransmitted after", "sctp.retransmission_time", FT_RELATIVE_TIME, BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_sctp_retransmission,
-	    { "This TSN is a retransmission of one in frame", "sctp.retransmission", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL }},
-    { &hf_sctp_retransmitted,
-	    { "This TSN is retransmitted in frame", "sctp.retransmitted", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL }},
-    { &hf_sctp_retransmitted_count,
-	    { "TSN was retransmitted this many times", "sctp.retransmitted_count", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
-    { &hf_sctp_acked,
-	    { "This chunk is acked in frame", "sctp.acked", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL } },
-    { &hf_sctp_ack_tsn,
-	    { "Acknowledges TSN", "sctp.ack", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_sctp_ack_frame,
-	    { "Chunk in frame", "sctp.ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "", HFILL } },
+    { &hf_sctp_rtt,                                 { "The RTT to ACK the chunk was",                "sctp.rtt",                                             FT_RELATIVE_TIME, BASE_DEC, NULL,                                      0x0,                                "", HFILL } },
+    { &hf_sctp_rto,                                 { "Retransmitted after",                         "sctp.retransmission_time",                             FT_RELATIVE_TIME, BASE_DEC, NULL,                                      0x0,                                "", HFILL } },
+    { &hf_sctp_retransmission,                      { "This TSN is a retransmission of one in frame","sctp.retransmission",                                  FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_retransmitted,                       { "This TSN is retransmitted in frame",          "sctp.retransmitted",                                   FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_retransmitted_count,                 { "TSN was retransmitted this many times",       "sctp.retransmitted_count",                             FT_UINT32, BASE_DEC, NULL,                                             0x0,                                "", HFILL } },
+    { &hf_sctp_acked,                               { "This chunk is acked in frame",                "sctp.acked",                                           FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_ack_tsn,                             { "Acknowledges TSN",                            "sctp.ack",                                             FT_UINT32, BASE_DEC, NULL,                                             0x0,                                "", HFILL } },
+    { &hf_sctp_ack_frame,                           { "Chunk acknowledged in frame",                 "sctp.ack_frame",                                       FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } },
+    { &hf_sctp_retransmitted_after_ack,             { "Chunk was acked prior to retransmission",     "sctp.retransmitted_after_ack",                         FT_FRAMENUM, BASE_NONE, NULL,                                          0x0,                                "", HFILL } }
 
  };
 
