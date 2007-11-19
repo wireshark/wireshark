@@ -995,7 +995,7 @@ static const ber_choice_t Credentials_choice[] = {
 int
 dissect_x411_Credentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 812 "x411.cnf"
-  gint credentials;
+  gint credentials = -1;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  Credentials_choice, hf_index, ett_x411_Credentials,

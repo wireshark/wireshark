@@ -809,7 +809,7 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	VAL_PTR = &credentials
 
 #.FN_BODY Credentials
-  gint credentials;
+  gint credentials = -1;
 
   %(DEFAULT_BODY)s
 
