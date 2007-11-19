@@ -69,7 +69,9 @@ static int hf_drda_ddm_codepoint = -1;
 static int hf_drda_param_length = -1;
 static int hf_drda_param_codepoint = -1;
 static int hf_drda_param_data = -1;
+static int hf_drda_param_data_ebcdic = -1;
 static int hf_drda_sqlstatement = -1;
+static int hf_drda_sqlstatement_ebcdic = -1;
 
 static gint ett_drda = -1;
 static gint ett_drda_ddm = -1;
@@ -746,13 +748,15 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_length, tvb, offset, 2, FALSE);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_codepoint, tvb, offset + 2, 2, FALSE);
 						proto_tree_add_item(drda_tree_sub, hf_drda_param_data, tvb, offset + 4, iLengthParam - 4, FALSE);
+						proto_tree_add_item(drda_tree_sub, hf_drda_param_data_ebcdic, tvb, offset + 4, iLengthParam - 4, FALSE);
 						if (iCommand == DRDA_CP_SQLSTT)
 						{
 							/* Extract SQL statement from packet */
 							tvbuff_t* next_tvb = NULL;
-							next_tvb = tvb_new_subset(tvb, offset + 5, iLengthParam - 6, iLengthParam - 6);
+							next_tvb = tvb_new_subset(tvb, offset + 4, iLengthParam - 4, iLengthParam - 4);
 							add_new_data_source(pinfo, next_tvb, "SQL statement");
-							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 6, FALSE);
+							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement, next_tvb, 0, iLengthParam - 5, FALSE);
+							proto_tree_add_item(drdaroot_tree, hf_drda_sqlstatement_ebcdic, next_tvb, 0, iLengthParam - 4, FALSE);
 						}
 					}					
 					offset += iLengthParam;
@@ -856,10 +860,16 @@ proto_register_drda(void)
       { "Code point", "drda.param.codepoint", FT_UINT16, BASE_HEX, VALS(drda_opcode_abbr), 0x0, "Param code point", HFILL }},
 
    { &hf_drda_param_data,
-      { "Data", "drda.param.data", FT_STRINGZ, BASE_DEC, NULL, 0x0, "Param data", HFILL }},
+      { "Data (ASCII)", "drda.param.data", FT_STRING, BASE_NONE, NULL, 0x0, "Param data left as ASCII for display", HFILL }},
+
+   { &hf_drda_param_data_ebcdic,
+      { "Data (EBCDIC)", "drda.param.data", FT_EBCDIC, BASE_NONE, NULL, 0x0, "Param data converted from EBCDIC to ASCII for display", HFILL }},
 
    { &hf_drda_sqlstatement,
-      { "SQL statement", "drda.sqlstatement", FT_STRINGZ, BASE_DEC, NULL, 0x0, "SQL statement", HFILL }}
+     { "SQL statement (ASCII)", "drda.sqlstatement", FT_STRING, BASE_NONE, NULL, 0x0, "SQL statement left as ASCII for display", HFILL }},
+
+   { &hf_drda_sqlstatement_ebcdic,
+      { "SQL statement (EBCDIC)", "drda.sqlstatement", FT_EBCDIC, BASE_NONE, NULL, 0x0, "SQL statement converted from EBCDIC to ASCII for display", HFILL }}
 
   };
   static gint *ett[] = {
