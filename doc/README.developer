@@ -997,8 +997,8 @@ FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
 		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
 		FT_INT64, FT_FLOAT, FT_DOUBLE, FT_ABSOLUTE_TIME,
-		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_UINT_STRING,
-		FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
+		FT_RELATIVE_TIME, FT_STRING, FT_STRINGZ, FT_EBCDIC,
+		FT_UINT_STRING,	FT_ETHER, FT_BYTES, FT_IPv4, FT_IPv6, FT_IPXNET,
 		FT_FRAMENUM, FT_PROTOCOL, FT_GUID, FT_OID
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
 		BASE_HEX_DEC, BASE_RANGE_STRING
@@ -1542,6 +1542,10 @@ The type of value this field holds. The current field types are:
 				types, are to be used for text strings,
 				not raw binary data.
 	FT_STRINGZ		A NUL-terminated string of characters.
+	FT_EBCDIC		A string of characters, not necessarily
+				NUL-terminated, but possibly NUL-padded.
+				The data from the packet is converted from
+				EBCDIC to ASCII before displaying to the user.
 	FT_UINT_STRING		A counted string of characters, consisting
 				of a count (represented as an integral
 				value) followed immediately by the

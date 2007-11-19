@@ -43,6 +43,7 @@
 #include "slab.h"
 #include "tvbuff.h"
 #include "emem.h"
+#include "charsets.h"
 
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
@@ -165,6 +166,8 @@ static void
 proto_tree_set_string(field_info *fi, const char* value);
 static void
 proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
+static void
+proto_tree_set_ebcdic_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length);
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value);
 static void
@@ -1147,6 +1150,10 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree, int hfindex,
 			}
 			new_fi->length = length;
 			proto_tree_set_string(new_fi, string);
+			break;
+
+	        case FT_EBCDIC:
+			proto_tree_set_ebcdic_string_tvb(new_fi, tvb, start, length);
 			break;
 
 		case FT_UINT_STRING:
@@ -2156,6 +2163,20 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	}
 
 	string = tvb_get_ephemeral_string(tvb, start, length);
+	proto_tree_set_string(fi, string);
+}
+
+static void
+proto_tree_set_ebcdic_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
+{
+	gchar	*string;
+
+	if (length == -1) {
+		length = tvb_ensure_length_remaining(tvb, start);
+	}
+
+	string = tvb_get_ephemeral_string(tvb, start, length);
+	EBCDIC_to_ASCII(string, length);
 	proto_tree_set_string(fi, string);
 }
 
@@ -4091,6 +4112,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_STRING:
 		case FT_STRINGZ:
+	        case FT_EBCDIC:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
 	    if(strlen(bytes) > ITEM_LABEL_LENGTH) {

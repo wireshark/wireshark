@@ -108,6 +108,7 @@ compatible_ftypes(ftenum_t a, ftenum_t b)
 
 		case FT_STRING:
 		case FT_STRINGZ:
+	        case FT_EBCDIC:
 		case FT_UINT_STRING:
 			switch (b) {
 				case FT_STRING:
@@ -165,6 +166,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 		case FT_UINT_BYTES:
 		case FT_STRING:
 		case FT_STRINGZ:
+	        case FT_EBCDIC:
 		case FT_UINT_STRING:
 		case FT_UINT64:
 		case FT_INT64:
@@ -254,6 +256,7 @@ is_bytes_type(enum ftenum type)
 		case FT_IPXNET:
 		case FT_STRING:
 		case FT_STRINGZ:
+		case FT_EBCDIC:
 		case FT_UINT_STRING:
 		case FT_BOOLEAN:
 		case FT_FRAMENUM:
