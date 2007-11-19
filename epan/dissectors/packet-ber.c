@@ -2631,6 +2631,14 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
 					tree = proto_item_add_subtree(item, ett_id);
 				}
 			}
+
+			if(length == 0) {
+				item = proto_tree_add_text(tree, tvb, hoffset, 0, "BER Error: Empty choice field was found");
+				proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
+				return hoffset;
+			}
+
 			length_remaining=tvb_length_remaining(tvb, hoffset);
 			if(length_remaining>length)
 				length_remaining=length;
@@ -2857,6 +2865,14 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
 					tree = proto_item_add_subtree(item, ett_id);
 				}
 			}
+
+			if(length == 0) {
+				item = proto_tree_add_text(tree, tvb, hoffset, 0, "BER Error: Empty choice field was found");
+				proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
+				return hoffset;
+			}
+
 			length_remaining=tvb_length_remaining(tvb, hoffset);
 			if(length_remaining>length)
 				length_remaining=length;
