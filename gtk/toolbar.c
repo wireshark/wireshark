@@ -162,12 +162,18 @@ static gboolean toolbar_init = FALSE;
 static BUTTON_TYPE *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
 static BUTTON_TYPE *capture_filter_button, *autoscroll_button;
 #endif /* HAVE_LIBPCAP */
-static BUTTON_TYPE *open_button, *save_button, *save_as_button, *close_button, *reload_button;
+static BUTTON_TYPE *open_button, *save_button, *close_button, *reload_button;
 static BUTTON_TYPE *print_button, *find_button, *history_forward_button, *history_back_button;
 static BUTTON_TYPE *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static BUTTON_TYPE *display_filter_button;
 static BUTTON_TYPE *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
 static BUTTON_TYPE *color_display_button, *prefs_button, *help_button;
+#if !GTK_CHECK_VERSION(2,4,0)
+static BUTTON_TYPE *save_as_button;
+#endif
+
+#define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
+#define SAVE_AS_BUTTON_TOOLTIP_TEXT "Save this capture file as..."
 
 #if GTK_MAJOR_VERSION >= 2
 typedef struct stock_pixmap_tag{
@@ -323,7 +329,9 @@ toolbar_redraw_all(void)
 void set_toolbar_for_capture_file(gboolean have_capture_file) {
     if (toolbar_init) {
 	gtk_widget_set_sensitive(GTK_WIDGET(save_button), have_capture_file);
+#if !GTK_CHECK_VERSION(2,4,0)
         gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), have_capture_file);
+#endif
         gtk_widget_set_sensitive(GTK_WIDGET(close_button), have_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(reload_button), have_capture_file);
     }
@@ -334,11 +342,23 @@ void set_toolbar_for_capture_file(gboolean have_capture_file) {
 void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
     if (toolbar_init) {
         if(have_unsaved_capture_file) {
+#if GTK_CHECK_VERSION(2,4,0)
+	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
+	    GTK_STOCK_SAVE);
+	gtk_tool_item_set_tooltip_text(save_button, SAVE_BUTTON_TOOLTIP_TEXT);
+#else
 	    gtk_widget_hide(GTK_WIDGET(save_as_button));
             gtk_widget_show(GTK_WIDGET(save_button));
+#endif
         } else {
+#if GTK_CHECK_VERSION(2,4,0)
+	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
+	    GTK_STOCK_SAVE_AS);
+	gtk_tool_item_set_tooltip_text(save_button, SAVE_AS_BUTTON_TOOLTIP_TEXT);
+#else
 	    gtk_widget_show(GTK_WIDGET(save_as_button));
 	    gtk_widget_hide(GTK_WIDGET(save_button));
+#endif
         }
         /*gtk_widget_set_sensitive((GTK_WIDGET(save_button), have_unsaved_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), !have_unsaved_capture_file);*/
@@ -622,10 +642,14 @@ toolbar_new(void)
 	GTK_STOCK_OPEN, tooltips, "Open a capture file...", stock_open_24_xpm, file_open_cmd_cb, NULL);
 
     toolbar_item(save_button, window, main_tb, 
-	GTK_STOCK_SAVE, tooltips, "Save this capture file...", stock_save_24_xpm, file_save_cmd_cb, NULL);
+	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, stock_save_24_xpm, file_save_cmd_cb, NULL);
 
+    /* Only create a separate button in GTK < 2.4.  With GTK 2.4+, we will
+     * just modify the save_button to read/show save or save as as needed. */
+#if !GTK_CHECK_VERSION(2,4,0)
     toolbar_item(save_as_button, window, main_tb, 
-	GTK_STOCK_SAVE_AS, tooltips, "Save this capture file as...", stock_save_as_24_xpm, file_save_as_cmd_cb, NULL);
+	GTK_STOCK_SAVE_AS, tooltips, SAVE_AS_BUTTON_TOOLTIP_TEXT, stock_save_as_24_xpm, file_save_as_cmd_cb, NULL);
+#endif
 
     toolbar_item(close_button, window, main_tb, 
 	GTK_STOCK_CLOSE, tooltips, "Close this capture file", stock_close_24_xpm, file_close_cmd_cb, NULL);
