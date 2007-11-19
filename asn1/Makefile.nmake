@@ -49,6 +49,7 @@ ber: \
 	mms	\
 	ns-cert-exts	\
 	ocsp	\
+	p7	\
 	pkcs1	\
 	pkcs12	\
 	pkinit	\
@@ -205,6 +206,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd ocsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd p7
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkcs1
@@ -496,6 +500,11 @@ ns-cert-exts::
 
 ocsp::
 	cd ocsp
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+p7::
+	cd p7
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

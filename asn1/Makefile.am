@@ -59,6 +59,7 @@ SUBDIRS = \
 	nbap		\
 	ns-cert-exts	\
 	ocsp		\
+	p7		\
 	pkcs1		\
 	pkcs12		\
 	pkinit		\
