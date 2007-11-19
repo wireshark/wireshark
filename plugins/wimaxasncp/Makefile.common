@@ -33,7 +33,6 @@ DISSECTOR_SRC = \
 # corresponding headers
 DISSECTOR_INCLUDES = \
 	wimaxasncp_dict_lex.h \
-	packet-wimaxasncp.h \
 	wimaxasncp_dict.h
 
 # Dissector helpers.  They're included in the source files in this

@@ -8,6 +8,7 @@
 	
 	* packet-wimaxasncp.c: fixed memory leak in function
 	  wimaxasncp_dissect_tlv_value()
+
 2007-11-04 Zhang Li <lzhang@cienet.com.cn>
 	
 	* Add EAP support. EAP payload is dessected by calling EAP dissector

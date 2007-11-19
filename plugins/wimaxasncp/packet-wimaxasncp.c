@@ -48,11 +48,10 @@
 #include <epan/report_err.h>
 #include <epan/eap.h>
 
-/* TODO: delete?. */
-#include "packet-wimaxasncp.h"
 #include "wimaxasncp_dict.h"
 
-/* Forward declaration we need below */
+/* Forward declarations we need below */
+void proto_register_wimaxasncp(void);
 void proto_reg_handoff_wimaxasncp(void);
 
 /* Initialize the protocol and registered fields */
@@ -399,7 +398,7 @@ static const wimaxasncp_dict_tlv_t *wimaxasncp_get_tlv_info(
     if (wimaxasncp_dict)
     {
         wimaxasncp_dict_tlv_t *tlv;
-        
+
         for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
         {
             if (tlv->type == type)
@@ -1495,6 +1494,19 @@ static void wimaxasncp_dissect_tlv_value(
                                        offset, length, FALSE);
             proto_item_set_text(item, "Value");
             eap_tree = proto_item_add_subtree(item, ett_wimaxasncp_tlv_eap);
+
+            /* Also show high-level details in this root item */
+            proto_item_append_text(item, " (%s",
+                                   val_to_str(eap_code, eap_code_vals,
+                                              "Unknown code (0x%02X)"));
+            if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE)
+            {
+                proto_item_append_text(item, ", %s",
+                                       val_to_str(eap_type, eap_type_vals,
+                                       "Unknown type (0x%02X)"));
+            }
+            proto_item_append_text(item, ")");
+
 
             /* Extract remaining bytes into new tvb */
             eap_tvb = tvb_new_subset(tvb, offset, length,
@@ -3107,20 +3119,24 @@ proto_register_wimaxasncp(void)
     if (wimaxasncp_dict)
     {
         wimaxasncp_dict_tlv_t *tlv;
-        
+
+        /* For each TLV found in XML file */
         for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
         {
             if (tlv->enums)
             {
+                /* Create array for enums */
                 wimaxasncp_dict_enum_t *e;
                 GArray* array = g_array_new(TRUE, TRUE, sizeof(value_string));
 
+                /* Copy each entry into value_string array */
                 for (e = tlv->enums; e; e = e->next)
                 {
                     value_string item = { e->code, e->name };
                     g_array_append_val(array, item);
                 }
 
+                /* Set enums to use with this TLV */
                 tlv->enum_vs = (value_string*)array->data;
             }
 
@@ -3162,7 +3178,7 @@ proto_register_wimaxasncp(void)
         if (wimaxasncp_dict)
         {
             wimaxasncp_dict_tlv_t *tlv;
-            
+
             for (tlv = wimaxasncp_dict->tlvs; tlv; tlv = tlv->next)
             {
                 printf(
