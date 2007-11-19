@@ -38,8 +38,8 @@
  * Optionally do reassembly of the request/response line, headers, and body.
  */
 gboolean
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    gboolean desegment_headers, gboolean desegment_body)
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
+    const gboolean desegment_headers, const gboolean desegment_body)
 {
 	gint		next_offset;
 	gint		next_offset_sav;
@@ -94,8 +94,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		for (;;) {
 			next_offset_sav = next_offset;
 
-			length_remaining = tvb_length_remaining(tvb,
-			    next_offset);
 			reported_length_remaining =
 			    tvb_reported_length_remaining(tvb, next_offset);
 
@@ -112,6 +110,9 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				return FALSE;
 			}
 
+			length_remaining = tvb_length_remaining(tvb,
+			    next_offset);
+
 			/*
 			 * Request one more byte if we cannot find a
 			 * header (i.e. a line end).
@@ -127,7 +128,9 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				pinfo->desegment_offset = offset;
 				pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 				return FALSE;
-			} else if (linelen == 0) {
+			} 
+                        
+                        if (linelen == 0) {
 				/*
 				 * We found the end of the headers.
 				 */
@@ -182,7 +185,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					 * RFC 2616 allows for them.
 					 */
 					gchar *p;
-					gint len;
+					guint len;
 
 					header_val = tvb_get_ephemeral_string(tvb,
 					    next_offset_sav + 18, linelen - 18);
@@ -258,8 +261,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				gchar *chunk_string = NULL;
 				gchar *c = NULL;
 
-				length_remaining = tvb_length_remaining(tvb,
-				    next_offset);
 				reported_length_remaining =
 				    tvb_reported_length_remaining(tvb,
 				    next_offset);
@@ -269,6 +270,9 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 					return FALSE;
 				}
+
+				length_remaining = tvb_length_remaining(tvb,
+				    next_offset);
 
 				linelen = tvb_find_line_end(tvb, next_offset,
 						-1, &chunk_offset, TRUE);

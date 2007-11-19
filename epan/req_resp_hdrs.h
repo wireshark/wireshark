@@ -37,7 +37,7 @@
  *  @return TRUE if desegmentation is complete otherwise FALSE
  */
 extern gboolean
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    gboolean desegment_headers, gboolean desegment_body);
+req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const  int offset, packet_info *pinfo,
+    const gboolean desegment_headers, const gboolean desegment_body);
 
 #endif
