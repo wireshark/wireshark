@@ -15,12 +15,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -185,13 +185,13 @@ static const value_string vs_service_classes[] = {
 
 
 
-static int 
+static int
 get_type_length(tvbuff_t *tvb, int offset, int *length)
 {
 	int size = 0;
 	guint8 byte0 = tvb_get_guint8(tvb, offset);
 	offset++;
-	
+
 	switch (byte0 & 0x07) {
 	case 0:
 		size = (byte0 >> 3) == 0 ? 0 : 1;
@@ -202,7 +202,7 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
 	case 2:
 		size = 4;
 		break;
-	case 3:		
+	case 3:
 		size = 8;
 		break;
 	case 4:
@@ -219,7 +219,7 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
 	case 7:
 		size = tvb_get_ntohl(tvb, offset);
 		offset += 4;
-		break;		
+		break;
 	}
 
 	*length = size;
@@ -227,8 +227,8 @@ get_type_length(tvbuff_t *tvb, int offset, int *length)
 }
 
 
-static guint32 
-get_uint_by_size(tvbuff_t *tvb, int off, int size) 
+static guint32
+get_uint_by_size(tvbuff_t *tvb, int off, int size)
 {
 	switch(size) {
 	case 0:
@@ -243,8 +243,8 @@ get_uint_by_size(tvbuff_t *tvb, int off, int size)
 }
 
 
-static gint32 
-get_int_by_size(tvbuff_t *tvb, int off, int size) 
+static gint32
+get_int_by_size(tvbuff_t *tvb, int off, int size)
 {
 	switch(size) {
 	case 0:
@@ -259,7 +259,7 @@ get_int_by_size(tvbuff_t *tvb, int off, int size)
 }
 
 
-static int 
+static int
 dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset)
 {
 	proto_item *ti;
@@ -278,17 +278,19 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset)
 
 		if (byte0 == 0x09) { /* 16 bit attribute id */
 
-			proto_tree_add_text(st, tvb, offset, 3, "0x%04x", 
+			proto_tree_add_text(st, tvb, offset, 3, "0x%04x",
 					    tvb_get_ntohs(tvb, offset + 1));
 			offset+=3;
 			bytes_to_go-=3;
 		} else if (byte0 == 0x0a) { /* 32 bit attribute range */
 
-			proto_tree_add_text(st, tvb, offset, 5, "0x%04x - 0x%04x", 
+			proto_tree_add_text(st, tvb, offset, 5, "0x%04x - 0x%04x",
 					    tvb_get_ntohs(tvb, offset + 1),
 					    tvb_get_ntohs(tvb, offset + 3));
 			offset+=5;
 			bytes_to_go-=5;
+		} else {
+			break;
 		}
 	}
 	return offset - start_offset;
@@ -297,7 +299,7 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset)
 
 static int
 dissect_sdp_error_response(proto_tree *t, tvbuff_t *tvb, int offset) {
-	
+
         proto_tree_add_item(t, hf_error_code, tvb, offset, 2, FALSE);
 	offset+=2;
 
@@ -338,7 +340,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		break;
 	case 1: {
 		guint32 val = get_uint_by_size(tvb, offset, size_index);
-		proto_tree_add_text(t, tvb, start_offset, type_size, 
+		proto_tree_add_text(t, tvb, start_offset, type_size,
 				    "unsigned int %d ", val);
 		if(strpos<MAX_SDP_LEN){
 			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%u ", val);
@@ -347,7 +349,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	}
 	case 2: {
 		guint32 val = get_int_by_size(tvb, offset, size_index);
-		proto_tree_add_text(t, tvb, start_offset, type_size, 
+		proto_tree_add_text(t, tvb, start_offset, type_size,
 				    "signed int %d ", val);
 		if(strpos<MAX_SDP_LEN){
 			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%d ", val);
@@ -359,7 +361,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 
 		if(size == 2){
 
-			guint16 id = tvb_get_ntohs(tvb, offset);	
+			guint16 id = tvb_get_ntohs(tvb, offset);
 			const char *uuid_name = val_to_str(id, vs_service_classes, "Unknown");
 
 			proto_tree_add_text(t, tvb, start_offset, type_size,
@@ -369,7 +371,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 			}
 		} else {
 
-			proto_tree_add_text(t, tvb, start_offset, type_size, 
+			proto_tree_add_text(t, tvb, start_offset, type_size,
 					    "UUID 0x%s ", ptr);
 			if(strpos<MAX_SDP_LEN){
 				strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "0x%s ", ptr);
@@ -380,8 +382,8 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	case 8:	/* fall through */
 	case 4: {
 		ptr = (gchar*)tvb_get_ephemeral_string(tvb, offset, size);
-		
-		proto_tree_add_text(t, tvb, start_offset, type_size, "%s \"%s\"", 
+
+		proto_tree_add_text(t, tvb, start_offset, type_size, "%s \"%s\"",
 				    type == 8 ? "URL" : "String", ptr);
 		if(strpos<MAX_SDP_LEN){
 			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", ptr);
@@ -391,7 +393,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	case 5: {
 		guint8 var = tvb_get_guint8(tvb, offset);
 
-		proto_tree_add_text(t, tvb, start_offset, type_size, "%s", 
+		proto_tree_add_text(t, tvb, start_offset, type_size, "%s",
 				    var ? "true" : "false");
 		if(strpos<MAX_SDP_LEN){
 			strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", var?"true":"false");
@@ -406,8 +408,8 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 		int first = 1;
 		char *substr;
 
-		ti = proto_tree_add_text(t, tvb, start_offset, type_size, "%s", 
-					 type == 6 ? "Data Element sequence" : 
+		ti = proto_tree_add_text(t, tvb, start_offset, type_size, "%s",
+					 type == 6 ? "Data Element sequence" :
 					 "Data Element alternative");
 		st = proto_item_add_subtree(ti, ett_btsdp_des);
 
@@ -425,6 +427,9 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 			}
 
 			size = dissect_sdp_type(st, tvb, offset, &substr);
+			if (size < 1) {
+				break;
+			}
 			if(strpos<MAX_SDP_LEN){
 				strpos+=g_snprintf(str+strpos, MAX_SDP_LEN-strpos, "%s ", substr);
 			}
@@ -448,7 +453,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 
 
 
-static int 
+static int
 dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
@@ -460,11 +465,11 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 	id = tvb_get_ntohs(tvb, offset+1);
 	att_name = val_to_str(id, vs_general_attribute_id, "Unknown");
-	
-	ti_sa = proto_tree_add_text(tree, tvb, offset, -1, 
+
+	ti_sa = proto_tree_add_text(tree, tvb, offset, -1,
 				    "Service Attribute: id = %s (0x%x)", att_name, id);
 	st = proto_item_add_subtree(ti_sa, ett_btsdp_attribute);
-	
+
 
 	proto_tree_add_text(st, tvb, offset, 3, "Attribute ID: %s (0x%x)", att_name, id);
 	ti_av = proto_tree_add_text(st, tvb, offset + 3, -1, "Attribute Value");
@@ -482,7 +487,7 @@ dissect_sdp_service_attribute(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 
-static int 
+static int
 dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *ti;
@@ -508,13 +513,13 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, int offset)
 
 
 
-static int 
+static int
 dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *ti;
 	proto_tree *st;
 	int start_offset, len;
-	
+
 	start_offset=offset;
 	offset = get_type_length(tvb, offset, &len);
 	ti = proto_tree_add_text(tree, tvb, start_offset, offset-start_offset+len, "AttributeLists");
@@ -531,7 +536,7 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb, int of
 
 
 static int
-dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb, int offset) 
+dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
 	proto_tree_add_item(tree, hf_ssares_al_bytecount, tvb, offset, 2, FALSE);
@@ -563,6 +568,9 @@ dissect_sdp_service_search_attribute_request(proto_tree *t, tvbuff_t *tvb, int o
 	while(bytes_to_go>0) {
 		size = dissect_sdp_type(st, tvb, offset, &str);
 		proto_item_append_text(st, " %s", str);
+		if (size < 1) {
+			break;
+		}
 		offset+=size;
 		bytes_to_go-=size;
 	}
@@ -579,13 +587,13 @@ dissect_sdp_service_search_attribute_request(proto_tree *t, tvbuff_t *tvb, int o
 	return offset;
 }
 
-static int 
+static int
 dissect_sdp_service_attribute_response(proto_tree *t, tvbuff_t *tvb, int offset)
 {
 	proto_tree_add_text(t, tvb, offset, 2, "AttributeListByteCount: %d",
 			    tvb_get_ntohs(tvb, offset));
 	offset+=2;
-	
+
 	offset = dissect_sdp_service_attribute_list(t, tvb, offset);
 
 	proto_tree_add_text(t, tvb, offset, -1, "ContinuationState");
@@ -595,14 +603,14 @@ dissect_sdp_service_attribute_response(proto_tree *t, tvbuff_t *tvb, int offset)
 }
 
 
-static int 
+static int
 dissect_sdp_service_attribute_request(proto_tree *t, tvbuff_t *tvb, int offset)
 {
-	proto_tree_add_text(t, tvb, offset, 4, "ServiceRecordHandle: 0x%x", 
+	proto_tree_add_text(t, tvb, offset, 4, "ServiceRecordHandle: 0x%x",
 			    tvb_get_ntohl(tvb, offset));
 	offset+=4;
 
-	proto_tree_add_text(t, tvb, offset, 2, "MaximumAttributeByteCount: %d", 
+	proto_tree_add_text(t, tvb, offset, 2, "MaximumAttributeByteCount: %d",
 			    tvb_get_ntohs(tvb, offset));
 	offset+=2;
 
@@ -614,13 +622,13 @@ dissect_sdp_service_attribute_request(proto_tree *t, tvbuff_t *tvb, int offset)
 }
 
 
-static int 
+static int
 dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset)
 {
         int start_offset, bytes_to_go, size;
 	proto_item *ti;
 	proto_tree *st;
-  
+
 	start_offset=offset;
         ti = proto_tree_add_text(t, tvb, offset, 2, "ServiceSearchPattern");
 	st = proto_item_add_subtree(ti, ett_btsdp_service_search_pattern);
@@ -632,13 +640,16 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset)
 		char *str;
 		size = dissect_sdp_type(st, tvb, offset, &str);
 		proto_item_append_text(st, " %s", str);
+		if (size < 1) {
+			break;
+		}
 		offset+=size;
 		bytes_to_go-=size;
 	}
 
 	/* dissect maximum service record count */
 
-	proto_tree_add_text(t, tvb, offset, 2, "MaximumServiceRecordCount: %d", 
+	proto_tree_add_text(t, tvb, offset, 2, "MaximumServiceRecordCount: %d",
 			    tvb_get_ntohs(tvb, offset));
 	offset+=2;
 
@@ -648,13 +659,13 @@ dissect_sdp_service_search_request(proto_tree *t, tvbuff_t *tvb, int offset)
 }
 
 
-static int 
+static int
 dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 {
 	proto_tree *st;
 	proto_item *ti;
-	guint16 curr_count;
-	
+	gint curr_count;
+
 	proto_tree_add_item(t, hf_ssr_total_count, tvb, offset, 2, FALSE);
 	offset+=2;
 
@@ -662,7 +673,7 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 	proto_tree_add_item(t, hf_ssr_current_count, tvb, offset, 2, FALSE);
 	offset+=2;
 
-	ti = proto_tree_add_text(t, tvb, offset, 
+	ti = proto_tree_add_text(t, tvb, offset,
 				 curr_count * 4, "ServiceRecordHandleList");
 	st = proto_item_add_subtree(ti, ett_btsdp_ssr);
 	offset+=4;
@@ -680,7 +691,7 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 }
 
 
-static void 
+static void
 dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -741,28 +752,28 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-void 
+void
 proto_register_btsdp(void)
-{                   
+{
 	static hf_register_info hf[] = {
 		{&hf_pduid,
 			{"PDU", "btsdp.pdu",
-			FT_UINT8, BASE_HEX, VALS(vs_pduid), 0,          
+			FT_UINT8, BASE_HEX, VALS(vs_pduid), 0,
 			"PDU type", HFILL}
 		},
 		{&hf_tid,
 			{"TransactionID", "btsdp.tid",
-			FT_UINT16, BASE_HEX, NULL, 0,          
+			FT_UINT16, BASE_HEX, NULL, 0,
 			"Transaction ID", HFILL}
 		},
 		{&hf_plen,
 			{"ParameterLength", "btsdp.len",
-			FT_UINT16, BASE_DEC, NULL, 0,          
+			FT_UINT16, BASE_DEC, NULL, 0,
 			"ParameterLength", HFILL}
 		},
-		{&hf_error_code, 
-		        {"ErrorCode", "btsdp.error_code", 
-			FT_UINT16, BASE_HEX, NULL, 0, 
+		{&hf_error_code,
+		        {"ErrorCode", "btsdp.error_code",
+			FT_UINT16, BASE_HEX, NULL, 0,
 			 "Error Code", HFILL}
 		},
 		{&hf_ssr_total_count,
@@ -796,7 +807,7 @@ proto_register_btsdp(void)
 	proto_btsdp = proto_register_protocol("Bluetooth SDP", "BTSDP", "btsdp");
 
 	register_dissector("btsdp", dissect_btsdp, proto_btsdp);
-	
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_btsdp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));

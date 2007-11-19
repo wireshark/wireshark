@@ -166,6 +166,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The Bluetooth SDP dissector could go into an infinite loop.
+            <!-- Fixed in r23496 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1926">1926</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.2 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
         <!-- rtsp? -->
       </itemizedlist>
 
