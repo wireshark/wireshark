@@ -47,10 +47,7 @@
 #define PFNAME "p_mul"
 
 /* Recommended UDP Port Numbers */
-#define P_MUL_TPORT 2751
-#define P_MUL_RPORT 2752
-#define P_MUL_DPORT 2753
-#define P_MUL_APORT 2754
+#define DEFAULT_P_MUL_PORT_RANGE "2751,2752,2753,2754"
 
 /* PDU Types */
 #define Data_PDU             0x00
@@ -115,21 +112,14 @@ static gint ett_entry = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
+static dissector_handle_t p_mul_handle = NULL;
 
 /* User definable values to use for dissection */
+static range_t *global_p_mul_port_range = NULL;
+static range_t *p_mul_port_range = NULL;
 static gboolean p_mul_reassemble = TRUE;
 static gint decode_option = DECODE_NONE;
 static gboolean use_relative_msgid = TRUE;
-
-static guint global_p_mul_tport = P_MUL_TPORT;
-static guint global_p_mul_rport = P_MUL_RPORT;
-static guint global_p_mul_dport = P_MUL_DPORT;
-static guint global_p_mul_aport = P_MUL_APORT;
-
-static guint p_mul_tport = 0;
-static guint p_mul_rport = 0;
-static guint p_mul_dport = 0;
-static guint p_mul_aport = 0;
 
 static GHashTable *p_mul_fragment_table = NULL;
 static GHashTable *p_mul_reassembled_table = NULL;
@@ -730,10 +720,24 @@ void proto_register_p_mul (void)
   proto_register_subtree_array (ett, array_length (ett));
   register_init_routine (&p_mul_reassemble_init);
 
+  /* Set default UDP ports */
+  range_convert_str (&global_p_mul_port_range, DEFAULT_P_MUL_PORT_RANGE, 
+                     MAX_UDP_PORT);
+  p_mul_port_range = range_empty ();
+
   /* Register our configuration options */
   p_mul_module = prefs_register_protocol (proto_p_mul,
                                           proto_reg_handoff_p_mul);
 
+  prefs_register_obsolete_preference (p_mul_module, "tport");
+  prefs_register_obsolete_preference (p_mul_module, "rport");
+  prefs_register_obsolete_preference (p_mul_module, "dport");
+  prefs_register_obsolete_preference (p_mul_module, "aport");
+
+  prefs_register_range_preference (p_mul_module, "udp_ports", 
+                                   "P_Mul port numbers",
+                                   "Port numbers used for P_Mul traffic",
+                                   &global_p_mul_port_range, MAX_UDP_PORT);
   prefs_register_bool_preference (p_mul_module, "reassemble",
                                   "Reassemble fragmented P_Mul packets",
                                   "Reassemble fragmented P_Mul packets",
@@ -747,51 +751,34 @@ void proto_register_p_mul (void)
                                   "Decode Data PDU as",
                                   "Type of content in Data_PDU",
                                   &decode_option, decode_options, FALSE);
-  prefs_register_uint_preference (p_mul_module, "tport", "TPORT",
-                                  "Used for transmission of Request_PDUs, "
-                                  "Reject_PDUs and Release_PDUs between"
-                                  "the transmitters",
-                                  10, &global_p_mul_tport);
-  prefs_register_uint_preference (p_mul_module, "rport", "RPORT",
-                                  "Used for transmission of Announce_PDUs "
-                                  "to inform the receiver(s)",
-                                  10, &global_p_mul_rport);
-  prefs_register_uint_preference (p_mul_module, "dport", "DPORT",
-                                  "Used for the data traffic from the "
-                                  "transmitters to the receiver(s)",
-                                  10, &global_p_mul_dport);
-  prefs_register_uint_preference (p_mul_module, "aport", "APORT",
-                                  "Used for the data traffic from the "
-                                  "receiver(s) to the transmitter",
-                                  10, &global_p_mul_aport);
+}
+
+static void range_delete_callback (guint32 port)
+{
+    dissector_delete ("udp.port", port, p_mul_handle);
+}
+
+static void range_add_callback (guint32 port)
+{
+    dissector_add ("udp.port", port, p_mul_handle);
 }
 
 void proto_reg_handoff_p_mul (void)
 {
   static int p_mul_prefs_initialized = FALSE;
-  static dissector_handle_t p_mul_handle;
 
   if (!p_mul_prefs_initialized) {
     p_mul_handle = create_dissector_handle (dissect_p_mul, proto_p_mul);
     p_mul_prefs_initialized = TRUE;
   } else {
-    dissector_delete ("udp.port", p_mul_tport, p_mul_handle);
-    dissector_delete ("udp.port", p_mul_rport, p_mul_handle);
-    dissector_delete ("udp.port", p_mul_dport, p_mul_handle);
-    dissector_delete ("udp.port", p_mul_aport, p_mul_handle);
+    range_foreach (p_mul_port_range, range_delete_callback);
   }
 
-  /* Save port numbers for later deletion */
-  p_mul_tport = global_p_mul_tport;
-  p_mul_rport = global_p_mul_rport;
-  p_mul_dport = global_p_mul_dport;
-  p_mul_aport = global_p_mul_aport;
-
-  /* We convert all P_Mul ports */
-  dissector_add ("udp.port", global_p_mul_tport, p_mul_handle);
-  dissector_add ("udp.port", global_p_mul_rport, p_mul_handle);
-  dissector_add ("udp.port", global_p_mul_dport, p_mul_handle);
-  dissector_add ("udp.port", global_p_mul_aport, p_mul_handle);
+  /* Save port number for later deletion */
+  g_free (p_mul_port_range);
+  p_mul_port_range = range_copy (global_p_mul_port_range);
+    
+  range_foreach (p_mul_port_range, range_add_callback);
 }
 
 /*
