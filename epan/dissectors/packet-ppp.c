@@ -210,7 +210,6 @@ static dissector_handle_t eth_withfcs_handle;
 static const value_string ppp_direction_vals[] = {
     { P2P_DIR_RECV, "DCE->DTE"},
     { P2P_DIR_SENT, "DTE->DCE"},
-    { 2,            "N/A"},
     { 0,            NULL }
 };
 
@@ -2786,7 +2785,9 @@ dissect_ppp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tvbuff_t	*next_tvb;
 
   /* Make direction information filterable */
-  if (tree) {
+  if (tree &&
+      (pinfo->p2p_dir == P2P_DIR_RECV ||
+       pinfo->p2p_dir == P2P_DIR_SENT)) {
     proto_item *direction_ti = proto_tree_add_uint(tree, hf_ppp_direction,
                                                    tvb, 0, 0, pinfo->p2p_dir);
     PROTO_ITEM_SET_GENERATED(direction_ti);
