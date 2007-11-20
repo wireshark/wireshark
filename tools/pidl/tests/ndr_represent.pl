@@ -18,25 +18,23 @@ test_samba4_ndr('represent_as-simple',
 	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL);
 	struct bla r;
 
-	if (!NT_STATUS_IS_OK(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	if (r.in.x != 13)
 		return 2;
 ',
 '
-#include <libcli/util/ntstatus.h>
-
-NTSTATUS ndr_uint8_to_uint32(uint8_t from, uint32_t *to)
+enum ndr_err_code ndr_uint8_to_uint32(uint8_t from, uint32_t *to)
 {
 	*to = from;
-	return NT_STATUS_OK;
+	return NDR_ERR_SUCCESS;
 }
 
-NTSTATUS ndr_uint32_to_uint8(uint32_t from, uint8_t *to)
+enum ndr_err_code ndr_uint32_to_uint8(uint32_t from, uint8_t *to)
 {
 	*to = from;
-	return NT_STATUS_OK;
+	return NDR_ERR_SUCCESS;
 }
 '
 );
@@ -51,26 +49,23 @@ test_samba4_ndr('transmit_as-simple',
 	struct ndr_pull *ndr = ndr_pull_init_blob(&in_blob, NULL);
 	struct bla r;
 
-	if (!NT_STATUS_IS_OK(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	if (r.in.x != 13)
 		return 2;
 ',
 '
-#include <libcli/util/ntstatus.h>
-
-NTSTATUS ndr_uint8_to_uint32(uint8_t from, uint32_t *to)
+enum ndr_err_code ndr_uint8_to_uint32(uint8_t from, uint32_t *to)
 {
 	*to = from;
-	return NT_STATUS_OK;
+	return NDR_ERR_SUCCESS;
 }
 
-NTSTATUS ndr_uint32_to_uint8(uint32_t from, uint8_t *to)
+enum ndr_err_code ndr_uint32_to_uint8(uint32_t from, uint8_t *to)
 {
 	*to = from;
-	return NT_STATUS_OK;
+	return NDR_ERR_SUCCESS;
 }
 '
 );
-

@@ -20,7 +20,7 @@ test_samba4_ndr("simple", "void Test(); ",
 	b.length = 1;
 	ndr = ndr_pull_init_blob(&b, mem_ctx);
 
-	if (!NT_STATUS_IS_OK(ndr_pull_uint8(ndr, NDR_SCALARS, &result)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_uint8(ndr, NDR_SCALARS, &result)))
 		return 1;
 
 	if (result != 0x02)

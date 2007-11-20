@@ -25,7 +25,7 @@ test_samba4_ndr(
 	b.length = 10;
 	ndr = ndr_pull_init_blob(&b, mem_ctx);
 
-	if (!NT_STATUS_IS_OK(ndr_pull_Test(ndr, NDR_IN, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_pull_Test(ndr, NDR_IN, &r)))
 		return 1;
 
 	if (ndr->offset != 10)

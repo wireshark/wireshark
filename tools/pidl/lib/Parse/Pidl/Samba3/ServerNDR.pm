@@ -90,7 +90,7 @@ sub ParseFunction($$)
 	pidl "const struct ndr_interface_call *call;";
 	pidl "struct ndr_pull *pull;";
 	pidl "struct ndr_push *push;";
-	pidl "NTSTATUS status;";
+	pidl "enum ndr_err_code ndr_err;";
 	pidl "DATA_BLOB blob;";
 	pidl "struct $fn->{NAME} *r;";
 	pidl "";
@@ -113,8 +113,8 @@ sub ParseFunction($$)
 	pidl "}";
 	pidl "";
 	pidl "pull->flags |= LIBNDR_FLAG_REF_ALLOC;";
-	pidl "status = call->ndr_pull(pull, NDR_IN, r);";
-	pidl "if (NT_STATUS_IS_ERR(status)) {";
+	pidl "ndr_err = call->ndr_pull(pull, NDR_IN, r);";
+	pidl "if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {";
 	pidl "\ttalloc_free(r);";
 	pidl "\treturn False;";
 	pidl "}";
@@ -171,8 +171,8 @@ sub ParseFunction($$)
 	pidl "\treturn False;";
 	pidl "}";
 	pidl "";
-	pidl "status = call->ndr_push(push, NDR_OUT, r);";
-	pidl "if (NT_STATUS_IS_ERR(status)) {";
+	pidl "ndr_err = call->ndr_push(push, NDR_OUT, r);";
+	pidl "if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {";
 	pidl "\ttalloc_free(r);";
 	pidl "\treturn False;";
 	pidl "}";

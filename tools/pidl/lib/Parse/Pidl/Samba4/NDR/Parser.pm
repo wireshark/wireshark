@@ -1095,8 +1095,8 @@ sub ParseElementPullLevel
 			$self->indent;
 
 			if ($l->{POINTER_TYPE} eq "relative") {
-				$self->pidl("struct ndr_pull_save _relative_save;");
-				$self->pidl("ndr_pull_save(ndr, &_relative_save);");
+				$self->pidl("uint32_t _relative_save_offset;");
+				$self->pidl("_relative_save_offset = ndr->offset;");
 				$self->pidl("NDR_CHECK(ndr_pull_relative_ptr2(ndr, $var_name));");
 			}
 		}
@@ -1110,7 +1110,7 @@ sub ParseElementPullLevel
 
 		if ($l->{POINTER_TYPE} ne "ref") {
     			if ($l->{POINTER_TYPE} eq "relative") {
-				$self->pidl("ndr_pull_restore(ndr, &_relative_save);");
+				$self->pidl("ndr->offset = _relative_save_offset;");
 			}
 			$self->deindent;
 			$self->pidl("}");
@@ -2103,7 +2103,7 @@ sub ParseFunctionPush($$)
 { 
 	my($self, $fn) = @_;
 
-	$self->fn_declare("push", $fn, "NTSTATUS ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)") or return;
+	$self->fn_declare("push", $fn, "enum ndr_err_code ndr_push_$fn->{NAME}(struct ndr_push *ndr, int flags, const struct $fn->{NAME} *r)") or return;
 
 	return if has_property($fn, "nopush");
 
@@ -2146,7 +2146,7 @@ sub ParseFunctionPush($$)
     
 	$self->deindent;
 	$self->pidl("}");
-	$self->pidl("return NT_STATUS_OK;");
+	$self->pidl("return NDR_ERR_SUCCESS;");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");
@@ -2183,7 +2183,7 @@ sub ParseFunctionPull($$)
 	my($self,$fn) = @_;
 
 	# pull function args
-	$self->fn_declare("pull", $fn, "NTSTATUS ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)") or return;
+	$self->fn_declare("pull", $fn, "enum ndr_err_code ndr_pull_$fn->{NAME}(struct ndr_pull *ndr, int flags, struct $fn->{NAME} *r)") or return;
 
 	$self->pidl("{");
 	$self->indent;
@@ -2279,7 +2279,7 @@ sub ParseFunctionPull($$)
 	$self->deindent;
 	$self->pidl("}");
 
-	$self->pidl("return NT_STATUS_OK;");
+	$self->pidl("return NDR_ERR_SUCCESS;");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");
@@ -2468,12 +2468,12 @@ sub ParseTypePushFunction($$$)
 	my ($self, $e, $varname) = @_;
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "push", $e->{NAME}, $varname);
-	$self->fn_declare("push", $e, "NTSTATUS ".TypeFunctionName("ndr_push", $e)."(struct ndr_push *ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("push", $e, "enum ndr_err_code ".TypeFunctionName("ndr_push", $e)."(struct ndr_push *ndr, int ndr_flags, $args)") or return;
 
 	$self->pidl("{");
 	$self->indent;
 	$self->ParseTypePush($e, $varname, 1, 1);
-	$self->pidl("return NT_STATUS_OK;");
+	$self->pidl("return NDR_ERR_SUCCESS;");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");;
@@ -2496,12 +2496,12 @@ sub ParseTypePullFunction($$)
 
 	my $args = $typefamily{$e->{TYPE}}->{DECL}->($e, "pull", $e->{NAME}, $varname);
 
-	$self->fn_declare("pull", $e, "NTSTATUS ".TypeFunctionName("ndr_pull", $e)."(struct ndr_pull *ndr, int ndr_flags, $args)") or return;
+	$self->fn_declare("pull", $e, "enum ndr_err_code ".TypeFunctionName("ndr_pull", $e)."(struct ndr_pull *ndr, int ndr_flags, $args)") or return;
 
 	$self->pidl("{");
 	$self->indent;
 	$self->ParseTypePull($e, $varname, 1, 1);
-	$self->pidl("return NT_STATUS_OK;");
+	$self->pidl("return NDR_ERR_SUCCESS;");
 	$self->deindent;
 	$self->pidl("}");
 	$self->pidl("");

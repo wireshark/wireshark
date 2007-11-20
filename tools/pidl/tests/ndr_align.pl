@@ -24,7 +24,7 @@ test_samba4_ndr('align-uint8-uint16',
 	r.x = 13;
 	r.y = 0xbeef;
 
-	if (!NT_STATUS_IS_OK(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -49,7 +49,7 @@ test_samba4_ndr('align-uint8-uint32',
 	r.x = 13;
 	r.y = 0xbeefbeef;
 
-	if (!NT_STATUS_IS_OK(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -76,7 +76,7 @@ test_samba4_ndr('align-uint8-hyper',
 	r.x = 13;
 	r.y = 0xbeefbeefbeefbeefLLU;
 
-	if (!NT_STATUS_IS_OK(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -103,7 +103,7 @@ test_samba4_ndr('noalignflag-uint8-uint16',
 	r.x = 13;
 	r.y = 0xbeef;
 
-	if (!NT_STATUS_IS_OK(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_push_bla(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
@@ -133,7 +133,7 @@ test_samba4_ndr('align-blob-align2',
 	r.data.data = data;
 	r.data.length = 2;
 
-	if (!NT_STATUS_IS_OK(ndr_push_blie(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
+	if (!NDR_ERR_CODE_IS_SUCCESS(ndr_push_blie(ndr, NDR_SCALARS|NDR_BUFFERS, &r)))
 		return 1;
 
 	result_blob = ndr_push_blob(ndr);
