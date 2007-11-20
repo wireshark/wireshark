@@ -31,7 +31,7 @@ gint pdu_type;
   }
 
 #.FN_BODY PDUs/trap
- offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
+ offset = dissect_snmp_Trap_PDU(FALSE, tvb, offset, actx, tree, hf_index);
 
 #.FN_BODY PDUs/getBulkRequest
  offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);

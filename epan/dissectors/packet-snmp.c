@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -X -T -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -X -T -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -1761,7 +1761,7 @@ dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 34 "snmp.cnf"
- offset = dissect_snmp_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
+ offset = dissect_snmp_Trap_PDU(FALSE, tvb, offset, actx, tree, hf_index);
 
 
 
