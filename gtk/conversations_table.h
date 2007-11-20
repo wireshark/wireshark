@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -32,17 +32,20 @@
 
 /** Conversation information */
 typedef struct _conversation_t {
-	address src_address;    /**< source address */
-	address dst_address;    /**< destination address */
-	SAT_E   sat;            /**< address type */
-	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
-	guint32 src_port;       /**< source port */
-	guint32 dst_port;       /**< destination port */
+	address  src_address;    /**< source address */
+	address  dst_address;    /**< destination address */
+	SAT_E    sat;            /**< address type */
+	guint32  port_type;      /**< port_type (e.g. PT_TCP) */
+	guint32  src_port;       /**< source port */
+	guint32  dst_port;       /**< destination port */
 
-	guint64 rx_frames;      /**< number of received packets */
-	guint64 tx_frames;      /**< number of transmitted packets */
-	guint64 rx_bytes;       /**< number of received bytes */
-	guint64 tx_bytes;       /**< number of transmitted bytes */
+	guint64  rx_frames;      /**< number of received packets */
+	guint64  tx_frames;      /**< number of transmitted packets */
+	guint64  rx_bytes;       /**< number of received bytes */
+	guint64  tx_bytes;       /**< number of transmitted bytes */
+
+	nstime_t start_time;     /**< start time for the conversation */
+	nstime_t stop_time;      /**< stop time for the conversation */
 } conv_t;
 
 /** Conversation widget */
@@ -52,8 +55,8 @@ typedef struct _conversations_table {
 	GtkWidget           *page_lb;           /**< label */
 	GtkWidget           *scrolled_window;   /**< the scrolled window */
 	GtkCList            *table;             /**< the GTK table */
-        guint32             num_columns;         /**< number of columns in the above table */
-        const char          *default_titles[10]; /**< Column headers */
+	guint32             num_columns;         /**< number of columns in the above table */
+	const char          *default_titles[14]; /**< Column headers */
 	GtkWidget           *menu;              /**< context menu */
 	gboolean            has_ports;          /**< table has ports */
 	guint32             num_conversations;  /**< number of conversations */
@@ -97,10 +100,12 @@ extern void init_conversation_notebook_cb(GtkWidget *widget, gpointer data);
  * @param dst_port destination port
  * @param num_frames number of packets
  * @param num_bytes number of bytes
+ * @param ts timestamp
  * @param sat address type
  * @param port_type the port type (e.g. PT_TCP)
  */
-extern void add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, 
-                        guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type);
+extern void add_conversation_table_data(conversations_table *ct, const address *src, const address *dst,
+			guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts,
+			SAT_E sat, int port_type);
 #endif /* __CONVERSATIONS_TABLE_H__ */
 

@@ -42,6 +42,7 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include <epan/nstime.h>
 
 #include "compat_macros.h"
 #include "sat.h"
@@ -62,13 +63,16 @@
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
-#define NUM_COLS 10
+#define NUM_COLS 14
+#define COL_STR_LEN 16
 #define CONV_PTR_KEY "conversations-pointer"
+#define NB_PAGES_KEY "notebook-pages"
+#define NO_BPS_STR "N/A"
 
-#define CMP_INT(i1, i2)	\
-	if ((i1) > (i2))	\
+#define CMP_NUM(n1, n2)	\
+	if ((n1) > (n2))	\
 		return 1;	\
-	else if ((i1) < (i2))	\
+	else if ((n1) < (n2))	\
 		return -1;	\
 	else			\
 		return 0;
@@ -343,6 +347,7 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	conversations_table *ct = OBJECT_GET_DATA(clist, CONV_PTR_KEY);
 	conv_t *conv1 = NULL;
 	conv_t *conv2 = NULL;
+        double duration1, duration2;
 
 	const GtkCListRow *row1 = ptr1;
 	const GtkCListRow *row2 = ptr2;
@@ -356,29 +361,48 @@ ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	conv1 = &ct->conversations[idx1];
 	conv2 = &ct->conversations[idx2];
 
+        duration1 = nstime_to_sec(&conv1->stop_time) - nstime_to_sec(&conv1->start_time);
+        duration2 = nstime_to_sec(&conv2->stop_time) - nstime_to_sec(&conv2->start_time);
+
 	switch(clist->sort_column){
 	case 0: /* Source address */
 		return(CMP_ADDRESS(&conv1->src_address, &conv2->src_address));
 	case 2: /* Destination address */
 		return(CMP_ADDRESS(&conv1->dst_address, &conv2->dst_address));
 	case 1: /* Source port */
-		CMP_INT(conv1->src_port, conv2->src_port);
+		CMP_NUM(conv1->src_port, conv2->src_port);
 	case 3: /* Destination port */
-		CMP_INT(conv1->dst_port, conv2->dst_port);
+		CMP_NUM(conv1->dst_port, conv2->dst_port);
 	case 4: /* Packets */
-		CMP_INT(conv1->tx_frames+conv1->rx_frames,
+		CMP_NUM(conv1->tx_frames+conv1->rx_frames,
 			conv2->tx_frames+conv2->rx_frames);
         case 5: /* Bytes */
-		CMP_INT(conv1->tx_bytes+conv1->rx_bytes,
+		CMP_NUM(conv1->tx_bytes+conv1->rx_bytes,
 			conv2->tx_bytes+conv2->rx_bytes);
         case 6: /* Packets A->B */
-		CMP_INT(conv1->tx_frames, conv2->tx_frames);
+		CMP_NUM(conv1->tx_frames, conv2->tx_frames);
         case 7: /* Bytes A->B */
-		CMP_INT(conv1->tx_bytes, conv2->tx_bytes);
+		CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
         case 8: /* Packets A<-B */
-		CMP_INT(conv1->rx_frames, conv2->rx_frames);
+		CMP_NUM(conv1->rx_frames, conv2->rx_frames);
         case 9: /* Bytes A<-B */
-		CMP_INT(conv1->rx_bytes, conv2->rx_bytes);
+		CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
+        case 10: /* Start time */
+		return nstime_cmp(&conv1->start_time, &conv2->start_time);
+        case 11: /* Duration */
+		CMP_NUM(duration1, duration2);
+        case 12: /* bps A->B */
+            if (duration1 > 0 && conv1->tx_frames > 1 && duration2 > 0 && conv2->tx_frames > 1) {
+                CMP_NUM((gint64) conv1->tx_bytes / duration1, (gint64) conv2->tx_bytes / duration2);
+            } else {
+                CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
+            }
+        case 13: /* bps A<-B */
+            if (duration1 > 0 && conv1->rx_frames > 1 && duration2 > 0 && conv2->rx_frames > 1) {
+                CMP_NUM((gint64) conv1->rx_bytes / duration1, (gint64) conv2->rx_bytes / duration2);
+            } else {
+                CMP_NUM(conv1->rx_bytes, conv2->rx_bytes);
+            }
 	default:
 		g_assert_not_reached();
 	}
@@ -1101,6 +1125,7 @@ draw_ct_table_data(conversations_table *ct)
     guint32 i;
     int j;
     char title[256];
+    double duration_s;
 
     if (ct->page_lb) {
         if(ct->num_conversations) {
@@ -1113,27 +1138,46 @@ draw_ct_table_data(conversations_table *ct)
     }
 
     for(i=0;i<ct->num_conversations;i++){
-        char str[16];
+        char str[COL_STR_LEN];
 
         j=gtk_clist_find_row_from_data(ct->table, (gpointer)(unsigned long)i);
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames+ct->conversations[i].rx_frames);
         gtk_clist_set_text(ct->table, j, 4, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes+ct->conversations[i].rx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes+ct->conversations[i].rx_bytes);
         gtk_clist_set_text(ct->table, j, 5, str);
 
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_frames);
         gtk_clist_set_text(ct->table, j, 6, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].tx_bytes);
         gtk_clist_set_text(ct->table, j, 7, str);
 
 
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_frames);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_frames);
         gtk_clist_set_text(ct->table, j, 8, str);
-        g_snprintf(str, 16, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_bytes);
+        g_snprintf(str, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", ct->conversations[i].rx_bytes);
         gtk_clist_set_text(ct->table, j, 9, str);
 
+        duration_s = nstime_to_sec(&ct->conversations[i].stop_time) - nstime_to_sec(&ct->conversations[i].start_time);
+        g_snprintf(str, COL_STR_LEN, "%s", rel_time_to_secs_str(&ct->conversations[i].start_time));
+        gtk_clist_set_text(ct->table, j, 10, str);
+        g_snprintf(str, COL_STR_LEN, "%.4f", duration_s);
+        gtk_clist_set_text(ct->table, j, 11, str);
+        if (duration_s > 0 && ct->conversations[i].tx_frames > 1) {
+            /* XXX - The gint64 casts below are needed for MSVC++ 6.0 */
+            g_snprintf(str, COL_STR_LEN, "%.2f", (gint64) ct->conversations[i].tx_bytes * 8 / duration_s);
+            gtk_clist_set_text(ct->table, j, 12, str);
+        } else {
+            gtk_clist_set_text(ct->table, j, 12, NO_BPS_STR);
+        }
+        if (duration_s > 0 && ct->conversations[i].rx_frames > 1) {
+            /* XXX - The gint64 casts below are needed for MSVC++ 6.0 */
+            g_snprintf(str, COL_STR_LEN, "%.2f", (gint64) ct->conversations[i].rx_bytes * 8 / duration_s);
+            gtk_clist_set_text(ct->table, j, 13, str);
+        } else {
+            gtk_clist_set_text(ct->table, j, 13, NO_BPS_STR);
+        }
     }
 
     draw_ct_table_addresses(ct);
@@ -1153,14 +1197,16 @@ draw_ct_table_data_cb(void *arg)
 
 #if (GTK_MAJOR_VERSION >= 2)
 static void
-copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
+copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
    guint32         i,j;
    gchar           *table_entry;
    GtkClipboard    *cb;
    GString         *CSV_str = g_string_new("");
 
-   conversations_table *talkers=(conversations_table *)data;
+   conversations_table *talkers=OBJECT_GET_DATA(copy_bt, CONV_PTR_KEY);
+   if (!talkers)
+     return;
 
    /* Add the column headers to the CSV data */
    for(i=0;i<talkers->num_columns;i++){                  /* all columns         */
@@ -1201,11 +1247,6 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     GString *error_string;
     GtkWidget *label;
     char title[256];
-#if (GTK_MAJOR_VERSION >= 2)
-    GtkWidget *copy_bt;
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
-
 
     conversations->page_lb=NULL;
     conversations->resolve_names=TRUE;
@@ -1221,6 +1262,10 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     conversations->default_titles[7]="Bytes A->B";
     conversations->default_titles[8]="Packets A<-B";
     conversations->default_titles[9]="Bytes A<-B";
+    conversations->default_titles[10]="Rel Start";
+    conversations->default_titles[11]="Duration";
+    conversations->default_titles[12]="bps A->B";
+    conversations->default_titles[13]="bps A<-B";
     if (strcmp(table_name, "NCP")==0) {
         conversations->default_titles[1]="Connection A";
         conversations->default_titles[3]="Connection B";
@@ -1264,16 +1309,9 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_clist_set_sort_type(conversations->table, GTK_SORT_ASCENDING);
 
 
-    gtk_clist_set_column_auto_resize(conversations->table, 0, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 1, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 2, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 3, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 4, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 5, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 6, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 7, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 8, TRUE);
-    gtk_clist_set_column_auto_resize(conversations->table, 9, TRUE);
+    for (i = 0; i < NUM_COLS; i++) {
+        gtk_clist_set_column_auto_resize(conversations->table, i, TRUE);
+    }
 
     gtk_clist_set_shadow_type(conversations->table, GTK_SHADOW_IN);
     gtk_clist_column_titles_show(conversations->table);
@@ -1292,16 +1330,6 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
     /* create popup menu for this table */
     ct_create_popup_menu(conversations);
-
-#if (GTK_MAJOR_VERSION >= 2)
-    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
-    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt,
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
-    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) conversations);
-    gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
-#endif
 
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, conversations, filter, reset_ct_table_data_cb, packet_func, draw_ct_table_data_cb);
@@ -1324,7 +1352,10 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
-
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *copy_bt;
+    GtkTooltips *tooltips = gtk_tooltips_new();
+#endif
 
     conversations=g_malloc(sizeof(conversations_table));
 
@@ -1345,15 +1376,33 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     }
 
     /* Button row. */
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+#if (GTK_MAJOR_VERSION >= 2)
+    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+    }
+#else
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     }
+#endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(conversations->win, close_bt, window_cancel_button_cb);
+
+#if (GTK_MAJOR_VERSION >= 2)
+    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt,
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+    OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, conversations);
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
+#endif
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
@@ -1379,6 +1428,21 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
 
 
+#if (GTK_MAJOR_VERSION >= 2)
+static void
+ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
+{
+    GtkWidget *copy_bt = (GtkWidget *) data;
+    void ** pages = OBJECT_GET_DATA(nb, NB_PAGES_KEY);
+
+    page++;
+
+    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
+        OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
+    }
+}
+#endif
+
 static void
 ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -1389,10 +1453,8 @@ ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
         ct_win_destroy_cb(NULL, pages[page]);
     }
+    g_free(pages);
 }
-
-
-
 
 static conversations_table *
 init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
@@ -1464,9 +1526,9 @@ ct_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 
         draw_ct_table_addresses(conversations);
 
-	    /* Allow table to redraw */
+        /* Allow table to redraw */
         gtk_clist_thaw(conversations->table);
-	    gtk_clist_freeze(conversations->table);
+        gtk_clist_freeze(conversations->table);
     }
 }
 
@@ -1488,7 +1550,9 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GSList  *current_table;
     register_ct_t *registered;
     GtkTooltips *tooltips = gtk_tooltips_new();
-
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *copy_bt;
+#endif
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -1502,6 +1566,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     nb = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(vbox), nb);
+    OBJECT_SET_DATA(nb, NB_PAGES_KEY, pages);
 
     page = 0;
 
@@ -1511,6 +1576,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         page_lb = gtk_label_new("");
         conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
             registered->filter, registered->packet_func);
+        OBJECT_SET_DATA(conversations->win, CONV_PTR_KEY, conversations);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
         conversations->win = win;
         conversations->page_lb = page_lb;
@@ -1533,15 +1599,35 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     SIGNAL_CONNECT(resolv_cb, "toggled", ct_resolve_toggle_dest, pages);
 
     /* Button row. */
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+#if (GTK_MAJOR_VERSION >= 2)
+    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+    }
+#else
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     }
+#endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
+
+#if (GTK_MAJOR_VERSION >= 2)
+    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt,
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
+    OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
+
+    SIGNAL_CONNECT(nb, "switch-page", ct_nb_switch_page_cb, copy_bt);
+#endif
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
@@ -1564,7 +1650,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
 void
-add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, SAT_E sat, int port_type)
+add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, SAT_E sat, int port_type)
 {
     const address *addr1, *addr2;
     guint32 port1, port2;
@@ -1646,6 +1732,13 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         conversation->tx_frames=0;
         conversation->rx_bytes=0;
         conversation->tx_bytes=0;
+        if (ts) {
+            memcpy(&conversation->start_time, ts, sizeof(conversation->start_time));
+            memcpy(&conversation->stop_time, ts, sizeof(conversation->stop_time));
+        } else {
+            nstime_set_unset(&conversation->start_time);
+            nstime_set_unset(&conversation->stop_time);
+        }
     }
 
     /* update the conversation struct */
@@ -1657,10 +1750,23 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         conversation->rx_bytes+=num_bytes;
     }
 
+    if (ts) {
+        if (nstime_cmp(ts, &conversation->stop_time) > 0) {
+            memcpy(&conversation->stop_time, ts, sizeof(conversation->stop_time));
+        } else if (nstime_cmp(ts, &conversation->start_time) < 0) {
+            memcpy(&conversation->start_time, ts, sizeof(conversation->start_time));
+        }
+    }
+
     /* if this was a new conversation we have to create a clist row for it */
     if(new_conversation){
         char *entries[NUM_COLS];
-        char frames[16],bytes[16],txframes[16],txbytes[16],rxframes[16],rxbytes[16];
+        char frames[COL_STR_LEN], bytes[COL_STR_LEN],
+             txframes[COL_STR_LEN], txbytes[COL_STR_LEN],
+             rxframes[COL_STR_LEN], rxbytes[COL_STR_LEN],
+             start_time[COL_STR_LEN], duration[COL_STR_LEN],
+             txbps[COL_STR_LEN], rxbps[COL_STR_LEN];
+        double duration_s;
 
         /* these values will be filled by call to draw_ct_table_addresses() below */
         entries[0] = "";
@@ -1668,20 +1774,38 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         entries[2] = "";
         entries[3] = "";
 
-        g_snprintf(frames, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_frames+conversation->rx_frames);
+        g_snprintf(frames, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->tx_frames+conversation->rx_frames);
         entries[4]=frames;
-        g_snprintf(bytes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes+conversation->rx_bytes);
+        g_snprintf(bytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes+conversation->rx_bytes);
         entries[5]=bytes;
 
-        g_snprintf(txframes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_frames);
+        g_snprintf(txframes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->tx_frames);
         entries[6]=txframes;
-        g_snprintf(txbytes, 16, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes);
+        g_snprintf(txbytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->tx_bytes);
         entries[7]=txbytes;
 
-        g_snprintf(rxframes, 16, "%" G_GINT64_MODIFIER "u", conversation->rx_frames);
+        g_snprintf(rxframes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->rx_frames);
         entries[8]=rxframes;
-        g_snprintf(rxbytes, 16, "%" G_GINT64_MODIFIER "u", conversation->rx_bytes);
+        g_snprintf(rxbytes, COL_STR_LEN, "%" G_GINT64_MODIFIER "u", conversation->rx_bytes);
         entries[9]=rxbytes;
+
+        duration_s = nstime_to_sec(&conversation->start_time) - nstime_to_sec(&conversation->stop_time);
+        g_snprintf(start_time, COL_STR_LEN, "%s", rel_time_to_secs_str(&conversation->start_time));
+        g_snprintf(duration, COL_STR_LEN, "%.4f", duration_s);
+        entries[10]=start_time;
+        entries[11]=duration;
+        if (duration_s > 0 && conversation->tx_frames > 1) {
+            g_snprintf(txbps, COL_STR_LEN, "%.2f", (gint64) conversation->tx_bytes * 8 / duration_s);
+            entries[12]=txbps;
+        } else {
+            entries[12] = NO_BPS_STR;
+        }
+        if (duration_s > 0 && conversation->rx_frames > 1) {
+            g_snprintf(rxbps, COL_STR_LEN, "%.2f", (gint64) conversation->rx_bytes * 8 / duration_s);
+            entries[13]=rxbps;
+        } else {
+            entries[13] = NO_BPS_STR;
+        }
 
         gtk_clist_insert(ct->table, conversation_idx, entries);
         gtk_clist_set_row_data(ct->table, conversation_idx, (gpointer)(long) conversation_idx);
@@ -1689,3 +1813,17 @@ add_conversation_table_data(conversations_table *ct, const address *src, const a
         draw_ct_table_address(ct, conversation_idx);
     }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+

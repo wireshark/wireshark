@@ -50,7 +50,7 @@ ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, 
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;
     if (connection < 65535) {
-        add_conversation_table_data((conversations_table *)pct, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NCP);
+        add_conversation_table_data((conversations_table *)pct, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, SAT_NONE, PT_NCP);
     }
 
 	return 1;

@@ -47,14 +47,15 @@ sctp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
 {
 	const struct _sctp_info *sctphdr=vip;
 
-	add_conversation_table_data((conversations_table *)pct, 
-		&sctphdr->ip_src, 
-		&sctphdr->ip_dst, 
-		sctphdr->sport, 
-		sctphdr->dport, 
-		1, 
-		pinfo->fd->pkt_len, 
-		SAT_NONE, 
+	add_conversation_table_data((conversations_table *)pct,
+		&sctphdr->ip_src,
+		&sctphdr->ip_dst,
+		sctphdr->sport,
+		sctphdr->dport,
+		1,
+		pinfo->fd->pkt_len,
+		&pinfo->fd->rel_ts,
+                SAT_NONE,
 		PT_SCTP);
 
 

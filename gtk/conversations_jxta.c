@@ -1,7 +1,7 @@
 /* conversations_jxta.c
  * conversations_jxta  copyright (c) 2005 Mike Duigou <bondolo@jxta.org>
  * copied from conversations_sctp.c
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -48,14 +48,15 @@ jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt 
 {
 	const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
 
-	add_conversation_table_data((conversations_table *)pct, 
-		&jxtahdr->src_address, 
-		&jxtahdr->dest_address, 
-		0, 
-		0, 
-		1, 
-		jxtahdr->size, 
-		SAT_JXTA, 
+	add_conversation_table_data((conversations_table *)pct,
+		&jxtahdr->src_address,
+		&jxtahdr->dest_address,
+		0,
+		0,
+		1,
+		jxtahdr->size,
+               NULL,
+		SAT_JXTA,
 		PT_NONE);
 
 

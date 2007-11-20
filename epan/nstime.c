@@ -2,7 +2,7 @@
  * Routines for manipulating nstime_t structures
  *
  * Copyright (c) 2005 MX Telecom Ltd. <richardv@mxtelecom.com>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -127,7 +127,24 @@ void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
     } else if(sum->nsecs<=-NS_PER_S || (sum->nsecs<0 && sum->secs>0)) {
         sum->nsecs+=NS_PER_S;
         sum->secs--;
-    }    
+    }
+}
+
+/*
+ * function: nstime_cmp
+ *
+ * a > b : > 0
+ * a = b : 0
+ * a < b : < 0
+ */
+
+int nstime_cmp (nstime_t *a, const nstime_t *b )
+{
+    if (a->secs == b->secs) {
+        return a->nsecs - b->nsecs;
+    } else {
+        return (int) (a->secs - b->secs);
+    }
 }
 
 /*
@@ -159,3 +176,17 @@ double wtap_nstime_to_sec(const struct wtap_nstime *time)
 {
     return ((double)time->secs + (double)time->nsecs/1000000000);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+

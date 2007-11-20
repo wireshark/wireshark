@@ -47,7 +47,7 @@ udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_
 {
 	const e_udphdr *udphdr=vip;
 
-	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
+	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->fd->rel_ts, SAT_NONE, PT_UDP);
 
 	return 1;
 }

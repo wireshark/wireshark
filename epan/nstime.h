@@ -72,6 +72,14 @@ extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 /* sum += a */
 #define nstime_add(sum, a) nstime_sum(sum, sum, a)
 
+/* compare two times are return a value similar to memcmp() or strcmp().
+ *
+ * a > b : > 0
+ * a = b : 0
+ * a < b : < 0
+ */
+extern int nstime_cmp(nstime_t *a, const nstime_t *b );
+
 /* converts nstime to double, time base is milli seconds */
 extern double nstime_to_msec(const nstime_t *time);
 

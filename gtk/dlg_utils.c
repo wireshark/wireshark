@@ -106,25 +106,26 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     GtkWidget   *help_hbox;
     GtkWidget   *button;
 
-    const gchar *ok           = NULL;
     const gchar *apply        = NULL;
-    const gchar *save         = NULL;
-    const gchar *dont_save    = NULL;
     const gchar *cancel       = NULL;
-    const gchar *close        = NULL;
-    const gchar *clear        = NULL;
     const gchar *cap_start    = NULL;
     const gchar *cap_stop     = NULL;
-    const gchar *stop         = NULL;
+    const gchar *clear        = NULL;
+    const gchar *close        = NULL;
+    const gchar *copy         = NULL;
     const gchar *create_stat  = NULL;
-    const gchar *help         = NULL;
-    const gchar *print        = NULL;
-    const gchar *find         = NULL;
-    const gchar *jump         = NULL;
-    const gchar *yes          = NULL;
-    const gchar *no           = NULL;
-    const gchar *filter_stream= NULL;
     const gchar *delete       = NULL;
+    const gchar *dont_save    = NULL;
+    const gchar *filter_stream= NULL;
+    const gchar *find         = NULL;
+    const gchar *help         = NULL;
+    const gchar *jump         = NULL;
+    const gchar *no           = NULL;
+    const gchar *ok           = NULL;
+    const gchar *print        = NULL;
+    const gchar *save         = NULL;
+    const gchar *stop         = NULL;
+    const gchar *yes          = NULL;
 
 
     va_start(stock_id_list, stock_id_first);
@@ -171,6 +172,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             filter_stream = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_DELETE) == 0) {
             delete = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_COPY) == 0) {
+            copy = stock_id;
         } else {
             /* we don't know that button! */
             g_assert_not_reached();
@@ -336,6 +339,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (jump    != NULL) dlg_button_new(hbox, button_hbox, jump);
     if (find    != NULL) dlg_button_new(hbox, button_hbox, find);
     if (print   != NULL) dlg_button_new(hbox, button_hbox, print);
+    if (copy    != NULL) dlg_button_new(hbox, button_hbox, copy);
     if (create_stat != NULL) dlg_button_new(hbox, button_hbox, create_stat);
     if (apply   != NULL) dlg_button_new(hbox, button_hbox, apply);
     if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
