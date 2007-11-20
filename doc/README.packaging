@@ -27,8 +27,8 @@ distribution. This is available online at
 
 2. Licensing.
 
-Wireshark is released under the GNU General Public License. Make sure
-your package complies with this license, or we send in the marmots.
+Wireshark is released under the GNU General Public License version 2.
+Make sure your package complies with this license.
 
 3. Privileges.
 
@@ -40,16 +40,28 @@ privileges have been moved out of the GUI to dumpcap.
 WIRESHARK CONTAINS OVER ONE POINT FIVE MILLION LINES OF SOURCE CODE. DO
 NOT RUN THEM AS ROOT.
 
-If desired, you can use the configure option "--enable-setuid-install=yes"
-to install dumpcap and TShark setuid root.  This will allow normal users
-to capture traffic.
+There are two configure-time options on non-Windows systems that affect
+the privileges a normal user needs to capture traffic and list
+interfaces: "--enable-setuid-install" and "--with-libcap". Setting
+"--enable-setuid-install" to "yes" will install TShark and dumpcap
+setuid root.  This is necessary for non-root users to be able to capture
+on most systems, e.g. on Linux or FreeBSD if the user doesn't have
+permissions to access /dev/bpf*. It is disabled by default.
+
+If the "--with-libcap" option is enabled, dumpcap will try to drop any
+setuid privileges it may have while retaining the CAP_NET_ADMIN and
+CAP_NET_RAW capabilities. It is enabled by default, and requires the
+Linux capabilities library.
+
+Additionally, warnings are now displayed when Wireshark and TShark are
+run as root.
 
 4. Customization.
 
 Custom version information can be added by creating a file called
-"version.conf". See make-version.pl for details. If your package
-contains significant changes we recommend that you use this to
-differentiate it from official Wireshark releases.
+"version.conf" and running "make-version.pl -p". See make-version.pl for
+details. If your package contains significant changes we recommend that
+you use this to differentiate it from official Wireshark releases.
 
 4.1. Source-level version detection.
 
