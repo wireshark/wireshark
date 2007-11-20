@@ -1,7 +1,7 @@
 /* packet-enrp.c
  * Routines for Endpoint Handlespace Redundancy Protocol (ENRP)
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-09.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-15.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-04.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-12.txt
  *
@@ -60,11 +60,16 @@ static int hf_parameter_value = -1;
 static int hf_parameter_padding = -1;
 static int hf_parameter_ipv4_address = -1;
 static int hf_parameter_ipv6_address = -1;
+static int hf_dccp_port = -1;
+static int hf_dccp_reserved = -1;
+static int hf_dccp_service_code = -1;
 static int hf_sctp_port = -1;
 static int hf_transport_use = -1;
 static int hf_tcp_port = -1;
 static int hf_udp_port = -1;
 static int hf_udp_reserved = -1;
+static int hf_udp_lite_port = -1;
+static int hf_udp_lite_reserved = -1;
 static int hf_policy_type = -1;
 static int hf_policy_value = -1;
 static int hf_policy_weight = -1;
@@ -76,12 +81,9 @@ static int hf_pe_pe_identifier = -1;
 static int hf_home_enrp_id = -1;
 static int hf_reg_life = -1;
 static int hf_server_identifier = -1;
-static int hf_m_bit = -1;
-static int hf_reserved = -1;
 static int hf_cookie = -1;
 static int hf_pe_identifier = -1;
 static int hf_pe_checksum = -1;
-static int hf_pe_checksum_reserved = -1;
 static int hf_sender_servers_id = -1;
 static int hf_receiver_servers_id = -1;
 static int hf_target_servers_id = -1;
@@ -262,6 +264,27 @@ dissect_ipv6_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   proto_item_append_text(parameter_item, " (%s)", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(parameter_tvb, IPV6_ADDRESS_OFFSET, IPV6_ADDRESS_LENGTH)));
 }
 
+#define DCCP_PORT_LENGTH         2
+#define DCCP_RESERVED_LENGTH     2
+#define DCCP_SERVICE_CODE_LENGTH 4
+#define DCCP_PORT_OFFSET         PARAMETER_VALUE_OFFSET
+#define DCCP_RESERVED_OFFSET     (DCCP_PORT_OFFSET + DCCP_PORT_LENGTH)
+#define DCCP_SERVICE_CODE_OFFSET (DCCP_RESERVED_OFFSET + DCCP_RESERVED_LENGTH)
+#define DCCP_ADDRESS_OFFSET      (DCCP_SERVICE_CODE_OFFSET + DCCP_SERVICE_CODE_LENGTH)
+
+static void
+dissect_dccp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  tvbuff_t *parameters_tvb;
+
+  proto_tree_add_item(parameter_tree, hf_dccp_port,         parameter_tvb, DCCP_PORT_OFFSET,         DCCP_PORT_LENGTH,         NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_dccp_reserved,     parameter_tvb, DCCP_RESERVED_OFFSET,     DCCP_RESERVED_LENGTH,     NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_dccp_service_code, parameter_tvb, DCCP_SERVICE_CODE_OFFSET, DCCP_SERVICE_CODE_LENGTH, NETWORK_BYTE_ORDER);
+
+  parameters_tvb = tvb_new_subset(parameter_tvb, DCCP_ADDRESS_OFFSET, -1, -1);
+  dissect_parameters(parameters_tvb, parameter_tree);
+}
+
 #define TRANSPORT_USE_DATA_ONLY         0
 #define TRANSPORT_USE_DATA_PLUS_CONTROL 1
 
@@ -321,6 +344,24 @@ dissect_udp_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   proto_tree_add_item(parameter_tree, hf_udp_reserved, parameter_tvb, UDP_RESERVED_OFFSET, UDP_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
 
   parameters_tvb = tvb_new_subset(parameter_tvb, UDP_ADDRESS_OFFSET, -1, -1);
+  dissect_parameters(parameters_tvb, parameter_tree);
+}
+
+#define UDP_LITE_PORT_LENGTH     2
+#define UDP_LITE_RESERVED_LENGTH 2
+#define UDP_LITE_PORT_OFFSET     PARAMETER_VALUE_OFFSET
+#define UDP_LITE_RESERVED_OFFSET (UDP_LITE_PORT_OFFSET + UDP_LITE_PORT_LENGTH)
+#define UDP_LITE_ADDRESS_OFFSET  (UDP_LITE_RESERVED_OFFSET + UDP_LITE_RESERVED_LENGTH)
+
+static void
+dissect_udp_lite_transport_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  tvbuff_t *parameters_tvb;
+
+  proto_tree_add_item(parameter_tree, hf_udp_lite_port,     parameter_tvb, UDP_LITE_PORT_OFFSET,     UDP_LITE_PORT_LENGTH,     NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_udp_lite_reserved, parameter_tvb, UDP_LITE_RESERVED_OFFSET, UDP_LITE_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
+
+  parameters_tvb = tvb_new_subset(parameter_tvb, UDP_LITE_ADDRESS_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
@@ -438,14 +479,8 @@ dissect_pool_element_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 }
 
 #define SERVER_ID_LENGTH         4
-#define RESERVED_LENGTH          4
-
 #define SERVER_ID_OFFSET         PARAMETER_VALUE_OFFSET
-#define RESERVED_OFFSET          (SERVER_ID_OFFSET + SERVER_ID_LENGTH)
-#define SERVER_TRANSPORT_OFFSET  (RESERVED_OFFSET + RESERVED_LENGTH)
-
-#define M_BIT_MASK               0x80000000
-#define RESERVED_MASK            0x7fffffff
+#define SERVER_TRANSPORT_OFFSET  (SERVER_ID_OFFSET + SERVER_ID_LENGTH)
 
 static void
 dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
@@ -453,8 +488,6 @@ dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   tvbuff_t *parameters_tvb;
 
   proto_tree_add_item(parameter_tree, hf_server_identifier, parameter_tvb, SERVER_ID_OFFSET, SERVER_ID_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_m_bit,             parameter_tvb, RESERVED_OFFSET,  RESERVED_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_reserved,          parameter_tvb, RESERVED_OFFSET,  RESERVED_LENGTH,  NETWORK_BYTE_ORDER);
 
   parameters_tvb = tvb_new_subset(parameter_tvb, SERVER_TRANSPORT_OFFSET, -1, -1);
   dissect_parameters(parameters_tvb, parameter_tree);
@@ -495,16 +528,13 @@ dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 }
 
 #define PE_CHECKSUM_LENGTH 2
-#define PE_CHECKSUM_RESERVED_LENGTH 2
 
 #define PE_CHECKSUM_OFFSET PARAMETER_VALUE_OFFSET
-#define PE_CHECKSUM_RESERVED_OFFSET (PE_CHECKSUM_OFFSET + PE_CHECKSUM_LENGTH)
 
 static void
 dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_pe_checksum,          parameter_tvb, PE_CHECKSUM_OFFSET,          PE_CHECKSUM_LENGTH,          NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_pe_checksum_reserved, parameter_tvb, PE_CHECKSUM_RESERVED_OFFSET, PE_CHECKSUM_RESERVED_LENGTH, NETWORK_BYTE_ORDER);
+  proto_tree_add_item(parameter_tree, hf_pe_checksum,  parameter_tvb, PE_CHECKSUM_OFFSET, PE_CHECKSUM_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohs(parameter_tvb, PE_CHECKSUM_OFFSET));
 }
 
@@ -524,24 +554,28 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 
 #define IPV4_ADDRESS_PARAMETER_TYPE                 0x01
 #define IPV6_ADDRESS_PARAMETER_TYPE                 0x02
-#define SCTP_TRANSPORT_PARAMETER_TYPE               0x03
-#define TCP_TRANSPORT_PARAMETER_TYPE                0x04
-#define UDP_TRANSPORT_PARAMETER_TYPE                0x05
-#define POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE 0x06
-#define POOL_HANDLE_PARAMETER_TYPE                  0x07
-#define POOL_ELEMENT_PARAMETER_TYPE                 0x08
-#define SERVER_INFORMATION_PARAMETER_TYPE           0x09
-#define OPERATION_ERROR_PARAMETER_TYPE              0x0a
-#define COOKIE_PARAMETER_TYPE                       0x0b
-#define PE_IDENTIFIER_PARAMETER_TYPE                0x0c
-#define PE_CHECKSUM_PARAMETER_TYPE                  0x0d
+#define DCCP_TRANSPORT_PARAMETER_TYPE               0x03
+#define SCTP_TRANSPORT_PARAMETER_TYPE               0x04
+#define TCP_TRANSPORT_PARAMETER_TYPE                0x05
+#define UDP_TRANSPORT_PARAMETER_TYPE                0x06
+#define UDP_LITE_TRANSPORT_PARAMETER_TYPE           0x07
+#define POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE 0x08
+#define POOL_HANDLE_PARAMETER_TYPE                  0x09
+#define POOL_ELEMENT_PARAMETER_TYPE                 0x0a
+#define SERVER_INFORMATION_PARAMETER_TYPE           0x0b
+#define OPERATION_ERROR_PARAMETER_TYPE              0x0c
+#define COOKIE_PARAMETER_TYPE                       0x0d
+#define PE_IDENTIFIER_PARAMETER_TYPE                0x0e
+#define PE_CHECKSUM_PARAMETER_TYPE                  0x0f
 
 static const value_string parameter_type_values[] = {
   { IPV4_ADDRESS_PARAMETER_TYPE,                 "IPV4 address" },
   { IPV6_ADDRESS_PARAMETER_TYPE,                 "IPV6 address" },
+  { DCCP_TRANSPORT_PARAMETER_TYPE,               "DCCP transport address" },
   { SCTP_TRANSPORT_PARAMETER_TYPE,               "SCTP transport address" },
   { TCP_TRANSPORT_PARAMETER_TYPE,                "TCP transport address" },
   { UDP_TRANSPORT_PARAMETER_TYPE,                "UDP transport address" },
+  { UDP_LITE_TRANSPORT_PARAMETER_TYPE,           "UDP-Lite transport address" },
   { POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE, "Pool member selection policy" },
   { POOL_HANDLE_PARAMETER_TYPE,                  "Pool handle" },
   { POOL_ELEMENT_PARAMETER_TYPE,                 "Pool element" },
@@ -580,6 +614,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
   case IPV6_ADDRESS_PARAMETER_TYPE:
     dissect_ipv6_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
+  case DCCP_TRANSPORT_PARAMETER_TYPE:
+    dissect_dccp_transport_parameter(parameter_tvb, parameter_tree);
+    break;
   case SCTP_TRANSPORT_PARAMETER_TYPE:
     dissect_sctp_transport_parameter(parameter_tvb, parameter_tree);
     break;
@@ -588,6 +625,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
     break;
   case UDP_TRANSPORT_PARAMETER_TYPE:
     dissect_udp_transport_parameter(parameter_tvb, parameter_tree);
+    break;
+  case UDP_LITE_TRANSPORT_PARAMETER_TYPE:
+    dissect_udp_lite_transport_parameter(parameter_tvb, parameter_tree);
     break;
   case POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE:
     dissect_pool_member_selection_policy_parameter(parameter_tvb, parameter_tree);
@@ -938,28 +978,30 @@ proto_register_enrp(void)
     { &hf_parameter_padding,      { "Padding",                     "enrp.parameter_padding",                        FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_parameter_ipv4_address, { "IP Version 4 address",        "enrp.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_parameter_ipv6_address, { "IP Version 6 address",        "enrp.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
+    { &hf_dccp_port,              { "Port",                        "enrp.dccp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_dccp_reserved,          { "Reserved",                    "enrp.dccp_transport_reserved",                  FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_dccp_service_code,      { "Service code",                "enrp.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_sctp_port,              { "Port",                        "enrp.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_transport_use,          { "Transport use",               "enrp.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),        0x0,                        "", HFILL } },
     { &hf_tcp_port,               { "Port",                        "enrp.tcp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_port,               { "Port",                        "enrp.udp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_reserved,           { "Reserved",                    "enrp.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),         0x0,                       "", HFILL } },
-    { &hf_policy_weight,          { "Policy weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_priority,        { "Policy priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_load,            { "Policy load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_degradation,     { "Policy degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_udp_lite_port,          { "Port",                        "enrp.udp_lite_transport_port",                  FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_udp_lite_reserved,      { "Reserved",                    "enrp.udp_lite_transport_reserved",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),          0x0,                        "", HFILL } },
+    { &hf_policy_weight,          { "Policy weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_priority,        { "Policy priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_load,            { "Policy load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_degradation,     { "Policy degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pool_handle,            { "Pool handle",                 "enrp.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_pe_identifier,       { "PE identifier",               "enrp.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_home_enrp_id,           { "Home ENRP server identifier", "enrp.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_reg_life,               { "Registration life",           "enrp.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_server_identifier,      { "Server identifier",           "enrp.server_information_server_identifier",     FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_m_bit,                  { "M-Bit",                       "enrp.server_information_m_bit",                 FT_BOOLEAN, 32,        NULL,                              M_BIT_MASK,                 "", HFILL } },
-    { &hf_reserved,               { "Reserved",                    "enrp.server_information_reserved",              FT_UINT32,  BASE_HEX,  NULL,                              RESERVED_MASK,              "", HFILL } },
     { &hf_cookie,                 { "Cookie",                      "enrp.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_identifier,          { "PE identifier",               "enrp.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_pe_checksum,            { "PE checksum",                 "enrp.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_checksum_reserved,   { "Reserved",                    "enrp.pe_checksum_reserved",                     FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_sender_servers_id,      { "Sender server's ID",          "enrp.sender_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_receiver_servers_id,    { "Receiver server's ID",        "enrp.receiver_servers_id",                      FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_target_servers_id,      { "Target server's ID",          "enrp.target_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
