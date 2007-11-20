@@ -1262,6 +1262,7 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	const char *saved_proto;
 
+	tvb_ensure_length_remaining(tvb, offset);
 	if (dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
@@ -1331,7 +1332,7 @@ dissect_rpc_authgss_priv_data(tvbuff_t *tvb, proto_tree *tree, int offset)
  *
  * Record these in the same table as the direct calls
  * so we can find it when dissecting an indirect call reply.
- * (There should not be collissions between xid between direct and 
+ * (There should not be collissions between xid between direct and
  *  indirect calls.)
  */
 int
@@ -3852,3 +3853,17 @@ proto_reg_handoff_rpc(void)
 	gssapi_handle = find_dissector("gssapi");
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
+
