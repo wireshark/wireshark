@@ -43,7 +43,7 @@
 void
 get_credential_info(void)
 {
-npf_sys_is_running();
+	npf_sys_is_running();
 }
 
 /*

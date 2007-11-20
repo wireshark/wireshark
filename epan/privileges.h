@@ -29,21 +29,24 @@
 extern void get_credential_info(void);
 
 /**
- * Was this program started with special privileges?
+ * Was this program started with special privileges?  get_credential_info()
+ * MUST be called before calling this.
  * @return TRUE if the program was started with special privileges,
  * FALSE otherwise.
  */
 extern gboolean started_with_special_privs(void);
 
 /**
- * Is this program running with special privileges?
+ * Is this program running with special privileges? get_credential_info()
+ * MUST be called before calling this.
  * @return TRUE if the program is running with special privileges,
  * FALSE otherwise.
  */
 extern gboolean running_with_special_privs(void);
 
 /**
- * Permanently relinquish special privileges.
+ * Permanently relinquish special privileges. get_credential_info()
+ * MUST be called before calling this.
  */
 extern void relinquish_special_privs_perm(void);
 
