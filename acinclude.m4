@@ -1237,6 +1237,37 @@ AC_DEFUN([AC_WIRESHARK_ADNS_CHECK],
 
 
 #
+# AC_WIRESHARK_LIBCAP_CHECK
+#
+AC_DEFUN([AC_WIRESHARK_LIBCAP_CHECK],
+[
+	want_libcap=defaultyes
+
+	if test "x$want_libcap" = "xdefaultyes"; then
+		want_libcap=yes
+		if test "x$ac_cv_enable_usr_local" = "xyes" ; then
+			withval=/usr/local
+			if test -d "$withval"; then
+				AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+			fi
+		fi
+	fi
+
+	if test "x$want_libcap" = "xyes"; then
+		AC_CHECK_LIB(cap, cap_set_flag,
+		  [
+		    LIBCAP_LIBS=-lcap
+	    	AC_DEFINE(HAVE_LIBCAP, 1, [Define to use the libcap library])
+		have_good_libcap=yes
+		  ],,
+		)
+	else
+		AC_MSG_RESULT(not required)
+	fi
+])
+
+
+#
 # AC_WIRESHARK_KRB5_CHECK
 #
 AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],

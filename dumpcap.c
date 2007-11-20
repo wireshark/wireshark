@@ -43,6 +43,12 @@
 #include <netdb.h>
 #endif
 
+#ifdef HAVE_LIBCAP
+# include <sys/prctl.h>
+# include <sys/capability.h>
+# include <stdio.h>
+#endif
+
 #include "ringbuffer.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
@@ -57,6 +63,10 @@
 
 #ifdef _WIN32
 #include "epan/unicode-utils.h"
+#endif
+
+#ifdef HAVE_LIBCAP
+#include "epan/privileges.h"
 #endif
 
 #include "sync_pipe.h"
@@ -238,6 +248,62 @@ void exit_main(int status)
   exit(status);
 }
 
+#ifdef HAVE_LIBCAP
+/*
+ * If we were linked with libcap (not libpcap), make sure we have
+ * CAP_NET_ADMIN and CAP_NET_RAW, then relinquish our permissions.
+ */
+
+void
+#if 0 /* Set to enable capability debugging */
+print_caps(char *pfx) {
+    cap_t caps = cap_get_proc();
+    fprintf(stderr, "%s: EUID: %d  Capabilities: %s\n", pfx,
+            geteuid(), cap_to_text(caps, NULL));
+    cap_free(caps);
+#else
+print_caps(char *pfx _U_) {
+#endif
+}
+
+void
+relinquish_privs_except_capture(void)
+{
+    /* CAP_NET_ADMIN: Promiscuous mode and a truckload of other
+     *                stuff we don't need (and shouldn't have).
+     * CAP_NET_RAW:   Packet capture (raw sockets).
+     */
+    cap_value_t cap_list[2] = { CAP_NET_ADMIN, CAP_NET_RAW };
+    cap_t caps = cap_init();
+    int cl_len = sizeof(cap_list) / sizeof(cap_value_t);
+
+    if (started_with_special_privs()) {
+        print_caps("Pre drop, pre set");
+        if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
+            perror("prctl()");
+        }
+
+        cap_set_flag(caps, CAP_PERMITTED,   cl_len, cap_list, CAP_SET);
+        cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, CAP_SET);
+
+        if (cap_set_proc(caps)) {
+            perror("capset()");
+        }
+        print_caps("Pre drop, post set");
+    }
+
+    relinquish_special_privs_perm();
+
+    print_caps("Post drop, pre set");
+    cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
+    if (cap_set_proc(caps)) {
+        perror("capset()");
+    }
+    print_caps("Post drop, post set");
+    cap_free(caps);
+}
+#endif /* HAVE_LIBCAP */
+
 
 /* And now our feature presentation... [ fade to music ] */
 int
@@ -287,6 +353,10 @@ main(int argc, char *argv[])
   SetConsoleCtrlHandler(&ConsoleCtrlHandlerRoutine, TRUE);
 #endif  /* _WIN32 */
 
+#ifdef HAVE_LIBCAP
+  get_credential_info();
+  relinquish_privs_except_capture();
+#endif
 
   /* the default_log_handler will use stdout, which makes trouble in */
   /* capture child mode, as it uses stdout for it's sync_pipe */

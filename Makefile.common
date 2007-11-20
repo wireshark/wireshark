@@ -233,7 +233,8 @@ dumpcap_SOURCES =	\
 	sync_pipe_write.c	\
 	tempfile.c	\
 	version_info.c	\
-	epan/unicode-utils.c
+	epan/unicode-utils.c	\
+	epan/privileges.c
 
 # corresponding headers
 dumpcap_INCLUDES = \
@@ -241,7 +242,9 @@ dumpcap_INCLUDES = \
 	capture_stop_conditions.h	\
 	conditions.h	\
 	pcapio.h	\
-	ringbuffer.h
+	ringbuffer.h	\
+	epan/unicode-utils.h	\
+	epan/privileges.h
 
 # this target needed for distribution only
 noinst_HEADERS =	\

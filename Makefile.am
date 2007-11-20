@@ -387,7 +387,8 @@ dumpcap_LDADD = \
 	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @FRAMEWORKS@ \
-	@LIBGCRYPT_LIBS@
+	@LIBGCRYPT_LIBS@		\
+	@LIBCAP_LIBS@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \

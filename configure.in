@@ -1067,6 +1067,31 @@ fi
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
 
+dnl libcap (not libpcap) check
+LIBCAP_LIBS=''
+AC_MSG_CHECKING(whether to use the libcap capabilities library)
+
+AC_ARG_WITH(libcap,
+  AC_HELP_STRING( [--with-libcap@<:@=DIR@:>@],
+                  [use libcap (located in directory DIR, if supplied) for POSIX.1e capabilities management.   @<:@default=yes, if present@:>@]),
+[
+if   test "x$withval" = "xno";  then
+	want_libcap=no
+elif test "x$withval" = "xyes"; then
+	want_libcap=yes
+elif test -d "$withval"; then
+	want_libcap=yes
+	AC_WIRESHARK_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+fi
+])
+if test "x$with_libcap" = "xno" ; then
+	AC_MSG_RESULT(no)
+else
+	AC_MSG_RESULT(yes)
+	AC_WIRESHARK_LIBCAP_CHECK
+fi
+AC_SUBST(LIBCAP_LIBS)
+
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS(direct.h dirent.h fcntl.h grp.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
@@ -1649,6 +1674,12 @@ else
 	adns_message="no"
 fi
 
+if test "x$have_good_libcap" = "xyes" ; then
+	libcap_message="yes"
+else
+	libcap_message="no"
+fi
+
 echo ""
 echo "The Wireshark package has been configured with the following options."
 echo "                    Build wireshark : $enable_wireshark"
@@ -1681,3 +1712,4 @@ echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
 echo "           Use IPv6 name resolution : $enable_ipv6"
 echo "                 Use gnutls library : $tls_message"
+echo "                 Use libcap library : $libcap_message"
