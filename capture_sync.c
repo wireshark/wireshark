@@ -694,7 +694,7 @@ sync_pipe_close_command(int *read_fd, gchar **msg) {
 
     eth_close(*read_fd);
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_list_open: wait till child closed");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_close_command: wait till child closed");
 
 #ifdef _WIN32
     /* XXX - Should we signal the child somehow? */
