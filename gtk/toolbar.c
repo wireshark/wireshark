@@ -351,6 +351,8 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_BUTTON_TOOLTIP_TEXT, NULL);
+	g_signal_connect(save_button, "clicked",
+	    G_CALLBACK(file_save_cmd_cb), NULL);
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_hide(GTK_WIDGET(save_as_button));
             gtk_widget_show(GTK_WIDGET(save_button));
@@ -361,6 +363,8 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE_AS);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_AS_BUTTON_TOOLTIP_TEXT, NULL);
+	g_signal_connect(save_button, "clicked",
+	    G_CALLBACK(file_save_as_cmd_cb), NULL);
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_show(GTK_WIDGET(save_as_button));
 	    gtk_widget_hide(GTK_WIDGET(save_button));
