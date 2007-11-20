@@ -691,20 +691,26 @@ EXTRA_DIST = \
 	$(dtds_DATA)		\
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
-	$(wimaxasncp_DATA)		\
+	$(wimaxasncp_DATA)	\
 	randpkt.c		\
 	rdps.c			\
-	smi_modules \
+	smi_modules		\
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
+	packaging/portableapps/win32/Installer.nsi		\
+	packaging/portableapps/win32/WiresharkPortable.ini	\
+	packaging/portableapps/win32/WiresharkPortable.nsi	\
+	packaging/portableapps/win32/appinfo.tmpl		\
+	packaging/portableapps/win32/makefile.nmake		\
+	packaging/portableapps/win32/readme.txt			\
 	packaging/u3/win32/README.txt		\
 	packaging/u3/win32/makefile.nmake	\
 	packaging/u3/win32/manifest.tmpl	\
 	packaging/u3/win32/u3util.c		\
-	services			\
-	tools/idl2wrs.sh.in			\
-	tools/setuid-root.pl.in			\
+	services		\
+	tools/idl2wrs.sh.in	\
+	tools/setuid-root.pl.in	\
 	wka.tmpl
 
 if SETUID_INSTALL
