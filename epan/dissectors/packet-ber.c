@@ -3900,14 +3900,22 @@ dissect_ber_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 static int
-dissect_ber_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &actx->external.octet_aligned);
+dissect_ber_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+{
+  if (actx->external.u.ber.ber_callback) {
+    offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
+  } else if (actx->external.direct_ref_present && 
+	     dissector_get_string_handle(ber_oid_dissector_table, actx->external.direct_reference)) {
+    offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  } else {
+    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.octet_aligned);
+  }
 
   return offset;
 }
 static int
-dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)
+{
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
   actx->external.direct_ref_present = TRUE;
 
@@ -3915,30 +3923,36 @@ dissect_ber_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 static int
-dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ber_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+{
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_ObjectDescriptor,
-                                            actx, tree, tvb, offset, hf_index,
-                                            &actx->external.data_value_descriptor);
+					 actx, tree, tvb, offset, hf_index,
+					 &actx->external.data_value_descriptor);
 
   return offset;
 }
 
 static int
-dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ber_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+{
+  if (actx->external.u.ber.ber_callback) {
+    offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
+  } else {
+    offset = call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
+  }
 
-	if(!actx->external.u.ber.ber_callback){
-		offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree);
-	}else{
-		offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
-	}
-	return offset;
+  return offset;
 }
 
 static int
-dissect_ber_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
-                                    &actx->external.arbitrary);
+dissect_ber_T_arbitrary(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) 
+{
+  if (actx->external.u.ber.ber_callback) {
+    offset = actx->external.u.ber.ber_callback(FALSE, tvb, offset, actx, tree, hf_index);
+  } else {
+    offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+				   NULL, hf_index, -1, &actx->external.arbitrary);
+  }
 
   return offset;
 }
@@ -3952,8 +3966,8 @@ static const value_string ber_T_encoding_vals[] = {
 
 static const ber_choice_t T_encoding_choice[] = {
   {   0, &hf_ber_single_ASN1_type, BER_CLASS_CON, 0, 0, dissect_ber_T_single_ASN1_type },
-  {   1, &hf_ber_octet_aligned  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ber_OCTET_STRING },
-  {   2, &hf_ber_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ber_BIT_STRING },
+  {   1, &hf_ber_octet_aligned  , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ber_T_octet_aligned },
+  {   2, &hf_ber_arbitrary      , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ber_T_arbitrary },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3988,8 +4002,8 @@ dissect_ber_external_type(gboolean implicit_tag, proto_tree *tree, tvbuff_t *tvb
 
 	actx->external.u.ber.ber_callback =  func;
 
-  offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
-                                      hf_id, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, TRUE, dissect_ber_external_U);
+	offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
+					 hf_id, BER_CLASS_UNI, BER_UNI_TAG_EXTERNAL, TRUE, dissect_ber_external_U);
 
 	asn1_ctx_clean_external(actx);
 
@@ -4152,11 +4166,11 @@ proto_register_ber(void)
     { &hf_ber_octet_aligned,
       { "octet-aligned", "ber.octet_aligned",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ber.OCTET_STRING", HFILL }},
+        "ber.T_octet_aligned", HFILL }},
     { &hf_ber_arbitrary,
       { "arbitrary", "ber.arbitrary",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "ber.BIT_STRING", HFILL }},
+        "ber.T_arbitrary", HFILL }},
     { &hf_ber_single_ASN1_type,
       { "single-ASN1-type", "ber.single_ASN1_type",
         FT_NONE, BASE_NONE, NULL, 0,
