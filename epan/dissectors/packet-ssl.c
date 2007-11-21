@@ -530,6 +530,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* create a new conversation */
         conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                         pinfo->srcport, pinfo->destport, 0);
+        ssl_debug_printf("  new conversation = %p created\n", conversation);
     }
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
@@ -572,6 +573,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * the server private key*/
     if (pinfo->fd->flags.visited)
          ssl_session = NULL;
+
+    ssl_debug_printf("  conversation = %p, ssl_session = %p\n", conversation, ssl_session);
 
     /* Initialize the protocol column; we'll set it later when we
      * figure out what flavor of SSL it is (assuming we don't
@@ -3451,6 +3454,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
   if (!conversation) {
     /* create a new conversation */
     conversation = conversation_new(frame_num, addr_srv, addr_cli, ptype, port_srv, port_cli, 0);
+    ssl_debug_printf("  new conversation = %p created\n", conversation);
   }
   conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
@@ -3462,6 +3466,8 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     ssl->version = SSL_VER_UNKNOWN;
     conversation_add_proto_data(conversation, proto_ssl, ssl);
   }
+
+  ssl_debug_printf("  conversation = %p, ssl_session = %p\n", conversation, ssl);
 
   /* version */
   if ((ssl->version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
