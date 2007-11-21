@@ -5748,7 +5748,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                4, valuestr, "Protocol -> %s", valuestr);
                                ioffset = ioffset+4;
                         }
-                        strcpy(values->vstring, " ");
+                        values->vstring = " ";
                         break;
 
                 case MVTYPE_PRINT_TIMESTAMP:	/* Print Timestamp */
