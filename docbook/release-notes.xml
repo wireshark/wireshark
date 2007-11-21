@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.7">
+  <!ENTITY WiresharkCurrentVersion "0.99.8">
 
 ]>
 
@@ -37,148 +37,16 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash when reading an MP3 file.
-            <!-- Fixed in r22261 -->
+            Wireshark could crash at any moment.
+            <!-- Fixed in r????? -->
             <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
           </para>
-          <para>Versions affected: 0.99.6</para>
+          <para>Versions affected: 0.2.0 to 0.99.7</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
         </listitem>
 
-        <listitem>
-          <para>
-	    Beyond Security discovered that Wireshark could loop
-	    excessively while reading a malformed DNP packet.
-            <!-- Fixed in r22811 -->
-          </para>
-          <para>Versions affected: 0.10.12 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Stefan Esser discovered a buffer overflow in the SSL dissector.
-            <!-- Fixed in r22883 -->
-          </para>
-          <para>Versions affected: 0.99.0 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The ANSI MAP dissector could be susceptible to a buffer overflow on some platforms.
-            <!-- Fixed in r22892 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1844">1844</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.5 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Firebird/Interbase dissector could go into an infinite loop or crash.
-            <!-- Fixed in r23251 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1931">1931</ulink>) -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1932">1932</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The NCP dissector could cause a crash.
-            <!-- Fixed in r23398 -->
-          </para>
-          <para>Versions affected: 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The HTTP dissector could crash on some systems while decoding
-            chunked messages.
-            <!-- Fixed in r23415 -->
-          </para>
-          <para>Versions affected: 0.10.14 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The MEGACO dissector could enter a large loop and consume
-            system resources.
-            <!-- Fixed in r23449 -->
-          </para>
-          <para>Versions affected: 0.9.14 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The DCP ETSI dissector could enter a large loop and consume
-            system resources.
-            <!-- Fixed in r23463 -->
-          </para>
-          <para>Versions affected: 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Fabiodds discovered a buffer overflow in the iSeries (OS/400) Communication trace file parser.
-            <!-- Fixed in r23232 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1926">1926</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.0 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The PPP dissector could overflow a buffer.
-            <!-- Fixed in r23475 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1926">1926</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Bluetooth SDP dissector could go into an infinite loop.
-            <!-- Fixed in r23496 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1926">1926</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.2 to 0.99.6</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
-          </para>
-        </listitem>
-
-        <!-- rtsp? -->
       </itemizedlist>
 
     </para>
@@ -190,11 +58,7 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash while editing a coloring rule.
-        </para></listitem>
-
-        <listitem><para>
-            The display filter code could crash while bitwise ANDing an IPv4 address.
+            Wireshark could crash without warning.
         </para></listitem>
 
       </itemizedlist>
@@ -212,70 +76,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            Most of the capture code has been moved out of the GUI, which
-            means that Wireshark no longer needs to be run as root.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Many display filter names have been cleaned up.  If your favorite display filter just went missing, please consult the <ulink url="http://www.wireshark.org/docs/dfref/">display filter reference</ulink> to find out where it ended up.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now filter directly on SNMP OIDs.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            IO graphs have more display options, and you can now export graphs.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now follow UDP streams in addition to TCP and SSL streams.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            You can now disable coloring rules without deleting them.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Main window toolbar buttons are now available even when the window is small.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The version of WinPcap that ships with the Windows installers has been updated to 4.0.2.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Windows installers now include a "services" file, which maps port numbers to names.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The Windows installer now enables npf.sys by default under Vista.
-            Wireshark will print a warning at startup if npf.sys isn't loaded
-            under Vista.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Optimizations have been applied in some places to make Wireshark start up and run faster.
+            Packet loss magically fixes itself.
           </para>
         </listitem>
 
@@ -287,192 +88,16 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
-ANSI TCAP,
-application/xcap-error (MIME type),
-CFM,
-DPNSS,
-EtherCAT,
-ETSI e2/e4,
-H.282,
-H.460,
-H.501,
-IEEE 802.1ad and 802.1ah,
-IMF (RFC 2822),
-RSL,
-SABP,
-T.125,
-TNEF,
-TPNCP,
-UNISTIM,
-Wake on LAN,
-WiMAX ASN Control Plane,
-X.224,
-
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
-
-3Com XNS,
-3G A11,
-ACN,
-ACP123,
-ACSE,
-AIM,
-ANSI IS-637-A,
-ANSI MAP,
-Armagetronad,
-BACapp,
-BACnet,
-BER,
-BFD,
-BGP,
-Bluetooth,
-CAMEL,
-CDT,
-CFM,
-CIP,
-Cisco ERSPAN,
-CLNP,
-CMIP,
-CMS,
-COPS,
-CTDB,
-DCCP,
-DCERPC ATSVC,
-DCERPC PNIO,
-DCERPC SAMR,
-DCERPC,
-DCOM CBA-ACCO,
-DCP ETSI,
-DEC DNA,
-DFS,
-DHCP/BOOTP,
-DHCPv6,
-DIAMETER,
-DISP,
-DMP,
-DNP,
-DNS,
-DOP,
-DTLS,
-DUA,
-eDonkey,
-ELSM,
-ESL,
-Ethernet,
-FC ELS,
-FC,
-FCOE,
-FTAM,
-FTP,
-GDSDB,
-GIOP,
-GPRS-LLC,
-GSM A,
-GSM MAP,
-GTP,
-HSRP,
-HTTP,
-IAX2,
-ICMPv6,
-IEEE 802.11,
-INAP,
-IP,
-IPMI,
-IPv6,
-ISAKMP,
-ISIS,
-iSNS,
-ISUP,
-IUUP,
-JXTA,
-K12,
-Kerberos,
-L2TP,
-LAPD,
-LDAP,
-LINX,
-LPD,
-LWAPP,
-MEGACO,
-MIKEY,
-MIME Multipart,
-MMS,
-MP2T,
-MPEG PES,
-MPEG,
-MTP2,
-MySQL,
-NBAP,
-NetFlow,
-nettl,
-NFS,
-NSIP,
-OSPF,
-P_MUL,
-PANA,
-PER,
-PKCS#12,
-PMIPv6,
-PN-PTCP,
-PN-RT,
-PPI,
-PPPoE,
-PRES,
-PROFINET,
-PTP,
-Q.932 ROS,
-Q.932,
-QSIG,
-Radiotap,
-RADIUS,
-RANAP,
-RNSAP,
-ROS,
-RTCP,
-RTP,
-RTSE,
-RTSP,
-SCCP,
-SCTP,
-SDP,
-SIGCOMP,
-SIP,
-Slow Protocols,
-SMB,
-SMPP,
-SMTP,
-SNDCP,
-SNMP,
-SRP,
-SSL,
-STANAG 4406,
-STUN2,
-TCAP,
-TCP,
-text/media,
-TIPC,
-ULP,
-UMA,
-UMTS FP,
-V5UA,
-VNC,
-WiMAX M2M,
-WiMAX,
-WLCCP,
-X.411,
-X.420,
-X.509 SAT,
-XML,
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
-
-Catapult DCT 2000, Endace ERF, Juniper NetScreen snoop, Visual Networks, Windows Sniffer (NetXRay)
 
     </para>
     </section>
