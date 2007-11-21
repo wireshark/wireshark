@@ -431,7 +431,7 @@ gui_prefs_fetch(GtkWidget *w)
 
 
 void
-gui_prefs_apply(GtkWidget *w _U_)
+gui_prefs_apply(GtkWidget *w _U_ , gboolean redissect)
 {
 
 #ifdef _WIN32
@@ -463,9 +463,9 @@ gui_prefs_apply(GtkWidget *w _U_)
 			recent.gui_zoom_level = 0;
 			break;
 		}
-	} else {
+	} else if (!redissect) {
 		/* Redraw the hex dump windows, in case the
-		   highlight style changed.
+		   highlight style changed, only if we aren't redissecting the whole file.
 		   XXX - do it only if the highlight style *did* change. */
 		redraw_hex_dump_all();
 	}
