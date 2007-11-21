@@ -1624,24 +1624,33 @@ static void dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								tlv_data_offset += tlv_chassis_id_length;
 							}
 
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
-								       	tvb, tlv_data_offset, 1, FALSE);
-							tlv_ma_domain_length = tvb_get_guint8(tvb,tlv_data_offset);
-							tlv_data_offset += 1;
-							if (tlv_ma_domain_length > 0) {
-								proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain,
+							/* If the TLV length is greater than the number of octets used for the
+							 * Chassis ID, then we must have a Management Address Domain */
+							if (cfm_tlv_length > (2 + tlv_chassis_id_length)) {
+								proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain_length,
+									       	tvb, tlv_data_offset, 1, FALSE);
+								tlv_ma_domain_length = tvb_get_guint8(tvb,tlv_data_offset);
+								tlv_data_offset += 1;
+								if (tlv_ma_domain_length > 0) {
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_ma_domain,
 									       	tvb, tlv_data_offset, tlv_ma_domain_length, FALSE);
-								tlv_data_offset += tlv_ma_domain_length;
-							}
-
-							proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
-								       	tvb, tlv_data_offset, 1, FALSE);
-							tlv_management_addr_length = tvb_get_guint8(tvb,tlv_data_offset);
-							tlv_data_offset += 1;
-							if (tlv_management_addr_length > 0) {
-								proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr,
-									       	tvb, tlv_data_offset, tlv_management_addr_length, FALSE);
-								tlv_data_offset += tlv_management_addr_length;
+									tlv_data_offset += tlv_ma_domain_length;
+								}
+	
+								/* If the TLV length is greater than the number of octets used for the
+								 * Chassis ID and the Management Address Domain, then we must have a
+								 * Management Address */
+								if (cfm_tlv_length > (2 + tlv_chassis_id_length + 1 + tlv_ma_domain_length)) {
+									proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr_length,
+										       	tvb, tlv_data_offset, 1, FALSE);
+									tlv_management_addr_length = tvb_get_guint8(tvb,tlv_data_offset);
+									tlv_data_offset += 1;
+									if (tlv_management_addr_length > 0) {
+										proto_tree_add_item(cfm_tlv_tree, hf_tlv_management_addr,
+										       	tvb, tlv_data_offset, tlv_management_addr_length, FALSE);
+										tlv_data_offset += tlv_management_addr_length;
+									}
+								}
 							}						
 							break;
 						case PORT_STAT_TLV:
