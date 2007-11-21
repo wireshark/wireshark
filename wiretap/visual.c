@@ -299,7 +299,6 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     int ahdr_size = sizeof(vatm_hdr);
     time_t  secs;
     guint32 usecs;
-    guint8 *buf;
     double  t;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
