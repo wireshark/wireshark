@@ -324,11 +324,12 @@ toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
 				   3 characters per byte of hex dump,
 				   2 blanks separating hex from ASCII,
 				   1 character per byte of ASCII dump */
-#define MAX_LINES       100
-#define MAX_LINE_LEN	(MAX_LINES *(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN))
+#define MAX_LINE_LEN	(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
 				/* number of characters per line;
 				   offset, 2 blanks separating offset
 				   from data dump, data dump */
+#define MAX_LINES       100
+#define MAX_LINES_LEN   (MAX_LINES*MAX_LINE_LEN)
 
 /* Which byte the offset is referring to. Associates
  * whitespace with the preceding digits. */
@@ -1157,7 +1158,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 			int bend, int astart, int aend, int encoding)
 {
   int            i = 0, j, k, cur;
-  guchar         line[MAX_LINE_LEN + 1];
+  guchar         line[MAX_LINES_LEN + 1];
   static guchar  hexchars[16] = {
       '0', '1', '2', '3', '4', '5', '6', '7',
       '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -1565,7 +1566,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
         cur = 0;
     }
     line[cur++] = '\n';
-    if (cur >= MAX_LINE_LEN) {
+    if (cur >= (MAX_LINES_LEN - MAX_LINE_LEN)) {
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                              "plain", NULL);
         cur = 0;
