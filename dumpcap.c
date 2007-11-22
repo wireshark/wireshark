@@ -386,7 +386,7 @@ main(int argc, char *argv[])
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 
   /* Set handler for Ctrl+C key */
-  SetConsoleCtrlHandler(&ConsoleCtrlHandlerRoutine, TRUE);
+  SetConsoleCtrlHandler(capture_cleanup, TRUE);
 #else
   /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
      and exit. */
