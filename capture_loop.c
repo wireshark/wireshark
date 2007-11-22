@@ -941,7 +941,7 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
  * Waits for incoming packets to be available, and calls pcap_dispatch()
  * to cause them to be processed.
  *
- * Returns the number of packets which were dispatched.
+ * Returns the number of packets which were processed.
  *
  * Times out (returning zero) after CAP_READ_TIMEOUT ms; this ensures that the
  * packet-batching behaviour does not cause packets to get held back
@@ -949,11 +949,14 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
  */
 int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
-		      char *errmsg, int errmsg_len) {
+		      char *errmsg, int errmsg_len)
+{
   int       inpkts;
-  int         sel_ret;
-  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
+  int       sel_ret;
+  gint      packet_count_before;
+  guchar    pcap_data[WTAP_MAX_PACKET_SIZE];
 
+  packet_count_before = ld->packet_count;
   if (ld->from_cap_pipe) {
     /* dispatch from capture pipe */
 #ifdef LOG_CAPTURE_VERBOSE
@@ -1016,7 +1019,6 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
           ld->go = FALSE; /* error or pcap_breakloop() - stop capturing */
         }
       } else {
-        inpkts = 0;
         if (sel_ret < 0 && errno != EINTR) {
           g_snprintf(errmsg, errmsg_len,
             "Unexpected error from select: %s", strerror(errno));
@@ -1072,18 +1074,14 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
         struct pcap_pkthdr *pkt_header;
         u_char *pkt_data;
 
-        inpkts = 0;
         in = 0;
         while(ld->go &&
-              (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1) {
+              (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1)
           ld->packet_cb( (u_char *) ld, pkt_header, pkt_data);
-          inpkts++;
-        }
 
         if(in < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE;
-          inpkts = in;
         }
       }
 #endif /* pcap_next_ex */
@@ -1094,7 +1092,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_dispatch: %d new packet%s", inpkts, plurality(inpkts, "", "s"));
 #endif
 
-  return inpkts;
+  return ld->packet_count - packet_count_before;
 }
 
 
