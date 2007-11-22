@@ -1704,12 +1704,18 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   loop_data *ld = (void *) user;
   int err;
 
-  /* if the user told us to stop after x packets, do we have enough? */
-  ld->packet_count++;
+  /* if the user told us to stop after x packets, do we already have enough? */
   if ((ld->packet_max > 0) && (ld->packet_count >= ld->packet_max))
   {
      ld->go = FALSE;
+     return;
   }
+
+  /* We may be called multiple times from pcap_dispatch(); if we've set
+     the "stop capturing" flag, ignore this packet, as we're not
+     supposed to be saving any more packets. */ 
+  if (!ld->go)
+    return;
 
   if (ld->pdh) {
     /* We're supposed to write the packet to a file; do so.
@@ -1718,7 +1724,8 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
     if (!libpcap_write_packet(ld->pdh, phdr, pd, &ld->bytes_written, &err)) {
       ld->go = FALSE;
       ld->err = err;
-    }
+    } else
+      ld->packet_count++;
   }
 }
 
