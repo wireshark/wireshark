@@ -689,8 +689,6 @@ SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
 File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
-IfFileExists $INSTDIR\wireshark-gtk2.exe.manifest 0 +2
-Rename $INSTDIR\wireshark-gtk2.exe.manifest $INSTDIR\wireshark.exe.manifest
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
@@ -979,6 +977,7 @@ Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\COPYING"
 Delete "$INSTDIR\AUTHORS-SHORT"
+; previous versions installed these files
 Delete "$INSTDIR\*.manifest"
 ; previous versions installed this file
 Delete "$INSTDIR\AUTHORS-SHORT-FORMAT"
