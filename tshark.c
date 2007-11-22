@@ -2025,7 +2025,8 @@ report_counts(void)
   if (!print_packet_counts) {
     /* Report the count only if we aren't printing a packet count
        as packets arrive. */
-    fprintf(stderr, "%u packets captured\n", packet_count);
+    fprintf(stderr, "%u packet%s captured\n", packet_count,
+            plurality(packet_count, "", "s"));
   }
 #ifdef SIGINFO
   infoprint = FALSE; /* we just reported it */
