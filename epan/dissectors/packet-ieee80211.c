@@ -79,6 +79,8 @@
 #include <ctype.h>
 #include "isprint.h"
 
+#include "packet-wps.h"
+
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
 #include <airpcap_loader.h>
@@ -2806,6 +2808,7 @@ static const value_string wpa_keymgmt_vals[] =
   {0, NULL}
 };
 
+
 static void
 dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_tvb)
 {
@@ -2990,6 +2993,9 @@ dissect_vendor_ie_wpawme(proto_tree * ietree, proto_tree * tree, tvbuff_t * tag_
       out_buff);
     tag_off += 2;
     proto_item_append_text(ietree, ": WME");
+  } else if (tag_off + 6 <= tag_len && !tvb_memeql(tag_tvb, tag_off, WPA_OUI"\x04", 4)) {
+    dissect_wps_tlvs(ietree, tag_tvb, tag_off+4, tag_len-4, NULL);
+    proto_item_append_text(ietree, ": WPS");
   }
 }
 

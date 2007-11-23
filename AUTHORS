@@ -2668,6 +2668,10 @@ Stephen Croll		<croll [AT] mobilemetrics.net> {
 	WiMAX ASN Control Plane dissection
 }
 
+Jens Bräuer		<jensb [AT] cs.tu-berlin.de> {
+	Wifi Simple Config aka Wifi Protected Setup
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

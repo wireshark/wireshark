@@ -33,8 +33,9 @@
 #include <epan/ppptypes.h>
 #include <epan/reassemble.h>
 #include <epan/emem.h>
-
 #include <epan/eap.h>
+
+#include "packet-wps.h"
 
 static int proto_eap = -1;
 static int hf_eap_code = -1;
@@ -66,7 +67,6 @@ References:
   4) RFC3748
   5) http://www.iana.org/assignments/eap-numbers	EAP registry( updated 2006-10-23)
 */
-
 
 const value_string eap_type_vals[] = {
   {EAP_TYPE_ID,  "Identity [RFC3748]" },
@@ -117,7 +117,7 @@ const value_string eap_type_vals[] = {
   { 46,          "EAP-PAX [Clancy]" },
   { 47,          "EAP-PSK [RFC-bersani-eap-psk-11.txt]" },
   { 48,          "EAP-SAKE [RFC-vanderveen-eap-sake-02.txt]" },
-  { 254,         "RESERVED for the Expanded Type [RFC3748]" },
+  {EAP_TYPE_EXT, "Expanded Type [RFC3748]" }, 
   { 255,         "EXPERIMENTAL [RFC3748]" },
   { 0,          NULL }
 
@@ -208,6 +208,7 @@ static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
 static gint ett_eap_sim_attr = -1;
 static gint ett_eap_aka_attr = -1;
+static gint ett_eap_exp_attr = -1;
 
 static const fragment_items eaptls_frag_items = {
 	&ett_eaptls_fragment,
@@ -223,8 +224,45 @@ static const fragment_items eaptls_frag_items = {
 	"fragments"
 };
 
-/*********************************************************************
-**********************************************************************/
+/**********************************************************************
+ Support for EAP Expanded Type.
+
+ Currently this is limited to WifiProtectedSetup. Maybe we need
+ a generic method to support EAP extended types ?
+*********************************************************************/
+static int   hf_eapext_vendorid   = -1;
+static int   hf_eapext_vendortype = -1;
+
+/* Vendor-Type and Vendor-id */
+#define WFA_VENDOR_ID         0x00372A
+#define WFA_SIMPLECONFIG_TYPE 0x1
+
+static const value_string eapext_vendorid_vals[] = {
+  { WFA_VENDOR_ID, "WFA" },
+  { 0, NULL }
+};
+
+static const value_string eapext_vendortype_vals[] = {
+  { WFA_SIMPLECONFIG_TYPE, "SimpleConfig" },
+  { 0, NULL }
+};
+
+static void
+dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
+	       gint size, packet_info* pinfo)
+{
+
+  proto_tree_add_item(eap_tree, hf_eapext_vendorid,   tvb, offset, 3, FALSE);
+  offset += 3; size -= 3;
+
+  proto_tree_add_item(eap_tree, hf_eapext_vendortype, tvb, offset, 4, FALSE);
+  offset += 4; size -= 4;
+
+  /* Generic method to support multiple vendor-defined extended types goes here :-) */
+  dissect_exteap_wps(eap_tree, tvb, offset, size, pinfo);
+}
+/* *********************************************************************
+********************************************************************* */
 
 static gboolean
 test_flag(unsigned char flag, unsigned char mask)
@@ -689,7 +727,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
       col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 		      val_to_str(eap_type, eap_type_vals,
-				 "Unknown type (0x%02X)"));
+				 "Unknown type (0x%02x)"));
     if (tree)
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
 
@@ -1126,6 +1164,19 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  dissect_eap_aka(eap_tree, tvb, offset, size);
 	break; /* EAP_TYPE_AKA */
       /*********************************************************************
+              EAP Expanded Type
+      **********************************************************************/
+      case EAP_TYPE_EXT:
+	if (tree) {
+	  proto_item *expti = NULL;
+	  proto_tree *exptree = NULL;
+
+	  expti   = proto_tree_add_text(eap_tree, tvb, offset, size, "Expanded Type");
+	  exptree = proto_item_add_subtree(expti, ett_eap_exp_attr);
+	  dissect_exteap(exptree, tvb, offset, size, pinfo);
+	}
+	break;
+      /*********************************************************************
       **********************************************************************/
       default:
         if (tree) {
@@ -1193,6 +1244,17 @@ proto_register_eap(void)
 	  { "Defragmentation error", "eaptls.fragment.error",
 		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL }},
+
+	/* Expanded type fields */
+	{ &hf_eapext_vendorid,
+	  { "Vendor Id", "eap.ext.vendor_id",
+	    FT_UINT16, BASE_HEX, VALS(eapext_vendorid_vals), 0x0,
+	    "", HFILL }},
+	{ &hf_eapext_vendortype,
+	  { "Vendor Type", "eap.ext.vendor_type",
+	    FT_UINT8, BASE_HEX, VALS(eapext_vendortype_vals), 0x0,
+	    "", HFILL }},
+
   };
   static gint *ett[] = {
 	&ett_eap,
@@ -1200,6 +1262,7 @@ proto_register_eap(void)
 	&ett_eaptls_fragments,
 	&ett_eap_sim_attr,
 	&ett_eap_aka_attr,
+	&ett_eap_exp_attr,
   };
 
   proto_eap = proto_register_protocol("Extensible Authentication Protocol",
