@@ -1050,6 +1050,7 @@ DISSECTOR_INCLUDES =	\
 	packet-windows-common.h	\
 	packet-wlancap.h	\
 	packet-wlancertextn.h	\
+	packet-wps.h	\
 	packet-wsp.h	\
 	packet-wtls.h	\
 	packet-wtp.h	\
