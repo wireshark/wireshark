@@ -12,7 +12,7 @@
  *
  * Copyright 2007 Jens Braeuer <jensb@cs.tu-berlin.de>
  *
- * $Id:$
+ * $Id: $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
