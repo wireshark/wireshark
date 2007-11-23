@@ -95,6 +95,8 @@ static const value_string fcoe_sof_vals[] = {
     {0, NULL}
 };
 
+void proto_reg_handoff_fcoe(void);
+
 static int proto_fcoe          = -1;
 static int hf_fcoe_ver         = -1;
 static int hf_fcoe_len         = -1;
@@ -284,6 +286,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_fcoe(void)
 {
+    module_t *fcoe_module;
+
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_fcoe_sof,
@@ -321,6 +325,10 @@ proto_register_fcoe(void)
      * subtrees used */
     proto_register_field_array(proto_fcoe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    fcoe_module = prefs_register_protocol(proto_fcoe, proto_reg_handoff_fcoe);
+
+    prefs_register_obsolete_preference(fcoe_module, "ethertype");
 }
 
 /*
