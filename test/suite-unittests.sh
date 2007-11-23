@@ -37,7 +37,7 @@ unittests_step_test() {
 		return
 	fi
 
-    # if we're on windows, we have to copy the test exe, and its manifest, to the wireshark-gtk2
+    # if we're on windows, we have to copy the test exe to the wireshark-gtk2
     # dir before we can use them.
     # {Note that 'INSTALL_DIR' must be a Windows Pathname)
 	if [ "$WS_SYSTEM" == "Windows" ] ; then
