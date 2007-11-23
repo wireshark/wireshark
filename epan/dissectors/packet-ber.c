@@ -2560,6 +2560,13 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n",name,tvb_length_remainin
 #endif
 	start_offset=offset;
 
+        if(tvb_length_remaining(tvb,offset) == 0) {
+                item = proto_tree_add_text(parent_tree, tvb, offset, 0, "BER Error: Empty choice was found");
+                proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+                expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found");
+                return offset; 
+        }       
+
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(tvb, offset, &len, &ind);
@@ -2635,13 +2642,6 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
 					item = proto_tree_add_uint(parent_tree, hf_id, tvb, hoffset, end_offset - hoffset, ch->value);
 					tree = proto_item_add_subtree(item, ett_id);
 				}
-			}
-
-			if(length == 0) {
-				item = proto_tree_add_text(tree, tvb, hoffset, 0, "BER Error: Empty choice field was found");
-				proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
-				expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
-				return hoffset;
 			}
 
 			length_remaining=tvb_length_remaining(tvb, hoffset);
@@ -2794,6 +2794,13 @@ printf("CHOICE dissect_ber_old_choice(%s) entered len:%d\n",name,tvb_length_rema
 #endif
 	start_offset=offset;
 
+        if(tvb_length_remaining(tvb,offset) == 0) {
+                item = proto_tree_add_text(parent_tree, tvb, offset, 0, "BER Error: Empty choice was found");
+                proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
+                expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found");
+                return offset; 
+        }       
+
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(tvb, offset, &len, &ind);
@@ -2869,13 +2876,6 @@ printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:
 					item = proto_tree_add_uint(parent_tree, hf_id, tvb, hoffset, end_offset - hoffset, ch->value);
 					tree = proto_item_add_subtree(item, ett_id);
 				}
-			}
-
-			if(length == 0) {
-				item = proto_tree_add_text(tree, tvb, hoffset, 0, "BER Error: Empty choice field was found");
-				proto_item_set_expert_flags(item, PI_MALFORMED, PI_WARN);
-				expert_add_info_format(actx->pinfo, item, PI_MALFORMED, PI_WARN, "BER Error: Empty choice field was found");
-				return hoffset;
 			}
 
 			length_remaining=tvb_length_remaining(tvb, hoffset);
