@@ -47,7 +47,7 @@ extern void gui_prefs_fetch(GtkWidget *widget);
  *
  * @param widget widget from gui_prefs_show()
  */
-extern void gui_prefs_apply(GtkWidget *widget);
+extern void gui_prefs_apply(GtkWidget *widget, gboolean);
 
 /** Destroy preference values from page.
  *

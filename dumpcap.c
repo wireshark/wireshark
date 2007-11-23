@@ -35,6 +35,8 @@
 #include <unistd.h>
 #endif
 
+#include <signal.h>
+
 #ifdef NEED_GETOPT_H
 #include "getopt.h"
 #endif
@@ -214,8 +216,24 @@ cmdarg_err_cont(const char *fmt, ...)
 
 
 #ifdef _WIN32
-BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
+static BOOL WINAPI
+capture_cleanup(DWORD dwCtrlType)
 {
+    /* CTRL_C_EVENT is sort of like SIGINT, CTRL_BREAK_EVENT is unique to
+       Windows, CTRL_CLOSE_EVENT is sort of like SIGHUP, CTRL_LOGOFF_EVENT
+       is also sort of like SIGHUP, and CTRL_SHUTDOWN_EVENT is sort of
+       like SIGTERM at least when the machine's shutting down.
+
+       For now, if we're running as a command rather than a capture child,
+       we handle all but CTRL_LOGOFF_EVENT as indications that we should
+       clean up and quit, just as we handle SIGINT, SIGHUP, and SIGTERM
+       in that way on UN*X.
+
+       If we're not running as a capture child, we might be running as
+       a service; ignore CTRL_LOGOFF_EVENT, so we keep running after the
+       user logs out.  (XXX - can we explicitly check whether we're
+       running as a service?) */
+
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
         "Console: Control signal");
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
@@ -228,6 +246,21 @@ BOOL WINAPI ConsoleCtrlHandlerRoutine(DWORD dwCtrlType)
     } else {
         return FALSE;
     }
+}
+#else
+static void
+capture_cleanup(int signum)
+{
+    /* On UN*X, we cleanly shut down the capture on SIGINT, SIGHUP, and
+       SIGTERM.  We assume that if the user wanted it to keep running
+       after they logged out, they'd have nohupped it. */
+
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+        "Console: Signal");
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+        "Console: Signal, signal value: %u", signum);
+
+    capture_loop_stop();
 }
 #endif
 
@@ -316,6 +349,9 @@ main(int argc, char *argv[])
 #ifdef _WIN32
   WSADATA              wsaData;
 #endif  /* _WIN32 */
+#ifndef _WIN32
+  struct sigaction action, oldaction;
+#endif
 
   gboolean             start_capture = TRUE;
   gboolean             stats_known;
@@ -350,7 +386,18 @@ main(int argc, char *argv[])
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 
   /* Set handler for Ctrl+C key */
-  SetConsoleCtrlHandler(&ConsoleCtrlHandlerRoutine, TRUE);
+  SetConsoleCtrlHandler(capture_cleanup, TRUE);
+#else
+  /* Catch SIGINT and SIGTERM and, if we get either of them, clean up
+     and exit. */
+  action.sa_handler = capture_cleanup;
+  action.sa_flags = 0;
+  sigemptyset(&action.sa_mask);
+  sigaction(SIGTERM, &action, NULL);
+  sigaction(SIGINT, &action, NULL);
+  sigaction(SIGHUP, NULL, &oldaction);
+  if (oldaction.sa_handler == SIG_DFL)
+    sigaction(SIGHUP, &action, NULL);
 #endif  /* _WIN32 */
 
 #ifdef HAVE_LIBCAP

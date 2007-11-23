@@ -1353,7 +1353,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 
 /* apply all pref values to the real world */
 static void
-prefs_main_apply_all(GtkWidget *dlg)
+prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 {
   GtkWidget *save_bt;
 
@@ -1364,7 +1364,7 @@ prefs_main_apply_all(GtkWidget *dlg)
    */
   prefs_apply_all();
 
-  gui_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
+  gui_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY), redissect);
   layout_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
   column_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
   stream_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_COLORS_PAGE_KEY));
@@ -1481,7 +1481,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       prefs_main_write();
   }
 
-  prefs_main_apply_all(parent_w);
+  prefs_main_apply_all(parent_w, must_redissect);
 
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
@@ -1513,7 +1513,7 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
       prefs_main_write();
   }
 
-  prefs_main_apply_all(parent_w);
+  prefs_main_apply_all(parent_w, must_redissect);
 
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
@@ -1552,7 +1552,7 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 	   "Apply" after this, we know we have to redissect;
 
 	4) we did apply the protocol preferences, at least, in the past. */
-  prefs_main_apply_all(parent_w);
+  prefs_main_apply_all(parent_w, must_redissect);
 
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
@@ -1653,7 +1653,7 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
   prefs_modules_foreach(module_prefs_revert, &must_redissect);
 
   /* Now apply the reverted-to preferences. */
-  prefs_main_apply_all(parent_w);
+  prefs_main_apply_all(parent_w, must_redissect);
 
   window_destroy(GTK_WIDGET(parent_w));
 
