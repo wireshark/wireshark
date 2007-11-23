@@ -20,7 +20,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -34,6 +34,7 @@
 #include <epan/emem.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
 #include <string.h>
 #include "packet-usb.h"
 
@@ -248,9 +249,9 @@ get_usb_conv_info(conversation_t *conversation)
 
         conversation_add_proto_data(conversation, proto_usb, usb_conv_info);
     }
- 
+
     return usb_conv_info;
-}  
+}
 
 static conversation_t *
 get_usb_conversation(packet_info *pinfo, address *src_addr, address *dst_addr, guint32 src_endpoint, guint32 dst_endpoint)
@@ -260,16 +261,16 @@ get_usb_conversation(packet_info *pinfo, address *src_addr, address *dst_addr, g
     /*
      * Do we have a conversation for this connection?
      */
-    conversation = find_conversation(pinfo->fd->num, 
+    conversation = find_conversation(pinfo->fd->num,
                                src_addr, dst_addr,
-                               pinfo->ptype, 
+                               pinfo->ptype,
                                src_endpoint, dst_endpoint, 0);
     if(conversation){
         return conversation;
     }
 
     /* We don't yet have a conversation, so create one. */
-    conversation = conversation_new(pinfo->fd->num, 
+    conversation = conversation_new(pinfo->fd->num,
                            src_addr, dst_addr,
                            pinfo->ptype,
                            src_endpoint, dst_endpoint, 0);
@@ -449,7 +450,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, t
             offset+=2;
         }
     } else {
-        char *str;        
+        char *str;
 
         /* unicode string */
         str=tvb_get_ephemeral_faked_unicode(tvb, offset, (len-2)/2, TRUE);
@@ -572,7 +573,7 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree, tvb
 
     /* Together with class from the interface descriptor we know what kind
      * of class the device at endpoint is.
-     * Make sure a conversation exists for this endpoint and attach a 
+     * Make sure a conversation exists for this endpoint and attach a
      * usb_conv_into_t structure to it.
      *
      * All endpoints for the same interface descriptor share the same
@@ -652,6 +653,13 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree, 
     proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, TRUE);
     bLength = tvb_get_guint8(tvb, offset);
     offset++;
+    if (bLength < 3) {
+        item = proto_tree_add_text(parent_tree, tvb, offset - 1, 1,
+            "Invalid bLength: %u",  bLength);
+        expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+            "Invalid bLength: %u",  bLength);
+        return offset;
+    }
 
     /* bDescriptorType */
     proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, TRUE);
@@ -813,7 +821,7 @@ dissect_usb_setup_get_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         case USB_DT_CONFIG:
             offset=dissect_usb_configuration_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
-        case USB_DT_STRING: 
+        case USB_DT_STRING:
             offset=dissect_usb_string_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
             break;
         case USB_DT_INTERFACE:
@@ -845,11 +853,11 @@ typedef struct _usb_setup_dissector_table_t {
 static const usb_setup_dissector_table_t setup_dissectors[] = {
     {USB_SETUP_GET_DESCRIPTOR,	dissect_usb_setup_get_descriptor},
     {0, NULL}
-};  
+};
 static const value_string setup_request_names_vals[] = {
     {USB_SETUP_GET_DESCRIPTOR,		"GET DESCRIPTOR"},
     {0, NULL}
-};  
+};
 
 
 #define USB_DIR_OUT                     0               /* to device */
@@ -921,11 +929,11 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     usb_trans_info_t *usb_trans_info=NULL;
     conversation_t *conversation;
     usb_tap_data_t *tap_data=NULL;
-    
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
 
-    /* add usb hdr*/    
+    /* add usb hdr*/
     if (parent) {
       proto_item *ti = NULL;
       ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, sizeof(struct usb_request_hdr), "USB URB");
@@ -942,7 +950,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     type = pinfo->pseudo_header->linux_usb.transfer_type;
     proto_tree_add_uint(tree, hf_usb_transfer_type, tvb, 0, 0, type);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_str(pinfo->cinfo, COL_INFO, 
+        col_append_str(pinfo->cinfo, COL_INFO,
             val_to_str(type, usb_transfer_type_vals, "Unknown type %x"));
     }
 
@@ -1034,7 +1042,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     usb_conv_info=get_usb_conv_info(conversation);
     pinfo->usb_conv_info=usb_conv_info;
 
-   
+
     /* request/response matching so we can keep track of transaction specific
      * data.
      */
@@ -1068,7 +1076,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 usb_trans_info->response_in=pinfo->fd->num;
                 se_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
             }
-        } 
+        }
         usb_conv_info->usb_trans_info=usb_trans_info;
 
         if(usb_trans_info && usb_trans_info->request_in){
@@ -1084,8 +1092,8 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
-    
-    /* For DLT189 it seems 
+
+    /* For DLT189 it seems
      * that all INTERRUPT or BULK packets as well as all CONTROL responses
      * are prepended with 8 mysterious bytes.
      */
@@ -1136,7 +1144,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
         int type;
- 
+
         ti=proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
         PROTO_ITEM_SET_GENERATED(ti);
 
@@ -1147,19 +1155,19 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                 /* this is a request */
                 ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_request_hdr), "URB setup");
                 setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
-                usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);        
+                usb_trans_info->requesttype=tvb_get_guint8(tvb, offset);
                 offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
 
 
-                /* read the request code and spawn off to a class specific 
-                 * dissector if found 
+                /* read the request code and spawn off to a class specific
+                 * dissector if found
                  */
                 usb_trans_info->request=tvb_get_guint8(tvb, offset);
 
                 switch (type) {
 
                 case RQT_SETUP_TYPE_STANDARD:
-                    /* 
+                    /*
                      * This is a standard request which is managed by this
                      * dissector
                      */
@@ -1179,7 +1187,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                             break;
                         }
                     }
-  
+
                     if(dissector){
                         dissector(pinfo, setup_tree, tvb, offset, is_request, usb_trans_info, usb_conv_info);
                         offset+=6;
@@ -1194,7 +1202,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
                     break;
 
                 case RQT_SETUP_TYPE_CLASS:
-                    /* Try to find a class specific dissector */  
+                    /* Try to find a class specific dissector */
                     next_tvb=tvb_new_subset(tvb, offset, -1, -1);
                     if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                         return;
@@ -1210,7 +1218,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
 
             /* this is a response */
             if(usb_conv_info->usb_trans_info){
-                /* Try to find a class specific dissector */  
+                /* Try to find a class specific dissector */
                 next_tvb=tvb_new_subset(tvb, offset, -1, -1);
                 if(dissector_try_port(usb_control_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, tree)){
                     return;
@@ -1247,18 +1255,18 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
             proto_tree *setup_tree = NULL;
             guint8 requesttype, request;
             int type;
- 
+
             ti = proto_tree_add_protocol_format(tree, proto_usb, tvb, offset, sizeof(struct usb_request_hdr), "URB setup");
             setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
- 
- 
+
+
             requesttype=tvb_get_guint8(tvb, offset);
             offset=dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type);
- 
+
             request=tvb_get_guint8(tvb, offset);
             proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, TRUE);
             offset += 1;
- 
+
             proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, TRUE);
             offset += 2;
             proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, TRUE);
@@ -1280,22 +1288,22 @@ proto_register_usb(void)
     static hf_register_info hf[] = {
 
         { &hf_usb_urb_id,
-        { "URB id", "usb.urb_id", FT_UINT64, BASE_DEC, 
+        { "URB id", "usb.urb_id", FT_UINT64, BASE_DEC,
                 NULL, 0x0,
                 "URB id", HFILL }},
 
         { &hf_usb_bus_id,
-        { "URB bus id", "usb.bus_id", FT_UINT16, BASE_DEC, 
+        { "URB bus id", "usb.bus_id", FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 "URB bus id", HFILL }},
 
         { &hf_usb_urb_type,
-        { "URB type", "usb.urb_type", FT_UINT8, BASE_DEC, 
+        { "URB type", "usb.urb_type", FT_UINT8, BASE_DEC,
                 VALS(usb_urb_type_vals), 0x0,
                 "URB type", HFILL }},
 
         { &hf_usb_transfer_type,
-        { "URB transfer type", "usb.transfer_type", FT_UINT8, BASE_DEC, 
+        { "URB transfer type", "usb.transfer_type", FT_UINT8, BASE_DEC,
                 VALS(usb_transfer_type_vals), 0x0,
                 "URB transfer type", HFILL }},
 
@@ -1342,194 +1350,194 @@ proto_register_usb(void)
         { &hf_usb_length,
         { "wLength", "usb.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "", HFILL }},
-                
+
         { &hf_usb_data,
         {"Application Data", "usb.data",
             FT_BYTES, BASE_HEX, NULL, 0x0,
             "Payload is application data", HFILL }},
-    
+
         { &hf_usb_bmRequestType_direction,
-        { "Direction", "usb.bmRequestType.direction", FT_BOOLEAN, 8, 
+        { "Direction", "usb.bmRequestType.direction", FT_BOOLEAN, 8,
           TFS(&tfs_bmrequesttype_direction), USB_DIR_IN, "", HFILL }},
 
         { &hf_usb_bmRequestType_type,
-        { "Type", "usb.bmRequestType.type", FT_UINT8, BASE_HEX, 
+        { "Type", "usb.bmRequestType.type", FT_UINT8, BASE_HEX,
           VALS(bmrequesttype_type_vals), USB_TYPE_MASK, "", HFILL }},
 
         { &hf_usb_bmRequestType_recipient,
-        { "Recipient", "usb.bmRequestType.recipient", FT_UINT8, BASE_HEX, 
+        { "Recipient", "usb.bmRequestType.recipient", FT_UINT8, BASE_HEX,
           VALS(bmrequesttype_recipient_vals), 0x1f, "", HFILL }},
 
         { &hf_usb_bDescriptorType,
-        { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_HEX, 
+        { "bDescriptorType", "usb.bDescriptorType", FT_UINT8, BASE_HEX,
           VALS(descriptor_type_vals), 0x0, "", HFILL }},
 
         { &hf_usb_descriptor_index,
-        { "Descriptor Index", "usb.DescriptorIndex", FT_UINT8, BASE_HEX, 
+        { "Descriptor Index", "usb.DescriptorIndex", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_language_id,
-        { "Language Id", "usb.LanguageId", FT_UINT16, BASE_HEX, 
+        { "Language Id", "usb.LanguageId", FT_UINT16, BASE_HEX,
           VALS(usb_langid_vals), 0x0, "", HFILL }},
 
         { &hf_usb_bLength,
-        { "bLength", "usb.bLength", FT_UINT8, BASE_DEC, 
+        { "bLength", "usb.bLength", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bcdUSB,
-        { "bcdUSB", "usb.bcdUSB", FT_UINT16, BASE_HEX, 
+        { "bcdUSB", "usb.bcdUSB", FT_UINT16, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bDeviceClass,
-        { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_DEC, 
+        { "bDeviceClass", "usb.bDeviceClass", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bDeviceSubClass,
-        { "bDeviceSubClass", "usb.bDeviceSubClass", FT_UINT8, BASE_DEC, 
+        { "bDeviceSubClass", "usb.bDeviceSubClass", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bDeviceProtocol,
-        { "bDeviceProtocol", "usb.bDeviceProtocol", FT_UINT8, BASE_DEC, 
+        { "bDeviceProtocol", "usb.bDeviceProtocol", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bMaxPacketSize0,
-        { "bMaxPacketSize0", "usb.bMaxPacketSize0", FT_UINT8, BASE_DEC, 
+        { "bMaxPacketSize0", "usb.bMaxPacketSize0", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_idVendor,
-        { "idVendor", "usb.idVendor", FT_UINT16, BASE_HEX, 
+        { "idVendor", "usb.idVendor", FT_UINT16, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_idProduct,
-        { "idProduct", "usb.idProduct", FT_UINT16, BASE_HEX, 
+        { "idProduct", "usb.idProduct", FT_UINT16, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bcdDevice,
-        { "bcdDevice", "usb.bcdDevice", FT_UINT16, BASE_HEX, 
+        { "bcdDevice", "usb.bcdDevice", FT_UINT16, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_iManufacturer,
-        { "iManufacturer", "usb.iManufacturer", FT_UINT8, BASE_DEC, 
+        { "iManufacturer", "usb.iManufacturer", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_iProduct,
-        { "iProduct", "usb.iProduct", FT_UINT8, BASE_DEC, 
+        { "iProduct", "usb.iProduct", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_iSerialNumber,
-        { "iSerialNumber", "usb.iSerialNumber", FT_UINT8, BASE_DEC, 
+        { "iSerialNumber", "usb.iSerialNumber", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bNumConfigurations,
-        { "bNumConfigurations", "usb.bNumConfigurations", FT_UINT8, BASE_DEC, 
+        { "bNumConfigurations", "usb.bNumConfigurations", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_wLANGID,
-        { "wLANGID", "usb.wLANGID", FT_UINT16, BASE_HEX, 
+        { "wLANGID", "usb.wLANGID", FT_UINT16, BASE_HEX,
           VALS(usb_langid_vals), 0x0, "", HFILL }},
 
         { &hf_usb_bString,
-        { "bString", "usb.bString", FT_STRING, BASE_NONE, 
+        { "bString", "usb.bString", FT_STRING, BASE_NONE,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bInterfaceNumber,
-        { "bInterfaceNumber", "usb.bInterfaceNumber", FT_UINT8, BASE_DEC, 
+        { "bInterfaceNumber", "usb.bInterfaceNumber", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bAlternateSetting,
-        { "bAlternateSetting","usb.bAlternateSetting", FT_UINT8, BASE_DEC, 
+        { "bAlternateSetting","usb.bAlternateSetting", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bNumEndpoints,
-        { "bNumEndpoints","usb.bNumEndpoints", FT_UINT8, BASE_DEC, 
+        { "bNumEndpoints","usb.bNumEndpoints", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bInterfaceClass,
-        { "bInterfaceClass", "usb.bInterfaceClass", FT_UINT8, BASE_HEX, 
+        { "bInterfaceClass", "usb.bInterfaceClass", FT_UINT8, BASE_HEX,
           VALS(usb_interfaceclass_vals), 0x0, "", HFILL }},
 
         { &hf_usb_bInterfaceSubClass,
-        { "bInterfaceSubClass", "usb.bInterfaceSubClass", FT_UINT8, BASE_HEX, 
+        { "bInterfaceSubClass", "usb.bInterfaceSubClass", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bInterfaceProtocol,
-        { "bInterfaceProtocol", "usb.bInterfaceProtocol", FT_UINT8, BASE_HEX, 
+        { "bInterfaceProtocol", "usb.bInterfaceProtocol", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_iInterface,
-        { "iInterface", "usb.iInterface", FT_UINT8, BASE_DEC, 
+        { "iInterface", "usb.iInterface", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bEndpointAddress,
-        { "bEndpointAddress", "usb.bEndpointAddress", FT_UINT8, BASE_HEX, 
+        { "bEndpointAddress", "usb.bEndpointAddress", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_configuration_bmAttributes,
-        { "Configuration bmAttributes", "usb.configuration.bmAttributes", FT_UINT8, BASE_HEX, 
+        { "Configuration bmAttributes", "usb.configuration.bmAttributes", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bmAttributes,
-        { "bmAttributes", "usb.bmAttributes", FT_UINT8, BASE_HEX, 
+        { "bmAttributes", "usb.bmAttributes", FT_UINT8, BASE_HEX,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bEndpointAttributeTransfer,
-        { "Transfertype", "usb.bmAttributes.transfer", FT_UINT8, BASE_HEX, 
+        { "Transfertype", "usb.bmAttributes.transfer", FT_UINT8, BASE_HEX,
           VALS(usb_bmAttributes_transfer_vals), 0x03, "", HFILL }},
 
         { &hf_usb_bEndpointAttributeSynchonisation,
-        { "Synchronisationtype", "usb.bmAttributes.sync", FT_UINT8, BASE_HEX, 
+        { "Synchronisationtype", "usb.bmAttributes.sync", FT_UINT8, BASE_HEX,
           VALS(usb_bmAttributes_sync_vals), 0x0c, "", HFILL }},
 
         { &hf_usb_bEndpointAttributeBehaviour,
-        { "Behaviourtype", "usb.bmAttributes.behaviour", FT_UINT8, BASE_HEX, 
+        { "Behaviourtype", "usb.bmAttributes.behaviour", FT_UINT8, BASE_HEX,
           VALS(usb_bmAttributes_behaviour_vals), 0x30, "", HFILL }},
 
         { &hf_usb_wMaxPacketSize,
-        { "wMaxPacketSize", "usb.wMaxPacketSize", FT_UINT16, BASE_DEC, 
+        { "wMaxPacketSize", "usb.wMaxPacketSize", FT_UINT16, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bInterval,
-        { "bInterval", "usb.bInterval", FT_UINT8, BASE_DEC, 
+        { "bInterval", "usb.bInterval", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_wTotalLength,
-        { "wTotalLength", "usb.wTotalLength", FT_UINT16, BASE_DEC, 
+        { "wTotalLength", "usb.wTotalLength", FT_UINT16, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bNumInterfaces,
-        { "bNumInterfaces", "usb.bNumInterfaces", FT_UINT8, BASE_DEC, 
+        { "bNumInterfaces", "usb.bNumInterfaces", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bConfigurationValue,
-        { "bConfigurationValue", "usb.bConfigurationValue", FT_UINT8, BASE_DEC, 
+        { "bConfigurationValue", "usb.bConfigurationValue", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_iConfiguration,
-        { "iConfiguration", "usb.iConfiguration", FT_UINT8, BASE_DEC, 
+        { "iConfiguration", "usb.iConfiguration", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_bMaxPower,
-        { "bMaxPower", "usb.bMaxPower", FT_UINT8, BASE_DEC, 
+        { "bMaxPower", "usb.bMaxPower", FT_UINT8, BASE_DEC,
           NULL, 0x0, "", HFILL }},
 
         { &hf_usb_configuration_legacy10buspowered,
-        { "Must be 1", "usb.configuration.legacy10buspowered", FT_BOOLEAN, 8, 
+        { "Must be 1", "usb.configuration.legacy10buspowered", FT_BOOLEAN, 8,
           TFS(&tfs_mustbeone), 0x80, "Legacy USB 1.0 bus powered", HFILL }},
 
         { &hf_usb_configuration_selfpowered,
-        { "Self-Powered", "usb.configuration.selfpowered", FT_BOOLEAN, 8, 
+        { "Self-Powered", "usb.configuration.selfpowered", FT_BOOLEAN, 8,
           TFS(&tfs_selfpowered), 0x40, "", HFILL }},
 
         { &hf_usb_configuration_remotewakeup,
-        { "Remote Wakeup", "usb.configuration.remotewakeup", FT_BOOLEAN, 8, 
+        { "Remote Wakeup", "usb.configuration.remotewakeup", FT_BOOLEAN, 8,
           TFS(&tfs_remotewakeup), 0x20, "", HFILL }},
 
         { &hf_usb_bEndpointAddress_number,
-        { "Endpoint Number", "usb.bEndpointAddress.number", FT_UINT8, BASE_HEX, 
+        { "Endpoint Number", "usb.bEndpointAddress.number", FT_UINT8, BASE_HEX,
           NULL, 0x0f, "", HFILL }},
 
         { &hf_usb_bEndpointAddress_direction,
-        { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8, 
+        { "Direction", "usb.bEndpointAddress.direction", FT_BOOLEAN, 8,
           TFS(&tfs_endpoint_direction), 0x80, "", HFILL }},
 
 	{ &hf_usb_request_in,
@@ -1545,7 +1553,7 @@ proto_register_usb(void)
 		NULL, 0, "The response to this packet is in this packet", HFILL }},
 
     };
-    
+
     static gint *usb_subtrees[] = {
             &usb_hdr,
             &usb_setup_hdr,
@@ -1556,7 +1564,7 @@ proto_register_usb(void)
             &ett_endpoint_bmAttributes
     };
 
-     
+
     proto_usb = proto_register_protocol("USB", "USB", "usb");
     proto_register_field_array(proto_usb, hf, array_length(hf));
     proto_register_subtree_array(usb_subtrees, array_length(usb_subtrees));
