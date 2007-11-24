@@ -1517,11 +1517,13 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (pinfo->p2p_dir) {
 	case P2P_DIR_SENT:
 		ssn = assoc->calling_ssn;
+		other_ssn = assoc->called_ssn;
 		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
 		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
 		break;
 	case P2P_DIR_RECV:
 		ssn = assoc->called_ssn;
+		other_ssn = assoc->calling_ssn;
 		dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
 		opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
 		break;
