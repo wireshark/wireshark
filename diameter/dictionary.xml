@@ -1225,19 +1225,48 @@ Note: The AVP codes from 256 to 299 are reserved for future use.
 29.234 [6]
 319 Maximum-Number-Accesses Unsigned32
 Note: The AVP codes from 320 to 399 are reserved for TS 29.234
-400 GBA-UserSecSettings OctedString
-401 Transaction-Identifier OctetString
-402 NAF-Hostname OctetString
-403 GAA-Service-Identifier OctedString
-404 Key-ExpiryTime Time
-405 ME-Key-Material OctedString
-406 UICC-Key-Material OctedString
-407 GBA_U-Awareness-Indicator Enumerated
-408 BootstrapInfoCreationTime Time
-409 GUSS-Timestamp Time
-410 GBA-Type Enumerated
+-->
+		<avp name="GBA-UserSecSettings" code="400" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+
+		<avp name="Transaction-Identifier" code="401" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="NAF-Hostname" code="402" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="GAA-Service-Identifier" code="403" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Key-ExpiryTime" code="404" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="ME-Key-Material" code="405" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="UICC-Key-Material" code="406" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="GBA_U-Awareness-Indicator" code="407" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NO" code="0"/>
+			<enum name="YES" code="1"/>
+		</avp>
+		<avp name="BootstrapInfoCreationTime" code="408" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="GUSS-Timestamp" code="409" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="GBA-Type" code="410" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="3G GBA" code="0"/>
+			<enum name="2G GBA" code="1"/>
+		</avp>
+<!--
 29.109 [7]
-Note: The AVP codes from 410 to 499 are reserved for TS 29.109
+Note: TThe AVP codes from 410 to 499 are reserved for TS 29.109
 -->
 		<!-- Ref 3GPP TS 29.209 version 6.7.0 Release 6 -->
 		<avp name="Abort-Cause" code="500" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
@@ -1258,19 +1287,33 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 		<avp name="Access-Network-Charging-Identifier-value" code="503" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-<!--
-504 AF-Application-Identifier OctetString
-505 AF-Charging-Identifier OctetString
-506 Authorization-Token OctetString
--->
+		<avp name="AF-Application-Identifier" code="504" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="AF-Charging-Identifier" code="505" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Authorization-Token" code="506" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+
 		<avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
 			<type type-name="IPFilterRule"/>
 		</avp>
-<!--
-508 Flow-Grouping Grouped
-509 Flow-Number Unsigned32
-510 Flows Grouped
--->
+		<avp name="Flow-Grouping" code="508" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Flows"/>
+			</grouped>
+		</avp>
+		<avp name="Flow-Number" code="509" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Flows" code="510" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Media-Component-Number"/>
+				<gavp name="Flow-Number"/>
+			</grouped>
+		</avp>
 		<avp name="Flow-Status" code="511" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
 			<type type-name="Unsigned32"/>
 			<enum name="ENABLED_UPLINK" code="0"/>
@@ -1279,20 +1322,74 @@ Note: The AVP codes from 410 to 499 are reserved for TS 29.109
 			<enum name="DISABLED" code="3"/>
 			<enum name="REMOVED" code="4"/>
 		</avp>
+		<avp name="Flow-Usage" code="512" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NO_INFORMATION" code="0"/>
+			<enum name="RTCP" code="1"/>
+		</avp>
+		<avp name="Specific-Action" code="513" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
+			<enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
+			<enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
+			<enum name="INDICATION_OF_RECOVERY_OF_BEARER" code="3"/>
+			<enum name="INDICATION_OF_RELEASE_OF_BEARER" code="4"/>
+			<enum name="INDICATION_OF_ESTABLISHMENT_OF_BEARER" code="5"/>
+		</avp>
+		<avp name="Max-Requested-Bandwidth" code="514" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Max-Requested-Bandwidth-DL" code="515" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Max-Requested-Bandwidth-UL" code="516" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Media-Component-Description" code="517" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Media-Component-Number"/>
+				<gavp name="Media-Sub-Component"/>
+				<gavp name="AF-Application-Identifier"/>
+				<gavp name="Media-Type"/>
+				<gavp name="Max-Requested-Bandwidth-UL"/>
+				<gavp name="Max-Requested-Bandwidth-DL"/>
+				<gavp name="MFlow-Status"/>
+				<gavp name="RS-Bandwidth"/>
+				<gavp name="RR-Bandwidth"/>
+			</grouped>
+		</avp>
+		<avp name="Media-Component-Number" code="518" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Media-Sub-Component" code="519" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Flows"/>
+				<gavp name="Flow-Number"/>
+				<gavp name="Flow-Description"/>
+				<gavp name="Flow-Status"/>
+				<gavp name="Flow-Usage"/>
+				<gavp name="Max-Requested-Bandwidth-UL"/>
+				<gavp name="Max-Requested-Bandwidth-DL"/>
+			</grouped>
+		</avp>
+		<avp name="Media-Type" code="520" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ENABLED_UPLINK" code="0"/>
+		</avp>
+		<avp name="RR-Bandwidth" code="521" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="RS-Bandwidth" code="522" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="SIP-Forking-Indication" code="523" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ENABLED_UPLINK" code="0"/>
+		</avp>
 <!--
-512 Flow-Usage Enumerated
-513 Specific-Action Enumerated
-514 Max-Requested-Bandwidth Unsigned32
-515 Max-Requested-Bandwidth-DL Unsigned32
-516 Max-Requested-Bandwidth-UL Unsigned32
-517 Media-Component-Description Grouped
-518 Media-Component-Number Unsigned32
-519 Media-Sub-Component AVP Grouped
-520 Media-Type Enumerated
-521 RR-Bandwidth Unsigned32
-522 RS-Bandwidth Unsigned32
-523 SIP-Forking-Indication Enumerated
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
+-->
+<!--
 600 Visited-Network-Identifier OctetString
 601 Public-Identity UTF8String
 602 Server-Name UTF8String
