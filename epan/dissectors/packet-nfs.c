@@ -319,7 +319,6 @@ static int hf_nfs_secinfo_arr4 = -1;
 static int hf_nfs_num_blocks = -1;
 static int hf_nfs_bytes_per_block = -1;
 static int hf_nfs_eof = -1;
-static int hf_nfs_stateid4_delegate_stateid = -1;
 static int hf_nfs_verifier4 = -1;
 static int hf_nfs_cookie4 = -1;
 static int hf_nfs_cookieverf4 = -1;
@@ -629,6 +628,8 @@ static GHashTable *nfs_name_snoop_matched = NULL;
 
 static emem_tree_t *nfs_name_snoop_known = NULL;
 static emem_tree_t *nfs_file_handles = NULL;
+
+static int dissect_nfs_stateid4(tvbuff_t *tvb, int offset, proto_tree *tree);
 
 /* This function will store one nfs filehandle in our global tree of
  * filehandles.
@@ -6876,8 +6877,7 @@ static int
 dissect_nfs_open_claim_delegate_cur4(tvbuff_t *tvb, int offset,
 	proto_tree *tree)
 {
-	offset = dissect_rpc_uint64(tvb, tree,
-		hf_nfs_stateid4_delegate_stateid, offset);
+	offset = dissect_nfs_stateid4(tvb, offset, tree);
 	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_component4, NULL);
 
 	return offset;
@@ -9712,10 +9712,6 @@ proto_register_nfs(void)
 		{ &hf_nfs_fattr4_space_used, {
 			"space_used", "nfs.fattr4.space_used", FT_UINT64, BASE_DEC,
 			NULL, 0, "nfs.fattr4.space_used", HFILL }},
-
-		{ &hf_nfs_stateid4_delegate_stateid, {
-			"delegate_stateid", "nfs.delegate_stateid", FT_UINT64, BASE_DEC,
-			NULL, 0, "nfs.delegate_stateid", HFILL }},
 
 		{ &hf_nfs_verifier4, {
 			"verifier", "nfs.verifier4", FT_UINT64, BASE_HEX,
