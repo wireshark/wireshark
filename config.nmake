@@ -381,11 +381,11 @@ HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 # UPX can be downloaded from:
 #   http://upx.sourceforge.net/
 #
-# If you don't have UPX, comment this line out, so that UPX
-# isn't defined.
+# If you don't have UPX, or don't want to pack exes and dlls,  
+# comment this line out, so that UPX isn't defined.
 #
 
-#UPX="c:\upx301w\upx.exe"
+UPX=$(WIRESHARK_LIBS)\upx301w\upx.exe
 
 ##### Flags, PATHs and Miscellaneous #####
 

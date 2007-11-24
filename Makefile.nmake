@@ -768,7 +768,11 @@ process_libs:
 !ENDIF
 !IFDEF HHC_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		user-guide user-guide-20494.zip
+		user-guide user-guide-23522.zip
+!ENDIF
+!IFDEF UPX
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		. upx301w.zip
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.
@@ -797,6 +801,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
     rm -r -f $(WIRESHARK_LIBS)/zlib123
     rm -r -f $(WIRESHARK_LIBS)/zlib123-dll
+    rm -r -f $(WIRESHARK_LIBS)/upx301w
 
 ################################################################################
 # Prepare the debug trees for running Wireshark/Tshark from there.

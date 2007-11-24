@@ -6,7 +6,7 @@
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-13/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-24/packages/"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 # DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
@@ -96,8 +96,8 @@ case "$1" in
 	echo "Extracting $DEST_PATH/$PACKAGE into $DEST_PATH/$DEST_SUBDIR"
 	unzip -oq "$DEST_PATH/$PACKAGE" ||
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
-	echo "Verifying that the DLLs in $DEST_PATH/$DEST_SUBDIR are executable."
-	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
+	echo "Verifying that the DLLs and EXEs in $DEST_PATH/$DEST_SUBDIR are executable."
+	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR \( -name *\.dll -o -name *\.exe \)` ; do
 		if [ ! -x "$i" ] ; then
 			echo "Changing file permissions (add executable bit) to:"
 			echo "$i"
