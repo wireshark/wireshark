@@ -415,7 +415,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
             color_display_with_filter(filter);
         } else {
             /* Set one of the temporary coloring filters */
-            color_filters_set_tmp(action>>8,filter);
+            color_filters_set_tmp((guint8)(action>>8),filter);
             cf_colorize_packets(&cfile);
         }
 
