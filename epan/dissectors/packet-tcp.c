@@ -1611,9 +1611,10 @@ again:
 				 * Show the stuff in this TCP segment as
 				 * just raw TCP segment data.
 				 */
-				nbytes =
-				    tvb_reported_length_remaining(tvb, offset);
-				proto_tree_add_text(tcp_tree, tvb, offset, -1,
+				nbytes = another_pdu_follows > 0
+					? another_pdu_follows
+					: tvb_reported_length_remaining(tvb, offset);
+				proto_tree_add_text(tcp_tree, tvb, offset, nbytes,
 				    "TCP segment data (%u byte%s)", nbytes,
 				    plurality(nbytes, "", "s"));
 
