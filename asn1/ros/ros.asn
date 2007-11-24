@@ -178,10 +178,10 @@ InvokeId ::= CHOICE {present  INTEGER,
 --}
 
 
-Code ::= CHOICE {
-  local INTEGER,
-  global OBJECT IDENTIFIER
-}
+--Code ::= CHOICE {
+--  local INTEGER,
+--  global OBJECT IDENTIFIER
+--}
 
 --Priority ::= INTEGER
 
