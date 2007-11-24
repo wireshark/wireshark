@@ -36,6 +36,7 @@ NONGENERATED_C_FILES = \
 	ber.c			\
 	buffer.c		\
 	catapult_dct2000.c	\
+	commview.c		\
 	cosine.c		\
 	csids.c			\
 	dbs-etherwatch.c	\
@@ -77,6 +78,7 @@ NONGENERATED_HEADER_FILES = \
 	ber.h			\
 	buffer.h		\
 	catapult_dct2000.h	\
+	commview.h		\
 	cosine.h		\
 	csids.h			\
 	dbs-etherwatch.h	\

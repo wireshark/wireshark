@@ -250,6 +250,7 @@ extern "C" {
 #define WTAP_FILE_MPEG						46
 #define WTAP_FILE_K12TEXT					47
 #define WTAP_FILE_NETSCREEN					48
+#define WTAP_FILE_COMMVIEW					49
 
 #define WTAP_NUM_FILE_TYPES			wtap_get_num_file_types()
 

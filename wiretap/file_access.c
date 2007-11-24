@@ -74,6 +74,7 @@
 #include "catapult_dct2000.h"
 #include "mpeg.h"
 #include "netscreen.h"
+#include "commview.h"
 
 
 
@@ -141,6 +142,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	vms_open,
 	cosine_open,
 	hcidump_open,
+	commview_open
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines_base / sizeof open_routines_base[0])
@@ -567,6 +569,10 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_NETSCREEN */
 	{ "NetScreen snoop text file", "netscreen", "*.*", NULL, FALSE,
 	  NULL, NULL },
+
+	/* WTAP_FILE_COMMVIEW */
+	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", TRUE,
+	  NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
