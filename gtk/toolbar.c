@@ -144,6 +144,16 @@
 #include "../image/toolbar/file_set_previous_16.xpm"
 #include "../image/toolbar/stock_close_24.xpm"
 #endif
+#include "../image/toolbar/icon_color_1.xpm"
+#include "../image/toolbar/icon_color_2.xpm"
+#include "../image/toolbar/icon_color_3.xpm"
+#include "../image/toolbar/icon_color_4.xpm"
+#include "../image/toolbar/icon_color_5.xpm"
+#include "../image/toolbar/icon_color_6.xpm"
+#include "../image/toolbar/icon_color_7.xpm"
+#include "../image/toolbar/icon_color_8.xpm"
+#include "../image/toolbar/icon_color_9.xpm"
+#include "../image/toolbar/icon_color_0.xpm"
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -228,7 +238,17 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     WIRESHARK_STOCK_LABEL_FILE_SET_PREVIOUS,     0, 0, NULL },
         { WIRESHARK_STOCK_FILTER_OUT_STREAM,     WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM,     0, 0, NULL },
         { WIRESHARK_STOCK_ENABLE,                WIRESHARK_STOCK_LABEL_ENABLE,                0, 0, NULL },
-        { WIRESHARK_STOCK_DISABLE,               WIRESHARK_STOCK_LABEL_DISABLE,               0, 0, NULL }
+        { WIRESHARK_STOCK_DISABLE,               WIRESHARK_STOCK_LABEL_DISABLE,               0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR1,                WIRESHARK_STOCK_LABEL_COLOR1,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR2,                WIRESHARK_STOCK_LABEL_COLOR2,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR3,                WIRESHARK_STOCK_LABEL_COLOR3,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR4,                WIRESHARK_STOCK_LABEL_COLOR4,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR5,                WIRESHARK_STOCK_LABEL_COLOR5,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR6,                WIRESHARK_STOCK_LABEL_COLOR6,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR7,                WIRESHARK_STOCK_LABEL_COLOR7,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR8,                WIRESHARK_STOCK_LABEL_COLOR8,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR9,                WIRESHARK_STOCK_LABEL_COLOR9,                0, 0, NULL },
+        { WIRESHARK_STOCK_COLOR0,                WIRESHARK_STOCK_LABEL_COLOR0,                0, 0, NULL }
     };
 
     static const stock_pixmap_t pixmaps[] = {
@@ -271,6 +291,16 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
         { WIRESHARK_STOCK_ENABLE,                checkbox_16_xpm},
         { WIRESHARK_STOCK_DISABLE,               stock_close_24_xpm},
+        { WIRESHARK_STOCK_COLOR1,                icon_color_1_xpm},
+        { WIRESHARK_STOCK_COLOR2,                icon_color_2_xpm},
+        { WIRESHARK_STOCK_COLOR3,                icon_color_3_xpm},
+        { WIRESHARK_STOCK_COLOR4,                icon_color_4_xpm},
+        { WIRESHARK_STOCK_COLOR5,                icon_color_5_xpm},
+        { WIRESHARK_STOCK_COLOR6,                icon_color_6_xpm},
+        { WIRESHARK_STOCK_COLOR7,                icon_color_7_xpm},
+        { WIRESHARK_STOCK_COLOR8,                icon_color_8_xpm},
+        { WIRESHARK_STOCK_COLOR9,                icon_color_9_xpm},
+        { WIRESHARK_STOCK_COLOR0,                icon_color_0_xpm},
         { NULL, NULL }
     };
 

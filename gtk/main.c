@@ -130,6 +130,7 @@
 #include "colors.h"
 #include "gui_utils.h"
 #include "compat_macros.h"
+#include "color_dlg.h"
 
 #include "main.h"
 #include "menu.h"
@@ -251,12 +252,12 @@ static void main_save_window_geometry(GtkWidget *widget);
 static void
 match_selected_cb_do(gpointer data, int action, gchar *text)
 {
-    GtkWidget		*filter_te;
-    char		*cur_filter, *new_filter;
+    GtkWidget  *filter_te;
+    char       *cur_filter, *new_filter;
 
     if ((!text) || (0 == strlen(text))) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to build a filter!\nTry expanding or choosing another item.");
-	return;
+        return;
     }
 
     g_assert(data);
@@ -268,45 +269,45 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     switch (action&MATCH_SELECTED_MASK) {
 
     case MATCH_SELECTED_REPLACE:
-	new_filter = g_strdup(text);
-	break;
+        new_filter = g_strdup(text);
+        break;
 
     case MATCH_SELECTED_AND:
-	if ((!cur_filter) || (0 == strlen(cur_filter)))
-	    new_filter = g_strdup(text);
-	else
-	    new_filter = g_strconcat("(", cur_filter, ") && (", text, ")", NULL);
-	break;
+        if ((!cur_filter) || (0 == strlen(cur_filter)))
+            new_filter = g_strdup(text);
+        else
+            new_filter = g_strconcat("(", cur_filter, ") && (", text, ")", NULL);
+        break;
 
     case MATCH_SELECTED_OR:
-	if ((!cur_filter) || (0 == strlen(cur_filter)))
-	    new_filter = g_strdup(text);
-	else
-	    new_filter = g_strconcat("(", cur_filter, ") || (", text, ")", NULL);
-	break;
+        if ((!cur_filter) || (0 == strlen(cur_filter)))
+            new_filter = g_strdup(text);
+        else
+            new_filter = g_strconcat("(", cur_filter, ") || (", text, ")", NULL);
+        break;
 
     case MATCH_SELECTED_NOT:
-	new_filter = g_strconcat("!(", text, ")", NULL);
-	break;
+        new_filter = g_strconcat("!(", text, ")", NULL);
+        break;
 
     case MATCH_SELECTED_AND_NOT:
-	if ((!cur_filter) || (0 == strlen(cur_filter)))
-	    new_filter = g_strconcat("!(", text, ")", NULL);
-	else
-	    new_filter = g_strconcat("(", cur_filter, ") && !(", text, ")", NULL);
-	break;
+        if ((!cur_filter) || (0 == strlen(cur_filter)))
+            new_filter = g_strconcat("!(", text, ")", NULL);
+        else
+            new_filter = g_strconcat("(", cur_filter, ") && !(", text, ")", NULL);
+        break;
 
     case MATCH_SELECTED_OR_NOT:
-	if ((!cur_filter) || (0 == strlen(cur_filter)))
-	    new_filter = g_strconcat("!(", text, ")", NULL);
-	else
-	    new_filter = g_strconcat("(", cur_filter, ") || !(", text, ")", NULL);
-	break;
+        if ((!cur_filter) || (0 == strlen(cur_filter)))
+            new_filter = g_strconcat("!(", text, ")", NULL);
+        else
+            new_filter = g_strconcat("(", cur_filter, ") || !(", text, ")", NULL);
+        break;
 
     default:
-	g_assert_not_reached();
-	new_filter = NULL;
-	break;
+        g_assert_not_reached();
+        new_filter = NULL;
+        break;
     }
 
     /* Free up the copy we got of the old filter text. */
@@ -314,17 +315,17 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 
     /* Don't change the current display filter if we only want to copy the filter */
     if (action&MATCH_SELECTED_COPY_ONLY) {
-	GString *gtk_text_str = g_string_new("");
-	g_string_sprintfa(gtk_text_str, "%s", new_filter);
-	copy_to_clipboard(gtk_text_str);
-	g_string_free(gtk_text_str, TRUE);
+        GString *gtk_text_str = g_string_new("");
+        g_string_sprintfa(gtk_text_str, "%s", new_filter);
+        copy_to_clipboard(gtk_text_str);
+        g_string_free(gtk_text_str, TRUE);
     } else {
-	/* create a new one and set the display filter entry accordingly */
-	gtk_entry_set_text(GTK_ENTRY(filter_te), new_filter);
+        /* create a new one and set the display filter entry accordingly */
+        gtk_entry_set_text(GTK_ENTRY(filter_te), new_filter);
 
-	/* Run the display filter so it goes in effect. */
-	if (action&MATCH_SELECTED_APPLY_NOW)
-	    main_filter_packets(&cfile, new_filter, FALSE);
+        /* Run the display filter so it goes in effect. */
+        if (action&MATCH_SELECTED_APPLY_NOW)
+            main_filter_packets(&cfile, new_filter, FALSE);
     }
 
     /* Free up the new filter text. */
@@ -334,12 +335,40 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 void
 match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 {
-    char *filter;
+    char *filter = NULL;
 
     if (cfile.finfo_selected) {
         filter = proto_construct_match_selected_string(cfile.finfo_selected,
                                                        cfile.edt);
         match_selected_cb_do((data ? data : w), action, filter);
+    }
+}
+
+void
+colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
+{
+    char *filter = NULL;
+
+    if (cfile.finfo_selected) {
+        filter = proto_construct_match_selected_string(cfile.finfo_selected,
+                                                       cfile.edt);
+        if ((!filter) || (0 == strlen(filter))) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                "Could not acquire information to build a filter!\n"
+                "Try expanding or choosing another item.");
+            return;
+        }
+
+        if (filt_nr==0) {
+            color_display_with_filter(filter);
+        } else {
+            if (filt_nr==255) {
+                color_filters_init();
+            } else {
+                color_filters_set_tmp(filt_nr,filter);
+            }
+            cf_colorize_packets(&cfile);
+        }
     }
 }
 

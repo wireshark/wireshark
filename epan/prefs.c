@@ -1187,6 +1187,8 @@ init_prefs(void) {
   prefs.gui_marked_bg.red          =         0;
   prefs.gui_marked_bg.green        =         0;
   prefs.gui_marked_bg.blue         =         0;
+  prefs.gui_colorized_fg           = g_strdup("000000,000000,000000,000000,000000,000000,000000,000000,000000,000000");
+  prefs.gui_colorized_bg           = g_strdup("ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0");
   prefs.gui_geometry_save_position =         0;
   prefs.gui_geometry_save_size     =         1;
   prefs.gui_geometry_save_maximized=         1;
@@ -1537,6 +1539,8 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
+#define PRS_GUI_COLORIZED_FG             "gui.colorized_frame.fg"
+#define PRS_GUI_COLORIZED_BG             "gui.colorized_frame.bg"
 #define PRS_GUI_CONSOLE_OPEN             "gui.console_open"
 #define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
 #define PRS_GUI_RECENT_COUNT_MAX         "gui.recent_files_count.max"
@@ -1830,6 +1834,14 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.gui_marked_bg.red   = RED_COMPONENT(cval);
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
+  } else if (strcmp(pref_name, PRS_GUI_COLORIZED_FG) == 0) {
+    if (prefs.gui_colorized_fg != NULL)
+      g_free(prefs.gui_colorized_fg);
+    prefs.gui_colorized_fg = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_COLORIZED_BG) == 0) {
+    if (prefs.gui_colorized_bg != NULL)
+      g_free(prefs.gui_colorized_bg);
+    prefs.gui_colorized_bg = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_POSITION) == 0) {
     if (strcasecmp(value, "true") == 0) {
 	    prefs.gui_geometry_save_position = TRUE;
@@ -2607,6 +2619,18 @@ write_prefs(char **pf_path_return)
     (prefs.gui_marked_bg.red * 255 / 65535),
     (prefs.gui_marked_bg.green * 255 / 65535),
     (prefs.gui_marked_bg.blue * 255 / 65535));
+
+  /* Don't write the colors of the 10 easy-access-colorfilters to the preferences
+   * file until the colors can be changed in the GUI. Currently this is not really
+   * possible since the STOCK-icons for these colors are hardcoded.
+   *
+   * XXX Find a way to change the colors of the STOCK-icons on the fly and then
+   *     add these 10 colors to the list of colors that can be changed through
+   *     the preferences.
+   *
+  fprintf (pf, "%s: %s\n", PRS_GUI_COLORIZED_FG, prefs.gui_colorized_fg);
+  fprintf (pf, "%s: %s\n", PRS_GUI_COLORIZED_BG, prefs.gui_colorized_bg);
+  */
 
   fprintf (pf, "\n# TCP stream window color preferences.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");

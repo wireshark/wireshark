@@ -2672,6 +2672,16 @@ Jens Bräuer		<jensb [AT] cs.tu-berlin.de> {
 	Wifi Simple Config aka Wifi Protected Setup
 }
 
+Sake Blok               <sake [AT] euronet.nl> {
+        Cisco proprietary MST format support
+        "Copy as Filter" functionality
+        Split time_delta in time delta captured and time delta displayed
+        NetScreen snoop output (ascii) support
+        TCP Conversation timestamps
+        enable/disable indiviual coloring rules
+        temporary coloring rules with hotkeys
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
@@ -2803,7 +2813,6 @@ Taner Kurtulus		<taner.kurtulus [AT] tubitak.gov.tr>
 Joe Breher		<linux [AT] q-music.com>
 Patrick vd Lageweg	<patrick [AT] bitwizard.nl>
 Thomas Sillaber		<Thomas.Sillaber [AT] gmx.de>
-Sake Blok 		<sake [AT] euronet.nl>
 Mike Davies		<m.davies [AT] btinternet.com>
 Boris Misenov		<Boris.Misenov [AT] oktelabs.ru>
 Joe McEachern		<joe [AT] qacafe.com>

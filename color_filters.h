@@ -24,6 +24,7 @@
 #ifndef  __COLOR_FILTERS_H__
 #define  __COLOR_FILTERS_H__
 
+#define TEMP_COLOR_PREFIX       "___tmp_color_filter___"
 /** @file
  *  Color filters.
  */
@@ -65,7 +66,13 @@ gboolean color_filters_used(void);
 void
 color_filters_enable(gboolean enable);
 
-
+/** Set the filter string of a temporary color filter
+ *
+ * @param filt_nr a number 1-10 pointing to a temporary color
+ * @param filter the new filter-string
+ */
+void
+color_filters_set_tmp(guint8 filt_nr, gchar *filter);
 
 /* Prime the epan_dissect_t with all the compiler
  * color filters of the current filter list. 

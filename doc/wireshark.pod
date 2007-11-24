@@ -1811,6 +1811,14 @@ Opens the Edit Color Filter dialog box for the selected filter. (If this
 button is disabled you may have more than one filter selected, making it
 ambiguous which is to be edited.)
 
+=item ENABLE
+
+Enables the selected color filter(s).
+
+=item DISABLE
+
+Disables the selected color filter(s).
+
 =item DELETE
 
 Deletes the selected color filter(s).

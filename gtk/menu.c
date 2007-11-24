@@ -194,190 +194,233 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
 #define CONV_UDP    4
 #define CONV_CBA    5
 
-void
-conversation_cb(GtkWidget * w, gpointer data _U_, int action)
+char *
+build_conversation_filter(int action, gboolean show_dialog)
 {
     packet_info *pi = &cfile.edt->pi;
-    char* buf;
-	GtkWidget	*filter_te;
+    char        *buf;
 
 
     switch(action) {
     case(CONV_CBA):
-	if (pi->profinet_type == 0) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error filtering conversation.  Please make\n"
-			      "sure you have a PROFINET CBA packet selected.");
-		return;
-	}
+        if (pi->profinet_type == 0) {
+            if (show_dialog) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error filtering conversation.  Please make\n"
+                    "sure you have a PROFINET CBA packet selected.");
+            }
+            return NULL;
+        }
 
-  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == 6 ) {
-    /* IPv4 */
-      switch(pi->profinet_type) {
-      case(1):
-    buf = g_strdup_printf(
-	     "(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data));
-    break;
-      case(2):
-    buf = g_strdup_printf(
-	     "(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_src.data));
-    break;
-      case(3):
-    buf = g_strdup_printf(
-	     "(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data));
-    break;
-      case(4):
-    buf = g_strdup_printf(
-	     "(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_dst.data),
-	     ip_to_str( pi->net_src.data));
-    break;
-      default:
-        return;
-  }
-  } else {
-    return;
-  }
-  break;
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+        && pi->ipproto == 6 ) {
+            /* IPv4 */
+            switch(pi->profinet_type) {
+            case(1):
+                buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_dst.data));
+                break;
+            case(2):
+                buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.dcom == 0)",
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_src.data));
+                break;
+            case(3):
+                buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_dst.data));
+                break;
+            case(4):
+                buf = g_strdup_printf("(ip.src eq %s and ip.dst eq %s and cba.acco.srt == 1) || (ip.src eq %s and ip.dst eq %s and cba.acco.srt == 0)",
+                    ip_to_str( pi->net_src.data),
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_dst.data),
+                    ip_to_str( pi->net_src.data));
+                break;
+            default:
+                return NULL;
+            }
+        } else {
+            return NULL;
+        }
+        break;
     case(CONV_TCP):
-	if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error filtering conversation.  Please make\n"
-			      "sure you have a TCP packet selected.");
-		return;
-	}
+        if (cfile.edt->pi.ipproto != IP_PROTO_TCP) {
+            if (show_dialog) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error filtering conversation.  Please make\n"
+                    "sure you have a TCP packet selected.");
+            }
+            return NULL;
+        }
 
-  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == 6 ) {
-    /* TCP over IPv4 */
-    buf = g_strdup_printf(
-	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data),
-	     pi->srcport, pi->destport );
-  }
-  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == 6 ) {
-    /* TCP over IPv6 */
-    buf = g_strdup_printf(
-	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
-	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
-	     pi->srcport, pi->destport );
-  }
-  else {
-    return;
-  }
-  break;
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+        && pi->ipproto == 6 ) {
+            /* TCP over IPv4 */
+            buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+                ip_to_str( pi->net_src.data),
+                ip_to_str( pi->net_dst.data),
+                pi->srcport, pi->destport );
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+                && pi->ipproto == 6 ) {
+            /* TCP over IPv6 */
+            buf = g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+                ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+                ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+                pi->srcport, pi->destport );
+        } else {
+            return NULL;
+        }
+        break;
     case(CONV_UDP):
-	if (cfile.edt->pi.ipproto != IP_PROTO_UDP) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error filtering conversation.  Please make\n"
-			      "sure you have a UDP packet selected.");
-		return;
-	}
+        if (cfile.edt->pi.ipproto != IP_PROTO_UDP) {
+            if (show_dialog) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error filtering conversation.  Please make\n"
+                    "sure you have a UDP packet selected.");
+            }
+            return NULL;
+        }
 
-  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == IP_PROTO_UDP /*6*/ ) {
-    /* UDP over IPv4 */
-    buf = g_strdup_printf(
-	     "(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data),
-	     pi->srcport, pi->destport );
-  }
-  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == IP_PROTO_UDP /*6*/ ) {
-    /* UDP over IPv6 */
-    buf = g_strdup_printf(
-	     "(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
-	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
-	     pi->srcport, pi->destport );
-  }
-  else {
-    return;
-  }
-  break;
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+        && pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+            /* UDP over IPv4 */
+            buf = g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+                ip_to_str( pi->net_src.data),
+                ip_to_str( pi->net_dst.data),
+                pi->srcport, pi->destport );
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+                && pi->ipproto == IP_PROTO_UDP /*6*/ ) {
+            /* UDP over IPv6 */
+            buf = g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
+                ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+                ip6_to_str((const struct e_in6_addr *)pi->net_dst.data),
+                pi->srcport, pi->destport );
+        } else {
+            return NULL;
+        }
+        break;
     case(CONV_IP):
-	if (cfile.edt->pi.ethertype != 0x800) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error filtering conversation.  Please make\n"
-			      "sure you have a IP packet selected.");
-		return;
-	}
+        if (cfile.edt->pi.ethertype != 0x800) {
+            if (show_dialog) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error filtering conversation.  Please make\n"
+                    "sure you have a IP packet selected.");
+            }
+            return NULL;
+        }
 
-  if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
-	&& pi->ipproto == 6 ) {
-    /* IPv4 */
-    buf = g_strdup_printf(
-	     "ip.addr eq %s and ip.addr eq %s",
-	     ip_to_str( pi->net_src.data),
-	     ip_to_str( pi->net_dst.data));
-  }
-  else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
-	&& pi->ipproto == 6 ) {
-    /* IPv6 */
-    buf = g_strdup_printf(
-	     "ipv6.addr eq %s and ipv6.addr eq %s",
-	     ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
-	     ip6_to_str((const struct e_in6_addr *)pi->net_dst.data));
-  }
-  else {
-    return;
-  }
-  break;
+        if( pi->net_src.type == AT_IPv4 && pi->net_dst.type == AT_IPv4
+        && pi->ipproto == 6 ) {
+            /* IPv4 */
+            buf = g_strdup_printf("ip.addr eq %s and ip.addr eq %s",
+                ip_to_str( pi->net_src.data),
+                ip_to_str( pi->net_dst.data));
+        } else if( pi->net_src.type == AT_IPv6 && pi->net_dst.type == AT_IPv6
+                && pi->ipproto == 6 ) {
+            /* IPv6 */
+            buf = g_strdup_printf("ipv6.addr eq %s and ipv6.addr eq %s",
+                ip6_to_str((const struct e_in6_addr *)pi->net_src.data),
+                ip6_to_str((const struct e_in6_addr *)pi->net_dst.data));
+        } else {
+            return NULL;
+        }
+        break;
     case(CONV_ETHER):
         /* XXX - is this the right way to check for Ethernet? */
         /* check for the data link address type */
         /* (ethertype will be 0 when used as length field) */
         if (cfile.edt->pi.dl_src.type != 1) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			      "Error filtering conversation.  Please make\n"
-			      "sure you have a Ethernet packet selected.");
-		return;
-	}
+            if (show_dialog) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                    "Error filtering conversation.  Please make\n"
+                    "sure you have a Ethernet packet selected.");
+            }
+            return NULL;
+        }
 
-  if( pi->dl_src.type == 1 /*AT_IPv4*/ && pi->dl_dst.type == 1 /*AT_IPv4*/) {
-    /* Ethernet */
-    buf = g_strdup_printf(
-	     "eth.addr eq %s and eth.addr eq %s",
-	     ether_to_str( pi->dl_src.data),
-	     ether_to_str( pi->dl_dst.data));
-  }
-  else {
-    return;
-  }
-  break;
+        if( pi->dl_src.type == 1 /*AT_IPv4*/ && pi->dl_dst.type == 1 /*AT_IPv4*/) {
+            /* Ethernet */
+            buf = g_strdup_printf("eth.addr eq %s and eth.addr eq %s",
+                ether_to_str( pi->dl_src.data),
+                ether_to_str( pi->dl_dst.data));
+        } else {
+            return NULL;
+        }
+        break;
     default:
-        return;
+        return NULL;
     }
 
-	filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+    return buf;
+}
 
-	gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
+void
+conversation_cb(GtkWidget * w, gpointer data _U_, int action)
+{
+    gchar       *filter;
+    GtkWidget	*filter_te;
 
-	/* Run the display filter so it goes in effect - even if it's the
-	   same as the previous display filter. */
-	main_filter_packets(&cfile, buf, TRUE);
+    /* create a filter-string based on the selected packet and action */
+    filter = build_conversation_filter(action, TRUE);
 
-    g_free(buf);
+    /* Run the display filter so it goes in effect - even if it's the
+    same as the previous display filter. */
+    filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+    gtk_entry_set_text(GTK_ENTRY(filter_te), filter);
+    main_filter_packets(&cfile, filter, TRUE);
 
+    g_free(filter);
+}
+
+void
+colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
+{
+    gchar        *filter = NULL;
+
+    if( (action>>8) == 255 ) {
+        color_filters_init();
+        cf_colorize_packets(&cfile);
+    } else {
+        if( (action&0xff) == 0 ) {
+            /* colorize_conversation_cb was called from the window-menu
+             * or through an accelerator key. Try to build a conversation
+             * filter in the order TCP, UDP, IP, Ethernet and apply the
+             * coloring */
+            filter = build_conversation_filter(CONV_TCP,FALSE);
+            if( filter == NULL )
+                filter = build_conversation_filter(CONV_UDP,FALSE);
+            if( filter == NULL )
+                filter = build_conversation_filter(CONV_IP,FALSE);
+            if( filter == NULL )
+                filter = build_conversation_filter(CONV_ETHER,FALSE);
+            if( filter == NULL ) {
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Unable to build conversation filter.");
+                return;
+            }
+        } else {
+            /* create a filter-string based on the selected packet and action */
+            filter = build_conversation_filter(action&0xff, TRUE);
+        }
+
+        if( (action>>8) == 0) {
+            /* Open the "new coloring filter" dialog with the filter */
+            color_display_with_filter(filter);
+        } else {
+            /* Set one of the temporary coloring filters */
+            color_filters_set_tmp(action>>8,filter);
+            cf_colorize_packets(&cfile);
+        }
+
+        g_free(filter);
+    }
 }
 
 #ifdef HAVE_LUA_5_1
@@ -539,6 +582,33 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/Collapse _All", "<control>Left", collapse_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_ENTRY("/View/Colorize Conversation", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 1", "<control>1",
+                       colorize_conversation_cb, 1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 2", "<control>2",
+                       colorize_conversation_cb, 2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 3", "<control>3",
+                       colorize_conversation_cb, 3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 4", "<control>4",
+                       colorize_conversation_cb, 4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 5", "<control>5",
+                       colorize_conversation_cb, 5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 6", "<control>6",
+                       colorize_conversation_cb, 6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 7", "<control>7",
+                       colorize_conversation_cb, 7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 8", "<control>8",
+                       colorize_conversation_cb, 8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 9", "<control>9",
+                       colorize_conversation_cb, 9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/Color 10", "<control>0",
+                       colorize_conversation_cb, 10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/View/Colorize Conversation/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, 0, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/View/Reset Coloring", "<control>space",
+                       colorize_conversation_cb, 255*256, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -716,6 +786,137 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Conversation Filter/PN-CBA Server", NULL, conversation_cb,
                        CONV_CBA, NULL, NULL),
 
+    ITEM_FACTORY_ENTRY("/Colorize Conversation", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/Ethernet", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 1", NULL,
+                       colorize_conversation_cb, CONV_ETHER+1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 2", NULL,
+                       colorize_conversation_cb, CONV_ETHER+2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 3", NULL,
+                       colorize_conversation_cb, CONV_ETHER+3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 4", NULL,
+                       colorize_conversation_cb, CONV_ETHER+4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 5", NULL,
+                       colorize_conversation_cb, CONV_ETHER+5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 6", NULL,
+                       colorize_conversation_cb, CONV_ETHER+6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 7", NULL,
+                       colorize_conversation_cb, CONV_ETHER+7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 8", NULL,
+                       colorize_conversation_cb, CONV_ETHER+8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 9", NULL,
+                       colorize_conversation_cb, CONV_ETHER+9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/Color 10", NULL,
+                       colorize_conversation_cb, CONV_ETHER+10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/Ethernet/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/Ethernet/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, CONV_ETHER, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/IP", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 1", NULL,
+                       colorize_conversation_cb, CONV_IP+1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 2", NULL,
+                       colorize_conversation_cb, CONV_IP+2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 3", NULL,
+                       colorize_conversation_cb, CONV_IP+3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 4", NULL,
+                       colorize_conversation_cb, CONV_IP+4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 5", NULL,
+                       colorize_conversation_cb, CONV_IP+5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 6", NULL,
+                       colorize_conversation_cb, CONV_IP+6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 7", NULL,
+                       colorize_conversation_cb, CONV_IP+7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 8", NULL,
+                       colorize_conversation_cb, CONV_IP+8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 9", NULL,
+                       colorize_conversation_cb, CONV_IP+9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/Color 10", NULL,
+                       colorize_conversation_cb, CONV_IP+10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/IP/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/IP/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, CONV_IP, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/TCP", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 1", NULL,
+                       colorize_conversation_cb, CONV_TCP+1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 2", NULL,
+                       colorize_conversation_cb, CONV_TCP+2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 3", NULL,
+                       colorize_conversation_cb, CONV_TCP+3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 4", NULL,
+                       colorize_conversation_cb, CONV_TCP+4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 5", NULL,
+                       colorize_conversation_cb, CONV_TCP+5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 6", NULL,
+                       colorize_conversation_cb, CONV_TCP+6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 7", NULL,
+                       colorize_conversation_cb, CONV_TCP+7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 8", NULL,
+                       colorize_conversation_cb, CONV_TCP+8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 9", NULL,
+                       colorize_conversation_cb, CONV_TCP+9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/Color 10", NULL,
+                       colorize_conversation_cb, CONV_TCP+10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/TCP/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/TCP/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, CONV_TCP, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/UDP", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 1", NULL,
+                       colorize_conversation_cb, CONV_UDP+1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 2", NULL,
+                       colorize_conversation_cb, CONV_UDP+2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 3", NULL,
+                       colorize_conversation_cb, CONV_UDP+3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 4", NULL,
+                       colorize_conversation_cb, CONV_UDP+4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 5", NULL,
+                       colorize_conversation_cb, CONV_UDP+5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 6", NULL,
+                       colorize_conversation_cb, CONV_UDP+6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 7", NULL,
+                       colorize_conversation_cb, CONV_UDP+7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 8", NULL,
+                       colorize_conversation_cb, CONV_UDP+8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 9", NULL,
+                       colorize_conversation_cb, CONV_UDP+9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/Color 10", NULL,
+                       colorize_conversation_cb, CONV_UDP+10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/UDP/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/UDP/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, CONV_UDP, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/PN-CBA Server", NULL, NULL, 0, "<Branch>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 1", NULL,
+                       colorize_conversation_cb, CONV_CBA+1*256, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 2", NULL,
+                       colorize_conversation_cb, CONV_CBA+2*256, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 3", NULL,
+                       colorize_conversation_cb, CONV_CBA+3*256, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 4", NULL,
+                       colorize_conversation_cb, CONV_CBA+4*256, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 5", NULL,
+                       colorize_conversation_cb, CONV_CBA+5*256, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 6", NULL,
+                       colorize_conversation_cb, CONV_CBA+6*256, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 7", NULL,
+                       colorize_conversation_cb, CONV_CBA+7*256, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 8", NULL,
+                       colorize_conversation_cb, CONV_CBA+8*256, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 9", NULL,
+                       colorize_conversation_cb, CONV_CBA+9*256, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/Color 10", NULL,
+                       colorize_conversation_cb, CONV_CBA+10*256, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/PN-CBA Server/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/New Coloring Rule...", NULL,
+                       colorize_conversation_cb, CONV_CBA, GTK_STOCK_SELECT_COLOR),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/<separator>", NULL,
+                       NULL, 0, "<Separator>",NULL),
+    ITEM_FACTORY_ENTRY("/Colorize Conversation/Reset Coloring", NULL,
+                       colorize_conversation_cb, 255*256, NULL, NULL),
+
     ITEM_FACTORY_ENTRY("/SCTP", NULL, NULL, 0, "<Branch>",NULL),
     ITEM_FACTORY_ENTRY("/SCTP/Analyse this Association", NULL, sctp_analyse_start,
                        0, NULL,NULL),
@@ -795,6 +996,21 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Prepare a Filter/... o_r not Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_OR_NOT, NULL, NULL),
 
+    ITEM_FACTORY_ENTRY("/Colorize with Filter", NULL, NULL, 0, "<Branch>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 1", NULL, colorize_selected_ptree_cb, 1, WIRESHARK_STOCK_COLOR1),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 2", NULL, colorize_selected_ptree_cb, 2, WIRESHARK_STOCK_COLOR2),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 3", NULL, colorize_selected_ptree_cb, 3, WIRESHARK_STOCK_COLOR3),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 4", NULL, colorize_selected_ptree_cb, 4, WIRESHARK_STOCK_COLOR4),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 5", NULL, colorize_selected_ptree_cb, 5, WIRESHARK_STOCK_COLOR5),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 6", NULL, colorize_selected_ptree_cb, 6, WIRESHARK_STOCK_COLOR6),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 7", NULL, colorize_selected_ptree_cb, 7, WIRESHARK_STOCK_COLOR7),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 8", NULL, colorize_selected_ptree_cb, 8, WIRESHARK_STOCK_COLOR8),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 9", NULL, colorize_selected_ptree_cb, 9, WIRESHARK_STOCK_COLOR9),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 10", NULL, colorize_selected_ptree_cb, 10, WIRESHARK_STOCK_COLOR0),
+    ITEM_FACTORY_ENTRY("/Colorize with Filter/Reset Coloring", NULL, colorize_selected_ptree_cb, 255, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Colorize with Filter/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/New Coloring Rule...", NULL, colorize_selected_ptree_cb, 0, GTK_STOCK_SELECT_COLOR),
+
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_tcp_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Follow UDP Stream", NULL, follow_udp_stream_cb,
@@ -848,19 +1064,19 @@ static GtkAccelGroup *grp;
 
 GtkWidget *
 main_menu_new(GtkAccelGroup ** table) {
-  GtkWidget *menubar;
+    GtkWidget *menubar;
 
-  grp = gtk_accel_group_new();
+    grp = gtk_accel_group_new();
 
-  if (initialize)
-    menus_init();
+    if (initialize)
+        menus_init();
 
-  menubar = main_menu_factory->widget;
+    menubar = main_menu_factory->widget;
 
-  if (table)
-    *table = grp;
+    if (table)
+        *table = grp;
 
-  return menubar;
+    return menubar;
 }
 
 
@@ -2494,6 +2710,16 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/UDP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
+      cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
+      cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
+      cf->current_frame != NULL ? (cf->edt->pi.ethertype == 0x800) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/TCP",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/UDP",
+      cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/PN-CBA Server",
       cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Decode As...",
       cf->current_frame != NULL && decode_as_ok());

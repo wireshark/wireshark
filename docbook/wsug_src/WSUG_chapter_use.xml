@@ -1023,6 +1023,42 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><command>Coloring Converation</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a submenu that allows you
+		    to color packets in the packet list pane based
+                    on the addresses of the currently selected packet.
+                    This makes it easy to distinguish packets
+                    belonging to different conversations.
+		  <xref linkend="ChCustColorizationSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Coloring Converation > Color 1-10</command></entry>
+		<entry></entry>
+		<entry><para>
+		    These menu items enable one of the ten temporary color
+                    filters based on the currently selected conversation.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Coloring Converation > Reset coloring</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item clears all temporary coloring rules.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Coloring Converation > New Coloring Rule...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item opens a dialog window in which a new
+                    permanent coloring rule can be created based on the
+                    currently selected conversation.
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Coloring Rules...</command></entry>
 		<entry></entry>
 		<entry><para>

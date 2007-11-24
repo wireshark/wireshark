@@ -566,8 +566,8 @@ standard libpcap format.
     <para>
       A very useful mechanism available in Wireshark is packet colorization.
       You can set-up Wireshark so that it will colorize packets according to a
-      filter. This allows you to emphasize the packets you are usually
-	  interested in.
+      filter. This allows you to emphasize the packets you are (usually)
+      interested in.
     </para>
     <tip>
       <title>Tip!</title>
@@ -578,7 +578,22 @@ standard libpcap format.
       </para>
     </tip>
     <para>
-      To colorize packets, select the <command>Coloring Rules...</command> menu item from
+      There are two types of coloring rules in Wireshark. Temporary ones that are
+      only used until you quit the program. And permanent ones that will be saved to
+      a preference file so that they are available on a next session.
+    <para>
+    <para>
+      Temporary coloring rules can be added by selecting a packet and pressing
+      the &lt;ctrl&gt; key together with one of the number keys. This will
+      create a coloring rule based on the currently selected conversation. It will
+      try to create a conversation filter based on TCP first, then UDP, then IP
+      and at last Ethernet. Temporary filters can also be created by selecting
+      the "Colorize with Filter > Color X" menu items when rightclicking in the 
+      packet-detail pane.
+    <para>
+
+    <para>
+      To permanently colorize packets, select the <command>Coloring Rules...</command> menu item from
       the <command>View</command> menu; Wireshark will pop up the "Coloring Rules"
       dialog box as shown in <xref linkend="ChCustColoringRulesDialog"/>.
     </para>

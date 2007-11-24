@@ -145,6 +145,17 @@ extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data);
  */
 extern void match_selected_ptree_cb(GtkWidget *widget, gpointer data, MATCH_SELECTED_E action);
 
+/** User requested the colorize function
+ *  by menu or context menu of protocol tree.
+ *
+ * @param widget parent widget
+ * @param data parent widget
+ * @param filt_nr  1-10: use filter for color 1-10
+ *                    0: open new colorization rule dialog
+ *                  255: clear filters for color 1-10
+ */
+extern void colorize_selected_ptree_cb(GtkWidget *w, gpointer data, guint8 filt_nr);
+
 /** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by context menu of packet list.
  *

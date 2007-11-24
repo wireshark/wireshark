@@ -54,9 +54,12 @@ You can reduce the number of packets shown (to filter out the uninteresting ones
 
 Coloring Rules
 --------------
-The packet list can be colored; this means applying different colors for different packets. For example you could choose to have all HTTP packets shown in red and all other TCP traffic shown in yellow.
+The packet list can be colored; this means applying different colors for different packets. For example you could choose to have all HTTP packets shown in red and all other TCP traffic shown in yellow.  There are two types of color rules, temporary (only used in this session) and permanent (save between sessions).
 
-Under "View->Coloring Rules..." you will see a list of color rules. This list is processed for each packet from top to bottom, until one of the rules matches (in which case the color settings of that rule are used for that packet). If no rule matches, the packet will not be colored at all.
+Temporary coloring rules can be created by either pressing <ctrl> and one of the number keys (0-9). This will create a conversation color rule based on the currently selected packet. Temporary color rules can also be added by choosing "color X" from different menus.
+
+Under "View->Coloring Rules..." you will see a list of permanentcolor rules. This list is processed for each packet from top to bottom, until one of the rules matches (in which case the color settings of that rule are used for that packet). If no rule matches, the packet will not be colored at all.
+
 Please note: setting lots of color rules can slow down processing time a bit when showing huge capture files.
 
 Other display things

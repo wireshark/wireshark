@@ -101,11 +101,15 @@ gboolean  row_is_moving = FALSE;
  * The color filter items are not identical to the ones used for the
  * packet list display, so they can be safely edited.
  *
+ * Keep the temporary filters in a seperate list so that they are
+ * not showed in the edit-dialog
+ *
  * XXX - use the existing GTK list for this purpose and build temporary copies
  * e.g. for the save/export functions.
  * Problem: Don't know when able to safely throw away, e.g. while exporting.
  */
 static GSList *color_filter_edit_list = NULL;
+static GSList *color_filter_tmp_list = NULL;
 
 
 #define COLOR_UP_LB		"color_up_lb"
@@ -880,6 +884,7 @@ color_destroy_cb                       (GtkButton       *button _U_,
 
   /* destroy the filter list itself */
   color_filter_list_delete(&color_filter_edit_list);
+  color_filter_list_delete(&color_filter_tmp_list);
 
   colorize_win = NULL;
 }
@@ -922,42 +927,49 @@ add_filter_to_list(gpointer filter_arg, gpointer list_arg)
   gint            row;
   GdkColor        bg, fg;
 
-  data[0] = colorf->filter_name;
-  data[1] = colorf->filter_text;
-  row = gtk_clist_append(GTK_CLIST(color_filters), data);
+  /* Only add permanent coloring rules to the edit-list */
+  if( strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) {
+    data[0] = colorf->filter_name;
+    data[1] = colorf->filter_text;
+    row = gtk_clist_append(GTK_CLIST(color_filters), data);
 
-  color_t_to_gdkcolor(&fg, &colorf->fg_color);
-  color_t_to_gdkcolor(&bg, &colorf->bg_color);
+    color_t_to_gdkcolor(&fg, &colorf->fg_color);
+    color_t_to_gdkcolor(&bg, &colorf->bg_color);
 
-  gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
+    gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
 
-  /* XXX Using light-gray on white for disabled coloring-rules is a
-   * workaround to using strikethrough as I don't know how to set
-   * text to strikethrough in GTK1. This needs to be changed to
-   * keep the GTK1 and GTK2 version simular
-   */
-  gtk_clist_set_foreground(GTK_CLIST(color_filters), row,
-	    colorf->disabled ? &LTGREY : &fg);
-  gtk_clist_set_background(GTK_CLIST(color_filters), row,
-	    colorf->disabled ? &WHITE : &bg);
-#else
-  gchar           fg_str[14], bg_str[14];
-  GtkListStore   *store;
-  GtkTreeIter     iter;
+    /* XXX Using light-gray on white for disabled coloring-rules is a
+     * workaround to using strikethrough as I don't know how to set
+     * text to strikethrough in GTK1. This needs to be changed to
+     * keep the GTK1 and GTK2 version simular
+     */
+    gtk_clist_set_foreground(GTK_CLIST(color_filters), row,
+              colorf->disabled ? &LTGREY : &fg);
+    gtk_clist_set_background(GTK_CLIST(color_filters), row,
+              colorf->disabled ? &WHITE : &bg);
+  #else
+    gchar           fg_str[14], bg_str[14];
+    GtkListStore   *store;
+    GtkTreeIter     iter;
 
-  store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
-  gtk_list_store_append(store, &iter);
-  g_snprintf(fg_str, 14, "#%04X%04X%04X",
-          colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
-  g_snprintf(bg_str, 14, "#%04X%04X%04X",
-          colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
-  gtk_list_store_set(store, &iter, 0, colorf->filter_name,
-                     1, colorf->filter_text, 2, fg_str, 3, bg_str,
-                     4, colorf->disabled, 5, colorf, -1);
-#endif
-  color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
-
-  num_of_filters++;
+  if( strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) {
+    store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list_arg)));
+    gtk_list_store_append(store, &iter);
+    g_snprintf(fg_str, 14, "#%04X%04X%04X",
+            colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
+    g_snprintf(bg_str, 14, "#%04X%04X%04X",
+            colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
+    gtk_list_store_set(store, &iter, 0, colorf->filter_name,
+                       1, colorf->filter_text, 2, fg_str, 3, bg_str,
+                       4, colorf->disabled, 5, colorf, -1);
+  #endif
+    color_filter_edit_list = g_slist_append(color_filter_edit_list, colorf);
+    num_of_filters++;
+  } else {
+    /* But keep the temporary ones too, so they can be added again
+     * when the user is done editing */
+    color_filter_tmp_list = g_slist_append(color_filter_tmp_list, colorf);
+  }
 }
 
 
@@ -1279,19 +1291,10 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 static void
 color_ok_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  color_filters_apply(color_filter_edit_list);
+  /* Apply the new coloring rules... */
+  color_apply_cb(button,user_data);
 
-  /* if we don't have a Save button, just save the settings now */
-  if (!prefs.gui_use_pref_save) {
-      if (!color_filters_write(color_filter_edit_list))
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	        "Could not open filter file: %s", strerror(errno));
-  }
-
-  /* colorize list */
-  cf_colorize_packets(&cfile);
-
-  /* Destroy the dialog box. */
+  /* ... and destroy the dialog box. */
   window_destroy(colorize_win);
 }
 
@@ -1300,7 +1303,7 @@ color_ok_cb(GtkButton *button _U_, gpointer user_data _U_)
 static void
 color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  color_filters_apply(color_filter_edit_list);
+  GSList *cfl;
 
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
@@ -1309,6 +1312,12 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 	        "Could not open filter file: %s", strerror(errno));
   }
 
+  /* merge the temporary coloring filters with the ones that just
+   * have been edited and apply them both */
+  cfl = g_slist_concat(color_filter_tmp_list, color_filter_edit_list);
+  color_filters_apply(cfl);
+
+  /* colorize list */
   cf_colorize_packets(&cfile);
 }
 

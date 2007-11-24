@@ -133,6 +133,16 @@
 		</entry>
 	      </row>
 	      <row>
+		<entry><command>Colorize Conversation</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+	      This menu item uses a display filter with the address information 
+		  from the selected packet to build a new colorizing rule.
+	    </para>
+		</entry>
+	      </row>
+	      <row>
 		<entry><command>SCTP</command></entry>
 		<entry>-</entry>
 		<entry>
@@ -455,6 +465,16 @@
 		<entry>
 	    <para>
 		  Prepare a display filter based on the currently selected item. 
+	    </para>
+		</entry>
+	      </row>
+	      <row>
+		<entry><command>Colorize with Filter</command></entry>
+		<entry>-</entry>
+		<entry>
+	    <para>
+		  Prepare a display filter based on the currently selected item
+          and use it to prepare a new colorize rule.
 	    </para>
 		</entry>
 	      </row>

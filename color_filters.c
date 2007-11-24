@@ -43,6 +43,11 @@
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
 #include "ui_util.h"
+#include <epan/prefs.h>
+
+#define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
+#define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
+#define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
 static gboolean read_users_filters(GSList **cfl);
 
@@ -78,6 +83,92 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 	colorf->edit_dialog = NULL;
 	colorf->selected = FALSE;
         return colorf;
+}
+
+/* Add ten empty (temporary) colorfilters for easy coloring */
+void
+color_filters_add_tmp(GSList **cfl)
+{
+	gchar  *name = NULL;
+        gchar  *stockstr = NULL;
+	guint32 i;
+        gchar** bg_colors;
+        gchar** fg_colors;
+        unsigned long int cval;
+        color_t bg_color, fg_color;
+        color_filter_t *colorf;
+
+	g_assert(strlen(prefs.gui_colorized_fg)==69);
+	g_assert(strlen(prefs.gui_colorized_bg)==69);
+        fg_colors = g_strsplit(prefs.gui_colorized_fg, ",", -1);
+        bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
+
+        for ( i=1 ; i<=10 ; i++ ) {
+                name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
+
+		/* retrieve background and foreground colors */
+                cval = strtoul(fg_colors[i-1], NULL, 16);
+                initialize_color(&fg_color, RED_COMPONENT(cval),
+                                            GREEN_COMPONENT(cval),
+                                            BLUE_COMPONENT(cval) );
+                cval = strtoul(bg_colors[i-1], NULL, 16);
+                initialize_color(&bg_color, RED_COMPONENT(cval),
+                                            GREEN_COMPONENT(cval),
+                                            BLUE_COMPONENT(cval) );
+                colorf = color_filter_new(name, NULL, &bg_color, &fg_color, TRUE);
+                colorf->filter_text = g_strdup("frame");
+                colorf->c_colorfilter = NULL;
+                *cfl = g_slist_append(*cfl, colorf);
+
+                g_free(name);
+	}
+
+        g_strfreev(fg_colors);
+        g_strfreev(bg_colors);
+
+	return;
+}
+
+static gint
+color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
+{
+        color_filter_t *colorf = (color_filter_t *)arg1;
+        gchar          *name   = (gchar *)arg2;
+
+        return (strstr(colorf->filter_name, name)==NULL) ? -1 : 0 ;
+}
+
+
+/* Set the filter off a temporary colorfilters and enable it */
+void
+color_filters_set_tmp(guint8 filt_nr, gchar *filter)
+{
+	gchar  *name = NULL;
+        GSList *cfl;
+        color_filter_t *colorf;
+        dfilter_t      *compiled_filter;
+
+        name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,filt_nr);
+        cfl = g_slist_find_custom(color_filter_list, (gpointer *) name, color_filters_find_by_name_cb);
+        colorf = cfl->data;
+
+        if(colorf) {
+                if (!dfilter_compile(filter, &compiled_filter)) {
+                        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                                "Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
+                                name, filter, dfilter_error_msg);
+                } else {
+                        if (colorf->filter_text != NULL)
+                                g_free(colorf->filter_text);
+                        if (colorf->c_colorfilter != NULL)
+                                dfilter_free(colorf->c_colorfilter);
+                        colorf->filter_text = g_strdup(filter);
+                        colorf->c_colorfilter = compiled_filter;
+                        colorf->disabled = FALSE;
+                }
+        }
+        g_free(name);
+	return;
 }
 
 /* delete the specified filter */
@@ -158,6 +249,9 @@ color_filters_init(void)
 	/* delete all currently existing filters */
 	color_filter_list_delete(&color_filter_list);
 
+        /* start the list with the temporary colorizing rules */
+        color_filters_add_tmp(&color_filter_list);
+
 	/* try to read the users filters */
 	if (!read_users_filters(&color_filter_list))
 		/* if that failed, try to read the global filters */
@@ -175,8 +269,7 @@ static void
 color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
 {
 	color_filter_t * new_colorf = color_filter_clone(filter_arg);
-
-	color_filter_add_cb (new_colorf, user_data);
+        color_filter_add_cb (new_colorf, user_data);
 }
 
 void
@@ -286,8 +379,8 @@ color_filters_colorize_packet(gint row, epan_dissect_t *edt)
 
         while(curr != NULL) {
             colorf = curr->data;
-            if ((colorf->c_colorfilter != NULL) &&
-		(!colorf->disabled) &&
+            if ( (!colorf->disabled) &&
+                 (colorf->c_colorfilter != NULL) &&
                  dfilter_apply_edt(colorf->c_colorfilter, edt)) {
                     /* this is the filter to use, apply it to the packet list */
                     packet_list_set_colors(row, &(colorf->fg_color), &(colorf->bg_color));
@@ -549,7 +642,8 @@ write_filter(gpointer filter_arg, gpointer data_arg)
 	color_filter_t *colorf = filter_arg;
 	FILE *f = data->f;
 
-	if (colorf->selected || !data->only_selected) {
+	if ( (colorf->selected || !data->only_selected) &&
+             (strstr(colorf->filter_name,TEMP_COLOR_PREFIX)==NULL) ) {
 		fprintf(f,"%s@%s@%s@[%d,%d,%d][%d,%d,%d]\n",
 		    colorf->disabled ? "!" : "",
 		    colorf->filter_name,

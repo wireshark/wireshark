@@ -222,6 +222,16 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define WIRESHARK_STOCK_FILTER_OUT_STREAM        "Filter Out This Stream"
 #define WIRESHARK_STOCK_ENABLE                   "Enable"
 #define WIRESHARK_STOCK_DISABLE                  "Disable"
+#define WIRESHARK_STOCK_COLOR1                   "Color 1"
+#define WIRESHARK_STOCK_COLOR2                   "Color 2"
+#define WIRESHARK_STOCK_COLOR3                   "Color 3"
+#define WIRESHARK_STOCK_COLOR4                   "Color 4"
+#define WIRESHARK_STOCK_COLOR5                   "Color 5"
+#define WIRESHARK_STOCK_COLOR6                   "Color 6"
+#define WIRESHARK_STOCK_COLOR7                   "Color 7"
+#define WIRESHARK_STOCK_COLOR8                   "Color 8"
+#define WIRESHARK_STOCK_COLOR9                   "Color 9"
+#define WIRESHARK_STOCK_COLOR0                   "Color 10"
 
 /** Create a stock button. Will create a "normal" button for GTK1.
  *
@@ -359,6 +369,16 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_LABEL_FILTER_OUT_STREAM        "Filter Out This Stream"
 #define WIRESHARK_STOCK_LABEL_ENABLE                   "Enable"
 #define WIRESHARK_STOCK_LABEL_DISABLE                  "Disable"
+#define WIRESHARK_STOCK_LABEL_COLOR1                   "Color 1"
+#define WIRESHARK_STOCK_LABEL_COLOR2                   "Color 2"
+#define WIRESHARK_STOCK_LABEL_COLOR3                   "Color 3"
+#define WIRESHARK_STOCK_LABEL_COLOR4                   "Color 4"
+#define WIRESHARK_STOCK_LABEL_COLOR5                   "Color 5"
+#define WIRESHARK_STOCK_LABEL_COLOR6                   "Color 6"
+#define WIRESHARK_STOCK_LABEL_COLOR7                   "Color 7"
+#define WIRESHARK_STOCK_LABEL_COLOR8                   "Color 8"
+#define WIRESHARK_STOCK_LABEL_COLOR9                   "Color 9"
+#define WIRESHARK_STOCK_LABEL_COLOR0                   "Color 10"
 
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_CAPTURE_INTERFACES       "Wireshark_Stock_CaptureInterfaces"
@@ -401,6 +421,16 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #define WIRESHARK_STOCK_FILTER_OUT_STREAM        "Wireshark_Stock_Filter_Out_This_Stream"
 #define WIRESHARK_STOCK_ENABLE                   "Wireshark_Stock_Enable"
 #define WIRESHARK_STOCK_DISABLE                  "Wireshark_Stock_Disable"
+#define WIRESHARK_STOCK_COLOR1                   "Wireshark_Stock_Color_1"
+#define WIRESHARK_STOCK_COLOR2                   "Wireshark_Stock_Color_2"
+#define WIRESHARK_STOCK_COLOR3                   "Wireshark_Stock_Color_3"
+#define WIRESHARK_STOCK_COLOR4                   "Wireshark_Stock_Color_4"
+#define WIRESHARK_STOCK_COLOR5                   "Wireshark_Stock_Color_5"
+#define WIRESHARK_STOCK_COLOR6                   "Wireshark_Stock_Color_6"
+#define WIRESHARK_STOCK_COLOR7                   "Wireshark_Stock_Color_7"
+#define WIRESHARK_STOCK_COLOR8                   "Wireshark_Stock_Color_8"
+#define WIRESHARK_STOCK_COLOR9                   "Wireshark_Stock_Color_9"
+#define WIRESHARK_STOCK_COLOR0                   "Wireshark_Stock_Color_10"
 
 #define BUTTON_NEW_FROM_STOCK(stock_id) \
 gtk_button_new_from_stock(stock_id);
