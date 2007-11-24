@@ -46,6 +46,7 @@ static int hf_nfs_procedure_v2 = -1;
 static int hf_nfs_procedure_v3 = -1;
 static int hf_nfs_procedure_v4 = -1;
 static int hf_nfs_fh_length = -1;
+static int hf_nfs_impl_id4_len = -1;
 static int hf_nfs_fh_hash = -1;
 static int hf_nfs_fh_fhandle_data = -1;
 static int hf_nfs_fh_mount_fileid = -1;
@@ -242,6 +243,7 @@ static int hf_nfs_ace4 = -1;
 static int hf_nfs_recall = -1;
 static int hf_nfs_open_claim_type4 = -1;
 static int hf_nfs_opentype4 = -1;
+static int hf_nfs_state_protect_how4 = -1;
 static int hf_nfs_limit_by4 = -1;
 static int hf_nfs_open_delegation_type4 = -1;
 static int hf_nfs_ftype4 = -1;
@@ -342,10 +344,68 @@ static int hf_nfs_lock4_reclaim = -1;
 static int hf_nfs_acl4 = -1;
 static int hf_nfs_callback_ident = -1;
 static int hf_nfs_r_netid = -1;
+static int hf_nfs_gsshandle4 = -1;
 static int hf_nfs_r_addr = -1;
 
+/* NFSv4.1 */
+static int hf_nfs_length4_minlength = -1;
+static int hf_nfs_layouttype4 = -1;
+static int hf_nfs_layoutreturn_type4 = -1;
+static int hf_nfs_iomode4 = -1;
+static int hf_nfs_stripetype4 = -1;
+static int hf_nfs_mdscommit4 = -1;
+static int hf_nfs_stripeunit4 = -1;
+static int hf_nfs_newtime4 = -1;
+static int hf_nfs_newoffset4 = -1;
+static int hf_nfs_layout_avail4 = -1;
+static int hf_nfs_newsize4 = -1;
+static int hf_nfs_layoutupdate4 = -1;
+static int hf_nfs_deviceid4 = -1;
+static int hf_nfs_devicenum4 = -1;
+static int hf_nfs_deviceidx4 = -1;
+static int hf_nfs_layout4 = -1;
+static int hf_nfs_stripedevs4 = -1;
+static int hf_nfs_devaddr4 = -1;
+static int hf_nfs_notifydsop4 = -1;
+static int hf_nfs_return_on_close4 = -1;
+static int hf_nfs_slotid4 = -1;
+static int hf_nfs_sr_status4 = -1;
+static int hf_nfs_serverscope4 = -1;
+static int hf_nfs_minorid4 = -1;
+static int hf_nfs_majorid4 = -1;
+static int hf_nfs_padsize4 = -1;
+static int hf_nfs_cbrenforce4 = -1;
+static int hf_nfs_hashalg4 = -1;
+static int hf_nfs_ssvlen4 = -1;
+static int hf_nfs_maxreqsize4 = -1;
+static int hf_nfs_maxrespsize4 = -1;
+static int hf_nfs_maxrespsizecached4 = -1;
+static int hf_nfs_maxops4 = -1;
+static int hf_nfs_maxreqs4 = -1;
+static int hf_nfs_rdmachanattrs4 = -1;
+static int hf_nfs_machinename4 = -1;
+static int hf_nfs_flavor4 = -1;
+static int hf_nfs_stamp4 = -1;
+static int hf_nfs_uid4 = -1;
+static int hf_nfs_gid4 = -1;
+static int hf_nfs_service4 = -1;
+static int hf_nfs_sessionid4 = -1;
+static int hf_nfs_exch_id_flags4 = -1;
+static int hf_nfs_state_protect_window = -1;
+static int hf_nfs_state_protect_num_gss_handles = -1;
+static int hf_nfs_prot_info4_spi_window = -1;
+static int hf_nfs_prot_info4_svv_length = -1;
+static int hf_nfs_prot_info4_encr_alg = -1;
+static int hf_nfs_prot_info4_hash_alg = -1;
+static int hf_nfs_nii_domain4 = -1;
+static int hf_nfs_nii_name4 = -1;
+static int hf_nfs_create_session_flags4 = -1;
+static int hf_nfs_cachethis4 = -1;
+static int hf_nfs_util4 = -1;
+static int hf_nfs_first_stripe_idx4 = -1;
+
 /* Hidden field for v2, v3, and v4 status */
-       int hf_nfs_nfsstat = -1;
+int hf_nfs_nfsstat = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -463,6 +523,44 @@ static gint ett_nfs_clientaddr4 = -1;
 static gint ett_nfs_aceflag4 = -1;
 static gint ett_nfs_acemask4 = -1;
 
+static gint ett_nfs_layoutget4 = -1;
+static gint ett_nfs_layoutcommit4 = -1;
+static gint ett_nfs_layoutreturn4 = -1;
+static gint ett_nfs_getdevinfo4 = -1;
+static gint ett_nfs_getdevlist4 = -1;
+static gint ett_nfs_notifyds4 = -1;
+static gint ett_nfs_exchange_id4 = -1;
+static gint ett_nfs_create_session4 = -1;
+static gint ett_nfs_destroy_session4 = -1;
+static gint ett_nfs_sequence4 = -1;
+static gint ett_nfs_pnfs_create4 = -1;
+static gint ett_nfs_slotid4 = -1;
+static gint ett_nfs_sr_status4 = -1;
+static gint ett_nfs_serverscope4 = -1;
+static gint ett_nfs_minorid4 = -1;
+static gint ett_nfs_majorid4 = -1;
+static gint ett_nfs_persist4 = -1;
+static gint ett_nfs_backchan4 = -1;
+static gint ett_nfs_rdmamode4 = -1;
+static gint ett_nfs_padsize4 = -1;
+static gint ett_nfs_cbrenforce4 = -1;
+static gint ett_nfs_hashalg4 = -1;
+static gint ett_nfs_ssvlen4 = -1;
+static gint ett_nfs_maxreqsize4 = -1;
+static gint ett_nfs_maxrespsize4 = -1;
+static gint ett_nfs_maxrespsizecached4 = -1;
+static gint ett_nfs_maxops4 = -1;
+static gint ett_nfs_maxreqs4 = -1;
+static gint ett_nfs_streamchanattrs4 = -1;
+static gint ett_nfs_rdmachanattrs4 = -1;
+static gint ett_nfs_machinename4 = -1;
+static gint ett_nfs_flavor4 = -1;
+static gint ett_nfs_stamp4 = -1;
+static gint ett_nfs_uid4 = -1;
+static gint ett_nfs_gid4 = -1;
+static gint ett_nfs_service4 = -1;
+static gint ett_nfs_sessionid4 = -1;
+
 /* what type of fhandles shoudl we dissect as */
 static dissector_table_t nfs_fhandle_table;
 
@@ -572,7 +670,7 @@ store_nfs_file_handle(nfs_fhandle_data_t *nfs_fh)
 	new_nfs_fh=se_alloc(sizeof(nfs_fhandle_data_t));
 	new_nfs_fh->len=nfs_fh->len;
 	new_nfs_fh->fh=se_alloc(sizeof(guint32)*(nfs_fh->len/4));
-	memcpy( (void *) new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
+	memcpy((void *)new_nfs_fh->fh, nfs_fh->fh, nfs_fh->len);
 	new_nfs_fh->tvb=tvb_new_real_data(new_nfs_fh->fh, new_nfs_fh->len, new_nfs_fh->len);
 	fhlen=nfs_fh->len/4;
 	fhkey[0].length=1;
@@ -5699,6 +5797,31 @@ static const value_string names_nfs_nfsstat4[] = {
 	{	10046,	"NFS4ERR_FILE_OPEN"	},
 	{	10047,	"NFS4ERR_ADMIN_REVOKED"	},
 	{	10048,	"NFS4ERR_CB_PATH_DOWN"	},
+	{   10049, "NFS4ERR_BADIOMODE"  },
+	{   10050, "NFS4ERR_BADLAYOUT"  },
+	{   10051, "NFS4ERR_BAD_SESSION_DIGEST"  },
+	{   10052, "NFS4ERR_BADSESSION" },
+	{   10053, "NFS4ERR_BADSLOT"  },
+	{   10054, "NFS4ERR_COMPLETE_ALREADY" },
+	{   10055, "NFS4ERR_CONN_NOT_BOUND_TO_SESSION" },
+	{   10056, "NFS4ERR_DELEG_ALREADY_WANTED" },
+	{   10057, "NFS4ERR_DIRDELEG_UNAVAIL"  },
+	{   10058, "NFS4ERR_LAYOUTTRYLATER"  },
+	{   10059, "NFS4ERR_LAYOUTUNAVAILABLE"  },
+	{   10060, "NFS4ERR_NOMATCHING_LAYOUT"  },
+	{   10061, "NFS4ERR_RECALLCONFLICT"  },
+	{   10062, "NFS4ERR_UNKNOWN_LAYOUTTYPE"  },
+	{   10063, "NFS4ERR_SEQ_MISORDERED"  },
+	{   10064, "NFS4ERR_SEQUENCE_POS"  },
+	{   10065, "NFS4ERR_REQ_TOO_BIG"  },
+	{   10066, "NFS4ERR_REP_TOO_BIG"  },
+	{   10067, "NFS4ERR_REP_TOO_BIG_TO_CACHE"  },
+	{   10068, "NFS4ERR_RETRY_UNCACHED_REP"  },
+	{   10069, "NFS4ERR_UNSAFE_COMPOUND"  },
+	{   10070, "NFS4ERR_TOO_MANY_OPS" },
+	{   10071, "NFS4ERR_OP_NOT_IN_SESSION"  },
+	{   10072, "NFS4ERR_HASH_ALG_UNSUPP"  },
+	{   10073, "NFS4ERR_CONN_BINDING_NOT_ENFORCED"  },
 	{ 0, NULL }
 };
 
@@ -6303,6 +6426,20 @@ static const value_string names_fattr4[] = {
 	{	FATTR4_TIME_MODIFY_SET, "FATTR4_TIME_MODIFY_SET"	},
 #define FATTR4_MOUNTED_ON_FILEID   55
 	{	FATTR4_MOUNTED_ON_FILEID, "FATTR4_MOUNTED_ON_FILEID"	},
+#define FATTR4_DIR_NOTIF_DELAY 56
+	{	FATTR4_DIR_NOTIF_DELAY, "FATTR4_DIR_NOTIF_DELAY"	},
+#define FATTR4_DIRENT_NOTIF_DELAY   57
+	{	FATTR4_DIRENT_NOTIF_DELAY, "FATTR4_DIRENT_NOTIF_DELAY"	},
+#define FATTR4_SEND_IMPL_ID   58
+	{	FATTR4_SEND_IMPL_ID, "FATTR4_SEND_IMPL_ID"	},
+#define FATTR4_RECV_IMPL_ID  59
+	{	FATTR4_RECV_IMPL_ID, "FATTR4_RECV_IMPL_ID"	},
+#define FATTR4_ABSENT  60
+	{	FATTR4_ABSENT, "FATTR4_ABSENT"	},
+#define FATTR4_FS_STATUS  61
+	{	FATTR4_FS_STATUS, "FATTR4_FS_STATUS"	},
+#define FATTR4_FS_LAYOUT_TYPES   62
+	{	FATTR4_MOUNTED_ON_FILEID, "FATTR4_FS_LAYOUT_TYPES"	},
 	{	0,	NULL	}
 };
 
@@ -6964,6 +7101,19 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_VERIFY,					"VERIFY"	},
 	{	NFS4_OP_WRITE,						"WRITE"	},
 	{	NFS4_OP_RELEASE_LOCKOWNER,		"RELEASE_LOCKOWNER"	},
+	{   NFS4_OP_EXCHANGE_ID,            "EXCHANGE_ID" },
+	{   NFS4_OP_CREATE_SESSION,         "CREATE_SESSION" },
+	{   NFS4_OP_DESTROY_SESSION,        "DESTROY_SESSION" },
+	{   NFS4_OP_SEQUENCE,               "SEQUENCE" },
+	{   NFS4_OP_GETDEVINFO,             "GETDEVINFO"},
+	{   NFS4_OP_GETDEVLIST,             "GETDEVLIST"},
+	{   NFS4_OP_LAYOUTCOMMIT,           "LAYOUTCOMMIT" },
+	{   NFS4_OP_LAYOUTGET,              "LAYOUTGET" },
+	{   NFS4_OP_LAYOUTRETURN,           "LAYOUTRETURN" },
+	{   NFS4_OP_NOTIFYDS,             "PNFS_NOTIFYDS"},
+	{   NFS4_OP_PNFS_CREATE,             "PNFS_CREATE"},
+	{   NFS4_OP_PNFS_WRITE,             "PNFS_WRITE"},
+	{   NFS4_OP_PNFS_READ,             "PNFS_READ"},
 	{	NFS4_OP_ILLEGAL,					"ILLEGAL"	},
 	{ 0, NULL }
 };
@@ -7006,7 +7156,29 @@ gint *nfsv4_operation_ett[] =
 	 &ett_nfs_setclientid_confirm4 ,
 	 &ett_nfs_verify4 ,
 	 &ett_nfs_write4,
-    &ett_nfs_release_lockowner4,
+	 &ett_nfs_release_lockowner4,
+	 NULL,
+	 NULL,
+	 &ett_nfs_exchange_id4,
+	 &ett_nfs_create_session4,
+	 &ett_nfs_destroy_session4,
+	 NULL,
+	 NULL,
+	 &ett_nfs_getdevinfo4,
+	 &ett_nfs_getdevlist4,
+	 &ett_nfs_layoutcommit4,
+	 &ett_nfs_layoutget4,
+	 &ett_nfs_layoutreturn4,
+	 NULL,
+	 &ett_nfs_sequence4,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 &ett_nfs_notifyds4,
+	 &ett_nfs_pnfs_create4,
 };
 
 static int
@@ -7142,6 +7314,7 @@ dissect_nfs_stateid4(tvbuff_t *tvb, int offset,
 	}
 
 	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+
 	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, FALSE);
 	offset+=12;
 
@@ -7165,6 +7338,155 @@ dissect_nfs_modified_limit4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_num_blocks, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_bytes_per_block, offset);
 
+	return offset;
+}
+
+/*
+ * No FULL DISECT yet.
+ */
+static int
+dissect_nfs_state_protect_bitmap4(tvbuff_t *tvb, int offset,
+proto_tree *tree)
+{
+	guint32 bitmap_len;
+	proto_item *fitem = NULL;
+	proto_tree *newftree = NULL;
+	proto_item *op_fitem = NULL;
+	proto_tree *op_newftree = NULL;
+	guint32 *bitmap=NULL;
+	guint32 fattr;
+	guint32 i;
+	gint j;
+	guint32 sl;
+
+	bitmap_len = tvb_get_ntohl(tvb, offset);
+	if (bitmap_len > MAX_BITMAP_LEN) {
+		proto_tree_add_text(tree, tvb, offset, 4,
+				"Huge bitmap length: %u", bitmap_len);
+		THROW(ReportedBoundsError);
+	}
+	tvb_ensure_bytes_exist(tvb, offset, 4 + bitmap_len * 4);
+	fitem = proto_tree_add_text(tree, tvb, offset, 4 + bitmap_len * 4,
+					"%s", "operation mask");
+	offset += 4;
+	if (fitem == NULL) return offset;
+
+	newftree = proto_item_add_subtree(fitem, ett_nfs_bitmap4);
+	if (newftree == NULL) return offset;
+
+	if(bitmap_len)
+		bitmap = ep_alloc(bitmap_len * sizeof(guint32));
+
+	if (bitmap == NULL) return offset;
+	for (i = 0; i < bitmap_len; i++) {
+		bitmap[i] = tvb_get_ntohl(tvb, offset);
+		sl = 0x00000001;
+		for (j = 0; j < 32; j++) {
+			fattr = 32 * i + j;
+			if (bitmap[i] & sl) {
+				op_fitem = proto_tree_add_uint(newftree,
+				hf_nfs_recc_attr, tvb, offset, 4, fattr);
+				if (op_fitem == NULL) break;
+					op_newftree = proto_item_add_subtree(op_fitem, ett_nfs_bitmap4);
+				if (op_newftree == NULL) break;
+			}
+			sl <<= 1;
+		}
+		offset += 4;
+	}
+	return offset;
+}
+
+#define SP4_NONE                                0
+#define SP4_MACH_CRED                           1
+#define SP4_SSV                                 2
+static const value_string names_state_protect_how4[] = {
+{	SP4_NONE,	"SP4_NONE"  },
+{	SP4_MACH_CRED,	"SP4_MACH_CRED" },
+{	SP4_SSV,	"SP4_SSV" },
+{	0,		NULL }
+};
+
+static int
+dissect_nfs_state_protect_ops4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_nfs_state_protect_bitmap4(tvb, offset, tree);
+	offset = dissect_nfs_state_protect_bitmap4(tvb, offset, tree);
+	return offset;
+}
+
+static int
+dissect_nfs_ssv_sp_parms4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_nfs_state_protect_ops4(tvb, offset, tree);
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+				hf_nfs_sec_oid4, FALSE, 0, FALSE, NULL, NULL);
+	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
+				hf_nfs_sec_oid4, FALSE, 0, FALSE, NULL, NULL);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_state_protect_window, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_state_protect_num_gss_handles, offset);
+	return offset;
+}
+
+static int
+dissect_nfs_ssv_prot_info4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_nfs_state_protect_ops4(tvb, offset, tree);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_prot_info4_hash_alg, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_prot_info4_encr_alg, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_prot_info4_svv_length, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_prot_info4_spi_window, offset);
+	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_gsshandle4);
+	return offset;
+}
+
+static int
+dissect_nfs_state_protect4_a(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint stateprotect;
+
+	stateprotect = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_nfs_state_protect_how4, tvb, offset+0, 4,
+							stateprotect);
+	offset += 4;
+
+	switch(stateprotect) {
+		case SP4_NONE:
+			break;
+		case SP4_MACH_CRED:
+			offset = dissect_nfs_state_protect_ops4(tvb, offset, tree);
+			break;
+		case SP4_SSV:
+			offset = dissect_nfs_ssv_sp_parms4(tvb, offset, tree);
+			break;
+		default:
+			break;
+	}
+	return offset;
+}
+
+static int
+dissect_nfs_state_protect4_r(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint stateprotect;
+
+	stateprotect = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_nfs_state_protect_how4, tvb, offset+0, 4,
+							stateprotect);
+	offset += 4;
+
+	switch(stateprotect) {
+		case SP4_NONE:
+			break;
+		case SP4_MACH_CRED:
+			offset = dissect_nfs_state_protect_ops4(tvb, offset, tree);
+			break;
+		case SP4_SSV:
+			offset = dissect_nfs_ssv_prot_info4(tvb, offset, tree);
+			break;
+		default:
+			break;
+	}
 	return offset;
 }
 
@@ -7322,6 +7644,289 @@ dissect_nfs_client_id4(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
+
+static int
+dissect_nfs_newtime4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint new_time;
+
+	new_time = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs_newtime4, offset);
+
+	if (new_time) {
+		offset = dissect_nfs_nfstime4(tvb, offset, tree);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_newsize4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint new_size;
+
+	new_size = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs_newsize4, offset);
+
+	if (new_size) {
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_newoffset4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint new_offset;
+
+	new_offset = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs_newoffset4, offset);
+
+	if (new_offset) {
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_layoutreturn4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint returntype;
+
+	returntype = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layoutreturn_type4, offset);
+	if (returntype == 1) { /* RETURN_FILE */
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset4, offset);
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_length4, offset);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_devices4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i;
+	guint32 num_devs,num_indices,num_multipath;
+
+	/* No layout type - argh */
+
+	/* Assume file layout for now */
+
+	/* disect indices */
+	num_indices = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	for (i = 0; i < num_indices; i++) {
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceidx4,offset);
+	}
+
+	/* disect devices */
+	num_devs = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	for (i = 0; i < num_devs; i++) {
+		num_multipath = tvb_get_ntohl(tvb, offset);
+		offset += 4;
+		for (i = 0; i < num_multipath; i++) {
+			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_netid);
+			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_r_addr);
+		}
+	}
+
+	return offset;
+}
+
+
+static int
+dissect_nfs_deviceaddr4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	/* No layout type - argh */
+
+	/* Assume file layout for now */
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+
+	offset = dissect_nfs_devices4(tvb, offset, tree);
+
+	return offset;
+}
+
+static int
+dissect_nfs_devicelist4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint count;
+	guint i;
+
+	count = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_devicenum4, offset);
+	for (i = 0; i < count; i++) {
+		int opaque_devs, dev_limit;
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceid4, offset);
+
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+
+		opaque_devs = tvb_get_ntohl(tvb, offset);
+		offset += 4;
+		dev_limit = opaque_devs + offset;
+		while (offset < dev_limit) {
+			offset = dissect_nfs_devices4(tvb, offset, tree);
+		}
+	}
+	return offset;
+}
+
+static int
+dissect_rpc_serverowner4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_minorid4, offset);
+	offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_majorid4);
+	return offset;
+}
+
+static int
+dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i, count;
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_padsize4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxreqsize4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxrespsize4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxrespsizecached4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxops4, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxreqs4, offset);
+	count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	for (i = 0; i < count; i++) {
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_rdmachanattrs4, offset);
+	}
+	return offset;
+}
+
+static int
+dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i, count;
+	count = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_nfs_impl_id4_len, tvb, offset+0, 4,
+			count);
+	offset += 4;
+	for (i = 0; i < count; i++) {
+		offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_nii_domain4, NULL);
+		offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_nii_name4, NULL);
+		offset = dissect_nfs_nfstime4(tvb, offset, tree);
+
+	}
+	return offset;
+}
+static int
+dissect_rpc_secparms4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint count, i;
+	count = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+
+	for (i = 0; i < count; i++) {
+		guint j, flavor = tvb_get_ntohl(tvb, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_flavor4, offset);
+
+		switch(flavor) {
+		case 1: { /* AUTH_SYS */
+			guint count2;
+			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_stamp4, offset);
+			offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_machinename4, NULL);
+			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_uid4, offset);
+			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_gid4, offset);
+			count2 = tvb_get_ntohl(tvb, offset);
+			offset += 4;
+			for (j = 0; j < count2; j++) {
+				offset = dissect_rpc_uint32(tvb, tree, hf_nfs_gid4, offset);
+			}
+			break;
+		}
+		case 6: /* RPCSEC_GSS */
+			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_service4, offset);
+			proto_item_append_text(tree, ", Handle from server");
+			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
+			proto_item_append_text(tree, ", Handle from client");
+			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
+			break;
+		default:
+			break;
+		}
+	}
+	return offset;
+}
+
+static int
+dissect_nfs_notifydsargs4(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+
+	guint op;
+
+	op = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_notifydsop4, offset);
+	switch(op) {
+	case 0: { /* ADDSTATE */
+		guint count, i;
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_clientid4, offset);
+
+		proto_tree_add_text(tree, tvb, offset, 0, "filehandle: %s",
+							tvb_bytes_to_str(tvb, offset, 16));
+		offset += 16;
+
+		count = tvb_get_ntohl(tvb, offset);
+		offset += 4;
+		for (i = 0; i < count; i++) {
+			offset = dissect_nfs_stateid4(tvb, offset, tree);
+		}
+		break;
+	}
+	case 1: { /* DELSTATE */
+		guint count, i;
+		count = tvb_get_ntohl(tvb, offset);
+		offset += 4;
+		for (i = 0; i < count; i++) {
+			offset = dissect_nfs_stateid4(tvb, offset, tree);
+		}
+		break;
+	}
+	case 2: /* DELCLIENT */
+		offset = dissect_rpc_uint64(tvb, tree, hf_nfs_clientid4, offset);
+		break;
+	default:
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfs_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	guint layout_type;
+
+	layout_type = tvb_get_ntohl(tvb, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_layouttype4, offset);
+
+	if (layout_type == 1) { /* NFS Files */
+		guint num;
+		guint i;
+		offset += 4; /* Skip past opaque count */
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_deviceid4, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_util4, offset);
+		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_first_stripe_idx4, offset);
+
+		num = tvb_get_ntohl(tvb, offset); /* Len of dev list */
+		offset += 4;
+		for (i = 0; i < num; i++) {
+			offset = dissect_nfs_fh4(tvb, offset, pinfo, tree, "filehandle");
+		}
+	} else {
+		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_layout4);
+	}
+
+	return offset;
+}
+
 static int
 dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree)
@@ -7357,16 +7962,18 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 4;
 
 		/* the opcodes are not contiguous */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_RELEASE_LOCKOWNER)	&&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_PNFS_CREATE)	&&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
 		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
 		if (opcode == NFS4_OP_ILLEGAL) {
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
-		} else {
+		} else if (nfsv4_operation_ett[opcode - 3]) {
 			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
+		} else {
+			break;
 		}
 
 		switch(opcode)
@@ -7612,6 +8219,111 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfs_lock_owner4(tvb, offset, newftree);
 			break;
 
+			/* Minor Version 1 */
+		case NFS4_OP_EXCHANGE_ID:
+
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
+										offset);
+			proto_item_append_text(newftree, ", Client Owner");
+			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_exch_id_flags4, offset);
+			offset = dissect_nfs_state_protect4_a(tvb, offset, newftree);
+			offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_CREATE_SESSION:
+			offset = dissect_rpc_uint64(tvb, newftree,
+					hf_nfs_clientid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree,
+					hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree,
+					hf_nfs_create_session_flags4, offset);
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+			offset = dissect_rpc_uint32(tvb, newftree,
+					hf_nfs_cb_program, offset);
+			offset = dissect_rpc_secparms4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_DESTROY_SESSION:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
+											 hf_nfs_sessionid4, TRUE, 16,
+											 FALSE, NULL, NULL);
+			break;
+
+			/* pNFS */
+		case NFS4_OP_LAYOUTGET:
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_layout_avail4,
+									  offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree,
+										hf_nfs_length4_minlength, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
+										offset);
+			break;
+
+		case NFS4_OP_LAYOUTCOMMIT:
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim4, offset);
+			offset = dissect_nfs_newoffset4(tvb, offset, newftree);
+			offset = dissect_nfs_newtime4(tvb, offset, newftree);
+			offset = dissect_nfs_newtime4(tvb, offset, newftree);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
+										offset);
+			offset = dissect_nfsdata(tvb, offset, newftree,
+									 hf_nfs_layoutupdate4);
+			break;
+
+		case NFS4_OP_LAYOUTRETURN:
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_reclaim4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
+			offset = dissect_nfs_layoutreturn4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_GETDEVINFO:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_deviceid4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
+										offset);
+			break;
+
+		case NFS4_OP_GETDEVLIST:
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_layouttype4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_count4_maxcount,
+										offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookie4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookieverf4,
+										offset);
+			break;
+
+		case NFS4_OP_SEQUENCE:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
+											 hf_nfs_sessionid4, TRUE, 16,
+											 FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_cachethis4, offset);
+			break;
+
+		case NFS4_OP_NOTIFYDS:
+			offset = dissect_nfs_notifydsargs4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_PNFS_CREATE:
+			offset = dissect_nfs_utf8string(tvb, offset, newftree, hf_nfs_component4, NULL);
+			break;
+
 		/* In theory, it's possible to get this opcode */
 		case NFS4_OP_ILLEGAL:
 			break;
@@ -7698,7 +8410,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		opcode = tvb_get_ntohl(tvb, offset);
 
 		/* sanity check for bogus packets */
-		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE) &&
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_PNFS_CREATE) &&
 			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
@@ -7715,9 +8427,11 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
 		if (opcode == NFS4_OP_ILLEGAL) {
 			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
-		} else {
+		} else if (nfsv4_operation_ett[opcode - 3]) {
 			newftree = proto_item_add_subtree(fitem,
 				*nfsv4_operation_ett[opcode - 3]);
+		} else {
+			break;
 		}
 
 		offset = dissect_nfs_nfsstat4(tvb, offset, newftree, &status);
@@ -7852,6 +8566,82 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"committed");
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_verifier4,
 				offset);
+			break;
+
+			/* Minor Version 1 */
+		case NFS4_OP_EXCHANGE_ID:
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4,
+										offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_exch_id_flags4, offset);
+			offset = dissect_nfs_state_protect4_r(tvb, offset, newftree);
+			offset = dissect_rpc_serverowner4(tvb, offset, newftree);
+			offset = dissect_nfsdata(tvb, offset, newftree,
+									 hf_nfs_serverscope4);
+			offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_CREATE_SESSION:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
+					NULL, hf_nfs_sessionid4, TRUE, 16,
+					FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree,
+					hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree,
+					hf_nfs_create_session_flags4, offset);
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_DESTROY_SESSION:
+			break;
+
+		case NFS4_OP_LAYOUTGET:
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_return_on_close4,
+									  offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_offset4, offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_length4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_iomode4, offset);
+			offset = dissect_nfs_layout(tvb, offset, pinfo, newftree);
+			break;
+
+		case NFS4_OP_LAYOUTCOMMIT:
+			offset = dissect_nfs_newsize4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_LAYOUTRETURN:
+			break;
+
+		case NFS4_OP_GETDEVINFO:
+			offset = dissect_nfs_deviceaddr4(tvb, offset, newftree);
+			break;
+
+		case NFS4_OP_GETDEVLIST:
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookie4,
+										offset);
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_cookieverf4,
+										offset);
+			offset = dissect_nfs_devicelist4(tvb, offset, newftree);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_eof, offset);
+			break;
+
+		case NFS4_OP_SEQUENCE:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree, NULL,
+											 hf_nfs_sessionid4, TRUE, 16,
+											 FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_slotid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_sr_status4,
+										offset);
+			break;
+
+		case NFS4_OP_NOTIFYDS:
+			break;
+
+		case NFS4_OP_PNFS_CREATE:
 			break;
 
 		default:
@@ -8058,6 +8848,40 @@ static const value_string names_nfs_nfsstat[] = {
 	{	0,	NULL }
 };
 
+static const value_string notifydsop_names[] = {
+	{	0,	"ADD_STATE"				},
+	{	1,	"DEL_STATE"				},
+	{	2,	"DEL_CLIENT"			},
+	{	0,	NULL }
+};
+
+static const value_string iomode_names[] = {
+	{ 1, "IOMODE_READ"},
+	{ 2, "IOMODE_RW"},
+	{ 3, "IOMODE_ANY"},
+	{ 0, NULL }
+};
+
+static const value_string stripetype_names[] = {
+	{ 1, "STRIPE_SPARSE"},
+	{ 2, "STRIPE_DENSE"},
+	{ 0, NULL }
+};
+
+static const value_string layouttype_names[] = {
+	{ 1, "LAYOUT_NFSV4_FILES"},
+	{ 2, "LAYOUT_OSD2_OBJECTS"},
+	{ 3, "LAYOUT_BLOCK_VOLUME"},
+	{ 0, NULL }
+};
+
+static const value_string layoutreturn_names[] = {
+	{ 1, "RETURN_FILE"},
+	{ 2, "RETURN_FSID"},
+	{ 3, "RETURN_ALL"},
+	{ 0, NULL }
+};
+
 void
 proto_register_nfs(void)
 {
@@ -8071,6 +8895,9 @@ proto_register_nfs(void)
 		{ &hf_nfs_procedure_v4, {
 			"V4 Procedure", "nfs.procedure_v4", FT_UINT32, BASE_DEC,
 			VALS(nfsv4_proc_vals), 0, "V4 Procedure", HFILL }},
+		{ &hf_nfs_impl_id4_len, {
+			"Implemetation ID length", "nfs.impl_id4.length", FT_UINT32, BASE_DEC,
+			NULL, 0, "Implementation ID Length", HFILL }},
 		{ &hf_nfs_fh_length, {
 			"length", "nfs.fh.length", FT_UINT32, BASE_DEC,
 			NULL, 0, "file handle length", HFILL }},
@@ -8584,6 +9411,12 @@ proto_register_nfs(void)
 			"Open Type", "nfs.open.opentype", FT_UINT32, BASE_DEC,
 			VALS(names_opentype4), 0, "Open Type", HFILL }},
 
+		{ &hf_nfs_state_protect_how4, {
+			"State Protect", "nfs.exchange_id.state_protect",
+			FT_UINT32, BASE_DEC,
+			VALS(names_state_protect_how4), 0, "State Protect How",
+			HFILL }},
+
 		{ &hf_nfs_limit_by4, {
 			"Space Limit", "nfs.open.limit_by", FT_UINT32, BASE_DEC,
 			VALS(names_limit_by4), 0, "Limit By", HFILL }},
@@ -9036,6 +9869,10 @@ proto_register_nfs(void)
 			"callback_ident", "nfs.callback.ident", FT_UINT32, BASE_HEX,
 			NULL, 0, "Callback Identifier", HFILL }},
 
+		{ &hf_nfs_gsshandle4, {
+			"gsshandle4", "nfs.gsshandle4", FT_BYTES, BASE_DEC, NULL, 0,
+			"gsshandle4", HFILL }},
+
 		{ &hf_nfs_r_netid, {
 			"r_netid", "nfs.r_netid", FT_BYTES, BASE_DEC, NULL, 0,
 			"r_netid", HFILL }},
@@ -9166,7 +10003,214 @@ proto_register_nfs(void)
 			"export point unique id", "nfs.gxfh3.exportptuid", FT_UINT32, BASE_HEX,
 			NULL, 0, "export point unique id", HFILL }},
 
+		{ &hf_nfs_length4_minlength, {
+			"min length", "nfs.minlength4", FT_UINT64, BASE_DEC, NULL, 0,
+			"min length", HFILL }},
 
+		{ &hf_nfs_layouttype4, {
+			"layout type", "nfs.layouttype", FT_UINT32, BASE_DEC,
+			VALS(layouttype_names), 0, "layout type", HFILL }},
+
+		{ &hf_nfs_layoutreturn_type4, {
+			"return type", "nfs.returntype", FT_UINT32, BASE_DEC,
+			VALS(layoutreturn_names), 0, "return type ", HFILL }},
+
+		{ &hf_nfs_iomode4, {
+			"IO mode", "nfs.iomode", FT_UINT32, BASE_DEC, VALS(iomode_names),
+			0, "IO mode", HFILL }},
+
+		{ &hf_nfs_stripetype4, {
+			"stripe type", "nfs.stripetype", FT_UINT32, BASE_DEC, VALS(stripetype_names), 0,
+			"stripe type", HFILL }},
+
+		{ &hf_nfs_stripeunit4, {
+			"stripe unit", "nfs.stripeunit", FT_UINT64, BASE_DEC, NULL, 0,
+			"stripe unit", HFILL }},
+
+		{ &hf_nfs_util4, {
+			"util", "nfs.util", FT_UINT32, BASE_DEC,
+			NULL, 0, "util", HFILL }},
+
+		{ &hf_nfs_first_stripe_idx4, {
+			"first stripe index", "nfs.stripeindex", FT_UINT32, BASE_DEC,
+			NULL, 0, "first stripe index", HFILL }},
+
+		{ &hf_nfs_newtime4, {
+			"new time?", "nfs.newtime", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.newtime", HFILL }},
+
+		{ &hf_nfs_newoffset4, {
+			"new offset?", "nfs.newoffset", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.newoffset", HFILL }},
+
+		{ &hf_nfs_newsize4, {
+			"new size?", "nfs.newsize", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.newsize", HFILL }},
+
+		{ &hf_nfs_layout_avail4, {
+			"layout available?", "nfs.layoutavail", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.layoutavail", HFILL }},
+
+		{ &hf_nfs_mdscommit4, {
+			"MDS commit?", "nfs.mdscommit", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.mdscommit", HFILL }},
+
+		{ &hf_nfs_layoutupdate4, {
+			"layout update", "nfs.layoutupdate", FT_BYTES, BASE_DEC,
+			NULL, 0, "layout update", HFILL }},
+
+		{ &hf_nfs_deviceid4, {
+			"device ID", "nfs.deviceid", FT_UINT32, BASE_DEC,
+			NULL, 0, "device ID", HFILL }},
+
+		{ &hf_nfs_devicenum4, {
+			"num devices", "nfs.devicenum4", FT_UINT32, BASE_DEC,
+			NULL, 0, "num devices", HFILL }},
+
+		{ &hf_nfs_deviceidx4, {
+			"device index", "nfs.deviceidx", FT_UINT32, BASE_DEC,
+			NULL, 0, "device index", HFILL }},
+
+		{ &hf_nfs_layout4, {
+			"layout", "nfs.layout", FT_BYTES, BASE_DEC,
+			NULL, 0, "layout", HFILL }},
+
+		{ &hf_nfs_stripedevs4, {
+			"stripe devs", "nfs.stripedevs", FT_UINT32, BASE_DEC,
+			NULL, 0, "stripe devs", HFILL }},
+
+		{ &hf_nfs_devaddr4, {
+			"device addr", "nfs.devaddr", FT_BYTES, BASE_DEC,
+			NULL, 0, "device addr", HFILL }},
+
+		{ &hf_nfs_notifydsop4, {
+			"NotifyDS op", "nfs.notifydsop", FT_UINT32, BASE_DEC,
+			VALS(notifydsop_names), 0, "NotifyDS op", HFILL }},
+
+		{ &hf_nfs_return_on_close4, {
+			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
+			&yesno, 0, "return on close", HFILL }},
+
+		{ &hf_nfs_slotid4, {
+			"slot ID", "nfs.slotid4", FT_UINT32, BASE_DEC,
+			NULL, 0, "slot ID", HFILL }},
+
+		{ &hf_nfs_sr_status4, {
+			"status", "nfs.status", FT_UINT32, BASE_DEC,
+			NULL, 0, "status", HFILL }},
+
+		{ &hf_nfs_serverscope4, {
+			"server scope", "nfs.scope", FT_BYTES, BASE_DEC,
+			NULL, 0, "server scope", HFILL }},
+
+		{ &hf_nfs_minorid4, {
+			"minor ID", "nfs.minorid4", FT_UINT64, BASE_DEC,
+			NULL, 0, "minor ID", HFILL }},
+
+		{ &hf_nfs_majorid4, {
+			"major ID", "nfs.majorid4", FT_BYTES, BASE_DEC,
+			NULL, 0, "major ID", HFILL }},
+
+		{ &hf_nfs_padsize4, {
+			"hdr pad size", "nfs.padsize4", FT_UINT32, BASE_DEC,
+			NULL, 0, "hdr pad size", HFILL }},
+
+		{ &hf_nfs_cbrenforce4, {
+			"binding enforce?", "nfs.cbrenforce4", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.cbrenforce4", HFILL }},
+
+		{ &hf_nfs_hashalg4, {
+			"hash alg", "nfs.hashalg4", FT_UINT32, BASE_DEC,
+			NULL, 0, "hash alg", HFILL }},
+
+		{ &hf_nfs_ssvlen4, {
+			"ssv len", "nfs.ssvlen4", FT_UINT32, BASE_DEC,
+			NULL, 0, "ssv len", HFILL }},
+
+		{ &hf_nfs_maxreqsize4, {
+			"max req size", "nfs.maxreqsize4", FT_UINT32, BASE_DEC,
+			NULL, 0, "max req size", HFILL }},
+
+		{ &hf_nfs_maxrespsize4, {
+			"max resp size", "nfs.maxrespsize4", FT_UINT32, BASE_DEC,
+			NULL, 0, "max resp size", HFILL }},
+
+		{ &hf_nfs_maxrespsizecached4, {
+			"max resp size cached", "nfs.maxrespsizecached4", FT_UINT32,
+			BASE_DEC, NULL, 0, "max resp size cached", HFILL }},
+
+		{ &hf_nfs_maxops4, {
+			"max ops", "nfs.maxops4", FT_UINT32, BASE_DEC,
+			NULL, 0, "max ops", HFILL }},
+
+		{ &hf_nfs_maxreqs4, {
+			"max reqs", "nfs.maxreqs4", FT_UINT32, BASE_DEC,
+			NULL, 0, "max reqs", HFILL }},
+
+		{ &hf_nfs_rdmachanattrs4, {
+			"RDMA chan attrs", "nfs.rdmachanattrs4", FT_UINT32, BASE_DEC,
+			NULL, 0, "RDMA chan attrs", HFILL }},
+
+		{ &hf_nfs_machinename4, {
+			"machine name", "nfs.machinename4", FT_STRING, BASE_DEC,
+			NULL, 0, "machine name", HFILL }},
+
+		{ &hf_nfs_flavor4, {
+			"flavor", "nfs.flavor4", FT_UINT32, BASE_DEC,
+			NULL, 0, "flavor", HFILL }},
+
+		{ &hf_nfs_stamp4, {
+			"stamp", "nfs.stamp4", FT_UINT32, BASE_DEC,
+			NULL, 0, "stamp", HFILL }},
+
+		{ &hf_nfs_uid4, {
+			"uid", "nfs.uid4", FT_UINT32, BASE_DEC,
+			NULL, 0, "nfs.uid4", HFILL }},
+
+		{ &hf_nfs_gid4, {
+			"gid", "nfs.gid4", FT_UINT32, BASE_DEC,
+			NULL, 0, "nfs.gid4", HFILL }},
+
+		{ &hf_nfs_service4, {
+			"gid", "nfs.service4", FT_UINT32, BASE_DEC,
+			NULL, 0, "nfs.service4", HFILL }},
+
+		{ &hf_nfs_sessionid4, {
+			"sessionid", "nfs.session_id4", FT_BYTES, BASE_HEX,
+			NULL, 0, "nfs.session_id4", HFILL }},
+		{ &hf_nfs_exch_id_flags4, {
+			"EXCHANGE_ID flags", "nfs.exch_id_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, "EXCHANGE_ID flags", HFILL }},
+		{ &hf_nfs_prot_info4_hash_alg, {
+			"Prot Info hash algorithm", "nfs.prot_info4_hash_alg", FT_UINT32, BASE_HEX,
+			NULL, 0, "Prot Info hash algorithm", HFILL }},
+		{ &hf_nfs_prot_info4_encr_alg, {
+			"Prot Info encription algorithm", "nfs.prot_info4_encr_alg", FT_UINT32, BASE_HEX,
+			NULL, 0, "Prot Info encrption algorithm", HFILL }},
+		{ &hf_nfs_prot_info4_svv_length, {
+			"Prot Info svv_length", "nfs.prot_info4_svv_length", FT_UINT32, BASE_HEX,
+			NULL, 0, "Prot Info svv length", HFILL }},
+		{ &hf_nfs_prot_info4_spi_window, {
+			"Prot Info spi window", "nfs.prot_info4_spi_window", FT_UINT32, BASE_HEX,
+			NULL, 0, "Prot Info spi Widow", HFILL }},
+		{ &hf_nfs_state_protect_window, {
+			"State Protect window", "nfs.state_protect_window", FT_UINT32, BASE_HEX,
+			NULL, 0, "State Protect Widow", HFILL }},
+		{ &hf_nfs_state_protect_num_gss_handles, {
+			"State Protect num gss handles", "nfs.state_protect_num_gss_handles", FT_UINT32, BASE_HEX,
+			NULL, 0, "State Protect Num GSS Handles", HFILL }},
+		{ &hf_nfs_nii_domain4, {
+			"Implementer Domain name", "nfs.nii_domain4", FT_STRING, BASE_DEC,
+			NULL, 0, "Implementer Domain name", HFILL }},
+		{ &hf_nfs_nii_name4, {
+			"Implementation name", "nfs.nii_name4", FT_STRING, BASE_DEC,
+			NULL, 0, "Implementation name", HFILL }},
+		{ &hf_nfs_create_session_flags4, {
+			"CREATE_SESSION flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, "CREATE_SESSION flags", HFILL }},
+		{ &hf_nfs_cachethis4, {
+			"Cache this?", "nfs.cachethis4", FT_BOOLEAN,
+			BASE_NONE, &yesno, 0, "nfs.cachethis4", HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_nfsstat, {
@@ -9259,6 +10303,17 @@ proto_register_nfs(void)
 		&ett_nfs_verify4,
 		&ett_nfs_write4,
 		&ett_nfs_release_lockowner4,
+		&ett_nfs_exchange_id4,
+		&ett_nfs_create_session4,
+		&ett_nfs_destroy_session4,
+		&ett_nfs_sequence4,
+        &ett_nfs_layoutget4,
+	    &ett_nfs_layoutcommit4,
+	    &ett_nfs_layoutreturn4,
+	    &ett_nfs_getdevinfo4,
+	    &ett_nfs_getdevlist4,
+	    &ett_nfs_notifyds4,
+	    &ett_nfs_pnfs_create4,
 		&ett_nfs_illegal4,
 		&ett_nfs_verifier4,
 		&ett_nfs_opaque,
@@ -9288,6 +10343,32 @@ proto_register_nfs(void)
 		&ett_nfs_gxfh3_utlfield,
 		&ett_nfs_gxfh3_sfhfield,
 		&ett_nfs_gxfh3_sfhflags,
+		&ett_nfs_slotid4,
+		&ett_nfs_sr_status4,
+		&ett_nfs_serverscope4,
+		&ett_nfs_minorid4,
+		&ett_nfs_majorid4,
+		&ett_nfs_persist4,
+		&ett_nfs_backchan4,
+		&ett_nfs_rdmamode4,
+		&ett_nfs_padsize4,
+		&ett_nfs_cbrenforce4,
+		&ett_nfs_hashalg4,
+		&ett_nfs_ssvlen4,
+		&ett_nfs_maxreqsize4,
+		&ett_nfs_maxrespsize4,
+		&ett_nfs_maxrespsizecached4,
+		&ett_nfs_maxops4,
+		&ett_nfs_maxreqs4,
+		&ett_nfs_streamchanattrs4,
+		&ett_nfs_rdmachanattrs4,
+		&ett_nfs_machinename4,
+		&ett_nfs_flavor4,
+		&ett_nfs_stamp4,
+		&ett_nfs_uid4,
+		&ett_nfs_gid4,
+		&ett_nfs_service4,
+		&ett_nfs_sessionid4,
 	};
 	module_t *nfs_module;
 

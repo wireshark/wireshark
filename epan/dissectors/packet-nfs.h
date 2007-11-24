@@ -104,6 +104,21 @@
 #define NFS4_OP_VERIFY						37
 #define NFS4_OP_WRITE						38
 #define NFS4_OP_RELEASE_LOCKOWNER		39
+/* Minor version 1 */
+#define NFS4_OP_EXCHANGE_ID       42
+#define NFS4_OP_CREATE_SESSION    43
+#define NFS4_OP_DESTROY_SESSION   44
+#define NFS4_OP_GETDEVINFO        47
+#define NFS4_OP_GETDEVLIST		  48
+#define NFS4_OP_LAYOUTCOMMIT         49
+#define NFS4_OP_LAYOUTGET	    	 50
+#define NFS4_OP_LAYOUTRETURN		 51
+#define NFS4_OP_SEQUENCE             53
+#define NFS4_OP_NOTIFYDS             60
+#define NFS4_OP_PNFS_CREATE          61
+#define NFS4_OP_PNFS_WRITE           62
+#define NFS4_OP_PNFS_READ            63
+
 #define NFS4_OP_ILLEGAL						10044
 
 /* for write */
@@ -147,7 +162,7 @@ extern int dissect_access(tvbuff_t *tvb, int offset, proto_tree *tree,
 	const char* name);
 
 extern gint default_nfs_fhandle_type;
-extern int hf_nfs_nfsstat;
+extern gint hf_nfs_nfsstat;
 
 #endif /* packet-nfs.h */
 
