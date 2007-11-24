@@ -83,7 +83,7 @@ static int dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, p
 
 static h225_packet_info pi_arr[5]; /* We assuming a maximum of 5 H225 messaages per packet */
 static int pi_current=0;
-h225_packet_info *h225_pi=NULL;
+h225_packet_info *h225_pi=&pi_arr[0];
 
 static dissector_handle_t h225ras_handle;
 static dissector_handle_t H323UserInformation_handle;
