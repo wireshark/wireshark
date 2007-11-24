@@ -429,9 +429,25 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
        with a media type of HDLC can be either Cisco EtherType or PPP. */
-    if ((wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR) && (vpkt_hdr.encap_hint == 14))
-        wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-
+    if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
+    {
+        /* If PPP is specified in the encap hint, then use that */
+        if (vpkt_hdr.encap_hint == 14)
+        {
+            wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+        }
+        else
+        {
+            /* Otherwise, we need to evaluate the first two
+            /* examine first two octets to verify encapsulation */
+            guint8 *buf = buffer_start_ptr(wth->frame_buffer);
+            if ((0xff == buf[0]) && (0x03 == buf[1]))
+            {
+                /* It is actually PPP */
+                wth->phdr.pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+            }
+        }
+    }
     return TRUE;
 }
 
