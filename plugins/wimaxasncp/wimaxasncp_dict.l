@@ -56,11 +56,11 @@
 	 ** Foundation, Inc., 51 Franklin Street, Fifth Floor,
 	 ** Boston, MA  02110-1301, USA.
 	 */
-	
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-	
+
 #include <glib.h>
 #include <stdio.h>
 #include <string.h>
@@ -180,12 +180,12 @@ decoder_attr decoder=\042
 
 
 %S LOADING LOADING_COMMENT LOADING_XMLPI ENTITY GET_SYSTEM GET_FILE END_ENTITY
-%S GET_ATTR GET_UINT_ATTR GET_UINT16_ATTR 
-%S BIT32 BIT16 BIT8 GET_DECODER_ATTR END_ATTR 
+%S GET_ATTR GET_UINT_ATTR GET_UINT16_ATTR
+%S BIT32 BIT16 BIT8 GET_DECODER_ATTR END_ATTR
 %S OUTSIDE IN_DICT IN_APPL IN_TLV IGNORE_ATTR
-%S ENUM_ATTRS TLV_ATTRS 
+%S ENUM_ATTRS TLV_ATTRS
 %S XMLPI_ATTRS XMLPI_GETKEY XMLPI_GETVAL XMLPI_ENDATTR
-%% 
+%%
 <LOADING>{doctype} ;
 <LOADING>{doctype_end} ;
 
@@ -201,10 +201,10 @@ decoder_attr decoder=\042
 	xmlpi->key = NULL;
 	xmlpi->value = NULL;
 	xmlpi->next = NULL;
-	
+
 	if (!dict->xmlpis) last_xmlpi = dict->xmlpis = xmlpi;
 	else last_xmlpi = last_xmlpi->next = xmlpi;
-	
+
 	BEGIN XMLPI_ATTRS;
 }
 
@@ -254,9 +254,9 @@ decoder_attr decoder=\042
 <LOADING,IN_DICT>{entity} {
 	gchar *p = ++yytext, *temp_str;
 	entity_t* e;
-	
+
 	while(*p != ';') p++;
-	
+
 	*p = '\0';
 
 	D(("looking for entity: %s\n",yytext));
@@ -266,10 +266,10 @@ decoder_attr decoder=\042
 			dict_error, "included files nested too deeply\n");
 		yyterminate();
 	}
-	
+
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
 
-	
+
 	for (e = ents.next; e; e = e->next) {
 		if (strcmp(e->name,yytext) == 0) {
 			yyin = wimaxasncp_dict_open(sys_dir,e->file);
@@ -282,7 +282,7 @@ decoder_attr decoder=\042
 			break;
 		}
 	}
-	
+
 	if (!e) {
 		temp_str = g_strdup_printf(
 			"cannot find entity: '%s'\n", e->name);
@@ -290,15 +290,15 @@ decoder_attr decoder=\042
 		g_free(temp_str);
 		yyterminate();
 	}
-	
+
 }
 
-<<EOF>> { 
+<<EOF>> {
 	if (!yyin) yyterminate();
-	
+
 	fclose(yyin);
 	D(("closing: %p %i\n",yyin,include_stack_ptr));
-    
+
 	if ( --include_stack_ptr < 0 ) {
 		D(("DONE READING\n"));
 		yyin = NULL;
@@ -385,7 +385,7 @@ decoder_attr decoder=\042
 
 <IN_DICT>{tlv_start}	{
 	D(("tlv_start\n"));
-	
+
 	tlv = g_malloc(sizeof(wimaxasncp_dict_tlv_t));
 	tlv->type = 0;
 	tlv->name = NULL;
@@ -406,7 +406,7 @@ decoder_attr decoder=\042
 	tlv->enum_vs = NULL;
 	tlv->enums = NULL;
 	tlv->next = NULL;
-	
+
 	if (! dict->tlvs ) last_tlv = dict->tlvs = tlv;
 	else last_tlv = last_tlv->next = tlv;
 
@@ -421,14 +421,14 @@ decoder_attr decoder=\042
 <TLV_ATTRS>{stop_end}			{ BEGIN IN_DICT; }
 
 
-<IN_TLV>{enum_start} { 
+<IN_TLV>{enum_start} {
 	D(("enum_start\n"));
-	
+
 	enumitem = g_malloc(sizeof(wimaxasncp_dict_enum_t));
 	enumitem->name = NULL;
 	enumitem->code = 0;
 	enumitem->next = NULL;
-	
+
 	if (!tlv->enums) last_enumitem = tlv->enums = enumitem;
 	else last_enumitem = last_enumitem->next = enumitem;
 
@@ -463,11 +463,11 @@ static int debugging  = 0;
 
 static void wimaxasncp_dict_debug(const gchar *fmt, ...) {
 	va_list ap;
-    
+
 	va_start(ap, fmt);
 	if (debugging) vfprintf(stderr, fmt, ap);
 	va_end(ap);
-	
+
 	fflush(stderr);
 }
 
@@ -539,12 +539,12 @@ static void append_to_buffer(gchar *txt, int len) {
 	if (strbuf == NULL) {
 		read_ptr = write_ptr = strbuf = g_malloc(size_strbuf);
 	}
-	
+
 	if ( (len_strbuf + len + 1) >= size_strbuf ) {
 		read_ptr = strbuf = g_realloc(strbuf,size_strbuf *= 2);
 	}
-	
-	write_ptr = strbuf + len_strbuf;	
+
+	write_ptr = strbuf + len_strbuf;
 	strncpy(write_ptr,txt,len);
 	len_strbuf += len;
 	strbuf[len_strbuf] = '\0';
@@ -552,13 +552,13 @@ static void append_to_buffer(gchar *txt, int len) {
 
 static size_t file_input(gchar *buf, size_t max) {
 	size_t read;
-	
+
 	read = fread(buf,1,max,yyin);
 
 	if ( read == max ) {
 		return max;
 	} else if (read > 0) {
-		return read;		
+		return read;
 	} else {
 		return YY_NULL;
 	}
@@ -574,43 +574,32 @@ static size_t string_input(gchar *buf, size_t max) {
 
 	memcpy(buf,read_ptr,max);
 	read_ptr += max;
-	
-	return max; 
+
+	return max;
 }
 
 static FILE *wimaxasncp_dict_open(
-	const gchar *system_directory, 
-	const gchar *filename) 
+	const gchar *system_directory,
+	const gchar *filename)
 {
 	FILE *fh;
-	gchar *fname, *temp_str;
-	if (system_directory) 
+	gchar *fname;
+	if (system_directory)
 	{
-		int len =  strlen(system_directory) + strlen(filename) 
+		int len =  strlen(system_directory) + strlen(filename)
 			+ strlen(G_DIR_SEPARATOR_S) + 1;
 		fname = g_malloc(len);
 		g_snprintf(fname, len, "%s%s%s",
 			   system_directory, G_DIR_SEPARATOR_S,filename);
-	} 
-	else 
+	}
+	else
 	{
 		fname = g_strdup(filename);
 	}
-	
+
 	fh = eth_fopen(fname,"r");
 
 	D(("fname: %s fh: %p\n",fname,fh));
-
-	if ( ! fh)
-	{
-		temp_str = g_strdup_printf(
-			"cannot open file: '%s', error: %s\n",
-			fname,
-			g_strerror(errno));
-		
-		dict_error = g_string_append(dict_error, temp_str);
-		g_free(temp_str);
-	}
 
 	g_free(fname);
 
@@ -619,7 +608,7 @@ static FILE *wimaxasncp_dict_open(
 }
 
 wimaxasncp_dict_t *wimaxasncp_dict_scan(
-	const gchar *system_directory, const gchar *filename, int dbg, 
+	const gchar *system_directory, const gchar *filename, int dbg,
 	gchar **error) {
 
 	entity_t *e;
@@ -627,9 +616,9 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 	dict_error = g_string_new("");
 
 	debugging = dbg;
-		
+
 	sys_dir = system_directory;
-	
+
 	write_ptr = NULL;
 	read_ptr = NULL;
 
@@ -637,32 +626,32 @@ wimaxasncp_dict_t *wimaxasncp_dict_scan(
 	{
 		wimaxasncp_dict_free(dict);
 	}
-		
+
 	dict = g_malloc(sizeof(wimaxasncp_dict_t));
 	dict->tlvs = NULL;
 	dict->xmlpis = NULL;
-	
+
 	tlv = NULL;
 	enumitem = NULL;
 	xmlpi = NULL;
-	
+
 	last_tlv = NULL;
 	last_enumitem = NULL;
 	last_xmlpi = NULL;
-	
+
 	ents.next = NULL;
 
 	yyin = wimaxasncp_dict_open(sys_dir,filename);
 
-	if (yyin) 
+	if (yyin)
 	{
 		current_yyinput = file_input;
 		BEGIN LOADING;
 		yylex();
-		
+
 		D(("\n---------------\n%s\n------- %d -------\n",
 		   strbuf, len_strbuf));
-	
+
 		current_yyinput = string_input;
 
 		BEGIN OUTSIDE;
@@ -701,20 +690,20 @@ void wimaxasncp_dict_free(wimaxasncp_dict_t *d) {
 	wimaxasncp_dict_tlv_t *t, *tn;
 
 #define FREE_NAMEANDOBJ(n) do { if(n->name) g_free(n->name); g_free(n); } while(0)
-	
+
 	for (t = d->tlvs; t; t = tn) {
 		wimaxasncp_dict_enum_t *e, *en;
 		tn = t->next;
-		
+
 		for (e = t->enums; e; e = en) {
 			en = e->next;
 			FREE_NAMEANDOBJ(e);
 		}
-		
+
 		if (!t->description)  g_free(t->description);
 		FREE_NAMEANDOBJ(t);
 	}
-	
+
 	g_free(d);
 }
 
@@ -722,13 +711,13 @@ void wimaxasncp_dict_print(FILE *fh, wimaxasncp_dict_t *d) {
 	wimaxasncp_dict_tlv_t *tlv;
 
 	fprintf(fh,"\n");
-	
+
 	for (tlv = d->tlvs; tlv; tlv = tlv->next) {
 		wimaxasncp_dict_enum_t *e;
 		fprintf(fh,"TLV: %s[%u] %s[%d] %s\n",
 				tlv->name ? tlv->name : "-",
-				tlv->type, 
-				val_to_str(tlv->decoder, 
+				tlv->type,
+				val_to_str(tlv->decoder,
 					   wimaxasncp_decode_type_vals,
 					   "Unknown"),
 				tlv->decoder,
@@ -748,18 +737,18 @@ int main(int argc, char **argv) {
 	gchar *dname = NULL;
 	gchar *fname;
 	int i = 1;
-	
+
 	switch (argc) {
 		case 3:
 			dname = argv[i++];
-		case 2: 
+		case 2:
 			fname = argv[i];
 			break;
 		default:
 			fprintf(stderr,"%s: usage [dictionary_dir] dictionary_filename\n",argv[0]);
 			return 1;
 	}
-	
+
 	d = wimaxasncp_dict_scan(dname,fname,1);
 
         if (dict_error)
@@ -767,7 +756,7 @@ int main(int argc, char **argv) {
                 printf("wimaxasncp - %s", dict_error);
                 g_free(dict_error);
         }
-	
+
 	wimaxasncp_dict_print(stdout, d);
 
 	return 0;
