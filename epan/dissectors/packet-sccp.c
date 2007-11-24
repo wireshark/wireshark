@@ -64,6 +64,7 @@ static Standard_Type decode_mtp3_standard;
 #define POINTER_LENGTH      1
 #define POINTER_LENGTH_LONG 2
 
+#define INVALID_LR 0xffffff /* a reserved value */
 
 /* Same as below but with names typed out */
 static const value_string sccp_message_type_values[] = {
@@ -1981,8 +1982,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   };
 
   /* Starting a new message dissection; clear the global assoc, SLR, and DLR values */
-  dlr = 0;
-  slr = 0;
+  dlr = INVALID_LR;
+  slr = INVALID_LR;
   assoc = NULL;
 
   no_assoc.calling_dpc = 0;
