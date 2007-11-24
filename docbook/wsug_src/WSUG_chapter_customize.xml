@@ -581,7 +581,7 @@ standard libpcap format.
       There are two types of coloring rules in Wireshark. Temporary ones that are
       only used until you quit the program. And permanent ones that will be saved to
       a preference file so that they are available on a next session.
-    <para>
+    </para>
     <para>
       Temporary coloring rules can be added by selecting a packet and pressing
       the &lt;ctrl&gt; key together with one of the number keys. This will
@@ -590,7 +590,7 @@ standard libpcap format.
       and at last Ethernet. Temporary filters can also be created by selecting
       the "Colorize with Filter > Color X" menu items when rightclicking in the 
       packet-detail pane.
-    <para>
+    </para>
 
     <para>
       To permanently colorize packets, select the <command>Coloring Rules...</command> menu item from
