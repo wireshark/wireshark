@@ -2285,7 +2285,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     if (!msg->ends)
       msg->ends = beginend;
     else {
-      if (msg->begins->fragment->tsn > beginend->fragment->tsn) {
+      if (msg->ends->fragment->tsn > beginend->fragment->tsn) {
         beginend->next = msg->ends;
         msg->ends = beginend;
       } else {
