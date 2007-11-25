@@ -313,21 +313,23 @@ color_filter_validate_cb(gpointer filter_arg, gpointer unused _U_)
 
 /* apply changes from the edit list */
 void
-color_filters_apply(GSList *cfl)
+color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl)
 {
         /* "move" old entries to the deleted list
          * we must keep them until the dissection no longer needs them */
         color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
         color_filter_list = NULL;
 
-        /* clone all list entries from edit to normal list */
+        /* clone all list entries from tmp/edit to normal list */
         color_filter_valid_list = NULL;
-        color_filter_valid_list = color_filter_list_clone(cfl);
+        color_filter_valid_list = color_filter_list_clone(tmp_cfl);
+        color_filter_valid_list = g_slist_concat(color_filter_valid_list, 
+                                                 color_filter_list_clone(edit_cfl) );
 
         /* compile all filter */
         g_slist_foreach(color_filter_valid_list, color_filter_validate_cb, NULL);
 
-        /* clone all list entries from edit to normal list */
+        /* clone all list entries from tmp/edit to normal list */
         color_filter_list = color_filter_list_clone(color_filter_valid_list);
 
         /* compile all filter */

@@ -1303,8 +1303,6 @@ color_ok_cb(GtkButton *button _U_, gpointer user_data _U_)
 static void
 color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 {
-  GSList *cfl;
-
   /* if we don't have a Save button, just save the settings now */
   if (!prefs.gui_use_pref_save) {
       if (!color_filters_write(color_filter_edit_list))
@@ -1312,10 +1310,10 @@ color_apply_cb(GtkButton *button _U_, gpointer user_data _U_)
 	        "Could not open filter file: %s", strerror(errno));
   }
 
-  /* merge the temporary coloring filters with the ones that just
-   * have been edited and apply them both */
-  cfl = g_slist_concat(color_filter_tmp_list, color_filter_edit_list);
-  color_filters_apply(cfl);
+  /* Apply the coloring rules, both the temporary ones in
+   * color_filter_tmp_list as the permanent ones in color_filter_edit_list
+   * */
+  color_filters_apply(color_filter_tmp_list, color_filter_edit_list);
 
   /* colorize list */
   cf_colorize_packets(&cfile);

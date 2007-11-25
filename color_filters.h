@@ -125,9 +125,10 @@ void color_filter_add_cb (color_filter_t *colorf, gpointer user_data);
 
 /** Apply a changed filter list.
  *
- * @param cfl the filter list to apply
+ * @param tmp_cfl the temporary color filter list to apply
+ * @param edit_cfl the edited permanent color filter list to apply
  */
-void color_filters_apply(GSList *cfl);
+void color_filters_apply(GSList *tmp_cfl, GSList *edit_cfl);
 
 /** Save filters in users filter file.
  *
