@@ -88,6 +88,48 @@
 
 #include "capture_loop.h"
 
+/* E: capture_loop.c only (Wireshark/dumpcap) T: tshark only */
+typedef struct _loop_data {
+  /* common */
+  gboolean       go;                    /* TRUE as long as we're supposed to keep capturing */
+  int            err;                   /* E: if non-zero, error seen while capturing */
+  gint           packet_count;          /* Number of packets we have already captured */
+  gint           packet_max;            /* E: Number of packets we're supposed to capture - 0 means infinite */
+
+  capture_packet_cb_fct  packet_cb;     /* callback for a single captured packet */
+
+  /* pcap "input file" */
+  pcap_t        *pcap_h;                /* pcap handle */
+  gboolean       pcap_err;              /* E: TRUE if error from pcap */
+#ifdef MUST_DO_SELECT
+  int            pcap_fd;               /* pcap file descriptor */
+#endif
+
+  /* capture pipe (unix only "input file") */
+  gboolean       from_cap_pipe;         /* TRUE if we are capturing data from a capture pipe */
+  struct pcap_hdr cap_pipe_hdr;         /* Pcap header when capturing from a pipe */
+  struct pcaprec_modified_hdr cap_pipe_rechdr;  /* Pcap record header when capturing from a pipe */
+  int            cap_pipe_fd;           /* the file descriptor of the capture pipe */
+  gboolean       cap_pipe_modified;     /* TRUE if data in the pipe uses modified pcap headers */
+  gboolean       cap_pipe_byte_swapped; /* TRUE if data in the pipe is byte swapped */
+  unsigned int   cap_pipe_bytes_to_read;/* Used by cap_pipe_dispatch */
+  unsigned int   cap_pipe_bytes_read;   /* Used by cap_pipe_dispatch */
+  enum {
+         STATE_EXPECT_REC_HDR,
+         STATE_READ_REC_HDR,
+         STATE_EXPECT_DATA,
+         STATE_READ_DATA
+       } cap_pipe_state;
+  enum { PIPOK, PIPEOF, PIPERR, PIPNEXIST } cap_pipe_err;
+
+  /* output file */
+  FILE          *pdh;
+  int            linktype;
+  gint           wtap_linktype;
+  long           bytes_written;
+
+} loop_data;
+
 /*
  * Standard secondary message for unexpected errors.
  */
@@ -292,7 +334,6 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       return -1;
     }
 #else /* _WIN32 */
-#if 1 /* Enable/disable Windows named pipes */
 #define PIPE_STR "\\pipe\\"
     /* Under Windows, named pipes _must_ have the form
      * "\\<server>\pipe\<pipename>".  <server> may be "." for localhost.
@@ -339,7 +380,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
           NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
         g_snprintf(errmsg, errmsgl,
             "The capture session could not be initiated "
-            "due to error on pipe open: %s (error %d)",
+            "due to error on named pipe open: %s (error %d)",
 	    utf_16to8(err_str), GetLastError());
         LocalFree(err_str);
         ld->cap_pipe_err = PIPERR;
@@ -355,14 +396,6 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       ld->cap_pipe_err = PIPERR;
       return -1;
     }
-#else /* Enable/disable Windows named pipes */
-    /* On Windows, we don't support capturing on pipes, so we give up. */
-
-    g_snprintf(errmsg, errmsgl,
-"The capture session could not be initiated.  Unable to open interface.");
-    ld->cap_pipe_err = PIPNEXIST;
-    return -1;
-#endif /* Enable/disable Windows named pipes */
 #endif /* _WIN32 */
   }
 
@@ -586,7 +619,7 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
 
 
 /* open the capture input file (pcap or capture pipe) */
-gboolean
+static gboolean
 capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                         char *errmsg, size_t errmsg_len,
                         char *secondary_errmsg, size_t secondary_errmsg_len)
@@ -818,7 +851,8 @@ static void capture_loop_close_input(loop_data *ld) {
 
 
 /* init the capture filter */
-initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, gchar * cfilter) {
+static initfilter_status_t
+capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe, gchar * iface, gchar * cfilter) {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;
@@ -865,7 +899,8 @@ initfilter_status_t capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_p
 
 
 /* set up to write to the already-opened capture output file/files */
-gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
+static gboolean
+capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
   int         file_snaplen;
   int         err;
 
@@ -925,7 +960,8 @@ gboolean capture_loop_init_output(capture_options *capture_opts, int save_file_f
   return TRUE;
 }
 
-gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
+static gboolean
+capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_close_output");
 
@@ -947,7 +983,7 @@ gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld,
  * packet-batching behaviour does not cause packets to get held back
  * indefinitely.
  */
-int
+static int
 capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 		      char *errmsg, int errmsg_len)
 {
@@ -1098,7 +1134,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
 
 /* open the output file (temporary/specified name/ringbuffer/named pipe/stdout) */
 /* Returns TRUE if the file opened successfully, FALSE otherwise. */
-gboolean
+static gboolean
 capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
 		      char *errmsg, int errmsg_len) {
 
@@ -1711,7 +1747,7 @@ capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
 
   /* We may be called multiple times from pcap_dispatch(); if we've set
      the "stop capturing" flag, ignore this packet, as we're not
-     supposed to be saving any more packets. */ 
+     supposed to be saving any more packets. */
   if (!ld->go)
     return;
 
