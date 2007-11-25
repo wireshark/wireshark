@@ -141,7 +141,7 @@ color_filters_find_by_name_cb(gconstpointer arg1, gconstpointer arg2)
 
 /* Set the filter off a temporary colorfilters and enable it */
 void
-color_filters_set_tmp(guint8 filt_nr, gchar *filter)
+color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
 {
 	gchar  *name = NULL;
         GSList *cfl;
@@ -164,10 +164,22 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter)
                                 dfilter_free(colorf->c_colorfilter);
                         colorf->filter_text = g_strdup(filter);
                         colorf->c_colorfilter = compiled_filter;
-                        colorf->disabled = FALSE;
+                        colorf->disabled = disabled;
                 }
         }
         g_free(name);
+	return;
+}
+
+/* Reset the temporary colorfilters */
+void
+color_filters_reset_tmp()
+{
+	guint8 i;
+
+        for ( i=1 ; i<=10 ; i++ ) {
+            color_filters_set_tmp(i, "frame", TRUE);
+        }
 	return;
 }
 

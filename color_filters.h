@@ -70,9 +70,16 @@ color_filters_enable(gboolean enable);
  *
  * @param filt_nr a number 1-10 pointing to a temporary color
  * @param filter the new filter-string
+ * @param disabled whether the filter-rule should be disabled
  */
 void
-color_filters_set_tmp(guint8 filt_nr, gchar *filter);
+color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled);
+
+/** Reset the temporary color filters
+ *
+ */
+void
+color_filters_reset_tmp();
 
 /* Prime the epan_dissect_t with all the compiler
  * color filters of the current filter list. 

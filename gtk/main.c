@@ -363,9 +363,9 @@ colorize_selected_ptree_cb(GtkWidget *w _U_, gpointer data _U_, guint8 filt_nr)
             color_display_with_filter(filter);
         } else {
             if (filt_nr==255) {
-                color_filters_init();
+                color_filters_reset_tmp();
             } else {
-                color_filters_set_tmp(filt_nr,filter);
+                color_filters_set_tmp(filt_nr,filter, FALSE);
             }
             cf_colorize_packets(&cfile);
         }

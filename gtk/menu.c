@@ -386,7 +386,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     gchar        *filter = NULL;
 
     if( (action>>8) == 255 ) {
-        color_filters_init();
+        color_filters_reset_tmp();
         cf_colorize_packets(&cfile);
     } else {
         if( (action&0xff) == 0 ) {
@@ -415,7 +415,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
             color_display_with_filter(filter);
         } else {
             /* Set one of the temporary coloring filters */
-            color_filters_set_tmp((guint8)(action>>8),filter);
+            color_filters_set_tmp((guint8)(action>>8),filter,FALSE);
             cf_colorize_packets(&cfile);
         }
 
