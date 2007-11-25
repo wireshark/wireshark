@@ -122,7 +122,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint version;
     char *ver;
     guint16  len_sof;
-    gint bytes_remaining = tvb_length(tvb);
+    gint bytes_remaining;
     guint8 sof = 0;
     guint8 eof = 0;
     const char *eof_str;
@@ -156,7 +156,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             g_snprintf(ver, ver_buf_len, "pre-T11 ver %d ", version);
         }
     } else {
-        frame_len = bytes_remaining - FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
+        frame_len = tvb_reported_length_remaining(tvb, 0) -
+          FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
         sof = tvb_get_guint8(tvb, FCOE_HEADER_LEN - 1);
 
         /*
@@ -171,13 +172,14 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             g_snprintf(ver, ver_buf_len, "ver %d ", version);
         }
     }
-    if (frame_len < 0)
-        return;
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");
     crc_offset = header_len + frame_len;
     eof_offset = crc_offset + 4;
-    next_tvb = tvb_new_subset(tvb, header_len, frame_len, frame_len);
+    bytes_remaining = tvb_length_remaining(tvb, header_len);
+    if (bytes_remaining > frame_len)
+        bytes_remaining = frame_len;        /* backing length */
+    next_tvb = tvb_new_subset(tvb, header_len, bytes_remaining, frame_len);
     
     if (tree) {
 
@@ -241,6 +243,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "Bad FC CRC %8.8x %8.x",
                                        crc, crc_computed);
             }
+            proto_tree_set_appendix(fcoe_tree, tvb, crc_offset, 
+                                    tvb_length_remaining (tvb, crc_offset));
         }
         crc_tree = proto_item_add_subtree(item, ett_fcoe_crc);
         ti = proto_tree_add_boolean(crc_tree, hf_fcoe_crc_bad, tvb,

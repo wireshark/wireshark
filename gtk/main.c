@@ -1948,16 +1948,15 @@ main_cf_cb_packet_selected(gpointer data)
 
     /* The user is searching for a string in the data or a hex value,
      * highlight the field that is found in the tree and hex displays. */
-#if GTK_MAJOR_VERSION < 2
     if((cfile.string || cfile.hex) && cfile.search_pos != 0) {
+#if GTK_MAJOR_VERSION < 2
 	    highlight_field(cf->edt->tvb, cfile.search_pos,
         			    (GtkCTree *)tree_view, cf->edt->tree);
 #else
-    if((cfile.string || cfile.hex) && cfile.search_pos != 0) {
 	    highlight_field(cf->edt->tvb, cfile.search_pos,
         			    (GtkTreeView *)tree_view, cf->edt->tree);
 #endif
-		    cfile.search_pos = 0; /* Reset the position */
+	    cfile.search_pos = 0; /* Reset the position */
     }
 
     /* A packet is selected. */
