@@ -227,7 +227,6 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Create the CRC information.
          */
-        item = ti;
         if (crc_exists) {
             if (crc == crc_computed) {
                 item = proto_tree_add_uint_format(fcoe_tree, hf_fcoe_crc, tvb,
@@ -245,6 +244,9 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             proto_tree_set_appendix(fcoe_tree, tvb, crc_offset, 
                                     tvb_length_remaining (tvb, crc_offset));
+        } else {
+            item = proto_tree_add_text(fcoe_tree, tvb, crc_offset, 0, 
+                                       "CRC: [missing]");
         }
         crc_tree = proto_item_add_subtree(item, ett_fcoe_crc);
         ti = proto_tree_add_boolean(crc_tree, hf_fcoe_crc_bad, tvb,
