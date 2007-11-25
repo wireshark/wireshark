@@ -1341,14 +1341,40 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 void
 sync_pipe_stop(capture_options *capture_opts)
 {
+#ifdef _WIN32
+  int count;
+  DWORD childstatus;
+  gboolean terminate = TRUE;
+#endif
+
   if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
     /* send the SIGUSR1 signal to close the capture child gracefully. */
     kill(capture_opts->fork_child, SIGUSR1);
 #else
-    /* Win32 doesn't have the kill() system call, use the special signal pipe
-       instead to close the capture child gracefully. */
+#define STOP_SLEEP_TIME 500 /* ms */
+#define STOP_CHECK_TIME 50
+    /* First, use the special signal pipe to try to close the capture child
+     * gracefully.
+     */
     signal_pipe_capquit_to_child(capture_opts);
+
+    /* Next, wait for the process to exit on its own */
+    for (count = 0; count < STOP_SLEEP_TIME / STOP_CHECK_TIME; count++) {
+      if (GetExitCodeProcess((HANDLE) capture_opts->fork_child, &childstatus) &&
+              childstatus != STILL_ACTIVE) {
+        terminate = FALSE;
+        break;
+      }
+      Sleep(STOP_CHECK_TIME);
+    }
+
+    /* Force the issue. */
+    if (terminate) {
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+            "sync_pipe_stop: forcing child to exit");
+      sync_pipe_kill(capture_opts->fork_child);
+    }
 #endif
   }
 }
