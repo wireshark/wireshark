@@ -90,7 +90,6 @@ void
 color_filters_add_tmp(GSList **cfl)
 {
 	gchar  *name = NULL;
-        gchar  *stockstr = NULL;
 	guint32 i;
         gchar** bg_colors;
         gchar** fg_colors;
@@ -144,31 +143,51 @@ void
 color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
 {
 	gchar  *name = NULL;
+	gchar  *tmpfilter = NULL;
         GSList *cfl;
         color_filter_t *colorf;
         dfilter_t      *compiled_filter;
+	guint8 i;
 
-        name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,filt_nr);
-        cfl = g_slist_find_custom(color_filter_list, (gpointer *) name, color_filters_find_by_name_cb);
-        colorf = cfl->data;
+        /* Go through the tomporary filters and look for the same filter string.
+         * If found, clear it so that a filter can be "moved" up and down the list
+         */
+        for ( i=1 ; i<=10 ; i++ ) {
+                /* If we need to reset the temporary filter (filter==NULL), don't look 
+                 * for other rules with the same filter string
+                 */
+                if( i!=filt_nr && filter==NULL ) 
+                        continue;
 
-        if(colorf) {
-                if (!dfilter_compile(filter, &compiled_filter)) {
-                        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                                "Could not compile color filter name: \"%s\" text: \"%s\".\n%s",
-                                name, filter, dfilter_error_msg);
-                } else {
-                        if (colorf->filter_text != NULL)
-                                g_free(colorf->filter_text);
-                        if (colorf->c_colorfilter != NULL)
-                                dfilter_free(colorf->c_colorfilter);
-                        colorf->filter_text = g_strdup(filter);
-                        colorf->c_colorfilter = compiled_filter;
-                        colorf->disabled = disabled;
+                name = g_strdup_printf("%s%02d",TEMP_COLOR_PREFIX,i);
+                cfl = g_slist_find_custom(color_filter_list, (gpointer *) name, color_filters_find_by_name_cb);
+                colorf = cfl->data;
+
+                /* Only change the filter rule if this is the rule to change or if
+                 * a matching filter string has been found
+                 */
+                if(colorf && ( (i==filt_nr) || (strstr(filter,colorf->filter_text)!=NULL) ) ) {
+                        /* set filter string to "frame" if we are resetting the rules
+                         * or if we found a matching filter string which need to be cleared
+                         */
+                        tmpfilter = ( (filter==NULL) || (i!=filt_nr) ) ? "frame" : filter;
+                        if (!dfilter_compile(tmpfilter, &compiled_filter)) {
+                                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                                    "Could not compile color filter name: \"%s\""
+                                    " text: \"%s\".\n%s", name, filter, dfilter_error_msg);
+                        } else {
+                                if (colorf->filter_text != NULL)
+                                        g_free(colorf->filter_text);
+                                if (colorf->c_colorfilter != NULL)
+                                        dfilter_free(colorf->c_colorfilter);
+                                colorf->filter_text = g_strdup(tmpfilter);
+                                colorf->c_colorfilter = compiled_filter;
+                                colorf->disabled = ((i!=filt_nr) ? TRUE : disabled);
+                        }
                 }
+                g_free(name);
         }
-        g_free(name);
-	return;
+        return;
 }
 
 /* Reset the temporary colorfilters */
@@ -178,7 +197,7 @@ color_filters_reset_tmp()
 	guint8 i;
 
         for ( i=1 ; i<=10 ; i++ ) {
-            color_filters_set_tmp(i, "frame", TRUE);
+            color_filters_set_tmp(i, NULL, TRUE);
         }
 	return;
 }
