@@ -450,8 +450,8 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
         }
         else
         {
-            /* Otherwise, we need to evaluate the first two
-               examine first two octets to verify encapsulation */
+            /* Otherwise, we need to examine the first two octets to
+               try to determine the encapsulation. */
             guint8 *buf = buffer_start_ptr(wth->frame_buffer);
             if ((0xff == buf[0]) && (0x03 == buf[1]))
             {
