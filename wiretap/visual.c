@@ -220,33 +220,38 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
         return -1;
     }
 
-    /* Translate the encapsulation type.  Note that a file with media
-       type 22 may contain Cisco HDLC or PPP over HDLC.  This will
-       get sorted out after the first packet is read. */
+    /* Translate the encapsulation type; these values are SNMP ifType
+       values, as found in http://www.iana.org/assignments/smi-numbers.
+
+       Note that a file with media type 22 ("propPointToPointSerial") may
+       contain Cisco HDLC or PPP over HDLC.  This will get sorted out after
+       the first packet is read.
+
+       XXX - should we use WTAP_ENCAP_PER_PACKET for that? */
     switch (pletohs(&vfile_hdr.media_type))
     {
-    case  6:
+    case  6:	/* ethernet-csmacd */
         encap = WTAP_ENCAP_ETHERNET;
         break;
 
-    case  9:
+    case  9:	/* IEEE802.5 */
         encap = WTAP_ENCAP_TOKEN_RING;
         break;
 
-    case 16:
+    case 16:	/* lapb */
         encap = WTAP_ENCAP_LAPB;
         break;
 
-    case 22:
-    case 118:
+    case 22:	/* propPointToPointSerial */
+    case 118:	/* HDLC */
         encap = WTAP_ENCAP_CHDLC_WITH_PHDR;
         break;
 
-    case 32:
+    case 32:	/* frame-relay */
         encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
         break;
 
-    case 37:
+    case 37:	/* ATM */
        encap = WTAP_ENCAP_ATM_PDUS;
        break;
 
