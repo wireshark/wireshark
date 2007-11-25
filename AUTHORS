@@ -2826,6 +2826,7 @@ Martin Peylo		<wireshark [AT] izac.de>
 Stéphane Loeuillet	<leroutier@gmail.com>
 Andrei Rubaniuk		<rubaniuk@mail.ru>
 Mikael Magnusson	<mikma264@gmail.com>
+Timo Teras		<timo.teras [AT] iki.fi>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.

@@ -20,6 +20,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ *
+ *
+ * CIE decoding for extensions and Cisco 12.4T extensions
+ * added by Timo Teras <timo.teras@iki.fi>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -70,6 +76,7 @@ static int hf_nhrp_flag_D = -1;
 static int hf_nhrp_flag_U1 = -1;
 static int hf_nhrp_flag_U2 = -1;
 static int hf_nhrp_flag_S = -1;
+static int hf_nhrp_flag_NAT = -1;
 static int hf_nhrp_src_nbma_addr = -1;
 static int hf_nhrp_src_nbma_saddr = -1;
 static int hf_nhrp_src_prot_addr = -1;
@@ -101,6 +108,7 @@ static gint ett_nhrp_mand = -1;
 static gint ett_nhrp_ext = -1;
 static gint ett_nhrp_mand_flag = -1;
 static gint ett_nhrp_cie = -1;
+static gint ett_nhrp_indication = -1;
 
 /* NHRP Packet Types */
 #define NHRP_RESOLUTION_REQ		1
@@ -110,6 +118,7 @@ static gint ett_nhrp_cie = -1;
 #define NHRP_PURGE_REQ			5
 #define NHRP_PURGE_REPLY		6
 #define NHRP_ERROR_INDICATION	7
+#define NHRP_TRAFFIC_INDICATION	8
 
 /* NHRP Extension Types */
 #define NHRP_EXT_NULL			0	/* End of Extension */
@@ -118,6 +127,7 @@ static gint ett_nhrp_cie = -1;
 #define NHRP_EXT_REV_RECORD		5	/* NHRP Reverse Transit NHS Record Extension */
 #define NHRP_EXT_AUTH			7	/* NHRP Authentication Extension */
 #define NHRP_EXT_VENDOR_PRIV	8	/* NHRP Vendor Private Extension */
+#define NHRP_EXT_NAT_ADDRESS	9	/* Cisco NAT Address Extension */
 
 /* NHRP Error Codes */
 #define NHRP_ERR_UNRECOGNIZED_EXT		0x0001
@@ -145,17 +155,19 @@ static const value_string nhrp_op_type_vals[] = {
 	{ NHRP_PURGE_REQ, 			"NHRP Purge Request" },
 	{ NHRP_PURGE_REPLY, 		"NHRP Purge Reply" },
 	{ NHRP_ERROR_INDICATION, 	"NHRP Error Indication" },
+	{ NHRP_TRAFFIC_INDICATION,	"NHRP Traffic Indication" },
 	{ 0, 						NULL }
 };
 
 static const value_string ext_type_vals[] = {
-	{ NHRP_EXT_NULL,           "End of Extension" },
-	{ NHRP_EXT_RESP_ADDR,      "Responder Address Extension" },
-	{ NHRP_EXT_FWD_RECORD,     "Forward Transit NHS Record Extension" },
-	{ NHRP_EXT_REV_RECORD,     "Reverse Transit NHS Record Extension" },
-	{ NHRP_EXT_AUTH,           "NHRP Authentication Extension" },
-	{ NHRP_EXT_VENDOR_PRIV,    "NHRP Vendor Private Extension" },
-	{ 0,                       NULL }
+	{ NHRP_EXT_NULL,			"End of Extension" },
+	{ NHRP_EXT_RESP_ADDR,		"Responder Address Extension" },
+	{ NHRP_EXT_FWD_RECORD,		"Forward Transit NHS Record Extension" },
+	{ NHRP_EXT_REV_RECORD,		"Reverse Transit NHS Record Extension" },
+	{ NHRP_EXT_AUTH,			"NHRP Authentication Extension" },
+	{ NHRP_EXT_VENDOR_PRIV,		"NHRP Vendor Private Extension" },
+	{ NHRP_EXT_NAT_ADDRESS,		"Cisco NAT Address Extension" },
+	{ 0,						NULL }
 };
 
 static const value_string nhrp_error_code_vals[] = {
@@ -290,7 +302,95 @@ void dissect_nhrp_hdr(tvbuff_t *tvb,
 	}
 }
 
+void dissect_cie_list(tvbuff_t *tvb,
+					  proto_tree *tree,
+					  gint offset,
+					  gint cieEnd,
+					  gint isReq)
+{
+	guint32 addr;
+
+	while ((offset + 12) <= cieEnd) {
+		gint cli_addr_len = tvb_get_guint8(tvb, offset + 8);
+		gint cli_saddr_len = tvb_get_guint8(tvb, offset + 9);
+		gint cli_prot_len = tvb_get_guint8(tvb, offset + 10);
+		gint cie_len = 12 + cli_addr_len + cli_saddr_len + cli_prot_len;
+		proto_item *cie_tree_item = proto_tree_add_text(tree, tvb, offset, cie_len, "Client Information Element");
+		proto_tree *cie_tree = proto_item_add_subtree(cie_tree_item, ett_nhrp_cie);
+
+		if (isReq) {
+			proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, FALSE);
+		}
+		else {
+			guint8 code = tvb_get_guint8(tvb, offset);
+			proto_tree_add_text(cie_tree, tvb, offset, 1, "Code: %s",
+								val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
+		}
+		offset += 1;
+		
+		proto_tree_add_item(cie_tree, hf_nhrp_prefix_len, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_unused, tvb, offset, 2, FALSE);
+		offset += 2;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_mtu, tvb, offset, 2, FALSE);
+		offset += 2;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_holding_time, tvb, offset, 2, FALSE);
+		offset += 2;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_cli_addr_tl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_cli_saddr_tl, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_cli_prot_len, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		proto_tree_add_item(cie_tree, hf_nhrp_pref, tvb, offset, 1, FALSE);
+		offset += 1;
+
+		if (cli_addr_len) {
+			tvb_ensure_bytes_exist(tvb, offset, cli_addr_len);
+			if (cli_addr_len == 4) {
+				addr = tvb_get_ipv4(tvb, offset);
+				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, addr);
+			}
+			else {
+				proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
+									"Client NBMA Address: %s",
+									tvb_bytes_to_str(tvb, offset, cli_addr_len));
+			}
+			offset += cli_addr_len;
+		}
+		
+		if (cli_saddr_len) {
+			tvb_ensure_bytes_exist(tvb, offset, cli_saddr_len);
+			proto_tree_add_text(cie_tree, tvb, offset, cli_saddr_len,
+								"Client NBMA Sub Address: %s",
+								tvb_bytes_to_str(tvb, offset, cli_saddr_len));
+		}
+
+		if (cli_prot_len) {
+			tvb_ensure_bytes_exist(tvb, offset, cli_prot_len);
+			if (cli_prot_len == 4) {
+				addr = tvb_get_ipv4(tvb, offset);
+				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, addr);
+			}
+			else {
+				proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
+									"Client Protocol Address: %s",
+									tvb_bytes_to_str(tvb, offset, cli_prot_len));
+			}
+			offset += cli_prot_len;
+		}
+	}
+}
+
 void dissect_nhrp_mand(tvbuff_t *tvb,
+					   packet_info *pinfo,
 					   proto_tree *tree,
 					   gint *pOffset,
 					   e_nhrp_hdr *hdr,
@@ -298,12 +398,13 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 {
 	gint	offset = *pOffset;
 	gint	mandEnd = offset + mandLen;
+	guint32 addr;
 	guint8	ssl, shl;
 	guint16	flags;
 	guint	srcLen, dstLen;
-	guint32 addr;
 	gboolean isReq = 0;
 	gboolean isErr = 0;
+	gboolean isInd = 0;
 	
 	proto_item *nhrp_tree_item = NULL;
 	proto_item *flag_item = NULL;
@@ -321,6 +422,10 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		break;
 	case NHRP_ERROR_INDICATION:	/* This needs special treatment */
 		isErr = 1;
+		isInd = 1;
+		break;
+	case NHRP_TRAFFIC_INDICATION:
+		isInd = 1;
 		break;
 	}
 	nhrp_tree_item = proto_tree_add_text(tree, tvb, offset, mandLen, "NHRP Mandatory Part");
@@ -334,7 +439,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	proto_tree_add_item(nhrp_tree, hf_nhrp_dst_proto_len, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	if (!isErr) {
+	if (!isInd) {
 		flags = tvb_get_ntohs(tvb, offset);
 		flag_item = proto_tree_add_uint(nhrp_tree, hf_nhrp_flags, tvb, offset, 2, flags);
 		flag_tree = proto_item_add_subtree(flag_item, ett_nhrp_mand_flag);
@@ -359,13 +464,14 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 			proto_tree_add_boolean(flag_tree, hf_nhrp_flag_N, tvb, offset, 2, flags);
 			break;
 		}
+		proto_tree_add_boolean(flag_tree, hf_nhrp_flag_NAT, tvb, offset, 2, flags);
 
 		offset += 2;
 
 		proto_tree_add_item(nhrp_tree, hf_nhrp_request_id, tvb, offset, 4, FALSE);
 		offset += 4;
 	}
-	else {
+	else if (isErr) {
 		guint16 err_code;
 		offset += 2;
 		
@@ -377,7 +483,10 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		proto_tree_add_item(nhrp_tree, hf_nhrp_error_offset, tvb, offset, 2, FALSE);
 		offset += 2;
 	}
-	
+	else {
+		offset += 6;
+	}
+
 	/* TBD : Check for hdr->afn */
 	shl = hdr->ar_shtl & 0x3f;
 	if (shl) {
@@ -429,94 +538,25 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 		offset += dstLen;
 	}
 
-	if (isErr) {
-		gint err_pkt_len = mandEnd - offset;
-		if (err_pkt_len > 0) {
-			proto_tree_add_text(nhrp_tree, tvb, offset, err_pkt_len,
-								"Errored Packet: %s",
-								tvb_bytes_to_str(tvb, offset, err_pkt_len));
+	if (isInd) {
+		gint pkt_len = mandEnd - offset;
+		proto_item *ind_tree_item = proto_tree_add_text(tree, tvb, offset, pkt_len, "Packet Causing Indication");
+		proto_tree *ind_tree = proto_item_add_subtree(ind_tree_item, ett_nhrp_indication);
+
+		if (isErr) {
+			tvbuff_t *sub_tvb;
+
+			sub_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			dissect_nhrp(sub_tvb, pinfo, ind_tree);
+		}
+		else {
+			ethertype(hdr->ar_pro_type, tvb, offset, pinfo, ind_tree, NULL, -1, -1, 0);
 		}
 		offset = mandEnd;
 	}
-	
-	while ((offset + 12) <= mandEnd) {
-		gint cli_addr_len = tvb_get_guint8(tvb, offset + 8);
-		gint cli_saddr_len = tvb_get_guint8(tvb, offset + 9);
-		gint cli_prot_len = tvb_get_guint8(tvb, offset + 10);
-		gint cie_len = 12 + cli_addr_len + cli_saddr_len + cli_prot_len;
-		proto_item *cie_tree_item = proto_tree_add_text(nhrp_tree, tvb, offset, cie_len, "Client Information Element");
-		proto_tree *cie_tree = proto_item_add_subtree(cie_tree_item, ett_nhrp_cie);
 
-		if (isReq) {
-			proto_tree_add_item(cie_tree, hf_nhrp_code, tvb, offset, 1, FALSE);
-		}
-		else {
-			guint8 code = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(cie_tree, tvb, offset, 1, "Code: %s",
-								val_to_str(code, nhrp_cie_code_vals, "Unknown (%u)"));
-		}
-		offset += 1;
-		
-		proto_tree_add_item(cie_tree, hf_nhrp_prefix_len, tvb, offset, 1, FALSE);
-		offset += 1;
+	dissect_cie_list(tvb, nhrp_tree, offset, mandEnd, isReq);
 
-		proto_tree_add_item(cie_tree, hf_nhrp_unused, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_mtu, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_holding_time, tvb, offset, 2, FALSE);
-		offset += 2;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_cli_addr_tl, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_cli_saddr_tl, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_cli_prot_len, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		proto_tree_add_item(cie_tree, hf_nhrp_pref, tvb, offset, 1, FALSE);
-		offset += 1;
-
-		if (cli_addr_len) {
-			tvb_ensure_bytes_exist(tvb, offset, cli_addr_len);
-			if (cli_addr_len == 4) {
-				addr = tvb_get_ipv4(tvb, offset);
-				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, addr);
-			}
-			else {
-				proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
-									"Client NBMA Address: %s",
-									tvb_bytes_to_str(tvb, offset, cli_addr_len));
-			}
-			offset += cli_addr_len;
-		}
-		
- 		if (cli_saddr_len) {
-			tvb_ensure_bytes_exist(tvb, offset, cli_saddr_len);
-			proto_tree_add_text(cie_tree, tvb, offset, cli_saddr_len,
-								"Client NBMA Sub Address: %s",
-								tvb_bytes_to_str(tvb, offset, cli_saddr_len));
-		}
-
-		if (cli_prot_len) {
-			tvb_ensure_bytes_exist(tvb, offset, cli_prot_len);
-			if (cli_prot_len == 4) {
-				addr = tvb_get_ipv4(tvb, offset);
-				proto_tree_add_ipv4(cie_tree, hf_nhrp_client_prot_addr, tvb, offset, 4, addr);
-			}
-			else {
-				proto_tree_add_text(cie_tree, tvb, offset, cli_prot_len,
-									"Client Protocol Address: %s",
-									tvb_bytes_to_str(tvb, offset, cli_prot_len));
-			}
-			offset += cli_prot_len;
-		}
-	}
-	
 	*pOffset = mandEnd;
 }
 
@@ -552,9 +592,19 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 
 		if (len) {
 			tvb_ensure_bytes_exist(tvb, offset, len);
-			proto_tree_add_text(nhrp_tree, tvb, offset, len,
-								"Extension Value: %s",
-								tvb_bytes_to_str(tvb, offset, len));
+			switch (extType) {
+			case NHRP_EXT_RESP_ADDR:
+			case NHRP_EXT_FWD_RECORD:
+			case NHRP_EXT_REV_RECORD:
+			case NHRP_EXT_NAT_ADDRESS:
+				dissect_cie_list(tvb, nhrp_tree, offset, offset + len, 0);
+				break;
+			default:
+				proto_tree_add_text(nhrp_tree, tvb, offset, len,
+									"Extension Value: %s",
+									tvb_bytes_to_str(tvb, offset, len));
+				break;
+			}
 			offset += len;
 		}
 	}	
@@ -590,7 +640,8 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 val_to_str(hdr.ar_op_type, nhrp_op_type_vals,
 									"0x%02X - unknown"));
 		}
-		
+		col_set_writable(pinfo->cinfo, FALSE);
+
 		ti = proto_tree_add_protocol_format(tree, proto_nhrp, tvb, 0, -1,
 											"Next Hop Resolution Protocol (%s)",
 											val_to_str(hdr.ar_op_type,
@@ -600,7 +651,7 @@ void dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 		dissect_nhrp_hdr(tvb, nhrp_tree, &offset, &mandLen, &extLen, &hdr);
 		if (mandLen) {
-			dissect_nhrp_mand(tvb, nhrp_tree, &offset, &hdr, mandLen);
+			dissect_nhrp_mand(tvb, pinfo, nhrp_tree, &offset, &hdr, mandLen);
 		}
 
 		if (extLen) {
@@ -657,6 +708,8 @@ proto_register_nhrp(void)
 		  { "Uniqueness Bit", 				"nhrp.flag.u1", 	FT_BOOLEAN, 16, NULL, 0x8000, "U bit", HFILL }},
 		{ &hf_nhrp_flag_S,
 		  { "Stable Binding", 				"nhrp.flag.s", 		FT_BOOLEAN, 16, NULL, 0x0800, "S bit", HFILL }},
+		{ &hf_nhrp_flag_NAT,
+		  { "Cisco NAT Supported",			"nhrp.flag.nat",	FT_BOOLEAN, 16, NULL, 0x0002, "NAT bit", HFILL }},
 		{ &hf_nhrp_request_id,
 		  { "Request ID", 					"nhrp.reqid",		FT_UINT32,	BASE_HEX_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_nhrp_src_nbma_addr,
@@ -715,6 +768,7 @@ proto_register_nhrp(void)
 		&ett_nhrp_ext,
 		&ett_nhrp_mand_flag,
 		&ett_nhrp_cie,
+		&ett_nhrp_indication
 	};
 	
 	if (proto_nhrp == -1) {
