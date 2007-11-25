@@ -1739,18 +1739,18 @@ SupplementaryInformation ::=
   PrintableString(SIZE (1..ub-supplementary-info-length))
 
 --	Extension Fields
---EXTENSION ::= CLASS {
---  &id           ExtensionType UNIQUE,
---  &Type         OPTIONAL,
---  &absent       &Type OPTIONAL,
---  &recommended  Criticality DEFAULT {}
---}
---WITH SYNTAX {
---  [&Type
---   [IF ABSENT &absent],]
---  [RECOMMENDED CRITICALITY &recommended,]
---  IDENTIFIED BY &id
---}
+EXTENSION ::= CLASS {
+  &id           ExtensionType UNIQUE,
+  &Type         OPTIONAL,
+  &absent       &Type OPTIONAL,
+  &recommended  Criticality DEFAULT {}
+}
+WITH SYNTAX {
+  [&Type
+   [IF ABSENT &absent],]
+  [RECOMMENDED CRITICALITY &recommended,]
+  IDENTIFIED BY &id
+}
 
 ExtensionType ::= CHOICE {
   standard-extension  [0]  StandardExtension --(0..ub-extension-types)--,

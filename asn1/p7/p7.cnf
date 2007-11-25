@@ -3,9 +3,77 @@
 #
 
 #.IMPORT ../x411/x411-exp.cnf
+#.IMPORT ../ros/ros-exp.cnf
+#.IMPORT ../rtse/rtse-exp.cnf
 
 #.MODULE_IMPORT
 MTSAbstractService				x411
+
+
+# Forward declaration of Classes
+# CONNECTION-PACKAGE CONTRACT from ROS
+#.CLASS CONNECTION-PACKAGE
+&bind                ClassReference OPERATION
+&unbind              ClassReference OPERATION
+&responderCanUnbind  BooleanType
+&unbindCanFail       BooleanType
+&id                  ObjectIdentifierType
+#.END
+
+#.CLASS CONTRACT
+&connection           ClassReference CONNECTION-PACKAGE
+&OperationsOf         ClassReference OPERATION-PACKAGE
+&InitiatorConsumerOf  ClassReference OPERATION-PACKAGE
+&InitiatorSupplierOf  ClassReference OPERATION-PACKAGE
+&id                   ObjectIdentifierType
+#.END
+
+#.CLASS MHS-OBJECT
+&Is                    ClassReference MHS-OBJECT
+&Initiates             ClassReference CONTRACT
+&Responds              ClassReference CONTRACT
+&InitiatesAndResponds  ClassReference CONTRACT
+&id                    ObjectIdentifierType
+#.END
+
+# Ros OPERATION
+#.CLASS ABSTRACT-OPERATION 
+&ArgumentType          
+&argumentTypeOptional  BooleanType
+&returnResult          BooleanType
+&ResultType            
+&resultTypeOptional    BooleanType
+&Errors                ClassReference ERROR
+&Linked                ClassReference OPERATION
+&synchronous           BooleanType
+&alwaysReturns         BooleanType
+&InvokePriority        _FixedTypeValueSetFieldSpec
+&ResultPriority        _FixedTypeValueSetFieldSpec
+&operationCode         TypeReference Code
+#.END
+
+# ros ERROR
+#.CLASS ABSTRACT-ERROR 
+&ParameterType          
+&parameterTypeOptional  BooleanType
+&ErrorPriority          _FixedTypeValueSetFieldSpec
+&errorCode              TypeReference Code
+#.END
+
+#.CLASS MATCHING-RULE
+&ParentMatchingRules   ClassReference MATCHING-RULE
+&AssertionType         
+&uniqueMatchIndicator  ClassReference ATTRIBUTE
+&id                    ObjectIdentifierType
+#.END
+
+#.CLASS APPLICATION-CONTEXT
+&associationContract	ClassReference CONTRACT
+&associationRealization
+&transferRealization
+&AbstractSyntaxes	ClassReference ABSTRACT-SYNTAX
+&applicationContextName	ObjectIdentifierType
+#.END
 
 #.TYPE_RENAME
 Attribute/attribute-values			AttributeValues
@@ -27,6 +95,7 @@ SequenceNumberErrorParameter/problems/_item	SequenceNumberErrorProblem
 Summary/present/_item/value			SummaryPresentItemValue
 OrderedAttribute/attribute-values/_item/value	OrderedAttributeValue
 AttributeErrorParameter/problems/_item/value	AttributeErrorProblemValue
+
 
 #.FIELD_RENAME
 OrderedAttribute/attribute-values 		ordered-attribute-values
@@ -54,17 +123,17 @@ Filter/item 					filter-item
 
 Summary/present					summary-present
 
-AttributeErrorParameter/problems		attribute-error-problems
-AutoActionRequestErrorParameter/problems	auto-action-request-error-problems
-DeleteErrorParameter/problems			delete-error-problems
-SequenceNumberErrorParameter/problems		sequence-number-error-problems
-FetchRestrictionErrorParameter/problems		fetch-restriction-error-problems
+AttributeErrorParameter/problems			attribute-error-problems
+AutoActionRequestErrorParameter/problems		auto-action-request-error-problems
+DeleteErrorParameter/problems				delete-error-problems
+SequenceNumberErrorParameter/problems			sequence-number-error-problems
+FetchRestrictionErrorParameter/problems			fetch-restriction-error-problems
 
-DeleteErrorParameter/problems/_item		delete-error-problem-item
-AttributeErrorParameter/problems/_item 		attribute-error-problem-item
-AutoActionRequestErrorParameter/problems/_item 	auto-action-request-error-problem-item
-SequenceNumberErrorParameter/problems/_item 	sequence-number-error-problem-item
-FetchRestrictionErrorParameter/problems/_item 	fetch-restriction-error-problem-item
+DeleteErrorParameter/problems/_item			delete-error-problem-item
+AttributeErrorParameter/problems/_item 			attribute-error-problem-item
+AutoActionRequestErrorParameter/problems/_item 		auto-action-request-error-problem-item
+SequenceNumberErrorParameter/problems/_item 		sequence-number-error-problem-item
+FetchRestrictionErrorParameter/problems/_item 		fetch-restriction-error-problem-item
 
 EntryClassErrorParameter/problem			entry-class-problem
 FetchRestrictionErrorParameter/problems/_item/problem	fetch-restriction-problem
@@ -81,7 +150,10 @@ AutoActionRequestErrorParameter/problems/_item/problem	auto-action-request-probl
 AutoActionRequestErrorParameter/problems/_item/type 	auto-action-type
 
 AttributeErrorParameter/problems/_item/value 		problem-value
+
 OrderedAttribute/attribute-values/_item/value 		ordered-attribute-value
+
+FetchRestrictionErrorParameter/problems/_item/restriction/content-type	extended-content-type
 
 #.PDU
 MSBindArgument
@@ -108,15 +180,66 @@ AlertResult
 AttributeErrorParameter
 AutoActionRequestErrorParameter
 DeleteErrorParameter
-FetchRestrictionErrorParameter
-RangeErrorParameter
-SequenceNumberErrorParameter
-MessageGroupErrorParameter
-MSExtensionErrorParameter
 EntryClassErrorParameter
-ServiceErrorParameter
-RegisterMSErrorParameter
+FetchRestrictionErrorParameter
+MessageGroupErrorParameter
 ModifyErrorParameter
+MSExtensionErrorParameter
+RangeErrorParameter
+RegisterMSErrorParameter
+SequenceNumberErrorParameter
+ServiceErrorParameter
+
+# This table creates the value_sting to name P7 operation codes and errors
+# in file packet-p7-table.c which is included in the template file
+#
+#TABLE_HDR
+#/* P7 ABSTRACT-OPERATIONS */
+#const value_string p7_opr_code_strings[] = {
+#TABLE_BODY ABSTRACT-OPERATION
+#	{ %(&operationCode)s, "%(_ident)s" },
+#TABLE_FTR
+#  { 0, NULL }
+#;
+#END
+
+#TABLE_HDR
+#/* P7 ERRORS */
+#static const value_string p7_err_code_string_vals[] = {
+#TABLE_BODY ABSTRACT-ERROR
+#	{ %(&errorCode)s, "%(_ident)s" },  
+#TABLE_FTR
+#  { 0, NULL }
+#};
+#END
+
+# Create a table of opcode and corresponding args and res
+#TABLE11_HDR
+#typedef struct _ros_op_t {
+#  gint32 opcode;
+#  new_dissector_t arg_pdu;
+#  new_dissector_t res_pdu;
+#} ros_op_t;
+
+#static const ros_op_t p7_op_tab[] = {
+#TABLE11_BODY ABSTRACT-OPERATION
+#  /* %(_name)-31s */ { %(&operationCode)-40s, %(_argument_pdu)-45s, %(_result_pdu)s },
+#TABLE11_FTR
+#};
+#END
+#TABLE21_HDR
+#typedef struct _ros_err_t {
+#  gint32 errcode;
+#  new_dissector_t err_pdu;
+#} ros_err_t;
+
+#static const ros_err_t p7_err_tab[] = {
+#TABLE21_BODY ABSTRACT-ERROR
+#  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
+#TABLE21_FTR
+#};
+#END
+
 
 #.REGISTER
 # MSGeneralAttributeTypes
@@ -137,7 +260,7 @@ SequenceNumber		B	"2.6.4.3.0"	"id-att-child-sequence-numbers"
 #ContentIntegrityCheck	B	"2.6.4.3.5"	"id-att-content-inetgrity-check" - see x411.cnf
 #ContentLength		B	"2.6.4.3.6"	"id-att-content-length" - see x411.cnf
 #Boolean		B	"2.6.4.3.7"	"id-att-content-returned" - see XXX
-#ObjectIdentifier	B	"2.6.4.3.8"	"id-att-content-type" - see XXX
+#ExtendedContentType	B	"2.6.4.3.8"	"id-att-content-type" - see x411.cnf
 #ConversionWithLossProhibited	B	"2.6.4.3.9"	"id-att-conversion-with-loss-prohibited" - see x411.cnf
 MS-EIT			B	"2.6.4.3.10"	"id-att-converted-EITs"
 CreationTime		B	"2.6.4.3.11"	"id-att-creation-time"
@@ -237,21 +360,34 @@ StorageTime		B	"2.6.4.3.74"	"id-att-storage-time"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY 	AttributeErrorParameter/problems/_item/value
-	if(object_identifier_id) 
-   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 #.FN_PARS	AutoActionType	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY	AutoActionRegistration/registration-parameter
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_PARS	AutoActionError/error-code	FN_VARIANT = _str VAL_PTR = &object_identifier_id
+
+#.FN_BODY	AutoActionError/error-code
+	/* XXX: Is this really the best way to do this? */
+	offset = dissect_ros_Code(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+#.FN_BODY	RegistrationTypes/extended-registrations/_item
+	/* XXX: Is this really the best way to do this? */
+	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
+
+#.FN_BODY	RTABapdu/userdataAB
+	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
+
+#.END
 
 #.FN_BODY	AutoActionError/error-parameter
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+
+#.FN_BODY	AttributeErrorParameter/problems/_item/value
+	if(object_identifier_id) 
+   	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+
 
 #.FN_BODY	MSBindArgument/initiator-name
 	char *ora = NULL;
@@ -294,5 +430,3 @@ StorageTime		B	"2.6.4.3.74"	"id-att-storage-time"
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%%d)", count);
 	}
 
-
-	

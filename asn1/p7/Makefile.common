@@ -34,7 +34,8 @@ EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = \
 	MSAbstractService.asn \
-	MSGeneralAttributeTypes.asn
+	MSGeneralAttributeTypes.asn \
+	MSAccessProtocol.asn
 
 # The packet-$(PROTOCOL_NAME)-template.h and $(PROTOCOL_NAME).asn
 # files do not exist # for all protocols: Please add/remove as required.
@@ -51,8 +52,16 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -X -T
 
 EXTRA_CNF= \
-	../x411/x411-exp.cnf 
+	../x411/x411-exp.cnf \
+	../ros/ros-exp.cnf \
+	../rtse/rtse.cnf
 
 ../x411/x411-exp.cnf:
 	(cd ../x411 && $(MAKE_CNF_EXPORT))
+
+../ros/ros-exp.cnf:
+	(cd ../ros && $(MAKE_CNF_EXPORT))
+
+../rtse/rtse-exp.cnf:
+	(cd ../rtse && $(MAKE_CNF_EXPORT))
 

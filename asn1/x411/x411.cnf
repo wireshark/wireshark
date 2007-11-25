@@ -8,9 +8,11 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 #.IMPORT ../x509af/x509af-exp.cnf
 
 #.EXPORTS
+EXTENSION
 Content
 ContentIdentifier
 ContentLength
+ContentType
 Credentials
 EncodedInformationTypes
 EncodedInformationTypesConstraints
@@ -27,11 +29,15 @@ MessageSubmissionEnvelope
 MessageSubmissionIdentifier
 MessageSubmissionTime
 MessageToken
+MTSOriginatorName
 ORAddress
 ORAddressAndOrDirectoryName
 ORName
+OriginalEncodedInformationTypes
 OriginatingMTACertificate
 OtherMessageDeliveryFields
+PerMessageIndicators
+PerRecipientProbeSubmissionFields
 ProbeSubmissionEnvelope
 ProbeSubmissionIdentifier
 ProbeSubmissionTime
@@ -46,6 +52,9 @@ TeletexNonBasicParameters
 UniversalOrBMPString
 NonDeliveryReasonCode
 NonDeliveryDiagnosticCode
+
+# Forward declaration of Classes
+
 
 #.TYPE_RENAME
 MTABindArgument/authenticated	AuthenticatedArgument
@@ -253,6 +262,7 @@ ContentCorrelator			B	"2.6.4.3.3"	"id-att-content-correlator"
 ContentIdentifier			B	"2.6.4.3.4"	"id-att-content-identifier"
 ContentIntegrityCheck			B	"2.6.4.3.5"	"id-att-content-inetgrity-check"
 ContentLength				B	"2.6.4.3.6"	"id-att-content-length"
+ExtendedContentType			B	"2.6.4.3.8"	"id-att-content-type" 
 ConversionWithLossProhibited		B	"2.6.4.3.9"	"id-att-conversion-with-loss-prohibited"
 DeferredDeliveryTime			B	"2.6.4.3.51"	"id-att-deferred-delivery-time"
 DeliveryFlags				B	"2.6.4.3.13"	"id-att-delivery-flags"
@@ -882,3 +892,4 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 	}
 
 #.END
+

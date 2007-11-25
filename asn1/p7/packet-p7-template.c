@@ -40,6 +40,7 @@
 #include "packet-ber.h"
 #include "packet-acse.h"
 #include "packet-ros.h"
+#include "packet-rtse.h"
 
 #include "packet-x411.h"
 #include <epan/strutil.h>
@@ -54,7 +55,7 @@ static dissector_handle_t tpkt_handle = NULL;
 static const char *object_identifier_id = NULL; /* attribute identifier */
 static int seqno = 0;
 
-void prefs_register_p7(void); /* forwad declaration for use in preferences registration */
+void prefs_register_p7(void); /* forward declaration for use in preferences registration */
 
 
 /* Initialize the protocol and registered fields */
@@ -67,6 +68,8 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
 #include "packet-p7-ett.c"
+
+#include "packet-p7-val.h"
 
 #include "packet-p7-fn.c"
 
@@ -125,47 +128,47 @@ dissect_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
 	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 3: /* msMessageSubmission */
+	  case op_ms_message_submission: /* msMessageSubmission */
 	    p7_dissector = dissect_p7_MSMessageSubmissionArgument;
 	    p7_op_name = "MS-Message-Submission-Argument";
 	    hf_p7_index = hf_p7_MSMessageSubmissionArgument_PDU;
 	    break;
-	  case 4: /* msProbeSubmission */
+	  case op_ms_probe_submission: /* msProbeSubmission */
 	    p7_dissector = dissect_p7_MSProbeSubmissionArgument;
 	    p7_op_name = "MS-Probe-Submission-Argument";
 	    hf_p7_index = hf_p7_MSProbeSubmissionArgument_PDU;
 	    break;
-	  case 20: /* summarize */
+	  case op_summarize: /* summarize */
 	    p7_dissector = dissect_p7_SummarizeArgument;
 	    p7_op_name = "Summarize-Argument";
 	    hf_p7_index = hf_p7_SummarizeArgument_PDU;
 	    break;
-	  case 21: /* list */
+	  case op_list: /* list */
 	    p7_dissector = dissect_p7_ListArgument;
 	    p7_op_name = "List-Argument";
 	    hf_p7_index = hf_p7_ListArgument_PDU;
 	    break;
-	  case 22: /* fetch */
+	  case op_fetch: /* fetch */
 	    p7_dissector = dissect_p7_FetchArgument;
 	    p7_op_name = "Fetch-Argument";
 	    hf_p7_index = hf_p7_FetchArgument_PDU;
 	    break;
-	  case 23: /* delete */
+	  case op_delete: /* delete */
 	    p7_dissector = dissect_p7_DeleteArgument;
 	    p7_op_name = "Delete-Argument";
 	    hf_p7_index = hf_p7_DeleteArgument_PDU;
 	    break;
-	  case 24: /* register-ms */
+	  case op_register_ms: /* register-ms */
 	    p7_dissector = dissect_p7_Register_MSArgument;
 	    p7_op_name = "RegisterMS-Argument";
 	    hf_p7_index = hf_p7_Register_MSArgument_PDU;
 	    break;
-	  case 25: /* alert */
+	  case op_alert: /* alert */
 	    p7_dissector = dissect_p7_AlertArgument;
 	    p7_op_name = "Alert-Argument";
 	    hf_p7_index = hf_p7_AlertArgument_PDU;
 	    break;
-	  case 26: /* modify */
+	  case op_modify: /* modify */
 	    p7_dissector = dissect_p7_ModifyArgument;
 	    p7_op_name = "Modify-Argument";
 	    hf_p7_index = hf_p7_ModifyArgument_PDU;
@@ -178,46 +181,46 @@ dissect_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_RESULT):	/*  Return Result */
 	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 3: /* msMessageSubmission */
+	  case op_ms_message_submission: /* msMessageSubmission */
 	    p7_dissector = dissect_p7_MSMessageSubmissionResult;
 	    p7_op_name = "MS-Message-Submission-Result";
 	    hf_p7_index = hf_p7_MSMessageSubmissionResult_PDU;
 	    break;
-	  case 4: /* msProbeSubmission */
+	  case op_ms_probe_submission: /* msProbeSubmission */
 	    p7_dissector = dissect_p7_MSProbeSubmissionResult;
 	    p7_op_name = "MS-Probe-Submission-Result";
 	    hf_p7_index = hf_p7_MSProbeSubmissionResult_PDU;
 	    break;
-	  case 20: /* summarize */
+	  case op_summarize: /* summarize */
 	    p7_dissector = dissect_p7_SummarizeResult;
 	    p7_op_name = "Summarize-Result";
 	    hf_p7_index = hf_p7_SummarizeResult_PDU;
 	    break;
-	  case 21: /* list */
+	  case op_list: /* list */
 	    p7_dissector = dissect_p7_ListResult;
 	    p7_op_name = "List-Result";
 	    hf_p7_index = hf_p7_ListResult_PDU;
 	    break;
-	  case 22: /* fetch */
+	  case op_fetch: /* fetch */
 	    p7_dissector = dissect_p7_FetchResult;
 	    p7_op_name = "Fetch-Result";
 	    hf_p7_index = hf_p7_FetchResult_PDU;
 	    break;
-	  case 23: /* delete */
+	  case op_delete: /* delete */
 	    p7_dissector = dissect_p7_DeleteResult;
 	    p7_op_name = "Delete-Result";
 	    break;
-	  case 24: /* register-ms */
+	  case op_register_ms: /* register-ms */
 	    p7_dissector = dissect_p7_Register_MSResult;
 	    p7_op_name = "RegisterMS-Result";
 	    hf_p7_index = hf_p7_Register_MSResult_PDU;
 	    break;
-	  case 25: /* alert */
+	  case op_alert: /* alert */
 	    p7_dissector = dissect_p7_AlertResult;
 	    p7_op_name = "Alert-Result";
 	    hf_p7_index = hf_p7_AlertResult_PDU;
 	    break;
-	  case 26: /* modify */
+	  case op_modify: /* modify */
 	    p7_dissector = dissect_p7_ModifyResult;
 	    p7_op_name = "Modify-Result";
 	    hf_p7_index = hf_p7_ModifyResult_PDU;
@@ -230,70 +233,70 @@ dissect_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  break;
 	case (ROS_OP_INVOKE | ROS_OP_ERROR):	/*  Return Error */
 	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 21: /* attributeError */
+	  case err_attribute_error: /* attributeError */
 	    p7_dissector = dissect_p7_AttributeErrorParameter;
 	    p7_op_name = "Attribute-Error";
 	    hf_p7_index = hf_p7_AttributeErrorParameter_PDU;
 	    break;
-	  case 22: /* autoActionRequestError */
+	  case err_auto_action_request_error: /* autoActionRequestError */
 	    p7_dissector = dissect_p7_AutoActionRequestErrorParameter;
 	    p7_op_name = "Auto-Action-Request-Error";
 	    hf_p7_index = hf_p7_AutoActionRequestErrorParameter_PDU;
 	    break;
-	  case 23: /* deleteError */
+	  case err_delete_error: /* deleteError */
 	    p7_dissector = dissect_p7_DeleteErrorParameter;
 	    p7_op_name = "Delete-Error";
 	    hf_p7_index = hf_p7_DeleteErrorParameter_PDU;
 	    break;
-	  case 24: /* fetchRestrictionError */
+	  case err_fetch_restriction_error: /* fetchRestrictionError */
 	    p7_dissector = dissect_p7_FetchRestrictionErrorParameter;
 	    p7_op_name = "Fetch-Restriction-Error";
 	    hf_p7_index = hf_p7_FetchRestrictionErrorParameter_PDU;
 	    break;
-	  case 25: /* rangeError */
+	  case err_range_error: /* rangeError */
 	    p7_dissector = dissect_p7_RangeErrorParameter;
 	    p7_op_name = "Range-Error";
 	    hf_p7_index = hf_p7_RangeErrorParameter_PDU;
 	    break;
-	  case 26: /* securityError */
+	  case err_security_error: /* securityError */
 	    p7_dissector = dissect_x411_SecurityProblem;
 	    p7_op_name = "Security-Error";
 	    break;
-	  case 27: /* serviceError*/
+	  case err_service_error: /* serviceError*/
 	    p7_dissector = dissect_p7_ServiceErrorParameter;
 	    p7_op_name = "Service-Error";
 	    hf_p7_index = hf_p7_ServiceErrorParameter_PDU;
 	    break;
-	  case 28: /* sequenceNumberError */
+	  case err_sequence_number_error: /* sequenceNumberError */
 	    p7_dissector = dissect_p7_SequenceNumberErrorParameter;
 	    p7_op_name = "Sequence-Number-Error";
 	    hf_p7_index = hf_p7_SequenceNumberErrorParameter_PDU;
 	    break;
-	  case 29: /* invalidParametersError */
+	  case err_invalid_parameters_error: /* invalidParametersError */
 	    p7_dissector = NULL;
 	    p7_op_name = "Invalid-Parameters-Error";
 	    break;
-	  case 30: /* messageGroupError */
+	  case err_message_group_error: /* messageGroupError */
 	    p7_dissector = dissect_p7_MessageGroupErrorParameter;
 	    p7_op_name = "Message-Group-Error";
 	    hf_p7_index = hf_p7_MessageGroupErrorParameter_PDU;
 	    break;
-	  case 31: /* msExtensioError */
+	  case err_ms_extension_error: /* msExtensioError */
 	    p7_dissector = dissect_p7_MSExtensionErrorParameter;
 	    p7_op_name = "MS-Extension-Error";
 	    hf_p7_index = hf_p7_MSExtensionErrorParameter_PDU;
 	    break;
-	  case 32: /* registerMSError */
+	  case err_register_ms_error: /* registerMSError */
 	    p7_dissector = dissect_p7_RegisterMSErrorParameter;
 	    p7_op_name = "Register-MS-Error";
 	    hf_p7_index = hf_p7_RegisterMSErrorParameter_PDU;
 	    break;
-	  case 33: /* sequenceNumberError */
+	  case err_modify_error: /* modifyError */
 	    p7_dissector = dissect_p7_ModifyErrorParameter;
 	    p7_op_name = "Modify-Error";
 	    hf_p7_index = hf_p7_ModifyErrorParameter_PDU;
 	    break;
-	  case 34: /* entryClassError */
+	  case err_entry_class_error: /* entryClassError */
 	    p7_dissector = dissect_p7_EntryClassErrorParameter;
 	    p7_op_name = "Entry-Class-Error";
 	    hf_p7_index = hf_p7_EntryClassErrorParameter_PDU;
