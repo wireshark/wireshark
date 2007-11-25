@@ -644,7 +644,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     tlv_len = tvb_get_ntohs(tvb, offset+2); 
 
     /* TOP Node for each TLV-item */
-    tlv_item = proto_tree_add_text(eap_tree, tvb, offset, tlv_len+4, "");             
+    tlv_item = proto_tree_add_text(eap_tree, tvb, offset, tlv_len+4, "Unknown Type (0x%04x)", tlv_type);
     tlv_root = proto_item_add_subtree(tlv_item, ett_wps_tlv);
 
     /* analog to Tagged parameters in 802.11 */
@@ -1246,9 +1246,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       header_field_info* hf_info = NULL;
       char* fmt = NULL;
 
-      proto_item_append_text(tlv_item, 
-			     "%s", 
-			     val_to_str(tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
+      proto_item_set_text(tlv_item, "%s", 
+			  val_to_str(tlv_type, eapwps_tlv_types, "Unknown (0x%04x)"));
 
       /* Rendered strings for value. Thanks to Stig Bjorlykke */ 
       hf_info = proto_registrar_get_nth(hfindex);
