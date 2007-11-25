@@ -1536,7 +1536,7 @@ static const true_false_string tfs_file_attribute_encrypted = {
 };
 
 /*
- * In some places in the CIFS_TR_1p00.pdf, from SNIA, file attributes are 
+ * In some places in the CIFS_TR_1p00.pdf, from SNIA, file attributes are
  * listed as USHORT, and seem to be in packets in the wild, while in other
  * places they are listed as ULONG, and also seem to be.
  *
@@ -1567,23 +1567,23 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 			"File Attributes: 0x%08x", mask);
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 
-		proto_tree_add_boolean(tree, hf_smb_file_attr_encrypted, 
-				       tvb, offset, bytes, mask);	
-		proto_tree_add_boolean(tree, hf_smb_file_attr_not_content_indexed, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_encrypted,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_offline, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_not_content_indexed,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_compressed, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_offline,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_reparse, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_compressed,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_sparse, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_reparse,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_temporary, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_sparse,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_normal, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_temporary,
 				       tvb, offset, bytes, mask);
-		proto_tree_add_boolean(tree, hf_smb_file_attr_device, 
+		proto_tree_add_boolean(tree, hf_smb_file_attr_normal,
+				       tvb, offset, bytes, mask);
+		proto_tree_add_boolean(tree, hf_smb_file_attr_device,
 				       tvb, offset, bytes, mask);
 		proto_tree_add_boolean(tree, hf_smb_file_attr_archive_16bit,
 				tvb, offset, bytes, mask);
@@ -1598,7 +1598,7 @@ dissect_file_attributes(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		proto_tree_add_boolean(tree, hf_smb_file_attr_read_only_16bit,
 				tvb, offset, bytes, mask);
 	}
-	
+
 	offset += bytes;
 
 	return offset;
@@ -1657,7 +1657,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 		proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
 			tvb, offset, len, mask);
 	}
-	
+
 	offset += len;
 
 	return offset;
@@ -1972,7 +1972,7 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_server_cap_extended_security,
 			tvb, offset, 4, mask);
 	}
-	
+
 	return mask;
 }
 
@@ -2359,7 +2359,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			/* security blob */
 			/* If it runs past the end of the captured data, don't
 			 * try to put all of it into the protocol tree as the
-			 * raw security blob; we might get an exception on 
+			 * raw security blob; we might get an exception on
 			 * short frames and then we will not see anything at all
 			 * of the security blob.
 			 */
@@ -2371,11 +2371,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 				tree, hf_smb_security_blob,
 				tvb, offset, sbloblen, TRUE);
 
-			/* 
-			 * If Extended security and BCC == 16, then raw 
+			/*
+			 * If Extended security and BCC == 16, then raw
 			 * NTLMSSP is in use. We need to save this info
 			 */
- 
+
 			if(bc){
 				tvbuff_t *gssapi_tvb;
 				proto_tree *gssapi_tree;
@@ -2403,11 +2403,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 				COUNT_BYTES(bc);
 			}
-			else { 
+			else {
 
 			  /*
 			   * There is no blob. We just have to make sure
-			   * that subsequent routines know to call the 
+			   * that subsequent routines know to call the
 			   * right things ...
 			   */
 
@@ -2484,7 +2484,7 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 		item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, si->sip->extra_info);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
-		
+
 
 	WORD_COUNT;
 
@@ -2513,7 +2513,7 @@ dissect_rename_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		item=proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, rni->new_name);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
-		
+
 
 	WORD_COUNT;
 
@@ -2735,11 +2735,11 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 		it=proto_tree_add_uint(tr, hf_smb_mapped_in, tvb, 0, 0, tid_info->opened_in);
 		PROTO_ITEM_SET_GENERATED(it);
-	}		
+	}
 	if(tid_info->closed_in){
 		it=proto_tree_add_uint(tr, hf_smb_unmapped_in, tvb, 0, 0, tid_info->closed_in);
 		PROTO_ITEM_SET_GENERATED(it);
-	}		
+	}
 
 
 	return offset;
@@ -3264,7 +3264,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 			proto_item_append_text(item, " SHARE_READ");
 		}
 	}
-	
+
 	offset += len;
 
 	return offset;
@@ -3401,7 +3401,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	}
 
 	/* Store the fid in the transaction structure and remember if
-	   it was in the request or in the reply we saw it 
+	   it was in the request or in the reply we saw it
 	 */
 	if(sip && (!is_generated) && (!pinfo->fd->flags.visited)) {
 		sip->fid=fid;
@@ -3425,7 +3425,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		it=proto_tree_add_uint(tr, hf_smb_closed_in, tvb, 0, 0, fid_info->closed_in);
 		PROTO_ITEM_SET_GENERATED(it);
 	}
-		
+
 
 	if(fid_info->opened_in){
 		if(fid_info->fsi && fid_info->fsi->filename){
@@ -3440,7 +3440,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			it=proto_tree_add_uint(tr, hf_smb_nt_create_disposition, tvb, 0, 0, fid_info->fsi->create_disposition);
 			PROTO_ITEM_SET_GENERATED(it);
 		}
-	}		
+	}
 
 	return fid_info;
 }
@@ -5711,7 +5711,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 				proto_tree_add_uint(ltree, hf_smb_locking_ol, tvb, 0, 0, ld->oplock_level);
 				proto_tree_add_uint(ltree, hf_smb_number_of_unlocks, tvb, 0, 0, ld->num_unlock);
 				proto_tree_add_uint(ltree, hf_smb_number_of_locks, tvb, 0, 0, ld->num_lock);
-				
+
 				lit = proto_tree_add_text(ltree, tvb, 0, 0, "Locks");
 				ltr = proto_item_add_subtree(lit, ett_smb_lock);
 				li=ld->locks;
@@ -5773,7 +5773,7 @@ const value_string oa_open_vals[] = {
 	{ 1,		"The file existed and was opened"},
 	{ 2,		"The file did not exist but was created"},
 	{ 3,		"The file existed and was truncated"},
-	{ 0x8001,       "The file existed and was opened, and an OpLock was granted"}, 
+	{ 0x8001,       "The file existed and was opened, and an OpLock was granted"},
 	{ 0x8002,       "The file did not exist but was created, and an OpLock was granted"},
 	{ 0x8003,       "The file existed and was truncated, and an OpLock was granted"},
 	{0,	NULL}
@@ -6100,7 +6100,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	unsigned int fid;
 	rw_info_t *rwi=NULL;
 
-	
+
 	DISSECTOR_ASSERT(si);
 
 	WORD_COUNT;
@@ -6162,7 +6162,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 * high count and a 16-bit reserved field.
 	 *
 	 * We fetch and display it as 32 bits.
-         * 
+         *
          * XXX if maxcount high is 0xFFFFFFFF we assume it is just padding
 	 * bytes and we just ignore it.
 	 */
@@ -6480,8 +6480,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		}
 		if(!pinfo->fd->flags.visited){
 			/* In case we did not see the TreeConnect call,
-			   store this TID here as well as a IPC TID 
-			   so we know that future Read/Writes to this 
+			   store this TID here as well as a IPC TID
+			   so we know that future Read/Writes to this
 			   TID is (probably) DCERPC.
 			*/
 			if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))){
@@ -6757,7 +6757,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		/* security blob */
 		/* If it runs past the end of the captured data, don't
 		 * try to put all of it into the protocol tree as the
-		 * raw security blob; we might get an exception on 
+		 * raw security blob; we might get an exception on
 		 * short frames and then we will not see anything at all
 		 * of the security blob.
 		 */
@@ -6770,7 +6770,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						TRUE);
 
 		/* As an optimization, because Windows is perverse,
-		   we check to see if NTLMSSP is the first part of the 
+		   we check to see if NTLMSSP is the first part of the
 		   blob, and if so, call the NTLMSSP dissector,
 		   otherwise we call the GSS-API dissector. This is because
 		   Windows can request RAW NTLMSSP, but will happily handle
@@ -6781,7 +6781,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			tvbuff_t *blob_tvb;
 			proto_tree *blob_tree;
 
-			blob_tree = proto_item_add_subtree(blob_item, 
+			blob_tree = proto_item_add_subtree(blob_item,
 							   ett_smb_secblob);
                         CHECK_BYTE_COUNT(sbloblen);
 
@@ -6801,7 +6801,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 			}
 			else {
-			  call_dissector(gssapi_handle, blob_tvb, 
+			  call_dissector(gssapi_handle, blob_tvb,
 					 pinfo, blob_tree);
 			}
 
@@ -6811,7 +6811,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
 					if(ntlmssph && ntlmssph->type==3){
 						smb_uid_t *smb_uid;
-	
+
 						smb_uid=se_alloc(sizeof(smb_uid_t));
 						smb_uid->logged_in=-1;
 						smb_uid->logged_out=-1;
@@ -7060,7 +7060,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		proto_item *blob_item;
 
 		/* security blob */
-		/* dont try to eat too much of we might get an exception on 
+		/* dont try to eat too much of we might get an exception on
 		 * short frames and then we will not see anything at all
 		 * of the security blob.
 		 */
@@ -7074,21 +7074,21 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			tvbuff_t *blob_tvb;
 			proto_tree *blob_tree;
 
-			blob_tree = proto_item_add_subtree(blob_item, 
+			blob_tree = proto_item_add_subtree(blob_item,
 							   ett_smb_secblob);
                         CHECK_BYTE_COUNT(sbloblen);
 
-			blob_tvb = tvb_new_subset(tvb, offset, sbloblen, 
+			blob_tvb = tvb_new_subset(tvb, offset, sbloblen,
 						    sbloblen);
 
-			if (si && si->ct && si->ct->raw_ntlmssp && 
+			if (si && si->ct && si->ct->raw_ntlmssp &&
 			    tvb_strneql(tvb, offset, "NTLMSSP", 7) == 0) {
 			  call_dissector(ntlmssp_handle, blob_tvb, pinfo,
 					 blob_tree);
 
 			}
 			else {
-			  call_dissector(gssapi_handle, blob_tvb, pinfo, 
+			  call_dissector(gssapi_handle, blob_tvb, pinfo,
 					 blob_tree);
 
 			}
@@ -7208,7 +7208,7 @@ dissect_connect_support_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_connect_support_in_dfs,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 
 	return offset;
@@ -7236,7 +7236,7 @@ dissect_connect_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_connect_flags_dtid,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 
 	return offset;
@@ -7822,7 +7822,7 @@ dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_nt_security_flags_effective_only,
 			tvb, offset, 1, mask);
 	}
-	
+
 	offset += 1;
 
 	return offset;
@@ -7965,7 +7965,7 @@ dissect_nt_notify_completion_filter(tvbuff_t *tvb, proto_tree *parent_tree, int 
 		proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
 			tvb, offset, 4, mask);
 	}
-	
+
 	offset += 4;
 	return offset;
 }
@@ -7987,7 +7987,7 @@ dissect_nt_ioctl_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_nt_ioctl_flags_root_handle,
 			tvb, offset, 1, mask);
 	}
-	
+
 	offset += 1;
 	return offset;
 }
@@ -8044,7 +8044,7 @@ dissect_security_information_mask(tvbuff_t *tvb, proto_tree *parent_tree, int of
 		proto_tree_add_boolean(tree, hf_smb_nt_qsd_sacl,
 			tvb, offset, 4, mask);
 	}
-	
+
 	offset += 4;
 
 	return offset;
@@ -8860,7 +8860,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 			if(fid_info){
 				fid_info->type=SMB_FID_TYPE_PIPE;
 			}
-		}		
+		}
 		break;
 	case NT_TRANS_IOCTL:
 		break;
@@ -9872,7 +9872,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		if(fid_info){
 			fid_info->type=SMB_FID_TYPE_PIPE;
 		}
-	}		
+	}
 
 	BYTE_COUNT;
 
@@ -10276,7 +10276,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		proto_tree_add_boolean(tree, hf_smb_ff2_close,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 
 	return offset;
@@ -10302,7 +10302,7 @@ dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_sfi_caching,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 
 	return offset;
@@ -10426,7 +10426,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* search pattern */
 		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
 		CHECK_STRING_TRANS(fn);
-		if(!t2i->name){
+		if(t2i && !t2i->name){
 			t2i->name = se_strdup(fn);
 		}
 		proto_tree_add_string(tree, hf_smb_search_pattern, tvb, offset, fn_len,
@@ -10492,7 +10492,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-					val_to_str(si->info_level, qfsi_vals, 
+					val_to_str(si->info_level, qfsi_vals,
 						   "Unknown (0x%02x)"));
 
 		break;
@@ -10507,8 +10507,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(
-				pinfo->cinfo, COL_INFO, ", %s", 
-				val_to_str(si->info_level, qpi_loi_vals, 
+				pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(si->info_level, qpi_loi_vals,
 					   "Unknown (%u)"));
 		}
 
@@ -10523,7 +10523,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 			fn);
 		COUNT_BYTES_TRANS(fn_len);
-		if(!t2i->name){
+		if(t2i && !t2i->name){
 			t2i->name = se_strdup(fn);
 		}
 
@@ -10579,8 +10579,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(
-				pinfo->cinfo, COL_INFO, ", %s", 
-				val_to_str(si->info_level, qpi_loi_vals, 
+				pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(si->info_level, qpi_loi_vals,
 					   "Unknown (%u)"));
 		}
 
@@ -10792,7 +10792,7 @@ dissect_transaction_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_transaction_flags_dtid,
 			tvb, offset, 2, mask);
 	}
-	
+
 	return mask;
 }
 
@@ -10816,7 +10816,7 @@ dissect_get_dfs_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_get_dfs_fielding,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 	return offset;
 }
@@ -10838,7 +10838,7 @@ dissect_dfs_referral_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_dfs_referral_flags_strip,
 			tvb, offset, 2, mask);
 	}
-	
+
 	offset += 2;
 
 	return offset;
@@ -11237,14 +11237,14 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		subtree = proto_item_add_subtree(item, ett_smb_ea);
 
 		/* EA flags */
-		
+
 		CHECK_BYTE_COUNT_SUBR(1);
 		proto_tree_add_item(
 			subtree, hf_smb_ea_flags, tvb, offset, 1, TRUE);
 		COUNT_BYTES_SUBR(1);
 
 		/* EA name length */
-		
+
 		name_len = tvb_get_guint8(tvb, offset);
 
 		CHECK_BYTE_COUNT_SUBR(1);
@@ -11255,7 +11255,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* EA data length */
 
 		data_len = tvb_get_letohs(tvb, offset);
-		
+
 		CHECK_BYTE_COUNT_SUBR(2);
 		proto_tree_add_item(
 			subtree, hf_smb_ea_data_length, tvb, offset, 2, TRUE);
@@ -11268,12 +11268,12 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_name, tvb, offset, name_len + 1, 
+			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
 			TRUE);
 		COUNT_BYTES_SUBR(name_len + 1);
 
 		/* EA data */
-		
+
 		CHECK_BYTE_COUNT_SUBR(data_len);
 		proto_tree_add_item(
 			subtree, hf_smb_ea_data, tvb, offset, data_len, TRUE);
@@ -11506,7 +11506,7 @@ dissect_qfi_SMB_FILE_ALTERNATE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, prot
 }
 
 /* this dissects the SMB_QUERY_FILE_ALL_INFO
-   but not as described in 4.2.16.8 since CNIA spec is wrong 
+   but not as described in 4.2.16.8 since CNIA spec is wrong
 */
 static int
 dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -11832,7 +11832,7 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
 */
 int
-dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb, 
+dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
@@ -11869,7 +11869,7 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 /* this dissects the SMB_FILE_ATTRIBUTE_TAG_INFO
 */
 int
-dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb, 
+dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb,
     packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
@@ -12041,7 +12041,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-		
+
 	case 2:		/*Info Query EA Size*/
 		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
@@ -12127,11 +12127,11 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 offset = dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvb, pinfo, tree, offset, bcp, &trunc);
                 break;
 	case 0x0200:	/* Query File Unix Basic*/
-		offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp, 
+		offset = dissect_4_2_16_12(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0201:	/* Query File Unix Link*/
-		offset = dissect_4_2_16_13(tvb, pinfo, tree, offset, bcp, 
+		offset = dissect_4_2_16_13(tvb, pinfo, tree, offset, bcp,
 					   &trunc);
 		break;
 	case 0x0202:	/* Query File Unix HardLink*/
@@ -12266,7 +12266,7 @@ dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			tvb, offset, 1, mask);
 		proto_tree_add_boolean(tree, hf_smb_quota_flags_deny_disk,
 			tvb, offset, 1, mask);
-	
+
 		if(mask && (!(mask&0x01))){
 			proto_tree_add_boolean_hidden(tree, hf_smb_quota_flags_enabled,
 				tvb, offset, 1, 0x01);
@@ -12887,8 +12887,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    top_tree);
 
 				/* In case we did not see the TreeConnect call,
-				   store this TID here as well as a IPC TID 
-				   so we know that future Read/Writes to this 
+				   store this TID here as well as a IPC TID
+				   so we know that future Read/Writes to this
 				   TID is (probably) DCERPC.
 				*/
 				if(g_hash_table_lookup(si->ct->tid_service, GUINT_TO_POINTER(si->tid))){
@@ -13562,7 +13562,7 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_unix_find_file_nextoffset, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
-	
+
 	/* ResumeKey */
 	CHECK_BYTE_COUNT_SUBR(4);
 	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, TRUE);
@@ -13804,7 +13804,7 @@ dissect_device_characteristics(tvbuff_t *tvb, proto_tree *parent_tree, int offse
 		proto_tree_add_boolean(tree, hf_smb_device_char_virtual,
 			tvb, offset, 4, mask);
 	}
-	
+
 	offset += 4;
 	return offset;
 }
@@ -14115,18 +14115,18 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		if (tree) {
 			item = proto_tree_add_text(
-				tree, tvb, offset, 8, "Capabilities: 0x%08x%08x", 
+				tree, tvb, offset, 8, "Capabilities: 0x%08x%08x",
 				caps_hi, caps_lo);
 			subtree = proto_item_add_subtree(
 				item, ett_smb_unix_capabilities);
 		}
 
 		proto_tree_add_boolean(
-			subtree, hf_smb_unix_capability_fcntl, tvb, offset, 8, 
+			subtree, hf_smb_unix_capability_fcntl, tvb, offset, 8,
 			caps_lo);
 
 		proto_tree_add_boolean(
-			subtree, hf_smb_unix_capability_posix_acl, tvb, offset, 8, 
+			subtree, hf_smb_unix_capability_posix_acl, tvb, offset, 8,
 			caps_lo);
 
 		COUNT_BYTES_TRANS_SUBR(8);
@@ -14741,7 +14741,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 					PROTO_ITEM_SET_GENERATED(item);
 				}
 
-				if (check_col(pinfo->cinfo, COL_INFO)) {
+				if (t2i && check_col(pinfo->cinfo, COL_INFO)) {
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(t2i->subcmd,
 							trans2_cmd_vals,
@@ -15875,7 +15875,7 @@ dissect_smb_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		proto_tree_add_boolean(tree, hf_smb_flags_lock,
 			tvb, offset, 1, mask);
 	}
-	
+
 	offset += 1;
 	return offset;
 }
@@ -16054,7 +16054,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			smb_saved_info_hash_unmatched,
 			smb_saved_info_equal_unmatched);
 		si->ct->raw_ntlmssp = 0;
-		
+
 		si->ct->fid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB fid_tree");
 		si->ct->tid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB tid_tree");
 		si->ct->uid_tree=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "SMB uid_tree");
@@ -16444,8 +16444,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	pinfo->private_data = si;
 
 	/* TID
-	 * TreeConnectAndX(0x75) is special, here it is the mere fact of 
-	 * having a response that means that the share was mapped and we 
+	 * TreeConnectAndX(0x75) is special, here it is the mere fact of
+	 * having a response that means that the share was mapped and we
 	 * need to track it
 	 */
 	if(!pinfo->fd->flags.visited && si->cmd==0x75 && !si->request){
@@ -17804,7 +17804,7 @@ proto_register_smb(void)
 		TFS(&tfs_nt_create_bits_dir), 0x00000008, "Must target of open be a directory?", HFILL }},
 
 	{ &hf_smb_nt_create_bits_ext_resp,
-	  { "Extended Response", "smb.nt.create.ext", FT_BOOLEAN, 32, 
+	  { "Extended Response", "smb.nt.create.ext", FT_BOOLEAN, 32,
 	    TFS(&tfs_nt_create_bits_ext_resp), 0x00000010, "Extended response required?", HFILL }},
 
 	{ &hf_smb_nt_create_options_directory_file,
@@ -18717,7 +18717,7 @@ proto_register_smb(void)
 	    NULL, 0, "", HFILL }},
 
 	{ &hf_smb_unix_file_link_dest,
-	  { "Link destination", "smb.unix.file.link_dest", FT_STRING, 
+	  { "Link destination", "smb.unix.file.link_dest", FT_STRING,
 	    BASE_NONE, NULL, 0, "", HFILL }},
 
 	{ &hf_smb_unix_find_file_nextoffset,
