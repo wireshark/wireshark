@@ -298,6 +298,8 @@ static int hf_ack_diagnostic = -1;
 static int hf_ack_recips = -1;
 
 static int hf_checksum = -1;
+static int hf_checksum_good = -1;
+static int hf_checksum_bad = -1;
 
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_total_time = -1;
@@ -393,6 +395,8 @@ static gint ett_notif_acp127recip = -1;
 
 static gint ett_ack = -1;
 static gint ett_ack_recips = -1;
+
+static gint ett_checksum = -1;
 
 static gint ett_analysis = -1;
 
@@ -3311,7 +3315,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
                          proto_tree *tree)
 {
-  proto_tree *dmp_tree = NULL;
+  proto_tree *dmp_tree = NULL, *checksum_tree = NULL;
   proto_item *ti = NULL, *en = NULL;
   guint16     checksum1 = 0, checksum2 = 1;
   gint        length, offset = 0;
@@ -3357,12 +3361,25 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 
     en = proto_tree_add_item (dmp_tree, hf_checksum, tvb, offset,
 			      2, FALSE);
+    checksum_tree = proto_item_add_subtree (en, ett_checksum);
     if (checksum1 == checksum2) {
       proto_item_append_text (en, " (correct)");
+      en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
+				   offset, 2, TRUE);
+      PROTO_ITEM_SET_GENERATED (en);
+      en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
+				   offset, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED (en);
     } else {
       proto_item_append_text (en, " (incorrect, should be 0x%04x)",
 			      checksum1);
       expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
+      en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
+				   offset, 2, FALSE);
+      PROTO_ITEM_SET_GENERATED (en);
+      en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
+				   offset, 2, TRUE);
+      PROTO_ITEM_SET_GENERATED (en);
     }
   }
 
@@ -3987,6 +4004,14 @@ void proto_register_dmp (void)
     { &hf_checksum,
       { "Checksum", "dmp.checksum", FT_UINT16, BASE_HEX,
 	NULL, 0x0, "Checksum", HFILL } },
+    { &hf_checksum_good,
+      { "Good", "dmp.checksum.good", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x0, "True: checksum matches packet content; "
+	"False: doesn't match content or not checked", HFILL } },
+    { &hf_checksum_bad,
+      { "Bad", "dmp.checksum.bad", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x0, "True: checksum doesn't match packet content; "
+	"False: matches content or not checked", HFILL } },
 
     /*
     ** Ack matching / Resend
@@ -4126,6 +4151,7 @@ void proto_register_dmp (void)
     &ett_notif_acp127recip,
     &ett_ack,
     &ett_ack_recips,
+    &ett_checksum,
     &ett_analysis
   };
 
