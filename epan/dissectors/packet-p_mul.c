@@ -78,6 +78,8 @@ static int hf_seq_no = -1;
 static int hf_unused8 = -1;
 static int hf_unused16 = -1;
 static int hf_checksum = -1;
+static int hf_checksum_good = -1;
+static int hf_checksum_bad = -1;
 static int hf_source_id_ack = -1;
 static int hf_source_id = -1;
 static int hf_message_id = -1;
@@ -109,6 +111,7 @@ static int hf_msg_reassembled_in = -1;
 static gint ett_p_mul = -1;
 static gint ett_pdu_type = -1;
 static gint ett_entry = -1;
+static gint ett_checksum = -1;
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
 
@@ -219,7 +222,7 @@ static void dissect_reassembled_data (tvbuff_t *tvb, packet_info *pinfo _U_,
 static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
                            proto_tree *tree)
 {
-  proto_tree *p_mul_tree = NULL, *field_tree = NULL;
+  proto_tree *p_mul_tree = NULL, *field_tree = NULL, *checksum_tree = NULL;
   proto_item *ti = NULL, *en = NULL, *len_en = NULL;
   gboolean    save_fragmented;
   fragment_data *frag_msg = NULL;
@@ -331,15 +334,28 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   /* Checksum */
   en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
+  checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_length (tvb);
   value = tvb_get_ephemeral_string (tvb, 0, len);
   checksum1 = checksum (value, len, offset);
   checksum2 = tvb_get_ntohs (tvb, offset);
   if (checksum1 == checksum2) {
     proto_item_append_text (en, " (correct)");
+    en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
+                                 offset, 2, TRUE);
+    PROTO_ITEM_SET_GENERATED (en);
+    en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
+                                 offset, 2, FALSE);
+    PROTO_ITEM_SET_GENERATED (en);
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum1);
     expert_add_info_format (pinfo, en, PI_CHECKSUM, PI_WARN, "Bad checksum");
+    en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
+                                 offset, 2, FALSE);
+    PROTO_ITEM_SET_GENERATED (en);
+    en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
+                                 offset, 2, TRUE);
+    PROTO_ITEM_SET_GENERATED (en);
   }
   offset += 2;
 
@@ -618,6 +634,14 @@ void proto_register_p_mul (void)
     { &hf_checksum,
       { "Checksum", "p_mul.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, "Checksum", HFILL } },
+    { &hf_checksum_good,
+      { "Good", "p_mul.checksum.good", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x0, "True: checksum matches packet content; "
+	"False: doesn't match content or not checked", HFILL } },
+    { &hf_checksum_bad,
+      { "Bad", "p_mul.checksum.bad", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x0, "True: checksum doesn't match packet content; "
+	"False: matches content or not checked", HFILL } },
     { &hf_source_id_ack,
       { "Source ID of Ack Sender", "p_mul.source_id_ack", FT_IPv4, BASE_DEC,
         NULL, 0x0, "Source ID of Ack Sender", HFILL } },
@@ -708,6 +732,7 @@ void proto_register_p_mul (void)
     &ett_p_mul,
     &ett_pdu_type,
     &ett_entry,
+    &ett_checksum,
     &ett_msg_fragment,
     &ett_msg_fragments
   };
