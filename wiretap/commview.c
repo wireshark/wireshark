@@ -315,22 +315,22 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	cv_hdr.source_data_len = GUINT16_TO_LE((guint16)phdr->caplen);
 	cv_hdr.version = 0;
 
-	strftime(date_time, 4, "%G", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%Y", localtime(&phdr->ts.secs));
 	cv_hdr.year = GUINT16_TO_LE((guint16)strtol(date_time, NULL, 10));
 
-	strftime(date_time, 4, "%m", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%m", localtime(&phdr->ts.secs));
 	cv_hdr.month = (guint8)strtol(date_time, NULL, 10);
 
-	strftime(date_time, 4, "%d", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%d", localtime(&phdr->ts.secs));
 	cv_hdr.day = (guint8)strtol(date_time, NULL, 10);
 
-	strftime(date_time, 4, "%H", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%H", localtime(&phdr->ts.secs));
 	cv_hdr.hours = (guint8)strtol(date_time, NULL, 10);
 
-	strftime(date_time, 4, "%M", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%M", localtime(&phdr->ts.secs));
 	cv_hdr.minutes = (guint8)strtol(date_time, NULL, 10);
 
-	strftime(date_time, 4, "%S", localtime(&phdr->ts.secs));
+	strftime(date_time, 5, "%S", localtime(&phdr->ts.secs));
 	cv_hdr.seconds = (guint8)strtol(date_time, NULL, 10);
 
 	cv_hdr.usecs = GUINT32_TO_LE(phdr->ts.nsecs / 1000);
