@@ -368,7 +368,7 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
     gchar       *filter;
     GtkWidget	*filter_te;
 
-    if (cfile.finfo_selected) {
+    if (cfile.current_frame) {
         /* create a filter-string based on the selected packet and action */
         filter = build_conversation_filter(action, TRUE);
 
@@ -390,7 +390,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     if( (action>>8) == 255 ) {
         color_filters_reset_tmp();
         cf_colorize_packets(&cfile);
-    } else if (cfile.finfo_selected) {
+    } else if (cfile.current_frame) {
         if( (action&0xff) == 0 ) {
             /* colorize_conversation_cb was called from the window-menu
              * or through an accelerator key. Try to build a conversation
