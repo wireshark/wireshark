@@ -27,8 +27,7 @@
  */
 
 /*
-#define DEBUG	/* for debug only*/
-*/
+#define DEBUG*/	/* for debug only*/
 
 /* Include files */
 
