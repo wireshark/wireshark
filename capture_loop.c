@@ -1184,7 +1184,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         }
       } else {
         /* Try to open/create the specified file for use as a capture buffer. */
-        *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+        *save_file_fd = eth_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
                              0600);
       }
     }
