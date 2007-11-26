@@ -301,6 +301,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     } else {
       item = proto_tree_add_uint_format(udp_tree, hf_udp_checksum, tvb, offset + 6, 2, 0,
         "Checksum: 0x%04x (Illegal)", 0);
+      expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR, "Illegal Checksum value (0)");
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
 
       checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
       proto_tree_add_boolean(checksum_tree, hf_udp_checksum_good, tvb,
