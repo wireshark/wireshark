@@ -59,6 +59,7 @@
 #include "range_utils.h"
 #include "merge.h"
 #include "util.h"
+#include <wiretap/file_util.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -1488,7 +1489,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
     switch(btn) {
     case(ESD_BTN_OK):
         /* save file */
-        unlink(cf_name);
+        eth_unlink(cf_name);
         file_save_as_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):

@@ -727,7 +727,7 @@ read_keytab_file(const char *service_key_file)
 	unsigned char buf[SERVICE_KEY_SIZE];
 	int newline_skip = 0, count = 0;
 
-	if (service_key_file != NULL && stat (service_key_file, &st) == 0) {
+	if (service_key_file != NULL && eth_stat (service_key_file, &st) == 0) {
 
 		/* The service key file contains raw 192-bit (24 byte) 3DES keys.
 		 * There can be zero, one (\n), or two (\r\n) characters between

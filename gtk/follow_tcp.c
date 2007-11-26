@@ -152,7 +152,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
 	    eth_close(tmp_fd);
-	    unlink(follow_info->data_out_filename);
+	    eth_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}
@@ -200,7 +200,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "The packets in the capture file for that stream have no data.");
 	    eth_close(tmp_fd);
-	    unlink(follow_info->data_out_filename);
+	    eth_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}
@@ -230,7 +230,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			      (unsigned long)nchars);
 	    }
 	    eth_close(tmp_fd);
-	    unlink(follow_info->data_out_filename);
+	    eth_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}

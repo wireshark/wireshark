@@ -959,7 +959,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	switch(follow_info->follow_type) {
 	
 	case FOLLOW_TCP :
-		i = unlink(follow_info->data_out_filename);
+		i = eth_unlink(follow_info->data_out_filename);
 		if(i != 0) {
 			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);        
 		}
