@@ -75,22 +75,22 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		static const char *version_names[] = { "1", "2", "2.5" };
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
-				"MPEG-%s", version_names[MPA_VERSION(&mpa)]);
+				"MPEG-%s", version_names[mpa_version(&mpa)]);
 	}
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-				"Audio Layer %d", MPA_LAYER(&mpa) + 1);
+				"Audio Layer %d", mpa_layer(&mpa) + 1);
 	if (MPA_BITRATE_VALID(&mpa) && MPA_FREQUENCY_VALID(&mpa)) {
 		data_size = MPA_DATA_BYTES(&mpa) - sizeof mpa;
 		if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
 			SET_ADDRESS(&pinfo->src, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_SRC,
-					"%d kb/s", MPA_BITRATE(&mpa) / 1000);
+					"%d kb/s", mpa_bitrate(&mpa) / 1000);
 		}
 		if (check_col(pinfo->cinfo, COL_DEF_DST)) {
 			SET_ADDRESS(&pinfo->dst, AT_NONE, 0, NULL);
 			col_add_fstr(pinfo->cinfo, COL_DEF_DST,
-					"%g kHz", MPA_FREQUENCY(&mpa) / (float)1000);
+					"%g kHz", mpa_frequency(&mpa) / (float)1000);
 		}
 	}
 
@@ -106,7 +106,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(tree, hf_mpeg_audio_data, tvb,
 				offset / 8, data_size, FALSE);
 		offset += data_size * 8;
-		padding = MPA_PADDING(&mpa);
+		padding = mpa_padding(&mpa);
 		if (padding > 0) {
 			proto_tree_add_item(tree, hf_mpeg_audio_padbytes, tvb,
 					offset / 8, padding, FALSE);

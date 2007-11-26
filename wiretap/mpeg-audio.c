@@ -24,16 +24,16 @@
 
 #include "mpeg-audio.h"
 
-const int mpa_versions[4] = { 2, -1, 1, 0 };
-const int mpa_layers[4] = { -1, 2, 1, 0 };
+static const int mpa_versions[4] = { 2, -1, 1, 0 };
+static const int mpa_layers[4] = { -1, 2, 1, 0 };
 
-const unsigned mpa_samples[3][3] = {
+static const unsigned mpa_samples_data[3][3] = {
 	{ 384, 1152, 1152 },
 	{ 384, 1152, 576 },
 	{ 384, 1152, 576 },
 };
 
-const unsigned mpa_bitrates[3][3][16] = { /* kb/s */
+static const unsigned mpa_bitrates[3][3][16] = { /* kb/s */
   {
 	{ 0, 32, 64, 96, 128, 160, 192, 224, 256, 288, 320, 352, 384, 416, 448 },
 	{ 0, 32, 48, 56,  64,  80,  96, 112, 128, 160, 192, 224, 256, 320, 384 },
@@ -51,10 +51,46 @@ const unsigned mpa_bitrates[3][3][16] = { /* kb/s */
   },
 };
 
-const unsigned mpa_frequencies[3][4] = {
+static const unsigned mpa_frequencies[3][4] = {
 	{ 44100, 48000, 32000 },
 	{ 22050, 24000, 16000 },
 	{ 11025, 12000, 8000 },
 };
 
-const unsigned mpa_padding[3] = { 4, 1, 1 };
+static const unsigned mpa_padding_data[3] = { 4, 1, 1 };
+
+int
+mpa_version(const struct mpa *mpa)
+{
+	return mpa_versions[mpa->version];
+}
+
+int
+mpa_layer(const struct mpa *mpa)
+{
+	return mpa_layers[mpa->layer];
+}
+
+unsigned
+mpa_samples(const struct mpa *mpa)
+{
+	return mpa_samples_data[mpa_versions[mpa->version]][mpa_layer(mpa)];
+}
+
+unsigned
+mpa_bitrate(const struct mpa *mpa)
+{
+	return (1000 * (mpa_bitrates[mpa_versions[mpa->version]][mpa_layers[mpa->layer]][mpa->bitrate]));
+}
+
+unsigned
+mpa_frequency(const struct mpa *mpa)
+{
+	return(mpa_frequencies[mpa_versions[mpa->version]][mpa->frequency]);
+}
+
+unsigned
+mpa_padding(const struct mpa *mpa)
+{
+	return(mpa->padding ? mpa_padding_data[mpa_layers[mpa->layer]] : 0);
+}
