@@ -144,7 +144,7 @@ while ($_ = $ARGV[0])
 
         if ($fileContents =~ m{//})
         {
-		print "Error: Found C++ style comments\n";
+		print "Error: Found C++ style comments in " .$filename."\n";
 		$errorCount++;
         }
 
