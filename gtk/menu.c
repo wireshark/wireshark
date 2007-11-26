@@ -368,16 +368,18 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
     gchar       *filter;
     GtkWidget	*filter_te;
 
-    /* create a filter-string based on the selected packet and action */
-    filter = build_conversation_filter(action, TRUE);
+    if (cfile.finfo_selected) {
+        /* create a filter-string based on the selected packet and action */
+        filter = build_conversation_filter(action, TRUE);
 
-    /* Run the display filter so it goes in effect - even if it's the
-    same as the previous display filter. */
-    filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
-    gtk_entry_set_text(GTK_ENTRY(filter_te), filter);
-    main_filter_packets(&cfile, filter, TRUE);
+        /* Run the display filter so it goes in effect - even if it's the
+        same as the previous display filter. */
+        filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+        gtk_entry_set_text(GTK_ENTRY(filter_te), filter);
+        main_filter_packets(&cfile, filter, TRUE);
 
-    g_free(filter);
+        g_free(filter);
+    }
 }
 
 void
@@ -388,7 +390,7 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     if( (action>>8) == 255 ) {
         color_filters_reset_tmp();
         cf_colorize_packets(&cfile);
-    } else {
+    } else if (cfile.finfo_selected) {
         if( (action&0xff) == 0 ) {
             /* colorize_conversation_cb was called from the window-menu
              * or through an accelerator key. Try to build a conversation
