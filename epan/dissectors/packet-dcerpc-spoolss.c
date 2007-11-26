@@ -1684,15 +1684,17 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	relstr_start = relstr_offset + struct_start;
 
-	if (relstr_offset)
+	if (relstr_offset) {
 		relstr_end = dissect_spoolss_uint16uni(
 			tvb, relstr_start, pinfo, NULL, drep, &text, NULL);
-	else 			/* relstr_offset == 0 is a NULL string */
+	} else { 			/* relstr_offset == 0 is a NULL string */
 		text = g_strdup("");
+		relstr_end = relstr_start;
+	}
 		
 	/* OK now add the proto item with the string value */
 
-	item = proto_tree_add_string(tree, hf_index, tvb, offset - 4, 4, text);
+	item = proto_tree_add_string(tree, hf_index, tvb, relstr_start, relstr_end - relstr_start, text);
 	subtree = proto_item_add_subtree(item, ett_RELSTR);
 
 	dissect_ndr_uint32(
