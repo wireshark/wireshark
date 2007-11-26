@@ -1692,7 +1692,7 @@ dissect_spoolss_relstr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 	/* OK now add the proto item with the string value */
 
-	item = proto_tree_add_string(tree, hf_index, tvb, offset, 4, text);
+	item = proto_tree_add_string(tree, hf_index, tvb, offset - 4, 4, text);
 	subtree = proto_item_add_subtree(item, ett_RELSTR);
 
 	dissect_ndr_uint32(
