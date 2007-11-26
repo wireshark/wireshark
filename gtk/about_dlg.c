@@ -38,6 +38,7 @@
 #include "file_dlg.h"
 #include "compat_macros.h"
 #include "globals.h"
+#include "log.h"
 #if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 #include "text_page.h"
 #endif
@@ -222,6 +223,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 	break;
       }
       splash_update_label(win, action_msg);
+      g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, action_msg);
       last_action = action;
     }
 

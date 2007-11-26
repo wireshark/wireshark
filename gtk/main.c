@@ -3093,6 +3093,8 @@ main(int argc, char *argv[])
   /* register our pid if we are being run from a U3 device */
   u3_register_pid();
 
+  g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
+
   /* we'll enter the GTK loop now and hand the control over to GTK ... */
   gtk_main();
   /* ... back from GTK, we're going down now! */
