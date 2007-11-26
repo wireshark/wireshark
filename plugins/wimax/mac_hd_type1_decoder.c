@@ -73,7 +73,7 @@ enum
 	TYPE_I_SUBTYPE_MAX
 } TYPE_I_SUBTYPE;
 
-static char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] = 
+static char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
 {
 	"BR INCREMENTAL",            /* 0 */
 	"BR AGGREGATE",              /* 1 */
@@ -125,8 +125,9 @@ static char *type1_subtype_abbrv[TYPE_I_SUBTYPE_MAX] =
 #define WIMAX_MAC_HEADER_TYPE_1_PERIOD       0x007000
 #define WIMAX_MAC_HEADER_TYPE_1_RSV_7        0x000FFF
 /* 4th to 6th bytes */
-//#define WIMAX_MAC_HEADER_TYPE_1_CID          0xFFFF
-//#define WIMAX_MAC_HEADER_TYPE_1_HCS          0xFF
+/*#define WIMAX_MAC_HEADER_TYPE_1_CID          0xFFFF
+*#define WIMAX_MAC_HEADER_TYPE_1_HCS          0xFF
+*/
 /* Common Fields */
 static int hf_mac_header_type_1_ht = -1;
 static int hf_mac_header_type_1_ec = -1;

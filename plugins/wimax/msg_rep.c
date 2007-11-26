@@ -27,7 +27,7 @@
  */
 
 /*
-#define DEBUG	// for debug only
+#define DEBUG	/* for debug only*/
 */
 
 /* Include files */
@@ -277,350 +277,350 @@ static hf_register_info hf_rep[] =
 	{
 		&hf_rep_invalid_tlv,
 		{
-			"Invalid TLV", "wimax.rep.invalid_tlv", 
+			"Invalid TLV", "wimax.rep.invalid_tlv",
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.rep_req", 
+			"MAC Management Message Type", "wimax.macmgtmsgtype.rep_req",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* type 1.2 */
 		&hf_rep_req_channel_number,
 		{
-			"Channel Number", "wimax.rep_req.channel_number", 
+			"Channel Number", "wimax.rep_req.channel_number",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* type 1.8 */
 		&hf_rep_req_channel_selectivity_report,
 		{
-			"Channel Selectivity Report", "wimax.rep_req.channel_selectivity_report", 
+			"Channel Selectivity Report", "wimax.rep_req.channel_selectivity_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_channel_selectivity_rep_bit0,
 		{
-			"Include Frequency Selectivity Report", "wimax.rep_req.channel_selectivity_report.bit0", 
+			"Include Frequency Selectivity Report", "wimax.rep_req.channel_selectivity_report.bit0",
 			FT_BOOLEAN, 8, NULL, REP_REQ_CHANNEL_SELECTIVITY_REPORT_BIT0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_channel_selectivity_rep_bit1_7,
 		{
-			"Reserved", "wimax.rep_req.channel_selectivity_report.bit1_7", 
+			"Reserved", "wimax.rep_req.channel_selectivity_report.bit1_7",
 			FT_UINT8, BASE_HEX, NULL, REP_REQ_CHANNEL_SELECTIVITY_REPORT_BIT1_7, "", HFILL
 		}
 	},
 	{	/* type 1.3 */
 		&hf_rep_req_channel_type_request,
 		{
-			"Channel Type Request", "wimax.rep_req.channel_type.request", 
+			"Channel Type Request", "wimax.rep_req.channel_type.request",
 			FT_UINT8, BASE_DEC, VALS(vals_channel_types), 0x03, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_channel_type_reserved,
 		{
-			"Reserved", "wimax.rep_req.channel_type.reserved", 
+			"Reserved", "wimax.rep_req.channel_type.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0xFC, "", HFILL
 		}
 	},
 	{	/* type 1.7 */
 		&hf_rep_req_preamble_effective_cinr_request,
 		{
-			"Preamble Effective CINR Request", "wimax.rep_req.preamble_effective_cinr_request", 
+			"Preamble Effective CINR Request", "wimax.rep_req.preamble_effective_cinr_request",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_effective_cinr_req_bit0_1,
 		{
-			"Type Of Preamble Physical CINR Measurement", "wimax.rep_req.preamble_effective_cinr_request.bit0_1", 
+			"Type Of Preamble Physical CINR Measurement", "wimax.rep_req.preamble_effective_cinr_request.bit0_1",
 			FT_UINT8, BASE_DEC, VALS(vals_type_of_measurements), REP_REQ_PREAMBLE_EFFECTIVE_CINR_REQUEST_BIT0_1, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_effective_cinr_req_bit2_7,
 		{
-			"Reserved", "wimax.rep_req.preamble_effective_cinr_request.bit2_7", 
+			"Reserved", "wimax.rep_req.preamble_effective_cinr_request.bit2_7",
 			FT_UINT8, BASE_HEX, NULL, REP_REQ_PREAMBLE_EFFECTIVE_CINR_REQUEST_BIT2_7, "", HFILL
 		}
 	},
 	{	/* type 1.5 */
 		&hf_rep_req_preamble_phy_cinr_request,
 		{
-			"Preamble Physical CINR Request", "wimax.rep_req.preamble_phy_cinr_request", 
+			"Preamble Physical CINR Request", "wimax.rep_req.preamble_phy_cinr_request",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_phy_cinr_req_bit0_1,
 		{
-			"Type Of Preamble Physical CINR Measurement", "wimax.rep_req.preamble_phy_cinr_request.bit0_1", 
+			"Type Of Preamble Physical CINR Measurement", "wimax.rep_req.preamble_phy_cinr_request.bit0_1",
 			FT_UINT8, BASE_DEC, VALS(vals_type_of_measurements), REP_REQ_PREAMBLE_PHY_CINR_REQUEST_BIT0_1, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_phy_cinr_req_bit2_5,
 		{
-			"Alpha (ave) in multiples of 1/16", "wimax.rep_req.preamble_phy_cinr_request.bit2_5", 
+			"Alpha (ave) in multiples of 1/16", "wimax.rep_req.preamble_phy_cinr_request.bit2_5",
 			FT_UINT8, BASE_DEC, NULL, REP_REQ_PREAMBLE_PHY_CINR_REQUEST_BIT2_5, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_phy_cinr_req_bit6,
 		{
-			"CINR Report Type", "wimax.rep_req.preamble_phy_cinr_request.bit6", 
+			"CINR Report Type", "wimax.rep_req.preamble_phy_cinr_request.bit6",
 			FT_UINT8, BASE_DEC, VALS(vals_cinr_report_types), REP_REQ_PREAMBLE_PHY_CINR_REQUEST_BIT6, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_preamble_phy_cinr_req_bit7,
 		{
-			"Reserved", "wimax.rep_req.preamble_phy_cinr_request.bit7", 
+			"Reserved", "wimax.rep_req.preamble_phy_cinr_request.bit7",
 			FT_UINT8, BASE_HEX, NULL, REP_REQ_PREAMBLE_PHY_CINR_REQUEST_BIT7, "", HFILL
 		}
 	},
 	{	/* report request */
 		&hf_rep_req_report_request,
 		{
-			"Report Request", "wimax.rep_req.report_request", 
+			"Report Request", "wimax.rep_req.report_request",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* type 1.1 */
 		&hf_rep_req_report_type,
 		{
-			"Report Type", "wimax.rep_req.report_type", 
+			"Report Type", "wimax.rep_req.report_type",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_rep_type_bit0,
 		{
-			"Include DFS Basic Report", "wimax.rep_req.report_type.bit0", 
+			"Include DFS Basic Report", "wimax.rep_req.report_type.bit0",
 			FT_BOOLEAN, 8, NULL, REP_REQ_REPORT_TYPE_BIT0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_rep_type_bit1,
 		{
-			"Include CINR Report", "wimax.rep_req.report_type.bit1", 
+			"Include CINR Report", "wimax.rep_req.report_type.bit1",
 			FT_BOOLEAN, 8, NULL, REP_REQ_REPORT_TYPE_BIT1, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_rep_type_bit2,
 		{
-			"Include RSSI Report", "wimax.rep_req.report_type.bit2", 
+			"Include RSSI Report", "wimax.rep_req.report_type.bit2",
 			FT_BOOLEAN, 8, NULL, REP_REQ_REPORT_TYPE_BIT2, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_rep_type_bit3_6,
 		{
-			"Alpha (ave) in multiples of 1/32", "wimax.rep_req.report_type.bit3_6", 
+			"Alpha (ave) in multiples of 1/32", "wimax.rep_req.report_type.bit3_6",
 			FT_UINT8, BASE_DEC, NULL, REP_REQ_REPORT_TYPE_BIT3_6, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_rep_type_bit7,
 		{
-			"Include Current Transmit Power Report", "wimax.rep_req.report_type.bit7", 
+			"Include Current Transmit Power Report", "wimax.rep_req.report_type.bit7",
 			FT_BOOLEAN, 8, NULL, REP_REQ_REPORT_TYPE_BIT7, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_preamble_effective_cinr_rep_cqich_id,
 		{
-			"The 4 least significant bits of CQICH_ID", "wimax.rep_req.zone_spec_effective_cinr_report.cqich_id_4", 
+			"The 4 least significant bits of CQICH_ID", "wimax.rep_req.zone_spec_effective_cinr_report.cqich_id_4",
 			FT_UINT8, BASE_HEX, NULL, REP_RSP_ZONE_SPEC_EFFECTIVE_CINR_CQICH_ID_4_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_cqich_id,
 		{
-			"The 3 least significant bits of CQICH_ID", "wimax.rep_req.zone_spec_effective_cinr_report.cqich_id", 
+			"The 3 least significant bits of CQICH_ID", "wimax.rep_req.zone_spec_effective_cinr_report.cqich_id",
 			FT_UINT8, BASE_HEX, NULL, REP_RSP_ZONE_SPEC_EFFECTIVE_CINR_CQICH_ID_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_effective_cinr,
 		{
-			"Effective CINR", "wimax.rep_req.zone_spec_effective_cinr_report.effective_cinr", 
+			"Effective CINR", "wimax.rep_req.zone_spec_effective_cinr_report.effective_cinr",
 			FT_UINT8, BASE_DEC, NULL, REP_RSP_ZONE_SPEC_EFFECTIVE_CINR_EFFECTIVE_CINR_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_report_type,
 		{
-			"Effective CINR Report", "wimax.rep_req.zone_spec_effective_cinr_report.report_type", 
+			"Effective CINR Report", "wimax.rep_req.zone_spec_effective_cinr_report.report_type",
 			FT_UINT8, BASE_DEC, VALS(vals_data_cinr_measurements), REP_RSP_ZONE_SPEC_EFFECTIVE_CINR_REPORT_TYPE_MASK, "", HFILL
 		}
 	},
 	{	/* type 1.6 */
 		&hf_rep_req_zone_spec_effective_cinr_request,
 		{
-			"Zone-specific Effective CINR Request", "wimax.rep_req.zone_spec_effective_cinr_request", 
+			"Zone-specific Effective CINR Request", "wimax.rep_req.zone_spec_effective_cinr_request",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit0_2,
 		{
-			"Type Of Zone On Which CINR Is To Be Reported", "wimax.rep_req.zone_spec_effective_cinr_request.bit0_2", 
+			"Type Of Zone On Which CINR Is To Be Reported", "wimax.rep_req.zone_spec_effective_cinr_request.bit0_2",
 			FT_UINT16, BASE_HEX, VALS(vals_type_of_zones), REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT0_2, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit3,
 		{
-			"STC Zone", "wimax.rep_req.zone_spec_effective_cinr_request.bit3", 
+			"STC Zone", "wimax.rep_req.zone_spec_effective_cinr_request.bit3",
 			FT_BOOLEAN, 16, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT3, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit4,
 		{
-			"AAS Zone", "wimax.rep_req.zone_spec_effective_cinr_request.bit4", 
+			"AAS Zone", "wimax.rep_req.zone_spec_effective_cinr_request.bit4",
 			FT_BOOLEAN, 16, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT4, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit5_6,
 		{
-			"PRBS ID", "wimax.rep_req.zone_spec_effective_cinr_request.bit5_6", 
+			"PRBS ID", "wimax.rep_req.zone_spec_effective_cinr_request.bit5_6",
 			FT_UINT16, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT5_6, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit7,
 		{
-			"CINR Measurement Report", "wimax.rep_req.zone_spec_effective_cinr_request.bit7", 
+			"CINR Measurement Report", "wimax.rep_req.zone_spec_effective_cinr_request.bit7",
 			FT_UINT16, BASE_HEX, VALS(vals_data_cinr_measurements), REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT7, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit8_13,
 		{
-			"PUSC Major Group Map", "wimax.rep_req.zone_spec_effective_cinr_request.bit8_13", 
+			"PUSC Major Group Map", "wimax.rep_req.zone_spec_effective_cinr_request.bit8_13",
 			FT_UINT16, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT8_13, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_effective_cinr_req_bit14_15,
 		{
-			"Reserved", "wimax.rep_req.zone_spec_effective_cinr_request.bit14_15", 
+			"Reserved", "wimax.rep_req.zone_spec_effective_cinr_request.bit14_15",
 			FT_UINT16, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_16_BIT14_15, "", HFILL
 		}
 	},
 	{	/* second byte */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_deviation,
 		{
-			"Standard Deviation of CINR", "wimax.rep_req.zone_spec_phy_cinr_report.deviation", 
+			"Standard Deviation of CINR", "wimax.rep_req.zone_spec_phy_cinr_report.deviation",
 			FT_UINT8, BASE_DEC, NULL, REP_RSP_ZONE_SPEC_PHY_CINR_DEVIATION_MASK, "", HFILL
 		}
 	},
 	{	/* first byte */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_mean,
 		{
-			"Mean of Physical CINR", "wimax.rep_req.zone_spec_phy_cinr_report.mean", 
+			"Mean of Physical CINR", "wimax.rep_req.zone_spec_phy_cinr_report.mean",
 			FT_UINT8, BASE_DEC, NULL, REP_RSP_ZONE_SPEC_PHY_CINR_MEAN_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_report_type,
 		{
-			"CINR Report Type", "wimax.rep_req.zone_spec_phy_cinr_report.report_type", 
+			"CINR Report Type", "wimax.rep_req.zone_spec_phy_cinr_report.report_type",
 			FT_UINT8, BASE_DEC, VALS(vals_data_cinr_measurements), REP_RSP_ZONE_SPEC_PHY_CINR_REP_TYPE_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_reserved1,
 		{
-			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_report.reserved1", 
+			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_report.reserved1",
 			FT_UINT8, BASE_HEX, NULL, REP_RSP_ZONE_SPEC_PHY_CINR_RSV1_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_reserved2,
 		{
-			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_report.reserved2", 
+			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_report.reserved2",
 			FT_UINT8, BASE_HEX, NULL, REP_RSP_ZONE_SPEC_PHY_CINR_RSV2_MASK, "", HFILL
 		}
 	},
 	{	/* type 1.4 */
 		&hf_rep_req_zone_spec_phy_cinr_request,
 		{
-			"Zone-specific Physical CINR Request", "wimax.rep_req.zone_spec_phy_cinr_request", 
+			"Zone-specific Physical CINR Request", "wimax.rep_req.zone_spec_phy_cinr_request",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit0_2,
 		{
-			"Type Of Zone On Which CINR Is To Be Reported", "wimax.rep_req.zone_spec_phy_cinr_request.bit0_2", 
+			"Type Of Zone On Which CINR Is To Be Reported", "wimax.rep_req.zone_spec_phy_cinr_request.bit0_2",
 			FT_UINT24, BASE_HEX, VALS(vals_type_of_zones), REP_REQ_TYPE_OF_ZONE_REQUEST_BIT0_2, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit3,
 		{
-			"STC Zone", "wimax.rep_req.zone_spec_phy_cinr_request.bit3", 
+			"STC Zone", "wimax.rep_req.zone_spec_phy_cinr_request.bit3",
 			FT_BOOLEAN, 24, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT3, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit4,
 		{
-			"AAS Zone", "wimax.rep_req.zone_spec_phy_cinr_request.bit4", 
+			"AAS Zone", "wimax.rep_req.zone_spec_phy_cinr_request.bit4",
 			FT_BOOLEAN, 24, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT4, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit5_6,
 		{
-			"PRBS ID", "wimax.rep_req.zone_spec_phy_cinr_request.bit5_6", 
+			"PRBS ID", "wimax.rep_req.zone_spec_phy_cinr_request.bit5_6",
 			FT_UINT24, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT5_6, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit7,
 		{
-			"CINR Measurement Report", "wimax.rep_req.zone_spec_phy_cinr_request.bit7", 
+			"CINR Measurement Report", "wimax.rep_req.zone_spec_phy_cinr_request.bit7",
 			FT_UINT24, BASE_HEX, VALS(vals_data_cinr_measurements), REP_REQ_TYPE_OF_ZONE_REQUEST_BIT7, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit8_13,
 		{
-			"PUSC Major Group Map", "wimax.rep_req.zone_spec_phy_cinr_request.bit8_13", 
+			"PUSC Major Group Map", "wimax.rep_req.zone_spec_phy_cinr_request.bit8_13",
 			FT_UINT24, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT8_13, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit14_17,
 		{
-			"Alpha (ave) in multiples of 1/16", "wimax.rep_req.zone_spec_phy_cinr_request.bit14_17", 
+			"Alpha (ave) in multiples of 1/16", "wimax.rep_req.zone_spec_phy_cinr_request.bit14_17",
 			FT_UINT24, BASE_DEC, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT14_17, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit18,
 		{
-			"CINR Report Type", "wimax.rep_req.zone_spec_phy_cinr_request.bit18", 
+			"CINR Report Type", "wimax.rep_req.zone_spec_phy_cinr_request.bit18",
 			FT_UINT24, BASE_HEX, VALS(vals_cinr_report_types), REP_REQ_TYPE_OF_ZONE_REQUEST_BIT18, "", HFILL
 		}
 	},
 	{
 		&hf_rep_req_zone_spec_phy_cinr_req_bit19_23,
 		{
-			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_request.bit19_23", 
+			"Reserved", "wimax.rep_req.zone_spec_phy_cinr_request.bit19_23",
 			FT_UINT24, BASE_HEX, NULL, REP_REQ_TYPE_OF_ZONE_REQUEST_BIT19_23, "", HFILL
 		}
 	},
@@ -634,119 +634,119 @@ static hf_register_info hf_rep[] =
 	{	/* 6.3 */
 		&hf_rep_rsp_channel_selectivity_report,
 		{
-			"Channel Selectivity Report", "wimax.rep_rsp.channel_selectivity_report", 
+			"Channel Selectivity Report", "wimax.rep_rsp.channel_selectivity_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_selectivity_rep_frequency_a,
 		{
-			"Frequency Selectivity Report a", "wimax.rep_rsp.channel_selectivity_report.frequency_a", 
+			"Frequency Selectivity Report a", "wimax.rep_rsp.channel_selectivity_report.frequency_a",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_selectivity_rep_frequency_b,
 		{
-			"Frequency Selectivity Report b", "wimax.rep_rsp.channel_selectivity_report.frequency_b", 
+			"Frequency Selectivity Report b", "wimax.rep_rsp.channel_selectivity_report.frequency_b",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_selectivity_rep_frequency_c,
 		{
-			"Frequency Selectivity Report c", "wimax.rep_rsp.channel_selectivity_report.frequency_c", 
+			"Frequency Selectivity Report c", "wimax.rep_rsp.channel_selectivity_report.frequency_c",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_report,
 		{
-			"Channel Type Report", "wimax.rep_rsp.channel_type_report", 
+			"Channel Type Report", "wimax.rep_rsp.channel_type_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_band_amc,
 		{
-			"Band AMC", "wimax.rep_rsp.channel_type_report.band_amc", 
+			"Band AMC", "wimax.rep_rsp.channel_type_report.band_amc",
 			FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_enhanced_band_amc,
 		{
-			"Enhanced Band AMC", "wimax.rep_rsp.channel_type_report.enhanced_band_amc", 
+			"Enhanced Band AMC", "wimax.rep_rsp.channel_type_report.enhanced_band_amc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_safety_channel,
 		{
-			"Safety Channel", "wimax.rep_rsp.channel_type_report.safety_channel", 
+			"Safety Channel", "wimax.rep_rsp.channel_type_report.safety_channel",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_sounding,
 		{
-			"Sounding", "wimax.rep_rsp.channel_type_report.sounding", 
+			"Sounding", "wimax.rep_rsp.channel_type_report.sounding",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_channel_type_subchannel,
 		{
-			"Normal Subchannel", "wimax.rep_rsp.channel_type_report.subchannel", 
+			"Normal Subchannel", "wimax.rep_rsp.channel_type_report.subchannel",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_preamble_effective_cinr_report,
 		{
-			"Preamble Effective CINR Report", "wimax.rep_rsp.preamble_effective_cinr_report", 
+			"Preamble Effective CINR Report", "wimax.rep_rsp.preamble_effective_cinr_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 6.1 */
 		&hf_rep_rsp_preamble_effective_cinr_rep_configuration_1,
 		{
-			"The Estimation Of Effective CINR Measured From Preamble For Frequency Reuse Configuration=1", "wimax.rep_rsp.preamble_effective_cinr_report.configuration_1", 
+			"The Estimation Of Effective CINR Measured From Preamble For Frequency Reuse Configuration=1", "wimax.rep_rsp.preamble_effective_cinr_report.configuration_1",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 6.2 */
 		&hf_rep_rsp_preamble_effective_cinr_rep_configuration_3,
 		{
-			"The Estimation Of Effective CINR Measured From Preamble For Frequency Reuse Configuration=3", "wimax.rep_rsp.preamble_effective_cinr_report.configuration_3", 
+			"The Estimation Of Effective CINR Measured From Preamble For Frequency Reuse Configuration=3", "wimax.rep_rsp.preamble_effective_cinr_report.configuration_3",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_preamble_phy_cinr_report,
 		{
-			"Preamble Physical CINR Report", "wimax.rep_rsp.preamble_phy_cinr_report", 
+			"Preamble Physical CINR Report", "wimax.rep_rsp.preamble_phy_cinr_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 4.3 */
 		&hf_rep_rsp_preamble_phy_cinr_rep_band_amc_zone,
 		{
-			"The Estimation Of Physical CINR Measured From Preamble For Band AMC Zone", "wimax.rep_rsp.preamble_phy_cinr_report.band_amc_zone", 
+			"The Estimation Of Physical CINR Measured From Preamble For Band AMC Zone", "wimax.rep_rsp.preamble_phy_cinr_report.band_amc_zone",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 4.1 */
 		&hf_rep_rsp_preamble_phy_cinr_rep_configuration_1,
 		{
-			"The Estimation Of Physical CINR Measured From Preamble For Frequency Reuse Configuration=1", "wimax.rep_rsp.preamble_phy_cinr_report.configuration_1", 
+			"The Estimation Of Physical CINR Measured From Preamble For Frequency Reuse Configuration=1", "wimax.rep_rsp.preamble_phy_cinr_report.configuration_1",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 4.2 */
 		&hf_rep_rsp_preamble_phy_cinr_rep_configuration_3,
 		{
-			"The Estimation Of Physical CINR Measured From Preamble For Frequency Reuse Configuration=3", "wimax.rep_rsp.preamble_phy_cinr_report.configuration_3", 
+			"The Estimation Of Physical CINR Measured From Preamble For Frequency Reuse Configuration=3", "wimax.rep_rsp.preamble_phy_cinr_report.configuration_3",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
@@ -754,105 +754,105 @@ static hf_register_info hf_rep[] =
 	{
 		&hf_rep_rsp_report_type,
 		{
-			"Report Type", "wimax.rep_rsp.report_type", 
+			"Report Type", "wimax.rep_rsp.report_type",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report,
 		{
-			"Basic Report", "wimax.rep_rsp.report_type.basic_report", 
+			"Basic Report", "wimax.rep_rsp.report_type.basic_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report_bit0,
 		{
-			"Wireless HUMAN Detected", "wimax.rep_rsp.report_type.basic_report.bit0", 
+			"Wireless HUMAN Detected", "wimax.rep_rsp.report_type.basic_report.bit0",
 			FT_BOOLEAN, 8, NULL, REP_RSP_REPORT_TYPE_BASIC_REPORT_BIT0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report_bit1,
 		{
-			"Unknown Transmission Detected", "wimax.rep_rsp.report_type.basic_report.bit1", 
+			"Unknown Transmission Detected", "wimax.rep_rsp.report_type.basic_report.bit1",
 			FT_BOOLEAN, 8, NULL, REP_RSP_REPORT_TYPE_BASIC_REPORT_BIT1, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report_bit2,
 		{
-			"Specific Spectrum User Detected", "wimax.rep_rsp.report_type.basic_report.bit2", 
+			"Specific Spectrum User Detected", "wimax.rep_rsp.report_type.basic_report.bit2",
 			FT_BOOLEAN, 8, NULL, REP_RSP_REPORT_TYPE_BASIC_REPORT_BIT2, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report_bit3,
 		{
-			"Channel Not Measured", "wimax.rep_rsp.report_type.basic_report.bit3", 
+			"Channel Not Measured", "wimax.rep_rsp.report_type.basic_report.bit3",
 			FT_BOOLEAN, 8, NULL, REP_RSP_REPORT_TYPE_BASIC_REPORT_BIT3, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_basic_report_reserved,
 		{
-			"Reserved", "wimax.rep_rsp.report_type.basic_report.reserved", 
+			"Reserved", "wimax.rep_rsp.report_type.basic_report.reserved",
 			FT_UINT8, BASE_HEX, NULL, REP_RSP_REPORT_TYPE_BASIC_REPORT_RSV, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_channel_number,
 		{
-			"Channel Number", "wimax.rep_rsp.report_type.channel_number", 
+			"Channel Number", "wimax.rep_rsp.report_type.channel_number",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_cinr_report,
 		{
-			"CINR Report", "wimax.rep_rsp.report_type.cinr_report", 
+			"CINR Report", "wimax.rep_rsp.report_type.cinr_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_cinr_report_deviation,
 		{
-			"CINR Standard Deviation", "wimax.rep_rsp.report_type.cinr_report_deviation", 
+			"CINR Standard Deviation", "wimax.rep_rsp.report_type.cinr_report_deviation",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_cinr_report_mean,
 		{
-			"CINR Mean", "wimax.rep_rsp.report_type.cinr_report_mean", 
+			"CINR Mean", "wimax.rep_rsp.report_type.cinr_report_mean",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_duration,
 		{
-			"Duration", "wimax.rep_rsp.report_type.duration", 
+			"Duration", "wimax.rep_rsp.report_type.duration",
 			FT_UINT24, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_frame_number,
 		{
-			"Start Frame", "wimax.rep_rsp.report_type.frame_number", 
+			"Start Frame", "wimax.rep_rsp.report_type.frame_number",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_rssi_report,
 		{
-			"RSSI Report", "wimax.rep_rsp.report_type.rssi_report", 
+			"RSSI Report", "wimax.rep_rsp.report_type.rssi_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_report_type_rssi_report_deviation,
 		{
-			"RSSI Standard Deviation", "wimax.rep_rsp.report_type.rssi_report_deviation", 
+			"RSSI Standard Deviation", "wimax.rep_rsp.report_type.rssi_report_deviation",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
@@ -866,105 +866,105 @@ static hf_register_info hf_rep[] =
 	{
 		&hf_rep_rsp_report_type_rssi_report_mean,
 		{
-			"RSSI Mean", "wimax.rep_rsp.report_type.rssi_report_mean", 
+			"RSSI Mean", "wimax.rep_rsp.report_type.rssi_report_mean",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_effective_cinr_report,
 		{
-			"Zone-specific Effective CINR Report", "wimax.rep_rsp.zone_spec_effective_cinr_report", 
+			"Zone-specific Effective CINR Report", "wimax.rep_rsp.zone_spec_effective_cinr_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 5.5 */
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_amc_aas,
 		{
-			"AMC AAS Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.amc_aas", 
+			"AMC AAS Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.amc_aas",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 5.3 */
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_fusc,
 		{
-			"FUSC Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.fusc", 
+			"FUSC Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.fusc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 5.4 */
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_optional_fusc,
 		{
-			"Optional FUSC Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.optional_fusc", 
+			"Optional FUSC Zone", "wimax.rep_rsp.zone_spec_effective_cinr_report.optional_fusc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 5.1 */
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc0,
 		{
-			"PUSC Zone (use all SC=0)", "wimax.rep_rsp.zone_spec_effective_cinr_report.pusc_sc0", 
+			"PUSC Zone (use all SC=0)", "wimax.rep_rsp.zone_spec_effective_cinr_report.pusc_sc0",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 5.2 */
 		&hf_rep_rsp_zone_spec_effective_cinr_rep_pusc_sc1,
 		{
-			"PUSC Zone (use all SC=1)", "wimax.rep_rsp.zone_spec_effective_cinr_report.pusc_sc1", 
+			"PUSC Zone (use all SC=1)", "wimax.rep_rsp.zone_spec_effective_cinr_report.pusc_sc1",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_rsp_zone_spec_phy_cinr_report,
 		{
-			"Zone-specific Physical CINR Report", "wimax.rep_rsp.zone_spec_phy_cinr_report", 
+			"Zone-specific Physical CINR Report", "wimax.rep_rsp.zone_spec_phy_cinr_report",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.6 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_amc,
 		{
-			"AMC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.amc", 
+			"AMC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.amc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.3 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_fusc,
 		{
-			"FUSC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.fusc", 
+			"FUSC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.fusc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.4 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_optional_fusc,
 		{
-			"Optional FUSC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.optional_fusc", 
+			"Optional FUSC Zone", "wimax.rep_rsp.zone_spec_phy_cinr_report.optional_fusc",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.1 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc0,
 		{
-			"PUSC Zone (use all SC=0)", "wimax.rep_rsp.zone_spec_phy_cinr_report.pusc_sc0", 
+			"PUSC Zone (use all SC=0)", "wimax.rep_rsp.zone_spec_phy_cinr_report.pusc_sc0",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.2 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_pusc_sc1,
 		{
-			"PUSC Zone (use all SC=1)", "wimax.rep_rsp.zone_spec_phy_cinr_report.pusc_sc1", 
+			"PUSC Zone (use all SC=1)", "wimax.rep_rsp.zone_spec_phy_cinr_report.pusc_sc1",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{	/* 3.5 */
 		&hf_rep_rsp_zone_spec_phy_cinr_rep_safety_channel,
 		{
-			"Safety Channel", "wimax.rep_rsp.zone_spec_phy_cinr_report.safety_channel", 
+			"Safety Channel", "wimax.rep_rsp.zone_spec_phy_cinr_report.safety_channel",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_rep_unknown_type,
 		{
-			"Unknown TLV type", "wimax.rep.unknown_tlv_type", 
+			"Unknown TLV type", "wimax.rep.unknown_tlv_type",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	}
@@ -1078,7 +1078,7 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit1, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit2, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit3_6, tvb, (offset + tlv_offset), length, FALSE);
-//						proto_item_append_text(ti, " dB");
+/*						proto_item_append_text(ti, " dB");*/
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit7, tvb, (offset + tlv_offset), length, FALSE);
 						break;
 						case REP_REQ_CHANNEL_NUMBER:
@@ -1120,7 +1120,7 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit3, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit4, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit5_6, tvb, (offset + tlv_offset), length, FALSE);
-	//					proto_item_append_text(ti, " dB");
+	/*					proto_item_append_text(ti, " dB");*/
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit7, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit8_13, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit14_15, tvb, (offset + tlv_offset), length, FALSE);

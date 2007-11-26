@@ -184,7 +184,7 @@ static gint hf_cdlmap_reserved_1 = -1;
 static gint hf_cdlmap_nep_code_1 = -1;
 static gint hf_cdlmap_nsch_code_1 = -1;
 static gint hf_cdlmap_num_bands_1 = -1;
-//static gint hf_cdlmap_band_index_1 = -1;
+/*static gint hf_cdlmap_band_index_1 = -1;*/
 static gint hf_cdlmap_nb_bitmap_1 = -1;
 
 static gint hf_cdlmap_shortened_diuc = -1;
@@ -1518,7 +1518,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		break;
 		case COMPACT_DL_MAP_TYPE_EXTENSION:/* 6.3.2.3.43.6.6 */
 			/* decode the Compact DL-MAP externsion IE */
-			nibble_length = wimax_cdlmap_extension_ie_decoder(tree, pinfo, tvb, dl_map_offset, nibble_offset);//, cqich_indicator);
+			nibble_length = wimax_cdlmap_extension_ie_decoder(tree, pinfo, tvb, dl_map_offset, nibble_offset);/*, cqich_indicator);*/
 			length = nibble_length;
 		break;
 		default:/* Reserved Type */
@@ -1545,7 +1545,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 #define MAX_LOGICAL_BANDS_SHIFT_1     (MAX_LOGICAL_BANDS_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
 #define NUM_BROADCAST_SYMBOLS_SHIFT_1 (NUM_BROADCAST_SYMBOLS_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
 #define NUM_DL_AMC_SYMBOLS_SHIFT_1    (NUM_DL_AMC_SYMBOLS_SHIFT-NUM_UL_AMC_SYMBOLS_SHIFT)
-//#define NUM_UL_AMC_SYMBOLS_SHIFT_1    0
+/*#define NUM_UL_AMC_SYMBOLS_SHIFT_1    0*/
 
 /* Compact DL-MAP Format Configuration IE (6.3.2.3.43.2) decoder */
 static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset)

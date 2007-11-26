@@ -85,7 +85,7 @@ enum
 	TYPE_II_FB_TYPE_MAX
 } TYPE_II_FB_TYPE;
 
-static char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] = 
+static char *type2_fb_type_abbrv[TYPE_II_FB_TYPE_MAX] =
 {
 	"CQI and MIMO Feedback",
 	"DL average CINR",
@@ -128,7 +128,7 @@ static int hf_mac_header_type_2_cqi_fb_type = -1;
 static int hf_mac_header_type_2_cqi_payload = -1;
 static int hf_mac_header_type_2_cqi_rsv = -1;
 /* 4th & 5th without CID */
-//#define WIMAX_MAC_HEADER_TYPE_2_NO_CID       0xFFFF
+/*#define WIMAX_MAC_HEADER_TYPE_2_NO_CID       0xFFFF*/
 
 /* DL average CINR */
 /* 2nd byte */
@@ -257,9 +257,9 @@ static int hf_mac_header_type_2_mimo_cqi = -1;
 
 /* CINR Feedback */
 /* 2nd byte */
-//#define WIMAX_MAC_HEADER_TYPE_2_CINR_MEAN    0xFF
+/*#define WIMAX_MAC_HEADER_TYPE_2_CINR_MEAN    0xFF*/
 /* 3rd byte */
-//#define WIMAX_MAC_HEADER_TYPE_2_CINR_DEVI    0xFF
+/*#define WIMAX_MAC_HEADER_TYPE_2_CINR_DEVI    0xFF*/
 static int hf_mac_header_type_2_cinr_mean = -1;
 static int hf_mac_header_type_2_cinr_devi = -1;
 
@@ -289,7 +289,7 @@ static int hf_mac_header_type_2_cl_mimo_ant_sel = -1;
 static int hf_mac_header_type_2_cl_mimo_codebook_id = -1;
 
 /* last byte */
-//#define WIMAX_MAC_HEADER_TYPE_2_HCS          0xFF
+/*#define WIMAX_MAC_HEADER_TYPE_2_HCS          0xFF*/
 static int hf_mac_header_type_2_hcs = -1;
 
 /* CID Inclusion Indication messages */

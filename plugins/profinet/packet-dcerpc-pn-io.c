@@ -1502,7 +1502,7 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 
 	if (tree) {
 		sub_item = proto_tree_add_text(tree, tvb, 0, 0, "ARUUID:%s ContrMAC:%s ContrAlRef:0x%x DevMAC:%s DevAlRef:0x%x InCR:0x%x OutCR=0x%x",
-            guid_to_str((const e_guid_t*) &ar->aruuid), 
+            guid_to_str((const e_guid_t*) &ar->aruuid),
             ether_to_str((const guint8 *)ar->controllermac), ar->controlleralarmref,
             ether_to_str((const guint8 *)ar->devicemac), ar->devicealarmref,
             ar->inputframeid, ar->outputframeid);
@@ -1511,7 +1511,7 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 
 	    item = proto_tree_add_guid(sub_tree, hf_pn_io_ar_uuid, tvb, 0, 0, (e_guid_t *) &ar->aruuid);
         PROTO_ITEM_SET_GENERATED(item);
-        
+
 	    item = proto_tree_add_ether(sub_tree, hf_pn_io_cminitiator_macadd, tvb, 0, 0, ar->controllermac);
         PROTO_ITEM_SET_GENERATED(item);
 	    item = proto_tree_add_uint(sub_tree, hf_pn_io_localalarmref, tvb, 0, 0, ar->controlleralarmref);
@@ -1873,7 +1873,7 @@ dissect_AlarmNotification_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -1928,7 +1928,7 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -1999,7 +1999,7 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
     char *pTagLocation;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2031,7 +2031,7 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
     char *pDate;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2056,7 +2056,7 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
     char *pDescriptor;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2080,7 +2080,7 @@ dissect_IandM4_block(tvbuff_t *tvb, int offset,
 {
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2111,7 +2111,7 @@ dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2191,7 +2191,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2267,7 +2267,7 @@ dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
     guint16 u16SubstitutionMode;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2299,7 +2299,7 @@ dissect_RecordInputDataObjectElement_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2339,7 +2339,7 @@ dissect_RecordOutputDataObjectElement_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2377,7 +2377,7 @@ dissect_Alarm_ack_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2406,7 +2406,7 @@ dissect_Maintenance_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2484,7 +2484,7 @@ dissect_IODWriteReqHeader_block(tvbuff_t *tvb, int offset,
     e_uuid_t null_uuid;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2527,7 +2527,7 @@ dissect_IODReadReqHeader_block(tvbuff_t *tvb, int offset,
     e_uuid_t null_uuid;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2574,7 +2574,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2626,7 +2626,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2675,7 +2675,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2764,7 +2764,7 @@ dissect_PDevData_block(tvbuff_t *tvb, int offset,
 {
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2789,7 +2789,7 @@ dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2842,7 +2842,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2950,7 +2950,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -2998,7 +2998,7 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3045,7 +3045,7 @@ dissect_PDInterfaceMrpDataCheck_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3074,7 +3074,7 @@ dissect_PDPortMrpData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3101,7 +3101,7 @@ dissect_MrpManagerParams_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3166,7 +3166,7 @@ dissect_MrpRTModeManagerData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3195,7 +3195,7 @@ dissect_MrpRingStateData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3216,7 +3216,7 @@ dissect_MrpRTStateData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3239,7 +3239,7 @@ dissect_MrpClientParams_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3265,7 +3265,7 @@ dissect_MrpRTModeClientData_block(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3287,7 +3287,7 @@ dissect_CheckSyncDifference_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3320,7 +3320,7 @@ dissect_CheckMAUTypeDifference_block(tvbuff_t *tvb, int offset,
     guint16 u16MAUTypeMode;
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3347,7 +3347,7 @@ dissect_AdjustDomainBoundary_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3388,7 +3388,7 @@ dissect_AdjustDomainBoundary_block(tvbuff_t *tvb, int offset,
 
 		break;
 		default:
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3407,7 +3407,7 @@ dissect_AdjustMulticastBoundary_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3438,7 +3438,7 @@ dissect_AdjustMAUType_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3469,7 +3469,7 @@ dissect_CheckMAUType_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3494,7 +3494,7 @@ dissect_CheckLineDelay_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3525,7 +3525,7 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3573,7 +3573,7 @@ dissect_AdjustPortState_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3604,7 +3604,7 @@ dissect_CheckPortState_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3633,7 +3633,7 @@ dissect_PDPortFODataReal_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3670,7 +3670,7 @@ dissect_FiberOpticManufacturerSpecific_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3702,7 +3702,7 @@ dissect_PDPortFODataAdjust_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3735,7 +3735,7 @@ dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3773,7 +3773,7 @@ dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3814,7 +3814,7 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3880,7 +3880,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -3985,7 +3985,7 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
             u32PLLWindow, u32SyncSendFactor, u16SendClockFactor);
 		break;
 	default:
-		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
     }
 
@@ -4006,7 +4006,7 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4046,7 +4046,7 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4101,7 +4101,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4113,11 +4113,11 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     /* dissect all IR frame data */
     while (offset < u16EndOffset)
     {
-    
+
      /* new subtree for each IR frame */
       ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, FALSE);
       ir_frame_data_tree = proto_item_add_subtree(ir_frame_data_sub_item, ett_pn_io_ir_frame_data);
- 
+
       /* FrameSendOffset */
 	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                      hf_pn_io_frame_send_offset, &u32FrameSendOffset);
@@ -4133,7 +4133,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
       /* FrameID */
 	    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                      hf_pn_io_frame_id, &u16FrameID);
- 
+
       /* Ethertype */
     	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                      hf_pn_io_ethertype, &u16Ethertype);
@@ -4146,13 +4146,13 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
       /* TxPortGroup */
 	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                     hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
- 
+
       /* align to next dataset */
-      offset = dissect_pn_align4(tvb, offset, pinfo, ir_frame_data_tree); 
+      offset = dissect_pn_align4(tvb, offset, pinfo, ir_frame_data_tree);
 
       proto_item_append_text(ir_frame_data_tree, ": Offset:%u, Len:%u, Ratio:%u, Phase:%u, FrameID:0x%04x",
                              u32FrameSendOffset, u16DataLength, u16ReductionRatio, u16Phase, u16FrameID);
-                             
+
     }
 
     return offset;
@@ -4173,7 +4173,7 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4305,7 +4305,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4436,7 +4436,7 @@ dissect_APIData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4468,7 +4468,7 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4510,7 +4510,7 @@ dissect_FSHello_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4548,7 +4548,7 @@ dissect_FSParameter_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4581,7 +4581,7 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4610,7 +4610,7 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4647,7 +4647,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4692,7 +4692,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
         memcpy( (void *) (&par->controllermac), mac, sizeof(par->controllermac));
         /*strncpy( (char *) (&par->controllername), pStationName, sizeof(par->controllername));*/
     } else {
-        //expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");
+        /*expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");*/
     }
     *ar = par;
 
@@ -4715,7 +4715,7 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4787,7 +4787,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4901,7 +4901,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         switch(u16IOCRType) {
         case(1): /* Input CR */
             if(ar->inputframeid != 0 && ar->inputframeid != u16FrameID) {
-                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: input frameID changed from %u to %u!", 
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: input frameID changed from %u to %u!",
                     ar->inputframeid, u16FrameID);
             }
             ar->inputframeid = u16FrameID;
@@ -4910,7 +4910,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 #if 0
             /* will usually contain invalid marker 0xffff here */
             if(ar->outputframeid != 0 && ar->outputframeid != u16FrameID) {
-                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: output frameID changed from %u to %u!", 
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockReq: output frameID changed from %u to %u!",
                     ar->outputframeid, u16FrameID);
             }
             ar->outputframeid = u16FrameID;
@@ -4947,7 +4947,7 @@ dissect_AlarmCRBlockReq_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -4986,7 +4986,7 @@ dissect_AlarmCRBlockReq_block(tvbuff_t *tvb, int offset,
 
     if(ar != NULL) {
         if(ar->controlleralarmref != 0xffff && ar->controlleralarmref != u16LocalAlarmReference) {
-            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: local alarm ref changed from %u to %u!", 
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockReq: local alarm ref changed from %u to %u!",
                 ar->controlleralarmref, u16LocalAlarmReference);
         }
         ar->controlleralarmref = u16LocalAlarmReference;
@@ -5010,7 +5010,7 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5028,7 +5028,7 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
 
     if(ar != NULL) {
         if(ar->devicealarmref != 0xffff && ar->devicealarmref != u16LocalAlarmReference) {
-            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockRes: local alarm ref changed from %u to %u!", 
+            expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockRes: local alarm ref changed from %u to %u!",
                 ar->devicealarmref, u16LocalAlarmReference);
         }
         ar->devicealarmref = u16LocalAlarmReference;
@@ -5054,7 +5054,7 @@ dissect_IOCRBlockRes_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5074,14 +5074,14 @@ dissect_IOCRBlockRes_block(tvbuff_t *tvb, int offset,
         switch(u16IOCRType) {
         case(1): /* Input CR */
             if(ar->inputframeid != 0 && ar->inputframeid != u16FrameID) {
-                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: input frameID changed from %u to %u!", 
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: input frameID changed from %u to %u!",
                     ar->inputframeid, u16FrameID);
             }
             ar->inputframeid = u16FrameID;
             break;
         case(2): /* Output CR */
             if(ar->outputframeid != 0 && ar->outputframeid != u16FrameID) {
-                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: output frameID changed from %u to %u!", 
+                expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "IOCRBlockRes: output frameID changed from %u to %u!",
                     ar->outputframeid, u16FrameID);
             }
             ar->outputframeid = u16FrameID;
@@ -5111,7 +5111,7 @@ dissect_MCRBlockReq_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5205,7 +5205,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5325,7 +5325,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5446,7 +5446,7 @@ dissect_IsochronousModeData_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5497,7 +5497,7 @@ dissect_MultipleBlockHeader_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5557,7 +5557,7 @@ dissect_RecordDataReadQuery_block(tvbuff_t *tvb, int offset,
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
-        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, 
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
@@ -5638,11 +5638,11 @@ dissect_block(tvbuff_t *tvb, int offset,
 			u16BodyLength);
         break;
     case(0x0008):
-        dissect_IODWriteReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, 
+        dissect_IODWriteReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
 			u16Index, u32RecDataLen, ar);
         break;
     case(0x0009):
-        dissect_IODReadReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, 
+        dissect_IODReadReqHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
 			u16Index, u32RecDataLen, ar);
         break;
     case(0x0010):

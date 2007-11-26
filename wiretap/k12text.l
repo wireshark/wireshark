@@ -6,7 +6,7 @@
 /*
  * We don't use unput, so don't generate code for it.
  */
-%option nounput 
+%option nounput
 
 /*
  * We don't read from the terminal.
@@ -43,8 +43,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
- 
- /* 
+
+ /*
   * TODO:
   *   - fix timestamps after midnight
   *   - verify encapsulations
@@ -93,9 +93,9 @@ static FILE_T yy_fh;
 #define SET_ENCAP(text) set_encap(text)
 #define ADD_BYTE(text) do {if (i >= 65536) {KERROR("frame too large");} b[i++] = (guint8)strtoul(text,NULL,16); } while(0)
 #define FINALIZE_FRAME() finalize_frame()
-//~ #define ECHO
+/*~ #define ECHO*/
 #define YY_USER_ACTION cum_offset += yyleng;
-#define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
+#define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
 
 #define MAX_JUNK 400000
 #define ECHO
@@ -152,13 +152,13 @@ static void finalize_frame(void) {
 
 static gboolean k12text_read(wtap *wth, int *err, const gchar ** err_info _U_, gint64 *data_offset) {
 	gint64 start_offset = cum_offset;
-	
+
 	encap = WTAP_ENCAP_UNKNOWN;
 	ok_frame = FALSE;
-	
+
 	BEGIN(NEXT_FRAME);
 	yylex();
-	
+
 	if (ok_frame == FALSE) {
 		if (at_eof) {
 			*err_info = NULL;
@@ -169,17 +169,17 @@ static gboolean k12text_read(wtap *wth, int *err, const gchar ** err_info _U_, g
 		}
 		return FALSE;
 	}
-	
+
 	wth->data_offset = *data_offset = start_offset ;
-	
-	
+
+
 	wth->phdr.ts.secs = 946681200 + (3600*h) + (60*m) + s;
 	wth->phdr.ts.nsecs = 1000000*ms + 1000*ns;
-	
+
 	wth->phdr.caplen = wth->phdr.len = i;
-	
+
 	wth->phdr.pkt_encap = encap;
-	
+
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), b, wth->phdr.caplen);
 
@@ -198,7 +198,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 	if ( file_seek(yy_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	
+
 	BEGIN(NEXT_FRAME);
 	yylex();
 
@@ -207,7 +207,7 @@ static gboolean k12text_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_
 		*err = WTAP_ERR_BAD_RECORD;
 		return FALSE;
 	}
-		
+
 	memcpy(pd, b, length);
 
 	cum_offset = save_offset ;
@@ -219,16 +219,16 @@ static void k12text_close(wtap *wth _U_) {
 }
 
 int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
-	
+
 	cum_offset = 0;
-	
+
 	RESET();
 	yy_fh = wth->fh;
 	BEGIN(MAGIC);
 	yylex();
 
 	if (! is_k12text) return 0;
-	
+
 	if ( file_seek(yy_fh, 0, SEEK_SET, err) == -1) {
 		return -1;
 	}
@@ -243,7 +243,7 @@ int k12text_open(wtap *wth, int *err, gchar **err_info _U_) {
 	wth->subtype_seek_read = (void*)k12text_seek_read;
 	wth->subtype_close = k12text_close;
 	wth->capture.generic  = NULL;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;    
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }
@@ -269,7 +269,7 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 	guint i;
 	guint ns;
 	guint ms;
-	
+
 	ms = phdr->ts.nsecs / 1000000;
 	ns = (phdr->ts.nsecs - (1000000*ms))/1000;
 
@@ -277,7 +277,7 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 		str_enc = encaps[i].s;
 		if (phdr->pkt_encap == encaps[i].e) break;
 	}
-	
+
 	strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
 	p+= strlen(p);
 	sprintf(p,"%.3d,%.3d   %s\r\n|0   |",ms,ns,str_enc);
@@ -287,11 +287,11 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 		sprintf(p,"%.2x|",pd[i]);
 		p+= 3;
 	}
-	
+
 	sprintf(p,"\r\n\r\n");
-	
+
 	fwrite(buf, 1, strlen(buf), wdh->fh);
-	
+
 	return TRUE;
 }
 
@@ -301,12 +301,12 @@ static gboolean k12text_dump_close(wtap_dumper *wdh _U_ , int *err _U_) {
 }
 
 gboolean k12text_dump_open(wtap_dumper *wdh, gboolean cant_seek, int *err) {
-    
+
     if (cant_seek) {
         *err = WTAP_ERR_CANT_WRITE_TO_PIPE;
         return FALSE;
     }
-    
+
     wdh->subtype_write = k12text_dump;
     wdh->subtype_close = k12text_dump_close;
 

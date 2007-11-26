@@ -462,7 +462,7 @@ static gboolean dissect_jxta_UDP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_udp(tvb, pinfo, tree);
-    
+
     /* g_message( "%d Heuristic UDP Dissection : %d", pinfo->fd->num, ret ); */
 
     if (ret < 0) {
@@ -512,9 +512,9 @@ static gboolean dissect_jxta_TCP_heur(tvbuff_t * tvb, packet_info * pinfo, proto
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree);
-    
+
     /* g_message( "%d Heuristic TCP Dissection : %d", pinfo->fd->num, ret ); */
-    
+
     if (ret < 0) {
         /*
          * A heuristic dissector for a TCP-based protocol can reject
@@ -572,7 +572,7 @@ static gboolean dissect_jxta_SCTP_heur(tvbuff_t * tvb, packet_info * pinfo, prot
     save_desegment_offset = pinfo->desegment_offset;
     save_desegment_len = pinfo->desegment_len;
     ret = dissect_jxta_stream(tvb, pinfo, tree);
-    
+
     /* g_message( "%d Heuristic SCTP Dissection : %d", pinfo->fd->num, ret ); */
 
     if (ret < 0) {
@@ -866,16 +866,16 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
 		  peer_conversation = get_peer_conversation(pinfo, tpt_conv_data, TRUE);
 		}
             }
-            
+
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
-                /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num, 
-                          address_to_str(&tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port, 
+                /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num,
+                          address_to_str(&tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
                           address_to_str(&tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
-                          
+
                 if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From initiator : %s -> %s ", pinfo->fd->num, 
+                    /* g_message("%d From initiator : %s -> %s ", pinfo->fd->num,
                               address_to_str(&tpt_conv_data->initiator_address),
                               address_to_str(&tpt_conv_data->receiver_address)); */
                     pinfo->src = tpt_conv_data->initiator_address;
@@ -885,7 +885,7 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->ptype = PT_NONE;
                 } else if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
-                    /* g_message("%d From receiver : %s -> %s ", pinfo->fd->num, 
+                    /* g_message("%d From receiver : %s -> %s ", pinfo->fd->num,
                               address_to_str(&tpt_conv_data->receiver_address),
                               address_to_str(&tpt_conv_data->initiator_address)); */
                     pinfo->src = tpt_conv_data->receiver_address;
@@ -894,14 +894,14 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->destport = 0;
                     pinfo->ptype = PT_NONE;
                 } else {
-                    /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num, 
+                    /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num,
                               address_to_str(&pinfo->src), pinfo->srcport,
                               address_to_str(&pinfo->dst), pinfo->destport); */
                 }
             }
-            
+
             processed = headers_len;
-            
+
             processed += dissect_media(content_type, jxta_message_tvb, pinfo, tree);
         } else {
             /* we need more bytes before we can process message body. */
@@ -1393,19 +1393,19 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     gint needed = 0;
     gchar* src_addr;
     gchar* dst_addr;
-    
+
     while (TRUE) {
         guint8 message_version;
         guint message_start_offset = offset;
 
         /* First pass. Make sure all of the bytes we need are available */
         available = tvb_reported_length_remaining(tvb, offset);
-        
+
         if((0 == available) && (0 != complete_messages)) {
-            // We have discovered all of the complete messages in the tvbuff.
+            /* We have discovered all of the complete messages in the tvbuff. */
             break;
-        }        
-        
+        }
+
         if (available < sizeof(JXTA_MSG_SIG)) {
             needed = (gint) (sizeof(JXTA_MSG_SIG) - available);
             break;
@@ -1527,7 +1527,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         }
 
         complete_messages++;
-        
+
         /* g_message( "%d Scanned message #%d: ", pinfo->fd->num, complete_messages ); */
     }
 
@@ -1537,7 +1537,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
         pinfo->desegment_len = needed;
         return -needed;
     }
-    
+
     src_addr = address_to_str(&pinfo->src);
     dst_addr = address_to_str(&pinfo->dst);
 
@@ -1669,13 +1669,13 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                 return 0;
             }
        }
-       
+
        proto_item_set_end(jxta_msg_tree_item, tvb, tree_offset);
 
        complete_messages--;
     }
-    
-    if( tree ) {              
+
+    if( tree ) {
         /* g_message( "%d tvb offset : %d  tree offset : %d", pinfo->fd->num, offset, tree_offset ); */
         DISSECTOR_ASSERT(tree_offset == offset);
     }
@@ -1914,7 +1914,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
         element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
 
         tree_offset += dissect_media(mediatype, element_content_tvb, pinfo, jxta_elem_tree);
-        
+
         /* process the signature element */
         if ((flags & JXTAMSG1_ELMFLAG_SIGNATURE) != 0) {
             tvbuff_t *jxta_message_element_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
@@ -2245,7 +2245,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 *   @param  pinfo Packet Info.
 *   @param  tree The protocol tree.
 *   @return Number of bytes from the tvbuff_t which were processed, 0 (zero) if
-*           the packet was not recognized and negative if the dissector needs 
+*           the packet was not recognized and negative if the dissector needs
 *           more bytes in order to process a PDU.
 **/
 static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
@@ -2296,13 +2296,13 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
                 dissected = dissect_media("text/xml;charset=\"UTF-8\"", uncomp_tvb, pinfo, tree);
 
                 if( dissected > 0 ) {
-                    // report back the uncompressed length.
+                    /* report back the uncompressed length. */
                     dissected = tvb_length(tvb);
                 }
             }
         } else {
             dissected = dissector_try_string(media_type_dissector_table, mediatype, tvb, pinfo, tree) ? tvb_length(tvb) : 0;
-            
+
             if( dissected != (int) tvb_length(tvb) ) {
                 /* g_message( "%s : %d expected, %d dissected", mediatype, tvb_length(tvb), dissected ); */
             }
@@ -2314,7 +2314,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
 
         pinfo->match_string = save_match_string;
         pinfo->private_data = save_private_data;
-    } 
+    }
 
     if(0 == dissected) {
         /* display it as raw data */
@@ -2397,7 +2397,7 @@ void proto_reg_handoff_jxta(void)
 
         init_done = TRUE;
         }
-        
+
     if( gMSG_MEDIA ) {
         if( !msg_media_register_done ) {
             /* g_message( "Registering JXTA Message media type" ); */
@@ -2415,41 +2415,41 @@ void proto_reg_handoff_jxta(void)
     if( gUDP_HEUR ) {
         if( !udp_register_done ) {
             /* g_message( "Registering UDP Heuristic dissector" ); */
-            heur_dissector_add("udp", dissect_jxta_UDP_heur, proto_jxta);        
+            heur_dissector_add("udp", dissect_jxta_UDP_heur, proto_jxta);
             udp_register_done = TRUE;
             }
     } else {
         if( udp_register_done ) {
             /* g_message( "Deregistering UDP Heuristic dissector" ); */
-            heur_dissector_delete("udp", dissect_jxta_UDP_heur, proto_jxta);        
+            heur_dissector_delete("udp", dissect_jxta_UDP_heur, proto_jxta);
             udp_register_done = FALSE;
             }
     }
-    
+
     if( gTCP_HEUR ) {
         if( !tcp_register_done ) {
             /* g_message( "Registering TCP Heuristic dissector" ); */
-            heur_dissector_add("tcp", dissect_jxta_TCP_heur, proto_jxta);        
+            heur_dissector_add("tcp", dissect_jxta_TCP_heur, proto_jxta);
             tcp_register_done = TRUE;
             }
     } else {
         if( tcp_register_done ) {
             /* g_message( "Deregistering TCP Heuristic dissector" ); */
-            heur_dissector_delete("tcp", dissect_jxta_TCP_heur, proto_jxta);        
+            heur_dissector_delete("tcp", dissect_jxta_TCP_heur, proto_jxta);
             tcp_register_done = FALSE;
             }
     }
-    
+
     if( gSCTP_HEUR ) {
         if( !sctp_register_done ) {
             /* g_message( "Registering SCTP Heuristic dissector" ); */
-            heur_dissector_add("sctp", dissect_jxta_SCTP_heur, proto_jxta);   
+            heur_dissector_add("sctp", dissect_jxta_SCTP_heur, proto_jxta);
             sctp_register_done = TRUE;
             }
     } else {
         if( sctp_register_done ) {
             /* g_message( "Deregistering SCTP Heuristic dissector" ); */
-            heur_dissector_delete("sctp", dissect_jxta_SCTP_heur, proto_jxta);        
+            heur_dissector_delete("sctp", dissect_jxta_SCTP_heur, proto_jxta);
             sctp_register_done = FALSE;
             }
     }

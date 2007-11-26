@@ -173,7 +173,7 @@
 #define		DCD_BURST_DIUC_EXIT_THRESHOLD	151
 #define		DCD_BURST_DIUC_ENTRY_THRESHOLD	152
 #define		DCD_BURST_TCS_ENABLE		153
-//#define		DCD_MAXIMUM_RETRANSMISSION      20
+/*#define		DCD_MAXIMUM_RETRANSMISSION      20*/
 /* TLV types */
 #define		DCD_TLV_T_19_PERMUTATION_TYPE_FOR_BROADCAST_REGION_IN_HARQ_ZONE 19
 #define		DCD_TLV_T_20_MAXIMUM_RETRANSMISSION    20
@@ -259,8 +259,8 @@
 /* Table 357 */
 #define		UCD_BURST_FEC				150
 #define		UCD_BURST_RANGING_DATA_RATIO		151
-//#define		UCD_BURST_POWER_BOOST		151
-//#define		UCD_BURST_TCS_ENABLE		152
+/*#define		UCD_BURST_POWER_BOOST		151*/
+/*#define		UCD_BURST_TCS_ENABLE		152*/
 
 /* RNG-REQ types (Table 364) */
 /* Sorted these values */
@@ -447,9 +447,9 @@
 #define		REG_MAC_CRC_SUPPORT                     12
 #define		REG_MCA_FLOW_CONTROL                    13
 #define		REG_MCAST_POLLING_CIDS                  14
-#define         REG_NUM_DL_TRANS_CID                    15 
+#define         REG_NUM_DL_TRANS_CID                    15
 #if 0 /* WIMAX_16E_2005 changes this to SBC scope */
-#define         REG_PKM_FLOW_CONTROL                    15 
+#define         REG_PKM_FLOW_CONTROL                    15
 #define         REG_AUTH_POLICY_SUPPORT                 16
 #define         REG_MAX_SECURITY_ASSOCIATIONS           17
 #endif
