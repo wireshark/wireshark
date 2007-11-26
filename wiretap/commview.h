@@ -26,6 +26,8 @@
 #define __COMMVIEW_H__
 
 int commview_open(wtap *wth, int *err, gchar **err_info _U_);
+int commview_dump_can_write_encap(int encap);
+gboolean commview_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err);
 
 #endif /* __COMMVIEW_H__ */
 

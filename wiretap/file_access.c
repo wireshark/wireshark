@@ -572,7 +572,7 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_COMMVIEW */
 	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", TRUE,
-	  NULL, NULL }
+	  commview_dump_can_write_encap, commview_dump_open }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

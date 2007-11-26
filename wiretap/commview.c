@@ -8,7 +8,7 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Based on csids.c
+ * Based on csids.c and nettl.c
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -80,7 +80,6 @@ typedef struct commview_header {
 #define MEDIUM_WIFI		1
 #define MEDIUM_TOKEN_RING	2
 
-int commview_open(wtap *wth, int *err, gchar **err_info _U_);
 static gboolean commview_read(wtap *wth, int *err, gchar **err_info _U_,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
@@ -89,7 +88,9 @@ static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   gchar **err_info _U_);
 static gboolean  commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				      int *err);
-
+static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
+			      const union wtap_pseudo_header *pseudo_header _U_,
+			      const guchar *pd, int *err);
 
 int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 {
@@ -113,7 +114,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 	   ((cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_ETHERNET &&
 	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_WIFI &&
 	    (cv_hdr.flags & FLAGS_MEDIUM) != MEDIUM_TOKEN_RING) ||
-	    cv_hdr.reserved != 0)
+	   cv_hdr.reserved != 0)
 		return 0; /* Not our kind of file */
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
@@ -121,9 +122,10 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 		return -1;
 
 	/* Set up the pointers to the handlers for this file type */
-	wth->data_offset = 0;
 	wth->subtype_read = commview_read;
 	wth->subtype_seek_read = commview_seek_read;
+
+	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_COMMVIEW;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET; 
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
@@ -162,7 +164,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 	buffer_assure_space(wth->frame_buffer, cv_hdr.data_len);
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-				cv_hdr.data_len, wth->fh);
+			       cv_hdr.data_len, wth->fh);
 	if(bytes_read != cv_hdr.data_len) {
 		*err = file_error(wth->fh);
 		if(*err == 0)
@@ -265,3 +267,134 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err)
 	return TRUE;
 }
 
+/* Returns 0 if we can write out the specified encapsulatio type
+ * into a CommView format file. */
+int commview_dump_can_write_encap(int encap)
+{
+	switch (encap) {
+
+	case WTAP_ENCAP_ETHERNET :
+	case WTAP_ENCAP_IEEE_802_11 :
+	case WTAP_ENCAP_TOKEN_RING :
+	case WTAP_ENCAP_PER_PACKET :
+		return 0;
+
+	default:
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+	}
+}
+
+/* Returns TRUE on success, FALSE on failure;
+   sets "*err" to an error code on failure */
+gboolean commview_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_,
+			    int *err _U_)
+{
+	wdh->subtype_write = commview_dump;
+	wdh->subtype_close = NULL;
+	
+	/* There is no file header to write out */
+	wdh->bytes_dumped = 0;
+	
+	return TRUE;
+}
+
+/* Write a record for a packet to a dump file.
+ * Returns TRUE on success, FALSE on failure. */
+static gboolean commview_dump(wtap_dumper *wdh,
+			      const struct wtap_pkthdr *phdr,
+			      const union wtap_pseudo_header *pseudo_header _U_,
+			      const guchar *pd, int *err)
+{
+	commview_header_t cv_hdr;
+	size_t bytes_written = 0;
+	char date_time[5];
+
+	memset(&cv_hdr, 0, sizeof(cv_hdr));
+
+	cv_hdr.data_len = GUINT16_TO_LE((guint16)phdr->caplen);
+	cv_hdr.source_data_len = GUINT16_TO_LE((guint16)phdr->caplen);
+	cv_hdr.version = 0;
+
+	strftime(date_time, 4, "%G", localtime(&phdr->ts.secs));
+	cv_hdr.year = GUINT16_TO_LE((guint16)strtol(date_time, NULL, 10));
+
+	strftime(date_time, 4, "%m", localtime(&phdr->ts.secs));
+	cv_hdr.month = (guint8)strtol(date_time, NULL, 10);
+
+	strftime(date_time, 4, "%d", localtime(&phdr->ts.secs));
+	cv_hdr.day = (guint8)strtol(date_time, NULL, 10);
+
+	strftime(date_time, 4, "%H", localtime(&phdr->ts.secs));
+	cv_hdr.hours = (guint8)strtol(date_time, NULL, 10);
+
+	strftime(date_time, 4, "%M", localtime(&phdr->ts.secs));
+	cv_hdr.minutes = (guint8)strtol(date_time, NULL, 10);
+
+	strftime(date_time, 4, "%S", localtime(&phdr->ts.secs));
+	cv_hdr.seconds = (guint8)strtol(date_time, NULL, 10);
+
+	cv_hdr.usecs = GUINT32_TO_LE(phdr->ts.nsecs / 1000);
+
+	switch(phdr->pkt_encap) {
+
+	case WTAP_ENCAP_ETHERNET :
+		cv_hdr.flags |= MEDIUM_ETHERNET;
+		break;
+
+	case WTAP_ENCAP_IEEE_802_11 :
+		cv_hdr.flags |=  MEDIUM_WIFI;
+		break;
+
+	case WTAP_ENCAP_TOKEN_RING :
+		cv_hdr.flags |= MEDIUM_TOKEN_RING;
+
+	default :
+		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+		return FALSE;
+	}
+
+	bytes_written += fwrite(&cv_hdr.data_len, 2, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.source_data_len, 2, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.version, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.year, 2, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.month, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.day, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.hours, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.minutes, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.seconds, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.usecs, 4, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.flags, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.signal_level, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.rate, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.band, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.channel, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.direction, 1, 1, wdh->fh);
+	bytes_written += fwrite(&cv_hdr.reserved, 2, 1, wdh->fh);
+
+	if(bytes_written != 17) { /* 17 units of data should have been written
+				   * above. */
+		if(bytes_written == 0 && ferror(wdh->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+	       
+		return FALSE;
+	}
+
+	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
+
+	bytes_written = fwrite(pd, 1, phdr->caplen, wdh->fh);
+
+	if(bytes_written != phdr->caplen) {
+		if(bytes_written == 0 && ferror(wdh->fh))
+			*err = errno;
+		else
+			*err = WTAP_ERR_SHORT_WRITE;
+
+		return FALSE;
+	}
+
+	wdh->bytes_dumped += phdr->caplen;
+
+	return TRUE;
+}
