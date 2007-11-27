@@ -911,8 +911,9 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		return 0;
 
 	/* if the captured length and packet length aren't equal, we quit
-	* because there is some information missing */
-	if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
+	* if also the RTP dissector thinks there is some information missing */
+	if ((pinfo->fd->pkt_len != pinfo->fd->cap_len) &&
+	    (!rtpinfo->info_all_data_present)) {
 		saveinfo->saved = FALSE;
 		saveinfo->error_type = TAP_RTP_WRONG_LENGTH;
 		return 0;
