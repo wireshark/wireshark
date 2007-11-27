@@ -507,6 +507,7 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree, tv
         usb_trans_info->interface_info=se_alloc(sizeof(usb_conv_info_t));
         usb_trans_info->interface_info->interfaceClass=tvb_get_guint8(tvb, offset);
         usb_trans_info->interface_info->transactions=se_tree_create_non_persistent(EMEM_TREE_TYPE_RED_BLACK, "usb transactions");
+        usb_trans_info->interface_info->class_data=NULL;
     }
     offset++;
 
