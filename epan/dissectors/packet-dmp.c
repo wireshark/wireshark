@@ -31,6 +31,7 @@
 /*
  * TODO:
  * - Obtain a dedicated UDP port number for DMP
+ * - Add Transmission/Retransmission statistics
  */
 
 #ifdef HAVE_CONFIG_H
@@ -130,7 +131,7 @@
 
 /* Maximum lengths */
 #define MAX_SIC_LEN         30
-#define MAX_MSG_TYPE_LEN    30
+#define MAX_MSG_TYPE_LEN    45
 #define MAX_SEC_CAT_LEN     33
 #define MAX_ENV_FLAGS_LEN  100
 #define MAX_STRUCT_ID_LEN  128
@@ -304,13 +305,20 @@ static int hf_checksum_bad = -1;
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_total_time = -1;
 static int hf_analysis_rto_time = -1;
-static int hf_analysis_ack_response_to = -1;
-static int hf_analysis_ack_response_to_missing = -1;
-static int hf_analysis_msg_ack_num = -1;
-static int hf_analysis_ack_dup_num = -1;
+static int hf_analysis_msg_num = -1;
+static int hf_analysis_msg_missing = -1;
 static int hf_analysis_msg_dup_num = -1;
-static int hf_analysis_msg_ack_num_missing = -1;
-static int hf_analysis_resend_from = -1;
+static int hf_analysis_ack_num = -1;
+static int hf_analysis_ack_missing = -1;
+static int hf_analysis_ack_dup_num = -1;
+static int hf_analysis_rep_num = -1;
+static int hf_analysis_rep_time = -1;
+static int hf_analysis_not_num = -1;
+static int hf_analysis_not_time = -1;
+static int hf_analysis_msg_resend_from = -1;
+static int hf_analysis_rep_resend_from = -1;
+static int hf_analysis_not_resend_from = -1;
+static int hf_analysis_ack_resend_from = -1;
 
 static int hf_reserved_0x01 = -1;
 static int hf_reserved_0x02 = -1;
@@ -409,14 +417,18 @@ typedef struct _dmp_id_key {
 } dmp_id_key;
 
 typedef struct _dmp_id_val {
-  guint    prev_msg_id;
-  guint    msg_id;
-  guint    ack_id;
-  nstime_t msg_time;
-  nstime_t first_msg_time;
-  nstime_t prev_msg_time;
-  guint32  msg_resend_count;
-  guint32  ack_resend_count;
+  gint     msg_type;                   /* Message type                   */
+  guint    prev_msg_id;                /* Previous message package num   */
+  guint    msg_id;                     /* Message package num            */
+  guint    ack_id;                     /* Acknowledgement package num    */
+  guint    rep_id;                     /* Report package num             */
+  guint    not_id;                     /* Notification package num       */
+  nstime_t msg_time;                   /* Message receive time           */
+  nstime_t first_msg_time;             /* First message receive time     */
+  nstime_t prev_msg_time;              /* Previous message receive time  */
+  nstime_t rep_not_msg_time;           /* Report or Notification time    */
+  guint32  msg_resend_count;           /* Message resend counter         */
+  guint32  ack_resend_count;           /* Acknowledgement resend counter */
 } dmp_id_val;
 
 static GHashTable *dmp_id_hash_table = NULL;
@@ -808,6 +820,14 @@ static const value_string on_type [] = {
   { 0x02, "acp127-tn" },
   { 0,    NULL } };
 
+static const value_string ack_msg_type [] = {
+  { STANAG, " (message)" },
+  { IPM,    " (e-mail)"  },
+  { REPORT, " (report)"  },
+  { NOTIF,  " (notif)"   },
+  { ACK,    " (ack)"     },
+  { 0,      NULL } };
+
 static enum_val_t struct_id_options[] = {
   { "none",    "None",                        STRUCT_ID_NONE     },
   { "1byte",   "1 Byte value",                STRUCT_ID_UINT8    },
@@ -822,6 +842,7 @@ static enum_val_t struct_id_options[] = {
 static const gchar *msg_type_to_str (void)
 {
   static gchar *msg_type = NULL;
+  gboolean      have_msg = FALSE;
 
   if (dmp.msg_type == STANAG) {
     /* STANAG 4406 Message, also include message type */
@@ -841,12 +862,18 @@ static const gchar *msg_type_to_str (void)
     /* Notification */
     return val_to_str (dmp.notif_type, notif_type, "Unknown");
   } else if (dmp.msg_type == ACK) {
+    /* Acknowlegdement */
     msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Acknowledgement%s",
-		dmp.ack_reason ? " (negative)" : "");
+    /* If we have msg_time we have a matching packet */
+    have_msg = (dmp.id_val &&
+		(dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
+    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Acknowledgement%s%s",
+		have_msg ? val_to_str (dmp.id_val->msg_type, ack_msg_type,
+				       " (unknown:%d)") : "",
+		dmp.ack_reason ? " [negative]" : "");
     return msg_type;
   }
-  /* IPM-88 Message or Acknowledgement (or Unknown) */
+  /* IPM-88 Message or Unknown */
   return val_to_str (dmp.msg_type, type_vals, "Unknown");
 }
 
@@ -1100,8 +1127,38 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 {
   dmp_id_val *dmp_data = NULL, *pkg_data = NULL;
   dmp_id_key *dmp_key = NULL;
+  nstime_t    msg_time = { 0, 0 };
+  guint       msg_id = 0;
 
+  if (pinfo->in_error_pkt) {
+    /* No analysis of error packets */
+    return;
+  }
+  
   dmp_key = se_alloc (sizeof (dmp_id_key));
+
+  if (!pinfo->fd->flags.visited && 
+      (dmp.msg_type == REPORT || dmp.msg_type == NOTIF)) 
+  {
+    /* Try to match corresponding message */
+    dmp_key->id = (guint) dmp.subj_id;
+    SE_COPY_ADDRESS(&dmp_key->src, &(pinfo->dst));
+    SE_COPY_ADDRESS(&dmp_key->dst, &(pinfo->src));
+
+    dmp_data = (dmp_id_val *) g_hash_table_lookup (dmp_id_hash_table, dmp_key);
+
+    if (dmp_data) {
+      /* Found message */
+      if (dmp.msg_type == REPORT) {
+	msg_id = dmp_data->msg_id;
+	msg_time = dmp_data->msg_time;
+      } else {
+	msg_id = dmp_data->msg_id;
+	msg_time = dmp_data->msg_time;
+      }
+    }
+  }
+
   if (dmp.msg_type == ACK) {
     dmp_key->id = (guint) dmp.subj_id;
     SE_COPY_ADDRESS(&dmp_key->src, &(pinfo->dst));
@@ -1137,25 +1194,27 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
     } else {
       /* New message */
       dmp_data = se_alloc (sizeof (dmp_id_val));
-      dmp_data->msg_resend_count = 0;
-      dmp_data->ack_resend_count = 0;
+      memset (dmp_data, 0, sizeof (dmp_id_val));
+      dmp_data->msg_type = dmp.msg_type;
+
       if (dmp.msg_type == ACK) {
 	/* No matching message for this ack */
-	dmp_data->msg_id = 0;
 	dmp_data->ack_id = pinfo->fd->num;
-	dmp_data->first_msg_time.secs = 0;
-	dmp_data->first_msg_time.nsecs = 0;
-	dmp_data->prev_msg_time.secs = 0;
-	dmp_data->prev_msg_time.nsecs = 0;
-	dmp_data->msg_time.secs = 0;
-	dmp_data->msg_time.nsecs = 0;
       } else {
-	dmp_data->msg_id = pinfo->fd->num;
-	dmp_data->ack_id = 0;
 	dmp_data->first_msg_time = pinfo->fd->abs_ts;
-	dmp_data->prev_msg_time.secs = 0;
-	dmp_data->prev_msg_time.nsecs = 0;
 	dmp_data->msg_time = pinfo->fd->abs_ts;
+
+	if (dmp.msg_type == REPORT) {
+	  dmp_data->rep_id = pinfo->fd->num;
+	  dmp_data->msg_id = msg_id;
+	  dmp_data->rep_not_msg_time = msg_time;
+	} else if (dmp.msg_type == NOTIF) {
+	  dmp_data->not_id = pinfo->fd->num;
+	  dmp_data->msg_id = msg_id;
+	  dmp_data->rep_not_msg_time = msg_time;
+	} else {
+	  dmp_data->msg_id = pinfo->fd->num;
+	}
 
 	g_hash_table_insert (dmp_id_hash_table, dmp_key, dmp_data);
       }
@@ -1172,6 +1231,7 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
       pkg_data->ack_id = dmp_data->ack_id;
     }
   }
+
   DISSECTOR_ASSERT (pkg_data);
   dmp.id_val = pkg_data;
 }
@@ -1181,8 +1241,11 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 {
   proto_tree *analysis_tree = NULL;
   proto_item *en = NULL, *eh = NULL;
+  nstime_t    ns;
 
-  if (dmp.msg_type > ACK || (dmp.msg_type < ACK && !dmp.checksum)) {
+  if (dmp.msg_type > ACK || (dmp.msg_type < ACK && !dmp.checksum) ||
+      dmp.id_val == NULL || pinfo->in_error_pkt)
+  {
     /* No need for seq/ack analysis */
     return;
   }
@@ -1194,7 +1257,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
       (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) {
     if (dmp.id_val->ack_id) {
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_ack_num, tvb,
+      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
 				0, 0, dmp.id_val->ack_id);
       PROTO_ITEM_SET_GENERATED (en);
       if (!dmp.checksum) {
@@ -1204,7 +1267,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       }
     } else if (dmp.checksum && !dmp.id_val->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
-				hf_analysis_msg_ack_num_missing,
+				hf_analysis_ack_missing,
 				tvb, offset, 0, FALSE);
       if (pinfo->fd->flags.visited) {
 	/* We do not know this on first visit and we do not want to
@@ -1214,16 +1277,60 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 	PROTO_ITEM_SET_GENERATED (en);
       }
     }
+
+    if (dmp.msg_type == REPORT) {
+      if (dmp.id_val->msg_id) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
+				  tvb, 0, 0, dmp.id_val->msg_id);
+	PROTO_ITEM_SET_GENERATED (en);
+	
+	nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
+	en = proto_tree_add_time (analysis_tree, hf_analysis_rep_time,
+				  tvb, 0, 0, &ns);
+	PROTO_ITEM_SET_GENERATED (en);
+      } else {
+	en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
+				  tvb, 0, 0, FALSE);
+	PROTO_ITEM_SET_GENERATED (en);
+	
+	expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
+				"Message missing");
+      }
+    } else if (dmp.msg_type == NOTIF) {
+      if (dmp.id_val->msg_id) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
+				  tvb, 0, 0, dmp.id_val->msg_id);
+	PROTO_ITEM_SET_GENERATED (en);
+	
+	nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->rep_not_msg_time);
+	en = proto_tree_add_time (analysis_tree, hf_analysis_not_time,
+				  tvb, 0, 0, &ns);
+	PROTO_ITEM_SET_GENERATED (en);
+      } else {
+	en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
+				  tvb, 0, 0, FALSE);
+	PROTO_ITEM_SET_GENERATED (en);
+	
+	expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
+				"Message missing");
+      }
+    }
     
     if (dmp.id_val->msg_resend_count) {
-      nstime_t ns;
-      
       en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_dup_num,
 				tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_resend_from,
-				tvb, 0, 0, dmp.id_val->msg_id);
+      if (dmp.msg_type == REPORT) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_resend_from,
+				  tvb, 0, 0, dmp.id_val->rep_id);
+      } else if (dmp.msg_type == NOTIF) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_not_resend_from,
+				  tvb, 0, 0, dmp.id_val->not_id);
+      } else {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_resend_from,
+				  tvb, 0, 0, dmp.id_val->msg_id);
+      }
       PROTO_ITEM_SET_GENERATED (en);
       
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
@@ -1233,16 +1340,21 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_rto_time,
 				tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(en);
-      
+      PROTO_ITEM_SET_GENERATED (en);
     }
   } else if (dmp.msg_type == ACK) {
-    if (dmp.id_val->msg_id) {
-      nstime_t ns;
-      
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_response_to,
-				tvb, 0, 0, dmp.id_val->msg_id);
-      PROTO_ITEM_SET_GENERATED(en);
+    if (dmp.id_val->msg_type != ACK) {
+      if (dmp.id_val->msg_type == REPORT) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_num,
+				  tvb, 0, 0, dmp.id_val->rep_id);
+      } else if (dmp.id_val->msg_type == NOTIF) {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_not_num,
+				  tvb, 0, 0, dmp.id_val->not_id);
+      } else {
+	en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
+				  tvb, 0, 0, dmp.id_val->msg_id);
+      }
+      PROTO_ITEM_SET_GENERATED (en);
       
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
@@ -1264,8 +1376,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 				dmp.id_val->prev_msg_id);
       }
     } else {
-      en = proto_tree_add_item (analysis_tree,
-				hf_analysis_ack_response_to_missing,
+      en = proto_tree_add_item (analysis_tree, hf_analysis_msg_missing,
 				tvb, 0, 0, FALSE);
       PROTO_ITEM_SET_GENERATED (en);
       
@@ -1278,7 +1389,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 				tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_resend_from,
+      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
 				tvb, 0, 0, dmp.id_val->ack_id);
       PROTO_ITEM_SET_GENERATED (en);
       
@@ -2365,8 +2476,6 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
 			      2, FALSE);
   offset += 2;
 
-  register_dmp_id (pinfo, 0);
-
   /* Submission Time */
   subm_time = tvb_get_ntohs (tvb, offset);
   dmp.subm_time = dmp_dec_subm_time ((guint16)(subm_time & 0x7FFF),
@@ -3289,6 +3398,8 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
   }
 
+  register_dmp_id (pinfo, 0);
+
   proto_item_set_len (en, offset - boffset);
 
   if  (dmp.msg_type == STANAG || dmp.msg_type == IPM) {
@@ -3388,7 +3499,7 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
   if (check_col (pinfo->cinfo, COL_INFO)) {
     if (((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
 	 (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) &&
-	dmp.id_val->msg_resend_count)
+	dmp.id_val && dmp.id_val->msg_resend_count)
     {
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
 		       dmp.id_val->msg_id, dmp.id_val->msg_resend_count);
@@ -3399,35 +3510,35 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
       retrans_or_dup_ack = TRUE;
     }
     if (dmp_align && !retrans_or_dup_ack) {
-      col_append_fstr (pinfo->cinfo, COL_INFO, "%-30.30s", msg_type_to_str ());
+      if (dmp.msg_type == ACK) {
+	/* ACK does not have "Msg Id" */
+	col_append_fstr (pinfo->cinfo, COL_INFO, "%-44.44s", msg_type_to_str ());
+      } else {
+	col_append_fstr (pinfo->cinfo, COL_INFO, "%-30.30s", msg_type_to_str ());
+      }
     } else {
       col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
     }
     if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
 	(dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF))
-      {
-	if (dmp_align && !retrans_or_dup_ack) {
-	  col_append_fstr (pinfo->cinfo, COL_INFO, " Msg Id: %5d", dmp.msg_id);
-	} else {
-	  col_append_fstr (pinfo->cinfo, COL_INFO, ", Msg Id: %d", dmp.msg_id);
-	}
-      } else if (dmp.msg_type == ACK) {
+    {
       if (dmp_align && !retrans_or_dup_ack) {
-	/* Append spaces to align subj_id */
-	col_append_str (pinfo->cinfo, COL_INFO, "              ");
+	col_append_fstr (pinfo->cinfo, COL_INFO, " Msg Id: %5d", dmp.msg_id);
+      } else {
+	col_append_fstr (pinfo->cinfo, COL_INFO, ", Msg Id: %d", dmp.msg_id);
       }
     }
     if ((dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF) ||
 	(dmp.msg_type == ACK))
-      {
-	if (dmp_align && !retrans_or_dup_ack) {
-	  col_append_fstr (pinfo->cinfo, COL_INFO, "  Subj Id: %5d",
-			   dmp.subj_id);
-	} else {
-	  col_append_fstr (pinfo->cinfo, COL_INFO, ", Subj Id: %d",
-			   dmp.subj_id);
-	}
-      } else if (dmp.struct_id[0] != 0) {
+    {
+      if (dmp_align && !retrans_or_dup_ack) {
+	col_append_fstr (pinfo->cinfo, COL_INFO, "  Subj Id: %5d",
+			 dmp.subj_id);
+      } else {
+	col_append_fstr (pinfo->cinfo, COL_INFO, ", Subj Id: %d",
+			 dmp.subj_id);
+      }
+    } else if (dmp.struct_id[0] != 0) {
       if (dmp_align && !retrans_or_dup_ack) {
 	col_append_fstr (pinfo->cinfo, COL_INFO, "  Body Id: %s",
 			 dmp.struct_id);
@@ -4017,35 +4128,60 @@ void proto_register_dmp (void)
     ** Ack matching / Resend
     */
     { &hf_analysis_ack_time,
-      { "Ack Time", "dmp.analysis.ack_time", FT_RELATIVE_TIME, BASE_NONE,
+      { "Acknowledgement Time", "dmp.analysis.ack_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the Message and the Acknowledge", HFILL } },
+    { &hf_analysis_rep_time,
+      { "Report Reply Time", "dmp.analysis.report_time", FT_RELATIVE_TIME, BASE_NONE,
+	NULL, 0x0, "The time between the Message and the Report", HFILL } },
+    { &hf_analysis_not_time,
+      { "Notification Reply Time", "dmp.analysis.notif_time", FT_RELATIVE_TIME, BASE_NONE,
+	NULL, 0x0, "The time between the Message and the Notification", HFILL } },
     { &hf_analysis_total_time,
       { "Total Time", "dmp.analysis.total_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the first Message and the Acknowledge", HFILL } },
     { &hf_analysis_rto_time,
       { "Retransmission Time", "dmp.analysis.retrans_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the last Message and this Message", HFILL } },
-    { &hf_analysis_ack_response_to,
+    { &hf_analysis_msg_num,
       { "Message in", "dmp.analysis.msg_in", FT_FRAMENUM, BASE_NONE,
-	NULL, 0x0, "This packet acknowledges the Message in this frame", HFILL } },
-    { &hf_analysis_msg_ack_num,
+	NULL, 0x0, "This packet has a Message in this frame", HFILL } },
+    { &hf_analysis_ack_num,
       { "Acknowledgement in", "dmp.analysis.ack_in", FT_FRAMENUM, BASE_NONE,
-	NULL, 0x0, "This Message has an acknowledgement in this frame", HFILL } },
-    { &hf_analysis_ack_response_to_missing,
+	NULL, 0x0, "This packet has an Acknowledgement in this frame", HFILL } },
+    { &hf_analysis_rep_num,
+      { "Report in", "dmp.analysis.report_in", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This packet has a Report in this frame", HFILL } },
+    { &hf_analysis_not_num,
+      { "Notification in", "dmp.analysis.notif_in", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This packet has a Notification in this frame", HFILL } },
+    { &hf_analysis_msg_missing,
       { "Message missing", "dmp.analysis.msg_missing", FT_NONE, BASE_NONE,
-	NULL, 0x0, "The Message for this acknowledge is missing", HFILL } },
-    { &hf_analysis_msg_ack_num_missing,
+	NULL, 0x0, "The Message for this packet is missing", HFILL } },
+    { &hf_analysis_ack_missing,
       { "Acknowledgement missing", "dmp.analysis.ack_missing", FT_NONE, BASE_NONE,
-	NULL, 0x0, "The acknowledgement for this Message is missing", HFILL } },
+	NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
     { &hf_analysis_msg_dup_num,
-      { "Duplicate Message #", "dmp.analysis.dup_msg_num", FT_UINT32, BASE_DEC,
+      { "Duplicate packet #", "dmp.analysis.dup_msg_num", FT_UINT32, BASE_DEC,
 	NULL, 0x0, "Duplicate message identifier", HFILL } },
     { &hf_analysis_ack_dup_num,
       { "Duplicate ACK #", "dmp.analysis.dup_ack_num", FT_UINT32, BASE_DEC,
 	NULL, 0x0, "Duplicate subject message identifier", HFILL } },
-    { &hf_analysis_resend_from,
-      { "Retransmission of package sent in", "dmp.analysis.first_sent_in", FT_FRAMENUM, BASE_NONE,
-	NULL, 0x0, "This DMP packet was first sent in this frame", HFILL } },
+    { &hf_analysis_msg_resend_from,
+      { "Retransmission of Message sent in", "dmp.analysis.msg_first_sent_in", 
+	FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This Message was first sent in this frame", HFILL } },
+    { &hf_analysis_rep_resend_from,
+      { "Retransmission of Report sent in", "dmp.analysis.report_first_sent_in", 
+	FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This Report was first sent in this frame", HFILL } },
+    { &hf_analysis_not_resend_from,
+      { "Retransmission of Notification sent in", "dmp.analysis.notif_first_sent_in", 
+	FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This Notification was first sent in this frame", HFILL } },
+    { &hf_analysis_ack_resend_from,
+      { "Retransmission of Acknowledgement sent in", "dmp.analysis.ack_first_sent_in", 
+	FT_FRAMENUM, BASE_NONE,
+	NULL, 0x0, "This Acknowledgement was first sent in this frame", HFILL } },
 
     /*
     ** Reserved values
