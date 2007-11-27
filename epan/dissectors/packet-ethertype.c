@@ -278,7 +278,7 @@ add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     gint fcs_len)
 {
 	guint		length;
-	tvbuff_t	*volatile trailer_tvb;
+	tvbuff_t	*trailer_tvb;
 
 	if (fh_tree == NULL)
 		return;	/* we're not building a protocol tree */
