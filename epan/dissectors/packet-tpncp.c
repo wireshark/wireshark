@@ -89,7 +89,7 @@ static tpncp_data_field_info tpncp_commands_info_db[MAX_TPNCP_DB_SIZE];
 
 /* Global variables for bitfields representation. */
 static gint bits[] = {0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80};
-static gint bitindex = 0; 
+static gint bitindex = 0;
 
 /* TPNCP packet header fields. */
 static gint proto_tpncp = -1,
@@ -122,7 +122,7 @@ static value_string tpncp_events_id_vals[MAX_TPNCP_DB_SIZE];
 static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
 static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
 
-static gint hf_size = 1; 
+static gint hf_size = 1;
 static hf_register_info *hf = NULL;
 static hf_register_info hf_tpncp[] = {
     {
@@ -237,7 +237,7 @@ static hf_register_info hf_tpncp[] = {
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item, 
+static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                                gint *offset, tpncp_data_field_info *data_fields_info) {
     proto_tree *ltree = NULL;
     proto_item *pi = NULL;
@@ -261,7 +261,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                     g_str = g_malloc(g_str_len);
                     tvb_memcpy(tvb, g_str, *offset, g_str_len);
                     g_str[g_str_len-1] = '\0';
-                    proto_tree_add_string(ltree, current_tpncp_data_field_info->tpncp_data_field_descr, 
+                    proto_tree_add_string(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                           tvb, *offset, g_str_len, g_str);
                     (*offset) += g_str_len;
                     g_free(g_str);
@@ -270,19 +270,19 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
                     g_char = tvb_get_guint8(tvb, *offset);
                     /* bitfields */
                     if (current_tpncp_data_field_info->tpncp_data_field_size != 8) {
-                        for (counter = 0, bitmask = 0x0, bitshift = bitindex; 
-                             counter < current_tpncp_data_field_info->tpncp_data_field_size; 
+                        for (counter = 0, bitmask = 0x0, bitshift = bitindex;
+                             counter < current_tpncp_data_field_info->tpncp_data_field_size;
                              counter++)
                             bitmask |= bits[bitindex++]; /* Bitmask of interesting bits. */
                         g_char &= bitmask;
                         g_char >>= bitshift;
                     }
                     if (current_tpncp_data_field_info->tpncp_data_field_sign) {
-                        proto_tree_add_uint(ltree, current_tpncp_data_field_info->tpncp_data_field_descr, 
+                        proto_tree_add_uint(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                             tvb, *offset, 1, g_char);
                     }
                     else {
-                        proto_tree_add_int(ltree, current_tpncp_data_field_info->tpncp_data_field_descr, 
+                        proto_tree_add_int(ltree, current_tpncp_data_field_info->tpncp_data_field_descr,
                                            tvb, *offset, 1, g_char);
                     }
                     if ((bitindex == 0) || (bitindex == 8)) {
@@ -332,7 +332,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,  
+static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
                                 proto_item *item, gint *offset) {
     switch (event_id) {
         /* Place non-standard events here. */
@@ -486,7 +486,7 @@ static gint fill_tpncp_id_vals(value_string string[], FILE *file) {
 
 static gint fill_enums_id_vals(FILE *file) {
     gint i = 0, enum_id = 0, enum_val = 0, first_entry = 1;
-    gchar *line_in_file = NULL, *enum_name = NULL, 
+    gchar *line_in_file = NULL, *enum_name = NULL,
            *enum_type = NULL, *enum_str = NULL;
 
     line_in_file = ep_alloc(MAX_TPNCP_DB_ENTRY_LEN);
@@ -553,7 +553,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     static gint was_registered = 0;
     gchar *tpncp_db_entry = NULL, *tpncp_data_field_name = NULL, *tmp = NULL;
     gint enum_val, data_id, current_data_id = -1,
-         tpncp_data_field_sign, tpncp_data_field_size, 
+         tpncp_data_field_sign, tpncp_data_field_size,
          tpncp_data_field_array_dim, tpncp_data_field_is_ip_addr;
     guint index;
     tpncp_data_field_info *current_tpncp_data_field_info = NULL;
@@ -567,11 +567,11 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     hf_entr.hfinfo.strings        = NULL;
     hf_entr.hfinfo.bitmask        = 0x0;
     hf_entr.hfinfo.blurb          = "";
-    hf_entr.hfinfo.id             = 0;      
-    hf_entr.hfinfo.parent         = 0;  
-    hf_entr.hfinfo.bitshift       = 0;  
-    hf_entr.hfinfo.same_name_next = NULL; 
-    hf_entr.hfinfo.same_name_prev = NULL; 
+    hf_entr.hfinfo.id             = 0;
+    hf_entr.hfinfo.parent         = 0;
+    hf_entr.hfinfo.bitshift       = 0;
+    hf_entr.hfinfo.same_name_next = NULL;
+    hf_entr.hfinfo.same_name_prev = NULL;
 
     if (!was_registered) {
         /* Register non-standard data should be done only once. */
@@ -586,7 +586,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
     else
         hf_size++;
     /* Register standard data. */
-    while (fgets(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {        
+    while (fgets(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file) != NULL) {
         if (!strncmp(tpncp_db_entry, "#####", 5)) {
             hf_size--;
             break;
@@ -616,8 +616,8 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
             current_data_id = data_id;
         }
         else {
-            if ((current_tpncp_data_field_info->p_next = 
-                (tpncp_data_field_info *)calloc(1, sizeof(tpncp_data_field_info))) 
+            if ((current_tpncp_data_field_info->p_next =
+                (tpncp_data_field_info *)calloc(1, sizeof(tpncp_data_field_info)))
                 == NULL)
                 return (-1);
             current_tpncp_data_field_info = current_tpncp_data_field_info->p_next;
@@ -699,6 +699,14 @@ void proto_reg_handoff_tpncp(void) {
     static gint tpncp_prefs_initialized = FALSE;
     static dissector_handle_t tpncp_udp_handle, tpncp_tcp_handle;
 
+    /*  If we weren't able to load the database (and thus the hf_ entries)
+     *  do not attach to any ports (if we did then we'd get a "dissector bug"
+     *  assertions every time a packet is handed to us and we tried to use the
+     *  hf_ entry).
+     */
+    if (proto_tpncp == -1)
+	return;
+
     if (!tpncp_prefs_initialized) {
         tpncp_udp_handle = create_dissector_handle(dissect_tpncp, proto_tpncp);
         tpncp_tcp_handle = create_dissector_handle(dissect_tpncp_tcp, proto_tpncp);
@@ -748,7 +756,7 @@ void proto_register_tpncp(void) {
 
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector("tpncp", dissect_tpncp, proto_tpncp);        
+    register_dissector("tpncp", dissect_tpncp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
 
