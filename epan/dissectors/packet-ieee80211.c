@@ -5713,7 +5713,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_item *bar_parent_item;
             proto_tree *bar_sub_tree;
 
-            proto_tree_add_item(hdr_tree, hf_addr_ra, tvb, offset, 6, FALSE);
+            proto_tree_add_item(hdr_tree, hf_addr_ta, tvb, offset, 6, FALSE);
             offset += 6;
 
             bar_control = tvb_get_letohs(tvb, offset);

@@ -243,6 +243,7 @@ init_pipe_args(int *argc) {
 gboolean
 sync_pipe_start(capture_options *capture_opts) {
     char ssnap[ARGV_NUMBER_LEN];
+    char sdlt[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];
     char sfile_duration[ARGV_NUMBER_LEN];
@@ -297,12 +298,12 @@ sync_pipe_start(capture_options *capture_opts) {
     if (capture_opts->linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
+      g_snprintf(sdlt, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
 #else
       /* we can't get the type name, just treat it as a number */
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
+      g_snprintf(sdlt, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
 #endif
-      argv = sync_pipe_add_arg(argv, &argc, ssnap);
+      argv = sync_pipe_add_arg(argv, &argc, sdlt);
     }
 
     if(capture_opts->multi_files_on) {
