@@ -4179,7 +4179,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
          proto_tree_add_uint (tree, hf_qbss_version, tvb, offset + 2, tag_len, 2);
          proto_tree_add_item (tree, hf_qbss_scount, tvb, offset + 2, 2, TRUE);
          proto_tree_add_item (tree, hf_qbss_cu, tvb, offset + 4, 1, FALSE);
-         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 2, FALSE);
+         proto_tree_add_item (tree, hf_qbss_adc, tvb, offset + 5, 2, TRUE);
       }
       break;
 
