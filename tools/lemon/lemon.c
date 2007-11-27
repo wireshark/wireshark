@@ -25,13 +25,14 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** Updated to sqlite lemon version 1.40
+** Updated to sqlite lemon version 1.51
 ** $Id$
 */
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <ctype.h>
 
 /*
@@ -49,12 +50,17 @@
  * XXX - on modern UN*Xes, this is declared in <unistd.h>, but that's
  * not available on Windows; what header declares it on Windows?
  */
-extern int access(const char *, int);
 
 #ifndef __WIN32__
 #   if defined(_WIN32) || defined(WIN32)
 #	define __WIN32__
 #   endif
+#endif
+
+#ifdef __WIN32__
+extern int access();
+#else
+#include <unistd.h>
 #endif
 
 #define PRIVATE static
@@ -66,15 +72,17 @@ extern int access(const char *, int);
 #define MAXRHS 1000
 #endif
 
-char *msort(char *, char **, int (*)(const void *, const void *));
+static char *msort(char *, char **, int (*)(const void *, const void *));
 
+static struct action *Action_new(void);
+static struct action *Action_sort(struct action *);
 
 /********** From the file "struct.h" *************************************/
 /*
 ** Principal data structures for the LEMON parser generator.
 */
 
-typedef enum {BOOL_FALSE=0, BOOL_TRUE} Boolean;
+typedef enum {LEMON_FALSE=0, LEMON_TRUE} Boolean;
 
 /* Symbols (terminals and nonterminals) of the grammar are stored
 ** in the following: */
@@ -115,6 +123,7 @@ struct symbol {
 struct rule {
   struct symbol *lhs;      /* Left-hand side of the rule */
   char *lhsalias;          /* Alias for the LHS (NULL if none) */
+  int lhsStart;            /* True if left-hand side is the start symbol */
   int ruleline;            /* Line number for the rule */
   int nrhs;                /* Number of RHS symbols */
   struct symbol **rhs;     /* The RHS symbols */
@@ -245,17 +254,10 @@ void memory_error(void);
   memory_error(); \
 }
 
-/******** From the file "action.h" *************************************/
-struct action *Action_new(void);
-struct action *Action_sort(struct action *);
-
 /********* From the file "assert.h" ************************************/
-void myassert(const char *, int);
-#ifndef NDEBUG
-#  define assert(X) if(!(X))myassert(__FILE__,__LINE__)
-#else
-#  define assert(X)
-#endif
+static struct action *Action_new(void);
+static struct action *Action_sort(struct action *);
+
 
 /********** From the file "build.h" ************************************/
 void FindRulePrecedences(struct lemon *);
@@ -379,7 +381,7 @@ void Configtable_clear(int(*)(struct config *));
 */
 
 /* Allocate a new parser action */
-struct action *Action_new(void){
+static struct action *Action_new(void){
   static struct action *freelist = 0;
   struct action *new;
 
@@ -399,7 +401,10 @@ struct action *Action_new(void){
   return new;
 }
 
-/* Compare two actions */
+/* Compare two actions for sorting purposes.  Return negative, zero, or
+** positive if the first action is less than, equal to, or greater than
+** the first
+*/
 static int actioncmp(const void *ap1_arg, const void *ap2_arg)
 {
   const struct action *ap1 = ap1_arg, *ap2 = ap2_arg;
@@ -591,15 +596,6 @@ static int acttab_insert(acttab *p){
   return i - p->mnLookahead;
 }
 
-/********************** From the file "assert.c" ****************************/
-/*
-** A more efficient way of handling assertions.
-*/
-void myassert(const char *file, int line)
-{
-  fprintf(stderr,"Assertion failed on line %d of file \"%s\"\n",line,file);
-  exit(1);
-}
 /********************** From the file "build.c" *****************************/
 /*
 ** Routines to construction the finite state machine for the LEMON
@@ -651,7 +647,7 @@ void FindFirstSets(struct lemon *lemp)
   int progress;
 
   for(i=0; i<lemp->nsymbol; i++){
-    lemp->symbols[i]->lambda = BOOL_FALSE;
+    lemp->symbols[i]->lambda = LEMON_FALSE;
   }
   for(i=lemp->nterminal; i<lemp->nsymbol; i++){
     lemp->symbols[i]->firstset = SetNew();
@@ -664,10 +660,10 @@ void FindFirstSets(struct lemon *lemp)
       if( rp->lhs->lambda ) continue;
       for(i=0; i<rp->nrhs; i++){
          struct symbol *sp = rp->rhs[i];
-         if( sp->type!=TERMINAL || sp->lambda==BOOL_FALSE ) break;
+         if( sp->type!=TERMINAL || sp->lambda==LEMON_FALSE ) break;
       }
       if( i==rp->nrhs ){
-        rp->lhs->lambda = BOOL_TRUE;
+        rp->lhs->lambda = LEMON_TRUE;
         progress = 1;
       }
     }
@@ -690,10 +686,10 @@ void FindFirstSets(struct lemon *lemp)
           }
           break;
 	}else if( s1==s2 ){
-          if( s1->lambda==BOOL_FALSE ) break;
+          if( s1->lambda==LEMON_FALSE ) break;
 	}else{
           progress += SetUnion(s1->firstset,s2->firstset);
-          if( s2->lambda==BOOL_FALSE ) break;
+          if( s2->lambda==LEMON_FALSE ) break;
 	}
       }
     }
@@ -750,6 +746,7 @@ does not work properly.",sp->name);
   ** left-hand side */
   for(rp=sp->rule; rp; rp=rp->nextlhs){
     struct config *newcfp;
+	rp->lhsStart = 1;
     newcfp = Configlist_addbasis(rp,0);
     SetAdd(newcfp->fws,0);
   }
@@ -995,7 +992,7 @@ void FindActions(struct lemon *lemp)
     struct action *ap, *nap;
     struct state *stp;
     stp = lemp->sorted[i];
-    assert( stp->ap );
+    /* assert( stp->ap ); */
     stp->ap = Action_sort(stp->ap);
     for(ap=stp->ap; ap && ap->next; ap=ap->next){
       for(nap=ap->next; nap && nap->sp==ap->sp; nap=nap->next){
@@ -1007,11 +1004,11 @@ void FindActions(struct lemon *lemp)
   }
 
   /* Report an error for each rule that can never be reduced. */
-  for(rp=lemp->rule; rp; rp=rp->next) rp->canReduce = BOOL_FALSE;
+  for(rp=lemp->rule; rp; rp=rp->next) rp->canReduce = LEMON_FALSE;
   for(i=0; i<lemp->nstate; i++){
     struct action *ap;
     for(ap=lemp->sorted[i]->ap; ap; ap=ap->next){
-      if( ap->type==REDUCE ) ap->x.rp->canReduce = BOOL_TRUE;
+      if( ap->type==REDUCE ) ap->x.rp->canReduce = LEMON_TRUE;
     }
   }
   for(rp=lemp->rule; rp; rp=rp->next){
@@ -1241,7 +1238,7 @@ void Configlist_closure(struct lemon *lemp)
             break;
 	  }else{
             SetUnion(newcfp->fws,xsp->firstset);
-            if( xsp->lambda==BOOL_FALSE ) break;
+            if( xsp->lambda==LEMON_FALSE ) break;
 	  }
 	}
         if( i==rp->nrhs ) Plink_add(&cfp->fplp,newcfp);
@@ -2446,7 +2443,7 @@ static void preprocess_input(char *z){
   int exclude = 0;
   int start = 0;
   int lineno = 1;
-  int start_lineno = 0;
+  int start_lineno = 1;
   for(i=0; z[i]; i++){
     if( z[i]=='\n' ) lineno++;
     if( z[i]!='%' || (i>0 && z[i-1]!='\n') ) continue;
@@ -2503,6 +2500,7 @@ void Parse(struct lemon *gp)
   char *cp, *nextcp;
   int startline = 0;
 
+  memset(&ps, '\0', sizeof(ps));
   ps.gp = gp;
   ps.filename = gp->filename;
   ps.errorcnt = 0;
@@ -2932,7 +2930,6 @@ void ReportOutput(struct lemon *lemp)
 
   fp = file_open(lemp,".out","wb");
   if( fp==0 ) return;
-  fprintf(fp," \b");
   for(i=0; i<lemp->nstate; i++){
     stp = lemp->sorted[i];
     fprintf(fp,"State %d:\n",stp->statenum);
@@ -2961,6 +2958,27 @@ void ReportOutput(struct lemon *lemp)
       if( PrintAction(ap,fp,30) ) fprintf(fp,"\n");
     }
     fprintf(fp,"\n");
+  }
+  fprintf(fp, "----------------------------------------------------\n");
+  fprintf(fp, "Symbols:\n");
+  for(i=0; i<lemp->nsymbol; i++){
+    int j;
+    struct symbol *sp;
+
+    sp = lemp->symbols[i];
+    fprintf(fp, "  %3d: %s", i, sp->name);
+    if( sp->type==NONTERMINAL ){
+      fprintf(fp, ":");
+      if( sp->lambda ){
+        fprintf(fp, " <lambda>");
+      }
+      for(j=0; j<lemp->nterminal; j++){
+        if( sp->firstset && SetFind(sp->firstset, j) ){
+          fprintf(fp, " %s", lemp->symbols[j]->name);
+        }
+      }
+    }
+    fprintf(fp, "\n");
   }
   fclose(fp);
   return;
@@ -3328,8 +3346,10 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
       }
     }
   }
-  cp = append_str(0,0,0,0);
-  rp->code = Strsafe(cp);
+  if( rp->code ){
+    cp = append_str(0,0,0,0);
+    rp->code = Strsafe(cp?cp:"");
+  }
 }
 
 /*
@@ -3584,18 +3604,13 @@ void ReportTable(
        lemp->wildcard->index); lineno++;
   }
   print_stack_union(out,lemp,&lineno,mhflag);
+  fprintf(out, "#ifndef YYSTACKDEPTH\n"); lineno++;
   if( lemp->stacksize ){
-    if( atoi(lemp->stacksize)<=0 ){
-      ErrorMsg(lemp->filename,0,
-"Illegal stack size: [%s].  The stack size should be an integer constant.",
-        lemp->stacksize);
-      lemp->errorcnt++;
-      lemp->stacksize = "100";
-    }
     fprintf(out,"#define YYSTACKDEPTH %s\n",lemp->stacksize);  lineno++;
   }else{
     fprintf(out,"#define YYSTACKDEPTH 100\n");  lineno++;
   }
+  fprintf(out, "#endif\n"); lineno++;
   if( mhflag ){
     fprintf(out,"#if INTERFACE\n"); lineno++;
   }
@@ -4002,6 +4017,7 @@ void CompressTables(struct lemon *lemp)
       }
       if( ap->type!=REDUCE ) continue;
       rp = ap->x.rp;
+	  if( rp->lhsStart ) continue;
       if( rp==rbest ) continue;
       n = 1;
       for(ap2=ap->next; ap2; ap2=ap2->next){
@@ -4320,7 +4336,7 @@ struct symbol *Symbol_new(const char *x)
     sp->prec = -1;
     sp->assoc = UNK;
     sp->firstset = 0;
-    sp->lambda = BOOL_FALSE;
+    sp->lambda = LEMON_FALSE;
     sp->destructor = 0;
     sp->datatype = 0;
     Symbol_insert(sp,sp->name);
