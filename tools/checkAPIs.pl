@@ -51,6 +51,14 @@ my @prohibitedAPIs=
 	# use ep_ or se_ functions instead of these:
 	'malloc',
 	'free',
+	# Locale-unsafe APIs
+	# These may have unexpected behaviors in some locales (e.g.,
+	# "I" isn't always the upper-case form of "i", and "i" isn't
+	# always the lower-case form of "I").
+	'strcasecmp',
+	'strncasecmp',
+	'g_strcasecmp',
+	'g_strncasecmp',
 );
 
 # APIs that SHOULD NOT be used in Wireshark (any more)
