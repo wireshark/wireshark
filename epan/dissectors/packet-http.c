@@ -621,10 +621,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * is not longer than what's in the buffer, so the
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
-		line = tvb_get_ptr(tvb, offset, first_linelen);
-		if (is_request_or_reply)
-			col_add_str(pinfo->cinfo, COL_INFO,
-			    format_text(line, first_linelen));
+		if (is_request_or_reply) {
+		    line = tvb_get_ptr(tvb, offset, first_linelen);
+			col_add_str(pinfo->cinfo, COL_INFO, format_text(line, first_linelen));
+		}
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation or non-HTTP traffic");
 	}
@@ -814,15 +814,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		saw_req_resp_or_header = TRUE;
 		if (is_request_or_reply) {
+		    	char *text = tvb_format_text(tvb, offset, next_offset - offset);
 			if (tree) {
 				hdr_item = proto_tree_add_text(http_tree, tvb,
-				    offset, next_offset - offset, "%s",
-				    tvb_format_text(tvb, offset,
-				      next_offset - offset));
+				    offset, next_offset - offset, "%s", text);
 			}
-			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT,
-				"%s",
-				tvb_format_text(tvb, offset, next_offset - offset));
+			expert_add_info_format(pinfo, hdr_item, PI_SEQUENCE, PI_CHAT, "%s", text);
 			if (reqresp_dissector) {
 				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
 				else req_tree = NULL;
