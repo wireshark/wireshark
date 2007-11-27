@@ -127,7 +127,7 @@ int commview_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	wth->data_offset = 0;
 	wth->file_type = WTAP_FILE_COMMVIEW;
-	wth->file_encap = WTAP_ENCAP_PER_PACKET; 
+	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 	
 	return 1; /* Our kind of file */
@@ -154,7 +154,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 		break;
 
 	case MEDIUM_WIFI :
-		wth->phdr.pkt_encap = WTAP_ENCAP_IEEE_802_11;
+		wth->phdr.pkt_encap = WTAP_ENCAP_IEEE_802_11_WITH_RADIO;
 		break;
 
 	case MEDIUM_TOKEN_RING :
@@ -193,7 +193,7 @@ commview_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset)
 
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-		   *pseudo_header _U_, guchar *pd, int length, int *err,
+		   *pseudo_header, guchar *pd, int length, int *err,
 		   gchar **err_info _U_)
 {
 	commview_header_t cv_hdr;
@@ -213,6 +213,14 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("commview: record length %u doesn't match requested length %d", cv_hdr.data_len, length);
 		return FALSE;
+	}
+
+	/* Pass some data to the 802.11 dissector if this is a WiFi packet */
+	if((cv_hdr.flags & FLAGS_MEDIUM) == MEDIUM_WIFI) {
+		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
+		pseudo_header->ieee_802_11.channel = cv_hdr.channel;
+		pseudo_header->ieee_802_11.data_rate = cv_hdr.rate;
+		pseudo_header->ieee_802_11.signal_level = cv_hdr.signal_level;
 	}
 
 	bytes_read = file_read(pd, 1, cv_hdr.data_len, wth->random_fh);
@@ -275,6 +283,7 @@ int commview_dump_can_write_encap(int encap)
 
 	case WTAP_ENCAP_ETHERNET :
 	case WTAP_ENCAP_IEEE_802_11 :
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO :
 	case WTAP_ENCAP_TOKEN_RING :
 	case WTAP_ENCAP_PER_PACKET :
 		return 0;
@@ -302,7 +311,7 @@ gboolean commview_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_,
  * Returns TRUE on success, FALSE on failure. */
 static gboolean commview_dump(wtap_dumper *wdh,
 			      const struct wtap_pkthdr *phdr,
-			      const union wtap_pseudo_header *pseudo_header _U_,
+			      const union wtap_pseudo_header *pseudo_header,
 			      const guchar *pd, int *err)
 {
 	commview_header_t cv_hdr;
@@ -343,6 +352,15 @@ static gboolean commview_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_IEEE_802_11 :
 		cv_hdr.flags |=  MEDIUM_WIFI;
+		break;
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO :
+		cv_hdr.flags |=  MEDIUM_WIFI;
+
+		cv_hdr.channel = pseudo_header->ieee_802_11.channel;
+		cv_hdr.rate = pseudo_header->ieee_802_11.data_rate;
+		cv_hdr.signal_level = pseudo_header->ieee_802_11.signal_level;
+
 		break;
 
 	case WTAP_ENCAP_TOKEN_RING :
