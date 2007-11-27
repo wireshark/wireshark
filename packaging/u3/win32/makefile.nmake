@@ -21,9 +21,12 @@ COPY	= xcopy
 MKDIR	= mkdir
 COPY_FLAGS	= /d /y
 
+UPX_FLAGS = -q
+
 U3_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO)
 
 all:	package
+
 
 uuid.sed: $(TOPDIR)\config.nmake
 	cd $(TOOLSDIR)
@@ -326,19 +329,28 @@ distribution: host-dirs device-dirs data-dirs manifest-dirs  manifest.u3i u3util
 	$(COPY) $(TOPDIR)\tshark.exe $(HOST) $(COPY_FLAGS)
 	$(COPY) u3util.exe $(HOST) $(COPY_FLAGS)
 
+verify-tools:	
+!IFDEF UPX
+	@if not exist $(UPX) echo Error: $(UPX) not found. &&\
+echo Either: &&\
+echo a) run 'nmake -f makefile.nmake setup' at the toplevel; or &&\
+echo b) comment out UPX in config.nmake at the top level, to build without compressing the dlls and exes \
+&& exit 2
+!endif
+
 pack:	distribution
 !IFDEF UPX
-	$(UPX) $(DEVICE)\plugins\$(VERSION)\*.dll
-	$(UPX) $(HOST)\*.dll
-	$(UPX) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
-	$(UPX) $(HOST)\$(GTK_WIMP_DLLDST_DIR)\*.dll
-	$(UPX) $(HOST)\*.exe	
+	-$(UPX) $(UPX_FLAGS) $(DEVICE)\plugins\$(VERSION)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\$(GTK_WIMP_DLLDST_DIR)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\*.exe	
 !ENDIF
 
 test:		pack
 	wireshark.bat -D
 
-package:	test
+package:	verify-tools test
 	zip -r wireshark-$(VERSION).u3p $(MANIFEST) $(DEVICE) $(DATA) $(HOST) wireshark.bat
 
 
@@ -350,6 +362,9 @@ u3util.exe:	u3util.obj
 	$(LINK) /OUT:u3util.exe $(guiflags) $(LDFLAGS) u3util.obj $(u3util_LIBS) $(guilibsdll)
 
 clean:
+	cd ../tools
+	nmake -f makefile.nmake clean
+	cd ../win32
 	rm -rf manifest.u3i
 	rm -rf uuid.sed
 	rm -rf $(HOST)
