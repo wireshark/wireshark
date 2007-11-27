@@ -47,6 +47,10 @@
 #include <epan/tap.h>
 #include "packet-mgcp.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define TCP_PORT_MGCP_GATEWAY 2427
 #define UDP_PORT_MGCP_GATEWAY 2427
 #define TCP_PORT_MGCP_CALLAGENT 2727
@@ -992,16 +996,16 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 	/* Read the string into 'word' and see if it looks like the start of a verb */
 	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
 	{
-		if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
-		    ((strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
-		    ((strncasecmp(word, "MDCX", 4) == 0) && (*verb_name = "ModifyConnection")) ||
-		    ((strncasecmp(word, "DLCX", 4) == 0) && (*verb_name = "DeleteConnection")) ||
-		    ((strncasecmp(word, "RQNT", 4) == 0) && (*verb_name = "NotificationRequest")) ||
-		    ((strncasecmp(word, "NTFY", 4) == 0) && (*verb_name = "Notify")) ||
-		    ((strncasecmp(word, "AUEP", 4) == 0) && (*verb_name = "AuditEndpoint")) ||
-		    ((strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
-		    ((strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
-		    ((strncasecmp(word, "MESG", 4) == 0) && (*verb_name = "Message")) ||
+		if (((g_ascii_strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
+		    ((g_ascii_strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
+		    ((g_ascii_strncasecmp(word, "MDCX", 4) == 0) && (*verb_name = "ModifyConnection")) ||
+		    ((g_ascii_strncasecmp(word, "DLCX", 4) == 0) && (*verb_name = "DeleteConnection")) ||
+		    ((g_ascii_strncasecmp(word, "RQNT", 4) == 0) && (*verb_name = "NotificationRequest")) ||
+		    ((g_ascii_strncasecmp(word, "NTFY", 4) == 0) && (*verb_name = "Notify")) ||
+		    ((g_ascii_strncasecmp(word, "AUEP", 4) == 0) && (*verb_name = "AuditEndpoint")) ||
+		    ((g_ascii_strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
+		    ((g_ascii_strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
+		    ((g_ascii_strncasecmp(word, "MESG", 4) == 0) && (*verb_name = "Message")) ||
 		    (word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
 		                       is_rfc2234_alpha(word[3]) && (*verb_name = "*Experimental*")))
 		{
@@ -1884,50 +1888,50 @@ dissect_mgcp_connectionparams(proto_tree *parent_tree, tvbuff_t *tvb, gint offse
 		typval = ep_strsplit(tokens[i], "=", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
-			if (!strcasecmp(g_strstrip(typval[0]), "PS"))
+			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PS"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_ps;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "OS"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "OS"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_os;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "PR"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PR"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pr;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "OR"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "OR"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_or;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "PL"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PL"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pl;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "JI"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "JI"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_ji;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "LA"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "LA"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_la;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "PC/RPS"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PC/RPS"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pcrps;
-			} else if (!strcasecmp(g_strstrip(typval[0]), "PC/ROS"))
+			} else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PC/ROS"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pcros;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "PC/RPL"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PC/RPL"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pcrpl;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "PC/RJI"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "PC/RJI"))
 			{
 				hf_uint = hf_mgcp_param_connectionparam_pcrji;
 			}
-			else if (!strncasecmp(g_strstrip(typval[0]), "X-", 2))
+			else if (!g_ascii_strncasecmp(g_strstrip(typval[0]), "X-", 2))
 			{
 				hf_string = hf_mgcp_param_connectionparam_x;
 			}
@@ -1998,95 +2002,95 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 		typval = ep_strsplit(tokens[i], ":", 2);
 		if ((typval[0] != NULL) && (typval[1] != NULL))
 		{
-			if (!strcasecmp(g_strstrip(typval[0]), "p"))
+			if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "p"))
 			{
 				hf_uint = hf_mgcp_param_localconnoptions_p;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "a"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "a"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_a;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "s"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "s"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_s;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "e"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "e"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_e;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "sc-rtp"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "sc-rtp"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_scrtp;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "sc-rtcp"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "sc-rtcp"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_scrtcp;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "b"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "b"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_b;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "es-ccd"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "es-ccd"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_esccd;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "es-cci"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "es-cci"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_escci;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "dq-gi"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "dq-gi"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_dqgi;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "dq-rd"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "dq-rd"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_dqrd;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "dq-ri"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "dq-ri"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_dqri;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "dq-rr"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "dq-rr"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_dqrr;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "k"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "k"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_k;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "gc"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "gc"))
 			{
 				hf_uint = hf_mgcp_param_localconnoptions_gc;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "fmtp"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "fmtp"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_fmtp;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "nt"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "nt"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_nt;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "o-fmtp"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "o-fmtp"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_ofmtp;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "r"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "r"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_r;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "t"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "t"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_t;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "r-cnf"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "r-cnf"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_rcnf;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "r-dir"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "r-dir"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_rdir;
 			}
-			else if (!strcasecmp(g_strstrip(typval[0]), "r-sh"))
+			else if (!g_ascii_strcasecmp(g_strstrip(typval[0]), "r-sh"))
 			{
 				hf_string = hf_mgcp_param_localconnoptions_rsh;
 			}

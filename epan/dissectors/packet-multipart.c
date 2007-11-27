@@ -73,6 +73,10 @@
 
 #include "packet-imf.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* Dissector table for media requiring special attention in multipart
  * encapsulation. */
 static dissector_table_t multipart_media_subdissector_table;
@@ -338,7 +342,7 @@ static char *find_parameter(char *parameters, const char *key, int *retlen)
 		while ((*p) && isspace((guchar)*p))
 			p++; /* Skip white space */
 		
-		if (strncasecmp(p, key, keylen) == 0)
+		if (g_ascii_strncasecmp(p, key, keylen) == 0)
 			break;
 		/* Skip to next parameter */
 		p = strchr(p, ';');
@@ -757,7 +761,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
 			if(content_encoding_str && remove_base64_encoding) {
 
-				if(!strncasecmp(content_encoding_str, "base64", 6))
+				if(!g_ascii_strncasecmp(content_encoding_str, "base64", 6))
 					tmp_tvb = base64_decode(pinfo, tmp_tvb, filename ? filename : (typename ? typename : content_type_str));
 
 			}
@@ -915,11 +919,11 @@ is_known_multipart_header(const char *header_str, guint len)
 
 	for (i = 1; i < array_length(multipart_headers); i++) {
 		if (len == strlen(multipart_headers[i].name) &&
-		    strncasecmp(header_str, multipart_headers[i].name, len) == 0)
+		    g_ascii_strncasecmp(header_str, multipart_headers[i].name, len) == 0)
 			return i;
 		if (multipart_headers[i].compact_name != NULL &&
 		    len == strlen(multipart_headers[i].compact_name) &&
-		    strncasecmp(header_str, multipart_headers[i].compact_name, len) == 0)
+		    g_ascii_strncasecmp(header_str, multipart_headers[i].compact_name, len) == 0)
 			return i;
 	}
 

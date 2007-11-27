@@ -48,6 +48,10 @@
 #include "packet-e164.h"
 #include <epan/emem.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static int proto_rtsp		= -1;
 
 static gint ett_rtsp		= -1;
@@ -346,7 +350,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 	unsigned	ii;
 
 	/* Is this an RTSP reply? */
-	if (linelen >= 5 && strncasecmp("RTSP/", line, 5) == 0) {
+	if (linelen >= 5 && g_ascii_strncasecmp("RTSP/", line, 5) == 0) {
 		/*
 		 * Yes.
 		 */
@@ -362,7 +366,7 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
 		if (linelen >= len &&
-		    strncasecmp(rtsp_methods[ii], line, len) == 0 &&
+		    g_ascii_strncasecmp(rtsp_methods[ii], line, len) == 0 &&
 		    (len == linelen || isspace(line[len])))
 		{
 			*type = RTSP_REQUEST;
@@ -412,11 +416,11 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 		tmp++;
 
 	/* Work out which transport type is here */
-	if (strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) == 0)
+	if (g_ascii_strncasecmp(tmp, rtsp_rtp, strlen(rtsp_rtp)) == 0)
 		rtp_transport = TRUE;
 	else
-	if (strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0 ||
-	    strncasecmp(tmp, rtsp_real_tng, strlen(rtsp_real_tng)) == 0)
+	if (g_ascii_strncasecmp(tmp, rtsp_real_rdt, strlen(rtsp_real_rdt)) == 0 ||
+	    g_ascii_strncasecmp(tmp, rtsp_real_tng, strlen(rtsp_real_tng)) == 0)
 		rdt_transport = TRUE;
 	else
 	{
@@ -914,7 +918,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 #define HDR_MATCHES(header) \
 	( (size_t)linelen > STRLEN_CONST(header) && \
-	 strncasecmp(line, (header), STRLEN_CONST(header)) == 0)
+	 g_ascii_strncasecmp(line, (header), STRLEN_CONST(header)) == 0)
 
 			if (HDR_MATCHES(rtsp_transport))
 			{
@@ -1153,7 +1157,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
 		if (linelen >= len &&
-		    strncasecmp(rtsp_methods[ii], data, len) == 0 &&
+		    g_ascii_strncasecmp(rtsp_methods[ii], data, len) == 0 &&
 		    (len == linelen || isspace(data[len])))
 			break;
 	}

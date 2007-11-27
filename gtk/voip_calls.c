@@ -77,6 +77,10 @@
 #endif /* GTK_MAJOR_VERSION >= 2 */
 #endif /* HAVE_LIBPORTAUDIO */
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 const char *voip_call_state_name[8]={
 	"",
 	"CALL SETUP",
@@ -2368,7 +2372,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			if ((tmp_listinfo->protocol == VOIP_MGCP) && (tmp_listinfo->call_active_state == VOIP_ACTIVE)){
 				tmp_mgcpinfo = tmp_listinfo->prot_info;
 				if (pi->endpointId != NULL){
-					if (g_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0){
+					if (g_ascii_strcasecmp(tmp_mgcpinfo->endpointId,pi->endpointId) == 0){
 						/*
 						   check first if it is an ended call. We can still match packets to this Endpoint 2 seconds
 						   after the call has been released

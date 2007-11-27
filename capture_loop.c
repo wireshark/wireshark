@@ -88,6 +88,10 @@
 
 #include "capture_loop.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* E: capture_loop.c only (Wireshark/dumpcap) T: tshark only */
 typedef struct _loop_data {
   /* common */
@@ -341,7 +345,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     pncopy = g_strdup(pipename);
     if ( (pos=strstr(pncopy, "\\\\")) == pncopy) {
       pos = strchr(pncopy + 3, '\\');
-      if (pos && g_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+      if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
         pos = NULL;
     }
 

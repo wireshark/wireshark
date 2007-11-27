@@ -34,6 +34,10 @@
 
 #include <epan/req_resp_hdrs.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Optionally do reassembly of the request/response line, headers, and body.
  */
@@ -171,7 +175,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 						while(*header_val==' '){
 							header_val++;
 						}
-						if(!strncasecmp(header_val, "Keep-Alive", 10)){
+						if(!g_ascii_strncasecmp(header_val, "Keep-Alive", 10)){
 							keepalive_found = TRUE;
 						}
 					}
@@ -196,7 +200,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					    (*p == ' ' || *p == '\t'))
 						p++;
 					if (p <= header_val + len) {
-						if (strncasecmp(p, "chunked", 7)
+						if (g_ascii_strncasecmp(p, "chunked", 7)
 						    == 0) {
 							/*
 							 * Don't bother looking

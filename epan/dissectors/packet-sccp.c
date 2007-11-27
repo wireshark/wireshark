@@ -56,6 +56,10 @@
 #include "tap.h"
 #include <epan/uat.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
 
@@ -1272,7 +1276,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
 	      PROTO_ITEM_SET_GENERATED(item);
 
-	      if (strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+	      if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
 		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
 		      if(tcap_ssn_dissector){

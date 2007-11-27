@@ -303,6 +303,10 @@
 #include "packet-tcp.h"
 #include <wiretap/file_util.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
  */
@@ -1473,7 +1477,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 
   /* Must start with IDL: , otherwise I get confused */
 
-  if (g_strncasecmp("IDL:",repoid,4))
+  if (g_ascii_strncasecmp("IDL:",repoid,4))
     return NULL;
 
   /* Looks like a RepoID to me, so get Module or interface name */

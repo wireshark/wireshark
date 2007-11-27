@@ -59,6 +59,10 @@
 #include "packet-x11-keysym.h" /* This contains the X11 value_string
 				* "keysym_vals_source" that VNC also uses. */
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static const value_string security_types_vs[] = {
 	{ 0,  "Invalid"  },
 	{ 1,  "None"     },
@@ -653,13 +657,13 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		ti = proto_tree_add_string(tree, hf_vnc_vendor_code, tvb,
 					   offset, 4, vendor);
 
-		if(strcasecmp(vendor, "STDV") == 0)
+		if(g_ascii_strcasecmp(vendor, "STDV") == 0)
 			proto_item_append_text(ti, " (Standard VNC vendor)");
 
-		else if(strcasecmp(vendor, "TRDV") == 0)
+		else if(g_ascii_strcasecmp(vendor, "TRDV") == 0)
 			proto_item_append_text(ti, " (Tridia VNC vendor)");
 
-		else if(strcasecmp(vendor, "TGHT") == 0)
+		else if(g_ascii_strcasecmp(vendor, "TGHT") == 0)
 			proto_item_append_text(ti, " (Tight VNC vendor)");
 			
 		offset += 4;

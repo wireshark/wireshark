@@ -58,6 +58,10 @@
 #include "dtd_parse.h"
 #include "dtd_parse_lex.h"
 	
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 	struct _proto_xmlpi_attr {
 		gchar* name;
 		void (*act)(gchar*);
@@ -80,7 +84,7 @@
 	static void set_media_type (gchar* val) { if(build_data->media_type) g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
 	static void set_proto_root (gchar* val) { if(build_data->proto_root) g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
 	static void set_description (gchar* val) { if(build_data->description) g_free(build_data->description); build_data->description = g_strdup(val); }
-	static void set_recursive (gchar* val) { build_data->recursion = ( g_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
+	static void set_recursive (gchar* val) { build_data->recursion = ( g_ascii_strcasecmp(val,"yes") == 0 ) ? TRUE : FALSE; }
 
 	static struct _proto_xmlpi_attr proto_attrs[] =
 	{
@@ -228,7 +232,7 @@ squoted        ['][^\']*[']
 	gboolean got_it = FALSE;
 	
 	for(pa = proto_attrs; pa->name; pa++) {
-		if (g_strcasecmp(attr_name,pa->name) == 0) {
+		if (g_ascii_strcasecmp(attr_name,pa->name) == 0) {
 			pa->act(yytext);
 			got_it = TRUE;
 			break;

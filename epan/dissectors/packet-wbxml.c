@@ -62,6 +62,10 @@
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *
@@ -5983,7 +5987,7 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
 		const wbxml_literal_list *item = content_type_list;
 
 		while (item && item->content_type) {
-			if (strcasecmp(content_type, item->content_type) == 0) {
+			if (g_ascii_strcasecmp(content_type, item->content_type) == 0) {
 				/* Try the discriminator */
 				if (item->discriminator != NULL) {
 					map = item->discriminator(tvb, offset);

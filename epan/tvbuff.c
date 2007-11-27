@@ -51,6 +51,10 @@
 #include "emem.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception);
@@ -1877,8 +1881,8 @@ tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 }
 
 /*
- * Call strncasecmp after checking if enough chars left, returning 0 if
- * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ * Call g_ascii_strncasecmp after checking if enough chars left, returning
+ * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
 tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
@@ -1888,7 +1892,7 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
-		int cmp = strncasecmp((const char *)ptr, str, size);
+		int cmp = g_ascii_strncasecmp((const char *)ptr, str, size);
 
 		/*
 		 * Return 0 if equal, -1 otherwise.

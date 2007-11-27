@@ -188,6 +188,10 @@
 /* Davide Schiera (2006-11-22) ----------------------------------------------	*/
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -4169,7 +4173,7 @@ airpcap_toolbar_channel_changed_cb(GtkWidget *w _U_, gpointer data)
 
   if ((data != NULL) && (w != NULL) && change_airpcap_settings) {
 	s = gtk_entry_get_text(GTK_ENTRY(w));
-    if ((g_strcasecmp("",s))) {
+    if ((g_ascii_strcasecmp("",s))) {
       ch_freq = airpcap_get_frequency_from_str(s);
       if (airpcap_if_active != NULL) {
 		airpcap_if_active->channelInfo.Frequency = ch_freq;
@@ -4191,7 +4195,7 @@ on_channel_offset_cb_changed(GtkWidget *w _U_, gpointer data)
     if ((data != NULL) && (w != NULL) && change_airpcap_settings)
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
-        if ((g_strcasecmp("",s)))
+        if ((g_ascii_strcasecmp("",s)))
         {
             if (airpcap_if_active != NULL)
             {

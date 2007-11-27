@@ -59,6 +59,10 @@
 #include "packet-wap.h"
 #include "packet-wsp.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
  *
@@ -1795,7 +1799,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			} else {
 				/* Old-style X-WAP-TOD uses a non-textual value
 				 * after a textual header. */
-				if (strcasecmp(hdr_str, "x-wap.tod") == 0) {
+				if (g_ascii_strcasecmp(hdr_str, "x-wap.tod") == 0) {
 					get_delta_seconds_value(val, tvb, val_start, val_len, ok);
 					if (ok) {
 						if (val == 0) {
@@ -5397,7 +5401,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Content type is a string.
 					 */
 					/*
-					if (strcasecmp(contentTypeStr, "application/vnd.wap.sia") == 0) {
+					if (g_ascii_strcasecmp(contentTypeStr, "application/vnd.wap.sia") == 0) {
 						dissect_sir(tree, tmp_tvb);
 					} else
 					*/
@@ -5586,25 +5590,25 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
 				return;
 			}
 			/* 2. Look up the string capability name */
-			if (strcasecmp(capaName, "client-sdu-size") == 0) {
+			if (g_ascii_strcasecmp(capaName, "client-sdu-size") == 0) {
 				peek = WSP_CAPA_CLIENT_SDU_SIZE;
-			} else if (strcasecmp(capaName, "server-sdu-size") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "server-sdu-size") == 0) {
 				peek = WSP_CAPA_SERVER_SDU_SIZE;
-			} else if (strcasecmp(capaName, "protocol options") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "protocol options") == 0) {
 				peek = WSP_CAPA_PROTOCOL_OPTIONS;
-			} else if (strcasecmp(capaName, "method-mor") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "method-mor") == 0) {
 				peek = WSP_CAPA_METHOD_MOR;
-			} else if (strcasecmp(capaName, "push-mor") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "push-mor") == 0) {
 				peek = WSP_CAPA_PUSH_MOR;
-			} else if (strcasecmp(capaName, "extended methods") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "extended methods") == 0) {
 				peek = WSP_CAPA_EXTENDED_METHODS;
-			} else if (strcasecmp(capaName, "header code pages") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "header code pages") == 0) {
 				peek = WSP_CAPA_HEADER_CODE_PAGES;
-			} else if (strcasecmp(capaName, "aliases") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "aliases") == 0) {
 				peek = WSP_CAPA_ALIASES;
-			} else if (strcasecmp(capaName, "client-message-size") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "client-message-size") == 0) {
 				peek = WSP_CAPA_CLIENT_MESSAGE_SIZE;
-			} else if (strcasecmp(capaName, "server-message-size") == 0) {
+			} else if (g_ascii_strcasecmp(capaName, "server-message-size") == 0) {
 				peek = WSP_CAPA_SERVER_MESSAGE_SIZE;
 			} else {
 				DebugLog(("add_capabilities(): unknown capability '%s' at offset %u\n",
@@ -5855,7 +5859,7 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	}
 
 	if ( (contentTypeStr == NULL && contentType == 0x12)
-			|| (contentTypeStr && (strcasecmp(contentTypeStr,
+			|| (contentTypeStr && (g_ascii_strcasecmp(contentTypeStr,
 						"application/x-www-form-urlencoded") == 0)) )
 	{
 		if (tree) {

@@ -89,6 +89,10 @@
 #define MAX_ENCRYPTION_KEYS 64
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #ifndef roundup2
 #define	roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
@@ -10272,7 +10276,7 @@ static gboolean
 wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
   char *first_nibble = (char *) hex_str;
 
-  if (g_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+  if (g_ascii_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
     first_nibble += 4;
   }
 

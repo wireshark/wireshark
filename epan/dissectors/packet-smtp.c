@@ -42,6 +42,10 @@
 #include <epan/emem.h>
 #include <epan/reassemble.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define TCP_PORT_SMTP 25
 
 static int proto_smtp = -1;
@@ -370,7 +374,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (linelen >= 4 && ISALPHA(line[0]) && ISALPHA(line[1]) &&
 	      ISALPHA(line[2]) && ISALPHA(line[3]) &&
 	      (linelen == 4 || line[4] == ' ')) {
-	    if (strncasecmp(line, "DATA", 4) == 0) {
+	    if (g_ascii_strncasecmp(line, "DATA", 4) == 0) {
 
 	      /*
 	       * DATA command.
@@ -381,7 +385,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      request_val->reading_data = TRUE;
 	      request_val->data_seen = TRUE;
 
-	    } else if (strncasecmp(line, "BDAT", 4) == 0) {
+	    } else if (g_ascii_strncasecmp(line, "BDAT", 4) == 0) {
 
 	      /*
 	       * BDAT command.
@@ -403,7 +407,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		request_val->reading_data = TRUE;
 	      }
 
-	      if (strncasecmp(line+linelen-4, "LAST", 4) == 0) {
+	      if (g_ascii_strncasecmp(line+linelen-4, "LAST", 4) == 0) {
 		/*
 		 * This is the last data chunk.
 		 */
@@ -429,9 +433,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    }
 	  } else {
-		if ((linelen >= 7) && line[0] == 'X' && ( (strncasecmp(line, "X-EXPS ", 7) == 0) ||
-			((linelen >=13) && (strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
-			((linelen >= 8) && (strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
+		if ((linelen >= 7) && line[0] == 'X' && ( (g_ascii_strncasecmp(line, "X-EXPS ", 7) == 0) ||
+			((linelen >=13) && (g_ascii_strncasecmp(line, "X-LINK2STATE ", 13) == 0)) || 
+			((linelen >= 8) && (g_ascii_strncasecmp(line, "XEXCH50 ", 8) == 0)) ))
 				frame_data->pdu_type = SMTP_PDU_CMD;
 		else
 	    /*

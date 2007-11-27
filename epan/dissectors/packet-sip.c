@@ -66,6 +66,10 @@
 #include "packet-tcp.h"
 #include "packet-ssl.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
@@ -1178,7 +1182,7 @@ dissect_sip_authorization_item(tvbuff_t *tvb, proto_tree *tree, gint start_offse
 	     i < array_length(auth_parameters_hf_array);
 	     i++, auth_parameter++)
 	{
-		if (strcasecmp(name, auth_parameter->param_name) == 0)
+		if (g_ascii_strcasecmp(name, auth_parameter->param_name) == 0)
 		{
 			proto_tree_add_item(tree, *(auth_parameter->hf_item), tvb,
 			                    equals_offset+1, current_offset-equals_offset-1,
@@ -1222,7 +1226,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 		"Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
 
 	param_name = tvb_get_ephemeral_string(tvb, start_offset, length);
-	if (strcasecmp(param_name, "Q.850") == 0){
+	if (g_ascii_strcasecmp(param_name, "Q.850") == 0){
 		current_offset = tvb_find_guint8(tvb, semi_colon_offset, line_end_offset-semi_colon_offset, '=')+1;
 		length = line_end_offset - current_offset;
 
@@ -1426,7 +1430,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 			 i < array_length(via_parameters_hf_array);
 			 i++, via_parameter++)
 		{
-			if (strcasecmp(param_name, via_parameter->param_name) == 0)
+			if (g_ascii_strcasecmp(param_name, via_parameter->param_name) == 0)
 			{
 				if (equals_found)
 				{

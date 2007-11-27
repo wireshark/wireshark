@@ -62,6 +62,10 @@
 
 #include "keys.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* temporary block signals to widgets */
 BOOL block_advanced_signals;
 
@@ -231,7 +235,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
          * If it is a WEP key, no SSID is required! Gray out rhe entry text so
          * it doesn't create confusion ...
          */
-        if (g_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
+        if (g_ascii_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(edit_ssid_te,FALSE);
             /*
@@ -242,7 +246,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
             gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-        else if (g_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(edit_ssid_te,FALSE);
             /*
@@ -253,7 +257,7 @@ on_edit_type_en_changed(GtkWidget *w, gpointer data)
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
             gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-        else if (g_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(edit_ssid_te,TRUE);
             /*
@@ -299,7 +303,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
          * If it is a WEP key, no SSID is required! Gray out rhe entry text so
          * it doesn't create confusion ...
          */
-        if (g_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
+        if (g_ascii_strcasecmp(type_text,AIRPCAP_WEP_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(add_ssid_te,FALSE);
             /*
@@ -310,7 +314,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
             gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-        else if (g_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(type_text,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(add_ssid_te,FALSE);
             /*
@@ -321,7 +325,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
             gtk_label_set_text(GTK_LABEL(key_lb),"Key");
             gtk_label_set_text(GTK_LABEL(ssid_lb),"");
         }
-        else if (g_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+        else if (g_ascii_strcasecmp(type_text,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(add_ssid_te,TRUE);
             /*
@@ -345,7 +349,7 @@ on_add_type_en_changed(GtkWidget *w, gpointer data)
 gboolean
 string_is_not_empty(gchar *s)
 {
-    if (g_strcasecmp(s,"") != 0)
+    if (g_ascii_strcasecmp(s,"") != 0)
         return TRUE;
     else
         return FALSE;
@@ -363,7 +367,7 @@ on_fcs_filter_en_changed(GtkWidget *w, gpointer data)
 
     if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
     {
-        if ((g_strcasecmp("",s)))
+        if ((g_ascii_strcasecmp("",s)))
         {
             airpcap_if_selected->CrcValidationOn = airpcap_get_validation_type(s);
             airpcap_if_selected->saved = FALSE;
@@ -383,7 +387,7 @@ on_channel_en_changed(GtkWidget *w _U_, gpointer data)
     if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
-        if ((g_strcasecmp("",s)))
+        if ((g_ascii_strcasecmp("",s)))
         {
             if (airpcap_if_selected != NULL)
             {
@@ -408,7 +412,7 @@ on_channel_offset_cb_changed(GtkWidget *w _U_, gpointer data)
     if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
     {
         s = gtk_entry_get_text(GTK_ENTRY(w));
-        if ((g_strcasecmp("",s)))
+        if ((g_ascii_strcasecmp("",s)))
         {
             if (airpcap_if_selected != NULL)
             {
@@ -432,7 +436,7 @@ on_capture_type_en_changed(GtkWidget *w _U_, gpointer data)
 
     if ( !block_advanced_signals && (data != NULL) && (w != NULL) )
     {
-        if ((g_strcasecmp("",s)))
+        if ((g_ascii_strcasecmp("",s)))
         {
             airpcap_if_selected->linkType = airpcap_get_link_type(s);
             airpcap_if_selected->saved = FALSE;
@@ -638,17 +642,17 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
 	"- Close all the airpcap-based applications.\n"\
 	"- Have administrative privileges."
     /* Set the Decryption Mode */
-    if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
+    if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);
         if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
     }
-    else if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+    else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(TRUE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
     }
-    else if (g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
+    else if (g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
@@ -694,7 +698,7 @@ on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     airpcap_save_selected_if_configuration(airpcap_if_selected);
 
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
+    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
     {
         gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
 		airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
@@ -741,7 +745,7 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
     gtk_timeout_remove(airpcap_if_selected->tag);
 
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
+    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
     {
         gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
         airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
@@ -821,7 +825,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
     g_strchomp(new_ssid_string->str);
 
     /* Check which type of key the user has entered */
-    if (g_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
+    if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
     {
 
         if ( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
@@ -874,7 +878,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
-    else if (g_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
+    else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
     {
         /* XXX - Perform some WPA related input fields check */
         /* If everything is ok, modify the entry int he list */
@@ -915,7 +919,7 @@ on_add_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
-    else if (g_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
+    else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
     {
         /* XXX - Perform some WPA_BIN related input fields check */
         /* If everything is ok, modify the entry int he list */
@@ -1029,7 +1033,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
     g_strchomp(new_ssid_string->str);
 
     /* Check which type of key the user has entered */
-    if (g_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
+    if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WEP_KEY_STRING) == 0) /* WEP key */
     {
 
         if ( ((new_key_string->len) > WEP_KEY_MAX_CHAR_SIZE) || ((new_key_string->len) < WEP_KEY_MIN_CHAR_SIZE))
@@ -1082,7 +1086,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
-    else if (g_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
+    else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_PWD_KEY_STRING) == 0) /* WPA Key */
     {
         /* XXX - Perform some WPA related input fields check */
         /* If everything is ok, modify the entry int he list */
@@ -1123,7 +1127,7 @@ on_edit_key_ok_bt_clicked(GtkWidget *widget, gpointer data _U_)
 
         if (airpcap_if_selected != NULL) airpcap_if_selected->saved = FALSE;
     }
-    else if (g_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
+    else if (g_ascii_strcasecmp(new_type_string->str,AIRPCAP_WPA_BIN_KEY_STRING) == 0) /* WPA_BIN Key */
     {
         /* XXX - Perform some WPA_BIN related input fields check */
         /* If everything is ok, modify the entry int he list */
@@ -1631,7 +1635,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         gtk_widget_set_name (edit_ssid_te, "edit_ssid_te");
 
         /* Set current ssid (if key type is not WEP!)*/
-        if (g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+        if (g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
         {
             gtk_widget_set_sensitive(edit_ssid_te,FALSE);
         }
@@ -1850,20 +1854,20 @@ on_enable_decryption_en_changed(GtkWidget *w, gpointer data)
      * and then when the 'new text' is added ("new text"). We don't really
      * care about the first time, and we just return.
      */
-    if (g_strcasecmp(gtk_entry_get_text(decryption_en),"") == 0)
+    if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),"") == 0)
         return;
 
-    if (g_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
+    if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);
         if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
     }
-    else if (g_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+    else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(TRUE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
     }
-    else if (g_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
+    else if (g_ascii_strcasecmp(gtk_entry_get_text(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0)
     {
         set_wireshark_decryption(FALSE);
         if (!set_airpcap_decryption(FALSE)) simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, CANT_SAVE_ERR_STR);
@@ -1938,7 +1942,7 @@ update_decryption_mode_list(GtkWidget *w)
     else
     {
         /* The last decryption mode was 'Driver', but no more AirPcap adapter are found */
-        if (g_strcasecmp(current_text,AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
+        if (g_ascii_strcasecmp(current_text,AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0)
         {
             if (current_text != NULL) g_free(current_text);
 
@@ -2485,7 +2489,7 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
     gtk_timeout_remove(airpcap_if_selected->tag);
 
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
-    if ( g_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
+    if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
     {
         gtk_label_set_text(GTK_LABEL(toolbar_if_lb), g_strdup_printf("%s %s\t","Current Wireless Interface: #",airpcap_get_if_string_number(airpcap_if_selected)));
         airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);

@@ -40,6 +40,10 @@
 #include <epan/guid-utils.h>
 #include "exceptions.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /** @file
  * "testy, virtual(-izable) buffer".  They are testy in that they get mad when
  * an attempt is made to access data beyond the bounds of their array. In that
@@ -560,8 +564,8 @@ extern gint tvb_strneql(tvbuff_t *tvb, gint offset, const gchar *str,
     gint size);
 
 /**
- * Call strncasecmp after checking if enough chars left, returning 0 if
- * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
+ * Call g_ascii_strncasecmp after checking if enough chars left, returning
+ * 0 if it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 extern gint tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str,
     gint size);

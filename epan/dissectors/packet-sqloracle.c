@@ -33,6 +33,11 @@
 #include <string.h>
 #include <epan/packet.h>
 #include "packet-sqloracle.h"
+
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define SWAP_UI16(ui16)	(((ui16)>>8 & 0xff) | ((ui16)<<8 & 0xff00))
 
 /* option flag 1 */
@@ -325,7 +330,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 	appMsg = (I8_P)m_pCurQuery;
 #endif
 
-	if (strncasecmp((I8_P)m_pCurQuery, "update", 6) == 0)
+	if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "update", 6) == 0)
 	{
 		m_numOfUpdate++;
 #if 0
@@ -334,7 +339,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 		    m_pServerNode->m_numOfUpdate++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "select", 6) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "select", 6) == 0)
 	{
 		m_numOfSelect++;
 #if 0
@@ -343,7 +348,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 		    m_pServerNode->m_numOfSelect++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "insert", 6) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "insert", 6) == 0)
 	{
 		m_numOfInsert++;
 #if 0
@@ -352,7 +357,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 			m_pServerNode->m_numOfInsert++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "delete", 6) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "delete", 6) == 0)
 	{
 		m_numOfDelete++;
 #if 0
@@ -361,7 +366,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 			m_pServerNode->m_numOfDelete++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "rollback", 8) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "rollback", 8) == 0)
 	{
 		m_numOfRollback++;
 #if 0
@@ -370,7 +375,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 			m_pServerNode->m_numOfRollback++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "set", 3) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "set", 3) == 0)
 	{
 		m_numOfSet++;
 #if 0
@@ -379,7 +384,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 			m_pServerNode->m_numOfSet++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "start", 5) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "start", 5) == 0)
 	{
 		m_numOfStart++;
 #if 0
@@ -388,7 +393,7 @@ static void ParseSqlStatement(/*char  *appMsg,*/ UI8_P pSqlData, UI16_T dataLen)
 			m_pServerNode->m_numOfStart++;
 #endif
 	}
-	else if (strncasecmp((I8_P)m_pCurQuery, "commit", 6) == 0)
+	else if (g_ascii_strncasecmp((I8_P)m_pCurQuery, "commit", 6) == 0)
 	{
 		m_numOfCommit++;
 #if 0

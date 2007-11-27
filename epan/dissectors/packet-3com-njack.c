@@ -59,6 +59,10 @@ Specs:
 #include <epan/packet.h>
 #include <epan/emem.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* protocol handles */
 static int proto_njack = -1;
 
@@ -650,7 +654,7 @@ test_njack(tvbuff_t *tvb)
 {
 	/* We need at least 'NJ200' + 1 Byte packet type */
 	if ( tvb_length(tvb) < 6 ||
-		    g_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
+		    g_ascii_strncasecmp((const char *)tvb_get_ptr(tvb, 0, 5), "NJ200", 5) ) {
         	return FALSE;
 	}
 	return TRUE;

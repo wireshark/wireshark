@@ -67,6 +67,10 @@
 #include <epan/gcp.h>
 #include <epan/tap.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 
@@ -368,7 +372,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-	if (strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
+	if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && tvb_get_guint8(tvb, tvb_offset ) != '!'){
 		gint8 class;
 		gboolean pc;
 		gint32 tag;

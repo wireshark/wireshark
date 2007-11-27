@@ -94,6 +94,10 @@
 #include "rtp_stream.h"
 #include "rtp_stream_dlg.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 
 /****************************************************************************/
 
@@ -285,7 +289,7 @@ get_dyn_pt_clock_rate(gchar *payload_type_str)
 	size_t i;
 
 	for (i = 0; i < NUM_DYN_CLOCK_VALUES; i++) {
-		if (strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
+		if (g_ascii_strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
 			return mimetype_and_clock_map[i].value;
 	}
 

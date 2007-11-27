@@ -955,18 +955,43 @@ static const avp_type_t basic_types[] = {
 
 
 
+/*
+ * This is like g_str_hash() (as of GLib 2.4.8), but it maps all
+ * upper-case ASCII characters to their ASCII lower-case equivalents.
+ * We can't use g_strdown(), as that doesn't do an ASCII mapping;
+ * in Turkish locales, for example, there are two lower-case "i"s
+ * and two upper-case "I"s, with and without dots - the ones with
+ * dots map between each other, as do the ones without dots, so "I"
+ * doesn't map to "i".
+ */
 static guint strcase_hash(gconstpointer key) {
-	char* k = ep_strdup(key);
-	g_strdown(k);
-	return g_str_hash(k);
+	const char *p = key;
+	guint h = *p;
+	char c;
+
+	if (h) {
+		if (h >= 'A' && h <= 'Z')
+			h = h - 'A' + 'a';
+		for (p += 1; *p != '\0'; p++) {
+			c = *p;
+			if (c >= 'A' && c <= 'Z')
+				c = c - 'A' + 'a';
+			h = (h << 5) - h + c;
+		}
+	}
+
+	return h;
 }
 
+/*
+ * Again, use g_ascii_strcasecmp(), not strcasecmp(), so that only ASCII
+ * letters are mapped, and they're mapped to the lower-case ASCII
+ * equivalents.
+ */
 static gboolean strcase_equal(gconstpointer ka, gconstpointer kb) {
-	char* a = ep_strdup(ka);
-	char* b = ep_strdup(kb);
-	g_strdown(a);
-	g_strdown(b);
-	return g_str_equal(a,b);
+	const char* a = ka;
+	const char* b = kb;
+	return g_ascii_strcasecmp(a,b) == 0;
 }
 
 extern int dictionary_load(void);

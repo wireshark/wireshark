@@ -39,6 +39,10 @@
 #include <wchar.h>
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static const char hex[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
 			      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
@@ -1039,7 +1043,7 @@ epan_strcasestr(const char *haystack, const char *needle)
 	gsize nlen = strlen(needle);
 
 	while (hlen-- >= nlen) {
-		if (!g_strncasecmp(haystack, needle, nlen))
+		if (!g_ascii_strncasecmp(haystack, needle, nlen))
 			return (char*) haystack;
 		haystack++;
 	}

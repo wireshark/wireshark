@@ -41,6 +41,10 @@
 #include "epan/dissectors/packet-mgcp.h"
 #include "timestats.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define NUM_TIMESTATS 11
 
 /* used to keep track of the statistics for an entire program interface */
@@ -105,31 +109,31 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 			time_stat_update(&(ms->rtd[0]),&delta, pinfo);
 
-			if (strncasecmp(mi->code, "EPCF", 4) == 0 ) {
+			if (g_ascii_strncasecmp(mi->code, "EPCF", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[1]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "CRCX", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "CRCX", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[2]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "MDCX", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "MDCX", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[3]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "DLCX", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "DLCX", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[4]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "RQNT", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "RQNT", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[5]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "NTFY", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "NTFY", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[6]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "AUEP", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "AUEP", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[7]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "AUCX", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "AUCX", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[8]),&delta, pinfo);
 			}
-			else if (strncasecmp(mi->code, "RSIP", 4) == 0 ) {
+			else if (g_ascii_strncasecmp(mi->code, "RSIP", 4) == 0 ) {
 				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
 			}
 			else {

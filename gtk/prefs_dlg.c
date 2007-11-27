@@ -66,6 +66,10 @@
 #endif
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
 static void     prefs_main_save_cb(GtkWidget *, gpointer);
@@ -828,7 +832,7 @@ label_to_enum_val(GtkWidget *label, const enum_val_t *enumvals)
 	gtk_label_get(GTK_LABEL(label), &label_string);
 
 	for (i = 0; enumvals[i].name != NULL; i++) {
-		if (strcasecmp(label_string, enumvals[i].description) == 0) {
+		if (g_ascii_strcasecmp(label_string, enumvals[i].description) == 0) {
 			return enumvals[i].value;
 		}
 	}
@@ -1202,17 +1206,17 @@ gboolean wireshark_decryption_is_now_enabled;
 decryption_cm = GTK_WIDGET(OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
 decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
 
-if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
+if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
 {
 wireshark_decryption_was_enabled = TRUE;
 airpcap_decryption_was_enabled = FALSE;
 }
-else if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
+else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
 {
 wireshark_decryption_was_enabled = FALSE;
 airpcap_decryption_was_enabled = TRUE;
 }
-else if( g_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
+else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
 {
 wireshark_decryption_was_enabled = FALSE;
 airpcap_decryption_was_enabled = FALSE;
