@@ -2677,6 +2677,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(tree_view_menu_factory, "/Expand All",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/View/Colorize Conversation",
+      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",
@@ -2703,6 +2705,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL ? is_ssl : FALSE);
   set_menu_sensitivity(tree_view_menu_factory, "/Follow SSL Stream",
       cf->current_frame != NULL ? is_ssl : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter",
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/Ethernet",
       cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/IP",
@@ -2713,6 +2717,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_UDP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Conversation Filter/PN-CBA Server",
       cf->current_frame != NULL ? (cf->edt->pi.profinet_type != 0 && cf->edt->pi.profinet_type < 10) : FALSE);
+  set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation",
+      cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/Ethernet",
       cf->current_frame != NULL ? (cf->edt->pi.dl_src.type == 1) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Colorize Conversation/IP",
@@ -2836,6 +2842,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter",
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
+	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter",
+	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
@@ -2855,6 +2863,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Apply as Filter", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Prepare a Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare a Filter", FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
