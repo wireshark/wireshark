@@ -70,7 +70,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fpc_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.fpc",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.fpc",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -78,35 +78,35 @@ static hf_register_info hf[] =
 	{
 		&hf_fpc_basic_cid,
 		{
-			"Basic CID", "wimax.fpc.basic_cid",
+			"Basic CID", "wmx.fpc.basic_cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_fpc_invalid_tlv,
 		{
-			"Invalid TLV", "wimax.fpc.invalid_tlv", 
+			"Invalid TLV", "wmx.fpc.invalid_tlv",
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
 	{
 		&hf_fpc_number_of_stations,
 		{
-			"Number of stations", "wimax.fpc.number_stations",
+			"Number of stations", "wmx.fpc.number_stations",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_fpc_power_adjust,
 		{
-			"Power Adjust.  Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wimax.fpc.power_adjust",
+			"Power Adjust.  Signed change in power level (incr of 0.25dB) that the SS shall apply to its current power setting", "wmx.fpc.power_adjust",
 			FT_FLOAT, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_fpc_power_measurement_frame,
 		{
-			"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wimax.fpc.power_measurement_frame",
+			"Power measurement frame.  The 8 LSB of the frame number in which the BS measured the power corrections referred to in the message", "wmx.fpc.power_measurement_frame",
 			FT_INT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	}
@@ -120,7 +120,7 @@ void proto_register_mac_mgmt_msg_fpc(void)
 		proto_mac_mgmt_msg_fpc_decoder = proto_register_protocol (
 							"WiMax FPC Message", /* name */
 							"WiMax FPC (fpc)", /* short name */
-							"fpc" /* abbrev */
+							"wmx.fpc" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_fpc_decoder, hf, array_length(hf));
@@ -161,7 +161,7 @@ void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		offset ++;
 		/* display the Number of stations */
 		proto_tree_add_item(fpc_tree, hf_fpc_number_of_stations, tvb, offset, 1, FALSE);
-		
+
 		number_stations = tvb_get_guint8(tvb, offset);
 		offset++;
 		for (i = 0; i < number_stations; i++ ) {

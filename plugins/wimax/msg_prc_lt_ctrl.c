@@ -74,14 +74,14 @@ static hf_register_info hf[] =
 	{
 		&hf_prc_lt_ctrl_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.prc_lt_ctrl",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.prc_lt_ctrl",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_prc_lt_ctrl_invalid_tlv,
 		{
-			"Invalid TLV", "wimax.prc_lt_ctrl.invalid_tlv",
+			"Invalid TLV", "wmx.prc_lt_ctrl.invalid_tlv",
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
@@ -111,7 +111,7 @@ void proto_register_mac_mgmt_msg_prc_lt_ctrl(void)
 		proto_mac_mgmt_msg_prc_lt_ctrl_decoder = proto_register_protocol (
 							"WiMax PRC-LT-CTRL Message", /* name */
 							"WiMax PRC-LT-CTRL (prc)", /* short name */
-							"prc" /* abbrev */
+							"wmx.prc" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_prc_lt_ctrl_decoder, hf, array_length(hf));
@@ -152,7 +152,7 @@ void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo 
 		/* display whether to Setup or Tear-down the
 		 * long-term MIMO precoding delay */
 		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding, tvb, offset, 1, FALSE);
-		
+
 		/* display the Precoding Delay */
 		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding_delay, tvb, offset, 1, FALSE);
 	}

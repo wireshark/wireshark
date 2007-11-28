@@ -105,19 +105,19 @@ static hf_register_info hf_pkm[] =
 {
 	{
 		&hf_pkm_msg_code,
-		{"Code", "wimax.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, "", HFILL}
+		{"Code", "wmx.pkm.msg_code",FT_UINT8, BASE_DEC, VALS(vals_pkm_msg_code),0x0, "", HFILL}
 	},
 	{
 		&hf_pkm_msg_pkm_id,
-		{"PKM Identifier", "wimax.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"PKM Identifier", "wmx.pkm.msg_pkm_identifier",FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_pkm_req_message_type,
-		{"MAC Management Message Type", "wimax.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_req", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_pkm_rsp_message_type,
-		{"MAC Management Message Type", "wimax.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"MAC Management Message Type", "wmx.macmgtmsgtype.pkm_rsp", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	}
 };
 
@@ -129,7 +129,7 @@ void proto_register_mac_mgmt_msg_pkm(void)
 		proto_mac_mgmt_msg_pkm_decoder = proto_register_protocol (
 							"WiMax PKM-REQ/RSP Messages", /* name */
 							"WiMax PKM-REQ/RSP (pkm)", /* short name */
-							"pkm" /* abbrev */
+							"wmx.pkm" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_pkm_decoder, hf_pkm, array_length(hf_pkm));

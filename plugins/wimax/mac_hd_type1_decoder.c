@@ -222,7 +222,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_value_bytes,
 		{
-			"Values", "wimax.type1ValueBytes",
+			"Values", "wmx.type1ValueBytes",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -230,7 +230,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_ht,
 		{
-			"MAC Header Type", "wimax.type1Ht",
+			"MAC Header Type", "wmx.type1Ht",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_HT,
 			"", HFILL
 		}
@@ -238,7 +238,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_ec,
 		{
-			"MAC Encryption Control", "wimax.type1Ec",
+			"MAC Encryption Control", "wmx.type1Ec",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_EC,
 			"", HFILL
 		}
@@ -246,7 +246,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_type,
 		{
-			"MAC Sub-Type", "wimax.type1Type",
+			"MAC Sub-Type", "wmx.type1Type",
 			FT_UINT24, BASE_HEX, VALS(sub_types), WIMAX_MAC_HEADER_TYPE_1_TYPE,
 			"", HFILL
 		}
@@ -254,7 +254,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_br,
 		{
-			"Bandwidth Request", "wimax.type1Br",
+			"Bandwidth Request", "wmx.type1Br",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR,
 			"", HFILL
 		}
@@ -262,7 +262,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_br_3,
 		{
-			"Bandwidth Request", "wimax.type1Br3",
+			"Bandwidth Request", "wmx.type1Br3",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_BR_3,
 			"", HFILL
 		}
@@ -270,7 +270,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_fb_type,
 		{
-			"Feedback Type", "wimax.type1FbType",
+			"Feedback Type", "wmx.type1FbType",
 			FT_UINT24, BASE_HEX, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_1_FB_TYPE,
 			"", HFILL
 		}
@@ -278,7 +278,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_diuc,
 		{
-			"Preferred DIUC Index", "wimax.type1Diuc",
+			"Preferred DIUC Index", "wmx.type1Diuc",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_DIUC,
 			"", HFILL
 		}
@@ -286,7 +286,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_ultxpwr,
 		{
-			"UL TX Power", "wimax.type1UlTxPwr",
+			"UL TX Power", "wmx.type1UlTxPwr",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR,
 			"", HFILL
 		}
@@ -294,7 +294,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_ultxpwr_3,
 		{
-			"UL TX Power", "wimax.type1UlTxPwr3",
+			"UL TX Power", "wmx.type1UlTxPwr3",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_TX_PWR_3,
 			"", HFILL
 		}
@@ -302,7 +302,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_ulhdrm,
 		{
-			"Headroom to UL Max Power Level", "wimax.type1HdRm",
+			"Headroom to UL Max Power Level", "wmx.type1HdRm",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_UL_HDRM,
 			"", HFILL
 		}
@@ -310,7 +310,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_cinr,
 		{
-			"CINR Value", "wimax.type1Cinr",
+			"CINR Value", "wmx.type1Cinr",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_CINR,
 			"", HFILL
 		}
@@ -318,7 +318,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_dci,
 		{
-			"DCD Change Indication", "wimax.type1Dci",
+			"DCD Change Indication", "wmx.type1Dci",
 			FT_UINT24, BASE_HEX, VALS(dci_msgs), WIMAX_MAC_HEADER_TYPE_1_DCI,
 			"", HFILL
 		}
@@ -326,7 +326,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_pscid,
 		{
-			"Power Saving Class ID", "wimax.type1PsCid",
+			"Power Saving Class ID", "wmx.type1PsCid",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PSCID,
 			"", HFILL
 		}
@@ -334,7 +334,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_op,
 		{
-			"Operation", "wimax.type1Op",
+			"Operation", "wmx.type1Op",
 			FT_UINT24, BASE_HEX, VALS(op_msgs), WIMAX_MAC_HEADER_TYPE_1_OP,
 			"", HFILL
 		}
@@ -342,7 +342,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_last,
 		{
-			"Last ARQ BSN or SDU SN", "wimax.type1Last",
+			"Last ARQ BSN or SDU SN", "wmx.type1Last",
 			FT_UINT24, BASE_HEX, VALS(last_msgs), WIMAX_MAC_HEADER_TYPE_1_LAST,
 			"", HFILL
 		}
@@ -350,7 +350,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_sdu_sn1,
 		{
-			"ARQ BSN or MAC SDU SN (1)", "wimax.type1SduSn1",
+			"ARQ BSN or MAC SDU SN (1)", "wmx.type1SduSn1",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN1,
 			"", HFILL
 		}
@@ -358,7 +358,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_sdu_sn2,
 		{
-			"ARQ BSN or MAC SDU SN (2)", "wimax.type1SduSn2",
+			"ARQ BSN or MAC SDU SN (2)", "wmx.type1SduSn2",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN2,
 			"", HFILL
 		}
@@ -366,7 +366,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_sdu_sn3,
 		{
-			"ARQ BSN or MAC SDU SN (3)", "wimax.type1SduSn3",
+			"ARQ BSN or MAC SDU SN (3)", "wmx.type1SduSn3",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_SDU_SN3,
 			"", HFILL
 		}
@@ -374,7 +374,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_fbssi,
 		{
-			"FBSS Indicator", "wimax.type1Fbssi",
+			"FBSS Indicator", "wmx.type1Fbssi",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_FBSSI,
 			"", HFILL
 		}
@@ -382,7 +382,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_period,
 		{
-			"Preferred CQICH Allocation Period", "wimax.type1Period",
+			"Preferred CQICH Allocation Period", "wmx.type1Period",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_PERIOD,
 			"", HFILL
 		}
@@ -390,7 +390,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_rsv_2,
 		{
-			"Reserved", "wimax.type1Rsv2",
+			"Reserved", "wmx.type1Rsv2",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_2,
 			"", HFILL
 		}
@@ -398,7 +398,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_rsv_5,
 		{
-			"Reserved", "wimax.type1Rsv5",
+			"Reserved", "wmx.type1Rsv5",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_5,
 			"", HFILL
 		}
@@ -406,7 +406,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_rsv_7,
 		{
-			"Reserved", "wimax.type1Rsv7",
+			"Reserved", "wmx.type1Rsv7",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_1_RSV_7,
 			"", HFILL
 		}
@@ -414,7 +414,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_cid,
 		{
-			"Connection ID", "wimax.type1Cid",
+			"Connection ID", "wmx.type1Cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -422,7 +422,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_1_hcs,
 		{
-			"Header Check Sequence", "wimax.type1Hcs",
+			"Header Check Sequence", "wmx.type1Hcs",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}

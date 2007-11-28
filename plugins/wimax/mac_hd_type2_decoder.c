@@ -400,7 +400,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_value_bytes,
 		{
-			"Values", "wimax.type2ValueBytes",
+			"Values", "wmx.type2ValueBytes",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -408,7 +408,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_ht,
 		{
-			"MAC Header Type", "wimax.type2Ht",
+			"MAC Header Type", "wmx.type2Ht",
 			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_HT,
 			"", HFILL
 		}
@@ -416,7 +416,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_ec,
 		{
-			"MAC Encryption Control", "wimax.type2Ec",
+			"MAC Encryption Control", "wmx.type2Ec",
 			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_EC,
 			"", HFILL
 		}
@@ -424,7 +424,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_type,
 		{
-			"MAC Sub-Type", "wimax.type2Type",
+			"MAC Sub-Type", "wmx.type2Type",
 			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_TYPE,
 			"", HFILL
 		}
@@ -432,7 +432,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cii,
 		{
-			"CID Inclusion Indication", "wimax.type2Cii",
+			"CID Inclusion Indication", "wmx.type2Cii",
 			FT_UINT8, BASE_DEC, VALS(cii_msgs), WIMAX_MAC_HEADER_TYPE_2_CII,
 			"", HFILL
 		}
@@ -440,7 +440,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_fb_type,
 		{
-			"Feedback Type", "wimax.type2FbType",
+			"Feedback Type", "wmx.type2FbType",
 			FT_UINT8, BASE_DEC, VALS(fb_types), WIMAX_MAC_HEADER_TYPE_2_FB_TYPE,
 			"", HFILL
 		}
@@ -448,7 +448,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cqi_fb_type,
 		{
-			"Mimo Feedback Type", "wimax.type2MimoFbType",
+			"Mimo Feedback Type", "wmx.type2MimoFbType",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_FB_TYPE,
 			"", HFILL
 		}
@@ -456,7 +456,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cqi_payload,
 		{
-			"CQI and Mimo Feedback Payload", "wimax.type2MimoFbPayload",
+			"CQI and Mimo Feedback Payload", "wmx.type2MimoFbPayload",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_PAYLOAD,
 			"", HFILL
 		}
@@ -464,7 +464,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cqi_rsv,
 		{
-			"Reserved", "wimax.type2MimoFbRsv",
+			"Reserved", "wmx.type2MimoFbRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI_RSV,
 			"", HFILL
 		}
@@ -472,7 +472,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_ave_cinr,
 		{
-			"DL Average CINR", "wimax.type2DlAveCinr",
+			"DL Average CINR", "wmx.type2DlAveCinr",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_CINR,
 			"", HFILL
 		}
@@ -480,7 +480,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_ave_rsv,
 		{
-			"Reserved", "wimax.type2DlAveRsv",
+			"Reserved", "wmx.type2DlAveRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_AVE_RSV,
 			"", HFILL
 		}
@@ -488,7 +488,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_coef_ni,
 		{
-			"Number of Index", "wimax.type2MimoCoefNi",
+			"Number of Index", "wmx.type2MimoCoefNi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_NI,
 			"", HFILL
 		}
@@ -496,7 +496,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_coef_ai,
 		{
-			"Occurences of Antenna Index", "wimax.type2MimoCoefAi",
+			"Occurences of Antenna Index", "wmx.type2MimoCoefAi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_AI,
 			"", HFILL
 		}
@@ -504,7 +504,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_coef,
 		{
-			"MIMO Coefficients", "wimax.type2MimoCoef",
+			"MIMO Coefficients", "wmx.type2MimoCoef",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF,
 			"", HFILL
 		}
@@ -512,7 +512,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_coef_rsv,
 		{
-			"Reserved", "wimax.type2MimoCoefRsv",
+			"Reserved", "wmx.type2MimoCoefRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MIMO_COEF_RSV,
 			"", HFILL
 		}
@@ -520,7 +520,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_chan_diuc,
 		{
-			"Prefered DIUC", "wimax.type2DlChanDiuc",
+			"Prefered DIUC", "wmx.type2DlChanDiuc",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DIUC,
 			"", HFILL
 		}
@@ -528,7 +528,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_chan_dcd,
 		{
-			"DCD Change Count", "wimax.type2DlChanDcd",
+			"DCD Change Count", "wmx.type2DlChanDcd",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_DCD,
 			"", HFILL
 		}
@@ -536,7 +536,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_dl_chan_rsv,
 		{
-			"Reserved", "wimax.type2DlChanRsv",
+			"Reserved", "wmx.type2DlChanRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DL_CHAN_RSV,
 			"", HFILL
 		}
@@ -544,7 +544,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_ul_tx_pwr,
 		{
-			"UL TX Power", "wimax.type2UlTxPwr",
+			"UL TX Power", "wmx.type2UlTxPwr",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR,
 			"", HFILL
 		}
@@ -552,7 +552,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_ul_tx_pwr_rsv,
 		{
-			"Reserved", "wimax.type2UlTxPwrRsv",
+			"Reserved", "wmx.type2UlTxPwrRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_UL_TX_PWR_RSV,
 			"", HFILL
 		}
@@ -560,7 +560,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_phy_diuc,
 		{
-			"Preferred DIUC Index", "wimax.type2PhyDiuc",
+			"Preferred DIUC Index", "wmx.type2PhyDiuc",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_DIUC,
 			"", HFILL
 		}
@@ -568,7 +568,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_phy_ul_tx_pwr,
 		{
-			"UL TX Power", "wimax.type2PhyUlTxPwr",
+			"UL TX Power", "wmx.type2PhyUlTxPwr",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_TX_PWR,
 			"", HFILL
 		}
@@ -576,7 +576,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_phy_ul_hdrm,
 		{
-			"UL Headroom", "wimax.type2PhyHdRm",
+			"UL Headroom", "wmx.type2PhyHdRm",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_UL_HDRM,
 			"", HFILL
 		}
@@ -584,7 +584,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_phy_rsv,
 		{
-			"Reserved", "wimax.type2PhyRsv",
+			"Reserved", "wmx.type2PhyRsv",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_PHY_RSV,
 			"", HFILL
 		}
@@ -592,7 +592,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_amc_bitmap,
 		{
-			"AMC Band Indication Bitmap", "wimax.type2AmcBitmap",
+			"AMC Band Indication Bitmap", "wmx.type2AmcBitmap",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_BITMAP,
 			"", HFILL
 		}
@@ -600,7 +600,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_amc_cqi_1,
 		{
-			"CQI 1", "wimax.type2AmcCqi1",
+			"CQI 1", "wmx.type2AmcCqi1",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_1,
 			"", HFILL
 		}
@@ -608,7 +608,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_amc_cqi_2,
 		{
-			"CQI 2", "wimax.type2AmcCqi2",
+			"CQI 2", "wmx.type2AmcCqi2",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_2,
 			"", HFILL
 		}
@@ -616,7 +616,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_amc_cqi_3,
 		{
-			"CQI 3", "wimax.type2AmcCqi3",
+			"CQI 3", "wmx.type2AmcCqi3",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_3,
 			"", HFILL
 		}
@@ -624,7 +624,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_amc_cqi_4,
 		{
-			"CQI 4", "wimax.type2AmcCqi4",
+			"CQI 4", "wmx.type2AmcCqi4",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_AMC_CQI_4,
 			"", HFILL
 		}
@@ -632,7 +632,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_life_span,
 		{
-			"Life Span of Short-term", "wimax.type2LifeSpan",
+			"Life Span of Short-term", "wmx.type2LifeSpan",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN,
 			"", HFILL
 		}
@@ -640,7 +640,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_life_span_rsv,
 		{
-			"Reserved", "wimax.type2LifeSpanRsv",
+			"Reserved", "wmx.type2LifeSpanRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LIFE_SPAN_RSV,
 			"", HFILL
 		}
@@ -648,7 +648,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mt_num_fb_types,
 		{
-			"Number of Feedback Types", "wimax.type2MtNumFbTypes",
+			"Number of Feedback Types", "wmx.type2MtNumFbTypes",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_NUM_FB_TYPES,
 			"", HFILL
 		}
@@ -656,7 +656,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mt_occu_fb_type,
 		{
-			"Occurrences of Feedback Type", "wimax.type2MtOccuFbType",
+			"Occurrences of Feedback Type", "wmx.type2MtOccuFbType",
 			FT_UINT32, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_OCCU_FB_TYPE,
 			"", HFILL
 		}
@@ -664,7 +664,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mt_fb_contents,
 		{
-			"Number of Feedback Types", "wimax.type2MtNumFbTypes",
+			"Number of Feedback Types", "wmx.type2MtNumFbTypes",
 			FT_UINT32, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_MT_FB_CONTENTS,
 			"", HFILL
 		}
@@ -672,7 +672,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_lt_id_fb,
 		{
-			"Long-term Feedback Index", "wimax.type2LtFbId",
+			"Long-term Feedback Index", "wmx.type2LtFbId",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_ID_FB,
 			"", HFILL
 		}
@@ -680,7 +680,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_lt_rank,
 		{
-			"Rank of Precoding Codebook", "wimax.type2LtRank",
+			"Rank of Precoding Codebook", "wmx.type2LtRank",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RANK,
 			"", HFILL
 		}
@@ -688,7 +688,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_lt_fec_qam,
 		{
-			"FEC and QAM", "wimax.type2LtFecQam",
+			"FEC and QAM", "wmx.type2LtFecQam",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_FEC_QAM,
 			"", HFILL
 		}
@@ -696,7 +696,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_lt_rsv,
 		{
-			"Reserved", "wimax.type2LtFbId",
+			"Reserved", "wmx.type2LtFbId",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_LT_RSV,
 			"", HFILL
 		}
@@ -704,7 +704,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_comb_dl_ave,
 		{
-			"Combined DL Average CINR of Active BSs", "wimax.type2CombDlAve",
+			"Combined DL Average CINR of Active BSs", "wmx.type2CombDlAve",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_AVE,
 			"", HFILL
 		}
@@ -712,7 +712,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_comb_dl_rsv,
 		{
-			"Reserved", "wimax.type2CombDlRsv",
+			"Reserved", "wmx.type2CombDlRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_COMB_DL_RSV,
 			"", HFILL
 		}
@@ -720,7 +720,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_diuc,
 		{
-			"Preferred DIUC Index", "wimax.type2MimoDiuc",
+			"Preferred DIUC Index", "wmx.type2MimoDiuc",
 			FT_UINT8, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_DIUC,
 			"", HFILL
 		}
@@ -728,7 +728,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_pbwi,
 		{
-			"Preferred Bandwidth Index", "wimax.type2MimoPbwi",
+			"Preferred Bandwidth Index", "wmx.type2MimoPbwi",
 			FT_UINT8, BASE_DEC, VALS(pbwi_table), WIMAX_MAC_HEADER_TYPE_2_PBWI,
 			"", HFILL
 		}
@@ -736,7 +736,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_slpb,
 		{
-			"Starting Location of Preferred Bandwidth", "wimax.type2MimoSlpb",
+			"Starting Location of Preferred Bandwidth", "wmx.type2MimoSlpb",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_SLPB,
 			"", HFILL
 		}
@@ -744,7 +744,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_bpri_cid,
 		{
-			"Burst Profile Ranking Indicator with CID", "wimax.type2MimoBpriCid",
+			"Burst Profile Ranking Indicator with CID", "wmx.type2MimoBpriCid",
 			FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI_CID,
 			"", HFILL
 		}
@@ -752,7 +752,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_cid,
 		{
-			"Connection ID", "wimax.type2MimoCid",
+			"Connection ID", "wmx.type2MimoCid",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CID,
 			"", HFILL
 		}
@@ -760,7 +760,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_bpri,
 		{
-			"Burst Profile Ranking Indicator without CID", "wimax.type2MimoBpri",
+			"Burst Profile Ranking Indicator without CID", "wmx.type2MimoBpri",
 			FT_UINT24, BASE_HEX, VALS(bpri_table), WIMAX_MAC_HEADER_TYPE_2_PBRI,
 			"", HFILL
 		}
@@ -768,7 +768,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_cti,
 		{
-			"Coherent Time Index", "wimax.type2MimoCti",
+			"Coherent Time Index", "wmx.type2MimoCti",
 			FT_UINT24, BASE_HEX, VALS(cti_table), WIMAX_MAC_HEADER_TYPE_2_CTI,
 			"", HFILL
 		}
@@ -776,7 +776,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_ai_0,
 		{
-			"Antenna 0 Indication", "wimax.type2MimoAi",
+			"Antenna 0 Indication", "wmx.type2MimoAi",
 			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_0,
 			"", HFILL
 		}
@@ -784,7 +784,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_ai_1,
 		{
-			"Antenna 1 Indication", "wimax.type2MimoAi",
+			"Antenna 1 Indication", "wmx.type2MimoAi",
 			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_1,
 			"", HFILL
 		}
@@ -792,7 +792,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_ai_2,
 		{
-			"Antenna 2 Indication", "wimax.type2MimoAi",
+			"Antenna 2 Indication", "wmx.type2MimoAi",
 			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_2,
 			"", HFILL
 		}
@@ -800,7 +800,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_ai_3,
 		{
-			"Antenna 3 Indication", "wimax.type2MimoAi",
+			"Antenna 3 Indication", "wmx.type2MimoAi",
 			FT_UINT24, BASE_HEX, VALS(ai_msgs), WIMAX_MAC_HEADER_TYPE_2_AI_3,
 			"", HFILL
 		}
@@ -808,7 +808,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_mi,
 		{
-			"MS Matrix Indicator", "wimax.type2MimoMi",
+			"MS Matrix Indicator", "wmx.type2MimoMi",
 			FT_UINT24, BASE_HEX, VALS(mi_table), WIMAX_MAC_HEADER_TYPE_2_MI,
 			"", HFILL
 		}
@@ -816,7 +816,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_ct,
 		{
-			"CQI Type", "wimax.type2MimoCt",
+			"CQI Type", "wmx.type2MimoCt",
 			FT_UINT24, BASE_HEX, VALS(ct_msgs), WIMAX_MAC_HEADER_TYPE_2_CT,
 			"", HFILL
 		}
@@ -824,14 +824,14 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_mimo_cqi,
 		{
-			"CQI Feedback", "wimax.type2MimoCqi",
+			"CQI Feedback", "wmx.type2MimoCqi",
 			FT_UINT24, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CQI,
 			"", HFILL
 		}
 	},
 	{	&hf_mac_header_type_2_cinr_mean,
 		{
-			"CINR Mean", "wimax.type2CinrMean",
+			"CINR Mean", "wmx.type2CinrMean",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -839,7 +839,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cinr_devi,
 		{
-			"CINR Standard Deviation", "wimax.type2CinrDevi",
+			"CINR Standard Deviation", "wmx.type2CinrDevi",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -847,7 +847,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_type,
 		{
-			"Closed-Loop MIMO Type", "wimax.type2ClMimoType",
+			"Closed-Loop MIMO Type", "wmx.type2ClMimoType",
 			FT_UINT16, BASE_HEX, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_TYPE,
 			"", HFILL
 		}
@@ -855,7 +855,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_ant_id,
 		{
-			"Antenna Grouping Index", "wimax.type2ClMimoAntId",
+			"Antenna Grouping Index", "wmx.type2ClMimoAntId",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_ID,
 			"", HFILL
 		}
@@ -863,7 +863,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_cqi,
 		{
-			"Average CQI", "wimax.type2ClMimoCqi",
+			"Average CQI", "wmx.type2ClMimoCqi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI,
 			"", HFILL
 		}
@@ -871,7 +871,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_cqi_1,
 		{
-			"Average CQI", "wimax.type2ClMimoCqi",
+			"Average CQI", "wmx.type2ClMimoCqi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_1,
 			"", HFILL
 		}
@@ -879,7 +879,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_cqi_2,
 		{
-			"Average CQI", "wimax.type2ClMimoCqi",
+			"Average CQI", "wmx.type2ClMimoCqi",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CQI_2,
 			"", HFILL
 		}
@@ -887,7 +887,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_rsv,
 		{
-			"Reserved", "wimax.type2ClMimoRsv",
+			"Reserved", "wmx.type2ClMimoRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV,
 			"", HFILL
 		}
@@ -895,7 +895,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_rsv_1,
 		{
-			"Reserved", "wimax.type2ClMimoRsv",
+			"Reserved", "wmx.type2ClMimoRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_1,
 			"", HFILL
 		}
@@ -903,7 +903,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_rsv_2,
 		{
-			"Reserved", "wimax.type2ClMimoRsv",
+			"Reserved", "wmx.type2ClMimoRsv",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_RSV_2,
 			"", HFILL
 		}
@@ -911,7 +911,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_streams,
 		{
-			"Number of Streams", "wimax.type2ClMimoStreams",
+			"Number of Streams", "wmx.type2ClMimoStreams",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_STREAMS,
 			"", HFILL
 		}
@@ -919,7 +919,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_ant_sel,
 		{
-			"Antenna Selection Option Index", "wimax.type2ClMimoAntSel",
+			"Antenna Selection Option Index", "wmx.type2ClMimoAntSel",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_ANT_SEL,
 			"", HFILL
 		}
@@ -927,7 +927,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cl_mimo_codebook_id,
 		{
-			"Codebook Index", "wimax.type2ClMimoCodeBkId",
+			"Codebook Index", "wmx.type2ClMimoCodeBkId",
 			FT_UINT16, BASE_DEC, NULL, WIMAX_MAC_HEADER_TYPE_2_CL_MIMO_CODEBOOK_ID,
 			"", HFILL
 		}
@@ -935,7 +935,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_cid,
 		{
-			"Connection ID", "wimax.type2Cid",
+			"Connection ID", "wmx.type2Cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -943,7 +943,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_no_cid,
 		{
-			"Reserved", "wimax.type2NoCid",
+			"Reserved", "wmx.type2NoCid",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -951,7 +951,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_type_2_hcs,
 		{
-			"Header Check Sequence", "wimax.type2Hcs",
+			"Header Check Sequence", "wmx.type2Hcs",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}

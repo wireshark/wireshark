@@ -204,7 +204,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_mgmt_msg_values,
 		{
-			"Values", "wimax.values",
+			"Values", "wmx.values",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -212,7 +212,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_mgmt_msg_unknown_type,
 		{
-			"Unknown MAC Message Type", "wimax.unknown_type",
+			"Unknown MAC Message Type", "wmx.unknown_type",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -229,7 +229,7 @@ void proto_register_mac_mgmt_msg(void)
 		proto_mac_mgmt_msg_decoder = proto_register_protocol (
 							"WiMax MAC Management Message", /* name */
 							"MGMT MSG", /* short name */
-							"mgmtmsg" /* abbrev */
+							"wmx.mgmtmsg" /* abbrev */
 							);
 #endif
 

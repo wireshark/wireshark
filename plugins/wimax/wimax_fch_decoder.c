@@ -111,7 +111,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group0,
 		{
-			"Sub-Channel Group 0", "wimax.fch.subchannel_group0",
+			"Sub-Channel Group 0", "wmx.fch.subchannel_group0",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_0,
 			"", HFILL
 		}
@@ -119,7 +119,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group1,
 		{
-			"Sub-Channel Group 1", "wimax.fch.subchannel_group1",
+			"Sub-Channel Group 1", "wmx.fch.subchannel_group1",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_1,
 			"", HFILL
 		}
@@ -127,7 +127,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group2,
 		{
-			"Sub-Channel Group 2", "wimax.fch.subchannel_group2",
+			"Sub-Channel Group 2", "wmx.fch.subchannel_group2",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_2,
 			"", HFILL
 		}
@@ -135,7 +135,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group3,
 		{
-			"Sub-Channel Group 3", "wimax.fch.subchannel_group3",
+			"Sub-Channel Group 3", "wmx.fch.subchannel_group3",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_3,
 			"", HFILL
 		}
@@ -143,7 +143,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group4,
 		{
-			"Sub-Channel Group 4", "wimax.fch.subchannel_group4",
+			"Sub-Channel Group 4", "wmx.fch.subchannel_group4",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_4,
 			"", HFILL
 		}
@@ -151,7 +151,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_used_subchannel_group5,
 		{
-			"Sub-Channel Group 5", "wimax.fch.subchannel_group5",
+			"Sub-Channel Group 5", "wmx.fch.subchannel_group5",
 			FT_UINT24, BASE_DEC, VALS(used_or_not_used), USED_SUB_CHANNEL_GROUP_5,
 			"", HFILL
 		}
@@ -159,7 +159,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_reserved_1,
 		{
-			"Reserved", "wimax.fch.reserved1",
+			"Reserved", "wmx.fch.reserved1",
 			FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_1,
 			"", HFILL
 		}
@@ -167,7 +167,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_repetition_coding_indication,
 		{
-			"Repetition Coding Indication", "wimax.fch.repetition_coding_indication",
+			"Repetition Coding Indication", "wmx.fch.repetition_coding_indication",
 			FT_UINT24, BASE_DEC, VALS(repetition_coding_indications), REPETITION_CODING_INDICATION,
 			"", HFILL
 		}
@@ -175,7 +175,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_coding_indication,
 		{
-			"Coding Indication", "wimax.fch.coding_indication",
+			"Coding Indication", "wmx.fch.coding_indication",
 			FT_UINT24, BASE_DEC, VALS(coding_indications), CODING_INDICATION,
 			"", HFILL
 		}
@@ -183,7 +183,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_dlmap_length,
 		{
-			"DL Map Length", "wimax.fch.dl_map_length",
+			"DL Map Length", "wmx.fch.dl_map_length",
 			FT_UINT24, BASE_DEC, NULL, DL_MAP_LENGTH,
 			"", HFILL
 		}
@@ -191,7 +191,7 @@ static hf_register_info hf[] =
 	{
 		&hf_fch_reserved_2,
 		{
-			"Reserved", "wimax.fch.reserved2",
+			"Reserved", "wmx.fch.reserved2",
 			FT_UINT24, BASE_DEC, NULL, FCH_RESERVED_2,
 			"", HFILL
 		}
