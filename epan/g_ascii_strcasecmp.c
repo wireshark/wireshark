@@ -31,6 +31,7 @@
  * GLib 2.4.8, for use with GLibs that don't have it (e.g., GLib 1.2[.x]).
  */
 
+#include <glib.h>
 #include "g_ascii_strcasecmp.h"
 
 #define ISUPPER(c)		((c) >= 'A' && (c) <= 'Z')
