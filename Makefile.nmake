@@ -124,7 +124,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DIR)\zlib1.dll wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
+all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
 
 packaging: all
 	cd packaging
@@ -192,7 +192,7 @@ packaging_zip: packaging_zip1 packaging_zip2
 
 $(RESOURCES): image
 
-wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DIR)\zlib1.dll wiretap
+wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
 !IFNDEF GTK1_DIR
 wireshark.exe	: 
@@ -417,9 +417,11 @@ clean: clean-local
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
+!IFDEF ZLIB_DIR
 	rm -f $(ZLIB_DIR)\zlib1.dll $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib 
+!ENDIF
 	rm -f config.h $(BUILT_SOURCES)
 
 distclean: distclean-local
@@ -492,11 +494,12 @@ image::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+!IFDEF ZLIB_DIR
 # None MSVC6 variants have to avoid indirectly using msvcrt.dll,
 # therefore compile the zlib dll from source ZLIB_DIR package.
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
-$(ZLIB_DIR)\zlib1.dll:
+$(ZLIB_DLL):
 	xcopy $(ZLIB_DIR) zlib.tmp /D /I /E /Y
 	cd zlib.tmp
 	$(MAKE) /$(MAKEFLAGS) -f win32/Makefile.msc zlib1.dll LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE" 
@@ -512,6 +515,7 @@ $(ZLIB_DIR)\zlib1.dll:
 	copy zlib.h $(ZLIB_DIR)\include
 	cd ..
     rm -r -f zlib.tmp
+!ENDIF
 
 wiretap::
 	cd wiretap
@@ -540,7 +544,7 @@ gtk2:: help config.h svnversion.h AUTHORS-SHORT
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
-epan:: $(RESOURCES) $(ZLIB_DIR)\zlib1.dll wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
+epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
 	cd epan
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..

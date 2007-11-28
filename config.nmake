@@ -681,11 +681,13 @@ WPCAP_CONSTIFIED=
 ZLIB_PATH=$(ZLIB_DIR)
 ZLIB_CFLAGS=/I$(ZLIB_DIR)\include
 ZLIB_LIBS=$(ZLIB_DIR)\lib\zdll.lib
+ZLIB_DLL=$(ZLIB_DIR)\zlib1.dll
 # Nmake uses carets to escape special characters
 ZLIB_CONFIG=^#define HAVE_LIBZ 1
 !else
 ZLIB_CFLAGS=
 ZLIB_LIBS=
+ZLIB_DLL=
 ZLIB_CONFIG=
 !ENDIF
 

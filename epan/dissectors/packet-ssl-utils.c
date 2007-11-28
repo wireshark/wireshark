@@ -1186,7 +1186,9 @@ static SslDecompress*
 ssl_create_decompressor(gint compression)
 {
   SslDecompress *decomp;
+#ifdef HAVE_LIBZ
   int err;
+#endif
 
   if (compression == 0) return NULL;
   ssl_debug_printf("ssl_create_decompressor: compression method %d\n", compression);
@@ -1686,7 +1688,9 @@ dtls_check_mac(SslDecoder*decoder, gint ct,int ver, guint8* data,
 int
 ssl_decompress_record(SslDecompress* decomp, const guchar* in, guint inl, StringInfo* out_str, guint* outl)
 {
+#ifdef HAVE_LIBZ
   gint err;
+#endif
 
   switch (decomp->compression) {
 #ifdef HAVE_LIBZ

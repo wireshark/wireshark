@@ -32,6 +32,7 @@ extern int file_error(void *fh);
 
 extern FILE_T file_open(const char *path, const char *mode);
 #define filed_open gzdopen
+/* XX: gzread and gzwrite return number of *bytes* (not number of elements) */
 #define file_read(buf, bsize, count, file) gzread((file),(buf),((count)*(bsize)))
 #define file_write(buf, bsize, count, file) gzwrite((file),(buf),((count)*(bsize)))
 #define file_close gzclose
@@ -43,8 +44,9 @@ extern FILE_T file_open(const char *path, const char *mode);
 
 #define file_open(path, mode) eth_fopen(path, mode)
 #define filed_open fdopen
-#define file_read fread
-#define file_write fwrite
+/* XX: file_read and file_write defined to return number of *bytes* to be consistent with gzread & gzwrite */
+#define file_read(buf, bsize, count, file) ((bsize) * fread((buf), (bsize), (count), (file)))
+#define file_write(buf, bsize, count, file) ((bsize) * fwrite((buf), (bsize), (count), (file)))
 #define file_close fclose
 #define file_getc fgetc
 #define file_gets fgets
