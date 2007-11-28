@@ -118,7 +118,7 @@ static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
 
 /* WIMAX MAC Management message type info */
-char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] = 
+char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] =
 {
 	"UCD",		/* 0 */
 	"DCD",
@@ -237,8 +237,6 @@ void proto_register_mac_mgmt_msg(void)
 		proto_register_subtree_array(ett, array_length(ett));
 	}
 
-	proto_register_wimax_utility_decoders();
-
 	proto_register_mac_mgmt_msg_dcd();
 	proto_register_mac_mgmt_msg_ucd();
 	proto_register_mac_mgmt_msg_dlmap();
@@ -267,6 +265,8 @@ void proto_register_mac_mgmt_msg(void)
 	proto_register_mac_mgmt_msg_rep();
 	proto_register_mac_mgmt_msg_clk_cmp();
 	proto_register_mac_mgmt_msg_dsx_rvd();
+
+	proto_register_wimax_utility_decoders();
 }
 
 void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
