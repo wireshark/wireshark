@@ -160,7 +160,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 {
 	int action, type, selection;
 	srt_stat_table *rst = (srt_stat_table *)callback_data;
-	char str[256];
+	char *str = NULL;
 	const char *current_filter;
 
 
@@ -184,27 +184,32 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	switch(type){
 	case 0:
 		/* selected */
-		g_snprintf(str, 255, "%s==%d", rst->filter_string, selection);
+		str = g_strdup_printf("%s==%d", rst->filter_string, selection);
 		break;
 	case 1:
 		/* not selected */
-		g_snprintf(str, 255, "!(%s==%d)", rst->filter_string, selection);
+		str = g_strdup_printf("!(%s==%d)", rst->filter_string,
+				      selection);
 		break;
 	case 2:
 		/* and selected */
-		g_snprintf(str, 255, "(%s) && (%s==%d)", current_filter, rst->filter_string, selection);
+		str = g_strdup_printf("(%s) && (%s==%d)", current_filter,
+				      rst->filter_string, selection);
 		break;
 	case 3:
 		/* or selected */
-		g_snprintf(str, 255, "(%s) || (%s==%d)", current_filter, rst->filter_string, selection);
+		str = g_strdup_printf("(%s) || (%s==%d)", current_filter,
+				      rst->filter_string, selection);
 		break;
 	case 4:
 		/* and not selected */
-		g_snprintf(str, 255, "(%s) && !(%s==%d)", current_filter, rst->filter_string, selection);
+		str = g_strdup_printf("(%s) && !(%s==%d)", current_filter,
+				      rst->filter_string, selection);
 		break;
 	case 5:
 		/* or not selected */
-		g_snprintf(str, 255, "(%s) || !(%s==%d)", current_filter, rst->filter_string, selection);
+		str = g_strdup_printf("(%s) || !(%s==%d)", current_filter,
+				      rst->filter_string, selection);
 		break;
 	}
 
@@ -236,6 +241,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 		break;
 	}
 
+	g_free(str);
 }
 
 static gint

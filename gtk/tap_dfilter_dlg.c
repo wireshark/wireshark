@@ -113,17 +113,20 @@ static void
 tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
 	const char *filter;
-	char str[256];
+	char *str;
 	
 	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
 
 	filter=gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
 	if(filter[0]==0){
-		g_snprintf(str, sizeof(str), "%s", dlg_data->cont.init_string);
+		str = g_strdup_printf("%s", dlg_data->cont.init_string);
 	} else {
-		g_snprintf(str, sizeof(str), "%s,%s", dlg_data->cont.init_string, filter);
+		str = g_strdup_printf("%s,%s", dlg_data->cont.init_string,
+				      filter);
 	}
 	(dlg_data->cont.tap_init_cb)(str,NULL);
+
+	g_free(str);
 }
 
 

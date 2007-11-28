@@ -157,7 +157,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	smbstat_t *ss;
 	const char *filter=NULL;
 	GtkWidget *label;
-	char filter_string[256];
+	char *filter_string;
 	GString *error_string;
 	int i;
 	GtkWidget *vbox;
@@ -183,8 +183,10 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	label=gtk_label_new("SMB Service Response Time statistics");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
-	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
 	label=gtk_label_new(filter_string);
+	g_free(filter_string);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
 	label=gtk_label_new("SMB Commands");

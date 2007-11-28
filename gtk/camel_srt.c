@@ -150,7 +150,7 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   GtkWidget *cmd_label;
   GtkWidget *main_label;
   GtkWidget *filter_label;
-  char filter_string[256];
+  char *filter_string;
   GString *error_string;
   GtkWidget *vbox;
   GtkWidget *bbox;
@@ -177,8 +177,10 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   gtk_box_pack_start(GTK_BOX(vbox), main_label, FALSE, FALSE, 0);
   gtk_widget_show(main_label);
 
-  g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+  filter_string = g_strdup_printf("Filter: %s",filter ? filter : "");
   filter_label=gtk_label_new(filter_string);
+  g_free(filter_string);
+  gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
   gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
   gtk_widget_show(filter_label);
 
