@@ -387,7 +387,7 @@ static const value_string pap_function_vals[] = {
   {PAPCloseConnReply , "Close Connection reply"},
   {PAPSendStatus     , "Send Status"},
   {PAPStatus         , "Status"},
-  
+
   {0, NULL}
 };
 
@@ -691,7 +691,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   guint8 info;
   guint op, count;
-  unsigned int i;
+  guint i;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
@@ -775,7 +775,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 t = 0;
   conversation_t  *conversation;
   asp_request_val *request_val = NULL;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATP");
 
@@ -799,7 +799,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 		pinfo->srcport, pinfo->destport, 0);
-		
+
   if (conversation == NULL)
   {
 	conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -927,7 +927,7 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             /* if it's a known ASP function call ASP dissector
                else assume it's a PAP connection ID.
-               the test is wrong because PAP conn IDs overlapped with ASP fn 
+               the test is wrong because PAP conn IDs overlapped with ASP fn
                but I don't want to keep track of NBP msgs and open connection
                port allocation.
             */
@@ -942,10 +942,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
      	    call_dissector(sub, new_tvb, pinfo, tree);
      	    conversation_set_dissector(conversation, sub);
         }
-        else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype, 
+        else if (!try_conversation_dissector(&pinfo->src, &pinfo->dst, pinfo->ptype,
         						pinfo->srcport, pinfo->destport, new_tvb,pinfo, tree)) {
     		call_dissector(data_handle, new_tvb, pinfo, tree);
-        
+
         }
      }
   }
@@ -977,8 +977,8 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	guint16 dir_ofs = 0;
 	guint16 utf_ofs = 0;
 	guint8	nbe;
-	guint8  len;
-	guint8  i;
+	guint   len;
+	guint   i;
 
   	proto_tree *adr_tree;
   	char *tmp;
@@ -1171,7 +1171,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
 		sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
 		proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
-		ofs += 2;		
+		ofs += 2;
 		proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
 		ofs += ulen;
 	}
@@ -1261,7 +1261,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case PAPSendStatus:
   	PAD(2);
   	break;
-  	
+
   case PAPStatus:
   	PAD(2);
   	PAD(4);
@@ -1517,7 +1517,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      }
   }
   else {
-  guint8 i;
+  guint i;
 
      proto_tree_add_uint(zip_tree, hf_zip_atp_function, tvb, 0, 0, fn);
      switch(fn) {
@@ -1556,8 +1556,8 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *net_tree;
   guint8 flag;
   guint16  net;
-  guint8 i;
-  guint8 count;
+  guint i;
+  guint count;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ZIP");
@@ -2364,13 +2364,13 @@ proto_register_atalk(void)
       	"Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",	"pap.status",	FT_STRING,  BASE_DEC, NULL, 0x0, 
+      { "Status",	"pap.status",	FT_STRING,  BASE_DEC, NULL, 0x0,
 		"Printer status", HFILL }},
-		
+
     { &hf_pap_eof,
       { "EOF",	"pap.eof", FT_BOOLEAN, BASE_NONE,
 		NULL, 0x0, "EOF", HFILL }},
-		
+
     { &hf_pap_pad,
       { "Pad",    	"pad.pad", 		FT_NONE,   BASE_NONE, NULL, 0,
 		"Pad Byte",	HFILL }},
