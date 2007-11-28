@@ -89,7 +89,7 @@
 #include "capture_loop.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
+#include "epan/g_ascii_strcasecmp.h"
 #endif
 
 /* E: capture_loop.c only (Wireshark/dumpcap) T: tshark only */
