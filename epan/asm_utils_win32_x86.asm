@@ -1,4 +1,4 @@
-; asm_utils_win32_x86.c
+; asm_utils_win32_x86.asm
 ; Functions optionally implemented in assembler
 ;
 ; $Id$
