@@ -2046,12 +2046,14 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
             node = gtk_ctree_node_nth(ctree, row);
             g_assert(node);
 
-            gtk_ctree_select(ctree, node);
-
             /* if that's a doubleclick, try to follow the link */
             if(event->type == GDK_2BUTTON_PRESS) {
                 fi = gtk_ctree_node_get_row_data(ctree, node);
                 tree_view_follow_link(fi);
+            }
+            else if (((GdkEventButton *)event)->button != 1) {
+                /* if button == 1 gtk_ctree_select is already (or will be) called by the widget */
+                gtk_ctree_select(ctree, node);
             }
         } else {
             return FALSE;
@@ -2066,7 +2068,6 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
                                           &path, NULL, NULL, NULL))
         {
             sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
-            gtk_tree_selection_select_path(sel, path);
 
             /* if that's a doubleclick, try to follow the link */
             if(event->type == GDK_2BUTTON_PRESS) {
@@ -2078,6 +2079,10 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
                     gtk_tree_model_get(model, &iter, 1, &fi, -1);
                     tree_view_follow_link(fi);
                 }
+            }
+            else if (((GdkEventButton *)event)->button != 1) {
+                /* if button == 1 gtk_tree_selection_select_path is already (or will be) called by the widget */
+                gtk_tree_selection_select_path(sel, path);
             }
         } else {
             return FALSE;
