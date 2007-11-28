@@ -77,7 +77,7 @@ static const value_string CCM_IntervalFieldEncoding[] = {
 	{ 1, "Trans Int 3.33ms, max Lifetime 11.66ms, min Lifetime 10.83ms" },
 	{ 2, "Trans Int 10ms, max Lifetime 35ms, min Lifetime 32.5ms" },
 	{ 3, "Trans Int 100ms, max Lifetime 350ms, min Lifetime 325ms" },
-	{ 4, "Trans Int 1ms, max Lifetime 3.5s, min Lifetime 3.25s" },
+	{ 4, "Trans Int 1s, max Lifetime 3.5s, min Lifetime 3.25s" },
 	{ 5, "Trans Int 10s, max Lifetime 35s, min Lifetime 32.5s" },
 	{ 6, "Trans Int 1min, max Lifetime 3.5min, min Lifetime 3.25min" },
 	{ 7, "Trans Int 10min, max Lifetime 35min, min Lifetime 32.5min" },
@@ -441,7 +441,7 @@ void proto_register_cfm(void)
 			BASE_NONE, NULL, 0x0, NULL, HFILL	}
 		},
 		{ &hf_cfm_flags_UseFDBonly,
-			{ "RDI", "cfm.flags.usefdbonly", FT_UINT8,
+			{ "UseFDBonly", "cfm.flags.usefdbonly", FT_UINT8,
 			BASE_DEC, NULL, 0x80, NULL, HFILL }
 		},
 		{ &hf_cfm_flags_ltm_Reserved,
