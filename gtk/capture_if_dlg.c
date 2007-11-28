@@ -82,7 +82,7 @@
 #endif
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
+#include "../epan/g_ascii_strcasecmp.h"
 #endif
 
 /*
