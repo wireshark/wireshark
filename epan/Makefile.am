@@ -74,7 +74,9 @@ EXTRA_libwireshark_la_SOURCES =	\
 	g_ascii_strtoull.c	\
 	g_ascii_strtoull.h	\
 	inet_aton.c		\
-	inet_aton.h
+	inet_aton.h		\
+	asm_utils.c		\
+	asm_utils.h
 
 EXTRA_DIST = \
 	diam_dict.l		\

@@ -44,6 +44,7 @@
 #include "tvbuff.h"
 #include "emem.h"
 #include "charsets.h"
+#include "asm_utils.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "g_ascii_strcasecmp.h"
@@ -67,6 +68,19 @@ struct ptvcursor {
 	tvbuff_t	*tvb;
 	gint		offset;
 };
+
+/* Candidates for assembler */
+int 
+wrs_count_bitshift(guint32 bitmask)
+{
+	int bitshift = 0;
+
+	while ((bitmask & (1 << bitshift)) == 0)
+		bitshift++;
+	return bitshift;
+}
+
+
 
 #if GLIB_MAJOR_VERSION < 2
 static void *discard_const(const void *const_ptr)
@@ -209,9 +223,6 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, guint lengt
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
-/* Comparision function for tree insertion. A wrapper around strcmp() */
-static int g_strcmp(gconstpointer a, gconstpointer b);
-
 /* special-case header field used within proto.c */
 int hf_text_only = -1;
 
@@ -287,6 +298,12 @@ gpa_hfinfo_t gpa_hfinfo;
 
 /* Balanced tree of abbreviations and IDs */
 static GTree *gpa_name_tree = NULL;
+static header_field_info *same_name_hfinfo;
+
+static void save_same_name_hfinfo(gpointer data)
+{
+  same_name_hfinfo = (header_field_info*)data;
+}
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
@@ -326,8 +343,8 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 
 
 	proto_names = g_hash_table_new(g_int_hash, g_int_equal);
-	proto_short_names = g_hash_table_new(g_int_hash, g_int_equal);
-	proto_filter_names = g_hash_table_new(g_int_hash, g_int_equal);
+	proto_short_names = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
 
 	proto_cleanup();
 
@@ -339,7 +356,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
 	gpa_hfinfo.hfi=NULL;
-	gpa_name_tree = g_tree_new(g_strcmp);
+	gpa_name_tree = g_tree_new_full(wrs_strcmp_with_data, NULL, NULL, save_same_name_hfinfo);
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -384,13 +401,6 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	   for them, and zero it out. */
 	tree_is_expanded = g_malloc(num_tree_types*sizeof (gboolean));
 	memset(tree_is_expanded, 0, num_tree_types*sizeof (gboolean));
-}
-
-/* String comparison func for dfilter_token GTree */
-static int
-g_strcmp(gconstpointer a, gconstpointer b)
-{
-	return strcmp((const char*)a, (const char*)b);
 }
 
 void
@@ -3498,14 +3508,12 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     }
     g_hash_table_insert(proto_names, key, (gpointer)name);
 
-    key = g_malloc (sizeof(gint));
-    *key = g_str_hash(short_name);
-    existing_name = g_hash_table_lookup(proto_short_names, key);
+    existing_name = g_hash_table_lookup(proto_short_names, (gpointer)short_name);
     if (existing_name != NULL) {
         g_error("Duplicate protocol short_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", short_name);
     }
-    g_hash_table_insert(proto_short_names, key, (gpointer)short_name);
+    g_hash_table_insert(proto_short_names, (gpointer)short_name, (gpointer)short_name);
 
     found_invalid = FALSE;
     for (i = 0; i < strlen(filter_name); i++) {
@@ -3519,14 +3527,12 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
             " Allowed are lower characters, digits, '-', '_' and '.'."
             " This might be caused by an inappropriate plugin or a development error.", filter_name);
     }
-    key = g_malloc (sizeof(gint));
-    *key = g_str_hash(filter_name);
-    existing_name = g_hash_table_lookup(proto_filter_names, key);
+    existing_name = g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
     if (existing_name != NULL) {
         g_error("Duplicate protocol filter_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", filter_name);
     }
-    g_hash_table_insert(proto_filter_names, key, (gpointer)filter_name);
+    g_hash_table_insert(proto_filter_names, (gpointer)filter_name, (gpointer)filter_name);
 
     /* Add this protocol to the list of known protocols; the list
        is sorted by protocol short name. */
@@ -3765,9 +3771,29 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 	}
 }
 
-static int
-proto_register_field_init(header_field_info *hfinfo, int parent)
-{
+/* chars allowed in field abbrev */
+static 
+const guchar fld_abbrev_chars[256] = {
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x00-0x0F */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x10-0x1F */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, /* 0x20-0x2F '-', '.'     */
+ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, /* 0x30-0x3F '0'-'9'      */
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x40-0x4F 'A'-'O'      */
+ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, /* 0x50-0x5F 'P'-'Z', '_' */
+ 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, /* 0x60-0x6F 'a'-'o'      */
+ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, /* 0x70-0x7F 'p'-'z'      */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x80-0x8F */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0x90-0x9F */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xA0-0xAF */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xB0-0xBF */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xC0-0xCF */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xD0-0xDF */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xE0-0xEF */
+ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
+};                                                         
+
+/* temporary function containing assert part for easier profiling */
+static void tmp_fld_check_assert(header_field_info *hfinfo) {
 	/* The field must have a name (with length > 0) */
 	DISSECTOR_ASSERT(hfinfo->name && hfinfo->name[0]);
 
@@ -3812,10 +3838,17 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	default:
 		break;
 	}
+}
+
+static int
+proto_register_field_init(header_field_info *hfinfo, int parent)
+{
+
+	tmp_fld_check_assert(hfinfo);
+
 	/* if this is a bitfield, compute bitshift */
 	if (hfinfo->bitmask) {
-		while ((hfinfo->bitmask & (1 << hfinfo->bitshift)) == 0)
-			hfinfo->bitshift++;
+		hfinfo->bitshift = wrs_count_bitshift(hfinfo->bitmask);
 	}
 
 	hfinfo->parent = parent;
@@ -3839,19 +3872,17 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	/* if we have real names, enter this field in the name tree */
 	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
 
-		header_field_info *same_name_hfinfo, *same_name_next_hfinfo;
-		const char *p;
+		header_field_info *same_name_next_hfinfo;
 		guchar c;
 
 		/* Check that the filter name (abbreviation) is legal;
 		 * it must contain only alphanumerics, '-', "_", and ".". */
-		for (p = hfinfo->abbrev; (c = *p) != '\0'; p++) {
-			if (!(isalnum(c) || c == '-' || c == '_' || c == '.')) {
-				fprintf(stderr, "OOPS: '%c' in '%s'\n", c, hfinfo->abbrev);
-				DISSECTOR_ASSERT(isalnum(c) || c == '-' || c == '_' ||
-			    		c == '.');
-			}
+		c = wrs_check_charset(fld_abbrev_chars, hfinfo->abbrev);
+		if (c) {
+			fprintf(stderr, "OOPS: '%c' in '%s'\n", c, hfinfo->abbrev);
+			DISSECTOR_ASSERT(!c);
 		}
+
 		/* We allow multiple hfinfo's to be registered under the same
 		 * abbreviation. This was done for X.25, as, depending
 		 * on whether it's modulo-8 or modulo-128 operation,
@@ -3859,11 +3890,11 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 		 * a byte, and we want to be able to refer to that field
 		 * with one name regardless of whether the packets
 		 * are modulo-8 or modulo-128 packets. */
-#if GLIB_MAJOR_VERSION < 2
-		same_name_hfinfo = g_tree_lookup(gpa_name_tree, discard_const(hfinfo->abbrev));
-#else
-		same_name_hfinfo = g_tree_lookup(gpa_name_tree, hfinfo->abbrev);
-#endif
+		same_name_hfinfo = NULL;
+		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
+		/* if it is already present 
+         * the previous hfinfo with the same name is saved 
+         * to same_name_hfinfo by value destroy callback */
 		if (same_name_hfinfo) {
 			/* There's already a field with this name.
 			 * Put it after that field in the list of
@@ -3882,7 +3913,6 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 			same_name_hfinfo->same_name_next = hfinfo;
 			hfinfo->same_name_prev = same_name_hfinfo;
 		}
-		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
 	}
 
 	return hfinfo->id;

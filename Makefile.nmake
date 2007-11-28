@@ -592,6 +592,7 @@ REQUIRED_TOOLS=\
 	/usr/bin/find	\
 	$(PERL)	\
 	$(PYTHON)	\
+	$(NASM)	\
 	sed	\
 	unzip	\
 	wget

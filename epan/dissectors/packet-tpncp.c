@@ -123,6 +123,7 @@ static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
 static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
 
 static gint hf_size = 1;
+static gint hf_allocated = 0; 
 static hf_register_info *hf = NULL;
 static hf_register_info hf_tpncp[] = {
     {
@@ -575,9 +576,10 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 
     if (!was_registered) {
         /* Register non-standard data should be done only once. */
+        hf_allocated = hf_size+array_length(hf_tpncp)-1;
+        if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
+            return (-1);
         for (index = 0; index < array_length(hf_tpncp); index++) {
-            if ((hf = (hf_register_info *)realloc(hf, hf_size*sizeof(hf_register_info))) == NULL)
-                return (-1);
             memcpy(hf + (hf_size - 1), hf_tpncp + index, sizeof(hf_register_info));
             hf_size++;
         }
@@ -616,8 +618,8 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
             current_data_id = data_id;
         }
         else {
-            if ((current_tpncp_data_field_info->p_next =
-                (tpncp_data_field_info *)calloc(1, sizeof(tpncp_data_field_info)))
+            if ((current_tpncp_data_field_info->p_next = 
+                (tpncp_data_field_info *)g_malloc0(sizeof(tpncp_data_field_info))) 
                 == NULL)
                 return (-1);
             current_tpncp_data_field_info = current_tpncp_data_field_info->p_next;
@@ -655,8 +657,11 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
                 break;
         }
         /* Register initialized hf_register_info in global database. */
-        if ((hf = (hf_register_info *)realloc(hf, hf_size*sizeof(hf_register_info))) == NULL)
-            return (-1);
+        if (hf_size > hf_allocated) {
+            hf_allocated += 1024;
+            if ((hf = (hf_register_info *)g_realloc(hf, hf_allocated * sizeof(hf_register_info))) == NULL)
+                return (-1);
+        }
         memcpy(hf + hf_size - 1, &hf_entr, sizeof(hf_register_info));
         hf_size++;
         current_tpncp_data_field_info->tpncp_data_field_sign = tpncp_data_field_sign;
