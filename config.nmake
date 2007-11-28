@@ -84,6 +84,7 @@ MSVC_VARIANT=MSVC6
 # Optional: To compile some time critical code from assembler instead of C
 #
 # If you have the NASM compiler, set this to the NASM executable.
+# http://nasm.sourceforge.net/
 #
 # If you don't have NASM, comment this line out, so that NASM
 # isn't defined.
