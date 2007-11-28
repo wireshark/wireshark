@@ -37,6 +37,9 @@ typedef struct _summary_tally {
 				   includes time before first packet
 				   and after last packet */
     int		marked_count;	/* number of marked packets */
+    guint64	marked_bytes;	/* total bytes in the marked packets */
+    double 	marked_start;	/* time in seconds, with msec resolution */
+    double 	marked_stop;	/* time in seconds, with msec resolution */
     int		packet_count;	/* total number of packets in trace */
     int		filtered_count; /* number of filtered packets */
     guint64	filtered_bytes;	/* total bytes in the filtered packets */
