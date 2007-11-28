@@ -51,6 +51,10 @@
 /* XXX - remove this later again, when dlg_xx function cleanup done */
 #include "dlg_utils.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 
 #define WINDOW_GEOM_KEY "window_geom"
 
@@ -488,7 +492,7 @@ window_geom_recent_read_pair(const char *name, const char *key, const char *valu
         geom.height = strtol(value, NULL, 10);
         geom.set_size = TRUE;
     } else if (strcmp(key, "maximized") == 0) {
-        if (strcasecmp(value, "true") == 0) {
+        if (g_ascii_strcasecmp(value, "true") == 0) {
             geom.maximized = TRUE;
         }
         else {

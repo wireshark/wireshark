@@ -90,6 +90,10 @@
 #include "export_object.h"
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 GtkWidget *popup_menu_object;
 
 static void
@@ -1544,11 +1548,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 		if (!widget_cf_name ||
 #ifdef _WIN32
 		    /* do a case insensitive compare on win32 */
-#if GLIB_MAJOR_VERSION < 2
-		    g_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
-#else
 		    g_ascii_strncasecmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||
-#endif
 #else   /* _WIN32 */
 		    /* do a case sensitive compare on unix */
 		    strncmp(widget_cf_name, normalized_cf_name, 1000) == 0 ||

@@ -306,7 +306,7 @@ static const value_string epl_nmt_ms_vals[] = {
 
 
 
-// EPL Device Profiles according to CANopen
+/* EPL Device Profiles according to CANopen */
 #define EPL_PROFILE_NO              0
 #define EPL_PROFILE_GENERIC_IO      401
 #define EPL_PROFILE_DRIVE           402

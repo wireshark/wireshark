@@ -48,6 +48,10 @@
 #include <epan/strutil.h>
 #include "packet-tcp.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define TCP_PORT_PVFS2 3334
 
 #define PVFS2_FH_LENGTH 8
@@ -1194,7 +1198,7 @@ dissect_pvfs_distribution(tvbuff_t *tvb, proto_tree *tree, int offset)
 		total_len = roundup8(4 + distlen + 1);
 
 		if (((distlen + 1) == PVFS_DIST_SIMPLE_STRIPE_NAME_SIZE) && 
-				(strncasecmp(tmpstr, PVFS_DIST_SIMPLE_STRIPE_NAME, 
+				(g_ascii_strncasecmp(tmpstr, PVFS_DIST_SIMPLE_STRIPE_NAME, 
 								 distlen) == 0))
 		{
 			/* Parameter for 'simple_stripe' is 8 bytes */

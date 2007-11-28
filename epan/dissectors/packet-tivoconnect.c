@@ -51,6 +51,10 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* Forward declaration we need below */
 void proto_reg_handoff_tivoconnect(void);
 
@@ -126,39 +130,39 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             *value++='\0';
             fieldlen=strlen(field)+1;
 
-            if ( strcasecmp(field,"tivoconnect") == 0 ) {
+            if ( g_ascii_strcasecmp(field,"tivoconnect") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_flavor, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
             }
-            else if ( strcasecmp(field,"method") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"method") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_method, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
             }
-            else if ( strcasecmp(field,"platform") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"platform") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_platform, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
             }
-            else if ( strcasecmp(field,"machine") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"machine") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_machine, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
                 packet_machine = value;
             }
-            else if ( strcasecmp(field,"identity") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"identity") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_identity, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
                 packet_identity = value;
             }
-            else if ( strcasecmp(field,"services") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"services") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_services, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);
             }
-            else if ( strcasecmp(field,"swversion") == 0 ) {
+            else if ( g_ascii_strcasecmp(field,"swversion") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_version, tvb, offset+fieldlen,
                     length-fieldlen-1, FALSE);

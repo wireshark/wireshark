@@ -1,4 +1,3 @@
-
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
@@ -897,7 +896,30 @@ static diam_avp_t* build_simple_avp(const avp_type_t* type,
 									const char* name,
 									const value_string* vs,
 									void* data _U_) {
-	diam_avp_t* a = g_malloc0(sizeof(diam_avp_t));
+	diam_avp_t* a;
+
+	/*
+	 * Only 32-bit or shorter integral types can have a list of values.
+	 */
+	if (vs != NULL) {
+		switch (type->ft) {
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT32:
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT32:
+			break;
+
+		default:
+			fprintf(stderr,"Diameter Dictionary: AVP %s has a list of values but isn't of a 32-bit or shorter integral type\n",
+			    name);
+			return NULL;
+		}
+	}
+
+	a = g_malloc0(sizeof(diam_avp_t));
 	a->code = code;
 	a->vendor = vendor;
 	a->dissector_v16 = type->v16;
@@ -933,18 +955,43 @@ static const avp_type_t basic_types[] = {
 
 
 
+/*
+ * This is like g_str_hash() (as of GLib 2.4.8), but it maps all
+ * upper-case ASCII characters to their ASCII lower-case equivalents.
+ * We can't use g_strdown(), as that doesn't do an ASCII mapping;
+ * in Turkish locales, for example, there are two lower-case "i"s
+ * and two upper-case "I"s, with and without dots - the ones with
+ * dots map between each other, as do the ones without dots, so "I"
+ * doesn't map to "i".
+ */
 static guint strcase_hash(gconstpointer key) {
-	char* k = ep_strdup(key);
-	g_strdown(k);
-	return g_str_hash(k);
+	const char *p = key;
+	guint h = *p;
+	char c;
+
+	if (h) {
+		if (h >= 'A' && h <= 'Z')
+			h = h - 'A' + 'a';
+		for (p += 1; *p != '\0'; p++) {
+			c = *p;
+			if (c >= 'A' && c <= 'Z')
+				c = c - 'A' + 'a';
+			h = (h << 5) - h + c;
+		}
+	}
+
+	return h;
 }
 
+/*
+ * Again, use g_ascii_strcasecmp(), not strcasecmp(), so that only ASCII
+ * letters are mapped, and they're mapped to the lower-case ASCII
+ * equivalents.
+ */
 static gboolean strcase_equal(gconstpointer ka, gconstpointer kb) {
-	char* a = ep_strdup(ka);
-	char* b = ep_strdup(kb);
-	g_strdown(a);
-	g_strdown(b);
-	return g_str_equal(a,b);
+	const char* a = ka;
+	const char* b = kb;
+	return g_ascii_strcasecmp(a,b) == 0;
 }
 
 extern int dictionary_load(void);
@@ -959,7 +1006,7 @@ extern int dictionary_load(void) {
 	gboolean do_dump_dict = getenv("WIRESHARK_DUMP_DIAM_DICT") ? TRUE : FALSE;
 	char* dir = ep_strdup_printf("%s" G_DIR_SEPARATOR_S "diameter" G_DIR_SEPARATOR_S, get_datafile_dir());
 	const avp_type_t* type;
-	const avp_type_t* bytes = basic_types;
+	const avp_type_t* octetstring = &basic_types[0];
 	diam_avp_t* avp;
 	GHashTable* vendors = g_hash_table_new(strcase_hash,strcase_equal);
 	diam_vnd_t* vnd;
@@ -1008,7 +1055,7 @@ extern int dictionary_load(void) {
 			parent = g_hash_table_lookup(build_dict.types,t->parent);
 		}
 
-		if (!parent) parent = bytes;
+		if (!parent) parent = octetstring;
 
 		/* insert the parent type for this type */
 		g_hash_table_insert(build_dict.types,t->name,(void*)parent);
@@ -1104,18 +1151,20 @@ extern int dictionary_load(void) {
 		if ( (!type) && a->type )
 			type = g_hash_table_lookup(build_dict.types,a->type);
 
-		if (!type) type = bytes;
+		if (!type) type = octetstring;
 
 		avp = type->build( type, a->code, vnd, a->name, vs, avp_data);
-		g_hash_table_insert(build_dict.avps, a->name, avp);
+		if (avp != NULL) {
+			g_hash_table_insert(build_dict.avps, a->name, avp);
 
-		{
-			emem_tree_key_t k[] = {
-				{ 1, &(a->code) },
-				{ 1, &(vnd->code) },
-				{ 0 , NULL }
-			};
-			pe_tree_insert32_array(dictionary.avps,k,avp);
+			{
+				emem_tree_key_t k[] = {
+					{ 1, &(a->code) },
+					{ 1, &(vnd->code) },
+					{ 0 , NULL }
+				};
+				pe_tree_insert32_array(dictionary.avps,k,avp);
+			}
 		}
 	}
 

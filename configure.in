@@ -1314,6 +1314,28 @@ AC_SUBST(MKSTEMP_O)
 
 ac_save_LIBS="$LIBS"
 LIBS="$GLIB_LIBS $LIBS"
+G_ASCII_STRCASECMP_C=""
+G_ASCII_STRCASECMP_O=""
+G_ASCII_STRCASECMP_LO=""
+AC_CHECK_FUNC(g_ascii_strcasecmp,
+  [G_ASCII_STRCASECMP_O=""
+   G_ASCII_STRCASECMP_LO=""],
+  [G_ASCII_STRCASECMP_O="g_ascii_strcasecmp.o"
+   G_ASCII_STRCASECMP_LO="g_ascii_strcasecmp.lo"
+   AC_DEFINE(NEED_G_ASCII_STRCASECMP_H, 1, [Define if g_ascii_strcasecmp.h needs to be included])
+])
+LIBS="$ac_save_LIBS"
+if test "$ac_cv_func_g_ascii_strcasecmp" = no ; then
+  G_ASCII_STRCASECMP_C="g_ascii_strcasecmp.c"
+  G_ASCII_STRCASECMP_O="g_ascii_strcasecmp.o"
+  G_ASCII_STRCASECMP_LO="g_ascii_strcasecmp.lo"
+fi
+AC_SUBST(G_ASCII_STRCASECMP_C)
+AC_SUBST(G_ASCII_STRCASECMP_O)
+AC_SUBST(G_ASCII_STRCASECMP_LO)
+
+ac_save_LIBS="$LIBS"
+LIBS="$GLIB_LIBS $LIBS"
 G_ASCII_STRTOULL_C=""
 G_ASCII_STRTOULL_O=""
 G_ASCII_STRTOULL_LO=""

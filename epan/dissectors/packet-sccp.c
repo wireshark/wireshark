@@ -56,6 +56,10 @@
 #include "tap.h"
 #include <epan/uat.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
 
@@ -64,6 +68,7 @@ static Standard_Type decode_mtp3_standard;
 #define POINTER_LENGTH      1
 #define POINTER_LENGTH_LONG 2
 
+#define INVALID_LR 0xffffff /* a reserved value */
 
 /* Same as below but with names typed out */
 static const value_string sccp_message_type_values[] = {
@@ -1271,7 +1276,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 	      item = proto_tree_add_text(call_tree, tvb, offset - 1, ADDRESS_SSN_LENGTH, "Linked to %s", ssn_dissector_short_name);
 	      PROTO_ITEM_SET_GENERATED(item);
 
-	      if (strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
+	      if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
 		      tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
 
 		      if(tcap_ssn_dissector){
@@ -1516,11 +1521,13 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (pinfo->p2p_dir) {
 	case P2P_DIR_SENT:
 		ssn = assoc->calling_ssn;
+		other_ssn = assoc->called_ssn;
 		dpc = (const mtp3_addr_pc_t*)pinfo->dst.data;
 		opc = (const mtp3_addr_pc_t*)pinfo->src.data;
 		break;
 	case P2P_DIR_RECV:
 		ssn = assoc->called_ssn;
+		other_ssn = assoc->calling_ssn;
 		dpc = (const mtp3_addr_pc_t*)pinfo->src.data;
 		opc = (const mtp3_addr_pc_t*)pinfo->dst.data;
 		break;
@@ -1981,8 +1988,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   };
 
   /* Starting a new message dissection; clear the global assoc, SLR, and DLR values */
-  dlr = 0;
-  slr = 0;
+  dlr = INVALID_LR;
+  slr = INVALID_LR;
   assoc = NULL;
 
   no_assoc.calling_dpc = 0;

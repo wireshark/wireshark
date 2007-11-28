@@ -77,7 +77,7 @@ static gint ett_vendor_id_encoding_decoder = -1;
 static gint ett_ul_service_flow_decoder = -1;
 static gint ett_dl_service_flow_decoder = -1;
 
-/* The following two variables save the Scheduling Service type for 
+/* The following two variables save the Scheduling Service type for
    the Grant Management subheader dissector and track whether or not
    one has been seen.
    */
@@ -490,7 +490,7 @@ static gint hf_cst_pkt_class_rule_tos_low = -1;
 static gint hf_cst_pkt_class_rule_tos_high = -1;
 static gint hf_cst_pkt_class_rule_tos_mask = -1;
 static gint hf_cst_pkt_class_rule_protocol = -1;
-//static gint hf_cst_pkt_class_rule_protocol_number = -1;
+/*static gint hf_cst_pkt_class_rule_protocol_number = -1;*/
 static gint hf_cst_pkt_class_rule_ip_masked_src_address = -1;
 static gint hf_cst_pkt_class_rule_ip_masked_dest_address = -1;
 static gint hf_cst_pkt_class_rule_src_ipv4 = -1;
@@ -546,7 +546,7 @@ static gint hf_csper_atm_classifier = -1;
 static gint hf_csper_atm_classifier_vpi = -1;
 static gint hf_csper_atm_classifier_vci = -1;
 static gint hf_csper_atm_classifier_id = -1;
-//static gint hf_csper_atm_classifier_dsc_action = -1;
+/*static gint hf_csper_atm_classifier_dsc_action = -1;*/
 static gint hf_csper_unknown_type = -1;
 
 static gint hf_xmac_tuple_rsvd = -1;
@@ -1372,7 +1372,7 @@ static gint hf_pkm_msg_crypto_suite = -1;
 static gint hf_pkm_msg_crypto_suite_msb = -1;
 static gint hf_pkm_msg_crypto_suite_middle = -1;
 static gint hf_pkm_msg_crypto_suite_lsb = -1;
-//static gint hf_pkm_msg_version = -1;
+/*static gint hf_pkm_msg_version = -1;*/
 static gint hf_pkm_attr_push_modes = -1;
 static gint hf_pkm_attr_key_push_counter = -1;
 static gint hf_pkm_attr_gkek = -1;
@@ -1919,7 +1919,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 					proto_tree_add_item(tlv_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, FALSE);
 				break;
 				case CST_CLASSIFIER_ERROR_PARAM_SET:
-				case CST_PHS_ERROR_PARAM_SET: 
+				case CST_PHS_ERROR_PARAM_SET:
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Classifier Error Parameter Set (%u byte(s))", tlv_len);
 					/* call the error parameter set function */
 					wimax_error_parameter_set_decoder(tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
@@ -2051,7 +2051,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_index, tvb, tlv_offset, length, FALSE);
 							break;
 							case CST_PKT_CLASS_RULE_IPv6_FLOW_LABEL:
-//???								if(ipv6)
+/*???								if(ipv6)*/
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_ipv6_flow_label, tvb, tlv_offset, length, FALSE);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_ipv6_flow_label, tvb, tlv_offset, length, FALSE);
 							break;
@@ -2241,7 +2241,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				proto_tree_add_item(tlv_tree, hf_sfe_set_active, tvb, offset, 1, FALSE);
 				proto_tree_add_item(tlv_tree, hf_sfe_set_rsvd, tvb, offset, 1, FALSE);
 			break;
-			case SFE_TRAFFIC_PRIORITY: 
+			case SFE_TRAFFIC_PRIORITY:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_traffic_priority, tvb, offset, tlv_len, FALSE);
 				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_traffic_priority, tvb, offset, tlv_len, FALSE);
 				proto_item_append_text(tlv_item, " (allowed values are 0-7)");
@@ -2922,7 +2922,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 #if 0 /* rserved by IEE 802.16E */
 			case PKM_ATTR_VERSION:
 				proto_tree_add_item(tree, hf_pkm_msg_version, tvb, offset, tlv_len, FALSE);
-			break; 
+			break;
 #endif
 			case PKM_ATTR_SA_DESCRIPTOR:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "SA-Descriptor (%u bytes)", tlv_len);

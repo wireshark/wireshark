@@ -67,6 +67,10 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 
 /* Version is the first 2 bits of the first octet*/
 #define RTCP_VERSION(octet)	((octet) >> 6)
@@ -695,7 +699,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	                       ascii_name );
 
 	/* See if we can handle this application type */
-	if ( strncasecmp(ascii_name, poc1_app_name_str,4 ) == 0 )
+	if ( g_ascii_strncasecmp(ascii_name, poc1_app_name_str,4 ) == 0 )
 	{
 		/* PoC1 Application */
 		guint8 t2timer_code, participants_code;

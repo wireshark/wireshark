@@ -49,6 +49,10 @@
 #include "file_util.h"
 #include "u3.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
 #define RECENT_KEY_AIRPCAP_TOOLBAR_SHOW     "gui.airpcap_toolbar_show"
@@ -321,63 +325,63 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
   char *p;
 
   if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.main_toolbar_show = TRUE;
     }
     else {
         recent.main_toolbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_FILTER_TOOLBAR_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.filter_toolbar_show = TRUE;
     }
     else {
         recent.filter_toolbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_AIRPCAP_TOOLBAR_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.airpcap_toolbar_show = TRUE;
     }
     else {
         recent.airpcap_toolbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_DRIVER_CHECK_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.airpcap_driver_check_show = TRUE;
     }
     else {
         recent.airpcap_driver_check_show = FALSE;
     }
   }else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.packet_list_show = TRUE;
     }
     else {
         recent.packet_list_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_TREE_VIEW_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.tree_view_show = TRUE;
     }
     else {
         recent.tree_view_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_BYTE_VIEW_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.byte_view_show = TRUE;
     }
     else {
         recent.byte_view_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_STATUSBAR_SHOW) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.statusbar_show = TRUE;
     }
     else {
         recent.statusbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_PACKET_LIST_COLORIZE) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.packet_list_colorize = TRUE;
     }
     else {
@@ -395,7 +399,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     recent.gui_zoom_level = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.gui_geometry_main_maximized = TRUE;
     }
     else {
@@ -465,14 +469,14 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       window_geom_recent_read_pair(win, sub_key, value);
     }
   } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_ELEVATED) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.privs_warn_if_elevated = TRUE;
     }
     else {
         recent.privs_warn_if_elevated = FALSE;
     }
   } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.privs_warn_if_no_npf = TRUE;
     }
     else {

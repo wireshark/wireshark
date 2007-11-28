@@ -953,11 +953,11 @@ sctp_ack_block(packet_info *pinfo, sctp_half_assoc_t *h, tvbuff_t *tvb,
 		h->peer->cumm_ack = rel_end + 1;
 
 	if (rel_start <= rel_end && rel_end - rel_start < 5000 ) {
-		guint32 rel_tsn;
-		for (rel_tsn = rel_start ; rel_tsn <= rel_end ; rel_tsn++) {
+		guint32 rel_tsn, i;
+		for (i=0; i <= rel_end-rel_start; i++) {
+			rel_tsn = (guint32) (i+rel_start);
 			sctp_ack(pinfo, tvb,  acks_tree, h, rel_tsn);
 		}
-
 	}
 }
 
@@ -2285,7 +2285,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     if (!msg->ends)
       msg->ends = beginend;
     else {
-      if (msg->begins->fragment->tsn > beginend->fragment->tsn) {
+      if (msg->ends->fragment->tsn > beginend->fragment->tsn) {
         beginend->next = msg->ends;
         msg->ends = beginend;
       } else {

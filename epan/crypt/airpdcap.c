@@ -49,6 +49,10 @@
 
 #include "wep-wpadefs.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /****************************************************************************/
 
 /****************************************************************************/
@@ -1353,7 +1357,7 @@ parse_key_string(gchar* input_string)
 
     /* First, check for a WEP string */
     /* XXX - This duplicates code in packet-ieee80211.c */
-    if (g_strncasecmp(input_string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+    if (g_ascii_strncasecmp(input_string, STRING_KEY_TYPE_WEP ":", 4) == 0) {
         first_nibble += 4;
     }
 
@@ -1407,7 +1411,7 @@ parse_key_string(gchar* input_string)
         ssid = g_strdup(tokens[2]);
     }
 
-    if (g_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
+    if (g_ascii_strcasecmp(type,STRING_KEY_TYPE_WPA_PSK) == 0) /* WPA key */
     {
         /* Create a new string */
         key_string = g_string_new(key);
@@ -1446,7 +1450,7 @@ parse_key_string(gchar* input_string)
         g_strfreev(tokens);
         return dk;
     }
-    else if(g_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the number of tokens is more than three, we accept the string... if the first three tokens are correct... */
+    else if(g_ascii_strcasecmp(type,STRING_KEY_TYPE_WPA_PWD) == 0) /* WPA key *//* If the number of tokens is more than three, we accept the string... if the first three tokens are correct... */
     {
         /* Create a new string */
         key_string = g_string_new(key);

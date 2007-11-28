@@ -243,6 +243,7 @@ init_pipe_args(int *argc) {
 gboolean
 sync_pipe_start(capture_options *capture_opts) {
     char ssnap[ARGV_NUMBER_LEN];
+    char sdlt[ARGV_NUMBER_LEN];
     char scount[ARGV_NUMBER_LEN];
     char sfilesize[ARGV_NUMBER_LEN];
     char sfile_duration[ARGV_NUMBER_LEN];
@@ -297,12 +298,12 @@ sync_pipe_start(capture_options *capture_opts) {
     if (capture_opts->linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
+      g_snprintf(sdlt, ARGV_NUMBER_LEN, "%s",linktype_val_to_name(capture_opts->linktype));
 #else
       /* we can't get the type name, just treat it as a number */
-      g_snprintf(ssnap, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
+      g_snprintf(sdlt, ARGV_NUMBER_LEN, "%d",capture_opts->linktype);
 #endif
-      argv = sync_pipe_add_arg(argv, &argc, ssnap);
+      argv = sync_pipe_add_arg(argv, &argc, sdlt);
     }
 
     if(capture_opts->multi_files_on) {
@@ -1341,14 +1342,40 @@ signal_pipe_capquit_to_child(capture_options *capture_opts)
 void
 sync_pipe_stop(capture_options *capture_opts)
 {
+#ifdef _WIN32
+  int count;
+  DWORD childstatus;
+  gboolean terminate = TRUE;
+#endif
+
   if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
     /* send the SIGUSR1 signal to close the capture child gracefully. */
     kill(capture_opts->fork_child, SIGUSR1);
 #else
-    /* Win32 doesn't have the kill() system call, use the special signal pipe
-       instead to close the capture child gracefully. */
+#define STOP_SLEEP_TIME 500 /* ms */
+#define STOP_CHECK_TIME 50
+    /* First, use the special signal pipe to try to close the capture child
+     * gracefully.
+     */
     signal_pipe_capquit_to_child(capture_opts);
+
+    /* Next, wait for the process to exit on its own */
+    for (count = 0; count < STOP_SLEEP_TIME / STOP_CHECK_TIME; count++) {
+      if (GetExitCodeProcess((HANDLE) capture_opts->fork_child, &childstatus) &&
+              childstatus != STILL_ACTIVE) {
+        terminate = FALSE;
+        break;
+      }
+      Sleep(STOP_CHECK_TIME);
+    }
+
+    /* Force the issue. */
+    if (terminate) {
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+            "sync_pipe_stop: forcing child to exit");
+      sync_pipe_kill(capture_opts->fork_child);
+    }
 #endif
   }
 }

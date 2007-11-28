@@ -87,6 +87,10 @@
 #define MAX_ENCRYPTION_KEYS 64
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #ifndef roundup2
 #define	roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
@@ -5703,7 +5707,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
             proto_item *bar_parent_item;
             proto_tree *bar_sub_tree;
 
-            proto_tree_add_item(hdr_tree, hf_addr_ra, tvb, offset, 6, FALSE);
+            proto_tree_add_item(hdr_tree, hf_addr_ta, tvb, offset, 6, FALSE);
             offset += 6;
 
             bar_control = tvb_get_letohs(tvb, offset);
@@ -10266,7 +10270,7 @@ static gboolean
 wep_str_to_bytes(const char *hex_str, GByteArray *bytes) {
   char *first_nibble = (char *) hex_str;
 
-  if (g_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
+  if (g_ascii_strncasecmp(hex_str, STRING_KEY_TYPE_WEP ":", 4) == 0) {
     first_nibble += 4;
   }
 

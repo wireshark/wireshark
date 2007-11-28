@@ -158,7 +158,7 @@ static gint hf_culmap_reserved_1 = -1;
 static gint hf_culmap_nep_code_1 = -1;
 static gint hf_culmap_nsch_code_1 = -1;
 static gint hf_culmap_num_bands_1 = -1;
-//static gint hf_culmap_band_index_1 = -1;
+/*static gint hf_culmap_band_index_1 = -1;*/
 static gint hf_culmap_nb_bitmap_1 = -1;
 
 static gint hf_culmap_shortened_uiuc = -1;
@@ -1575,7 +1575,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		break;
 		case COMPACT_UL_MAP_TYPE_EXTENSION:/* 6.3.2.3.43.7.7 */
 			/* decode the Compact UL-MAP externsion IE */
-			nibble_length = wimax_culmap_extension_ie_decoder(tree, pinfo, tvb, ul_map_offset, nibble_offset);//, cqich_indicator);
+			nibble_length = wimax_culmap_extension_ie_decoder(tree, pinfo, tvb, ul_map_offset, nibble_offset);/*, cqich_indicator);*/
 			length = nibble_length;
 		break;
 		default:/* Reserved Type */

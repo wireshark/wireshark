@@ -54,6 +54,10 @@
 #include <airpcap.h>
 #include "airpcap_loader.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * We load dynamically the dag library in order link it only when
  * it's present on the system
@@ -153,7 +157,7 @@ get_wep_key(pref_t *pref, gpointer ud _U_)
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
+    if (g_ascii_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
 	my_string = g_strdup(*pref->varp.string);
 
@@ -219,7 +223,7 @@ set_wep_key(pref_t *pref, gpointer ud _U_)
     /* Retrieve user data info */
     user_data = (keys_cb_data_t*)ud;
 
-    if (g_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
+    if (g_ascii_strncasecmp(pref->name, "wep_key", 7) == 0 && pref->type == PREF_STRING)
     {
 	/* Ok, the pref we're gonna set is a wep_key ... but what number? */
 	sscanf(pref->name,"wep_key%d",&wep_key_number);
@@ -1550,7 +1554,7 @@ airpcap_get_if_string_number(airpcap_if_info_t* if_info)
      */
     if(a == 0)
     {
-	if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)!=0)
+	if(g_ascii_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)!=0)
 	    number = g_strdup_printf("??");
 	else
 	    number = g_strdup_printf(AIRPCAP_CHANNEL_ANY_NAME);
@@ -2238,7 +2242,7 @@ test_if_on(pref_t *pref, gpointer ud _U_)
     is_on = (gboolean*)ud;
 
 
-    if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+    if (g_ascii_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
     {
 	number = *pref->varp.boolp;
 
@@ -2335,7 +2339,7 @@ set_on_off(pref_t *pref, gpointer ud _U_)
     /* Retrieve user data info */
     is_on = (gboolean*)ud;
 
-    if (g_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
+    if (g_ascii_strncasecmp(pref->name, "enable_decryption", 17) == 0 && pref->type == PREF_BOOL)
     {
 	number = *pref->varp.boolp;
 

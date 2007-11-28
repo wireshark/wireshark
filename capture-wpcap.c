@@ -41,6 +41,10 @@
 /* XXX - yes, I know, I should move cppmagic.h to a generic location. */
 #include "tools/lemon/cppmagic.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 
 #define MAX_WIN_IF_NAME_LEN 511
 
@@ -406,7 +410,7 @@ pcap_datalink_name_to_val(const char *name)
 		 * We don't have it in WinPcap; do it ourselves.
 		 */
 		for (i = 0; dlt_choices[i].name != NULL; i++) {
-			if (strcasecmp(dlt_choices[i].name + sizeof("DLT_") - 1,
+			if (g_ascii_strcasecmp(dlt_choices[i].name + sizeof("DLT_") - 1,
 			    name) == 0)
 				return dlt_choices[i].dlt;
 		}

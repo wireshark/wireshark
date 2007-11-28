@@ -51,6 +51,10 @@
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* Internal functions */
 static module_t *find_subtree(module_t *parent, const char *name);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
@@ -120,7 +124,7 @@ module_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	const module_t *p1 = p1_arg;
 	const module_t *p2 = p2_arg;
 
-	return g_strcasecmp(p1->name, p2->name);
+	return g_ascii_strcasecmp(p1->name, p2->name);
 }
 
 static gint
@@ -129,7 +133,7 @@ module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
 	const module_t *p1 = p1_arg;
 	const module_t *p2 = p2_arg;
 
-	return g_strcasecmp(p1->title, p2->title);
+	return g_ascii_strcasecmp(p1->title, p2->title);
 }
 
 /*
@@ -1016,12 +1020,12 @@ find_val_for_string(const char *needle, const enum_val_t *haystack,
 	int i;
 
 	for (i = 0; haystack[i].name != NULL; i++) {
-		if (strcasecmp(needle, haystack[i].name) == 0) {
+		if (g_ascii_strcasecmp(needle, haystack[i].name) == 0) {
 			return haystack[i].value;
 		}
 	}
 	for (i = 0; haystack[i].name != NULL; i++) {
-		if (strcasecmp(needle, haystack[i].description) == 0) {
+		if (g_ascii_strcasecmp(needle, haystack[i].description) == 0) {
 			return haystack[i].value;
 		}
 	}
@@ -1760,28 +1764,28 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.st_server_bg.green = GREEN_COMPONENT(cval);
     prefs.st_server_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_SCROLLBAR_ON_RIGHT) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_scrollbar_on_right = TRUE;
     }
     else {
 	    prefs.gui_scrollbar_on_right = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PLIST_SEL_BROWSE) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_plist_sel_browse = TRUE;
     }
     else {
 	    prefs.gui_plist_sel_browse = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PTREE_SEL_BROWSE) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_ptree_sel_browse = TRUE;
     }
     else {
 	    prefs.gui_ptree_sel_browse = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_ALTERN_COLORS) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
             prefs.gui_altern_colors = TRUE;
     }
     else {
@@ -1797,7 +1801,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.gui_hex_dump_highlight_style =
 	find_index_from_string_array(value, gui_hex_dump_highlight_style_text, 1);
   } else if (strcmp(pref_name, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
             prefs.filter_toolbar_show_in_statusbar = TRUE;
     }
     else {
@@ -1831,21 +1835,21 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.gui_marked_bg.green = GREEN_COMPONENT(cval);
     prefs.gui_marked_bg.blue  = BLUE_COMPONENT(cval);
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_POSITION) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_geometry_save_position = TRUE;
     }
     else {
 	    prefs.gui_geometry_save_position = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_SIZE) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_geometry_save_size = TRUE;
     }
     else {
 	    prefs.gui_geometry_save_size = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_GEOMETRY_SAVE_MAXIMIZED) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_geometry_save_maximized = TRUE;
     }
     else {
@@ -1877,21 +1881,21 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   } else if (strcmp(pref_name, PRS_GUI_FILEOPEN_PREVIEW) == 0) {
     prefs.gui_fileopen_preview = strtoul(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_GUI_ASK_UNSAVED) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_ask_unsaved = TRUE;
     }
     else {
 	    prefs.gui_ask_unsaved = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_FIND_WRAP) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_find_wrap = TRUE;
     }
     else {
 	    prefs.gui_find_wrap = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_USE_PREF_SAVE) == 0) {
-    if (strcasecmp(value, "true") == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
 	    prefs.gui_use_pref_save = TRUE;
     }
     else {
@@ -1938,13 +1942,13 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       g_free(prefs.capture_devices_hide);
     prefs.capture_devices_hide = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_PROM_MODE) == 0) {
-    prefs.capture_prom_mode = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+    prefs.capture_prom_mode = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_REAL_TIME) == 0) {
-    prefs.capture_real_time = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+    prefs.capture_real_time = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_AUTO_SCROLL) == 0) {
-    prefs.capture_auto_scroll = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+    prefs.capture_auto_scroll = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else if (strcmp(pref_name, PRS_CAP_SHOW_INFO) == 0) {
-    prefs.capture_show_info = ((strcasecmp(value, "true") == 0)?TRUE:FALSE);
+    prefs.capture_show_info = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
 
 /* handle the global options */
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE) == 0 ||
@@ -1955,9 +1959,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
      *
      * Otherwise, we treat it as a list of name types we want to resolve.
      */
-    if (strcasecmp(value, "true") == 0)
+    if (g_ascii_strcasecmp(value, "true") == 0)
       prefs.name_resolve = RESOLV_ALL;
-    else if (strcasecmp(value, "false") == 0)
+    else if (g_ascii_strcasecmp(value, "false") == 0)
       prefs.name_resolve = RESOLV_NONE;
     else {
       prefs.name_resolve = RESOLV_NONE;	/* start out with none set */
@@ -2219,7 +2223,7 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 
     case PREF_BOOL:
       /* XXX - give an error if it's neither "true" nor "false"? */
-      if (strcasecmp(value, "true") == 0)
+      if (g_ascii_strcasecmp(value, "true") == 0)
         bval = TRUE;
       else
         bval = FALSE;

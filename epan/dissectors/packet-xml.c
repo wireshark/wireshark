@@ -54,6 +54,10 @@
 #include <epan/prefs.h>
 #include <epan/garrayfix.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 typedef struct _xml_ns_t {
     /* the name of this namespace */
 	gchar* name;
@@ -1151,7 +1155,7 @@ static void init_xml_names(void) {
 	            filename = GETFNAME_OP(file);
 
 	            namelen = strlen(filename);
-	            if ( namelen > 4 && ( g_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
+	            if ( namelen > 4 && ( g_ascii_strcasecmp(filename+(namelen-4),".dtd")  == 0 ) ) {
 	                GString* errors = g_string_new("");
 	                GString* preparsed = dtd_preparse(dirname, filename, errors);
 	                dtd_build_data_t* dtd_data;

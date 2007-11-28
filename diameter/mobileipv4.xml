@@ -8,6 +8,11 @@
 		<command name="Home-Agent-MIP" code="262" vendor-id="None"/>
 
 		<!-- ************************** Mobile-IPv4 AVPS ********************* -->
+<!--
+http://www.iana.org/assignments/aaa-parameters
+318            MIP-FA-to-HA-SPI                   [RFC4004]
+319            MIP-FA-to-MN-SPI                   [RFC4004]
+-->
 		<avp name="MIP-Reg-Request" code="320" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="MIPRegistrationRequest"/>
 		</avp>
@@ -22,9 +27,23 @@
 				<gavp name="MIP-Authenticator-Offset"/>
 			</grouped>
 		</avp>
+<!--
+323            MIP-HA-to-FA-SPI                   [RFC4004]
+324            Unassigned
+325            MIP-MN-to-FA-MSA                   [RFC4004]
+326            MIP-FA-to-MN-MSA                   [RFC4004]
+327            Unassigned
+328            MIP-FA-to-HA-MSA                   [RFC4004]
+329            MIP-HA-to-FA-MSA                   [RFC4004]
+330 not mentioned ???
+-->
 		<avp name="MIP-Foreign-Agent-Host" code="330" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="DiameterIdentity"/>
 		</avp>
+<!--
+331            MIP-MN-to-HA-MSA                   [RFC4004]
+332            MIP-HA-to-MN-MSA                   [RFC4004]
+-->
 		<avp name="MIP-Mobile-Node-Address" code="333" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="IPAddress"/>
 		</avp>
@@ -52,6 +71,11 @@
 		<avp name="MIP-MN-AAA-SPI" code="341" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="Unsigned32"/>
 		</avp>
+<!--
+342            MIP-Filter-Rule                    [RFC4004]
+343            MIP-Session-Key                    [RFC4004]
+-->
+
 		<avp name="MIP-FA-Challenge" code="344" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="OctetString"/>
 		</avp>
@@ -68,6 +92,15 @@
 		<avp name="MIP-Filter-Rule" code="347" mandatory="must" vendor-bit="mustnot" may-encrypt="yes">
 			<type type-name="IPFilterRule"/>
 		</avp>
+<!--
+348            MIP-Home-Agent-Host                [RFC4004]
+349-362        Unassigned
+363            Accounting-Input-Octets            [RFC4005][RFC4004]
+364            Accounting-Output-Octets           [RFC4005][RFC4004]
+365            Accounting-Input-Packets           [RFC4005][RFC4004]
+366            Accounting-Output-Packets          [RFC4005][RFC4004]
+367            MIP-MSA-Lifetime                   [RFC4004]
+-->
 		<!-- ************************ END Mobile-IPv4 AVPS ******************* -->
 
 	</application>

@@ -16,7 +16,7 @@
  * Copyright 1998 Gerald Combs
  *
  * WAP Binary XML decoding functionality provided by Olivier Biot.
- * WV-CSP 1.2 updated to Release version and WV-CSP 1.3 protocol 
+ * WV-CSP 1.2 updated to Release version and WV-CSP 1.3 protocol
  * decoding functionality provided by Andrei Rubaniuk.
  *
  * The WAP specifications used to be found at the WAP Forum:
@@ -61,6 +61,10 @@
 
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
+
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
@@ -397,8 +401,8 @@ wv_integer_from_opaque(tvbuff_t *tvb, guint32 offset, guint32 data_len)
 	return str;
 }
 
-static char * 
-wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset, 
+static char *
+wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			   guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
@@ -460,13 +464,13 @@ wv_csp10_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-static char * 
+static char *
 wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			    const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-	
+
 	if ( token && ( (strcmp(token, "Code") == 0)
 			|| (strcmp(token, "ContentSize") == 0)
 			|| (strcmp(token, "MessageCount") == 0)
@@ -487,7 +491,7 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		{
 			str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 		}
-	
+
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
@@ -495,13 +499,13 @@ wv_csp10_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 	return str;
 }
 
-static char * 
-wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset, 
+static char *
+wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			   guint8 token, guint8 codepage, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-	
+
 	switch (codepage) {
 	case 0: /* Common code page */
 		switch (token) {
@@ -563,7 +567,7 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
-	
+
 	return str;
 }
 
@@ -610,7 +614,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-	
+
 	switch (codepage) {
 	case 0: /* Common code page */
 		switch (token) {
@@ -683,7 +687,7 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
 	*length += data_len;
-	
+
 	return str;
 }
 
@@ -731,7 +735,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-	
+
 	switch (codepage)
 		{
 		case 0: /* Common code page */
@@ -752,7 +756,7 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			break;
 
 		case 1: /* Access code page */
-			switch (token) 
+			switch (token)
 				{
 				case 0x1C: /* <KeepAliveTime> */
 				case 0x25: /* <SearchFindings> */
@@ -776,12 +780,12 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x0E: /* <ServerPollMin> */
 				case 0x12: /* <TCPPort> */
 				case 0x13: /* <UDPPort> */
-					/* New in WV-CSP 1.3*/	
+					/* New in WV-CSP 1.3*/
 				case 0x16: /* <AcceptedPullLength> */
-				case 0x17: /* <AcceptedPushLength> */  
+				case 0x17: /* <AcceptedPushLength> */
 				case 0x18: /* <AcceptedRichContentLength> */
 				case 0x19: /* <AcceptedTextContentLength> */
-				case 0x1B: /* <PlainTextCharset> MIBenum number - character set, i.e. UTF-8, windows-1251, etc. */ 
+				case 0x1B: /* <PlainTextCharset> MIBenum number - character set, i.e. UTF-8, windows-1251, etc. */
 				case 0x1C: /* <SessionPriority> */
 				case 0x1F: /* <UserSessionLimit> */
 				case 0x21: /* <MultiTransPerMessage> */
@@ -794,12 +798,12 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			break;
 
 		case 5: /* Presence attribute code page */
-			switch (token) 
+			switch (token)
 				{
-					/* New in WV-CSP 1.3*/	
-					//		case 0x3B: /* <ClientContentLimit> */	
+					/* New in WV-CSP 1.3*/
+					/*		case 0x3B: */ /* <ClientContentLimit> */
 				case 0x3C: /* <ClientIMPriority> */
-				case 0x3D: /* <MaxPullLength> */ 
+				case 0x3D: /* <MaxPullLength> */
 				case 0x3E: /* <MaxPushLength> */
 					str = wv_integer_from_opaque(tvb, offset + *length, data_len);
 					break;
@@ -859,18 +863,18 @@ wv_csp13_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 			str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 		}
 	*length += data_len;
-	
+
 	return str;
 }
 
 
 static char *
-wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset, 
+wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			    const char *token, guint8 codepage _U_, guint32 *length)
 {
 	guint32 data_len = tvb_get_guintvar(tvb, offset, length);
 	char *str = NULL;
-	
+
 	if ( token && ( (strcmp(token, "Code") == 0)
 			|| (strcmp(token, "ContentSize") == 0)
 			|| (strcmp(token, "MessageCount") == 0)
@@ -891,7 +895,7 @@ wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			|| (strcmp(token, "SearchIndex") == 0)
 			|| (strcmp(token, "SearchLimit") == 0)
 			|| (strcmp(token, "AcceptedPullLength") == 0)
-			|| (strcmp(token, "AcceptedPushLength") == 0)  
+			|| (strcmp(token, "AcceptedPushLength") == 0)
 			|| (strcmp(token, "AcceptedRichContentLength") == 0)
 			|| (strcmp(token, "AcceptedTextContentLength") == 0)
 			|| (strcmp(token, "SessionPriority") == 0)
@@ -914,7 +918,7 @@ wv_csp13_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 			{
 				str = wv_datetime_from_opaque(tvb, offset + *length, data_len);
 			}
-		
+
 	if (str == NULL) { /* Error, or not parsed */
 		str = g_strdup_printf("(%d bytes of unparsed opaque data)", data_len);
 	}
@@ -4563,7 +4567,7 @@ static const value_string wbxml_wv_csp_12_tags_cp3[] = {
 	{ 0x12, "TCPPort" },
 	{ 0x13, "UDPPort" },
 	{ 0x14, "CIRURL" },
-	
+
 	{ 0x00, NULL }
 };
 
@@ -5082,7 +5086,7 @@ static const value_string wbxml_wv_csp_13_tags_cp1[] = {
 	{ 0x06, "AllFunctionsRequest" },
 	{ 0x07, "CancelInvite-Request" },
 	{ 0x08, "CancelInviteUser-Request" },
-	//	{ 0x09, "Capability" }, - removed in WV 1.3
+	/*	{ 0x09, "Capability" }, - removed in WV 1.3*/
 	{ 0x0A, "CapabilityList" },
 	{ 0x0B, "CapabilityRequest" },
 	{ 0x0C, "ClientCapability-Request" },
@@ -5147,11 +5151,11 @@ static const value_string wbxml_wv_csp_13_tags_cp1[] = {
 static const value_string wbxml_wv_csp_13_tags_cp2[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ADDGM" },
-	//	{ 0x06, "AttListFunc" }, removed in WV 1.3
+	/*	{ 0x06, "AttListFunc" }, removed in WV 1.3 */
 	{ 0x07, "BLENT" },
-	//	{ 0x08, "CAAUT" }, removed in WV 1.3
+	/*	{ 0x08, "CAAUT" }, removed in WV 1.3 */
 	{ 0x09, "CAINV" },
-	//	{ 0x0A, "CALI" }, removed in WV 1.3
+	/*	{ 0x0A, "CALI" }, removed in WV 1.3 */
 	{ 0x0B, "CCLI" },
 	{ 0x0C, "ContListFunc" },
 	{ 0x0D, "CREAG" },
@@ -5160,7 +5164,7 @@ static const value_string wbxml_wv_csp_13_tags_cp2[] = {
 	{ 0x10, "DELGR" },
 	{ 0x11, "FundamentalFeat" },
 	{ 0x12, "FWMSG" },
-	//	{ 0x13, "GALS" }, removed in WV 1.3
+	/*	{ 0x13, "GALS" }, removed in WV 1.3 */
 	{ 0x14, "GCLI" },
 	{ 0x15, "GETGM" },
 	{ 0x16, "GETGP" },
@@ -5189,7 +5193,7 @@ static const value_string wbxml_wv_csp_13_tags_cp2[] = {
 	{ 0x2D, "PresenceAuthFunc" },
 	{ 0x2E, "PresenceDeliverFunc"},
 	{ 0x2F, "PresenceFeat" },
-	//	{ 0x30, "REACT" }, removed in WV 1.3
+	/*	{ 0x30, "REACT" }, removed in WV 1.3 */
 	{ 0x31, "REJCM" },
 	{ 0x32, "REJEC" },
 	{ 0x33, "RMVGM" },
@@ -5229,31 +5233,31 @@ static const value_string wbxml_wv_csp_13_tags_cp3[] = {
 	{ 0x11, "TCPAddress"},
 	{ 0x12, "TCPPort"},
 	{ 0x13, "UDPPort"},
-	/* New in WV-CSP 1.3*/	
+	/* New in WV-CSP 1.3*/
 	{ 0x14, "CIRHTTPAddress"},
 	{ 0x15, "UDPAddress"},
-	{ 0x16, "AcceptedPullLength"}, 
-	{ 0x17, "AcceptedPushLength"}, 
-	{ 0x18, "AcceptedRichContentLength"}, 
-	{ 0x19, "AcceptedTextContentLength"}, 
-	{ 0x1A, "OfflineETEMHandling"}, 
-	{ 0x1B, "PlainTextCharset"}, 
-	{ 0x1C, "SessionPriority"}, 
-	{ 0x1D, "SupportedOfflineBearer"}, 	
-	{ 0x1F, "UserSessionLimit"}, 
-	{ 0x20, "CIRSMSAddress"}, 
-	{ 0x21, "MultiTransPerMessage"}, 
-	{ 0x22, "OnlineETEMHandling"}, 
-	{ 0x23,"ContentPolicy"}, 
-	{ 0x24, "ContentPolicyLimit"}, 
-	
+	{ 0x16, "AcceptedPullLength"},
+	{ 0x17, "AcceptedPushLength"},
+	{ 0x18, "AcceptedRichContentLength"},
+	{ 0x19, "AcceptedTextContentLength"},
+	{ 0x1A, "OfflineETEMHandling"},
+	{ 0x1B, "PlainTextCharset"},
+	{ 0x1C, "SessionPriority"},
+	{ 0x1D, "SupportedOfflineBearer"},
+	{ 0x1F, "UserSessionLimit"},
+	{ 0x20, "CIRSMSAddress"},
+	{ 0x21, "MultiTransPerMessage"},
+	{ 0x22, "OnlineETEMHandling"},
+	{ 0x23,"ContentPolicy"},
+	{ 0x24, "ContentPolicyLimit"},
+
 	{ 0x00, NULL }
 };
 
 /* Presence primitive code page (0x04) */
 static const value_string wbxml_wv_csp_13_tags_cp4[] = {
 	/* 0x00 -- 0x04 GLOBAL */
-	//	{ 0x05, "CancelAuth-Request" }, - removed in WV 1.3
+	/*	{ 0x05, "CancelAuth-Request" }, - removed in WV 1.3 */
 	{ 0x06, "ContactListProperties" },
 	{ 0x07, "CreateAttributeList-Request" },
 	{ 0x08, "CreateList-Request" },
@@ -5279,9 +5283,9 @@ static const value_string wbxml_wv_csp_13_tags_cp4[] = {
 	{ 0x1C, "UpdatePresence-Request" },
 	{ 0x1D, "SubscribePresence-Request" },
 	/* New in WV-CSP 1.2 */
-	//	{ 0x1E, "Auto-Subscribe" }, - removed in WV 1.3
-	//	{ 0x1F, "GetReactiveAuthStatus-Request" },
-	//	{ 0x20, "GetReactiveAuthStatus-Response" },
+	/*	{ 0x1E, "Auto-Subscribe" }, - removed in WV 1.3 */
+	/*	{ 0x1F, "GetReactiveAuthStatus-Request" }, */
+	/*	{ 0x20, "GetReactiveAuthStatus-Response" }, */
 	/* New in WV-CSP 1.3 */
 	{ 0x21, "CreateList-Response"},
 
@@ -5348,10 +5352,10 @@ static const value_string wbxml_wv_csp_13_tags_cp5[] = {
 	{ 0x39, "Link" },
 	{ 0x3A, "Text" },
 	/* New in WV-CSP 1.3 */
-	{ 0x3B, "ClientContentLimit"}, 
-	{ 0x3C, "ClientIMPriority"}, 
-	{ 0x3D, "MaxPullLength"}, 
-	{ 0x3E, "MaxPushLength"}, 
+	{ 0x3B, "ClientContentLimit"},
+	{ 0x3C, "ClientIMPriority"},
+	{ 0x3D, "MaxPullLength"},
+	{ 0x3E, "MaxPushLength"},
 
 	{ 0x00, NULL }
 };
@@ -5382,9 +5386,9 @@ static const value_string wbxml_wv_csp_13_tags_cp6[] = {
 	{ 0x19, "SetDeliveryMethod-Request" },
 	{ 0x1A, "DeliveryTime" },
 	/* New in WV-CSP 1.3 */
-	{ 0x20, "MessageInfoList"}, 
-	{ 0x21, "ForwardMessage-Response"}, 
-	
+	{ 0x20, "MessageInfoList"},
+	{ 0x21, "ForwardMessage-Response"},
+
 	{ 0x00, NULL }
 };
 
@@ -5417,7 +5421,7 @@ static const value_string wbxml_wv_csp_13_tags_cp7[] = {
 	{ 0x1C, "SetGroupProps-Request" },
 	{ 0x1D, "SubscribeGroupNotice-Request" },
 	{ 0x1E, "SubscribeGroupNotice-Response" },
-	//	{ 0x1F, "Users" },  - removed in WV 1.3
+	/*	{ 0x1F, "Users" },  - removed in WV 1.3 */
 	{ 0x20, "WelcomeNote" },
 	/* New in WV-CSP 1.1 */
 	{ 0x21, "JoinGroup" },
@@ -5433,8 +5437,8 @@ static const value_string wbxml_wv_csp_13_tags_cp7[] = {
 	{ 0x2A, "UserMapList" },
 	{ 0x2B, "UserMapping" },
 	/* New in WV-CSP 1.3 */
-	{ 0x2C, "JoinedBlocked" }, 
-	{ 0x2D, "LeftBlocked" }, 
+	{ 0x2C, "JoinedBlocked" },
+	{ 0x2D, "LeftBlocked" },
 
 	{ 0x00, NULL }
 };
@@ -5446,13 +5450,13 @@ static const value_string wbxml_wv_csp_13_tags_cp8[] = {
 	{ 0x05, "MP" },
 	{ 0x06, "GETAUT" },
 	{ 0x07, "GETJU" },
-	{ 0x08, "VRID" }, 
-	{ 0x09, "VerifyIDFunc" }, 
+	{ 0x08, "VRID" },
+	{ 0x09, "VerifyIDFunc" },
 	/* New in WV-CSP 1.3 */
- 	{ 0x0A, "GETMAP" }, 
-	{ 0x0B, "SGMNT" }, 
-	{ 0x0C, "EXCON" }, 
-	{ 0x0D, "OFFNOTIF" }, 
+ 	{ 0x0A, "GETMAP" },
+	{ 0x0B, "SGMNT" },
+	{ 0x0C, "EXCON" },
+	{ 0x0D, "OFFNOTIF" },
 	{ 0x0E, "ADVSR" },
 
 	{ 0x00, NULL }
@@ -5468,60 +5472,60 @@ static const value_string wbxml_wv_csp_13_tags_cp9[] = {
 	{ 0x08, "HistoryPeriod" },
 	{ 0x09, "IDList" },
 	{ 0x0A, "MaxWatcherList" },
-	//	{ 0x0B, "ReactiveAuthState" }, - removed in WV 1.3
-	//	{ 0x0C, "ReactiveAuthStatus" }, - removed in WV 1.3
-	//	{ 0x0D, "ReactiveAuthStatusList" }, - removed in WV 1.3
+	/*	{ 0x0B, "ReactiveAuthState" }, - removed in WV 1.3 */
+	/*	{ 0x0C, "ReactiveAuthStatus" }, - removed in WV 1.3 */
+	/*	{ 0x0D, "ReactiveAuthStatusList" }, - removed in WV 1.3 */
 	{ 0x0E, "Watcher" },
 	{ 0x0F, "WatcherStatus" },
 	/* New in WV-CSP 1.3 */
-	{ 0x1B, "AnswerOption"}, 
-	{ 0x1C, "AnswerOptionID" }, 
-	{ 0x1D, "AnswerOptions"}, 
-	{ 0x0B, "AnswerOptionText"}, 
-	{ 0x1E, "ApplicationID"}, 
-	{ 0x1F, "AuthorizeAndGrant"}, 
-	{ 0x20, "ChosenOptionID"}, 
-	{ 0x19, "ClearPublicProfile"}, 
-	{ 0x13, "Color"}, 
-	{ 0x21, "ContactListNotify"}, 
-	{ 0x14, "ContentName"}, 
-	{ 0x22, "DefaultNotify"}, 
-	{ 0x39, "ExtBlockETEM"}, 
-	{ 0x36, "ExtendConversationID"}, 
-	{ 0x23, "ExtendConversationUser"}, 
-	{ 0x10, "Font"}, 
-	{ 0x18, "FriendlyName"}, 
-	{ 0x34 , "GetMap-Request"}, 
-	{ 0x35, "GetMap-Response"}, 
-	{ 0x3A, "GroupContentLimit" }, 
-	{ 0x24, "InText"}, 
-	{ 0x15, "Map"}, 
-	{ 0x3B, "MessageTotalCount"}, 
-	{ 0x16, "NotificationType"}, 
-	{ 0x17, "NotificationTypeList"}, 
-	{ 0x1A, "PublicProfile"}, 
-	{ 0x38, "RequiresResponse"}, 
-	{ 0x25, "SegmentCount"}, 
-	{ 0x26, "SegmentID"	}, 
-	{ 0x27, "SegmentInfo"}, 
-	{ 0x28, "SegmentReference"}, 
-	{ 0x11, "Size"}, 
-	{ 0x12, "Style"	}, 
-	{ 0x29, "SystemMessage"}, 
-	{ 0x2A, "SystemMessageID"}, 
-	{ 0x2B, "SystemMessageList"}, 
-	{ 0x2C, "SystemMessageResponse"}, 
-	{ 0x2D, "SystemMessageResponseList" }, 
-	{ 0x2F, "SystemMessageText"}, 
-	{ 0x30, "TryAgainTimeout"}, 
-	{ 0x3C, "UnrecognizedUserID"}, 
-	{ 0x3F , "UserIDList"}, 
-	{ 0x3D, "UserIDPair"}, 
-	{ 0x31, "UserNotify"}, 
-	{ 0x3E, "ValidUserID"}, 
-	{ 0x32, "VerificationKey"}, 
-	{ 0x33, "VerificationMechanism"}, 
-	{ 0x37, "WatcherCount"}, 
+	{ 0x1B, "AnswerOption"},
+	{ 0x1C, "AnswerOptionID" },
+	{ 0x1D, "AnswerOptions"},
+	{ 0x0B, "AnswerOptionText"},
+	{ 0x1E, "ApplicationID"},
+	{ 0x1F, "AuthorizeAndGrant"},
+	{ 0x20, "ChosenOptionID"},
+	{ 0x19, "ClearPublicProfile"},
+	{ 0x13, "Color"},
+	{ 0x21, "ContactListNotify"},
+	{ 0x14, "ContentName"},
+	{ 0x22, "DefaultNotify"},
+	{ 0x39, "ExtBlockETEM"},
+	{ 0x36, "ExtendConversationID"},
+	{ 0x23, "ExtendConversationUser"},
+	{ 0x10, "Font"},
+	{ 0x18, "FriendlyName"},
+	{ 0x34 , "GetMap-Request"},
+	{ 0x35, "GetMap-Response"},
+	{ 0x3A, "GroupContentLimit" },
+	{ 0x24, "InText"},
+	{ 0x15, "Map"},
+	{ 0x3B, "MessageTotalCount"},
+	{ 0x16, "NotificationType"},
+	{ 0x17, "NotificationTypeList"},
+	{ 0x1A, "PublicProfile"},
+	{ 0x38, "RequiresResponse"},
+	{ 0x25, "SegmentCount"},
+	{ 0x26, "SegmentID"	},
+	{ 0x27, "SegmentInfo"},
+	{ 0x28, "SegmentReference"},
+	{ 0x11, "Size"},
+	{ 0x12, "Style"	},
+	{ 0x29, "SystemMessage"},
+	{ 0x2A, "SystemMessageID"},
+	{ 0x2B, "SystemMessageList"},
+	{ 0x2C, "SystemMessageResponse"},
+	{ 0x2D, "SystemMessageResponseList" },
+	{ 0x2F, "SystemMessageText"},
+	{ 0x30, "TryAgainTimeout"},
+	{ 0x3C, "UnrecognizedUserID"},
+	{ 0x3F , "UserIDList"},
+	{ 0x3D, "UserIDPair"},
+	{ 0x31, "UserNotify"},
+	{ 0x3E, "ValidUserID"},
+	{ 0x32, "VerificationKey"},
+	{ 0x33, "VerificationMechanism"},
+	{ 0x37, "WatcherCount"},
 
 	{ 0x00, NULL }
 };
@@ -5534,24 +5538,24 @@ static const value_string wbxml_wv_csp_13_tags_cp10[] = {
 	{ 0x06, "WV-CSP-NSDiscovery-Response" },
 	{ 0x07, "VersionList"},
 	/* New in WV-CSP 1.3 */
-	{ 0x08, "SubscribeNotification-Request" }, 
-	{ 0x09, "UnsubscribeNotification-Request" }, 
-	{ 0x0A, "Notification-Request" }, 
-	{ 0x0B, "AdvancedCriteria" }, 
-	{ 0x0C, "PairID" }, 
-	{ 0x0D, "GetPublicProfile-Request" }, 
-	{ 0x0E, "GetPublicProfile-Response" }, 
-	{ 0x0F, "UpdatePublicProfile-Request" }, 
-	{ 0x10, "DropSegment-Request" }, 
-	{ 0x11, "ExtendConversation-Response" }, 
-	{ 0x12, "ExtendConversation-Request" }, 
-	{ 0x13, "GetSegment-Request" }, 
-	{ 0x14, "GetSegment-Response" }, 
-	{ 0x15, "SystemMessage-Request" }, 
-	{ 0x16, "SystemMessage-User" }, 
-	{ 0x17, "SearchPair" }, 
-	{ 0x18, "SegmentContent" }, 
-	
+	{ 0x08, "SubscribeNotification-Request" },
+	{ 0x09, "UnsubscribeNotification-Request" },
+	{ 0x0A, "Notification-Request" },
+	{ 0x0B, "AdvancedCriteria" },
+	{ 0x0C, "PairID" },
+	{ 0x0D, "GetPublicProfile-Request" },
+	{ 0x0E, "GetPublicProfile-Response" },
+	{ 0x0F, "UpdatePublicProfile-Request" },
+	{ 0x10, "DropSegment-Request" },
+	{ 0x11, "ExtendConversation-Response" },
+	{ 0x12, "ExtendConversation-Request" },
+	{ 0x13, "GetSegment-Request" },
+	{ 0x14, "GetSegment-Response" },
+	{ 0x15, "SystemMessage-Request" },
+	{ 0x16, "SystemMessage-User" },
+	{ 0x17, "SearchPair" },
+	{ 0x18, "SegmentContent" },
+
 	{ 0x00, NULL }
 };
 
@@ -5559,11 +5563,11 @@ static const value_string wbxml_wv_csp_13_tags_cp10[] = {
 static const value_string wbxml_wv_csp_13_tags_cp11[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	/* New in WV-CSP 1.3 */
-	{ 0x05, "GrantListInUse" }, 
-	{ 0x06, "BlockListInUse" }, 
-	{ 0x07, "ContactListIDList" }, 
-	{ 0x08, "AnswerOptionsText" }, 
-	
+	{ 0x05, "GrantListInUse" },
+	{ 0x06, "BlockListInUse" },
+	{ 0x07, "ContactListIDList" },
+	{ 0x08, "AnswerOptionsText" },
+
 	{ 0x00, NULL }
 };
 
@@ -5583,7 +5587,7 @@ static const value_string wbxml_wv_csp_13_attrStart_cp0[] = {
 	{ 0x0B, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-CSP'" },
 	{ 0x0C, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-PA'" },
 	{ 0x0D, "xmlns='http://www.openmobilealliance.org/DTD/IMPS-TRC'" },
-	
+
 	{ 0x00, NULL }
 };
 
@@ -5736,7 +5740,7 @@ static const value_string vals_wv_csp_13_element_value_tokens[] = {
 	{ 0x4C, "USER_ONLINE_STATUS" },
 	{ 0x4D, "WAPSMS" },
 	{ 0x4E, "WAPUDP" },
-	{ 0x4F, "WSP" },	
+	{ 0x4F, "WSP" },
 	{ 0x50, "GROUP_USER_ID_AUTOJOIN" },
 	/*
 	 * Presence value tokens
@@ -5792,7 +5796,7 @@ static const value_string vals_wv_csp_13_element_value_tokens[] = {
 	{ 0xB7, "PP_MARITAL_STATUS" },
 	{ 0xB8, "USER_AGE_MAX" },
 	{ 0xB9, "USER_AGE_MIN" },
-	
+
 	{ 0x00, NULL }
 };
 
@@ -5983,7 +5987,7 @@ static const wbxml_decoding *get_wbxml_decoding_from_content_type (
 		const wbxml_literal_list *item = content_type_list;
 
 		while (item && item->content_type) {
-			if (strcasecmp(content_type, item->content_type) == 0) {
+			if (g_ascii_strcasecmp(content_type, item->content_type) == 0) {
 				/* Try the discriminator */
 				if (item->discriminator != NULL) {
 					map = item->discriminator(tvb, offset);

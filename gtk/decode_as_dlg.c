@@ -42,6 +42,10 @@
 #include "decode_as_ber.h"
 #include "help_dlg.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #undef DEBUG
 
 /**************************************************/

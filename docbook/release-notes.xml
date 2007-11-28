@@ -202,6 +202,32 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The USB dissector could loop excessively or crash.
+            <!-- Fixed in r23557 and 23613 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2012">2012</ulink>) -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2013">2013</ulink>) -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2021">2021</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The SMB dissector could crash.
+            <!-- Fixed in r23593 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2019">2019</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -213,7 +239,12 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash while editing a coloring rule.
+            Handling of non-ASCII file names and paths has been improved.
+        </para></listitem>
+
+        <listitem><para>
+            Wireshark could crash while editing a coloring rule or a UAT
+            table.
         </para></listitem>
 
         <listitem><para>

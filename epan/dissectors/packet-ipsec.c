@@ -85,6 +85,10 @@ HMAC-SHA256 : any keylen
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static int proto_ah = -1;
 static int hf_ah_spi = -1;
 static int hf_ah_iv = -1;
@@ -702,12 +706,12 @@ esp_sa_parse_protocol_typ(const gchar *sa, guint index_start, gint *pt_protocol_
       (sa[index_start + IPSEC_TYP_LEN] != IPSEC_SA_SEPARATOR))
     return FALSE;
 
-  if(g_strncasecmp(&sa[index_start], "IPV6", IPSEC_TYP_LEN) == 0)
+  if(g_ascii_strncasecmp(&sa[index_start], "IPV6", IPSEC_TYP_LEN) == 0)
     {
       *pt_protocol_typ = IPSEC_SA_IPV6;
       done_flag = TRUE;
     }
-  else if (g_strncasecmp(&sa[index_start], "IPV4", IPSEC_TYP_LEN) == 0)
+  else if (g_ascii_strncasecmp(&sa[index_start], "IPV4", IPSEC_TYP_LEN) == 0)
     {
       *pt_protocol_typ = IPSEC_SA_IPV4;
       done_flag = TRUE;

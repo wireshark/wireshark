@@ -144,14 +144,14 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 {
 	guint offset = 0;
 	guint tvb_len;
-//	guint num_of_slots;
+/*	guint num_of_slots;*/
 	proto_item *phy_item = NULL;
 	proto_tree *phy_tree = NULL;
 
 	/* update the info column */
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		//col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst Physical Attributes:");
+		/*col_append_str(pinfo->cinfo, COL_INFO, "PDU Burst Physical Attributes:");*/
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHY-attr");
 	}
 	if (tree)
@@ -177,7 +177,7 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 		/* display the number of slots */
 		proto_tree_add_item(phy_tree, hf_phy_attributes_num_of_slots, tvb, offset, 2, FALSE);
 		/* get the number of slots */
-//		num_of_slots =  tvb_get_guint16(tvb, offset);
+/*		num_of_slots =  tvb_get_guint16(tvb, offset);*/
 		/* move to next field */
 		offset += 2;
 		/* display the physical subchannel list */

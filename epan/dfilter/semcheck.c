@@ -36,6 +36,10 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* Enable debug logging by defining AM_CFLAGS
  * so that it contains "-DDEBUG_dfilter".
  * Usage: DebugLog(("Error: string=%s\n", str)); */
@@ -202,10 +206,10 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 			tf = hfinfo->strings;
 		}
 
-		if (strcasecmp(s, tf->true_string) == 0) {
+		if (g_ascii_strcasecmp(s, tf->true_string) == 0) {
 			return mk_uint32_fvalue(TRUE);
 		}
-		else if (strcasecmp(s, tf->false_string) == 0) {
+		else if (g_ascii_strcasecmp(s, tf->false_string) == 0) {
 			return mk_uint32_fvalue(FALSE);
 		}
 		else {
@@ -224,7 +228,7 @@ mk_fvalue_from_val_string(header_field_info *hfinfo, char *s)
 
 	vals = hfinfo->strings;
 	while (vals->strptr != NULL) {
-		if (strcasecmp(s, vals->strptr) == 0) {
+		if (g_ascii_strcasecmp(s, vals->strptr) == 0) {
 			return mk_uint32_fvalue(vals->value);
 		}
 		vals++;

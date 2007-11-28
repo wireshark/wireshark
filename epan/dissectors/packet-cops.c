@@ -1805,7 +1805,7 @@ void proto_register_cops(void)
 
     { &hf_cops_subtree,
       { "Object Subtree", "cops.pc_subtree",
-        FT_UINT16, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "Object Subtree", HFILL }
     },
     { &hf_cops_pc_ds_field,
@@ -2607,7 +2607,7 @@ static proto_tree *
 info_to_cops_subtree(tvbuff_t *tvb, proto_tree *st, int n, int offset, const char *str) {
      proto_item *tv;
 
-     tv  = proto_tree_add_uint_format( st, hf_cops_subtree, tvb, offset, n, (guint)NULL, str);
+     tv  = proto_tree_add_none_format( st, hf_cops_subtree, tvb, offset, n, str);
      return( proto_item_add_subtree( tv, ett_cops_subtree ) );
 }
 

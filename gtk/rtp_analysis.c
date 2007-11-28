@@ -94,6 +94,10 @@
 #include "rtp_stream.h"
 #include "rtp_stream_dlg.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 
 /****************************************************************************/
 
@@ -285,7 +289,7 @@ get_dyn_pt_clock_rate(gchar *payload_type_str)
 	size_t i;
 
 	for (i = 0; i < NUM_DYN_CLOCK_VALUES; i++) {
-		if (strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
+		if (g_ascii_strncasecmp(mimetype_and_clock_map[i].pt_mime_name_str,payload_type_str,(strlen(mimetype_and_clock_map[i].pt_mime_name_str))) == 0)
 			return mimetype_and_clock_map[i].value;
 	}
 
@@ -911,8 +915,9 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		return 0;
 
 	/* if the captured length and packet length aren't equal, we quit
-	* because there is some information missing */
-	if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
+	* if also the RTP dissector thinks there is some information missing */
+	if ((pinfo->fd->pkt_len != pinfo->fd->cap_len) &&
+	    (!rtpinfo->info_all_data_present)) {
 		saveinfo->saved = FALSE;
 		saveinfo->error_type = TAP_RTP_WRONG_LENGTH;
 		return 0;

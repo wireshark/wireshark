@@ -714,7 +714,7 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 static void uat_apply_cb(GtkButton *button _U_, gpointer u) {
 	uat_t* uat = u;
 
-	uat_window_delete_event_cb(NULL,NULL,uat->rep->window);
+	uat_window_delete_event_cb(NULL,NULL,uat);
 	
 	if (uat->changed && cfile.state == FILE_READ_DONE)
 		cf_reload(&cfile);

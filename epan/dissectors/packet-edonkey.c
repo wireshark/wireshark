@@ -45,6 +45,10 @@
 #include "packet-edonkey.h"
 #include "packet-tcp.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static int proto_edonkey = -1;
 
 static int hf_edonkey_message  = -1;
@@ -529,7 +533,7 @@ static gint lookup_str_index(gchar* str, gint length, const value_string *vs)
     if (str == NULL) return -1;
 
     while (vs[i].strptr) {
-        if (strncasecmp(str, vs[i].strptr, length) == 0)
+        if (g_ascii_strncasecmp(str, vs[i].strptr, length) == 0)
             return i;
         i++;
     }

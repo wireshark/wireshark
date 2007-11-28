@@ -55,6 +55,10 @@
 
 #include "keys.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* Controls the releay of settings back to the adapter. */
 gboolean change_airpcap_settings = FALSE;
 
@@ -82,7 +86,7 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
         {
             current_item = g_list_nth(airpcap_if_list,i);
             current_adapter = (airpcap_if_info_t*)current_item->data;
-            if(current_adapter != if_info && g_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
+            if(current_adapter != if_info && g_ascii_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
             {
                 g_string_sprintfa(freq_str, "%s%s", sep,
                     ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency));
@@ -433,15 +437,15 @@ airpcap_fill_key_list(GtkWidget *keylist)
 AirpcapValidationType
 airpcap_get_validation_type(const gchar* name)
 {
-    if(!(g_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
+    if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_ALL,name)))
     {
 	return AIRPCAP_VT_ACCEPT_EVERYTHING;
     }
-    else if(!(g_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
+    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRECT,name)))
     {
 	return AIRPCAP_VT_ACCEPT_CORRECT_FRAMES;
     }
-    else if(!(g_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
+    else if(!(g_ascii_strcasecmp(AIRPCAP_VALIDATION_TYPE_NAME_CORRUPT,name)))
     {
 	return AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES;
     }
@@ -483,11 +487,11 @@ airpcap_get_validation_name(AirpcapValidationType vt)
 AirpcapLinkType
 airpcap_get_link_type(const gchar* name)
 {
-    if(!(g_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY,name))){
+    if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_ONLY,name))){
 		return AIRPCAP_LT_802_11;
-    }else if(!(g_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO,name))){
+    }else if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_RADIO,name))){
 		return AIRPCAP_LT_802_11_PLUS_RADIO;
-    }else if(!(g_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI,name))){
+    }else if(!(g_ascii_strcasecmp(AIRPCAP_LINK_TYPE_NAME_802_11_PLUS_PPI,name))){
 		return AIRPCAP_LT_802_11_PLUS_PPI;
     }else{
 		return AIRPCAP_LT_UNKNOWN;
@@ -678,7 +682,7 @@ airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkW
 int
 airpcap_if_is_any(airpcap_if_info_t* if_info)
 {
-    if(g_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
+    if(g_ascii_strcasecmp(if_info->name,AIRPCAP_DEVICE_ANY_EXTRACT_STRING)==0)
 	return 1;
     else
 	return 0;
@@ -814,11 +818,11 @@ airpcap_add_keys_from_list(GtkWidget *key_ls, airpcap_if_info_t *if_info)
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
 
-	if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+	if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
-	else if(g_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_TKIP;
-	else if(g_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPCAP_KEYTYPE_CCMP;
 
 	/* Retrieve the Item corresponding to the i-th key */
@@ -913,11 +917,11 @@ airpcap_add_keys_to_driver_from_list(GtkWidget *key_ls,airpcap_if_info_t *fake_i
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&row_key);
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&row_ssid);
 
-	if(g_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
+	if(g_ascii_strcasecmp(row_type,AIRPCAP_WEP_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WEP;
-	else if(g_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PWD;
-	else if(g_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(row_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
 	KeysCollection->Keys[i].KeyType = AIRPDCAP_KEY_TYPE_WPA_PMK;
 
 	/* Retrieve the Item corresponding to the i-th key */
@@ -990,7 +994,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,1,&tmp_key);
 	gtk_clist_get_text(GTK_CLIST(key_ls),i,2,&tmp_ssid);
 
-	if(g_strcasecmp(tmp_type,AIRPCAP_WEP_KEY_STRING) == 0)
+	if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WEP_KEY_STRING) == 0)
 	{
 	    tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
 	    tmp_dk->key = g_string_new(tmp_key);
@@ -999,7 +1003,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 	    tmp_dk->bits = tmp_dk->key->len * 4;
 	    key_list = g_list_append(key_list,tmp_dk);
 	}
-	else if(g_strcasecmp(tmp_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WPA_PWD_KEY_STRING) == 0)
 	{
 	    tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
 	    tmp_dk->key = g_string_new(tmp_key);
@@ -1009,7 +1013,7 @@ airpcap_read_and_save_decryption_keys_from_clist(GtkWidget* key_ls, airpcap_if_i
 	    tmp_dk->bits = 256;
 	    key_list = g_list_append(key_list,tmp_dk);
 	}
-	else if(g_strcasecmp(tmp_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
+	else if(g_ascii_strcasecmp(tmp_type,AIRPCAP_WPA_BIN_KEY_STRING) == 0)
 	{
 	    tmp_dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
 	    tmp_dk->key = g_string_new(tmp_key);

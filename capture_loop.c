@@ -300,7 +300,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
     pncopy = g_strdup(pipename);
     if ( (pos=strstr(pncopy, "\\\\")) == pncopy) {
       pos = strchr(pncopy + 3, '\\');
-      if (pos && g_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+      if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
         pos = NULL;
     }
 
@@ -1150,7 +1150,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         }
       } else {
         /* Try to open/create the specified file for use as a capture buffer. */
-        *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+        *save_file_fd = eth_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
                              0600);
       }
     }

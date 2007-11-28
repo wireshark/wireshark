@@ -41,6 +41,10 @@
 
 #include "packet-afp.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /* The information in this module (AFP) comes from:
 
   AFP 2.1 & 2.2.pdf contained in AppleShare_IP_6.3_SDK
@@ -2364,7 +2368,7 @@ decode_uam_parameters(const char *uam, int len_uam, tvbuff_t *tvb, proto_tree *t
 {
 	int len;
 
-	if (!strncasecmp(uam, "Cleartxt passwrd", len_uam)) {
+	if (!g_ascii_strncasecmp(uam, "Cleartxt passwrd", len_uam)) {
 		if ((offset & 1))
 			PAD(1);
 
@@ -2372,7 +2376,7 @@ decode_uam_parameters(const char *uam, int len_uam, tvbuff_t *tvb, proto_tree *t
 		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
 		offset += len;
 	}
-	else if (!strncasecmp(uam, "DHCAST128", len_uam)) {
+	else if (!g_ascii_strncasecmp(uam, "DHCAST128", len_uam)) {
 		if ((offset & 1))
 			PAD(1);
 
@@ -2380,7 +2384,7 @@ decode_uam_parameters(const char *uam, int len_uam, tvbuff_t *tvb, proto_tree *t
 		proto_tree_add_item(tree, hf_afp_random, tvb, offset, len,FALSE);
 		offset += len;
         }
-	else if (!strncasecmp(uam, "2-Way Randnum exchange", len_uam)) {
+	else if (!g_ascii_strncasecmp(uam, "2-Way Randnum exchange", len_uam)) {
 		/* nothing */
 		return offset;
 	}
@@ -2403,7 +2407,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len_uam +1;
 
-	if (!strncasecmp(uam, "No User Authent", len_uam)) {
+	if (!g_ascii_strncasecmp(uam, "No User Authent", len_uam)) {
 		return offset;
 	}
 

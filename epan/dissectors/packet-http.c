@@ -62,6 +62,10 @@ typedef enum _http_type {
 
 #include <epan/tap.h>
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 static int http_tap = -1;
 static int http_eo_tap = -1;
 
@@ -983,9 +987,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * Handle *transfer* encodings other than "identity".
 		 */
 		if (headers.transfer_encoding != NULL &&
-		    strcasecmp(headers.transfer_encoding, "identity") != 0) {
+		    g_ascii_strcasecmp(headers.transfer_encoding, "identity") != 0) {
 			if (http_dechunk_body &&
-			    (strncasecmp(headers.transfer_encoding, "chunked", 7)
+			    (g_ascii_strncasecmp(headers.transfer_encoding, "chunked", 7)
 			    == 0)) {
 
 				chunks_decoded = chunked_encoding_dissector(
@@ -1031,7 +1035,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * we handle it in any case).
 		 */
 		if (headers.content_encoding != NULL &&
-		    strcasecmp(headers.content_encoding, "identity") != 0) {
+		    g_ascii_strcasecmp(headers.content_encoding, "identity") != 0) {
 			/*
 			 * We currently can't handle, for example, "compress";
 			 * just handle them as data for now.
@@ -1046,8 +1050,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *e_tree = NULL;
 
 			if (http_decompress_body &&
-			    (strcasecmp(headers.content_encoding, "gzip") == 0 ||
-			    strcasecmp(headers.content_encoding, "deflate")
+			    (g_ascii_strcasecmp(headers.content_encoding, "gzip") == 0 ||
+			    g_ascii_strcasecmp(headers.content_encoding, "deflate")
 			    == 0)) {
 
 				uncomp_tvb = tvb_uncompress(next_tvb, 0,

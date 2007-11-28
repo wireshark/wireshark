@@ -81,6 +81,10 @@
 #include "airpcap_dlg.h"
 #endif
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Keep a static pointer to the current "Capture Interfaces" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's
@@ -346,7 +350,7 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
 
   if (first != NULL && first->description != NULL &&
       second != NULL && second->description != NULL) {
-    return g_strcasecmp(first->description, second->description);
+    return g_ascii_strcasecmp(first->description, second->description);
   } else {
     return 0;
   }

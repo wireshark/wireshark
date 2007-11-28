@@ -45,6 +45,10 @@
 #include "emem.h"
 #include "charsets.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
 
@@ -303,7 +307,7 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	const protocol_t *p1 = p1_arg;
 	const protocol_t *p2 = p2_arg;
 
-	return g_strcasecmp(p1->short_name, p2->short_name);
+	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
 

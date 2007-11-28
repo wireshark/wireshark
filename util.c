@@ -43,6 +43,10 @@
 
 #include "util.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
@@ -163,7 +167,7 @@ const gchar *get_conn_cfilter(void) {
 			"and tcp port %s)", tokens[1], host_ip_af(tokens[0]), tokens[0], tokens[2]);
 		return filter_str->str;
 	} else if ((env = getenv("REMOTEHOST")) != NULL) {
-		if (strcasecmp(env, "localhost") == 0 || strcmp(env, "127.0.0.1") == 0) {
+		if (g_ascii_strcasecmp(env, "localhost") == 0 || strcmp(env, "127.0.0.1") == 0) {
 			return "";
 		}
 		g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
@@ -219,7 +223,7 @@ const gchar *get_conn_cfilter(void) {
 			pprotocol = p;
 
 			/* Is it TCP? */
-			if (p - lastp != 3 || strncasecmp(lastp, "tcp", 3) != 0)
+			if (p - lastp != 3 || g_ascii_strncasecmp(lastp, "tcp", 3) != 0)
 				return "";	/* not TCP */
 			p++;			/* skip the '/' */
 		} else
@@ -269,7 +273,7 @@ const gchar *get_conn_cfilter(void) {
 			 * XXX - compare against our host name?
 			 * _X11TransConnectDisplay() does.
 			 */
-			if (strcasecmp(phostname, "localhost") == 0 ||
+			if (g_ascii_strcasecmp(phostname, "localhost") == 0 ||
 			    strcmp(phostname, "127.0.0.1") == 0) {
 			    	g_free(phostname);
 				return "";
@@ -310,7 +314,7 @@ const gchar *get_conn_cfilter(void) {
 		 * XXX - There's a better way to do this described at
 		 * http://www.microsoft.com/technet/archive/termsrv/maintain/featusability/tsrvapi.mspx?mfr=true
 		 */
-		if (g_strncasecmp(env, "rdp", 3) == 0) {
+		if (g_ascii_strncasecmp(env, "rdp", 3) == 0) {
 			g_string_sprintf(filter_str, "not tcp port 3389");
 			return filter_str->str;
 		}
