@@ -143,7 +143,6 @@
 #include "../image/toolbar/file_set_next_16.xpm"
 #include "../image/toolbar/file_set_previous_16.xpm"
 #include "../image/toolbar/stock_close_24.xpm"
-#endif
 #include "../image/toolbar/icon_color_1.xpm"
 #include "../image/toolbar/icon_color_2.xpm"
 #include "../image/toolbar/icon_color_3.xpm"
@@ -154,6 +153,7 @@
 #include "../image/toolbar/icon_color_8.xpm"
 #include "../image/toolbar/icon_color_9.xpm"
 #include "../image/toolbar/icon_color_0.xpm"
+#endif
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
