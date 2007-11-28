@@ -142,7 +142,7 @@ gtk_smb2stat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *close_bt;
 
 	if(!strncmp(optarg,"smb2,srt,",9)){
-		filter=optarg+8;
+		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
