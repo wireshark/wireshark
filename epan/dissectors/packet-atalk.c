@@ -1533,7 +1533,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, FALSE);
          offset += 2;
       	 sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
-	 for (i= 1; i <= count; i++) {
+	 for (i= 0; i < count; i++) {
 	     len = tvb_get_guint8(tvb, offset);
              proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
 	     offset += len +1;
@@ -1585,7 +1585,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
       offset++;
       sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-      for (i= 1; i <= count; i++) {
+      for (i= 0; i < count; i++) {
           proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, FALSE);
           offset += 2;
       }
@@ -1621,7 +1621,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
       offset++;
       sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-      for (i= 1; i <= count; i++) {
+      for (i= 0; i < count; i++) {
           net = tvb_get_ntohs(tvb, offset);
           ti = proto_tree_add_text(zip_tree, tvb, offset , 2, "Zone for network : %u", net);
           net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
