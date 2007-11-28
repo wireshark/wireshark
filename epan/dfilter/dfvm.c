@@ -342,8 +342,10 @@ free_register_overhead(dfilter_t* df)
 	int i;
 
 	for (i = 0; i < df->num_registers; i++) {
+		df->attempted_load[i] = FALSE;
 		if (df->registers[i]) {
 			g_list_free(df->registers[i]);
+			df->registers[i] = NULL;
 		}
 	}
 }
@@ -380,7 +382,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange *drange)
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree)
 {
-	int		i, id, length;
+	int		id, length;
 	gboolean	accum = TRUE;
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*arg1;
@@ -392,13 +394,6 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
     GList           *param2;
 
 	g_assert(tree);
-
-
-	/* Clear registers */
-	for (i = 0; i < df->num_registers; i++) {
-		df->registers[i] = NULL;
-		df->attempted_load[i] = FALSE;
-	}
 
 	length = df->insns->len;
 
