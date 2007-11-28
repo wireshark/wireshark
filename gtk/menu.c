@@ -918,10 +918,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        NULL, 0, "<Separator>",NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Colorize Conversation/PN-CBA Server/New Coloring Rule...", NULL,
                        colorize_conversation_cb, CONV_CBA, GTK_STOCK_SELECT_COLOR),
-    ITEM_FACTORY_ENTRY("/Colorize Conversation/<separator>", NULL,
-                       NULL, 0, "<Separator>",NULL),
-    ITEM_FACTORY_ENTRY("/Colorize Conversation/Reset Coloring", NULL,
-                       colorize_conversation_cb, 255*256, NULL, NULL),
 
     ITEM_FACTORY_ENTRY("/SCTP", NULL, NULL, 0, "<Branch>",NULL),
     ITEM_FACTORY_ENTRY("/SCTP/Analyse this Association", NULL, sctp_analyse_start,
@@ -1013,7 +1009,6 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 8", NULL, colorize_selected_ptree_cb, 8, WIRESHARK_STOCK_COLOR8),
     ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 9", NULL, colorize_selected_ptree_cb, 9, WIRESHARK_STOCK_COLOR9),
     ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/Color 10", NULL, colorize_selected_ptree_cb, 10, WIRESHARK_STOCK_COLOR0),
-    ITEM_FACTORY_ENTRY("/Colorize with Filter/Reset Coloring", NULL, colorize_selected_ptree_cb, 255, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Colorize with Filter/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Colorize with Filter/New Coloring Rule...", NULL, colorize_selected_ptree_cb, 0, GTK_STOCK_SELECT_COLOR),
 
