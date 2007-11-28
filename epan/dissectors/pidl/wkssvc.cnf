@@ -32,12 +32,55 @@ PARAM_VALUE wkssvc_dissect_element_NetWkstaInfo102_domain_name_ 5
 PARAM_VALUE wkssvc_dissect_element_NetWkstaTransportEnum_server_name_ 1|PIDL_SET_COL_INFO
 
 
+TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_STRING BASE_NONE 0 NULL 4
+TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
+
 CODE START
 /* Bug in pidl.  Can not handle these dependencies properly yet */
 static int
 wkssvc_dissect_struct_srvsvc_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index _U_, guint32 param _U_)
 {
 	offset = srvsvc_dissect_enum_PlatformId(tvb,offset,pinfo,tree,drep,hf_wkssvc_platform_id,0);
+
+	return offset;
+}
+
+static int
+cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, guint32 param, int hfindex)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	header_field_info *hf_info;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+	hf_info=proto_registrar_get_nth(hfindex);
+
+	if (parent_tree) {
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0, "%s: ", hf_info->name);
+		tree = proto_item_add_subtree(item, ett_wkssvc_lsa_String);
+	}
+	
+	offset = wkssvc_dissect_element_lsa_String_name_len(tvb, offset, pinfo, tree, drep);
+	offset = wkssvc_dissect_element_lsa_String_name_size(tvb, offset, pinfo, tree, drep);
+
+	offset = dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
+		hf_info->name, hfindex, cb_wstr_postprocess,
+		GINT_TO_POINTER(param));
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+static int
+cnf_dissect_hyper(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 param _U_, int hfindex)
+{
+	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, hfindex, NULL);
 
 	return offset;
 }
