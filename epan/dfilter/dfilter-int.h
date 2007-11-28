@@ -32,7 +32,9 @@
 /* Passed back to user */
 struct _dfilter_t {
 	GPtrArray	*insns;
+	GPtrArray	*consts;
 	int		num_registers;
+	int		max_registers;
 	GList		**registers;
 	gboolean	*attempted_load;
 	int		*interesting_fields;
@@ -44,10 +46,13 @@ typedef struct {
 	stnode_t	*st_root;
 	gboolean	syntax_error;
 	GPtrArray	*insns;
+	GPtrArray	*consts;
 	GHashTable	*loaded_fields;
 	GHashTable	*interesting_fields;
 	int		next_insn_id;
+	int		next_const_id;
 	int		next_register;
+	int		first_constant; /* first register used as a constant */
 } dfwork_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */

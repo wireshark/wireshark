@@ -36,6 +36,7 @@ dfvm_insn_new(dfvm_opcode_t op)
 	insn->arg1 = NULL;
 	insn->arg2 = NULL;
 	insn->arg3 = NULL;
+	insn->arg4 = NULL;
 	return insn;
 }
 
@@ -67,6 +68,9 @@ dfvm_insn_free(dfvm_insn_t *insn)
 	}
 	if (insn->arg3) {
 		dfvm_value_free(insn->arg3);
+	}
+	if (insn->arg4) {
+		dfvm_value_free(insn->arg4);
 	}
 	g_free(insn);
 }
@@ -439,11 +443,6 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
                     &df->registers[arg2->value.numeric]); 
 				break;
 
-			case PUT_FVALUE:
-				accum = put_fvalue(df,
-						arg1->value.fvalue, arg2->value.numeric);
-				break;
-
 			case MK_RANGE:
 				arg3 = insn->arg3;
 				mk_range(df,
@@ -518,6 +517,12 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				}
 				break;
 
+			case PUT_FVALUE:
+#if 0
+				accum = put_fvalue(df,
+						arg1->value.fvalue, arg2->value.numeric);
+				break;
+#endif
 
 			default:
 				g_assert_not_reached();
@@ -527,4 +532,51 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 	g_assert_not_reached();
 	return FALSE; /* to appease the compiler */
+}
+
+void
+dfvm_init_const(dfilter_t *df)
+{
+	int		id, length;
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*arg1;
+	dfvm_value_t	*arg2;
+
+	length = df->consts->len;
+
+	for (id = 0; id < length; id++) {
+
+		insn = g_ptr_array_index(df->consts, id);
+		arg1 = insn->arg1;
+		arg2 = insn->arg2;
+
+		switch (insn->op) {
+			case PUT_FVALUE:
+				put_fvalue(df,
+						arg1->value.fvalue, arg2->value.numeric);
+				break;
+			case CHECK_EXISTS:
+			case READ_TREE:
+			case CALL_FUNCTION:
+			case MK_RANGE:
+			case ANY_EQ:
+			case ANY_NE:
+			case ANY_GT:
+			case ANY_GE:
+			case ANY_LT:
+			case ANY_LE:
+			case ANY_BITWISE_AND:
+			case ANY_CONTAINS:
+			case ANY_MATCHES:
+			case NOT:
+			case RETURN:
+			case IF_TRUE_GOTO:
+			case IF_FALSE_GOTO:
+			default:
+				g_assert_not_reached();
+				break;
+		}
+	}
+
+	return;
 }

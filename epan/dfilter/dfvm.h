@@ -102,5 +102,7 @@ dfvm_dump(FILE *f, GPtrArray *insns);
 gboolean
 dfvm_apply(dfilter_t *df, proto_tree *tree);
 
+void
+dfvm_init_const(dfilter_t *df);
 
 #endif

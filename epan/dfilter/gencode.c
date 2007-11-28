@@ -47,6 +47,14 @@ dfw_append_insn(dfwork_t *dfw, dfvm_insn_t *insn)
 	g_ptr_array_add(dfw->insns, insn);
 }
 
+static void
+dfw_append_const(dfwork_t *dfw, dfvm_insn_t *insn)
+{
+	insn->id = dfw->next_const_id;
+	dfw->next_const_id++;
+	g_ptr_array_add(dfw->consts, insn);
+}
+
 /* returns register number */
 static int
 dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
@@ -116,11 +124,11 @@ dfw_append_put_fvalue(dfwork_t *dfw, fvalue_t *fv)
 	val1 = dfvm_value_new(FVALUE);
 	val1->value.fvalue = fv;
 	val2 = dfvm_value_new(REGISTER);
-	reg = dfw->next_register++;
+	reg = dfw->first_constant--;
 	val2->value.numeric = reg;
 	insn->arg1 = val1;
 	insn->arg2 = val2;
-	dfw_append_insn(dfw, insn);
+	dfw_append_const(dfw, insn);
 
 	return reg;
 }
@@ -444,6 +452,7 @@ dfw_gencode(dfwork_t *dfw)
 	dfvm_value_t	*arg1;
 	
 	dfw->insns = g_ptr_array_new();
+	dfw->consts = g_ptr_array_new();
 	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	dfw->interesting_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
 	gencode(dfw, dfw->st_root);
@@ -484,6 +493,41 @@ dfw_gencode(dfwork_t *dfw)
                     } while (1);
                 }
 	}
+
+	/* move constants after registers*/
+        if (dfw->first_constant == -1) {
+            /* NONE */
+            dfw->first_constant = 0;
+            return;
+        }
+
+	id = -dfw->first_constant -1;
+        dfw->first_constant = dfw->next_register;
+        dfw->next_register += id;
+
+        length = dfw->consts->len;
+	for (id = 0; id < length; id++) {
+		insn = g_ptr_array_index(dfw->consts, id);
+		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )  
+		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
+	}
+
+        length = dfw->insns->len;
+	for (id = 0; id < length; id++) {
+		insn = g_ptr_array_index(dfw->insns, id);
+		if (insn->arg1 && insn->arg1->type == REGISTER && (int)insn->arg1->value.numeric < 0 )  
+		  insn->arg1->value.numeric = dfw->first_constant - insn->arg1->value.numeric -1;
+
+		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )  
+		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
+
+		if (insn->arg3 && insn->arg3->type == REGISTER && (int)insn->arg3->value.numeric < 0 )  
+		  insn->arg3->value.numeric = dfw->first_constant - insn->arg3->value.numeric -1;
+
+		if (insn->arg4 && insn->arg4->type == REGISTER && (int)insn->arg4->value.numeric < 0 )  
+		  insn->arg4->value.numeric = dfw->first_constant - insn->arg4->value.numeric -1;
+	}
+	
 
 }
 
