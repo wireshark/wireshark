@@ -83,35 +83,35 @@ static hf_register_info hf[] =
 	{
 		&hf_dsc_ack_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsc_ack",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsc_ack",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsc_req_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsc_req",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsc_req",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsc_rsp_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsc_rsp",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsc_rsp",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsc_confirmation_code,
 		{
-			"Confirmation code", "wimax.dsc.confirmation_code",
+			"Confirmation code", "wmx.dsc.confirmation_code",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsc_transaction_id,
 		{
-			"Transaction ID", "wimax.dsc.transaction_id",
+			"Transaction ID", "wmx.dsc.transaction_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	}

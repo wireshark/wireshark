@@ -114,126 +114,126 @@ static hf_register_info hf_aas_fbck[] =
 	{
 		&hf_aas_fbck_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.aas_fbck", 
+			"MAC Management Message Type", "wmx.macmgtmsgtype.aas_fbck",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_cinr_value,
 		{
-			"CINR Mean Value", "wimax.aas_fbck.cinr_mean_value", 
+			"CINR Mean Value", "wmx.aas_fbck.cinr_mean_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_req_counter,
 		{
-			"Feedback Request Counter", "wimax.aas_fbck.counter", 
+			"Feedback Request Counter", "wmx.aas_fbck.counter",
 			FT_UINT8, BASE_DEC, NULL, OFDMA_AAS_FBCK_REQ_FB_REQ_COUNTER_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_frame_number,
 		{
-			"Frame Number", "wimax.aas_fbck.frame_number", 
+			"Frame Number", "wmx.aas_fbck.frame_number",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_freq_value_re,
 		{
-			"Frequency Value (real part)", "wimax.aas_fbck.freq_value_re", 
+			"Frequency Value (real part)", "wmx.aas_fbck.freq_value_re",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_freq_value_im,
 		{
-			"Frequency Value (imaginary part)", "wimax.aas_fbck.freq_value_im", 
+			"Frequency Value (imaginary part)", "wmx.aas_fbck.freq_value_im",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_number_of_frames,
 		{
-			"Number Of Frames", "wimax.aas_fbck.number_of_frames", 
+			"Number Of Frames", "wmx.aas_fbck.number_of_frames",
 			FT_UINT8, BASE_DEC, NULL, OFDMA_AAS_FBCK_REQ_NUMBER_OF_FRAME_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_req_resolution_0,
 		{
-			"Frequency Measurement Resolution", "wimax.aas_fbck.resolution", 
+			"Frequency Measurement Resolution", "wmx.aas_fbck.resolution",
 			FT_UINT8, BASE_DEC, VALS(vals_resolutions_0), OFDMA_AAS_FBCK_REQ_FB_REQ_RESOLUTION_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_req_resolution_1,
 		{
-			"Frequency Measurement Resolution", "wimax.aas_fbck.resolution", 
+			"Frequency Measurement Resolution", "wmx.aas_fbck.resolution",
 			FT_UINT8, BASE_DEC, VALS(vals_resolutions_1), OFDMA_AAS_FBCK_REQ_FB_REQ_RESOLUTION_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rssi_value,
 		{
-			"RSSI Mean Value", "wimax.aas_fbck.rssi_mean_value", 
+			"RSSI Mean Value", "wmx.aas_fbck.rssi_mean_value",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_unknown_type,
 		{
-			"Unknown TLV type", "wimax.aas_fbck.unknown_type", 
+			"Unknown TLV type", "wmx.aas_fbck.unknown_type",
 			FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_req_data_type,
 		{
-			"Measurement Data Type", "wimax.aas_fbck_req.data_type", 
+			"Measurement Data Type", "wmx.aas_fbck_req.data_type",
 			FT_UINT8, BASE_DEC, VALS(vals_data_types), OFDMA_AAS_FBCK_REQ_DATA_TYPE_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_req_reserved,
 		{
-			"Reserved", "wimax.aas_fbck_req.reserved", 
+			"Reserved", "wmx.aas_fbck_req.reserved",
 			FT_UINT8, BASE_HEX, NULL, OFDMA_AAS_FBCK_REQ_FB_REQ_RESERVED_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rsp_counter,
 		{
-			"Feedback Request Counter", "wimax.aas_fbck_rsp.counter", 
+			"Feedback Request Counter", "wmx.aas_fbck_rsp.counter",
 			FT_UINT8, BASE_DEC, NULL, OFDMA_AAS_FBCK_REQ_FB_RSP_COUNTER_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rsp_data_type,
 		{
-			"Measurement Data Type", "wimax.aas_fbck_rsp.data_type", 
+			"Measurement Data Type", "wmx.aas_fbck_rsp.data_type",
 			FT_UINT8, BASE_DEC, VALS(vals_data_types), OFDMA_AAS_FBCK_RSP_DATA_TYPE_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rsp_reserved,
 		{
-			"Reserved", "wimax.aas_fbck_rsp.reserved", 
+			"Reserved", "wmx.aas_fbck_rsp.reserved",
 			FT_UINT8, BASE_HEX, NULL, OFDMA_AAS_FBCK_REQ_FB_RSP_RESERVED_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rsp_resolution_0,
 		{
-			"Frequency Measurement Resolution", "wimax.aas_fbck_rsp.resolution", 
+			"Frequency Measurement Resolution", "wmx.aas_fbck_rsp.resolution",
 			FT_UINT8, BASE_DEC, VALS(vals_resolutions_0), OFDMA_AAS_FBCK_REQ_FB_RSP_RESOLUTION_MASK, "", HFILL
 		}
 	},
 	{
 		&hf_aas_fbck_rsp_resolution_1,
 		{
-			"Frequency Measurement Resolution", "wimax.aas_fbck_rsp.resolution", 
+			"Frequency Measurement Resolution", "wmx.aas_fbck_rsp.resolution",
 			FT_UINT8, BASE_DEC, VALS(vals_resolutions_1), OFDMA_AAS_FBCK_REQ_FB_RSP_RESOLUTION_MASK, "", HFILL
 		}
 	}
@@ -247,7 +247,7 @@ void proto_register_mac_mgmt_msg_aas_fbck(void)
 		proto_mac_mgmt_msg_aas_fbck_decoder = proto_register_protocol (
 							"WiMax AAS-FEEDBACK/BEAM Messages", /* name */
 							"WiMax AAS-FEEDBACK/BEAM (aas)", /* short name */
-							"aas" /* abbrev */
+							"wmx.aas" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_aas_fbck_decoder, hf_aas_fbck, array_length(hf_aas_fbck));

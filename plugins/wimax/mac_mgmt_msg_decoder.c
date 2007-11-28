@@ -118,7 +118,7 @@ static gint proto_mac_mgmt_msg_decoder = -1;
 static gint ett_mac_mgmt_msg_decoder = -1;
 
 /* WIMAX MAC Management message type info */
-char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] = 
+char *mgt_msg_abbrv[MAC_MGMT_MSG_TYPE_MAX] =
 {
 	"UCD",		/* 0 */
 	"DCD",
@@ -204,7 +204,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_mgmt_msg_values,
 		{
-			"Values", "wimax.values",
+			"Values", "wmx.values",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -212,7 +212,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_mgmt_msg_unknown_type,
 		{
-			"Unknown MAC Message Type", "wimax.unknown_type",
+			"Unknown MAC Message Type", "wmx.unknown_type",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -229,15 +229,13 @@ void proto_register_mac_mgmt_msg(void)
 		proto_mac_mgmt_msg_decoder = proto_register_protocol (
 							"WiMax MAC Management Message", /* name */
 							"MGMT MSG", /* short name */
-							"mgmtmsg" /* abbrev */
+							"wmx.mgmtmsg" /* abbrev */
 							);
 #endif
 
 		proto_register_field_array(proto_mac_mgmt_msg_decoder, hf, array_length(hf));
 		proto_register_subtree_array(ett, array_length(ett));
 	}
-
-	proto_register_wimax_utility_decoders();
 
 	proto_register_mac_mgmt_msg_dcd();
 	proto_register_mac_mgmt_msg_ucd();
@@ -267,6 +265,8 @@ void proto_register_mac_mgmt_msg(void)
 	proto_register_mac_mgmt_msg_rep();
 	proto_register_mac_mgmt_msg_clk_cmp();
 	proto_register_mac_mgmt_msg_dsx_rvd();
+
+	proto_register_wimax_utility_decoders();
 }
 
 void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

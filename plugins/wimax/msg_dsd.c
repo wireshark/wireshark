@@ -89,35 +89,35 @@ static hf_register_info hf[] =
 	{
 		&hf_dsd_req_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsd_req", 
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_req", 
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsd_rsp_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsd_rsp", 
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsd_rsp", 
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
 	{
 		&hf_dsd_confirmation_code,
 		{
-			"Confirmation code", "wimax.dsd.confirmation_code", 
+			"Confirmation code", "wmx.dsd.confirmation_code", 
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsd_service_flow_id,
 		{
-			"Service Flow ID", "wimax.dsd.service_flow_id", 
+			"Service Flow ID", "wmx.dsd.service_flow_id", 
 			FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsd_transaction_id,
 		{
-			"Transaction ID", "wimax.dsd.transaction_id", 
+			"Transaction ID", "wmx.dsd.transaction_id", 
 			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	}

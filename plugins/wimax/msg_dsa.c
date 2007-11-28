@@ -83,35 +83,35 @@ static hf_register_info hf[] =
 	{
 		&hf_dsa_ack_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsa_ack",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_ack",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsa_req_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsa_req",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_req",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsa_rsp_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dsa_rsp",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dsa_rsp",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsa_confirmation_code,
-		{ 
-			"Confirmation code", "wimax.dsa.confirmation_code", 
+		{
+			"Confirmation code", "wmx.dsa.confirmation_code",
 			FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dsa_transaction_id,
-		{ 
-			"Transaction ID", "wimax.dsa.transaction_id", 
+		{
+			"Transaction ID", "wmx.dsa.transaction_id",
 			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL
 		}
 	}
@@ -125,7 +125,7 @@ void proto_register_mac_mgmt_msg_dsa(void)
 		proto_mac_mgmt_msg_dsa_decoder = proto_register_protocol (
 							"WiMax DSA/C/D Messages", /* name */
 							"WiMax DSA/C/D (ds)", /* short name */
-							"ds" /* abbrev */
+							"wmx.ds" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_dsa_decoder, hf, array_length(hf));

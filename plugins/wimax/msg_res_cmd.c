@@ -68,15 +68,15 @@ static hf_register_info hf_res_cmd[] =
 {
 	{
 		&hf_res_cmd_message_type,
-		{"MAC Management Message Type", "wimax.macmgtmsgtype.res_cmd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"MAC Management Message Type", "wmx.macmgtmsgtype.res_cmd", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_res_cmd_invalid_tlv,
-		{"Invalid TLV", "wimax.res_cmd.invalid_tlv", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}
+		{"Invalid TLV", "wmx.res_cmd.invalid_tlv", FT_BYTES, BASE_HEX, NULL, 0, "", HFILL}
 	},
 	{
 		&hf_res_cmd_unknown_type,
-		{"Unknown TLV type", "wimax.res_cmd.unknown_tlv_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		{"Unknown TLV type", "wmx.res_cmd.unknown_tlv_type", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
 	}
 };
 
@@ -88,7 +88,7 @@ void proto_register_mac_mgmt_msg_res_cmd(void)
 		proto_mac_mgmt_msg_res_cmd_decoder = proto_register_protocol (
 							"WiMax RES-CMD Message", /* name */
 							"WiMax RES-CMD (res)", /* short name */
-							"res" /* abbrev */
+							"wmx.res" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_res_cmd_decoder, hf_res_cmd, array_length(hf_res_cmd));

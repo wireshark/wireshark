@@ -78,7 +78,7 @@ gint    man_ofdma = 1;
 
 address bs_address = {0,0,0};
 
-/* The following variables are local to the function, but serve as 
+/* The following variables are local to the function, but serve as
    elements for the global ett_tlv[] array */
 static gint ett_tlv_0 = -1;
 static gint ett_tlv_1 = -1;
@@ -338,7 +338,7 @@ static gint ett_tlv_254 = -1;
 static gint ett_tlv_255 = -1;
 
 /* Global TLV array to retrieve unique subtree identifiers */
-/* Note: ett_tlv_0 is a placeholder so the TLV number will 
+/* Note: ett_tlv_0 is a placeholder so the TLV number will
       correlate directly with the index number */
 gint *ett_tlv[] =
 {
@@ -837,7 +837,7 @@ void proto_register_wimax(void)
 
 		wimax_module = prefs_register_protocol(proto_wimax, proto_reg_handoff_wimax);
 
-		prefs_register_uint_preference(wimax_module, "wimax.basic_cid_max",
+		prefs_register_uint_preference(wimax_module, "basic_cid_max",
 				 "Maximum Basic CID",
 				 "Set the maximum Basic CID"
 				 " used in the Wimax decoder"
@@ -846,13 +846,15 @@ void proto_register_wimax(void)
 				 " double the maximum Basic CID.",
 				10, &global_cid_max_basic);
 
-		prefs_register_bool_preference(wimax_module, "wimax.corrigendum_2_version",
+		prefs_register_bool_preference(wimax_module, "corrigendum_2_version",
 				 "Corrigendum 2 Version",
 				 "Set to TRUE to use the Corrigendum"
 				 " 2 version of Wimax message decoding."
 				 " Set to FALSE to use the 802.16e-2005"
 				 "  version.",
 				&include_cor2_changes);
+		prefs_register_obsolete_preference(wimax_module, "wimax.basic_cid_max");
+		prefs_register_obsolete_preference(wimax_module, "wimax.corrigendum_2_version");
 
 		register_dissector_table("wimax.max_basic_cid", "Max Basic CID", FT_UINT16, BASE_DEC);
 		register_dissector_table("wimax.corrigendum_2_version", "Corrigendum 2 Version", FT_UINT16, BASE_DEC);
@@ -866,7 +868,7 @@ void proto_reg_wimax(void)
 	if (find_dissector("wmx") == NULL)
 	{
 		/* Register the WiMax dissector */
-		register_dissector("wimax_dissector", dissect_wimax, proto_wimax);
+		register_dissector("wmx", dissect_wimax, proto_wimax);
 	}
 }
 

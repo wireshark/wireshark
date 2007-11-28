@@ -292,7 +292,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_value_bytes,
 		{
-			"Values", "wimax.genericValueBytes",
+			"Values", "wmx.genericValueBytes",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -300,7 +300,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_ht,
 		{
-			"MAC Header Type", "wimax.genericHt",
+			"MAC Header Type", "wmx.genericHt",
 			FT_UINT24, BASE_HEX, VALS(ht_msgs), WIMAX_MAC_HEADER_GENERIC_HT,
 			"", HFILL
 		}
@@ -308,7 +308,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_ec,
 		{
-			"MAC Encryption Control", "wimax.genericEc",
+			"MAC Encryption Control", "wmx.genericEc",
 			FT_UINT24, BASE_HEX, VALS(ec_msgs), WIMAX_MAC_HEADER_GENERIC_EC,
 			"", HFILL
 		}
@@ -316,7 +316,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_0,
 		{
-			"MAC Sub-type Bit 0", "wimax.genericType0",
+			"MAC Sub-type Bit 0", "wmx.genericType0",
 			FT_UINT24, BASE_HEX, VALS(type_msg0), WIMAX_MAC_HEADER_GENERIC_TYPE_0,
 			"", HFILL
 		}
@@ -324,7 +324,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_1,
 		{
-			"MAC Sub-type Bit 1", "wimax.genericType1",
+			"MAC Sub-type Bit 1", "wmx.genericType1",
 			FT_UINT24, BASE_HEX, VALS(type_msg1), WIMAX_MAC_HEADER_GENERIC_TYPE_1,
 			"", HFILL
 		}
@@ -332,7 +332,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_2,
 		{
-			"MAC Sub-type Bit 2", "wimax.genericType2",
+			"MAC Sub-type Bit 2", "wmx.genericType2",
 			FT_UINT24, BASE_HEX, VALS(type_msg2), WIMAX_MAC_HEADER_GENERIC_TYPE_2,
 			"", HFILL
 		}
@@ -340,7 +340,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_3,
 		{
-			"MAC Sub-type Bit 3", "wimax.genericType3",
+			"MAC Sub-type Bit 3", "wmx.genericType3",
 			FT_UINT24, BASE_HEX, VALS(type_msg3), WIMAX_MAC_HEADER_GENERIC_TYPE_3,
 			"", HFILL
 		}
@@ -348,7 +348,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_4,
 		{
-			"MAC Sub-type Bit 4", "wimax.genericType4",
+			"MAC Sub-type Bit 4", "wmx.genericType4",
 			FT_UINT24, BASE_HEX, VALS(type_msg4), WIMAX_MAC_HEADER_GENERIC_TYPE_4,
 			"", HFILL
 		}
@@ -356,7 +356,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_type_5,
 		{
-			"MAC Sub-type Bit 5", "wimax.genericType5",
+			"MAC Sub-type Bit 5", "wmx.genericType5",
 			FT_UINT24, BASE_HEX, VALS(type_msg5), WIMAX_MAC_HEADER_GENERIC_TYPE_5,
 			"", HFILL
 		}
@@ -364,7 +364,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_esf,
 		{
-			"Extended Sub-header Field", "wimax.genericEsf",
+			"Extended Sub-header Field", "wmx.genericEsf",
 			FT_UINT24, BASE_HEX, VALS(esf_msgs), WIMAX_MAC_HEADER_GENERIC_ESF,
 			"", HFILL
 		}
@@ -372,7 +372,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_ci,
 		{
-			"CRC Indicator", "wimax.genericCi",
+			"CRC Indicator", "wmx.genericCi",
 			FT_UINT24, BASE_HEX, VALS(ci_msgs), WIMAX_MAC_HEADER_GENERIC_CI,
 			"", HFILL
 		}
@@ -380,7 +380,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_eks,
 		{
-			"Encryption Key Sequence", "wimax.genericEks",
+			"Encryption Key Sequence", "wmx.genericEks",
 			FT_UINT24, BASE_HEX, NULL, WIMAX_MAC_HEADER_GENERIC_EKS,
 			"", HFILL
 		}
@@ -388,7 +388,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_rsv,
 		{
-			"Reserved", "wimax.genericRsv",
+			"Reserved", "wmx.genericRsv",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_GENERIC_RSV,
 			"", HFILL
 		}
@@ -396,7 +396,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_len,
 		{
-			"Length", "wimax.genericLen",
+			"Length", "wmx.genericLen",
 			FT_UINT24, BASE_DEC, NULL, WIMAX_MAC_HEADER_GENERIC_LEN,
 			"", HFILL
 		}
@@ -404,7 +404,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_cid,
 		{
-			"Connection ID", "wimax.genericCid",
+			"Connection ID", "wmx.genericCid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -412,7 +412,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_hcs,
 		{
-			"Header Check Sequence", "wimax.genericHcs",
+			"Header Check Sequence", "wmx.genericHcs",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -420,7 +420,7 @@ static hf_register_info hf[] =
 	{
 		&hf_mac_header_generic_crc,
 		{
-			"CRC", "wimax.genericCrc",
+			"CRC", "wmx.genericCrc",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -603,7 +603,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_rsv,
 		{
-			"Reserved", "wimax.genericExtSubhd.Rsv",
+			"Reserved", "wmx.genericExtSubhd.Rsv",
 			FT_UINT8, BASE_DEC, NULL, EXTENDED_SUB_HEADER_RSV_MASK,
 			"", HFILL
 		}
@@ -611,7 +611,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_type_dl,
 		{
-			"DL Extended Subheader Type", "wimax.genericExtSubhd.Dl",
+			"DL Extended Subheader Type", "wmx.genericExtSubhd.Dl",
 			FT_UINT8, BASE_DEC, VALS(dl_ext_sub_header_type), EXTENDED_SUB_HEADER_TYPE_MASK,
 			"", HFILL
 		}
@@ -619,7 +619,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_type_ul,
 		{
-			"UL Extended Subheader Type", "wimax.genericExtSubhd.Ul",
+			"UL Extended Subheader Type", "wmx.genericExtSubhd.Ul",
 			FT_UINT8, BASE_DEC, VALS(ul_ext_sub_header_type), EXTENDED_SUB_HEADER_TYPE_MASK,
 			"", HFILL
 		}
@@ -627,7 +627,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_sdu_sn,
 		{
-			"SDU Sequence Number", "wimax.genericExtSubhd.SduSn",
+			"SDU Sequence Number", "wmx.genericExtSubhd.SduSn",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -635,7 +635,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid,
 		{
-			"Power Saving Class ID", "wimax.genericExtSubhd.DlSleepCtrlPSCID",
+			"Power Saving Class ID", "wmx.genericExtSubhd.DlSleepCtrlPSCID",
 			FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_POWER_SAVING_CLASS_ID_MASK,
 			"", HFILL
 		}
@@ -643,7 +643,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_dl_sleep_control_op,
 		{
-			"Operation", "wimax.genericExtSubhd.DlSleepCtrlOP",
+			"Operation", "wmx.genericExtSubhd.DlSleepCtrlOP",
 			FT_UINT24, BASE_HEX, VALS(dl_sleep_control_ops), DL_SLEEP_CONTROL_OPERATION_MASK,
 			"", HFILL
 		}
@@ -651,7 +651,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe,
 		{
-			"Final Sleep Window Exponent", "wimax.genericExtSubhd.DlSleepCtrlFSWE",
+			"Final Sleep Window Exponent", "wmx.genericExtSubhd.DlSleepCtrlFSWE",
 			FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_FINAL_SLEEP_WINDOW_EXPONENT_MASK,
 			"", HFILL
 		}
@@ -659,7 +659,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb,
 		{
-			"Final Sleep Window Base", "wimax.genericExtSubhd.DlSleepCtrlFSWB",
+			"Final Sleep Window Base", "wmx.genericExtSubhd.DlSleepCtrlFSWB",
 			FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_FINAL_SLEEP_WINDOW_BASE_MASK,
 			"", HFILL
 		}
@@ -667,7 +667,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv,
 		{
-			"Reserved", "wimax.genericExtSubhd.DlSleepCtrlRsv",
+			"Reserved", "wmx.genericExtSubhd.DlSleepCtrlRsv",
 			FT_UINT24, BASE_DEC, NULL, DL_SLEEP_CONTROL_RESERVED_MASK,
 			"", HFILL
 		}
@@ -675,7 +675,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_uiuc,
 		{
-			"UIUC", "wimax.genericExtSubhd.FbReqUIUC",
+			"UIUC", "wmx.genericExtSubhd.FbReqUIUC",
 			FT_UINT24, BASE_HEX, VALS(uiuc_values), FEEDBACK_REQUEST_UIUC_MASK,
 			"", HFILL
 		}
@@ -683,7 +683,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_fb_type,
 		{
-			"Feedback Type", "wimax.genericExtSubhd.FbReqFbType",
+			"Feedback Type", "wmx.genericExtSubhd.FbReqFbType",
 			FT_UINT24, BASE_HEX, VALS(fb_types), FEEDBACK_REQUEST_FEEDBACK_TYPE_MASK,
 			"", HFILL
 		}
@@ -691,7 +691,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset,
 		{
-			"OFDMA Symbol Offset", "wimax.genericExtSubhd.FbReqOfdmaSymbolOffset",
+			"OFDMA Symbol Offset", "wmx.genericExtSubhd.FbReqOfdmaSymbolOffset",
 			FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_OFDMA_SYMBOL_OFFSET_MASK,
 			"", HFILL
 		}
@@ -699,7 +699,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset,
 		{
-			"Subchannel Offset", "wimax.genericExtSubhd.FbReqSubchannelOffset",
+			"Subchannel Offset", "wmx.genericExtSubhd.FbReqSubchannelOffset",
 			FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_SUBCHANNEL_OFFSET_MASK,
 			"", HFILL
 		}
@@ -707,7 +707,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_slots,
 		{
-			"Number of Slots", "wimax.genericExtSubhd.FbReqSlots",
+			"Number of Slots", "wmx.genericExtSubhd.FbReqSlots",
 			FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_NUMBER_OF_SLOTS_MASK,
 			"", HFILL
 		}
@@ -715,7 +715,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_fb_req_frame_offset,
 		{
-			"Frame Offset", "wimax.genericExtSubhd.FbReqFrameOffset",
+			"Frame Offset", "wmx.genericExtSubhd.FbReqFrameOffset",
 			FT_UINT24, BASE_HEX, NULL, FEEDBACK_REQUEST_FRAME_OFFSET_MASK,
 			"", HFILL
 		}
@@ -723,7 +723,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1,
 		{
-			"First SN Report Indication", "wimax.genericExtSubhd.SnReqRepInd1",
+			"First SN Report Indication", "wmx.genericExtSubhd.SnReqRepInd1",
 			FT_UINT8, BASE_DEC, VALS(sn_rep_msg), SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_1_MASK,
 			"", HFILL
 		}
@@ -731,7 +731,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2,
 		{
-			"Second SN Report Indication", "wimax.genericExtSubhd.SnReqRepInd2",
+			"Second SN Report Indication", "wmx.genericExtSubhd.SnReqRepInd2",
 			FT_UINT8, BASE_DEC, VALS(sn_rep_msg), SN_REQUEST_SUBHEADER_SN_REPORT_INDICATION_2_MASK,
 			"", HFILL
 		}
@@ -739,7 +739,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_sn_req_rsv,
 		{
-			"Reserved", "wimax.genericExtSubhd.SnReqRsv",
+			"Reserved", "wmx.genericExtSubhd.SnReqRsv",
 			FT_UINT8, BASE_DEC, NULL, SN_REQUEST_SUBHEADER_RESERVED_MASK,
 			"", HFILL
 		}
@@ -747,7 +747,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_mimo_mode_fb_type,
 		{
-			"Feedback Type", "wimax.genericExtSubhd.MimoFbType",
+			"Feedback Type", "wmx.genericExtSubhd.MimoFbType",
 			FT_UINT8, BASE_DEC, VALS(mimo_fb_types), MIMO_FEEDBACK_TYPE_MASK,
 			"", HFILL
 		}
@@ -755,7 +755,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_mimo_fb_content,
 		{
-			"Feedback Content", "wimax.genericExtSubhd.MimoFbContent",
+			"Feedback Content", "wmx.genericExtSubhd.MimoFbContent",
 			FT_UINT8, BASE_DEC, NULL, MIMO_FEEDBACK_CONTENT_MASK,
 			"", HFILL
 		}
@@ -763,7 +763,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep,
 		{
-			"UL TX Power", "wimax.genericExtSubhd.UlTxPwr",
+			"UL TX Power", "wmx.genericExtSubhd.UlTxPwr",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -771,7 +771,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_mini_fb_type,
 		{
-			"Feedback Type", "wimax.genericExtSubhd.MiniFbType",
+			"Feedback Type", "wmx.genericExtSubhd.MiniFbType",
 			FT_UINT16, BASE_DEC, VALS(fb_types), MINI_FEEDBACK_TYPE_MASK,
 			"", HFILL
 		}
@@ -779,7 +779,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_mini_fb_content,
 		{
-			"Feedback Content", "wimax.genericExtSubhd.MiniFbContent",
+			"Feedback Content", "wmx.genericExtSubhd.MiniFbContent",
 			FT_UINT16, BASE_DEC, NULL, MINI_FEEDBACK_CONTENT_MASK,
 			"", HFILL
 		}
@@ -787,7 +787,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_pdu_sn_short,
 		{
-			"PDU Sequence Number", "wimax.genericExtSubhd.PduSnShort",
+			"PDU Sequence Number", "wmx.genericExtSubhd.PduSnShort",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -795,7 +795,7 @@ static hf_register_info hf_ext[] =
 	{
 		&hf_mac_header_generic_ext_subheader_pdu_sn_long,
 		{
-			"PDU Sequence Number", "wimax.genericExtSubhd.PduSnLong",
+			"PDU Sequence Number", "wmx.genericExtSubhd.PduSnLong",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -811,7 +811,7 @@ static hf_register_info hf_mesh[] =
 	{
 		&hf_mac_header_generic_mesh_subheader,
 		{
-			"Xmt Node Id", "wimax.genericMeshSubhd",
+			"Xmt Node Id", "wmx.genericMeshSubhd",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -857,7 +857,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_fc,
 		{
-			"Fragment Type", "wimax.genericFragSubhd.Fc",
+			"Fragment Type", "wmx.genericFragSubhd.Fc",
 			FT_UINT8, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_MASK,
 			"", HFILL
 		}
@@ -865,7 +865,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_fc_ext,
 		{
-			"Fragment Type", "wimax.genericFragSubhd.FcExt",
+			"Fragment Type", "wmx.genericFragSubhd.FcExt",
 			FT_UINT16, BASE_DEC, VALS(frag_types), FRAGMENTATION_SUBHEADER_FC_MASK,
 			"", HFILL
 		}
@@ -873,7 +873,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_bsn,
 		{
-			"Block Sequence Number (BSN)", "wimax.genericFragSubhd.Bsn",
+			"Block Sequence Number (BSN)", "wmx.genericFragSubhd.Bsn",
 			FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_BSN_MASK,
 			"", HFILL
 		}
@@ -881,7 +881,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_fsn,
 		{
-			"Fragment Sequence Number (FSN)", "wimax.genericFragSubhd.Fsn",
+			"Fragment Sequence Number (FSN)", "wmx.genericFragSubhd.Fsn",
 			FT_UINT8, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_FSN_MASK,
 			"", HFILL
 		}
@@ -889,7 +889,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_fsn_ext,
 		{
-			"Fragment Sequence Number (FSN)", "wimax.genericFragSubhd.FsnExt",
+			"Fragment Sequence Number (FSN)", "wmx.genericFragSubhd.FsnExt",
 			FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_BSN_MASK,
 			"", HFILL
 		}
@@ -897,7 +897,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_rsv,
 		{
-			"Reserved", "wimax.genericFragSubhd.Rsv",
+			"Reserved", "wmx.genericFragSubhd.Rsv",
 			FT_UINT8, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_RSV_MASK,
 			"", HFILL
 		}
@@ -905,7 +905,7 @@ static hf_register_info hf_frag[] =
 	{
 		&hf_mac_header_generic_frag_subhd_rsv_ext,
 		{
-			"Reserved", "wimax.genericFragSubhd.RsvExt",
+			"Reserved", "wmx.genericFragSubhd.RsvExt",
 			FT_UINT16, BASE_DEC, NULL, FRAGMENTATION_SUBHEADER_RSV_EXT_MASK,
 			"", HFILL
 		}
@@ -935,7 +935,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_fc,
 		{
-			"Fragment Type", "wimax.genericPackSubhd.Fc",
+			"Fragment Type", "wmx.genericPackSubhd.Fc",
 			FT_UINT16, BASE_DEC, VALS(frag_types), PACKING_SUBHEADER_FC_MASK,
 			"", HFILL
 		}
@@ -943,7 +943,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_fc_ext,
 		{
-			"Fragment Type", "wimax.genericPackSubhd.FcExt",
+			"Fragment Type", "wmx.genericPackSubhd.FcExt",
 			FT_UINT24, BASE_HEX, VALS(frag_types), PACKING_SUBHEADER_FC_MASK,
 			"", HFILL
 		}
@@ -951,7 +951,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_bsn,
 		{
-			"First Block Sequence Number", "wimax.genericPackSubhd.Bsn",
+			"First Block Sequence Number", "wmx.genericPackSubhd.Bsn",
 			FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_BSN_MASK,
 			"", HFILL
 		}
@@ -959,7 +959,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_fsn,
 		{
-			"Fragment Number", "wimax.genericPackSubhd.Fsn",
+			"Fragment Number", "wmx.genericPackSubhd.Fsn",
 			FT_UINT16, BASE_DEC, NULL, PACKING_SUBHEADER_FSN_MASK,
 			"", HFILL
 		}
@@ -967,7 +967,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_fsn_ext,
 		{
-			"Fragment Number", "wimax.genericPackSubhd.FsnExt",
+			"Fragment Number", "wmx.genericPackSubhd.FsnExt",
 			FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_BSN_MASK,
 			"", HFILL
 		}
@@ -975,7 +975,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_len,
 		{
-			"Length", "wimax.genericPackSubhd.Len",
+			"Length", "wmx.genericPackSubhd.Len",
 			FT_UINT16, BASE_DEC, NULL, PACKING_SUBHEADER_LENGTH_MASK,
 			"", HFILL
 		}
@@ -983,7 +983,7 @@ static hf_register_info hf_pack[] =
 	{
 		&hf_mac_header_generic_packing_subhd_len_ext,
 		{
-			"Length", "wimax.genericPackSubhd.LenExt",
+			"Length", "wmx.genericPackSubhd.LenExt",
 			FT_UINT24, BASE_DEC, NULL, PACKING_SUBHEADER_LENGTH_EXT_MASK,
 			"", HFILL
 		}
@@ -1003,7 +1003,7 @@ static hf_register_info hf_fast[] =
 	{
 		&hf_mac_header_generic_fast_fb_subhd_alloc_offset,
 		{
-			"Allocation Offset", "wimax.genericFastFbSubhd.AllocOffset",
+			"Allocation Offset", "wmx.genericFastFbSubhd.AllocOffset",
 			FT_UINT8, BASE_DEC, NULL, FAST_FEEDBACK_ALLOCATION_OFFSET_MASK,
 			"", HFILL
 		}
@@ -1011,7 +1011,7 @@ static hf_register_info hf_fast[] =
 	{
 		&hf_mac_header_generic_fast_fb_subhd_fb_type,
 		{
-			"Feedback Type", "wimax.genericFastFbSubhd.FbType",
+			"Feedback Type", "wmx.genericFastFbSubhd.FbType",
 			FT_UINT8, BASE_DEC, VALS(fast_fb_types), FAST_FEEDBACK_FEEDBACK_TYPE_MASK,
 			"", HFILL
 		}
@@ -1082,7 +1082,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_ext_pbr_tree,
 		{
-			"Scheduling Service Type (Default)", 
+			"Scheduling Service Type (Default)",
 			"wimax.genericGrantSubhd.Default",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
@@ -1091,7 +1091,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_pbr,
 		{
-			"PiggyBack Request", "wimax.genericGrantSubhd.Pbr",
+			"PiggyBack Request", "wmx.genericGrantSubhd.Pbr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -1099,7 +1099,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_ugs_tree,
 		{
-			"Scheduling Service Type (UGS)", "wimax.genericGrantSubhd.UGS",
+			"Scheduling Service Type (UGS)", "wmx.genericGrantSubhd.UGS",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -1107,7 +1107,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ugs_si,
 		{
-			"Slip Indicator", "wimax.genericGrantSubhd.Si",
+			"Slip Indicator", "wmx.genericGrantSubhd.Si",
 			FT_UINT16, BASE_DEC, VALS(si_msgs), GRANT_MGMT_SUBHEADER_UGS_SI_MASK,
 			"", HFILL
 		}
@@ -1115,7 +1115,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ugs_pm,
 		{
-			"Poll-Me", "wimax.genericGrantSubhd.Pm",
+			"Poll-Me", "wmx.genericGrantSubhd.Pm",
 			FT_UINT16, BASE_DEC, VALS(pm_msgs), GRANT_MGMT_SUBHEADER_UGS_PM_MASK,
 			"", HFILL
 		}
@@ -1123,7 +1123,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ugs_fli,
 		{
-			"Frame Latency Indication", "wimax.genericGrantSubhd.Fli",
+			"Frame Latency Indication", "wmx.genericGrantSubhd.Fli",
 			FT_UINT16, BASE_DEC, VALS(fli_msgs), GRANT_MGMT_SUBHEADER_UGS_FLI_MASK,
 			"", HFILL
 		}
@@ -1131,7 +1131,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ugs_fl,
 		{
-			"Frame Latency", "wimax.genericGrantSubhd.Fl",
+			"Frame Latency", "wmx.genericGrantSubhd.Fl",
 			FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_UGS_FL_MASK,
 			"", HFILL
 		}
@@ -1139,7 +1139,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv,
 		{
-			"Reserved", "wimax.genericGrantSubhd.Rsv",
+			"Reserved", "wmx.genericGrantSubhd.Rsv",
 			FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_UGS_RSV_MASK,
 			"", HFILL
 		}
@@ -1156,7 +1156,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ext_pbr,
 		{
-			"Extended PiggyBack Request", "wimax.genericGrantSubhd.ExtPbr",
+			"Extended PiggyBack Request", "wmx.genericGrantSubhd.ExtPbr",
 			FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_EXT_PBR_MASK,
 			"", HFILL
 		}
@@ -1164,7 +1164,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ext_fli,
 		{
-			"Frame Latency Indication", "wimax.genericGrantSubhd.ExtFli",
+			"Frame Latency Indication", "wmx.genericGrantSubhd.ExtFli",
 			FT_UINT16, BASE_DEC, VALS(fli_msgs), GRANT_MGMT_SUBHEADER_EXT_FLI_MASK,
 			"", HFILL
 		}
@@ -1172,7 +1172,7 @@ static hf_register_info hf_grant[] =
 	{
 		&hf_mac_header_generic_grant_mgmt_subhd_ext_fl,
 		{
-			"Frame Latency", "wimax.genericGrantSubhd.ExtFl",
+			"Frame Latency", "wmx.genericGrantSubhd.ExtFl",
 			FT_UINT16, BASE_DEC, NULL, GRANT_MGMT_SUBHEADER_EXT_FL_MASK,
 			"", HFILL
 		}
@@ -1227,7 +1227,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_cid,
 		{
-			"CID", "wimax.genericArq.FbIeCid",
+			"CID", "wmx.genericArq.FbIeCid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL
 		}
@@ -1235,7 +1235,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_last,
 		{
-			"Last IE", "wimax.genericArq.FbIeLast",
+			"Last IE", "wmx.genericArq.FbIeLast",
 			FT_UINT16, BASE_DEC, VALS(last_ie_msgs), ARQ_FB_IE_LAST_BIT_MASK,
 			"", HFILL
 		}
@@ -1243,7 +1243,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_ack_type,
 		{
-			"ACK Type", "wimax.genericArq.FbIeAckType",
+			"ACK Type", "wmx.genericArq.FbIeAckType",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_ACK_TYPE_MASK,
 			"", HFILL
 		}
@@ -1251,7 +1251,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_bsn,
 		{
-			"BSN", "wimax.genericArq.FbIeBsn",
+			"BSN", "wmx.genericArq.FbIeBsn",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_BSN_MASK,
 			"", HFILL
 		}
@@ -1259,7 +1259,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_num_maps,
 		{
-			"Number of ACK Maps", "wimax.genericArq.FbIeMaps",
+			"Number of ACK Maps", "wmx.genericArq.FbIeMaps",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_NUM_MAPS_MASK,
 			"", HFILL
 		}
@@ -1267,13 +1267,13 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_ack_type_reserved,
 		{
-			"Reserved", "wimax.genericArq.FbIeRsvd", FT_UINT16, BASE_DEC, NULL, 0x03, "", HFILL
+			"Reserved", "wmx.genericArq.FbIeRsvd", FT_UINT16, BASE_DEC, NULL, 0x03, "", HFILL
 		}
 	},
 	{
 		&hf_mac_header_generic_arq_fb_ie_sel_ack_map,
 		{
-			"Selective ACK Map", "wimax.genericArq.FbIeSelAckMap",
+			"Selective ACK Map", "wmx.genericArq.FbIeSelAckMap",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -1281,7 +1281,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq_format,
 		{
-			"Sequence Format", "wimax.genericArq.FbIeSeqFmt",
+			"Sequence Format", "wmx.genericArq.FbIeSeqFmt",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ_FORMAT_MASK,
 			"", HFILL
 		}
@@ -1289,7 +1289,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq_ack_map,
 		{
-			"Sequence ACK Map", "wimax.genericArq.FbIeSeqAckMap",
+			"Sequence ACK Map", "wmx.genericArq.FbIeSeqAckMap",
 			FT_UINT16, BASE_HEX, NULL, ARQ_FB_IE_SEQ_ACK_MAP_MASK,
 			"", HFILL
 		}
@@ -1297,7 +1297,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq1_length,
 		{
-			"Sequence 1 Length", "wimax.genericArq.FbIeSeq1Len",
+			"Sequence 1 Length", "wmx.genericArq.FbIeSeq1Len",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ1_LENGTH_MASK,
 			"", HFILL
 		}
@@ -1305,7 +1305,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq2_length,
 		{
-			"Sequence 2 Length", "wimax.genericArq.FbIeSeq2Len",
+			"Sequence 2 Length", "wmx.genericArq.FbIeSeq2Len",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ2_LENGTH_MASK,
 			"", HFILL
 		}
@@ -1313,7 +1313,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq3_length,
 		{
-			"Sequence 3 Length", "wimax.genericArq.FbIeSeq3Len",
+			"Sequence 3 Length", "wmx.genericArq.FbIeSeq3Len",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ3_LENGTH_MASK,
 			"", HFILL
 		}
@@ -1321,7 +1321,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq_ack_map_2,
 		{
-			"Sequence ACK Map", "wimax.genericArq.FbIeSeqAckMap2",
+			"Sequence ACK Map", "wmx.genericArq.FbIeSeqAckMap2",
 			FT_UINT16, BASE_HEX, NULL, ARQ_FB_IE_SEQ_ACK_MAP_2_MASK,
 			"", HFILL
 		}
@@ -1329,7 +1329,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq1_length_6,
 		{
-			"Sequence 1 Length", "wimax.genericArq.FbIeSeq1Len",
+			"Sequence 1 Length", "wmx.genericArq.FbIeSeq1Len",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ1_LENGTH_6_MASK,
 			"", HFILL
 		}
@@ -1337,7 +1337,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_seq2_length_6,
 		{
-			"Sequence 2 Length", "wimax.genericArq.FbIeSeq2Len",
+			"Sequence 2 Length", "wmx.genericArq.FbIeSeq2Len",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_SEQ2_LENGTH_6_MASK,
 			"", HFILL
 		}
@@ -1345,7 +1345,7 @@ static hf_register_info hf_arq[] =
 	{
 		&hf_mac_header_generic_arq_fb_ie_rsv,
 		{
-			"Reserved", "wimax.genericArq.FbIeRsv",
+			"Reserved", "wmx.genericArq.FbIeRsv",
 			FT_UINT16, BASE_DEC, NULL, ARQ_FB_IE_RSV_MASK,
 			"", HFILL
 		}
@@ -1466,7 +1466,7 @@ void proto_register_mac_header_generic(void)
 		proto_mac_header_generic_decoder = proto_register_protocol (
 							"WiMax Generic/Type1/Type2 MAC Header Messages", /* name */
 							"WiMax Generic/Type1/Type2 MAC Header (hdr)", /* short name */
-							"hdr" /* abbrev */
+							"wmx.hdr" /* abbrev */
 							);
 		/* register the field display messages */
 		proto_register_field_array(proto_mac_header_generic_decoder, hf, array_length(hf));
@@ -1516,7 +1516,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	tvbuff_t *data_pdu_tvb;
 	fragment_data *payload_frag;
 	gboolean first_arq_fb_payload = TRUE;
-	
+
 	dissector_handle_t mac_payload_handle;
 
 	proto_mac_header_generic_decoder = proto_wimax;
@@ -1723,7 +1723,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_pbr_tree, tvb, offset, 2, FALSE);
 				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
 				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_pbr, tvb, offset, 2, FALSE);
-				
+
 				/* update the length and offset */
 				length -= 2;
 				offset += 2;

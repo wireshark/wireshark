@@ -55,7 +55,7 @@ static hf_register_info hf[] =
 	{
 		&hf_wimax_ranging_code,
 		{
-			"Ranging Code", "wimax.cdma.ranging_code",
+			"Ranging Code", "wmx.cdma.ranging_code",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -63,7 +63,7 @@ static hf_register_info hf[] =
 	{
 		&hf_wimax_ranging_symbol_offset,
 		{
-			"Ranging Symbol Offset", "wimax.cdma.ranging_symbol_offset",
+			"Ranging Symbol Offset", "wmx.cdma.ranging_symbol_offset",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}
@@ -71,7 +71,7 @@ static hf_register_info hf[] =
 	{
 		&hf_wimax_ranging_subchannel_offset,
 		{
-			"Ranging Sub-Channel Offset", "wimax.cdma.ranging_subchannel_offset",
+			"Ranging Sub-Channel Offset", "wmx.cdma.ranging_subchannel_offset",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}

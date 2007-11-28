@@ -84,7 +84,7 @@ static hf_register_info hf[] =
 	{
 		&hf_wimax_value_bytes,
 		{
-			"Values", "wimax.pdu.value",
+			"Values", "wmx.pdu.value",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"", HFILL
 		}

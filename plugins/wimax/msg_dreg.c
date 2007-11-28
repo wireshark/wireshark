@@ -152,175 +152,175 @@ static hf_register_info hf[] =
 	{
 		&hf_dreg_consider_paging_pref,
 		{
-			"Consider Paging Preference of each Service Flow in resource retention", "wimax.dreg.consider_paging_preference",
+			"Consider Paging Preference of each Service Flow in resource retention", "wmx.dreg.consider_paging_preference",
 			FT_UINT8, BASE_DEC, NULL, 0x80, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_invalid_tlv,
 		{
-			"Invalid TLV", "wimax.dreg.invalid_tlv", 
+			"Invalid TLV", "wmx.dreg.invalid_tlv",
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
 	{
 		&hf_mac_hash_skip_threshold,
 		{
-			"MAC Hash Skip Threshold", "wimax.dreg.mac_hash_skip_threshold",
+			"MAC Hash Skip Threshold", "wmx.dreg.mac_hash_skip_threshold",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_paging_controller_id,
 		{
-			"Paging Controller ID", "wimax.dreg.paging_controller_id",
+			"Paging Controller ID", "wmx.dreg.paging_controller_id",
 			FT_ETHER, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_paging_cycle,
 		{
-			"PAGING CYCLE", "wimax.dreg.paging_cycle",
+			"PAGING CYCLE", "wmx.dreg.paging_cycle",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_paging_cycle_request,
 		{
-			"Paging Cycle Request", "wimax.dreg.paging_cycle_request",
+			"Paging Cycle Request", "wmx.dreg.paging_cycle_request",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_paging_group_id,
 		{
-			"Paging-group-ID", "wimax.dreg.paging_group_id",
+			"Paging-group-ID", "wmx.dreg.paging_group_id",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_paging_offset,
 		{
-			"PAGING OFFSET", "wimax.dreg.paging_offset",
+			"PAGING OFFSET", "wmx.dreg.paging_offset",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_req_duration,
 		{
-			"REQ-duration (Waiting value for the DREG-REQ message re-transmission in frames)", "wimax.dreg.req_duration",
+			"REQ-duration (Waiting value for the DREG-REQ message re-transmission in frames)", "wmx.dreg.req_duration",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_full_service,
 		{
-			"Retain MS service and operation information associated with Full service", "wimax.dreg.retain_ms_full_service",
+			"Retain MS service and operation information associated with Full service", "wmx.dreg.retain_ms_full_service",
 			FT_UINT8, BASE_DEC, NULL, 0x40, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_network_address,
 		{
-			"Retain MS service and operational information associated with Network Address", "wimax.dreg.retain_ms_service_network_address",
+			"Retain MS service and operational information associated with Network Address", "wmx.dreg.retain_ms_service_network_address",
 			FT_UINT8, BASE_DEC, NULL, 0x08, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_pkm,
 		{
-			"Retain MS service and operational information associated with PKM-REQ/RSP", "wimax.dreg.retain_ms_service_pkm",
+			"Retain MS service and operational information associated with PKM-REQ/RSP", "wmx.dreg.retain_ms_service_pkm",
 			FT_UINT8, BASE_DEC, NULL, 0x02, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_reg,
 		{
-			"Retain MS service and operational information associated with REG-REQ/RSP", "wimax.dreg.retain_ms_service_reg",
+			"Retain MS service and operational information associated with REG-REQ/RSP", "wmx.dreg.retain_ms_service_reg",
 			FT_UINT8, BASE_DEC, NULL, 0x04, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_sbc,
 		{
-			"Retain MS service and operational information associated with SBC-REQ/RSP", "wimax.dreg.retain_ms_service_sbc",
+			"Retain MS service and operational information associated with SBC-REQ/RSP", "wmx.dreg.retain_ms_service_sbc",
 			FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_tftp,
 		{
-			"Retain MS service and operational information associated with TFTP messages", "wimax.dreg.retain_ms_service_tftp",
+			"Retain MS service and operational information associated with TFTP messages", "wmx.dreg.retain_ms_service_tftp",
 			FT_UINT8, BASE_DEC, NULL, 0x20, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_retain_ms_service_tod,
 		{
-			"Retain MS service and operational information associated with Time of Day", "wimax.dreg.retain_ms_service_tod",
+			"Retain MS service and operational information associated with Time of Day", "wmx.dreg.retain_ms_service_tod",
 			FT_UINT8, BASE_DEC, NULL, 0x10, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_cmd_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dreg_cmd",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dreg_cmd",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_cmd_action,
 		{
-			"DREG-CMD Action code", "wimax.dreg_cmd.action",
+			"DREG-CMD Action code", "wmx.dreg_cmd.action",
 			FT_UINT8, BASE_DEC, VALS(vals_dreg_cmd_action), 0x07, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_cmd_action_cor2,
 		{
-			"DREG-CMD Action code", "wimax.dreg_cmd.action",
+			"DREG-CMD Action code", "wmx.dreg_cmd.action",
 			FT_UINT8, BASE_DEC, VALS(vals_dreg_cmd_action_cor2), 0x07, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_cmd_reserved,
 		{
-			"Reserved", "wimax.dreg_cmd.action_reserved",
+			"Reserved", "wmx.dreg_cmd.action_reserved",
 			FT_UINT8, BASE_DEC, NULL, 0xF8, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_req_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.dreg_req",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.dreg_req",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_req_action,
 		{
-			"DREG-REQ Action code", "wimax.dreg_req.action",
+			"DREG-REQ Action code", "wmx.dreg_req.action",
 			FT_UINT8, BASE_DEC, VALS(vals_dreg_req_code), 0x03, "", HFILL
 		}
 	},
 	{
 		&hf_dreg_req_reserved,
 		{
-			"Reserved", "wimax.dreg_req.action_reserved",
+			"Reserved", "wmx.dreg_req.action_reserved",
 			FT_UINT8, BASE_DEC, NULL, 0xFC, "", HFILL
 		}
 	},
 	{
 		&hf_tlv_value,
 		{
-			"Value", "wimax.dreg.unknown_tlv_value", 
+			"Value", "wmx.dreg.unknown_tlv_value",
 			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
 		}
 	},
 	{
 		&hf_ack_type_reserved,
 		{
-			"Reserved", "wimax.ack_type_reserved", 
+			"Reserved", "wmx.ack_type_reserved",
 			FT_UINT8, BASE_DEC, NULL, 0x03, "", HFILL
 		}
 	}
@@ -377,7 +377,7 @@ void proto_register_mac_mgmt_msg_dreg_req(void)
 		proto_mac_mgmt_msg_dreg_req_decoder = proto_register_protocol (
 							"WiMax DREG-REQ/CMD Messages", /* name */
 							"WiMax DREG-REQ/CMD (dreg)", /* short name */
-							"dreg" /* abbrev */
+							"wmx.dreg" /* abbrev */
 							);
 
 		proto_register_field_array(proto_mac_mgmt_msg_dreg_req_decoder, hf, array_length(hf));

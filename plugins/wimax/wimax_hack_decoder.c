@@ -75,27 +75,27 @@ static hf_register_info hf[] =
 {
 	{
 		&hf_hack_burst,
-		{"HARQ ACK Burst", "wimax.hack.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		{"HARQ ACK Burst", "wmx.hack.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_hack_num_of_hacks,
-		{"Number Of HARQ ACKs/NACKs", "wimax.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Number Of HARQ ACKs/NACKs", "wmx.hack.num_of_hacks", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_hack_subchannel,
-		{"Physical Subchannel", "wimax.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Physical Subchannel", "wmx.hack.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_hack_symboloffset,
-		{"Symbol Offset", "wimax.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Symbol Offset", "wmx.hack.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_hack_half_slot_flag,
-		{"Half-Slot Flag", "wimax.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, "", HFILL}
+		{"Half-Slot Flag", "wmx.hack.half_slot_flag", FT_UINT8, BASE_DEC, VALS(vals_flags), 0x0, "", HFILL}
 	},
 	{
 		&hf_hack_value,
-		{"ACK Value", "wimax.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, "", HFILL}
+		{"ACK Value", "wmx.hack.hack_value", FT_UINT8, BASE_DEC, VALS(vals_values), 0x0, "", HFILL}
 	}
 };
 

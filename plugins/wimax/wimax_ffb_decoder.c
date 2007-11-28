@@ -62,27 +62,27 @@ static hf_register_info hf[] =
 {
 	{
 		&hf_ffb_burst,
-		{"Fast Feedback Burst", "wimax.ffb.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
+		{"Fast Feedback Burst", "wmx.ffb.burst", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_ffb_num_of_ffbs,
-		{"Number Of Fast Feedback", "wimax.ffb.num_of_ffbs", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Number Of Fast Feedback", "wmx.ffb.num_of_ffbs", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_ffb_type,
-		{"Fast Feedback Type", "wimax.ffb.ffb_type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		{"Fast Feedback Type", "wmx.ffb.ffb_type", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_ffb_subchannel,
-		{"Physical Subchannel", "wimax.ffb.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Physical Subchannel", "wmx.ffb.subchannel", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_ffb_symboloffset,
-		{"Symbol Offset", "wimax.ffb.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
+		{"Symbol Offset", "wmx.ffb.symbol_offset", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
 	},
 	{
 		&hf_ffb_value,
-		{"Fast Feedback Value", "wimax.ffb.ffb_value", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
+		{"Fast Feedback Value", "wmx.ffb.ffb_value", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL}
 	}
 };
 

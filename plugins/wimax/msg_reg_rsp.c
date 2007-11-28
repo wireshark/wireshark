@@ -96,63 +96,63 @@ static hf_register_info hf[] =
 	{
 		&hf_reg_rsp_message_type,
 		{
-			"MAC Management Message Type", "wimax.macmgtmsgtype.reg_rsp",
+			"MAC Management Message Type", "wmx.macmgtmsgtype.reg_rsp",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_invalid_tlv,
 		{
-			"Invalid TLV", "wimax.reg_rsp.invalid_tlv", 
+			"Invalid TLV", "wmx.reg_rsp.invalid_tlv", 
 			FT_BYTES, BASE_HEX, NULL, 0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_rsp_new_cid_after_ho,
 		{
-			"New CID after handover to new BS", "wimax.reg_rsp.new_cid_after_ho",
+			"New CID after handover to new BS", "wmx.reg_rsp.new_cid_after_ho",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_rsp_status,
 		{
-			"Response", "wimax.reg_rsp.response", 
+			"Response", "wmx.reg_rsp.response", 
 			FT_UINT8, BASE_HEX, VALS(vals_reg_rsp_status), 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_rsp_secondary_mgmt_cid,
 		{
-			"Secondary Management CID", "wimax.reg_rsp.secondary_mgmt_cid",
+			"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_rsp_service_flow_id,
 		{
-			"Service flow ID", "wimax.reg_rsp.service_flow_id",
+			"Service flow ID", "wmx.reg_rsp.service_flow_id",
 			FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_reg_rsp_system_resource_retain_time,
 		{
-			"System Resource Retain Time", "wimax.reg_rsp.system_resource_retain_time",
+			"System Resource Retain Time", "wmx.reg_rsp.system_resource_retain_time",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
 		&hf_tlv_type,
 		{
-			"Unknown TLV Type", "wimax.reg_rsp.unknown_tlv_type", 
+			"Unknown TLV Type", "wmx.reg_rsp.unknown_tlv_type", 
 			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
 		}
 	},
 	{
 		&hf_tlv_value,
 		{
-			"Value", "wimax.reg_rsp.tlv_value", 
+			"Value", "wmx.reg_rsp.tlv_value", 
 			FT_BYTES, BASE_NONE, NULL, 0x00, "", HFILL
 		}
 	}
