@@ -2040,8 +2040,7 @@ static const gchar *par_str[] = {"IP header bad", "Required option missing"};
 static void
 dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *icmp_tree;
-  proto_item *ti;
+  proto_tree *icmp_tree = NULL;
   guint8     icmp_type;
   guint8     icmp_code;
   guint      length, reported_length;
@@ -2153,9 +2152,12 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", code_str);
   }
 
+  length = tvb_length(tvb);
+  reported_length = tvb_reported_length(tvb);
+
   if (tree) {
-    length = tvb_length(tvb);
-    reported_length = tvb_reported_length(tvb);
+    proto_item *ti;
+
     ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
     proto_tree_add_uint_format(icmp_tree, hf_icmp_type, tvb, 0, 1,
@@ -2166,7 +2168,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       icmp_code,
 			       "Code: %u (%s)",
 			       icmp_code, code_str);
-
     if (!pinfo->fragmented && length >= reported_length) {
       /* The packet isn't part of a fragmented datagram and isn't
          truncated, so we can checksum it. */
@@ -2189,9 +2190,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
       proto_tree_add_uint(icmp_tree, hf_icmp_checksum, tvb, 2, 2, cksum);
     }
+  }
 
-    /* Decode the second 4 bytes of the packet. */
-    switch (icmp_type) {
+  /* Decode the second 4 bytes of the packet. */
+  switch (icmp_type) {
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
       case ICMP_TSTAMP:
@@ -2231,10 +2233,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_REDIRECT:
         proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4, FALSE);
 	break;
-    }
+  }
 
-    /* Decode the additional information in the packet.  */
-    switch (icmp_type) {
+  /* Decode the additional information in the packet.  */
+  switch (icmp_type) {
       case ICMP_UNREACH:
       case ICMP_TIMXCEED:
       case ICMP_PARAMPROB:
@@ -2316,7 +2318,6 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Address mask: %s (0x%08x)",
 	  ip_to_str(tvb_get_ptr(tvb, 8, 4)), tvb_get_ntohl(tvb, 8));
 	break;
-    }
   }
 }
 
