@@ -6,10 +6,12 @@
 #   http://anonsvn.wireshark.org/wireshark-win32-libs/tags/<date>/packages
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-24/packages/"
+# Save privious tag.
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-24/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-29a/packages/"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
-# DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
 
 err_exit () {
 	echo ""
