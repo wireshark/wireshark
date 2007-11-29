@@ -356,7 +356,11 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
 	gpa_hfinfo.hfi=NULL;
+#if GLIB_MAJOR_VERSION < 2 
+	gpa_name_tree = g_tree_new(wrs_strcmp); 
+#else
 	gpa_name_tree = g_tree_new_full(wrs_strcmp_with_data, NULL, NULL, save_same_name_hfinfo);
+#endif
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -3890,9 +3894,13 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 		 * a byte, and we want to be able to refer to that field
 		 * with one name regardless of whether the packets
 		 * are modulo-8 or modulo-128 packets. */
+#if GLIB_MAJOR_VERSION < 2 
+		same_name_hfinfo = g_tree_lookup(gpa_name_tree, discard_const(hfinfo->abbrev)); 
+#else
 		same_name_hfinfo = NULL;
+#endif
 		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
-		/* if it is already present 
+		/* GLIB 2.x - if it is already present 
          * the previous hfinfo with the same name is saved 
          * to same_name_hfinfo by value destroy callback */
 		if (same_name_hfinfo) {
