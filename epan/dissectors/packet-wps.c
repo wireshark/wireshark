@@ -41,6 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
+#include <epan/expert.h>
 
 #include "packet-wps.h"
 
@@ -628,17 +629,31 @@ void
 dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 		gint size, packet_info* pinfo)
 {
+  static const char* fmt_warn_too_long = "Value to long (max. %d)";
+  static const char* fmt_length_warn = "Value length not %d"; 
+
+  guint16 tlv_len = 0;
+  guint16 tlv_type = 0;
+
+  proto_item* tlv_item = NULL; /* the root item */
+  proto_tree* tlv_root = NULL; 
+  proto_item* tmp_item = NULL;
+
+  int hfindex = -1;
 
   while(size > 0) {
 
-    guint16 tlv_len = 0;
-    guint16 tlv_type = 0;
-
-    proto_item* tlv_item = NULL; /* the root item */
-    proto_tree* tlv_root = NULL; 
-
-    int hfindex = -1;
-    proto_item* tmp_item = NULL;
+    /* incomplete tlv-entry case */
+    if (size < 4) {
+      if (tmp_item != NULL && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, "Packet to short");
+      break;
+    }
+      
+    tlv_item = NULL;
+    tlv_root = NULL;
+    tmp_item = NULL;
+    hfindex = -1;
 
     tlv_type = tvb_get_ntohs(tvb, offset);                                    
     tlv_len = tvb_get_ntohs(tvb, offset+2); 
@@ -712,15 +727,19 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
       break;
 
-    case WPS_TLV_TYPE_CONFIRMATION_URL4: /* max len is 64, check this here ?  */
+    case WPS_TLV_TYPE_CONFIRMATION_URL4: /* max len is 64 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url4, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_confirmation_url4;
+      if (tlv_len > 64 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
-    case WPS_TLV_TYPE_CONFIRMATION_URL6: /* max len is 76, check this here ?  */
+    case WPS_TLV_TYPE_CONFIRMATION_URL6: /* max len is 76 */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_confirmation_url6, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_confirmation_url6;
+      if (tlv_len > 76 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -745,9 +764,11 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
       break;
 
-    case WPS_TLV_TYPE_DEVICE_NAME: /* len <= 32, check ?  */
+    case WPS_TLV_TYPE_DEVICE_NAME: /* len <= 32, check !  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_device_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_device_name;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -761,6 +782,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 32  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash1, tvb, offset+4, 32, FALSE);
       hfindex = hf_eapwps_tlv_e_hash1;
+      if (tlv_len != 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
 
       break;
 
@@ -768,6 +791,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 32  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_hash2, tvb, offset+4, 32, FALSE);
       hfindex = hf_eapwps_tlv_e_hash2;
+      if (tlv_len != 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 32);
 
       break;
 
@@ -775,12 +800,16 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 16  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce1, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_e_snonce1;
+      if (tlv_len != 16 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
 
     case WPS_TLV_TYPE_E_SNONCE2:
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_e_snonce2, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_e_snonce2;
+      if (tlv_len != 16 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
 
@@ -811,6 +840,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* assert tlv_len == 16  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_enrollee_nonce, tvb, offset+4, 16, FALSE);
       hfindex = hf_eapwps_tlv_enrollee_nonce;
+      if (tlv_len != 16 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 16);
 
       break;
 
@@ -824,6 +855,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check that tlv_len <= 80  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_identity, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_identity;
+      if (tlv_len > 80 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -855,6 +888,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_manufacturer, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_manufacturer;
+      if (tlv_len > 64 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -871,6 +906,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_model_name;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -878,6 +915,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_model_number, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_model_number;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -891,6 +930,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_network_key, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_network_key;
+      if (tlv_len > 64 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -904,6 +945,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_device_name, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_new_device_name;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -911,6 +954,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_new_password, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_new_password;
+      if (tlv_len > 64 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -918,6 +963,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 56 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_oob_device_password, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_oob_device_password;
+      if (tlv_len > 56 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -949,6 +996,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len == 192 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_public_key, tvb, offset+4, 192, FALSE);
       hfindex = hf_eapwps_tlv_public_key;
+      if (tlv_len != 192 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_length_warn, 192);
 
       break;
 
@@ -1049,6 +1098,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 bytes  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_serial_number, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_serial_number;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1062,6 +1113,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 32 bytes  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_ssid, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_ssid;
+      if (tlv_len > 32 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1111,6 +1164,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 64 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_identity, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_eap_identity;
+      if (tlv_len > 64 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1169,6 +1224,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 128 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_secondary_device_type_list, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_secondary_device_type_list;
+      if (tlv_len > 128 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1188,6 +1245,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 512 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_application_extension, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_application_extension;
+      if (tlv_len > 512 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1195,6 +1254,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 8 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_eap_type, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_eap_type;
+      if (tlv_len > 8 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1220,6 +1281,8 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       /* check tlv_len <= 128 byte  */
       tmp_item = proto_tree_add_item(tlv_root, hf_eapwps_tlv_appsessionkey, tvb, offset+4, tlv_len, FALSE);
       hfindex = hf_eapwps_tlv_appsessionkey;
+      if (tlv_len > 128 && pinfo) 
+	expert_add_info_format(pinfo, tmp_item, PI_MALFORMED, PI_ERROR, fmt_warn_too_long, tlv_len);
 
       break;
 
@@ -1235,12 +1298,12 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
     }
 
     if (tmp_item != NULL && tlv_item != NULL) {
-      /* make the tree look nicer :-) */
-      /* tmp_item -> a proto_item specific to the _value_ */
-      /* tlv_item ->  root-item grouping */
-      /*              - "Data Element Type" */
-      /*              - "Date Element Length" */
-      /*              - tmp_item */
+      /* make the tree look nicer :-) 
+	 tmp_item -> a proto_item specific to the _value_ 
+	 tlv_item ->  root-item grouping 
+                      - "Data Element Type" 
+                      - "Date Element Length" 
+                      - tmp_item */
       guint32 value = -1;
       void* valuep = NULL;
       header_field_info* hf_info = NULL;
