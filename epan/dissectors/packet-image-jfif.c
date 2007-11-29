@@ -669,8 +669,8 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 			    "Skipped data between end of TIFF header and start of IFD (%u bytes)",
 			    val_32 + tiff_start - offset);
 		}
-		offset = val_32 + tiff_start;
 		for (;;) {
+			offset = val_32 + tiff_start;
 			/*
 			 * Process the IFD
 			 */
