@@ -452,7 +452,7 @@ find_subtree(module_t *parent, const char *name)
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
-guint
+static guint
 prefs_module_list_foreach(GList *module_list, module_cb callback,
     gpointer user_data)
 {
@@ -476,6 +476,14 @@ prefs_module_list_foreach(GList *module_list, module_cb callback,
 }
 
 /*
+ * Returns TRUE if module has any submodules
+ */
+gboolean prefs_module_has_submodules(module_t *module)
+{
+	return (module->submodules != NULL);
+}
+
+/*
  * Call a callback function, with a specified argument, for each module
  * in the list of all modules.  (This list does not include subtrees.)
  *
@@ -487,6 +495,22 @@ guint
 prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
 	return prefs_module_list_foreach(modules, callback, user_data);
+}
+
+/*
+ * Call a callback function, with a specified argument, for each submodule
+ * of specified modules.  If the module is NULL, goes through the top-level
+ * list in the display tree of modules.
+ *
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.  Does not ignore subtrees,
+ * as this can be used when walking the display tree of modules.
+ */
+guint 
+prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer user_data)
+{
+	return prefs_module_list_foreach((module)?module->submodules:top_level_modules, callback, user_data);
 }
 
 static void

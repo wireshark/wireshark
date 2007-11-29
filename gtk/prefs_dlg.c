@@ -283,7 +283,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   /*
    * Is this module a subtree, with modules underneath it?
    */
-  if (!module->submodules) {
+  if (!prefs_module_has_submodules(module)) {
     /*
      * No.
      * Does it have any preferences (other than possibly obsolete ones)?
@@ -305,11 +305,11 @@ module_prefs_show(module_t *module, gpointer user_data)
   strcpy(label_str, module->title);
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->tree), cts->node, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, !module->submodules,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, !prefs_module_has_submodules(module),
   		FALSE);
 #else
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
-  if (module->submodules && !cts->iter.stamp)
+  if (prefs_module_has_submodules(module) && !cts->iter.stamp)
     gtk_tree_store_append(model, &iter, NULL);
   else 
     gtk_tree_store_append(model, &iter, &cts->iter);
@@ -318,7 +318,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   /*
    * Is this a subtree?
    */
-  if (module->submodules) {
+  if (prefs_module_has_submodules(module)) {
     /*
      * Yes.
      */
@@ -341,7 +341,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 #endif
     if (module == protocols_module)
       child_cts.is_protocol = TRUE;
-    prefs_module_list_foreach(module->submodules, module_prefs_show, &child_cts);
+    prefs_modules_foreach_submodules(module, module_prefs_show, &child_cts);
 
     /* keep the page count right */
     cts->page = child_cts.page;
@@ -677,7 +677,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   /* Registered prefs */
   cts.notebook = prefs_nb;
   cts.is_protocol = FALSE;
-  prefs_module_list_foreach(NULL, module_prefs_show, &cts);
+  prefs_modules_foreach_submodules(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and alike buttons */
 
@@ -1703,8 +1703,8 @@ module_search_properties(module_t *module, gpointer user_data)
     return 1;	/* stops the search */
   }
   
-  if(module->submodules)
-    return prefs_module_list_foreach(module->submodules, module_search_properties, p);
+  if(prefs_module_has_submodules(module))
+    return prefs_modules_foreach_submodules(module, module_search_properties, p);
 
   return 0;
 }
@@ -1816,7 +1816,7 @@ properties_cb(GtkWidget *w, gpointer dummy)
      XXX - should we just associate protocols with modules directly? */
   p.title = title;
   p.module = NULL;
-  prefs_module_list_foreach(protocols_module->submodules, module_search_properties,
+  prefs_modules_foreach_submodules(protocols_module, module_search_properties,
                             &p);
   if (p.module == NULL) {
     /* We didn't find it - that protocol probably has no preferences. */

@@ -559,8 +559,9 @@ prefs_apply_all
 prefs_find_module
 prefs_get_title_by_name
 prefs_is_registered_protocol
-prefs_module_list_foreach
+prefs_module_has_submodules
 prefs_modules_foreach
+prefs_modules_foreach_submodules
 prefs_pref_foreach
 prefs_register_bool_preference
 prefs_register_enum_preference

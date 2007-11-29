@@ -216,17 +216,9 @@ extern module_t *prefs_register_protocol_obsolete(int id);
 typedef guint (*module_cb)(module_t *module, gpointer user_data);
 
 /*
- * Call a callback function, with a specified argument, for each module
- * in a list of modules.  If the list is NULL, searches the top-level
- * list in the display tree of modules.
- *
- * Ignores "obsolete" modules; their sole purpose is to allow old
- * preferences for dissectors that no longer have preferences to be
- * silently ignored in preference files.  Does not ignore subtrees,
- * as this can be used when walking the display tree of modules.
+ * Returns TRUE if module has any submodules
  */
-extern guint prefs_module_list_foreach(GList *module_list, module_cb callback,
-    gpointer user_data);
+extern gboolean prefs_module_has_submodules(module_t *module);
 
 /*
  * Call a callback function, with a specified argument, for each module
@@ -237,6 +229,18 @@ extern guint prefs_module_list_foreach(GList *module_list, module_cb callback,
  * silently ignored in preference files.
  */
 extern guint prefs_modules_foreach(module_cb callback, gpointer user_data);
+
+/*
+ * Call a callback function, with a specified argument, for each submodule
+ * of specified modules.  If the module is NULL, goes through the top-level
+ * list in the display tree of modules.
+ *
+ * Ignores "obsolete" modules; their sole purpose is to allow old
+ * preferences for dissectors that no longer have preferences to be
+ * silently ignored in preference files.  Does not ignore subtrees,
+ * as this can be used when walking the display tree of modules.
+ */
+extern guint prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer user_data);
 
 /*
  * Call the "apply" callback function for each module if any of its
