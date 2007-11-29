@@ -52,7 +52,7 @@ traffic_gen_ping() {
 			Windows)
 				ping -n 1 -l $x www.wireshark.org	;;
 			SunOS)
-				ping www.wireshark.org $x 1		;;
+				/usr/sbin/ping www.wireshark.org $x 1		;;
 			*) # *BSD, Linux
 				ping -c 1 -s $x www.wireshark.org	;;
 		esac
