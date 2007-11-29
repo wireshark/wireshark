@@ -27,11 +27,11 @@
 	<para><command>Protocol Hierarchy</command> of the captured packets.</para>
 	</listitem>
 	<listitem>
-	<para><command>Endpoints</command> e.g. traffic to and from an IP 
+	<para><command>Conversations</command> e.g. traffic between specific IP 
 	addresses.</para>
 	</listitem>
 	<listitem>
-	<para><command>Conversations</command> e.g. traffic between specific IP 
+	<para><command>Endpoints</command> e.g. traffic to and from an IP 
 	addresses.</para>
 	</listitem>
 	<listitem>
@@ -185,6 +185,42 @@
 	</note>
   </section>
 
+  <section id="ChStatConversations">
+    <title>Conversations</title>
+    <para>
+	Statistics of the captured conversations. 
+    </para>
+	<section><title>What is a Conversation?</title>
+    <para>
+	A network conversation is the traffic between two specific endpoints. For 
+	example, an IP conversation is all the traffic between two IP addresses. 
+	The description of the known endpoint types can be found in 
+	<xref linkend="ChStatEndpointDefinition"/>.
+    </para>
+	</section>
+	<section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
+    <para>
+	Other than the list content, the conversations window works the same way as the 
+	endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
+	description how it works.
+	<figure><title>The "Conversations" window</title>
+	  <graphic entityref="WiresharkStatsConversations" format="PNG"/>
+	</figure>
+    </para>
+	</section>
+	<section id="ChStatConversationListWindow">
+	<title>The protocol specific "Conversation List" windows</title>
+    <para>
+	Before the combined window described above was available, each of its 
+	pages was shown as a separate window. Even though the combined window is 
+	much more convenient to use, these separate windows are still 
+	available. The main reason is that they might process faster for 
+	very large capture files. However, as the functionality is exactly the 
+	same as in the combined window, they won't be discussed in detail here.
+    </para>
+	</section>
+  </section>
+
   <section id="ChStatEndpoints">
     <title>Endpoints</title>
     <para>
@@ -309,42 +345,6 @@
   </section>
   </section>
   
-  <section id="ChStatConversations">
-    <title>Conversations</title>
-    <para>
-	Statistics of the captured conversations. 
-    </para>
-	<section><title>What is a Conversation?</title>
-    <para>
-	A network conversation is the traffic between two specific endpoints. For 
-	example, an IP conversation is all the traffic between two IP addresses. 
-	The description of the known endpoint types can be found in 
-	<xref linkend="ChStatEndpointDefinition"/>.
-    </para>
-	</section>
-	<section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
-    <para>
-	Other than the list content, the conversations window works the same way as the 
-	endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
-	description how it works.
-	<figure><title>The "Conversations" window</title>
-	  <graphic entityref="WiresharkStatsConversations" format="PNG"/>
-	</figure>
-    </para>
-	</section>
-	<section id="ChStatConversationListWindow">
-	<title>The protocol specific "Conversation List" windows</title>
-    <para>
-	Before the combined window described above was available, each of its 
-	pages was shown as a separate window. Even though the combined window is 
-	much more convenient to use, these separate windows are still 
-	available. The main reason is that they might process faster for 
-	very large capture files. However, as the functionality is exactly the 
-	same as in the combined window, they won't be discussed in detail here.
-    </para>
-	</section>
-  </section>
-
   <section id="ChStatIOGraphs">
     <title>The "IO Graphs" window</title>
     <para>
