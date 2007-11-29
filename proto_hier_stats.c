@@ -88,17 +88,6 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	finfo = PITEM_FINFO(ptree_node);
 	g_assert(finfo);
 
-	/* if the field info isn't related to a protocol but to a field, don't count them,
-     * as they don't belong to any protocol.
-     * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
-    if(finfo->hfinfo->parent != -1) {
-        /* there are some cases where helpful generated items are added
-	 * to the decode tree so do not test for it any more
-         *g_assert(PROTO_ITEM_IS_GENERATED(ptree_node));
-	 */
-        return;
-    }
-
 	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
 
 	stats = STAT_NODE_STATS(stat_node);
@@ -107,18 +96,19 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 
 	proto_sibling_node = ptree_node->next;
 
-	if (proto_sibling_node) {
+	/* If the field info isn't related to a protocol but to a field (parent != -1),
+	 * don't count them, as they don't belong to any protocol.
+	 * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
+	if (proto_sibling_node && proto_sibling_node->finfo->hfinfo->parent == -1) {
 		/* If the name does not exist for this proto_sibling_node, then it is
 		 * not a normal protocol in the top-level tree.  It was instead
 		 * added as a normal tree such as IPv6's Hop-by-hop Option Header and
 		 * should be skipped when creating the protocol hierarchy display. */
-		if(strlen(proto_sibling_node->finfo->hfinfo->name) == 0 &&
-		   ptree_node->next)
+		if(strlen(proto_sibling_node->finfo->hfinfo->name) == 0 && ptree_node->next)
 			proto_sibling_node = proto_sibling_node->next;
 
 		process_node(proto_sibling_node, stat_node, ps, pkt_len);
-	}
-	else {
+	} else {
 		stats->num_pkts_last++;
 		stats->num_bytes_last += pkt_len;
 	}
