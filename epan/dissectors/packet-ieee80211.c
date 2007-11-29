@@ -100,6 +100,9 @@
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
 
+/* call subdissector for retransmitted frames */
+static gboolean wlan_subdissector = TRUE;
+
 /* Check for the presence of the 802.11 FCS */
 static gboolean wlan_check_fcs = FALSE;
 
@@ -680,6 +683,18 @@ static int hf_fc_more_data = -1;
 static int hf_fc_protected = -1;
 static int hf_fc_order = -1;
 
+typedef struct retransmit_key {
+	guint8  bssid[6];
+	guint8  src[6];
+	guint16 seq_control;
+	guint   fnum;
+} retransmit_key;
+
+static GHashTable *fc_analyse_retransmit_table = NULL;
+static GHashTable *fc_first_frame_table = NULL;
+
+static int hf_fc_analysis_retransmission = -1;
+static int hf_fc_analysis_retransmission_frame = -1;
 
 /* ************************************************************************* */
 /*                   Header values for Duration/ID field                     */
@@ -5450,6 +5465,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
+  gboolean retransmitted;
+
   whdr= &whdrs[0];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -6268,6 +6285,60 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       if (DATA_FRAME_IS_NULL(frame_type_subtype))
         return;
 
+      if (!wlan_subdissector) {
+	guint fnum;
+
+        /* key: bssid:src 
+         * data: last seq_control seen and frame number
+        */
+        retransmitted = FALSE;
+	if(!pinfo->fd->flags.visited){
+	   retransmit_key key;
+	   retransmit_key *result;
+	   
+	   memcpy(key.bssid, bssid, 6);
+	   memcpy(key.src, src, 6);
+	   key.seq_control = 0;
+	   result = (retransmit_key *)g_hash_table_lookup(fc_analyse_retransmit_table, &key);
+	   if (result && result->seq_control == seq_control) {
+	        /* keep a pointer to the first seen frame, could be done with proto data? */
+	   	fnum = result->fnum;
+	   	g_hash_table_insert(fc_first_frame_table, GINT_TO_POINTER( pinfo->fd->num),
+	   		 GINT_TO_POINTER(fnum));
+	   	retransmitted = TRUE;
+           }
+           else {
+               /* first time or new seq*/
+               if (!result) {
+                  result = se_alloc(sizeof(retransmit_key));
+                  *result = key;
+		  g_hash_table_insert(fc_analyse_retransmit_table, result, result);
+               }
+               result->seq_control = seq_control;
+               result->fnum =  pinfo->fd->num;
+           }
+        }
+        else if ((fnum = GPOINTER_TO_UINT(g_hash_table_lookup(fc_first_frame_table, GINT_TO_POINTER( pinfo->fd->num))))) {
+           retransmitted = TRUE;
+        }
+           
+      	if (retransmitted) {
+            if (check_col (pinfo->cinfo, COL_INFO)) 
+                col_append_fstr(pinfo->cinfo, COL_INFO, " [retransmitted]");
+            if (tree) {
+                proto_item *item;
+                
+                item=proto_tree_add_none_format(hdr_tree, hf_fc_analysis_retransmission, tvb, 0, 0, "Retransmitted frame");
+                PROTO_ITEM_SET_GENERATED(item);
+		item=proto_tree_add_uint(hdr_tree, hf_fc_analysis_retransmission_frame,tvb, 0, 0, fnum);
+		PROTO_ITEM_SET_GENERATED(item);
+            }
+            next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
+            call_dissector(data_handle, next_tvb, pinfo, tree);
+            goto end_of_wlan;
+        }
+      }
+
       break;
 
     case CONTROL_FRAME:
@@ -6831,6 +6902,80 @@ wlan_defragment_init(void)
   reassembled_table_init(&wlan_reassembled_table);
 }
 
+/* ------------- */
+static gboolean
+free_all(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
+{
+  return TRUE;
+}
+
+static guint
+retransmit_hash(gconstpointer k)
+{
+	const retransmit_key *key = (const retransmit_key *)k;
+	guint hash_val;
+	int i;
+
+	hash_val = 0;
+	for (i = 0; i < 6; i++)
+		hash_val += key->bssid[i];
+
+	for (i = 0; i < 6; i++)
+		hash_val += key->src[i];
+
+	return hash_val;
+}
+
+static gint
+retransmit_equal(gconstpointer k1, gconstpointer k2)
+{
+  const retransmit_key *key1 = (const retransmit_key *)k1;
+  const retransmit_key *key2 = (const retransmit_key *)k2;
+  
+  return ( (!memcmp(key1->bssid, key2->bssid, 6) && !memcmp( key1->src, key2->src, 6))? TRUE:FALSE);
+}
+
+static guint
+frame_hash(gconstpointer k)
+{
+  guint32 frame = GPOINTER_TO_UINT(k);
+  
+  return frame;
+}
+
+static gint
+frame_equal(gconstpointer k1, gconstpointer k2)
+{
+  guint32 frame1 = GPOINTER_TO_UINT(k1);
+  guint32 frame2 = GPOINTER_TO_UINT(k2);
+  
+  return frame1==frame2;
+}
+
+static void
+wlan_retransmit_init(void)
+{
+  if ( fc_analyse_retransmit_table ){
+      g_hash_table_foreach_remove(fc_analyse_retransmit_table,free_all, NULL);
+      g_hash_table_destroy(fc_analyse_retransmit_table);
+      fc_analyse_retransmit_table = NULL;
+  }
+
+  if( fc_first_frame_table ){
+      g_hash_table_foreach_remove(fc_first_frame_table,free_all, NULL);
+      g_hash_table_destroy(fc_first_frame_table);
+      fc_first_frame_table = NULL;
+  }
+  
+  if (wlan_subdissector)
+      return;
+      
+  fc_analyse_retransmit_table= g_hash_table_new(retransmit_hash, retransmit_equal);
+  fc_first_frame_table = g_hash_table_new( frame_hash, frame_equal);
+
+}
+
+/* ------------- */
 void
 proto_register_ieee80211 (void)
 {
@@ -7483,6 +7628,14 @@ proto_register_ieee80211 (void)
      {"Retry", "wlan.fc.retry", FT_BOOLEAN, 8, TFS (&retry_flags), FLAG_RETRY,
       "Retransmission flag", HFILL }},
 
+    { &hf_fc_analysis_retransmission,
+     {"Retransmission", "wlan.analysis.retransmission", FT_NONE, BASE_NONE,
+      NULL, 0x0, "This frame is a suspected wireless retransmission", HFILL }},
+    
+    { &hf_fc_analysis_retransmission_frame,
+     {"Retransmission of frame", "wlan.analysis.retransmission_frame", FT_FRAMENUM, BASE_NONE, 
+      NULL, 0x0, "This is a retransmission of frame #", HFILL }},
+      
     {&hf_fc_pwr_mgt,
      {"PWR MGT", "wlan.fc.pwrmgt", FT_BOOLEAN, 8, TFS (&pm_flags), FLAG_POWER_MGT,
       "Power management status", HFILL }},
@@ -8210,6 +8363,7 @@ proto_register_ieee80211 (void)
   /*** End: Extended Channel Switch Announcement Tag - Dustin Johnson ***/
 
   static hf_register_info ff[] = {
+
     {&ff_timestamp,
      {"Timestamp", "wlan_mgt.fixed.timestamp", FT_STRING, BASE_NONE,
       NULL, 0, "Timestamp", HFILL }},
@@ -10048,6 +10202,7 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_radio", dissect_ieee80211_radio, proto_wlan);
   register_dissector("wlan_ht", dissect_ieee80211_ht, proto_wlan);
   register_init_routine(wlan_defragment_init);
+  register_init_routine(wlan_retransmit_init);
 
   wlan_tap = register_tap("wlan");
 
@@ -10062,6 +10217,11 @@ proto_register_ieee80211 (void)
     "Ignore vendor-specific HT elements",
     "Don't dissect 802.11n draft HT elements (which might contain duplicate information).",
     &wlan_ignore_draft_ht);
+
+  prefs_register_bool_preference(wlan_module, "retransmitted",
+	"Call subdissector for retransmitted 802.11 frames",
+	"Whether retransmitted 802.11 frames should be subdissected",
+	&wlan_subdissector);
 
   prefs_register_bool_preference(wlan_module, "check_fcs",
     "Assume packets have FCS",
