@@ -58,7 +58,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
 	    sum_tally->filtered_stop = cur_time;
     } else {
 	    if (cur_time < sum_tally->filtered_start) {
-		    sum_tally->start_time = cur_time;
+		    sum_tally->filtered_start = cur_time;
 	    }
 	    if (cur_time > sum_tally->filtered_stop) {
 		    sum_tally->filtered_stop = cur_time;

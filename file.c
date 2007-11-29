@@ -1010,13 +1010,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
-    /* colorize packet: if packet is marked, use preferences,
-       otherwise try to apply color filters */
+    /* colorize packet: first apply color filters
+     * then if packet is marked, use preferences to overwrite color
+     * we do both to make sure that when a packet gets un-marked, the
+     * color will be correctly set (fixes bug 2038)
+     */
+      fdata->color_filter = color_filters_colorize_packet(row, edt);
       if (fdata->flags.marked) {
-          fdata->color_filter = NULL;
           packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
-      } else {
-          fdata->color_filter = color_filters_colorize_packet(row, edt);
       }
 
     /* Set the time of the previous displayed frame to the time of this
