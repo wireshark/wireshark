@@ -10,9 +10,8 @@
     <command>Statistics</command> menu. 
     </para>
     <para>
-	These statistics range
-	from general information about the loaded capture file (like the number of 
-	captured packets), to statistics about specific protocols 
+	These statistics range from general information about the loaded capture file 
+	(like the number of captured packets), to statistics about specific protocols 
 	(e.g. statistics about the number of HTTP requests and responses captured).
 	<itemizedlist>
 	<listitem>
@@ -93,10 +92,13 @@
 	<listitem>
 	<para>
 	<command>Traffic</command>: some statistics of the network traffic seen. 
-	If a display filter is set, you will see values in both columns. The 
-	values in the <command>Captured</command> column will remain the same as 
+	If a display filter is set, you will see values in the Captured column,
+	and if any packages are marked, you will see values in the Marked column.
+	The values in the <command>Captured</command> column will remain the same as 
 	before, while the values in the <command>Displayed</command> column will 
 	reflect the values corresponding to the packets shown in the display.
+	The values in the <command>Marked</command> column will reflect the values
+	corresponding to the marked packages.
 	</para>
 	</listitem>
 	</itemizedlist>
@@ -114,7 +116,8 @@
 	trees are expanded.
 	</para>
 	<para>
-	Each row contains the statistical values of one protocol.
+	Each row contains the statistical values of one protocol.  
+	The <command>Display filter</command> will show the current display filter.
 	</para>
 	<para>
 	The following columns containing the statistical values are available:
