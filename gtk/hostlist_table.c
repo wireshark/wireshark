@@ -58,6 +58,8 @@
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define NUM_COLS 8
+#define HOST_PTR_KEY "hostlist-pointer"
+#define NB_PAGES_KEY "notebook-pages"
 
 
 /* convert a port number into a string */
@@ -582,14 +584,16 @@ draw_hostlist_table_data_cb(void *arg)
 
 #if (GTK_MAJOR_VERSION >= 2)
 static void
-copy_as_csv_cb(GtkWindow *win _U_, gpointer data)
+copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
    guint32         i,j;
    gchar           *table_entry;
    GtkClipboard    *cb;  
    GString         *CSV_str = g_string_new("");
    
-   hostlist_table *hosts=(hostlist_table *)data;
+   hostlist_table *hosts=OBJECT_GET_DATA(copy_bt, HOST_PTR_KEY);
+   if (!hosts)
+     return;
    
    /* Add the column headers to the CSV data */
    for(i=0;i<hosts->num_columns;i++){                  /* all columns         */
@@ -629,11 +633,6 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     GtkWidget *column_lb;
     GString *error_string;
     char title[256];
-#if (GTK_MAJOR_VERSION >= 2)
-    GtkWidget *copy_bt;
-    GtkTooltips *tooltips = gtk_tooltips_new();
-#endif           
-
 
     hosttable->num_columns=NUM_COLS; 
     hosttable->default_titles[0] = "Address";
@@ -683,14 +682,9 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     gtk_clist_set_sort_column(hosttable->table, 4);
     gtk_clist_set_sort_type(hosttable->table, GTK_SORT_DESCENDING);
 
-    gtk_clist_set_column_auto_resize(hosttable->table, 0, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 1, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 2, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 3, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 4, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 5, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 6, TRUE);
-    gtk_clist_set_column_auto_resize(hosttable->table, 7, TRUE);
+    for (i = 0; i < NUM_COLS; i++) {
+        gtk_clist_set_column_auto_resize(hosttable->table, i, TRUE);
+    }
 
     gtk_clist_set_shadow_type(hosttable->table, GTK_SHADOW_IN);
     gtk_clist_column_titles_show(hosttable->table);
@@ -708,16 +702,6 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
 
     /* create popup menu for this table */
     hostlist_create_popup_menu(hosttable);
-
-#if (GTK_MAJOR_VERSION >= 2)
-    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
-    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
-    gtk_tooltips_set_tip(tooltips, copy_bt, 
-        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
-    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb,(gpointer *) hosttable);
-    gtk_box_pack_start(GTK_BOX(vbox), copy_bt, FALSE, FALSE, 0);
-#endif
 
     /* register the tap and rerun the taps on the packet list */
     error_string=register_tap_listener(tap_name, hosttable, filter, reset_hostlist_table_data_cb, packet_func, draw_hostlist_table_data_cb);
@@ -741,6 +725,10 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *copy_bt;
+    GtkTooltips *tooltips = gtk_tooltips_new();
+#endif           
 
 
     hosttable=g_malloc(sizeof(hostlist_table));
@@ -762,15 +750,33 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     }
 
     /* Button row. */
+    /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
+    /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
+#if (GTK_MAJOR_VERSION >= 2)
+    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+    }
+#else
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     }
+#endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
+
+#if (GTK_MAJOR_VERSION >= 2)
+    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt, 
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
+    OBJECT_SET_DATA(copy_bt, HOST_PTR_KEY, hosttable);
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
+#endif
 
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
@@ -795,6 +801,22 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
 }
 
 
+#if (GTK_MAJOR_VERSION >= 2)
+static void
+ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
+{
+    GtkWidget *copy_bt = (GtkWidget *) data;
+    void ** pages = OBJECT_GET_DATA(nb, NB_PAGES_KEY);
+
+    page++;
+
+    if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
+        OBJECT_SET_DATA(copy_bt, HOST_PTR_KEY, pages[page]);
+    }
+}
+#endif
+
+
 static void
 hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
 {
@@ -805,6 +827,7 @@ hostlist_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
         hostlist_win_destroy_cb(NULL, pages[page]);
     }
+    g_free(pages);
 }
 
 
@@ -904,6 +927,9 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GSList  *current_table;
     register_hostlist_t *registered;
     GtkTooltips *tooltips = gtk_tooltips_new();
+#if (GTK_MAJOR_VERSION >= 2)
+    GtkWidget *copy_bt;
+#endif           
 
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
@@ -919,6 +945,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     nb = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(vbox), nb);
+    OBJECT_SET_DATA(nb, NB_PAGES_KEY, pages);
 
     page = 0;
 
@@ -928,6 +955,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         page_lb = gtk_label_new("");
         hosttable = init_hostlist_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
             registered->filter, registered->packet_func);
+        OBJECT_SET_DATA(hosttable->win, HOST_PTR_KEY, hosttable);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), hosttable->win, page_lb);
         hosttable->win = win;
         hosttable->page_lb = page_lb;
@@ -950,15 +978,33 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     SIGNAL_CONNECT(resolv_cb, "toggled", hostlist_resolve_toggle_dest, pages);
 
     /* Button row. */
+#if (GTK_MAJOR_VERSION >= 2)
+    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+    }
+#else
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     }
+#endif
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
+
+#if (GTK_MAJOR_VERSION >= 2)
+    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    gtk_tooltips_set_tip(tooltips, copy_bt,
+        "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
+    SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
+    OBJECT_SET_DATA(copy_bt, HOST_PTR_KEY, pages[page]);
+
+    SIGNAL_CONNECT(nb, "switch-page", ct_nb_switch_page_cb, copy_bt);
+#endif
 
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
