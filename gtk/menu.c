@@ -618,8 +618,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/View/Display Filter _Macros...", NULL, macros_dialog_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
 
 
     ITEM_FACTORY_ENTRY("/View/Show Packet in New _Window", NULL,
@@ -662,6 +660,8 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Analyze", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Analyze/_Display Filters...", NULL, dfilter_dialog_cb,
                        0, WIRESHARK_STOCK_DISPLAY_FILTER),
+    ITEM_FACTORY_ENTRY("/Analyze/Display Filter _Macros...", NULL, macros_dialog_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Appl_y as Filter", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Apply as Filter/_Selected", NULL, match_selected_ptree_cb,
                        MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW, NULL, NULL),
