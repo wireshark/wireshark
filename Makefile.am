@@ -312,6 +312,7 @@ wireshark_LDADD = \
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@
 
 if ENABLE_STATIC
@@ -334,7 +335,8 @@ tshark_LDADD = \
 	@FRAMEWORKS@			\
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
 
 # Optional objects that I know how to build, and that are needed by
 # text2pcap.
@@ -379,7 +381,8 @@ dftest_LDADD = \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@ \
 	@LIBICONV@			\
 	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
 
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
@@ -392,7 +395,7 @@ dumpcap_LDADD = \
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
-	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS)
+	$(LIBGNUTLS_CFLAGS) $(LIBGCRYPT_CFLAGS) $(LIBSMI_CFLAGS)
 
 #
 # Build the version string

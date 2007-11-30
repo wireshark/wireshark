@@ -131,15 +131,7 @@ fi
 
 # libsmi
 # FIXME: currently the path argument to with-libsmi is being ignored
-libsmi="no"
-AC_ARG_WITH([libsmi],
-  AC_HELP_STRING( [--with-libsmi=@<:@yes/no@:>@],
-		  [use smi library @<:@default=yes@:>@]),
-  with_libsmi="$withval", with_libsmi="yes")
-if test "x$with_libsmi" = "xyes"; then
-  AM_PATH_LIBSMI
-  AM_CONDITIONAL(HAVE_SMI, test "x$with_libsmi" = "xyes")
-fi
+AX_LIBSMI
 
 # Check for xsltproc
 AC_PATH_PROG(XSLTPROC, xsltproc)
@@ -411,7 +403,7 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 	#
 	# Arrange that we search for header files in the source directory
 	# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
-	# as various packages we use ("libpcap", "zlib", an SNMP library)
+	# as various packages we use ("libpcap", "zlib", "adns", "pcre")
 	# may have been installed under "/usr/local/include".
 	#
 	CFLAGS="$CFLAGS -I/usr/local/include"
@@ -1730,7 +1722,7 @@ echo "                   Use zlib library : $zlib_message"
 echo "                   Use pcre library : $pcre_message"
 echo "               Use kerberos library : $krb5_message"
 echo "               Use GNU ADNS library : $adns_message"
-echo "               Use SMI SNMP library : $libsmi"
+echo "                Use SMI MIB library : $libsmi_message"
 echo "             Use GNU crypto library : $gcrypt_message"
 echo "             Use SSL crypto library : $ssl_message"
 echo "           Use IPv6 name resolution : $enable_ipv6"
