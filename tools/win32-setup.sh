@@ -13,8 +13,6 @@ DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
 
-set -x
-
 err_exit () {
 	echo ""
 	echo "ERROR: $1"
