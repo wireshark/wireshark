@@ -191,6 +191,7 @@ ph_stats_new(void)
 	ps->stats_tree = g_node_new(NULL);
 	ps->first_time = 0.0;
 	ps->last_time = 0.0;
+	ps->dfilter = cfile.dfilter;
 
 	/* Update the progress bar when it gets to this value. */
 	progbar_nextstep = 0;

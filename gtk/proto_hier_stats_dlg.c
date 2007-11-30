@@ -315,6 +315,8 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;
 	GtkWidget	*dlg, *ok_bt, *help_bt, *vbox, *bbox;
+	GtkWidget	*label;
+	char		 title[256];
 
 	/* Get the statistics. */
 	ps = ph_stats_new();
@@ -330,31 +332,39 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
 	gtk_container_add(GTK_CONTAINER(dlg), vbox);
 
+	if (ps->dfilter) {
+		g_snprintf(title, 255, "Display filter: %s", ps->dfilter);
+	} else {
+		g_snprintf(title, 255, "Display filter: none");
+	}
+	label = gtk_label_new(title);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+
 	/* Data section */
 	create_tree(vbox, ps);
 
 	ph_stats_free(ps);
 
 	/* Button row. */
-    if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
-	    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
-    } else {
-	    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-    }
+	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
+		bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
+	} else {
+		bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+	}
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-    window_set_cancel_button(dlg, ok_bt, window_cancel_button_cb);
+	window_set_cancel_button(dlg, ok_bt, window_cancel_button_cb);
 
-    if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_PROTO_HIERARCHY_DIALOG);
-    }
+	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
+		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_PROTO_HIERARCHY_DIALOG);
+	}
 
 	SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
 
 	gtk_widget_show_all(dlg);
-    window_present(dlg);
+	window_present(dlg);
 }
 
