@@ -1621,7 +1621,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	gchar   *win_name;
 
 	title_name_ptr = cf_get_display_name(&cfile);
-	win_name = g_strdup_printf("%s - VoIP Graph Analysis", title_name_ptr);
+	win_name = g_strdup_printf("%s - Flow Graph Analysis", title_name_ptr);
 
         /* create the main window */
 		if (user_data->dlg.title)
