@@ -134,6 +134,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY OpenLogicalChannel/forwardLogicalChannelParameters
+  srtp_flag = FALSE;
   h245_lc_dissector = NULL;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp && h245_lc_dissector)
@@ -641,6 +642,10 @@ if (h245_pi != NULL)
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) gefx->id = standard_oid_str;
 
+  if(strcmp(standard_oid_str,"0.0.8.235.0.3.76") == 0) {  /* MIKEY */
+	srtp_flag = TRUE;
+  }
+
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
 	h245_lc_dissector = amr_handle;
 #.END
@@ -776,7 +781,12 @@ if (h245_pi != NULL)
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
+				if (srtp_flag) {
+					struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+					srtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL, dummy_srtp_info);
+				} else {
+					rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
+				}
 			}
 			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 				address src_addr;
@@ -791,8 +801,12 @@ if (h245_pi != NULL)
 	}
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
+#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters
 
+  srtp_flag = FALSE;
+
+#.END
+#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
 
 	media_channel = FALSE;
 	media_control_channel = FALSE;
@@ -820,7 +834,12 @@ if (h245_pi != NULL)
 				src_addr.len=4;
 				src_addr.data=(guint8*)&ipv4_address;
 
-				rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
+				if (srtp_flag) {
+					struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+					srtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL, dummy_srtp_info);
+				} else {
+					rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
+				}
 			}
 			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
 				address src_addr;

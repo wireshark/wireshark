@@ -214,6 +214,7 @@ static guint32 rtcp_ipv4_address;
 static guint32 rtcp_ipv4_port;
 static gboolean media_channel;
 static gboolean media_control_channel;
+static gboolean srtp_flag;
 
 /* NonStandardParameter */
 static const char *nsiOID;
