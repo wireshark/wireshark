@@ -13,6 +13,8 @@ DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-11-
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
 
+set -x
+
 err_exit () {
 	echo ""
 	echo "ERROR: $1"
@@ -102,7 +104,7 @@ case "$1" in
         # XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
         #     which may be more than those just unzipped depending upon DEST_SUBDIR.
         #     This may cause extra repeated checks but will do no harm. 
-	for i in `/usr/bin/find . \( -name *\.dll -o -name *\.exe \)` ; do
+	for i in `/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)` ; do
 		if [ ! -x "$i" ] ; then
 			echo "Changing file permissions (add executable bit) to:"
 			echo "$i"
