@@ -73,6 +73,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\libwireshark.def"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
