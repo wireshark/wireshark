@@ -47,6 +47,7 @@
 #include "circuit.h"
 #include "except.h"
 #include "packet.h"
+#include "prefs.h"
 #include "column-utils.h"
 #include "tap.h"
 #include "addr_resolv.h"
@@ -89,6 +90,7 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 #endif
 	tvbuff_init();
 	tap_init();
+	prefs_init();
 	proto_init(register_all_protocols, register_all_handoffs, cb, client_data);
 	packet_init();
 	dfilter_init();
@@ -108,6 +110,7 @@ epan_cleanup(void)
 	expert_cleanup();
 	dfilter_cleanup();
 	proto_cleanup();
+	prefs_cleanup();
 	packet_cleanup();
 	oid_resolv_cleanup();
 	tvbuff_cleanup();

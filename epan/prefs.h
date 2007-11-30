@@ -166,6 +166,12 @@ struct pref_module;
 
 typedef struct pref_module module_t;
 
+/** Sets up memory used by proto routines. Called at program startup */
+extern void prefs_init(void);
+
+/** Frees memory used by proto routines. Called at program shutdown */
+extern void prefs_cleanup(void);
+
 /*
  * Register a module that will have preferences.
  * Specify the module under which to register it or NULL to register it

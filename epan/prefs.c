@@ -56,7 +56,7 @@
 #endif
 
 /* Internal functions */
-static module_t *find_subtree(module_t *parent, const char *name);
+static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void));
@@ -110,30 +110,33 @@ static const gchar	*gui_layout_content_text[] =
 /*
  * List of all modules with preference settings.
  */
-static GList *modules;
+static GTree *modules = NULL;
 
 /*
  * List of all modules that should show up at the top level of the
  * tree in the preference dialog box.
  */
-static GList *top_level_modules;
+static GTree *top_level_modules = NULL;
 
-static gint
-module_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
+/** Sets up memory used by proto routines. Called at program startup */
+void prefs_init(void)
 {
-	const module_t *p1 = p1_arg;
-	const module_t *p2 = p2_arg;
+  modules = g_tree_new(g_ascii_strcasecmp);
+  top_level_modules = g_tree_new(g_ascii_strcasecmp);
 
-	return g_ascii_strcasecmp(p1->name, p2->name);
 }
 
-static gint
-module_compare_title(gconstpointer p1_arg, gconstpointer p2_arg)
+/** Frees memory used by proto routines. Called at program shutdown */
+void prefs_cleanup(void)
 {
-	const module_t *p1 = p1_arg;
-	const module_t *p2 = p2_arg;
-
-	return g_ascii_strcasecmp(p1->title, p2->title);
+  if (modules) {
+    g_tree_destroy(modules);
+    modules = NULL;
+  }
+  if (top_level_modules) {
+    g_tree_destroy(top_level_modules);
+    top_level_modules = NULL;
+  }
 }
 
 /*
@@ -179,9 +182,8 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	  module->apply_cb = apply_cb;
 	  module->description = description;
 
-	  if(prefs_find_module(name) == NULL)
-	    modules = g_list_insert_sorted(modules, module,
-					   module_compare_name);
+	  if (prefs_find_module(name) == NULL)
+		g_tree_insert(modules, (gpointer)name, module);
 	      
 	  return module;
 	}
@@ -192,7 +194,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module->description = description;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
-	module->submodules = NULL;	/* no submodules, to start */
+	module->submodules = g_tree_new(g_ascii_strcasecmp);	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 	module->obsolete = FALSE;
@@ -234,8 +236,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * Insert this module in the list of all modules.
 		 */
-		modules = g_list_insert_sorted(modules, module,
-		    module_compare_name);
+		g_tree_insert(modules, (gpointer)name, module); 
 	} else {
 		/*
 		 * This has no name, just a title; check to make sure it's a
@@ -252,14 +253,12 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * It goes at the top.
 		 */
-		top_level_modules = g_list_insert_sorted(top_level_modules,
-		    module, module_compare_title);
+		g_tree_insert(top_level_modules, (gpointer)title, module); 
 	} else {
 		/*
 		 * It goes into the list for this module.
 		 */
-		parent->submodules = g_list_insert_sorted(parent->submodules, module,
-		    module_compare_title);
+		g_tree_insert(parent->submodules, (gpointer)title, module); 
 	}
 
 	return module;
@@ -372,18 +371,6 @@ prefs_register_protocol_obsolete(int id)
 	return module;
 }
 
-/*
- * Find a module, given its name.
- */
-static gint
-module_match(gconstpointer a, gconstpointer b)
-{
-	const module_t *module = a;
-	const char *name = b;
-
-	return strcmp(name, module->name);
-}
-
 #if GLIB_MAJOR_VERSION < 2
 static void *discard_const(const void *const_ptr)
 {
@@ -401,43 +388,21 @@ static void *discard_const(const void *const_ptr)
 module_t *
 prefs_find_module(const char *name)
 {
-	GList *list_entry;
-
-#if GLIB_MAJOR_VERSION < 2
-	list_entry = g_list_find_custom(modules, discard_const(name), module_match);
-#else
-	list_entry = g_list_find_custom(modules, name, module_match);
-#endif
-	if (list_entry == NULL)
-		return NULL;	/* no such module */
-	return (module_t *) list_entry->data;
-}
-
-static gint
-subtree_match(gconstpointer a, gconstpointer b)
-{
-	const module_t *module = a;
-	const char *title = b;
-
-	return strcmp(title, module->title);
+#if GLIB_MAJOR_VERSION < 2	
+	return g_tree_lookup(modules, discard_const(name));
+#else	
+	return g_tree_lookup(modules, name);
+#endif 
 }
 
 static module_t *
 find_subtree(module_t *parent, const char *name)
 {
-	GList *list_entry;
-
-#if GLIB_MAJOR_VERSION < 2
-	list_entry = g_list_find_custom(parent ? parent->submodules : top_level_modules,
-					discard_const(name), subtree_match);
-#else
-	list_entry = g_list_find_custom(parent ? parent->submodules : top_level_modules,
-					name, subtree_match);
-#endif
-
-	if (list_entry == NULL)
-		return NULL;	/* no such module */
-	return (module_t *) list_entry->data;
+#if GLIB_MAJOR_VERSION < 2	
+	return g_tree_lookup(parent ? parent->submodules : top_level_modules, discard_const(name));
+#else	
+	return g_tree_lookup(parent ? parent->submodules : top_level_modules, name);
+#endif 
 }
 
 /*
@@ -452,27 +417,39 @@ find_subtree(module_t *parent, const char *name)
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
+
+typedef struct {
+	module_cb callback;
+	gpointer user_data;
+	guint ret;
+} call_foreach_t;
+
+static gboolean
+call_foreach_cb(gpointer key _U_, gpointer value, gpointer data)
+{
+	module_t *module = (module_t*)value;
+	call_foreach_t *call_data = (call_foreach_t*)data;
+
+	if (!module->obsolete) {
+		call_data->ret = (*call_data->callback)(module, call_data->user_data);
+	}
+	return (call_data->ret != 0);
+}
+
 static guint
-prefs_module_list_foreach(GList *module_list, module_cb callback,
+prefs_module_list_foreach(GTree *module_list, module_cb callback,
     gpointer user_data)
 {
-	GList *elem;
-	module_t *module;
-	guint ret;
+	call_foreach_t call_data;
 
 	if (module_list == NULL)
 		module_list = top_level_modules;
 
-	for (elem = g_list_first(module_list); elem != NULL;
-	    elem = g_list_next(elem)) {
-		module = elem->data;
-		if (!module->obsolete) {
-			ret = (*callback)(module, user_data);
-			if (ret != 0)
-				return ret;
-		}
-	}
-	return 0;
+	call_data.callback = callback; 
+	call_data.user_data = user_data; 
+	call_data.ret = 0;
+	g_tree_foreach(module_list, call_foreach_cb, &call_data);
+	return call_data.ret;
 }
 
 /*
@@ -480,7 +457,7 @@ prefs_module_list_foreach(GList *module_list, module_cb callback,
  */
 gboolean prefs_module_has_submodules(module_t *module)
 {
-	return (module->submodules != NULL);
+	return (g_tree_nnodes(module->submodules) > 0);
 }
 
 /*
@@ -513,18 +490,19 @@ prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer 
 	return prefs_module_list_foreach((module)?module->submodules:top_level_modules, callback, user_data);
 }
 
-static void
-call_apply_cb(gpointer data, gpointer user_data _U_)
+static gboolean
+call_apply_cb(gpointer key _U_, gpointer value, gpointer data _U_)
 {
-	module_t *module = data;
+	module_t *module = value;
 
 	if (module->obsolete)
-		return;
+		return FALSE;
 	if (module->prefs_changed) {
 		if (module->apply_cb != NULL)
 			(*module->apply_cb)();
 		module->prefs_changed = FALSE;
 	}
+	return FALSE;
 }
 
 /*
@@ -536,7 +514,7 @@ call_apply_cb(gpointer data, gpointer user_data _U_)
 void
 prefs_apply_all(void)
 {
-	g_list_foreach(modules, call_apply_cb, NULL);
+	g_tree_foreach(modules, call_apply_cb, NULL);
 }
 
 /*
@@ -549,7 +527,7 @@ void
 prefs_apply(module_t *module)
 {
 	if (module && module->prefs_changed)
-		call_apply_cb(module, NULL);
+		call_apply_cb((gpointer)module->name, module, NULL);
 }
 
 /*
@@ -2435,14 +2413,15 @@ write_pref(gpointer data, gpointer user_data)
 	}
 }
 
-static void
-write_module_prefs(gpointer data, gpointer user_data)
+static gboolean
+write_module_prefs(gpointer key _U_, gpointer value, gpointer data)
 {
 	write_pref_arg_t arg;
 
-	arg.module = data;
-	arg.pf = user_data;
+	arg.module = value;
+	arg.pf = data;
 	g_list_foreach(arg.module->prefs, write_pref, &arg);
+	return FALSE;
 }
 
 /* Write out "prefs" to the user's preferences file, and return 0.
@@ -2761,7 +2740,7 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n####### Protocols ########\n");
 
-  g_list_foreach(modules, write_module_prefs, pf);
+  g_tree_foreach(modules, write_module_prefs, pf);
 
   fclose(pf);
 

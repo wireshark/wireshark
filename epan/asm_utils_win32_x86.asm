@@ -26,6 +26,7 @@ SECTION .text
 
 GLOBAL _wrs_strcmp
 GLOBAL _wrs_strcmp_with_data
+GLOBAL _wrs_str_equal
 GLOBAL _wrs_check_charset
 GLOBAL _wrs_str_hash
 
@@ -68,6 +69,44 @@ CMP_NEQ_END:
     pop ebx
     shl eax, 1
     inc eax
+    retn
+
+    align 16
+_wrs_str_equal
+    mov ecx, dword [esp + 4]  ; a
+    mov edx, dword [esp + 8]  ; b
+    push ebx
+EQL_LOOP:
+    mov eax, dword [ecx]
+    mov ebx, dword [edx]
+    cmp al, bl
+    jne EQL_NEQ_END
+    or al, al
+    jz EQL_EQ_END
+    cmp ah, bh
+    jne EQL_NEQ_END
+    or ah, ah
+    jz EQL_EQ_END
+    shr eax, 16
+    shr ebx, 16
+    add ecx, byte 4
+    add edx, byte 4
+    cmp al, bl
+    jne EQL_NEQ_END
+    or al, al
+    jz EQL_EQ_END
+    cmp ah, bh
+    jne EQL_NEQ_END
+    or ah, ah
+    jnz EQL_LOOP
+EQL_EQ_END:
+    xor eax, eax
+    pop ebx
+    not eax
+    retn
+EQL_NEQ_END:  
+    pop ebx
+    xor eax, eax
     retn
 
     align 16

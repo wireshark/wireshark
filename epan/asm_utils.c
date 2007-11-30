@@ -41,6 +41,12 @@ wrs_strcmp_with_data(gconstpointer a, gconstpointer b, gpointer user_data _U_)
     return strcmp((const char*)a, (const char*)b);
 }
 
+gboolean
+wrs_str_equal(gconstpointer a, gconstpointer b)
+{
+    return !strcmp((const char*)a, (const char*)b);
+}
+
 guchar 
 wrs_check_charset(const guchar table[256], const char *str)
 {

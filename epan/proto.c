@@ -343,8 +343,8 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 
 
 	proto_names = g_hash_table_new(g_int_hash, g_int_equal);
-	proto_short_names = g_hash_table_new(g_str_hash, g_str_equal);
-	proto_filter_names = g_hash_table_new(g_str_hash, g_str_equal);
+	proto_short_names = g_hash_table_new(wrs_str_hash, g_str_equal);
+	proto_filter_names = g_hash_table_new(wrs_str_hash, g_str_equal);
 
 	proto_cleanup();
 
@@ -3503,7 +3503,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
      */
 
     key = g_malloc (sizeof(gint));
-    *key = g_str_hash(name);
+    *key = wrs_str_hash(name);
     existing_name = g_hash_table_lookup(proto_names, key);
     if (existing_name != NULL) {
         /* g_error will terminate the program */
@@ -3548,7 +3548,7 @@ proto_register_protocol(const char *name, const char *short_name, const char *fi
     protocol->is_enabled = TRUE; /* protocol is enabled by default */
     protocol->can_toggle = TRUE;
     /* list will be sorted later by name, when all protocols completed registering */
-    protocols = g_list_append(protocols, protocol);
+    protocols = g_list_prepend(protocols, protocol);
 
     /* Here we do allocate a new header_field_info struct */
     hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
