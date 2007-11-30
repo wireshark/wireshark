@@ -856,6 +856,9 @@ install-files2:
 
 install-common-files:
 	set copycmd=/y
+!IF "$(MSVC_VARIANT)" == "MSVC2008EE"
+	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)
+!ENDIF
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 !IFDEF ENABLE_LIBWIRESHARK
 	xcopy epan\libwireshark.dll $(INSTALL_DIR) /d

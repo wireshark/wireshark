@@ -28,13 +28,14 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <pcap.h>
-
 #include <glib.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <limits.h>
 #include <string.h>
+
+#include <pcap.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>

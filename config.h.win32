@@ -233,6 +233,11 @@
 #define HAVE_DIRECT_H		1
 #define NEED_INET_ATON_H	1
 #define NEED_INET_V6DEFS_H	1
+/* Visual C 9 (2008) now needs these prototypes */
+#if _MSC_VER == 1500
+#define NTDDI_VERSION NTDDI_WIN2K
+#define _WIN32_WINNT _WIN32_WINNT_WIN2K
+#endif
 #define NEED_GETOPT_H		1
 #define NEED_STRPTIME_H		1
 #define strcasecmp		stricmp

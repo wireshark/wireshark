@@ -80,6 +80,14 @@ MSVC_VARIANT=MSVC6
 # Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
 #MSVC_VARIANT=DOTNET20
 
+# "Microsoft Visual C++ 2008 Express Edition"
+# needs additional Platform SDK installation?
+# Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
+# With this variant, Wireshark will compile but fails to run!
+#
+# THIS VARIANT CURRENTLY WON'T WORK - YOU HAVE BEEN WARNED!
+#MSVC_VARIANT=MSVC2008EE
+
 #
 # Optional: To compile some time critical code from assembler instead of C
 #
@@ -90,6 +98,7 @@ MSVC_VARIANT=MSVC6
 # isn't defined.
 #
 #NASM=c:\progs\nasm\nasm.exe
+
 
 
 ##### Libraries #####
@@ -408,7 +417,7 @@ UPX=$(WIRESHARK_LIBS)\upx301w\upx.exe
 #
 !IF "$(MSVC_VARIANT)" == "MSVC6" || "$(MSVC_VARIANT)" == "MSVC2002" || "$(MSVC_VARIANT)" == "DOTNET10" || "$(MSVC_VARIANT)" == "MSVC2003" || "$(MSVC_VARIANT)" == "DOTNET11"
 LOCAL_CFLAGS=/Zi /W3 /MD
-!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20" || "$(MSVC_VARIANT)" == "MSVC2008EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE
 !ELSE
 !ERROR MSVC_VARIANT unknown
@@ -487,6 +496,9 @@ VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
 # you need to download the redistributable package vcredist_x86.exe from Microsoft first,
 # and copy it to the lib folder!!!
 VCREDIST_EXE=$(WIRESHARK_LIBS)\vcredist_x86.exe
+
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2008EE"
+MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT\*.*
 
 !ELSE
 !ERROR MSVC_VARIANT unknown
@@ -829,6 +841,8 @@ MSC_VER_REQUIRED=1300
 MSC_VER_REQUIRED=1310
 !ELSEIF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 MSC_VER_REQUIRED=1400
+!ELSEIF "$(MSVC_VARIANT)" == "MSVC2008EE"
+MSC_VER_REQUIRED=1500
 !ELSE
 !ERROR MSVC_VARIANT unknown
 !ENDIF

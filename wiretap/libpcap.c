@@ -24,10 +24,6 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_PCAP_H
-#include <pcap.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -37,6 +33,10 @@
 #include "atm.h"
 #include "erf.h"
 #include "libpcap.h"
+
+#ifdef HAVE_PCAP_H
+#include <pcap.h>
+#endif
 
 #ifdef HAVE_PCAP_H
 # ifdef HAVE_SYS_TYPES_H
