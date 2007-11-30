@@ -29,13 +29,13 @@
 #include "asm_utils.h"
 
 /* String comparison func for dfilter_token GTree */
-int
+gint
 wrs_strcmp(gconstpointer a, gconstpointer b)
 {
     return strcmp((const char*)a, (const char*)b);
 }
 
-int 
+gint 
 wrs_strcmp_with_data(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
     return strcmp((const char*)a, (const char*)b);

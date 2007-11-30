@@ -118,11 +118,17 @@ static GTree *modules = NULL;
  */
 static GTree *top_level_modules = NULL;
 
+gint
+cmp_names(gconstpointer a, gconstpointer b)
+{
+    return g_ascii_strcasecmp((const gchar*)a, (const gchar*)b);
+}
+
 /** Sets up memory used by proto routines. Called at program startup */
 void prefs_init(void)
 {
-  modules = g_tree_new(g_ascii_strcasecmp);
-  top_level_modules = g_tree_new(g_ascii_strcasecmp);
+  modules = g_tree_new(cmp_names);
+  top_level_modules = g_tree_new(cmp_names);
 
 }
 
@@ -194,7 +200,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module->description = description;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
-	module->submodules = g_tree_new(g_ascii_strcasecmp);	/* no submodules, to start */
+	module->submodules = g_tree_new(cmp_names);	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 	module->obsolete = FALSE;

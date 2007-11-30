@@ -2499,6 +2499,12 @@ ssl_set_debug(char* name)
         debug_file_must_be_closed = 1;
 }
 
+void
+ssl_debug_flush(void)
+{
+  if (ssl_debug_file)
+    fflush(ssl_debug_file);
+}
 
 void
 ssl_debug_printf(const gchar* fmt, ...)
@@ -2513,7 +2519,6 @@ ssl_debug_printf(const gchar* fmt, ...)
     va_start(ap, fmt);
     ret += vfprintf(ssl_debug_file, fmt, ap);
     va_end(ap);
-    fflush(ssl_debug_file);
 }
 
 void
@@ -2527,7 +2532,6 @@ ssl_print_text_data(const gchar* name, const guchar* data, gint len)
       fprintf(ssl_debug_file,"%c",data[i]);
     }
     fprintf(ssl_debug_file,"\n");
-    fflush(ssl_debug_file);
 }
 
 void
@@ -2543,7 +2547,6 @@ ssl_print_data(const gchar* name, const guchar* data, gint len)
         fprintf(ssl_debug_file,"%.2x ",data[i]&255);
     }
     fprintf(ssl_debug_file,"\n");
-    fflush(ssl_debug_file);
 }
 
 void

@@ -473,6 +473,8 @@ extern void
 ssl_print_text_data(const gchar* name, const guchar* data, gint len);
 extern void
 ssl_set_debug(gchar* name);
+extern void
+ssl_debug_flush(void);
 #else
 
 /* No debug: nullify debug operation*/

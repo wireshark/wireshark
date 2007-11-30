@@ -25,8 +25,8 @@
 #ifndef __ASM_UTILS_H__
 #define __ASM_UTILS_H__
 
-int wrs_strcmp(gconstpointer a, gconstpointer b);
-int wrs_strcmp_with_data(gconstpointer a, gconstpointer b, gpointer user_data);
+gint wrs_strcmp(gconstpointer a, gconstpointer b);
+gint wrs_strcmp_with_data(gconstpointer a, gconstpointer b, gpointer user_data);
 gboolean wrs_str_equal(gconstpointer a, gconstpointer b);
 
 guchar wrs_check_charset(const guchar table[256], const char *str);
