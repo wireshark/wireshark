@@ -486,6 +486,7 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 #define ssl_print_string(a, b)
 #define ssl_print_text_data(a, b, c)
 #define ssl_set_debug(name)
+#define ssl_debug_flush()
 
 #endif
 
