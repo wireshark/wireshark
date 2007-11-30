@@ -1231,7 +1231,7 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	radius_attr_info_t* a = v;
 	int i;
 	gint* ett = &(a->ett);
-	gchar* abbrev = g_strdup_printf("radius.%s",a->name);
+	gchar* abbrev = g_strconcat("radius.",a->name,NULL);
 	hf_register_info hfri[] = {
 		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
 		{ NULL, { NULL,NULL, FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
@@ -1253,8 +1253,8 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	hfri[0].hfinfo.abbrev = abbrev;
 
 	hfri[1].hfinfo.name = "Length";
-	hfri[1].hfinfo.abbrev = g_strdup_printf("%s.len",abbrev);
-	hfri[1].hfinfo.blurb = g_strdup_printf("%s Length",a->name);
+	hfri[1].hfinfo.abbrev = g_strconcat(abbrev,".len",NULL);
+	hfri[1].hfinfo.blurb = g_strconcat(a->name," Length",NULL);
 
 	if (a->type == radius_integer) {
 		hfri[0].hfinfo.type = FT_UINT32;
@@ -1304,8 +1304,8 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	if (a->tagged) {
 		hfri[len_hf].p_id = &(a->hf_tag);
 		hfri[len_hf].hfinfo.name = "Tag";
-		hfri[len_hf].hfinfo.abbrev = g_strdup_printf("%s.tag",abbrev);
-		hfri[len_hf].hfinfo.blurb = g_strdup_printf("%s Tag",a->name);
+		hfri[len_hf].hfinfo.abbrev = g_strconcat(abbrev,".tag",NULL);
+		hfri[len_hf].hfinfo.blurb = g_strconcat(a->name," Tag",NULL);
 		hfri[len_hf].hfinfo.type = FT_UINT8;
 		hfri[len_hf].hfinfo.display = BASE_HEX;
 		len_hf++;
