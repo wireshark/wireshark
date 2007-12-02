@@ -197,7 +197,8 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
         return -1;
     }
     for (i=0;i<err->num_procs;i++) {
-        if (strcmp(err->procedures[i].entries[2], expert_data->summary) == 0) {
+        if (strcmp(err->procedures[i].entries[1], expert_data->protocol) == 0 &&
+            strcmp(err->procedures[i].entries[2], expert_data->summary) == 0) {
             return i;
         }
     }
