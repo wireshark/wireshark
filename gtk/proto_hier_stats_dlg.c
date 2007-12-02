@@ -314,7 +314,7 @@ void
 proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	ph_stats_t	*ps;
-	GtkWidget	*dlg, *ok_bt, *help_bt, *vbox, *bbox;
+	GtkWidget	*dlg, *close_bt, *help_bt, *vbox, *bbox;
 	GtkWidget	*label;
 	char		 title[256];
 
@@ -347,15 +347,15 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Button row. */
 	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
-		bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_HELP, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 	} else {
-		bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	}
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-	window_set_cancel_button(dlg, ok_bt, window_cancel_button_cb);
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(dlg, close_bt, window_cancel_button_cb);
 
 	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
 		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
