@@ -6286,7 +6286,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         return;
 
       if (!wlan_subdissector) {
-	guint fnum;
+	guint fnum = 0;
 
         /* key: bssid:src 
          * data: last seq_control seen and frame number
