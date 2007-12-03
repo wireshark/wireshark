@@ -122,7 +122,7 @@ static const value_string h264_profile_idc_values[] = {
 };
 
 void
-dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *h264_profile_tree;
