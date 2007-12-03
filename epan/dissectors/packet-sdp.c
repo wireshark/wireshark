@@ -1443,6 +1443,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   gint	sdp_media_attrbute_code;
   const char *msrp_res = "msrp://";
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
+  gboolean has_more_pars = TRUE;
 
   offset = 0;
   next_offset = 0;
@@ -1573,12 +1574,14 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	  offset = next_offset + 1;
 
-	  /* There may be 2 parameters given
-	   * TODO: Handle arbitary number of parameters.
-	   */
-	  next_offset = tvb_find_guint8(tvb,offset,-1,';');
+	  while(has_more_pars==TRUE){
+		  next_offset = tvb_find_guint8(tvb,offset,-1,';');
 
-	  if(next_offset != -1){
+		  if(next_offset == -1){
+			  has_more_pars = FALSE;
+			  next_offset= tvb_length(tvb);
+		  }
+
 		  /* There are 2 - add the first parameter */
 		  tokenlen = next_offset - offset;
 		  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
@@ -1592,18 +1595,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		  offset = next_offset + 1;
 	  }
-
-	  /* Now add remaining (or only) parameter */
-	  tokenlen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-
-	  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
-                                    hf_media_format_specific_parameter, tvb,
-                                    offset, tokenlen, FALSE);
-
-	  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
-
-	  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
-                    (guint8 *)transport_info->encoding_name);
 	  return;
 	  break;
   case SDP_PATH:
