@@ -486,15 +486,15 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 
 
 static void
-print_time_scale_string(char *buf, int buf_len, guint32 t)
+print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max)
 {
-	if(t>=10000000){
+	if(t_max>=10000000){
 		g_snprintf(buf, buf_len, "%ds",t/1000000);
-	} else if(t>=1000000){
+	} else if(t_max>=1000000){
 		g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
-	} else if(t>=10000){
+	} else if(t_max>=10000){
 		g_snprintf(buf, buf_len, "%dms",t/1000);
-	} else if(t>=1000){
+	} else if(t_max>=1000){
 		g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
 	} else {
 		g_snprintf(buf, buf_len, "%dus",t);
@@ -645,7 +645,7 @@ io_stat_draw(io_stat_t *io)
 	 * top y scale label will be the widest one
 	 */
 	if(draw_y_as_time){
-		print_time_scale_string(label_string, 15, max_y);
+		print_time_scale_string(label_string, 15, max_y, max_y);
 	} else {
 		g_snprintf(label_string, 15, "%d", max_y);
 	}
@@ -695,7 +695,7 @@ io_stat_draw(io_stat_t *io)
 		/* draw the labels */
 		if(i==0){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
 			} else {
 				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
@@ -719,7 +719,7 @@ io_stat_draw(io_stat_t *io)
 		}
 		if(i==5){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
 			} else {
 				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
@@ -743,7 +743,7 @@ io_stat_draw(io_stat_t *io)
 		}
 		if(i==10){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10));
+				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
 			} else {
 				g_snprintf(label_string, 15, "%d", max_y*i/10);
 			}
