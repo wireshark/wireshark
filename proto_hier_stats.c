@@ -88,18 +88,24 @@ process_node(proto_node *ptree_node, GNode *parent_stat_node, ph_stats_t *ps, gu
 	finfo = PITEM_FINFO(ptree_node);
 	g_assert(finfo);
 
-	stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
+	/* If the field info isn't related to a protocol but to a field,
+	 * don't count them, as they don't belong to any protocol.
+	 * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
+	if (finfo->hfinfo->parent != -1) {
+		/* Skip this element, use parent status node */
+		stat_node = parent_stat_node;
+		stats = STAT_NODE_STATS(stat_node);
+	} else {
+		stat_node = find_stat_node(parent_stat_node, finfo->hfinfo);
 
-	stats = STAT_NODE_STATS(stat_node);
-	stats->num_pkts_total++;
-	stats->num_bytes_total += pkt_len;
+		stats = STAT_NODE_STATS(stat_node);
+		stats->num_pkts_total++;
+		stats->num_bytes_total += pkt_len;
+	}
 
 	proto_sibling_node = ptree_node->next;
 
-	/* If the field info isn't related to a protocol but to a field (parent != -1),
-	 * don't count them, as they don't belong to any protocol.
-	 * (happens e.g. for toplevel tree item of desegmentation "[Reassembled TCP Segments]") */
-	if (proto_sibling_node && proto_sibling_node->finfo->hfinfo->parent == -1) {
+	if (proto_sibling_node) {
 		/* If the name does not exist for this proto_sibling_node, then it is
 		 * not a normal protocol in the top-level tree.  It was instead
 		 * added as a normal tree such as IPv6's Hop-by-hop Option Header and
