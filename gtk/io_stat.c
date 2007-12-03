@@ -930,7 +930,7 @@ io_stat_draw(io_stat_t *io)
 						x_pos-io->pixels_per_tick/2,
 						(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border),
 						io->pixels_per_tick,
-						(val*draw_height)/max_y);
+						(guint32)(val*draw_height)/max_y);
 				}
 				break;
 			case PLOT_STYLE_DOT:
