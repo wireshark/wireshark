@@ -431,7 +431,7 @@ extern int proto_item_get_len(proto_item *ti);
  @param severity of this info (e.g. PI_ERROR)
  @return TRUE if value was written
  */
-extern gboolean proto_item_set_expert_flags(proto_item *ti, int group, int severity);
+extern gboolean proto_item_set_expert_flags(proto_item *ti, int group, guint severity);
 
 
 

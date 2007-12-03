@@ -3284,7 +3284,7 @@ proto_item_get_len(proto_item *pi)
 }
 
 gboolean
-proto_item_set_expert_flags(proto_item *pi, int group, int severity)
+proto_item_set_expert_flags(proto_item *pi, int group, guint severity)
 {
 	if(pi == NULL || pi->finfo == NULL)
 		return FALSE;
