@@ -252,11 +252,11 @@ static int hf_snmp_get_request = -1;              /* GetRequest_PDU */
 static int hf_snmp_get_next_request = -1;         /* GetNextRequest_PDU */
 static int hf_snmp_get_response = -1;             /* GetResponse_PDU */
 static int hf_snmp_set_request = -1;              /* SetRequest_PDU */
-static int hf_snmp_trap = -1;                     /* T_trap */
-static int hf_snmp_getBulkRequest = -1;           /* T_getBulkRequest */
-static int hf_snmp_informRequest = -1;            /* T_informRequest */
-static int hf_snmp_sNMPv2_Trap = -1;              /* T_sNMPv2_Trap */
-static int hf_snmp_report = -1;                   /* T_report */
+static int hf_snmp_trap = -1;                     /* Trap_PDU */
+static int hf_snmp_getBulkRequest = -1;           /* GetBulkRequest_PDU */
+static int hf_snmp_informRequest = -1;            /* InformRequest_PDU */
+static int hf_snmp_sNMPv2_Trap = -1;              /* SNMPv2_Trap_PDU */
+static int hf_snmp_report = -1;                   /* Report_PDU */
 static int hf_snmp_request_id = -1;               /* INTEGER */
 static int hf_snmp_error_status = -1;             /* T_error_status */
 static int hf_snmp_error_index = -1;              /* INTEGER */
@@ -1759,18 +1759,6 @@ dissect_snmp_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_snmp_T_trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "snmp.cnf"
- offset = dissect_snmp_Trap_PDU(FALSE, tvb, offset, actx, tree, hf_index);
-
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_snmp_INTEGER_0_2147483647(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
@@ -1808,33 +1796,9 @@ dissect_snmp_GetBulkRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_snmp_T_getBulkRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "snmp.cnf"
- offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_snmp_InformRequest_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_CON, 6, TRUE, dissect_snmp_PDU);
-
-  return offset;
-}
-
-
-
-static int
-dissect_snmp_T_informRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 40 "snmp.cnf"
- offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-
 
   return offset;
 }
@@ -1852,33 +1816,9 @@ dissect_snmp_SNMPv2_Trap_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
-dissect_snmp_T_sNMPv2_Trap(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "snmp.cnf"
- offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-
-
-  return offset;
-}
-
-
-
-static int
 dissect_snmp_Report_PDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_CON, 8, TRUE, dissect_snmp_PDU);
-
-  return offset;
-}
-
-
-
-static int
-dissect_snmp_T_report(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 46 "snmp.cnf"
- offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, actx, tree, hf_index);
-
-
 
   return offset;
 }
@@ -1902,11 +1842,11 @@ static const ber_choice_t PDUs_choice[] = {
   {   1, &hf_snmp_get_next_request, BER_CLASS_CON, 1, BER_FLAGS_NOOWNTAG, dissect_snmp_GetNextRequest_PDU },
   {   2, &hf_snmp_get_response   , BER_CLASS_CON, 2, BER_FLAGS_NOOWNTAG, dissect_snmp_GetResponse_PDU },
   {   3, &hf_snmp_set_request    , BER_CLASS_CON, 3, BER_FLAGS_NOOWNTAG, dissect_snmp_SetRequest_PDU },
-  {   4, &hf_snmp_trap           , BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_snmp_T_trap },
-  {   5, &hf_snmp_getBulkRequest , BER_CLASS_CON, 5, BER_FLAGS_NOOWNTAG, dissect_snmp_T_getBulkRequest },
-  {   6, &hf_snmp_informRequest  , BER_CLASS_CON, 6, BER_FLAGS_NOOWNTAG, dissect_snmp_T_informRequest },
-  {   7, &hf_snmp_sNMPv2_Trap    , BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_snmp_T_sNMPv2_Trap },
-  {   8, &hf_snmp_report         , BER_CLASS_CON, 8, BER_FLAGS_NOOWNTAG, dissect_snmp_T_report },
+  {   4, &hf_snmp_trap           , BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_snmp_Trap_PDU },
+  {   5, &hf_snmp_getBulkRequest , BER_CLASS_CON, 5, BER_FLAGS_NOOWNTAG, dissect_snmp_GetBulkRequest_PDU },
+  {   6, &hf_snmp_informRequest  , BER_CLASS_CON, 6, BER_FLAGS_NOOWNTAG, dissect_snmp_InformRequest_PDU },
+  {   7, &hf_snmp_sNMPv2_Trap    , BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_snmp_SNMPv2_Trap_PDU },
+  {   8, &hf_snmp_report         , BER_CLASS_CON, 8, BER_FLAGS_NOOWNTAG, dissect_snmp_Report_PDU },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -3246,23 +3186,23 @@ void proto_register_snmp(void) {
     { &hf_snmp_trap,
       { "trap", "snmp.trap",
         FT_NONE, BASE_NONE, NULL, 0,
-        "snmp.T_trap", HFILL }},
+        "snmp.Trap_PDU", HFILL }},
     { &hf_snmp_getBulkRequest,
       { "getBulkRequest", "snmp.getBulkRequest",
         FT_NONE, BASE_NONE, NULL, 0,
-        "snmp.T_getBulkRequest", HFILL }},
+        "snmp.GetBulkRequest_PDU", HFILL }},
     { &hf_snmp_informRequest,
       { "informRequest", "snmp.informRequest",
         FT_NONE, BASE_NONE, NULL, 0,
-        "snmp.T_informRequest", HFILL }},
+        "snmp.InformRequest_PDU", HFILL }},
     { &hf_snmp_sNMPv2_Trap,
       { "sNMPv2-Trap", "snmp.sNMPv2_Trap",
         FT_NONE, BASE_NONE, NULL, 0,
-        "snmp.T_sNMPv2_Trap", HFILL }},
+        "snmp.SNMPv2_Trap_PDU", HFILL }},
     { &hf_snmp_report,
       { "report", "snmp.report",
         FT_NONE, BASE_NONE, NULL, 0,
-        "snmp.T_report", HFILL }},
+        "snmp.Report_PDU", HFILL }},
     { &hf_snmp_request_id,
       { "request-id", "snmp.request_id",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -3329,7 +3269,7 @@ void proto_register_snmp(void) {
         "snmp.OpenPDU", HFILL }},
     { &hf_snmp_close,
       { "close", "snmp.close",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(snmp_ClosePDU_U_vals), 0,
         "snmp.ClosePDU", HFILL }},
     { &hf_snmp_registerRequest,
       { "registerRequest", "snmp.registerRequest",
@@ -3341,11 +3281,11 @@ void proto_register_snmp(void) {
         "snmp.RegisterResponse", HFILL }},
     { &hf_snmp_commitOrRollback,
       { "commitOrRollback", "snmp.commitOrRollback",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(snmp_SOutPDU_U_vals), 0,
         "snmp.SOutPDU", HFILL }},
     { &hf_snmp_rRspPDU,
       { "rRspPDU", "snmp.rRspPDU",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(snmp_RRspPDU_U_vals), 0,
         "snmp.RRspPDU", HFILL }},
     { &hf_snmp_pDUs,
       { "pDUs", "snmp.pDUs",

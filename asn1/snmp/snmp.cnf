@@ -30,20 +30,20 @@ gint pdu_type;
 		col_add_str(actx->pinfo->cinfo, COL_INFO, snmp_PDUs_vals[pdu_type].strptr);
   }
 
-#.FN_BODY PDUs/trap
- offset = dissect_snmp_Trap_PDU(FALSE, tvb, offset, actx, tree, hf_index);
+#.END
 
-#.FN_BODY PDUs/getBulkRequest
- offset = dissect_snmp_GetBulkRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
-#.FN_BODY PDUs/informRequest
- offset = dissect_snmp_InformRequest_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
-#.FN_BODY PDUs/sNMPv2-Trap
- offset = dissect_snmp_SNMPv2_Trap_PDU(TRUE, tvb, offset, actx, tree, hf_index);
 
-#.FN_BODY PDUs/report
- offset = dissect_snmp_Report_PDU(TRUE, tvb, offset, actx, tree, hf_index);
+
+
+
+
+
+
+
+
+
 
 #.FN_PARS HeaderData/msgSecurityModel
 
