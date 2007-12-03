@@ -2015,9 +2015,9 @@ tree_view_follow_link(field_info   *fi)
         cf_goto_frame(&cfile, fi->value.value.uinteger);
     }
     if(FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type)) {
-	    url = g_strndup(tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);
-      browser_open_url(url);
-      g_free(url);
+        url = g_strndup(tvb_get_ptr(fi->ds_tvb, fi->start, fi->length), fi->length);
+        browser_open_url(url);
+        g_free(url);
     }
 }
 
