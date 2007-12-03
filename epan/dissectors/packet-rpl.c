@@ -148,11 +148,16 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				reported_length = tvb_reported_length_remaining(tvb, offset);
 				if (reported_length > sublen)
 					reported_length = sublen;
-				dissect_rpl_container(tvb_new_subset(tvb, 
+				if ( length > 0) {
+				  dissect_rpl_container(tvb_new_subset(tvb, 
 					offset, length, reported_length),
 					pinfo, rpl_container_tree);
-
-				offset += sublen;
+				  offset += reported_length;
+				} else {
+				  /* no more data, exit the loop */
+				  offset += reported_length;
+				  break;
+				}
 			}	
 			break;
 

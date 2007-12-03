@@ -88,6 +88,10 @@
 
 #include "capture_loop.h"
 
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "epan/g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Standard secondary message for unexpected errors.
  */

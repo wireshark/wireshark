@@ -228,6 +228,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The RPL dissector could go into an infinite loop.
+            <!-- Fixed in r23687 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2052">2052</ulink>) -->
+          </para>
+          <para>Versions affected: 0.9.8 to 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

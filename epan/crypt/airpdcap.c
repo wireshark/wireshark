@@ -32,6 +32,10 @@
 /****************************************************************************/
 /*	File includes								*/
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #include <epan/tvbuff.h>
 #include <epan/crc32.h>
 #include <epan/strutil.h>
@@ -50,7 +54,7 @@
 #include "wep-wpadefs.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
+#include "../g_ascii_strcasecmp.h"
 #endif
 
 /****************************************************************************/
