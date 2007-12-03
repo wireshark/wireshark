@@ -1522,6 +1522,46 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 	return ret;
 }
 
+static gboolean
+emem_tree_foreach_nodes(emem_tree_node_t* node, tree_foreach_func callback, void *user_data)
+{
+	gboolean stop_traverse;
+
+	if (!node)
+		return FALSE;
+
+	if(node->left) {
+		stop_traverse = emem_tree_foreach_nodes(node->left, callback, user_data);
+		if (stop_traverse) {
+			return TRUE;
+		}
+	}
+
+	stop_traverse = callback(node->data, user_data);
+	if (stop_traverse) {
+		return TRUE;
+	}
+
+	if(node->right) {
+		emem_tree_foreach_nodes(node->right, callback, user_data);
+		if (stop_traverse) {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
+void
+emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data)
+{
+	if (!emem_tree)
+		return;
+
+	if(emem_tree->tree)
+		emem_tree_foreach_nodes(emem_tree->tree, callback, user_data);
+}
+
 
 static void
 emem_tree_print_nodes(emem_tree_node_t* node, int level)

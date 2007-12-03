@@ -258,6 +258,9 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
 /* Lookup the value under a string key */
 #define se_tree_lookup_string emem_tree_lookup_string
 
+/* Traverse a tree */
+#define se_tree_foreach emem_tree_foreach
+
 
 /* *******************************************************************
  * Tree functions for PE memory allocation scope
@@ -272,6 +275,7 @@ emem_tree_t *pe_tree_create(int type, char *name);
 #define pe_tree_lookup32_array emem_tree_lookup32_array
 #define pe_tree_insert_string emem_tree_insert_string
 #define pe_tree_lookup_string emem_tree_lookup_string
+#define pe_tree_foreach emem_tree_foreach
 
 
 
@@ -348,6 +352,11 @@ void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v);
 /* Lookup the value under a string key */
 void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k);
 
+
+/* traverse a tree. if the callback returns TRUE the traversal will end */
+typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
+
+void emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
 
 
 
