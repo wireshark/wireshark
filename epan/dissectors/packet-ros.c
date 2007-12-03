@@ -137,7 +137,9 @@ static gint ett_ros_Code = -1;
 #line 84 "packet-ros-template.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
+
 static GHashTable *oid_table=NULL;
+static GHashTable *protocol_table=NULL;
 static gint ett_ros_unknown = -1;
 
 void
@@ -151,13 +153,123 @@ register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
+void
+register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, gboolean uses_rtse)
+{
+	g_hash_table_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);	
+	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+	if(!uses_rtse)
+	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
+	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
+}
+
+static new_dissector_t ros_lookup_opr_dissector(gint32 opcode, const ros_opr_t *operations, gboolean argument)
+{
+	/* we don't know what order asn2wrs/module definition is, so ... */
+	if(operations) {
+		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++) 
+			if(operations->opcode == opcode) 
+				return argument ? operations->arg_pdu : operations->res_pdu;
+		
+	}
+	return NULL;
+}
+
+static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t *errors)
+{
+	/* we don't know what order asn2wrs/module definition is, so ... */
+	if(errors) {
+		for(;errors->err_pdu != (new_dissector_t) (-1); errors++) {
+			if(errors->errcode == errcode) 
+				return errors->err_pdu;
+		}
+	}
+	return NULL;
+}
+
+
+static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	ros_info_t *rinfo;
+	gint32     opcode = 0;
+	const gchar *opname = NULL;
+	const gchar *suffix = NULL;
+	int offset = 0;
+	new_dissector_t opdissector = NULL;
+	const value_string *lookup;
+	proto_item *item=NULL;
+	proto_tree *ros_tree=NULL;
+
+	if((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL) {
+
+		if(tree){
+			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, FALSE);
+			ros_tree = proto_item_add_subtree(item, *(rinfo->ett_proto));
+		}
+
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
+
+		/* if this is a bind operation */
+		if((session->ros_op & ROS_OP_TYPE_MASK) == ROS_OP_BIND) {
+			/* use the in-built operation codes */
+			if((session->ros_op & ROS_OP_PDU_MASK) ==  ROS_OP_ERROR)
+				opcode = err_ros_bind;
+			else
+				opcode = op_ros_bind;				
+		} else 
+			/* otherwise just take the opcode */
+			opcode = session->ros_op & ROS_OP_OPCODE_MASK;
+
+		/* default lookup in the operations */
+		lookup = rinfo->opr_code_strings;
+
+		switch(session->ros_op & ROS_OP_PDU_MASK) {
+		case ROS_OP_ARGUMENT:	
+			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, TRUE);
+			suffix = "_argument";
+			break;
+		case ROS_OP_RESULT:	
+			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, FALSE);
+			suffix = "_result";
+			break;
+		case ROS_OP_ERROR:	
+			opdissector = ros_lookup_err_dissector(opcode, rinfo->err_code_dissectors);
+			lookup = rinfo->err_code_strings;
+			break;
+		default:
+			break;
+		}
+
+		if(opdissector) {
+
+			opname = val_to_str(opcode, lookup, "Unknown opcode (%d)");
+
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_set_str(pinfo->cinfo, COL_INFO, opname);
+				if(suffix)
+					col_append_fstr(pinfo->cinfo, COL_INFO, suffix);
+			}
+			
+			offset = (*opdissector)(tvb, pinfo, ros_tree);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 static int
 call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
-	if(!dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+
+	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
+           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 
@@ -405,7 +517,7 @@ dissect_ros_T_argument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static const ber_sequence_t Invoke_sequence[] = {
   { &hf_ros_invokeId        , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_ros_InvokeId },
-  { &hf_ros_linkedId        , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_ros_INTEGER },
+  { &hf_ros_linkedId        , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_ros_INTEGER },
   { &hf_ros_opcode          , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_ros_OperationCode },
   { &hf_ros_argument        , BER_CLASS_ANY, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_ros_T_argument },
   { NULL, 0, 0, 0, NULL }
@@ -497,7 +609,7 @@ dissect_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
-	/* now add the opcode  (really the errode) */
+	/* now add the opcode  (really the error code) */
 	session->ros_op |= opcode;
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
@@ -609,10 +721,10 @@ static const value_string ros_T_problem_vals[] = {
 };
 
 static const ber_choice_t T_problem_choice[] = {
-  {   0, &hf_ros_general         , BER_CLASS_CON, 0, 0, dissect_ros_GeneralProblem },
-  {   1, &hf_ros_invokeProblem   , BER_CLASS_CON, 1, 0, dissect_ros_InvokeProblem },
-  {   2, &hf_ros_rejectResult    , BER_CLASS_CON, 2, 0, dissect_ros_ReturnResultProblem },
-  {   3, &hf_ros_rejectError     , BER_CLASS_CON, 3, 0, dissect_ros_ReturnErrorProblem },
+  {   0, &hf_ros_general         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_ros_GeneralProblem },
+  {   1, &hf_ros_invokeProblem   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ros_InvokeProblem },
+  {   2, &hf_ros_rejectResult    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ros_ReturnResultProblem },
+  {   3, &hf_ros_rejectError     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ros_ReturnErrorProblem },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -777,16 +889,16 @@ static const value_string ros_ROS_vals[] = {
 };
 
 static const ber_choice_t ROS_choice[] = {
-  {   1, &hf_ros_invoke          , BER_CLASS_CON, 1, 0, dissect_ros_Invoke },
-  {   2, &hf_ros_returnResult    , BER_CLASS_CON, 2, 0, dissect_ros_ReturnResult },
-  {   3, &hf_ros_returnError     , BER_CLASS_CON, 3, 0, dissect_ros_ReturnError },
-  {   4, &hf_ros_reject          , BER_CLASS_CON, 4, 0, dissect_ros_Reject },
-  {  16, &hf_ros_bind_invoke     , BER_CLASS_CON, 16, 0, dissect_ros_T_bind_invoke },
-  {  17, &hf_ros_bind_result     , BER_CLASS_CON, 17, 0, dissect_ros_T_bind_result },
-  {  18, &hf_ros_bind_error      , BER_CLASS_CON, 18, 0, dissect_ros_T_bind_error },
-  {  19, &hf_ros_unbind_invoke   , BER_CLASS_CON, 19, 0, dissect_ros_T_unbind_invoke },
-  {  20, &hf_ros_unbind_result   , BER_CLASS_CON, 20, 0, dissect_ros_T_unbind_result },
-  {  21, &hf_ros_unbind_error    , BER_CLASS_CON, 21, 0, dissect_ros_T_unbind_error },
+  {   1, &hf_ros_invoke          , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_ros_Invoke },
+  {   2, &hf_ros_returnResult    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_ros_ReturnResult },
+  {   3, &hf_ros_returnError     , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_ros_ReturnError },
+  {   4, &hf_ros_reject          , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_ros_Reject },
+  {  16, &hf_ros_bind_invoke     , BER_CLASS_CON, 16, BER_FLAGS_IMPLTAG, dissect_ros_T_bind_invoke },
+  {  17, &hf_ros_bind_result     , BER_CLASS_CON, 17, BER_FLAGS_IMPLTAG, dissect_ros_T_bind_result },
+  {  18, &hf_ros_bind_error      , BER_CLASS_CON, 18, BER_FLAGS_IMPLTAG, dissect_ros_T_bind_error },
+  {  19, &hf_ros_unbind_invoke   , BER_CLASS_CON, 19, BER_FLAGS_IMPLTAG, dissect_ros_T_unbind_invoke },
+  {  20, &hf_ros_unbind_result   , BER_CLASS_CON, 20, BER_FLAGS_IMPLTAG, dissect_ros_T_unbind_result },
+  {  21, &hf_ros_unbind_error    , BER_CLASS_CON, 21, BER_FLAGS_IMPLTAG, dissect_ros_T_unbind_error },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -842,7 +954,7 @@ dissect_ros_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-ros-fn.c ---*/
-#line 264 "packet-ros-template.c"
+#line 376 "packet-ros-template.c"
 
 /*
 * Dissect ROS PDUs inside a PPDU.
@@ -1077,7 +1189,7 @@ void proto_register_ros(void) {
         "ros.OBJECT_IDENTIFIER", HFILL }},
 
 /*--- End of included file: packet-ros-hfarr.c ---*/
-#line 386 "packet-ros-template.c"
+#line 498 "packet-ros-template.c"
   };
 
   /* List of subtrees */
@@ -1098,7 +1210,7 @@ void proto_register_ros(void) {
     &ett_ros_Code,
 
 /*--- End of included file: packet-ros-ettarr.c ---*/
-#line 393 "packet-ros-template.c"
+#line 505 "packet-ros-template.c"
   };
 
   /* Register protocol */
@@ -1110,6 +1222,7 @@ void proto_register_ros(void) {
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
+  protocol_table=g_hash_table_new(g_str_hash, g_str_equal);
 
   ros_handle = find_dissector("ros");
 

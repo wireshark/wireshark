@@ -83,7 +83,9 @@ static gint ett_ros = -1;
 #include "packet-ros-ett.c"
 
 static dissector_table_t ros_oid_dissector_table=NULL;
+
 static GHashTable *oid_table=NULL;
+static GHashTable *protocol_table=NULL;
 static gint ett_ros_unknown = -1;
 
 void
@@ -97,13 +99,123 @@ register_ros_oid_dissector_handle(const char *oid, dissector_handle_t dissector,
 	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
 }
 
+void
+register_ros_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name, gboolean uses_rtse)
+{
+	g_hash_table_insert(protocol_table, (gpointer)oid, (gpointer)rinfo);	
+	g_hash_table_insert(oid_table, (gpointer)oid, (gpointer)name);
+
+	if(!uses_rtse)
+	  /* if we are not using RTSE, then we must register ROS with BER (ACSE) */
+	  register_ber_oid_dissector_handle(oid, ros_handle, proto, name);
+}
+
+static new_dissector_t ros_lookup_opr_dissector(gint32 opcode, const ros_opr_t *operations, gboolean argument)
+{
+	/* we don't know what order asn2wrs/module definition is, so ... */
+	if(operations) {
+		for(;operations->arg_pdu != (new_dissector_t)(-1); operations++) 
+			if(operations->opcode == opcode) 
+				return argument ? operations->arg_pdu : operations->res_pdu;
+		
+	}
+	return NULL;
+}
+
+static new_dissector_t ros_lookup_err_dissector(gint32 errcode, const ros_err_t *errors)
+{
+	/* we don't know what order asn2wrs/module definition is, so ... */
+	if(errors) {
+		for(;errors->err_pdu != (new_dissector_t) (-1); errors++) {
+			if(errors->errcode == errcode) 
+				return errors->err_pdu;
+		}
+	}
+	return NULL;
+}
+
+
+static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	ros_info_t *rinfo;
+	gint32     opcode = 0;
+	const gchar *opname = NULL;
+	const gchar *suffix = NULL;
+	int offset = 0;
+	new_dissector_t opdissector = NULL;
+	const value_string *lookup;
+	proto_item *item=NULL;
+	proto_tree *ros_tree=NULL;
+
+	if((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL) {
+
+		if(tree){
+			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, FALSE);
+			ros_tree = proto_item_add_subtree(item, *(rinfo->ett_proto));
+		}
+
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, rinfo->name);
+
+		/* if this is a bind operation */
+		if((session->ros_op & ROS_OP_TYPE_MASK) == ROS_OP_BIND) {
+			/* use the in-built operation codes */
+			if((session->ros_op & ROS_OP_PDU_MASK) ==  ROS_OP_ERROR)
+				opcode = err_ros_bind;
+			else
+				opcode = op_ros_bind;				
+		} else 
+			/* otherwise just take the opcode */
+			opcode = session->ros_op & ROS_OP_OPCODE_MASK;
+
+		/* default lookup in the operations */
+		lookup = rinfo->opr_code_strings;
+
+		switch(session->ros_op & ROS_OP_PDU_MASK) {
+		case ROS_OP_ARGUMENT:	
+			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, TRUE);
+			suffix = "_argument";
+			break;
+		case ROS_OP_RESULT:	
+			opdissector = ros_lookup_opr_dissector(opcode, rinfo->opr_code_dissectors, FALSE);
+			suffix = "_result";
+			break;
+		case ROS_OP_ERROR:	
+			opdissector = ros_lookup_err_dissector(opcode, rinfo->err_code_dissectors);
+			lookup = rinfo->err_code_strings;
+			break;
+		default:
+			break;
+		}
+
+		if(opdissector) {
+
+			opname = val_to_str(opcode, lookup, "Unknown opcode (%d)");
+
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_set_str(pinfo->cinfo, COL_INFO, opname);
+				if(suffix)
+					col_append_fstr(pinfo->cinfo, COL_INFO, suffix);
+			}
+			
+			offset = (*opdissector)(tvb, pinfo, ros_tree);
+
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 static int
 call_ros_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t *next_tvb;
 
 	next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), tvb_reported_length_remaining(tvb, offset));
-	if(!dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
+
+	if(!ros_try_string(oid, next_tvb, pinfo, tree) &&
+           !dissector_try_string(ros_oid_dissector_table, oid, next_tvb, pinfo, tree)){
 		proto_item *item=NULL;
 		proto_tree *next_tree=NULL;
 
@@ -401,6 +513,7 @@ void proto_register_ros(void) {
 
   ros_oid_dissector_table = register_dissector_table("ros.oid", "ROS OID Dissectors", FT_STRING, BASE_NONE);
   oid_table=g_hash_table_new(g_str_hash, g_str_equal);
+  protocol_table=g_hash_table_new(g_str_hash, g_str_equal);
 
   ros_handle = find_dissector("ros");
 

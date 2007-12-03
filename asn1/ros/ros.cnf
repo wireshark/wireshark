@@ -61,7 +61,7 @@ Reject/problem/returnResult	rejectResult
   if(session && session->pres_ctx_id && (oid = find_oid_by_pres_ctx_id(actx->pinfo, session->pres_ctx_id))) {
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
-	/* now add the opcode  (really the errode) */
+	/* now add the opcode  (really the error code) */
 	session->ros_op |= opcode;
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree);
   }
