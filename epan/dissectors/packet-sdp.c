@@ -72,11 +72,13 @@
 #include "packet-msrp.h"
 #include "packet-per.h"
 #include "packet-h245.h"
+#include "packet-h264.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 static dissector_handle_t msrp_handle=NULL;
+static dissector_handle_t h264_handle = NULL;
 
 static int sdp_tap = -1;
 
@@ -1152,6 +1154,79 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 }
 
+tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint offset, gint len, gchar *msg)
+{
+	guint8 *buf = ep_alloc(10240);
+
+	/* arbitrary maximum length */
+	if(len<20480){
+		int i;
+		tvbuff_t *bytes_tvb;
+
+		/* first, skip to where the encoded pdu starts, this is
+		   the first hex digit after the '=' char.
+		*/
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return NULL;
+			}
+			if(*msg=='='){
+				msg++;
+				break;
+			}
+			msg++;
+		}
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return NULL;
+			}
+			if( ((*msg>='0')&&(*msg<='9'))
+			||  ((*msg>='a')&&(*msg<='f'))
+			||  ((*msg>='A')&&(*msg<='F'))){
+				break;
+			}
+			msg++;
+		}
+		i=0;
+		while( ((*msg>='0')&&(*msg<='9'))
+		     ||((*msg>='a')&&(*msg<='f'))
+		     ||((*msg>='A')&&(*msg<='F'))  ){
+			int val;
+			if((*msg>='0')&&(*msg<='9')){
+				val=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val=(*msg)-'A'+10;
+			} else {
+				return NULL;
+			}
+			val<<=4;
+			msg++;
+			if((*msg>='0')&&(*msg<='9')){
+				val|=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val|=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val|=(*msg)-'A'+10;
+			} else {
+				return NULL;
+			}
+			msg++;
+
+			buf[i]=(guint8)val;
+			i++;
+		}
+		if(i==0){
+			return NULL;
+		}
+		bytes_tvb = tvb_new_real_data(buf,i,i);
+		tvb_set_child_real_data_tvbuff(tvb,bytes_tvb);
+		add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
+		return bytes_tvb;
+	}
+	return NULL;
+}
 /*
 14496-2, Annex G, Table G-1.
 Table G-1 FLC table for profile_and_level_indication Profile/Level Code
@@ -1260,11 +1335,11 @@ static const value_string h263_profile_vals[] =
  * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
  */
 static void
-decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, guint8 *mime_type){
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint tokenlen, guint8 *mime_type){
   gint next_offset;
   gint end_offset;
   guint8 *field_name;
-  guint8 *format_specific_parameter;
+  gchar *format_specific_parameter;
   proto_item *item;
 
   end_offset = offset + tokenlen;
@@ -1308,20 +1383,22 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, gui
     }
   }
 
-#if 0
-  /* TODO: Add code to dissect H264 fmtp parameters wehen an example can be found */
+
+  /* Dissect the H264 profile-level-id parameter */
   if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-      char **endptr;
-
-      offset++;
+      tvbuff_t *h264_profile_tvb;
+	
+	  /* Length includes "=" */
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-      proto_tree_add_text(tree, tvb, offset, tokenlen,
-		                    "Test %u", strtoul(format_specific_parameter, endptr, 16));
+	  h264_profile_tvb = ascii_bytes_to_tvb(tvb, tree, pinfo, offset, tokenlen, format_specific_parameter);
+	  if(h264_handle && h264_profile_tvb){
+		  dissect_h264_profile(h264_profile_tvb, pinfo, tree);
+	  }
 	}
   }
-#endif
+
 }
 
 typedef struct {
@@ -1510,7 +1587,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 		  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-		  decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
+		  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                       (guint8 *)transport_info->encoding_name);
 
 		  offset = next_offset + 1;
@@ -1525,7 +1602,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
 	  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-	  decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
+	  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                     (guint8 *)transport_info->encoding_name);
 	  return;
 	  break;
@@ -1948,6 +2025,7 @@ proto_reg_handoff_sdp(void)
   rtcp_handle = find_dissector("rtcp");
   msrp_handle = find_dissector("msrp");
   t38_handle = find_dissector("t38");
+  h264_handle = find_dissector("h264");
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);
