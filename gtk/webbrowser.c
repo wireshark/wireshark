@@ -111,7 +111,13 @@ browser_open_url (const gchar *url)
    * CFStringEncodings enum.
    */
   url_CFString = CFStringCreateWithCString(NULL, url, kCFStringEncodingASCII);
+  if (url_CFString == NULL)
+    return (FALSE);
   url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
+  if (url_CFURL == NULL) {
+    CFRelease(url_CFString);
+    return (FALSE);
+  }
   /*
    * XXX - this is a Launch Services result code, and we should probably
    * display a dialog box if it's not 0, describing what the error was.
