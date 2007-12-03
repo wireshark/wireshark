@@ -879,8 +879,8 @@ io_stat_draw(io_stat_t *io)
 	 * Loop over all graphs and draw them 
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
-		guint32 interval, val;
-		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+		guint64 val;
+		guint32 interval, x_pos, y_pos, prev_x_pos, prev_y_pos;
 
 		if(!io->graphs[i].display){
 			continue;
@@ -892,7 +892,7 @@ io_stat_draw(io_stat_t *io)
 		if(val>max_y){
 			prev_y_pos=0;
 		} else {
-			prev_y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
+			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 		}
 
 		for(interval=first_interval;interval<last_interval;interval+=io->interval){
@@ -902,7 +902,7 @@ io_stat_draw(io_stat_t *io)
 			if(val>max_y){
 				y_pos=0;
 			} else {
-				y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
+				y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 			}
 
 			switch(io->graphs[i].plot_style){
@@ -928,9 +928,9 @@ io_stat_draw(io_stat_t *io)
 				        gdk_draw_rectangle(io->pixmap,
                         			io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
-						draw_height-1-(val*draw_height)/max_y+top_y_border,
+						(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border),
 						io->pixels_per_tick,
-						(val*draw_height)/max_y);
+						(guint32)(val*draw_height)/max_y);
 				}
 				break;
 			case PLOT_STYLE_DOT:
@@ -938,7 +938,7 @@ io_stat_draw(io_stat_t *io)
 				        gdk_draw_rectangle(io->pixmap,
                         			io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
-						draw_height-(val*draw_height)/max_y+top_y_border-io->pixels_per_tick/2,
+						(guint32)(draw_height-(val*draw_height)/max_y+top_y_border-io->pixels_per_tick/2),
 						io->pixels_per_tick,
 						io->pixels_per_tick);
 				}
