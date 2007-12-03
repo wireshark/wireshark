@@ -76,28 +76,48 @@ MTSAbstractService				x411
 #.END
 
 #.TYPE_RENAME
+
+PAR-fetch-restriction-error/problems		FetchRestrictionProblems
+PAR-sequence-number-error/problems		SequenceNumberProblems
+PAR-attribute-error/problems			AttributeProblems
+PAR-auto-action-request-error/problems		AutoActionRequestProblems
+PAR-delete-error/problems			DeleteProblems
+
+PAR-fetch-restriction-error/problems/_item	FetchRestrictionProblemItem
+PAR-sequence-number-error/problems/_item	SequenceNumberProblemItem
+PAR-attribute-error/problems/_item		AttributeProblemItem
+PAR-auto-action-request-error/problems/_item	AutoActionRequestProblemItem
+PAR-delete-error/problems/_item			DeleteProblemItem
+
 Attribute/attribute-values			AttributeValues
 OrderedAttribute/attribute-values 		OrderedAttributeValues
 
 Attribute/attribute-values/_item		AttributeItem
 OrderedAttribute/attribute-values/_item 	OrderedAttributeItem
 
-AttributeErrorParameter/problems		AttributeErrorProblems
-DeleteErrorParameter/problems			DeleteErrorProblems
-FetchRestrictionErrorParameter/problems		FetchRestrictionErrorProblems
-SequenceNumberErrorParameter/problems		SequenceNumberErrorProblems
-
-AttributeErrorParameter/problems/_item		AttributeErrorProblem
-DeleteErrorParameter/problems/_item		DeleteErrorProblem
-FetchRestrictionErrorParameter/problems/_item	FetchRestrictionErrorProblem
-SequenceNumberErrorParameter/problems/_item	SequenceNumberErrorProblem
-
 Summary/present/_item/value			SummaryPresentItemValue
 OrderedAttribute/attribute-values/_item/value	OrderedAttributeValue
-AttributeErrorParameter/problems/_item/value	AttributeErrorProblemValue
-
 
 #.FIELD_RENAME
+
+PAR-sequence-number-error/problems/_item/problem	sequence-number-problem
+PAR-register-ms-error/problem			register-ms-problem
+PAR-delete-error/problems/_item/problem		delete-problem
+PAR-auto-action-request-error/problems/_item/problem	auto-action-request-problem
+PAR-attribute-error/problems/_item/problem	attribute-problem
+
+PAR-sequence-number-error/problems		sequence-number-problems
+PAR-fetch-restriction-error/problems		fetch-restriction-problems
+PAR-attribute-error/problems			attribute-problems
+PAR-auto-action-request-error/problems		auto-action-request-problems
+PAR-delete-error/problems			delete-problems
+
+PAR-fetch-restriction-error/problems/_item	fetch-restriction-problem-item
+PAR-sequence-number-error/problems/_item	sequence-number-problem-item
+PAR-attribute-error/problems/_item		attribute-problem-item
+PAR-auto-action-request-error/problems/_item	auto-action-request-problem-item
+PAR-delete-error/problems/_item			delete-problem-item
+
 OrderedAttribute/attribute-values 		ordered-attribute-values
 OrderedAttribute/attribute-values/_item		ordered-attribute-values-item
 OrderedAttribute/attribute-values/_item/position	ordered-position
@@ -123,123 +143,68 @@ Filter/item 					filter-item
 
 Summary/present					summary-present
 
-AttributeErrorParameter/problems			attribute-error-problems
-AutoActionRequestErrorParameter/problems		auto-action-request-error-problems
-DeleteErrorParameter/problems				delete-error-problems
-SequenceNumberErrorParameter/problems			sequence-number-error-problems
-FetchRestrictionErrorParameter/problems			fetch-restriction-error-problems
-
-DeleteErrorParameter/problems/_item			delete-error-problem-item
-AttributeErrorParameter/problems/_item 			attribute-error-problem-item
-AutoActionRequestErrorParameter/problems/_item 		auto-action-request-error-problem-item
-SequenceNumberErrorParameter/problems/_item 		sequence-number-error-problem-item
-FetchRestrictionErrorParameter/problems/_item 		fetch-restriction-error-problem-item
-
+PAR-fetch-restriction-error/problems/_item/problem	fetch-restriction-problem
+PAR-range-error/problem					range-problem
 EntryClassErrorParameter/problem			entry-class-problem
-FetchRestrictionErrorParameter/problems/_item/problem	fetch-restriction-problem
-RegisterMSErrorParameter/problem			registration-problem
-AttributeErrorParameter/problems/_item/problem		attribute-problem
-SequenceNumberErrorParameter/problems/_item/problem	sequence-number-problem
-RangeErrorParameter/problem				range-problem
-DeleteErrorParameter/problems/_item/problem		delete-problem
 MessageGroupErrorParameter/problem			message-group-problem
 ServiceErrorParameter/problem				service-problem
 ModifyErrorParameter/problem				modify-problem
-AutoActionRequestErrorParameter/problems/_item/problem	auto-action-request-problem
-
-AutoActionRequestErrorParameter/problems/_item/type 	auto-action-type
-
-AttributeErrorParameter/problems/_item/value 		problem-value
 
 OrderedAttribute/attribute-values/_item/value 		ordered-attribute-value
 
-FetchRestrictionErrorParameter/problems/_item/restriction/content-type	extended-content-type
-
-#.PDU
-MSBindArgument
-MSBindResult
-MSBindError
-MSMessageSubmissionArgument
-MSMessageSubmissionResult
-MSProbeSubmissionArgument
-MSProbeSubmissionResult
-SummarizeArgument
-SummarizeResult
-ListArgument
-ListResult
-FetchArgument
-FetchResult
-DeleteArgument
-DeleteResult
-Register-MSArgument
-Register-MSResult
-ModifyArgument
-ModifyResult
-AlertArgument
-AlertResult
-AttributeErrorParameter
-AutoActionRequestErrorParameter
-DeleteErrorParameter
-EntryClassErrorParameter
-FetchRestrictionErrorParameter
-MessageGroupErrorParameter
-ModifyErrorParameter
-MSExtensionErrorParameter
-RangeErrorParameter
-RegisterMSErrorParameter
-SequenceNumberErrorParameter
-ServiceErrorParameter
+PAR-fetch-restriction-error/problems/_item/restriction/content-type	extended-content-type
+PAR-auto-action-request-error/problems/_item/type	auto-action-type
+PAR-attribute-error/problems/_item/value		attr-value
 
 # This table creates the value_sting to name P7 operation codes and errors
 # in file packet-p7-table.c which is included in the template file
 #
-#TABLE_HDR
-#/* P7 ABSTRACT-OPERATIONS */
-#const value_string p7_opr_code_strings[] = {
-#TABLE_BODY ABSTRACT-OPERATION
-#	{ %(&operationCode)s, "%(_ident)s" },
-#TABLE_FTR
-#  { 0, NULL }
-#;
-#END
+#.TABLE_HDR
+/* P7 ABSTRACT-OPERATIONS */
+const value_string p7_opr_code_string_vals[] = {
+#.TABLE_BODY OPERATION
+	{ %(&operationCode)s, "%(_ident)s" },
+#.TABLE_FTR
+	{ 0, NULL }
+};
+#.END
 
-#TABLE_HDR
-#/* P7 ERRORS */
-#static const value_string p7_err_code_string_vals[] = {
-#TABLE_BODY ABSTRACT-ERROR
-#	{ %(&errorCode)s, "%(_ident)s" },  
-#TABLE_FTR
-#  { 0, NULL }
-#};
-#END
+#.TABLE_HDR
+/* P7 ERRORS */
+static const value_string p7_err_code_string_vals[] = {
+#.TABLE_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
+#.TABLE_FTR
+	  { 0, NULL }
+};
+#.END
 
 # Create a table of opcode and corresponding args and res
-#TABLE11_HDR
-#typedef struct _ros_op_t {
-#  gint32 opcode;
-#  new_dissector_t arg_pdu;
-#  new_dissector_t res_pdu;
-#} ros_op_t;
+#.TABLE11_HDR
+static const ros_opr_t p7_opr_tab[] = {
+#.TABLE11_BODY OPERATION
+  /* %(_name)s */ 
+  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s }, 
+#.TABLE11_FTR
+  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+};
+#.END
 
-#static const ros_op_t p7_op_tab[] = {
-#TABLE11_BODY ABSTRACT-OPERATION
-#  /* %(_name)-31s */ { %(&operationCode)-40s, %(_argument_pdu)-45s, %(_result_pdu)s },
-#TABLE11_FTR
-#};
-#END
-#TABLE21_HDR
-#typedef struct _ros_err_t {
-#  gint32 errcode;
-#  new_dissector_t err_pdu;
-#} ros_err_t;
+#.TABLE21_HDR
+static const ros_err_t p7_err_tab[] = {
+#.TABLE21_BODY ERROR
+  /* %(_name)s*/ 
+  { %(&errorCode)s,	%(_parameter_pdu)s },
+#.TABLE21_FTR
+  { 0,	(new_dissector_t)(-1) },
+};
+#.END
 
-#static const ros_err_t p7_err_tab[] = {
-#TABLE21_BODY ABSTRACT-ERROR
-#  /* %(_name)-24s */ { %(&errorCode)4s, %(_parameter_pdu)s },
-#TABLE21_FTR
-#};
-#END
-
+#.PDU_NEW
+ERROR.&ParameterType
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+#.END
 
 #.REGISTER
 # MSGeneralAttributeTypes
@@ -384,7 +349,7 @@ StorageTime		B	"2.6.4.3.74"	"id-att-storage-time"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
-#.FN_BODY	AttributeErrorParameter/problems/_item/value
+#.FN_BODY	PAR-attribute-error/problems/_item/value
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 

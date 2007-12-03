@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p7.c                                                                */
-/* ../../tools/asn2wrs.py -b -e -X -T -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -X -T -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
 
 /* Input file: packet-p7-template.c */
 
@@ -81,9 +81,9 @@ static int hf_p7_SequenceNumber_PDU = -1;         /* SequenceNumber */
 static int hf_p7_RetrievalStatus_PDU = -1;        /* RetrievalStatus */
 static int hf_p7_MessageGroupName_PDU = -1;       /* MessageGroupName */
 static int hf_p7_MSBindArgument_PDU = -1;         /* MSBindArgument */
-static int hf_p7_MS_EIT_PDU = -1;                 /* MS_EIT */
 static int hf_p7_MSBindResult_PDU = -1;           /* MSBindResult */
-static int hf_p7_MSBindError_PDU = -1;            /* MSBindError */
+static int hf_p7_MS_EIT_PDU = -1;                 /* MS_EIT */
+static int hf_p7_PAR_ms_bind_error_PDU = -1;      /* PAR_ms_bind_error */
 static int hf_p7_CreationTime_PDU = -1;           /* CreationTime */
 static int hf_p7_SummarizeArgument_PDU = -1;      /* SummarizeArgument */
 static int hf_p7_SummarizeResult_PDU = -1;        /* SummarizeResult */
@@ -103,16 +103,17 @@ static int hf_p7_MSMessageSubmissionArgument_PDU = -1;  /* MSMessageSubmissionAr
 static int hf_p7_MSMessageSubmissionResult_PDU = -1;  /* MSMessageSubmissionResult */
 static int hf_p7_MSProbeSubmissionArgument_PDU = -1;  /* MSProbeSubmissionArgument */
 static int hf_p7_MSProbeSubmissionResult_PDU = -1;  /* MSProbeSubmissionResult */
-static int hf_p7_AttributeErrorParameter_PDU = -1;  /* AttributeErrorParameter */
-static int hf_p7_AutoActionRequestErrorParameter_PDU = -1;  /* AutoActionRequestErrorParameter */
-static int hf_p7_DeleteErrorParameter_PDU = -1;   /* DeleteErrorParameter */
-static int hf_p7_FetchRestrictionErrorParameter_PDU = -1;  /* FetchRestrictionErrorParameter */
-static int hf_p7_RangeErrorParameter_PDU = -1;    /* RangeErrorParameter */
-static int hf_p7_SequenceNumberErrorParameter_PDU = -1;  /* SequenceNumberErrorParameter */
+static int hf_p7_PAR_attribute_error_PDU = -1;    /* PAR_attribute_error */
+static int hf_p7_PAR_auto_action_request_error_PDU = -1;  /* PAR_auto_action_request_error */
+static int hf_p7_PAR_delete_error_PDU = -1;       /* PAR_delete_error */
+static int hf_p7_PAR_fetch_restriction_error_PDU = -1;  /* PAR_fetch_restriction_error */
+static int hf_p7_PAR_invalid_parameters_error_PDU = -1;  /* PAR_invalid_parameters_error */
+static int hf_p7_PAR_range_error_PDU = -1;        /* PAR_range_error */
+static int hf_p7_PAR_sequence_number_error_PDU = -1;  /* PAR_sequence_number_error */
 static int hf_p7_ServiceErrorParameter_PDU = -1;  /* ServiceErrorParameter */
 static int hf_p7_MessageGroupErrorParameter_PDU = -1;  /* MessageGroupErrorParameter */
 static int hf_p7_MSExtensionErrorParameter_PDU = -1;  /* MSExtensionErrorParameter */
-static int hf_p7_RegisterMSErrorParameter_PDU = -1;  /* RegisterMSErrorParameter */
+static int hf_p7_PAR_register_ms_error_PDU = -1;  /* PAR_register_ms_error */
 static int hf_p7_ModifyErrorParameter_PDU = -1;   /* ModifyErrorParameter */
 static int hf_p7_EntryClassErrorParameter_PDU = -1;  /* EntryClassErrorParameter */
 static int hf_p7_ReportLocation_PDU = -1;         /* ReportLocation */
@@ -355,35 +356,35 @@ static int hf_p7_per_recipient_fields_item = -1;  /* PerRecipientProbeSubmission
 static int hf_p7_probe_submission_identifier = -1;  /* ProbeSubmissionIdentifier */
 static int hf_p7_probe_submission_time = -1;      /* ProbeSubmissionTime */
 static int hf_p7_ms_probe_result = -1;            /* CommonSubmissionResults */
-static int hf_p7_attribute_error_problems = -1;   /* AttributeErrorProblems */
-static int hf_p7_attribute_error_problem_item = -1;  /* AttributeErrorProblem */
+static int hf_p7_attribute_problems = -1;         /* AttributeProblems */
+static int hf_p7_attribute_problem_item = -1;     /* AttributeProblemItem */
 static int hf_p7_attribute_problem = -1;          /* AttributeProblem */
-static int hf_p7_problem_value = -1;              /* AttributeErrorProblemValue */
-static int hf_p7_auto_action_request_error_problems = -1;  /* T_auto_action_request_error_problems */
-static int hf_p7_auto_action_request_error_problem_item = -1;  /* T_auto_action_request_error_problems_item */
+static int hf_p7_attr_value = -1;                 /* T_attr_value */
+static int hf_p7_auto_action_request_problems = -1;  /* AutoActionRequestProblems */
+static int hf_p7_auto_action_request_problem_item = -1;  /* AutoActionRequestProblemItem */
 static int hf_p7_auto_action_request_problem = -1;  /* AutoActionRequestProblem */
-static int hf_p7_delete_error_problems = -1;      /* DeleteErrorProblems */
-static int hf_p7_delete_error_problem_item = -1;  /* DeleteErrorProblem */
+static int hf_p7_delete_problems = -1;            /* DeleteProblems */
+static int hf_p7_delete_problem_item = -1;        /* DeleteProblemItem */
 static int hf_p7_delete_problem = -1;             /* DeleteProblem */
 static int hf_p7_entries_deleted = -1;            /* SET_SIZE_1_ub_messages_OF_SequenceNumber */
 static int hf_p7_entries_deleted_item = -1;       /* SequenceNumber */
-static int hf_p7_fetch_restriction_error_problems = -1;  /* FetchRestrictionErrorProblems */
-static int hf_p7_fetch_restriction_error_problem_item = -1;  /* FetchRestrictionErrorProblem */
+static int hf_p7_fetch_restriction_problems = -1;  /* FetchRestrictionProblems */
+static int hf_p7_fetch_restriction_problem_item = -1;  /* FetchRestrictionProblemItem */
 static int hf_p7_fetch_restriction_problem = -1;  /* FetchRestrictionProblem */
 static int hf_p7_restriction = -1;                /* T_restriction */
 static int hf_p7_extended_content_type = -1;      /* OBJECT_IDENTIFIER */
 static int hf_p7_eit = -1;                        /* MS_EITs */
 static int hf_p7_attribute_length = -1;           /* INTEGER */
 static int hf_p7_range_problem = -1;              /* RangeProblem */
-static int hf_p7_sequence_number_error_problems = -1;  /* SequenceNumberErrorProblems */
-static int hf_p7_sequence_number_error_problem_item = -1;  /* SequenceNumberErrorProblem */
+static int hf_p7_sequence_number_problems = -1;   /* SequenceNumberProblems */
+static int hf_p7_sequence_number_problem_item = -1;  /* SequenceNumberProblemItem */
 static int hf_p7_sequence_number_problem = -1;    /* SequenceNumberProblem */
 static int hf_p7_service_problem = -1;            /* ServiceProblem */
 static int hf_p7_message_group_problem = -1;      /* MessageGroupProblem */
 static int hf_p7_name = -1;                       /* MessageGroupName */
 static int hf_p7_ms_extension_problem = -1;       /* MSExtensionItem */
 static int hf_p7_unknown_ms_extension = -1;       /* OBJECT_IDENTIFIER */
-static int hf_p7_registration_problem = -1;       /* RegistrationProblem */
+static int hf_p7_register_ms_problem = -1;        /* RegistrationProblem */
 static int hf_p7_registration_type = -1;          /* RegistrationTypes */
 static int hf_p7_failing_entry = -1;              /* SequenceNumber */
 static int hf_p7_modification_number = -1;        /* INTEGER */
@@ -462,7 +463,7 @@ static gint ett_p7_T_matching_rules_supported = -1;
 static gint ett_p7_T_unsupported_extensions = -1;
 static gint ett_p7_ChangeCredentialsAlgorithms = -1;
 static gint ett_p7_AutoActionErrorIndication = -1;
-static gint ett_p7_MSBindError = -1;
+static gint ett_p7_PAR_ms_bind_error = -1;
 static gint ett_p7_T_qualified_error = -1;
 static gint ett_p7_T_bind_extension_errors = -1;
 static gint ett_p7_Range = -1;
@@ -545,27 +546,27 @@ static gint ett_p7_SET_OF_ExtensionField = -1;
 static gint ett_p7_MSProbeSubmissionArgument = -1;
 static gint ett_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields = -1;
 static gint ett_p7_MSProbeSubmissionResult = -1;
-static gint ett_p7_AttributeErrorParameter = -1;
-static gint ett_p7_AttributeErrorProblems = -1;
-static gint ett_p7_AttributeErrorProblem = -1;
-static gint ett_p7_AutoActionRequestErrorParameter = -1;
-static gint ett_p7_T_auto_action_request_error_problems = -1;
-static gint ett_p7_T_auto_action_request_error_problems_item = -1;
-static gint ett_p7_DeleteErrorParameter = -1;
-static gint ett_p7_DeleteErrorProblems = -1;
-static gint ett_p7_DeleteErrorProblem = -1;
-static gint ett_p7_FetchRestrictionErrorParameter = -1;
-static gint ett_p7_FetchRestrictionErrorProblems = -1;
-static gint ett_p7_FetchRestrictionErrorProblem = -1;
+static gint ett_p7_PAR_attribute_error = -1;
+static gint ett_p7_AttributeProblems = -1;
+static gint ett_p7_AttributeProblemItem = -1;
+static gint ett_p7_PAR_auto_action_request_error = -1;
+static gint ett_p7_AutoActionRequestProblems = -1;
+static gint ett_p7_AutoActionRequestProblemItem = -1;
+static gint ett_p7_PAR_delete_error = -1;
+static gint ett_p7_DeleteProblems = -1;
+static gint ett_p7_DeleteProblemItem = -1;
+static gint ett_p7_PAR_fetch_restriction_error = -1;
+static gint ett_p7_FetchRestrictionProblems = -1;
+static gint ett_p7_FetchRestrictionProblemItem = -1;
 static gint ett_p7_T_restriction = -1;
-static gint ett_p7_RangeErrorParameter = -1;
-static gint ett_p7_SequenceNumberErrorParameter = -1;
-static gint ett_p7_SequenceNumberErrorProblems = -1;
-static gint ett_p7_SequenceNumberErrorProblem = -1;
+static gint ett_p7_PAR_range_error = -1;
+static gint ett_p7_PAR_sequence_number_error = -1;
+static gint ett_p7_SequenceNumberProblems = -1;
+static gint ett_p7_SequenceNumberProblemItem = -1;
 static gint ett_p7_ServiceErrorParameter = -1;
 static gint ett_p7_MessageGroupErrorParameter = -1;
 static gint ett_p7_MSExtensionErrorParameter = -1;
-static gint ett_p7_RegisterMSErrorParameter = -1;
+static gint ett_p7_PAR_register_ms_error = -1;
 static gint ett_p7_ModifyErrorParameter = -1;
 static gint ett_p7_EntryClassErrorParameter = -1;
 static gint ett_p7_T_entry_class_problem = -1;
@@ -613,6 +614,49 @@ static gint ett_p7_RTABapdu = -1;
 #line 73 "packet-p7-template.c"
 
 
+/*--- Included file: packet-p7-table.c ---*/
+#line 1 "packet-p7-table.c"
+
+/* P7 ABSTRACT-OPERATIONS */
+const value_string p7_opr_code_string_vals[] = {
+	{ op_ros_bind, "ms_bind" },
+	{ op_summarize, "summarize" },
+	{ op_list, "list" },
+	{ op_fetch, "fetch" },
+	{ op_delete, "delete" },
+	{ op_register_ms, "register_MS" },
+	{ op_alert, "alert" },
+	{ op_modify, "modify" },
+	{ op_ms_message_submission, "ms_message_submission" },
+	{ op_ms_probe_submission, "ms_probe_submission" },
+	{ 0, NULL }
+};
+
+
+/* P7 ERRORS */
+static const value_string p7_err_code_string_vals[] = {
+	{ err_ros_bind, "ms_bind_error" },  
+	{ err_attribute_error, "attribute_error" },  
+	{ err_auto_action_request_error, "auto_action_request_error" },  
+	{ err_delete_error, "delete_error" },  
+	{ err_fetch_restriction_error, "fetch_restriction_error" },  
+	{ err_invalid_parameters_error, "invalid_parameters_error" },  
+	{ err_range_error, "range_error" },  
+	{ err_sequence_number_error, "sequence_number_error" },  
+	{ err_service_error, "service_error" },  
+	{ err_message_group_error, "message_group_error" },  
+	{ err_ms_extension_error, "ms_extension_error" },  
+	{ err_register_ms_error, "register_ms_error" },  
+	{ err_modify_error, "modify_error" },  
+	{ err_entry_class_error, "entry_class_error" },  
+	  { 0, NULL }
+};
+
+
+/*--- End of included file: packet-p7-table.c ---*/
+#line 75 "packet-p7-template.c"
+
+
 /*--- Included file: packet-p7-fn.c ---*/
 #line 1 "packet-p7-fn.c"
 /*--- Cyclic dependencies ---*/
@@ -635,10 +679,8 @@ dissect_p7_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_p7_AttributeItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 332 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -695,10 +737,8 @@ dissect_p7_INTEGER_1_ub_per_auto_action(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_p7_T_registration_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 366 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
 
@@ -725,10 +765,8 @@ dissect_p7_AutoActionRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_p7_T_error_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 371 "p7.cnf"
 	/* XXX: Is this really the best way to do this? */
 	offset = dissect_ros_Code(implicit_tag, tvb, offset, actx, tree, hf_index);
-
 
 
   return offset;
@@ -738,10 +776,8 @@ dissect_p7_T_error_code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p7_T_error_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 384 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -882,7 +918,6 @@ dissect_p7_MessageGroupName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_p7_T_initiator_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 393 "p7.cnf"
 	char *ora = NULL;
 	
 	  offset = dissect_x411_ORAddressAndOrDirectoryName(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -892,7 +927,6 @@ dissect_p7_T_initiator_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (initiator=%s)", ora);
 	}
 	
-
 
   return offset;
 }
@@ -1236,22 +1270,22 @@ dissect_p7_T_qualified_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const value_string p7_MSBindError_vals[] = {
+static const value_string p7_PAR_ms_bind_error_vals[] = {
   {   0, "unqualified-error" },
   {   1, "qualified-error" },
   { 0, NULL }
 };
 
-static const ber_choice_t MSBindError_choice[] = {
+static const ber_choice_t PAR_ms_bind_error_choice[] = {
   {   0, &hf_p7_unqualified_error, BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_p7_BindProblem },
   {   1, &hf_p7_qualified_error  , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_T_qualified_error },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_MSBindError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_ms_bind_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 MSBindError_choice, hf_index, ett_p7_MSBindError,
+                                 PAR_ms_bind_error_choice, hf_index, ett_p7_PAR_ms_bind_error,
                                  NULL);
 
   return offset;
@@ -1263,11 +1297,9 @@ static int
 dissect_p7_T_from_number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-#line 413 "p7.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " from %d", seqno);
 	}
-
 
   return offset;
 }
@@ -1278,12 +1310,10 @@ static int
 dissect_p7_T_to_number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_p7_SequenceNumber(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-#line 418 "p7.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " to %d", seqno);
 	}
 	
-
   return offset;
 }
 
@@ -1296,7 +1326,6 @@ static const ber_sequence_t NumberRange_sequence[] = {
 
 static int
 dissect_p7_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 404 "p7.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (range=");
 	}
@@ -1306,7 +1335,6 @@ dissect_p7_NumberRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, ")");
 	}
-
 
 
   return offset;
@@ -1364,10 +1392,8 @@ dissect_p7_Range(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_p7_T_attribute_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 336 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -1392,10 +1418,8 @@ dissect_p7_AttributeValueAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 340 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -1405,10 +1429,8 @@ dissect_p7_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 344 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -1418,10 +1440,8 @@ dissect_p7_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_p7_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 348 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -1483,10 +1503,8 @@ dissect_p7_T_substrings(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_p7_T_match_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 352 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -1819,7 +1837,6 @@ dissect_p7_SummarizeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p7_T_count(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 425 "p7.cnf"
 	int count = 0;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1829,7 +1846,6 @@ dissect_p7_T_count(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (count=%d)", count);
 	}
-
 
 
   return offset;
@@ -1854,10 +1870,8 @@ dissect_p7_Span(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 static int
 dissect_p7_SummaryPresentItemValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 356 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -2341,10 +2355,8 @@ dissect_p7_T_registrations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_p7_T_extended_registrations_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 375 "p7.cnf"
 	/* XXX: Is this really the best way to do this? */
 	offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
-
 
 
   return offset;
@@ -2574,10 +2586,8 @@ dissect_p7_T_entries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_p7_OrderedAttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 360 "p7.cnf"
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
-
 
 
   return offset;
@@ -2858,56 +2868,54 @@ dissect_p7_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_p7_AttributeErrorProblemValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 388 "p7.cnf"
+dissect_p7_T_attr_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id) 
    	   call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
 
-
   return offset;
 }
 
 
-static const ber_sequence_t AttributeErrorProblem_set[] = {
+static const ber_sequence_t AttributeProblemItem_set[] = {
   { &hf_p7_attribute_problem, BER_CLASS_CON, 0, 0, dissect_p7_AttributeProblem },
   { &hf_p7_type             , BER_CLASS_CON, 1, 0, dissect_p7_AttributeType },
-  { &hf_p7_problem_value    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_p7_AttributeErrorProblemValue },
+  { &hf_p7_attr_value       , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_p7_T_attr_value },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_AttributeErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_AttributeProblemItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              AttributeErrorProblem_set, hf_index, ett_p7_AttributeErrorProblem);
+                              AttributeProblemItem_set, hf_index, ett_p7_AttributeProblemItem);
 
   return offset;
 }
 
 
-static const ber_sequence_t AttributeErrorProblems_set_of[1] = {
-  { &hf_p7_attribute_error_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeErrorProblem },
+static const ber_sequence_t AttributeProblems_set_of[1] = {
+  { &hf_p7_attribute_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AttributeProblemItem },
 };
 
 static int
-dissect_p7_AttributeErrorProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_AttributeProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 AttributeErrorProblems_set_of, hf_index, ett_p7_AttributeErrorProblems);
+                                 AttributeProblems_set_of, hf_index, ett_p7_AttributeProblems);
 
   return offset;
 }
 
 
-static const ber_sequence_t AttributeErrorParameter_set[] = {
-  { &hf_p7_attribute_error_problems, BER_CLASS_CON, 0, 0, dissect_p7_AttributeErrorProblems },
+static const ber_sequence_t PAR_attribute_error_set[] = {
+  { &hf_p7_attribute_problems, BER_CLASS_CON, 0, 0, dissect_p7_AttributeProblems },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_AttributeErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_attribute_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              AttributeErrorParameter_set, hf_index, ett_p7_AttributeErrorParameter);
+                              PAR_attribute_error_set, hf_index, ett_p7_PAR_attribute_error);
 
   return offset;
 }
@@ -2930,43 +2938,43 @@ dissect_p7_AutoActionRequestProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t T_auto_action_request_error_problems_item_set[] = {
+static const ber_sequence_t AutoActionRequestProblemItem_set[] = {
   { &hf_p7_auto_action_request_problem, BER_CLASS_CON, 0, 0, dissect_p7_AutoActionRequestProblem },
   { &hf_p7_auto_action_type , BER_CLASS_CON, 1, 0, dissect_p7_AutoActionType },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_T_auto_action_request_error_problems_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_AutoActionRequestProblemItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              T_auto_action_request_error_problems_item_set, hf_index, ett_p7_T_auto_action_request_error_problems_item);
+                              AutoActionRequestProblemItem_set, hf_index, ett_p7_AutoActionRequestProblemItem);
 
   return offset;
 }
 
 
-static const ber_sequence_t T_auto_action_request_error_problems_set_of[1] = {
-  { &hf_p7_auto_action_request_error_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_T_auto_action_request_error_problems_item },
+static const ber_sequence_t AutoActionRequestProblems_set_of[1] = {
+  { &hf_p7_auto_action_request_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_AutoActionRequestProblemItem },
 };
 
 static int
-dissect_p7_T_auto_action_request_error_problems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_AutoActionRequestProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 T_auto_action_request_error_problems_set_of, hf_index, ett_p7_T_auto_action_request_error_problems);
+                                 AutoActionRequestProblems_set_of, hf_index, ett_p7_AutoActionRequestProblems);
 
   return offset;
 }
 
 
-static const ber_sequence_t AutoActionRequestErrorParameter_set[] = {
-  { &hf_p7_auto_action_request_error_problems, BER_CLASS_CON, 0, 0, dissect_p7_T_auto_action_request_error_problems },
+static const ber_sequence_t PAR_auto_action_request_error_set[] = {
+  { &hf_p7_auto_action_request_problems, BER_CLASS_CON, 0, 0, dissect_p7_AutoActionRequestProblems },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_AutoActionRequestErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_auto_action_request_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              AutoActionRequestErrorParameter_set, hf_index, ett_p7_AutoActionRequestErrorParameter);
+                              PAR_auto_action_request_error_set, hf_index, ett_p7_PAR_auto_action_request_error);
 
   return offset;
 }
@@ -2991,44 +2999,44 @@ dissect_p7_DeleteProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t DeleteErrorProblem_set[] = {
+static const ber_sequence_t DeleteProblemItem_set[] = {
   { &hf_p7_delete_problem   , BER_CLASS_CON, 0, 0, dissect_p7_DeleteProblem },
   { &hf_p7_sequence_number  , BER_CLASS_CON, 1, 0, dissect_p7_SequenceNumber },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_DeleteErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_DeleteProblemItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              DeleteErrorProblem_set, hf_index, ett_p7_DeleteErrorProblem);
+                              DeleteProblemItem_set, hf_index, ett_p7_DeleteProblemItem);
 
   return offset;
 }
 
 
-static const ber_sequence_t DeleteErrorProblems_set_of[1] = {
-  { &hf_p7_delete_error_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_DeleteErrorProblem },
+static const ber_sequence_t DeleteProblems_set_of[1] = {
+  { &hf_p7_delete_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_DeleteProblemItem },
 };
 
 static int
-dissect_p7_DeleteErrorProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_DeleteProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 DeleteErrorProblems_set_of, hf_index, ett_p7_DeleteErrorProblems);
+                                 DeleteProblems_set_of, hf_index, ett_p7_DeleteProblems);
 
   return offset;
 }
 
 
-static const ber_sequence_t DeleteErrorParameter_set[] = {
-  { &hf_p7_delete_error_problems, BER_CLASS_CON, 0, 0, dissect_p7_DeleteErrorProblems },
+static const ber_sequence_t PAR_delete_error_set[] = {
+  { &hf_p7_delete_problems  , BER_CLASS_CON, 0, 0, dissect_p7_DeleteProblems },
   { &hf_p7_entries_deleted  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_p7_SET_SIZE_1_ub_messages_OF_SequenceNumber },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_DeleteErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_delete_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              DeleteErrorParameter_set, hf_index, ett_p7_DeleteErrorParameter);
+                              PAR_delete_error_set, hf_index, ett_p7_PAR_delete_error);
 
   return offset;
 }
@@ -3075,43 +3083,52 @@ dissect_p7_T_restriction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const ber_sequence_t FetchRestrictionErrorProblem_set[] = {
+static const ber_sequence_t FetchRestrictionProblemItem_set[] = {
   { &hf_p7_fetch_restriction_problem, BER_CLASS_CON, 3, 0, dissect_p7_FetchRestrictionProblem },
   { &hf_p7_restriction      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_p7_T_restriction },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_FetchRestrictionErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_FetchRestrictionProblemItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              FetchRestrictionErrorProblem_set, hf_index, ett_p7_FetchRestrictionErrorProblem);
+                              FetchRestrictionProblemItem_set, hf_index, ett_p7_FetchRestrictionProblemItem);
 
   return offset;
 }
 
 
-static const ber_sequence_t FetchRestrictionErrorProblems_set_of[1] = {
-  { &hf_p7_fetch_restriction_error_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_FetchRestrictionErrorProblem },
+static const ber_sequence_t FetchRestrictionProblems_set_of[1] = {
+  { &hf_p7_fetch_restriction_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_FetchRestrictionProblemItem },
 };
 
 static int
-dissect_p7_FetchRestrictionErrorProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_FetchRestrictionProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 FetchRestrictionErrorProblems_set_of, hf_index, ett_p7_FetchRestrictionErrorProblems);
+                                 FetchRestrictionProblems_set_of, hf_index, ett_p7_FetchRestrictionProblems);
 
   return offset;
 }
 
 
-static const ber_sequence_t FetchRestrictionErrorParameter_set[] = {
-  { &hf_p7_fetch_restriction_error_problems, BER_CLASS_CON, 0, 0, dissect_p7_FetchRestrictionErrorProblems },
+static const ber_sequence_t PAR_fetch_restriction_error_set[] = {
+  { &hf_p7_fetch_restriction_problems, BER_CLASS_CON, 0, 0, dissect_p7_FetchRestrictionProblems },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_FetchRestrictionErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_fetch_restriction_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              FetchRestrictionErrorParameter_set, hf_index, ett_p7_FetchRestrictionErrorParameter);
+                              PAR_fetch_restriction_error_set, hf_index, ett_p7_PAR_fetch_restriction_error);
+
+  return offset;
+}
+
+
+
+static int
+dissect_p7_PAR_invalid_parameters_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -3132,15 +3149,15 @@ dissect_p7_RangeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t RangeErrorParameter_set[] = {
+static const ber_sequence_t PAR_range_error_set[] = {
   { &hf_p7_range_problem    , BER_CLASS_CON, 0, 0, dissect_p7_RangeProblem },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_RangeErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_range_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RangeErrorParameter_set, hf_index, ett_p7_RangeErrorParameter);
+                              PAR_range_error_set, hf_index, ett_p7_PAR_range_error);
 
   return offset;
 }
@@ -3161,43 +3178,43 @@ dissect_p7_SequenceNumberProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 }
 
 
-static const ber_sequence_t SequenceNumberErrorProblem_set[] = {
+static const ber_sequence_t SequenceNumberProblemItem_set[] = {
   { &hf_p7_sequence_number_problem, BER_CLASS_CON, 0, 0, dissect_p7_SequenceNumberProblem },
   { &hf_p7_sequence_number  , BER_CLASS_CON, 1, 0, dissect_p7_SequenceNumber },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_SequenceNumberErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_SequenceNumberProblemItem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              SequenceNumberErrorProblem_set, hf_index, ett_p7_SequenceNumberErrorProblem);
+                              SequenceNumberProblemItem_set, hf_index, ett_p7_SequenceNumberProblemItem);
 
   return offset;
 }
 
 
-static const ber_sequence_t SequenceNumberErrorProblems_set_of[1] = {
-  { &hf_p7_sequence_number_error_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumberErrorProblem },
+static const ber_sequence_t SequenceNumberProblems_set_of[1] = {
+  { &hf_p7_sequence_number_problem_item, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumberProblemItem },
 };
 
 static int
-dissect_p7_SequenceNumberErrorProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_SequenceNumberProblems(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SequenceNumberErrorProblems_set_of, hf_index, ett_p7_SequenceNumberErrorProblems);
+                                 SequenceNumberProblems_set_of, hf_index, ett_p7_SequenceNumberProblems);
 
   return offset;
 }
 
 
-static const ber_sequence_t SequenceNumberErrorParameter_set[] = {
-  { &hf_p7_sequence_number_error_problems, BER_CLASS_CON, 1, 0, dissect_p7_SequenceNumberErrorProblems },
+static const ber_sequence_t PAR_sequence_number_error_set[] = {
+  { &hf_p7_sequence_number_problems, BER_CLASS_CON, 1, 0, dissect_p7_SequenceNumberProblems },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_SequenceNumberErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_sequence_number_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              SequenceNumberErrorParameter_set, hf_index, ett_p7_SequenceNumberErrorParameter);
+                              PAR_sequence_number_error_set, hf_index, ett_p7_PAR_sequence_number_error);
 
   return offset;
 }
@@ -3310,16 +3327,16 @@ dissect_p7_RegistrationProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const ber_sequence_t RegisterMSErrorParameter_set[] = {
-  { &hf_p7_registration_problem, BER_CLASS_CON, 0, 0, dissect_p7_RegistrationProblem },
+static const ber_sequence_t PAR_register_ms_error_set[] = {
+  { &hf_p7_register_ms_problem, BER_CLASS_CON, 0, 0, dissect_p7_RegistrationProblem },
   { &hf_p7_registration_type, BER_CLASS_CON, 1, 0, dissect_p7_RegistrationTypes },
   { NULL, 0, 0, 0, NULL }
 };
 
 static int
-dissect_p7_RegisterMSErrorParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_p7_PAR_register_ms_error(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              RegisterMSErrorParameter_set, hf_index, ett_p7_RegisterMSErrorParameter);
+                              PAR_register_ms_error_set, hf_index, ett_p7_PAR_register_ms_error);
 
   return offset;
 }
@@ -3647,9 +3664,7 @@ dissect_p7_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p7_T_userdataAB(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 379 "p7.cnf"
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
-
 
 
   return offset;
@@ -3733,180 +3748,253 @@ static void dissect_MessageGroupName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_MessageGroupName(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MessageGroupName_PDU);
 }
-static void dissect_MSBindArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSBindArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSBindArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSBindArgument_PDU);
+  offset = dissect_p7_MSBindArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSBindArgument_PDU);
+  return offset;
+}
+static int dissect_MSBindResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_p7_MSBindResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSBindResult_PDU);
+  return offset;
 }
 static void dissect_MS_EIT_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_MS_EIT(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MS_EIT_PDU);
 }
-static void dissect_MSBindResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_ms_bind_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSBindResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSBindResult_PDU);
-}
-static void dissect_MSBindError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSBindError(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSBindError_PDU);
+  offset = dissect_p7_PAR_ms_bind_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_ms_bind_error_PDU);
+  return offset;
 }
 static void dissect_CreationTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_p7_CreationTime(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_CreationTime_PDU);
 }
-static void dissect_SummarizeArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SummarizeArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_SummarizeArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_SummarizeArgument_PDU);
+  offset = dissect_p7_SummarizeArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_SummarizeArgument_PDU);
+  return offset;
 }
-static void dissect_SummarizeResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_SummarizeResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_SummarizeResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_SummarizeResult_PDU);
+  offset = dissect_p7_SummarizeResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_SummarizeResult_PDU);
+  return offset;
 }
-static void dissect_ListArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ListArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ListArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ListArgument_PDU);
+  offset = dissect_p7_ListArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ListArgument_PDU);
+  return offset;
 }
-static void dissect_ListResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ListResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ListResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ListResult_PDU);
+  offset = dissect_p7_ListResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ListResult_PDU);
+  return offset;
 }
-static void dissect_FetchArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FetchArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_FetchArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_FetchArgument_PDU);
+  offset = dissect_p7_FetchArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_FetchArgument_PDU);
+  return offset;
 }
-static void dissect_FetchResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_FetchResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_FetchResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_FetchResult_PDU);
+  offset = dissect_p7_FetchResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_FetchResult_PDU);
+  return offset;
 }
-static void dissect_DeleteArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DeleteArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_DeleteArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_DeleteArgument_PDU);
+  offset = dissect_p7_DeleteArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_DeleteArgument_PDU);
+  return offset;
 }
-static void dissect_DeleteResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_DeleteResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_DeleteResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_DeleteResult_PDU);
+  offset = dissect_p7_DeleteResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_DeleteResult_PDU);
+  return offset;
 }
-static void dissect_Register_MSArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Register_MSArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_Register_MSArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_Register_MSArgument_PDU);
+  offset = dissect_p7_Register_MSArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_Register_MSArgument_PDU);
+  return offset;
 }
-static void dissect_Register_MSResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_Register_MSResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_Register_MSResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_Register_MSResult_PDU);
+  offset = dissect_p7_Register_MSResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_Register_MSResult_PDU);
+  return offset;
 }
-static void dissect_AlertArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AlertArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_AlertArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_AlertArgument_PDU);
+  offset = dissect_p7_AlertArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_AlertArgument_PDU);
+  return offset;
 }
-static void dissect_AlertResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_AlertResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_AlertResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_AlertResult_PDU);
+  offset = dissect_p7_AlertResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_AlertResult_PDU);
+  return offset;
 }
-static void dissect_ModifyArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ModifyArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ModifyArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ModifyArgument_PDU);
+  offset = dissect_p7_ModifyArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyArgument_PDU);
+  return offset;
 }
-static void dissect_ModifyResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ModifyResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ModifyResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ModifyResult_PDU);
+  offset = dissect_p7_ModifyResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyResult_PDU);
+  return offset;
 }
-static void dissect_MSMessageSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSMessageSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSMessageSubmissionArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSMessageSubmissionArgument_PDU);
+  offset = dissect_p7_MSMessageSubmissionArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSMessageSubmissionArgument_PDU);
+  return offset;
 }
-static void dissect_MSMessageSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSMessageSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSMessageSubmissionResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSMessageSubmissionResult_PDU);
+  offset = dissect_p7_MSMessageSubmissionResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSMessageSubmissionResult_PDU);
+  return offset;
 }
-static void dissect_MSProbeSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSProbeSubmissionArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSProbeSubmissionArgument(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSProbeSubmissionArgument_PDU);
+  offset = dissect_p7_MSProbeSubmissionArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSProbeSubmissionArgument_PDU);
+  return offset;
 }
-static void dissect_MSProbeSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSProbeSubmissionResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSProbeSubmissionResult(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSProbeSubmissionResult_PDU);
+  offset = dissect_p7_MSProbeSubmissionResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSProbeSubmissionResult_PDU);
+  return offset;
 }
-static void dissect_AttributeErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_attribute_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_AttributeErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_AttributeErrorParameter_PDU);
+  offset = dissect_p7_PAR_attribute_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_attribute_error_PDU);
+  return offset;
 }
-static void dissect_AutoActionRequestErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_auto_action_request_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_AutoActionRequestErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_AutoActionRequestErrorParameter_PDU);
+  offset = dissect_p7_PAR_auto_action_request_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_auto_action_request_error_PDU);
+  return offset;
 }
-static void dissect_DeleteErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_delete_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_DeleteErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_DeleteErrorParameter_PDU);
+  offset = dissect_p7_PAR_delete_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_delete_error_PDU);
+  return offset;
 }
-static void dissect_FetchRestrictionErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_fetch_restriction_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_FetchRestrictionErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_FetchRestrictionErrorParameter_PDU);
+  offset = dissect_p7_PAR_fetch_restriction_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_fetch_restriction_error_PDU);
+  return offset;
 }
-static void dissect_RangeErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_invalid_parameters_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_RangeErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_RangeErrorParameter_PDU);
+  offset = dissect_p7_PAR_invalid_parameters_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_invalid_parameters_error_PDU);
+  return offset;
 }
-static void dissect_SequenceNumberErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_range_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_SequenceNumberErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_SequenceNumberErrorParameter_PDU);
+  offset = dissect_p7_PAR_range_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_range_error_PDU);
+  return offset;
 }
-static void dissect_ServiceErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_sequence_number_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ServiceErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ServiceErrorParameter_PDU);
+  offset = dissect_p7_PAR_sequence_number_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_sequence_number_error_PDU);
+  return offset;
 }
-static void dissect_MessageGroupErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ServiceErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MessageGroupErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MessageGroupErrorParameter_PDU);
+  offset = dissect_p7_ServiceErrorParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ServiceErrorParameter_PDU);
+  return offset;
 }
-static void dissect_MSExtensionErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MessageGroupErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_MSExtensionErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_MSExtensionErrorParameter_PDU);
+  offset = dissect_p7_MessageGroupErrorParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MessageGroupErrorParameter_PDU);
+  return offset;
 }
-static void dissect_RegisterMSErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_MSExtensionErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_RegisterMSErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_RegisterMSErrorParameter_PDU);
+  offset = dissect_p7_MSExtensionErrorParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_MSExtensionErrorParameter_PDU);
+  return offset;
 }
-static void dissect_ModifyErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_PAR_register_ms_error_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_ModifyErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_ModifyErrorParameter_PDU);
+  offset = dissect_p7_PAR_register_ms_error(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_PAR_register_ms_error_PDU);
+  return offset;
 }
-static void dissect_EntryClassErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+static int dissect_ModifyErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_p7_EntryClassErrorParameter(FALSE, tvb, 0, &asn1_ctx, tree, hf_p7_EntryClassErrorParameter_PDU);
+  offset = dissect_p7_ModifyErrorParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_ModifyErrorParameter_PDU);
+  return offset;
+}
+static int dissect_EntryClassErrorParameter_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_p7_EntryClassErrorParameter(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_EntryClassErrorParameter_PDU);
+  return offset;
 }
 static void dissect_ReportLocation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -3956,262 +4044,88 @@ static void dissect_StorageTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 75 "packet-p7-template.c"
+#line 77 "packet-p7-template.c"
 
-/*
-* Dissect P7 PDUs inside a ROS PDUs
-*/
-static void
-dissect_p7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-	int offset = 0;
-	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int (*p7_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
-	char *p7_op_name;
-	int hf_p7_index = -1;
-	asn1_ctx_t asn1_ctx;
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+/*--- Included file: packet-p7-table11.c ---*/
+#line 1 "packet-p7-table11.c"
 
-	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		} 
-		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-	}
+static const ros_opr_t p7_opr_tab[] = {
+  /* ms-bind */ 
+  { op_ros_bind              ,	dissect_MSBindArgument_PDU,	dissect_MSBindResult_PDU }, 
+  /* summarize */ 
+  { op_summarize             ,	dissect_SummarizeArgument_PDU,	dissect_SummarizeResult_PDU }, 
+  /* list */ 
+  { op_list                  ,	dissect_ListArgument_PDU,	dissect_ListResult_PDU }, 
+  /* fetch */ 
+  { op_fetch                 ,	dissect_FetchArgument_PDU,	dissect_FetchResult_PDU }, 
+  /* delete */ 
+  { op_delete                ,	dissect_DeleteArgument_PDU,	dissect_DeleteResult_PDU }, 
+  /* register-MS */ 
+  { op_register_ms           ,	dissect_Register_MSArgument_PDU,	dissect_Register_MSResult_PDU }, 
+  /* alert */ 
+  { op_alert                 ,	dissect_AlertArgument_PDU,	dissect_AlertResult_PDU }, 
+  /* modify */ 
+  { op_modify                ,	dissect_ModifyArgument_PDU,	dissect_ModifyResult_PDU }, 
+  /* ms-message-submission */ 
+  { op_ms_message_submission ,	dissect_MSMessageSubmissionArgument_PDU,	dissect_MSMessageSubmissionResult_PDU }, 
+  /* ms-probe-submission */ 
+  { op_ms_probe_submission   ,	dissect_MSProbeSubmissionArgument_PDU,	dissect_MSProbeSubmissionResult_PDU }, 
+  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+};
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p7, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_p7);
-	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "P7");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
 
-	switch(session->ros_op & ROS_OP_MASK) {
-	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
-	  p7_dissector = dissect_p7_MSBindArgument;
-	  p7_op_name = "MS-Bind-Argument";
-	  hf_p7_index = hf_p7_MSBindArgument_PDU;
-	  break;
-	case (ROS_OP_BIND | ROS_OP_RESULT):	/*  BindResult */
-	  p7_dissector = dissect_p7_MSBindResult;
-	  p7_op_name = "MS-Bind-Result";
-	  hf_p7_index = hf_p7_MSBindResult_PDU;
-	  break;
-	case (ROS_OP_BIND | ROS_OP_ERROR):	/*  BindError */
-	  p7_dissector = dissect_p7_MSBindError;
-	  p7_op_name = "MS-Bind-Error";
-	  hf_p7_index = hf_p7_MSBindError_PDU;
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case op_ms_message_submission: /* msMessageSubmission */
-	    p7_dissector = dissect_p7_MSMessageSubmissionArgument;
-	    p7_op_name = "MS-Message-Submission-Argument";
-	    hf_p7_index = hf_p7_MSMessageSubmissionArgument_PDU;
-	    break;
-	  case op_ms_probe_submission: /* msProbeSubmission */
-	    p7_dissector = dissect_p7_MSProbeSubmissionArgument;
-	    p7_op_name = "MS-Probe-Submission-Argument";
-	    hf_p7_index = hf_p7_MSProbeSubmissionArgument_PDU;
-	    break;
-	  case op_summarize: /* summarize */
-	    p7_dissector = dissect_p7_SummarizeArgument;
-	    p7_op_name = "Summarize-Argument";
-	    hf_p7_index = hf_p7_SummarizeArgument_PDU;
-	    break;
-	  case op_list: /* list */
-	    p7_dissector = dissect_p7_ListArgument;
-	    p7_op_name = "List-Argument";
-	    hf_p7_index = hf_p7_ListArgument_PDU;
-	    break;
-	  case op_fetch: /* fetch */
-	    p7_dissector = dissect_p7_FetchArgument;
-	    p7_op_name = "Fetch-Argument";
-	    hf_p7_index = hf_p7_FetchArgument_PDU;
-	    break;
-	  case op_delete: /* delete */
-	    p7_dissector = dissect_p7_DeleteArgument;
-	    p7_op_name = "Delete-Argument";
-	    hf_p7_index = hf_p7_DeleteArgument_PDU;
-	    break;
-	  case op_register_ms: /* register-ms */
-	    p7_dissector = dissect_p7_Register_MSArgument;
-	    p7_op_name = "RegisterMS-Argument";
-	    hf_p7_index = hf_p7_Register_MSArgument_PDU;
-	    break;
-	  case op_alert: /* alert */
-	    p7_dissector = dissect_p7_AlertArgument;
-	    p7_op_name = "Alert-Argument";
-	    hf_p7_index = hf_p7_AlertArgument_PDU;
-	    break;
-	  case op_modify: /* modify */
-	    p7_dissector = dissect_p7_ModifyArgument;
-	    p7_op_name = "Modify-Argument";
-	    hf_p7_index = hf_p7_ModifyArgument_PDU;
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P7 argument opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
-	    break;
-	  }
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_RESULT):	/*  Return Result */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case op_ms_message_submission: /* msMessageSubmission */
-	    p7_dissector = dissect_p7_MSMessageSubmissionResult;
-	    p7_op_name = "MS-Message-Submission-Result";
-	    hf_p7_index = hf_p7_MSMessageSubmissionResult_PDU;
-	    break;
-	  case op_ms_probe_submission: /* msProbeSubmission */
-	    p7_dissector = dissect_p7_MSProbeSubmissionResult;
-	    p7_op_name = "MS-Probe-Submission-Result";
-	    hf_p7_index = hf_p7_MSProbeSubmissionResult_PDU;
-	    break;
-	  case op_summarize: /* summarize */
-	    p7_dissector = dissect_p7_SummarizeResult;
-	    p7_op_name = "Summarize-Result";
-	    hf_p7_index = hf_p7_SummarizeResult_PDU;
-	    break;
-	  case op_list: /* list */
-	    p7_dissector = dissect_p7_ListResult;
-	    p7_op_name = "List-Result";
-	    hf_p7_index = hf_p7_ListResult_PDU;
-	    break;
-	  case op_fetch: /* fetch */
-	    p7_dissector = dissect_p7_FetchResult;
-	    p7_op_name = "Fetch-Result";
-	    hf_p7_index = hf_p7_FetchResult_PDU;
-	    break;
-	  case op_delete: /* delete */
-	    p7_dissector = dissect_p7_DeleteResult;
-	    p7_op_name = "Delete-Result";
-	    break;
-	  case op_register_ms: /* register-ms */
-	    p7_dissector = dissect_p7_Register_MSResult;
-	    p7_op_name = "RegisterMS-Result";
-	    hf_p7_index = hf_p7_Register_MSResult_PDU;
-	    break;
-	  case op_alert: /* alert */
-	    p7_dissector = dissect_p7_AlertResult;
-	    p7_op_name = "Alert-Result";
-	    hf_p7_index = hf_p7_AlertResult_PDU;
-	    break;
-	  case op_modify: /* modify */
-	    p7_dissector = dissect_p7_ModifyResult;
-	    p7_op_name = "Modify-Result";
-	    hf_p7_index = hf_p7_ModifyResult_PDU;
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P7 result opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
-	    break;
-	  }
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_ERROR):	/*  Return Error */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case err_attribute_error: /* attributeError */
-	    p7_dissector = dissect_p7_AttributeErrorParameter;
-	    p7_op_name = "Attribute-Error";
-	    hf_p7_index = hf_p7_AttributeErrorParameter_PDU;
-	    break;
-	  case err_auto_action_request_error: /* autoActionRequestError */
-	    p7_dissector = dissect_p7_AutoActionRequestErrorParameter;
-	    p7_op_name = "Auto-Action-Request-Error";
-	    hf_p7_index = hf_p7_AutoActionRequestErrorParameter_PDU;
-	    break;
-	  case err_delete_error: /* deleteError */
-	    p7_dissector = dissect_p7_DeleteErrorParameter;
-	    p7_op_name = "Delete-Error";
-	    hf_p7_index = hf_p7_DeleteErrorParameter_PDU;
-	    break;
-	  case err_fetch_restriction_error: /* fetchRestrictionError */
-	    p7_dissector = dissect_p7_FetchRestrictionErrorParameter;
-	    p7_op_name = "Fetch-Restriction-Error";
-	    hf_p7_index = hf_p7_FetchRestrictionErrorParameter_PDU;
-	    break;
-	  case err_range_error: /* rangeError */
-	    p7_dissector = dissect_p7_RangeErrorParameter;
-	    p7_op_name = "Range-Error";
-	    hf_p7_index = hf_p7_RangeErrorParameter_PDU;
-	    break;
-	  case err_security_error: /* securityError */
-	    p7_dissector = dissect_x411_SecurityProblem;
-	    p7_op_name = "Security-Error";
-	    break;
-	  case err_service_error: /* serviceError*/
-	    p7_dissector = dissect_p7_ServiceErrorParameter;
-	    p7_op_name = "Service-Error";
-	    hf_p7_index = hf_p7_ServiceErrorParameter_PDU;
-	    break;
-	  case err_sequence_number_error: /* sequenceNumberError */
-	    p7_dissector = dissect_p7_SequenceNumberErrorParameter;
-	    p7_op_name = "Sequence-Number-Error";
-	    hf_p7_index = hf_p7_SequenceNumberErrorParameter_PDU;
-	    break;
-	  case err_invalid_parameters_error: /* invalidParametersError */
-	    p7_dissector = NULL;
-	    p7_op_name = "Invalid-Parameters-Error";
-	    break;
-	  case err_message_group_error: /* messageGroupError */
-	    p7_dissector = dissect_p7_MessageGroupErrorParameter;
-	    p7_op_name = "Message-Group-Error";
-	    hf_p7_index = hf_p7_MessageGroupErrorParameter_PDU;
-	    break;
-	  case err_ms_extension_error: /* msExtensioError */
-	    p7_dissector = dissect_p7_MSExtensionErrorParameter;
-	    p7_op_name = "MS-Extension-Error";
-	    hf_p7_index = hf_p7_MSExtensionErrorParameter_PDU;
-	    break;
-	  case err_register_ms_error: /* registerMSError */
-	    p7_dissector = dissect_p7_RegisterMSErrorParameter;
-	    p7_op_name = "Register-MS-Error";
-	    hf_p7_index = hf_p7_RegisterMSErrorParameter_PDU;
-	    break;
-	  case err_modify_error: /* modifyError */
-	    p7_dissector = dissect_p7_ModifyErrorParameter;
-	    p7_op_name = "Modify-Error";
-	    hf_p7_index = hf_p7_ModifyErrorParameter_PDU;
-	    break;
-	  case err_entry_class_error: /* entryClassError */
-	    p7_dissector = dissect_p7_EntryClassErrorParameter;
-	    p7_op_name = "Entry-Class-Error";
-	    hf_p7_index = hf_p7_EntryClassErrorParameter_PDU;
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P7 error opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
-	    break;
-	  }
-	  break;
-	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported P7 PDU");
-	  return;
-	}
+/*--- End of included file: packet-p7-table11.c ---*/
+#line 79 "packet-p7-template.c"
 
-	if(p7_dissector) {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, p7_op_name);
+/*--- Included file: packet-p7-table21.c ---*/
+#line 1 "packet-p7-table21.c"
 
-	  while (tvb_reported_length_remaining(tvb, offset) > 0){
-	    old_offset=offset;
-	    offset=(*p7_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, hf_p7_index);
-	    if(offset == old_offset){
-	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte P7 PDU");
-	      offset = tvb_length(tvb);
-	      break;
-	    }
-	  }
-	}
-}
+static const ros_err_t p7_err_tab[] = {
+  /* ms-bind-error*/ 
+  { err_ros_bind,	dissect_PAR_ms_bind_error_PDU },
+  /* attribute-error*/ 
+  { err_attribute_error,	dissect_PAR_attribute_error_PDU },
+  /* auto-action-request-error*/ 
+  { err_auto_action_request_error,	dissect_PAR_auto_action_request_error_PDU },
+  /* delete-error*/ 
+  { err_delete_error,	dissect_PAR_delete_error_PDU },
+  /* fetch-restriction-error*/ 
+  { err_fetch_restriction_error,	dissect_PAR_fetch_restriction_error_PDU },
+  /* invalid-parameters-error*/ 
+  { err_invalid_parameters_error,	dissect_PAR_invalid_parameters_error_PDU },
+  /* range-error*/ 
+  { err_range_error,	dissect_PAR_range_error_PDU },
+  /* sequence-number-error*/ 
+  { err_sequence_number_error,	dissect_PAR_sequence_number_error_PDU },
+  /* service-error*/ 
+  { err_service_error,	dissect_ServiceErrorParameter_PDU },
+  /* message-group-error*/ 
+  { err_message_group_error,	dissect_MessageGroupErrorParameter_PDU },
+  /* ms-extension-error*/ 
+  { err_ms_extension_error,	dissect_MSExtensionErrorParameter_PDU },
+  /* register-ms-error*/ 
+  { err_register_ms_error,	dissect_PAR_register_ms_error_PDU },
+  /* modify-error*/ 
+  { err_modify_error,	dissect_ModifyErrorParameter_PDU },
+  /* entry-class-error*/ 
+  { err_entry_class_error,	dissect_EntryClassErrorParameter_PDU },
+  { 0,	(new_dissector_t)(-1) },
+};
+
+
+/*--- End of included file: packet-p7-table21.c ---*/
+#line 80 "packet-p7-template.c"
+
+static const ros_info_t p7_ros_info = {
+  "P7",
+  &proto_p7,
+  &ett_p7,
+  p7_opr_code_string_vals,
+  p7_opr_tab,
+  p7_err_code_string_vals,
+  p7_err_tab
+};
 
 
 /*--- proto_register_p7 -------------------------------------------*/
@@ -4251,18 +4165,18 @@ void proto_register_p7(void) {
       { "MSBindArgument", "p7.MSBindArgument",
         FT_NONE, BASE_NONE, NULL, 0,
         "p7.MSBindArgument", HFILL }},
-    { &hf_p7_MS_EIT_PDU,
-      { "MS-EIT", "p7.MS_EIT",
-        FT_OID, BASE_NONE, NULL, 0,
-        "p7.MS_EIT", HFILL }},
     { &hf_p7_MSBindResult_PDU,
       { "MSBindResult", "p7.MSBindResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "p7.MSBindResult", HFILL }},
-    { &hf_p7_MSBindError_PDU,
-      { "MSBindError", "p7.MSBindError",
-        FT_UINT32, BASE_DEC, VALS(p7_MSBindError_vals), 0,
-        "p7.MSBindError", HFILL }},
+    { &hf_p7_MS_EIT_PDU,
+      { "MS-EIT", "p7.MS_EIT",
+        FT_OID, BASE_NONE, NULL, 0,
+        "p7.MS_EIT", HFILL }},
+    { &hf_p7_PAR_ms_bind_error_PDU,
+      { "PAR-ms-bind-error", "p7.PAR_ms_bind_error",
+        FT_UINT32, BASE_DEC, VALS(p7_PAR_ms_bind_error_vals), 0,
+        "p7.PAR_ms_bind_error", HFILL }},
     { &hf_p7_CreationTime_PDU,
       { "CreationTime", "p7.CreationTime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -4339,30 +4253,34 @@ void proto_register_p7(void) {
       { "MSProbeSubmissionResult", "p7.MSProbeSubmissionResult",
         FT_NONE, BASE_NONE, NULL, 0,
         "p7.MSProbeSubmissionResult", HFILL }},
-    { &hf_p7_AttributeErrorParameter_PDU,
-      { "AttributeErrorParameter", "p7.AttributeErrorParameter",
+    { &hf_p7_PAR_attribute_error_PDU,
+      { "PAR-attribute-error", "p7.PAR_attribute_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.AttributeErrorParameter", HFILL }},
-    { &hf_p7_AutoActionRequestErrorParameter_PDU,
-      { "AutoActionRequestErrorParameter", "p7.AutoActionRequestErrorParameter",
+        "p7.PAR_attribute_error", HFILL }},
+    { &hf_p7_PAR_auto_action_request_error_PDU,
+      { "PAR-auto-action-request-error", "p7.PAR_auto_action_request_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.AutoActionRequestErrorParameter", HFILL }},
-    { &hf_p7_DeleteErrorParameter_PDU,
-      { "DeleteErrorParameter", "p7.DeleteErrorParameter",
+        "p7.PAR_auto_action_request_error", HFILL }},
+    { &hf_p7_PAR_delete_error_PDU,
+      { "PAR-delete-error", "p7.PAR_delete_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.DeleteErrorParameter", HFILL }},
-    { &hf_p7_FetchRestrictionErrorParameter_PDU,
-      { "FetchRestrictionErrorParameter", "p7.FetchRestrictionErrorParameter",
+        "p7.PAR_delete_error", HFILL }},
+    { &hf_p7_PAR_fetch_restriction_error_PDU,
+      { "PAR-fetch-restriction-error", "p7.PAR_fetch_restriction_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.FetchRestrictionErrorParameter", HFILL }},
-    { &hf_p7_RangeErrorParameter_PDU,
-      { "RangeErrorParameter", "p7.RangeErrorParameter",
+        "p7.PAR_fetch_restriction_error", HFILL }},
+    { &hf_p7_PAR_invalid_parameters_error_PDU,
+      { "PAR-invalid-parameters-error", "p7.PAR_invalid_parameters_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.RangeErrorParameter", HFILL }},
-    { &hf_p7_SequenceNumberErrorParameter_PDU,
-      { "SequenceNumberErrorParameter", "p7.SequenceNumberErrorParameter",
+        "p7.PAR_invalid_parameters_error", HFILL }},
+    { &hf_p7_PAR_range_error_PDU,
+      { "PAR-range-error", "p7.PAR_range_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.SequenceNumberErrorParameter", HFILL }},
+        "p7.PAR_range_error", HFILL }},
+    { &hf_p7_PAR_sequence_number_error_PDU,
+      { "PAR-sequence-number-error", "p7.PAR_sequence_number_error",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "p7.PAR_sequence_number_error", HFILL }},
     { &hf_p7_ServiceErrorParameter_PDU,
       { "ServiceErrorParameter", "p7.ServiceErrorParameter",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4375,10 +4293,10 @@ void proto_register_p7(void) {
       { "MSExtensionErrorParameter", "p7.MSExtensionErrorParameter",
         FT_UINT32, BASE_DEC, VALS(p7_MSExtensionErrorParameter_vals), 0,
         "p7.MSExtensionErrorParameter", HFILL }},
-    { &hf_p7_RegisterMSErrorParameter_PDU,
-      { "RegisterMSErrorParameter", "p7.RegisterMSErrorParameter",
+    { &hf_p7_PAR_register_ms_error_PDU,
+      { "PAR-register-ms-error", "p7.PAR_register_ms_error",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.RegisterMSErrorParameter", HFILL }},
+        "p7.PAR_register_ms_error", HFILL }},
     { &hf_p7_ModifyErrorParameter_PDU,
       { "ModifyErrorParameter", "p7.ModifyErrorParameter",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5347,42 +5265,42 @@ void proto_register_p7(void) {
       { "ms-probe-result", "p7.ms_probe_result",
         FT_NONE, BASE_NONE, NULL, 0,
         "p7.CommonSubmissionResults", HFILL }},
-    { &hf_p7_attribute_error_problems,
+    { &hf_p7_attribute_problems,
       { "problems", "p7.problems",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "p7.AttributeErrorProblems", HFILL }},
-    { &hf_p7_attribute_error_problem_item,
+        "p7.AttributeProblems", HFILL }},
+    { &hf_p7_attribute_problem_item,
       { "Item", "p7.problems_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.AttributeErrorProblem", HFILL }},
+        "p7.AttributeProblemItem", HFILL }},
     { &hf_p7_attribute_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_AttributeProblem_vals), 0,
         "p7.AttributeProblem", HFILL }},
-    { &hf_p7_problem_value,
+    { &hf_p7_attr_value,
       { "value", "p7.value",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.AttributeErrorProblemValue", HFILL }},
-    { &hf_p7_auto_action_request_error_problems,
+        "p7.T_attr_value", HFILL }},
+    { &hf_p7_auto_action_request_problems,
       { "problems", "p7.problems",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "p7.T_auto_action_request_error_problems", HFILL }},
-    { &hf_p7_auto_action_request_error_problem_item,
+        "p7.AutoActionRequestProblems", HFILL }},
+    { &hf_p7_auto_action_request_problem_item,
       { "Item", "p7.problems_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.T_auto_action_request_error_problems_item", HFILL }},
+        "p7.AutoActionRequestProblemItem", HFILL }},
     { &hf_p7_auto_action_request_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_AutoActionRequestProblem_vals), 0,
         "p7.AutoActionRequestProblem", HFILL }},
-    { &hf_p7_delete_error_problems,
+    { &hf_p7_delete_problems,
       { "problems", "p7.problems",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "p7.DeleteErrorProblems", HFILL }},
-    { &hf_p7_delete_error_problem_item,
+        "p7.DeleteProblems", HFILL }},
+    { &hf_p7_delete_problem_item,
       { "Item", "p7.problems_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.DeleteErrorProblem", HFILL }},
+        "p7.DeleteProblemItem", HFILL }},
     { &hf_p7_delete_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_DeleteProblem_vals), 0,
@@ -5395,14 +5313,14 @@ void proto_register_p7(void) {
       { "Item", "p7.entries_deleted_item",
         FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
-    { &hf_p7_fetch_restriction_error_problems,
+    { &hf_p7_fetch_restriction_problems,
       { "problems", "p7.problems",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "p7.FetchRestrictionErrorProblems", HFILL }},
-    { &hf_p7_fetch_restriction_error_problem_item,
+        "p7.FetchRestrictionProblems", HFILL }},
+    { &hf_p7_fetch_restriction_problem_item,
       { "Item", "p7.problems_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.FetchRestrictionErrorProblem", HFILL }},
+        "p7.FetchRestrictionProblemItem", HFILL }},
     { &hf_p7_fetch_restriction_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_FetchRestrictionProblem_vals), 0,
@@ -5427,14 +5345,14 @@ void proto_register_p7(void) {
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_RangeProblem_vals), 0,
         "p7.RangeProblem", HFILL }},
-    { &hf_p7_sequence_number_error_problems,
+    { &hf_p7_sequence_number_problems,
       { "problems", "p7.problems",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "p7.SequenceNumberErrorProblems", HFILL }},
-    { &hf_p7_sequence_number_error_problem_item,
+        "p7.SequenceNumberProblems", HFILL }},
+    { &hf_p7_sequence_number_problem_item,
       { "Item", "p7.problems_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "p7.SequenceNumberErrorProblem", HFILL }},
+        "p7.SequenceNumberProblemItem", HFILL }},
     { &hf_p7_sequence_number_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_SequenceNumberProblem_vals), 0,
@@ -5459,7 +5377,7 @@ void proto_register_p7(void) {
       { "unknown-ms-extension", "p7.unknown_ms_extension",
         FT_OID, BASE_NONE, NULL, 0,
         "p7.OBJECT_IDENTIFIER", HFILL }},
-    { &hf_p7_registration_problem,
+    { &hf_p7_register_ms_problem,
       { "problem", "p7.problem",
         FT_UINT32, BASE_DEC, VALS(p7_RegistrationProblem_vals), 0,
         "p7.RegistrationProblem", HFILL }},
@@ -5661,7 +5579,7 @@ void proto_register_p7(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 339 "packet-p7-template.c"
+#line 99 "packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5689,7 +5607,7 @@ void proto_register_p7(void) {
     &ett_p7_T_unsupported_extensions,
     &ett_p7_ChangeCredentialsAlgorithms,
     &ett_p7_AutoActionErrorIndication,
-    &ett_p7_MSBindError,
+    &ett_p7_PAR_ms_bind_error,
     &ett_p7_T_qualified_error,
     &ett_p7_T_bind_extension_errors,
     &ett_p7_Range,
@@ -5772,27 +5690,27 @@ void proto_register_p7(void) {
     &ett_p7_MSProbeSubmissionArgument,
     &ett_p7_SEQUENCE_OF_PerRecipientProbeSubmissionFields,
     &ett_p7_MSProbeSubmissionResult,
-    &ett_p7_AttributeErrorParameter,
-    &ett_p7_AttributeErrorProblems,
-    &ett_p7_AttributeErrorProblem,
-    &ett_p7_AutoActionRequestErrorParameter,
-    &ett_p7_T_auto_action_request_error_problems,
-    &ett_p7_T_auto_action_request_error_problems_item,
-    &ett_p7_DeleteErrorParameter,
-    &ett_p7_DeleteErrorProblems,
-    &ett_p7_DeleteErrorProblem,
-    &ett_p7_FetchRestrictionErrorParameter,
-    &ett_p7_FetchRestrictionErrorProblems,
-    &ett_p7_FetchRestrictionErrorProblem,
+    &ett_p7_PAR_attribute_error,
+    &ett_p7_AttributeProblems,
+    &ett_p7_AttributeProblemItem,
+    &ett_p7_PAR_auto_action_request_error,
+    &ett_p7_AutoActionRequestProblems,
+    &ett_p7_AutoActionRequestProblemItem,
+    &ett_p7_PAR_delete_error,
+    &ett_p7_DeleteProblems,
+    &ett_p7_DeleteProblemItem,
+    &ett_p7_PAR_fetch_restriction_error,
+    &ett_p7_FetchRestrictionProblems,
+    &ett_p7_FetchRestrictionProblemItem,
     &ett_p7_T_restriction,
-    &ett_p7_RangeErrorParameter,
-    &ett_p7_SequenceNumberErrorParameter,
-    &ett_p7_SequenceNumberErrorProblems,
-    &ett_p7_SequenceNumberErrorProblem,
+    &ett_p7_PAR_range_error,
+    &ett_p7_PAR_sequence_number_error,
+    &ett_p7_SequenceNumberProblems,
+    &ett_p7_SequenceNumberProblemItem,
     &ett_p7_ServiceErrorParameter,
     &ett_p7_MessageGroupErrorParameter,
     &ett_p7_MSExtensionErrorParameter,
-    &ett_p7_RegisterMSErrorParameter,
+    &ett_p7_PAR_register_ms_error,
     &ett_p7_ModifyErrorParameter,
     &ett_p7_EntryClassErrorParameter,
     &ett_p7_T_entry_class_problem,
@@ -5805,13 +5723,12 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 345 "packet-p7-template.c"
+#line 105 "packet-p7-template.c"
   };
   module_t *p7_module;
 
   /* Register protocol */
   proto_p7 = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("p7", dissect_p7, proto_p7);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_p7, hf, array_length(hf));
@@ -5831,7 +5748,6 @@ void proto_register_p7(void) {
 
 /*--- proto_reg_handoff_p7 --- */
 void proto_reg_handoff_p7(void) {
-  dissector_handle_t handle = NULL;
 
   /* #include "packet-p7-dis-tab.c" */
 
@@ -5841,13 +5757,11 @@ void proto_reg_handoff_p7(void) {
   oid_add_from_string("id-ac-ms-reliable-access","2.6.0.1.12");
 
   /* ABSTRACT SYNTAXES */
-    
+
   /* Register P7 with ROS (with no use of RTSE) */
-  if((handle = find_dissector("p7"))) {
-    register_ros_oid_dissector_handle("2.6.0.2.9", handle, 0, "id-as-ms", FALSE); 
-    register_ros_oid_dissector_handle("2.6.0.2.5", handle, 0, "id-as-mrse", FALSE); 
-    register_ros_oid_dissector_handle("2.6.0.2.1", handle, 0, "id-as-msse", FALSE); 
-  }
+  register_ros_protocol_info("2.6.0.2.9", &p7_ros_info, 0, "id-as-ms", FALSE); 
+  register_ros_protocol_info("2.6.0.2.5", &p7_ros_info, 0, "id-as-mrse", FALSE); 
+  register_ros_protocol_info("2.6.0.2.1", &p7_ros_info, 0, "id-as-msse", FALSE); 
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

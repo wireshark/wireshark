@@ -49,7 +49,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -X -T
+A2W_FLAGS= -b -e -X -T -L
 
 EXTRA_CNF= \
 	../x411/x411-exp.cnf \
