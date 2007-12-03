@@ -879,8 +879,8 @@ io_stat_draw(io_stat_t *io)
 	 * Loop over all graphs and draw them 
 	 */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
-		guint32 interval, val;
-		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+		guint64 val;
+		guint32 interval, x_pos, y_pos, prev_x_pos, prev_y_pos;
 
 		if(!io->graphs[i].display){
 			continue;
