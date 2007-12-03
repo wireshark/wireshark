@@ -442,6 +442,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     }
     else
     if ((strcmp(protocol_name, "xcap_caps") == 0) ||
+        (strcmp(protocol_name, "soap") == 0) ||
         (strcmp(protocol_name, "mm1") == 0) ||
         (strcmp(protocol_name, "mm3") == 0) ||
         (strcmp(protocol_name, "mm7") == 0))
@@ -889,7 +890,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get protocol handle, and set p2p_dir where necessary.
        (packet-frame.c won't copy it from pseudo-header because it doesn't
-       know about Catapult DCT2000 encap type...)
+        know about Catapult DCT2000 encap type...)
     */
     switch (encap)
     {
@@ -1432,7 +1433,7 @@ void proto_register_catapult_dct2000(void)
                                                       proto_reg_handoff_catapult_dct2000);
 
     /* This preference no longer supported (introduces linkage dependency between
-       dissectors and wiretap */
+       dissectors and wiretap) */
     prefs_register_obsolete_preference(catapult_dct2000_module, "board_ports_only");
 
     /* Determines whether for not-handled protocols we should try to parse it if:
