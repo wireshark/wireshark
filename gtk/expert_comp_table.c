@@ -76,25 +76,25 @@ gpointer userdata)
     {
         case SORT_ALPHABETICAL:
         {
-        gchar *name1, *name2;
-        gtk_tree_model_get(model, a, 0, &name1, -1);
-        gtk_tree_model_get(model, b, 0, &name2, -1);
-        if (name1 == NULL || name2 == NULL)
-        {
-            if (name1 == NULL && name2 == NULL)
-                break; /* both equal => ret = 0 */
-            ret = (name1 == NULL) ? -1 : 1;
-        }
-        else
-        {
-            ret = g_ascii_strcasecmp(name1,name2);
-        }
-        g_free(name1);
-        g_free(name2);
-        }
-        break;
+            gchar *name1, *name2;
+            gtk_tree_model_get(model, a, 0, &name1, -1);
+            gtk_tree_model_get(model, b, 0, &name2, -1);
+            if (name1 == NULL || name2 == NULL)
+            {
+                if (name1 == NULL && name2 == NULL)
+                    break; /* both equal => ret = 0 */
+                ret = (name1 == NULL) ? -1 : 1;
+            }
+            else
+            {
+                ret = g_ascii_strcasecmp(name1,name2);
+            }
+            g_free(name1);
+            g_free(name2);
+            }
+            break;
         default:
-        g_return_val_if_reached(0);
+            g_return_val_if_reached(0);
     }
     return ret;
 }
@@ -227,10 +227,10 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
 static void
 error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int action, type, selection;
-	error_equiv_table *err = (error_equiv_table *)callback_data;
-	char str[256];
-	const char *current_filter;
+    int action, type, selection;
+    error_equiv_table *err = (error_equiv_table *)callback_data;
+    char str[256];
+    const char *current_filter;
 
 #if (GTK_MAJOR_VERSION >= 2)
     GtkTreeIter iter;
@@ -239,11 +239,11 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 #endif
 
     action=(callback_action>>8)&0xff;
-	type=callback_action&0xff;
+    type=callback_action&0xff;
 
 
 #if (GTK_MAJOR_VERSION < 2)
-   	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
+       selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
 #else
     gtk_tree_selection_get_selected(err->select, &model, &iter);
 
@@ -252,23 +252,23 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     gtk_tree_model_get (model, &iter, SUMMARY_COLUMN, &expert_data.summary, -1);
     
     if (strcmp((char *)(unsigned long)expert_data.group, "Packet:")==0) {
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You cannot filter or search for packet number. Click on a valid item header.");
         return;
     }
 
     selection = find_summary_data(err, &expert_data);
 #endif
 
-	if(selection>=(int)err->num_procs){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No items are selected");
-		return;
-	}
+    if(selection>=(int)err->num_procs){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No items are selected");
+        return;
+    }
 #if (GTK_MAJOR_VERSION < 2)
-	/* translate it back from row index to index in procedures array */
+    /* translate it back from row index to index in procedures array */
     selection=GPOINTER_TO_INT(gtk_clist_get_row_data(err->table, selection));
 #endif
 
-	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 
     /* Some expert data doesn't pass an expert item. Without this we cannot create a filter */
     /* But allow for searching of internet for error string */
@@ -279,9 +279,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 return;
             }
         }
-    	switch(type){
-    	case 0:
-    		/* selected */
+        switch(type){
+        case 0:
+            /* selected */
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
                 g_snprintf(str, 255, "%s", err->procedures[selection].entries[2]);
@@ -291,9 +291,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 /* expert item exists. Use it. */
                 g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
             }
-    		break;
-    	case 1:
-    		/* not selected */
+            break;
+        case 1:
+            /* not selected */
             /* if no expert item was passed */
             if (err->procedures[selection].fvalue_value==NULL) {
                 g_snprintf(str, 255, "!%s", err->procedures[selection].entries[2]);
@@ -303,40 +303,40 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
                 /* expert item exists. Use it. */
                 g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
             }
-    		break;
+            break;
             /* the remaining cases will only exist if the expert item exists so no need to check */
-    	case 2:
-    		/* and selected */
-    		g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 3:
-    		/* or selected */
-    		g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 4:
-    		/* and not selected */
-    		g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
-    	case 5:
-    		/* or not selected */
-    		g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
-    		break;
+        case 2:
+            /* and selected */
+            g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 3:
+            /* or selected */
+            g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 4:
+            /* and not selected */
+            g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
+        case 5:
+            /* or not selected */
+            g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
-    	}
+        }
     }
 
-	switch(action){
-	case 0:
-		/* match */
-		main_filter_packets(&cfile, str, FALSE);
+    switch(action){
+    case 0:
+        /* match */
+        main_filter_packets(&cfile, str, FALSE);
         break;
-	case 1:
-		/* prepare */
+    case 1:
+        /* prepare */
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		break;
-	case 2:
-		/* find frame */
+        break;
+    case 2:
+        /* find frame */
         /* When trying to perform a find without expert item, we must pass
          * the expert string to the find window. The user might need to modify
          * the string and click on the text search to locate the packet in question.
@@ -344,9 +344,9 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * the user to modify the search criteria and options.
          */
             find_frame_with_filter(str);
-		break;
-	case 3:
-		/* find next */
+        break;
+    case 3:
+        /* find next */
         /* In the case of find next, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
          * a find with the expert string or we will not really be performing a find next.
@@ -361,11 +361,11 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-		    find_previous_next_frame_with_filter(str, FALSE);
+            find_previous_next_frame_with_filter(str, FALSE);
         }
-		break;
-	case 4:
-		/* find previous */
+        break;
+    case 4:
+        /* find previous */
         /* In the case of find previous, if there was no expert item, then most likely the expert
          * string was modified to locate the text inside the message. So we can't just perform
          * a find with the expert string or we will not really be performing a find previous.
@@ -380,18 +380,18 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
         else
         { 
             /* We have an expert item so just continue search without find dialog. */
-		    find_previous_next_frame_with_filter(str, TRUE);
+            find_previous_next_frame_with_filter(str, TRUE);
         }
-		break;
-	case 5:
-		/* colorize procedure */
-		color_display_with_filter(str);
-		break;
-	case 6:
-		/* Lookup expert string on internet. Default search via www.google.com */
-		g_snprintf(str, 255, "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
+        break;
+    case 5:
+        /* colorize procedure */
+        color_display_with_filter(str);
+        break;
+    case 6:
+        /* Lookup expert string on internet. Default search via www.google.com */
+        g_snprintf(str, 255, "http://www.google.com/search?hl=en&q=%s+'%s'", err->procedures[selection].entries[1], err->procedures[selection].entries[2]);
         browser_open_url(str);
-		break;
+        break;
 #if (GTK_MAJOR_VERSION < 2)
     case 7:
         /* Goto the first occurance (packet) in the trace */
@@ -400,7 +400,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 #endif
     default:
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu action - %u", action);
-	}
+    }
 
 }
 
@@ -775,7 +775,7 @@ init_error_table_row(error_equiv_table *err, const expert_info_t *expert_data)
 void
 add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
 {
-	error_procedure_t *errp;
+    error_procedure_t *errp;
     gint index;
 #if (GTK_MAJOR_VERSION < 2)
     gint row;
@@ -793,13 +793,13 @@ add_error_table_data(error_equiv_table *err, const expert_info_t *expert_data)
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find expert data. Aborting");
         return;
     }
-	errp=&err->procedures[index];
+    errp=&err->procedures[index];
 
 #if (GTK_MAJOR_VERSION < 2)
-   	if (errp->count==0){
-		row=gtk_clist_append(err->table, err->procedures[index].entries);
-		gtk_clist_set_row_data(err->table, row, GINT_TO_POINTER(index));
-	}
+    if (errp->count==0){
+        row=gtk_clist_append(err->table, err->procedures[index].entries);
+        gtk_clist_set_row_data(err->table, row, GINT_TO_POINTER(index));
+    }
     errp->count++;
     err->procedures[index].entries[3] = (char *)g_strdup_printf("%d", errp->count);
 #else
@@ -843,26 +843,26 @@ draw_error_table_data(error_equiv_table *err)
 void
 reset_error_table_data(error_equiv_table *err)
 {
-	guint16 i;
+    guint16 i;
 #if (GTK_MAJOR_VERSION >= 2)
     GtkTreeStore    *store;
 #endif
 
-	for(i=0;i<err->num_procs;i++){
-		err->procedures[i].entries[0] = NULL;
-		err->procedures[i].entries[1] = NULL;
-		err->procedures[i].entries[2] = NULL;
-		err->procedures[i].entries[3] = NULL;
+    for(i=0;i<err->num_procs;i++){
+        err->procedures[i].entries[0] = NULL;
+        err->procedures[i].entries[1] = NULL;
+        err->procedures[i].entries[2] = NULL;
+        err->procedures[i].entries[3] = NULL;
 #if (GTK_MAJOR_VERSION < 2)
         err->procedures[i].packet_num=0;
 #else
         err->procedures[i].count=0;
 #endif
 
-	}
+    }
 
 #if (GTK_MAJOR_VERSION < 2)
-	gtk_clist_clear(err->table);
+    gtk_clist_clear(err->table);
 #else
     store = GTK_TREE_STORE(gtk_tree_view_get_model(err->tree_view));
     gtk_tree_store_clear(store);
@@ -873,13 +873,13 @@ reset_error_table_data(error_equiv_table *err)
 void
 free_error_table_data(error_equiv_table *err)
 {
-	guint16 i,j;
+    guint16 i,j;
 
-	for(i=0;i<err->num_procs;i++){
-		for(j=0;j<4;j++){
-			if(err->procedures[i].entries[j]){
-				err->procedures[i].entries[j]=NULL;
-			}
+    for(i=0;i<err->num_procs;i++){
+        for(j=0;j<4;j++){
+            if(err->procedures[i].entries[j]){
+                err->procedures[i].entries[j]=NULL;
+            }
             err->procedures[i].fvalue_value=NULL;
 
 #if (GTK_MAJOR_VERSION < 2)
@@ -887,8 +887,8 @@ free_error_table_data(error_equiv_table *err)
 #else
             err->procedures[i].count=0;
 #endif
-		}
-	}
-	err->procedures=NULL;
-	err->num_procs=0;
+        }
+    }
+    err->procedures=NULL;
+    err->num_procs=0;
 }
