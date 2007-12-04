@@ -1181,6 +1181,7 @@ emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 		node->right=NULL;
 		node->key32=key;
 		node->data=data;
+		node->u.is_subtree = EMEM_TREE_NODE_IS_DATA;
 		se_tree->tree=node;
 		return;
 	}
@@ -1205,6 +1206,7 @@ emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 				new_node->right=NULL;
 				new_node->key32=key;
 				new_node->data=data;
+				new_node->u.is_subtree=EMEM_TREE_NODE_IS_DATA;
 				node=new_node;
 				break;
 			}
@@ -1222,6 +1224,7 @@ emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 				new_node->right=NULL;
 				new_node->key32=key;
 				new_node->data=data;
+				new_node->u.is_subtree=EMEM_TREE_NODE_IS_DATA;
 				node=new_node;
 				break;
 			}
@@ -1239,7 +1242,7 @@ emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data)
 	}
 }
 
-static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud) {
+static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(void*),void* ud, int is_subtree) {
 	emem_tree_node_t *node;
 
 	node=se_tree->tree;
@@ -1257,6 +1260,7 @@ static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(
 		node->right=NULL;
 		node->key32=key;
 		node->data= func(ud);
+		node->u.is_subtree = is_subtree;
 		se_tree->tree=node;
 		return node->data;
 	}
@@ -1280,6 +1284,7 @@ static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(
 				new_node->right=NULL;
 				new_node->key32=key;
 				new_node->data= func(ud);
+				new_node->u.is_subtree = is_subtree;
 				node=new_node;
 				break;
 			}
@@ -1297,6 +1302,7 @@ static void* lookup_or_insert32(emem_tree_t *se_tree, guint32 key, void*(*func)(
 				new_node->right=NULL;
 				new_node->key32=key;
 				new_node->data= func(ud);
+				new_node->u.is_subtree = is_subtree;
 				node=new_node;
 				break;
 			}
@@ -1390,7 +1396,7 @@ emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *data)
 		return;
 	}
 
-	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree);
+	next_tree=lookup_or_insert32(se_tree, *key[0].key, create_sub_tree, se_tree, EMEM_TREE_NODE_IS_SUBTREE);
 
 	if(key[0].length==1){
 		key++;
@@ -1525,7 +1531,7 @@ emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
 static gboolean
 emem_tree_foreach_nodes(emem_tree_node_t* node, tree_foreach_func callback, void *user_data)
 {
-	gboolean stop_traverse;
+	gboolean stop_traverse = FALSE;
 
 	if (!node)
 		return FALSE;
@@ -1537,13 +1543,18 @@ emem_tree_foreach_nodes(emem_tree_node_t* node, tree_foreach_func callback, void
 		}
 	}
 
-	stop_traverse = callback(node->data, user_data);
+	if (node->u.is_subtree == EMEM_TREE_NODE_IS_SUBTREE) {
+		stop_traverse = emem_tree_foreach(node->data, callback, user_data);
+	} else {
+		stop_traverse = callback(node->data, user_data);
+	}
+
 	if (stop_traverse) {
 		return TRUE;
 	}
 
 	if(node->right) {
-		emem_tree_foreach_nodes(node->right, callback, user_data);
+		stop_traverse = emem_tree_foreach_nodes(node->right, callback, user_data);
 		if (stop_traverse) {
 			return TRUE;
 		}
@@ -1552,14 +1563,16 @@ emem_tree_foreach_nodes(emem_tree_node_t* node, tree_foreach_func callback, void
 	return FALSE;
 }
 
-void
+gboolean
 emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data)
 {
 	if (!emem_tree)
-		return;
+		return FALSE;
 
-	if(emem_tree->tree)
-		emem_tree_foreach_nodes(emem_tree->tree, callback, user_data);
+	if(!emem_tree->tree)
+		return FALSE;
+
+	return emem_tree_foreach_nodes(emem_tree->tree, callback, user_data);
 }
 
 

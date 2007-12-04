@@ -165,14 +165,17 @@ void se_free_all(void);
 /**************************************************************
  * binary trees 
  **************************************************************/
-#define EMEM_TREE_RB_COLOR_RED		0x00
-#define EMEM_TREE_RB_COLOR_BLACK	0x01
 typedef struct _emem_tree_node_t {
 	struct _emem_tree_node_t *parent;
 	struct _emem_tree_node_t *left;
 	struct _emem_tree_node_t *right;
-	union {
-		guint32 rb_color;
+	struct {
+#define EMEM_TREE_RB_COLOR_RED		0
+#define EMEM_TREE_RB_COLOR_BLACK	1
+		guint32 rb_color:1;
+#define EMEM_TREE_NODE_IS_DATA		0
+#define EMEM_TREE_NODE_IS_SUBTREE	1
+		guint32 is_subtree:1;
 	} u;
 	guint32 key32;
 	void *data;
@@ -356,7 +359,7 @@ void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k);
 /* traverse a tree. if the callback returns TRUE the traversal will end */
 typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
 
-void emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
+gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
 
 
 
