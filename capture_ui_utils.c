@@ -319,11 +319,13 @@ get_if_name(const char *if_text)
         * it'll be followed by a blank if it separates the description
         * and the interface name.  (We don't wire in "rpcap", in case we
         * support other protocols in the same syntax.)
+        * Unfortunately, another colon can be used in "rpcap://host:port/"
+        * before port. Check if colon is followed by digit.
         */
-       if (strncmp(if_name, "://", 3) != 0) {
+       if ((strncmp(if_name, "://", 3) != 0) && !isdigit(if_name[1])) {
          /*
-          * OK, we've found a colon not followed by "//".  Skip blanks
-          * following it.
+          * OK, we've found a colon followed neither by "//" nor by digit.  
+          * Skip blanks following it.
           */
          if_name++;
          while (*if_name == ' ')

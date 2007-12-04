@@ -249,15 +249,26 @@ if_info_ip(if_info_t *if_info, pcap_if_t *d)
 	}
 }
 
+#ifdef HAVE_PCAP_REMOTE
+GList *
+get_interface_list_findalldevs_ex(const char *source,
+                                  struct pcap_rmtauth *auth,
+                                  int *err, char **err_str)
+#else
 GList *
 get_interface_list_findalldevs(int *err, char **err_str)
+#endif
 {
 	GList  *il = NULL;
 	pcap_if_t *alldevs, *dev;
 	if_info_t *if_info;
 	char errbuf[PCAP_ERRBUF_SIZE];
 
+#ifdef HAVE_PCAP_REMOTE
+    if (pcap_findalldevs_ex((char *)source, auth, &alldevs, errbuf) == -1) {
+#else
 	if (pcap_findalldevs(&alldevs, errbuf) == -1) {
+#endif
 		*err = CANT_GET_INTERFACE_LIST;
 		if (err_str != NULL)
 			*err_str = cant_get_if_list_error_message(errbuf);
@@ -367,7 +378,11 @@ get_pcap_linktype_list(char *devname, char **err_str)
 #endif
 	data_link_info_t *data_link_info;
 
+#ifdef HAVE_PCAP_OPEN
+	pch = pcap_open(devname, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+#else
 	pch = pcap_open_live(devname, MIN_PACKET_SIZE, 0, 0, errbuf);
+#endif
 	if (pch == NULL) {
 		if (err_str != NULL)
 			*err_str = g_strdup(errbuf);

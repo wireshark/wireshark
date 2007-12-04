@@ -251,6 +251,12 @@ sync_pipe_start(capture_options *capture_opts) {
     char sautostop_files[ARGV_NUMBER_LEN];
     char sautostop_filesize[ARGV_NUMBER_LEN];
     char sautostop_duration[ARGV_NUMBER_LEN];
+#ifdef HAVE_PCAP_REMOTE
+    char sauth[256];
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+    char ssampling[ARGV_NUMBER_LEN];
+#endif
 #ifdef _WIN32
     char buffer_size[ARGV_NUMBER_LEN];
     HANDLE sync_pipe_read;                  /* pipe used to send messages from child to parent */
@@ -352,6 +358,33 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
+#ifdef HAVE_PCAP_REMOTE
+    if (capture_opts->datatx_udp)
+      argv = sync_pipe_add_arg(argv, &argc, "-u");
+
+    if (!capture_opts->nocap_rpcap)
+      argv = sync_pipe_add_arg(argv, &argc, "-r");
+
+    if (capture_opts->auth_type == CAPTURE_AUTH_PWD)
+    {
+        argv = sync_pipe_add_arg(argv, &argc, "-A");
+        g_snprintf(sauth, sizeof(sauth), "%s:%s", capture_opts->auth_username,
+                   capture_opts->auth_password);
+        argv = sync_pipe_add_arg(argv, &argc, sauth);
+    }
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+    if (capture_opts->sampling_method != CAPTURE_SAMP_NONE)
+    {
+        argv = sync_pipe_add_arg(argv, &argc, "-m");
+        g_snprintf(ssampling, ARGV_NUMBER_LEN, "%s:%d",
+             capture_opts->sampling_method == CAPTURE_SAMP_BY_COUNT ? "count" :
+             capture_opts->sampling_method == CAPTURE_SAMP_BY_TIMER ? "timer" :
+             "undef",
+             capture_opts->sampling_param);
+        argv = sync_pipe_add_arg(argv, &argc, ssampling);
+    }
+#endif
 
     /* dumpcap should be running in capture child mode (hidden feature) */
 #ifndef DEBUG_CHILD

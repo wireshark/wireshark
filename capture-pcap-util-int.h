@@ -26,11 +26,22 @@
 #define __PCAP_UTIL_INT_H__
 
 #ifdef HAVE_LIBPCAP
+#ifdef HAVE_PCAP_REMOTE
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+#include <pcap.h>
+#endif
 
 extern if_info_t *if_info_new(char *name, char *description);
 extern void if_info_add_address(if_info_t *if_info, struct sockaddr *addr);
 #ifdef HAVE_PCAP_FINDALLDEVS
+#ifdef HAVE_PCAP_REMOTE
+extern GList *get_interface_list_findalldevs_ex(const char *source,
+        struct pcap_rmtauth *auth, int *err, char **err_str);
+#else
 extern GList *get_interface_list_findalldevs(int *err, char **err_str);
+#endif
 #endif
 
 /*

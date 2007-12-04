@@ -86,6 +86,21 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
   capture_opts->iface_descr             = NULL;
+#ifdef HAVE_PCAP_REMOTE
+  capture_opts->src_type                = CAPTURE_IFLOCAL;
+  capture_opts->remote_host             = NULL;
+  capture_opts->remote_port             = NULL;
+  capture_opts->auth_type               = CAPTURE_AUTH_NULL;
+  capture_opts->auth_username           = NULL;
+  capture_opts->auth_password           = NULL;
+  capture_opts->datatx_udp              = FALSE;
+  capture_opts->nocap_rpcap             = TRUE;
+  capture_opts->nocap_local             = FALSE;
+#ifdef HAVE_PCAP_SETSAMPLING
+  capture_opts->sampling_method         = CAPTURE_SAMP_NONE;
+  capture_opts->sampling_param          = 0;
+#endif
+#endif
 #ifdef _WIN32
   capture_opts->buffer_size             = 1;                /* 1 MB */
 #endif
@@ -140,6 +155,27 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     /* iface_descr may not been filled in and some C Libraries hate a null ptr for %s */
     g_log(log_domain, log_level, "Interface Descr    : %s", 
 	  capture_opts->iface_descr ? capture_opts->iface_descr : "<null>");
+#ifdef HAVE_PCAP_REMOTE
+    g_log(log_domain, log_level, "Capture source     : %s",
+        capture_opts->src_type == CAPTURE_IFLOCAL ? "Local interface" :
+        capture_opts->src_type == CAPTURE_IFREMOTE ? "Remote interface" :
+        "Unknown");
+    if (capture_opts->src_type == CAPTURE_IFREMOTE) {
+        g_log(log_domain, log_level, "Remote host        : %s", capture_opts->remote_host);
+        g_log(log_domain, log_level, "Remote port        : %u", capture_opts->remote_port);
+    }
+    g_log(log_domain, log_level, "Authentication     : %s",
+        capture_opts->auth_type == CAPTURE_AUTH_NULL ? "Null" :
+        capture_opts->auth_type == CAPTURE_AUTH_PWD ? "By username/password" :
+        "Unknown");
+    if (capture_opts->auth_type == CAPTURE_AUTH_PWD) {
+        g_log(log_domain, log_level, "Auth username      : %s", capture_opts->auth_password);
+        g_log(log_domain, log_level, "Auth password      : <hidden>");
+    }
+    g_log(log_domain, log_level, "UDP data transfer  : %u", capture_opts->datatx_udp);
+    g_log(log_domain, log_level, "No capture RPCAP   : %u", capture_opts->nocap_rpcap);
+    g_log(log_domain, log_level, "No capture local   : %u", capture_opts->nocap_local);
+#endif
 #ifdef _WIN32
     g_log(log_domain, log_level, "BufferSize         : %u (MB)", capture_opts->buffer_size);
 #endif
@@ -268,6 +304,73 @@ get_ring_arguments(capture_options *capture_opts, const char *arg)
   return TRUE;
 }
 
+#ifdef HAVE_PCAP_SETSAMPLING
+/*
+ * Given a string of the form "<sampling type>:<value>", as might appear
+ * as an argument to a "-m" option, parse it and set the arguments in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+get_sampling_arguments(capture_options *capture_opts, const char *arg)
+{
+    gchar *p = NULL, *colonp;
+
+    colonp = strchr(arg, ':');
+    if (colonp == NULL)
+        return FALSE;
+
+    p = colonp;
+    *p++ = '\0';
+
+    while (isspace((guchar)*p))
+        p++;
+    if (*p == '\0') {
+        *colonp = ':';
+        return FALSE;
+    }
+
+    if (strcmp(arg, "count") == 0) {
+        capture_opts->sampling_method = CAPTURE_SAMP_BY_COUNT;
+        capture_opts->sampling_param = get_positive_int(p, "sampling count");
+    } else if (strcmp(arg, "timer") == 0) {
+        capture_opts->sampling_method = CAPTURE_SAMP_BY_TIMER;
+        capture_opts->sampling_param = get_positive_int(p, "sampling timer");
+    }
+    *colonp = ':';
+    return TRUE;
+}
+#endif
+
+#ifdef HAVE_PCAP_REMOTE
+/*
+ * Given a string of the form "<username>:<password>", as might appear
+ * as an argument to a "-A" option, parse it and set the arguments in
+ * question.  Return an indication of whether it succeeded or failed
+ * in some fashion.
+ */
+static gboolean
+get_auth_arguments(capture_options *capture_opts, const char *arg)
+{
+    gchar *p = NULL, *colonp;
+
+    colonp = strchr(arg, ':');
+    if (colonp == NULL)
+        return FALSE;
+
+    p = colonp;
+    *p++ = '\0';
+
+    while (isspace((guchar)*p))
+        p++;
+
+    capture_opts->auth_type = CAPTURE_AUTH_PWD;
+    capture_opts->auth_username = g_strdup(arg);
+    capture_opts->auth_password = g_strdup(p);
+    *colonp = ':';
+    return TRUE;
+}
+#endif
 
 static int
 capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg)
@@ -348,6 +451,14 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
           return 1;
         }
         break;
+#ifdef HAVE_PCAP_REMOTE
+    case 'A':
+        if (get_auth_arguments(capture_opts, optarg) == FALSE) {
+            cmdarg_err("Invalid or unknown -A arg \"%s\"", optarg);
+            return 1;
+        }
+        break;
+#endif
     case 'b':        /* Ringbuffer option */
         capture_opts->multi_files_on = TRUE;
         if (get_ring_arguments(capture_opts, optarg) == FALSE) {
@@ -386,6 +497,14 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         *start_capture = TRUE;
         break;
     /*case 'l':*/    /* Automatic scrolling in live capture mode */
+#ifdef HAVE_PCAP_SETSAMPLING
+    case 'm':
+        if (get_sampling_arguments(capture_opts, optarg) == FALSE) {
+            cmdarg_err("Invalid or unknown -m arg \"%s\"", optarg);
+            return 1;
+        }
+        break;
+#endif
     case 'p':        /* Don't capture in promiscuous mode */
         capture_opts->promisc_mode = FALSE;
         break;
@@ -393,6 +512,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
         capture_opts->quit_after_cap  = TRUE;
         *start_capture   = TRUE;  /*** -Q implies -k !! ***/
         break;
+#ifdef HAVE_PCAP_REMOTE
+    case 'r':
+        capture_opts->nocap_rpcap = FALSE;
+        break;
+#endif
     case 's':        /* Set the snapshot (capture) length */
         capture_opts->has_snaplen = TRUE;
         capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
@@ -400,6 +524,11 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
     case 'S':        /* "Real-Time" mode: used for following file ala tail -f */
         capture_opts->real_time_mode = TRUE;
         break;
+#ifdef HAVE_PCAP_REMOTE
+    case 'u':
+        capture_opts->datatx_udp = TRUE;
+        break;
+#endif
     case 'w':        /* Write to capture file x */
         capture_opts->saving_to_file = TRUE;
         g_free(capture_opts->save_file);

@@ -115,6 +115,30 @@
 #define E_CAP_N_RESOLVE_KEY         "cap_n_resolve"
 #define E_CAP_T_RESOLVE_KEY         "cap_t_resolve"
 
+#ifdef HAVE_PCAP_REMOTE
+#define E_CAP_IFTYPE_OM_KEY         "cap_iftype_om"
+#define E_CAP_DATATX_UDP_CB_KEY     "cap_datatx_udp_cb"
+#define E_CAP_NOCAP_RPCAP_CB_KEY    "cap_nocap_rpcap_cb"
+#define E_CAP_REMOTE_DIALOG_PTR_KEY "cap_remote_dialog"
+#define E_CAP_REMOTE_CALLER_PTR_KEY "cap_remote_caller"
+#define E_REMOTE_HOST_TE_KEY        "cap_remote_host"
+#define E_REMOTE_PORT_TE_KEY        "cap_remote_port"
+#define E_REMOTE_AUTH_NULL_KEY      "cap_remote_auth_null"
+#define E_REMOTE_AUTH_PASSWD_KEY    "cap_remote_auth_passwd"
+#define E_REMOTE_USERNAME_LB_KEY    "cap_remote_username_lb"
+#define E_REMOTE_USERNAME_TE_KEY    "cap_remote_username_te"
+#define E_REMOTE_PASSWD_LB_KEY      "cap_remote_passwd_lb"
+#define E_REMOTE_PASSWD_TE_KEY      "cap_remote_passwd_te"
+#define E_CAP_OM_IFTYPE_VALUE_KEY   "cap_om_iftype_value"
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+#define E_CAP_SAMP_NONE_RB_KEY      "cap_samp_none_rb"
+#define E_CAP_SAMP_COUNT_RB_KEY     "cap_samp_count_rb"
+#define E_CAP_SAMP_COUNT_SB_KEY     "cap_samp_count_sb"
+#define E_CAP_SAMP_TIMER_RB_KEY     "cap_samp_timer_rb"
+#define E_CAP_SAMP_TIMER_SB_KEY     "cap_samp_timer_sb"
+#endif
+
 #define E_CAP_OM_LT_VALUE_KEY       "cap_om_lt_value"
 
 
@@ -133,6 +157,14 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 
 static void
 select_link_type_cb(GtkWidget *w, gpointer data);
+
+#ifdef HAVE_PCAP_REMOTE
+static void
+select_if_type_cb(GtkWidget *w, gpointer data);
+
+static void
+capture_remote_cb(GtkWidget *w, gpointer data);
+#endif
 
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb, gpointer parent_w);
@@ -551,6 +583,314 @@ display_airpcap_advanced_cb(w,d);
 }
 #endif
 
+#ifdef HAVE_PCAP_REMOTE
+/* PCAP interface type menu item */
+struct iftype_info {
+    capture_source  id;
+    const char     *name;
+};
+
+/* List of available types of PCAP interface */
+static struct iftype_info iftype[] = {
+    { CAPTURE_IFLOCAL, "Local" },
+    { CAPTURE_IFREMOTE, "Remote" }
+};
+
+/* Fill the menu of available types of interfaces */
+static GtkWidget *
+iftype_option_menu_new(capture_source value)
+{
+    GtkWidget *iftype_om, *menu, *menu_item;
+    unsigned int i, active = 0;
+
+    iftype_om = gtk_option_menu_new();
+    menu = gtk_menu_new();
+
+    for (i = 0; i < sizeof(iftype) / sizeof(iftype[0]); i++)
+    {
+        menu_item = gtk_menu_item_new_with_label(iftype[i].name);
+        OBJECT_SET_DATA(menu_item, E_CAP_IFTYPE_OM_KEY, iftype_om);
+        SIGNAL_CONNECT(menu_item, "activate", select_if_type_cb,
+                       GINT_TO_POINTER((int)iftype[i].id));
+        gtk_menu_append(GTK_MENU(menu), menu_item);
+        if (value == iftype[i].id)
+            active = i;
+    }
+
+    gtk_menu_set_active(GTK_MENU(menu), active);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(iftype_om), menu);
+
+    return iftype_om;
+}
+
+/* Retrieve the list of local or remote interfaces according to selected
+ * options and re-fill inteface name combobox */
+static void
+update_interface_list()
+{
+    GtkWidget *if_cb;
+    GList     *if_list, *combo_list;
+    int        err;
+    gchar     *err_str;
+
+    if (cap_open_w == NULL)
+        return;
+
+    if_cb = (GtkWidget *)OBJECT_GET_DATA(cap_open_w, E_CAP_IFACE_KEY);
+
+    if (capture_opts->src_type == CAPTURE_IFREMOTE)
+        if_list = get_remote_interface_list(capture_opts->remote_host,
+                        capture_opts->remote_port,
+                        capture_opts->auth_type,
+                        capture_opts->auth_username,
+                        capture_opts->auth_password,
+                        &err, &err_str);
+    else
+        if_list = get_interface_list(&err, &err_str);
+
+    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+        g_free(err_str);
+
+        gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), NULL);
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "");
+    }
+    combo_list = build_capture_combo_list(if_list, TRUE);
+    if (combo_list != NULL)
+        gtk_combo_set_popdown_strings(GTK_COMBO(if_cb), combo_list);
+
+    free_capture_combo_list(combo_list);
+    free_interface_list(if_list);
+}
+
+/* User changed an interface entry of "Remote interface" dialog */
+static void
+capture_remote_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
+{
+    GtkWidget *auth_passwd_rb,
+              *username_lb, *username_te,
+              *passwd_lb, *passwd_te;
+    gboolean  state;
+
+    auth_passwd_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                                  E_REMOTE_AUTH_PASSWD_KEY);
+    username_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                                E_REMOTE_USERNAME_LB_KEY);
+    username_te = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+                                                E_REMOTE_USERNAME_TE_KEY);
+    passwd_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_REMOTE_PASSWD_LB_KEY);
+    passwd_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_REMOTE_PASSWD_TE_KEY);
+
+    state =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auth_passwd_rb));
+    gtk_widget_set_sensitive(GTK_WIDGET(username_lb), state);
+    gtk_widget_set_sensitive(GTK_WIDGET(username_te), state);
+    gtk_widget_set_sensitive(GTK_WIDGET(passwd_lb), state);
+    gtk_widget_set_sensitive(GTK_WIDGET(passwd_te), state);
+}
+
+/* user requested to destroy the dialog */
+static void
+capture_remote_destroy_cb(GtkWidget *win, gpointer user_data _U_)
+{
+    GtkWidget *caller;
+
+    caller = OBJECT_GET_DATA(win, E_CAP_REMOTE_CALLER_PTR_KEY);
+    OBJECT_SET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
+}
+
+/* user requested to accept remote interface options */
+static void
+capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
+{
+    GtkWidget *host_te, *port_te, *auth_pwd_rb, *username_te, *passwd_te,
+              *auth_null_rb, *auth_passwd_rb;
+
+    if (remote_w == NULL)
+        return;
+
+    host_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_HOST_TE_KEY);
+    port_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_PORT_TE_KEY);
+    auth_pwd_rb = (GtkWidget *)OBJECT_GET_DATA(remote_w,
+                                                  E_REMOTE_AUTH_PASSWD_KEY);
+    username_te = (GtkWidget *)OBJECT_GET_DATA(remote_w,
+                                                E_REMOTE_USERNAME_TE_KEY);
+    passwd_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_PASSWD_TE_KEY);
+    auth_null_rb = (GtkWidget *) OBJECT_GET_DATA(remote_w, E_REMOTE_AUTH_NULL_KEY);
+    auth_passwd_rb = (GtkWidget *) OBJECT_GET_DATA(remote_w, E_REMOTE_AUTH_PASSWD_KEY);
+
+    g_free(capture_opts->remote_host);
+    capture_opts->remote_host = g_strdup(gtk_entry_get_text(GTK_ENTRY(host_te)));
+    g_free(capture_opts->remote_port);
+    capture_opts->remote_port = g_strdup(gtk_entry_get_text(GTK_ENTRY(port_te)));
+    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auth_passwd_rb)))
+        capture_opts->auth_type = CAPTURE_AUTH_PWD;
+    else
+        capture_opts->auth_type = CAPTURE_AUTH_NULL;
+
+    g_free(capture_opts->auth_username);
+    capture_opts->auth_username =
+        g_strdup(gtk_entry_get_text(GTK_ENTRY(username_te)));
+
+    g_free(capture_opts->auth_password);
+    capture_opts->auth_password =
+        g_strdup(gtk_entry_get_text(GTK_ENTRY(passwd_te)));
+
+    capture_opts->src_type = CAPTURE_IFREMOTE;
+
+    window_destroy(GTK_WIDGET(remote_w));
+    update_interface_list();
+}
+
+/* Show remote capture interface parameters dialog */
+static void
+capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    GtkWidget   *caller, *remote_w,
+                *main_vb, *host_tb,
+                *host_lb, *host_te, *port_lb, *port_te,
+                *auth_fr, *auth_vb,
+                *auth_null_rb, *auth_passwd_rb, *auth_passwd_tb,
+                *user_lb, *user_te, *passwd_lb, *passwd_te,
+                *bbox, *ok_bt, *cancel_bt;
+    gchar       *title;
+    GtkTooltips *tooltips;
+    GSList      *auth_group;
+
+    caller = gtk_widget_get_toplevel(w);
+    remote_w = OBJECT_GET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY);
+    if (remote_w != NULL)
+    {
+        reactivate_window(remote_w);
+        return;
+    }
+
+    title = create_user_window_title("Wireshark: Remote Interface");
+    remote_w = dlg_window_new(title);
+    OBJECT_SET_DATA(remote_w, E_CAP_REMOTE_CALLER_PTR_KEY, caller);
+    OBJECT_SET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY, remote_w);
+    g_free(title);
+
+    tooltips = gtk_tooltips_new();
+
+    main_vb = gtk_vbox_new(FALSE, 0);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_add(GTK_CONTAINER(remote_w), main_vb);
+
+    /* Host/port table */
+    host_tb = gtk_table_new(2, 2, FALSE);
+    gtk_table_set_row_spacings(GTK_TABLE(host_tb), 3);
+    gtk_table_set_col_spacings(GTK_TABLE(host_tb), 3);
+    gtk_box_pack_start(GTK_BOX(main_vb), host_tb, FALSE, FALSE, 0);
+
+    /* Host row */
+    host_lb = gtk_label_new("Host:");
+    gtk_table_attach_defaults(GTK_TABLE(host_tb), host_lb, 0, 1, 0, 1);
+
+    host_te = gtk_entry_new();
+    gtk_tooltips_set_tip(tooltips, host_te,
+        "Enter the hostname or host IP address to be used as a source "
+        "for remote capture.", NULL);
+    gtk_table_attach_defaults(GTK_TABLE(host_tb), host_te, 1, 2, 0, 1);
+    if (capture_opts->remote_host != NULL)
+        gtk_entry_set_text(GTK_ENTRY(host_te), capture_opts->remote_host);
+
+    /* Port row */
+    port_lb = gtk_label_new("Port:");
+    gtk_table_attach_defaults(GTK_TABLE(host_tb), port_lb, 0, 1, 1, 2);
+
+    port_te = gtk_entry_new();
+    gtk_tooltips_set_tip(tooltips, port_te,
+        "Enter the TCP port number used by RPCAP server at remote host "
+        "(leave it empty for default port number).", NULL);
+    gtk_table_attach_defaults(GTK_TABLE(host_tb), port_te, 1, 2, 1, 2);
+    if (capture_opts->remote_port != NULL)
+        gtk_entry_set_text(GTK_ENTRY(port_te), capture_opts->remote_port);
+
+    /* Authentication options frame */
+    auth_fr = gtk_frame_new("Authentication");
+    gtk_container_add(GTK_CONTAINER(main_vb), auth_fr);
+
+    auth_vb = gtk_vbox_new(FALSE, 3);
+    gtk_container_border_width(GTK_CONTAINER(auth_vb), 5);
+    gtk_container_add(GTK_CONTAINER(auth_fr), auth_vb);
+
+    auth_null_rb = gtk_radio_button_new_with_label(NULL,
+                                                   "Null authentication");
+    gtk_box_pack_start(GTK_BOX(auth_vb), auth_null_rb, TRUE, TRUE, 0);
+
+#if GTK_MAJOR_VERSION >= 2
+    auth_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(auth_null_rb));
+#else
+    auth_group = gtk_radio_button_group(GTK_RADIO_BUTTON(auth_null_rb));
+#endif
+    auth_passwd_rb = gtk_radio_button_new_with_label(auth_group,
+                                            "Password authentication");
+    gtk_box_pack_start(GTK_BOX(auth_vb), auth_passwd_rb, TRUE, TRUE, 0);
+    SIGNAL_CONNECT(auth_passwd_rb, "toggled", capture_remote_adjust_sensitivity,
+                   remote_w);
+
+    auth_passwd_tb = gtk_table_new(2, 2, FALSE);
+    gtk_table_set_row_spacings(GTK_TABLE(auth_passwd_tb), 3);
+    gtk_table_set_col_spacings(GTK_TABLE(auth_passwd_tb), 3);
+    gtk_box_pack_start(GTK_BOX(auth_vb), auth_passwd_tb, FALSE, FALSE, 0);
+
+    user_lb = gtk_label_new("Username:");
+    gtk_table_attach_defaults(GTK_TABLE(auth_passwd_tb), user_lb, 0, 1, 0, 1);
+
+    user_te = gtk_entry_new();
+    gtk_table_attach_defaults(GTK_TABLE(auth_passwd_tb), user_te, 1, 2, 0, 1);
+    if (capture_opts->auth_username != NULL)
+        gtk_entry_set_text(GTK_ENTRY(user_te), capture_opts->auth_username);
+
+    passwd_lb = gtk_label_new("Password:");
+    gtk_table_attach_defaults(GTK_TABLE(auth_passwd_tb), passwd_lb, 0, 1, 1, 2);
+
+    passwd_te = gtk_entry_new();
+    gtk_entry_set_visibility(GTK_ENTRY(passwd_te), FALSE);
+    gtk_table_attach_defaults(GTK_TABLE(auth_passwd_tb), passwd_te, 1, 2, 1, 2);
+    if (capture_opts->auth_password != NULL)
+        gtk_entry_set_text(GTK_ENTRY(passwd_te), capture_opts->auth_password);
+
+    /* Button row: "Start" and "Cancel" buttons */
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
+
+    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    SIGNAL_CONNECT(ok_bt, "clicked", capture_remote_ok_cb, remote_w);
+    gtk_tooltips_set_tip(tooltips, ok_bt,
+                         "Accept remote host parameters and lookup "
+                         "remote interfaces.", NULL);
+
+    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    gtk_tooltips_set_tip(tooltips, cancel_bt,
+                         "Cancel and exit dialog.", NULL);
+    window_set_cancel_button(remote_w, cancel_bt, window_cancel_button_cb);
+
+    gtk_widget_grab_default(ok_bt);
+
+    SIGNAL_CONNECT(remote_w, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(remote_w, "destroy", capture_remote_destroy_cb, NULL);
+
+    OBJECT_SET_DATA(remote_w, E_REMOTE_HOST_TE_KEY, host_te);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_PORT_TE_KEY, port_te);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_AUTH_NULL_KEY, auth_null_rb);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_AUTH_PASSWD_KEY, auth_passwd_rb);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_USERNAME_LB_KEY, user_lb);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_USERNAME_TE_KEY, user_te);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_PASSWD_LB_KEY, passwd_lb);
+    OBJECT_SET_DATA(remote_w, E_REMOTE_PASSWD_TE_KEY, passwd_te);
+
+    if (capture_opts->auth_type == CAPTURE_AUTH_PWD)
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auth_passwd_rb), TRUE);
+    else
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auth_null_rb), TRUE);
+    capture_remote_adjust_sensitivity(NULL, remote_w);
+
+    gtk_widget_show_all(remote_w);
+    window_present(remote_w);
+}
+#endif
+
 /* show capture prepare (options) dialog */
 void
 capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -589,6 +929,16 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_hb, *advanced_bt;
+#endif
+#endif
+#ifdef HAVE_PCAP_REMOTE
+  GtkWidget     *iftype_om, *nocap_rpcap_cb, *datatx_udp_cb;
+#ifdef HAVE_PCAP_SETSAMPLING
+  GtkWidget     *sampling_fr, *sampling_vb, *sampling_tb, *sampling_lb,
+                *samp_none_rb, *samp_count_rb, *samp_timer_rb,
+                *samp_count_sb, *samp_timer_sb;
+  GtkAdjustment *samp_count_adj, *samp_timer_adj;
+  GSList        *samp_group;
 #endif
 #endif
 #if GTK_MAJOR_VERSION < 2
@@ -631,7 +981,19 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   }
 #endif
 
+#ifdef HAVE_PCAP_REMOTE
+  if (capture_opts->src_type == CAPTURE_IFREMOTE)
+      if_list = get_remote_interface_list(capture_opts->remote_host,
+                    capture_opts->remote_port,
+                    capture_opts->auth_type,
+                    capture_opts->auth_username,
+                    capture_opts->auth_password,
+                    &err, &err_str);
+  else
+      if_list = get_interface_list(&err, &err_str);
+#else
   if_list = capture_interface_list(&err, &err_str);
+#endif
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
@@ -689,6 +1051,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if_lb = gtk_label_new("Interface:");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 6);
+
+#ifdef HAVE_PCAP_REMOTE
+  iftype_om = iftype_option_menu_new(capture_opts->src_type);
+  gtk_box_pack_start(GTK_BOX(if_hb), iftype_om, FALSE, FALSE, 0);
+#endif
 
   if_cb = gtk_combo_new();
   combo_list = build_capture_combo_list(if_list, TRUE);
@@ -805,6 +1172,21 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "If you want to capture all traffic that the network card can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.", NULL);
   gtk_container_add(GTK_CONTAINER(capture_vb), promisc_cb);
+
+#ifdef HAVE_PCAP_REMOTE
+  /* RPCAP-related flags */
+  nocap_rpcap_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "Do not capture RPCAP own traffic", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(nocap_rpcap_cb),
+          capture_opts->nocap_rpcap);
+  gtk_container_add(GTK_CONTAINER(capture_vb), nocap_rpcap_cb);
+
+  datatx_udp_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
+      "Use UDP for RPCAP data transfer", accel_group);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(datatx_udp_cb),
+          capture_opts->datatx_udp);
+  gtk_container_add(GTK_CONTAINER(capture_vb), datatx_udp_cb);
+#endif
 
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
@@ -1145,6 +1527,77 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_adjustment_set_value(stop_duration_adj, (gfloat) value);
   row++;
 
+#ifdef HAVE_PCAP_SETSAMPLING
+  /* Sampling options */
+  sampling_fr = gtk_frame_new("Sampling Options");
+  gtk_container_add(GTK_CONTAINER(right_vb), sampling_fr);
+
+  sampling_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(sampling_vb), 5);
+  gtk_container_add(GTK_CONTAINER(sampling_fr), sampling_vb);
+
+  sampling_tb = gtk_table_new(3, 3, FALSE);
+  gtk_table_set_row_spacings(GTK_TABLE(sampling_tb), 1);
+  gtk_table_set_col_spacings(GTK_TABLE(sampling_tb), 3);
+  gtk_box_pack_start(GTK_BOX(sampling_vb), sampling_tb, FALSE, FALSE, 0);
+
+  /* "No sampling" row */
+  samp_none_rb = gtk_radio_button_new_with_label(NULL, "None");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
+                     (capture_opts->sampling_method == CAPTURE_SAMP_NONE));
+  SIGNAL_CONNECT(samp_none_rb, "toggled",
+                 capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_none_rb, 0, 1, 0, 1);
+
+  /* "Sampling by counter" row */
+#if GTK_MAJOR_VERSION >= 2
+  samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_none_rb));
+#else
+  samp_group = gtk_radio_button_group(GTK_RADIO_BUTTON(samp_none_rb));
+#endif
+  samp_count_rb = gtk_radio_button_new_with_label(samp_group, "1 of");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
+                     (capture_opts->sampling_method == CAPTURE_SAMP_BY_COUNT));
+  SIGNAL_CONNECT(samp_count_rb, "toggled",
+                 capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_count_rb, 0, 1, 1, 2);
+
+  samp_count_adj = (GtkAdjustment *) gtk_adjustment_new(
+                        (gfloat)capture_opts->sampling_param,
+                        1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
+  samp_count_sb = gtk_spin_button_new(samp_count_adj, 0, 0);
+  gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(samp_count_sb), TRUE);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_count_sb, 1, 2, 1, 2);
+
+  sampling_lb = gtk_label_new("packets");
+  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), sampling_lb, 2, 3, 1, 2);
+
+  /* "Sampling by timer" row */
+#if GTK_MAJOR_VERSION >= 2
+  samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_count_rb));
+#else
+  samp_group = gtk_radio_button_group(GTK_RADIO_BUTTON(samp_count_rb));
+#endif
+  samp_timer_rb = gtk_radio_button_new_with_label(samp_group, "1 every");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
+                     (capture_opts->sampling_method == CAPTURE_SAMP_BY_TIMER));
+  SIGNAL_CONNECT(samp_timer_rb, "toggled",
+                 capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_timer_rb, 0, 1, 2, 3);
+
+  samp_timer_adj = (GtkAdjustment *) gtk_adjustment_new(
+                        (gfloat)capture_opts->sampling_param,
+                        1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
+  samp_timer_sb = gtk_spin_button_new(samp_timer_adj, 0, 0);
+  gtk_spin_button_set_wrap(GTK_SPIN_BUTTON(samp_timer_sb), TRUE);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_timer_sb, 1, 2, 2, 3);
+
+  sampling_lb = gtk_label_new("milliseconds");
+  gtk_misc_set_alignment(GTK_MISC(sampling_lb), 0, 0.5);
+  gtk_table_attach_defaults(GTK_TABLE(sampling_tb), sampling_lb, 2, 3, 2, 3);
+#endif
+
   /* Display-related options frame */
   display_fr = gtk_frame_new("Display Options");
   gtk_container_add(GTK_CONTAINER(right_vb), display_fr);
@@ -1236,6 +1689,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
+#ifdef HAVE_PCAP_REMOTE
+  OBJECT_SET_DATA(cap_open_w, E_CAP_IFTYPE_OM_KEY, iftype_om);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_NOCAP_RPCAP_CB_KEY, nocap_rpcap_cb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_DATATX_UDP_CB_KEY, datatx_udp_cb);
+#endif
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_CB_KEY, snap_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_SB_KEY, snap_sb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_LT_OM_KEY, linktype_om);
@@ -1273,6 +1732,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(cap_open_w, E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
   OBJECT_SET_DATA(cap_open_w, E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
+#ifdef HAVE_PCAP_SETSAMPLING
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_NONE_RB_KEY, samp_none_rb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_COUNT_RB_KEY, samp_count_rb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_COUNT_SB_KEY, samp_count_sb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_TIMER_RB_KEY, samp_timer_rb);
+  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_TIMER_SB_KEY, samp_timer_sb);
+#endif
 
   /* Set the sensitivity of various widgets as per the settings of other
      widgets. */
@@ -1441,6 +1907,33 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   }
  }
 
+#ifdef HAVE_PCAP_REMOTE
+/* user selected an interface type (local/remote), convert to internal value) */
+static void
+select_if_type_cb(GtkWidget *w, gpointer data)
+{
+    int new_iftype = GPOINTER_TO_INT(data);
+    GtkWidget *iftype_om = OBJECT_GET_DATA(w, E_CAP_IFTYPE_OM_KEY);
+    int old_iftype = GPOINTER_TO_INT(OBJECT_GET_DATA(iftype_om,
+                                            E_CAP_OM_IFTYPE_VALUE_KEY));
+
+    if (old_iftype != new_iftype)
+    {
+        OBJECT_SET_DATA(iftype_om, E_CAP_OM_IFTYPE_VALUE_KEY,
+                        GINT_TO_POINTER(new_iftype));
+    }
+    if (new_iftype == CAPTURE_IFREMOTE)
+    {
+        capture_remote_cb(iftype_om, NULL);
+    }
+    else if (new_iftype != old_iftype)
+    {
+        capture_opts->src_type = CAPTURE_IFLOCAL;
+        update_interface_list();
+    }
+}
+#endif
+
 /* user pressed "File" button */
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
@@ -1462,6 +1955,13 @@ capture_dlg_prep(gpointer parent_w) {
             *file_duration_cb, *file_duration_sb, *file_duration_om,
             *stop_files_cb, *stop_files_sb,
             *m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
+#ifdef HAVE_PCAP_REMOTE
+  GtkWidget *iftype_om, *datatx_udp_cb, *nocap_rpcap_cb;
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+  GtkWidget *samp_none_rb, *samp_count_rb, *samp_timer_rb,
+            *samp_count_sb, *samp_timer_sb;
+#endif
 #ifdef _WIN32
   GtkWidget *buffer_size_sb;
 #endif
@@ -1475,6 +1975,11 @@ capture_dlg_prep(gpointer parent_w) {
   gint32 tmp;
 
   if_cb     = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
+#ifdef HAVE_PCAP_REMOTE
+  iftype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFTYPE_OM_KEY);
+  datatx_udp_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DATATX_UDP_CB_KEY);
+  nocap_rpcap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_NOCAP_RPCAP_CB_KEY);
+#endif
   snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
   snap_sb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
   linktype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_LT_OM_KEY);
@@ -1510,6 +2015,13 @@ capture_dlg_prep(gpointer parent_w) {
   m_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_M_RESOLVE_KEY);
   n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
   t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
+#ifdef HAVE_PCAP_SETSAMPLING
+  samp_none_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_NONE_RB_KEY);
+  samp_count_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_RB_KEY);
+  samp_timer_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_RB_KEY);
+  samp_count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_SB_KEY);
+  samp_timer_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_SB_KEY);
+#endif
 
   entry_text =
     g_strdup(gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(if_cb)->entry)));
@@ -1532,6 +2044,31 @@ capture_dlg_prep(gpointer parent_w) {
      the acquisition will be performed on the default datalink for the device */
   /*  capture_opts->linktype =
       GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY)); */
+
+#ifdef HAVE_PCAP_REMOTE
+  capture_opts->src_type = (capture_source)
+      GPOINTER_TO_INT(OBJECT_GET_DATA(iftype_om, E_CAP_OM_IFTYPE_VALUE_KEY));
+  capture_opts->datatx_udp =
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(datatx_udp_cb));
+  capture_opts->nocap_rpcap =
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nocap_rpcap_cb));
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_none_rb)))
+       capture_opts->sampling_method = CAPTURE_SAMP_NONE;
+   else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_count_rb)))
+   {
+       capture_opts->sampling_method = CAPTURE_SAMP_BY_COUNT;
+       capture_opts->sampling_param = gtk_spin_button_get_value_as_int(
+                                        GTK_SPIN_BUTTON(samp_count_sb));
+   }
+   else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_timer_rb)))
+   {
+       capture_opts->sampling_method = CAPTURE_SAMP_BY_TIMER;
+       capture_opts->sampling_param = gtk_spin_button_get_value_as_int(
+                                        GTK_SPIN_BUTTON(samp_timer_sb));
+   }
+#endif
 
 #ifdef _WIN32
   capture_opts->buffer_size =
@@ -1703,6 +2240,9 @@ static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
   GtkWidget *fs;
+#ifdef HAVE_PCAP_REMOTE
+  GtkWidget *remote_w;
+#endif
 
   /* Is there a file selection dialog associated with this
      Capture Options dialog? */
@@ -1719,6 +2259,12 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 #ifdef HAVE_AIRPCAP
   /* update airpcap toolbar */
   airpcap_set_toolbar_stop_capture(airpcap_if_active);
+#endif
+
+#ifdef HAVE_PCAP_REMOTE
+  remote_w = OBJECT_GET_DATA(win, E_CAP_REMOTE_DIALOG_PTR_KEY);
+  if (remote_w != NULL)
+      window_destroy(remote_w);
 #endif
 }
 
@@ -1751,6 +2297,10 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
             *stop_filesize_cb, *stop_filesize_sb, *stop_filesize_om,
             *stop_duration_cb, *stop_duration_sb, *stop_duration_om,
             *stop_files_cb, *stop_files_sb, *stop_files_lb;
+#ifdef HAVE_PCAP_SETSAMPLING
+  GtkWidget *samp_count_rb, *samp_timer_rb,
+            *samp_count_sb, *samp_timer_sb;
+#endif
 
 
   if_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
@@ -1781,6 +2331,12 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
   stop_files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_CB_KEY);
   stop_files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_SB_KEY);
   stop_files_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_LB_KEY);
+#ifdef HAVE_PCAP_SETSAMPLING
+  samp_count_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_RB_KEY);
+  samp_timer_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_RB_KEY);
+  samp_count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_SB_KEY);
+  samp_timer_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_SB_KEY);
+#endif
 
   /* The snapshot length spinbox is sensitive if the "Limit each packet
      to" checkbox is on. */
@@ -1895,6 +2451,13 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb)));
   gtk_widget_set_sensitive(GTK_WIDGET(stop_duration_om),
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(stop_duration_cb)));
+
+#ifdef HAVE_PCAP_SETSAMPLING
+   gtk_widget_set_sensitive(GTK_WIDGET(samp_count_sb),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_count_rb)));
+   gtk_widget_set_sensitive(GTK_WIDGET(samp_timer_sb),
+      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(samp_timer_rb)));
+#endif
 }
 
 #endif /* HAVE_LIBPCAP */

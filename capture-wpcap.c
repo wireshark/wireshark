@@ -96,6 +96,17 @@ static void    (*p_pcap_breakloop) (pcap_t *);
 static const char *(*p_pcap_lib_version) (void);
 static int     (*p_pcap_setbuff) (pcap_t *, int dim);
 static int     (*p_pcap_next_ex) (pcap_t *, struct pcap_pkthdr **pkt_header, const u_char **pkt_data);
+#ifdef HAVE_PCAP_REMOTE
+static pcap_t* (*p_pcap_open) (const char *, int, int, int,
+                               struct pcap_rmtauth *, char *);
+static int     (*p_pcap_findalldevs_ex) (char *, struct pcap_rmtauth *,
+                                         pcap_if_t **, char *);
+static int     (*p_pcap_createsrcstr) (char *, int, const char *, const char *,
+                                       const char *, char *);
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+static struct pcap_samp* (*p_pcap_setsampling)(pcap_t *);
+#endif
 
 typedef struct {
 	const char	*name;
@@ -121,7 +132,16 @@ load_wpcap(void)
 		SYM(pcap_geterr, FALSE),
 		SYM(pcap_compile, FALSE),
 		SYM(pcap_lookupnet, FALSE),
+#ifdef HAVE_PCAP_REMOTE
+		SYM(pcap_open, FALSE),
+		SYM(pcap_findalldevs_ex, FALSE),
+		SYM(pcap_createsrcstr, FALSE),
+#else
 		SYM(pcap_open_live, FALSE),
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+		SYM(pcap_setsampling, TRUE),
+#endif
 		SYM(pcap_loop, FALSE),
 		SYM(pcap_freecode, TRUE),
 #ifdef HAVE_PCAP_FINDALLDEVS
@@ -265,6 +285,42 @@ pcap_open_live(char *a, int b, int c, int d, char *e)
 	g_assert(has_wpcap);
 	return p_pcap_open_live(a, b, c, d, e);
 }
+
+#ifdef HAVE_PCAP_REMOTE
+pcap_t*
+pcap_open(const char *a, int b, int c, int d, struct pcap_rmtauth *e, char *f)
+{
+    g_assert(has_wpcap);
+    return p_pcap_open(a, b, c, d, e, f);
+}
+
+int
+pcap_findalldevs_ex(char *a, struct pcap_rmtauth *b, pcap_if_t **c, char *d)
+{
+    g_assert(has_wpcap);
+    return p_pcap_findalldevs_ex(a, b, c, d);
+}
+
+int
+pcap_createsrcstr(char *a, int b, const char *c, const char *d, const char *e,
+                  char *f)
+{
+    g_assert(has_wpcap);
+    return p_pcap_createsrcstr(a, b, c, d, e, f);
+}
+#endif
+
+#ifdef HAVE_PCAP_SETSAMPLING
+struct pcap_samp *
+pcap_setsampling(pcap_t *a)
+{
+    g_assert(has_wpcap);
+    if (p_pcap_setsampling != NULL) {
+        return p_pcap_setsampling(a);
+    }
+    return NULL;
+}
+#endif
 
 int
 pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
@@ -465,6 +521,37 @@ int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 	return p_pcap_next_ex(a, b, c);
 }
 
+#ifdef HAVE_PCAP_REMOTE
+GList *
+get_remote_interface_list(const char *hostname, const char *port,
+                          int auth_type, const char *username,
+                          const char *passwd, int *err, char **err_str)
+{
+    struct pcap_rmtauth auth;
+    char source[PCAP_BUF_SIZE];
+    char errbuf[PCAP_ERRBUF_SIZE];
+    GList *result;
+
+    if (pcap_createsrcstr(source, PCAP_SRC_IFREMOTE, hostname, port,
+                          NULL, errbuf) == -1) {
+        *err = CANT_GET_INTERFACE_LIST;
+        if (err_str != NULL)
+            *err_str = cant_get_if_list_error_message(errbuf);
+        return NULL;
+    }
+
+    auth.type = auth_type;
+    auth.username = g_strdup(username);
+    auth.password = g_strdup(passwd);
+
+    result = get_interface_list_findalldevs_ex(source, &auth, err, err_str);
+    g_free(auth.username);
+    g_free(auth.password);
+
+    return result;
+}
+#endif
+
 /*
  * This will use "pcap_findalldevs()" if we have it, otherwise it'll
  * fall back on "pcap_lookupdev()".
@@ -472,13 +559,28 @@ int pcap_next_ex (pcap_t *a, struct pcap_pkthdr **b, const u_char **c)
 GList *
 get_interface_list(int *err, char **err_str)
 {
+#ifdef HAVE_PCAP_REMOTE
+	char source[PCAP_BUF_SIZE];
+#else
 	GList  *il = NULL;
 	wchar_t *names;
 	char *win95names;
 	char ascii_name[MAX_WIN_IF_NAME_LEN + 1];
 	char ascii_desc[MAX_WIN_IF_NAME_LEN + 1];
 	int i, j;
+#endif
 	char errbuf[PCAP_ERRBUF_SIZE];
+
+#ifdef HAVE_PCAP_REMOTE
+    if (p_pcap_createsrcstr(source, PCAP_SRC_IFLOCAL, NULL, NULL,
+                            NULL, errbuf) == -1) {
+        *err = CANT_GET_INTERFACE_LIST;
+        if (err_str != NULL)
+            *err_str = cant_get_if_list_error_message(errbuf);
+        return NULL;
+    }
+    return get_interface_list_findalldevs_ex(source, NULL, err, err_str);
+#else
 
 #ifdef HAVE_PCAP_FINDALLDEVS
 	if (p_pcap_findalldevs != NULL)
@@ -620,6 +722,7 @@ get_interface_list(int *err, char **err_str)
 	}
 
 	return il;
+#endif  /* HAVE_PCAP_REMOTE */
 }
 
 /*

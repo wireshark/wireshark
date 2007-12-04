@@ -40,6 +40,34 @@ typedef enum {
     CAPTURE_RUNNING         /**< capture child signalled ok, capture is running now */
 } capture_state;
 
+#ifdef HAVE_PCAP_REMOTE
+/* Type of capture source */
+typedef enum {
+    CAPTURE_IFLOCAL,        /**< Local network interface */
+    CAPTURE_IFREMOTE        /**< Remote network interface */
+} capture_source;
+
+/* Type of RPCAPD Authentication */
+typedef enum {
+    CAPTURE_AUTH_NULL,      /**< No authentication */
+    CAPTURE_AUTH_PWD        /**< User/password authentication */
+} capture_auth;
+
+#ifdef HAVE_PCAP_SETSAMPLING
+/**
+ * Method of packet sampling (dropping some captured packets),
+ * may require additional integer parameter, marked here as N
+ */
+typedef enum {
+    CAPTURE_SAMP_NONE,      /**< No sampling - capture all packets */
+    CAPTURE_SAMP_BY_COUNT,  /**< Counter-based sampling -
+                                 capture 1 packet from every N */
+    CAPTURE_SAMP_BY_TIMER   /**< Timer-based sampling -
+                                 capture no more than 1 packet
+                                 in N milliseconds */
+} capture_sampling;
+#endif
+#endif
 
 /** Capture options coming from user interface */
 typedef struct capture_options_tag {
@@ -55,7 +83,24 @@ typedef struct capture_options_tag {
 				      *< Readers of this field should use
 				      *< get_iface_description() from
 				      *< "capture_ui_utils.h" to access it. */
+#ifdef HAVE_PCAP_REMOTE
+    capture_source src_type;        /**< Capturing on remote interface */
+    gchar    *remote_host;          /**< Host name or network address
+				      *< for remote capturing */
+    gchar    *remote_port;          /**< TCP port of remote RPCAP server */
 
+    capture_auth  auth_type;
+    gchar    *auth_username;
+    gchar    *auth_password;        /**< Remote authentication parameters */
+
+    gboolean datatx_udp;            /**< Whether to use UDP for data transfer */
+    gboolean nocap_rpcap;           /**< Whether to capture RPCAP own traffic */
+    gboolean nocap_local;           /**< TODO: Whether to capture local traffic */
+#ifdef HAVE_PCAP_SETSAMPLING
+    capture_sampling sampling_method; /**< PCAP packet sampling method */
+    int sampling_param;             /**< PCAP packet sampling parameter */
+#endif
+#endif
 #ifdef _WIN32
     int      buffer_size;           /**< the capture buffer size (MB) */
 #endif

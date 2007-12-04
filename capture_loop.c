@@ -639,6 +639,9 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
   WORD        wVersionRequested;
   WSADATA     wsaData;
 #endif
+#ifdef HAVE_PCAP_REMOTE
+  struct pcap_rmtauth auth;
+#endif
 
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "capture_loop_open_input : %s", capture_opts->iface);
@@ -697,11 +700,27 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
+#ifdef HAVE_PCAP_OPEN
+  auth.type = capture_opts->auth_type == CAPTURE_AUTH_PWD ?
+                    RPCAP_RMTAUTH_PWD : RPCAP_RMTAUTH_NULL;
+  auth.username = capture_opts->auth_username;
+  auth.password = capture_opts->auth_password;
+
+  ld->pcap_h = pcap_open(capture_opts->iface,
+               capture_opts->has_snaplen ? capture_opts->snaplen :
+                          WTAP_MAX_PACKET_SIZE,
+               /* flags */
+               (capture_opts->promisc_mode ? PCAP_OPENFLAG_PROMISCUOUS : 0) |
+               (capture_opts->datatx_udp ? PCAP_OPENFLAG_DATATX_UDP : 0) |
+               (capture_opts->nocap_rpcap ? PCAP_OPENFLAG_NOCAPTURE_RPCAP : 0),
+               CAP_READ_TIMEOUT, &auth, open_err_str);
+#else
   ld->pcap_h = pcap_open_live(capture_opts->iface,
 		       capture_opts->has_snaplen ? capture_opts->snaplen :
 						  WTAP_MAX_PACKET_SIZE,
 		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
+#endif
 
   if (ld->pcap_h != NULL) {
     /* we've opened "iface" as a network device */
@@ -717,6 +736,43 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         report_capture_error("Couldn't set the capture buffer size!",
                                    sync_secondary_msg_str);
         g_free(sync_secondary_msg_str);
+    }
+#endif
+
+#if defined(HAVE_PCAP_REMOTE) && defined(HAVE_PCAP_SETSAMPLING)
+    if (capture_opts->sampling_method != CAPTURE_SAMP_NONE)
+    {
+        struct pcap_samp *samp;
+
+        if ((samp = pcap_setsampling(ld->pcap_h)) != NULL)
+        {
+            switch (capture_opts->sampling_method)
+            {
+                case CAPTURE_SAMP_BY_COUNT:
+                    samp->method = PCAP_SAMP_1_EVERY_N;
+                    break;
+
+                case CAPTURE_SAMP_BY_TIMER:
+                    samp->method = PCAP_SAMP_FIRST_AFTER_N_MS;
+                    break;
+
+                default:
+                    sync_msg_str = g_strdup_printf(
+                            "Unknown sampling method %d specified,\n"
+                            "continue without packet sampling",
+                            capture_opts->sampling_method);
+                    report_capture_error("Couldn't set the capture "
+                            "sampling", sync_msg_str);
+                    g_free(sync_msg_str);
+            }
+            samp->value = capture_opts->sampling_param;
+        }
+        else
+        {
+            report_capture_error("Couldn't set the capture sampling",
+                    "Cannot get packet sampling data structure");
+        }
+
     }
 #endif
 

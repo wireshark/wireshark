@@ -138,6 +138,17 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -S                       print statistics for each interface once every second\n");
   fprintf(output, "  -M                       for -D, -L, and -S produce machine-readable output\n");
   fprintf(output, "\n");
+#ifdef HAVE_PCAP_REMOTE
+  fprintf(output, "\nRPCAP options:\n");
+  fprintf(output, "  -r                       don't ignore own RPCAP traffic in capture\n");
+  fprintf(output, "  -u                       use UDP for RPCAP data transfer\n");
+  fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
+#ifdef HAVE_PCAP_SETSAMPLING
+  fprintf(output, "  -m <sampling type>       use packet sampling\n");
+  fprintf(output, "                           count:NUM - capture one packet of every NUM\n");
+  fprintf(output, "                           timer:NUM - capture no more than 1 packet in NUM ms\n");
+#endif
+#endif
   fprintf(output, "Stop conditions:\n");
   fprintf(output, "  -c <packet count>        stop after n packets (def: infinite)\n");
   fprintf(output, "  -a <autostop cond.> ...  duration:NUM - stop after NUM seconds\n");
@@ -363,7 +374,11 @@ main(int argc, char *argv[])
   gboolean             print_statistics = FALSE;
   int                  status, run_once_args = 0;
 
+#ifdef HAVE_PCAP_REMOTE
+#define OPTSTRING_INIT "a:A:b:c:Df:hi:Lm:MprSs:uvw:y:Z:"
+#else
 #define OPTSTRING_INIT "a:b:c:Df:hi:LMpSs:vw:y:Z:"
+#endif
 
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -476,6 +491,14 @@ main(int argc, char *argv[])
       case 's':        /* Set the snapshot (capture) length */
       case 'w':        /* Write to capture file x */
       case 'y':        /* Set the pcap data link type */
+#ifdef HAVE_PCAP_REMOTE
+      case 'u':        /* Use UDP for data transfer */
+      case 'r':        /* Capture own RPCAP traffic too */
+      case 'A':        /* Authentication */
+#endif
+#ifdef HAVE_PCAP_SETSAMPLING
+      case 'm':        /* Sampling */
+#endif
 #ifdef _WIN32
       case 'B':        /* Buffer size */
 #endif /* _WIN32 */

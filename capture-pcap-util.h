@@ -68,6 +68,11 @@ typedef struct {
 } if_addr_t;
 
 GList *get_interface_list(int *err, char **err_str);
+#ifdef HAVE_PCAP_REMOTE
+GList *get_remote_interface_list(const char *hostname, const char *port,
+                                 int auth_type, const char *username,
+                                 const char *passwd, int *err, char **err_str);
+#endif
 
 /* Error values from "get_interface_list()/capture_interface_list()". */
 #define	CANT_GET_INTERFACE_LIST	1	/* error getting list */
