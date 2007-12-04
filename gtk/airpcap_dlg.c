@@ -38,6 +38,7 @@
 #include <string.h>
 
 #include <epan/filesystem.h>
+#include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/frequency-utils.h>
