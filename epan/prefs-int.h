@@ -32,7 +32,7 @@ struct pref_module {
 	const char *description;/* Description of module (displayed in preferences notebook) */
 	void (*apply_cb)(void);	/* routine to call when preferences applied */
 	GList	*prefs;		/* list of its preferences */
-	GTree	*submodules;	/* list of its submodules */
+	emem_tree_t *submodules;/* list of its submodules */
 	int	numprefs;	/* number of non-obsolete preferences */
 	gboolean prefs_changed;	/* if TRUE, a preference has changed since we last checked */
 	gboolean obsolete;	/* if TRUE, this is a module that used to
