@@ -219,6 +219,7 @@ srt_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	case 0:
 		/* match */
 		main_filter_packets(&cfile, str, FALSE);
+		break;
 	case 1:
 		/* prepare */
 		/* do nothing */
