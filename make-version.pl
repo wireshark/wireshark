@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Copyright 2004 Jörg Mayer (see AUTHORS file)
+# Copyright 2004 JÃ¶rg Mayer (see AUTHORS file)
 #
 # $Id$
 #
@@ -118,6 +118,10 @@ sub read_svn_info {
 		}
 		if ($line =~ /Last Changed Rev: (\d+)/) {
 			$revision = $1;
+		}
+		if ($line =~ /^$/) {
+			$last = "unknown";
+			$revision = "unknown";
 		}
 	} else {
 		# The entries schema is flat, so we can use regexes to parse its contents.
