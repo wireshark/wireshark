@@ -57,6 +57,9 @@ static dissector_handle_t data_handle;
 #define	GET_JOB_ATTRIBUTES	0x0009
 #define	GET_JOBS		0x000A
 #define	GET_PRINTER_ATTRIBUTES	0x000B
+#define IDLE            0x3
+#define PROCESSING      0x4
+#define STOPPED         0x5
 
 static const value_string operation_vals[] = {
     { PRINT_JOB,              "Print-Job" },
@@ -70,6 +73,26 @@ static const value_string operation_vals[] = {
     { GET_JOBS,               "Get-Jobs" },
     { GET_PRINTER_ATTRIBUTES, "Get-Printer-Attributes" },
     { 0,                      NULL }
+};
+
+/* Printer States */
+static const value_string printer_state_vals[] = {
+    { IDLE,         "Idle" },
+    { PROCESSING,   "Processing" },
+    { STOPPED,      "Stopped" },
+    { 0,            NULL }
+};
+
+/* Job States */
+static const value_string job_state_vals[] = {
+    { 3,            "Pending" },
+    { 4,            "Pending - Job Held" },
+    { 5,            "Processing" },
+    { 6,            "Processing - Job Stopped" },
+    { 7,            "Canceled" },
+    { 8,            "Aborted" },
+    { 9,            "Completed" },
+    { 0,            NULL }
 };
 
 #define	STATUS_SUCCESSFUL	0x0000
@@ -487,7 +510,23 @@ add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
 				    "%s: %s",
 				    format_text(name_val, name_length),
 				    abs_time_secs_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2)));
-			} else {
+
+			}
+            else if((name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2, "printer-state", 13)){
+				ti = proto_tree_add_text(tree, tvb, offset,
+				    1 + 2 + name_length + 2 + value_length,
+				    "%s: %s",
+				    format_text(name_val, name_length),
+				    val_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2), printer_state_vals, "Unknown Printer State"));
+            }
+            else if((name_length > 5) && name_val && !tvb_memeql(tvb, offset + 1 + 2, "job-state", 9)){
+				ti = proto_tree_add_text(tree, tvb, offset,
+				    1 + 2 + name_length + 2 + value_length,
+				    "%s: %s",
+				    format_text(name_val, name_length),
+				    val_to_str(tvb_get_ntohl(tvb, offset + 1 + 2 + name_length + 2), job_state_vals, "Unknown Job State"));
+            }
+            else {
 				ti = proto_tree_add_text(tree, tvb, offset,
 				    1 + 2 + name_length + 2 + value_length,
 				    "%s: %u",
@@ -545,9 +584,22 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
 				ns.secs=tvb_get_ntohl(tvb, offset);
 				ns.nsecs=0;
 				proto_tree_add_time(tree, hf_ipp_timestamp, tvb, offset, 4, &ns);
-			} else {
-				proto_tree_add_text(tree, tvb, offset, value_length,
-				    "Value: %u", tvb_get_ntohl(tvb, offset));
+			} 
+            else if((name_length > 5) && name_val && !strcmp(name_val, "printer-state")){
+                guint32 printer_state_reason;
+
+                printer_state_reason = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, value_length, "Value: %s (%u)", val_to_str(printer_state_reason, printer_state_vals, "Unknown Printer State (0x%02x)"), printer_state_reason);
+            }
+            else if((name_length > 5) && name_val && !strcmp(name_val, "job-state")){
+                guint32 job_state_reason;
+
+                job_state_reason = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, value_length, "Value: %s (%u)", val_to_str(job_state_reason, job_state_vals, "Unknown Job State (0x%02x)"), job_state_reason);
+            }
+            else{
+			    proto_tree_add_text(tree, tvb, offset, value_length,
+				        "Value: %u", tvb_get_ntohl(tvb, offset));
 			}
 		}
 		break;
