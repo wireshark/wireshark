@@ -1218,7 +1218,7 @@ set_file_type_list(GtkWidget *option_menu)
 	  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
 	  select_file_type_cb(NULL, GINT_TO_POINTER(filetype));
   } else {
-	  
+
 	  /*
 	   * Manually call the signal handler to activate the first menu item
 	   * since gtk_option_menu_set_history() doesn't do it for us. The first two
@@ -1504,7 +1504,9 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
 static void
 file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
+#if GTK_MAJOR_VERSION < 2 || ! defined(_WIN32)
   gpointer  dialog;
+#endif
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -1569,11 +1571,15 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   /* don't show the dialog while saving (or asking) */
   gtk_widget_hide(GTK_WIDGET (fs));
 
+  /* The native Windows file dialog takes care of this check for us) */
+#if GTK_MAJOR_VERSION < 2 || ! defined(_WIN32)
   /* it the file doesn't exist, simply try to save it */
   if (!file_exists(cf_name)) {
+#endif  /* _WIN32 */
     file_save_as_cb(NULL, fs);
     g_free(cf_name);
     return;
+#if GTK_MAJOR_VERSION < 2 || ! defined(_WIN32)
   }
 
   /* the file exists, ask the user to remove it first */
@@ -1584,6 +1590,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
 
   g_free(cf_name);
+#endif  /* _WIN32 */
 }
 
 void
