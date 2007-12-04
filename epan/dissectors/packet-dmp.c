@@ -307,10 +307,10 @@ static int hf_analysis_total_time = -1;
 static int hf_analysis_rto_time = -1;
 static int hf_analysis_msg_num = -1;
 static int hf_analysis_msg_missing = -1;
-static int hf_analysis_msg_dup_num = -1;
+static int hf_analysis_retrans_no = -1;
 static int hf_analysis_ack_num = -1;
 static int hf_analysis_ack_missing = -1;
-static int hf_analysis_ack_dup_num = -1;
+static int hf_analysis_ack_dup_no = -1;
 static int hf_analysis_rep_num = -1;
 static int hf_analysis_rep_time = -1;
 static int hf_analysis_not_num = -1;
@@ -1317,7 +1317,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
     }
     
     if (dmp.id_val->msg_resend_count) {
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_dup_num,
+      en = proto_tree_add_uint (analysis_tree, hf_analysis_retrans_no,
 				tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
@@ -1385,7 +1385,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
     }
     
     if (dmp.id_val->ack_resend_count) {
-      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_dup_num,
+      en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_dup_no,
 				tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
@@ -4160,12 +4160,12 @@ void proto_register_dmp (void)
     { &hf_analysis_ack_missing,
       { "Acknowledgement missing", "dmp.analysis.ack_missing", FT_NONE, BASE_NONE,
 	NULL, 0x0, "The acknowledgement for this packet is missing", HFILL } },
-    { &hf_analysis_msg_dup_num,
-      { "Duplicate packet #", "dmp.analysis.dup_msg_num", FT_UINT32, BASE_DEC,
-	NULL, 0x0, "Duplicate message identifier", HFILL } },
-    { &hf_analysis_ack_dup_num,
-      { "Duplicate ACK #", "dmp.analysis.dup_ack_num", FT_UINT32, BASE_DEC,
-	NULL, 0x0, "Duplicate subject message identifier", HFILL } },
+    { &hf_analysis_retrans_no,
+      { "Retransmission #", "dmp.analysis.retrans_no", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Retransmission count", HFILL } },
+    { &hf_analysis_ack_dup_no,
+      { "Duplicate ACK #", "dmp.analysis.dup_ack_no", FT_UINT32, BASE_DEC,
+	NULL, 0x0, "Duplicate Acknowledgement count", HFILL } },
     { &hf_analysis_msg_resend_from,
       { "Retransmission of Message sent in", "dmp.analysis.msg_first_sent_in", 
 	FT_FRAMENUM, BASE_NONE,
