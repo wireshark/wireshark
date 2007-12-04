@@ -115,6 +115,12 @@ browser_open_url (const gchar *url)
     return (FALSE);
   url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
   if (url_CFURL == NULL) {
+    /*
+     * XXX - this could mean that the url_CFString isn't a valid URL,
+     * or that memory allocation failed.  We can't determine which,
+     * except perhaps by providing our own allocator and somehow
+     * flagging allocation failures.
+     */
     CFRelease(url_CFString);
     return (FALSE);
   }
