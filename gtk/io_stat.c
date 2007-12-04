@@ -62,9 +62,9 @@ void unprotect_thread_critical_region(void);
 
 #define MAX_GRAPHS 5
 
-#define MAX_YSCALE 24
+#define MAX_YSCALE 27
 #define AUTO_MAX_YSCALE 0
-static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000};
+static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000, 2000000000};
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK 2
@@ -693,59 +693,11 @@ io_stat_draw(io_stat_t *io)
 			io->pixmap_width-right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
 		/* draw the labels */
-		if(i==0){
+		if(i==0 || i==5 || i==10){
 			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
+				print_time_scale_string(label_string, 15, (max_y/10)*i, max_y);
 			} else {
-				g_snprintf(label_string, 15, "%d", max_y*i/10);
-			}
-#if GTK_MAJOR_VERSION < 2
-	                lwidth=gdk_string_width(font, label_string);
-	                gdk_draw_string(io->pixmap,
-        	                        font,
-	                                io->draw_area->style->black_gc,
-	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
-        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                	                label_string);
-#else
-	                pango_layout_set_text(layout, label_string, -1);
-	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(io->pixmap,
-                	                io->draw_area->style->black_gc,
-                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
-                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-	                                layout);
-#endif
-		}
-		if(i==5){
-			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
-			} else {
-				g_snprintf(label_string, 15, "%d", max_y*i/10);
-			}
-#if GTK_MAJOR_VERSION < 2
-	                lwidth=gdk_string_width(font, label_string);
-	                gdk_draw_string(io->pixmap,
-        	                        font,
-	                                io->draw_area->style->black_gc,
-	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
-        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                	                label_string);
-#else
-	                pango_layout_set_text(layout, label_string, -1);
-	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(io->pixmap,
-                	                io->draw_area->style->black_gc,
-                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
-                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-	                                layout);
-#endif
-		}
-		if(i==10){
-			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y*i/10), max_y);
-			} else {
-				g_snprintf(label_string, 15, "%d", max_y*i/10);
+				g_snprintf(label_string, 15, "%d", (max_y/10)*i);
 			}
 #if GTK_MAJOR_VERSION < 2
 	                lwidth=gdk_string_width(font, label_string);
