@@ -153,13 +153,15 @@ extern void oid_add(const char* name, guint oid_len, guint32 *subids);
 extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
 extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
+#ifdef HAVE_LIBSMI
 /**
  * Fetch the default MIB/PIB path
  *
  * @return A string containing the default MIB/PIB path.  It must be
  * g_free()d by the caller.
  */
-extern gchar *oid_get_default_mib_path();
+extern gchar *oid_get_default_mib_path(void);
+#endif
 
 extern void oid_add_from_string(const char* name, const gchar *oid_str);
 

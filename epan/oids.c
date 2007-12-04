@@ -1036,11 +1036,12 @@ extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char**
 	*numeric_p = (void*)oid_subid2string(subids,subids_len);
 }
 
+#ifdef HAVE_LIBSMI
 /**
  * Fetch the default OID path.
  */
 extern gchar *
-oid_get_default_mib_path() {
+oid_get_default_mib_path(void) {
 	GString* path_str;
 	gchar *path_ret;
 	guint i;
@@ -1059,6 +1060,7 @@ oid_get_default_mib_path() {
 	g_string_free(path_str, FALSE);
 	return path_ret;
 }
+#endif
 
 #ifdef DEBUG_OIDS
 char* oid_test_a2b(guint32 num_subids, guint32* subids) {
