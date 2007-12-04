@@ -243,7 +243,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
 
 
 #if (GTK_MAJOR_VERSION < 2)
-       selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
+    selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(err->table)->selection, 0));
 #else
     gtk_tree_selection_get_selected(err->select, &model, &iter);
 
@@ -401,7 +401,6 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     default:
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu action - %u", action);
     }
-
 }
 
 static gint
@@ -513,7 +512,7 @@ expert_goto_pkt_cb (GtkTreeSelection *selection, gpointer data _U_)
 static void
 error_create_popup_menu(error_equiv_table *err)
 {
-	GtkItemFactory *item_factory;
+    GtkItemFactory *item_factory;
 
 
 #if (GTK_MAJOR_VERSION >= 2)
@@ -523,15 +522,15 @@ error_create_popup_menu(error_equiv_table *err)
                   G_CALLBACK (expert_goto_pkt_cb),
                   err);
 #endif
-	item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
+    item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
 
-	gtk_item_factory_create_items_ac(item_factory, sizeof(error_list_menu_items)/sizeof(error_list_menu_items[0]), error_list_menu_items, err, 2);
+    gtk_item_factory_create_items_ac(item_factory, sizeof(error_list_menu_items)/sizeof(error_list_menu_items[0]), error_list_menu_items, err, 2);
 
-	err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
+    err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
 #if (GTK_MAJOR_VERSION >= 2)
-	SIGNAL_CONNECT(err->tree_view, "button_press_event", error_show_popup_menu_cb, err);
+    SIGNAL_CONNECT(err->tree_view, "button_press_event", error_show_popup_menu_cb, err);
 #else
-	SIGNAL_CONNECT(err->table, "button_press_event", error_show_popup_menu_cb, err);
+    SIGNAL_CONNECT(err->table, "button_press_event", error_show_popup_menu_cb, err);
 #endif
 }
 
