@@ -39,6 +39,7 @@
 
 /* The MPEG2 TS packet size */
 #define MP2T_PACKET_SIZE 188
+#define MP2T_SYNC_BYTE 0x47
 
 static dissector_handle_t pes_handle;
 
@@ -143,8 +144,8 @@ static int hf_mp2t_payload = -1;
 static int hf_mp2t_malformed_payload = -1;
 
 static const value_string mp2t_sync_byte_vals[] = {
-	{ 0x47, "Correct" },
-	{ 0, NULL},
+	{ MP2T_SYNC_BYTE, "Correct" },
+	{ 0, NULL }
 };
 
 
@@ -166,7 +167,7 @@ static const value_string mp2t_pid_vals[] = {
 	{ 0x000E, "Reserved" },
 	{ 0x000F, "Reserved" },
 	{ 0x1FFF, "Null packet" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static const value_string mp2t_tsc_vals[] = {
@@ -174,7 +175,7 @@ static const value_string mp2t_tsc_vals[] = {
 	{ 1, "User-defined" },
 	{ 2, "User-defined" },
 	{ 3, "User-defined" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static const value_string mp2t_afc_vals[] = {
@@ -182,7 +183,7 @@ static const value_string mp2t_afc_vals[] = {
 	{ 1, "Payload only" },
 	{ 2, "Adaptation Field only" },
 	{ 3, "Adaptation Field and Payload" },
-	{ 0, NULL },
+	{ 0, NULL }
 };
 
 static gint
@@ -428,193 +429,212 @@ dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 }
 
+static gboolean
+heur_dissect_mp2t( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	guint offset = 0;
+
+	if (tvb_length_remaining(tvb, offset) % MP2T_PACKET_SIZE) {
+		return FALSE;
+	} else {
+		while (tvb_length_remaining(tvb, offset)) {
+			if (tvb_get_guint8(tvb, offset) != MP2T_SYNC_BYTE)
+				return FALSE;
+			offset += MP2T_PACKET_SIZE;
+		}
+	}
+
+	dissect_mp2t(tvb, pinfo, tree);
+	return TRUE;
+}
+
 void
 proto_register_mp2t(void)
 {
 	static hf_register_info hf[] = { 
 		{ &hf_mp2t_header, {
 			"Header", "mp2t.header",
-			FT_UINT32, BASE_HEX, NULL, 0, "", HFILL
+			FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_sync_byte, {
 			"Sync Byte", "mp2t.sync_byte",
-			FT_UINT32, BASE_HEX, VALS(mp2t_sync_byte_vals), MP2T_SYNC_BYTE_MASK, "", HFILL
+			FT_UINT32, BASE_HEX, VALS(mp2t_sync_byte_vals), MP2T_SYNC_BYTE_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_tei, { 
 			"Transport Error Indicator", "mp2t.tei",
-			FT_UINT32, BASE_DEC, NULL, MP2T_TEI_MASK, "", HFILL
+			FT_UINT32, BASE_DEC, NULL, MP2T_TEI_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_pusi, {
-			"Payload Unit Start Indicator", "mp2s.pusi",
-			FT_UINT32, BASE_DEC, NULL, MP2T_PUSI_MASK, "", HFILL
+			"Payload Unit Start Indicator", "mp2t.pusi",
+			FT_UINT32, BASE_DEC, NULL, MP2T_PUSI_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_tp, {
 			"Transport Priority", "mp2t.tp",
-			FT_UINT32, BASE_DEC, NULL, MP2T_TP_MASK, "", HFILL
+			FT_UINT32, BASE_DEC, NULL, MP2T_TP_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_pid, {
-			"PID", "mp2s.pid",
-			FT_UINT32, BASE_HEX, VALS(mp2t_pid_vals), MP2T_PID_MASK, "", HFILL
+			"PID", "mp2t.pid",
+			FT_UINT32, BASE_HEX, VALS(mp2t_pid_vals), MP2T_PID_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_tsc, {
 			"Transport Scrambling Control", "mp2t.tsc",
-			FT_UINT32, BASE_HEX, VALS(mp2t_tsc_vals), MP2T_TSC_MASK, "", HFILL
+			FT_UINT32, BASE_HEX, VALS(mp2t_tsc_vals), MP2T_TSC_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_afc, {
 			"Adaption Field Control", "mp2t.afc",
-			FT_UINT32, BASE_HEX, VALS(mp2t_afc_vals) , MP2T_AFC_MASK, "", HFILL
+			FT_UINT32, BASE_HEX, VALS(mp2t_afc_vals) , MP2T_AFC_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_cc, {
 			"Continuity Counter", "mp2t.cc",
-			FT_UINT32, BASE_DEC, NULL, MP2T_CC_MASK, "", HFILL
+			FT_UINT32, BASE_DEC, NULL, MP2T_CC_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af, {
 			"Adaption field", "mp2t.af",
-			FT_NONE, BASE_HEX, NULL, 0, "", HFILL
+			FT_NONE, BASE_HEX, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_length, {
 			"Adaptation Field Length", "mp2t.af.length",
-			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_di, {
 			"Discontinuity Indicator", "mp2t.af.di",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_DI_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_DI_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_rai, {
 			"Random Access Indicator", "mp2t.af.rai",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_RAI_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_RAI_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_espi, {
 			"Elementary Stream Priority Indicator", "mp2t.af.espi",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_ESPI_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_ESPI_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_pcr_flag, {
 			"PCR Flag", "mp2t.af.pcr_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_PCR_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_PCR_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_opcr_flag, {
 			"OPCR Flag", "mp2t.af.opcr_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_OPCR_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_OPCR_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_sp_flag, {
 			"Splicing Point Flag", "mp2t.af.sp_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_SP_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_SP_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_tpd_flag, {
 			"Transport Private Data Flag", "mp2t.af.tpd_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_TPD_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_TPD_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_afe_flag, {
 			"Adaptation Field Extension Flag", "mp2t.af.afe_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_AFE_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_AFE_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_pcr, {
 			"Program Clock Reference", "mp2t.af.pcr",
-			FT_NONE, BASE_DEC, NULL, 0, "", HFILL
+			FT_NONE, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_opcr, {
 			"Original Program Clock Reference", "mp2t.af.opcr",
-			FT_NONE, BASE_DEC, NULL, 0, "", HFILL
+			FT_NONE, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_sc, {
 			"Splice Countdown", "mp2t.af.sc",
-			FT_UINT8, BASE_DEC, NULL, 0, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_tpd_length, {
 			"Transport Private Data Length", "mp2t.af.tpd_length",
-			FT_UINT8, BASE_DEC, NULL, 0, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_tpd, {
 			"Transport Private Data", "mp2t.af.tpd",
-			FT_BYTES, BASE_DEC, NULL, 0, "", HFILL
+			FT_BYTES, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_length, {
 			"Adaptation Field Extension Length", "mp2t.af.e_length",
-			FT_UINT8, BASE_DEC, NULL, 0, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_ltw_flag, {
 			"LTW Flag", "mp2t.af.e.ltw_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_LTW_FLAG_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_LTW_FLAG_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_pr_flag, {
 			"Piecewise Rate Flag", "mp2t.af.e.pr_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_PR_FLAG_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_PR_FLAG_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_ss_flag, {
 			"Seamless Splice Flag", "mp2t.af.e.ss_flag",
-			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_SS_FLAG_MASK, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, MP2T_AF_E_SS_FLAG_MASK, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_reserved, {
 			"Reserved", "mp2t.af.e.reserved",
-			FT_UINT8, BASE_DEC, NULL, 0x1F, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0x1F, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_reserved_bytes, {
 			"Reserved", "mp2t.af.e.reserved_bytes",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
+			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_stuffing_bytes, {
 			"Stuffing", "mp2t.af.stuffing_bytes",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
+			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_ltwv_flag, {
 			"LTW Valid Flag", "mp2t.af.e.ltwv_flag",
-			FT_UINT16, BASE_DEC, NULL, 0x8000, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_ltwo, {
 			"LTW Offset", "mp2t.af.e.ltwo",
-			FT_UINT16, BASE_DEC, NULL, 0x7FFF, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0x7FFF, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_pr_reserved, {
 			"Reserved", "mp2t.af.e.pr_reserved",
-			FT_UINT24, BASE_DEC, NULL, 0xC00000, "", HFILL
+			FT_UINT24, BASE_DEC, NULL, 0xC00000, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_pr, {
 			"Piecewise Rate", "mp2t.af.e.pr",
-			FT_UINT24, BASE_DEC, NULL, 0x3FFFFF, "", HFILL
+			FT_UINT24, BASE_DEC, NULL, 0x3FFFFF, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_st, {
 			"Splice Type", "mp2t.af.e.st",
-			FT_UINT8, BASE_DEC, NULL, 0xF0, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_dnau_32_30, {
 			"DTS Next AU[32...30]", "mp2t.af.e.dnau_32_30",
-			FT_UINT8, BASE_DEC, NULL, 0x0E, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0x0E, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_m_1, {
 			"Marker Bit", "mp2t.af.e.m_1",
-			FT_UINT8, BASE_DEC, NULL, 0x01, "", HFILL
+			FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_dnau_29_15, {
 			"DTS Next AU[29...15]", "mp2t.af.e.dnau_29_15",
-			FT_UINT16, BASE_DEC, NULL, 0xFFFE, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0xFFFE, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_m_2, {
 			"Marker Bit", "mp2t.af.e.m_2",
-			FT_UINT16, BASE_DEC, NULL, 0x0001, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_dnau_14_0, {
 			"DTS Next AU[14...0]", "mp2t.af.e.dnau_14_0",
-			FT_UINT16, BASE_DEC, NULL, 0xFFFE, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0xFFFE, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_af_e_m_3, {
 			"Marker Bit", "mp2t.af.e.m_3",
-			FT_UINT16, BASE_DEC, NULL, 0x0001, "", HFILL
+			FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_payload, {
 			"Payload", "mp2t.payload",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
+			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
 		} } ,
 		{ &hf_mp2t_malformed_payload, {
 			"Malformed Payload", "mp2t.malformed_payload",
-			FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL
-		} } ,
+			FT_BYTES, BASE_DEC, NULL, 0x0, NULL, HFILL
+		} }
 	};
 
 	static gint *ett[] =
 	{
 		&ett_mp2t,
 		&ett_mp2t_header,
-		&ett_mp2t_af,
+		&ett_mp2t_af
 	};
 
 	proto_mp2t = proto_register_protocol("ISO/IEC 13818-1", "MP2T", "mp2t");
@@ -629,8 +649,11 @@ proto_reg_handoff_mp2t(void)
 {
 	dissector_handle_t mp2t_handle;
 
+	heur_dissector_add("udp", heur_dissect_mp2t, proto_mp2t);
+
 	mp2t_handle = create_dissector_handle(dissect_mp2t, proto_mp2t);
 	dissector_add("rtp.pt", PT_MP2T, mp2t_handle);
+	dissector_add("udp.port", 0, mp2t_handle);
 
 	pes_handle = find_dissector("mpeg-pes");
 }
