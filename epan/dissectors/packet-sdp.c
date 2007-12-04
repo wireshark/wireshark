@@ -1630,7 +1630,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		   * ITU-T Rec. X.691. Value encoded as per A.5.1.2. For text encoding the mechanism defined
 		   * in ITU-T Rec. H.248.15 is used.
 		   */
-		  guint8 *buf = ep_alloc(256);
 		  gint len;
 		  asn1_ctx_t actx;
 
