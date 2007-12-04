@@ -928,9 +928,9 @@ io_stat_draw(io_stat_t *io)
 				        gdk_draw_rectangle(io->pixmap,
                         			io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
-						(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border),
+						y_pos,
 						io->pixels_per_tick,
-						(guint32)((val*draw_height)/max_y));
+						draw_height-1+top_y_border-y_pos);
 				}
 				break;
 			case PLOT_STYLE_DOT:
@@ -938,7 +938,7 @@ io_stat_draw(io_stat_t *io)
 				        gdk_draw_rectangle(io->pixmap,
                         			io->graphs[i].gc, TRUE,
 						x_pos-io->pixels_per_tick/2,
-						(guint32)(draw_height-(val*draw_height)/max_y+top_y_border-io->pixels_per_tick/2),
+						y_pos-io->pixels_per_tick/2,
 						io->pixels_per_tick,
 						io->pixels_per_tick);
 				}
