@@ -5563,7 +5563,7 @@ PreferredLanguageIndicator ::= OCTET STRING
 
 -- 6.5.2.98
 -- 1 0 1 1 1 1 1 1 (0x9f)
--- 0 1 0 1 1 1 1 1 (0x5f)(79)
+-- 0 1 0 1 1 1 1 1 (0x5f)(95)
 PSTNTermination ::= SEQUENCE {
 	destinationDigits						[87] IMPLICIT	DestinationDigits,
 	-- M 6.5.2.56
@@ -6041,7 +6041,7 @@ TerminationList ::= SET OF CHOICE {
 	-- O 6.5.2.74 b, c, d
 	localTermination		[91] IMPLICIT LocalTermination,
 	-- O 6.5.2.76 b, c, e
-	pstnTermination			[71] IMPLICIT PSTNTermination,
+	pstnTermination			[95] IMPLICIT PSTNTermination,
 	-- O 6.5.2.98 b, c, f
 	...
 	}

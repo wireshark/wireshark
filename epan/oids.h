@@ -27,7 +27,7 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
-#define BER_TAG_ANY -1 
+#define BER_TAG_ANY -1
 
 struct _oid_bit_t {
 	guint offset;
@@ -58,11 +58,11 @@ typedef struct _oid_value_type_t {
 	int display;
 	gint8 ber_class;
 	gint32 ber_tag;
-	int min_len; 
+	int min_len;
 	int max_len;
 	oid_key_type_t keytype;
 	int keysize;
-} oid_value_type_t; 
+} oid_value_type_t;
 
 typedef enum _oid_kind_t {
 	OID_KIND_UNKNOWN = 0,
@@ -103,8 +103,8 @@ typedef struct _oid_info_t {
 extern void oids_init(void);
 
 /*
- * The objects returned by all these functions are all allocated with a 
- * packet lifetime and does not have have to be freed. 
+ * The objects returned by all these functions are all allocated with a
+ * packet lifetime and does not have have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime
@@ -142,7 +142,7 @@ extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char**
 /*
  * These return the info for the best match.
  *  *matched_p will be set to the number of nodes used by the returned oid
- *  *left_p will be set to the number of remaining unresolved subids 
+ *  *left_p will be set to the number of remaining unresolved subids
  */
 extern oid_info_t* oid_get(guint oid_len, guint32 *subids, guint* matched_p, guint* left_p);
 extern oid_info_t* oid_get_from_encoded(const guint8 *oid, gint oid_len, guint32 **subids, guint* matched, guint* left);
@@ -153,6 +153,17 @@ extern void oid_add(const char* name, guint oid_len, guint32 *subids);
 extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_len);
 extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
+#ifdef HAVE_LIBSMI
+/**
+ * Fetch the default MIB/PIB path
+ *
+ * @return A string containing the default MIB/PIB path.  It must be
+ * g_free()d by the caller.
+ */
+extern gchar *oid_get_default_mib_path(void);
+#endif
+
+extern void oid_add_from_string(const char* name, const gchar *oid_str);
 
 /* macros for legacy oid functions */
 #define oid_resolv_cleanup() ((void)0)
@@ -163,7 +174,7 @@ extern void oid_add_from_string(const char* name, const gchar *oid_str);
 #ifdef DEBUG_OIDS
 extern char* oid_test_a2b(guint32 num_subids, guint32* subids);
 extern void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree);
-#else 
+#else
 #define add_oid_debug_subtree(a,b) ((void)0)
 #endif
 

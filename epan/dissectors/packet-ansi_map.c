@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ansi_map.c                                                        */
-/* ../../tools/asn2wrs.py -b -X -T -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+/* packet-ansi_map.c                                                          */
+/* ../../tools/asn2wrs.py -b -X -T -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -7425,14 +7425,14 @@ dissect_ansi_map_PSTNTermination(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static const value_string ansi_map_TerminationList_item_vals[] = {
   {  89, "intersystemTermination" },
   {  91, "localTermination" },
-  {  71, "pstnTermination" },
+  {  95, "pstnTermination" },
   { 0, NULL }
 };
 
 static const ber_choice_t TerminationList_item_choice[] = {
   {  89, &hf_ansi_map_intersystemTermination, BER_CLASS_CON, 89, BER_FLAGS_IMPLTAG, dissect_ansi_map_IntersystemTermination },
   {  91, &hf_ansi_map_localTermination, BER_CLASS_CON, 91, BER_FLAGS_IMPLTAG, dissect_ansi_map_LocalTermination },
-  {  71, &hf_ansi_map_pstnTermination, BER_CLASS_CON, 71, BER_FLAGS_IMPLTAG, dissect_ansi_map_PSTNTermination },
+  {  95, &hf_ansi_map_pstnTermination, BER_CLASS_CON, 95, BER_FLAGS_IMPLTAG, dissect_ansi_map_PSTNTermination },
   { 0, NULL, 0, 0, 0, NULL }
 };
 

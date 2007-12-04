@@ -71,38 +71,26 @@ struct mpa {
 	(mpa)->emphasis   = MPA_UNMARSHAL_EMPHASIS(n);   \
 	} while (0)
 
-extern const int mpa_versions[4];
-extern const int mpa_layers[4];
-extern const unsigned mpa_samples[3][3];
-extern const unsigned mpa_bitrates[3][3][16]; /* kb/s */
-extern const unsigned mpa_frequencies[3][4]; /* Hz */
-extern const unsigned mpa_padding[3];
+int mpa_version(const struct mpa *);
+int mpa_layer(const struct mpa *);
+unsigned mpa_samples(const struct mpa *);
+unsigned mpa_bitrate(const struct mpa *);
+unsigned mpa_frequency(const struct mpa *);
+unsigned mpa_padding(const struct mpa *);
 
-#define MPA_VERSION(mpa)   (mpa_versions[(mpa)->version])
-#define MPA_LAYER(mpa)     (mpa_layers[(mpa)->layer])
-#define MPAV(mpa) MPA_VERSION(mpa)
-#define MPAL(mpa) MPA_LAYER(mpa)
-
-#define MPA_SAMPLES(mpa) (mpa_samples[MPAV(mpa)][MPAL(mpa)])
-#define MPA_BITRATE(mpa) (1000 * \
-	(mpa_bitrates[MPAV(mpa)][MPAL(mpa)][(mpa)->bitrate]))
-#define MPA_FREQUENCY(mpa) \
-	(mpa_frequencies[MPAV(mpa)][(mpa)->frequency])
-#define MPA_PADDING(mpa)((mpa)->padding ? mpa_padding[MPAL(mpa)] : 0)
-
-#define MPA_DATA_BYTES(mpa) (MPA_BITRATE(mpa) * MPA_SAMPLES(mpa) \
-		/ MPA_FREQUENCY(mpa) / 8)
-#define MPA_BYTES(mpa) (MPA_DATA_BYTES(mpa) + MPA_PADDING(mpa))
+#define MPA_DATA_BYTES(mpa) (mpa_bitrate(mpa) * mpa_samples(mpa) \
+		/ mpa_frequency(mpa) / 8)
+#define MPA_BYTES(mpa) (MPA_DATA_BYTES(mpa) + mpa_padding(mpa))
 #define MPA_DURATION_NS(mpa) \
-	(1000000000 / MPA_FREQUENCY(mpa) * MPA_SAMPLES(mpa))
+	(1000000000 / mpa_frequency(mpa) * mpa_samples(mpa))
 
 enum { MPA_SYNC = 0x7ff };
 
 #define MPA_SYNC_VALID(mpa)      ((mpa)->sync == MPA_SYNC)
-#define MPA_VERSION_VALID(mpa)   (MPA_VERSION(mpa) >= 0)
-#define MPA_LAYER_VALID(mpa)     (MPA_LAYER(mpa) >= 0)
-#define MPA_BITRATE_VALID(mpa)   (MPA_BITRATE(mpa) > 0)
-#define MPA_FREQUENCY_VALID(mpa) (MPA_FREQUENCY(mpa) > 0)
+#define MPA_VERSION_VALID(mpa)   (mpa_version(mpa) >= 0)
+#define MPA_LAYER_VALID(mpa)     (mpa_layer(mpa) >= 0)
+#define MPA_BITRATE_VALID(mpa)   (mpa_bitrate(mpa) > 0)
+#define MPA_FREQUENCY_VALID(mpa) (mpa_frequency(mpa) > 0)
 #define MPA_VALID(mpa) (MPA_SYNC_VALID(mpa) \
 		&& MPA_VERSION_VALID(mpa) && MPA_LAYER_VALID(mpa) \
 		&& MPA_BITRATE_VALID(mpa) && MPA_FREQUENCY_VALID(mpa))

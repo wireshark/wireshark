@@ -284,9 +284,10 @@ static const value_string japan_test_message_type_acro_values[] = {
   { JAPAN_TEST_SRA, "SRA" },
   { 0,              NULL } };
 
-#define COO_LENGTH         2
+#define ANSI_COO_LENGTH    2
 #define ANSI_COO_SLC_MASK  0x000f
 #define ANSI_COO_FSN_MASK  0x07f0
+#define ITU_COO_LENGTH     1
 #define ITU_COO_FSN_MASK   0x007f
 #define ANSI_XCO_LENGTH    4
 #define ANSI_XCO_SLC_MASK  0x0000000f
@@ -469,7 +470,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, chm_h1_message_type_acro_values, "Unknown"));
-	
+
     switch (h1)
     {
     case CHM_H1_COO:
@@ -477,12 +478,12 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (mtp3_standard == ANSI_STANDARD)
 	{
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_slc, tvb, 0,
-				COO_LENGTH, TRUE);
+				ANSI_COO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_fsn, tvb, 0,
-				COO_LENGTH, TRUE);
+				ANSI_COO_LENGTH, TRUE);
 	} else /* ITU_STANDARD, CHINESE_ITU_STANDARD, and JAPAN_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_itu_fsn, tvb, 0,
-				COO_LENGTH, TRUE);
+				ITU_COO_LENGTH, TRUE);
 	}
 	break;
 
@@ -1033,7 +1034,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case JAPAN_STANDARD:
           col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Japan)");
           break;
-      };      
+      };
 
     if (tree) {
 	/* create display subtree for the protocol */

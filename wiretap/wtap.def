@@ -1,3 +1,12 @@
+; wtap.def
+; $Id$
+
+; Add symbols that should be exported out of libwiretap.dll
+;
+; DATA symbols must be declared WS_VAR_IMPORT in the header file!
+;
+; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
+;
 EXPORTS
 
 buffer_assure_space
@@ -16,12 +25,12 @@ file_seek
 file_tell
 file_error
 
+mpa_bitrate
+mpa_frequency
+mpa_layer
 mpa_padding
-mpa_layers
 mpa_samples
-mpa_frequencies
-mpa_bitrates
-mpa_versions
+mpa_version
 
 wtap_buf_ptr
 wtap_close

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
-/* ./packet-ansi_map.h                                                        */
-/* ../../tools/asn2wrs.py -b -X -T -e -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+/* packet-ansi_map.h                                                          */
+/* ../../tools/asn2wrs.py -b -X -T -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.h */
 
