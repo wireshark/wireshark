@@ -119,7 +119,7 @@ sub read_svn_info {
 		if ($line =~ /Last Changed Rev: (\d+)/) {
 			$revision = $1;
 		}
-		if ($line =~ /^$/) {
+		if ($line =~ /^\s*$/ || $revision =~ /^\s*$/) {
 			$last = "unknown";
 			$revision = "unknown";
 		}
