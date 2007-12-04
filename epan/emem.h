@@ -349,11 +349,13 @@ void emem_tree_insert32_array(emem_tree_t *se_tree, emem_tree_key_t *key, void *
  */
 void *emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key);
 
+/* case insensitive strings as keys */
+#define EMEM_TREE_STRING_NOCASE			0x00000001
 /* Insert a new value under a string key */
-void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v);
+void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
 
 /* Lookup the value under a string key */
-void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k);
+void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
 
 
 /* traverse a tree. if the callback returns TRUE the traversal will end */

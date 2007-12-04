@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <ctype.h>
 
 #include <time.h>
 #ifdef HAVE_SYS_TIME_H
@@ -1432,96 +1433,114 @@ emem_tree_lookup32_array(emem_tree_t *se_tree, emem_tree_key_t *key)
 }
 
 
+/* Strings are stored as an array of uint32 containing the string characters
+   with 4 characters in each uint32. 
+   The first byte of the string is stored as the most significant byte.
+   If the string is not a multiple of 4 characters in length the last
+   uint32 containing the string bytes are padded with 0 bytes.
+   After the uint32's containing the string, there is one final terminator
+   uint32 with the value 0x00000001
+*/
 void
-emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v) {
+emem_tree_insert_string(emem_tree_t* se_tree, const gchar* k, void* v, guint32 flags)
+{
+	emem_tree_key_t key[2];
+	guint32 *aligned=NULL;
 	guint32 len = strlen(k);
-	guint32 div = (len-1)/4;
-	guint32 *aligned;
-	guint32 residual = 0;
-	emem_tree_key_t key[4];
+	guint32 div = (len+3)/4+1;
+	guint32 i;
+	guint32 tmp;
 
 	aligned = malloc(div * sizeof (guint32));
-	if (aligned == NULL)
-		return;	/* XXX - fail somehow? */
-	memcpy(aligned, k, div * sizeof (guint32));
 
-	key[0].length = 1;
-	key[0].key = &len;
-	if (! div) {
-		key[1].length = 1;
-		key[1].key = &residual;
-		key[2].length = 0;
-		key[2].key = NULL;
-	} else {
-		key[1].length = div;
-		key[1].key = aligned;
-		key[2].length = 1;
-		key[2].key = &residual;
-		key[3].length = 0;
-		key[3].key = NULL;
+	/* pack the bytes one one by one into guint32s */
+	tmp = 0;
+	for (i = 0;i < len;i++) {
+		unsigned char ch;
+
+		ch = (unsigned char)k[i];
+		if (flags & EMEM_TREE_STRING_NOCASE) {
+			if(isupper(ch)) {
+				ch = tolower(ch);
+			}
+		}
+		tmp <<= 8;
+		tmp |= ch;
+		if (i%4 == 3) {
+			aligned[i/4] = tmp;
+			tmp = 0;
+		}		
 	}
-
-	div *= 4;
-
-	switch(len%4) {
-		case 0:
-			residual |= ( k[div+3] << 24 );
-		case 3:
-			residual |= ( k[div+2] << 16 );
-		case 2:
-			residual |= ( k[div+1] << 8  );
-		case 1:
-			residual |= k[div];
-			break;
+	/* add required padding to the last uint32 */
+	if (i%4 != 0) {
+		while (i%4 != 0) {
+			i++;
+			tmp <<= 8;
+		}
+		aligned[i/4-1] = tmp;
 	}
+	
+	/* add the terminator */
+	aligned[div-1] = 0x00000001;
 
-	emem_tree_insert32_array(se_tree,key,v);
+	key[0].length = div;
+	key[0].key = aligned;
+	key[1].length = 0;
+	key[1].key = NULL;
+
+
+	emem_tree_insert32_array(se_tree, key, v);
 	free(aligned);
 }
 
 void *
-emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k) {
+emem_tree_lookup_string(emem_tree_t* se_tree, const gchar* k, guint32 flags)
+{
+	emem_tree_key_t key[2];
+	guint32 *aligned=NULL;
 	guint32 len = strlen(k);
-	guint32 div = (len-1)/4;
-	guint32 *aligned;
-	guint32 residual = 0;
-	emem_tree_key_t key[4];
+	guint32 div = (len+3)/4+1;
+	guint32 i;
+	guint32 tmp;
 	void *ret;
 
 	aligned = malloc(div * sizeof (guint32));
-	if (aligned == NULL)
-		return NULL;	/* XXX - better failure indication? */
-	memcpy(aligned, k, div * sizeof (guint32));
 
-	key[0].length = 1;
-	key[0].key = &len;
-	if (! div) {
-		key[1].length = 1;
-		key[1].key = &residual;
-		key[2].length = 0;
-		key[2].key = NULL;
-	} else {
-		key[1].length = div;
-		key[1].key = aligned;
-		key[2].length = 1;
-		key[2].key = &residual;
-		key[3].length = 0;
-		key[3].key = NULL;
+	/* pack the bytes one one by one into guint32s */
+	tmp = 0;
+	for (i = 0;i < len;i++) {
+		unsigned char ch;
+
+		ch = (unsigned char)k[i];
+		if (flags & EMEM_TREE_STRING_NOCASE) {
+			if(isupper(ch)) {
+				ch = tolower(ch);
+			}
+		}
+		tmp <<= 8;
+		tmp |= ch;
+		if (i%4 == 3) {
+			aligned[i/4] = tmp;
+			tmp = 0;
+		}		
 	}
-
-	div *= 4;
-
-	switch(len%4) {
-		case 0:
-			residual |= k[div+3] << 24;
-		case 3:
-			residual |= k[div+2] << 16;
-		case 2:
-			residual |= k[div+1] << 8;
-		case 1:
-			residual |= k[div];
-			break;
+	/* add required padding to the last uint32 */
+	if (i%4 != 0) {
+		while (i%4 != 0) {
+			i++;
+			tmp <<= 8;
+		}
+		aligned[i/4-1] = tmp;
 	}
+	
+	/* add the terminator */
+	aligned[div-1] = 0x00000001;
+
+	key[0].length = div;
+	key[0].key = aligned;
+	key[1].length = 0;
+	key[1].key = NULL;
+
 
 	ret = emem_tree_lookup32_array(se_tree, key);
 	free(aligned);
