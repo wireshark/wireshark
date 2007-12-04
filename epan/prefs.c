@@ -110,24 +110,39 @@ static const gchar	*gui_layout_content_text[] =
 /*
  * List of all modules with preference settings.
  */
-static emem_tree_t *prefs_modules = NULL;
+static GTree *modules = NULL;
 
 /*
  * List of all modules that should show up at the top level of the
  * tree in the preference dialog box.
  */
-static emem_tree_t *prefs_top_level_modules = NULL;
+static GTree *top_level_modules = NULL;
+
+gint
+cmp_names(gconstpointer a, gconstpointer b)
+{
+    return g_ascii_strcasecmp((const gchar*)a, (const gchar*)b);
+}
 
 /** Sets up memory used by proto routines. Called at program startup */
 void prefs_init(void)
 {
-  prefs_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_modules");
-  prefs_top_level_modules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_top_level_modules");
+  modules = g_tree_new(cmp_names);
+  top_level_modules = g_tree_new(cmp_names);
+
 }
 
 /** Frees memory used by proto routines. Called at program shutdown */
 void prefs_cleanup(void)
 {
+  if (modules) {
+    g_tree_destroy(modules);
+    modules = NULL;
+  }
+  if (top_level_modules) {
+    g_tree_destroy(top_level_modules);
+    top_level_modules = NULL;
+  }
 }
 
 /*
@@ -173,10 +188,9 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	  module->apply_cb = apply_cb;
 	  module->description = description;
 
-	  if (prefs_find_module(name) == NULL) {
-		pe_tree_insert_string(prefs_modules, name, module);
-	  }
-
+	  if (prefs_find_module(name) == NULL)
+		g_tree_insert(modules, (gpointer)name, module);
+	      
 	  return module;
 	}
 
@@ -186,7 +200,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 	module->description = description;
 	module->apply_cb = apply_cb;
 	module->prefs = NULL;	/* no preferences, to start */
-	module->submodules = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK, "prefs_submodules");
+	module->submodules = g_tree_new(cmp_names);	/* no submodules, to start */
 	module->numprefs = 0;
 	module->prefs_changed = FALSE;
 	module->obsolete = FALSE;
@@ -228,7 +242,7 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * Insert this module in the list of all modules.
 		 */
-		pe_tree_insert_string(prefs_modules, name, module);
+		g_tree_insert(modules, (gpointer)name, module); 
 	} else {
 		/*
 		 * This has no name, just a title; check to make sure it's a
@@ -245,12 +259,12 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
 		/*
 		 * It goes at the top.
 		 */
-		pe_tree_insert_string(prefs_top_level_modules, title, module);
+		g_tree_insert(top_level_modules, (gpointer)title, module); 
 	} else {
 		/*
 		 * It goes into the list for this module.
 		 */
-		pe_tree_insert_string(parent->submodules, title, module);
+		g_tree_insert(parent->submodules, (gpointer)title, module); 
 	}
 
 	return module;
@@ -380,13 +394,21 @@ static void *discard_const(const void *const_ptr)
 module_t *
 prefs_find_module(const char *name)
 {
-	return pe_tree_lookup_string(prefs_modules, name);
+#if GLIB_MAJOR_VERSION < 2	
+	return g_tree_lookup(modules, discard_const(name));
+#else	
+	return g_tree_lookup(modules, name);
+#endif 
 }
 
 static module_t *
 find_subtree(module_t *parent, const char *name)
 {
-	return pe_tree_lookup_string(parent ? parent->submodules : prefs_top_level_modules, name);
+#if GLIB_MAJOR_VERSION < 2	
+	return g_tree_lookup(parent ? parent->submodules : top_level_modules, discard_const(name));
+#else	
+	return g_tree_lookup(parent ? parent->submodules : top_level_modules, name);
+#endif 
 }
 
 /*
@@ -409,7 +431,7 @@ typedef struct {
 } call_foreach_t;
 
 static gboolean
-call_foreach_cb(void *value, void *data)
+call_foreach_cb(gpointer key _U_, gpointer value, gpointer data)
 {
 	module_t *module = (module_t*)value;
 	call_foreach_t *call_data = (call_foreach_t*)data;
@@ -421,18 +443,18 @@ call_foreach_cb(void *value, void *data)
 }
 
 static guint
-prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
+prefs_module_list_foreach(GTree *module_list, module_cb callback,
     gpointer user_data)
 {
 	call_foreach_t call_data;
 
 	if (module_list == NULL)
-		module_list = prefs_top_level_modules;
+		module_list = top_level_modules;
 
 	call_data.callback = callback; 
 	call_data.user_data = user_data; 
 	call_data.ret = 0;
-	pe_tree_foreach(module_list, call_foreach_cb, &call_data);
+	g_tree_foreach(module_list, call_foreach_cb, &call_data);
 	return call_data.ret;
 }
 
@@ -441,15 +463,7 @@ prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
  */
 gboolean prefs_module_has_submodules(module_t *module)
 {
-	if (module->submodules == NULL) {
-		return FALSE;
-	}
-
-	if (module->submodules->tree == NULL) {
-		return FALSE;
-	}
-
-	return TRUE;
+	return (g_tree_nnodes(module->submodules) > 0);
 }
 
 /*
@@ -463,7 +477,7 @@ gboolean prefs_module_has_submodules(module_t *module)
 guint
 prefs_modules_foreach(module_cb callback, gpointer user_data)
 {
-	return prefs_module_list_foreach(prefs_modules, callback, user_data);
+	return prefs_module_list_foreach(modules, callback, user_data);
 }
 
 /*
@@ -479,11 +493,11 @@ prefs_modules_foreach(module_cb callback, gpointer user_data)
 guint 
 prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer user_data)
 {
-	return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data);
+	return prefs_module_list_foreach((module)?module->submodules:top_level_modules, callback, user_data);
 }
 
 static gboolean
-call_apply_cb(void *value, void *data _U_)
+call_apply_cb(gpointer key _U_, gpointer value, gpointer data _U_)
 {
 	module_t *module = value;
 
@@ -506,7 +520,7 @@ call_apply_cb(void *value, void *data _U_)
 void
 prefs_apply_all(void)
 {
-	pe_tree_foreach(prefs_modules, call_apply_cb, NULL);
+	g_tree_foreach(modules, call_apply_cb, NULL);
 }
 
 /*
@@ -519,7 +533,7 @@ void
 prefs_apply(module_t *module)
 {
 	if (module && module->prefs_changed)
-		call_apply_cb(module, NULL);
+		call_apply_cb((gpointer)module->name, module, NULL);
 }
 
 /*
@@ -2406,7 +2420,7 @@ write_pref(gpointer data, gpointer user_data)
 }
 
 static gboolean
-write_module_prefs(void *value, void *data)
+write_module_prefs(gpointer key _U_, gpointer value, gpointer data)
 {
 	write_pref_arg_t arg;
 
@@ -2732,7 +2746,7 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n####### Protocols ########\n");
 
-  pe_tree_foreach(prefs_modules, write_module_prefs, pf);
+  g_tree_foreach(modules, write_module_prefs, pf);
 
   fclose(pf);
 
