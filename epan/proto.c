@@ -300,10 +300,12 @@ gpa_hfinfo_t gpa_hfinfo;
 static GTree *gpa_name_tree = NULL;
 static header_field_info *same_name_hfinfo;
 
+#if GLIB_MAJOR_VERSION >= 2 
 static void save_same_name_hfinfo(gpointer data)
 {
   same_name_hfinfo = (header_field_info*)data;
 }
+#endif
 
 /* Points to the first element of an array of Booleans, indexed by
    a subtree item type; that array element is TRUE if subtrees of
