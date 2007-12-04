@@ -1154,7 +1154,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 }
 
-tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, proto_tree *tree _U_, packet_info *pinfo, gint offset _U_, gint len, gchar *msg)
+tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
 {
 	guint8 *buf = ep_alloc(10240);
 
@@ -1392,7 +1392,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 	  /* Length includes "=" */
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	  h264_profile_tvb = ascii_bytes_to_tvb(tvb, tree, pinfo, offset, tokenlen, format_specific_parameter);
+	  h264_profile_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
 	  if(h264_handle && h264_profile_tvb){
 		  dissect_h264_profile(h264_profile_tvb, pinfo, tree);
 	  }
@@ -1444,6 +1444,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   const char *msrp_res = "msrp://";
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
   gboolean has_more_pars = TRUE;
+  tvbuff_t *h245_tvb;
 
   offset = 0;
   next_offset = 0;
@@ -1634,78 +1635,15 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  asn1_ctx_t actx;
 
 		  len = strlen(attribute_value);
+		  h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
 		  /* arbitrary maximum length */
-		  if(len<20480){
-			  int i;
-			  tvbuff_t *h245_tvb;
-
-			  /* first, skip to where the encoded pdu starts, this is
-		    	 the first hex digit after the '=' char.
-			  */
-			  while(1){
-				  if((*attribute_value==0)||(*attribute_value=='\n')){
-					  return;
-				  }
-				  if(*attribute_value=='='){
-					  attribute_value++;
-					  break;
-				  }
-				  attribute_value++;
-			  }
-			  while(1){
-				  if((*attribute_value==0)||(*attribute_value=='\n')){
-					  return;
-				  }
-				  if( ((*attribute_value>='0')&&(*attribute_value<='9'))
-				  ||  ((*attribute_value>='a')&&(*attribute_value<='f'))
-				  ||  ((*attribute_value>='A')&&(*attribute_value<='F'))){
-					  break;
-				  }
-				  attribute_value++;
-			  }
-			  i=0;
-			  while( ((*attribute_value>='0')&&(*attribute_value<='9'))
-		     	  ||((*attribute_value>='a')&&(*attribute_value<='f'))
-		     	  ||((*attribute_value>='A')&&(*attribute_value<='F'))  ){
-				  int val;
-				  if((*attribute_value>='0')&&(*attribute_value<='9')){
-					  val=(*attribute_value)-'0';
-				  } else if((*attribute_value>='a')&&(*attribute_value<='f')){
-					  val=(*attribute_value)-'a'+10;
-				  } else if((*attribute_value>='A')&&(*attribute_value<='F')){
-					  val=(*attribute_value)-'A'+10;
-				  } else {
-					  return;
-				  }
-				  val<<=4;
-				  attribute_value++;
-				  if((*attribute_value>='0')&&(*attribute_value<='9')){
-					  val|=(*attribute_value)-'0';
-				  } else if((*attribute_value>='a')&&(*attribute_value<='f')){
-					  val|=(*attribute_value)-'a'+10;
-				  } else if((*attribute_value>='A')&&(*attribute_value<='F')){
-					  val|=(*attribute_value)-'A'+10;
-				  } else {
-					  return;
-				  }
-				  attribute_value++;
-
-				  buf[i]=(guint8)val;
-				  i++;
-			  }
-			  if(i==0){
-				  return;
-			  }
-			  h245_tvb = tvb_new_real_data(buf,i,i);
-			  tvb_set_child_real_data_tvbuff(tvb,h245_tvb);
-			  add_new_data_source(pinfo, h245_tvb, "H.245 in SDP");
-			  /* should go through a handle, however,  the two h245 entry
-		   	  points are different, one is over tpkt and the other is raw
-			  */
-			  asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
-			  dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
+		  /* should go through a handle, however,  the two h245 entry
+	   	  points are different, one is over tpkt and the other is raw
+		  */
+		  if (h245_tvb){
+			asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
+			dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
 		  }
-
 		}
 	  break;
   default:
