@@ -343,7 +343,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
          * So regardless of the type we will just bring up the find window and allow
          * the user to modify the search criteria and options.
          */
-            find_frame_with_filter(str);
+        find_frame_with_filter(str);
         break;
     case 3:
         /* find next */

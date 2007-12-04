@@ -684,14 +684,14 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 static gint
 ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 {
-	GdkEventButton *bevent = (GdkEventButton *)event;
+    GdkEventButton *bevent = (GdkEventButton *)event;
     gint row;
     gint column;
 
 
     /* To quote the "Gdk Event Structures" doc:
      * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
-	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
+    if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
         /* if this is a right click on one of our columns, select it and popup the context menu */
         if(gtk_clist_get_selection_info(ct->table,
                                           (gint) (((GdkEventButton *)event)->x),
@@ -700,12 +700,12 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
             gtk_clist_unselect_all(ct->table);
             gtk_clist_select_row(ct->table, row, -1);
 
-		    gtk_menu_popup(GTK_MENU(ct->menu), NULL, NULL, NULL, NULL,
-			    bevent->button, bevent->time);
+            gtk_menu_popup(GTK_MENU(ct->menu), NULL, NULL, NULL, NULL,
+                bevent->button, bevent->time);
         }
     }
 
-	return FALSE;
+    return FALSE;
 }
 
 static GtkItemFactoryEntry ct_list_menu_items[] =
