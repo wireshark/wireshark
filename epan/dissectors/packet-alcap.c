@@ -1353,7 +1353,7 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info
 
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, const  gchar* key) {
-    alcap_leg_info_t* leg = se_tree_lookup_string(legs_by_bearer,key);
+    alcap_leg_info_t* leg = se_tree_lookup_string(legs_by_bearer,key,0);
     
     if (leg) {
         alcap_leg_tree(tree,tvb,leg);
@@ -1454,8 +1454,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
                         
-                        if (!se_tree_lookup_string(legs_by_bearer,key)) {
-                            se_tree_insert_string(legs_by_bearer,key,leg);
+                        if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
+                            se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
 					}
 					
@@ -1465,8 +1465,8 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
 						
-                        if (!se_tree_lookup_string(legs_by_bearer,key)) {
-                            se_tree_insert_string(legs_by_bearer,key,leg);
+                        if (!se_tree_lookup_string(legs_by_bearer,key,0)) {
+                            se_tree_insert_string(legs_by_bearer,key,leg,0);
                         }
                     }
                     
