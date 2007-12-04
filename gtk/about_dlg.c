@@ -32,6 +32,9 @@
 
 #include <epan/filesystem.h>
 #include <epan/plugins.h>
+#ifdef HAVE_LIBSMI
+#include <epan/oids.h>
+#endif
 #include "about_dlg.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
@@ -398,6 +401,14 @@ about_folders_page_new(void)
   /* global plugins */
   about_folders_row(table, "Global Plugins", get_plugin_dir(),
       "dissector plugins");
+#endif
+
+#ifdef HAVE_LIBSMI
+  /* SMI MIBs/PIBs */
+  path = oid_get_default_mib_path();
+  about_folders_row(table, "MIB/PIB paths", path,
+      "SMI MIB/PIB search path");
+  g_free((void *) path);
 #endif
 
   gtk_container_add(GTK_CONTAINER(scrolledwindow), table);

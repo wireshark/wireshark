@@ -536,6 +536,7 @@ oid_both_from_string
 oid_encoded2string
 oid_encoded2subid
 oid_get
+oid_get_default_mib_path
 oid_get_from_encoded
 oid_get_from_string
 oid_has_dissector

@@ -74,15 +74,15 @@ static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -
 static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
 	guint i = 0;
 	oid_info_t* c = &oid_root;
-	
+
 	if (!oid_root.children) {
 		char* debug_env = getenv("WIRESHARK_DEBUG_MIBS");
 		guint32 subid;
-		
+
 		debuglevel = debug_env ? strtoul(debug_env,NULL,10) : 0;
-				
+
 		oid_root.children = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"oid_root");
-		
+
 		/*
 		 * make sure we got strings at least in the three root-children oids
 		 * that way oid_resolved() will always have a string to print
@@ -91,12 +91,12 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		subid = 1; oid_add("iso",1,&subid);
 		subid = 2; oid_add("joint-iso-itu-t",1,&subid);
 	}
-	
+
 	oid_len--;
-	
+
 	do {
 		oid_info_t* n = emem_tree_lookup32(c->children,subids[i]);
-		
+
 		if(n) {
 			if (i == oid_len) {
 				if (n->name) {
@@ -105,13 +105,13 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 					}
 					g_free(n->name);
 				}
-				
+
 				n->name = g_strdup(name);
 
 				if (! n->value_type) {
 					n->value_type = type;
 				}
-				
+
 				return n;
 			}
 		} else {
@@ -139,7 +139,7 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 		}
 		c = n;
 	} while(++i);
-	
+
 	g_assert_not_reached();
 	return NULL;
 }
@@ -156,8 +156,8 @@ void oid_add(const char* name, guint oid_len, guint32 *subids) {
 
 void oid_add_from_string(const char* name, const gchar *oid_str) {
 	guint32* subids;
-	guint oid_len = oid_string2subid(oid_str, &subids); 
-	
+	guint oid_len = oid_string2subid(oid_str, &subids);
+
 	if (oid_len) {
 		D(3,("\tOid (from string): %s %s ",name?name:"NULL", oid_subid2string(subids,oid_len)));
 		add_oid(name,OID_KIND_UNKNOWN,NULL,NULL,oid_len,subids);
@@ -207,11 +207,11 @@ static void smi_error_handler(char *path, int line, int severity, char *msg, cha
 static void* smi_mod_copy_cb(void* dest, const void* orig, unsigned len _U_) {
 	const smi_module_t* m = orig;
 	smi_module_t* d = dest;
-	
+
 	d->name = g_strdup(m->name);
-	
+
 	return d;
-}	
+}
 
 static void smi_mod_free_cb(void* p) {
 	smi_module_t* m = p;
@@ -224,7 +224,7 @@ static char* alnumerize(const char* name) {
 	char* r = s;
 	char* w = r;
 	char c;
-	
+
 	for (;(c = *r); r++) {
 		if (isalnum(c) || c == '_' || c == '-' || c == '.') {
 			*(w++) = c;
@@ -232,9 +232,9 @@ static char* alnumerize(const char* name) {
 			*(w++) = '.';
 		}
 	}
-	
+
 	*w = '\0';
-	
+
 	return s;
 }
 
@@ -244,7 +244,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 	 * OCTETSTRING type is actually human readable text,
 	 * an address of some type or some moe specific FT_
 	 * Until that is found, this is the mappping between
-	 * SNMP Types and our FT_s 
+	 * SNMP Types and our FT_s
 	 */
 	static const struct _type_mapping_t {
 		char* name;
@@ -285,7 +285,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 	SmiType* sT = smiType;
 
 	if (!smiType) return NULL;
-		
+
 	do {
 		for (t = types; t->type ; t++ ) {
 			const char* name = smiRenderType(sT, SMI_RENDER_NAME);
@@ -294,7 +294,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 			}
 		}
 	} while(( sT  = smiGetParentType(sT) ));
-	
+
 	for (t = types; t->type ; t++ ) {
 		if(smiType->basetype == t->base) {
 			return t->type;
@@ -315,7 +315,7 @@ static guint get_non_implicit_size(SmiType* sT) {
 		default:
 			return 0;
 	}
-	
+
 	for ( ; sT; sT = smiGetParentType(sT) ) {
 		for (sR = smiGetFirstRange(sT); sR ; sR = smiGetNextRange(sR)) {
 			if (size == 0xffffffff) {
@@ -327,25 +327,25 @@ static guint get_non_implicit_size(SmiType* sT) {
 			} else {
 				if (sR->minValue.value.unsigned32 != size || sR->maxValue.value.unsigned32 != size) {
 					return 0;
-				}	
+				}
 			}
 		}
 	}
-	
+
 	return size == 0xffffffff ? 0 : size;
 }
 
 
 static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 	*key_p = NULL;
-	
+
 	switch(sN->nodekind) {
 		case SMI_NODEKIND_ROW: {
 			SmiElement* sE;
 			oid_key_t* kl = NULL;
 			const oid_value_type_t* typedata = NULL;
 			gboolean implied;
-			
+
 			switch (sN->indexkind) {
 				case SMI_INDEX_INDEX:
 					break;
@@ -358,23 +358,23 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				case SMI_INDEX_UNKNOWN:
 					return OID_KIND_UNKNOWN;
 			};
-			
+
 			implied = sN->implied;
-			
+
 			for (sE = smiGetFirstElement(sN); sE; sE = smiGetNextElement(sE)) {
 				SmiNode* elNode =  smiGetElementNode(sE) ;
 				SmiType* elType = smiGetNodeType(elNode);
 				oid_key_t* k;
 				guint non_implicit_size = 0;
-				
+
 				if (elType) {
 					non_implicit_size = get_non_implicit_size(elType);
 				}
-				
+
 				typedata =  get_typedata(elType);
-				
+
 				k = g_malloc(sizeof(oid_key_t));
-				
+
 				k->name = g_strdup_printf("%s.%s",
 										  smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED),
 										  smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME));
@@ -382,8 +382,8 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
 				k->display = typedata ? typedata->display : BASE_NONE;
 				k->next = NULL;
-				
-								
+
+
 				if (typedata) {
 					k->key_type = typedata->keytype;
 					k->num_subids = typedata->keysize;
@@ -393,9 +393,9 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 							case SMI_BASETYPE_BITS:
 							case SMI_BASETYPE_OCTETSTRING: {
 								k->key_type = OID_KEY_TYPE_BYTES;
-								k->num_subids = non_implicit_size; 
+								k->num_subids = non_implicit_size;
 								break;
-							} 
+							}
 							case SMI_BASETYPE_ENUM:
 							case SMI_BASETYPE_OBJECTIDENTIFIER:
 							case SMI_BASETYPE_INTEGER32:
@@ -405,7 +405,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 								k->key_type = OID_KEY_TYPE_INTEGER;
 								k->num_subids = 1;
 								break;
-							default: 
+							default:
 								k->key_type = OID_KEY_TYPE_WRONG;
 								k->num_subids = 0;
 								break;
@@ -416,10 +416,10 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 						break;
 					}
 				}
-				
+
 				if (!*key_p) *key_p = k;
 				if (kl) kl->next = k;
-				
+
 				kl = k;
 			}
 
@@ -477,8 +477,8 @@ void register_mibs(void) {
 		UAT_END_FIELDS
 	};
 	char* smi_load_error = NULL;
-	GString* path_str;
-	
+	gchar* path_str;
+
 	smi_modules_uat = uat_new("SMI Modules",
 							  sizeof(smi_module_t),
 							  "smi_modules",
@@ -490,7 +490,7 @@ void register_mibs(void) {
 							  NULL,
 							  smi_mod_free_cb,
 							  smi_fields);
-	
+
 	smi_paths_uat = uat_new("SMI Paths",
 							  sizeof(smi_module_t),
 							  "smi_paths",
@@ -502,12 +502,12 @@ void register_mibs(void) {
 							  NULL,
 							  smi_mod_free_cb,
 							  smi_paths_fields);
-	
-	
+
+
 	smiInit(NULL);
 
 	uat_load(smi_modules_uat, &smi_load_error);
-	
+
 	if (smi_load_error) {
 		report_failure("Error Loading SMI Modules Table: %s",smi_load_error);
 		return;
@@ -519,57 +519,48 @@ void register_mibs(void) {
 		report_failure("Error Loading SMI Paths Table: %s",smi_load_error);
 		return;
 	}
-	
-	path_str = g_string_new("");
-	g_string_sprintfa(path_str, DEFAULT_PATH_FMT,  DEFAULT_PATH_ARGS);
 
-	for(i=0;i<num_smi_paths;i++) {
-		if (!( smi_paths[i].name && *smi_paths[i].name))
-			continue;
-		
-		g_string_sprintfa(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
-	}
-	
-	D(1,("SMI Path: '%s'",path_str->str));
-		
-	smiSetPath(path_str->str);
-	
-	
-	
+	path_str = oid_get_default_mib_path();
+	D(1,("SMI Path: '%s'",path_str));
+
+	smiSetPath(path_str);
+
+
+
 	smi_errors = g_string_new("");
 	smiSetErrorHandler(smi_error_handler);
 
 	for(i=0;i<num_smi_modules;i++) {
 		if (!smi_modules[i].name) continue;
-	
+
 
 		if (smiIsLoaded(smi_modules[i].name)) {
 			continue;
 		} else {
 			char* mod_name =  smiLoadModule(smi_modules[i].name);
-			if (mod_name)	
+			if (mod_name)
 				D(2,("Loaded: '%s'[%d] as %s",smi_modules[i].name,i,mod_name ));
-			else 
+			else
 				D(1,("Failed to load: '%s'[%d]",smi_modules[i].name,i));
 		}
 	}
-	
+
 	if (smi_errors->len) {
 		report_failure("The following errors were found while loading the MIBS:\n%s\n\n"
-					   "The Current Path is: %s\n" , smi_errors->str , path_str->str );
+					   "The Current Path is: %s\n" , smi_errors->str , path_str);
 		D(1,("Errors while loading:\n%s\n",smi_errors->str));
 	}
-	
-	g_string_free(path_str,TRUE);
+
+	g_free(path_str);
 	g_string_free(smi_errors,TRUE);
 
 	for (smiModule = smiGetFirstModule();
 		 smiModule;
 		 smiModule = smiGetNextModule(smiModule)) {
-		
+
 		D(3,("\tModule: %s", smiModule->name));
-		
-		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY); 
+
+		for (smiNode = smiGetFirstNode(smiModule, SMI_NODEKIND_ANY);
 			 smiNode;
 			 smiNode = smiGetNextNode(smiNode, SMI_NODEKIND_ANY)) {
 
@@ -583,14 +574,14 @@ void register_mibs(void) {
 										   key,
 										   smiNode->oidlen,
 										   smiNode->oid);
-			
-			
+
+
 			D(4,("\t\tNode: kind=%d oid=%s name=%s ",
 				 oid_data->kind, oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name ));
-			
+
 			if ( typedata && oid_data->value_hfid == -2 ) {
-				SmiNamedNumber* smiEnum; 
-				hf_register_info hf = { &(oid_data->value_hfid), { 
+				SmiNamedNumber* smiEnum;
+				hf_register_info hf = { &(oid_data->value_hfid), {
 					oid_data->name,
 					alnumerize(oid_data->name),
 					typedata->ft_type,
@@ -599,19 +590,19 @@ void register_mibs(void) {
 					0,
 					g_strdup(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
 					HFILL }};
-				
+
 				oid_data->value_hfid = -1;
-				
+
 				if ( IS_ENUMABLE(hf.hfinfo.type) && (smiEnum = smiGetFirstNamedNumber(smiType))) {
 					GArray* vals = g_array_new(TRUE,TRUE,sizeof(value_string));
-					
+
 					for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum)) {
 						if (smiEnum->name) {
 							value_string val = {smiEnum->value.value.integer32,g_strdup(smiEnum->name)};
 							g_array_append_val(vals,val);
 						}
 					}
-					
+
 					hf.hfinfo.strings = VALS(vals->data);
 					g_array_free(vals,FALSE);
 				}
@@ -620,16 +611,16 @@ void register_mibs(void) {
 				guint n = 0;
 				oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
 				gint* ettp = &(bits->ett);
-				
+
 				bits->num = 0;
 				bits->ett = -1;
-				
+
 				g_array_append_val(etta,ettp);
-				
+
 				for(;smiEnum; smiEnum = smiGetNextNamedNumber(smiEnum), bits->num++);
-				
+
 				bits->data = g_malloc(sizeof(struct _oid_bit_t)*bits->num);
-				
+
 				for(smiEnum = smiGetFirstNamedNumber(smiType),n=0;
 					smiEnum;
 					smiEnum = smiGetNextNamedNumber(smiEnum),n++) {
@@ -637,13 +628,13 @@ void register_mibs(void) {
 					char* base = alnumerize(oid_data->name);
 					char* ext = alnumerize(smiEnum->name);
 					hf_register_info hf2 = { &(bits->data[n].hfid), { NULL, NULL, FT_UINT8, BASE_HEX, NULL, mask, "", HFILL }};
-					
+
 					bits->data[n].hfid = -1;
 					bits->data[n].offset = smiEnum->value.value.integer32 / 8;
-					
+
 					hf2.hfinfo.name = g_strdup_printf("%s:%s",oid_data->name,smiEnum->name);
 					hf2.hfinfo.abbrev = g_strdup_printf("%s.%s",base,ext);
-					
+
 					g_free(base);
 					g_free(ext);
 					g_array_append_val(hfa,hf2);
@@ -651,10 +642,10 @@ void register_mibs(void) {
 #endif /* packet-snmp does not use this yet */
 				g_array_append_val(hfa,hf);
 			}
-			
+
 			if ((key = oid_data->key)) {
-				for(; key; key = key->next) { 
-					hf_register_info hf = { &(key->hfid), { 
+				for(; key; key = key->next) {
+					hf_register_info hf = { &(key->hfid), {
 						key->name,
 						alnumerize(key->name),
 						key->ft_type,
@@ -663,10 +654,10 @@ void register_mibs(void) {
 						0,
 						"",
 						HFILL }};
-					
+
 					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",
 						 key->name, key->num_subids, key->key_type ));
-					
+
 					if (key->hfid == -2) {
 						g_array_append_val(hfa,hf);
 						key->hfid = -1;
@@ -675,28 +666,28 @@ void register_mibs(void) {
 					}
 				}
 			}
-			
+
 		}
 	}
-	
+
 	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
-	
+
 	proto_register_field_array(proto_mibs, (hf_register_info*)hfa->data, hfa->len);
 	mibs_module = prefs_register_protocol(proto_mibs, NULL);
-	
+
 	prefs_register_uat_preference(mibs_module, "smi_paths",
 								  "MIB paths",
 								  "List of directories where MIBs are to be looked for",
 								  smi_paths_uat);
-	
+
 	prefs_register_uat_preference(mibs_module, "smi_modules",
 											   "MIB modules",
 											   "List of MIB modules to be loaded",
 											   smi_modules_uat);
-	
+
 	proto_register_subtree_array((gint**)etta->data, etta->len);
 
-	
+
 	g_array_free(etta,TRUE);
 	g_array_free(hfa,FALSE);
 }
@@ -721,9 +712,9 @@ const char* oid_subid2string(guint32* subids, guint len) {
 	do {
 		w += sprintf(w,"%u.",*subids++);
 	} while(--len);
-	
+
 	if (w!=s) *(w-1) = '\0'; else *(s) = '\0';
-	
+
 	return s;
 }
 
@@ -731,17 +722,17 @@ guint check_num_oid(const char* str) {
 	const char* r = str;
 	char c = '\0';
 	guint n = 0;
-	
+
 	D(8,("check_num_oid: '%s'",str));
 	if (*r == '.' || *r == '\0') return 0;
-	
+
 	do {
 		D(9,("\tcheck_num_oid: '%c' %d",*r,n));
 		switch(*r) {
 			case '.':
 				n++;
-				if (c == '.') return 0; 
-			case '1' : case '2' : case '3' : case '4' : case '5' : 
+				if (c == '.') return 0;
+			case '1' : case '2' : case '3' : case '4' : case '5' :
 			case '6' : case '7' : case '8' : case '9' : case '0' :
 				continue;
 			case '\0':
@@ -749,11 +740,11 @@ guint check_num_oid(const char* str) {
 				break;
 			default:
 				return 0;
-		} 
+		}
 	} while((c = *r++));
-	
+
 	if (c == '.') return 0;
-	
+
 	return n;
 }
 
@@ -764,10 +755,10 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 	guint n = check_num_oid(str);
 	/*
 	 * we cannot handle sub-ids greater than 32bytes
-	 * keep a pilot subid of 64 bytes to check the limit 
+	 * keep a pilot subid of 64 bytes to check the limit
 	 */
 	guint64 subid = 0;
-	
+
 	D(6,("oid_string2subid: str='%s'",str));
 
 	if (!n) {
@@ -782,11 +773,11 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 			subid = 0;
 			subids++;
 			continue;
-		case '1' : case '2' : case '3' : case '4' : case '5' : 
+		case '1' : case '2' : case '3' : case '4' : case '5' :
 		case '6' : case '7' : case '8' : case '9' : case '0' :
 			subid *= 10;
 			subid += *r - '0';
-			
+
 			if( subids >= subids_overflow ||  subid > 0xffffffff) {
 				*subids_p=NULL;
 				return 0;
@@ -800,7 +791,7 @@ guint oid_string2subid(const char* str, guint32** subids_p) {
 		default:
 			return 0;
 	} while(*r++);
-	
+
 	return n;
 }
 
@@ -813,52 +804,52 @@ guint oid_encoded2subid(const guint8 *oid_bytes, gint oid_len, guint32** subids_
 	guint32* subid_overflow;
 	/*
 	 * we cannot handle sub-ids greater than 32bytes
-	 * have the subid in 64 bytes to be able to check the limit 
+	 * have the subid in 64 bytes to be able to check the limit
 	 */
 	guint64 subid = 0;
-	
+
 	for (i=0; i<oid_len; i++) { if (! (oid_bytes[i] & 0x80 )) n++; }
-	
+
 	*subids_p = subids = ep_alloc(sizeof(guint32)*n);
 	subid_overflow = subids+n;
-	
+
 	for (i=0; i<oid_len; i++){
 		guint8 byte = oid_bytes[i];
-		
+
 		subid <<= 7;
 		subid |= byte & 0x7F;
-		
+
 		if (byte & 0x80) {
 			continue;
 		}
-		
+
 		if (is_first) {
 			guint32 subid0 = 0;
-			
+
 			if (subid >= 40) { subid0++; subid-=40; }
 			if (subid >= 40) { subid0++; subid-=40; }
-			
+
 			*subids++ = subid0;
-			
+
 			is_first = FALSE;
 		}
-		
+
 		if( subids >= subid_overflow || subid > 0xffffffff) {
 			*subids_p=NULL;
 			return 0;
 		}
-		
+
 		*subids++ = (guint32)subid;
 		subid = 0;
 	}
-	
+
 	return n;
 }
 
 oid_info_t* oid_get(guint len, guint32* subids, guint* matched, guint* left) {
 	oid_info_t* curr_oid = &oid_root;
 	guint i;
-	
+
 	if(!(subids && *subids <= 2)) {
 		*matched = 0;
 		*left = len;
@@ -883,8 +874,8 @@ done:
 oid_info_t* oid_get_from_encoded(const guint8 *bytes, gint byteslen, guint32** subids_p, guint* matched_p, guint* left_p) {
 	guint subids_len = oid_encoded2subid(bytes, byteslen, subids_p);
 	return oid_get(subids_len, *subids_p, matched_p, left_p);
-}	
-	
+}
+
 oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint* matched, guint* left) {
 	guint subids_len = oid_string2subid(oid_str, subids_p);
 	return oid_get(subids_len, *subids_p, matched, left);
@@ -893,7 +884,7 @@ oid_info_t* oid_get_from_string(const gchar *oid_str, guint32** subids_p, guint*
 const gchar *oid_resolved_from_encoded(const guint8 *oid, gint oid_len) {
 	guint32 *subid_oid;
 	guint subid_oid_length = oid_encoded2subid(oid, oid_len, &subid_oid);
-	
+
 	return oid_resolved(subid_oid_length, subid_oid);
 }
 
@@ -904,15 +895,15 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 	guint32 subid;
 	guint8* bytes;
 	guint8* b;
-	
+
 	if ( !subids || subids_len <= 0) {
 		*bytes_p = NULL;
 		return 0;
 	}
-	
+
 	subid = (subids[0] * 40) + subids[1];
 	i = 2;
-	
+
 	do {
 		if (subid <= 0x0000007F) {
 			bytelen += 1;
@@ -925,24 +916,24 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 		} else {
 			bytelen += 5;
 		}
-		
+
 			subid = subids[i];
 	} while ( i++ < subids_len );
-	
+
 	*bytes_p = b = bytes = ep_alloc(bytelen);
-	
+
 	subid = (subids[0] * 40) + subids[1];
 	i = 2;
-	
+
 	do {
 		guint len;
-		
+
 		if ((subid <= 0x0000007F )) len = 1;
 		else if ((subid <= 0x00003FFF )) len = 2;
 		else if ((subid <= 0x001FFFFF )) len = 3;
 		else if ((subid <= 0x0FFFFFFF )) len = 4;
 		else len = 5;
-		
+
 		switch(len) {
 			default: *bytes_p=NULL; return 0;
 			case 5: *(b++) = ((subid & 0xF0000000) << 28) | 0x80;
@@ -951,17 +942,17 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			case 2: *(b++) = ((subid & 0x00003F10 ) >> 7)  | 0x80;
 			case 1: *(b++) =  subid & 0x0000007F ; break;
 		}
-		
+
 		subid = subids[i];
 	} while ( i++ < subids_len);
-	
+
 	return bytelen;
 }
 
 const gchar* oid_encoded2string(const guint8* encoded, guint len) {
 	guint32* subids;
 	guint subids_len = oid_encoded2subid(encoded, len, &subids);
-	
+
 	if (subids_len) {
 		return oid_subid2string(subids,subids_len);
 	} else {
@@ -975,9 +966,9 @@ guint oid_string2encoded(const char *oid_str, guint8 **bytes) {
 	guint32* subids;
 	guint32 subids_len;
 	guint byteslen;
-		
+
 		if ( ( subids_len = oid_string2subid(oid_str, &subids) )
-			 && 
+			 &&
 			 ( byteslen = oid_subid2encoded(subids_len, subids, bytes) )  ) {
 			return byteslen;
 		}
@@ -995,7 +986,7 @@ char* oid2str(oid_info_t* oid, guint32* subids, guint len, guint left) {
 const gchar *oid_resolved_from_string(const gchar *oid_str) {
 	guint32 *subid_oid;
 	guint subid_oid_length = oid_string2subid(oid_str, &subid_oid);
-	
+
 	return oid_resolved(subid_oid_length, subid_oid);
 }
 
@@ -1004,11 +995,11 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	guint left;
 	oid_info_t* oid;
 
-	if(! (subids && *subids <= 2 )) 
+	if(! (subids && *subids <= 2 ))
 		return "*** Malformed OID ***";
 
 	oid = oid_get(num_subids, subids, &matched, &left);
-	
+
 	while (! oid->name ) {
 		if (!(oid = oid->parent)) {
 			return oid_subid2string(subids,num_subids);
@@ -1016,7 +1007,7 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 		left++;
 		matched--;
 	}
-	
+
 	if (left) {
 		return ep_strdup_printf("%s.%s",
 								oid->name ? oid->name : oid_subid2string(subids,matched),
@@ -1045,6 +1036,30 @@ extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char**
 	*numeric_p = (void*)oid_subid2string(subids,subids_len);
 }
 
+/**
+ * Fetch the default OID path.
+ */
+extern gchar *
+oid_get_default_mib_path() {
+	GString* path_str;
+	gchar *path_ret;
+	guint i;
+
+	path_str = g_string_new("");
+	g_string_sprintfa(path_str, DEFAULT_PATH_FMT,  DEFAULT_PATH_ARGS);
+
+	for(i=0;i<num_smi_paths;i++) {
+		if (!( smi_paths[i].name && *smi_paths[i].name))
+			continue;
+
+		g_string_sprintfa(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
+	}
+
+	path_ret = path_str->str;
+	g_string_free(path_str, FALSE);
+	return path_ret;
+}
+
 #ifdef DEBUG_OIDS
 char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 	guint8* sub2enc;
@@ -1057,7 +1072,7 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 	const char* enc2str = oid_encoded2string(sub2enc, sub2enc_len);
 	guint str2enc_len = oid_string2encoded(sub2str,&str2enc);
 	guint str2sub_len = oid_string2subid(sub2str,&str2sub);
-	
+
 	return ep_strdup_printf(
 							"oid_subid2string=%s \n"
 							"oid_subid2encoded=[%d]%s \n"
@@ -1071,7 +1086,7 @@ char* oid_test_a2b(guint32 num_subids, guint32* subids) {
 							,enc2str
 							,str2enc_len,bytestring_to_str(str2enc, str2enc_len, ':')
 							,str2sub ? oid_subid2string(str2sub,str2sub_len) : "-"
-							);	
+							);
 }
 
 void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
@@ -1095,7 +1110,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
 		key->key_type <= OID_KEY_TYPE_IPADDR ? key_types[key->key_type] : "BROKEN"
 		);
 	};
-	
+
 	if (oid_info->parent) {
 		pi = proto_tree_add_text(pt,NULL,0,0,"Parent:");
 		pt = proto_item_add_subtree(pi,0);
@@ -1103,3 +1118,17 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
 	}
 }
 #endif
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
+
