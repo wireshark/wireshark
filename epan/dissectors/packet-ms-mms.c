@@ -771,7 +771,7 @@ void dissect_client_transport_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     char    *transport_info;
     guint   ipaddr[4];
-    char    protocol[3];
+    char    protocol[3+1];
     guint   port;
     int     fields_matched;
 
