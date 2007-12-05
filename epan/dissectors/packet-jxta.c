@@ -670,10 +670,6 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
             break;
         }
 
-        /* Redo header processing, this time populating the tree. */
-        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, tree, &content_length, &content_type);
-
-
         offset += processed;
 
         available = tvb_reported_length_remaining(tvb, offset);
@@ -710,20 +706,13 @@ static int dissect_jxta_udp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tr
         guint64 content_length = -1;
         gchar *content_type = NULL;
         tvbuff_t *jxta_message_tvb;
-        gint processed = 0;
 
         proto_tree_add_item(jxta_udp_tree, hf_jxta_udpsig, tvb, tree_offset, sizeof(JXTA_UDP_SIG), FALSE);
         tree_offset += sizeof(JXTA_UDP_SIG);
 
         jxta_message_framing_tvb = tvb_new_subset(tvb, tree_offset, -1, -1);
-        processed = dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, NULL, &content_length, &content_type);
 
-        if ((0 == processed) || (NULL == content_type) || (content_length <= 0) || (content_length > UINT_MAX)) {
-            /** Buffer did not begin with valid framing headers */
-            return 0;
-        }
-
-        tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, tree, &content_length, &content_type);
+        tree_offset += dissect_jxta_message_framing(jxta_message_framing_tvb, pinfo, jxta_tree, &content_length, &content_type);
 
         jxta_message_tvb = tvb_new_subset(tvb, tree_offset, (gint) content_length, (gint) content_length);
 
