@@ -1545,7 +1545,6 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
       if (version_ptr){
 		  application_context_version = atoi(version_ptr+1);
 	  }
-	  g_warning("AppCtx %u",application_context_version);
     }
   }
 
