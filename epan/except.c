@@ -31,6 +31,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <limits.h>
+
+#include <glib.h>
+
 #include "except.h"
 
 #ifdef _WIN32
