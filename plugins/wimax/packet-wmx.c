@@ -747,13 +747,7 @@ proto_tree *add_protocol_subtree(tlv_info_t *this, gint idx, proto_tree *tree, i
 	tlv_type = get_tlv_type(this);
 
 	/* display the TLV name and display the value in hex. Highlight type, length, and value. */
-	if( (message = se_alloc_array(gchar, 255)) ){
-		va_start(ap, format);
-		vsprintf(message, format, ap);
-		va_end(ap);
-	} else {
-		message = "Memory error";
-	}
+	message = se_strdup_vprintf(format, ap);
 	tlv_item = proto_tree_add_protocol_format(tree, hfindex, tvb, start, length, "%s", message);
 	/* Correct the highlighting. */
 	tlv_item->finfo->start -= tlv_val_offset;
