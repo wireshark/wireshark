@@ -6,418 +6,108 @@ include ..\config.nmake
 
 ############### no need to modify below this line #########
 
-all: \
-	agentx \
-	artnet \
-	asn1 \
-	ciscosm \
-	custom \
-	docsis \
-	enttec \
-	ethercat \
-	giop \
-	gryphon \
-	irda \
-	lwres \
-	m2m \
-	mate \
-	opcua \
-	opsi \
-	pcli \
-	profinet \
-	rlm \
-	rtnet \
-	rudp \
-	sbus \
-	stats_tree \
-	unistim \
-	v5ua \
-	wimax \
-        wimaxasncp
+## To add a plugin: Add entry to process-plugins and to install-plugins
 
+all:
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET= process-plugins
 
-agentx:: 
-	cd agentx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
+clean: clean-local
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET=clean process-plugins
 
-artnet:: 
-	cd artnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
+distclean: distclean-local
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET=distclean process-plugins
 
-asn1:: 
-	cd asn1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
+maintainer-clean: maintainer-clean-local
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET=maintainer-clean process-plugins
 
-ciscosm:: 
-	cd ciscosm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-custom:: 
-	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake
-
-docsis::
-	cd docsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-enttec::
-	cd enttec
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-ethercat::
-	cd ethercat
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-giop::
-	cd giop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-gryphon::
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-irda::
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-lwres::
-	cd lwres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-m2m::
-	cd m2m
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-mate::
-	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd .. 
-
-opcua::
-	cd opcua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-opsi::
-	cd opsi
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-pcli:: 
-	cd pcli
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-profinet:: 
-	cd profinet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-rlm:: 
-	cd rlm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-rtnet:: 
-	cd rtnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-rudp:: 
-	cd rudp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-sbus:: 
-	cd sbus
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-stats_tree:: 
-	cd stats_tree
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-unistim:: 
-	cd unistim
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-v5ua:: 
-	cd v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-wimax:: 
-	cd wimax
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
-
-wimaxasncp::
-        cd wimaxasncp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
-	cd ..
 
 clean-local:
 	rm -rf $(VERSION)
 
-clean: clean-local
-	cd agentx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd artnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd asn1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd ciscosm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd docsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd enttec
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd ethercat
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd giop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd lwres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd m2m
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd opcua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd opsi
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd pcli
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd profinet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd rlm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd rtnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd rudp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd sbus
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd stats_tree
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd unistim
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd wimax
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd wimaxasncp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake clean
-
 distclean-local: clean-local
-
-distclean: distclean-local
-	cd agentx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd artnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd asn1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd ciscosm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd docsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd enttec
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd ethercat
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd giop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd lwres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd m2m
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd opcua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd opsi
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd pcli
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd profinet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd rlm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd rtnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd rudp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd sbus
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd stats_tree
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd unistim
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd wimax
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd wimaxasncp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake distclean
 
 maintainer-clean-local: distclean-local
 
-maintainer-clean: maintainer-clean-local
+process-plugins:
 	cd agentx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd artnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd asn1
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd ciscosm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd docsis
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd enttec
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd ethercat
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd giop
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd lwres
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd m2m
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd mate
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd opcua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd opsi
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd pcli
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd profinet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd rlm
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd rtnet
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd rudp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd sbus
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd stats_tree
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd unistim
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd v5ua
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd wimax
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 	cd wimaxasncp
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
-	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake maintainer-clean
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake $(PLUGIN_TARGET)
 
 ################################################################################
 # copy all plugins to /plugins/$(VERSION), so Wireshark will load them, when
