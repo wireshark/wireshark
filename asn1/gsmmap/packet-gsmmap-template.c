@@ -703,7 +703,7 @@ static int dissect_mc_message(tvbuff_t *tvb,
     }
   } else if (octet == 0x30) {
     if (sequence != NULL) {
-      offset= (sequence) (implicit_seq, tvb, offset, actx, tree, hf_index_seq);
+      offset= (sequence) (implicit_seq, tvb, 0, actx, tree, hf_index_seq);
     } else {
       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown or not implemented sequence");
       proto_item_set_expert_flags(cause, PI_UNDECODED, PI_ERROR);
@@ -789,7 +789,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_sm_MT_ForwardSM_VGCS_Arg(FALSE, tvb, offset, actx, tree, -1);
     break;
   case 22: /*sendRoutingInfo*/
-    offset=dissect_gsm_map_ch_SendRoutingInfoArg(FALSE, tvb, offset, actx, tree, -1);
+	  if (application_context_version == 3){
+		  offset=dissect_gsm_map_ch_SendRoutingInfoArg(FALSE, tvb, offset, actx, tree, -1);
+	  }else{
+		  offset=dissect_gsm_old_SendRoutingInfoArgV2(FALSE, tvb, offset, actx, tree, -1);
+	  }
     break;
   case 23: /*updateGprsLocation*/
     offset=dissect_gsm_map_ms_UpdateGprsLocationArg(FALSE, tvb, offset, actx, tree, -1);
@@ -1129,7 +1133,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 22: /*sendRoutingInfo*/ 
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_IMSI, hf_gsm_map_imsi,
-			      FALSE, NULL, -1,
+			      FALSE, dissect_gsm_old_SendRoutingInfoResV2, -1,
 			      TRUE , dissect_gsm_map_ch_SendRoutingInfoRes, -1);
     break;
   case 23: /*updateGprsLocation*/
@@ -1538,8 +1542,10 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     p_private_tcap=actx->pinfo->private_data;
     if (p_private_tcap->acv==TRUE ){
       version_ptr = strrchr(p_private_tcap->oid,'.');
-      if (version_ptr)
-	application_context_version = atoi(version_ptr+1);
+      if (version_ptr){
+		  application_context_version = atoi(version_ptr+1);
+	  }
+	  g_warning("AppCtx %u",application_context_version);
     }
   }
 

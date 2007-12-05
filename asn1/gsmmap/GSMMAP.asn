@@ -35,6 +35,13 @@ FROM MAP-CommonDataTypes {
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
+
+   CUG-CheckInfo,
+   NumberOfForwarding,
+   RoutingInfo
+FROM MAP-CH-DataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-CH-DataTypes (13) version11 (11)}
 ;
 
 -- ROS def's
@@ -584,7 +591,22 @@ accessTypeNotAllowed-id	OBJECT IDENTIFIER ::=
 	--proprietary-extensions (1)
 	--accessTypeNotAllowed (2)
 
+SendRoutingInfoArgV2 ::= SEQUENCE { 
+	msisdn				[0] ISDN-AddressString, 
+	cug-CheckInfo		[1] CUG-CheckInfo OPTIONAL, 
+-- cug-CheckInfo must be absent in version 1 
+	numberOfForwarding	[2] NumberOfForwarding OPTIONAL, 
+	networkSignalInfo	[10] ExternalSignalInfo OPTIONAL, 
+	...
+	} 
 
+SendRoutingInfoResV2 ::= SEQUENCE { 
+	imsi				IMSI, 
+	routingInfo			RoutingInfo, 
+	cug-CheckInfo		CUG-CheckInfo OPTIONAL, 
+-- cug-CheckInfo must be absent in version 1 
+	...
+	} 
 
 END
 
