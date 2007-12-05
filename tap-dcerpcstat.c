@@ -163,7 +163,7 @@ dcerpcstat_draw(void *prs)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
 			rs->procedures[i].proc,
 			rs->procedures[i].num,
 			(int)rs->procedures[i].min.secs,rs->procedures[i].min.nsecs/10000,

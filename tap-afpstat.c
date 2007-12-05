@@ -100,7 +100,7 @@ afpstat_draw(void *pss)
 			td=0;
 		}
 
-		printf("%-25s %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
+		printf("%-25s %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
 			val_to_str(i, CommandCode_vals, "Unknown (%u)"),
 			ss->proc[i].num,
 			(int)ss->proc[i].min.secs,ss->proc[i].min.nsecs/10000,

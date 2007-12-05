@@ -567,7 +567,7 @@ iousers_draw(void *arg)
 			tot_frames=iui->frames1+iui->frames2;
 
 			if(tot_frames==last_frames){
-				printf("%-20s <-> %-20s  %6d %9" PRId64 "  %6d %9" PRId64 "  %6d %9" PRId64 "\n",
+				printf("%-20s <-> %-20s  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d  %6d %9" G_GINT64_MODIFIER "d\n",
 					iui->name1, iui->name2,
 					iui->frames1, iui->bytes1,
 					iui->frames2, iui->bytes2,
