@@ -107,6 +107,7 @@ typedef struct column_arrows {
 } column_arrows;
 
 GtkWidget *packet_list;
+static gboolean last_at_end = FALSE;
 
 /* EthClist compare routine, overrides default to allow numeric comparison */
 
@@ -776,16 +777,25 @@ packet_list_moveto_end(void)
 }
 
 gboolean
-packet_list_at_end(void)
+packet_list_check_end(void)
 {
-    g_return_val_if_fail (packet_list != NULL, FALSE);
-    g_return_val_if_fail (ETH_CLIST(packet_list) != NULL, FALSE);
+    gboolean at_end = FALSE;
+    GtkAdjustment *adj;
 
-    if (eth_clist_row_is_visible(ETH_CLIST(packet_list), ETH_CLIST(packet_list)->rows - 1) == GTK_VISIBILITY_NONE){
-        return FALSE;
-    } else {
-        return TRUE;
+    g_return_val_if_fail (packet_list != NULL, FALSE);
+    adj = eth_clist_get_vadjustment(ETH_CLIST(packet_list));
+    g_return_val_if_fail (adj != NULL, FALSE);
+
+    if (adj->value >= adj->upper - adj->page_size) {
+        at_end = TRUE;
     }
+
+    if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
+        menu_auto_scroll_live_changed(at_end);
+    }
+
+    last_at_end = at_end;
+    return at_end;
 }
 
 gint
