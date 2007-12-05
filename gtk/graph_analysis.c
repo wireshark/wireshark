@@ -1158,6 +1158,7 @@ static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 
 	/* get the item clicked */
 	item = ((guint32)event->y - TOP_Y_BORDER) / ITEM_HEIGHT;
+	if (item >= user_data->num_items) return TRUE;
 	user_data->dlg.selected_item = item + user_data->dlg.first_item;
 
 	user_data->dlg.needs_redraw=TRUE;
