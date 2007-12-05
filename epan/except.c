@@ -307,7 +307,7 @@ void except_throwf(long group, long code, const char *fmt, ...)
     va_list vl;
 
     va_start (vl, fmt);
-    vsprintf(buf, fmt, vl);
+    g_vsnprintf(buf, XCEPT_BUFFER_SIZE, fmt, vl);
     va_end (vl);
     except_throwd(group, code, buf, buf);
 }
