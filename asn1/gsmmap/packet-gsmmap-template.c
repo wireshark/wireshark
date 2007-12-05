@@ -153,6 +153,7 @@ static gint ett_gsm_map_LongSignalInfo = -1;
 static gint ett_gsm_map_RadioResourceInformation =-1;
 static gint ett_gsm_map_MSNetworkCapability =-1;
 static gint ett_gsm_map_MSRadioAccessCapability = -1;
+static gint ett_gsm_map_externalsignalinfo = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -171,6 +172,7 @@ static guint32 opcode=0;
 static guint32 errorCode;
 static proto_tree *top_tree;
 static int application_context_version;
+static guint ProtocolId; 
 guint protocolId;
 guint AccessNetworkProtocolId;
 const char *obj_id = NULL;
@@ -2271,6 +2273,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_RadioResourceInformation,
 	&ett_gsm_map_MSNetworkCapability,
 	&ett_gsm_map_MSRadioAccessCapability,
+	&ett_gsm_map_externalsignalinfo,
 
 #include "packet-gsm_map-ettarr.c"
   };

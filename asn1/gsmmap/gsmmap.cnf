@@ -179,13 +179,13 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
 
  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_isdn_address_string);
 
- proto_tree_add_item(tree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_extension, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_nature_of_number, parameter_tvb, 0,1,FALSE);
+ proto_tree_add_item(subtree, hf_gsm_map_number_plan, parameter_tvb, 0,1,FALSE);
 
  digit_str = unpack_digits(parameter_tvb, 1);
 
- proto_tree_add_string(tree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
+ proto_tree_add_string(subtree, hf_gsm_map_address_digits, parameter_tvb, 1, -1, digit_str);
 
  octet = tvb_get_guint8(parameter_tvb,0);
  na = (octet & 0x70)>>4;
@@ -444,15 +444,13 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
-	proto_item *item;
 	proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
 	if (!parameter_tvb)
 		return offset;
-	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_gsm_map_pdptypenumber);
+	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_pdptypenumber);
 
 	octet = tvb_get_guint8(parameter_tvb,0);
 	switch(octet){
@@ -469,34 +467,29 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 #.FN_BODY RAIdentity VAL_PTR = &parameter_tvb
 
 	tvbuff_t	*parameter_tvb;
-	proto_item *item;
 	proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
 	 if (!parameter_tvb)
 		return offset;
-	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_gsm_map_RAIdentity);
+	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RAIdentity);
 	de_gmm_rai(parameter_tvb, subtree, 0, 3, NULL,0);
 
 #.FN_BODY LAIFixedLength VAL_PTR = &parameter_tvb
 
         tvbuff_t        *parameter_tvb; 
-        proto_item *item; 
         proto_tree *subtree; 
 
 %(DEFAULT_BODY)s 
 
          if (!parameter_tvb) 
                 return offset; 
-        item = get_ber_last_created_item(); 
-        subtree = proto_item_add_subtree(item, ett_gsm_map_LAIFixedLength); 
+        subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_LAIFixedLength); 
         dissect_e212_mcc_mnc(parameter_tvb, subtree, 0); 
 
 #.FN_BODY RadioResourceInformation VAL_PTR = &parameter_tvb 
     tvbuff_t        *parameter_tvb; 
-	proto_item *item;
 	proto_tree *subtree;
 
 %(DEFAULT_BODY)s 
@@ -504,8 +497,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	if (!parameter_tvb) 
                 return offset; 
 
-    item = get_ber_last_created_item(); 
-    subtree = proto_item_add_subtree(item, ett_gsm_map_RadioResourceInformation); 
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
 	be_chan_type(tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 #.FN_BODY RANAP-ServiceHandover VAL_PTR = &parameter_tvb
@@ -544,6 +536,47 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
 	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapEncryptionInformation);
 
+#.FN_PARS ProtocolId VAL_PTR = &ProtocolId
+
+#.FN_BODY ExternalSignalInfo
+ guint8		octet;
+ guint8		length;
+ tvbuff_t	*next_tvb;
+ proto_tree *subtree;
+
+ ProtocolId = 0xffffffff;
+%(DEFAULT_BODY)s 
+if (!actx->value_ptr)
+	return offset;
+ subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_externalsignalinfo);
+ switch (ProtocolId){
+	/* gsm-0408 */
+	case 1:
+		break;
+ 	/* gsm-0806 */
+	case 2:
+		break;
+	/* gsm-BSSMAP TODO Is it correct to stripp off two first octets here?*/
+	case 3:
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		length = tvb_get_guint8(actx->value_ptr,1);
+		if ( octet == 0) {/* DISCRIMINATION TS 48 006 */
+			next_tvb = tvb_new_subset(actx->value_ptr, 2, -1, -1);
+			dissect_bssmap(next_tvb, actx->pinfo, subtree);
+		}
+		break;
+	/* ets-300102-1 (~Q.931 ) */
+	case 4:
+		octet = tvb_get_guint8(actx->value_ptr,0);
+		length = tvb_get_guint8(actx->value_ptr,1);
+		if ( octet == 4 )
+			dissect_q931_bearer_capability_ie(actx->value_ptr, 2, length, subtree);
+		break;
+	default:
+		break;
+}
+
+
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
@@ -554,4 +587,5 @@ BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerser
 Ext-TeleserviceCode TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 Ext-BearerServiceCode  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
 ChargingCharacteristics  TYPE = FT_UINT16  DISPLAY = BASE_DEC  BITMASK = 0x0f00 STRINGS = VALS(chargingcharacteristics_values)
+RoutingInfo TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(gsm_map_ch_RoutingInfo_vals)
 #.END
