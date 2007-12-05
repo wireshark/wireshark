@@ -205,6 +205,7 @@ static int hf_rpc_authgss_window = -1;
 static int hf_rpc_authgss_token_length = -1;
 static int hf_rpc_authgss_data_length = -1;
 static int hf_rpc_authgss_data = -1;
+static int hf_rpc_authgss_token = -1;
 static int hf_rpc_authgss_checksum = -1;
 static int hf_rpc_authgssapi_v = -1;
 static int hf_rpc_authgssapi_msg = -1;
@@ -1027,7 +1028,7 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
  */
 static int
 dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
-    packet_info *pinfo)
+    packet_info *pinfo, int hfindex)
 {
 	guint32 opaque_length, rounded_length;
 	gint len_consumed, length, reported_length;
@@ -1039,8 +1040,7 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	opaque_length = tvb_get_ntohl(tvb, offset+0);
 	rounded_length = rpc_roundup(opaque_length);
 	if (tree) {
-		gitem = proto_tree_add_text(tree, tvb, offset,
-					    4+rounded_length, "GSS Token");
+		gitem = proto_tree_add_item(tree, hfindex, tvb, offset, 4+rounded_length, FALSE);
 		gtree = proto_item_add_subtree(gitem, ett_rpc_gss_token);
 		proto_tree_add_uint(gtree, hf_rpc_authgss_token_length,
 				    tvb, offset+0, 4, opaque_length);
@@ -1122,7 +1122,7 @@ dissect_rpc_verf(tvbuff_t* tvb, proto_tree* tree, int offset, int msg_type,
 			}
 			break;
 		case RPCSEC_GSS:
-			dissect_rpc_authgss_token(tvb, vtree, offset+4, pinfo);
+			dissect_rpc_authgss_token(tvb, vtree, offset+4, pinfo, hf_rpc_authgss_token);
 			break;
 		default:
 			proto_tree_add_uint(vtree, hf_rpc_auth_length, tvb,
@@ -1142,7 +1142,7 @@ static int
 dissect_rpc_authgss_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
     packet_info *pinfo)
 {
-	return dissect_rpc_authgss_token(tvb, tree, offset, pinfo);
+	return dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_token);
 }
 
 static int
@@ -1172,7 +1172,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 				    offset+0, 4, window);
 	offset += 4;
 
-	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo);
+	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_token);
 
 	return offset;
 }
@@ -1197,7 +1197,7 @@ dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
 	}
 	offset += 4;
 
-	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo);
+	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo, hf_rpc_authgss_token);
 
 	return offset;
 }
@@ -1241,7 +1241,7 @@ dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 	}
 	offset += 4;
 
-	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo);
+	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo, hf_rpc_authgss_token);
 
 	offset = dissect_rpc_data(tvb, mtree, hf_rpc_authgssapi_isn, offset);
 
@@ -1312,8 +1312,8 @@ dissect_rpc_authgss_integ_data(tvbuff_t *tvb, packet_info *pinfo,
 				      dissect_function, progname);
 	}
 	offset += rounded_length - 4;
-	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_checksum,
-			offset);
+	offset = dissect_rpc_authgss_token(tvb, tree, offset, pinfo, hf_rpc_authgss_checksum);
+
 	return offset;
 }
 
@@ -3664,6 +3664,9 @@ proto_register_rpc(void)
 		{ &hf_rpc_authgss_checksum, {
 			"GSS Checksum", "rpc.authgss.checksum", FT_BYTES,
 			BASE_HEX, NULL, 0, "GSS Checksum", HFILL }},
+		{ &hf_rpc_authgss_token, {
+			"GSS Token", "rpc.authgss.token", FT_BYTES,
+			BASE_HEX, NULL, 0, "GSS Token", HFILL }},
 		{ &hf_rpc_authgssapi_v, {
 			"AUTH_GSSAPI Version", "rpc.authgssapi.version",
 			FT_UINT32, BASE_DEC, NULL, 0, "AUTH_GSSAPI Version",
