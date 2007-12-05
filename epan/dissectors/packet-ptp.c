@@ -1729,112 +1729,112 @@ void
 dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 ptp_v2_messageid;
-	guint64 timeStamp;
+    guint64 timeStamp;
     double cor;
     gint64 temp_cor;
     guint16 temp_cor_sub;
 
 
     /* Set up structures needed to add the protocol subtree and manage it */
-	proto_item *ti, *transportspecific_ti, *flags_ti, *correction_ti;
-	proto_tree *ptp_tree, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_correction_tree;
+    proto_item *ti, *transportspecific_ti, *flags_ti, *correction_ti;
+    proto_tree *ptp_tree, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_correction_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
 
 
     /* Get control field (what kind of message is this? (Sync, DelayReq, ...) */
 
-	ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
+    ptp_v2_messageid = 0x0F & tvb_get_guint8 (tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET);
 
     /* Create and set the string for "Info" column */
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
-	}
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(ptp_v2_messageid, ptp_v2_messageid_vals, "Unknown PTP Message (%u)"));
+    }
 
 
    if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_ptp, tvb, 0, -1, FALSE);
 
-		ptp_tree = proto_item_add_subtree(ti, ett_ptp_v2);
+        ptp_tree = proto_item_add_subtree(ti, ett_ptp_v2);
 
-		transportspecific_ti = proto_tree_add_item(ptp_tree,
-			hf_ptp_v2_transportspecific, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+        transportspecific_ti = proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_transportspecific, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
 
-		ptp_transportspecific_tree = proto_item_add_subtree(transportspecific_ti, ett_ptp_v2_transportspecific);
-		
-		if (ptpv2_oE == TRUE)
-		{
-			proto_tree_add_item(ptp_transportspecific_tree,
-				hf_ptp_v2_transportspecific_802as_conform, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
-		}
-		else
-		{
-			proto_tree_add_item(ptp_transportspecific_tree,
-				hf_ptp_v2_transportspecific_v1_compatibility, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
-		}
+        ptp_transportspecific_tree = proto_item_add_subtree(transportspecific_ti, ett_ptp_v2_transportspecific);
+        
+        if (ptpv2_oE == TRUE)
+        {
+            proto_tree_add_item(ptp_transportspecific_tree,
+                hf_ptp_v2_transportspecific_802as_conform, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+        }
+        else
+        {
+            proto_tree_add_item(ptp_transportspecific_tree,
+                hf_ptp_v2_transportspecific_v1_compatibility, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+        }
 
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_messageid, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_messageid, tvb, PTP_V2_TRANSPORT_SPECIFIC_MESSAGE_ID_OFFSET, 1, FALSE);
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_versionptp, tvb, PTP_V2_VERSIONPTP_OFFSET, 1, FALSE);
 
         proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_messagelength, tvb, PTP_V2_MESSAGE_LENGTH_OFFSET, 2, FALSE);
+            hf_ptp_v2_messagelength, tvb, PTP_V2_MESSAGE_LENGTH_OFFSET, 2, FALSE);
 
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, FALSE);
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_domainnumber, tvb, PTP_V2_DOMAIN_NUMBER_OFFSET, 1, FALSE);
 
 
-		flags_ti = proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_flags, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        flags_ti = proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_flags, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
 
-		ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_v2_flags);
+        ptp_flags_tree = proto_item_add_subtree(flags_ti, ett_ptp_v2_flags);
 
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_security, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
-		
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_specific2, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
-			
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_specific1, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
-			
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_unicast, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
-			
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_twostep, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
-			
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_alternatemaster, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_security, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_specific2, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_specific1, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_unicast, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);    
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_twostep, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);    
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_alternatemaster, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
 
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_frequencytraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
-		
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_timetraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_frequencytraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_timetraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
 
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_ptptimescale, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
-			
-		proto_tree_add_item(ptp_flags_tree,
-			hf_ptp_v2_flags_utcoffsetvalid, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_ptptimescale, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_utcoffsetvalid, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);
 
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_li59, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);	
-			
-		proto_tree_add_item(ptp_flags_tree,
-		    hf_ptp_v2_flags_li61, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);			            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_li59, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);    
+            
+        proto_tree_add_item(ptp_flags_tree,
+            hf_ptp_v2_flags_li61, tvb, PTP_V2_FLAGS_OFFSET, 2, FALSE);                        
 
         temp_cor = tvb_get_ntohl(tvb, PTP_V2_CORRECTIONNS_OFFSET);
 
         temp_cor_sub = tvb_get_ntohs(tvb, PTP_V2_CORRECTIONSUBNS_OFFSET);
-		
+        
         temp_cor = temp_cor << 16;
 
         if(temp_cor & 0x800000){
@@ -1850,48 +1850,48 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
 
-		correction_ti = proto_tree_add_double_format(ptp_tree,
+        correction_ti = proto_tree_add_double_format(ptp_tree,
             hf_ptp_v2_correction, tvb, PTP_V2_CORRECTION_OFFSET, 8, cor, "correction: %f nanoseconds", cor);
 
-		ptp_correction_tree = proto_item_add_subtree(correction_ti, ett_ptp_v2_correction);
+        ptp_correction_tree = proto_item_add_subtree(correction_ti, ett_ptp_v2_correction);
         
         proto_tree_add_text(ptp_correction_tree, tvb, PTP_V2_CORRECTIONNS_OFFSET, 8,
-		"correctionNs: % "PRId64 " nanoseconds" , temp_cor);
+            "correctionNs: %" G_GINT64_MODIFIER "d nanoseconds" , temp_cor);
 
         proto_tree_add_double_format(ptp_correction_tree,
-		    hf_ptp_v2_correctionsubns, tvb, PTP_V2_CORRECTION_OFFSET, 8, (temp_cor_sub/65536.0), "correctionSubNs: %f nanoseconds", (temp_cor_sub/65536.0));	
-
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, FALSE);
-
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, FALSE);
-
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_sequenceid, tvb, PTP_V2_SEQUENCEID_OFFSET, 2, FALSE);
-
-		proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_control, tvb, PTP_V2_CONTROL_OFFSET, 1, FALSE);
+            hf_ptp_v2_correctionsubns, tvb, PTP_V2_CORRECTION_OFFSET, 8, (temp_cor_sub/65536.0), "correctionSubNs: %f nanoseconds", (temp_cor_sub/65536.0));    
 
         proto_tree_add_item(ptp_tree,
-		    hf_ptp_v2_logmessageperiod, tvb, PTP_V2_LOGMESSAGEPERIOD_OFFSET, 1, FALSE);
+            hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, FALSE);
 
-		switch(ptp_v2_messageid){
-			case PTP_V2_ANNOUNCE_MESSAGE:{
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_sequenceid, tvb, PTP_V2_SEQUENCEID_OFFSET, 2, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_control, tvb, PTP_V2_CONTROL_OFFSET, 1, FALSE);
+
+        proto_tree_add_item(ptp_tree,
+            hf_ptp_v2_logmessageperiod, tvb, PTP_V2_LOGMESSAGEPERIOD_OFFSET, 1, FALSE);
+
+        switch(ptp_v2_messageid){
+            case PTP_V2_ANNOUNCE_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
-					"originTimestamp (seconds): % "PRId64, timeStamp);
-				
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_nanoseconds, tvb,
-							PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_AN_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+                    "originTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
+                
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origintimestamp_nanoseconds, tvb,
+                            PTP_V2_AN_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_an_origincurrentutcoffset, tvb,
                     PTP_V2_AN_ORIGINCURRENTUTCOFFSET_OFFSET, 2, FALSE);
                 
-				proto_tree_add_item(ptp_tree,
+                proto_tree_add_item(ptp_tree,
                     hf_ptp_v2_an_timesource, tvb, PTP_V2_AN_TIMESOURCE_OFFSET, 1, FALSE);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_an_localstepsremoved, tvb,
@@ -1909,109 +1909,109 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_an_grandmasterclockvariance, tvb,
                     PTP_V2_AN_GRANDMASTERCLOCKVARIANCE_OFFSET, 2, FALSE);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority1, tvb,
-					PTP_V2_AN_PRIORITY_1_OFFSET, 1, FALSE);
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority1, tvb,
+                    PTP_V2_AN_PRIORITY_1_OFFSET, 1, FALSE);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority2, tvb,
-					PTP_V2_AN_PRIORITY_2_OFFSET, 1, FALSE);
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_an_priority2, tvb,
+                    PTP_V2_AN_PRIORITY_2_OFFSET, 1, FALSE);
         
-			    break;
-		    }
-			
-		    case PTP_V2_SYNC_MESSAGE:
+                break;
+            }
+            
+            case PTP_V2_SYNC_MESSAGE:
             case PTP_V2_DELAY_REQ_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
-					"originTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_SDR_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+                    "originTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb,
-					PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-		
-			    break;
-		    }
-			
-			case PTP_V2_FOLLOWUP_MESSAGE:{
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_sdr_origintimestamp_nanoseconds, tvb,
+                    PTP_V2_SDR_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+        
+                break;
+            }
+            
+            case PTP_V2_FOLLOWUP_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6,
-					"preciseOriginTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6,
+                    "preciseOriginTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
-					PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
-			    break;
-		    }
-			
-			case PTP_V2_DELAY_RESP_MESSAGE:{
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
+                    PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
+                break;
+            }
+            
+            case PTP_V2_DELAY_RESP_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET, 6,
-					"receiveTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_DR_RECEIVETIMESTAMPSECONDS_OFFSET, 6,
+                    "receiveTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_receivetimestamp_nanoseconds, tvb,
-					PTP_V2_DR_RECEIVETIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_receivetimestamp_nanoseconds, tvb,
+                    PTP_V2_DR_RECEIVETIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingportidentity, tvb,
                     PTP_V2_DR_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_dr_requestingsourceportid, tvb,
                     PTP_V2_DR_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
 
-			    break;
-		    }
-			
-		    case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
+                break;
+            }
+            
+            case PTP_V2_PATH_DELAY_REQ_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
-					"originTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRQ_ORIGINTIMESTAMPSECONDS_OFFSET, 6,
+                    "originTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_nanoseconds, tvb,
-					PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
-			    break;
-		    }
-					
-		    case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrq_origintimestamp_nanoseconds, tvb,
+                    PTP_V2_PDRQ_ORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
+                break;
+            }
+                    
+            case PTP_V2_PATH_DELAY_RESP_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6,
-					"requestreceiptTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPSECONDS_OFFSET, 6,
+                    "requestreceiptTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds, tvb,
-					PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestreceipttimestamp_nanoseconds, tvb,
+                    PTP_V2_PDRS_REQUESTRECEIPTTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingportidentity, tvb,
                     PTP_V2_PDRS_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdrs_requestingsourceportid, tvb,
                     PTP_V2_PDRS_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
 
-			    break;
-		    }
+                break;
+            }
                      
             case PTP_V2_PATH_DELAY_FOLLOWUP_MESSAGE:{
                 timeStamp = tvb_get_ntohl(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET);
-				timeStamp = timeStamp << 16;
-				timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET+4);
-				
-				proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6,
-					"responseOriginTimestamp (seconds): % "PRId64, timeStamp);
+                timeStamp = timeStamp << 16;
+                timeStamp = timeStamp | tvb_get_ntohs(tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET+4);
+                
+                proto_tree_add_text(ptp_tree, tvb, PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPSECONDS_OFFSET, 6,
+                    "responseOriginTimestamp (seconds): %" G_GINT64_MODIFIER "u", timeStamp);
 
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds, tvb,
-					PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
-				
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_responseorigintimestamp_nanoseconds, tvb,
+                    PTP_V2_PDFU_RESPONSEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, FALSE);
+                
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingportidentity, tvb,
                     PTP_V2_PDFU_REQUESTINGPORTIDENTITY_OFFSET, 8, FALSE);
@@ -2019,7 +2019,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_pdfu_requestingsourceportid, tvb,
                     PTP_V2_PDFU_REQUESTINGSOURCEPORTID_OFFSET, 2, FALSE);
 
-			    break;            
+                break;            
             }
             
             case PTP_V2_SIGNALLING_MESSAGE:{
@@ -2028,9 +2028,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_sig_targetportid, tvb,
                     PTP_V2_SIG_TARGETPORTID_OFFSET, 2, FALSE);
-			    break;
-		    }
-			
+                break;
+            }
+            
             case PTP_V2_MANAGEMENT_MESSAGE:{
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_targetportidentity, tvb,
                     PTP_V2_MM_TARGETPORTIDENTITY_OFFSET, 8, FALSE);
@@ -2043,16 +2043,16 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_boundaryhops, tvb,
                     PTP_V2_MM_BOUNDARYHOPS_OFFSET, 1, FALSE);
-					
-				/* ToDo Enumeration4 aufl�sen in Subtree */	
-				proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_action, tvb,
+                    
+                /* ToDo Enumeration4 aufl�sen in Subtree */    
+                proto_tree_add_item(ptp_tree, hf_ptp_v2_mm_action, tvb,
                     PTP_V2_MM_ACTION_OFFSET, 1, FALSE);
-			    break;
-		    }
-		    default:{
+                break;
+            }
+            default:{
 
-			    break;
-		    }
+                break;
+            }
         } /* switch */
 
    } /* tree */
