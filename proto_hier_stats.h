@@ -41,7 +41,6 @@ typedef struct {
 	GNode	*stats_tree;
 	double	first_time;	/* seconds (msec resolution) of first packet */
 	double	last_time;	/* seconds (msec resolution) of last packet  */
-	const char *dfilter;    /* display filter */
 } ph_stats_t;
 
 
