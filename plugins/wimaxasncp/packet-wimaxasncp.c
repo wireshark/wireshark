@@ -643,7 +643,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             if (debug_enabled)
             {
-                g_print("fix-me: enum values missing for TLV %s (%d)\n",
+                g_print("fix-me: enum values missing for TLV %s (%u)\n",
                         tlv_info->name, tlv_info->type);
             }
         }
@@ -678,7 +678,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             if (debug_enabled)
             {
-                g_print("fix-me: enum values missing for TLV %s (%d)\n",
+                g_print("fix-me: enum values missing for TLV %s (%u)\n",
                         tlv_info->name, tlv_info->type);
             }
         }
@@ -1016,7 +1016,7 @@ static void wimaxasncp_dissect_tlv_value(
             proto_tree_add_uint_format(
                 tree, tlv_info->hf_value,
                 tvb, offset, length, value,
-                "Value: %d", value);
+                "Value: %u", value);
 
             proto_item_append_text(tlv_item, " - %u", value);
         }
@@ -1040,7 +1040,7 @@ static void wimaxasncp_dissect_tlv_value(
             proto_tree_add_uint_format(
                 tree, tlv_info->hf_value,
                 tvb, offset, length, value,
-                "Value: %d", value);
+                "Value: %u", value);
 
             proto_item_append_text(tlv_item, " - %u", value);
         }
@@ -1064,7 +1064,7 @@ static void wimaxasncp_dissect_tlv_value(
             proto_tree_add_uint_format(
                 tree, tlv_info->hf_value,
                 tvb, offset, length, value,
-                "Value: %d", value);
+                "Value: %u", value);
 
             proto_item_append_text(tlv_item, " - %u", value);
         }
@@ -1076,7 +1076,7 @@ static void wimaxasncp_dissect_tlv_value(
         if (debug_enabled)
         {
             g_print(
-                "fix-me: TBD: TLV %s (%d)\n", tlv_info->name, tlv_info->type);
+                "fix-me: TBD: TLV %s (%u)\n", tlv_info->name, tlv_info->type);
         }
 
         if (tree)
@@ -1247,7 +1247,7 @@ static void wimaxasncp_dissect_tlv_value(
 
                 proto_tree_add_text(
                     port_range_list_tree, tvb, offset, 4,
-                    "Port Range: %d-%d", portLow, portHigh);
+                    "Port Range: %u-%u", portLow, portHigh);
 
                 /* hidden items are for filtering */
 
@@ -1266,12 +1266,12 @@ static void wimaxasncp_dissect_tlv_value(
                 if (offset == 0)
                 {
                     proto_item_append_text(
-                        tlv_item, " - %d-%d", portLow, portHigh);
+                        tlv_item, " - %u-%u", portLow, portHigh);
                 }
                 else if (offset < 4 * max_port_ranges_in_tlv_item)
                 {
                     proto_item_append_text(
-                        tlv_item, ", %d-%d", portLow, portHigh);
+                        tlv_item, ", %u-%u", portLow, portHigh);
                 }
                 else if (offset == 4 * max_port_ranges_in_tlv_item)
                 {
@@ -1658,7 +1658,7 @@ static void wimaxasncp_dissect_tlv_value(
         {
             format = "Value: %s %s...";
         }
-        
+
         proto_tree_add_bytes_format(
             tree, hf_wimaxasncp_tlv_value_bytes,
             tvb, offset, length, p,
@@ -2039,13 +2039,11 @@ dissect_wimaxasncp(
      * ------------------------------------------------------------------------
      */
 
-    ui8 = tvb_get_guint8(tvb, offset);
-
     if (tree)
     {
-        proto_tree_add_uint(
+        proto_tree_add_item(
             wimaxasncp_tree, hf_wimaxasncp_version,
-            tvb, offset, 1, ui8);
+            tvb, offset, 1, FALSE);
     }
 
     offset += 1;
@@ -2102,6 +2100,7 @@ dissect_wimaxasncp(
                 guint8 mask;
                 mask = 1 << (7 - i);
 
+                /* Only add flags that are set */
                 if (ui8 & mask)
                 {
                     proto_tree_add_uint_format(
@@ -2128,9 +2127,9 @@ dissect_wimaxasncp(
     if (tree)
     {
         proto_item *function_type_item;
-        function_type_item = proto_tree_add_uint(
+        function_type_item = proto_tree_add_item(
             wimaxasncp_tree, hf_wimaxasncp_function_type,
-            tvb, offset, 1, function_type);
+            tvb, offset, 1, FALSE);
 
         /* Add expert item if not matched */
         if (strcmp(val_to_str(function_type,
@@ -2275,40 +2274,44 @@ dissect_wimaxasncp(
 }
 
 /* ========================================================================= */
-
+/* Modify the given string to make a suitable display filter                 */
 static char *alnumerize(
     char *name)
 {
-    char *r = name;
-    char *w = name;
+    char *r = name;  /* read pointer */
+    char *w = name;  /* write pointer */
     char c;
-    
+
     for ( ; (c = *r); ++r) 
     {
         if (isalnum((unsigned char)c) || c == '_' || c == '.') 
         {
+            /* These characters are fine - copy them */
             *(w++) = c;
         }
         else if (c == ' ' || c == '-' || c == '/')
         {
-            /* skip if at start of string */
+            /* Skip these others if haven't written any characters out yet */
             if (w == name)
             {
                 continue;
             }
 
-            /* skip if we would produce multiple adjacent '_'s */
+            /* Skip if we would produce multiple adjacent '_'s */
             if (*(w - 1) == '_')
             {
                 continue;
             }
 
+            /* OK, replace with underscore */
             *(w++) = '_';
         }
+
+        /* Other undesirable characters are just skipped */
     }
-    
+
+    /* Terminate and return modified string */
     *w = '\0';
-    
     return name;
 }
 
