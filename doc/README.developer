@@ -1004,7 +1004,7 @@ FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX,
 		BASE_HEX_DEC, BASE_RANGE_STRING
 FIELDCONVERT	VALS(x), RVALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
-FIELDDESCR	A brief description of the field.
+FIELDDESCR	A brief description of the field, or NULL.
 PARENT_SUBFIELD	Lower level protocol field used for lookup, i.e. "tcp.port"
 ID_VALUE	Lower level protocol field value that identifies this protocol
 		For example the TCP or UDP port number
@@ -2463,10 +2463,10 @@ Example: (from the scsi dissector)
 	...
         { &hf_scsi_inq_peripheral,
           {"Peripheral", "scsi.inquiry.preipheral", FT_UINT8, BASE_HEX,
-           NULL, 0, "", HFILL}},
+           NULL, 0, NULL, HFILL}},
         { &hf_scsi_inq_qualifier,
           {"Qualifier", "scsi.inquiry.qualifier", FT_UINT8, BASE_HEX,
-           VALS (scsi_qualifier_val), 0xE0, "", HFILL}},
+           VALS (scsi_qualifier_val), 0xE0, NULL, HFILL}},
 	...
 
 Which provides very pretty dissection of this one byte bitmask.
@@ -2495,15 +2495,8 @@ table handles all possible values of the size of 'val'", not "the
 protocol spec says it has to be" - protocol specs do not prevent invalid
 packets from being put onto a network or into a purported packet capture
 file), you must check whether 'match_strval()' returns NULL, and arrange
-that its return value not be dereferenced if it's NULL.  In particular,
-don't use it in a call to generate a COL_INFO line for a frame such as
-
-	col_add_fstr(COL_INFO, ", %s", match_strval(val, table));
-
-unless is it certain that 'val' is in 'table'.
-
-'val_to_str()' can be used to generate a string for values not found in
-the table:
+that its return value not be dereferenced if it's NULL. 'val_to_str()'
+can be used to generate a string for values not found in the table:
 
 	gchar*
 	val_to_str(guint32 val, const value_string *vs, const char *fmt)
@@ -2512,9 +2505,9 @@ If the value 'val' is found in the 'value_string' table pointed to by
 'vs', 'val_to_str' will return the corresponding string; otherwise, it
 will use 'fmt' as an 'sprintf'-style format, with 'val' as an argument,
 to generate a string, and will return a pointer to that string.
-(Currently, it has three 64-byte static buffers, and cycles through
-them; this permits the results of up to three calls to 'val_to_str' to
-be passed as arguments to a routine using those strings.)
+You can use it in a call to generate a COL_INFO line for a frame such as
+
+	col_add_fstr(COL_INFO, ", %s", val_to_str(val, table, "Unknown %d"));
 
 1.7.2 match_strrval and rval_to_str.
 
