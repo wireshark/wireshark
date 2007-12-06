@@ -2,9 +2,9 @@
 # $Id$
 # The format of this file is specified at
 # http://freedesktop.org/Standards/desktop-entry-spec
-# The entries are in the order they are listed in version 0.9.5
+# The entries are in the order they are listed in version 1.0
 Type=Application
-Version=0.9.5
+Version=1.0
 Name=Wireshark
 Name[vi]=Wireshark
 GenericName=Network Analyzer
@@ -72,5 +72,7 @@ Icon=wireshark.png
 TryExec=wireshark
 Exec=wireshark
 Terminal=false
-Categories=GTK;Network;X-Red-Hat-Extra;
+# Categorie entry according to version 1.0 of
+# http://www.freedesktop.org/wiki/Specifications/menu-spec
+Categories=System;Monitor;GTK;
 X-KDE-SubstituteUID=true
