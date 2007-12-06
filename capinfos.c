@@ -110,8 +110,8 @@ print_stats(capture_info *cf_info)
   if (cap_file_type) printf("File type: %s\n", file_type_string);
   if (cap_file_encap) printf("File encapsulation: %s\n", file_encap_string);
   if (cap_packet_count) printf("Number of packets: %u \n", cf_info->packet_count);
-  if (cap_file_size) printf("File size: %" PRId64 " bytes\n", cf_info->filesize);
-  if (cap_data_size) printf("Data size: %" PRIu64 " bytes\n", cf_info->packet_bytes);
+  if (cap_file_size) printf("File size: %" G_GINT64_MODIFIER "d bytes\n", cf_info->filesize);
+  if (cap_data_size) printf("Data size: %" G_GINT64_MODIFIER "u bytes\n", cf_info->packet_bytes);
   if (cap_duration) printf("Capture duration: %f seconds\n", cf_info->duration);
   if (cap_start_time) printf("Start time: %s", (cf_info->packet_count>0) ? ctime (&start_time_t) : "n/a\n");
   if (cap_end_time) printf("End time: %s",     (cf_info->packet_count>0) ? ctime (&stop_time_t)  : "n/a\n");
