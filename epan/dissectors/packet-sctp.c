@@ -2757,7 +2757,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
        */
       if (b_bit)
       {
-	gboolean retval = FALSE;
+	volatile gboolean retval = FALSE;
 
 	/*
 	 * If this particular fragment happens to get a ReportedBoundsError
