@@ -640,12 +640,23 @@ class EthCtx:
     return val
 
   def eth_get_type_attr(self, type):
+    #print "eth_get_type_attr(%s)" % (type)
     types = [type]
-    while (not self.type[type]['import'] 
-           and self.type[type]['val'].type == 'Type_Ref'):
-      type = self.type[type]['val'].val
+    while (not self.type[type]['import']):
+      val =  self.type[type]['val']
+      #print val
+      ttype = type
+      while (val.type == 'TaggedType'):
+        val = val.val
+        ttype += '/_untag' 
+      if (val.type != 'Type_Ref'):
+        if (type != ttype):
+          types.append(ttype)
+        break
+      type = val.val
       types.append(type)
     attr = {}
+    #print " ", types
     while len(types):
       t = types.pop()
       if (self.type[t]['import']):
@@ -659,6 +670,7 @@ class EthCtx:
       else:
         attr.update(self.type[t]['attr'])
         attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+    #print " ", attr
     return attr
 
   def eth_get_type_attr_from_all(self, type, module):
@@ -887,7 +899,7 @@ class EthCtx:
     self.type[ident]['no_emit'] = self.conform.use_item('NO_EMIT', ident)
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
     self.type[ident]['ethname'] = ''
-    if (val.type == 'Type_Ref') or (val.type == 'SelectionType') :
+    if (val.type == 'Type_Ref') or (val.type == 'TaggedType') or (val.type == 'SelectionType') :
       self.type[ident]['attr'] = {}
     else:
       (ftype, display) = val.eth_ftype(self)
@@ -3046,9 +3058,12 @@ class Type (Node):
 
   def eth_reg(self, ident, ectx, tstrip=0, tagflag=False, selflag=False, idx='', parent=None):
     #print "eth_reg(): %s, ident=%s, tstrip=%d, tagflag=%s, selflag=%s, parent=%s" %(self.type, ident, tstrip, str(tagflag), str(selflag), str(parent))
+    #print " ", self
     if (ectx.Tag() and (len(self.tags) > tstrip)):
-      tagged_type = TaggedType(val=self, tstrip=tstrip)
-      tagged_type.AddTag(self.tags[tstrip])
+      tagged_type = self
+      for i in range(len(self.tags)-1, tstrip-1, -1):
+        tagged_type = TaggedType(val=tagged_type, tstrip=i)
+        tagged_type.AddTag(self.tags[i])
       if not tagflag:  # 1st tagged level
         if self.IsNamed() and not selflag:
           tagged_type.SetName(self.name)
