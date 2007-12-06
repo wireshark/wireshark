@@ -72,14 +72,14 @@ F-INITIALIZE-response ::= SEQUENCE {
 -- not available, the Checkpoint-window Parameter shall not be sent.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Protocol-Version ::= [0] IMPLICIT BIT STRING {version-1(0), version-2(1)
 }
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Implementation-Information ::= [1] IMPLICIT GraphicString
 
@@ -88,7 +88,7 @@ Implementation-Information ::= [1] IMPLICIT GraphicString
 -- of different equipment, it shall not be the subject of conformance test.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Service-Class ::= [3] IMPLICIT BIT STRING {
   unconstrained-class(0), management-class(1), transfer-class(2),
@@ -96,7 +96,7 @@ Service-Class ::= [3] IMPLICIT BIT STRING {
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Functional-Units ::= [4] IMPLICIT BIT STRING {
   read(2), write(3), file-access(4), limited-file-management(5),
@@ -109,7 +109,7 @@ Functional-Units ::= [4] IMPLICIT BIT STRING {
 -- Values 2 to 14 are Chosen to align with numbering scheme used in ISO 8571-3.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Attribute-Groups ::= [5] IMPLICIT BIT STRING {
   storage(0), security(1), private(2), extension(3)}
@@ -118,7 +118,7 @@ Attribute-Groups ::= [5] IMPLICIT BIT STRING {
 -- or the group-manipulation functional units are available.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 FTAM-Quality-of-Service ::= [6] IMPLICIT INTEGER {
   no-recovery(0), class-1-recovery(1), class-2-recovery(2), class-3-recovery(3)
@@ -126,7 +126,7 @@ FTAM-Quality-of-Service ::= [6] IMPLICIT INTEGER {
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Contents-Type-List ::=
   [7] IMPLICIT
@@ -532,26 +532,26 @@ F-RESTART-response ::= SEQUENCE {
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Degree-Of-Overlap ::= [APPLICATION 30] IMPLICIT INTEGER {
   normal(0), consecutive(1), concurrent(2)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Request-Type ::= [APPLICATION 31] IMPLICIT INTEGER {read(0), write(1)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Abstract-Syntax-Name ::= [APPLICATION 0] IMPLICIT OBJECT IDENTIFIER
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Access-Context ::= [APPLICATION 1] IMPLICIT SEQUENCE {
   access-context
@@ -570,7 +570,7 @@ Access-Context ::= [APPLICATION 1] IMPLICIT SEQUENCE {
 -- As defined in ISO 8571-2.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Access-Passwords ::= [APPLICATION 2] IMPLICIT SEQUENCE {
   read-password              [0]  Password,
@@ -591,7 +591,7 @@ Access-Passwords ::= [APPLICATION 2] IMPLICIT SEQUENCE {
 -- units are available.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Access-Request ::= [APPLICATION 3] IMPLICIT BIT STRING {
   read(0), insert(1), replace(2), extend(3), erase(4), read-attribute(5),
@@ -599,20 +599,20 @@ Access-Request ::= [APPLICATION 3] IMPLICIT BIT STRING {
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Account ::= [APPLICATION 4] IMPLICIT GraphicString
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Action-Result ::= [APPLICATION 5] IMPLICIT INTEGER {
   success(0), transient-error(1), permanent-error(2)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Activity-Identifier ::= [APPLICATION 6] IMPLICIT INTEGER
 
@@ -621,7 +621,7 @@ Application-Entity-Title ::= [APPLICATION 7] AE-title
 -- As defined in ISO 8650.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Change-Attributes ::= [APPLICATION 8] IMPLICIT SEQUENCE {
   -- Kerne1 Group
@@ -648,7 +648,7 @@ Change-Attributes ::= [APPLICATION 8] IMPLICIT SEQUENCE {
 -- Parameter on the request PDU.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Charging ::=
   [APPLICATION 9] IMPLICIT
@@ -659,7 +659,7 @@ Charging ::=
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Concurrency-Control ::= [APPLICATION 10] IMPLICIT SEQUENCE {
   read              [0] IMPLICIT Lock,
@@ -676,13 +676,13 @@ Lock ::= INTEGER {not-required(0), shared(1), exclusive(2), no-access(3)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Constraint-Set-Name ::= [APPLICATION 11] IMPLICIT OBJECT IDENTIFIER
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Create-Attributes ::= [APPLICATION 12] IMPLICIT SEQUENCE {
   -- Kerne1 Group
@@ -712,7 +712,7 @@ Create-Attributes ::= [APPLICATION 12] IMPLICIT SEQUENCE {
 -- limited-filestore-management functional unit is available.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Diagnostic ::=
   [APPLICATION 13] IMPLICIT
@@ -740,7 +740,7 @@ Entity-Reference ::= INTEGER {
 -- 2. The value 5 corresponds to the virtual filestore.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 -- Document-Type-Name ::= [APPLICATION 14] IMPLICIT OBJECT IDENTIFIER
 -- Changed where used instead. 20060403 Anders Broman (Bug 850)
@@ -748,7 +748,7 @@ Document-Type-Name ::= OBJECT IDENTIFIER
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 FADU-Identity ::= [APPLICATION 15]  CHOICE {
   first-last   [0] IMPLICIT INTEGER {first(0), last(1)},
@@ -765,13 +765,13 @@ Node-Name ::= EXTERNALt
 -- The type to be used for Node-Name is defined in IS08571-FADU.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 FADU-Lock ::= [APPLICATION 16] IMPLICIT INTEGER {off(0), on(1)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Password ::= [APPLICATION 17]  CHOICE {
   graphicString  GraphicString,
@@ -780,7 +780,7 @@ Password ::= [APPLICATION 17]  CHOICE {
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Read-Attributes ::= [APPLICATION 18] IMPLICIT SEQUENCE {
   -- Kerne1 Group
@@ -848,7 +848,7 @@ Read-Attributes ::= [APPLICATION 18] IMPLICIT SEQUENCE {
 -- the limited-filestore-management functional unit is available.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Select-Attributes ::= [APPLICATION 19] IMPLICIT SEQUENCE {
   -- Kerne1 Group
@@ -859,14 +859,14 @@ Select-Attributes ::= [APPLICATION 19] IMPLICIT SEQUENCE {
 -- in ISO 8571-3.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 State-Result ::= [APPLICATION 21] IMPLICIT INTEGER {success(0), failure(1)
 }
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 User-Identity ::= [APPLICATION 22] IMPLICIT GraphicString
 
@@ -1307,7 +1307,7 @@ Extension-Attribute-identifier ::= OBJECT IDENTIFIER
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Scope ::=
   [APPLICATION 28] IMPLICIT
@@ -1483,7 +1483,7 @@ Destination-File-Directory ::= [APPLICATION 24]  Pathname-Attribute
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Objects-Attributes-List ::=
   [APPLICATION 25] IMPLICIT SEQUENCE OF Read-Attributes
@@ -1497,7 +1497,7 @@ Error-Action ::= INTEGER {terminate(0), continue(1)}
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Operation-Result ::= [APPLICATION 30]  CHOICE {
   success-Object-count  [0] IMPLICIT INTEGER,
@@ -1513,7 +1513,7 @@ Pass-Passwords ::= SEQUENCE OF Password
 -- Pathname.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Path-Access-Passwords ::=
   [APPLICATION 27] IMPLICIT
@@ -1534,7 +1534,7 @@ Path-Access-Passwords ::=
 -- specified Pathname.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Request-Operation-Result ::= [APPLICATION 31] IMPLICIT INTEGER {
   summary(0), fiii-list(1)}
@@ -1565,7 +1565,7 @@ Attribute-Names ::= BIT STRING -- Kernel group
 -- or group-manipulation functionat units are available.
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Referent-Indicator ::= [APPLICATION 29] IMPLICIT BOOLEAN
 
@@ -1592,13 +1592,13 @@ AE-title ::= SEQUENCE {ap  AP-title,
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Shared-ASE-Information ::= [APPLICATION 20] IMPLICIT EXTERNALt
 
 --
 -- XXX Bug in asn2wrs that can not handle tagged assignements
--- XXX woraround implemented in teh conformance file
+-- XXX woraround implemented in the conformance file
 --
 Attribute-Value-Assertions ::= [APPLICATION 26] IMPLICIT SEQUENCE OF AND-Set
 
