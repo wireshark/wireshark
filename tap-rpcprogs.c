@@ -197,7 +197,7 @@ rpcprogs_draw(void *dummy _U_)
 		}
 
 		g_snprintf(str, sizeof(str), "%s(%d)",rpc_prog_name(rp->program),rp->program);
-		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3" PRIu64 ".%05" PRIu64 "\n",
+		printf("%-15s %2d %6d %3d.%05d %3d.%05d %3" G_GINT64_MODIFIER "u.%05" G_GINT64_MODIFIER "u\n",
 			str,
 			rp->version,
 			rp->num,
