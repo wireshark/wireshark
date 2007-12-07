@@ -185,6 +185,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
@@ -1527,7 +1528,6 @@ dnl Save the cacheable configure results to config.cache before recursing
 AC_CACHE_SAVE
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
   doxygen.cfg
@@ -1656,6 +1656,7 @@ AC_OUTPUT(
   tools/Makefile
   tools/idl2wrs.sh
   tools/lemon/Makefile
+  wiretap/Makefile
   ,)
 dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 

@@ -1,3 +1,0 @@
-Currently there is no need to install this library. Since wiretap has just
-been born, only wireshark uses it. Once wiretap becomes powerful enough to be
-use outside of wireshark, then we can worry about installation.
