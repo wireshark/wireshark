@@ -38,8 +38,6 @@ wiretap-$(WTAP_VERSION).dll : $(OBJECTS) wtap.def ..\image\wiretap.res
 	mt.exe -nologo -manifest "wiretap-$(WTAP_VERSION).dll.manifest" -outputresource:wiretap-$(WTAP_VERSION).dll;2
 !ENDIF
 
-$(OBJECTS): config.h
-
 RUNLEX = ..\tools\runlex.sh
 
 ascend-scanner_lex.h : ascend-scanner.c
@@ -50,11 +48,6 @@ k12text.obj : k12text.c
 
 ascend-grammar.c ascend-grammar.h : ascend-grammar.y
 	$(YACC) $(YACC_OPTS) -d -p ascend ascend-grammar.y -o ascend-grammar.c
-
-config.h	: config.h.win32 ..\config.nmake
-	sed -e s/@VERSION@/$(WTAP_VERSION)/ \
-	    -e "s/@HAVE_LIBZ@/$(ZLIB_CONFIG)/" \
-	    < config.h.win32 > $@
 
 clean :
 	rm -f $(OBJECTS) \
@@ -74,6 +67,6 @@ clean :
 # long as you need Flex, you might as well get Bison....
 #
 distclean: clean
-	rm -f config.h $(GENERATED_FILES)
+	rm -f $(GENERATED_FILES)
 
 maintainer-clean: distclean
