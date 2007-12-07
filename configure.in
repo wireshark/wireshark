@@ -1486,9 +1486,8 @@ AC_ARG_WITH(plugins,
     have_plugins=no
   elif test "x$have_plugins" = "xno"; then
       AC_MSG_ERROR([GLib on this platform doesn't support loadable modules, so you can't enable plugins.])
-      if test "x$withval" != "xyes"; then
-	plugindir="$withval"
-      fi
+  elif test "x$withval" != "xyes"; then
+      plugindir="$withval"
   fi
 ])
 AM_CONDITIONAL(HAVE_PLUGINS, test "x$have_plugins" = "xyes")
