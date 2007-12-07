@@ -148,7 +148,7 @@ get_stun2_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	return (guint)tvb_get_ntohs(tvb, offset+2) + 20;
 }
 
-static void
+static int
 dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -174,18 +174,18 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
 	if (len < STUN2_HDR_LEN)
-		return;
+		return FALSE;
 
 	msg_type = tvb_get_ntohs(tvb, 0);
 	msg_length = tvb_get_ntohs(tvb, 2);
 
 	/* Check if it is really a STUN2 message */
 	if (msg_type & 0xC000 || tvb_get_ntohl(tvb, 4) != 0x2112a442)
-		return;
+		return FALSE;
 
 	/* check if payload enough */
 	if (len != STUN2_HDR_LEN+msg_length)
-		return;
+		return FALSE;
 
 	/* The message seems to be a valid STUN2 message! */
 
@@ -202,7 +202,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    msg_method_str, msg_class_str);
 
 	if (!tree)
-		return;
+		return TRUE;
 
 	ti = proto_tree_add_item(tree, proto_stun2, tvb, 0, -1, FALSE);
 
@@ -382,12 +382,14 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		msg_length -= (ATTR_HDR_LEN+att_length+3) & -4;
 	    }
 	}
+
+	return TRUE;
 }
 
-static void
+static int
 dissect_stun2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_stun2_message(tvb, pinfo, tree);
+	return dissect_stun2_message(tvb, pinfo, tree);
 }
 
 static void
@@ -562,7 +564,7 @@ proto_reg_handoff_stun2(void)
 	dissector_handle_t stun2_udp_handle;
 
 	stun2_tcp_handle = create_dissector_handle(dissect_stun2_tcp, proto_stun2);
-	stun2_udp_handle = create_dissector_handle(dissect_stun2_udp, proto_stun2);
+	stun2_udp_handle = new_create_dissector_handle(dissect_stun2_udp, proto_stun2);
 
 	dissector_add("tcp.port", TCP_PORT_STUN2, stun2_tcp_handle);
 	dissector_add("udp.port", UDP_PORT_STUN2, stun2_udp_handle);
