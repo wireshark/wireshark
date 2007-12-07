@@ -34,11 +34,11 @@
 #include "erf.h"
 #include "libpcap.h"
 
-#ifdef HAVE_PCAP_H
+#ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #endif
 
-#ifdef HAVE_PCAP_H
+#ifdef HAVE_LIBPCAP
 # ifdef HAVE_SYS_TYPES_H
 #   include <sys/types.h>
 # endif
@@ -2265,7 +2265,7 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
 	return -1;
 }
 
-#ifdef HAVE_PCAP_H
+#ifdef HAVE_LIBPCAP 
 /*
  * Given a Wiretap encapsulation type, and raw packet data and the packet
  * header from libpcap, process any pseudo-header in the packet,
@@ -2277,7 +2277,7 @@ wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
     const guchar *pd, union wtap_pseudo_header *pseudo_header,
     struct wtap_pkthdr *whdr, int *err)
 {
-  guint size;
+	guint size;
 
 	/* "phdr->ts" may not necessarily be a "struct timeval" - it may
 	   be a "struct bpf_timeval", with member sizes wired to 32
