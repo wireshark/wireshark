@@ -95,43 +95,30 @@ esac
 
 $DIE
 
-for dir in . wiretap ;  do
-  echo processing $dir
-  (
-    cd $dir
-    if [ "$dir" = "." ] ; then
-        topdir=.
-    else
-        topdir=..
-    fi
-    aclocal_flags=`$topdir/aclocal-flags`
-    aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
-    echo $ACLOCAL $aclocalinclude
-    $ACLOCAL $aclocalinclude || exit 1
-    if [ "$dir" = "." ] ; then
-        #
-        # We do NOT want libtoolize overwriting our versions of config.guess and
-        # config.sub, so move them away and then move them back.
-        # We don't omit "--force", as we want libtoolize to install other files
-        # without whining.
-        #
-        mv config.guess config.guess.save-libtool
-        mv config.sub config.sub.save-libtool
-        LTARGS=" --copy --force"
-        echo $LIBTOOLIZE $LTARGS
-        $LIBTOOLIZE $LTARGS || exit 1
-        rm -f config.guess config.sub
-        mv config.guess.save-libtool config.guess
-        mv config.sub.save-libtool config.sub
-    fi
-    echo $AUTOHEADER
-    $AUTOHEADER || exit 1
-    echo $AUTOMAKE --add-missing --gnu $am_opt
-    $AUTOMAKE --add-missing --gnu $am_opt || exit 1
-    echo $AUTOCONF
-    $AUTOCONF || exit 1
-  ) || exit 1
-done
+aclocal_flags=`./aclocal-flags`
+aclocalinclude="$ACLOCAL_FLAGS $aclocal_flags";
+echo $ACLOCAL $aclocalinclude
+$ACLOCAL $aclocalinclude || exit 1
+#
+# We do NOT want libtoolize overwriting our versions of config.guess and
+# config.sub, so move them away and then move them back.
+# We don't omit "--force", as we want libtoolize to install other files
+# without whining.
+#
+mv config.guess config.guess.save-libtool
+mv config.sub config.sub.save-libtool
+LTARGS=" --copy --force"
+echo $LIBTOOLIZE $LTARGS
+$LIBTOOLIZE $LTARGS || exit 1
+rm -f config.guess config.sub
+mv config.guess.save-libtool config.guess
+mv config.sub.save-libtool config.sub
+echo $AUTOHEADER
+$AUTOHEADER || exit 1
+echo $AUTOMAKE --add-missing --gnu $am_opt
+$AUTOMAKE --add-missing --gnu $am_opt || exit 1
+echo $AUTOCONF
+$AUTOCONF || exit 1
 
 #./configure "$@" || exit 1
 
