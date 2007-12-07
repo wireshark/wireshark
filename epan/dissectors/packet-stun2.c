@@ -393,10 +393,16 @@ dissect_stun2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_stun2_message_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_stun2_message(tvb, pinfo, tree);
+}
+
+static void
 dissect_stun2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, STUN2_HDR_LEN,
-			get_stun2_message_len, dissect_stun2_message);
+			get_stun2_message_len, dissect_stun2_message_no_return);
 }
 
 static gboolean
