@@ -88,6 +88,9 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return 0;
     }
 
+    length = tvb_length(tvb);
+    string = (gchar*)tvb_get_ephemeral_string(tvb, 0, length);
+
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "TiVoConnect");
