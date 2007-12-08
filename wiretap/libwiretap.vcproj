@@ -254,10 +254,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\config.h.win32"
-				>
-			</File>
-			<File
 				RelativePath=".\cosine.h"
 				>
 			</File>
@@ -375,10 +371,6 @@
 			</File>
 			<File
 				RelativePath=".\vms.h"
-				>
-			</File>
-			<File
-				RelativePath=".\wtap-capture.h"
 				>
 			</File>
 			<File

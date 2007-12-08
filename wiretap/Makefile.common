@@ -110,7 +110,6 @@ NONGENERATED_HEADER_FILES = \
 	visual.h		\
 	vms.h			\
 	wtap.h			\
-	wtap-capture.h		\
 	wtap-int.h
 
 # Files that generate compileable files
