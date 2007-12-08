@@ -73,7 +73,6 @@ typedef struct {
 	ph_stats_t   *ps;
 } draw_info_t;
 
-static GtkWidget *popup_menu_object;
 static GtkWidget *tree;
 
 #define PCT(x,y) (100.0 * (float)(x) / (float)(y))
@@ -97,6 +96,8 @@ static GtkWidget *tree;
 	4: And Not Selected
 	5: Or Not Selected
 */
+
+#if GTK_MAJOR_VERSION >= 2
 static void
 proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, guint callback_action)
 {
@@ -105,20 +106,16 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
 	char str[256];
 	const char *current_filter;
 	const char *filter = NULL;
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeSelection *sel;
 	GtkTreeModel *model;
 	GtkTreeIter iter;
-#endif
 
 	action = (callback_action>>8)&0xff;
 	type = callback_action&0xff;
 	
-#if GTK_MAJOR_VERSION >= 2
 	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(tree));
 	gtk_tree_selection_get_selected (sel, &model, &iter);
 	gtk_tree_model_get (model, &iter, FILTER_NAME, &filter, -1);
-#endif
 	if (filter && 0 != strlen(filter)) {
 	  g_snprintf(dirstr, 127, "%s", filter);
 	} else {
@@ -195,19 +192,6 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
 		break;
 	}
 }
-static gint
-proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, gpointer data _U_)
-{
-    GdkEventButton *bevent = (GdkEventButton *)event;
-
-    if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-        /* If this is a right click on one of our columns, popup the context menu */
-	gtk_menu_popup(GTK_MENU(popup_menu_object), NULL, NULL, NULL, NULL,
-		       bevent->button, bevent->time);
-    }
-
-    return FALSE;
-}
 
 static GtkItemFactoryEntry proto_hier_list_menu_items[] =
 {
@@ -256,6 +240,7 @@ static GtkItemFactoryEntry proto_hier_list_menu_items[] =
 		proto_hier_select_filter_cb, 5*256+0, NULL, NULL),
 
 };
+#endif
 
 static void
 fill_in_tree_node(GNode *node, gpointer data)
@@ -366,6 +351,23 @@ fill_in_tree(GtkWidget *tree, ph_stats_t *ps)
                                 fill_in_tree_node, &di);
 }
 
+#if GTK_MAJOR_VERSION >= 2
+static GtkWidget *popup_menu_object;
+
+static gint
+proto_hier_show_popup_menu_cb(GtkWidget *widget _U_, GdkEvent *event, gpointer data _U_)
+{
+    GdkEventButton *bevent = (GdkEventButton *)event;
+
+    if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
+        /* If this is a right click on one of our columns, popup the context menu */
+	gtk_menu_popup(GTK_MENU(popup_menu_object), NULL, NULL, NULL, NULL,
+		       bevent->button, bevent->time);
+    }
+
+    return FALSE;
+}
+
 static void
 proto_hier_create_popup_menu(void)
 {
@@ -376,6 +378,7 @@ proto_hier_create_popup_menu(void)
     popup_menu_object = gtk_item_factory_get_widget (item_factory, "<main>");
     SIGNAL_CONNECT(tree, "button_press_event", proto_hier_show_popup_menu_cb, NULL);
 }
+#endif
 
 #define MAX_DLG_HEIGHT 450
 #define DEF_DLG_WIDTH  700
