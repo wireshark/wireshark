@@ -102,7 +102,7 @@ enum {
 	DSM_TRICK_MODE_FLAG = 0x08,
 	COPY_INFO_FLAG = 0x04,
 	CRC_FLAG = 0x02,
-	EXTENSION_FLAG = 0x01,
+	EXTENSION_FLAG = 0x01
 };
 
 enum {
@@ -111,7 +111,7 @@ enum {
 	SEQUENCE_FLAG = 0x20,
 	PSTD_BUFFER_FLAG = 0x10,
 	MUST_BE_ONES = 0x07,
-	EXTENSION_FLAG2 = 0x01,
+	EXTENSION_FLAG2 = 0x01
 };
 
 static guint64 tvb_get_ntoh40(tvbuff_t *tvb, unsigned offset)
@@ -562,7 +562,7 @@ proto_register_mpeg_pes(void)
 			"Packetized Elementary Stream", "MPEG PES", "mpeg-pes");
 	proto_register_field_array(proto_mpeg_pes, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);
+	new_register_dissector("mpeg-pes", dissect_mpeg_pes, proto_mpeg_pes);
 }
 
 void
