@@ -393,7 +393,7 @@ cf_read(capture_file *cf)
   dfilter_t   *dfcode;
 
   /* Compile the current display filter.
-   * We assume this will not fail since cf->dfilter is only set in 
+   * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   dfcode=NULL;
@@ -628,10 +628,9 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   gchar *err_info;
   volatile int newly_displayed_packets = 0;
   dfilter_t   *dfcode;
-  gboolean at_end;
 
   /* Compile the current display filter.
-   * We assume this will not fail since cf->dfilter is only set in 
+   * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   dfcode=NULL;
@@ -641,7 +640,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
   *err = 0;
 
-  at_end = packet_list_at_end();
+  packet_list_check_end();
   packet_list_freeze();
 
   /*g_log(NULL, G_LOG_LEVEL_MESSAGE, "cf_continue_tail: %u new: %u", cf->count, to_read);*/
@@ -697,13 +696,13 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   /* XXX - this causes "flickering" of the list */
   packet_list_thaw();
 
-  /* moving to the end of the packet list - if the user requested so and 
+  /* moving to the end of the packet list - if the user requested so and
      we have some new packets.
      this doesn't seem to work well with a frozen GTK_Clist, so do this after
      packet_list_thaw() is done, see bugzilla 1188 */
   /* XXX - this cheats and looks inside the packet list to find the final
      row number. */
-  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL && at_end)
+  if (newly_displayed_packets && auto_scroll_live && cf->plist_end != NULL)
     packet_list_moveto_end();
 
   if (cf->state == FILE_READ_ABORTED) {
@@ -730,10 +729,9 @@ cf_finish_tail(capture_file *cf, int *err)
   gchar *err_info;
   gint64 data_offset;
   dfilter_t   *dfcode;
-  gboolean at_end;
 
   /* Compile the current display filter.
-   * We assume this will not fail since cf->dfilter is only set in 
+   * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   dfcode=NULL;
@@ -746,7 +744,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ERROR;
   }
 
-  at_end = packet_list_at_end();
+  packet_list_check_end();
   packet_list_freeze();
 
   while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
@@ -776,7 +774,7 @@ cf_finish_tail(capture_file *cf, int *err)
     return CF_READ_ABORTED;
   }
 
-  if (auto_scroll_live && cf->plist_end != NULL && at_end)
+  if (auto_scroll_live && cf->plist_end != NULL)
     /* XXX - this cheats and looks inside the packet list to find the final
        row number. */
     packet_list_moveto_end();
@@ -1460,7 +1458,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   dfilter_t   *dfcode;
 
   /* Compile the current display filter.
-   * We assume this will not fail since cf->dfilter is only set in 
+   * We assume this will not fail since cf->dfilter is only set in
    * cf_filter IFF the filter was valid.
    */
   dfcode=NULL;
@@ -2835,7 +2833,7 @@ match_unicode(capture_file *cf, frame_data *fdata, void *criterion)
       i++;
       if (c_match == textlen) {
 	frame_matched = TRUE;
-	cf->search_pos = i; /* Save the position of the last character 
+	cf->search_pos = i; /* Save the position of the last character
 			       for highlighting the field. */
 	break;
       }
@@ -2863,7 +2861,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
       c_match++;
       if (c_match == datalen) {
 	frame_matched = TRUE;
-	cf->search_pos = i; /* Save the position of the last character 
+	cf->search_pos = i; /* Save the position of the last character
 			       for highlighting the field. */
 	break;
       }
@@ -3253,9 +3251,9 @@ cf_select_packet(capture_file *cf, int row)
 
   epan_dissect_run(cf->edt, &cf->pseudo_header, cf->pd, cf->current_frame,
           NULL);
-  
+
   dfilter_macro_build_ftv_cache(cf->edt->tree);
-  
+
   cf_callback_invoke(cf_cb_packet_selected, cf);
 }
 

@@ -71,7 +71,7 @@ struct ptvcursor {
 #if GLIB_MAJOR_VERSION < 2
 static void *discard_const(const void *const_ptr)
 {
-	union { 
+	union {
 		const void *const_ptr;
 		void *ptr;
 	} stupid_const;
@@ -358,7 +358,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
 	   their register routines to do the stuff described above. */
-	if(cb) 
+	if(cb)
 	  (*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	init_plugins();
 	register_all_plugin_registrations();
@@ -372,7 +372,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
-	if(cb) 
+	if(cb)
 	  (*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	register_all_plugin_handoffs();
 #endif
@@ -717,9 +717,9 @@ ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
 	ptvc->tree = tree;
 }
 
-/* creates a subtree, sets it as the working tree and pushes the old working tree */ 
-proto_tree* 
-ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree) 
+/* creates a subtree, sets it as the working tree and pushes the old working tree */
+proto_tree*
+ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 {
   subtree_lvl * subtree;
   if (ptvc->pushed_tree_index >= ptvc->pushed_tree_max)
@@ -733,8 +733,8 @@ ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 }
 
 /* pops a subtree */
-void 
-ptvcursor_pop_subtree(ptvcursor_t *ptvc) 
+void
+ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 {
   subtree_lvl * subtree;
   if (ptvc->pushed_tree_index <= 0)
@@ -742,7 +742,7 @@ ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 
   ptvc->pushed_tree_index--;
   subtree = ptvc->pushed_tree+ptvc->pushed_tree_index;
-  if (subtree->it != NULL) 
+  if (subtree->it != NULL)
     proto_item_set_len(subtree->it, ptvcursor_current_offset(ptvc) - subtree->cursor_offset);
   ptvc->tree = subtree->tree;
 }
@@ -761,8 +761,8 @@ void ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
 
 /* Creates a subtree and adds it to the cursor as the working tree but does not
  * save the old working tree */
-proto_tree* 
-ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree) 
+proto_tree*
+ptvcursor_set_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
 {
   ptvc->tree = proto_item_add_subtree(it, ett_subtree);
   return ptvc->tree;
@@ -781,7 +781,7 @@ proto_tree* ptvcursor_add_subtree_item(ptvcursor_t * ptvc, proto_item * it, gint
  * In this case, when the subtree will be closed, the parent item length will
  * be equal to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree* ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,  
+proto_tree* ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
 gboolean little_endian, gint ett_subtree)
 {
   proto_item * it;
@@ -797,13 +797,13 @@ proto_tree_add_text_node(proto_tree *tree, tvbuff_t *tvb, gint start, gint lengt
  * In this case, when the subtree will be closed, the item length will be equal
  * to the advancement of the cursor since the creation of the subtree.
  */
-proto_tree * ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length, 
+proto_tree * ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
     gint ett_subtree, const char *format, ...)
 {
   proto_item *	it;
   va_list	ap;
 
-  it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc), 
+  it = proto_tree_add_text_node(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc),
       ptvcursor_current_offset(ptvc), length);
 
   va_start(ap, format);
@@ -1997,7 +1997,7 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,  guint leng
 {
 	guint64 value = 0;
 	guint8* b = ep_tvb_memdup(tvb,start,length);
-	
+
 	if(little_endian) {
 		b += length;
 		switch(length) {
@@ -2026,7 +2026,7 @@ proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start,  guint leng
 				break;
 		}
 	}
-	
+
 	proto_tree_set_uint64(fi, value);
 }
 
@@ -3688,6 +3688,8 @@ proto_get_protocol_filter_name(int proto_id)
 	protocol_t *protocol;
 
 	protocol = find_protocol_by_id(proto_id);
+	if (protocol == NULL)
+		return "(none)";
 	return protocol->filter_name;
 }
 
@@ -5694,7 +5696,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
 
 }
-/* 
+/*
  * This function will dissect a sequence of bits that does not need to be byte aligned the bits
  * set vill be shown in the tree as ..10 10.. and the integer value returned if return_value is set.
  * Offset should be given in bits from the start of the tvb.
@@ -5720,7 +5722,7 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 	offset = bit_offset>>3;
 
 
-	/*  
+	/*
 	 * Calculate the number of octets used to hold the bits
 	 */
 	tot_no_bits = ((bit_offset&0x7)+no_of_bits);

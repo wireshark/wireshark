@@ -240,6 +240,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The WiMAX dissector could crash due to unaligned access on some
+            platforms.
+            <!-- Fixed in r23787 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2072">2072</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -587,6 +600,13 @@ Catapult DCT 2000, Endace ERF, Juniper NetScreen snoop, Visual Networks, Windows
       file dialogs under Windows.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942">Bug
       942</ulink>)
+    </para>
+
+    <para>
+      GTK+ 2.x <ulink url="http://bugzilla.gnome.org/show_bug.cgi?id=438652">renders
+      white text on 8-bit displays under Windows</ulink>. You can work around
+      this by installing the GTK+ 1.2 version of Wireshark or by increasing
+      your display depth to 15 bits or more.
     </para>
 
   </section>

@@ -5990,18 +5990,39 @@ dissect_isup_initial_address_message(tvbuff_t *message_tvb, proto_tree *isup_tre
   dissect_isup_calling_partys_category_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += CALLING_PRTYS_CATEGORY_LENGTH;
 
-  /* Do stuff for 4th mandatory fixed parameter: Transmission medium requirement */
-  parameter_type = PARAM_TYPE_TRANSM_MEDIUM_REQU;
-  parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
-				       TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH,
-				       "Transmission medium requirement");
-  parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
-  proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
-  actual_length = tvb_ensure_length_remaining(message_tvb, offset);
-  parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH, actual_length), TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH);
-  dissect_isup_transmission_medium_requirement_parameter(parameter_tvb, parameter_tree, parameter_item);
-  offset += TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH;
-
+  switch (isup_standard){
+  case ITU_STANDARD:
+    /* If ITU, do stuff for 4th mandatory fixed parameter: Transmission medium requirement */
+    parameter_type = PARAM_TYPE_TRANSM_MEDIUM_REQU;
+    parameter_item = proto_tree_add_text(isup_tree, message_tvb, offset,
+					 TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH,
+					 "Transmission medium requirement");
+    parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+    proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
+    actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+    parameter_tvb = tvb_new_subset(message_tvb, offset, MIN(TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH, actual_length), TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH);
+    dissect_isup_transmission_medium_requirement_parameter(parameter_tvb, parameter_tree, parameter_item);
+    offset += TRANSMISSION_MEDIUM_REQUIREMENT_LENGTH;
+    break;
+  case ANSI_STANDARD:
+    /* If ANSI, do stuff for the first mandatory variable parameter, USER_SERVICE_INFORMATION */
+    parameter_type = PARAM_TYPE_USER_SERVICE_INFO;
+    parameter_pointer = tvb_get_guint8(message_tvb, offset);
+    parameter_length = tvb_get_guint8(message_tvb, offset + parameter_pointer);
+    parameter_item = proto_tree_add_text(isup_tree, message_tvb,
+					 offset +  parameter_pointer,
+					 parameter_length + PARAMETER_LENGTH_IND_LENGTH,
+					 "User Service Information");
+    parameter_tree = proto_item_add_subtree(parameter_item, ett_isup_parameter);
+    proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_type, message_tvb, 0, 0, parameter_type, "Mandatory Parameter: %u (%s)", parameter_type, val_to_str(parameter_type, isup_parameter_type_value,"unknown"));
+    proto_tree_add_uint_format(parameter_tree, hf_isup_mandatory_variable_parameter_pointer, message_tvb, offset, PARAMETER_POINTER_LENGTH, parameter_pointer, "Pointer to Parameter: %u", parameter_pointer);
+    proto_tree_add_uint_format(parameter_tree, hf_isup_parameter_length, message_tvb, offset + parameter_pointer, PARAMETER_LENGTH_IND_LENGTH, parameter_length, "Parameter length: %u", parameter_length);
+    actual_length = tvb_ensure_length_remaining(message_tvb, offset);
+    parameter_tvb = tvb_new_subset(message_tvb, offset + parameter_pointer + PARAMETER_LENGTH_IND_LENGTH, MIN(parameter_length, actual_length), parameter_length );
+    dissect_isup_user_service_information_parameter(parameter_tvb, parameter_tree, parameter_item);
+    offset += PARAMETER_POINTER_LENGTH;
+    break;
+  }
 
   /* Do stuff for mandatory variable parameter Called party number */
   parameter_type = PARAM_TYPE_CALLED_PARTY_NR;

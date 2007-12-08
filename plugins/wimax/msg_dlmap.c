@@ -2454,6 +2454,7 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree *ie_tree    = NULL;
     proto_tree *phy_tree   = NULL;
     gint tvb_len           = tvb_reported_length(tvb);
+    /* XXX This should be removed, and regular tvb accessors should be used instead. */
     const guint8 *bufptr   = tvb_get_ptr(tvb, offset, tvb_len);
 
     UNREFERENCED_PARAMETER(pinfo);
@@ -2515,6 +2516,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     guint length, lennib, pad;
     guint mac_len, dl_ie_count;
     guint           tvb_len = tvb_reported_length(tvb);
+    /* XXX This should be removed, and regular tvb accessors should be used instead. */
     const guint8 * bufptr  = tvb_get_ptr(tvb, offset, tvb_len);
     guint          nib     = 0;
     guint32	   mac_crc, calculated_crc;
@@ -2616,6 +2618,7 @@ gint wimax_decode_sub_dl_ul_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *b
     guint16 calculated_crc;
 
     gint           length = tvb_reported_length(tvb);
+    /* XXX This should be removed, and regular tvb accessors should be used instead. */
     const guint8 * bufptr = tvb_get_ptr(tvb, offset, length);
     gint           nib = 0;
     gint           lennib = BYTE_TO_NIB(length);
@@ -2704,6 +2707,7 @@ gint wimax_decode_dlmap_reduced_aas(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     gint ulmap_appended;
     gint length;
     gint           tvb_len = tvb_reported_length(tvb);
+    /* XXX This should be removed, and regular tvb accessors should be used instead. */
     const guint8 * bufptr  = tvb_get_ptr(tvb, offset, tvb_len);
     gint           bit     = 0;
     guint data, pad, mult;

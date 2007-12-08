@@ -680,6 +680,8 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     dcerpc_uuid_key *key = g_malloc (sizeof (*key));
     dcerpc_uuid_value *value = g_malloc (sizeof (*value));
     header_field_info *hf_info;
+    module_t *samr_module;
+    const char *filter_name = proto_get_protocol_filter_name(proto);
 
     key->uuid = *uuid;
     key->ver = ver;
@@ -698,6 +700,13 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
 
     /* add this GUID to the global name resolving */
     guids_add_uuid(uuid, proto_get_protocol_short_name (value->proto));
+
+    /* Register the samr.nt_password preference as obsolete */
+    /* This should be in packet-dcerpc-samr.c */
+    if (strcmp(filter_name, "samr") == 0) {
+        samr_module = prefs_register_protocol (proto, NULL);
+        prefs_register_obsolete_preference(samr_module, "nt_password");
+    }
 }
 
 /* Function to find the name of a registered protocol

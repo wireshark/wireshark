@@ -69,7 +69,7 @@ gpointer packet_list_get_row_data(gint);
 void packet_list_set_selected_row(gint);
 gint packet_list_get_sort_column(void);
 void packet_list_set_sort_column(void);
-gboolean packet_list_at_end(void);
+gboolean packet_list_check_end(void);
 
 
 #ifdef __cplusplus

@@ -221,7 +221,7 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	rpcstat_t *rs;
 	guint32 i;
 	char *title_string;
-	char filter_string[256];
+	char *filter_string;
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
@@ -267,8 +267,10 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 
-	g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+	filter_string = g_strdup_printf("Filter: %s", filter ? filter : "");
 	filter_label=gtk_label_new(filter_string);
+	g_free(filter_string);
+	gtk_label_set_line_wrap(GTK_LABEL(filter_label), TRUE);
 	gtk_box_pack_start(GTK_BOX(vbox), filter_label, FALSE, FALSE, 0);
 
 	rpc_min_proc=-1;

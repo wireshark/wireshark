@@ -634,19 +634,31 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case 2:
 		/* and selected */
-		g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
+		if ((!current_filter) || (0 == strlen(current_filter)))
+			g_snprintf(str, 255, "%s", dirstr);
+		else
+			g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
 		break;
 	case 3:
 		/* or selected */
-		g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
+		if ((!current_filter) || (0 == strlen(current_filter)))
+			g_snprintf(str, 255, "%s", dirstr);
+		else
+			g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
 		break;
 	case 4:
 		/* and not selected */
-		g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
+		if ((!current_filter) || (0 == strlen(current_filter)))
+			g_snprintf(str, 255, "!(%s)", dirstr);
+		else
+			g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
 		break;
 	case 5:
 		/* or not selected */
-		g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
+		if ((!current_filter) || (0 == strlen(current_filter)))
+			g_snprintf(str, 255, "!(%s)", dirstr);
+		else
+			g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
 		break;
 	}
 

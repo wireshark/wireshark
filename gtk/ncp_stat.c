@@ -501,7 +501,7 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     ncpstat_t *ss;
     const char *filter=NULL;
     GtkWidget *label;
-    char filter_string[256];
+    char *filter_string;
     GString *error_string;
     GtkWidget *temp_page;
     GtkWidget *main_nb;
@@ -529,8 +529,10 @@ gtk_ncpstat_init(const char *optarg, void *userdata _U_)
     label=gtk_label_new("NCP Service Response Time Statistics");
     gtk_box_pack_start(GTK_BOX(vbox), label, TRUE, TRUE, 0);
 
-    g_snprintf(filter_string,255,"Filter:%s",filter?filter:"");
+    filter_string = g_strdup_printf("Filter: %s",filter ? filter : "");
     label=gtk_label_new(filter_string);
+    g_free(filter_string);
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 
     main_nb = gtk_notebook_new();
