@@ -445,34 +445,46 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 }
 
 
-/* action is encoded as
-   filter_action*65536+filter_type*256+filter_direction
+/* Filter actions */
+#define ACTION_MATCH		0
+#define ACTION_PREPARE		1
+#define ACTION_FIND_FRAME	2
+#define ACTION_FIND_NEXT	3
+#define ACTION_FIND_PREVIOUS	4
+#define ACTION_COLORIZE		5
 
-   filter_action:
-	0: Match
-	1: Prepare
-	2: Find Frame
-	3:   Find Next
-	4:   Find Previous
-	5: Colorize Conversation
-   filter_type:
-	0: Selected
-	1: Not Selected
-	2: And Selected
-	3: Or Selected
-	4: And Not Selected
-	5: Or Not Selected
-   filter_direction:
-	0: A To/From B
-	1: A To B
-	2: A From B
-	3: A To/From ANY
-	4: A To ANY
-	5: A From ANY
-	6: A To/From ANY
-	7: B To ANY
-	8: B From ANY
-*/
+/* Action type - says what to do with the filter */
+#define	ACTYPE_SELECTED		0
+#define ACTYPE_NOT_SELECTED	1
+#define ACTYPE_AND_SELECTED	2
+#define ACTYPE_OR_SELECTED	3
+#define ACTYPE_AND_NOT_SELECTED	4
+#define ACTYPE_OR_NOT_SELECTED	5
+
+/* Filter direction */
+#define DIR_A_TO_FROM_B		0
+#define DIR_A_TO_B		1
+#define DIR_A_FROM_B		2
+#define DIR_A_TO_FROM_ANY	3
+#define DIR_A_TO_ANY		4
+#define DIR_A_FROM_ANY		5
+#define DIR_ANY_TO_FROM_B	6
+#define DIR_ANY_FROM_B		7
+#define DIR_ANY_TO_B		8
+
+/* Encoded callback arguments */
+#define CALLBACK_MATCH(type, direction)		((ACTION_MATCH<<16) | ((type)<<8) | (direction))
+#define CALLBACK_PREPARE(type, direction)	((ACTION_PREPARE<<16) | ((type)<<8) | (direction))
+#define CALLBACK_FIND_FRAME(type, direction)	((ACTION_FIND_FRAME<<16) | ((type)<<8) | (direction))
+#define CALLBACK_FIND_NEXT(type, direction)	((ACTION_FIND_NEXT<<16) | ((type)<<8) | (direction))
+#define CALLBACK_FIND_PREVIOUS(type, direction)	((ACTION_FIND_PREVIOUS<<16) | ((type)<<8) | (direction))
+#define CALLBACK_COLORIZE(type, direction)	((ACTION_COLORIZE<<16) | ((type)<<8) | (direction))
+
+/* Extract components of callback argument */
+#define FILTER_ACTION(cb_arg)		(((cb_arg)>>16) & 0xff)
+#define FILTER_ACTYPE(cb_arg)		(((cb_arg)>>8) & 0xff)
+#define FILTER_DIRECTION(cb_arg)	((cb_arg) & 0xff)
+
 static void
 ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
@@ -484,9 +496,9 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	const char *current_filter;
 	char *sport, *dport;
 
-	action=(callback_action>>16)&0xff;
-	type=(callback_action>>8)&0xff;
-	direction=callback_action&0xff;
+	action=FILTER_ACTION(callback_action);
+	type=FILTER_ACTYPE(callback_action);
+	direction=FILTER_DIRECTION(callback_action);
 
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(ct->table)->selection, 0));
@@ -501,7 +513,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	dport=ct_port_to_str(ct->conversations[selection].port_type, ct->conversations[selection].dst_port);
 
 	switch(direction){
-	case 0:
+	case DIR_A_TO_FROM_B:
 		/* A <-> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
@@ -518,7 +530,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			dport?dport:""
 		);
 		break;
-	case 1:
+	case DIR_A_TO_B:
 		/* A --> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
@@ -535,7 +547,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			dport?dport:""
 		);
 		break;
-	case 2:
+	case DIR_A_FROM_B:
 		/* A <-- B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
@@ -552,7 +564,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			dport?dport:""
 		);
 		break;
-	case 3:
+	case DIR_A_TO_FROM_ANY:
 		/* A <-> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
@@ -563,7 +575,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			sport?sport:""
 		);
 		break;
-	case 4:
+	case DIR_A_TO_ANY:
 		/* A --> ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
@@ -574,7 +586,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			sport?sport:""
 		);
 		break;
-	case 5:
+	case DIR_A_FROM_ANY:
 		/* A <-- ANY */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
@@ -585,8 +597,8 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			sport?sport:""
 		);
 		break;
-	case 6:
-		/* B <-> ANY */
+	case DIR_ANY_TO_FROM_B:
+		/* ANY <-> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
@@ -596,8 +608,8 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			dport?dport:""
 		);
 		break;
-	case 7:
-		/* B --> ANY */
+	case DIR_ANY_FROM_B:
+		/* ANY <-- B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
@@ -607,8 +619,8 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 			dport?dport:""
 		);
 		break;
-	case 8:
-		/* B <-- ANY */
+	case DIR_ANY_TO_B:
+		/* ANY --> B */
 		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
@@ -619,42 +631,36 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		);
 		break;
     default:
-        g_assert_not_reached();
+		g_assert_not_reached();
 	}
 
 	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	switch(type){
-	case 0:
-		/* selected */
+	case ACTYPE_SELECTED:
 		g_snprintf(str, 255, "%s", dirstr);
 		break;
-	case 1:
-		/* not selected */
+	case ACTYPE_NOT_SELECTED:
 		g_snprintf(str, 255, "!(%s)", dirstr);
 		break;
-	case 2:
-		/* and selected */
+	case ACTYPE_AND_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "%s", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
 		break;
-	case 3:
-		/* or selected */
+	case ACTYPE_OR_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "%s", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
 		break;
-	case 4:
-		/* and not selected */
+	case ACTYPE_AND_NOT_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "!(%s)", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
 		break;
-	case 5:
-		/* or not selected */
+	case ACTYPE_OR_NOT_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "!(%s)", dirstr);
 		else
@@ -663,30 +669,24 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	}
 
 	switch(action){
-	case 0:
-		/* match */
+	case ACTION_MATCH:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		main_filter_packets(&cfile, str, FALSE);
 		gdk_window_raise(top_level->window);
 		break;
-	case 1:
-		/* prepare */
+	case ACTION_PREPARE:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		break;
-	case 2:
-		/* find packet */
+	case ACTION_FIND_FRAME:
 		find_frame_with_filter(str);
 		break;
-	case 3:
-		/* find next */
+	case ACTION_FIND_NEXT:
 		find_previous_next_frame_with_filter(str, FALSE);
 		break;
-	case 4:
-		/* find previous */
+	case ACTION_FIND_PREVIOUS:
 		find_previous_next_frame_with_filter(str, TRUE);
 		break;
-	case 5:
-		/* colorize conversation */
+	case ACTION_COLORIZE:
 		color_display_with_filter(str);
 		break;
 	}
@@ -726,328 +726,328 @@ static GtkItemFactoryEntry ct_list_menu_items[] =
 	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+1*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+1*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+1*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+1*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+2*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+2*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+2*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+2*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+3*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+3*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+3*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+3*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+4*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+4*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+4*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+4*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A --> B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 0*65536+5*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 0*65536+5*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 0*65536+5*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 0*65536+5*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	/* Prepare */
 	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+1*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+1*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+1*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+1*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+2*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+2*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+2*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+2*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+3*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+3*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+3*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+3*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+4*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+4*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+4*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+4*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-> B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A --> B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-- B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-> ANY", NULL,
-		ct_select_filter_cb, 1*65536+5*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A --> ANY", NULL,
-		ct_select_filter_cb, 1*65536+5*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/A <-- ANY", NULL,
-		ct_select_filter_cb, 1*65536+5*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY <-> B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY <-- B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected/ANY --> B", NULL,
-		ct_select_filter_cb, 1*65536+5*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 	/* Find Packet */
 	ITEM_FACTORY_ENTRY("/Find Packet", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-> B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A --> B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-- B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-> ANY", NULL,
-		ct_select_filter_cb, 2*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A --> ANY", NULL,
-		ct_select_filter_cb, 2*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/A <-- ANY", NULL,
-		ct_select_filter_cb, 2*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY <-> B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY <-- B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Packet/ANY --> B", NULL,
-		ct_select_filter_cb, 2*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 	/* Find Next */
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-> B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A --> B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-- B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-> ANY", NULL,
-		ct_select_filter_cb, 3*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A --> ANY", NULL,
-		ct_select_filter_cb, 3*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/A <-- ANY", NULL,
-		ct_select_filter_cb, 3*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY <-> B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY <-- B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Next/ANY --> B", NULL,
-		ct_select_filter_cb, 3*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 	/* Find Previous */
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-> B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A --> B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-- B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-> ANY", NULL,
-		ct_select_filter_cb, 4*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A --> ANY", NULL,
-		ct_select_filter_cb, 4*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/A <-- ANY", NULL,
-		ct_select_filter_cb, 4*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY <-> B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY <-- B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Find Packet/Find Previous/ANY --> B", NULL,
-		ct_select_filter_cb, 4*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 	/* Colorize Conversation */
 	ITEM_FACTORY_ENTRY("/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-> B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+0, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A --> B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+1, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-- B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+2, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-> ANY", NULL,
-		ct_select_filter_cb, 5*65536+0*256+3, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A --> ANY", NULL,
-		ct_select_filter_cb, 5*65536+0*256+4, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/A <-- ANY", NULL,
-		ct_select_filter_cb, 5*65536+0*256+5, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-> B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+6, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY <-- B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+7, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Colorize Conversation/ANY --> B", NULL,
-		ct_select_filter_cb, 5*65536+0*256+8, NULL, NULL),
+		ct_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL),
 
 
 };
