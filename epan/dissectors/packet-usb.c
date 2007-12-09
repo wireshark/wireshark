@@ -983,6 +983,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
     switch(type){
     case URB_BULK:
     case URB_CONTROL:
+    case URB_ISOCHRONOUS:
         switch(pinfo->pseudo_header->linux_usb.event_type){
         case URB_SUBMIT:
             is_request=TRUE;
@@ -1105,6 +1106,7 @@ dissect_linux_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent)
         }
         break;
     case URB_BULK:
+    case URB_ISOCHRONOUS:
     case URB_INTERRUPT:
         offset+=8;
         break;
