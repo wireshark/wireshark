@@ -284,24 +284,34 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
 }
 
 
-/* action is encoded as
-   filter_action*256+filter_type
+/* Filter actions */
+#define ACTION_MATCH		0
+#define ACTION_PREPARE		1
+#define ACTION_FIND_FRAME	2
+#define ACTION_FIND_NEXT	3
+#define ACTION_FIND_PREVIOUS	4
+#define ACTION_COLORIZE		5
 
-   filter_action:
-	0: Match
-	1: Prepare
-	2: Find Frame
-	3:   Find Next
-	4:   Find Previous
-	5: Colorize Host Traffic
-   filter_type:
-	0: Selected
-	1: Not Selected
-	2: And Selected
-	3: Or Selected
-	4: And Not Selected
-	5: Or Not Selected
-*/
+/* Action type - says what to do with the filter */
+#define	ACTYPE_SELECTED		0
+#define ACTYPE_NOT_SELECTED	1
+#define ACTYPE_AND_SELECTED	2
+#define ACTYPE_OR_SELECTED	3
+#define ACTYPE_AND_NOT_SELECTED	4
+#define ACTYPE_OR_NOT_SELECTED	5
+
+/* Encoded callback arguments */
+#define CALLBACK_MATCH(type)		((ACTION_MATCH<<8) | (type))
+#define CALLBACK_PREPARE(type)		((ACTION_PREPARE<<8) | (type))
+#define CALLBACK_FIND_FRAME(type)	((ACTION_FIND_FRAME<<8) | (type))
+#define CALLBACK_FIND_NEXT(type)	((ACTION_FIND_NEXT<<8) | (type))
+#define CALLBACK_FIND_PREVIOUS(type)	((ACTION_FIND_PREVIOUS<<8) | (type))
+#define CALLBACK_COLORIZE(type)		((ACTION_COLORIZE<<8) | (type))
+
+/* Extract components of callback argument */
+#define FILTER_ACTION(cb_arg)		(((cb_arg)>>8) & 0xff)
+#define FILTER_ACTYPE(cb_arg)		((cb_arg) & 0xff)
+
 static void
 hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
@@ -313,8 +323,8 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 	const char *current_filter;
 	char *sport;
 
-	action = (callback_action>>8)&0xff;
-	type = callback_action&0xff;
+	action = FILTER_ACTION(callback_action);
+	type = FILTER_ACTYPE(callback_action);
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hl->table)->selection, 0));
 	if(selection>=(int)hl->num_hosts){
@@ -337,37 +347,31 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 
 	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	switch(type){
-	case 0:
-		/* selected */
+	case ACTYPE_SELECTED:
 		g_snprintf(str, 255, "%s", dirstr);
 		break;
-	case 1:
-		/* not selected */
+	case ACTYPE_NOT_SELECTED:
 		g_snprintf(str, 255, "!(%s)", dirstr);
 		break;
-	case 2:
-		/* and selected */
+	case ACTYPE_AND_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "%s", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
 		break;
-	case 3:
-		/* or selected */
+	case ACTYPE_OR_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "%s", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
 		break;
-	case 4:
-		/* and not selected */
+	case ACTYPE_AND_NOT_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "!(%s)", dirstr);
 		else
 			g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
 		break;
-	case 5:
-		/* or not selected */
+	case ACTYPE_OR_NOT_SELECTED:
 		if ((!current_filter) || (0 == strlen(current_filter)))
 			g_snprintf(str, 255, "!(%s)", dirstr);
 		else
@@ -376,30 +380,24 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 	}
 
 	switch(action){
-	case 0:
-		/* match */
+	case ACTION_MATCH:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		main_filter_packets(&cfile, str, FALSE);
 		gdk_window_raise(top_level->window);
 		break;
-	case 1:
-		/* prepare */
+	case ACTION_PREPARE:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		break;
-	case 2:
-		/* find frame */
+	case ACTION_FIND_FRAME:
 		find_frame_with_filter(str);
 		break;
-	case 3:
-		/* find next */
+	case ACTION_FIND_NEXT:
 		find_previous_next_frame_with_filter(str, FALSE);
 		break;
-	case 4:
-		/* find previous */
+	case ACTION_FIND_PREVIOUS:
 		find_previous_next_frame_with_filter(str, TRUE);
 		break;
-	case 5:
-		/* colorize host traffic */
+	case ACTION_COLORIZE:
 		color_display_with_filter(str);
 		break;
 	}
@@ -435,46 +433,46 @@ static GtkItemFactoryEntry hostlist_list_menu_items[] =
 	/* Match */
 	ITEM_FACTORY_ENTRY("/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Selected", NULL,
-		hostlist_select_filter_cb, 0*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/Not Selected", NULL,
-		hostlist_select_filter_cb, 0*256+1, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_NOT_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and Selected", NULL,
-		hostlist_select_filter_cb, 0*256+2, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or Selected", NULL,
-		hostlist_select_filter_cb, 0*256+3, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... and not Selected", NULL,
-		hostlist_select_filter_cb, 0*256+4, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Apply as Filter/... or not Selected", NULL,
-		hostlist_select_filter_cb, 0*256+5, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED), NULL, NULL),
 
 	/* Prepare */
 	ITEM_FACTORY_ENTRY("/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Selected", NULL,
-		hostlist_select_filter_cb, 1*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/Not Selected", NULL,
-		hostlist_select_filter_cb, 1*256+1, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and Selected", NULL,
-		hostlist_select_filter_cb, 1*256+2, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or Selected", NULL,
-		hostlist_select_filter_cb, 1*256+3, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... and not Selected", NULL,
-		hostlist_select_filter_cb, 1*256+4, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED), NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare a Filter/... or not Selected", NULL,
-		hostlist_select_filter_cb, 1*256+5, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED), NULL, NULL),
 
 	/* Find Frame */
 	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame", NULL,
-		hostlist_select_filter_cb, 2*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_FIND_FRAME(ACTYPE_SELECTED), NULL, NULL),
 	/* Find Next */
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Next", NULL,
-		hostlist_select_filter_cb, 3*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_FIND_NEXT(ACTYPE_SELECTED), NULL, NULL),
 	/* Find Previous */
 	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous", NULL,
-		hostlist_select_filter_cb, 4*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED), NULL, NULL),
 	/* Colorize Host Traffic */
 	ITEM_FACTORY_ENTRY("/Colorize Host Traffic", NULL,
-		hostlist_select_filter_cb, 5*256+0, NULL, NULL),
+		hostlist_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED), NULL, NULL),
 
 };
 
