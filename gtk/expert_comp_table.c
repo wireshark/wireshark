@@ -223,17 +223,17 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
 #define ACTYPE_OR_NOT_SELECTED	5
 
 /* Encoded callback arguments */
-#define CALLBACK_MATCH(type)		(ACTION_MATCH<<8 | (type))
-#define CALLBACK_PREPARE(type)		(ACTION_PREPARE<<8 | (type))
-#define CALLBACK_FIND_FRAME(type)	(ACTION_FIND_FRAME<<8 | (type))
-#define CALLBACK_FIND_NEXT(type)	(ACTION_FIND_NEXT<<8 | (type))
-#define CALLBACK_FIND_PREVIOUS(type)	(ACTION_FIND_PREVIOUS<<8 | (type))
-#define CALLBACK_COLORIZE(type)		(ACTION_COLORIZE<<8 | (type))
+#define CALLBACK_MATCH(type)		((ACTION_MATCH<<8) | (type))
+#define CALLBACK_PREPARE(type)		((ACTION_PREPARE<<8) | (type))
+#define CALLBACK_FIND_FRAME(type)	((ACTION_FIND_FRAME<<8) | (type))
+#define CALLBACK_FIND_NEXT(type)	((ACTION_FIND_NEXT<<8) | (type))
+#define CALLBACK_FIND_PREVIOUS(type)	((ACTION_FIND_PREVIOUS<<8) | (type))
+#define CALLBACK_COLORIZE(type)		((ACTION_COLORIZE<<8) | (type))
 #define CALLBACK_WEB_LOOKUP		(ACTION_WEB_LOOKUP<<8)
 
 /* Extract components of callback argument */
-#define FILTER_ACTION(cb_action)	(((cb_action)>>8) & 0xff)
-#define FILTER_ACTYPE(cb_action)	((cb_action)&0xff)
+#define FILTER_ACTION(cb_arg)		(((cb_arg)>>8) & 0xff)
+#define FILTER_ACTYPE(cb_arg)		((cb_arg) & 0xff)
 
 static void
 error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
