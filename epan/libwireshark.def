@@ -901,6 +901,8 @@ tvb_reported_length_remaining
 tvb_set_child_real_data_tvbuff
 tvb_set_free_cb
 tvb_set_reported_length
+tvb_skip_wsp
+tvb_skip_wsp_return
 tvb_strncaseeql
 tvb_strneql
 tvb_strnlen

@@ -557,6 +557,27 @@ extern gint tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
     gint *next_offset);
 
 /**
+ * Copied from the mgcp dissector. (This function should be moved to /epan )
+ * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
+ *                character following offset or offset + maxlength -1 whichever
+ *                is smaller.
+ *
+ * Parameters:
+ * tvb - The tvbuff in which we are skipping whitespace.
+ * offset - The offset in tvb from which we begin trying to skip whitespace.
+ * maxlength - The maximum distance from offset that we may try to skip
+ * whitespace.
+ *
+ * Returns: The position in tvb of the first non-whitespace
+ *          character following offset or offset + maxlength -1 whichever
+ *          is smaller.
+ */
+
+extern gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
+
+extern gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset);
+
+/**
  * Call strncmp after checking if enough chars left, returning 0 if
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
