@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_map.c                                                          */
-/* ../../tools/asn2wrs.py -b -X -T -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+/* ../../tools/asn2wrs.py -b -X -T -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -3134,7 +3134,7 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   6, "Unsupported network interface"},
     {   8, "CDMA handset-based position determination failure"},
     {   9, "CDMA handset-based position determination resources released - voice service request"},
-    {   10, "CDMA handset-based position determination resources released - voice service request – message acknowledged"},
+    {   10, "CDMA handset-based position determination resources released - voice service request - message acknowledged"},
     {   11, "Reserved"},
     {   12, "Reserved"},
     {   13, "Reserved"},

@@ -2365,7 +2365,7 @@ static const value_string ansi_map_SMS_CauseCode_vals[]  = {
     {   6, "Unsupported network interface"},
     {   8, "CDMA handset-based position determination failure"},
     {   9, "CDMA handset-based position determination resources released - voice service request"},
-    {   10, "CDMA handset-based position determination resources released - voice service request – message acknowledged"},
+    {   10, "CDMA handset-based position determination resources released - voice service request - message acknowledged"},
     {   11, "Reserved"},
     {   12, "Reserved"},
     {   13, "Reserved"},
