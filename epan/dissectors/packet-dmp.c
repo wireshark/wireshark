@@ -456,6 +456,7 @@ static struct dmp_data {
 /* User definable values */
 static range_t *global_dmp_port_range = NULL;          /* Default disabled */
 static range_t *dmp_port_range = NULL;
+static gboolean use_seq_ack_analysis = TRUE;
 static gboolean dmp_align = FALSE;
 static gboolean dmp_subject_as_id = FALSE;
 static gint     dmp_struct_format = STRUCT_ID_NONE;
@@ -1149,13 +1150,12 @@ static void register_dmp_id (packet_info *pinfo, guint8 reason)
 
     if (dmp_data) {
       /* Found message */
-      if (dmp.msg_type == REPORT) {
-	msg_id = dmp_data->msg_id;
-	msg_time = dmp_data->msg_time;
+      if (dmp_data->prev_msg_id > 0) {
+	msg_id = dmp_data->prev_msg_id;
       } else {
 	msg_id = dmp_data->msg_id;
-	msg_time = dmp_data->msg_time;
       }
+      msg_time = dmp_data->msg_time;
     }
   }
 
@@ -1321,6 +1321,10 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 				tvb, 0, 0, dmp.id_val->msg_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
+      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
+			      "Retransmission #%d",
+			      dmp.id_val->msg_resend_count);
+      
       if (dmp.msg_type == REPORT) {
 	en = proto_tree_add_uint (analysis_tree, hf_analysis_rep_resend_from,
 				  tvb, 0, 0, dmp.id_val->rep_id);
@@ -1332,10 +1336,6 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 				  tvb, 0, 0, dmp.id_val->msg_id);
       }
       PROTO_ITEM_SET_GENERATED (en);
-      
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-			      "Retransmission #%d",
-			      dmp.id_val->msg_resend_count);
       
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_rto_time,
@@ -1389,12 +1389,12 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
 				tvb, 0, 0, dmp.id_val->ack_resend_count);
       PROTO_ITEM_SET_GENERATED (en);
       
+      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
+			      "Dup ACK #%d", dmp.id_val->ack_resend_count);
+      
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
 				tvb, 0, 0, dmp.id_val->ack_id);
       PROTO_ITEM_SET_GENERATED (en);
-      
-      expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
-			      "Dup ACK #%d", dmp.id_val->ack_resend_count);
     }
   }
 }
@@ -2324,7 +2324,9 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree_add_item_hidden (ack_tree, hf_dmp_id, tvb, offset, 2, FALSE);
   offset += 2;
 
-  register_dmp_id (pinfo, dmp.ack_reason);
+  if (use_seq_ack_analysis) {
+    register_dmp_id (pinfo, dmp.ack_reason);
+  }
 
   if (dmp.ack_rec_present) {
     /* Recipient List */
@@ -3398,7 +3400,9 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     offset += 2;
   }
 
-  register_dmp_id (pinfo, 0);
+  if (use_seq_ack_analysis) {
+    register_dmp_id (pinfo, 0);
+  }
 
   proto_item_set_len (en, offset - boffset);
 
@@ -3494,7 +3498,9 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     }
   }
 
-  dmp_add_seq_ack_analysis (tvb, pinfo, dmp_tree, offset);
+  if (use_seq_ack_analysis) {
+    dmp_add_seq_ack_analysis (tvb, pinfo, dmp_tree, offset);
+  }
 
   if (check_col (pinfo->cinfo, COL_INFO)) {
     if (((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
@@ -4314,6 +4320,10 @@ void proto_register_dmp (void)
 				  "DMP port numbers",
 				  "Port numbers used for DMP traffic",
 				   &global_dmp_port_range, MAX_UDP_PORT);
+  prefs_register_bool_preference (dmp_module, "seq_ack_analysis",
+                                  "SEQ/ACK Analysis",
+                                  "Calculate sequence/acknowledgement analysis",
+                                  &use_seq_ack_analysis);
   prefs_register_bool_preference (dmp_module, "align_ids",
 				  "Align identifiers in info list",
 				  "Align identifiers in info list"
