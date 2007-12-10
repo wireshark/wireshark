@@ -405,6 +405,9 @@ add_byte_array_text_to_proto_tree( proto_tree *tree, tvbuff_t *tvb, gint start, 
       tmp2_length = ( length * 2 ) + 1;
    }
 
+
+   /* Throw an exception if tmp_length is negative */
+   tvb_ensure_bytes_exist( tvb, start, tmp_length );
    tmp = tvb_get_ptr( tvb, start, tmp_length );
    tmp2 = (char*)ep_alloc( tmp2_length );
 
@@ -1053,7 +1056,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
       /* Add reply status to info column */
       if(check_col(pinfo->cinfo, COL_INFO))
       {
-         col_append_str( pinfo->cinfo, COL_INFO, 
+         col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset+2 ) ),
                      cip_gs_vals , "Unknown Response (%x)") );
       }
@@ -1304,7 +1307,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_len
       /* Add service to info column */
       if(check_col(pinfo->cinfo, COL_INFO))
       {
-         col_append_str( pinfo->cinfo, COL_INFO, 
+         col_append_str( pinfo->cinfo, COL_INFO,
                   val_to_str( ( tvb_get_guint8( tvb, offset ) & 0x7F ),
                      cip_sc_vals , "Unknown Service (%x)") );
       }
