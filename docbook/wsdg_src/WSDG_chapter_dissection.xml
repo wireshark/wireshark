@@ -21,7 +21,18 @@
 	Dissection can be implemented in two possible ways. One is to have a dissector
 	module compiled into the main program, which means it's always available.
 	Another way is to make a plugin (a shared library/DLL) that registers itself
-	to handle dissection. - XXX add a special explanation section for this?
+	to handle dissection.
+	</para>
+	<para>
+	There is little difference in having your dissector as either a plugin 
+	or build-in. On the Win32 platform you have limited function access 
+	through what's listed in libwireshark.def, but that is mostly complete.
+	<para>
+	</para>
+	The big plus is that your rebuild cycle for a plugin is much shorter 
+	than for a build-in one. So starting with a plugin makes initial development
+	simpler, while deployment of the finished code may well be done as build-in 
+	dissector.
 	</para>
   </section>
 
@@ -52,8 +63,7 @@
 	   	built-in dissector, included in the main program, or a plugin.
 	   </para>
 	   <para>
-	   	Plugins are the easiest to write initially as they don't need
-	   	write permission on the main code base. So let's start with that.
+	   	Plugins are the easiest to write initially, so let's start with that.
 	   	With a little care, the plugin can be made to run as a built-in
 	   	easily too - so we haven't lost anything.
 	   </para>
@@ -126,7 +136,7 @@ proto_register_foo(void)
 <![CDATA[void
 proto_reg_handoff_foo(void)
 {
-	static int initialized=FALSE;
+	static gboolean initialized = FALSE;
 
 	if (!initialized) {
 		foo_handle = create_dissector_handle(dissect_foo, proto_foo);
@@ -139,11 +149,11 @@ proto_reg_handoff_foo(void)
 	been initialised yet. 
 	First we create the dissector. This registers a routine 
 	to be called to do the actual dissecting.
-	Then we associate it with a udp port number
+	Then we associate it with a UDP port number
 	so that the main program will know to call us when it gets UDP traffic on that port.
 	</para>
 	<para>
-	Now at last we finally get to write some dissecting code. For the moment we'll
+	Now at last we get to write some dissecting code. For the moment we'll
 	leave it as a basic placeholder.
 	</para>
 	   <example><title>Dissection.</title>
@@ -151,9 +161,9 @@ proto_reg_handoff_foo(void)
 <![CDATA[static void
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
+	}
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);
@@ -179,7 +189,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	</para>
 	<para>
 	At this point we should have a basic dissector ready to compile and install.
-	It doesn't do much at present, than identify the protocol and label it.
+	It doesn't do much at present, other than identify the protocol and label it.
 	</para>
 	<para>
 	In order to compile this dissector and create a plugin a couple of support files 
@@ -207,7 +217,7 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	plugin.rc.in - This contains the DLL resource template for Windows
 	</para></listitem>
 	</itemizedlist>
-	You can find a good example for these files in the h223 plugin directory. Makefile.common
+	You can find a good example for these files in the agentx plugin directory. Makefile.common
 	and Makefile.am have to be modified to reflect the relevant files and dissector name.
 	moduldeinfo.h and moduleinfo.nmake have to be filled in with the version information.
 	Compile the dissector to a DLL or shared library and copy it into the plugin
@@ -238,10 +248,11 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
+	}
 	/* Clear out stuff in the info column */
-	if(check_col(pinfo->cinfo,COL_INFO)){
+	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);
 	}
 	
@@ -513,8 +524,9 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 packet_type = tvb_get_guint8(tvb, 0);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FOO");
+	}
 	/* Clear out stuff in the info column */
 	if (check_col(pinfo->cinfo,COL_INFO)) {
 		col_clear(pinfo->cinfo,COL_INFO);
@@ -783,11 +795,10 @@ pinfo->fragmented = save_fragmented;
 <![CDATA[static GHashTable *msg_fragment_table = NULL;
 static GHashTable *msg_reassembled_table = NULL;
 
-
 static void
 msg_init_protocol(void)
 {
-	fragment_table_init (&msg_fragment_table);
+	fragment_table_init(&msg_fragment_table);
 	reassembled_table_init(&msg_reassembled_table);
 }]]>
    </programlisting></example>
