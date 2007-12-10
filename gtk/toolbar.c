@@ -381,7 +381,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_BUTTON_TOOLTIP_TEXT, NULL);
-        OBJECT_SET_DATA(save_button, "save", (gpointer)TRUE);
+        OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(1));
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_hide(GTK_WIDGET(save_as_button));
             gtk_widget_show(GTK_WIDGET(save_button));
@@ -392,7 +392,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE_AS);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_AS_BUTTON_TOOLTIP_TEXT, NULL);
-        OBJECT_SET_DATA(save_button, "save", (gpointer)FALSE);
+        OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(0));
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_show(GTK_WIDGET(save_as_button));
 	    gtk_widget_hide(GTK_WIDGET(save_button));
@@ -408,7 +408,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 */
 
 static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
-    if ((gboolean)OBJECT_GET_DATA(save_button,"save")) {
+    if (GPOINTER_TO_INT(OBJECT_GET_DATA(save_button,"save")) == 1) {
         file_save_cmd_cb(w, data);
     }
     else {
@@ -695,7 +695,7 @@ toolbar_new(void)
     /* Only create a separate button in GTK < 2.4.  With GTK 2.4+, we will
      * just modify the save_button to read/show save or save as as needed.
      * We'll also fudge in an object key ("save") for the save button with data which  specifies 
-     * whether the button is currently "save" (TRUE)or "save as" (FALSE).
+     * whether the button is currently "save" (1)or "save as" (0).
      * The fcn file_save_or_save_as_cmd_cb
      * will then call the appropriate file_save_cmd_cb or file_save_as_cmd_cb
      */
@@ -708,7 +708,7 @@ toolbar_new(void)
 #else
     toolbar_item(save_button, window, main_tb, 
 	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, stock_save_24_xpm, file_save_or_save_as_cmd_cb, NULL);
-    OBJECT_SET_DATA(save_button, "save", (gpointer)TRUE);
+    OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(1));
 #endif
 
     toolbar_item(close_button, window, main_tb, 
