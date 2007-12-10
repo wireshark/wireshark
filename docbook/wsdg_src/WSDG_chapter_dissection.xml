@@ -27,8 +27,8 @@
 	There is little difference in having your dissector as either a plugin 
 	or build-in. On the Win32 platform you have limited function access 
 	through what's listed in libwireshark.def, but that is mostly complete.
-	<para>
 	</para>
+	<para>
 	The big plus is that your rebuild cycle for a plugin is much shorter 
 	than for a build-in one. So starting with a plugin makes initial development
 	simpler, while deployment of the finished code may well be done as build-in 
