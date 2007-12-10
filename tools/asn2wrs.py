@@ -546,7 +546,6 @@ class EthCtx:
     self.output.ectx = self
     self.encoding = 'per'
     self.aligned = False
-    self.new_ber = False
     self.default_oid_variant = ''
     self.default_opentype_variant = ''
     self.default_containing_variant = '_pdu_new'
@@ -567,11 +566,9 @@ class EthCtx:
   # Encoding
   def Per(self): return self.encoding == 'per'
   def Ber(self): return self.encoding == 'ber'
-  def NewBer(self): return self.new_ber
   def Aligned(self): return self.aligned
   def Unaligned(self): return not self.aligned
-  def Fld(self, tnm='*'): return self.fld_opt.get('*', False) or self.fld_opt.get(tnm, False) or (self.Ber() and not self.NewBer())
-  def Tag(self): return self.tag_opt # or self.Ber() - temporary comment out (experimental feature)
+  def Tag(self): return self.tag_opt or self.Ber()
   def NAPI(self): return False  # disable planned features
 
   def Module(self):  # current module name
@@ -824,7 +821,7 @@ class EthCtx:
                         'ethname' : ethtype }
     self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
                                  'STRINGS' : 'NULL', 'BITMASK' : '0' }
-    self.eth_type[ethtype] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'create_field' : False, 'ref' : []}
+    self.eth_type[ethtype] = { 'import' : 'xxx', 'proto' : 'xxx' , 'attr' : {}, 'ref' : []}
     print "Dummy imported: %s (%s)" % (ident, ethtype)
     return ethtype
 
@@ -960,7 +957,7 @@ class EthCtx:
       else:
         raise "Duplicate field for " + ident
     self.field[ident] = {'type' : type, 'idx' : idx, 'impl' : impl, 'pdu' : pdu,
-                         'modified' : '', 'attr' : {} , 'create_field' : False }
+                         'modified' : '', 'attr' : {} }
     name = ident.split('/')[-1]
     if len(ident.split('/')) > 1 and name == '_item':  # Sequnce/Set of type
       self.field[ident]['attr']['NAME'] = '"Item"'
@@ -977,7 +974,6 @@ class EthCtx:
     else:
       self.field_ord.append(ident)
     if parent:
-      self.field[ident]['create_field'] = self.Fld(parent)
       self.eth_dep_add(parent, type)
 
   #--- eth_clean --------------------------------------------------------------
@@ -1097,7 +1093,7 @@ class EthCtx:
       nm = asn2c(t)
       self.eth_type[nm] = { 'import' : self.type[t]['import'], 
                             'proto' : asn2c(self.type[t]['proto']),
-                            'attr' : {}, 'create_field' : False, 'ref' : []}
+                            'attr' : {}, 'ref' : []}
       self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
       self.type[t]['ethname'] = nm
     for t in self.type_ord:
@@ -1129,8 +1125,7 @@ class EthCtx:
         self.eth_type[nm] = { 'import' : None, 'proto' : self.eproto, 'export' : 0, 'enum' : 0,
                               'user_def' : EF_TYPE|EF_VALS, 'no_emit' : EF_TYPE|EF_VALS, 
                               'val' : self.type[t]['val'], 
-                              'attr' : {}, 
-                              'create_field' : False, 'ref' : [t]}
+                              'attr' : {}, 'ref' : [t]}
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
@@ -1222,10 +1217,8 @@ class EthCtx:
         if self.eth_hf_dupl.has_key(nm):
           if self.eth_hf_dupl[nm].has_key(ethtypemod):
             nm = self.eth_hf_dupl[nm][ethtypemod]
-            self.eth_hf[nm]['create_field'] = self.eth_hf[nm]['create_field'] or self.field[f]['create_field']
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
-            self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
             nmx = nm + ('_%02d' % (len(self.eth_hf_dupl[nm])))
@@ -1233,10 +1226,8 @@ class EthCtx:
             nm = nmx
         else:
           if (self.eth_hf[nm]['ethtype']+self.eth_hf[nm]['modified']) == ethtypemod:
-            self.eth_hf[nm]['create_field'] = self.eth_hf[nm]['create_field'] or self.field[f]['create_field']
             self.eth_hf[nm]['ref'].append(f)
             self.field[f]['ethname'] = nm
-            self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
             continue
           else:
             nmx = nm + '_01'
@@ -1256,10 +1247,8 @@ class EthCtx:
       self.eth_hf[nm] = {'fullname' : fullname, 'pdu' : self.field[f]['pdu'],
                          'ethtype' : ethtype, 'modified' : self.field[f]['modified'],
                          'attr' : attr.copy(), 
-                         'create_field' : self.field[f]['create_field'],
                          'ref' : [f]}
       self.field[f]['ethname'] = nm
-      self.eth_type[ethtype]['create_field'] = self.eth_type[ethtype]['create_field'] or self.eth_hf[nm]['create_field']
     #--- type dependencies -------------------
     (self.eth_type_ord1, self.eth_dep_cycle) = dependency_compute(self.type_ord, self.type_dep, map_fn = lambda t: self.type[t]['ethname'], ignore_fn = lambda t: self.type[t]['import'])
     i = 0
@@ -1625,37 +1614,6 @@ class EthCtx:
 
   #--- eth_output_types -------------------------------------------------------
   def eth_output_types(self):
-    def out_field(f):
-      t = self.eth_hf[f]['ethtype']
-      if (self.Ber()):
-        x = {}
-        for r in self.eth_hf[f]['ref']:
-          x[self.field[r]['impl']] = self.field[r]['impl']
-      else:
-        x = {False : False}
-      x = x.values()
-      x.sort()
-      out = ''
-      for i in x:
-        if (i):
-          postfix = '_impl'
-          impl = 'TRUE'
-        else:
-          postfix = ''
-          impl = 'FALSE'
-        if (self.Ber()):
-          if (i): postfix = '_impl'; impl = 'TRUE'
-          else:   postfix = '';      impl = 'FALSE'
-          out += 'static int dissect_'+f+postfix+'(proto_tree *tree _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_) {\n'
-          par=((impl, 'tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
-        else:
-          out += 'static int dissect_'+f+'(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_) {\n'
-          par=(('tvb', 'offset', 'actx', 'tree', self.eth_hf[f]['fullname']),)
-        out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret='return',
-                                par=par)
-        out += '}\n'
-      return out
-    #end out_field()
     def out_pdu(f):
       t = self.eth_hf[f]['ethtype']
       is_new = self.eth_hf[f]['pdu']['new']
@@ -1718,19 +1676,8 @@ class EthCtx:
         if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
         fx.write(''.join(map(lambda i: '/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]), self.dep_cycle_eth_type[t])))
         fx.write(self.eth_type_fn_h(t))
-        if (self.Fld() or self.eth_type[t]['create_field']):
-          fx.write('\n')
-          for f in self.eth_hf_ord:
-            if ((self.eth_hf[f]['ethtype'] == t) and (self.Fld() or self.eth_hf[f]['create_field'])):
-              fx.write(out_field(f))
         fx.write('\n')
         i += 1
-      fx.write('\n')
-    if (self.Fld()):  # fields for imported types
-      fx.write('/*--- Fields for imported types ---*/\n\n')
-      for f in self.eth_hf_ord:
-        if (self.eth_type[self.eth_hf[f]['ethtype']]['import']):
-          fx.write(out_field(f))
       fx.write('\n')
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
@@ -1750,10 +1697,6 @@ class EthCtx:
         fx.write(self.eth_type_fn_h(t))
       else:
         fx.write(self.eth_type[t]['val'].eth_type_fn(self.eth_type[t]['proto'], t, self))
-      if ((self.Fld() or self.eth_type[t]['create_field']) and not self.dep_cycle_eth_type.has_key(t)):
-        for f in self.eth_hf_ord:
-          if ((self.eth_hf[f]['ethtype'] == t) and (self.Fld() or self.eth_hf[f]['create_field'])):
-            fx.write(out_field(f))
       fx.write('\n')
     if (len(self.eth_hfpdu_ord)):
       fx.write('/*--- PDUs ---*/\n\n')
@@ -2590,9 +2533,6 @@ class EthCnf:
     elif opt in ("-b", "BER", "CER", "DER"):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.encoding = 'ber'
-    elif opt in ("-X", "NEW_BER"):
-      par = self.check_par(par, 0, 0, fn, lineno)
-      self.ectx.new_ber = True
     elif opt in ("PER",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.encoding = 'per'
@@ -2601,14 +2541,6 @@ class EthCnf:
       if not par: return
       self.ectx.proto_opt = par[0]
       self.ectx.merge_modules = True
-    elif opt in ("-F", "CREATE_FIELDS"):
-      par = self.check_par(par, 0, 1, fn, lineno)
-      tnm = '*'
-      if (len(par) > 0): tnm = par[0]
-      self.ectx.fld_opt[tnm] = True
-    elif opt in ("-T",):
-      par = self.check_par(par, 0, 0, fn, lineno)
-      self.ectx.tag_opt = True
     elif opt in ("ALIGNED",):
       par = self.check_par(par, 0, 0, fn, lineno)
       self.ectx.aligned = True
@@ -3741,12 +3673,8 @@ class SqType (Type):
         opt = 'ASN1_NOT_OPTIONAL'
     if (ectx.Ber()):
       (tc, tn) = val.GetTag(ectx)
-      if (ectx.NewBer()):
-        out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
-              % ('&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
-      else:
-        out = '  { %-13s, %s, %s, dissect_%s },\n' \
-              % (tc, tn, opt, efd)
+      out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
+            % ('&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
     elif (ectx.Per()):
       out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
             % ('&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
@@ -3798,10 +3726,7 @@ class SeqType (SqType):
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
-        else:
-            table = "static const %(ER)s_old_sequence_t %(TABLE)s[] = {\n"
+      table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
     else:
         table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
     if hasattr(self, 'ext_list'):
@@ -3820,10 +3745,7 @@ class SeqType (SqType):
         f = fname + '/' + e.val.name
         table += self.out_item(f, e.val, e.optional, ext, ectx)
     if (ectx.Ber()):
-      if (ectx.NewBer()):
-        table += "  { NULL, 0, 0, 0, NULL }\n};\n"
-      else:
-        table += "  { 0, 0, 0, NULL }\n};\n"
+      table += "  { NULL, 0, 0, 0, NULL }\n};\n"
     else:
       table += "  { NULL, 0, 0, NULL }\n};\n"
     return table
@@ -3838,12 +3760,9 @@ class SeqOfType (SqType):
     else:
       f = fname + '/' + '_item'
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
-        else:
-            table = "static const %(ER)s_old_sequence_t %(TABLE)s[1] = {\n"
+      table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
     else:
-        table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
+      table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
     table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
     table += "};\n"
     return table
@@ -3893,12 +3812,7 @@ class SequenceOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        else:            
-            body = ectx.eth_fn_call('dissect_%(ER)s_old_sequence_of', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_sequence_of', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
@@ -3950,12 +3864,7 @@ class SetOfType (SeqOfType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        else:    
-            body = ectx.eth_fn_call('dissect_%(ER)s_old_set_of', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_set_of', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per() and not self.HasConstraint()):
@@ -4055,12 +3964,7 @@ class SequenceType (SeqType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-        if(ectx.NewBer()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        else:
-            body = ectx.eth_fn_call('dissect_%(ER)s_old_sequence', ret='offset',
+        body = ectx.eth_fn_call('dissect_%(ER)s_sequence', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
@@ -4100,12 +4004,7 @@ class SetType(SeqType):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-        if(ectx.NewBer()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
-                              par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
-        else:
-            body = ectx.eth_fn_call('dissect_%(ER)s_old_set', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_set', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),))
     elif (ectx.Per()):
@@ -4308,12 +4207,8 @@ class ChoiceType (Type):
         if (not opt): opt = '0'
       if (ectx.Ber()):
         (tc, tn) = e.GetTag(ectx)
-        if (ectx.NewBer()):
-          out = '  { %3s, %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
-                % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
-        else:
-          out = '  { %3s, %-13s, %s, %s, dissect_%s },\n' \
-                % (vval, tc, tn, opt, efd)
+        out = '  { %3s, %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
+              % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
       elif (ectx.Per()):
         out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
               % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
@@ -4325,12 +4220,9 @@ class ChoiceType (Type):
     fname = ectx.eth_type[tname]['ref'][0]
     tagval = self.detect_tagval(ectx)
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
-        else:
-            table = "static const %(ER)s_old_choice_t %(TABLE)s[] = {\n"
+      table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
     else:
-        table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
+      table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
     cnt = 0
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
@@ -4348,23 +4240,14 @@ class ChoiceType (Type):
         table += out_item(val, e, 'ASN1_NOT_EXTENSION_ROOT', ectx)
         cnt += 1
     if (ectx.Ber()):
-      if (ectx.NewBer()):
-        table += "  { 0, NULL, 0, 0, 0, NULL }\n};\n"
-      else:
-        table += "  { 0, 0, 0, 0, NULL }\n};\n"
+      table += "  { 0, NULL, 0, 0, 0, NULL }\n};\n"
     else:
       table += "  { 0, NULL, 0, NULL }\n};\n"
     return table
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-        if (ectx.NewBer()):
-            body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
-                              par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                   ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
-                                   ('%(VAL_PTR)s',),))
-        else:
-            body = ectx.eth_fn_call('dissect_%(ER)s_old_choice', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_choice', ret='offset',
                               par=(('%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
                                    ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
@@ -7514,8 +7397,6 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -u            : Unaligned (default is aligned)
   -p proto      : Protocol name (implies -S). Default is module-name
                   from input_file (renamed by #.MODULE if present)
-  -F            : Create 'field functions'
-  -T            : Tagged type support (experimental)
   -o name       : Output files name core (default is <proto>)
   -O dir        : Output directory
   -c cnf_file   : Conformance file
@@ -7587,14 +7468,16 @@ def eth_main():
       ectx.justexpcnf = True
     if o in ("-D",):
       ectx.srcdir = a
-    #if o in ("-X",):
-    #    warnings.warn("Command line option -X is obsolete and can be removed")
+    if o in ("-X",):
+        warnings.warn("Command line option -X is obsolete and can be removed")
+    if o in ("-T",):
+        warnings.warn("Command line option -T is obsolete and can be removed")
 
   if conf_to_read:
     ectx.conform.read(conf_to_read)
 
   for o, a in opts:
-    if o in ("-h", "-?", "-c", "-I", "-E", "-D"):
+    if o in ("-h", "-?", "-c", "-I", "-E", "-D", "-X", "-T"):
       pass  # already processed
     else:
       par = []

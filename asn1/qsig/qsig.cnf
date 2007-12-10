@@ -6,8 +6,6 @@
 
 #.OPT
 BER
--T
--X
 GROUP_BY_PROT
 -o qsig
 #.END

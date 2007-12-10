@@ -1,10 +1,7 @@
 
 #.OPT
 -b 
--T
--X
 #-d satcom
--d om
 #-s packet-gsm_map-tmp
 -k
 -o gsm_map

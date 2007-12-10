@@ -59,7 +59,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -X -T -L
+A2W_FLAGS= -b -L
 
 EXTRA_CNF=../inap/inap-exp.cnf \
 	../gsmmap/gsm_map-exp.cnf
