@@ -194,28 +194,28 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 
 static void
-dissect_h264_slice_layer_without_partitioning_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_slice_layer_without_partitioning_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_slice_data_partition_a_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_slice_data_partition_a_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
@@ -223,7 +223,7 @@ dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 
 
 static void
-dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
@@ -231,7 +231,7 @@ dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 
 /* Ref 7.3.2.1 Sequence parameter set RBSP syntax */
 static void
-dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	/* profile_idc 0 u(8) */
 	proto_tree_add_item(tree, hf_h264_profile_idc, tvb, offset, 1, FALSE);
@@ -249,7 +249,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	offset++;
 	/* level_idc 0 u(8) */
 	proto_tree_add_item(tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
-	offset;
+	offset++;
 	/* seq_parameter_set_id 0 ue(v) 
 	 * ue(v): unsigned integer Exp-Golomb-coded syntax element with the left bit first.
 	 * The parsing process for this descriptor is specified in subclause 9.1.
@@ -262,42 +262,42 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 }
 
 static void
-dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_end_of_seq_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_end_of_seq_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_end_of_stream_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_end_of_stream_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_filler_data_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_filler_data_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
 }
 
 static void
-dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
+dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
 
