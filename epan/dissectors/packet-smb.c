@@ -9999,6 +9999,12 @@ static const value_string qpi_loi_vals[] = {
 	{ 0x010b,	"Query File Compression Info"},
 	{ 0x0200,	"Query File Unix Basic"},
 	{ 0x0201,	"Query File Unix Link"},
+	{ 0x0202,	"Query File Unix Hardlink"},
+	{ 0x0204,	"Query File Posix ACL"},
+	{ 0x0205,	"Query File Posix XATTR"},
+	{ 0x0206,	"Query File Posix Attr Flags"},
+	{ 0x0207,	"Query File Posix Permissions"},
+	{ 0x0208,	"Query File Posix Lock"},
 	{ 1004,		"Query File Basic Info"},
 	{ 1005,		"Query File Standard Info"},
 	{ 1006,		"Query File Internal Info"},
@@ -10054,6 +10060,12 @@ static const value_string spi_loi_vals[] = {
 	{ 0x0200,	"Set File Unix Basic"},
 	{ 0x0201,	"Set File Unix Link"},
 	{ 0x0202,	"Set File Unix HardLink"},
+	{ 0x0204,	"Set File Unix ACL"},
+	{ 0x0205,	"Set File Unix XATTR"},
+	{ 0x0206,	"Set File Unix Attr Flags"},
+	{ 0x0208,	"Set File Posix Lock"},
+	{ 0x0209,	"Set File Posix Open"},
+	{ 0x020a,	"Set File Posix Unlink"},
 	{ 1004,         "Set File Basic Info"},
 	{ 1010,         "Set Rename Information"},
 	{ 1013,         "Set Disposition Information"},
@@ -11829,6 +11841,71 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	return offset;
 }
 
+/* unix ACL
+*/
+static int
+dissect_qpi_unix_acl(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_xattr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_attr_flags(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_permissions(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_lock(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_open(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
+static int
+dissect_qpi_unix_unlink(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
+		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+{
+	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+
+	return offset;
+}
+
 /* this dissects the SMB_QUERY_FILE_NETWORK_OPEN_INFO
 */
 int
@@ -12137,6 +12214,26 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 0x0202:	/* Query File Unix HardLink*/
 		/* XXX add this from the SNIA doc */
 		break;
+	case 0x0204:	/* Query File Unix ACL*/
+		offset = dissect_qpi_unix_acl(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0205:	/* Query File Unix XATTR*/
+		offset = dissect_qpi_unix_xattr(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0206:	/* Query File Unix Attr Flags*/
+		offset = dissect_qpi_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0207:	/* Query File Unix Permissions*/
+		offset = dissect_qpi_unix_permissions(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0208:	/* Query File Unix Lock*/
+		offset = dissect_qpi_unix_lock(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
 	}
 
 	return offset;
@@ -12196,9 +12293,33 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		offset = dissect_4_2_16_13(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
-	case 0x0203:	/*Set File Unix HardLink.  Same as link query. */
+	case 0x0202:	/*Set File Unix HardLink.  Same as link query. */
 		offset = dissect_4_2_16_13(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
+		break;
+	case 0x0204:	/* Set File Unix ACL*/
+		offset = dissect_qpi_unix_acl(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0205:	/* Set File Unix XATTR*/
+		offset = dissect_qpi_unix_xattr(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0206:	/* Set File Unix Attr Flags*/
+		offset = dissect_qpi_unix_attr_flags(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0208:	/* Set File Unix Lock*/
+		offset = dissect_qpi_unix_lock(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x0209:	/* Set File Unix Open*/
+		offset = dissect_qpi_unix_open(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
+		break;
+	case 0x020a:	/* Set File Unix Unlink*/
+		offset = dissect_qpi_unix_unlink(tvb, pinfo, tree, offset, bcp,
+					   &trunc);
 		break;
 	case 1010:	/* Set File Rename */
 		offset = dissect_rename_info(tvb, pinfo, tree, offset, bcp,
