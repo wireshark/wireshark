@@ -2906,7 +2906,7 @@ typedef struct {
 /* the GMemChunk base structure */
 static GMemChunk *my_vals = NULL;
 
-/* Registered protocol number
+/* Registered protocol number */
 static int my_proto = -1;
 
 
@@ -2915,7 +2915,7 @@ static int my_proto = -1;
 /* the local variables in the dissector */
 
 conversation_t *conversation;
-my_entry_t *data_ptr
+my_entry_t *data_ptr;
 
 
 /* look up the conversation */
