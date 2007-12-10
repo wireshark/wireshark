@@ -29,5 +29,6 @@
 #define __PACKET_H264_H__
 
 void dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #endif /* __PACKET_H264_H__ */

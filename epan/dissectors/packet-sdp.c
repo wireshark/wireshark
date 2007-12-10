@@ -162,8 +162,10 @@ static int hf_media_attribute_field = -1;
 static int hf_media_attribute_value = -1;
 static int hf_media_encoding_name = -1;
 static int hf_media_format_specific_parameter = -1;
-static int hf_sdp_fmtp_profile_level_id = -1;
+static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
+static int hf_sdp_h264_packetization_mode = -1;
+static int hf_sdp_h264_sprop_parameter_sets = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
 
 /* hf_session_attribute hf_media_attribute subfields */
@@ -1331,6 +1333,14 @@ static const value_string h263_profile_vals[] =
   { 0, NULL },
 };
 
+static const value_string h264_packetization_mode_vals[] =
+{
+  { 0,    "Single NAL mode" },
+  { 1,    "Non-interleaved mode" },
+  { 2,    "Interleaved mode" },
+  { 0, NULL },
+};
+
 /*
  * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
  */
@@ -1341,6 +1351,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   guint8 *field_name;
   gchar *format_specific_parameter;
   proto_item *item;
+  tvbuff_t *data_tvb;
 
   end_offset = offset + tokenlen;
 
@@ -1365,7 +1376,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-      item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen,
+      item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
     }
@@ -1387,15 +1398,64 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   /* Dissect the H264 profile-level-id parameter */
   if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-      tvbuff_t *h264_profile_tvb;
-	
+ 	
 	  /* Length includes "=" */
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	  h264_profile_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
-	  if(h264_handle && h264_profile_tvb){
-		  dissect_h264_profile(h264_profile_tvb, pinfo, tree);
+	  data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+	  if(h264_handle && data_tvb){
+		  dissect_h264_profile(data_tvb, pinfo, tree);
 	  }
+	}else if (strcmp(field_name, "packetization-mode") == 0) {
+      offset++;
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+      item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
+                                 atol((char*)format_specific_parameter));
+
+	}else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
+		/* The value of the parameter is the
+                        base64 [6] representation of the initial
+                        parameter set NAL units as specified in
+                        sections 7.3.2.1 and 7.3.2.2 of [1].  The
+                        parameter sets are conveyed in decoding order,
+                        and no framing of the parameter set NAL units
+                        takes place.  A comma is used to separate any
+                        pair of parameter sets in the list.
+		*/
+		gchar *data = NULL;
+		gint comma_offset;
+
+
+		/* Move past '=' */
+		offset++;
+		comma_offset = tvb_find_guint8(tvb,offset,-1,',');
+		if (comma_offset != -1){
+			tokenlen = comma_offset - offset;
+		}else{
+			tokenlen = end_offset - offset;
+		}
+		
+		data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		/* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data); */
+		data_tvb = base64_to_tvb(data);
+		tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+		add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
+
+		if(h264_handle && data_tvb){
+			dissect_h264_nal_unit(data_tvb, pinfo, tree);
+			if (comma_offset != -1){
+				/* Second NAL unit */
+				offset = comma_offset +1;
+				tokenlen = end_offset - offset;
+				data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+				data_tvb = base64_to_tvb(data);
+				tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+				add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
+				dissect_h264_nal_unit(data_tvb, pinfo, tree);
+			}
+	  }
+
 	}
   }
 
@@ -1572,15 +1632,18 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                              transport_info->encoding_name);
 
 	  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-
+	  /* Offset past space after ':' */
 	  offset = next_offset + 1;
 
 	  while(has_more_pars==TRUE){
 		  next_offset = tvb_find_guint8(tvb,offset,-1,';');
+		  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
 
 		  if(next_offset == -1){
 			  has_more_pars = FALSE;
 			  next_offset= tvb_length(tvb);
+		  }else{
+
 		  }
 
 		  /* There are 2 - add the first parameter */
@@ -1594,6 +1657,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                       (guint8 *)transport_info->encoding_name);
 
+		  /* Move offset past "; " and onto firts char */	
 		  offset = next_offset + 1;
 	  }
 	  return;
@@ -1873,7 +1937,7 @@ proto_register_sdp(void)
       { "IPBCP Command Type",
         "ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
         "IPBCP Command Type", HFILL }},
-	{&hf_sdp_fmtp_profile_level_id,
+	{&hf_sdp_fmtp_mpeg4_profile_level_id,
       { "Level Code",
         "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mpeg4es_level_indication_vals), 0x0,
         "Level Code", HFILL }},
@@ -1881,6 +1945,14 @@ proto_register_sdp(void)
       { "Profile",
         "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
         "Profile", HFILL }},
+	{ &hf_sdp_h264_packetization_mode,
+      { "Packetization mode",
+        "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
+        "Packetization mode", HFILL }},
+	{ &hf_sdp_h264_sprop_parameter_sets,
+      { "Sprop_parameter_sets",
+        "sdp.h264.sprop_parameter_sets", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Sprop_parameter_sets", HFILL }},
     { &hf_SDPh223LogicalChannelParameters,
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
