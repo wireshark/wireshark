@@ -554,8 +554,8 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   proto_item *sub_item;
   proto_tree *sub_tree;
   int         sub_offset;
-  uint16_t    namelen;
-  uint32_t    exflags;
+  guint16     namelen;
+  guint32     exflags;
 
 
   if ((length - offset) < ( 4 * 8 + 4 + 1 * 4 + 2 * 2 
