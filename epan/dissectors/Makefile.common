@@ -342,6 +342,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dis-pdus.c	\
 	packet-diffserv-mpls-common.c	\
 	packet-distcc.c		\
+	packet-dlm3.c		\
 	packet-dlsw.c		\
 	packet-dmp.c		\
 	packet-dnp.c		\
