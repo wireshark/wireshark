@@ -407,6 +407,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
    value of the "save" key associated with the save button
 */
 
+#if GTK_CHECK_VERSION(2,4,0)
 static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
     if (GPOINTER_TO_INT(OBJECT_GET_DATA(save_button,"save")) == 1) {
         file_save_cmd_cb(w, data);
@@ -415,7 +416,7 @@ static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
         file_save_as_cmd_cb(w, data);
     }
 }
-
+#endif
 
 /** The packet history has changed, we need to update the menu.
  *
