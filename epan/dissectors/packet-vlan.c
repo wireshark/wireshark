@@ -40,6 +40,8 @@ void proto_reg_handoff_vlan(void);
 static unsigned int old_q_in_q_ethertype;
 static unsigned int q_in_q_ethertype = 0x9100;
 
+static gboolean vlan_summary_in_tree = TRUE;
+
 static int proto_vlan = -1;
 static int hf_vlan_priority = -1;
 static int hf_vlan_cfi = -1;
@@ -85,7 +87,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tci = tvb_get_ntohs( tvb, 0 );
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
       (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
   if ( check_col(pinfo->cinfo, COL_8021Q_VLAN_ID)) {
@@ -99,11 +101,17 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_vlan, tvb, 0, 4, FALSE);
+
+    if (vlan_summary_in_tree) {
+        proto_item_append_text(ti, ", PRI: %u, CFI: %u, ID: %u", 
+                (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
+    }
+
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
-    proto_tree_add_uint(vlan_tree, hf_vlan_priority, tvb, 0, 2, tci);
-    proto_tree_add_uint(vlan_tree, hf_vlan_cfi, tvb, 0, 2, tci);
-    proto_tree_add_uint(vlan_tree, hf_vlan_id, tvb, 0, 2, tci);
+    proto_tree_add_item(vlan_tree, hf_vlan_priority, tvb, 0, 2, FALSE);
+    proto_tree_add_item(vlan_tree, hf_vlan_cfi, tvb, 0, 2, FALSE);
+    proto_tree_add_item(vlan_tree, hf_vlan_id, tvb, 0, 2, FALSE);
   }
 
   encap_proto = tvb_get_ntohs(tvb, 2);
@@ -141,19 +149,19 @@ proto_register_vlan(void)
   static hf_register_info hf[] = {
 	{ &hf_vlan_priority, {
 		"Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-		0, 0xE000, "Priority", HFILL }},
+		NULL, 0xE000, "User Priority", HFILL }},
 	{ &hf_vlan_cfi, {
 		"CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
-		0, 0x1000, "CFI", HFILL }},	/* XXX - Boolean? */
+		NULL, 0x1000, "Canonical Format Identifier", HFILL }},
 	{ &hf_vlan_id, {
 		"ID", "vlan.id", FT_UINT16, BASE_DEC,
-		0, 0x0FFF, "ID", HFILL }},
+		NULL, 0x0FFF, "VLAN ID", HFILL }},
 	{ &hf_vlan_etype, {
 		"Type", "vlan.etype", FT_UINT16, BASE_HEX,
-		VALS(etype_vals), 0x0, "Type", HFILL }},
+		VALS(etype_vals), 0x0, "Ethertype", HFILL }},
 	{ &hf_vlan_len, {
 		"Length", "vlan.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, "Length", HFILL }},
+		NULL, 0x0, NULL, HFILL }},
 	{ &hf_vlan_trailer, {
 		"Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "VLAN Trailer", HFILL }}
@@ -168,10 +176,15 @@ proto_register_vlan(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   vlan_module = prefs_register_protocol(proto_vlan, proto_reg_handoff_vlan);
+  prefs_register_bool_preference(vlan_module, "summary_in_tree",
+        "Show vlan summary in protocol tree",
+        "Whether the vlan summary line should be shown in the protocol tree",
+        &vlan_summary_in_tree);
   prefs_register_uint_preference(vlan_module, "qinq_ethertype",
-	"802.1QinQ Ethertype",
-	"The Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
-	16, &q_in_q_ethertype);
+        "802.1QinQ Ethertype",
+        "The Ethertype used to indicate 802.1QinQ VLAN in VLAN tunneling.",
+        16, &q_in_q_ethertype);
+
 }
 
 void
