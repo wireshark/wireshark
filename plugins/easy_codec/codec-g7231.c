@@ -37,6 +37,7 @@
 struct g7231_context {
   CODER_HANDLE handle;
   short speach_buffer[L_G7231_FRAME];
+  int l_g7231_frame_compressed;
 };
 
 void *codec_g7231_init(void) {
@@ -60,28 +61,27 @@ int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, voi
   const unsigned char *bitstream = (const unsigned char*)input;
   short *speech = (short*)output;
   int decodedBytes = 0;
-  static int L_G7231_FRAME_COMPRESSED = 0;
   
   if (!ctx) return 0;
   
   if ( ctx->handle == -1) {
   	if ( bitstream[0] & 0x03 ) {
   	   ctx->handle=EasyG7231_init_decoder(FALSE);
-  	   L_G7231_FRAME_COMPRESSED = L_G7231_FRAME_COMPRESSED_53;
+  	   ctx->l_g7231_frame_compressed = L_G7231_FRAME_COMPRESSED_53;
   	} else {
   	   ctx->handle=EasyG7231_init_decoder(TRUE);
-  	   L_G7231_FRAME_COMPRESSED = L_G7231_FRAME_COMPRESSED_63;
+  	   ctx->l_g7231_frame_compressed = L_G7231_FRAME_COMPRESSED_63;
   	}  
   }
   
-  if ((inputSizeBytes % L_G7231_FRAME_COMPRESSED) != 0) 
+  if ((inputSizeBytes % ctx->l_g7231_frame_compressed) != 0) 
     return 0;
 
   if (!output)
-    return (inputSizeBytes / L_G7231_FRAME_COMPRESSED) * L_G7231_FRAME * sizeof(short);
+    return (inputSizeBytes / ctx->l_g7231_frame_compressed) * L_G7231_FRAME * sizeof(short);
 
 
-  while ((inputSizeBytes >= L_G7231_FRAME_COMPRESSED) &&
+  while ((inputSizeBytes >= ctx->l_g7231_frame_compressed) &&
          ((*outputSizeBytes - decodedBytes) >= L_G7231_FRAME * sizeof(short))) {
     if (EasyG7231_decoder(ctx->handle, (unsigned char*)bitstream, ctx->speach_buffer)) {
 
@@ -90,8 +90,8 @@ int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, voi
       decodedBytes += L_G7231_FRAME * sizeof(short);
     
     }
-    bitstream += L_G7231_FRAME_COMPRESSED;
-    inputSizeBytes -= L_G7231_FRAME_COMPRESSED;
+    bitstream += ctx->l_g7231_frame_compressed;
+    inputSizeBytes -= ctx->l_g7231_frame_compressed;
   }
 
   return decodedBytes;

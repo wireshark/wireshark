@@ -68,14 +68,14 @@ int codec_g722_decode(void *context, const void *input, int inputSizeBytes, void
     return 0;
 
   if (!output)
-    return (inputSizeBytes / L_G722_FRAME_COMPRESSED) * L_G722_FRAME * sizeof(short);
+    return (inputSizeBytes / L_G722_FRAME_COMPRESSED ) * L_G722_FRAME / 2 * sizeof(short) ;
 
   while ((inputSizeBytes >= L_G722_FRAME_COMPRESSED) &&
-         ((*outputSizeBytes - decodedBytes) >= L_G722_FRAME * sizeof(short))) {
+         ((*outputSizeBytes - decodedBytes) >= L_G722_FRAME / 2 * sizeof(short))) {
     if (EasyG722_decoder(ctx->handle, (unsigned char*)bitstream, ctx->speach_buffer)) {
       int write_index = 0;
       
-      for(i = 0; i < L_G722_FRAME * sizeof(short); i+=2) {
+      for(i = 0; i < L_G722_FRAME; i+=2) {
         ctx->speach_buffer[write_index] = ctx->speach_buffer[i];
         write_index++;
       }
