@@ -753,14 +753,23 @@ dissect_enip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* Code to actually dissect the io packets*/
-static void
+static int
 dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *enip_tree;
+	guint16 type_id;
 
 	g_tree = tree;
+
+   /* Verify that the packet belongs to this dissector */
+	if (tvb_length(tvb) < 4)
+		return 0;
+
+	type_id = tvb_get_letohs( tvb, 2 );
+	if (match_strval(type_id, cdf_type_vals) == NULL)
+		return 0; /* not a known type id */
 
    /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -778,6 +787,7 @@ dissect_enipio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_cpf( 0xFFFF, tvb, pinfo, enip_tree, 0, 0 );
 	}
 
+   return tvb_length(tvb);
 } /* end of dissect_enipio() */
 
 
@@ -968,7 +978,7 @@ proto_reg_handoff_enip(void)
 	dissector_add("udp.port", ENIP_ENCAP_PORT, enip_udp_handle);
 
 	/* Register for EtherNet/IP IO data (UDP) */
-	enipio_handle = create_dissector_handle(dissect_enipio, proto_enip);
+	enipio_handle = new_create_dissector_handle(dissect_enipio, proto_enip);
 	dissector_add("udp.port", ENIP_IO_PORT, enipio_handle);
 
 	/* Find dissector for data packet */
