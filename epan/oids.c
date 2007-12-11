@@ -103,7 +103,8 @@ static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_ty
 					if (!g_str_equal(n->name,name)) {
 						D(2,("Renaming Oid from: %s -> %s, this means the same oid is registered more than once",n->name,name));
 					}
-					g_free(n->name);
+					/* XXX - Don't free n->name here. It may be part of an hf_register_info
+                                         * struct that has been appended to the hfa GArray. */
 				}
 
 				n->name = g_strdup(name);
