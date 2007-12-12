@@ -1523,9 +1523,14 @@ tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, gint no_of_bits)
 	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-	/* Read two octets, mask off bit_offset bits and left shift out the unused bits */
-	value = tvb_get_ntohs(tvb,offset) & bit_mask16[bit_offset];
-	value = value >> (16 - tot_no_bits);
+	if(tot_no_bits<=8){
+		value = tvb_get_guint8(tvb,offset) & bit_mask8[bit_offset];
+		value = value >> (8-tot_no_bits);
+	}else{
+		/* Read two octets, mask off bit_offset bits and left shift out the unused bits */
+		value = tvb_get_ntohs(tvb,offset) & bit_mask16[bit_offset];
+		value = value >> (16 - tot_no_bits);
+	}
 
 	return (guint8)value;
 

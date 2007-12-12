@@ -1437,6 +1437,8 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 		}
 		
 		data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	    proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data);
+
 		/* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data); */
 		data_tvb = base64_to_tvb(data);
 		tvb_set_child_real_data_tvbuff(tvb, data_tvb);
@@ -1449,13 +1451,13 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 				offset = comma_offset +1;
 				tokenlen = end_offset - offset;
 				data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+				proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data);
 				data_tvb = base64_to_tvb(data);
 				tvb_set_child_real_data_tvbuff(tvb, data_tvb);
 				add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
 				dissect_h264_nal_unit(data_tvb, pinfo, tree);
 			}
-	  }
-
+		}
 	}
   }
 
@@ -1614,51 +1616,53 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
    	  return;
 	  break;
   case SDP_FMTP:
-	  /* Reading the Format parameter(fmtp) */
-	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+	  if(sdp_media_attribute_tree){
+		  /* Reading the Format parameter(fmtp) */
+		  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
-	  if(next_offset == -1)
-		  return;
+		  if(next_offset == -1)
+			  return;
 
-	  tokenlen = next_offset - offset;
+		  tokenlen = next_offset - offset;
 
-	  /* Media format extends to the next space */
-	  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
+		  /* Media format extends to the next space */
+		  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
-	  /* Append encoding name to format if known */
-	  if (transport_info->encoding_name)
-		  proto_item_append_text(media_format_item, " [%s]",
+		  /* Append encoding name to format if known */
+		  if (transport_info->encoding_name)
+			  proto_item_append_text(media_format_item, " [%s]",
                              transport_info->encoding_name);
 
-	  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-	  /* Offset past space after ':' */
-	  offset = next_offset + 1;
+		  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		  /* Offset past space after ':' */
+		  offset = next_offset + 1;
 
-	  while(has_more_pars==TRUE){
-		  next_offset = tvb_find_guint8(tvb,offset,-1,';');
-		  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
+		  while(has_more_pars==TRUE){
+			  next_offset = tvb_find_guint8(tvb,offset,-1,';');
+			  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
 
-		  if(next_offset == -1){
-			  has_more_pars = FALSE;
-			  next_offset= tvb_length(tvb);
-		  }else{
+			  if(next_offset == -1){
+				  has_more_pars = FALSE;
+				  next_offset= tvb_length(tvb);
+			  }else{
+	
+			  }
 
-		  }
-
-		  /* There are 2 - add the first parameter */
-		  tokenlen = next_offset - offset;
-		  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
+			  /* There are 2 - add the first parameter */
+			  tokenlen = next_offset - offset;
+			  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
                                       hf_media_format_specific_parameter, tvb,
                                       offset, tokenlen, FALSE);
 
-		  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
+			  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-		  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
+			  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                       (guint8 *)transport_info->encoding_name);
 
-		  /* Move offset past "; " and onto firts char */	
-		  offset = next_offset + 1;
+			  /* Move offset past "; " and onto firts char */	
+			  offset = next_offset + 1;
+		  }
 	  }
 	  return;
 	  break;
