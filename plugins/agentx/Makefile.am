@@ -37,6 +37,7 @@ agentx_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
 	$(DISSECTOR_SRC) \
+	$(DISSECTOR_SUPPORT_SRC) \
 	$(DISSECTOR_INCLUDES)
 agentx_la_LDFLAGS = -module -avoid-version
 agentx_la_LIBADD = @PLUGIN_LIBS@
