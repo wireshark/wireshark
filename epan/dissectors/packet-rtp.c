@@ -82,7 +82,7 @@
 /* #define DEBUG_FRAGMENTS   1 */
 
 typedef struct _rfc2198_hdr {
-  guint8 pt;
+  unsigned int pt;
   int offset;
   int len;
   struct _rfc2198_hdr *next;
@@ -824,15 +824,21 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *rfc2198_hdr_tree = NULL;
 	rfc2198_hdr *hdr_last, *hdr_new;
 	rfc2198_hdr *hdr_chain = NULL;
+	struct _rtp_conversation_info *p_conv_data= NULL;
+	gchar *payload_type_str;
 
-	/* Add try to RFC2198 data */
-	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC2198: Redundant Audio Data");
+	/* Retrieve RTPs idea of a converation */
+	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+
+	/* Add try to RFC 2198 data */
+	ti = proto_tree_add_text(tree, tvb, offset, -1, "RFC 2198: Redundant Audio Data");
 	rfc2198_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198);
 
 	hdr_last = NULL;
 	cnt = 0;
 	while (hdr_follow) {
 		cnt++;
+		payload_type_str = NULL;
 
 		/* Allocate and fill in header */
 		hdr_new = ep_alloc(sizeof(rfc2198_hdr));
@@ -841,12 +847,21 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
 		hdr_follow = (octet1 & 0x80);
 
+		/* if it is dynamic payload, let use the conv data to see if it is defined */
+		if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
+			if (p_conv_data && p_conv_data->rtp_dyn_payload){
+				payload_type_str = g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
+			}
+		}
 		/* Add a subtree for this header and add items */
 		ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
 		rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
 		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, FALSE );
-		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_payload_type, tvb, offset, 1, FALSE );
-		proto_item_append_text(ti, ": PT=%s", val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
+		proto_tree_add_uint_format(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
+		    offset, 1, octet1, "Payload type: %s (%u)",
+			payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown"),
+			hdr_new->pt);
+		proto_item_append_text(ti, ": PT=%s", payload_type_str ? payload_type_str : val_to_str(hdr_new->pt, rtp_payload_type_vals, "Unknown (%u)"));
 		offset += 1;
 
 		/* Timestamp offset and block length don't apply to last header */
@@ -1889,6 +1904,8 @@ proto_reg_handoff_rtp(void)
 	rtp_rfc2198_handle = find_dissector("rtp.rfc2198");
 
 	dissector_add_handle("udp.port", rtp_handle);
+
+	dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
 
   	if (rtp_prefs_initialized) {
 		dissector_delete("rtp.pt", rtp_saved_rfc2198_pt, rtp_rfc2198_handle);
