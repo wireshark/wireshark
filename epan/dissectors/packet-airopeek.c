@@ -122,7 +122,7 @@ proto_reg_handoff_airopeek(void)
 {
   dissector_handle_t airopeek_handle;
 
-  ieee80211_handle = find_dissector("wlan");
+  ieee80211_handle = find_dissector("wlan_datapad");
 
   airopeek_handle = create_dissector_handle(dissect_airopeek, proto_airopeek);
   dissector_add("udp.port", 5000, airopeek_handle);
