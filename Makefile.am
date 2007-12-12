@@ -711,6 +711,14 @@ EXTRA_DIST = \
 	packaging/u3/win32/makefile.nmake	\
 	packaging/u3/win32/manifest.tmpl	\
 	packaging/u3/win32/u3util.c		\
+	packaging/u3/win32/wireshark.bat	\
+	packaging/u3/tools/README.txt		\
+	packaging/u3/tools/makefile.nmake	\
+	packaging/u3/tools/sysdep.c		\
+	packaging/u3/tools/sysdep.h		\
+	packaging/u3/tools/utest.c		\
+	packaging/u3/tools/uuid.c		\
+	packaging/u3/tools/uuid.h		\
 	services		\
 	tools/idl2wrs.sh.in	\
 	tools/setuid-root.pl.in	\

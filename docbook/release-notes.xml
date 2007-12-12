@@ -607,6 +607,12 @@ Catapult DCT 2000, Endace ERF, Juniper NetScreen snoop, Visual Networks, Windows
   <section id="KnownProblems"><title>Known Problems</title>
 
     <para>
+      Saving to the currently-open file doesn't work under Windows.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2080">Bug
+      2080</ulink>)
+    </para>
+
+    <para>
       The <guibutton>Filter</guibutton> button is nonfunctional in the
       file dialogs under Windows.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942">Bug
