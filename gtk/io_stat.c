@@ -171,6 +171,7 @@ GdkColormap *colormap;
 
 
 static void init_io_stat_window(io_stat_t *io);
+static gint filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio);
 
 static void
 io_stat_set_title(io_stat_t *io)
@@ -949,7 +950,7 @@ gtk_iostat_draw(void *g)
 static GString *
 enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 {
-	char real_filter[260];
+	char real_filter[262];
 
 	gio->display=TRUE;
 	
@@ -968,8 +969,8 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 			break;
 		}
 		if(*filter){
-			strncpy(real_filter, filter, 255);
-			real_filter[255]=0;
+			g_snprintf(real_filter, 257, "(%s)", filter);
+			real_filter[257]=0;
 		}
 	}
 	if(field){
@@ -989,8 +990,8 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 			if(real_filter[0]!=0){
 				strcat(real_filter, " && ");
 			}
-			strncat(real_filter, field, 259-strlen(real_filter));
-			real_filter[259]=0;
+			strncat(real_filter, field, 261-strlen(real_filter));
+			real_filter[261]=0;
 		}
 	}
 	return register_tap_listener("frame", gio, real_filter[0]?real_filter:NULL,
@@ -1369,7 +1370,8 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 static void
 count_type_select(GtkWidget *item, gpointer key)
 {
-	int val;
+	static gboolean advanced_visible=FALSE;
+	int val, i;
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
@@ -1378,7 +1380,6 @@ count_type_select(GtkWidget *item, gpointer key)
 	io->count_type=val;
 
 	if(io->count_type==COUNT_TYPE_ADVANCED){
-		int i;
 		for(i=0;i<MAX_GRAPHS;i++){
 			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
@@ -1391,14 +1392,17 @@ update_rect.height=io->window->allocation.height;
 gtk_widget_draw(io->window, &update_rect);
 }
 		}
-	} else {
-		int i;
+		advanced_visible=TRUE;
+		io_stat_redraw(io);
+	} else if (advanced_visible) {
 		for(i=0;i<MAX_GRAPHS;i++){
 			gtk_widget_hide(io->graphs[i].advanced_buttons);
+			filter_callback(item, &io->graphs[i]);
 		}
+		advanced_visible=FALSE;
+	} else {
+		io_stat_redraw(io);
 	}
-
-	io_stat_redraw(io);
 }
 
 static void 
@@ -1487,11 +1491,9 @@ static gint
 filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
 	const char *filter;
-	const char *field;
+	const char *field=NULL;
 	header_field_info *hfi;
 	dfilter_t *dfilter;
-
-	field=gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 
 	/* this graph is not active, just update display and redraw */
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
@@ -1502,6 +1504,8 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 
 	/* first check if the field string is valid */
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
+		field=gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
+
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You didn't specify a field name.");
