@@ -61,7 +61,7 @@
 #define SCTP_PORT_DIAMETER	3868
 
 /* Diameter Header Flags */
-/*                                      RPrrrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
+/*                                      RPETrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
 #define DIAM_FLAGS_R 0x80
 #define DIAM_FLAGS_P 0x40
 #define DIAM_FLAGS_E 0x20
