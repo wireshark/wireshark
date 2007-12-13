@@ -110,8 +110,8 @@ const fragment_items nds_frag_items = {
 #define NDS_SEARCH_PRESENT					15
 #define NDS_SEARCH_RDN						16
 #define NDS_SEARCH_BASE_CLASS				17
-#define NDS_SEARCH_MODIFICATION_GE		    18	// Deprecated, use DS_SEARCH_ENTRY_MTS_GE
-#define NDS_SEARCH_VALUE_TIME_GE			19	// Deprecated, use DS_SEARCH_VALUE_MTS_GE
+#define NDS_SEARCH_MODIFICATION_GE		    18	/* Deprecated, use DS_SEARCH_ENTRY_MTS_GE */
+#define NDS_SEARCH_VALUE_TIME_GE			19	/* Deprecated, use DS_SEARCH_VALUE_MTS_GE */
 #define NDS_SEARCH_REFERENCES				20
 #define NDS_SEARCH_DN_IN_VALUE				21
 #define NDS_SEARCH_SCHEMA_IN_VALUE		    22
