@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 #include <epan/address.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
@@ -410,8 +411,15 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
    offset+=1;
    msg_len=tvb_get_guint8(tvb,offset);
 
-   proto_item_set_len(ti, msg_len);
-   proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+   if (msg_len<=2)
+   {
+     ti=proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+     expert_add_info_format(pinfo,ti,PI_MALFORMED,PI_ERROR,"Length too short");
+     return tvb_length(tvb);
+   } else {
+     proto_item_set_len(ti,msg_len);
+     proto_tree_add_item(msg_tree,hf_unistim_len,tvb,offset,1,FALSE);
+   }
 
    offset+=1;
    /*from switch*/
