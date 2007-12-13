@@ -376,7 +376,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
  */
 
 static gboolean
-more_rbsp_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
+more_rbsp_data(proto_tree *tree _U_, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
 {
 
 	int offset;
