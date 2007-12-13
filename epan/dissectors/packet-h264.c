@@ -24,6 +24,7 @@
  *
  * References:
  * http://www.ietf.org/rfc/rfc3984.txt?number=3984
+ * http://www.itu.int/rec/T-REC-H.264/en
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,6 +73,8 @@ static int hf_h264_log2_max_frame_num_minus4	= -1;
 static int hf_h264_pic_order_cnt_type			= -1;
 static int hf_h264_log2_max_pic_order_cnt_lsb_minus4 = -1;
 static int hf_h264_delta_pic_order_always_zero_flag = -1;
+static int hf_h264_offset_for_non_ref_pic		= -1;
+static int hf_h264_offset_for_top_to_bottom_field = -1;
 static int hf_h264_num_ref_frames				= -1;
 static int hf_h264_gaps_in_frame_num_value_allowed_flag = -1;
 static int hf_h264_pic_width_in_mbs_minus1		= -1;
@@ -104,6 +107,7 @@ static int hf_h264_redundant_pic_cnt_present_flag	= -1;
 static int ett_h264 = -1;
 static int ett_h264_profile = -1;
 static int ett_h264_nal = -1;
+static int ett_h264_stream = -1;
 static int ett_h264_nal_unit = -1;
 
 /* The dynamic payload type which will be dissected as H.264 */
@@ -116,32 +120,33 @@ static const true_false_string h264_f_bit_vals = {
   "No bit errors or other syntax violations"
 };
 
-
+#define SEQ_PAR_SET		7
+#define PIC_PAR_SET		8
 static const value_string h264_type_values[] = {
 	{ 0,	"Undefined" }, 
-	{ 1,	"NAL unit" },	/* Single NAL unit packet per H.264 */
-	{ 2,	"NAL unit" },
-	{ 3,	"NAL unit" },
-	{ 4,	"NAL unit" },
-	{ 5,	"NAL unit" },
-	{ 6,	"NAL unit" },
-	{ 7,	"NAL unit" },
-	{ 8,	"NAL unit" },
-	{ 9,	"NAL unit" },
-	{ 10,	"NAL unit" },
-	{ 11,	"NAL unit" },	
-	{ 12,	"NAL unit" },
-	{ 13,	"NAL unit" },
-	{ 14,	"NAL unit" },
-	{ 15,	"NAL unit" },
-	{ 16,	"NAL unit" },
-	{ 17,	"NAL unit" },
-	{ 18,	"NAL unit" },
-	{ 19,	"NAL unit" },
-	{ 20,	"NAL unit" },
-	{ 21,	"NAL unit" },	
-	{ 22,	"NAL unit" },
-	{ 23,	"NAL unit" },
+	{ 1,	"NAL unit- Coded slice of a non-IDR picture" },	/* Single NAL unit packet per H.264 */
+	{ 2,	"NAL unit - Coded slice data partition A" },
+	{ 3,	"NAL unit - Coded slice data partition B" },
+	{ 4,	"NAL unit - Coded slice data partition C" },
+	{ 5,	"NAL unit - Coded slice of an IDR picture" },
+	{ 6,	"NAL unit - Supplemental enhancement information (SEI)" },
+	{ SEQ_PAR_SET,	"NAL unit - Sequence parameter set" },				/* 7 */
+	{ PIC_PAR_SET,	"NAL unit - Picture parameter set" },				/* 8 */
+	{ 9,	"NAL unit - Access unit delimiter" },
+	{ 10,	"NAL unit - End of sequence" },
+	{ 11,	"NAL unit - End of stream" },	
+	{ 12,	"NAL unit - Filler data" },
+	{ 13,	"NAL unit - Sequence parameter set extension" },
+	{ 14,	"NAL unit - Reserved" },
+	{ 15,	"NAL unit - Reserved" },
+	{ 16,	"NAL unit - Reserved" },
+	{ 17,	"NAL unit - Reserved" },
+	{ 18,	"NAL unit - Reserved" },
+	{ 19,	"NAL unit - Coded slice of an auxiliary coded picture without partitioning" },
+	{ 20,	"NAL unit - Reserved" },
+	{ 21,	"NAL unit - Reserved" },	
+	{ 22,	"NAL unit - Reserved" },
+	{ 23,	"NAL unit - Reserved" },
 	{ 24,	"STAP-A" },		/* Single-time aggregation packet */
 	{ 25,	"STAP-B" },		/* Single-time aggregation packet */
 	{ 26,	"MTAP16" },		/* Multi-time aggregation packet */
@@ -366,12 +371,44 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
 }
 
-/* E.1.1 VUI parameters syntax */
-static void
-dissect_h264_vui_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
+/* This funktion is adapted to parsing NAL units from SDP data where the
+ * base64 coding may add extra padding
+ */
+
+static gboolean
+more_rbsp_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
 {
 
-	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "Not decoded yet");
+	int offset;
+	int remaining_length;
+	int last_one_bit;
+	guint8 b = 0;
+
+	/* XXX might not be the best way of doing things but:
+	 * Serch from the end of the tvb for the first '1' bit
+	 * assuming that its's the RTBSP stop bit
+	 */
+
+	/* Set offset to the byte we are treating */
+	offset = bit_offset>>3;
+	remaining_length = tvb_length_remaining(tvb,offset);
+	/* If there is more then 2 bytes left there *should* be more data */
+	if(remaining_length>2){
+		return TRUE;
+	}
+	/* Start from last bit */
+	last_one_bit = (tvb_length(tvb) << 3);
+
+	for( b = 0; !b; ){
+		last_one_bit--;
+		b = tvb_get_bits8(tvb, last_one_bit, 1);
+	}
+
+	if( last_one_bit == bit_offset){
+		return FALSE;
+	}
+
+	return TRUE;
 }
 
 static int
@@ -390,13 +427,24 @@ dissect_h264_rbsp_trailing_bits(proto_tree *tree, tvbuff_t *tvb, packet_info *pi
 
 }
 
+/* E.1.1 VUI parameters syntax */
+static void
+dissect_h264_vui_parameters(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint bit_offset)
+{
+
+	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
+}
+
+
 /* Used To dissect SDP parameter (H.264)profile */
 void
 dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_item *item;
+	proto_item *item, *level_item;
 	proto_tree *h264_profile_tree;
 	gint	offset = 0;
+	guint8	constraint_set3_flag;
+	guint32	level_idc;
 
 	item = proto_tree_add_item(tree, hf_h264_profile, tvb, offset, -1, FALSE);
 	h264_profile_tree = proto_item_add_subtree(item, ett_h264_profile);
@@ -404,6 +452,7 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(h264_profile_tree, hf_h264_profile_idc, tvb, offset, 1, FALSE);
 	offset++;
 	
+	constraint_set3_flag = (tvb_get_guint8(tvb,offset)&0x10)>>4;
 	proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set0_flag, tvb, offset, 1, FALSE);
 	proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set1_flag, tvb, offset, 1, FALSE);
 	proto_tree_add_item(h264_profile_tree, hf_h264_constraint_set2_flag, tvb, offset, 1, FALSE);
@@ -412,12 +461,19 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	offset++;
 
 	/* A level to which the bitstream conforms shall be indicated by the syntax element level_idc as follows.
-	 *	If level_idc is equal to 9, the indicated level is level 1b.
-	 *	Otherwise (level_idc is not equal to 9), level_idc shall be set equal to a value of ten times the level number
-	 *	specified in Table A-1.
+	 *	- If level_idc is equal to 11 and constraint_set3_flag is equal to 1, the indicated level is level 1b.
+	 *	- Otherwise (level_idc is not equal to 11 or constraint_set3_flag is not equal to 1), level_idc shall
+	 *    be set equal to a value of ten times the level number specified in Table A-1 and constraint_set3_flag
+	 *    shall be set equal to 0.
 	 */
 
-	proto_tree_add_item(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
+	level_idc = tvb_get_guint8(tvb,offset);
+	level_item = proto_tree_add_item(h264_profile_tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
+	if((level_idc==11)&&(constraint_set3_flag==1)){
+		proto_item_append_text(level_item,"[Level 1b]");
+	}else{
+		proto_item_append_text(level_item,"[Level %.1f]",((double)level_idc/10));
+	}
 
 }
 
@@ -425,28 +481,28 @@ dissect_h264_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 dissect_h264_slice_layer_without_partitioning_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_slice_data_partition_a_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
@@ -454,15 +510,19 @@ dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 static void
 dissect_h264_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 /* Ref 7.3.2.1 Sequence parameter set RBSP syntax */
 static void
-dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
+	proto_item *level_item;
 	gint bit_offset;
+	guint8	constraint_set3_flag;
+	guint32	level_idc;
+
 	/* gint i; */
 	guint8 profile_idc, chroma_format_idc, frame_mbs_only_flag, frame_cropping_flag;
 	guint8 pic_order_cnt_type, vui_parameters_present_flag, num_ref_frames_in_pic_order_cnt_cycle;
@@ -473,6 +533,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	proto_tree_add_item(tree, hf_h264_profile_idc, tvb, offset, 1, FALSE);
 	offset++;
 	
+	constraint_set3_flag = (tvb_get_guint8(tvb,offset)&0x10)>>4;
 	/* constraint_set0_flag 0 u(1) */
 	proto_tree_add_item(tree, hf_h264_constraint_set0_flag, tvb, offset, 1, FALSE);
 	
@@ -490,7 +551,13 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	offset++;
 	
 	/* level_idc 0 u(8) */
-	proto_tree_add_item(tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
+	level_idc = tvb_get_guint8(tvb,offset);
+	level_item = proto_tree_add_item(tree, hf_h264_level_idc, tvb, offset, 1, FALSE);
+	if((level_idc==11)&&(constraint_set3_flag==1)){
+		proto_item_append_text(level_item,"[Level 1b]");
+	}else{
+		proto_item_append_text(level_item,"[Level %.1f]",((double)level_idc/10));
+	}
 	offset++;
 	/* seq_parameter_set_id 0 ue(v) 
 	 * ue(v): unsigned integer Exp-Golomb-coded syntax element with the left bit first.
@@ -534,7 +601,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 			}
 		}
 		*/
-		proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+		proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 		return;
 	}
 
@@ -553,9 +620,13 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		proto_tree_add_bits_item(tree, hf_h264_delta_pic_order_always_zero_flag, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 		/* offset_for_non_ref_pic 0 se(v) */
+		dissect_h264_exp_golomb_code(tree, hf_h264_offset_for_non_ref_pic, tvb, &bit_offset);
 		/* offset_for_top_to_bottom_field 0 se(v) */
+		dissect_h264_exp_golomb_code(tree, hf_h264_offset_for_top_to_bottom_field, tvb, &bit_offset);
 		/* num_ref_frames_in_pic_order_cnt_cycle 0 ue(v) */
 		num_ref_frames_in_pic_order_cnt_cycle = dissect_h264_exp_golomb_code(tree, -1, tvb, &bit_offset);
+		proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
+		return;
 		/*
 		for( i = 0; i < num_ref_frames_in_pic_order_cnt_cycle; i++ )
 			*/
@@ -619,7 +690,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 /* 7.3.2.2 Picture parameter set RBSP syntax */
 
 static void
-dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 
 	gint bit_offset;
@@ -665,7 +736,7 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	/* slice_group_id[ i ] 1 u(v)*/
 	/* }*/
 	/* }*/
-		proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "Not decoded yet");
+		proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
 		return;
 	}
 	/* num_ref_idx_l0_active_minus1 1 ue(v)*/
@@ -703,62 +774,62 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	proto_tree_add_bits_item(tree, hf_h264_redundant_pic_cnt_present_flag, tvb, bit_offset, 1, FALSE);
 	bit_offset++;
 
-	/* if( more_rbsp_data( ) ) {*/
-	/* transform_8x8_mode_flag 1 u(1)*/
-	/* pic_scaling_matrix_present_flag 1 u(1)*/
-	/* if( pic_scaling_matrix_present_flag )*/
-	/* for( i = 0; i < 6 + 2* transform_8x8_mode_flag; i++ ) {*/
-	/* pic_scaling_list_present_flag[ i ] 1 u(1)*/
-	/* if( pic_scaling_list_present_flag[ i ] )*/
-	/* if( i < 6 )*/
-	/* scaling_list( ScalingList4x4[ i ], 16,*/
-	/* UseDefaultScalingMatrix4x4Flag[ i ] )*/
-	/* 1*/
-	/* else*/
-	/* scaling_list( ScalingList8x8[ i – 6 ], 64,*/
-	/* UseDefaultScalingMatrix8x8Flag[ i – 6 ] )*/
-	/* 1*/
-	/* }*/
-	/* second_chroma_qp_index_offset 1 se(v)*/
-	/* }*/
-	/* rbsp_trailing_bits( ) 1*/
-	/* }*/
-	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "Not decoded yet");
+	if( more_rbsp_data(tree, tvb, pinfo, bit_offset)){
+		/* transform_8x8_mode_flag 1 u(1)*/
+		/* pic_scaling_matrix_present_flag 1 u(1)*/
+		/* if( pic_scaling_matrix_present_flag )*/
+		/* for( i = 0; i < 6 + 2* transform_8x8_mode_flag; i++ ) {*/
+		/* pic_scaling_list_present_flag[ i ] 1 u(1)*/
+		/* if( pic_scaling_list_present_flag[ i ] )*/
+		/* if( i < 6 )*/
+		/* scaling_list( ScalingList4x4[ i ], 16,*/
+		/* UseDefaultScalingMatrix4x4Flag[ i ] )*/
+		/* 1*/
+		/* else*/
+		/* scaling_list( ScalingList8x8[ i – 6 ], 64,*/
+		/* UseDefaultScalingMatrix8x8Flag[ i – 6 ] )*/
+		/* 1*/
+		/* }*/
+		/* second_chroma_qp_index_offset 1 se(v)*/
+		proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
+
+	}
+	bit_offset = dissect_h264_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 
 }
 
 static void
 dissect_h264_access_unit_delimiter_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_end_of_seq_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_end_of_stream_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_filler_data_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
 static void
 dissect_h264_seq_parameter_set_extension_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "Not decoded yet");
+	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
 }
 
@@ -807,10 +878,10 @@ dissect_h264_nal_unit(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	case 6:	/* Supplemental enhancement information (SEI) */
 		dissect_h264_sei_rbsp(h264_nal_tree, tvb, pinfo, offset);
 		break;
-	case 7:	/* Sequence parameter set*/
+	case SEQ_PAR_SET:	/* 7 Sequence parameter set*/
 		dissect_h264_seq_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
 		break;
-	case 8:	/* Picture parameter set */
+	case PIC_PAR_SET:	/* 8 Picture parameter set */
 		dissect_h264_pic_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
 		break;
 	case 9:	/* Access unit delimiter */
@@ -850,8 +921,9 @@ static void
 dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
-	proto_item *item, *ti;
-	proto_tree *h264_tree, *h264_nal_tree;
+	proto_item *item, *ti, *stream_item;
+	proto_tree *h264_tree, *h264_nal_tree, *stream_tree;
+	guint8 type;
 
 
 /* Make entries in Protocol column and Info column on summary display */
@@ -863,7 +935,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		h264_tree = proto_item_add_subtree(item, ett_h264);
 
 		ti = proto_tree_add_text(h264_tree, tvb, offset, 1, "NAL unit header or first byte of the payload");
-		h264_nal_tree = proto_item_add_subtree(item, ett_h264_nal);
+		h264_nal_tree = proto_item_add_subtree(ti, ett_h264_nal);
 		/* +---------------+
 		 * |0|1|2|3|4|5|6|7|
 		 * +-+-+-+-+-+-+-+-+
@@ -879,9 +951,21 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 */
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_f_bit, tvb, offset, 1, FALSE);
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_nri, tvb, offset, 1, FALSE);
+		type = tvb_get_guint8(tvb,offset)&0x1f;
 		proto_tree_add_item(h264_nal_tree, hf_h264_type, tvb, offset, 1, FALSE);
 		offset++;
-		proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
+		stream_item =proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
+		stream_tree = proto_item_add_subtree(stream_item, ett_h264_stream);
+		switch(type){
+		case SEQ_PAR_SET:	/* 7 Sequence parameter set*/
+			dissect_h264_seq_parameter_set_rbsp(stream_tree, tvb, pinfo, offset);
+			break;
+		case PIC_PAR_SET:	/* 8 Picture parameter set */
+			dissect_h264_pic_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
+			break;
+		default:
+			break;
+		}
 	}/* if tree */
 
 }
@@ -939,9 +1023,9 @@ proto_register_h264(void)
 			"NRI", HFILL }
 		},
 		{ &hf_h264_type,
-			{ "NAL unit type",           "h264.nal_unit_hdr",
+			{ "Type",           "h264.nal_unit_hdr",
 			FT_UINT8, BASE_DEC, VALS(h264_type_values), 0x1f,          
-			"NAL unit type", HFILL }
+			"Type", HFILL }
 		},
 		{ &hf_h264_profile,
 			{ "Profile",           "h264.profile",
@@ -990,7 +1074,7 @@ proto_register_h264(void)
 		},
 		{ &hf_h264_level_idc,
 			{ "Level_id",           "h264.level_id",
-			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			FT_UINT8, BASE_DEC, NULL, 0xff,          
 			"Level_id", HFILL }
 		},
 		{ &hf_h264_nal_unit,
@@ -1067,6 +1151,16 @@ proto_register_h264(void)
 			{ "delta_pic_order_always_zero_flag",           "h264.delta_pic_order_always_zero_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			"delta_pic_order_always_zero_flag", HFILL }
+		},
+		{ &hf_h264_offset_for_non_ref_pic,
+			{ "offset_for_non_ref_pic",           "h264.offset_for_non_ref_pic",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"offset_for_non_ref_pic", HFILL }
+		},
+		{ &hf_h264_offset_for_top_to_bottom_field,
+			{ "offset_for_top_to_bottom_field",           "h264.offset_for_top_to_bottom_field",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"offset_for_top_to_bottom_field", HFILL }
 		},
 		{ &hf_h264_num_ref_frames,
 			{ "num_ref_frames",           "h264.num_ref_frames",
@@ -1210,6 +1304,7 @@ proto_register_h264(void)
 		&ett_h264,
 		&ett_h264_profile,
 		&ett_h264_nal,
+		&ett_h264_stream,
 		&ett_h264_nal_unit,
 	};
 
