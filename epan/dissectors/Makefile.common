@@ -188,6 +188,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-aim-stats.c 	\
 	packet-aim-translate.c 	\
 	packet-aim-userlookup.c \
+	packet-airopeek.c	\
 	packet-ajp13.c		\
 	packet-alcap.c		\
 	packet-amqp.c		\
