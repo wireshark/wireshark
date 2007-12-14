@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h282.c                                                              */
-/* ../../tools/asn2wrs.py -p h282 -c h282.cnf -s packet-h282-template RDC-PROTOCOL.asn */
+/* ../../../svn/trunk/tools/asn2wrs.py -p h282 -c ../../../svn/trunk/asn1/h282/h282.cnf -s ../../../svn/trunk/asn1/h282/packet-h282-template -D ../../../svn/trunk/asn1/h282 RDC-PROTOCOL.asn */
 
 /* Input file: packet-h282-template.c */
 
@@ -6385,8 +6385,8 @@ void proto_register_h282(void) {
   proto_register_field_array(proto_h282, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_h282, proto_h282);
-  register_dissector(PFNAME".device_list", dissect_NonCollapsingCapabilities_PDU, proto_h282);
+  new_register_dissector(PFNAME, dissect_h282, proto_h282);
+  new_register_dissector(PFNAME".device_list", dissect_NonCollapsingCapabilities_PDU, proto_h282);
 
 }
 

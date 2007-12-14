@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h283.c                                                              */
-/* ../../tools/asn2wrs.py -p h283 -c h283.cnf -s packet-h283-template LCT-PROTOCOL.asn */
+/* ../../../svn/trunk/tools/asn2wrs.py -p h283 -c ../../../svn/trunk/asn1/h283/h283.cnf -s ../../../svn/trunk/asn1/h283/packet-h283-template -D ../../../svn/trunk/asn1/h283 LCT-PROTOCOL.asn */
 
 /* Input file: packet-h283-template.c */
 
@@ -766,7 +766,7 @@ void proto_register_h283(void) {
   proto_register_field_array(proto_h283, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_h283_udp, proto_h283);
+  new_register_dissector(PFNAME, dissect_h283_udp, proto_h283);
   h283_udp_handle = find_dissector(PFNAME);
 
 }

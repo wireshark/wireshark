@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h501.c                                                              */
-/* ../../tools/asn2wrs.py -p h501 -c h501.cnf -s packet-h501-template H501-MESSAGES.asn */
+/* ../../../svn/trunk/tools/asn2wrs.py -p h501 -c ../../../svn/trunk/asn1/h501/h501.cnf -s ../../../svn/trunk/asn1/h501/packet-h501-template -D ../../../svn/trunk/asn1/h501 H501-MESSAGES.asn */
 
 /* Input file: packet-h501-template.c */
 
@@ -3689,7 +3689,7 @@ void proto_register_h501(void) {
   proto_register_field_array(proto_h501, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector(PFNAME, dissect_h501_pdu, proto_h501);
+  new_register_dissector(PFNAME, dissect_h501_pdu, proto_h501);
   h501_pdu_handle = find_dissector(PFNAME);
 
   h501_udp_handle = new_create_dissector_handle(dissect_h501_udp, proto_h501);
