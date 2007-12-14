@@ -619,6 +619,16 @@ EXTRA_DIST = \
 	image/toolbar/file_set_next_16.xpm	\
 	image/toolbar/file_set_previous_16.xpm	\
 	image/toolbar/graphs_16.xpm	\
+	image/toolbar/icon_color_0.xpm	\
+	image/toolbar/icon_color_1.xpm	\
+	image/toolbar/icon_color_2.xpm	\
+	image/toolbar/icon_color_3.xpm	\
+	image/toolbar/icon_color_4.xpm	\
+	image/toolbar/icon_color_5.xpm	\
+	image/toolbar/icon_color_6.xpm	\
+	image/toolbar/icon_color_7.xpm	\
+	image/toolbar/icon_color_8.xpm	\
+	image/toolbar/icon_color_9.xpm	\
 	image/toolbar/internet_24.xpm	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/stock_add_24.xpm	\
