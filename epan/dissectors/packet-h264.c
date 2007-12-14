@@ -879,9 +879,9 @@ static void
 dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 	/* slice_id All ue(v) */
-	/* if( redundant_pic_cnt_present_flag )	/* 
-	/* redundant_pic_cnt All ue(v)	/* 
-	/* slice_data( ) * only category 3 parts of slice_data( ) syntax * 3	/* 
+	/* if( redundant_pic_cnt_present_flag )	*/
+	/* redundant_pic_cnt All ue(v) */
+	/* slice_data( ) * only category 3 parts of slice_data( ) syntax * 3 */
 	/* rbsp_slice_trailing_bits( ) 3 */
 	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
 
@@ -895,7 +895,7 @@ static void
 dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
 
-	/* slice_id All ue(v)
+	/* slice_id All ue(v) */
 	/* if( redundant_pic_cnt_present_flag ) */
 	/* redundant_pic_cnt All ue(v) */
 	/* slice_data( ) * only category 4 parts of slice_data( ) syntax * 4 */
