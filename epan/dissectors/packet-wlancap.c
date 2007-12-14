@@ -76,7 +76,7 @@ struct wlan_header_v2 {
   struct wlan_header_v1 v1_hdr;
   guint32 sequence;
   guint32 drops;
-  guint8 sniffer_addr[6];
+  guint8 receiver_addr[6];
   guint8 pad[2];
 };
 
@@ -86,7 +86,7 @@ static int hf_wlan_length = -1;
 static int hf_wlan_mactime = -1;
 static int hf_wlan_hosttime = -1;
 static int hf_wlan_phytype = -1;
-static int hf_wlan_channel = -1;
+static int hf_wlan_frequency = -1;
 static int hf_wlan_datarate = -1;
 static int hf_wlan_antenna = -1;
 static int hf_wlan_priority = -1;
@@ -97,7 +97,7 @@ static int hf_wlan_preamble = -1;
 static int hf_wlan_encoding = -1;
 static int hf_wlan_sequence = -1;
 static int hf_wlan_drops = -1;
-static int hf_wlan_sniffer_addr = -1;
+static int hf_wlan_receiver_addr = -1;
 static int hf_wlan_padding = -1;
 
 static gint ett_wlan = -1;
@@ -110,12 +110,23 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 void
 capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld)
 {
-    /* XXX eventually add in a version test. */
-    if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct wlan_header_v1))) {
-        ld->other ++;
+    guint32 cookie = 0;
+    guint32 length = 0;
+
+    if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint32) *2 )) {
+        ld->other++;
         return;
     }
-    offset += sizeof(struct wlan_header_v1);
+
+    cookie = pntohl(pd);
+    length = pntohl(pd+sizeof(guint32));
+
+    if(!BYTES_ARE_IN_FRAME(offset, len, length)) {
+        ld->other++;
+        return;
+    }
+
+    offset += length;
 
     /* 802.11 header follows */
     capture_ieee80211(pd, offset, len, ld);
@@ -179,7 +190,7 @@ proto_register_wlancap(void)
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_phytype, { "PHY type", "wlancap.phytype", FT_UINT32, BASE_DEC,
 			  VALS(phy_type), 0x0, "", HFILL } },
-    { &hf_wlan_channel, { "Channel", "wlancap.channel", FT_UINT32, BASE_DEC,
+    { &hf_wlan_frequency, { "Frequency", "wlancap.frequency", FT_UINT32, BASE_DEC,
 			  NULL, 0x0, "", HFILL } },
     { &hf_wlan_datarate, { "Data rate", "wlancap.datarate", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -201,8 +212,8 @@ proto_register_wlancap(void)
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
 			   BASE_DEC, NULL, 0x0, "", HFILL } },
-    { &hf_wlan_sniffer_addr, { "Sniffer Address", "wlancap.sniffer_addr", FT_ETHER,
-			       BASE_NONE, NULL, 0x0, "Sniffer Hardware Address", HFILL } },
+    { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
+			       BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
     { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
 			  BASE_NONE, NULL, 0x0, "", HFILL } },
   };
@@ -235,10 +246,15 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset = 0;
 
     version = tvb_get_ntohl(tvb, offset) - WLANCAP_MAGIC_COOKIE_BASE;
+
     length = tvb_get_ntohl(tvb, offset+4);
 
     if(check_col(pinfo->cinfo, COL_INFO))
         col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
+
+    if (version > 2) {
+      goto skip;
+    }
 
     if (check_col(pinfo->cinfo, COL_FREQ_CHAN)) {
       col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u",
@@ -257,6 +273,8 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect the packet */
     if (tree) {
+      guint32 channel;
+
       ti = proto_tree_add_protocol_format(tree, proto_wlancap,
             tvb, 0, length, "AVS WLAN Monitoring Header");
       wlan_tree = proto_item_add_subtree(ti, ett_wlan);
@@ -271,15 +289,34 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset+=8;
       proto_tree_add_item(wlan_tree, hf_wlan_phytype, tvb, offset, 4, FALSE);
       offset+=4;
+
       /* XXX cook channel (fh uses different numbers) */
-      proto_tree_add_item(wlan_tree, hf_wlan_channel, tvb, offset, 4, FALSE);
+      channel = tvb_get_ntohl(tvb, offset);
+      if (channel < 256)
+	      proto_tree_add_uint_format(wlan_tree, hf_wlan_frequency, tvb, offset,
+					 channel, 
+					 4, "Channel: %u", channel );
+      else if (channel < 10000)
+	      proto_tree_add_uint_format(wlan_tree, hf_wlan_frequency, tvb, offset,
+					 channel, 
+					 4, "Frequency: %u MHz", channel );
+      else
+	      proto_tree_add_uint_format(wlan_tree, hf_wlan_frequency, tvb, offset,
+					 channel, 
+					 4, "Frequency: %u KHz", channel );
       offset+=4;
       /* XXX - all other 802.11 pseudo-headers use 500Kb/s, not 100Kb/s,
          as the units. */
       datarate = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset,
-				 4, datarate * 100,
-				 "Data Rate: %u Kb/s", datarate * 100);
+      if (datarate < 100000) {
+	proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset, 
+				   datarate * 100, 
+				   4, "Data Rate: %u Kb/s", datarate * 100);
+      } else {
+	proto_tree_add_uint_format(wlan_tree, hf_wlan_datarate, tvb, offset, 
+				   datarate, 
+				   4, "Data Rate: %u bps", datarate);
+      }
       offset+=4;
       proto_tree_add_item(wlan_tree, hf_wlan_antenna, tvb, offset, 4, FALSE);
       offset+=4;
@@ -304,7 +341,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      proto_tree_add_item(wlan_tree, hf_wlan_drops, tvb, offset,
 			4, FALSE);
 	      offset+=4;
-	      proto_tree_add_item(wlan_tree, hf_wlan_sniffer_addr, tvb, offset,
+	      proto_tree_add_item(wlan_tree, hf_wlan_receiver_addr, tvb, offset,
 			6, FALSE);
 	      offset+=6;
 	      proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset,
@@ -313,6 +350,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
+ skip:
     offset = length;
 
     /* dissect the 802.11 header next */
