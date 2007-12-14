@@ -526,7 +526,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/_Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
 #ifdef HAVE_AIRPCAP
-	ITEM_FACTORY_ENTRY("/View/_Wireless Toolbar", NULL, airpcap_toolbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Wireless Toolbar", NULL, airpcap_toolbar_show_cb, 0, "<CheckItem>", NULL),
 #endif
     ITEM_FACTORY_ENTRY("/View/_Statusbar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -1161,9 +1161,9 @@ menus_init(void) {
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
 
 #ifdef HAVE_LUA_5_1
-		if (! have_items_in_tools_menu) {
-			gtk_widget_hide(gtk_item_factory_get_item(main_menu_factory,"/Tools"));
-		}
+    if (! have_items_in_tools_menu) {
+      gtk_widget_hide(gtk_item_factory_get_item(main_menu_factory,"/Tools"));
+    }
 #endif
 
     menu_dissector_filter();
@@ -1208,7 +1208,7 @@ static GList * tap_menu_item_add(
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data,
-	GList *curnode)
+    GList *curnode)
 {
     menu_item_t *curr;
     menu_item_t *child;
@@ -1288,9 +1288,9 @@ register_stat_menu_item(
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
 #ifdef HAVE_LUA_5_1
     case(REGISTER_TOOLS_GROUP_NONE):
-		toolspath = "/Tools/";
-		have_items_in_tools_menu = TRUE;
-		break;
+        toolspath = "/Tools/";
+        have_items_in_tools_menu = TRUE;
+        break;
 #endif
     default:
         g_assert(!"no such menu group");
@@ -1299,7 +1299,7 @@ register_stat_menu_item(
 
     /* add the (empty) root node, if not already done */
     if(tap_menu_tree_root == NULL) {
-    	child = g_malloc0(sizeof (menu_item_t));
+        child = g_malloc0(sizeof (menu_item_t));
         tap_menu_tree_root = g_list_append(NULL, child);
     }
 
@@ -1492,11 +1492,11 @@ void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_NONE)) {
-		entry->path = "/Analyze/";
+        entry->path = "/Analyze/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER)) {
-		entry->path = "/Analyze/Conversation Filter/";
+        entry->path = "/Analyze/Conversation Filter/";
         /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
     }
 #ifdef HAVE_LUA_5_1
@@ -1583,9 +1583,9 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 
   set_menu_object_data_meat(main_menu_factory, path, key, data);
   while (menu_list != NULL) {
-  	set_menu_object_data_meat(menu_list->data, shortpath, key, data);
-  	set_menu_object_data_meat(menu_list->data, path, key, data);
-	menu_list = g_slist_next(menu_list);
+    set_menu_object_data_meat(menu_list->data, shortpath, key, data);
+    set_menu_object_data_meat(menu_list->data, path, key, data);
+    menu_list = g_slist_next(menu_list);
   }
 }
 
@@ -1845,10 +1845,10 @@ menu_recent_file_write_all(FILE *rf) {
         /* get capture filename from the menu item label */
         cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
         if (cf_name) {
-	  if(u3_active())
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
-	  else
-            fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
+            if(u3_active())
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
+            else
+                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
         }
 
         child = g_list_previous(child);
@@ -2182,7 +2182,7 @@ menu_recent_read_finished(void) {
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 
 #ifdef HAVE_AIRPCAP
-	menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Wireless Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.airpcap_toolbar_show);
 #endif
 
@@ -2622,18 +2622,20 @@ walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
 	return node_data->enabled;
 }
 
-int
+gboolean
 packet_is_ssl(epan_dissect_t* edt)
 {
   GPtrArray* array;
-  int ssl_id, is_ssl;
+  int ssl_id;
+  gboolean is_ssl;
+
   if (!edt || !edt->tree)
-      return 0;
+      return FALSE;
   ssl_id = proto_get_id_by_filter_name("ssl");
   if (ssl_id < 0)
-      return 0;
+      return FALSE;
   array = proto_find_finfo(edt->tree, ssl_id);
-  is_ssl = array->len > 0;
+  is_ssl = (array->len > 0) ? TRUE : FALSE;
   g_ptr_array_free(array, FALSE);
   return is_ssl;
 }
@@ -2641,7 +2643,7 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
-  int is_ssl = packet_is_ssl(cf->edt);
+  gboolean is_ssl = packet_is_ssl(cf->edt);
   set_menu_sensitivity(main_menu_factory, "/Edit/Mark Packet (toggle)",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Mark Packet (toggle)",
@@ -2809,9 +2811,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
   gboolean properties;
 
 
-  set_menu_sensitivity(main_menu_factory, "/File/Export/Selected Packet Bytes...",
-      cf->finfo_selected != NULL);
-
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
@@ -2819,6 +2818,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
 	}
+	set_menu_sensitivity(main_menu_factory,
+	  "/File/Export/Selected Packet Bytes...", TRUE);
 	set_menu_sensitivity(main_menu_factory,
 	  "/Go/Go to Corresponding Packet", hfinfo->type == FT_FRAMENUM);
 	set_menu_sensitivity(tree_view_menu_factory,
@@ -2849,9 +2850,11 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  TRUE);
   } else {
 	set_menu_sensitivity(main_menu_factory,
-	    "/Go/Go to Corresponding Packet", FALSE);
+	  "/File/Export/Selected Packet Bytes...", FALSE);
+	set_menu_sensitivity(main_menu_factory,
+	  "/Go/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory,
-	    "/Go to Corresponding Packet", FALSE);
+	  "/Go to Corresponding Packet", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Edit/Copy", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Copy", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/Analyze/Apply as Filter", FALSE);

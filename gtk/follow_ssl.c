@@ -131,7 +131,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     return 0;
 }
 
-extern int 
+extern gboolean 
 packet_is_ssl(epan_dissect_t* edt);
 
 
