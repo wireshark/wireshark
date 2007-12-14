@@ -904,6 +904,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		} else if (*vendor_class_id_p != NULL &&
 			   ((strncmp((const gchar*)*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
                             (strncmp((const gchar*)*vendor_class_id_p, "docsis", strlen("docsis")) == 0) ||
+                            (strncmp((const gchar*)*vendor_class_id_p, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
                             (strncmp((const gchar*)*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
 		        /* CableLabs standard - see www.cablelabs.com/projects */
 		        proto_item_append_text(vti, " (CableLabs)");
@@ -1843,10 +1844,10 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* 12 */ {"CM/PS System Description", string, NULL},
 		/* 13 */ {"CM/PS Firmware Revision", string, NULL},
 		/* 14 */ {"Firewall Policy File Version", string, NULL},
-		/* 15 */ {"Unassigned (CableHome)", special, NULL},
+		/* 15 */ {"eSafe Config File Devices", string, NULL},
 		/* 16 */ {"Unassigned (CableHome)", special, NULL},
 		/* 17 */ {"Unassigned (CableHome)", special, NULL},
-		/* 18 */ {"Unassigned (CableHome)", special, NULL},
+		/* 18 */ {"Video Security Type", string, NULL},
 		/* 19 */ {"Unassigned (CableHome)", special, NULL},
 		/* 20 */ {"Unassigned (CableHome)", special, NULL},
 		/* 21 */ {"Unassigned (CableHome)", special, NULL},
@@ -1862,9 +1863,30 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 		/* *** 31-50: PacketCable *** */
 		/* 31 */ {"MTA MAC Address", special, NULL},
 		/* 32 */ {"Correlation ID", val_u_long, NULL},
-		/* 33-50 {"Unassigned (PacketCable)", special, NULL}, */
+		/* 33 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 34 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 35 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 36 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 37 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 38 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 39 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 40 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 41 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 42 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 43 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 44 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 45 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 46 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 47 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 48 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 49 */ {"Unassigned (PacketCable)", special, NULL},
+		/* 50 */ {"Unassigned (PacketCable)", special, NULL},
 		/* *** 51-127: CableLabs *** */
-		/* 51-127 {"Unassigned (CableLabs)", special, NULL}, */
+		/* 51 */ {"Vendor Name", string, NULL},
+		/* 52 */ {"CableCARD Capability", special, NULL},
+		/* 53 */ {"Device Identification (CA)", special, NULL},
+		/* 54 */ {"Device Identification (X.509)", string, NULL},
+		/* 55 */ {"Unassigned (CableLabs)", special, NULL},
 		/* *** 128-254: Vendors *** */
 		/* 128-254 {"Unassigned (Vendors)", special, NULL}, */
 		/* 255 {"end options", special, NULL} */
