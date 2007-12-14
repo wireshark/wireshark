@@ -79,7 +79,7 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled);
  *
  */
 void
-color_filters_reset_tmp();
+color_filters_reset_tmp(void);
 
 /* Prime the epan_dissect_t with all the compiler
  * color filters of the current filter list. 

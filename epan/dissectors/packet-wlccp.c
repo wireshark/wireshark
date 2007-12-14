@@ -432,8 +432,8 @@ static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 static void set_mic_flag(gboolean flag);
 static void set_tlv_flag(gboolean flag);
-static gboolean get_tlv_flag();
-static gboolean get_mic_flag();
+static gboolean get_tlv_flag(void);
+static gboolean get_mic_flag(void);
 
 /* Initialize external dissector handles */
 /* We'll try to use the EAP dissector when necessary */
@@ -1043,12 +1043,12 @@ static void set_tlv_flag(gboolean flag)
 	tlv_flag=flag;
 } /* set_tlv_flag */
 
-static gboolean get_tlv_flag()
+static gboolean get_tlv_flag(void)
 {
 	return(tlv_flag);
 } /* get_tlv_flag */
 
-static gboolean get_mic_flag()
+static gboolean get_mic_flag(void)
 {
 	return(mic_flag);
 } /* get_mic_flag */

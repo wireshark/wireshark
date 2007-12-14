@@ -65,7 +65,7 @@ extern address bs_address;			/* declared in packet-wmx.c */
 extern guint max_logical_bands;			/* declared in wimax_compact_dlmap_ie_decoder.c */
 extern gboolean is_down_link(address *src_address);/* declared in packet-wmx.c */
 extern void proto_register_mac_mgmt_msg(void); /* defined in macmgmtmsgdecoder.c */
-extern void init_wimax_globals();		/* defined in msg_ulmap.c */
+extern void init_wimax_globals(void);		/* defined in msg_ulmap.c */
 
 extern void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 

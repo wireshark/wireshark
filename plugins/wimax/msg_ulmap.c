@@ -616,7 +616,7 @@ static hf_register_info hf[] =
 };
 
 /*  This gets called each time a capture file is loaded. */
-void init_wimax_globals()
+void init_wimax_globals(void)
 {
     cqich_id_size = 0;
     harq = 0;

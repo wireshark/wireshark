@@ -58,7 +58,7 @@ extern void proto_register_wimax_compact_ulmap_ie(void);
 extern void wimax_defragment_init(void);
 
 /* Global functions */
-void proto_register_wimax();
+void proto_register_wimax(void);
 void proto_reg_wimax(void);
 void proto_reg_handoff_wimax(void);
 gboolean is_down_link(address *src_address);

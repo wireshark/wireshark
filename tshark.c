@@ -657,7 +657,7 @@ output_file_description(const char *fname)
 }
 
 static void
-print_current_user() {
+print_current_user(void) {
   gchar *cur_user, *cur_group;
   if (started_with_special_privs()) {
     cur_user = get_cur_username();
@@ -674,7 +674,7 @@ print_current_user() {
 }
 
 static void
-check_capture_privs() {
+check_capture_privs(void) {
 #ifdef _WIN32
   load_wpcap();
   /* Warn the user if npf.sys isn't loaded. */

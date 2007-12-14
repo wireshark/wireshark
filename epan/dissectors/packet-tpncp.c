@@ -675,7 +675,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
-static gint init_tpncp_db() {
+static gint init_tpncp_db(void) {
     gchar *tpncp_dat_file_path = NULL;
     FILE *file = NULL;
 
