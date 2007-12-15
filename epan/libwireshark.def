@@ -587,7 +587,8 @@ proto_find_finfo
 proto_frame                     DATA
 proto_get_finfo_ptr_array
 proto_get_first_protocol_field
-proto_get_first_protocol
+proto_get_first_protocol 
+proto_get_id
 proto_get_id_by_filter_name
 proto_get_next_protocol
 proto_get_next_protocol_field
