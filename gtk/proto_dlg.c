@@ -130,12 +130,12 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(proto_frame);
 
   /* Protocol list */
-  
+
   proto_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(proto_frame), proto_vb);
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 5);
   gtk_widget_show(proto_vb);
-  
+
   proto_sw = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(proto_sw), 
@@ -268,7 +268,7 @@ static void
 proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
                      GdkEventButton *ev _U_, gpointer gp _U_) {
   protocol_data_t *p = gtk_clist_get_row_data(proto_list, row);
-  
+
   if (row < 0 || col < 0)
     return;
 
@@ -283,7 +283,7 @@ proto_list_select_cb(GtkCList *proto_list, gint row, gint col,
 static gboolean
 proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev, gpointer gp _U_) {
   GtkCList *proto_list = GTK_CLIST(pl);
-  
+
   if (ev->keyval == GDK_space) {
     proto_list_select_cb(proto_list, proto_list->focus_row, 0, NULL, gp);
   }
@@ -334,7 +334,7 @@ toggle_all_cb(GtkWidget *button _U_, gpointer pl)
       p->enabled = FALSE;
     else
       p->enabled = TRUE;
-    
+
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(p->enabled) );
 #else
@@ -360,7 +360,7 @@ set_active_all(GtkWidget *w, gboolean new_state)
 #endif
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
-    
+
     p->enabled = new_state;
 #if GTK_MAJOR_VERSION < 2
     gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(new_state) );
@@ -377,14 +377,14 @@ set_active_all(GtkWidget *w, gboolean new_state)
 static void
 enable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-	set_active_all(pl, TRUE);
+  set_active_all(pl, TRUE);
 }
 
 /* Disable All */
 static void
 disable_all_cb(GtkWidget *button _U_, gpointer pl)
 {
-	set_active_all(pl, FALSE);
+  set_active_all(pl, FALSE);
 }
 
 static void
@@ -393,7 +393,6 @@ proto_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   GSList *entry;
 
   proto_w = NULL;
-
   /* remove protocol list */
   if (protocol_list) {
     for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
@@ -416,7 +415,8 @@ proto_delete_event_cb(GtkWidget *proto_w, GdkEvent *event _U_,
   return FALSE;
 }
 
-static void proto_write(gpointer parent_w _U_)
+static void
+proto_write(gpointer parent_w _U_)
 {
   char *pf_dir_path;
   char *pf_path;
@@ -553,20 +553,12 @@ protocol_data_compare(gconstpointer a, gconstpointer b)
 }
 
 static void
-#if GTK_MAJOR_VERSION < 2
-show_proto_selection(GtkCList *proto_list)
-#else
-show_proto_selection(GtkListStore *proto_store)
-#endif
+create_protocol_list(void)
 {
-  GSList *entry;
   gint i;
   void *cookie;
   protocol_t *protocol;
   protocol_data_t *p;
-#if GTK_MAJOR_VERSION < 2
-  const gchar *proto_text[3];
-#endif
 
   /* Iterate over all the protocols */
 
@@ -579,11 +571,28 @@ show_proto_selection(GtkListStore *proto_store)
         p->abbrev = proto_get_protocol_short_name(protocol);
         p->hfinfo_index = i;
         p->enabled = proto_is_protocol_enabled(protocol);
-	p->was_enabled = p->enabled;
+        p->was_enabled = p->enabled;
         protocol_list = g_slist_insert_sorted(protocol_list,
 					    p, protocol_data_compare);
       }
   }
+}
+
+static void
+#if GTK_MAJOR_VERSION < 2
+show_proto_selection(GtkCList *proto_list)
+#else
+show_proto_selection(GtkListStore *proto_store)
+#endif
+{
+  GSList *entry;
+  protocol_data_t *p;
+#if GTK_MAJOR_VERSION < 2
+  const gchar *proto_text[3];
+#endif
+
+  if (protocol_list == NULL)
+    create_protocol_list();
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     p = entry->data;
@@ -611,3 +620,50 @@ show_proto_selection(GtkListStore *proto_store)
   }
 
 } /* show_proto_selection */
+
+static void
+proto_disable_dialog_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+  protocol_t *protocol;
+  gint id = GPOINTER_TO_INT(data);
+
+  if (btn == ESD_BTN_OK) {
+    /* Allow proto_dlg to work with the original settings */
+    if (protocol_list == NULL)
+      create_protocol_list();
+    /* Toggle the protocol if it's enabled and allowed */
+    protocol = find_protocol_by_id(id);
+    if (proto_is_protocol_enabled(protocol) == TRUE) {
+      if (proto_can_toggle_protocol(id) == TRUE) {
+        proto_set_decoding(id, FALSE);
+        cf_redissect_packets(&cfile);
+      }
+    }
+  }
+}
+
+void
+proto_disable_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  header_field_info *hfinfo;
+  gint id;
+  gpointer dialog;
+
+  if (cfile.finfo_selected == NULL) {
+    /* There is no field selected */
+    return;
+  }
+
+  /* Find the id for the protocol for the selected field. */
+  hfinfo = cfile.finfo_selected->hfinfo;
+  if (hfinfo->parent == -1)
+    id = proto_get_id((protocol_t *)hfinfo->strings);
+  else
+    id = hfinfo->parent;
+
+  dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
+    "Do you want to temporarily disable protocol: %s ?",
+    proto_registrar_get_abbrev(id));
+
+  simple_dialog_set_cb(dialog, proto_disable_dialog_cb, GINT_TO_POINTER(id));
+}

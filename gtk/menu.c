@@ -1048,6 +1048,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Decode As...", NULL, decode_as_cb, 0, WIRESHARK_STOCK_DECODE_AS),
+    ITEM_FACTORY_STOCK_ENTRY("/Disable Protocol...", NULL, proto_disable_cb, 0, WIRESHARK_STOCK_CHECKBOX),
     ITEM_FACTORY_ENTRY("/_Resolve Name", NULL, resolve_name_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/_Go to Corresponding Packet", NULL, goto_framenum_cb, 0, NULL, NULL),
 };
@@ -2809,14 +2810,17 @@ void
 set_menus_for_selected_tree_row(capture_file *cf)
 {
   gboolean properties;
+  gint id;
 
 
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
 	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
+	  id = proto_get_id((protocol_t *)hfinfo->strings);
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
+	  id = hfinfo->parent;
 	}
 	set_menu_sensitivity(main_menu_factory,
 	  "/File/Export/Selected Packet Bytes...", TRUE);
@@ -2842,6 +2846,8 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
+	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...",
+	  proto_can_toggle_protocol(id));
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
@@ -2864,6 +2870,7 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	set_menu_sensitivity(tree_view_menu_factory, "/Colorize with Filter", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  FALSE);
+	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...", FALSE);
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",

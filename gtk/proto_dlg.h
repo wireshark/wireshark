@@ -39,4 +39,11 @@
  */
 void proto_cb(GtkWidget *widget, gpointer data);
 
+/** Disable (temporarily) the selected protocol.
+ * 
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+void proto_disable_cb(GtkWidget *widget, gpointer data);
+
 #endif
