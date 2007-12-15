@@ -9,17 +9,65 @@
 
 #.MODULE_IMPORT
 ServiceAdministration	x509if
-
 AttributeCertificateDefinitions	x509af
-
 BasicAccessControl	crmf
 
-Remote-Operations-Information-Objects	ros
+#.CLASS OBJECT-CLASS
+&Superclasses         ClassReference OBJECT-CLASS
+&kind                 
+&MandatoryAttributes  ClassReference ATTRIBUTE
+&OptionalAttributes   ClassReference ATTRIBUTE
+&id                   ObjectIdentifierType
+#.END
 
+#.CLASS ATTRIBUTE
+&derivation            ClassReference ATTRIBUTE
+&Type                  
+&equality-match        ClassReference MATCHING-RULE
+&ordering-match        ClassReference MATCHING-RULE
+&substrings-match      ClassReference MATCHING-RULE
+&single-valued         BooleanType
+&collective            BooleanType
+&no-user-modification  BooleanType
+&usage                 
+&id                    ObjectIdentifierType
+#.END
+
+#.CLASS MATCHING-RULE
+&ParentMatchingRules   ClassReference MATCHING-RULE
+&AssertionType         
+&uniqueMatchIndicator  ClassReference ATTRIBUTE
+&id                    ObjectIdentifierType
+#.END
+
+#.CLASS CONTEXT
+&Type      
+&Assertion  
+&id         ObjectIdentifierType
+#.END
+
+#.CLASS CONTRACT
+&connection           ClassReference CONNECTION-PACKAGE
+&OperationsOf         ClassReference OPERATION-PACKAGE
+&InitiatorConsumerOf  ClassReference OPERATION-PACKAGE
+&InitiatorSupplierOf  ClassReference OPERATION-PACKAGE
+&id                   ObjectIdentifierType
+#.END
+
+#.CLASS APPLICATION-CONTEXT
+&bind-operation		ClassReference OPERATION
+&Operations		ClassReference OPERATION
+&applicationContextName	ObjectIdentifierType
+#.END
+
+#.OMIT_ASSIGNMENT
+CommonArguments
+CommonResults
+CommonResultsSeq
+#.END
 
 #.EXPORTS
 Filter
-CommonResults
 Referral
 SecurityParameters
 EntryModification
@@ -111,6 +159,59 @@ TokenData/name		distinguished-name
 TokenData/time		utctime
 
 PagedResultsRequest/queryReference	pagedResultsQueryReference
+
+EntryInformationSelection/extraAttributes/select	extraSelect
+
+# This table creates the value_sting to name P7 operation codes and errors
+# in file packet-p7-table.c which is included in the template file
+#
+#.TABLE_HDR
+/* DAP OPERATIONS */
+const value_string dap_opr_code_string_vals[] = {
+#.TABLE_BODY OPERATION
+	{ %(&operationCode)s, "%(_ident)s" },
+#.TABLE_FTR
+	{ 0, NULL }
+};
+#.END
+
+#.TABLE_HDR
+/* DAP ERRORS */
+static const value_string dap_err_code_string_vals[] = {
+#.TABLE_BODY ERROR
+	{ %(&errorCode)s, "%(_ident)s" },  
+#.TABLE_FTR
+	  { 0, NULL }
+};
+#.END
+
+# Create a table of opcode and corresponding args and res
+#.TABLE11_HDR
+static const ros_opr_t dap_opr_tab[] = {
+#.TABLE11_BODY OPERATION
+  /* %(_name)s */ 
+  { %(&operationCode)-25s,	%(_argument_pdu)s,	%(_result_pdu)s }, 
+#.TABLE11_FTR
+  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+};
+#.END
+
+#.TABLE21_HDR
+static const ros_err_t dap_err_tab[] = {
+#.TABLE21_BODY ERROR
+  /* %(_name)s*/ 
+  { %(&errorCode)s,	%(_parameter_pdu)s },
+#.TABLE21_FTR
+  { 0,	(new_dissector_t)(-1) },
+};
+#.END
+
+
+#.PDU_NEW
+ERROR.&ParameterType
+OPERATION.&ArgumentType
+OPERATION.&ResultType
+#.END
 
 #.FN_BODY	FilterItem/substrings/strings/_item/initial
 	proto_item *it;
@@ -259,15 +360,5 @@ PagedResultsRequest/queryReference	pagedResultsQueryReference
 	if(check_col(actx->pinfo->cinfo, COL_INFO)) {
 		dn = x509if_get_last_dn();
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
-	}
-
-#.FN_BODY ListResultData/listInfo/subordinates/_item
-	proto_item *sub_item;
-
-	%(DEFAULT_BODY)s
-
-	if((sub_item = get_ber_last_created_item())) {
-		
-		proto_item_append_text(sub_item," (%%s)", x509if_get_last_dn());
 	}
 

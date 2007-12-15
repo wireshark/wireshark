@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dap.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -X -T -p dap -c dap.cnf -s packet-dap-template dap.asn */
+/* ../../tools/asn2wrs.py -b -e -X -T -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
 
 /* Input file: packet-dap-template.c */
 
@@ -79,11 +79,35 @@ static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 /*--- Included file: packet-dap-hf.c ---*/
 #line 1 "packet-dap-hf.c"
-static int hf_dap_securityParameters = -1;        /* SecurityParameters */
-static int hf_dap_performer = -1;                 /* DistinguishedName */
-static int hf_dap_aliasDereferenced = -1;         /* BOOLEAN */
-static int hf_dap_notification = -1;              /* SEQUENCE_OF_Attribute */
-static int hf_dap_notification_item = -1;         /* Attribute */
+static int hf_dap_DirectoryBindArgument_PDU = -1;  /* DirectoryBindArgument */
+static int hf_dap_DirectoryBindResult_PDU = -1;   /* DirectoryBindResult */
+static int hf_dap_DirectoryBindError_PDU = -1;    /* DirectoryBindError */
+static int hf_dap_ReadArgument_PDU = -1;          /* ReadArgument */
+static int hf_dap_ReadResult_PDU = -1;            /* ReadResult */
+static int hf_dap_CompareArgument_PDU = -1;       /* CompareArgument */
+static int hf_dap_CompareResult_PDU = -1;         /* CompareResult */
+static int hf_dap_AbandonArgument_PDU = -1;       /* AbandonArgument */
+static int hf_dap_AbandonResult_PDU = -1;         /* AbandonResult */
+static int hf_dap_ListArgument_PDU = -1;          /* ListArgument */
+static int hf_dap_ListResult_PDU = -1;            /* ListResult */
+static int hf_dap_SearchArgument_PDU = -1;        /* SearchArgument */
+static int hf_dap_SearchResult_PDU = -1;          /* SearchResult */
+static int hf_dap_AddEntryArgument_PDU = -1;      /* AddEntryArgument */
+static int hf_dap_AddEntryResult_PDU = -1;        /* AddEntryResult */
+static int hf_dap_RemoveEntryArgument_PDU = -1;   /* RemoveEntryArgument */
+static int hf_dap_RemoveEntryResult_PDU = -1;     /* RemoveEntryResult */
+static int hf_dap_ModifyEntryArgument_PDU = -1;   /* ModifyEntryArgument */
+static int hf_dap_ModifyEntryResult_PDU = -1;     /* ModifyEntryResult */
+static int hf_dap_ModifyDNArgument_PDU = -1;      /* ModifyDNArgument */
+static int hf_dap_ModifyDNResult_PDU = -1;        /* ModifyDNResult */
+static int hf_dap_Abandoned_PDU = -1;             /* Abandoned */
+static int hf_dap_AbandonFailedError_PDU = -1;    /* AbandonFailedError */
+static int hf_dap_AttributeError_PDU = -1;        /* AttributeError */
+static int hf_dap_NameError_PDU = -1;             /* NameError */
+static int hf_dap_Referral_PDU = -1;              /* Referral */
+static int hf_dap_SecurityError_PDU = -1;         /* SecurityError */
+static int hf_dap_ServiceError_PDU = -1;          /* ServiceError */
+static int hf_dap_UpdateError_PDU = -1;           /* UpdateError */
 static int hf_dap_options = -1;                   /* ServiceControlOptions */
 static int hf_dap_priority = -1;                  /* T_priority */
 static int hf_dap_timeLimit = -1;                 /* INTEGER */
@@ -102,11 +126,13 @@ static int hf_dap_select_item = -1;               /* AttributeType */
 static int hf_dap_infoTypes = -1;                 /* T_infoTypes */
 static int hf_dap_extraAttributes = -1;           /* T_extraAttributes */
 static int hf_dap_allOperationalAttributes = -1;  /* NULL */
+static int hf_dap_extraSelect = -1;               /* SET_SIZE_1_MAX_OF_AttributeType */
+static int hf_dap_extraSelect_item = -1;          /* AttributeType */
 static int hf_dap_contextSelection = -1;          /* ContextSelection */
 static int hf_dap_returnContexts = -1;            /* BOOLEAN */
 static int hf_dap_familyReturn = -1;              /* FamilyReturn */
 static int hf_dap_allContexts = -1;               /* NULL */
-static int hf_dap_selectedContexts = -1;          /* SET_OF_TypeAndContextAssertion */
+static int hf_dap_selectedContexts = -1;          /* SET_SIZE_1_MAX_OF_TypeAndContextAssertion */
 static int hf_dap_selectedContexts_item = -1;     /* TypeAndContextAssertion */
 static int hf_dap_type = -1;                      /* AttributeType */
 static int hf_dap_contextAssertions = -1;         /* T_contextAssertions */
@@ -132,7 +158,7 @@ static int hf_dap_familyEntries_item = -1;        /* FamilyEntry */
 static int hf_dap_rdn = -1;                       /* RelativeDistinguishedName */
 static int hf_dap_family_information = -1;        /* FamilyInformation */
 static int hf_dap_family_information_item = -1;   /* T_family_information_item */
-static int hf_dap_family_info = -1;               /* SEQUENCE_OF_FamilyEntries */
+static int hf_dap_family_info = -1;               /* SEQUENCE_SIZE_1_MAX_OF_FamilyEntries */
 static int hf_dap_family_info_item = -1;          /* FamilyEntries */
 static int hf_dap_filter_item = -1;               /* FilterItem */
 static int hf_dap_and = -1;                       /* SetOfFilter */
@@ -160,7 +186,7 @@ static int hf_dap_matchValue = -1;                /* T_matchValue */
 static int hf_dap_dnAttributes = -1;              /* BOOLEAN */
 static int hf_dap_newRequest = -1;                /* T_newRequest */
 static int hf_dap_pageSize = -1;                  /* INTEGER */
-static int hf_dap_sortKeys = -1;                  /* SEQUENCE_OF_SortKey */
+static int hf_dap_sortKeys = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_SortKey */
 static int hf_dap_sortKeys_item = -1;             /* SortKey */
 static int hf_dap_reverse = -1;                   /* BOOLEAN */
 static int hf_dap_unmerged = -1;                  /* BOOLEAN */
@@ -210,16 +236,17 @@ static int hf_dap_bindConfAlgorithm_item = -1;    /* AlgorithmIdentifier */
 static int hf_dap_bindConfKeyInfo = -1;           /* BindKeyInfo */
 static int hf_dap_token_data = -1;                /* TokenData */
 static int hf_dap_algorithm_identifier = -1;      /* AlgorithmIdentifier */
-static int hf_dap_error = -1;                     /* T_error */
-static int hf_dap_serviceProblem = -1;            /* ServiceProblem */
-static int hf_dap_securityProblem = -1;           /* SecurityProblem */
 static int hf_dap_unsignedDirectoryBindError = -1;  /* DirectoryBindErrorData */
 static int hf_dap_signedDirectoryBindError = -1;  /* T_signedDirectoryBindError */
 static int hf_dap_directoryBindError = -1;        /* DirectoryBindErrorData */
+static int hf_dap_error = -1;                     /* T_error */
+static int hf_dap_serviceProblem = -1;            /* ServiceProblem */
+static int hf_dap_securityProblem = -1;           /* SecurityProblem */
 static int hf_dap_object = -1;                    /* Name */
 static int hf_dap_selection = -1;                 /* EntryInformationSelection */
 static int hf_dap_modifyRightsRequest = -1;       /* BOOLEAN */
 static int hf_dap_serviceControls = -1;           /* ServiceControls */
+static int hf_dap_securityParameters = -1;        /* SecurityParameters */
 static int hf_dap_requestor = -1;                 /* DistinguishedName */
 static int hf_dap_operationProgress = -1;         /* OperationProgress */
 static int hf_dap_aliasedRDNs = -1;               /* INTEGER */
@@ -235,6 +262,10 @@ static int hf_dap_signedReadArgument = -1;        /* T_signedReadArgument */
 static int hf_dap_readArgument = -1;              /* ReadArgumentData */
 static int hf_dap_entry = -1;                     /* EntryInformation */
 static int hf_dap_modifyRights = -1;              /* ModifyRights */
+static int hf_dap_performer = -1;                 /* DistinguishedName */
+static int hf_dap_aliasDereferenced = -1;         /* BOOLEAN */
+static int hf_dap_notification = -1;              /* SEQUENCE_SIZE_1_MAX_OF_Attribute */
+static int hf_dap_notification_item = -1;         /* Attribute */
 static int hf_dap_unsignedReadResult = -1;        /* ReadResultData */
 static int hf_dap_signedReadResult = -1;          /* T_signedReadResult */
 static int hf_dap_readResult = -1;                /* ReadResultData */
@@ -278,7 +309,7 @@ static int hf_dap_unsignedListResult = -1;        /* ListResultData */
 static int hf_dap_signedListResult = -1;          /* T_signedListResult */
 static int hf_dap_listResult = -1;                /* ListResultData */
 static int hf_dap_limitProblem = -1;              /* LimitProblem */
-static int hf_dap_unexplored = -1;                /* SET_OF_ContinuationReference */
+static int hf_dap_unexplored = -1;                /* SET_SIZE_1_MAX_OF_ContinuationReference */
 static int hf_dap_unexplored_item = -1;           /* ContinuationReference */
 static int hf_dap_unavailableCriticalExtensions = -1;  /* BOOLEAN */
 static int hf_dap_unknownErrors = -1;             /* T_unknownErrors */
@@ -309,12 +340,12 @@ static int hf_dap_joinBaseObject = -1;            /* Name */
 static int hf_dap_domainLocalID = -1;             /* DomainLocalID */
 static int hf_dap_joinSubset = -1;                /* T_joinSubset */
 static int hf_dap_joinFilter = -1;                /* Filter */
-static int hf_dap_joinAttributes = -1;            /* SEQUENCE_OF_JoinAttPair */
+static int hf_dap_joinAttributes = -1;            /* SEQUENCE_SIZE_1_MAX_OF_JoinAttPair */
 static int hf_dap_joinAttributes_item = -1;       /* JoinAttPair */
 static int hf_dap_joinSelection = -1;             /* EntryInformationSelection */
 static int hf_dap_baseAtt = -1;                   /* AttributeType */
 static int hf_dap_joinAtt = -1;                   /* AttributeType */
-static int hf_dap_joinContext = -1;               /* SEQUENCE_OF_JoinContextType */
+static int hf_dap_joinContext = -1;               /* SEQUENCE_SIZE_1_MAX_OF_JoinContextType */
 static int hf_dap_joinContext_item = -1;          /* JoinContextType */
 static int hf_dap_searchInfo = -1;                /* T_searchInfo */
 static int hf_dap_entries = -1;                   /* SET_OF_EntryInformation */
@@ -453,8 +484,6 @@ static gint ett_dap = -1;
 
 /*--- Included file: packet-dap-ett.c ---*/
 #line 1 "packet-dap-ett.c"
-static gint ett_dap_CommonResults = -1;
-static gint ett_dap_SEQUENCE_OF_Attribute = -1;
 static gint ett_dap_ServiceControls = -1;
 static gint ett_dap_T_manageDSAITPlaneRef = -1;
 static gint ett_dap_ServiceControlOptions = -1;
@@ -462,8 +491,9 @@ static gint ett_dap_EntryInformationSelection = -1;
 static gint ett_dap_T_attributes = -1;
 static gint ett_dap_SET_OF_AttributeType = -1;
 static gint ett_dap_T_extraAttributes = -1;
+static gint ett_dap_SET_SIZE_1_MAX_OF_AttributeType = -1;
 static gint ett_dap_ContextSelection = -1;
-static gint ett_dap_SET_OF_TypeAndContextAssertion = -1;
+static gint ett_dap_SET_SIZE_1_MAX_OF_TypeAndContextAssertion = -1;
 static gint ett_dap_TypeAndContextAssertion = -1;
 static gint ett_dap_T_contextAssertions = -1;
 static gint ett_dap_SEQUENCE_OF_ContextAssertion = -1;
@@ -478,7 +508,7 @@ static gint ett_dap_SEQUENCE_OF_FamilyEntry = -1;
 static gint ett_dap_FamilyEntry = -1;
 static gint ett_dap_FamilyInformation = -1;
 static gint ett_dap_T_family_information_item = -1;
-static gint ett_dap_SEQUENCE_OF_FamilyEntries = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_FamilyEntries = -1;
 static gint ett_dap_Filter = -1;
 static gint ett_dap_SetOfFilter = -1;
 static gint ett_dap_FilterItem = -1;
@@ -489,7 +519,7 @@ static gint ett_dap_MatchingRuleAssertion = -1;
 static gint ett_dap_T_matchingRule = -1;
 static gint ett_dap_PagedResultsRequest = -1;
 static gint ett_dap_T_newRequest = -1;
-static gint ett_dap_SEQUENCE_OF_SortKey = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_SortKey = -1;
 static gint ett_dap_SortKey = -1;
 static gint ett_dap_SecurityParameters = -1;
 static gint ett_dap_Time = -1;
@@ -507,15 +537,16 @@ static gint ett_dap_TokenData = -1;
 static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier = -1;
 static gint ett_dap_Token = -1;
 static gint ett_dap_Versions = -1;
-static gint ett_dap_DirectoryBindErrorData = -1;
-static gint ett_dap_T_error = -1;
 static gint ett_dap_DirectoryBindError = -1;
 static gint ett_dap_T_signedDirectoryBindError = -1;
+static gint ett_dap_DirectoryBindErrorData = -1;
+static gint ett_dap_T_error = -1;
 static gint ett_dap_ReadArgumentData = -1;
 static gint ett_dap_Name = -1;
 static gint ett_dap_ReadArgument = -1;
 static gint ett_dap_T_signedReadArgument = -1;
 static gint ett_dap_ReadResultData = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute = -1;
 static gint ett_dap_ReadResult = -1;
 static gint ett_dap_T_signedReadResult = -1;
 static gint ett_dap_ModifyRights = -1;
@@ -546,7 +577,7 @@ static gint ett_dap_SET_OF_ListResult = -1;
 static gint ett_dap_ListResult = -1;
 static gint ett_dap_T_signedListResult = -1;
 static gint ett_dap_PartialOutcomeQualifier = -1;
-static gint ett_dap_SET_OF_ContinuationReference = -1;
+static gint ett_dap_SET_SIZE_1_MAX_OF_ContinuationReference = -1;
 static gint ett_dap_T_unknownErrors = -1;
 static gint ett_dap_T_entryCount = -1;
 static gint ett_dap_SearchArgumentData = -1;
@@ -556,9 +587,9 @@ static gint ett_dap_T_signedSearchArgument = -1;
 static gint ett_dap_HierarchySelections = -1;
 static gint ett_dap_SearchControlOptions = -1;
 static gint ett_dap_JoinArgument = -1;
-static gint ett_dap_SEQUENCE_OF_JoinAttPair = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinAttPair = -1;
 static gint ett_dap_JoinAttPair = -1;
-static gint ett_dap_SEQUENCE_OF_JoinContextType = -1;
+static gint ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinContextType = -1;
 static gint ett_dap_SearchResultData = -1;
 static gint ett_dap_T_searchInfo = -1;
 static gint ett_dap_SET_OF_EntryInformation = -1;
@@ -627,6 +658,69 @@ static gint ett_dap_T_signedUpdateError = -1;
 #line 76 "packet-dap-template.c"
 
 
+/*--- Included file: packet-dap-val.h ---*/
+#line 1 "packet-dap-val.h"
+#define id_opcode_read                 1
+#define id_opcode_compare              2
+#define id_opcode_abandon              3
+#define id_opcode_list                 4
+#define id_opcode_search               5
+#define id_opcode_addEntry             6
+#define id_opcode_removeEntry          7
+#define id_opcode_modifyEntry          8
+#define id_opcode_modifyDN             9
+#define id_errcode_attributeError      1
+#define id_errcode_nameError           2
+#define id_errcode_serviceError        3
+#define id_errcode_referral            4
+#define id_errcode_abandoned           5
+#define id_errcode_securityError       6
+#define id_errcode_abandonFailed       7
+#define id_errcode_updateError         8
+#define id_errcode_dsaReferral         9
+
+/*--- End of included file: packet-dap-val.h ---*/
+#line 78 "packet-dap-template.c"
+
+
+/*--- Included file: packet-dap-table.c ---*/
+#line 1 "packet-dap-table.c"
+
+/* DAP OPERATIONS */
+const value_string dap_opr_code_string_vals[] = {
+	{ op_ros_bind, "directoryBind" },
+	{ id_opcode_read, "read" },
+	{ id_opcode_compare, "compare" },
+	{ id_opcode_abandon, "abandon" },
+	{ id_opcode_list, "list" },
+	{ id_opcode_search, "search" },
+	{ id_opcode_addEntry, "addEntry" },
+	{ id_opcode_removeEntry, "removeEntry" },
+	{ id_opcode_modifyEntry, "modifyEntry" },
+	{ id_opcode_modifyDN, "modifyDN" },
+	{ 0, NULL }
+};
+
+
+/* DAP ERRORS */
+static const value_string dap_err_code_string_vals[] = {
+	{ err_ros_bind, "directoryBindError" },  
+	{ id_errcode_abandoned, "abandoned" },  
+	{ id_errcode_abandonFailed, "abandonFailed" },  
+	{ id_errcode_attributeError, "attributeError" },  
+	{ id_errcode_nameError, "nameError" },  
+	{ id_errcode_referral, "referral" },  
+	{ id_errcode_securityError, "securityError" },  
+	{ id_errcode_serviceError, "serviceError" },  
+	{ id_errcode_updateError, "updateError" },  
+	  { 0, NULL }
+};
+
+
+/*--- End of included file: packet-dap-table.c ---*/
+#line 80 "packet-dap-template.c"
+
+
 /*--- Included file: packet-dap-fn.c ---*/
 #line 1 "packet-dap-fn.c"
 /*--- Cyclic dependencies ---*/
@@ -661,157 +755,6 @@ static int
 dissect_dap_FamilyGrouping(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_dap_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_dap_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const value_string dap_Time_vals[] = {
-  {   0, "utcTime" },
-  {   1, "generalizedTime" },
-  { 0, NULL }
-};
-
-static const ber_choice_t Time_choice[] = {
-  {   0, &hf_dap_utcTime         , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_dap_UTCTime },
-  {   1, &hf_dap_generalizedTime , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_dap_GeneralizedTime },
-  { 0, NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_dap_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
-                                 Time_choice, hf_index, ett_dap_Time,
-                                 NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_dap_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
-                                    NULL);
-
-  return offset;
-}
-
-
-static const value_string dap_ProtectionRequest_vals[] = {
-  {   0, "none" },
-  {   1, "signed" },
-  {   2, "encrypted" },
-  {   3, "signed-encrypted" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_dap_ProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string dap_ErrorProtectionRequest_vals[] = {
-  {   0, "none" },
-  {   1, "signed" },
-  {   2, "encrypted" },
-  {   3, "signed-encrypted" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_dap_ErrorProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SecurityParameters_set[] = {
-  { &hf_dap_certification_path, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_x509af_CertificationPath },
-  { &hf_dap_distinguished_name, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
-  { &hf_dap_time            , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Time },
-  { &hf_dap_random          , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
-  { &hf_dap_target          , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_ProtectionRequest },
-  { &hf_dap_response        , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
-  { &hf_dap_operationCode   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_ros_Code },
-  { &hf_dap_attributeCertificationPath, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_x509af_AttributeCertificationPath },
-  { &hf_dap_errorProtection , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_dap_ErrorProtectionRequest },
-  { &hf_dap_errorCode       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_ros_Code },
-  { NULL, 0, 0, 0, NULL }
-};
-
-int
-dissect_dap_SecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              SecurityParameters_set, hf_index, ett_dap_SecurityParameters);
-
-  return offset;
-}
-
-
-
-static int
-dissect_dap_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
-
-  return offset;
-}
-
-
-static const ber_sequence_t SEQUENCE_OF_Attribute_sequence_of[1] = {
-  { &hf_dap_notification_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509if_Attribute },
-};
-
-static int
-dissect_dap_SEQUENCE_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_Attribute_sequence_of, hf_index, ett_dap_SEQUENCE_OF_Attribute);
-
-  return offset;
-}
-
-
-static const ber_sequence_t CommonResults_set[] = {
-  { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
-  { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
-  { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
-  { NULL, 0, 0, 0, NULL }
-};
-
-int
-dissect_dap_CommonResults(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
-                              CommonResults_set, hf_index, ett_dap_CommonResults);
 
   return offset;
 }
@@ -898,7 +841,6 @@ static const ber_choice_t Name_choice[] = {
 
 static int
 dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 255 "dap.cnf"
 	const char *dn;
 
 	  offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -910,7 +852,6 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 		dn = x509if_get_last_dn();
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", (dn && *dn) ? dn : "(root)");
 	}
-
 
 
   return offset;
@@ -1023,6 +964,19 @@ dissect_dap_T_infoTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
+static const ber_sequence_t SET_SIZE_1_MAX_OF_AttributeType_set_of[1] = {
+  { &hf_dap_extraSelect_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509if_AttributeType },
+};
+
+static int
+dissect_dap_SET_SIZE_1_MAX_OF_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
+                                 SET_SIZE_1_MAX_OF_AttributeType_set_of, hf_index, ett_dap_SET_SIZE_1_MAX_OF_AttributeType);
+
+  return offset;
+}
+
+
 static const value_string dap_T_extraAttributes_vals[] = {
   {   3, "allOperationalAttributes" },
   {   4, "select" },
@@ -1031,7 +985,7 @@ static const value_string dap_T_extraAttributes_vals[] = {
 
 static const ber_choice_t T_extraAttributes_choice[] = {
   {   3, &hf_dap_allOperationalAttributes, BER_CLASS_CON, 3, 0, dissect_dap_NULL },
-  {   4, &hf_dap_select          , BER_CLASS_CON, 4, 0, dissect_dap_SET_OF_AttributeType },
+  {   4, &hf_dap_extraSelect     , BER_CLASS_CON, 4, 0, dissect_dap_SET_SIZE_1_MAX_OF_AttributeType },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1108,14 +1062,14 @@ dissect_dap_TypeAndContextAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const ber_sequence_t SET_OF_TypeAndContextAssertion_set_of[1] = {
+static const ber_sequence_t SET_SIZE_1_MAX_OF_TypeAndContextAssertion_set_of[1] = {
   { &hf_dap_selectedContexts_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dap_TypeAndContextAssertion },
 };
 
 static int
-dissect_dap_SET_OF_TypeAndContextAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SET_SIZE_1_MAX_OF_TypeAndContextAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_TypeAndContextAssertion_set_of, hf_index, ett_dap_SET_OF_TypeAndContextAssertion);
+                                 SET_SIZE_1_MAX_OF_TypeAndContextAssertion_set_of, hf_index, ett_dap_SET_SIZE_1_MAX_OF_TypeAndContextAssertion);
 
   return offset;
 }
@@ -1129,7 +1083,7 @@ const value_string dap_ContextSelection_vals[] = {
 
 static const ber_choice_t ContextSelection_choice[] = {
   {   0, &hf_dap_allContexts     , BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_dap_NULL },
-  {   1, &hf_dap_selectedContexts, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dap_SET_OF_TypeAndContextAssertion },
+  {   1, &hf_dap_selectedContexts, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dap_SET_SIZE_1_MAX_OF_TypeAndContextAssertion },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1138,6 +1092,15 @@ dissect_dap_ContextSelection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ContextSelection_choice, hf_index, ett_dap_ContextSelection,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dap_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1296,14 +1259,14 @@ dissect_dap_FamilyInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_FamilyEntries_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_FamilyEntries_sequence_of[1] = {
   { &hf_dap_family_info_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dap_FamilyEntries },
 };
 
 static int
-dissect_dap_SEQUENCE_OF_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_FamilyEntries_sequence_of, hf_index, ett_dap_SEQUENCE_OF_FamilyEntries);
+                                      SEQUENCE_SIZE_1_MAX_OF_FamilyEntries_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_FamilyEntries);
 
   return offset;
 }
@@ -1312,7 +1275,7 @@ dissect_dap_SEQUENCE_OF_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static const ber_sequence_t FamilyEntry_sequence[] = {
   { &hf_dap_rdn             , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_x509if_RelativeDistinguishedName },
   { &hf_dap_family_information, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dap_FamilyInformation },
-  { &hf_dap_family_info     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_OF_FamilyEntries },
+  { &hf_dap_family_info     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_FamilyEntries },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1356,11 +1319,9 @@ dissect_dap_FamilyEntries(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 116 "dap.cnf"
 	proto_item *it;
 	it = proto_tree_add_item(tree, hf_index, tvb, offset, -1, FALSE);
 	proto_item_append_text(it," XXX: Not yet implemented!");
-
 
 
   return offset;
@@ -1370,9 +1331,7 @@ dissect_dap_T_initial(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 121 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -1382,9 +1341,7 @@ dissect_dap_T_any(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_dap_T_final(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 124 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -1461,9 +1418,7 @@ dissect_dap_T_matchingRule(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_dap_T_matchValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 127 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -1575,14 +1530,14 @@ dissect_dap_SortKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_SortKey_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_SortKey_sequence_of[1] = {
   { &hf_dap_sortKeys_item   , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dap_SortKey },
 };
 
 static int
-dissect_dap_SEQUENCE_OF_SortKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_SortKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_SortKey_sequence_of, hf_index, ett_dap_SEQUENCE_OF_SortKey);
+                                      SEQUENCE_SIZE_1_MAX_OF_SortKey_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_SortKey);
 
   return offset;
 }
@@ -1590,7 +1545,7 @@ dissect_dap_SEQUENCE_OF_SortKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static const ber_sequence_t T_newRequest_sequence[] = {
   { &hf_dap_pageSize        , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_dap_INTEGER },
-  { &hf_dap_sortKeys        , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_OF_SortKey },
+  { &hf_dap_sortKeys        , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_SortKey },
   { &hf_dap_reverse         , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_unmerged        , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { NULL, 0, 0, 0, NULL }
@@ -1608,7 +1563,6 @@ dissect_dap_T_newRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "dap.cnf"
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
@@ -1637,7 +1591,6 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 	}
 	
 
-
   return offset;
 }
 
@@ -1659,6 +1612,118 @@ dissect_dap_PagedResultsRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PagedResultsRequest_choice, hf_index, ett_dap_PagedResultsRequest,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dap_UTCTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTCTime,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dap_GeneralizedTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+static const value_string dap_Time_vals[] = {
+  {   0, "utcTime" },
+  {   1, "generalizedTime" },
+  { 0, NULL }
+};
+
+static const ber_choice_t Time_choice[] = {
+  {   0, &hf_dap_utcTime         , BER_CLASS_UNI, BER_UNI_TAG_UTCTime, BER_FLAGS_NOOWNTAG, dissect_dap_UTCTime },
+  {   1, &hf_dap_generalizedTime , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_dap_GeneralizedTime },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_dap_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 Time_choice, hf_index, ett_dap_Time,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_dap_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+static const value_string dap_ProtectionRequest_vals[] = {
+  {   0, "none" },
+  {   1, "signed" },
+  {   2, "encrypted" },
+  {   3, "signed-encrypted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_dap_ProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string dap_ErrorProtectionRequest_vals[] = {
+  {   0, "none" },
+  {   1, "signed" },
+  {   2, "encrypted" },
+  {   3, "signed-encrypted" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_dap_ErrorProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SecurityParameters_set[] = {
+  { &hf_dap_certification_path, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_x509af_CertificationPath },
+  { &hf_dap_distinguished_name, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
+  { &hf_dap_time            , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Time },
+  { &hf_dap_random          , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
+  { &hf_dap_target          , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_ProtectionRequest },
+  { &hf_dap_response        , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_dap_BIT_STRING },
+  { &hf_dap_operationCode   , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_ros_Code },
+  { &hf_dap_attributeCertificationPath, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_x509af_AttributeCertificationPath },
+  { &hf_dap_errorProtection , BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_dap_ErrorProtectionRequest },
+  { &hf_dap_errorCode       , BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_ros_Code },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_dap_SecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
+                              SecurityParameters_set, hf_index, ett_dap_SecurityParameters);
 
   return offset;
 }
@@ -1782,7 +1847,6 @@ static const ber_sequence_t SimpleCredentials_sequence[] = {
 
 static int
 dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 158 "dap.cnf"
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SimpleCredentials_sequence, hf_index, ett_dap_SimpleCredentials);
@@ -1794,7 +1858,6 @@ dissect_dap_SimpleCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 	
 	
-
 
   return offset;
 }
@@ -1891,9 +1954,7 @@ dissect_dap_EXTERNAL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -1903,9 +1964,7 @@ dissect_dap_T_req(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 static int
 dissect_dap_T_rep(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 133 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -1984,7 +2043,6 @@ static const ber_sequence_t DirectoryBindArgument_set[] = {
 
 int
 dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 139 "dap.cnf"
 
 	guint32 len;
 
@@ -2004,7 +2062,6 @@ dissect_dap_DirectoryBindArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 	  offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               DirectoryBindArgument_set, hf_index, ett_dap_DirectoryBindArgument);
 	
-
 
 
   return offset;
@@ -2043,7 +2100,6 @@ static const value_string dap_ServiceProblem_vals[] = {
 
 static int
 dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 209 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2053,7 +2109,6 @@ dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_ServiceProblem_vals, "ServiceProblem(%d)"));
   }
-
 
 
   return offset;
@@ -2076,7 +2131,6 @@ static const value_string dap_SecurityProblem_vals[] = {
 
 static int
 dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 197 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2086,7 +2140,6 @@ dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_SecurityProblem_vals, "SecurityProblem(%d)"));
   }
-
 
 
   return offset;
@@ -2303,13 +2356,26 @@ dissect_dap_ModifyRights(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_Attribute_sequence_of[1] = {
+  { &hf_dap_notification_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509if_Attribute },
+};
+
+static int
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_SIZE_1_MAX_OF_Attribute_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ReadResultData_set[] = {
   { &hf_dap_entry           , BER_CLASS_CON, 0, 0, dissect_dap_EntryInformation },
   { &hf_dap_modifyRights    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_ModifyRights },
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2432,7 +2498,7 @@ static const ber_sequence_t CompareResultData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2540,7 +2606,7 @@ static const ber_sequence_t AbandonResultData_sequence[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2687,19 +2753,8 @@ static const ber_sequence_t T_subordinates_item_sequence[] = {
 
 static int
 dissect_dap_T_subordinates_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 265 "dap.cnf"
-	proto_item *sub_item;
-
-	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_subordinates_item_sequence, hf_index, ett_dap_T_subordinates_item);
-
-
-	if((sub_item = get_ber_last_created_item())) {
-		
-		proto_item_append_text(sub_item," (%s)", x509if_get_last_dn());
-	}
-
-
 
   return offset;
 }
@@ -2728,7 +2783,6 @@ static const value_string dap_LimitProblem_vals[] = {
 
 static int
 dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 233 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2740,19 +2794,18 @@ dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   }
 
 
-
   return offset;
 }
 
 
-static const ber_sequence_t SET_OF_ContinuationReference_set_of[1] = {
+static const ber_sequence_t SET_SIZE_1_MAX_OF_ContinuationReference_set_of[1] = {
   { &hf_dap_unexplored_item , BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ContinuationReference },
 };
 
 static int
-dissect_dap_SET_OF_ContinuationReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SET_SIZE_1_MAX_OF_ContinuationReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
-                                 SET_OF_ContinuationReference_set_of, hf_index, ett_dap_SET_OF_ContinuationReference);
+                                 SET_SIZE_1_MAX_OF_ContinuationReference_set_of, hf_index, ett_dap_SET_SIZE_1_MAX_OF_ContinuationReference);
 
   return offset;
 }
@@ -2795,12 +2848,12 @@ dissect_dap_T_entryCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static const ber_sequence_t PartialOutcomeQualifier_set[] = {
   { &hf_dap_limitProblem    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_dap_LimitProblem },
-  { &hf_dap_unexplored      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_SET_OF_ContinuationReference },
+  { &hf_dap_unexplored      , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_SET_SIZE_1_MAX_OF_ContinuationReference },
   { &hf_dap_unavailableCriticalExtensions, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
   { &hf_dap_unknownErrors   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_dap_T_unknownErrors },
   { &hf_dap_queryReference  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_OCTET_STRING },
   { &hf_dap_overspecFilter  , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Filter },
-  { &hf_dap_notification    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { &hf_dap_entryCount      , BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_dap_T_entryCount },
   { NULL, 0, 0, 0, NULL }
 };
@@ -2821,7 +2874,7 @@ static const ber_sequence_t T_listInfo_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -2917,7 +2970,6 @@ static const value_string dap_T_subset_vals[] = {
 
 static int
 dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 245 "dap.cnf"
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -2927,7 +2979,6 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(subset, dap_T_subset_vals, "Subset(%d)"));
   }
-
 
 
 
@@ -3020,14 +3071,14 @@ dissect_dap_JoinContextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_JoinContextType_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_JoinContextType_sequence_of[1] = {
   { &hf_dap_joinContext_item, BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_dap_JoinContextType },
 };
 
 static int
-dissect_dap_SEQUENCE_OF_JoinContextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_JoinContextType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_JoinContextType_sequence_of, hf_index, ett_dap_SEQUENCE_OF_JoinContextType);
+                                      SEQUENCE_SIZE_1_MAX_OF_JoinContextType_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinContextType);
 
   return offset;
 }
@@ -3036,7 +3087,7 @@ dissect_dap_SEQUENCE_OF_JoinContextType(gboolean implicit_tag _U_, tvbuff_t *tvb
 static const ber_sequence_t JoinAttPair_sequence[] = {
   { &hf_dap_baseAtt         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509if_AttributeType },
   { &hf_dap_joinAtt         , BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_x509if_AttributeType },
-  { &hf_dap_joinContext     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_OF_JoinContextType },
+  { &hf_dap_joinContext     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_JoinContextType },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3049,14 +3100,14 @@ dissect_dap_JoinAttPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_JoinAttPair_sequence_of[1] = {
+static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_JoinAttPair_sequence_of[1] = {
   { &hf_dap_joinAttributes_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dap_JoinAttPair },
 };
 
 static int
-dissect_dap_SEQUENCE_OF_JoinAttPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_dap_SEQUENCE_SIZE_1_MAX_OF_JoinAttPair(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_JoinAttPair_sequence_of, hf_index, ett_dap_SEQUENCE_OF_JoinAttPair);
+                                      SEQUENCE_SIZE_1_MAX_OF_JoinAttPair_sequence_of, hf_index, ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinAttPair);
 
   return offset;
 }
@@ -3067,7 +3118,7 @@ static const ber_sequence_t JoinArgument_sequence[] = {
   { &hf_dap_domainLocalID   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_dap_DomainLocalID },
   { &hf_dap_joinSubset      , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_dap_T_joinSubset },
   { &hf_dap_joinFilter      , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_dap_Filter },
-  { &hf_dap_joinAttributes  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_JoinAttPair },
+  { &hf_dap_joinAttributes  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_JoinAttPair },
   { &hf_dap_joinSelection   , BER_CLASS_CON, 5, 0, dissect_dap_EntryInformationSelection },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3209,7 +3260,7 @@ static const ber_sequence_t T_searchInfo_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3377,7 +3428,7 @@ static const ber_sequence_t AddEntryResultData_sequence[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3517,7 +3568,7 @@ static const ber_sequence_t RemoveEntryResultData_sequence[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3703,7 +3754,7 @@ static const ber_sequence_t ModifyEntryResultData_sequence[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3809,7 +3860,7 @@ static const ber_sequence_t ModifyDNResultData_sequence[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3886,7 +3937,7 @@ static const ber_sequence_t AbandonedData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3960,7 +4011,7 @@ static const ber_sequence_t AbandonFailedErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4067,7 +4118,7 @@ static const ber_sequence_t AttributeErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4143,7 +4194,7 @@ static const ber_sequence_t NameErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4199,7 +4250,7 @@ static const ber_sequence_t ReferralData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4253,9 +4304,7 @@ dissect_dap_Referral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_dap_T_spkmInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "dap.cnf"
 	/* XXX: not yet implemented */
-
 
 
   return offset;
@@ -4268,7 +4317,7 @@ static const ber_sequence_t SecurityErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4324,7 +4373,7 @@ static const ber_sequence_t ServiceErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4394,7 +4443,6 @@ static const value_string dap_UpdateProblem_vals[] = {
 
 static int
 dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "dap.cnf"
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -4404,7 +4452,6 @@ dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", val_to_str(problem, dap_UpdateProblem_vals, "UpdateProblem(%d)"));
   }
-
 
 
   return offset;
@@ -4452,7 +4499,7 @@ static const ber_sequence_t UpdateErrorData_set[] = {
   { &hf_dap_securityParameters, BER_CLASS_CON, 30, BER_FLAGS_OPTIONAL, dissect_dap_SecurityParameters },
   { &hf_dap_performer       , BER_CLASS_CON, 29, BER_FLAGS_OPTIONAL, dissect_x509if_DistinguishedName },
   { &hf_dap_aliasDereferenced, BER_CLASS_CON, 28, BER_FLAGS_OPTIONAL, dissect_dap_BOOLEAN },
-  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_OF_Attribute },
+  { &hf_dap_notification    , BER_CLASS_CON, 27, BER_FLAGS_OPTIONAL, dissect_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4503,204 +4550,294 @@ dissect_dap_UpdateError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-/*--- End of included file: packet-dap-fn.c ---*/
-#line 78 "packet-dap-template.c"
 
-/*
-* Dissect DAP PDUs inside a ROS PDUs
-*/
-static void
-dissect_dap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
-{
-	int offset = 0;
-	int old_offset;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
-	int (*dap_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
-	char *dap_op_name;
-	asn1_ctx_t asn1_ctx;
+static int
+dissect_dap_DAP_InvokeIDSet(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ros_InvokeId(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
-	/* do we have operation information from the ROS dissector?  */
-	if( !pinfo->private_data ){
-		if(parent_tree){
-			proto_tree_add_text(parent_tree, tvb, offset, -1,
-				"Internal error: can't get operation information from ROS dissector.");
-		} 
-		return  ;
-	} else {
-		session  = ( (struct SESSION_DATA_STRUCTURE*)(pinfo->private_data) );
-	}
-
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_dap, tvb, 0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_dap);
-	}
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAP");
-  	if (check_col(pinfo->cinfo, COL_INFO))
-  		col_clear(pinfo->cinfo, COL_INFO);
-
-	switch(session->ros_op & ROS_OP_MASK) {
-	case (ROS_OP_BIND | ROS_OP_ARGUMENT):	/*  BindInvoke */
-	  dap_dissector = dissect_dap_DirectoryBindArgument;
-	  dap_op_name = "Bind-Argument";
-	  break;
-	case (ROS_OP_BIND | ROS_OP_RESULT):	/*  BindResult */
-	  dap_dissector = dissect_dap_DirectoryBindResult;
-	  dap_op_name = "Bind-Result";
-	  break;
-	case (ROS_OP_BIND | ROS_OP_ERROR):	/*  BindError */
-	  dap_dissector = dissect_dap_DirectoryBindError;
-	  dap_op_name = "Bind-Error";
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_ARGUMENT):	/*  Invoke Argument */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 1: /* read */
-	    dap_dissector = dissect_dap_ReadArgument;
-	    dap_op_name = "Read-Argument";
-	    break;
-	  case 2: /* compare */
-	    dap_dissector = dissect_dap_CompareArgument;
-	    dap_op_name = "Compare-Argument";
-	    break;
-	  case 3: /* abandon */
-	    dap_dissector = dissect_dap_AbandonArgument;
-	    dap_op_name = "Abandon-Argument";
-	    break;
-	  case 4: /* list */
-	    dap_dissector = dissect_dap_ListArgument;
-	    dap_op_name = "List-Argument";
-	    break;
-	  case 5: /* search */
-	    dap_dissector = dissect_dap_SearchArgument;
-	    dap_op_name = "Search-Argument";
-	    break;
-	  case 6: /* addEntry */
-	    dap_dissector = dissect_dap_AddEntryArgument;
-	    dap_op_name = "Add-Entry-Argument";
-	    break;
-	  case 7: /* removeEntry */
-	    dap_dissector = dissect_dap_RemoveEntryArgument;
-	    dap_op_name = "Remove-Entry-Argument";
-	    break;
-	  case 8: /* modifyEntry */
-	    dap_dissector = dissect_dap_ModifyEntryArgument;
-	    dap_op_name = "Modify-Entry-Argument";
-	    break;
-	  case 9: /* modifyDN */
-	    dap_dissector = dissect_dap_ModifyDNArgument;
-	    dap_op_name = "Modify-DN-Argument";
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DAP opcode (%d)",
-				session->ros_op & ROS_OP_OPCODE_MASK);
-	    break;
-	  }
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_RESULT):	/*  Return Result */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 1: /* read */
-	    dap_dissector = dissect_dap_ReadResult;
-	    dap_op_name = "Read-Result";
-	    break;
-	  case 2: /* compare */
-	    dap_dissector = dissect_dap_CompareResult;
-	    dap_op_name = "Compare-Result";
-	    break;
-	  case 3: /* abandon */
-	    dap_dissector = dissect_dap_AbandonResult;
-	    dap_op_name = "Abandon-Result";
-	    break;
-	  case 4: /* list */
-	    dap_dissector = dissect_dap_ListResult;
-	    dap_op_name = "List-Result";
-	    break;
-	  case 5: /* search */
-	    dap_dissector = dissect_dap_SearchResult;
-	    dap_op_name = "Search-Result";
-	    break;
-	  case 6: /* addEntry */
-	    dap_dissector = dissect_dap_AddEntryResult;
-	    dap_op_name = "Add-Entry-Result";
-	    break;
-	  case 7: /* removeEntry */
-	    dap_dissector = dissect_dap_RemoveEntryResult;
-	    dap_op_name = "Remove-Entry-Result";
-	    break;
-	  case 8: /* modifyEntry */
-	    dap_dissector = dissect_dap_ModifyEntryResult;
-	    dap_op_name = "Modify-Entry-Result";
-	    break;
-	  case 9: /* modifyDN */
-	    dap_dissector = dissect_dap_ModifyDNResult;
-	    dap_op_name = "Modify-DN-Result";
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DAP opcode");
-	    break;
-	  }
-	  break;
-	case (ROS_OP_INVOKE | ROS_OP_ERROR):	/*  Return Error */
-	  switch(session->ros_op & ROS_OP_OPCODE_MASK) {
-	  case 1: /* attributeError */
-	    dap_dissector = dissect_dap_AttributeError;
-	    dap_op_name = "Attribute-Error";
-	    break;
-	  case 2: /* nameError */
-	    dap_dissector = dissect_dap_NameError;
-	    dap_op_name = "Name-Error";
-	    break;
-	  case 3: /* serviceError */
-	    dap_dissector = dissect_dap_ServiceError;
-	    dap_op_name = "Service-Error";
-	    break;
-	  case 4: /* referral */
-	    dap_dissector = dissect_dap_Referral;
-	    dap_op_name = "Referral";
-	    break;
-	  case 5: /* abandoned */
-	    dap_dissector = dissect_dap_Abandoned;
-	    dap_op_name = "Abandoned";
-	    break;
-	  case 6: /* securityError */
-	    dap_dissector = dissect_dap_SecurityError;
-	    dap_op_name = "Security-Error";
-	    break;
-	  case 7: /* abandonFailed */
-	    dap_dissector = dissect_dap_AbandonFailedError;
-	    dap_op_name = "Abandon-Failed-Error";
-	    break;
-	  case 8: /* updateError */
-	    dap_dissector = dissect_dap_UpdateError;
-	    dap_op_name = "Update-Error";
-	    break;
-	  default:
-	    proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DAP errcode");
-	    break;
-	  }
-	  break;
-	default:
-	  proto_tree_add_text(tree, tvb, offset, -1,"Unsupported DAP PDU");
-	  return;
-	}
-
-	if(dap_dissector) {
-	  if (check_col(pinfo->cinfo, COL_INFO))
-	    col_set_str(pinfo->cinfo, COL_INFO, dap_op_name);
-
-	  while (tvb_reported_length_remaining(tvb, offset) > 0){
-	    old_offset=offset;
-	    offset=(*dap_dissector)(FALSE, tvb, offset, &asn1_ctx, tree, -1);
-	    if(offset == old_offset){
-	      proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte DAP PDU");
-	      offset = tvb_length(tvb);
-	      break;
-	    }
-	  }
-	}
+  return offset;
 }
+
+/*--- PDUs ---*/
+
+static int dissect_DirectoryBindArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_DirectoryBindArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_DirectoryBindArgument_PDU);
+  return offset;
+}
+static int dissect_DirectoryBindResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_DirectoryBindResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_DirectoryBindResult_PDU);
+  return offset;
+}
+static int dissect_DirectoryBindError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_DirectoryBindError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_DirectoryBindError_PDU);
+  return offset;
+}
+static int dissect_ReadArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ReadArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ReadArgument_PDU);
+  return offset;
+}
+static int dissect_ReadResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ReadResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ReadResult_PDU);
+  return offset;
+}
+static int dissect_CompareArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_CompareArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_CompareArgument_PDU);
+  return offset;
+}
+static int dissect_CompareResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_CompareResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_CompareResult_PDU);
+  return offset;
+}
+static int dissect_AbandonArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AbandonArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AbandonArgument_PDU);
+  return offset;
+}
+static int dissect_AbandonResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AbandonResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AbandonResult_PDU);
+  return offset;
+}
+static int dissect_ListArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ListArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ListArgument_PDU);
+  return offset;
+}
+static int dissect_ListResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ListResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ListResult_PDU);
+  return offset;
+}
+static int dissect_SearchArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_SearchArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_SearchArgument_PDU);
+  return offset;
+}
+static int dissect_SearchResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_SearchResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_SearchResult_PDU);
+  return offset;
+}
+static int dissect_AddEntryArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AddEntryArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AddEntryArgument_PDU);
+  return offset;
+}
+static int dissect_AddEntryResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AddEntryResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AddEntryResult_PDU);
+  return offset;
+}
+static int dissect_RemoveEntryArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_RemoveEntryArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_RemoveEntryArgument_PDU);
+  return offset;
+}
+static int dissect_RemoveEntryResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_RemoveEntryResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_RemoveEntryResult_PDU);
+  return offset;
+}
+static int dissect_ModifyEntryArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ModifyEntryArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ModifyEntryArgument_PDU);
+  return offset;
+}
+static int dissect_ModifyEntryResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ModifyEntryResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ModifyEntryResult_PDU);
+  return offset;
+}
+static int dissect_ModifyDNArgument_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ModifyDNArgument(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ModifyDNArgument_PDU);
+  return offset;
+}
+static int dissect_ModifyDNResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ModifyDNResult(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ModifyDNResult_PDU);
+  return offset;
+}
+static int dissect_Abandoned_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_Abandoned(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_Abandoned_PDU);
+  return offset;
+}
+static int dissect_AbandonFailedError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AbandonFailedError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AbandonFailedError_PDU);
+  return offset;
+}
+static int dissect_AttributeError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_AttributeError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_AttributeError_PDU);
+  return offset;
+}
+static int dissect_NameError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_NameError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_NameError_PDU);
+  return offset;
+}
+static int dissect_Referral_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_Referral(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_Referral_PDU);
+  return offset;
+}
+static int dissect_SecurityError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_SecurityError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_SecurityError_PDU);
+  return offset;
+}
+static int dissect_ServiceError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_ServiceError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_ServiceError_PDU);
+  return offset;
+}
+static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_dap_UpdateError(FALSE, tvb, offset, &asn1_ctx, tree, hf_dap_UpdateError_PDU);
+  return offset;
+}
+
+
+/*--- End of included file: packet-dap-fn.c ---*/
+#line 82 "packet-dap-template.c"
+
+
+/*--- Included file: packet-dap-table11.c ---*/
+#line 1 "packet-dap-table11.c"
+
+static const ros_opr_t dap_opr_tab[] = {
+  /* directoryBind */ 
+  { op_ros_bind              ,	dissect_DirectoryBindArgument_PDU,	dissect_DirectoryBindResult_PDU }, 
+  /* read */ 
+  { id_opcode_read           ,	dissect_ReadArgument_PDU,	dissect_ReadResult_PDU }, 
+  /* compare */ 
+  { id_opcode_compare        ,	dissect_CompareArgument_PDU,	dissect_CompareResult_PDU }, 
+  /* abandon */ 
+  { id_opcode_abandon        ,	dissect_AbandonArgument_PDU,	dissect_AbandonResult_PDU }, 
+  /* list */ 
+  { id_opcode_list           ,	dissect_ListArgument_PDU,	dissect_ListResult_PDU }, 
+  /* search */ 
+  { id_opcode_search         ,	dissect_SearchArgument_PDU,	dissect_SearchResult_PDU }, 
+  /* addEntry */ 
+  { id_opcode_addEntry       ,	dissect_AddEntryArgument_PDU,	dissect_AddEntryResult_PDU }, 
+  /* removeEntry */ 
+  { id_opcode_removeEntry    ,	dissect_RemoveEntryArgument_PDU,	dissect_RemoveEntryResult_PDU }, 
+  /* modifyEntry */ 
+  { id_opcode_modifyEntry    ,	dissect_ModifyEntryArgument_PDU,	dissect_ModifyEntryResult_PDU }, 
+  /* modifyDN */ 
+  { id_opcode_modifyDN       ,	dissect_ModifyDNArgument_PDU,	dissect_ModifyDNResult_PDU }, 
+  { 0,				(new_dissector_t)(-1),	(new_dissector_t)(-1) },
+};
+
+
+/*--- End of included file: packet-dap-table11.c ---*/
+#line 84 "packet-dap-template.c"
+
+/*--- Included file: packet-dap-table21.c ---*/
+#line 1 "packet-dap-table21.c"
+
+static const ros_err_t dap_err_tab[] = {
+  /* directoryBindError*/ 
+  { err_ros_bind,	dissect_DirectoryBindError_PDU },
+  /* abandoned*/ 
+  { id_errcode_abandoned,	dissect_Abandoned_PDU },
+  /* abandonFailed*/ 
+  { id_errcode_abandonFailed,	dissect_AbandonFailedError_PDU },
+  /* attributeError*/ 
+  { id_errcode_attributeError,	dissect_AttributeError_PDU },
+  /* nameError*/ 
+  { id_errcode_nameError,	dissect_NameError_PDU },
+  /* referral*/ 
+  { id_errcode_referral,	dissect_Referral_PDU },
+  /* securityError*/ 
+  { id_errcode_securityError,	dissect_SecurityError_PDU },
+  /* serviceError*/ 
+  { id_errcode_serviceError,	dissect_ServiceError_PDU },
+  /* updateError*/ 
+  { id_errcode_updateError,	dissect_UpdateError_PDU },
+  { 0,	(new_dissector_t)(-1) },
+};
+
+
+/*--- End of included file: packet-dap-table21.c ---*/
+#line 85 "packet-dap-template.c"
+
+static const ros_info_t dap_ros_info = {
+  "DAP",
+  &proto_dap,
+  &ett_dap,
+  dap_opr_code_string_vals,
+  dap_opr_tab,
+  dap_err_code_string_vals,
+  dap_err_tab
+};
 
 
 /*--- proto_register_dap -------------------------------------------*/
@@ -4712,26 +4849,122 @@ void proto_register_dap(void) {
 
 /*--- Included file: packet-dap-hfarr.c ---*/
 #line 1 "packet-dap-hfarr.c"
-    { &hf_dap_securityParameters,
-      { "securityParameters", "dap.securityParameters",
+    { &hf_dap_DirectoryBindArgument_PDU,
+      { "DirectoryBindArgument", "dap.DirectoryBindArgument",
         FT_NONE, BASE_NONE, NULL, 0,
-        "dap.SecurityParameters", HFILL }},
-    { &hf_dap_performer,
-      { "performer", "dap.performer",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "x509if.DistinguishedName", HFILL }},
-    { &hf_dap_aliasDereferenced,
-      { "aliasDereferenced", "dap.aliasDereferenced",
-        FT_BOOLEAN, 8, NULL, 0,
-        "dap.BOOLEAN", HFILL }},
-    { &hf_dap_notification,
-      { "notification", "dap.notification",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SEQUENCE_OF_Attribute", HFILL }},
-    { &hf_dap_notification_item,
-      { "Item", "dap.notification_item",
+        "dap.DirectoryBindArgument", HFILL }},
+    { &hf_dap_DirectoryBindResult_PDU,
+      { "DirectoryBindResult", "dap.DirectoryBindResult",
         FT_NONE, BASE_NONE, NULL, 0,
-        "x509if.Attribute", HFILL }},
+        "dap.DirectoryBindResult", HFILL }},
+    { &hf_dap_DirectoryBindError_PDU,
+      { "DirectoryBindError", "dap.DirectoryBindError",
+        FT_UINT32, BASE_DEC, VALS(dap_DirectoryBindError_vals), 0,
+        "dap.DirectoryBindError", HFILL }},
+    { &hf_dap_ReadArgument_PDU,
+      { "ReadArgument", "dap.ReadArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_ReadArgument_vals), 0,
+        "dap.ReadArgument", HFILL }},
+    { &hf_dap_ReadResult_PDU,
+      { "ReadResult", "dap.ReadResult",
+        FT_UINT32, BASE_DEC, VALS(dap_ReadResult_vals), 0,
+        "dap.ReadResult", HFILL }},
+    { &hf_dap_CompareArgument_PDU,
+      { "CompareArgument", "dap.CompareArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_CompareArgument_vals), 0,
+        "dap.CompareArgument", HFILL }},
+    { &hf_dap_CompareResult_PDU,
+      { "CompareResult", "dap.CompareResult",
+        FT_UINT32, BASE_DEC, VALS(dap_CompareResult_vals), 0,
+        "dap.CompareResult", HFILL }},
+    { &hf_dap_AbandonArgument_PDU,
+      { "AbandonArgument", "dap.AbandonArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_AbandonArgument_vals), 0,
+        "dap.AbandonArgument", HFILL }},
+    { &hf_dap_AbandonResult_PDU,
+      { "AbandonResult", "dap.AbandonResult",
+        FT_UINT32, BASE_DEC, VALS(dap_AbandonResult_vals), 0,
+        "dap.AbandonResult", HFILL }},
+    { &hf_dap_ListArgument_PDU,
+      { "ListArgument", "dap.ListArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_ListArgument_vals), 0,
+        "dap.ListArgument", HFILL }},
+    { &hf_dap_ListResult_PDU,
+      { "ListResult", "dap.ListResult",
+        FT_UINT32, BASE_DEC, VALS(dap_ListResult_vals), 0,
+        "dap.ListResult", HFILL }},
+    { &hf_dap_SearchArgument_PDU,
+      { "SearchArgument", "dap.SearchArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_SearchArgument_vals), 0,
+        "dap.SearchArgument", HFILL }},
+    { &hf_dap_SearchResult_PDU,
+      { "SearchResult", "dap.SearchResult",
+        FT_UINT32, BASE_DEC, VALS(dap_SearchResult_vals), 0,
+        "dap.SearchResult", HFILL }},
+    { &hf_dap_AddEntryArgument_PDU,
+      { "AddEntryArgument", "dap.AddEntryArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_AddEntryArgument_vals), 0,
+        "dap.AddEntryArgument", HFILL }},
+    { &hf_dap_AddEntryResult_PDU,
+      { "AddEntryResult", "dap.AddEntryResult",
+        FT_UINT32, BASE_DEC, VALS(dap_AddEntryResult_vals), 0,
+        "dap.AddEntryResult", HFILL }},
+    { &hf_dap_RemoveEntryArgument_PDU,
+      { "RemoveEntryArgument", "dap.RemoveEntryArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_RemoveEntryArgument_vals), 0,
+        "dap.RemoveEntryArgument", HFILL }},
+    { &hf_dap_RemoveEntryResult_PDU,
+      { "RemoveEntryResult", "dap.RemoveEntryResult",
+        FT_UINT32, BASE_DEC, VALS(dap_RemoveEntryResult_vals), 0,
+        "dap.RemoveEntryResult", HFILL }},
+    { &hf_dap_ModifyEntryArgument_PDU,
+      { "ModifyEntryArgument", "dap.ModifyEntryArgument",
+        FT_UINT32, BASE_DEC, VALS(dap_ModifyEntryArgument_vals), 0,
+        "dap.ModifyEntryArgument", HFILL }},
+    { &hf_dap_ModifyEntryResult_PDU,
+      { "ModifyEntryResult", "dap.ModifyEntryResult",
+        FT_UINT32, BASE_DEC, VALS(dap_ModifyEntryResult_vals), 0,
+        "dap.ModifyEntryResult", HFILL }},
+    { &hf_dap_ModifyDNArgument_PDU,
+      { "ModifyDNArgument", "dap.ModifyDNArgument",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.ModifyDNArgument", HFILL }},
+    { &hf_dap_ModifyDNResult_PDU,
+      { "ModifyDNResult", "dap.ModifyDNResult",
+        FT_UINT32, BASE_DEC, VALS(dap_ModifyDNResult_vals), 0,
+        "dap.ModifyDNResult", HFILL }},
+    { &hf_dap_Abandoned_PDU,
+      { "Abandoned", "dap.Abandoned",
+        FT_UINT32, BASE_DEC, VALS(dap_Abandoned_vals), 0,
+        "dap.Abandoned", HFILL }},
+    { &hf_dap_AbandonFailedError_PDU,
+      { "AbandonFailedError", "dap.AbandonFailedError",
+        FT_UINT32, BASE_DEC, VALS(dap_AbandonFailedError_vals), 0,
+        "dap.AbandonFailedError", HFILL }},
+    { &hf_dap_AttributeError_PDU,
+      { "AttributeError", "dap.AttributeError",
+        FT_UINT32, BASE_DEC, VALS(dap_AttributeError_vals), 0,
+        "dap.AttributeError", HFILL }},
+    { &hf_dap_NameError_PDU,
+      { "NameError", "dap.NameError",
+        FT_UINT32, BASE_DEC, VALS(dap_NameError_vals), 0,
+        "dap.NameError", HFILL }},
+    { &hf_dap_Referral_PDU,
+      { "Referral", "dap.Referral",
+        FT_UINT32, BASE_DEC, VALS(dap_Referral_vals), 0,
+        "dap.Referral", HFILL }},
+    { &hf_dap_SecurityError_PDU,
+      { "SecurityError", "dap.SecurityError",
+        FT_UINT32, BASE_DEC, VALS(dap_SecurityError_vals), 0,
+        "dap.SecurityError", HFILL }},
+    { &hf_dap_ServiceError_PDU,
+      { "ServiceError", "dap.ServiceError",
+        FT_UINT32, BASE_DEC, VALS(dap_ServiceError_vals), 0,
+        "dap.ServiceError", HFILL }},
+    { &hf_dap_UpdateError_PDU,
+      { "UpdateError", "dap.UpdateError",
+        FT_UINT32, BASE_DEC, VALS(dap_UpdateError_vals), 0,
+        "dap.UpdateError", HFILL }},
     { &hf_dap_options,
       { "options", "dap.options",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4804,6 +5037,14 @@ void proto_register_dap(void) {
       { "allOperationalAttributes", "dap.allOperationalAttributes",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.NULL", HFILL }},
+    { &hf_dap_extraSelect,
+      { "select", "dap.select",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dap.SET_SIZE_1_MAX_OF_AttributeType", HFILL }},
+    { &hf_dap_extraSelect_item,
+      { "Item", "dap.select_item",
+        FT_OID, BASE_NONE, NULL, 0,
+        "x509if.AttributeType", HFILL }},
     { &hf_dap_contextSelection,
       { "contextSelection", "dap.contextSelection",
         FT_UINT32, BASE_DEC, VALS(dap_ContextSelection_vals), 0,
@@ -4823,7 +5064,7 @@ void proto_register_dap(void) {
     { &hf_dap_selectedContexts,
       { "selectedContexts", "dap.selectedContexts",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SET_OF_TypeAndContextAssertion", HFILL }},
+        "dap.SET_SIZE_1_MAX_OF_TypeAndContextAssertion", HFILL }},
     { &hf_dap_selectedContexts_item,
       { "Item", "dap.selectedContexts_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4927,7 +5168,7 @@ void proto_register_dap(void) {
     { &hf_dap_family_info,
       { "family-info", "dap.family_info",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SEQUENCE_OF_FamilyEntries", HFILL }},
+        "dap.SEQUENCE_SIZE_1_MAX_OF_FamilyEntries", HFILL }},
     { &hf_dap_family_info_item,
       { "Item", "dap.family_info_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5039,7 +5280,7 @@ void proto_register_dap(void) {
     { &hf_dap_sortKeys,
       { "sortKeys", "dap.sortKeys",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SEQUENCE_OF_SortKey", HFILL }},
+        "dap.SEQUENCE_SIZE_1_MAX_OF_SortKey", HFILL }},
     { &hf_dap_sortKeys_item,
       { "Item", "dap.sortKeys_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5236,18 +5477,6 @@ void proto_register_dap(void) {
       { "algorithm-identifier", "dap.algorithm_identifier",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509af.AlgorithmIdentifier", HFILL }},
-    { &hf_dap_error,
-      { "error", "dap.error",
-        FT_UINT32, BASE_DEC, VALS(dap_T_error_vals), 0,
-        "dap.T_error", HFILL }},
-    { &hf_dap_serviceProblem,
-      { "serviceError", "dap.serviceError",
-        FT_INT32, BASE_DEC, VALS(dap_ServiceProblem_vals), 0,
-        "dap.ServiceProblem", HFILL }},
-    { &hf_dap_securityProblem,
-      { "securityError", "dap.securityError",
-        FT_INT32, BASE_DEC, VALS(dap_SecurityProblem_vals), 0,
-        "dap.SecurityProblem", HFILL }},
     { &hf_dap_unsignedDirectoryBindError,
       { "unsignedDirectoryBindError", "dap.unsignedDirectoryBindError",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5260,6 +5489,18 @@ void proto_register_dap(void) {
       { "directoryBindError", "dap.directoryBindError",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.DirectoryBindErrorData", HFILL }},
+    { &hf_dap_error,
+      { "error", "dap.error",
+        FT_UINT32, BASE_DEC, VALS(dap_T_error_vals), 0,
+        "dap.T_error", HFILL }},
+    { &hf_dap_serviceProblem,
+      { "serviceError", "dap.serviceError",
+        FT_INT32, BASE_DEC, VALS(dap_ServiceProblem_vals), 0,
+        "dap.ServiceProblem", HFILL }},
+    { &hf_dap_securityProblem,
+      { "securityError", "dap.securityError",
+        FT_INT32, BASE_DEC, VALS(dap_SecurityProblem_vals), 0,
+        "dap.SecurityProblem", HFILL }},
     { &hf_dap_object,
       { "object", "dap.object",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
@@ -5276,6 +5517,10 @@ void proto_register_dap(void) {
       { "serviceControls", "dap.serviceControls",
         FT_NONE, BASE_NONE, NULL, 0,
         "dap.ServiceControls", HFILL }},
+    { &hf_dap_securityParameters,
+      { "securityParameters", "dap.securityParameters",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "dap.SecurityParameters", HFILL }},
     { &hf_dap_requestor,
       { "requestor", "dap.requestor",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5336,6 +5581,22 @@ void proto_register_dap(void) {
       { "modifyRights", "dap.modifyRights",
         FT_UINT32, BASE_DEC, NULL, 0,
         "dap.ModifyRights", HFILL }},
+    { &hf_dap_performer,
+      { "performer", "dap.performer",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "x509if.DistinguishedName", HFILL }},
+    { &hf_dap_aliasDereferenced,
+      { "aliasDereferenced", "dap.aliasDereferenced",
+        FT_BOOLEAN, 8, NULL, 0,
+        "dap.BOOLEAN", HFILL }},
+    { &hf_dap_notification,
+      { "notification", "dap.notification",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "dap.SEQUENCE_SIZE_1_MAX_OF_Attribute", HFILL }},
+    { &hf_dap_notification_item,
+      { "Item", "dap.notification_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "x509if.Attribute", HFILL }},
     { &hf_dap_unsignedReadResult,
       { "unsignedReadResult", "dap.unsignedReadResult",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5511,7 +5772,7 @@ void proto_register_dap(void) {
     { &hf_dap_unexplored,
       { "unexplored", "dap.unexplored",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SET_OF_ContinuationReference", HFILL }},
+        "dap.SET_SIZE_1_MAX_OF_ContinuationReference", HFILL }},
     { &hf_dap_unexplored_item,
       { "Item", "dap.unexplored_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5635,7 +5896,7 @@ void proto_register_dap(void) {
     { &hf_dap_joinAttributes,
       { "joinAttributes", "dap.joinAttributes",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SEQUENCE_OF_JoinAttPair", HFILL }},
+        "dap.SEQUENCE_SIZE_1_MAX_OF_JoinAttPair", HFILL }},
     { &hf_dap_joinAttributes_item,
       { "Item", "dap.joinAttributes_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5655,7 +5916,7 @@ void proto_register_dap(void) {
     { &hf_dap_joinContext,
       { "joinContext", "dap.joinContext",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "dap.SEQUENCE_OF_JoinContextType", HFILL }},
+        "dap.SEQUENCE_SIZE_1_MAX_OF_JoinContextType", HFILL }},
     { &hf_dap_joinContext_item,
       { "Item", "dap.joinContext_item",
         FT_OID, BASE_NONE, NULL, 0,
@@ -6170,7 +6431,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 283 "packet-dap-template.c"
+#line 104 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6179,8 +6440,6 @@ void proto_register_dap(void) {
 
 /*--- Included file: packet-dap-ettarr.c ---*/
 #line 1 "packet-dap-ettarr.c"
-    &ett_dap_CommonResults,
-    &ett_dap_SEQUENCE_OF_Attribute,
     &ett_dap_ServiceControls,
     &ett_dap_T_manageDSAITPlaneRef,
     &ett_dap_ServiceControlOptions,
@@ -6188,8 +6447,9 @@ void proto_register_dap(void) {
     &ett_dap_T_attributes,
     &ett_dap_SET_OF_AttributeType,
     &ett_dap_T_extraAttributes,
+    &ett_dap_SET_SIZE_1_MAX_OF_AttributeType,
     &ett_dap_ContextSelection,
-    &ett_dap_SET_OF_TypeAndContextAssertion,
+    &ett_dap_SET_SIZE_1_MAX_OF_TypeAndContextAssertion,
     &ett_dap_TypeAndContextAssertion,
     &ett_dap_T_contextAssertions,
     &ett_dap_SEQUENCE_OF_ContextAssertion,
@@ -6204,7 +6464,7 @@ void proto_register_dap(void) {
     &ett_dap_FamilyEntry,
     &ett_dap_FamilyInformation,
     &ett_dap_T_family_information_item,
-    &ett_dap_SEQUENCE_OF_FamilyEntries,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_FamilyEntries,
     &ett_dap_Filter,
     &ett_dap_SetOfFilter,
     &ett_dap_FilterItem,
@@ -6215,7 +6475,7 @@ void proto_register_dap(void) {
     &ett_dap_T_matchingRule,
     &ett_dap_PagedResultsRequest,
     &ett_dap_T_newRequest,
-    &ett_dap_SEQUENCE_OF_SortKey,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_SortKey,
     &ett_dap_SortKey,
     &ett_dap_SecurityParameters,
     &ett_dap_Time,
@@ -6233,15 +6493,16 @@ void proto_register_dap(void) {
     &ett_dap_SEQUENCE_SIZE_1_MAX_OF_AlgorithmIdentifier,
     &ett_dap_Token,
     &ett_dap_Versions,
-    &ett_dap_DirectoryBindErrorData,
-    &ett_dap_T_error,
     &ett_dap_DirectoryBindError,
     &ett_dap_T_signedDirectoryBindError,
+    &ett_dap_DirectoryBindErrorData,
+    &ett_dap_T_error,
     &ett_dap_ReadArgumentData,
     &ett_dap_Name,
     &ett_dap_ReadArgument,
     &ett_dap_T_signedReadArgument,
     &ett_dap_ReadResultData,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_Attribute,
     &ett_dap_ReadResult,
     &ett_dap_T_signedReadResult,
     &ett_dap_ModifyRights,
@@ -6272,7 +6533,7 @@ void proto_register_dap(void) {
     &ett_dap_ListResult,
     &ett_dap_T_signedListResult,
     &ett_dap_PartialOutcomeQualifier,
-    &ett_dap_SET_OF_ContinuationReference,
+    &ett_dap_SET_SIZE_1_MAX_OF_ContinuationReference,
     &ett_dap_T_unknownErrors,
     &ett_dap_T_entryCount,
     &ett_dap_SearchArgumentData,
@@ -6282,9 +6543,9 @@ void proto_register_dap(void) {
     &ett_dap_HierarchySelections,
     &ett_dap_SearchControlOptions,
     &ett_dap_JoinArgument,
-    &ett_dap_SEQUENCE_OF_JoinAttPair,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinAttPair,
     &ett_dap_JoinAttPair,
-    &ett_dap_SEQUENCE_OF_JoinContextType,
+    &ett_dap_SEQUENCE_SIZE_1_MAX_OF_JoinContextType,
     &ett_dap_SearchResultData,
     &ett_dap_T_searchInfo,
     &ett_dap_SET_OF_EntryInformation,
@@ -6350,13 +6611,12 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 289 "packet-dap-template.c"
+#line 110 "packet-dap-template.c"
   };
   module_t *dap_module;
 
   /* Register protocol */
   proto_dap = proto_register_protocol(PNAME, PSNAME, PFNAME);
-  register_dissector("dap", dissect_dap, proto_dap);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_dap, hf, array_length(hf));
@@ -6364,11 +6624,7 @@ void proto_register_dap(void) {
 
   /* Register our configuration options for DAP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   dap_module = prefs_register_protocol_subtree("OSI/X.500", proto_dap, prefs_register_dap);
-#else
-  dap_module = prefs_register_protocol(proto_dap, prefs_register_dap);
-#endif
 
   prefs_register_uint_preference(dap_module, "tcp.port", "DAP TCP Port",
 				 "Set the port for DAP operations (if other"
@@ -6391,9 +6647,7 @@ void proto_reg_handoff_dap(void) {
   /* ABSTRACT SYNTAXES */
     
   /* Register DAP with ROS (with no use of RTSE) */
-  if((handle = find_dissector("dap"))) {
-    register_ros_oid_dissector_handle("2.5.9.1", handle, 0, "id-as-directory-access", FALSE); 
-  }
+  register_ros_protocol_info("2.5.9.1", &dap_ros_info, 0, "id-as-directory-access", FALSE); 
 
   /* remember the tpkt handler for change in preferences */
   tpkt_handle = find_dissector("tpkt");

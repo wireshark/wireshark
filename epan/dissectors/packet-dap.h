@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dap.h                                                               */
-/* ../../tools/asn2wrs.py -b -e -X -T -p dap -c dap.cnf -s packet-dap-template dap.asn */
+/* ../../tools/asn2wrs.py -b -e -X -T -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
 
 /* Input file: packet-dap-template.h */
 
@@ -66,7 +66,6 @@ extern const value_string dap_Referral_vals[];
 extern const value_string dap_SecurityError_vals[];
 extern const value_string dap_ServiceError_vals[];
 extern const value_string dap_UpdateError_vals[];
-int dissect_dap_CommonResults(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_ContextSelection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_Filter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_dap_SecurityParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

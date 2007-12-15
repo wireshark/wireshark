@@ -70,27 +70,27 @@ IMPORTS
       remote-operations(4) useful-definitions(7) version1(0)}
   InvokeId
     FROM Remote-Operations-Generic-ROS-PDUs {joint-iso-itu-t
-      remote-operations(4) generic-ROS-PDUs(6) version1(0)};
+      remote-operations(4) generic-ROS-PDUs(6) version1(0)}
   -- from RFC 2025
---  SPKM-ERROR, SPKM-REP-TI, SPKM-REQ
---    FROM SpkmGssTokens {iso(1) identified-organization(3) dod(6) internet(1)
---      security(5) mechanisms(5) spkm(1) spkmGssTokens(10)};
+  SPKM-ERROR, SPKM-REP-TI, SPKM-REQ
+    FROM SpkmGssTokens {iso(1) identified-organization(3) dod(6) internet(1)
+      security(5) mechanisms(5) spkm(1) spkmGssTokens(10)};
 
 -- Common data types 
---CommonArguments ::= SET {
---  serviceControls      [30]  ServiceControls DEFAULT {},
---  securityParameters   [29]  SecurityParameters OPTIONAL,
---  requestor            [28]  DistinguishedName OPTIONAL,
---  operationProgress
---    [27]  OperationProgress DEFAULT {nameResolutionPhase notStarted},
---  aliasedRDNs          [26]  INTEGER OPTIONAL,
---  criticalExtensions   [25]  BIT STRING OPTIONAL,
---  referenceType        [24]  ReferenceType OPTIONAL,
---  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
---  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
---  operationContexts    [20]  ContextSelection OPTIONAL,
---  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
---}
+CommonArguments ::= SET {
+  serviceControls      [30]  ServiceControls DEFAULT {},
+  securityParameters   [29]  SecurityParameters OPTIONAL,
+  requestor            [28]  DistinguishedName OPTIONAL,
+  operationProgress
+    [27]  OperationProgress DEFAULT {nameResolutionPhase notStarted},
+  aliasedRDNs          [26]  INTEGER OPTIONAL,
+  criticalExtensions   [25]  BIT STRING OPTIONAL,
+  referenceType        [24]  ReferenceType OPTIONAL,
+  entryOnly            [23]  BOOLEAN DEFAULT TRUE,
+  nameResolveOnMaster  [21]  BOOLEAN DEFAULT FALSE,
+  operationContexts    [20]  ContextSelection OPTIONAL,
+  familyGrouping       [19]  FamilyGrouping DEFAULT entryOnly
+}
 
 FamilyGrouping ::= ENUMERATED {
   entryOnly(1), compoundEntry(2), strands(3), multiStrand(4)}
@@ -99,15 +99,15 @@ CommonResults ::= SET {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
---CommonResultsSeq ::= SEQUENCE {
---  securityParameters  [30]  SecurityParameters OPTIONAL,
---  performer           [29]  DistinguishedName OPTIONAL,
---  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
---  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
---}
+CommonResultsSeq ::= SEQUENCE {
+  securityParameters  [30]  SecurityParameters OPTIONAL,
+  performer           [29]  DistinguishedName OPTIONAL,
+  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
+}
 
 ServiceControls ::= SET {
   options              [0]  ServiceControlOptions DEFAULT {},
@@ -140,7 +140,7 @@ EntryInformationSelection ::= SET {
       DEFAULT attributeTypesAndValues,
   extraAttributes
     CHOICE {allOperationalAttributes  [3]  NULL,
-            select                    [4]  SET --SIZE (1..MAX)-- OF AttributeType
+            select                    [4]  SET SIZE (1..MAX) OF AttributeType
   } OPTIONAL,
   contextSelection  ContextSelection OPTIONAL,
   returnContexts    BOOLEAN DEFAULT FALSE,
@@ -149,7 +149,7 @@ EntryInformationSelection ::= SET {
 
 ContextSelection ::= CHOICE {
   allContexts       NULL,
-  selectedContexts  SET --SIZE (1..MAX)-- OF TypeAndContextAssertion
+  selectedContexts  SET SIZE (1..MAX) OF TypeAndContextAssertion
 }
 
 TypeAndContextAssertion ::= SEQUENCE {
@@ -163,7 +163,7 @@ FamilyReturn ::= SEQUENCE {
   memberSelect
     ENUMERATED {contributingEntriesOnly(1), participatingEntriesOnly(2),
                 compoundEntry(3)},
-  familySelect  SEQUENCE --SIZE (1..MAX)-- OF --OBJECT-CLASS.&id-- OBJECT IDENTIFIER OPTIONAL
+  familySelect  SEQUENCE SIZE (1..MAX) OF OBJECT-CLASS.&id OPTIONAL
 }
 
 
@@ -171,7 +171,7 @@ EntryInformation ::= SEQUENCE {
   name             Name,
   fromEntry        BOOLEAN DEFAULT TRUE,
   information
-    SET --SIZE (1..MAX)-- OF CHOICE {
+    SET SIZE (1..MAX) OF CHOICE {
   attributeType  AttributeType,
   attribute      Attribute}  OPTIONAL,
   incompleteEntry  [3]  BOOLEAN DEFAULT FALSE, -- not in 1988-edition systems
@@ -196,7 +196,7 @@ FamilyEntry ::= SEQUENCE {
   information
     SEQUENCE OF CHOICE {attributeType  AttributeType,
                         attribute      Attribute},
-  family-info  SEQUENCE --SIZE (1..MAX)-- OF FamilyEntries OPTIONAL
+  family-info  SEQUENCE SIZE (1..MAX) OF FamilyEntries OPTIONAL
 }
 
 Filter ::= CHOICE {
@@ -212,21 +212,21 @@ SetOfFilter ::=  SET OF Filter
 FilterItem ::= CHOICE {
   equality          [0]  AttributeValueAssertion,
   substrings
-    [1]  SEQUENCE {type     --ATTRIBUTE.&id({SupportedAttributes})-- OBJECT IDENTIFIER,
+    [1]  SEQUENCE {type     ATTRIBUTE.&id({SupportedAttributes}),
                    strings
                      SEQUENCE OF
                        CHOICE {initial
-                                 [0] --  ATTRIBUTE.&Type -- ANY
---                                        ({SupportedAttributes}
---                                           {@substrings.type})--,
+                                 [0] ATTRIBUTE.&Type
+                                        ({SupportedAttributes}
+                                           {@substrings.type}),
                                any
-                                 [1] -- ATTRIBUTE.&Type -- ANY
---                                        ({SupportedAttributes}
---                                           {@substrings.type})--,
+                                 [1] ATTRIBUTE.&Type
+                                        ({SupportedAttributes}
+                                           {@substrings.type}),
                                final
-                                 [2]  --ATTRIBUTE.&Type --  ANY
---                                        ({SupportedAttributes}
---                                           {@substrings.type})--,
+                                 [2]  ATTRIBUTE.&Type
+                                        ({SupportedAttributes}
+                                           {@substrings.type}),
                                control  Attribute}}, -- Used to specify interpretation of following items
   greaterOrEqual    [2]  AttributeValueAssertion,
   lessOrEqual       [3]  AttributeValueAssertion,
@@ -237,10 +237,10 @@ FilterItem ::= CHOICE {
 }
 
 MatchingRuleAssertion ::= SEQUENCE {
-  matchingRule  [1]  SET --SIZE (1..MAX)-- OF --MATCHING-RULE.&id-- OBJECT IDENTIFIER,
+  matchingRule  [1]  SET SIZE (1..MAX) OF MATCHING-RULE.&id,
   type          [2]  AttributeType OPTIONAL,
   matchValue
-    [3]  --MATCHING-RULE.&AssertionType-- ANY
+    [3]  MATCHING-RULE.&AssertionType
 --           (CONSTRAINED BY {
               -- matchValue shall be a value of  type specified by the &AssertionType field of 
               -- one of the MATCHING-RULE information objects identified by matchingRule }) --,
@@ -250,7 +250,7 @@ MatchingRuleAssertion ::= SEQUENCE {
 PagedResultsRequest ::= CHOICE {
   newRequest
     SEQUENCE {pageSize  INTEGER,
-              sortKeys  SEQUENCE --SIZE (1..MAX)-- OF SortKey OPTIONAL,
+              sortKeys  SEQUENCE SIZE (1..MAX) OF SortKey OPTIONAL,
               reverse   [1]  BOOLEAN DEFAULT FALSE,
               unmerged  [2]  BOOLEAN DEFAULT FALSE},
   queryReference  OCTET STRING
@@ -285,11 +285,12 @@ ErrorProtectionRequest ::= INTEGER {
   none(0), signed(1), encrypted(2), signed-encrypted(3)}
 
 --  Bind and unbind operations 
---directoryBind OPERATION ::= {
---  ARGUMENT  DirectoryBindArgument
---  RESULT    DirectoryBindResult
---  ERRORS    {directoryBindError}
---}
+directoryBind OPERATION ::= {
+  ARGUMENT  DirectoryBindArgument
+  RESULT    DirectoryBindResult
+  ERRORS    {directoryBindError}
+  CODE	    op-ros-bind -- WS: internal operation code
+}
 
 DirectoryBindArgument ::= SET {
   credentials  [0]  Credentials OPTIONAL,
@@ -361,13 +362,14 @@ Versions ::= BIT STRING {v1(0), v2(1)}
 
 DirectoryBindResult ::= DirectoryBindArgument
 
-DirectoryBindErrorData --ERROR-- ::= --{
---  PARAMETER OPTIONALLY-PROTECTED
---    {--SET {versions  [0]  Versions DEFAULT {v1},
-          error
-            CHOICE {serviceError   [1]  ServiceProblem,
-                    securityError  [2]  SecurityProblem}} --}
---}
+directoryBindError ERROR ::= {
+  PARAMETER -- OPTIONALLY-PROTECTED -- DirectoryBindError
+--    {SET {versions  [0]  Versions DEFAULT {v1},
+--          error
+--            CHOICE {serviceError   [1]  ServiceProblem,
+--                    securityError  [2]  SecurityProblem}} }
+  CODE err-ros-bind  -- WS: internal error code
+}
 
 -- expand OPTIONALLY-PROTECTED macro
 DirectoryBindError ::= CHOICE {
@@ -379,20 +381,26 @@ DirectoryBindError ::= CHOICE {
     }
 }
 
+DirectoryBindErrorData ::= 
+    SET {versions  [0]  Versions DEFAULT {v1},
+          error
+            CHOICE {serviceError   [1]  ServiceProblem,
+                    securityError  [2]  SecurityProblem}} 
 
-BindKeyInfo ::= -- ENCRYPTED{-- BIT STRING --
+
+BindKeyInfo ::= -- ENCRYPTED{-- BIT STRING 
 
 --directoryUnbind OPERATION ::= emptyUnbind
 
 --  Operations, arguments, and results 
---read OPERATION ::= {
---  ARGUMENT  ReadArgument
---  RESULT    ReadResult
---  ERRORS
---    {attributeError | nameError | serviceError | referral | abandoned |
---      securityError}
---  CODE      id-opcode-read
---}
+read OPERATION ::= {
+  ARGUMENT  ReadArgument
+  RESULT    ReadResult
+  ERRORS
+    {attributeError | nameError | serviceError | referral | abandoned |
+      securityError}
+  CODE      id-opcode-read
+}
 
 ReadArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -437,7 +445,7 @@ ReadResultData ::=
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }--}
 
 -- OPTIONALLY-PROTECTED macro expansion
@@ -461,14 +469,14 @@ ModifyRights ::=
                 [3]  BIT STRING {add(0), remove(1), rename(2), move(3)}
     }
 
---compare OPERATION ::= {
---  ARGUMENT  CompareArgument
---  RESULT    CompareResult
---  ERRORS
---    {attributeError | nameError | serviceError | referral | abandoned |
---      securityError}
---  CODE      id-opcode-compare
---}
+compare OPERATION ::= {
+  ARGUMENT  CompareArgument
+  RESULT    CompareResult
+  ERRORS
+    {attributeError | nameError | serviceError | referral | abandoned |
+      securityError}
+  CODE      id-opcode-compare
+}
 
 CompareArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -510,7 +518,7 @@ CompareResultData ::=
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 -- OPTIONALLY-PROTECTED macro expansion
@@ -524,12 +532,12 @@ CompareResult ::= CHOICE {
 }
 
 
---abandon OPERATION ::= {
---  ARGUMENT  AbandonArgument
---  RESULT    AbandonResult
---  ERRORS    {abandonFailed}
---  CODE      id-opcode-abandon
---}
+abandon OPERATION ::= {
+  ARGUMENT  AbandonArgument
+  RESULT    AbandonResult
+  ERRORS    {abandonFailed}
+  CODE      id-opcode-abandon
+}
 
 AbandonArgumentData ::=
 --  OPTIONALLY-PROTECTED-SEQ{--SEQUENCE {invokeID  [0]  InvokeId}--}
@@ -550,7 +558,7 @@ AbandonResultData ::= SEQUENCE {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 AbandonResult ::= CHOICE {
@@ -569,12 +577,12 @@ AbandonResult ::= CHOICE {
   }
 }
 
---list OPERATION ::= {
---  ARGUMENT  ListArgument
---  RESULT    ListResult
---  ERRORS    {nameError | serviceError | referral | abandoned | securityError}
---  CODE      id-opcode-list
---}
+list OPERATION ::= {
+  ARGUMENT  ListArgument
+  RESULT    ListResult
+  ERRORS    {nameError | serviceError | referral | abandoned | securityError}
+  CODE      id-opcode-list
+}
 
 ListArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -623,7 +631,7 @@ ListResultData ::=
 		      securityParameters  [30]  SecurityParameters OPTIONAL,
 		      performer           [29]  DistinguishedName OPTIONAL,
 		      aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-		      notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+		      notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 		      },
              uncorrelatedListInfo  [0]  SET OF ListResult}--}
 
@@ -641,14 +649,14 @@ ListResult ::= CHOICE {
 PartialOutcomeQualifier ::= SET {
   limitProblem                   [0]  LimitProblem OPTIONAL,
   unexplored
-    [1]  SET --SIZE (1..MAX)-- OF ContinuationReference OPTIONAL,
+    [1]  SET SIZE (1..MAX) OF ContinuationReference OPTIONAL,
   unavailableCriticalExtensions  [2]  BOOLEAN DEFAULT FALSE,
   unknownErrors
-    [3]  SET --SIZE (1..MAX)-- OF --ABSTRACT-SYNTAX.&Type-- OBJECT IDENTIFIER OPTIONAL,
+    [3]  SET SIZE (1..MAX) OF --ABSTRACT-SYNTAX.&Type-- OBJECT IDENTIFIER OPTIONAL,
   queryReference                 [4]  OCTET STRING OPTIONAL,
   overspecFilter                 [5]  Filter OPTIONAL,
   notification
-    [6]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL,
+    [6]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL,
   entryCount
     CHOICE {bestEstimate  [7]  INTEGER,
             lowEstimate   [8]  INTEGER} OPTIONAL
@@ -658,14 +666,14 @@ LimitProblem ::= INTEGER {
   timeLimitExceeded(0), sizeLimitExceeded(1), administrativeLimitExceeded(2)
 }
 
---search OPERATION ::= {
---  ARGUMENT  SearchArgument
---  RESULT    SearchResult
---  ERRORS
---    {attributeError | nameError | serviceError | referral | abandoned |
---      securityError}
---  CODE      id-opcode-search
---}
+search OPERATION ::= {
+  ARGUMENT  SearchArgument
+  RESULT    SearchResult
+  ERRORS
+    {attributeError | nameError | serviceError | referral | abandoned |
+      securityError}
+  CODE      id-opcode-search
+}
 
 SearchArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -732,7 +740,7 @@ JoinArgument ::= SEQUENCE {
     [2]  ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
       DEFAULT baseObject,
   joinFilter      [3]  Filter OPTIONAL,
-  joinAttributes  [4]  SEQUENCE --SIZE (1..MAX)-- OF JoinAttPair OPTIONAL,
+  joinAttributes  [4]  SEQUENCE SIZE (1..MAX) OF JoinAttPair OPTIONAL,
   joinSelection   [5]  EntryInformationSelection
 }
 
@@ -741,7 +749,7 @@ DomainLocalID ::= DirectoryString --{ub-domainLocalID}--
 JoinAttPair ::= SEQUENCE {
   baseAtt      AttributeType,
   joinAtt      AttributeType,
-  joinContext  SEQUENCE --SIZE (1..MAX)-- OF JoinContextType OPTIONAL
+  joinContext  SEQUENCE SIZE (1..MAX) OF JoinContextType OPTIONAL
 }
 
 JoinContextType ::= --CONTEXT.&id({SupportedContexts})-- OBJECT IDENTIFIER
@@ -758,7 +766,7 @@ SearchResultData ::=
 		    securityParameters  [30]  SecurityParameters OPTIONAL,
 		    performer           [29]  DistinguishedName OPTIONAL,
 		    aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-		    notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL},
+		    notification        [27]  SEQUENCE SIZE (1..MAX)OF Attribute OPTIONAL},
              uncorrelatedSearchInfo  [0]  SET OF SearchResult}--}
 
 -- expand OPTIONALLY-PROTECTED macro
@@ -772,14 +780,14 @@ SearchResult ::= CHOICE {
 }
 
 
---addEntry OPERATION ::= {
---  ARGUMENT  AddEntryArgument
---  RESULT    AddEntryResult
---  ERRORS
---    {attributeError | nameError | serviceError | referral | securityError |
---      updateError}
---  CODE      id-opcode-addEntry
---}
+addEntry OPERATION ::= {
+  ARGUMENT  AddEntryArgument
+  RESULT    AddEntryResult
+  ERRORS
+    {attributeError | nameError | serviceError | referral | securityError |
+      updateError}
+  CODE      id-opcode-addEntry
+}
 
 AddEntryArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -815,7 +823,7 @@ AddEntryResultData ::= SEQUENCE {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 AddEntryResult ::= CHOICE {
@@ -832,12 +840,12 @@ AddEntryResult ::= CHOICE {
   }
 }
 
---removeEntry OPERATION ::= {
---  ARGUMENT  RemoveEntryArgument
---  RESULT    RemoveEntryResult
---  ERRORS    {nameError | serviceError | referral | securityError | updateError}
---  CODE      id-opcode-removeEntry
---}
+removeEntry OPERATION ::= {
+  ARGUMENT  RemoveEntryArgument
+  RESULT    RemoveEntryResult
+  ERRORS    {nameError | serviceError | referral | securityError | updateError}
+  CODE      id-opcode-removeEntry
+}
 
 RemoveEntryArgumentData ::=
 --  OPTIONALLY-PROTECTED{--SET {object  [0]  Name,
@@ -871,7 +879,7 @@ RemoveEntryResultData ::= SEQUENCE {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 RemoveEntryResult ::= CHOICE {
@@ -888,14 +896,14 @@ RemoveEntryResult ::= CHOICE {
   }
 }
 
---modifyEntry OPERATION ::= {
---  ARGUMENT  ModifyEntryArgument
---  RESULT    ModifyEntryResult
---  ERRORS
---    {attributeError | nameError | serviceError | referral | securityError |
---      updateError}
---  CODE      id-opcode-modifyEntry
---}
+modifyEntry OPERATION ::= {
+  ARGUMENT  ModifyEntryArgument
+  RESULT    ModifyEntryResult
+  ERRORS
+    {attributeError | nameError | serviceError | referral | securityError |
+      updateError}
+  CODE      id-opcode-modifyEntry
+}
 
 ModifyEntryArgumentData ::=
 --  OPTIONALLY-PROTECTED
@@ -933,7 +941,7 @@ ModifyEntryResultData ::= SEQUENCE {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 ModifyEntryResult ::= CHOICE {
@@ -959,12 +967,12 @@ EntryModification ::= CHOICE {
   resetValue       [5]  AttributeType
 }
 
---modifyDN OPERATION ::= {
---  ARGUMENT  ModifyDNArgument
---  RESULT    ModifyDNResult
---  ERRORS    {nameError | serviceError | referral | securityError | updateError}
---  CODE      id-opcode-modifyDN
---}
+modifyDN OPERATION ::= {
+  ARGUMENT  ModifyDNArgument
+  RESULT    ModifyDNResult
+  ERRORS    {nameError | serviceError | referral | securityError | updateError}
+  CODE      id-opcode-modifyDN
+}
 
 ModifyDNArgument ::=
 --  OPTIONALLY-PROTECTED
@@ -992,7 +1000,7 @@ ModifyDNResultData ::= SEQUENCE {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
 
@@ -1013,17 +1021,17 @@ ModifyDNResult ::= CHOICE {
 
 -- Errors and parameters 
 
+abandoned ERROR ::= { -- not literally an "error"
+  PARAMETER --OPTIONALLY-PROTECTED  {SET {COMPONENTS OF CommonResults}}-- Abandoned
+  CODE                            id-errcode-abandoned
+}
+
 AbandonedData ::= SET {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
-
---abandoned ERROR ::= { - - not literally an "error"
---  PARAMETER OPTIONALLY-PROTECTED  {SET {COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-abandoned
---}
 
 Abandoned ::= CHOICE {
   unsignedAbandoned 	 AbandonedData,
@@ -1034,6 +1042,13 @@ Abandoned ::= CHOICE {
     }
 }
 
+abandonFailed ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- AbandonFailedError
+--    {SET {problem    [0]  AbandonProblem,
+--          operation  [1]  InvokeId,
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-abandonFailed
+}
 
 AbandonFailedErrorData ::= SET {
   problem             [0]  AbandonProblem,	
@@ -1041,17 +1056,8 @@ AbandonFailedErrorData ::= SET {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
-
-
---abandonFailed ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {problem    [0]  AbandonProblem,
---          operation  [1]  InvokeId,
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-abandonFailed
---}
 
 AbandonFailedError ::= CHOICE {
   unsignedAbandonFailedError AbandonFailedErrorData,
@@ -1064,6 +1070,18 @@ AbandonFailedError ::= CHOICE {
 
 AbandonProblem ::= INTEGER {noSuchOperation(1), tooLate(2), cannotAbandon(3)}
 
+attributeError ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- AttributeError
+--    {SET {object    [0]  Name,
+--          problems
+--            [1]  SET OF
+--                   SEQUENCE {problem  [0]  AttributeProblem,
+--                             type     [1]  AttributeType,
+--                             value    [2]  AttributeValue OPTIONAL},
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-attributeError
+}
+
 AttributeErrorData ::= SET {
   object    	      [0]  Name,
   problems
@@ -1074,21 +1092,8 @@ AttributeErrorData ::= SET {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
-
-
---attributeError ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {object    [0]  Name,
---          problems
---            [1]  SET OF
---                   SEQUENCE {problem  [0]  AttributeProblem,
---                             type     [1]  AttributeType,
---                             value    [2]  AttributeValue OPTIONAL},
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-attributeError
---}
 
 AttributeError ::= CHOICE {
   unsignedAttributeError AttributeErrorData,
@@ -1104,6 +1109,13 @@ AttributeProblem ::= INTEGER {
   undefinedAttributeType(3), inappropriateMatching(4), constraintViolation(5),
   attributeOrValueAlreadyExists(6), contextViolation(7)}
 
+nameError ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- NameError
+--    {SET {problem  [0]  NameProblem,
+--          matched  [1]  Name,
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-nameError
+}
 
 NameErrorData ::= SET {
   problem  	      [0]  NameProblem,
@@ -1111,16 +1123,9 @@ NameErrorData ::= SET {
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
 
---nameError ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {problem  [0]  NameProblem,
---          matched  [1]  Name,
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-nameError
---}
 
 NameError ::= CHOICE {
   unsignedNameError NameErrorData,
@@ -1131,26 +1136,25 @@ NameError ::= CHOICE {
     }
 }
 
-
 NameProblem ::= INTEGER {
   noSuchObject(1), aliasProblem(2), invalidAttributeSyntax(3),
   aliasDereferencingProblem(4), contextProblem(5)}
+
+referral ERROR ::= { -- not literally an "error"
+  PARAMETER --OPTIONALLY-PROTECTED-- Referral
+--    {SET {candidate  [0]  ContinuationReference,
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-referral
+}
 
 ReferralData ::= SET {
   candidate  	      [0]  ContinuationReference,
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 
 }
-
---referral ERROR ::= { - - not literally an "error"
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {candidate  [0]  ContinuationReference,
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-referral
---}
 
 Referral ::= CHOICE {
   unsignedReferral ReferralData,
@@ -1161,22 +1165,22 @@ Referral ::= CHOICE {
     }
 }
 
+securityError ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- SecurityError
+--    {SET {problem   [0]  SecurityProblem,
+--          spkmInfo  [1]  SPKM-ERROR,
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-securityError
+}
+
 SecurityErrorData ::= SET {
   problem             [0]  SecurityProblem,
   spkmInfo  	      [1]  -- SPKM-ERROR -- ANY,
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
-
---securityError ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {problem   [0]  SecurityProblem,
---          spkmInfo  [1]  SPKM-ERROR,
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-securityError
---}
 
 SecurityError ::= CHOICE {
   unsignedSecurityError SecurityErrorData,
@@ -1194,21 +1198,21 @@ SecurityProblem ::= INTEGER {
   noInformation(6), blockedCredentials(7), invalidQOPMatch(8), spkmError(9)
 }
 
+
+serviceError ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- ServiceError
+--    {SET {problem  [0]  ServiceProblem,
+--          COMPONENTS OF CommonResults}}
+  CODE                            id-errcode-serviceError
+}
+
 ServiceErrorData ::= SET {
   problem             [0]  ServiceProblem,
   securityParameters  [30]  SecurityParameters OPTIONAL,
   performer           [29]  DistinguishedName OPTIONAL,
   aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
 }
-
-
---serviceError ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
---    {SET {problem  [0]  ServiceProblem,
---          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-serviceError
---}
 
 ServiceError ::= CHOICE {
   unsignedServiceError ServiceErrorData,
@@ -1228,28 +1232,29 @@ ServiceProblem ::= INTEGER {
   invalidQueryReference(13), requestedServiceNotAvailable(14),
   relaxationNotSupported(15), unsupportedMatchingUse(16)}
 
-UpdateErrorData ::= SET {
-  problem             [0]  UpdateProblem,
-  attributeInfo
-                      [1]  SET --SIZE (1..MAX)-- OF
-                             CHOICE {attributeType  AttributeType,
-                                     attribute      Attribute} OPTIONAL,
-  securityParameters  [30]  SecurityParameters OPTIONAL,
-  performer           [29]  DistinguishedName OPTIONAL,
-  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
-  notification        [27]  SEQUENCE --SIZE (1..MAX)-- OF Attribute OPTIONAL
-}
 
---updateError ERROR ::= {
---  PARAMETER OPTIONALLY-PROTECTED
+updateError ERROR ::= {
+  PARAMETER --OPTIONALLY-PROTECTED-- UpdateError
 --    {SET {problem        [0]  UpdateProblem,
 --          attributeInfo
 --            [1]  SET SIZE (1..MAX) OF
 --                   CHOICE {attributeType  AttributeType,
 --                           attribute      Attribute} OPTIONAL,
 --          COMPONENTS OF CommonResults}}
---  CODE                            id-errcode-updateError
---}
+  CODE                            id-errcode-updateError
+}
+
+UpdateErrorData ::= SET {
+  problem             [0]  UpdateProblem,
+  attributeInfo
+                      [1]  SET SIZE (1..MAX) OF
+                             CHOICE {attributeType  AttributeType,
+                                     attribute      Attribute} OPTIONAL,
+  securityParameters  [30]  SecurityParameters OPTIONAL,
+  performer           [29]  DistinguishedName OPTIONAL,
+  aliasDereferenced   [28]  BOOLEAN DEFAULT FALSE,
+  notification        [27]  SEQUENCE SIZE (1..MAX) OF Attribute OPTIONAL
+}
 
 UpdateError ::= CHOICE {
   unsignedUpdateError UpdateErrorData,
