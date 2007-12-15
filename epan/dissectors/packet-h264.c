@@ -151,6 +151,8 @@ static int hf_h264_time_offset_length				= -1;
 
 static int hf_h264_first_mb_in_slice				= -1;
 static int hf_h264_slice_type						= -1;
+static int hf_h264_slice_id							= -1;
+static int hf_h264_frame_num						= -1;
 
 /* Initialize the subtree pointers */
 static int ett_h264 = -1;
@@ -335,6 +337,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 
 	if(leading_zero_bits==0){
 		codenum = 0;
+		*start_bit_offset = bit_offset;
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
 				strcat(str, " ");
@@ -351,31 +354,30 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 						  str,
 						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
 						  codenum);
-				}
-				switch(hf_field->display){
-					case BASE_DEC:
-						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
-					         "%s: %u",
-							  str,
-							  codenum);
-						break;
-					case BASE_HEX:
-						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
-				             "%s: 0x%x",
-							  str,
-							  codenum);
-						break;
-					default:
-						DISSECTOR_ASSERT_NOT_REACHED();
-						break;
+				}else{
+					switch(hf_field->display){
+						case BASE_DEC:
+							proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+						         "%s: %u",
+								  str,
+								  codenum);
+							break;
+						case BASE_HEX:
+							proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+					             "%s: 0x%x",
+								  str,
+								  codenum);
+							break;
+						default:
+							DISSECTOR_ASSERT_NOT_REACHED();
+							break;
+					}
 				}
 			}else{
 				/* Only allow guint32 */
 				DISSECTOR_ASSERT_NOT_REACHED();
 			}
 		}
-
-		*start_bit_offset = bit_offset;
 		return codenum;
 	}
 
@@ -433,23 +435,24 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 						  str,
 						  val_to_str(codenum, cVALS(hf_field->strings), "Unknown "),
 						  codenum);
-			}
-			switch(hf_field->display){
-				case BASE_DEC:
-					proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
-				         "%s: %u",
-						  str,
-						  codenum);
-					break;
-				case BASE_HEX:
-					proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
-			             "%s: 0x%x",
-						  str,
-						  codenum);
-					break;
-				default:
-					DISSECTOR_ASSERT_NOT_REACHED();
-					break;
+			}else{
+				switch(hf_field->display){
+					case BASE_DEC:
+						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+					         "%s: %u",
+							  str,
+							  codenum);
+						break;
+					case BASE_HEX:
+						proto_tree_add_uint_format(tree, hf_index, tvb, bit_offset>>3, 1, codenum,
+				             "%s: 0x%x",
+							  str,
+							  codenum);
+						break;
+					default:
+						DISSECTOR_ASSERT_NOT_REACHED();
+						break;
+				}
 			}
 		}else{
 			/* Only allow guint32 */
@@ -536,6 +539,8 @@ dissect_h264_slice_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U
 	dissect_h264_exp_golomb_code(tree, hf_h264_pic_parameter_set_id, tvb, &bit_offset);
 	
 	/* frame_num 2 u(v) */
+	/* XXXX Is frame_num allways 4 bits in the bit stream? */
+	proto_tree_add_bits_item(tree, hf_h264_frame_num, tvb, bit_offset, 4, FALSE);
 
 	return bit_offset;
 }
@@ -844,7 +849,7 @@ dissect_h264_slice_layer_without_partitioning_rbsp(proto_tree *tree, tvbuff_t *t
 	/* slice_header( ) 2 */
 	bit_offset = dissect_h264_slice_header(tree, tvb, pinfo, bit_offset);
 	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
-	return; /* Note complete header not dissected yet */
+	return; 
 	/* slice_data( ) * all categories of slice_data( ) syntax * 2 | 3 | 4 */
 	/* rbsp_slice_trailing_bits( ) */
 
@@ -863,9 +868,11 @@ dissect_h264_slice_data_partition_a_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 
 	/* slice_header( ) 2 */
 	bit_offset = dissect_h264_slice_header(tree, tvb, pinfo, bit_offset);
-	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
-	return; /* Note complete header not dissected yet */
+
 	/* slice_id All ue(v) */
+	dissect_h264_exp_golomb_code(tree, hf_h264_slice_id, tvb, &bit_offset);
+	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
+	return; 
 	/* slice_data( ) * only category 2 parts of slice_data( ) syntax * 2*/
 	/* rbsp_slice_trailing_bits( )*/
 
@@ -878,12 +885,17 @@ dissect_h264_slice_data_partition_a_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 static void
 dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
+	gint bit_offset;
+
+	bit_offset = offset <<3;
+
 	/* slice_id All ue(v) */
+	dissect_h264_exp_golomb_code(tree, hf_h264_slice_id, tvb, &bit_offset);
 	/* if( redundant_pic_cnt_present_flag )	*/
 	/* redundant_pic_cnt All ue(v) */
 	/* slice_data( ) * only category 3 parts of slice_data( ) syntax * 3 */
 	/* rbsp_slice_trailing_bits( ) 3 */
-	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
+	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
 
 }
 
@@ -894,13 +906,17 @@ dissect_h264_slice_data_partition_b_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, 
 static void
 dissect_h264_slice_data_partition_c_layer_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
 {
+	gint bit_offset;
+
+	bit_offset = offset <<3;
 
 	/* slice_id All ue(v) */
+	dissect_h264_exp_golomb_code(tree, hf_h264_slice_id, tvb, &bit_offset);
 	/* if( redundant_pic_cnt_present_flag ) */
 	/* redundant_pic_cnt All ue(v) */
 	/* slice_data( ) * only category 4 parts of slice_data( ) syntax * 4 */
 	/* rbsp_slice_trailing_bits( ) 4 */
-	proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
+	proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
 
 }
 /*
@@ -1397,6 +1413,11 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_f_bit, tvb, offset, 1, FALSE);
 		proto_tree_add_item(h264_nal_tree, hf_h264_nal_nri, tvb, offset, 1, FALSE);
 		type = tvb_get_guint8(tvb,offset)&0x1f;
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+				val_to_str(type, h264_type_values, "Unknown Type (%u)"));
+		}
+
 		proto_tree_add_item(h264_nal_tree, hf_h264_type, tvb, offset, 1, FALSE);
 		offset++;
 		stream_item =proto_tree_add_text(h264_tree, tvb, offset, -1, "H264 bitstream");
@@ -1404,6 +1425,12 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(type){
 		case 1:				/* 1 Coded slice of a non-IDR picture */ 
 			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, tvb, pinfo, offset);
+			break;
+		case 3:	/* Coded slice data partition B */
+			dissect_h264_slice_data_partition_b_layer_rbsp(h264_nal_tree, tvb, pinfo, offset);
+			break;
+		case 4:	/* Coded slice data partition C */
+			dissect_h264_slice_data_partition_c_layer_rbsp(h264_nal_tree, tvb, pinfo, offset);
 			break;
 		case 5:	/* Coded slice of an IDR picture */
 			dissect_h264_slice_layer_without_partitioning_rbsp(stream_tree, tvb, pinfo, offset);
@@ -1981,6 +2008,16 @@ proto_register_h264(void)
 			{ "slice_type",           "h264.slice_type",
 			FT_UINT32, BASE_DEC, VALS(h264_slice_type_vals), 0x0,          
 			"slice_type", HFILL }
+		},
+		{ &hf_h264_slice_id,
+			{ "slice_id",           "h264.slice_id",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"slice_id", HFILL }
+		},
+		{ &hf_h264_frame_num,
+			{ "frame_num",           "h264.frame_num",
+			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"frame_num", HFILL }
 		},
 	};
 
