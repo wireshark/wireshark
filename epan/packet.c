@@ -1761,6 +1761,20 @@ new_register_dissector(const char *name, new_dissector_t dissector, int proto)
 	    (gpointer) handle);
 }
 
+/* Call a dissector through a handle but if the dissector rejected it
+ * return 0.
+ */
+int
+call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree)
+{
+	int ret;
+
+	g_assert(handle != NULL);
+	ret = call_dissector_work(handle, tvb, pinfo, tree);
+	return ret;
+}
+
 /* Call a dissector through a handle and if this fails call the "data"
  * dissector.
  */
@@ -1770,8 +1784,7 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 {
 	int ret;
 
-	g_assert(handle != NULL);
-	ret = call_dissector_work(handle, tvb, pinfo, tree);
+	ret = call_dissector_only(handle, tvb, pinfo, tree);
 	if (ret == 0) {
 		/*
 		 * The protocol was disabled, or the dissector rejected
@@ -1779,22 +1792,9 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		 */
 	        g_assert(data_handle != NULL);
 		g_assert(data_handle->protocol != NULL);
-		call_dissector_only(data_handle, tvb, pinfo, tree);
+		call_dissector_work(data_handle, tvb, pinfo, tree);
 		return tvb_length(tvb);
 	}
-	return ret;
-}
-
-/* Call a dissector through a handle but if the dissector rejected it
- * return 0 instead of using the default "data" dissector.
- */
-int
-call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
-    packet_info *pinfo, proto_tree *tree)
-{
-	int ret;
-
-	ret = call_dissector_work(handle, tvb, pinfo, tree);
 	return ret;
 }
 
