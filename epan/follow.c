@@ -60,7 +60,7 @@ static guint   port[2];
 static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
 
-static int check_fragments( int, tcp_stream_chunk * );
+static int check_fragments( int, tcp_stream_chunk *, gulong );
 static void write_packet_data( int, tcp_stream_chunk *, const char * );
 
 void
@@ -148,9 +148,10 @@ static guint8 src_addr[2][MAX_IPADDR_LEN];
 static guint src_port[2] = { 0, 0 };
 
 void
-reassemble_tcp( gulong sequence, gulong length, const char* data,
-		gulong data_length, int synflag, address *net_src,
-		address *net_dst, guint srcport, guint dstport) {
+reassemble_tcp( gulong sequence, gulong acknowledgement, gulong length,
+                const char* data, gulong data_length, int synflag,
+                address *net_src, address *net_dst, 
+                guint srcport, guint dstport) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
   gulong newseq;
@@ -189,11 +190,6 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
      )
     return;
 
-  /* Initialize our stream chunk.  This data gets written to disk. */
-  memcpy(sc.src_addr, srcx, len);
-  sc.src_port = srcport;
-  sc.dlen     = data_length;
-
   /* Check to see if we have seen this source IP and port before.
      (Yes, we have to check both source IP and port; the connection
      might be between two different ports on the same machine.) */
@@ -223,6 +219,24 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
   if( data_length < length ) {
     incomplete_tcp_stream = TRUE;
   }
+
+  /* Before adding data for this flow to the data_out_file, check whether
+   * this frame acks fragments that were already seen. This happens when
+   * frames are not in the capture file, but were actually seen by the 
+   * receiving host (Fixes bug 592).
+   */
+  if( frags[1-src_index] ) {
+    memcpy(sc.src_addr, dstx, len);
+    sc.src_port = dstport;
+    sc.dlen     = 0;        /* Will be filled in in check_fragments */
+    while ( check_fragments( 1-src_index, &sc, acknowledgement ) )
+      ;
+  }
+
+  /* Initialize our stream chunk.  This data gets written to disk. */
+  memcpy(sc.src_addr, srcx, len);
+  sc.src_port = srcport;
+  sc.dlen     = data_length;
 
   /* now that we have filed away the srcs, lets get the sequence number stuff
      figured out */
@@ -274,7 +288,7 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
       write_packet_data( src_index, &sc, data );
     }
     /* done with the packet, see if it caused a fragment to fit */
-    while( check_fragments( src_index, &sc ) )
+    while( check_fragments( src_index, &sc, 0 ) )
       ;
   }
   else {
@@ -299,30 +313,49 @@ reassemble_tcp( gulong sequence, gulong length, const char* data,
 /* here we search through all the frag we have collected to see if
    one fits */
 static int
-check_fragments( int index, tcp_stream_chunk *sc ) {
+check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
   tcp_frag *prev = NULL;
   tcp_frag *current;
+  gulong lowest_seq;
+  gchar *dummy_str;
+
   current = frags[index];
-  while( current ) {
-    if( current->seq == seq[index] ) {
-      /* this fragment fits the stream */
-      if( current->data ) {
-        sc->dlen = current->data_len;
-	write_packet_data( index, sc, current->data );
+  if( current ) {
+    lowest_seq = current->seq;
+    while( current ) {
+      if( current->seq == seq[index] ) {
+        /* this fragment fits the stream */
+        if( current->data ) {
+          sc->dlen = current->data_len;
+          write_packet_data( index, sc, current->data );
+        }
+        seq[index] += current->len;
+        if( prev ) {
+          prev->next = current->next;
+        } else {
+          frags[index] = current->next;
+        }
+        g_free( current->data );
+        g_free( current );
+        return 1;
       }
-      seq[index] += current->len;
-      if( prev ) {
-	prev->next = current->next;
-      } else {
-	frags[index] = current->next;
-      }
-      g_free( current->data );
-      g_free( current );
+      prev = current;
+      current = current->next;
+    }
+    if( acknowledged - lowest_seq > 0 ) {
+      /* There are frames missing in the capture file that were seen
+       * by the receiving host. Add dummy stream chunk with the data
+       * "[xxx bytes missing in capture file]".
+       */
+      dummy_str = g_strdup_printf("[%d bytes missing in capture file]",
+                        (int)(lowest_seq - seq[index]) );
+      sc->dlen = strlen(dummy_str);
+      write_packet_data( index, sc, dummy_str );
+      g_free(dummy_str);
+      seq[index] = lowest_seq;
       return 1;
     }
-    prev = current;
-    current = current->next;
-  }
+  } 
   return 0;
 }
 

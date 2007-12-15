@@ -3055,11 +3055,12 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tcph->th_have_seglen) {
     if( data_out_file ) {
-      reassemble_tcp( tcph->th_seq,		/* sequence number */
-          tcph->th_seglen,			/* data length */
+      reassemble_tcp( tcph->th_seq,             /* sequence number */
+          tcph->th_ack,                         /* acknowledgement number */
+          tcph->th_seglen,                      /* data length */
           (gchar*)tvb_get_ptr(tvb, offset, length_remaining),	/* data */
-          length_remaining,		/* captured data length */
-          ( tcph->th_flags & TH_SYN ),		/* is syn set? */
+          length_remaining,                     /* captured data length */
+          ( tcph->th_flags & TH_SYN ),          /* is syn set? */
           &pinfo->net_src,
           &pinfo->net_dst,
           pinfo->srcport,

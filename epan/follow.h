@@ -42,7 +42,7 @@ typedef struct _tcp_stream_chunk {
 } tcp_stream_chunk;
 
 char* build_follow_filter( packet_info * );
-void reassemble_tcp( gulong, gulong, const char*, gulong, int,
+void reassemble_tcp( gulong, gulong, gulong, const char*, gulong, int,
 		     address *, address *, guint, guint );
 void  reset_tcp_reassembly( void );
 
