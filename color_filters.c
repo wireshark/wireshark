@@ -62,6 +62,10 @@ static GSList *color_filter_valid_list = NULL;
 /* Color Filters can en-/disabled. */
 gboolean filters_enabled = TRUE;
 
+/* Remember if there are temporary coloring filters set to
+ * add sensitivity to the "Reset Coloring 1-10" menu item
+ */
+gboolean tmp_colors_set = FALSE;
 
 /* Create a new filter */
 color_filter_t *
@@ -183,6 +187,9 @@ color_filters_set_tmp(guint8 filt_nr, gchar *filter, gboolean disabled)
                                 colorf->filter_text = g_strdup(tmpfilter);
                                 colorf->c_colorfilter = compiled_filter;
                                 colorf->disabled = ((i!=filt_nr) ? TRUE : disabled);
+                                /* Remember that there are now temporary coloring filters set */
+                                if( filter )
+                                        tmp_colors_set = TRUE;
                         }
                 }
                 g_free(name);
@@ -199,6 +206,8 @@ color_filters_reset_tmp()
         for ( i=1 ; i<=10 ; i++ ) {
             color_filters_set_tmp(i, NULL, TRUE);
         }
+        /* Remember that there are now *no* temporary coloring filters set */
+        tmp_colors_set = FALSE;
 	return;
 }
 
@@ -371,6 +380,12 @@ gboolean
 color_filters_used(void)
 {
         return color_filter_list != NULL && filters_enabled;
+}
+
+gboolean 
+tmp_color_filters_used(void)
+{
+        return tmp_colors_set;
 }
 
 void

@@ -613,7 +613,7 @@ static GtkItemFactoryEntry menu_items[] =
                        NULL, 0, "<Separator>",NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/Colorize Conversation/New Coloring Rule...", NULL,
                        colorize_conversation_cb, 0, GTK_STOCK_SELECT_COLOR),
-    ITEM_FACTORY_ENTRY("/View/Reset Coloring", "<control>space",
+    ITEM_FACTORY_ENTRY("/View/Reset Coloring 1-10", "<control>space",
                        colorize_conversation_cb, 255*256, NULL, NULL),
     ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
                        0, GTK_STOCK_SELECT_COLOR),
@@ -2677,6 +2677,8 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/View/Colorize Conversation",
       cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/View/Reset Coloring 1-10",
+      tmp_color_filters_used());
   set_menu_sensitivity(main_menu_factory, "/View/Show Packet in New Window",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Show Packet in New Window",

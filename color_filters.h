@@ -59,6 +59,12 @@ void color_filters_cleanup(void);
  */
 gboolean color_filters_used(void);
 
+/** Are there any temporary coloring filters used?
+ *
+ * @return TRUE, if temporary coloring filters are used
+ */
+gboolean tmp_color_filters_used(void);
+
 /** En-/disable color filters
  *
  * @param enable TRUE to enable (default)
