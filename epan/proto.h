@@ -164,26 +164,24 @@ typedef struct _header_field_info header_field_info;
 /** information describing a header field */
 struct _header_field_info {
 	/* ---------- set by dissector --------- */
-	const char				*name;      /**< full name of this field */
-	const char				*abbrev;    /**< abbreviated name of this field */
+	const char			*name;      /**< full name of this field */
+	const char			*abbrev;    /**< abbreviated name of this field */
 	enum ftenum			type;       /**< field type, one of FT_ (from ftypes.h) */
-	int					display;	/**< one of BASE_, or number of field bits for FT_BOOLEAN */
-	const void			*strings;	/**< _value_string (or true_false_string for FT_BOOLEAN), typically converted by VALS() or TFS() If this is an FT_PROTOCOL then it points to the associated protocol_t structure*/
-	guint32				bitmask;    /**< FT_BOOLEAN only: bitmask of interesting bits */
-	const char				*blurb;		/**< Brief description of field. */
+	int				display;    /**< one of BASE_, or number of field bits for FT_BOOLEAN */
+	const void			*strings;   /**< value_string, range_string or true_false_string,
+					                 typically converted by VALS(), RVALS() or TFS().
+					                 If this is an FT_PROTOCOL then it points to the
+					                 associated protocol_t structure */
+	guint32				bitmask;    /**< bitmask of interesting bits */
+	const char			*blurb;     /**< Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
-	int				id;		/**< Field ID */
-	int				parent;		/**< parent protocol tree */
-		/* This field keeps track of whether a field is 
-		 * referenced in any filter or not and if so how 
-		 * many times. If a filter is being referenced the 
-		 * refcount for the parent protocol is updated as well 
-		 */
-	int				ref_count;	/**< is this field referenced by a filter or not */
-	int				bitshift;	/**< bits to shift (FT_BOOLEAN only) */
-	header_field_info		*same_name_next; /**< Link to next hfinfo with same abbrev*/
-	header_field_info		*same_name_prev; /**< Link to previous hfinfo with same abbrev*/
+	int				id;         /**< Field ID */
+	int				parent;     /**< parent protocol tree */
+	int				ref_count;  /**< is this field referenced by a filter and how often */
+	int				bitshift;   /**< bits to shift */
+	header_field_info		*same_name_next; /**< Link to next hfinfo with same abbrev */
+	header_field_info		*same_name_prev; /**< Link to previous hfinfo with same abbrev */
 };
 
 /**
