@@ -1037,6 +1037,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
   }
 }
 
+/* Dissect media description */
 static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                   transport_info_t *transport_info){
@@ -1051,6 +1052,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   /* Re-initialise for a new media description */
   msrp_transport_address_set = FALSE;
 
+  /* Create tree for media session */
   sdp_media_tree = proto_item_add_subtree(ti,ett_sdp_media);
 
   next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
@@ -1060,6 +1062,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
 
+  /* Type of media session */
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
                       FALSE);
 
@@ -1114,7 +1117,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
                       FALSE);
 
-  do{
+  do {
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
@@ -1925,11 +1928,11 @@ proto_register_sdp(void)
       { "Media Attribute Value",
         "sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
         "Media Attribute Value", HFILL }},
-        { &hf_media_encoding_name,
+    { &hf_media_encoding_name,
       { "MIME Type",
         "sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
         "SDP MIME Type", HFILL }},
-        { &hf_media_format_specific_parameter,
+    { &hf_media_format_specific_parameter,
       { "Media format specific parameters",
         "sdp.fmtp.parameter",FT_STRING, BASE_NONE, NULL, 0x0,
         "Format specific parameter(fmtp)", HFILL }},
@@ -2007,7 +2010,7 @@ proto_register_sdp(void)
    prefs_register_bool_preference(sdp_module, "establish_conversation",
        "Establish Media Conversation",
        "Specifies that RTP/RTCP/T.38/MSRP/etc streams are decoded based "
-       "upon port numbers found in SIP/SDP payload",
+       "upon port numbers found in SDP payload",
        &global_sdp_establish_conversation);
 
   /*
