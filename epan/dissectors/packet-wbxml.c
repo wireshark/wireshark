@@ -5559,7 +5559,7 @@ static const value_string wbxml_wv_csp_13_tags_cp10[] = {
 	{ 0x00, NULL }
 };
 
-/* Common code page – continued (0x0B) */
+/* Common code page - continued (0x0B) */
 static const value_string wbxml_wv_csp_13_tags_cp11[] = {
 	/* 0x00 -- 0x04 GLOBAL */
 	/* New in WV-CSP 1.3 */
