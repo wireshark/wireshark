@@ -65,6 +65,9 @@ extern "C" {
 #define ARPHRD_TWINAX	26		/* Twinaxial			*/
 #define ARPHRD_EUI_64	27		/* EUI-64			*/
 
+/* Virtual ARP types for non ARP hardware used in Linux cooked mode. */
+#define ARPHRD_IPGRE	778		/* GRE over IP */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

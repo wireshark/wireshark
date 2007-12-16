@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
+#include <epan/arptypes.h>
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include "packet-sll.h"
@@ -43,6 +44,7 @@ static int hf_sll_pkttype = -1;
 static int hf_sll_hatype = -1;
 static int hf_sll_halen = -1;
 static int hf_sll_src_eth = -1;
+static int hf_sll_src_ipv4 = -1;
 static int hf_sll_src_other = -1;
 static int hf_sll_ltype = -1;
 static int hf_sll_etype = -1;
@@ -88,6 +90,7 @@ static const value_string ltype_vals[] = {
 	{ 0,			NULL }
 };
 
+static dissector_table_t gre_dissector_table;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ppphdlc_handle;
@@ -196,7 +199,17 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(fh_tree, hf_sll_hatype, tvb, 2, 2, hatype);
 		proto_tree_add_uint(fh_tree, hf_sll_halen, tvb, 4, 2, halen);
 	}
-	if (halen == 6) {
+	switch (halen) {
+	case 4:
+		src = tvb_get_ptr(tvb, 6, 4);
+		SET_ADDRESS(&pinfo->dl_src, AT_IPv4, 4, src);
+		SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src);
+		if (tree) {
+			proto_tree_add_ipv4(fh_tree, hf_sll_src_ipv4, tvb,
+			    6, 4, FALSE);
+		}
+		break;
+	case 6:
 		src = tvb_get_ptr(tvb, 6, 6);
 		SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src);
 		SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
@@ -204,14 +217,17 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_ether(fh_tree, hf_sll_src_eth, tvb,
 			    6, 6, src);
 		}
-	} else {
+		break;
+	default:
 		if (tree) {
 			proto_tree_add_item(fh_tree, hf_sll_src_other, tvb,
 			    6, halen, FALSE);
 		}
+		break;
 	}
 
 	protocol = tvb_get_ntohs(tvb, 14);
+	next_tvb = tvb_new_subset(tvb, SLL_HEADER_SIZE, -1, -1);
 	if (protocol <= 1536) {	/* yes, 1536 - that's how Linux does it */
 		/*
 		 * "proto" is *not* a length field, it's a Linux internal
@@ -223,7 +239,6 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(fh_tree, hf_sll_ltype, tvb, 14, 2,
 		    protocol);
 
-		next_tvb = tvb_new_subset(tvb, SLL_HEADER_SIZE, -1, -1);
 		switch (protocol) {
 
 		case LINUX_SLL_P_802_2:
@@ -249,12 +264,20 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		default:
-			call_dissector(data_handle,next_tvb, pinfo, tree);
+			call_dissector(data_handle, next_tvb, pinfo, tree);
 			break;
 		}
 	} else {
-		ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
-		    fh_tree, hf_sll_etype, hf_sll_trailer, 0);
+		switch (hatype) {
+		case ARPHRD_IPGRE:
+			dissector_try_port(gre_dissector_table,
+					   protocol, next_tvb, pinfo, tree);
+			break;
+		default:
+			ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
+				  fh_tree, hf_sll_etype, hf_sll_trailer, 0);
+			break;
+		}
 	}
 }
 
@@ -278,6 +301,11 @@ proto_register_sll(void)
 		/* Source address if it's an Ethernet-type address */
 		{ &hf_sll_src_eth,
 		{ "Source",	"sll.src.eth", FT_ETHER, BASE_NONE, NULL, 0x0,
+			"Source link-layer address", HFILL }},
+
+		/* Source address if it's an IPv4 address */
+		{ &hf_sll_src_ipv4,
+		{ "Source",	"sll.src.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"Source link-layer address", HFILL }},
 
 		/* Source address if it's not an Ethernet-type address */
@@ -317,6 +345,7 @@ proto_reg_handoff_sll(void)
 	/*
 	 * Get handles for the IPX and LLC dissectors.
 	 */
+	gre_dissector_table = find_dissector_table("gre.proto");
 	llc_handle = find_dissector("llc");
 	ipx_handle = find_dissector("ipx");
 	ppphdlc_handle = find_dissector("ppp_hdlc");
