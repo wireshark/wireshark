@@ -32,7 +32,8 @@ typedef struct _eth_hdr {
 
 void capture_eth(const guchar *, int, int, packet_counts *);
 
-void add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
-			  tvbuff_t *trailer_tvb, int fcs_len);
+void add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree,
+			  int trailer_id, tvbuff_t *tvb, tvbuff_t *trailer_tvb,
+			  int fcs_len);
 
 #endif
