@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-gre.h"
 #include "packet-wccp.h"
 #include <epan/in_cksum.h>
 #include <epan/etypes.h>
@@ -82,7 +83,7 @@ static dissector_handle_t data_handle;
 static void add_flags_and_ver(proto_tree *, guint16, tvbuff_t *, int, int);
 static void dissect_gre_wccp2_redirect_header(tvbuff_t *, int, proto_tree *);
 
-static const value_string typevals[] = {
+const value_string gre_typevals[] = {
 	{ ETHERTYPE_PPP,       "PPP" },
 	{ ETHERTYPE_IP,        "IP" },
 	{ SAP_OSINL5,          "OSI"},
@@ -235,7 +236,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "Encapsulated %s",
-		 val_to_str(type, typevals, "0x%04X (unknown)"));
+		 val_to_str(type, gre_typevals, "0x%04X (unknown)"));
   }
 
   if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R)
@@ -272,7 +273,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_gre, tvb, offset, len,
       "Generic Routing Encapsulation (%s)",
-      val_to_str(type, typevals, "0x%04X - unknown"));
+      val_to_str(type, gre_typevals, "0x%04X - unknown"));
     gre_tree = proto_item_add_subtree(ti, ett_gre);
     add_flags_and_ver(gre_tree, flags_and_ver, tvb, offset, is_ppp);
   }
@@ -495,7 +496,7 @@ proto_register_gre(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_gre_proto,
-		  { "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(typevals), 0x0,
+		  { "Protocol Type", "gre.proto", FT_UINT16, BASE_HEX, VALS(gre_typevals), 0x0,
 			"The protocol that is GRE encapsulated", HFILL }
 		},
 		{ &hf_gre_key,

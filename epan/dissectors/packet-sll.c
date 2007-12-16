@@ -36,6 +36,7 @@
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ppp.h"
+#include "packet-gre.h"
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
 
@@ -47,6 +48,7 @@ static int hf_sll_src_eth = -1;
 static int hf_sll_src_ipv4 = -1;
 static int hf_sll_src_other = -1;
 static int hf_sll_ltype = -1;
+static int hf_sll_gretype = -1;
 static int hf_sll_etype = -1;
 static int hf_sll_trailer = -1;
 
@@ -270,6 +272,8 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 		switch (hatype) {
 		case ARPHRD_IPGRE:
+			proto_tree_add_uint(fh_tree, hf_sll_gretype, tvb, 14, 2,
+			    protocol);
 			dissector_try_port(gre_dissector_table,
 					   protocol, next_tvb, pinfo, tree);
 			break;
@@ -317,6 +321,11 @@ proto_register_sll(void)
 		{ &hf_sll_ltype,
 		{ "Protocol",	"sll.ltype", FT_UINT16, BASE_HEX,
 		   VALS(ltype_vals), 0x0, "Linux protocol type", HFILL }},
+
+		/* if the protocol field is a GRE protocol type */
+		{ &hf_sll_gretype,
+		{ "Protocol",	"sll.gretype", FT_UINT16, BASE_HEX,
+		   VALS(gre_typevals), 0x0, "GRE protocol type", HFILL }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_sll_etype,
