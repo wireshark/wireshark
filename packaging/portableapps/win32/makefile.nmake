@@ -13,15 +13,20 @@ APPINFO		= AppInfo
 WIRESHARK 	= Wireshark
 SOURCE		= WiresharkPortableSource
 
+FINDPROCDLL	= $(MAKENSIS)\..\Plugins\FindProcDLL.dll
+
 TOPDIR		= ..\..\..
 U3DIST		= ..\..\u3\win32
 COPY		= xcopy
 MKDIR		= mkdir
 COPY_FLAGS	= /d /y
+!IFNDEF WIN32_SETUP_OPT
+WIN32_SETUP_OPT=--download
+!ENDIF
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
 
-all:	package
+all:	package 
 
 package:	WiresharkPortable-$(VERSION).paf.exe
 
@@ -56,15 +61,19 @@ source:
 	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
-	
 
-WiresharkPortable-$(VERSION).paf.exe : dirs appinfo wireshark source Files/WiresharkPortable.exe Installer.nsi
+findprocdll:	
+	if not exist $(FINDPROCDLL) \
+	@$(SH) $(TOPDIR)\tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(MAKENSIS)\.." \
+		Plugins FindProc.zip
+
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo wireshark source Files/WiresharkPortable.exe Installer.nsi 
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
 	Installer.nsi
 
-Files/WiresharkPortable.exe : WiresharkPortable.nsi
+Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
