@@ -1,0 +1,168 @@
+# x2ap.cnf
+# x2ap conformation file
+# Copyright 2007 Anders Broman 
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.PDU
+X2AP-PDU
+
+#.MAKE_DEFINES
+ProcedureCode
+
+#.MAKE_ENUM
+ProtocolIE-ID
+
+#.TYPE_RENAME
+
+ProtocolIE-Field/value     ProtocolIE_Field_value
+PrivateIE-Field/value      PrivateIE_Field_value
+InitiatingMessage/value    InitiatingMessage_value
+SuccessfulOutcome/value    SuccessfulOutcome_value
+UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
+
+
+#.FIELD_RENAME
+ProtocolExtensionField/id extension_id
+PrivateIE-Field/id private_id
+InitiatingMessage/value initiatingMessage_value 
+
+ProtocolIE-Field/value protocolIE_Field_value 
+SuccessfulOutcome/value successfulOutcome_value 
+PrivateIE-Field/value privateIE_Field_value 
+
+#.OMIT_ASSIGNMENT
+Presence
+ProtocolIE-FieldPair
+ProtocolIE-ContainerList
+ProtocolIE-ContainerPair
+ProtocolIE-ContainerPairList
+#.END
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR = &ProtocolIE_ID
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, x2ap_ProcedureCode_vals,
+                              "unknown message"));
+#.END
+
+#.FN_HDR ProcedureCode
+  ProcedureCode = 0xFFFF;
+#.END
+
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+
+
+#.TYPE_ATTR
+#.END
+
+#.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+
+id-handoverPreparation		ProcedureCode
+id-handoverCancel			ProcedureCode
+id-loadIndication			ProcedureCode
+id-errorIndication			ProcedureCode
+id-snStatusTransfer			ProcedureCode
+id-releaseResource			ProcedureCode
+id-x2Setup					ProcedureCode
+id-reset					ProcedureCode
+
+# ProtocolIE-ID
+
+id-Bearers-Admitted-Item													ProtocolIE-ID
+id-Bearers-Admitted-List													ProtocolIE-ID
+id-Bearers-NotAdmitted-Item													ProtocolIE-ID
+id-Bearers-NotAdmitted-List													ProtocolIE-ID
+id-Bearers-ToBeSetup-Item													ProtocolIE-ID
+id-Cause																	ProtocolIE-ID
+id-CellInformation															ProtocolIE-ID
+id-CellInformation-Item														ProtocolIE-ID
+id-InterfacesToTrace-Item													ProtocolIE-ID
+id-New-eNB-UE-X2AP-ID														ProtocolIE-ID
+id-Old-eNB-UE-X2AP-ID														ProtocolIE-ID
+id-TargetCell-ID															ProtocolIE-ID
+id-TargeteNBtoSource-eNBTransparentContainer								ProtocolIE-ID
+id-TraceActivation															ProtocolIE-ID
+id-UE-ContextInformation													ProtocolIE-ID
+id-UE-HistoryInformation													ProtocolIE-ID
+id-UE-X2AP-ID																ProtocolIE-ID
+id-CriticalityDiagnostics													ProtocolIE-ID
+id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID
+id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID
+id-ServedCells																ProtocolIE-ID
+id-ENB-ID																	ProtocolIE-ID
+id-TimeToWait																ProtocolIE-ID
+
+
+#.REGISTER_NEW
+
+#X2AP-PROTOCOL-IES
+Bearers-Admitted-Item						N x2ap.ies id-Bearers-Admitted-Item
+Bearers-Admitted-List						N x2ap.ies id-Bearers-Admitted-List
+Bearers-NotAdmitted-Item					N x2ap.ies id-Bearers-NotAdmitted-Item
+Bearers-NotAdmitted-List					N x2ap.ies id-Bearers-NotAdmitted-List
+Bearers-ToBeSetup-Item						N x2ap.ies id-Bearers-ToBeSetup-Item
+Cause										N x2ap.ies id-Cause		
+CellInformation-List						N x2ap.ies id-CellInformation	
+CellInformation-Item						N x2ap.ies id-CellInformation-Item
+InterfacesToTrace-Item						N x2ap.ies id-InterfacesToTrace-Item
+UE-X2AP-ID									N x2ap.ies id-New-eNB-UE-X2AP-ID
+UE-X2AP-ID									N x2ap.ies id-Old-eNB-UE-X2AP-ID
+CGI											N x2ap.ies id-TargetCell-ID
+TargeteNBtoSource-eNBTransparentContainer	N x2ap.ies id-TargeteNBtoSource-eNBTransparentContainer
+TraceActivation								N x2ap.ies id-TraceActivation
+UE-ContextInformation						N x2ap.ies id-UE-ContextInformation
+UE-HistoryInformation						N x2ap.ies id-UE-HistoryInformation
+UE-X2AP-ID									N x2ap.ies id-UE-X2AP-ID
+CriticalityDiagnostics						N x2ap.ies id-CriticalityDiagnostics
+Bearers-SubjectToStatusTransfer-List		N x2ap.ies id-Bearers-SubjectToStatusTransfer-List
+Bearers-SubjectToStatusTransfer-Item		N x2ap.ies id-Bearers-SubjectToStatusTransfer-Item
+ServedCells									N x2ap.ies id-ServedCells
+ENB-ID										N x2ap.ies id-ENB-ID
+TimeToWait									N x2ap.ies id-TimeToWait
+
+
+#X2AP-PROTOCOL-EXTENSION
+# this is from rnsap MessageStructure                   N x2ap.extension id-MessageStructure
+
+# X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
+#X2AP-ELEMENTARY-PROCEDURE
+HandoverRequest						S x2ap.proc.imsg "id-handoverPreparation"
+HandoverRequestAcknowledge			S x2ap.proc.sout "id-handoverPreparation"
+HandoverPreparationFailure			S x2ap.proc.uout "id-handoverPreparation"
+
+SNStatusTransfer					S x2ap.proc.imsg "id-snStatusTransfer"
+
+ReleaseResource						S x2ap.proc.imsg "id-releaseResource"
+
+HandoverCancel						S x2ap.proc.imsg "id-handoverCancel"
+
+ErrorIndication						S x2ap.proc.imsg "id-errorIndication"
+
+ResetRequest						S x2ap.proc.imsg "id-reset"
+ResetResponse						S x2ap.proc.imsg "id-reset"
+
+X2SetupRequest						S x2ap.proc.imsg "id-x2Setup"
+X2SetupResponse						S x2ap.proc.sout "id-x2Setup"
+X2SetupFailure						S x2ap.proc.uout "id-x2Setup"
+
+LoadInformation						S x2ap.proc.imsg "LoadInformation"
+#.END

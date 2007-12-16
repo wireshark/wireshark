@@ -1,0 +1,203 @@
+-- $Id$
+-- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 9.3.3	Elementary Procedure Definitions
+-- **************************************************************
+--
+-- Elementary Procedure definitions
+--
+-- **************************************************************
+
+X2AP-PDU-Descriptions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-PDU-Descriptions (0) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- IE parameter types from other modules.
+--
+-- **************************************************************
+
+IMPORTS
+	Criticality,
+	ProcedureCode
+FROM X2AP-CommonDataTypes
+
+
+	ErrorIndication,
+	HandoverRequest,
+	HandoverRequestAcknowledge,
+	HandoverPreparationFailure,
+	SNStatusTransfer,
+	ReleaseResource,
+	HandoverCancel,
+	LoadInformation,
+	ResetRequest,
+	ResetResponse,
+	X2SetupRequest,
+	X2SetupResponse,
+	X2SetupFailure
+
+FROM X2AP-PDU-Contents
+
+	id-errorIndication,
+	id-handoverPreparation,
+	id-snStatusTransfer,
+	id-releaseResource,
+	id-handoverCancel,
+	id-loadIndication,
+	id-reset,
+	id-x2Setup
+
+
+FROM X2AP-Constants;
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure Class
+--
+-- **************************************************************
+
+X2AP-ELEMENTARY-PROCEDURE ::= CLASS {
+	&InitiatingMessage				,
+	&SuccessfulOutcome				OPTIONAL,
+	&UnsuccessfulOutcome				OPTIONAL,
+	&procedureCode			ProcedureCode 	UNIQUE,
+	&criticality			Criticality 	DEFAULT ignore
+}
+WITH SYNTAX {
+	INITIATING MESSAGE		&InitiatingMessage
+	[SUCCESSFUL OUTCOME		&SuccessfulOutcome]
+	[UNSUCCESSFUL OUTCOME		&UnsuccessfulOutcome]
+	PROCEDURE CODE			&procedureCode
+	[CRITICALITY			&criticality]
+}
+
+-- **************************************************************
+--
+-- Interface PDU Definition
+--
+-- **************************************************************
+
+X2AP-PDU ::= CHOICE {
+	initiatingMessage	InitiatingMessage,
+	successfulOutcome	SuccessfulOutcome,
+	unsuccessfulOutcome	UnsuccessfulOutcome,
+	...
+}
+
+InitiatingMessage ::= SEQUENCE {
+	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
+	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		X2AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+SuccessfulOutcome ::= SEQUENCE {
+	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
+	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		X2AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+UnsuccessfulOutcome ::= SEQUENCE {
+	procedureCode	X2AP-ELEMENTARY-PROCEDURE.&procedureCode		({X2AP-ELEMENTARY-PROCEDURES}),
+	criticality	X2AP-ELEMENTARY-PROCEDURE.&criticality		({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value		X2AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({X2AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedure List
+--
+-- **************************************************************
+
+X2AP-ELEMENTARY-PROCEDURES X2AP-ELEMENTARY-PROCEDURE ::= {
+	X2AP-ELEMENTARY-PROCEDURES-CLASS-1			|
+	X2AP-ELEMENTARY-PROCEDURES-CLASS-2			,
+	...
+}
+
+X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
+	handoverPreparation										|
+	reset													|
+	x2Setup													,
+	...
+}
+
+X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
+	snStatusTransfer						|
+	releaseResource							|
+	handoverCancel							|
+	errorIndication							|
+	loadIndication							,
+	...
+
+}
+
+
+-- **************************************************************
+--
+-- Interface Elementary Procedures
+--
+-- **************************************************************
+
+handoverPreparation X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverRequest
+	SUCCESSFUL OUTCOME		HandoverRequestAcknowledge
+	UNSUCCESSFUL OUTCOME	HandoverPreparationFailure
+	PROCEDURE CODE			id-handoverPreparation
+	CRITICALITY				reject
+}
+
+snStatusTransfer X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SNStatusTransfer
+	PROCEDURE CODE			id-snStatusTransfer
+	CRITICALITY				ignore
+}
+
+releaseResource X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ReleaseResource
+	PROCEDURE CODE			id-releaseResource
+	CRITICALITY				ignore
+}
+
+
+handoverCancel X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		HandoverCancel
+	PROCEDURE CODE			id-handoverCancel
+	CRITICALITY				ignore
+}
+
+errorIndication X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-errorIndication
+	CRITICALITY				ignore
+}
+
+reset	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResetRequest
+	SUCCESSFUL OUTCOME		ResetResponse
+	PROCEDURE CODE			id-reset
+	CRITICALITY				reject
+}
+
+x2Setup	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		X2SetupRequest
+	SUCCESSFUL OUTCOME		X2SetupResponse
+	UNSUCCESSFUL OUTCOME		X2SetupFailure
+	PROCEDURE CODE			id-x2Setup
+	CRITICALITY				reject
+}
+
+
+loadIndication X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		LoadInformation
+	PROCEDURE CODE			id-loadIndication
+	CRITICALITY				ignore
+}
+
+
+END

@@ -1,0 +1,51 @@
+-- $Id$
+-- 3GPP TS 36.423 V8.0.0 (2007-12)
+-- 9.3.6	Common Definitions
+-- **************************************************************
+--
+-- Common definitions
+--
+-- **************************************************************
+
+X2AP-CommonDataTypes {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) x2ap (2) version1 (1) x2ap-CommonDataTypes (3)  }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxPrivateIEs 									INTEGER ::= 65535
+maxProtocolExtensions 							INTEGER ::= 65535
+maxProtocolIEs									INTEGER ::= 65535
+
+-- **************************************************************
+--
+-- Common Data Types
+--
+-- **************************************************************
+
+Criticality		::= ENUMERATED { reject, ignore, notify }
+
+Presence		::= ENUMERATED { optional, conditional, mandatory }
+
+PrivateIE-ID	::= CHOICE {
+	local				INTEGER (0.. maxPrivateIEs),
+	global				OBJECT IDENTIFIER
+}
+
+ProcedureCode		::= INTEGER (0..255)
+
+
+ProtocolIE-ID		::= INTEGER (0..maxProtocolIEs)
+
+
+TriggeringMessage	::= ENUMERATED { initiating-message, successful-outcome, unsuccessful-outcome}
+
+END
