@@ -178,7 +178,7 @@ static const char *sip_methods[] = {
 
 /* from RFC 3261
  * Updated with info from http://www.iana.org/assignments/sip-parameters
- * (last updated 2007-07-27)
+ * (last updated 2007-12-10)
  * Updated with: http://www.ietf.org/internet-drafts/draft-ietf-sip-resource-priority-05.txt
  */
 typedef struct {
@@ -228,7 +228,7 @@ Hide                          [RFC3261] (deprecated)
                 { "Min-SE",						NULL },  /*  33 RFC4028  */
                 { "Organization", 				NULL },  /*  34 RFC3261  */
                 { "P-Access-Network-Info",		NULL },  /*  35 RFC3455  */
-                { "P-Answer-State",				NULL },  /*  36 RFC-allen-sipping-poc-p-answer-state-header-05.txt*/
+                { "P-Answer-State",				NULL },  /*  36 RFC4964  */
                 { "P-Asserted-Identity",        NULL },  /*  37 RFC3325  */
                 { "P-Associated-URI",           NULL },	 /*  38 RFC3455  */
                 { "P-Called-Party-ID",          NULL },	 /*  39 RFC3455  */
@@ -239,10 +239,10 @@ Hide                          [RFC3261] (deprecated)
                 { "P-DCS-Billing-Info",         NULL },  /*  44 RFC3603  */
                 { "P-DCS-LAES",                 NULL },  /*  45 RFC3603  */
                 { "P-DCS-Redirect",             NULL },  /*  46 RFC3603  */
-                { "P-Early-Media",				NULL },  /*  47 RFC-ejzak-sipping-p-em-auth-04.txt*/
+                { "P-Early-Media",				NULL },  /*  47 RFC5009  */
                 { "P-Media-Authorization",      NULL },  /*  48 RFC3313  */
                 { "P-Preferred-Identity",       NULL },  /*  49 RFC3325  */
-                { "P-Profile-Key",				NULL },  /*  50 RFC-camarillo-sipping-profile-key-02.txt */
+                { "P-Profile-Key",				NULL },  /*  50 RFC5002  */
                 { "P-User-Database",			NULL },  /*  51 RFC4457  */
                 { "P-Visited-Network-ID",       NULL },  /*  52 RFC3455  */
                 { "Path",                       NULL },  /*  53 RFC3327  */
