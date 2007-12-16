@@ -2812,17 +2812,23 @@ void
 set_menus_for_selected_tree_row(capture_file *cf)
 {
   gboolean properties;
+#if 0
   gint id;
+#endif
 
 
   if (cf->finfo_selected != NULL) {
 	header_field_info *hfinfo = cf->finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
 	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
+#if 0
 	  id = proto_get_id((protocol_t *)hfinfo->strings);
+#endif
 	} else {
 	  properties = prefs_is_registered_protocol(proto_registrar_get_abbrev(hfinfo->parent));
+#if 0
 	  id = hfinfo->parent;
+#endif
 	}
 	set_menu_sensitivity(main_menu_factory,
 	  "/File/Export/Selected Packet Bytes...", TRUE);
@@ -2848,8 +2854,10 @@ set_menus_for_selected_tree_row(capture_file *cf)
 	  proto_can_match_selected(cf->finfo_selected, cf->edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Protocol Preferences...",
 	  properties);
+#if 0
 	set_menu_sensitivity(tree_view_menu_factory, "/Disable Protocol...",
 	  proto_can_toggle_protocol(id));
+#endif
 	set_menu_sensitivity(main_menu_factory, "/View/Expand Subtrees", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Expand Subtrees", cf->finfo_selected->tree_type != -1);
 	set_menu_sensitivity(tree_view_menu_factory, "/Wiki Protocol Page",
