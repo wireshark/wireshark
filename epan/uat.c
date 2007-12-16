@@ -160,7 +160,7 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 	if (! for_writing ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
 
-		if (file_exists(data_fname)) {
+		if ((! file_exists(pers_fname) ) && file_exists(data_fname)) {
 			return data_fname;
 		}
 	}
