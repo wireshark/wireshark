@@ -1,0 +1,153 @@
+-- $Id$
+-- 9.3.6	Constant Definitions
+-- **************************************************************
+--
+-- Constant definitions
+--
+-- **************************************************************
+
+S1AP-Constants { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (20) modules (3) s1ap (1) version1 (1) s1ap-Constants (4) } 
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+-- **************************************************************
+--
+-- Elementary Procedures
+--
+-- **************************************************************
+
+id-HandoverPreparation 				INTEGER ::= 0
+id-HandoverResourceAllocation 		INTEGER ::= 1
+id-HandoverNotification 			INTEGER ::= 2
+id-PathSwitchRequest 				INTEGER ::= 3
+id-HandoverCancel 					INTEGER ::= 4
+id-SAEBearerSetup						INTEGER ::= 5
+id-SAEBearerModify 					INTEGER ::= 6
+id-SAEBearerRelease					INTEGER ::= 7
+id-SAEBearerReleaseRequest				INTEGER ::= 8
+id-InitialContextSetup						INTEGER ::= 9
+id-Paging							INTEGER ::= 10
+id-downlinkNASTransport				INTEGER ::= 11
+id-initialUEMessage					INTEGER ::= 12
+id-uplinkNASTransport				INTEGER ::= 13
+id-Reset							INTEGER ::= 14
+id-ErrorIndication					INTEGER ::= 15
+id-NASNonDeliveryIndication			INTEGER ::= 16
+id-S1Setup							INTEGER ::= 17
+id-UEContextReleaseRequest			INTEGER ::= 18
+
+
+-- **************************************************************
+--
+-- Extension constants
+--
+-- **************************************************************
+
+maxPrivateIEs 						INTEGER ::= 65535
+maxProtocolExtensions 				INTEGER ::= 65535
+maxProtocolIEs						INTEGER ::= 65535
+-- **************************************************************
+--
+-- Lists
+--
+-- **************************************************************
+
+maxNrOfSAEBs							INTEGER ::= 256
+maxNrOfInterfaces						INTEGER ::= 3   --FFS
+maxnoofTAI								INTEGER ::= 256 --FFS
+maxNrOfErrors							INTEGER ::= 256
+maxnoofBPLMNs							INTEGER ::= 6
+maxnoofNRIs								INTEGER ::= 512 -- FFS
+maxnoofPLMNsPerMME						INTEGER ::= 32 -- FFS
+maxnoofTAIs								INTEGER ::= 256  -- FFS 
+maxnoofEPLMNs							INTEGER ::= 15
+maxnoofEPLMNsPlusOne					INTEGER ::= 16
+maxnoofForbLACs							INTEGER ::= 256		-- FFS Value to be checked
+maxnoofForbTAIs							INTEGER ::= 256		-- FFS Value to be checked
+
+
+
+-- **************************************************************
+--
+-- IEs
+--
+-- **************************************************************
+
+id-MME-UE-S1AP-ID									INTEGER ::= 0
+id-HandoverType									INTEGER ::= 1
+id-Cause										INTEGER ::= 2
+id-SourceID										INTEGER ::= 3
+id-TargetID										INTEGER ::= 4
+id-Intra-LTEHOInformationReq					INTEGER ::= 5
+id-LTEtoUTRANHOInformationReq					INTEGER ::= 6
+id-LTEtoGERANHOInformationReq					INTEGER ::= 7
+id-eNB-UE-S1AP-ID								INTEGER ::= 8
+id-Intra-LTEHOInformationRes					INTEGER ::= 9
+id-LTEtoUTRANHOInformationRes					INTEGER ::= 10
+id-LTEtoGERANHOInformationRes					INTEGER ::= 11
+id-SAEBearerSubjecttoDataForwardingList		INTEGER ::= 12
+id-SAEBearertoReleaseListHOCmd				INTEGER ::= 13
+id-SAEBearerDataForwardingItem				INTEGER ::= 14
+id-SAEBearerReleaseItemBearerRelComp			INTEGER ::= 15
+id-SAEBearerToBeSetupListBearerSUReq			INTEGER ::= 16
+id-SAEBearerToBeSetupItemBearerSUReq			INTEGER ::= 17
+id-SAEBearerAdmittedList						INTEGER ::= 18
+id-SAEBearerFailedToSetupListHOReqAck		INTEGER ::= 19
+id-SAEBearerAdmittedItem						INTEGER ::= 20
+id-SAEBearerFailedtoSetupItemHOReqAck				INTEGER ::= 21
+id-SAEBearerToBeSwitchedDLList					INTEGER ::= 22
+id-SAEBearerToBeSwitchedDLItem				INTEGER ::= 23
+id-SAEBearerToBeSetupListCtxtSUReq				INTEGER::= 24
+id-TraceActivation								INTEGER::= 25
+id-NAS-PDU								INTEGER ::= 26
+id-SAEBearerToBeSetupItemHOReq						INTEGER ::= 27
+id-SAEBearerSetupListBearerSURes					INTEGER ::= 28
+id-SAEBearerFailedToSetupListBearerSURes			INTEGER ::= 29
+id-SAEBearerToBeModifiedListBearerModReq			INTEGER ::= 30
+id-SAEBearerModifyListBearerModRes					INTEGER ::= 31
+id-SAEBearerFailedToModifyList						INTEGER ::= 32
+id-SAEBearerToBeReleasedList						INTEGER ::= 33
+id-SAEBearerReleaseListBearerRelComp				INTEGER ::= 33
+id-SAEBearerFailedToReleaseList					INTEGER ::= 34
+id-SAEBearerItem									INTEGER ::= 35
+id-SAEBearerToBeModifiedItemBearerModReq		INTEGER ::= 36
+id-SAEBearerModifyItemBearerModRes				INTEGER ::= 37
+id-SAEBearerReleaseItem							INTEGER ::= 38
+id-SAEBearerSetupItemBearerSURes					INTEGER ::= 39
+id-Security-Information							INTEGER ::= 40
+id-HandoverRestrictionList						INTEGER ::= 41
+id-s-TMSI 										INTEGER ::= 43
+id-pagingDRX 									INTEGER ::= 44
+id-pagingCause									INTEGER ::= 45
+id-TAIdList										INTEGER ::= 46
+id-TAIdItem										INTEGER ::= 47
+id-SAEBearerFailedToSetupListCtxtSURes			INTEGER ::= 48
+id-SAEBearerReleaseItemHOCmd					INTEGER ::= 49
+id-SAEBearerSetupItemCtxtSURes					INTEGER ::= 50
+id-SAEBearerSetupListCtxtSURes					INTEGER ::= 51
+id-SAEBearerToBeSetupItemCtxtSUReq				INTEGER ::= 52
+id-SAEBearerToBeSetupListHOReq				INTEGER ::= 53
+id-GERANtoLTEHOInformationReq				INTEGER ::= 54
+id-GERANtoLTEHOInformationRes				INTEGER ::= 55
+id-UTRANtoLTEHOInformationReq				INTEGER ::= 56
+id-UTRANtoLTEHOInformationRes				INTEGER ::= 57
+id-CriticalityDiagnostics 					INTEGER ::= 58
+id-ENB-ID									INTEGER ::= 59
+id-eNBname									INTEGER ::= 60
+id-MMEname									INTEGER ::= 61
+id-NRIs										INTEGER ::= 62
+id-ServedPLMNs								INTEGER ::= 63
+id-SupportedTAIs							INTEGER ::= 64
+id-TimeToWait								INTEGER ::= 65
+id-aggregateMaximumBitrate					INTEGER ::= 66
+id-TAId										INTEGER ::= 67
+id-ServingPLMN								INTEGER ::= 68
+
+
+
+
+END

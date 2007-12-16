@@ -1,0 +1,374 @@
+# s1ap.cnf
+# s1ap conformation file
+
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.EXPORTS
+
+#.PDU_NEW
+S1AP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+
+
+PrivateIE-Field/id private_id
+ProtocolExtensionField/id ext_id
+
+PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(s1ap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-FieldPair/firstValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairFirstValue 
+#.FN_PARS ProtocolIE-FieldPair/secondValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldPairSecondValue 
+
+#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                              "unknown message"));
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, S1AP-PROTOCOL-IES : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-Container {{IEsSetParam}}
+
+#.FN_PARS ProtocolIE-ContainerList
+MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+#.FN_HDR ProtocolIE-ContainerList
+  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+    { "lowerBound", ASN1_PAR_INTEGER },
+    { "upperBound", ASN1_PAR_INTEGER },
+    { NULL, 0 }
+  };
+  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+#.END
+
+#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, S1AP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+#.FN_PARS ProtocolIE-ContainerPairList
+MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+#.FN_HDR ProtocolIE-ContainerPairList
+  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
+    { "lowerBound", ASN1_PAR_INTEGER },
+    { "upperBound", ASN1_PAR_INTEGER },
+    { NULL, 0 }
+  };
+  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
+#.END
+
+#RAB-IE-ContainerList            { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfRABs,   {IEsSetParam} }
+
+#ProtocolError-IE-ContainerList  { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfRABs,   {IEsSetParam} }
+#.FN_BODY ProtocolError-IE-ContainerList
+  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+  asn1_param_push_integer(%(ACTX)s, 1);
+  asn1_param_push_integer(%(ACTX)s, maxNrOfRABs);
+%(DEFAULT_BODY)s
+  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+#.END
+
+#.END
+
+#.FN_BODY NAS-PDU  VAL_PTR = &nas_pdu_tvb
+  tvbuff_t *nas_pdu_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	if (nas_pdu_tvb)
+		dissector_try_port(nas_pdu_dissector_table, 0x1, nas_pdu_tvb, %(ACTX)s->pinfo, proto_tree_get_root(tree));
+#.END
+
+# following construction is not supported by asn2wrs
+# PLMNidentity ::= TBCD-STRING (SIZE (3))
+# TBCD-STRING ::= OCTET STRING
+
+#.FN_BODY PLMNidentity  VAL_PTR = 
+  tvbuff_t *parameter_tvb=NULL;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, &parameter_tvb);
+
+	 if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+#.END
+
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_ProtocolIE_ID_vals)
+
+#.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+
+id-HandoverPreparation 				ProcedureCode
+id-HandoverResourceAllocation 		ProcedureCode
+id-HandoverNotification 			ProcedureCode
+id-PathSwitchRequest 				ProcedureCode
+id-HandoverCancel 					ProcedureCode
+id-SAEBearerSetup					ProcedureCode
+id-SAEBearerModify 					ProcedureCode
+id-SAEBearerRelease					ProcedureCode
+id-SAEBearerReleaseRequest			ProcedureCode
+id-InitialContextSetup				ProcedureCode
+id-Paging							ProcedureCode
+id-downlinkNASTransport				ProcedureCode
+id-initialUEMessage					ProcedureCode
+id-uplinkNASTransport				ProcedureCode
+id-Reset							ProcedureCode
+id-ErrorIndication					ProcedureCode
+id-NASNonDeliveryIndication			ProcedureCode
+id-S1Setup							ProcedureCode
+id-UEContextReleaseRequest			ProcedureCode
+
+# ProtocolIE-ID
+id-MME-UE-S1AP-ID									ProtocolIE-ID
+id-HandoverType										ProtocolIE-ID
+id-Cause											ProtocolIE-ID
+id-SourceID											ProtocolIE-ID
+id-TargetID											ProtocolIE-ID
+id-Intra-LTEHOInformationReq						ProtocolIE-ID
+id-LTEtoUTRANHOInformationReq						ProtocolIE-ID
+id-LTEtoGERANHOInformationReq						ProtocolIE-ID
+id-eNB-UE-S1AP-ID									ProtocolIE-ID
+id-Intra-LTEHOInformationRes						ProtocolIE-ID
+id-LTEtoUTRANHOInformationRes						ProtocolIE-ID
+id-LTEtoGERANHOInformationRes						ProtocolIE-ID
+id-SAEBearerSubjecttoDataForwardingList				ProtocolIE-ID
+id-SAEBearertoReleaseListHOCmd						ProtocolIE-ID
+id-SAEBearerDataForwardingItem						ProtocolIE-ID
+id-SAEBearerReleaseItemBearerRelComp				ProtocolIE-ID
+id-SAEBearerToBeSetupListBearerSUReq				ProtocolIE-ID
+id-SAEBearerToBeSetupItemBearerSUReq				ProtocolIE-ID
+id-SAEBearerAdmittedList							ProtocolIE-ID
+id-SAEBearerFailedToSetupListHOReqAck				ProtocolIE-ID
+id-SAEBearerAdmittedItem							ProtocolIE-ID
+id-SAEBearerFailedtoSetupItemHOReqAck				ProtocolIE-ID
+id-SAEBearerToBeSwitchedDLList						ProtocolIE-ID
+id-SAEBearerToBeSwitchedDLItem						ProtocolIE-ID
+id-SAEBearerToBeSetupListCtxtSUReq					ProtocolIE-ID
+id-TraceActivation									ProtocolIE-ID
+id-NAS-PDU											ProtocolIE-ID
+id-SAEBearerToBeSetupItemHOReq						ProtocolIE-ID
+id-SAEBearerSetupListBearerSURes					ProtocolIE-ID
+id-SAEBearerFailedToSetupListBearerSURes			ProtocolIE-ID
+id-SAEBearerToBeModifiedListBearerModReq			ProtocolIE-ID
+id-SAEBearerModifyListBearerModRes					ProtocolIE-ID
+#id-SAEBearerFailedToModifyList						ProtocolIE-ID
+id-SAEBearerToBeReleasedList						ProtocolIE-ID
+id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
+id-SAEBearerFailedToReleaseList						ProtocolIE-ID
+id-SAEBearerItem									ProtocolIE-ID
+id-SAEBearerToBeModifiedItemBearerModReq			ProtocolIE-ID
+id-SAEBearerModifyItemBearerModRes					ProtocolIE-ID
+id-SAEBearerReleaseItem								ProtocolIE-ID
+id-SAEBearerSetupItemBearerSURes					ProtocolIE-ID
+id-Security-Information								ProtocolIE-ID
+id-HandoverRestrictionList							ProtocolIE-ID
+id-s-TMSI 											ProtocolIE-ID
+id-pagingDRX 										ProtocolIE-ID
+id-pagingCause										ProtocolIE-ID
+id-TAIdList											ProtocolIE-ID
+id-TAIdItem											ProtocolIE-ID
+id-SAEBearerFailedToSetupListCtxtSURes				ProtocolIE-ID
+id-SAEBearerReleaseItemHOCmd						ProtocolIE-ID
+id-SAEBearerSetupItemCtxtSURes						ProtocolIE-ID
+id-SAEBearerSetupListCtxtSURes						ProtocolIE-ID
+id-SAEBearerToBeSetupItemCtxtSUReq					ProtocolIE-ID
+id-SAEBearerToBeSetupListHOReq						ProtocolIE-ID
+id-GERANtoLTEHOInformationReq						ProtocolIE-ID
+id-GERANtoLTEHOInformationRes						ProtocolIE-ID
+id-UTRANtoLTEHOInformationReq						ProtocolIE-ID
+id-UTRANtoLTEHOInformationRes						ProtocolIE-ID
+id-CriticalityDiagnostics 							ProtocolIE-ID
+id-ENB-ID											ProtocolIE-ID
+id-eNBname											ProtocolIE-ID
+id-MMEname											ProtocolIE-ID
+id-NRIs												ProtocolIE-ID
+id-ServedPLMNs										ProtocolIE-ID
+id-SupportedTAIs									ProtocolIE-ID
+id-TimeToWait										ProtocolIE-ID
+id-aggregateMaximumBitrate							ProtocolIE-ID
+id-TAId												ProtocolIE-ID
+id-ServingPLMN										ProtocolIE-ID
+#.END
+
+#.REGISTER_NEW
+
+#S1AP-PROTOCOL-IES
+MME-UE-S1AP-ID							N s1ap.ies id-MME-UE-S1AP-ID
+HandoverType							N s1ap.ies id-HandoverType
+Cause									N s1ap.ies id-Cause
+SourceID								N s1ap.ies id-SourceID
+TargetID								N s1ap.ies id-TargetID
+Intra-LTEHOInformationReq				N s1ap.ies id-Intra-LTEHOInformationReq
+LTEtoUTRANHOInformationReq				N s1ap.ies id-LTEtoUTRANHOInformationReq
+LTEtoGERANHOInformationReq				N s1ap.ies id-LTEtoGERANHOInformationReq
+ENB-UE-S1AP-ID							N s1ap.ies id-eNB-UE-S1AP-ID
+Intra-LTEHOInformationRes				N s1ap.ies id-Intra-LTEHOInformationRes
+LTEtoUTRANHOInformationRes				N s1ap.ies id-LTEtoUTRANHOInformationRes
+LTEtoGERANHOInformationRes				N s1ap.ies id-LTEtoGERANHOInformationRes
+SAEBearerSubjecttoDataForwardingList	N s1ap.ies id-SAEBearerSubjecttoDataForwardingList
+SAEBearertoReleaseListHOCmd				N s1ap.ies id-SAEBearertoReleaseListHOCmd
+SAEBearerDataForwardingItem				N s1ap.ies id-SAEBearerDataForwardingItem
+SAEBearerReleaseItemBearerRelComp		N s1ap.ies id-SAEBearerReleaseItemBearerRelComp
+SAEBearerToBeSetupListBearerSUReq		N s1ap.ies id-SAEBearerToBeSetupListBearerSUReq
+SAEBearerToBeSetupItemBearerSUReq		N s1ap.ies id-SAEBearerToBeSetupItemBearerSUReq
+SAEBearerAdmittedList					N s1ap.ies id-SAEBearerAdmittedList
+SAEBearerFailedtoSetupListHOReqAck		N s1ap.ies id-SAEBearerFailedToSetupListHOReqAck
+SAEBearerAdmittedItem					N s1ap.ies id-SAEBearerAdmittedItem
+SAEBearerFailedToSetupItemHOReqAck		N s1ap.ies id-SAEBearerFailedtoSetupItemHOReqAck
+SAEBearerToBeSwitchedDLList				N s1ap.ies id-SAEBearerToBeSwitchedDLList
+SAEBearerToBeSwitchedDLItem				N s1ap.ies id-SAEBearerToBeSwitchedDLItem
+SAEBearerToBeSetupListCtxtSUReq			N s1ap.ies id-SAEBearerToBeSetupListCtxtSUReq
+TraceActivation							N s1ap.ies id-TraceActivation
+NAS-PDU									N s1ap.ies id-NAS-PDU
+SAEBearerToBeSetupItemHOReq				N s1ap.ies id-SAEBearerToBeSetupItemHOReq
+SAEBearerSetupListBearerSURes			N s1ap.ies id-SAEBearerSetupListBearerSURes
+SAEBearerList							N s1ap.ies id-SAEBearerFailedToSetupListBearerSURes
+SAEBearerToBeModifiedListBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedListBearerModReq
+SAEBearerModifyListBearerModRes			N s1ap.ies id-SAEBearerModifyListBearerModRes
+SAEBearerList							N s1ap.ies id-SAEBearerFailedToModifyList
+SAEBearerList							N s1ap.ies id-SAEBearerToBeReleasedList
+SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp
+SAEBearerList							N s1ap.ies id-SAEBearerFailedToReleaseList
+SAEBearerItem							N s1ap.ies id-SAEBearerItem
+SAEBearerToBeModifiedItemBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedItemBearerModReq
+SAEBearerModifyItemBearerModRes			N s1ap.ies id-SAEBearerModifyItemBearerModRes
+#SAEBearerReleaseItem					N s1ap.ies id-SAEBearerReleaseItem
+SAEBearerSetupItemBearerSURes			N s1ap.ies id-SAEBearerSetupItemBearerSURes
+SecurityInformation						N s1ap.ies id-Security-Information
+HandoverRestrictionList					N s1ap.ies id-HandoverRestrictionList
+S-TMSI									N s1ap.ies id-s-TMSI
+PagingDRX								N s1ap.ies id-pagingDRX
+PagingCause								N s1ap.ies id-pagingCause
+TAIdList								N s1ap.ies id-TAIdList
+TAIdItem								N s1ap.ies id-TAIdItem
+SAEBearerList							N s1ap.ies id-SAEBearerFailedToSetupListCtxtSURes
+SAEBearerReleaseItemHOCmd				N s1ap.ies id-SAEBearerReleaseItemHOCmd
+SAEBearerSetupItemCtxtSURes				N s1ap.ies id-SAEBearerSetupItemCtxtSURes
+SAEBearerSetupListCtxtSURes				N s1ap.ies id-SAEBearerSetupListCtxtSURes
+SAEBearerToBeSetupItemCtxtSUReq			N s1ap.ies id-SAEBearerToBeSetupItemCtxtSUReq
+SAEBearerToBeSetupListHOReq				N s1ap.ies id-SAEBearerToBeSetupListHOReq
+GERANtoLTEHOInformationReq				N s1ap.ies id-GERANtoLTEHOInformationReq
+GERANtoLTEHOInformationRes				N s1ap.ies id-GERANtoLTEHOInformationRes
+UTRANtoLTEHOInformationReq				N s1ap.ies id-UTRANtoLTEHOInformationReq
+UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
+CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
+ENB-ID									N s1ap.ies id-ENB-ID
+ENBname									N s1ap.ies id-eNBname
+MMEname									N s1ap.ies id-MMEname
+NRIs									N s1ap.ies id-NRIs
+ServedPLMNs								N s1ap.ies id-ServedPLMNs
+SupportedTAIs							N s1ap.ies id-SupportedTAIs
+TimeToWait								N s1ap.ies id-TimeToWait
+AggregateMaximumBitrate					N s1ap.ies id-aggregateMaximumBitrate
+TAId									N s1ap.ies id-TAId
+PLMNidentity							N s1ap.ies id-ServingPLMN
+
+#S1AP-PROTOCOL-IES-PAIR
+#RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
+#RAB-SetupOrModifyItemSecond        N s1ap.ies.pair.second id-RAB-SetupOrModifyItem
+
+#NBAP-PROTOCOL-EXTENSION
+#RAB-Parameters                     N s1ap.extension id-AlternativeRABConfiguration
+#Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf N s1ap.extension id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf
+
+#NBAP-ELEMENTARY-PROCEDURE
+HandoverRequired						N s1ap.proc.imsg id-HandoverPreparation
+HandoverCommand							N s1ap.proc.sout id-HandoverPreparation
+HandoverPreparationFailure				N s1ap.proc.uout id-HandoverPreparation
+
+HandoverRequest							N s1ap.proc.imsg id-HandoverResourceAllocation
+HandoverRequestAcknowledge				N s1ap.proc.sout id-HandoverResourceAllocation
+HandoverFailure							N s1ap.proc.uout id-HandoverResourceAllocation
+
+HandoverNotify							N s1ap.proc.imsg id-HandoverNotification
+
+PathSwitchRequest						N s1ap.proc.imsg id-PathSwitchRequest
+PathSwitchRequestAcknowledge			N s1ap.proc.sout id-PathSwitchRequest
+PathSwitchRequestFailure				N s1ap.proc.uout id-PathSwitchRequest
+
+SAEBearerSetupRequest					N s1ap.proc.imsg id-SAEBearerSetup
+SAEBearerSetupResponse					N s1ap.proc.sout id-SAEBearerSetup
+
+SAEBearerModifyRequest					N s1ap.proc.imsg id-SAEBearerModify
+SAEBearerModifyResponse					N s1ap.proc.sout id-SAEBearerModify
+
+SAEBearerReleaseCommand					N s1ap.proc.imsg id-SAEBearerRelease
+SAEBearerReleaseComplete				N s1ap.proc.sout id-SAEBearerRelease
+
+SAEBearerReleaseRequest					N s1ap.proc.imsg id-SAEBearerReleaseRequest
+
+InitialContextSetupRequest				N s1ap.proc.imsg id-InitialContextSetup
+InitialContextSetupResponse				N s1ap.proc.sout id-InitialContextSetup
+InitialContextSetupFailure				N s1ap.proc.uout id-InitialContextSetup
+
+UEContextReleaseRequest					N s1ap.proc.imsg id-UEContextReleaseRequest
+
+Paging									N s1ap.proc.imsg id-Paging
+
+DownlinkNASTransport					N s1ap.proc.imsg id-downlinkNASTransport
+
+InitialUEMessage						N s1ap.proc.imsg id-initialUEMessage
+
+UplinkNASTransport						N s1ap.proc.imsg id-uplinkNASTransport
+
+NASNonDeliveryIndication				N s1ap.proc.imsg id-NASNonDeliveryIndication
+
+HandoverCancel							N s1ap.proc.imsg id-HandoverCancel
+HandoverCancelAcknowledge				N s1ap.proc.sout id-HandoverCancel
+
+Reset									N s1ap.proc.imsg id-Reset
+ResetAcknowledge						N s1ap.proc.sout id-Reset
+
+ErrorIndication							N s1ap.proc.imsg id-ErrorIndication
+
+S1SetupRequest							N s1ap.proc.imsg id-S1Setup
+S1SetupResponse							N s1ap.proc.sout id-S1Setup
+S1SetupFailure							N s1ap.proc.uout id-S1Setup
+#.END
