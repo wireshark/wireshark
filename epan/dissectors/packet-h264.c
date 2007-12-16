@@ -104,6 +104,8 @@ static int hf_h264_chroma_qp_index_offset			= -1;
 static int hf_h264_deblocking_filter_control_present_flag = -1;
 static int hf_h264_constrained_intra_pred_flag		= -1;
 static int hf_h264_redundant_pic_cnt_present_flag	= -1;
+static int hf_h264_transform_8x8_mode_flag			= -1;
+static int hf_h264_pic_scaling_matrix_present_flag	= -1;
 
 /* VUI parameters */
 static int hf_h264_aspect_ratio_info_present_flag	= -1;
@@ -390,7 +392,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	for( b = 0; !b; leadingZeroBits++ )
 	b = read_bits( 1 )
 	The variable codeNum is then assigned as follows:
-	codeNum = 2leadingZeroBits – 1 + read_bits( leadingZeroBits )
+	codeNum = 2leadingZeroBits - 1 + read_bits( leadingZeroBits )
 	where the value returned from read_bits( leadingZeroBits ) is interpreted as a binary representation of an unsigned
 	integer with most significant bit written first.
 	*/
@@ -1021,7 +1023,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 						scaling_list( ScalingList4x4[ i ], 16,UseDefaultScalingMatrix4x4Flag[ i ])0
 						dissect_h264_scaling_list()
 					else
-						scaling_list( ScalingList8x8[ i – 6 ], 64,UseDefaultScalingMatrix8x8Flag[ i – 6 ] )0
+						scaling_list( ScalingList8x8[ i - 6 ], 64,UseDefaultScalingMatrix8x8Flag[ i - 6 ] )0
 				}
 			}
 			*/
@@ -1202,20 +1204,23 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 
 	if( more_rbsp_data(tree, tvb, pinfo, bit_offset)){
 		/* transform_8x8_mode_flag 1 u(1)*/
+		proto_tree_add_bits_item(tree, hf_h264_transform_8x8_mode_flag, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
 		/* pic_scaling_matrix_present_flag 1 u(1)*/
-		/* if( pic_scaling_matrix_present_flag )*/
-		/* for( i = 0; i < 6 + 2* transform_8x8_mode_flag; i++ ) {*/
-		/* pic_scaling_list_present_flag[ i ] 1 u(1)*/
-		/* if( pic_scaling_list_present_flag[ i ] )*/
-		/* if( i < 6 )*/
-		/* scaling_list( ScalingList4x4[ i ], 16,*/
-		/* UseDefaultScalingMatrix4x4Flag[ i ] )*/
-		/* 1*/
-		/* else*/
-		/* scaling_list( ScalingList8x8[ i – 6 ], 64,*/
-		/* UseDefaultScalingMatrix8x8Flag[ i – 6 ] )*/
-		/* 1*/
-		/* }*/
+		pic_scaling_matrix_present_flag = tvb_get_bits8(tvb, bit_offset, 1);
+		proto_tree_add_bits_item(tree, hf_h264_pic_scaling_matrix_present_flag, tvb, bit_offset, 1, FALSE);
+		bit_offset++;
+
+		/* if( pic_scaling_matrix_present_flag ){ */
+			/* for( i = 0; i < 6 + 2* transform_8x8_mode_flag; i++ ) {*/
+				/* pic_scaling_list_present_flag[ i ] 1 u(1)*/
+				/* if( pic_scaling_list_present_flag[ i ] )*/
+				/* if( i < 6 )*/
+					/* scaling_list( ScalingList4x4[ i ], 16, UseDefaultScalingMatrix4x4Flag[ i ] )*/
+				/* else*/
+					/* scaling_list( ScalingList8x8[ i - 6 ], 64, UseDefaultScalingMatrix8x8Flag[ i - 6 ] )*/
+			/* }*/
 		/* second_chroma_qp_index_offset 1 se(v)*/
 		proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
 
@@ -1787,6 +1792,16 @@ proto_register_h264(void)
 			{ "redundant_pic_cnt_present_flag",           "h264.redundant_pic_cnt_present_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			"redundant_pic_cnt_present_flag", HFILL }
+		},
+		{ &hf_h264_transform_8x8_mode_flag,
+			{ "transform_8x8_mode_flag",           "h264.transform_8x8_mode_flag",
+			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"transform_8x8_mode_flag", HFILL }
+		},
+		{ &hf_h264_pic_scaling_matrix_present_flag,
+			{ "pic_scaling_matrix_present_flag",           "h264.pic_scaling_matrix_present_flag",
+			FT_UINT8, BASE_DEC, NULL, 0x0,          
+			"pic_scaling_matrix_present_flag", HFILL }
 		},
 
 		{ &hf_h264_aspect_ratio_info_present_flag,
