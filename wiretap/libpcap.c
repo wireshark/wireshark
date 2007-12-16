@@ -1378,7 +1378,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 			 * have a pseudo-header.
 			 */
 			*err = WTAP_ERR_BAD_RECORD;
-			*err_info = g_strdup_printf("libpcap: Linux USB file has a %u-byte packet, too small to have even a LAPD pseudo-header\n",
+			*err_info = g_strdup_printf("libpcap: Linux USB file has a %u-byte packet, too small to have even a Linux USB pseudo-header\n",
 			    packet_size);
 			return FALSE;
 		}
