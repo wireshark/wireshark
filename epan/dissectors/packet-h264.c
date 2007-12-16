@@ -1208,7 +1208,7 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 		bit_offset++;
 
 		/* pic_scaling_matrix_present_flag 1 u(1)*/
-		pic_scaling_matrix_present_flag = tvb_get_bits8(tvb, bit_offset, 1);
+		/* pic_scaling_matrix_present_flag = tvb_get_bits8(tvb, bit_offset, 1); */
 		proto_tree_add_bits_item(tree, hf_h264_pic_scaling_matrix_present_flag, tvb, bit_offset, 1, FALSE);
 		bit_offset++;
 
