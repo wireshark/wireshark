@@ -103,7 +103,7 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     byte0 = tvb_get_guint8(tvb, 0);
 
-    if (byte0 != 0x01 && byte0 != 0x03) /* invalid LAPB frame */
+    if (byte0 != 0x01 && byte0 != 0x03 && byte0 != 0x07 && byte0 != 0x0f) /* invalid LAPB frame */
     {
 	if (check_col(pinfo->cinfo, COL_INFO))
 	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");

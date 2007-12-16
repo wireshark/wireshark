@@ -454,6 +454,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-image-png.c	\
 	packet-imap.c		\
 	packet-imf.c		\
+	packet-ipars.c		\
 	packet-ip.c		\
 	packet-ipdc.c		\
 	packet-ipfc.c		\
@@ -664,6 +665,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-sip.c		\
 	packet-sigcomp.c	\
 	packet-sipfrag.c	\
+	packet-sita.c		\
 	packet-skinny.c		\
 	packet-slimp3.c		\
 	packet-sll.c		\
@@ -733,6 +735,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-usb.c		\
 	packet-usb-masstorage.c	\
 	packet-umts_fp.c	\
+	packet-uts.c		\
 	packet-v120.c		\
 	packet-vines.c		\
 	packet-vj.c		\

@@ -389,6 +389,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_BT_H4 */
 	{ "Bluetooth H4 with linux header", "bluetooth-h4" },
+
+	/* WTAP_ENCAP_SITA */
+	{ "SITA WAN packets", "sita-wan" },
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

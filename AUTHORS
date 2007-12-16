@@ -2682,6 +2682,13 @@ Sake Blok               <sake [AT] euronet.nl> {
         temporary coloring rules with hotkeys
 }
 
+Fulko Hew		<fulko.hew [AT] gmail.com> {
+	SITA protocol dissection (ALC, UTS, Frame Relay, X.25)
+	UTS WAN protocol dissection
+	IPARS/ALC (International Passenger Airline Reservation System/Airline
+	Link Control) WAN protocol dissection
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

@@ -76,6 +76,16 @@
 #define MTP2_HDR_LEN			4	/* length of the header */
 
 /*
+ * A header containing additional SITA WAN information.
+ */
+#define SITA_FLAGS_OFFSET		0	/* 1 byte */
+#define SITA_SIGNALS_OFFSET		1	/* 1 byte */
+#define SITA_ERRORS1_OFFSET		2	/* 1 byte */
+#define SITA_ERRORS2_OFFSET		3	/* 1 byte */
+#define SITA_PROTO_OFFSET		4	/* 1 byte */
+#define SITA_HDR_LEN			5	/* length of the header */
+
+/*
  * The fake link-layer header of LAPD packets.
  */
 #ifndef ETH_P_LAPD
@@ -126,6 +136,10 @@ static gboolean libpcap_read_irda_pseudoheader(FILE_T fh,
 static gboolean libpcap_get_mtp2_pseudoheader(const guint8 *mtp2_hdr,
     union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_mtp2_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
+static gboolean libpcap_get_sita_pseudoheader(const guint8 *sita_phdr,
+    union wtap_pseudo_header *pseudo_header);
+static gboolean libpcap_read_sita_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean libpcap_get_lapd_pseudoheader(const guint8 *lapd_phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -429,6 +443,8 @@ static const struct {
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
         /* Per-Packet Information header */
         { 192,          WTAP_ENCAP_PPI },
+	/* SITA File Encapsulation */
+	{ 196,	        WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
 	{ 197,	        WTAP_ENCAP_ERF },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
@@ -1371,6 +1387,29 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 		wth->data_offset += LAPD_SLL_LEN;
 		break;
 
+	case WTAP_ENCAP_SITA:
+		if (packet_size < SITA_HDR_LEN) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_RECORD;
+			*err_info = g_strdup_printf("libpcap: SITA file has a %u-byte packet, too small to have even a SITA pseudo-header\n",
+			    packet_size);
+			return FALSE;
+		}
+		if (!libpcap_read_sita_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err, err_info))
+			return FALSE;	/* Read error */
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		orig_size -= SITA_HDR_LEN;
+		packet_size -= SITA_HDR_LEN;
+		wth->data_offset += SITA_HDR_LEN;
+		break;
+
 	case WTAP_ENCAP_USB_LINUX:
 		if (packet_size < sizeof (struct linux_usb_phdr)) {
 			/*
@@ -1570,6 +1609,14 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 
 	case WTAP_ENCAP_LINUX_LAPD:
 		if (!libpcap_read_lapd_pseudoheader(wth->random_fh, pseudo_header,
+		    err, err_info)) {
+			/* Read error */
+			return FALSE;
+		}
+		break;
+
+	case WTAP_ENCAP_SITA:
+		if (!libpcap_read_sita_pseudoheader(wth->random_fh, pseudo_header,
 		    err, err_info)) {
 			/* Read error */
 			return FALSE;
@@ -1986,6 +2033,36 @@ libpcap_read_lapd_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_heade
 	    err_info);
 }
 
+static gboolean
+libpcap_get_sita_pseudoheader(const guint8 *sita_phdr,
+    union wtap_pseudo_header *pseudo_header)
+{
+	pseudo_header->sita.flags   = sita_phdr[SITA_FLAGS_OFFSET];
+	pseudo_header->sita.signals = sita_phdr[SITA_SIGNALS_OFFSET];
+	pseudo_header->sita.errors1 = sita_phdr[SITA_ERRORS1_OFFSET];
+	pseudo_header->sita.errors2 = sita_phdr[SITA_ERRORS2_OFFSET];
+	pseudo_header->sita.proto   = sita_phdr[SITA_PROTO_OFFSET];
+	return TRUE;
+}
+
+static gboolean
+libpcap_read_sita_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info _U_)
+{
+	guint8	sita_phdr[SITA_HDR_LEN];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(sita_phdr, 1, SITA_HDR_LEN, fh);
+	if (bytes_read != SITA_HDR_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	return libpcap_get_sita_pseudoheader(sita_phdr, pseudo_header);
+}
+
 static void
 libpcap_swap_linux_usb_pseudoheader(struct linux_usb_phdr *phdr)
 {
@@ -2364,6 +2441,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	guint8 irda_hdr[IRDA_SLL_LEN];
 	guint8 lapd_hdr[LAPD_SLL_LEN];
 	guint8 mtp2_hdr[MTP2_HDR_LEN];
+	guint8 sita_hdr[SITA_HDR_LEN];
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
 	int hdrsize, size;
 
@@ -2383,6 +2461,10 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	case WTAP_ENCAP_LINUX_LAPD:
 		hdrsize = LAPD_SLL_LEN;
+		break;
+
+	case WTAP_ENCAP_SITA:
+		hdrsize = SITA_HDR_LEN;
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
@@ -2600,6 +2682,27 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			return FALSE;
 		}
 		wdh->bytes_dumped += sizeof(lapd_hdr);
+		break;
+
+	case WTAP_ENCAP_SITA:
+		/*
+		 * Write the SITA header.
+		 */
+		memset(&sita_hdr, 0, sizeof(sita_hdr));
+		sita_hdr[SITA_FLAGS_OFFSET]   = pseudo_header->sita.flags;
+		sita_hdr[SITA_SIGNALS_OFFSET] = pseudo_header->sita.signals;
+		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.errors1;
+		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.errors2;
+		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.proto;
+		nwritten = fwrite(&sita_hdr, 1, sizeof(sita_hdr), wdh->fh);
+		if (nwritten != sizeof(sita_hdr)) {
+			if (nwritten == 0 && ferror(wdh->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_WRITE;
+			return FALSE;
+		}
+		wdh->bytes_dumped += sizeof(sita_hdr);
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:

@@ -194,6 +194,7 @@ extern "C" {
 #define WTAP_ENCAP_PPI                      97
 #define WTAP_ENCAP_ERF						98
 #define WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR       99
+#define WTAP_ENCAP_SITA       				100
 
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
@@ -644,6 +645,70 @@ struct erf_mc_phdr {
   } subhdr;
 };
 
+#define SITA_FRAME_DIR_TXED		(0x00)		/* values of sita_phdr.flags */
+#define SITA_FRAME_DIR_RXED		(0x01)
+#define SITA_FRAME_DIR			(0x01)		/* mask */
+#define SITA_ERROR_NO_BUFFER		(0x80)
+
+#define SITA_SIG_DSR			(0x01)		/* values of sita_phdr.signals */
+#define SITA_SIG_DTR			(0x02)
+#define SITA_SIG_CTS			(0x04)
+#define SITA_SIG_RTS			(0x08)
+#define SITA_SIG_DCD			(0x10)
+#define SITA_SIG_UNDEF1			(0x20)
+#define SITA_SIG_UNDEF2			(0x40)
+#define SITA_SIG_UNDEF3			(0x80)
+
+#define SITA_ERROR_TX_UNDERRUN		(0x01)		/* values of sita_phdr.errors2 (if SITA_FRAME_DIR_TXED) */
+#define SITA_ERROR_TX_CTS_LOST		(0x02)
+#define SITA_ERROR_TX_UART_ERROR	(0x04)
+#define SITA_ERROR_TX_RETX_LIMIT	(0x08)
+#define SITA_ERROR_TX_UNDEF1		(0x10)
+#define SITA_ERROR_TX_UNDEF2		(0x20)
+#define SITA_ERROR_TX_UNDEF3		(0x40)
+#define SITA_ERROR_TX_UNDEF4		(0x80)
+
+#define SITA_ERROR_RX_FRAMING		(0x01)		/* values of sita_phdr.errors1 (if SITA_FRAME_DIR_RXED) */
+#define SITA_ERROR_RX_PARITY		(0x02)
+#define SITA_ERROR_RX_COLLISION		(0x04)
+#define SITA_ERROR_RX_FRAME_LONG	(0x08)
+#define SITA_ERROR_RX_FRAME_SHORT	(0x10)
+#define SITA_ERROR_RX_UNDEF1		(0x20)
+#define SITA_ERROR_RX_UNDEF2		(0x40)
+#define SITA_ERROR_RX_UNDEF3		(0x80)
+
+#define SITA_ERROR_RX_NONOCTET_ALIGNED	(0x01)	/* values of sita_phdr.errors2 (if SITA_FRAME_DIR_RXED) */
+#define SITA_ERROR_RX_ABORT		(0x02)
+#define SITA_ERROR_RX_CD_LOST		(0x04)
+#define SITA_ERROR_RX_DPLL		(0x08)
+#define SITA_ERROR_RX_OVERRUN		(0x10)
+#define SITA_ERROR_RX_FRAME_LEN_VIOL	(0x20)
+#define SITA_ERROR_RX_CRC		(0x40)
+#define SITA_ERROR_RX_BREAK		(0x80)
+
+#define SITA_PROTO_UNUSED		(0x00)		/* values of sita_phdr.proto */
+#define SITA_PROTO_BOP_LAPB		(0x01)
+#define SITA_PROTO_ETHERNET		(0x02)
+#define SITA_PROTO_ASYNC_INTIO		(0x03)
+#define SITA_PROTO_ASYNC_BLKIO		(0x04)
+#define SITA_PROTO_ALC			(0x05)
+#define SITA_PROTO_UTS			(0x06)
+#define SITA_PROTO_PPP_HDLC		(0x07)
+#define SITA_PROTO_SDLC			(0x08)
+#define SITA_PROTO_TOKENRING		(0x09)
+#define SITA_PROTO_I2C			(0x10)
+#define SITA_PROTO_DPM_LINK		(0x11)
+#define SITA_PROTO_BOP_FRL		(0x12)
+
+struct sita_phdr {
+   guint8  flags;
+   guint8  signals;
+   guint8  errors1;
+   guint8  errors2;
+   guint8  proto;
+};
+
+
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -661,6 +726,7 @@ union wtap_pseudo_header {
 	struct catapult_dct2000_phdr dct2000;
 	struct linux_usb_phdr	linux_usb;
 	struct erf_mc_phdr      erf;
+	struct sita_phdr	sita;
 };
 
 struct wtap_nstime {
