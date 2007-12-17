@@ -25,9 +25,19 @@ dnl Work around libtool bug (fixed in the version 1.5a?)
 AC_DEFUN([AC_PROVIDE_AC_LIBTOOL_DLOPEN], )
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
-AC_PROG_YACC
-AM_PROG_LEX
 AC_PATH_PROG(PERL, perl)
+AC_PROG_YACC
+AC_PATH_PROG(YACCDUMMY, $YACC)
+if test "x$YACCDUMMY" = x
+then
+	AC_MSG_ERROR(I couldn't find yacc (or bison or ...); make sure it's installed and in your path)
+fi
+AM_PROG_LEX
+AC_PATH_PROG(LEXDUMMY, $LEX)
+if test "x$LEXDUMMY" = x
+then
+	AC_MSG_ERROR(I couldn't find (f)lex; make sure it's installed and in your path)
+fi
 AC_PATH_PROG(POD2MAN, pod2man)
 if test "x$POD2MAN" = x
 then
@@ -182,6 +192,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 	if test $enableval != no
 	then
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-pedantic)
+		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wextra)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
