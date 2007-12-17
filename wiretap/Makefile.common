@@ -113,7 +113,7 @@ NONGENERATED_HEADER_FILES = \
 	wtap-int.h
 
 # Files that generate compileable files
-GENERATOR_SOURCES = \
+GENERATOR_FILES = \
        ascend-grammar.y        \
        ascend-scanner.l \
        k12text.l
