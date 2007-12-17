@@ -1582,7 +1582,9 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     UcpHandleByte(hf_ucp_parm_LNPI);
     UcpHandleInt(hf_ucp_parm_OPID);
     UcpHandleData(hf_ucp_parm_RES1);
-    UcpHandleData(hf_ucp_parm_RES2);
+    if (OT == 61) {
+      UcpHandleData(hf_ucp_parm_RES2);
+    }
 }
 
 #define add_6xR(a, b) add_01R(a, b)
