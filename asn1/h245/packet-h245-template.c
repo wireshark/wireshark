@@ -78,9 +78,7 @@ static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
 static int h245_tap = -1;
-static int ett_h245 = -1;
 static int h245dg_tap = -1;
-static int ett_h245_returnedFunction = -1;
 h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
@@ -206,15 +204,24 @@ static const value_string h245_AudioCapability_short_vals[] = {
 
 /* To put the codec type only in COL_INFO when
    an OLC is read */
-
 const char* codec_type = NULL;
-static guint32 ipv4_address;
-static guint32 ipv4_port;
-static guint32 rtcp_ipv4_address;
-static guint32 rtcp_ipv4_port;
-static gboolean media_channel;
-static gboolean media_control_channel;
-static gboolean srtp_flag;
+static guint32 rfc_number;
+
+typedef struct _unicast_addr_t {
+  address addr;
+  guint8 addr_buf[16];
+  guint32 port;
+} unicast_addr_t;
+
+typedef struct _channel_info_t {
+  unicast_addr_t *upcoming_addr;
+  unicast_addr_t media_addr;
+  unicast_addr_t media_control_addr;
+  unsigned int rfc2198;
+  gboolean srtp_flag;
+} channel_info_t;
+
+static channel_info_t *upcoming_channel = NULL;
 
 /* NonStandardParameter */
 static const char *nsiOID;
@@ -225,6 +232,7 @@ static guint32 manufacturerCode;
 
 static const value_string h245_RFC_number_vals[] = {
 	{  2190,	"RFC 2190 - H.263 Video Streams" },
+	{  2198,	"RFC 2198 - RTP Payload for Redundant Audio Data" },
 	{  2429,	"RFC 2429 - 1998 Version of ITU-T Rec. H.263 Video (H.263+)" },
 	{  3016,	"RFC 3016 - RTP Payload Format for MPEG-4 Audio/Visual Streams" },
 	{  3267,	"RFC 3267 - Adaptive Multi-Rate (AMR) and Adaptive Multi-Rate Wideband (AMR-WB)" },
@@ -277,11 +285,57 @@ void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 	h223_add_lc_handle = handle;
 }
 
+static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel)
+{
+	gint *key;
+	GHashTable *rtp_dyn_payload = NULL;
+
+	if (!upcoming_channel) return;
+
+	if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
+		if(upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle){
+			t38_add_address(pinfo, &upcoming_channel->media_addr.addr, 
+							upcoming_channel->media_addr.port, 0, 
+							"H245", pinfo->fd->num);
+		}
+	} else {
+		if (upcoming_channel->rfc2198 > 0) {
+#if GLIB_MAJOR_VERSION < 2
+			rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
+#else
+			rtp_dyn_payload = g_hash_table_new_full( g_int_hash, g_int_equal, g_free, g_free);
+#endif
+			key = g_malloc(sizeof(gint));
+			*key = upcoming_channel->rfc2198;
+			g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
+		}
+		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle){
+			if (upcoming_channel->srtp_flag) {
+				struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+				srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
+								upcoming_channel->media_addr.port, 0, 
+								"H245", pinfo->fd->num, rtp_dyn_payload, dummy_srtp_info);
+			} else {
+				rtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
+								upcoming_channel->media_addr.port, 0, 
+								"H245", pinfo->fd->num, rtp_dyn_payload);
+			}
+		}
+		if(upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle){
+			rtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
+							upcoming_channel->media_control_addr.port, 0, 
+							"H245", pinfo->fd->num);
+		}
+	}
+}
+
 /* Initialize the protocol and registered fields */
 int proto_h245 = -1;
 #include "packet-h245-hf.c"
 
 /* Initialize the subtree pointers */
+static int ett_h245 = -1;
+static int ett_h245_returnedFunction = -1;
 #include "packet-h245-ett.c"
 
 /* Forward declarations */

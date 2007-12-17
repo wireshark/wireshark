@@ -2,8 +2,13 @@
 # Copyright 2005 Anders Broman anders.broman[at]ericsson.com
 # $Id$
 #----------------------------------------------------------------------------------------
+
+#.OPT
+PER
+ALIGNED
+#.END
+
 #.EXPORTS
-#----------------------------------------------------------------------------------------
 T38FaxProfile
 DataProtocolCapability NO_PROT_PREFIX
 OpenLogicalChannel
@@ -134,7 +139,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY OpenLogicalChannel/forwardLogicalChannelParameters
-  srtp_flag = FALSE;
   h245_lc_dissector = NULL;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp && h245_lc_dissector)
@@ -643,7 +647,8 @@ if (h245_pi != NULL)
   if (gefx) gefx->id = standard_oid_str;
 
   if(strcmp(standard_oid_str,"0.0.8.235.0.3.76") == 0) {  /* MIKEY */
-	srtp_flag = TRUE;
+    if (upcoming_channel)
+	  upcoming_channel->srtp_flag = TRUE;
   }
 
   if(!h245_lc_dissector && strcmp(standard_oid_str,"0.0.8.245.1.1.1") == 0)
@@ -680,178 +685,106 @@ if (h245_pi != NULL)
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iPAddress/network  VAL_PTR = &value_tvb
-
   tvbuff_t *value_tvb;
 
 %(DEFAULT_BODY)s
-  if ( media_channel )
-    ipv4_address = tvb_get_ipv4(value_tvb, 0);
 
-  if ( media_control_channel )
-    rtcp_ipv4_address = tvb_get_ipv4(value_tvb, 0);
-
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    tvb_memcpy(value_tvb, upcoming_channel->upcoming_addr->addr_buf, 0, 4);
+    SET_ADDRESS(&upcoming_channel->upcoming_addr->addr, AT_IPv4, 4, upcoming_channel->upcoming_addr->addr_buf);
+  }
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY UnicastAddress/iPAddress/tsapIdentifier  VAL_PTR = &tsapIdentifier
   guint32 tsapIdentifier;
 
 %(DEFAULT_BODY)s
-  if ( media_channel )
-	ipv4_port = tsapIdentifier;
 
-  if ( media_control_channel )
-	rtcp_ipv4_port = tsapIdentifier;
-
+  if (upcoming_channel && upcoming_channel->upcoming_addr) {
+    upcoming_channel->upcoming_addr->port = tsapIdentifier;
+  }
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelAckParameters/mediaChannel
-
-
-	media_channel = TRUE;
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
+#.END
+#.FN_FTR H2250LogicalChannelAckParameters/mediaChannel
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelParameters/mediaChannel
-
-
-	media_channel = TRUE;
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
+#.END
+#.FN_FTR H2250LogicalChannelParameters/mediaChannel
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelAckParameters/mediaControlChannel
-
-
-	media_control_channel = TRUE;
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
+#.END
+#.FN_FTR H2250LogicalChannelAckParameters/mediaControlChannel
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR H2250LogicalChannelParameters/mediaControlChannel
-
-
-	media_control_channel = TRUE;
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
 #.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR H2250LogicalChannelAckParameters/mediaChannel
-
-
-	media_channel = FALSE;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR H2250LogicalChannelAckParameters/mediaControlChannel
-
-
-	media_control_channel = FALSE;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR H2250LogicalChannelParameters/mediaChannel
-
-
-	media_channel = FALSE;
-#.END
-#----------------------------------------------------------------------------------------
 #.FN_FTR H2250LogicalChannelParameters/mediaControlChannel
-
-
-	media_control_channel = FALSE;
+  if (upcoming_channel)
+    upcoming_channel->upcoming_addr = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR OpenLogicalChannelAck/forwardMultiplexAckParameters
 
-
-	media_channel = FALSE;
-	media_control_channel = FALSE;
+  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
 
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannelAck/forwardMultiplexAckParameters
 	
 	if (!actx->pinfo->fd->flags.visited) {
-		if (codec_type && strcmp(codec_type, "t38fax")==0) {
-			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&ipv4_address;
-
-				t38_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num);
-			}
-		} else {
-			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&ipv4_address;
-
-				if (srtp_flag) {
-					struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
-					srtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL, dummy_srtp_info);
-				} else {
-					rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
-				}
-			}
-			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-				rtcp_add_address(actx->pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", actx->pinfo->fd->num);
-			}
-		}
+		h245_setup_channels(actx->pinfo, upcoming_channel);
 	}
+  upcoming_channel = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters
 
-  srtp_flag = FALSE;
+  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
 
 #.END
-#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
-
-	media_channel = FALSE;
-	media_control_channel = FALSE;
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters
+#.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters
 	
 	if (!actx->pinfo->fd->flags.visited) {
-		if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
-			if(ipv4_address!=0 && ipv4_port!=0 && t38_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&ipv4_address;
-
-				t38_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num);
-			}
-		} else {
-			if(ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&ipv4_address;
-
-				if (srtp_flag) {
-					struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
-					srtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL, dummy_srtp_info);
-				} else {
-					rtp_add_address(actx->pinfo, &src_addr, ipv4_port, 0, "H245", actx->pinfo->fd->num, NULL);
-				}
-			}
-			if(rtcp_ipv4_address!=0 && rtcp_ipv4_port!=0 && rtcp_handle){
-				address src_addr;
-
-				src_addr.type=AT_IPv4;
-				src_addr.len=4;
-				src_addr.data=(guint8*)&rtcp_ipv4_address;
-
-				rtcp_add_address(actx->pinfo, &src_addr, rtcp_ipv4_port, 0, "H245", actx->pinfo->fd->num);
-			}
-		}
+		h245_setup_channels(actx->pinfo, upcoming_channel);
 	}
+  upcoming_channel = NULL;
+#.END
+
+#--- RTPPayloadType ---------------------------------------------------------------------
+#.FN_HDR RTPPayloadType
+  rfc_number = 0;
+#.END
+
+#.FN_PARS RTPPayloadType/payloadDescriptor/rfc-number
+  VAL_PTR = &rfc_number
+#.END
+
+#.FN_BODY RTPPayloadType/payloadType  VAL_PTR = &pt
+  unsigned int pt;
+
+%(DEFAULT_BODY)s
+
+  if ((rfc_number == 2198) && upcoming_channel) {
+    upcoming_channel->rfc2198 = pt;
+  }
 #.END
 
 #--- NonStandardParameter ---------------------------------------------------------------
