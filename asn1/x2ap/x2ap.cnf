@@ -157,7 +157,6 @@ HandoverCancel						S x2ap.proc.imsg "id-handoverCancel"
 
 ErrorIndication						S x2ap.proc.imsg "id-errorIndication"
 
-ResetRequest						S x2ap.proc.imsg "id-reset"
 ResetResponse						S x2ap.proc.imsg "id-reset"
 
 X2SetupRequest						S x2ap.proc.imsg "id-x2Setup"

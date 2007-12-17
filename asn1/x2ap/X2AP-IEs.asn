@@ -44,8 +44,8 @@ FROM X2AP-Containers;
 -- A
 
 AggregateMaximumBitRate ::= SEQUENCE {
-	aggregateMaximumBitRateDownlink		SAE-BearerBitRate,
-	aggregateMaximumBitRateUplink		SAE-BearerBitRate,
+	aggregateMaximumBitRateDownlink		SAE-Bearer-BitRate,
+	aggregateMaximumBitRateUplink		SAE-Bearer-BitRate,
 	...
 }
 
@@ -294,7 +294,7 @@ RRC-Context ::= OCTET STRING
 
 -- S
 
-SAE-BearerBitRate ::= INTEGER (0..210000000000)
+SAE-Bearer-BitRate ::= INTEGER (0..210000000000)
 
 SAE-BearerLevel-QoS-Parameters ::= SEQUENCE {
 	label				INTEGER (1..256),
@@ -305,8 +305,8 @@ SAE-BearerLevel-QoS-Parameters ::= SEQUENCE {
 
 
 SAE-BearerType ::= CHOICE {
-	sAE-GBR-bearer		SAE-GBR-bearer,
-	sAE-non-GBR-bearer		SAE-Non-GBR-bearer,
+	sAE-GBR-bearer		SAE-GBR-Bearer,
+	sAE-non-GBR-bearer		SAE-Non-GBR-Bearer,
 	...
 }
 
@@ -324,7 +324,7 @@ SAE-GBR-Bearer-Parameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 
-SAE-non-GBR-Bearer ::= SEQUENCE {
+SAE-Non-GBR-Bearer ::= SEQUENCE {
 	sAE-non-GBR-Bearer-Type			ENUMERATED {non-GBR-Bearer,...},
 	iE-Extensions						ProtocolExtensionContainer { {SAE-non-GBR-Bearer-Parameters-ExtIEs} } OPTIONAL,
 	...
