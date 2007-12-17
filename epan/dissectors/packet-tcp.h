@@ -63,6 +63,7 @@ struct tcpheader {
 struct tcpinfo {
 	guint32 seq;             /* Sequence number of first byte in the data */
 	guint32 nxtseq;          /* Sequence number of first byte after data */
+	guint32 lastackseq;      /* Sequence number of last ack */
 	gboolean is_reassembled; /* This is reassembled data. */
 	gboolean urgent;         /* TRUE if "urgent_pointer" is valid */
 	guint16	urgent_pointer;  /* Urgent pointer value for the current packet. */

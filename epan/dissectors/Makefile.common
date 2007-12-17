@@ -642,6 +642,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-rsvp.c		\
 	packet-rsync.c		\
 	packet-rtcp.c		\
+	packet-rtmpt.c		\
 	packet-rtp-events.c	\
 	packet-rtp.c		\
 	packet-rtps.c		\

@@ -2136,6 +2136,8 @@ metatech                <metatech [AT] flashmail.com> {
 	IBM MQ Programmable Command Formats protocol support
 	Initial BEA Tuxedo protocol support
  	Distributed Relational Database Architecture protocol support
+ 	Borland StarTeam protocol support
+ 	Adobe Real Time Messaging Protocol support
 }
 
 Brian Wheeler           <Brian.Wheeler [AT] arrisi.com> {

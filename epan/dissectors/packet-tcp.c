@@ -2836,6 +2836,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      after the segment. */
   tcpinfo.seq = tcph->th_seq;
   tcpinfo.nxtseq = nxtseq;
+  tcpinfo.lastackseq = tcph->th_ack;
 
   /* Assume we'll pass un-reassembled data to subdissectors. */
   tcpinfo.is_reassembled = FALSE;
