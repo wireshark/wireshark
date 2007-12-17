@@ -72,11 +72,13 @@
 #include "packet-msrp.h"
 #include "packet-per.h"
 #include "packet-h245.h"
+#include "packet-h264.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 static dissector_handle_t msrp_handle=NULL;
+static dissector_handle_t h264_handle = NULL;
 
 static int sdp_tap = -1;
 
@@ -160,8 +162,10 @@ static int hf_media_attribute_field = -1;
 static int hf_media_attribute_value = -1;
 static int hf_media_encoding_name = -1;
 static int hf_media_format_specific_parameter = -1;
-static int hf_sdp_fmtp_profile_level_id = -1;
+static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
+static int hf_sdp_h264_packetization_mode = -1;
+static int hf_sdp_h264_sprop_parameter_sets = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
 
 /* hf_session_attribute hf_media_attribute subfields */
@@ -1033,6 +1037,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
   }
 }
 
+/* Dissect media description */
 static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                   transport_info_t *transport_info){
@@ -1047,6 +1052,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   /* Re-initialise for a new media description */
   msrp_transport_address_set = FALSE;
 
+  /* Create tree for media session */
   sdp_media_tree = proto_item_add_subtree(ti,ett_sdp_media);
 
   next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
@@ -1056,6 +1062,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   tokenlen = next_offset - offset;
 
+  /* Type of media session */
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
                       FALSE);
 
@@ -1110,7 +1117,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
                       FALSE);
 
-  do{
+  do {
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
@@ -1152,6 +1159,79 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
 }
 
+tvbuff_t *ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
+{
+	guint8 *buf = ep_alloc(10240);
+
+	/* arbitrary maximum length */
+	if(len<20480){
+		int i;
+		tvbuff_t *bytes_tvb;
+
+		/* first, skip to where the encoded pdu starts, this is
+		   the first hex digit after the '=' char.
+		*/
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return NULL;
+			}
+			if(*msg=='='){
+				msg++;
+				break;
+			}
+			msg++;
+		}
+		while(1){
+			if((*msg==0)||(*msg=='\n')){
+				return NULL;
+			}
+			if( ((*msg>='0')&&(*msg<='9'))
+			||  ((*msg>='a')&&(*msg<='f'))
+			||  ((*msg>='A')&&(*msg<='F'))){
+				break;
+			}
+			msg++;
+		}
+		i=0;
+		while( ((*msg>='0')&&(*msg<='9'))
+		     ||((*msg>='a')&&(*msg<='f'))
+		     ||((*msg>='A')&&(*msg<='F'))  ){
+			int val;
+			if((*msg>='0')&&(*msg<='9')){
+				val=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val=(*msg)-'A'+10;
+			} else {
+				return NULL;
+			}
+			val<<=4;
+			msg++;
+			if((*msg>='0')&&(*msg<='9')){
+				val|=(*msg)-'0';
+			} else if((*msg>='a')&&(*msg<='f')){
+				val|=(*msg)-'a'+10;
+			} else if((*msg>='A')&&(*msg<='F')){
+				val|=(*msg)-'A'+10;
+			} else {
+				return NULL;
+			}
+			msg++;
+
+			buf[i]=(guint8)val;
+			i++;
+		}
+		if(i==0){
+			return NULL;
+		}
+		bytes_tvb = tvb_new_real_data(buf,i,i);
+		tvb_set_child_real_data_tvbuff(tvb,bytes_tvb);
+		add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
+		return bytes_tvb;
+	}
+	return NULL;
+}
 /*
 14496-2, Annex G, Table G-1.
 Table G-1 FLC table for profile_and_level_indication Profile/Level Code
@@ -1256,16 +1336,25 @@ static const value_string h263_profile_vals[] =
   { 0, NULL },
 };
 
+static const value_string h264_packetization_mode_vals[] =
+{
+  { 0,    "Single NAL mode" },
+  { 1,    "Non-interleaved mode" },
+  { 2,    "Interleaved mode" },
+  { 0, NULL },
+};
+
 /*
  * TODO: Make this a more generic routine to dissect fmtp parameters depending on media types
  */
 static void
-decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, guint8 *mime_type){
+decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint tokenlen, guint8 *mime_type){
   gint next_offset;
   gint end_offset;
   guint8 *field_name;
-  guint8 *format_specific_parameter;
+  gchar *format_specific_parameter;
   proto_item *item;
+  tvbuff_t *data_tvb;
 
   end_offset = offset + tokenlen;
 
@@ -1290,7 +1379,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, gui
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-      item = proto_tree_add_uint(tree, hf_sdp_fmtp_profile_level_id, tvb, offset, tokenlen,
+      item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                  atol((char*)format_specific_parameter));
       PROTO_ITEM_SET_GENERATED(item);
     }
@@ -1308,20 +1397,73 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, gint offset, gint tokenlen, gui
     }
   }
 
-#if 0
-  /* TODO: Add code to dissect H264 fmtp parameters wehen an example can be found */
+
+  /* Dissect the H264 profile-level-id parameter */
   if (mime_type != NULL && strcmp(mime_type, "H264") == 0) {
     if (strcmp(field_name, "profile-level-id") == 0) {
-      char **endptr;
-
+ 	
+	  /* Length includes "=" */
+      tokenlen = end_offset - offset;
+      format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	  data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+	  if(h264_handle && data_tvb){
+		  dissect_h264_profile(data_tvb, pinfo, tree);
+	  }
+	}else if (strcmp(field_name, "packetization-mode") == 0) {
       offset++;
       tokenlen = end_offset - offset;
       format_specific_parameter = tvb_get_ephemeral_string(tvb, offset, tokenlen);
-      proto_tree_add_text(tree, tvb, offset, tokenlen,
-		                    "Test %u", strtoul(format_specific_parameter, endptr, 16));
+      item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
+                                 atol((char*)format_specific_parameter));
+
+	}else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
+		/* The value of the parameter is the
+                        base64 [6] representation of the initial
+                        parameter set NAL units as specified in
+                        sections 7.3.2.1 and 7.3.2.2 of [1].  The
+                        parameter sets are conveyed in decoding order,
+                        and no framing of the parameter set NAL units
+                        takes place.  A comma is used to separate any
+                        pair of parameter sets in the list.
+		*/
+		gchar *data = NULL;
+		gint comma_offset;
+
+
+		/* Move past '=' */
+		offset++;
+		comma_offset = tvb_find_guint8(tvb,offset,-1,',');
+		if (comma_offset != -1){
+			tokenlen = comma_offset - offset;
+		}else{
+			tokenlen = end_offset - offset;
+		}
+		
+		data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+	    proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 1 string: %s", data);
+
+		/* proto_tree_add_text(tree, tvb, offset, tokenlen, "String %s",data); */
+		data_tvb = base64_to_tvb(data);
+		tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+		add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
+
+		if(h264_handle && data_tvb){
+			dissect_h264_nal_unit(data_tvb, pinfo, tree);
+			if (comma_offset != -1){
+				/* Second NAL unit */
+				offset = comma_offset +1;
+				tokenlen = end_offset - offset;
+				data = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+				proto_tree_add_text(tree, tvb, offset, tokenlen, "NAL unit 2 string: %s", data);
+				data_tvb = base64_to_tvb(data);
+				tvb_set_child_real_data_tvbuff(tvb, data_tvb);
+				add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets 2");
+				dissect_h264_nal_unit(data_tvb, pinfo, tree);
+			}
+		}
 	}
   }
-#endif
+
 }
 
 typedef struct {
@@ -1366,6 +1508,8 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   gint	sdp_media_attrbute_code;
   const char *msrp_res = "msrp://";
   const char *h324ext_h223lcparm = "h324ext/h223lcparm";
+  gboolean has_more_pars = TRUE;
+  tvbuff_t *h245_tvb;
 
   offset = 0;
   next_offset = 0;
@@ -1475,58 +1619,54 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
    	  return;
 	  break;
   case SDP_FMTP:
-	  /* Reading the Format parameter(fmtp) */
-	  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
+	  if(sdp_media_attribute_tree){
+		  /* Reading the Format parameter(fmtp) */
+		  next_offset = tvb_find_guint8(tvb,offset,-1,' ');
 
-	  if(next_offset == -1)
-		  return;
+		  if(next_offset == -1)
+			  return;
 
-	  tokenlen = next_offset - offset;
+		  tokenlen = next_offset - offset;
 
-	  /* Media format extends to the next space */
-	  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
+		  /* Media format extends to the next space */
+		  media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                             hf_media_format, tvb, offset,
                                             tokenlen, FALSE);
-	  /* Append encoding name to format if known */
-	  if (transport_info->encoding_name)
-		  proto_item_append_text(media_format_item, " [%s]",
+		  /* Append encoding name to format if known */
+		  if (transport_info->encoding_name)
+			  proto_item_append_text(media_format_item, " [%s]",
                              transport_info->encoding_name);
 
-	  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		  payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
+		  /* Offset past space after ':' */
+		  offset = next_offset + 1;
 
-	  offset = next_offset + 1;
+		  while(has_more_pars==TRUE){
+			  next_offset = tvb_find_guint8(tvb,offset,-1,';');
+			  offset = tvb_skip_wsp(tvb,offset,tvb_length_remaining(tvb,offset));
 
-	  /* There may be 2 parameters given
-	   * TODO: Handle arbitary number of parameters.
-	   */
-	  next_offset = tvb_find_guint8(tvb,offset,-1,';');
+			  if(next_offset == -1){
+				  has_more_pars = FALSE;
+				  next_offset= tvb_length(tvb);
+			  }else{
+	
+			  }
 
-	  if(next_offset != -1){
-		  /* There are 2 - add the first parameter */
-		  tokenlen = next_offset - offset;
-		  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
+			  /* There are 2 - add the first parameter */
+			  tokenlen = next_offset - offset;
+			  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
                                       hf_media_format_specific_parameter, tvb,
                                       offset, tokenlen, FALSE);
 
-		  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
+			  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
-		  decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
+			  decode_sdp_fmtp(fmtp_tree, tvb, pinfo, offset, tokenlen,
                       (guint8 *)transport_info->encoding_name);
 
-		  offset = next_offset + 1;
+			  /* Move offset past "; " and onto firts char */	
+			  offset = next_offset + 1;
+		  }
 	  }
-
-	  /* Now add remaining (or only) parameter */
-	  tokenlen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
-
-	  fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
-                                    hf_media_format_specific_parameter, tvb,
-                                    offset, tokenlen, FALSE);
-
-	  fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
-
-	  decode_sdp_fmtp(fmtp_tree, tvb, offset, tokenlen,
-                    (guint8 *)transport_info->encoding_name);
 	  return;
 	  break;
   case SDP_PATH:
@@ -1561,83 +1701,19 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		   * ITU-T Rec. X.691. Value encoded as per A.5.1.2. For text encoding the mechanism defined
 		   * in ITU-T Rec. H.248.15 is used.
 		   */
-		  guint8 *buf = ep_alloc(256);
 		  gint len;
 		  asn1_ctx_t actx;
 
 		  len = strlen(attribute_value);
+		  h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
 		  /* arbitrary maximum length */
-		  if(len<20480){
-			  int i;
-			  tvbuff_t *h245_tvb;
-
-			  /* first, skip to where the encoded pdu starts, this is
-		    	 the first hex digit after the '=' char.
-			  */
-			  while(1){
-				  if((*attribute_value==0)||(*attribute_value=='\n')){
-					  return;
-				  }
-				  if(*attribute_value=='='){
-					  attribute_value++;
-					  break;
-				  }
-				  attribute_value++;
-			  }
-			  while(1){
-				  if((*attribute_value==0)||(*attribute_value=='\n')){
-					  return;
-				  }
-				  if( ((*attribute_value>='0')&&(*attribute_value<='9'))
-				  ||  ((*attribute_value>='a')&&(*attribute_value<='f'))
-				  ||  ((*attribute_value>='A')&&(*attribute_value<='F'))){
-					  break;
-				  }
-				  attribute_value++;
-			  }
-			  i=0;
-			  while( ((*attribute_value>='0')&&(*attribute_value<='9'))
-		     	  ||((*attribute_value>='a')&&(*attribute_value<='f'))
-		     	  ||((*attribute_value>='A')&&(*attribute_value<='F'))  ){
-				  int val;
-				  if((*attribute_value>='0')&&(*attribute_value<='9')){
-					  val=(*attribute_value)-'0';
-				  } else if((*attribute_value>='a')&&(*attribute_value<='f')){
-					  val=(*attribute_value)-'a'+10;
-				  } else if((*attribute_value>='A')&&(*attribute_value<='F')){
-					  val=(*attribute_value)-'A'+10;
-				  } else {
-					  return;
-				  }
-				  val<<=4;
-				  attribute_value++;
-				  if((*attribute_value>='0')&&(*attribute_value<='9')){
-					  val|=(*attribute_value)-'0';
-				  } else if((*attribute_value>='a')&&(*attribute_value<='f')){
-					  val|=(*attribute_value)-'a'+10;
-				  } else if((*attribute_value>='A')&&(*attribute_value<='F')){
-					  val|=(*attribute_value)-'A'+10;
-				  } else {
-					  return;
-				  }
-				  attribute_value++;
-
-				  buf[i]=(guint8)val;
-				  i++;
-			  }
-			  if(i==0){
-				  return;
-			  }
-			  h245_tvb = tvb_new_real_data(buf,i,i);
-			  tvb_set_child_real_data_tvbuff(tvb,h245_tvb);
-			  add_new_data_source(pinfo, h245_tvb, "H.245 in SDP");
-			  /* should go through a handle, however,  the two h245 entry
-		   	  points are different, one is over tpkt and the other is raw
-			  */
-			  asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
-			  dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
+		  /* should go through a handle, however,  the two h245 entry
+	   	  points are different, one is over tpkt and the other is raw
+		  */
+		  if (h245_tvb){
+			asn1_ctx_init(&actx, ASN1_ENC_PER, TRUE, pinfo);
+			dissect_h245_H223LogicalChannelParameters(h245_tvb, 0, &actx, sdp_media_attribute_tree, hf_SDPh223LogicalChannelParameters);
 		  }
-
 		}
 	  break;
   default:
@@ -1852,11 +1928,11 @@ proto_register_sdp(void)
       { "Media Attribute Value",
         "sdp.media_attribute.value",FT_STRING, BASE_NONE, NULL, 0x0,
         "Media Attribute Value", HFILL }},
-        { &hf_media_encoding_name,
+    { &hf_media_encoding_name,
       { "MIME Type",
         "sdp.mime.type",FT_STRING, BASE_NONE, NULL, 0x0,
         "SDP MIME Type", HFILL }},
-        { &hf_media_format_specific_parameter,
+    { &hf_media_format_specific_parameter,
       { "Media format specific parameters",
         "sdp.fmtp.parameter",FT_STRING, BASE_NONE, NULL, 0x0,
         "Format specific parameter(fmtp)", HFILL }},
@@ -1868,7 +1944,7 @@ proto_register_sdp(void)
       { "IPBCP Command Type",
         "ipbcp.command",FT_STRING, BASE_NONE, NULL, 0x0,
         "IPBCP Command Type", HFILL }},
-	{&hf_sdp_fmtp_profile_level_id,
+	{&hf_sdp_fmtp_mpeg4_profile_level_id,
       { "Level Code",
         "sdp.fmtp.profile_level_id",FT_UINT32, BASE_DEC,VALS(mpeg4es_level_indication_vals), 0x0,
         "Level Code", HFILL }},
@@ -1876,6 +1952,14 @@ proto_register_sdp(void)
       { "Profile",
         "sdp.fmtp.h263profile",FT_UINT32, BASE_DEC,VALS(h263_profile_vals), 0x0,
         "Profile", HFILL }},
+	{ &hf_sdp_h264_packetization_mode,
+      { "Packetization mode",
+        "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
+        "Packetization mode", HFILL }},
+	{ &hf_sdp_h264_sprop_parameter_sets,
+      { "Sprop_parameter_sets",
+        "sdp.h264.sprop_parameter_sets", FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Sprop_parameter_sets", HFILL }},
     { &hf_SDPh223LogicalChannelParameters,
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1926,7 +2010,7 @@ proto_register_sdp(void)
    prefs_register_bool_preference(sdp_module, "establish_conversation",
        "Establish Media Conversation",
        "Specifies that RTP/RTCP/T.38/MSRP/etc streams are decoded based "
-       "upon port numbers found in SIP/SDP payload",
+       "upon port numbers found in SDP payload",
        &global_sdp_establish_conversation);
 
   /*
@@ -1948,6 +2032,7 @@ proto_reg_handoff_sdp(void)
   rtcp_handle = find_dissector("rtcp");
   msrp_handle = find_dissector("msrp");
   t38_handle = find_dissector("t38");
+  h264_handle = find_dissector("h264");
 
   sdp_handle = find_dissector("sdp");
   dissector_add_string("media_type", "application/sdp", sdp_handle);

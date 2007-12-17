@@ -2556,6 +2556,60 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
 }
 
 /*
+ * Copied from the mgcp dissector. (This function should be moved to /epan )
+ * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
+ *                character following offset or offset + maxlength -1 whichever
+ *                is smaller.
+ *
+ * Parameters:
+ * tvb - The tvbuff in which we are skipping whitespace.
+ * offset - The offset in tvb from which we begin trying to skip whitespace.
+ * maxlength - The maximum distance from offset that we may try to skip
+ * whitespace.
+ *
+ * Returns: The position in tvb of the first non-whitespace
+ *          character following offset or offset + maxlength -1 whichever
+ *          is smaller.
+ */
+gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
+{
+	gint counter = offset;
+	gint end = offset + maxlength,tvb_len;
+	guint8 tempchar;
+
+	/* Get the length remaining */
+	tvb_len = tvb_length(tvb);
+	end = offset + maxlength;
+	if (end >= tvb_len)
+	{
+		end = tvb_len;
+	}
+
+	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
+	for (counter = offset;
+	     counter < end &&
+	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+	      tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
+	     counter++);
+
+	return (counter);
+}
+
+gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
+	gint counter = offset;
+	gint end;
+	guint8 tempchar;
+	end = 0;
+
+	for(counter = offset; counter > end &&
+		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
+		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
+	counter++;
+	return (counter);
+}
+
+
+/*
  * Format a bunch of data from a tvbuff as bytes, returning a pointer
  * to the string with the formatted data, with "punct" as a byte
  * separator.

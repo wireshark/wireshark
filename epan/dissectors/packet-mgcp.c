@@ -293,7 +293,6 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
  * Some functions which should be moved to a library
  * as I think that people may find them of general usefulness.
  */
-static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength);
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset);
 static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset);
 static gboolean is_rfc2234_alpha(guint8 c);
@@ -2126,45 +2125,6 @@ dissect_mgcp_localconnectionoptions(proto_tree *parent_tree, tvbuff_t *tvb, gint
 }
 
 
-
-/*
- * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
- *                character following offset or offset + maxlength -1 whichever
- *                is smaller.
- *
- * Parameters:
- * tvb - The tvbuff in which we are skipping whitespace.
- * offset - The offset in tvb from which we begin trying to skip whitespace.
- * maxlength - The maximum distance from offset that we may try to skip
- * whitespace.
- *
- * Returns: The position in tvb of the first non-whitespace
- *          character following offset or offset + maxlength -1 whichever
- *          is smaller.
- */
-static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
-{
-	gint counter = offset;
-	gint end = offset + maxlength,tvb_len;
-	guint8 tempchar;
-
-	/* Get the length remaining */
-	tvb_len = tvb_length(tvb);
-	end = offset + maxlength;
-	if (end >= tvb_len)
-	{
-		end = tvb_len;
-	}
-
-	/* Skip past spaces and tabs until run out or meet something else */
-	for (counter = offset;
-	     counter < end &&
-	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-	      tempchar == '\t');
-	     counter++);
-
-	return (counter);
-}
 
 /*
  * tvb_find_null_line - Returns the length from offset to the first null

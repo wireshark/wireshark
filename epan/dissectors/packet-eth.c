@@ -59,6 +59,7 @@ static gint ett_addr = -1;
 
 static dissector_handle_t fw1_handle;
 static heur_dissector_list_t heur_subdissector_list;
+static heur_dissector_list_t eth_trailer_subdissector_list;
 
 static int eth_tap = -1;
 
@@ -372,8 +373,8 @@ static gboolean chek_is_802_2(tvbuff_t *tvb)
  * it does, maybe it doesn't"), we try to infer whether it has an FCS.
  */
 void
-add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
-		     tvbuff_t *trailer_tvb, int fcs_len)
+add_ethernet_trailer(packet_info *pinfo, proto_tree *fh_tree, int trailer_id,
+		     tvbuff_t *tvb, tvbuff_t *trailer_tvb, int fcs_len)
 {
   /* If there're some bytes left over, show those bytes as a trailer.
 
@@ -385,8 +386,14 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     guint trailer_length, trailer_reported_length;
     gboolean has_fcs = FALSE;
 
+    if (dissector_try_heuristic(eth_trailer_subdissector_list, trailer_tvb,
+		pinfo, fh_tree)) {
+	return;
+    }
+
     trailer_length = tvb_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
+
     if (fcs_len != 0) {
       /* If fcs_len is 4, we assume we definitely have an FCS.
          Otherwise, then, if the frame is big enough that, if we
@@ -523,6 +530,7 @@ proto_register_eth(void)
 
 	/* subdissector code */
 	register_heur_dissector_list("eth", &heur_subdissector_list);
+	register_heur_dissector_list("eth.trailer", &eth_trailer_subdissector_list);
 
 	/* Register configuration preferences */
 	eth_module = prefs_register_protocol(proto_eth, NULL);

@@ -300,7 +300,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
       /* Now add the Ethernet trailer and FCS.
          XXX - do this only if we're encapsulated in Ethernet? */
-      add_ethernet_trailer(fh_tree, hf_isl_trailer, tvb, trailer_tvb, fcs_len);
+      add_ethernet_trailer(pinfo, fh_tree, hf_isl_trailer, tvb, trailer_tvb, fcs_len);
     }
     break;
 

@@ -694,59 +694,6 @@ sip_init_protocol(void)
 	sip_hash = g_hash_table_new(sip_hash_func, sip_equal);
 }
 
-/*
- * Copied from the mgcp dissector. (This function should be moved to /epan )
- * tvb_skip_wsp - Returns the position in tvb of the first non-whitespace
- *                character following offset or offset + maxlength -1 whichever
- *                is smaller.
- *
- * Parameters:
- * tvb - The tvbuff in which we are skipping whitespace.
- * offset - The offset in tvb from which we begin trying to skip whitespace.
- * maxlength - The maximum distance from offset that we may try to skip
- * whitespace.
- *
- * Returns: The position in tvb of the first non-whitespace
- *          character following offset or offset + maxlength -1 whichever
- *          is smaller.
- */
-static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength)
-{
-	gint counter = offset;
-	gint end = offset + maxlength,tvb_len;
-	guint8 tempchar;
-
-	/* Get the length remaining */
-	tvb_len = tvb_length(tvb);
-	end = offset + maxlength;
-	if (end >= tvb_len)
-	{
-		end = tvb_len;
-	}
-
-	/* Skip past spaces, tabs, CRs and LFs until run out or meet something else */
-	for (counter = offset;
-	     counter < end &&
-	      ((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-	      tempchar == '\t' || tempchar == '\r' || tempchar == '\n');
-	     counter++);
-
-	return (counter);
-}
-
-static gint tvb_skip_wsp_return(tvbuff_t* tvb, gint offset){
-	gint counter = offset;
-	gint end;
-	guint8 tempchar;
-	end = 0;
-
-	for(counter = offset; counter > end &&
-		((tempchar = tvb_get_guint8(tvb,counter)) == ' ' ||
-		tempchar == '\t' || tempchar == '\n' || tempchar == '\r'); counter--);
-	counter++;
-	return (counter);
-}
-
 /* Structure to collect info about a sip uri */
 typedef struct _uri_offset_info
 {
