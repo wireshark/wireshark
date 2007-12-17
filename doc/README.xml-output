@@ -177,8 +177,8 @@ Each of these classes has accessors which will return the defined attributes:
 Protocols and fields can contain other fields. Thus, the Protocol and
 Field class have a "children" member, which is a simple list of the
 Field objects, if any, that are contained. The "children" list can be
-directly accessed by calling users. It will be empty of this Protocol
-or Field contains no Fields.
+directly accessed by code using the object. The "children" list will be
+empty if this Protocol or Field contains no Fields.
 
 Furthermore, the Packet class is a sub-class of the PacketList class.
 The PacketList class provides methods to look for protocols and fields.

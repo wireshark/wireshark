@@ -227,6 +227,9 @@ class CaptureFile:
         """Collect the packets passed back from WiresharkXML.
         Sort them by TCP/IP conversation, as there could be multiple
         clients per machine."""
+        # Just in case we're looking at tunnelling protocols where
+        # more than one IP or TCP header exists, look at the last one,
+        # which would be the one inside the tunnel.
         src_ip = packet.get_items("ip.src")[-1].get_show()
         dst_ip = packet.get_items("ip.dst")[-1].get_show()
         src_tcp = packet.get_items("tcp.srcport")[-1].get_show()
