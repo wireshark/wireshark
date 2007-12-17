@@ -3192,45 +3192,45 @@ dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_
     proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    NETWORK_BYTE_ORDER);
 }
 
-#define SERIAL_NUMBER_LENGTH    4
+#define SCTP_SERIAL_NUMBER_LENGTH    4
 #define SERIAL_NUMBER_OFFSET    CHUNK_VALUE_OFFSET
-#define ASCONF_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH)
+#define ASCONF_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SCTP_SERIAL_NUMBER_LENGTH)
 
 static void
 dissect_asconf_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
 
-  if (chunk_length < CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH) {
+  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length,
-                           CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH);
+                           CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH);
     return;
   }
   if (chunk_tree) {
-    proto_tree_add_item(chunk_tree, hf_asconf_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SERIAL_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
-    chunk_length -= CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH;
+    proto_tree_add_item(chunk_tree, hf_asconf_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SCTP_SERIAL_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
+    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH;
     parameters_tvb    = tvb_new_subset(chunk_tvb, ASCONF_CHUNK_PARAMETERS_OFFSET, chunk_length, chunk_length);
     dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
 }
 
-#define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SERIAL_NUMBER_LENGTH)
+#define ASCONF_ACK_CHUNK_PARAMETERS_OFFSET (SERIAL_NUMBER_OFFSET + SCTP_SERIAL_NUMBER_LENGTH)
 
 static void
 dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
 
-  if (chunk_length < CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH) {
+  if (chunk_length < CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
                            chunk_length + CHUNK_HEADER_LENGTH,
-                           CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH);
+                           CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH);
     return;
   }
   if (chunk_tree) {
-    proto_tree_add_item(chunk_tree, hf_asconf_ack_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SERIAL_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
-    chunk_length -= CHUNK_HEADER_LENGTH + SERIAL_NUMBER_LENGTH;
+    proto_tree_add_item(chunk_tree, hf_asconf_ack_serial, chunk_tvb, SERIAL_NUMBER_OFFSET, SCTP_SERIAL_NUMBER_LENGTH, NETWORK_BYTE_ORDER);
+    chunk_length -= CHUNK_HEADER_LENGTH + SCTP_SERIAL_NUMBER_LENGTH;
     parameters_tvb    = tvb_new_subset(chunk_tvb, ASCONF_ACK_CHUNK_PARAMETERS_OFFSET, chunk_length, chunk_length);
     dissect_parameters(parameters_tvb, pinfo, chunk_tree, NULL, FALSE);
   }
