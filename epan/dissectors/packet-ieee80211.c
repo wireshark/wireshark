@@ -7166,6 +7166,7 @@ wlan_retransmit_init(void)
  * below more readable
  * XXX - This should be rewritten to use ptvcursors, then.
  */
+#define FIELD_PRESENT(name)	(hdr.name.status == 0 && hdr.name.did != 0)
 #define IFHELP(size, name, var, str) \
         if(tree) {						  \
             proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
@@ -7174,7 +7175,7 @@ wlan_retransmit_init(void)
         offset += (size)
 #define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
 #define VALFIELD(name, str) \
-        if (hdr.name.status == 0) {					\
+        if (FIELD_PRESENT(name)) {					\
             if(tree) {							\
                 proto_tree_add_uint_format(prism_tree, hf_ ## name,	\
                     tvb, offset, 12, hdr.name.data,			\
@@ -7185,7 +7186,7 @@ wlan_retransmit_init(void)
         }								\
         offset += 12
 #define VALFIELD_PRISM(name, str) \
-        if (hdr.name.status == 0) {				  \
+        if (FIELD_PRESENT(name)) {					\
             if(tree) {						  \
                 proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
                     tvb, offset, 12, hdr.name.data,			   \
@@ -7241,7 +7242,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += sizeof hdr.devname;
 
-    if (hdr.hosttime.status == 0) {
+    if (FIELD_PRESENT(hosttime)) {
       if(tree) {
         proto_tree_add_uint64_format(prism_tree, hf_hosttime,
             tvb, offset, 12, hdr.hosttime.data,
@@ -7251,7 +7252,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
     offset += 12;
-    if (hdr.mactime.status == 0) {
+    if (FIELD_PRESENT(mactime)) {
       if(tree) {
         proto_tree_add_uint64_format(prism_tree, hf_mactime,
             tvb, offset, 12, hdr.mactime.data,
@@ -7261,12 +7262,12 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
     offset += 12;
-    if (hdr.channel.status == 0) {
+    if (FIELD_PRESENT(channel)) {
       if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
         col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", hdr.channel.data);
     }
     VALFIELD(channel, "Channel");
-    if (hdr.rssi.status == 0) {
+    if (FIELD_PRESENT(rssi)) {
       if (check_col(pinfo->cinfo, COL_RSSI))
         col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", hdr.rssi.data);
       if (tree) {
@@ -7280,7 +7281,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     VALFIELD_PRISM(sq, "SQ");
     VALFIELD_PRISM(signal, "Signal");
     VALFIELD_PRISM(noise, "Noise");
-    if (hdr.rate.status == 0) {
+    if (FIELD_PRESENT(rate)) {
       if (check_col(pinfo->cinfo, COL_TX_RATE)) {
         col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
                   hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
