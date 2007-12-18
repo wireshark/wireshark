@@ -149,7 +149,7 @@ typedef enum {
   ERF_HDLC_MAX = 5
 } erf_hdlc_type;
 gint erf_hdlc_default = ERF_HDLC_MTP2;
-static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX];
+static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX+1];
 
 typedef enum {
   ERF_ATM_ATM = 1,
@@ -157,7 +157,7 @@ typedef enum {
   ERF_ATM_MAX = 3
 } erf_atm_type;
 gint erf_atm_default = ERF_ATM_MAX;
-static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX];
+static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX+1];
 
 typedef enum {   
   ERF_ETH_ETHFCS = 1,
@@ -165,7 +165,7 @@ typedef enum {
   ERF_ETH_MAX = 3
 } erf_eth_type;
 gint erf_eth_default = ERF_ETH_MAX;
-static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX];
+static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX+1];
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
