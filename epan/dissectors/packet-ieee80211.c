@@ -677,6 +677,7 @@ static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
 
+static int proto_radio = -1;
 static int proto_wlancap = -1;
 static int proto_prism = -1;
 
@@ -1521,8 +1522,7 @@ static gint ett_sched_tree = -1;
 
 static gint ett_fcs = -1;
 
-static gint ett_prism = -1;
-static gint ett_wlan = -1;
+static gint ett_radio = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -5605,8 +5605,7 @@ typedef enum {
 
 static void
 dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
-        proto_tree * tree, gboolean fixed_length_header,
-        gboolean has_radio_information, gint fcs_len,
+        proto_tree * tree, gboolean fixed_length_header, gint fcs_len,
         gboolean wlan_broken_fc, gboolean datapad,
         gboolean is_ht)
 {
@@ -5653,20 +5652,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   if (check_col (pinfo->cinfo, COL_INFO))
     col_clear (pinfo->cinfo, COL_INFO);
 
-  /* Add the radio information, if present, to the column information */
-  if (has_radio_information) {
-    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
-      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
-          pinfo->pseudo_header->ieee_802_11.data_rate / 2,
-          pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
-    }
-    if (check_col(pinfo->cinfo, COL_RSSI)) {
-      /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
-      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
-          pinfo->pseudo_header->ieee_802_11.signal_level);
-    }
-  }
-
   fcf = FETCH_FCF(0);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
   if (frame_type_subtype == CTRL_CONTROL_WRAPPER)
@@ -5703,31 +5688,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     htc_len = 4;
   }
 
-  /* Add the radio information, if present, and the FC to the current tree */
+  /* Add the FC to the current tree */
   if (tree)
     {
       ti = proto_tree_add_protocol_format (tree, proto_wlan, tvb, 0, hdr_len,
           "IEEE 802.11 %s", fts_str);
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
-
-      if (has_radio_information) {
-        proto_tree_add_uint64_format(hdr_tree, hf_data_rate,
-             tvb, 0, 0,
-             (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
-             "Data Rate: %u.%u Mb/s",
-             pinfo->pseudo_header->ieee_802_11.data_rate / 2,
-             pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
-
-        proto_tree_add_uint(hdr_tree, hf_channel,
-            tvb, 0, 0,
-            pinfo->pseudo_header->ieee_802_11.channel);
-
-        proto_tree_add_uint_format(hdr_tree, hf_signal_strength,
-            tvb, 0, 0,
-            pinfo->pseudo_header->ieee_802_11.signal_level,
-            "Signal Strength: %u%%",
-            pinfo->pseudo_header->ieee_802_11.signal_level);
-      }
 
       dissect_frame_control(hdr_tree, tvb, wlan_broken_fc, 0);
 
@@ -7016,7 +6982,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
       pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE);
 }
 
@@ -7026,7 +6992,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_datapad (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
       pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE, FALSE);
 }
 
@@ -7035,9 +7001,48 @@ dissect_ieee80211_datapad (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tre
  * header containing radio information.
  */
 static void
-dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+dissect_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, TRUE,
+  proto_item *ti = NULL;
+  proto_tree *radio_tree = NULL;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Radio");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+
+  /* Add the radio information to the column information */
+  if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+    col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+        pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+        pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+  }
+  if (check_col(pinfo->cinfo, COL_RSSI)) {
+    /* XX - this is a percentage, not a dBm or normalized or raw RSSI */
+    col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
+        pinfo->pseudo_header->ieee_802_11.signal_level);
+  }
+
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_radio, tvb, 0, 0, FALSE);
+    radio_tree = proto_item_add_subtree (ti, ett_radio);
+
+    proto_tree_add_uint64_format(radio_tree, hf_data_rate, tvb, 0, 0,
+             (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
+             "Data Rate: %u.%u Mb/s",
+             pinfo->pseudo_header->ieee_802_11.data_rate / 2,
+             pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
+
+    proto_tree_add_uint(radio_tree, hf_channel, tvb, 0, 0,
+            pinfo->pseudo_header->ieee_802_11.channel);
+
+    proto_tree_add_uint_format(radio_tree, hf_signal_strength, tvb, 0, 0,
+            pinfo->pseudo_header->ieee_802_11.signal_level,
+            "Signal Strength: %u%%",
+            pinfo->pseudo_header->ieee_802_11.signal_level);
+  }
+
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
      pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE);
 }
 
@@ -7049,7 +7054,7 @@ dissect_ieee80211_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE, 0, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, TRUE, FALSE, FALSE);
 }
 
 /*
@@ -7059,7 +7064,7 @@ dissect_ieee80211_bsfc (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, FALSE, 0, FALSE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, TRUE, 0, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -7070,7 +7075,7 @@ dissect_ieee80211_fixed (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_ieee80211_ht (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, FALSE,
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
       pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, TRUE);
 }
 
@@ -7224,9 +7229,8 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      hdr.msgcode, hdr.msglen);
 
     if(tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_prism,
-            tvb, 0, sizeof hdr, "Prism Monitoring Header");
-        prism_tree = proto_item_add_subtree(ti, ett_prism);
+        ti = proto_tree_add_item(tree, proto_prism, tvb, 0, sizeof hdr, FALSE);
+        prism_tree = proto_item_add_subtree(ti, ett_radio);
     }
 
     INTFIELD(4, msgcode, "Message Code: %d");
@@ -7336,11 +7340,10 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       goto skip;
     }
 
-    /* Dissect the packet */
+    /* Dissect the AVS header */
     if (tree) {
-      ti = proto_tree_add_protocol_format(tree, proto_wlancap,
-            tvb, 0, length, "AVS WLAN Monitoring Header");
-      wlan_tree = proto_item_add_subtree(ti, ett_wlan);
+      ti = proto_tree_add_item(tree, proto_wlancap, tvb, 0, length, FALSE);
+      wlan_tree = proto_item_add_subtree(ti, ett_radio);
       proto_tree_add_item(wlan_tree, hf_wlan_magic, tvb, offset, 4, FALSE);
       proto_tree_add_item(wlan_tree, hf_wlan_version, tvb, offset, 4, FALSE);
     }
@@ -10859,8 +10862,7 @@ proto_register_ieee80211 (void)
     &ett_tsinfo_tree,
     &ett_sched_tree,
     &ett_fcs,
-    &ett_prism,
-    &ett_wlan
+    &ett_radio
   };
   module_t *wlan_module;
 
@@ -10880,10 +10882,11 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
   register_dissector("wlan_bsfc", dissect_ieee80211_bsfc, proto_wlan);
   register_dissector("wlan_datapad", dissect_ieee80211_datapad, proto_wlan);
-  register_dissector("wlan_radio", dissect_ieee80211_radio, proto_wlan);
   register_dissector("wlan_ht", dissect_ieee80211_ht, proto_wlan);
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);
+
+  proto_radio = proto_register_protocol("802.11 radio information", "Radio", "radio");
 
   proto_prism = proto_register_protocol("Prism capture header", "Prism", "prism");
   proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
@@ -10994,7 +10997,7 @@ proto_register_ieee80211 (void)
 void
 proto_reg_handoff_ieee80211(void)
 {
-  dissector_handle_t ieee80211_radio_handle;
+  dissector_handle_t radio_handle;
   dissector_handle_t prism_handle;
 
   /*
@@ -11007,13 +11010,12 @@ proto_reg_handoff_ieee80211(void)
 
   ieee80211_handle = find_dissector("wlan");
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, ieee80211_handle);
-  ieee80211_radio_handle = create_dissector_handle(dissect_ieee80211_radio,
-      proto_wlan);
-  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-      ieee80211_radio_handle);
   dissector_add("ethertype", ETHERTYPE_CENTRINO_PROMISC, ieee80211_handle);
 
   /* Register handoff to radio-header dissectors */
+  radio_handle = create_dissector_handle(dissect_radio, proto_radio);
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO, radio_handle);
+
   prism_handle = create_dissector_handle(dissect_prism, proto_prism);
   dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, prism_handle);
 
