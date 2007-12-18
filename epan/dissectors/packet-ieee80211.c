@@ -688,6 +688,12 @@ static int hf_hosttime = -1;
 static int hf_data_rate = -1;
 static int hf_channel = -1;
 static int hf_channel_frequency = -1;
+static int hf_normrssi_antsignal = -1;
+static int hf_dbm_antsignal = -1;
+static int hf_rawrssi_antsignal = -1;
+static int hf_normrssi_antnoise = -1;
+static int hf_dbm_antnoise = -1;
+static int hf_rawrssi_antnoise = -1;
 static int hf_signal_strength = -1;
 
 /* Prism radio header */
@@ -7291,6 +7297,14 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
+/*
+ * Signal/noise strength type values.
+ */
+#define SSI_NONE	0	/* no SSI information */
+#define SSI_NORM_RSSI	1	/* normalized RSSI - 0-1000 */
+#define SSI_DBM		2	/* dBm */
+#define SSI_RAW_RSSI	3	/* raw RSSI from the hardware */
+
 static void
 dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -7302,6 +7316,8 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 length;
     guint32 channel;
     guint32 datarate;
+    guint32 ssi_type;
+    guint32 antnoise;
 
     if(check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
@@ -7387,21 +7403,71 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlan_priority, tvb, offset, 4, FALSE);
     offset+=4;
+    ssi_type = tvb_get_ntohl(tvb, offset);
     if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_ssi_type, tvb, offset, 4, FALSE);
+      proto_tree_add_uint(wlan_tree, hf_wlan_ssi_type, tvb, offset, 4, ssi_type);
     offset+=4;
-    /* XXX cook ssi_signal (Based on SSI type; ie format) */
-    if (check_col(pinfo->cinfo, COL_RSSI)) {
-      /* XXX cook ssi_signal (Based on type; ie format) */
-      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
-		   tvb_get_ntohl(tvb, offset));
+    switch (ssi_type) {
+
+    case SSI_NONE:
+    default:
+      /* either there is no SSI information, or we don't know what type it is */
+      break;
+
+    case SSI_NORM_RSSI:
+      /* Normalized RSSI */
+      if (check_col(pinfo->cinfo, COL_RSSI))
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (norm)", tvb_get_ntohl(tvb, offset));
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_normrssi_antsignal, tvb, offset, 4, FALSE);
+      break;
+
+    case SSI_DBM:
+      /* dBm */
+      if (check_col(pinfo->cinfo, COL_RSSI))
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", tvb_get_ntohl(tvb, offset));
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_dbm_antsignal, tvb, offset, 4, FALSE);
+      break;
+
+    case SSI_RAW_RSSI:
+      /* Raw RSSI */
+      if (check_col(pinfo->cinfo, COL_RSSI))
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u (raw)", tvb_get_ntohl(tvb, offset));
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_rawrssi_antsignal, tvb, offset, 4, FALSE);
+      break;
     }
-    if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_ssi_signal, tvb, offset, 4, FALSE);
     offset+=4;
-    /* XXX cook ssi_noise (Based on SSI type; ie format) */
-    if (tree)
-      proto_tree_add_item(wlan_tree, hf_wlan_ssi_noise, tvb, offset, 4, FALSE);
+    antnoise = tvb_get_ntohl(tvb, offset);
+    /* 0xffffffff means "hardware does not provide noise data" */
+    if (antnoise != 0xffffffff) {
+      switch (ssi_type) {
+
+      case SSI_NONE:
+      default:
+        /* either there is no SSI information, or we don't know what type it is */
+        break;
+
+      case SSI_NORM_RSSI:
+        /* Normalized RSSI */
+        if (tree)
+          proto_tree_add_uint(wlan_tree, hf_normrssi_antnoise, tvb, offset, 4, antnoise);
+        break;
+
+      case SSI_DBM:
+        /* dBm */
+        if (tree)
+          proto_tree_add_int(wlan_tree, hf_dbm_antnoise, tvb, offset, 4, antnoise);
+        break;
+
+      case SSI_RAW_RSSI:
+        /* Raw RSSI */
+        if (tree)
+          proto_tree_add_uint(wlan_tree, hf_rawrssi_antnoise, tvb, offset, 4, antnoise);
+        break;
+      }
+    }
     offset+=4;
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlan_preamble, tvb, offset, 4, FALSE);
@@ -8055,10 +8121,10 @@ proto_register_ieee80211 (void)
   };
 
   static const value_string ssi_type[] = {
-    { 0, "None" },
-    { 1, "Normalized RSSI" },
-    { 2, "dBm" },
-    { 3, "Raw RSSI" },
+    { SSI_NONE, "None" },
+    { SSI_NORM_RSSI, "Normalized RSSI" },
+    { SSI_DBM, "dBm" },
+    { SSI_RAW_RSSI, "Raw RSSI" },
     { 0, NULL },
   };
 
@@ -8093,6 +8159,30 @@ proto_register_ieee80211 (void)
     {&hf_wlan_antenna,
      {"Antenna", "wlan.antenna", FT_UINT32, BASE_DEC, NULL, 0x0,
       "Antenna number this frame was sent/received over (starting at 0)", HFILL } },
+
+    {&hf_normrssi_antsignal,
+     {"Normalized RSSI Signal", "wlan.normrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF signal power at the antenna, normalized to the range 0-1000", HFILL }},
+
+    {&hf_dbm_antsignal,
+     {"SSI Signal (dBm)", "wlan.dbm_antsignal", FT_INT32, BASE_DEC, NULL, 0x0,
+      "RF signal power at the antenna from a fixed, arbitrary value in decibels from one milliwatt", HFILL }},
+
+    {&hf_rawrssi_antsignal,
+     {"Raw RSSI Signal", "wlan.rawrssi_antsignal", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF signal power at the antenna, reported as RSSI by the adapter", HFILL }},
+
+    {&hf_normrssi_antnoise,
+     {"Normalized RSSI Noise", "wlan.normrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna, normalized to the range 0-1000", HFILL }},
+
+    {&hf_dbm_antnoise,
+     {"SSI Noise (dBm)", "radiotap.dbm_antnoise", FT_INT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna from a fixed, arbitrary value in decibels per one milliwatt", HFILL }},
+
+    {&hf_rawrssi_antnoise,
+     {"Raw RSSI Noise", "wlan.rawrssi_antnoise", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "RF noise power at the antenna, reported as RSSI by the adapter", HFILL }},
 
     {&hf_signal_strength,
      {"Signal Strength", "wlan.signal_strength", FT_UINT8, BASE_DEC, NULL, 0,
