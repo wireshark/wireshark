@@ -1,6 +1,6 @@
 dnl Copied from: http://gcc.gnu.org/ml/gcc-bugs/2001-06/msg01398.html
 
-#serial AM2
+# iconv.m4 serial AM2
 
 dnl From Bruno Haible.
 
