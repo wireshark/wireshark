@@ -270,7 +270,7 @@ proto_register_sita(void)
 		&ett_sita_errors2,
 	};
 
-	proto_sita = proto_register_protocol("Société Internationale de Télécommunications Aéronautiques", "SITA", "sita");	/* name, short name,abbreviation */
+	proto_sita = proto_register_protocol("Societe Internationale de Telecommunications Aeronautiques", "SITA", "sita");	/* name, short name,abbreviation */
 	sita_dissector_table = register_dissector_table("sita.proto", "SITA protocol number", FT_UINT8, BASE_HEX);
 	proto_register_field_array(proto_sita, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
