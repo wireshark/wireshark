@@ -1264,11 +1264,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 			/* 13.3 ".. and the value shall be added to the field-list as a
 			 * normally small non-negative whole number whose value is the 
 			 * enumeration index of the additional enumeration and with "lb" set to 0.."
-			 *
-			 * Byte align after reading Extension bit 
-			 *
 			 */
-			BYTE_ALIGN_OFFSET(offset);
 			offset = dissect_per_normally_small_nonnegative_whole_number(tvb, offset, actx, tree, hf_per_enum_extension_index, &enum_index);
 		}
 		enum_index += root_num;
