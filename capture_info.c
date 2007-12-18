@@ -54,11 +54,9 @@
 #include <epan/dissectors/packet-ieee80211.h>
 #include <epan/dissectors/packet-radiotap.h>
 #include <epan/dissectors/packet-chdlc.h>
-#include <epan/dissectors/packet-prism.h>
 #include <epan/dissectors/packet-ipfc.h>
 #include <epan/dissectors/packet-arcnet.h>
 #include <epan/dissectors/packet-enc.h>
-#include <epan/dissectors/packet-wlancap.h>
 
 static void capture_info_packet(
 packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, union wtap_pseudo_header *pseudo_header);

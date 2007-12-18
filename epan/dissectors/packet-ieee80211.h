@@ -32,6 +32,9 @@ void capture_ieee80211_datapad (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_ht (const guchar *, int, int, packet_counts *);
 
+void capture_prism(const guchar *, int, int, packet_counts *);
+void capture_wlancap(const guchar *, int, int, packet_counts *);
+
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
        packet_info * pinfo, proto_tree * tree, int tagged_parameters_len);
 

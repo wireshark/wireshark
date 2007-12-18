@@ -601,7 +601,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
-	packet-prism.c		\
 	packet-ptp.c		\
 	packet-pvfs2.c		\
 	packet-q2931.c		\
@@ -752,7 +751,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-who.c		\
 	packet-windows-common.c	\
 	packet-winsrepl.c	\
-	packet-wlancap.c	\
 	packet-wlccp.c		\
 	packet-wol.c		\
 	packet-wps.c		\
@@ -984,7 +982,6 @@ DISSECTOR_INCLUDES =	\
 	packet-ppi.h		\
 	packet-ppp.h	\
 	packet-pres.h	\
-	packet-prism.h	\
 	packet-q931.h	\
 	packet-q932.h	\
 	packet-qsig.h	\
@@ -1057,7 +1054,6 @@ DISSECTOR_INCLUDES =	\
 	packet-wap.h	\
 	packet-wccp.h	\
 	packet-windows-common.h	\
-	packet-wlancap.h	\
 	packet-wlancertextn.h	\
 	packet-wps.h	\
 	packet-wsp.h	\

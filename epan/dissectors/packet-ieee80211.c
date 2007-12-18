@@ -49,6 +49,28 @@
  * dustin@dustinj.us & dustin.johnson@cacetech.com
  */
 
+/*
+ * Prism II-based wlan devices have a monitoring mode that sticks
+ * a proprietary header on each packet with lots of good
+ * information.  This file is responsible for decoding that
+ * data.
+ *
+ * Support by Tim Newsham
+ */
+
+/*
+ * AVS linux-wlan-based products use a new sniff header to replace the
+ * old Prism header.  This one has additional fields, is designed to be
+ * non-hardware-specific, and more importantly, version and length fields
+ * so it can be extended later without breaking anything.
+ *
+ * See
+ *
+ *	https://mail.shaftnet.org/chora/browse.php?rt=wlanng&f=trunk%2Fdoc%2Fcapturefrm.txt
+ *
+ * Support by Solomon Peachy
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -655,12 +677,46 @@ static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
 
+static int proto_wlancap = -1;
+static int proto_prism = -1;
+
 /* ************************************************************************* */
 /*                Header field info values for radio information             */
 /* ************************************************************************* */
+static int hf_mactime = -1;
+static int hf_hosttime = -1;
 static int hf_data_rate = -1;
 static int hf_channel = -1;
+static int hf_channel_frequency = -1;
 static int hf_signal_strength = -1;
+
+/* Prism radio header */
+static int hf_prism_msgcode = -1;
+static int hf_prism_msglen = -1;
+static int hf_prism_rssi_data = -1;
+static int hf_prism_sq_data = -1;
+static int hf_prism_signal_data = -1;
+static int hf_prism_noise_data = -1;
+static int hf_prism_rate_data = -1;
+static int hf_prism_istx_data = -1;
+static int hf_prism_frmlen_data = -1;
+
+/* AVS WLANCAP radio header */
+static int hf_wlan_magic = -1;
+static int hf_wlan_version = -1;
+static int hf_wlan_length = -1;
+static int hf_wlan_phytype = -1;
+static int hf_wlan_antenna = -1;
+static int hf_wlan_priority = -1;
+static int hf_wlan_ssi_type = -1;
+static int hf_wlan_ssi_signal = -1;
+static int hf_wlan_ssi_noise = -1;
+static int hf_wlan_preamble = -1;
+static int hf_wlan_encoding = -1;
+static int hf_wlan_sequence = -1;
+static int hf_wlan_drops = -1;
+static int hf_wlan_receiver_addr = -1;
+static int hf_wlan_padding = -1;
 
 /* ************************************************************************* */
 /*                Header field info values for FC-field                      */
@@ -1459,6 +1515,9 @@ static gint ett_sched_tree = -1;
 
 static gint ett_fcs = -1;
 
+static gint ett_prism = -1;
+static gint ett_wlan = -1;
+
 static const fragment_items frag_items = {
   &ett_fragment,
   &ett_fragments,
@@ -1480,10 +1539,12 @@ static enum_val_t wlan_ignore_wep_options[] = {
   { NULL,         NULL,               0                     }
 };
 
+static dissector_handle_t ieee80211_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t wlancap_handle;
 
 static int wlan_tap = -1;
 
@@ -1872,6 +1933,118 @@ capture_ieee80211_ht (const guchar * pd, int offset, int len, packet_counts * ld
   capture_ieee80211_common (pd, offset, len, ld, FALSE, FALSE, TRUE);
 }
 
+#define WLANCAP_MAGIC_COOKIE_BASE 0x80211000
+#define WLANCAP_MAGIC_COOKIE_V1 0x80211001
+#define WLANCAP_MAGIC_COOKIE_V2 0x80211002
+
+/*
+ * A value from the header.
+ *
+ * It appears from looking at the linux-wlan-ng and Prism II HostAP
+ * drivers, and various patches to the orinoco_cs drivers to add
+ * Prism headers, that:
+ *
+ *	the "did" identifies what the value is (i.e., what it's the value
+ *	of);
+ *
+ *	"status" is 0 if the value is present or 1 if it's absent;
+ *
+ *	"len" is the length of the value (always 4, in that code);
+ *
+ *	"data" is the value of the data (or 0 if not present).
+ *
+ * Note: all of those values are in the *host* byte order of the machine
+ * on which the capture was written.
+ */
+struct val_80211 {
+    unsigned int did;
+    unsigned short status, len;
+    unsigned int data;
+};
+
+/*
+ * Header attached during Prism monitor mode.
+ *
+ * At least according to one paper I've seen, the Prism 2.5 chip set
+ * provides:
+ *
+ *	RSSI (receive signal strength indication) is "the total power
+ *	received by the radio hardware while receiving the frame,
+ *	including signal, interfereence, and background noise";
+ *
+ *	"silence value" is "the total power observed just before the
+ *	start of the frame".
+ *
+ * None of the drivers I looked at supply the "rssi" or "sq" value,
+ * but they do supply "signal" and "noise" values, along with a "rate"
+ * value that's 1/5 of the raw value from what is presumably a raw
+ * HFA384x frame descriptor, with the comment "set to 802.11 units",
+ * which presumably means the units are 500 Kb/s.
+ *
+ * I infer from the current NetBSD "wi" driver that "signal" and "noise"
+ * are adjusted dBm values, with the dBm value having 100 added to it
+ * for the Prism II cards (although the NetBSD code has an XXX comment
+ * for the #define for WI_PRISM_DBM_OFFSET) and 149 (with no XXX comment)
+ * for the Orinoco cards.
+ */
+struct prism_hdr {
+    unsigned int msgcode, msglen;
+    char devname[16];
+    struct val_80211 hosttime, mactime, channel, rssi, sq, signal,
+        noise, rate, istx, frmlen;
+};
+
+void
+capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
+{
+  guint32 cookie;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint32))) {
+    ld->other++;
+    return;
+  }
+
+  /* Some captures with DLT_PRISM have the AVS WLAN header */
+  cookie = pntohl(pd);
+  if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
+      (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
+    capture_wlancap(pd, offset, len, ld);
+    return;
+  }
+
+  /* Prism header */
+  if (!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct prism_hdr))) {
+    ld->other++;
+    return;
+  }
+  offset += sizeof(struct prism_hdr);
+
+  /* 802.11 header follows */
+  capture_ieee80211(pd, offset, len, ld);
+}
+
+void
+capture_wlancap(const guchar *pd, int offset, int len, packet_counts *ld)
+{
+  guint32 length;
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(guint32)*2)) {
+    ld->other++;
+    return;
+  }
+
+  length = pntohl(pd+sizeof(guint32));
+
+  if (!BYTES_ARE_IN_FRAME(offset, len, length)) {
+    ld->other++;
+    return;
+  }
+
+  offset += length;
+
+  /* 802.11 header follows */
+  capture_ieee80211(pd, offset, len, ld);
+}
 
 /* ************************************************************************* */
 /*          Add the subtree used to store the fixed parameters               */
@@ -5532,9 +5705,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       hdr_tree = proto_item_add_subtree (ti, ett_80211);
 
       if (has_radio_information) {
-        proto_tree_add_uint_format(hdr_tree, hf_data_rate,
+        proto_tree_add_uint64_format(hdr_tree, hf_data_rate,
              tvb, 0, 0,
-             pinfo->pseudo_header->ieee_802_11.data_rate,
+             (guint64)pinfo->pseudo_header->ieee_802_11.data_rate * 500000,
              "Data Rate: %u.%u Mb/s",
              pinfo->pseudo_header->ieee_802_11.data_rate / 2,
              pinfo->pseudo_header->ieee_802_11.data_rate & 1 ? 5 : 0);
@@ -6976,6 +7149,290 @@ wlan_retransmit_init(void)
 }
 
 /* ------------- */
+
+/*
+ * yah, I know, macros, ugh, but it makes the code
+ * below more readable
+ * XXX - This should be rewritten to use ptvcursors, then.
+ */
+#define IFHELP(size, name, var, str) \
+        if(tree) {						  \
+            proto_tree_add_uint_format(prism_tree, hf_prism_ ## name, \
+                tvb, offset, size, hdr.var, str, hdr.var);		  \
+        }								  \
+        offset += (size)
+#define INTFIELD(size, name, str)	IFHELP(size, name, name, str)
+#define VALFIELD(name, str) \
+        if (hdr.name.status == 0) {					\
+            if(tree) {							\
+                proto_tree_add_uint_format(prism_tree, hf_ ## name,	\
+                    tvb, offset, 12, hdr.name.data,			\
+                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	\
+                    hdr.name.data, hdr.name.did,			\
+                    hdr.name.status, hdr.name.len);			\
+            }								\
+        }								\
+        offset += 12
+#define VALFIELD_PRISM(name, str) \
+        if (hdr.name.status == 0) {				  \
+            if(tree) {						  \
+                proto_tree_add_uint_format(prism_tree, hf_prism_ ## name ## _data, \
+                    tvb, offset, 12, hdr.name.data,			   \
+                    str ": 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",	   \
+                    hdr.name.data, hdr.name.did,			   \
+                    hdr.name.status, hdr.name.len);			   \
+            }								   \
+        }								   \
+        offset += 12
+
+static void
+dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    struct prism_hdr hdr;
+    proto_tree *prism_tree = NULL;
+    proto_item *ti;
+    tvbuff_t *next_tvb;
+    int offset;
+    guint32 msgcode;
+
+    offset = 0;
+
+    /* handle the new capture type. */
+    msgcode = tvb_get_ntohl(tvb, offset);
+    if ((msgcode == WLANCAP_MAGIC_COOKIE_V1) ||
+	(msgcode == WLANCAP_MAGIC_COOKIE_V2)) {
+	    call_dissector(wlancap_handle, tvb, pinfo, tree);
+	    return;
+    }
+
+    tvb_memcpy(tvb, (guint8 *)&hdr, offset, sizeof(hdr));
+
+    if(check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Prism");
+    if(check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+
+    if(check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Device: %.16s  "
+                     "Message 0x%x, Length %d", hdr.devname,
+                     hdr.msgcode, hdr.msglen);
+
+    if(tree) {
+        ti = proto_tree_add_protocol_format(tree, proto_prism,
+            tvb, 0, sizeof hdr, "Prism Monitoring Header");
+        prism_tree = proto_item_add_subtree(ti, ett_prism);
+    }
+
+    INTFIELD(4, msgcode, "Message Code: %d");
+    INTFIELD(4, msglen, "Message Length: %d");
+    if(tree) {
+        proto_tree_add_text(prism_tree, tvb, offset, sizeof hdr.devname,
+            "Device: %s", hdr.devname);
+    }
+    offset += sizeof hdr.devname;
+
+    if (hdr.hosttime.status == 0) {
+      if(tree) {
+        proto_tree_add_uint64_format(prism_tree, hf_hosttime,
+            tvb, offset, 12, hdr.hosttime.data,
+            "Host timestamp: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
+            hdr.hosttime.data, hdr.hosttime.did,
+            hdr.hosttime.status, hdr.hosttime.len);
+      }
+    }
+    offset += 12;
+    if (hdr.mactime.status == 0) {
+      if(tree) {
+        proto_tree_add_uint64_format(prism_tree, hf_mactime,
+            tvb, offset, 12, hdr.mactime.data,
+            "MAC timestamp: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
+            hdr.mactime.data, hdr.mactime.did,
+            hdr.mactime.status, hdr.mactime.len);
+      }
+    }
+    offset += 12;
+    if (hdr.channel.status == 0) {
+      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", hdr.channel.data);
+    }
+    VALFIELD(channel, "Channel");
+    if (hdr.rssi.status == 0) {
+      if (check_col(pinfo->cinfo, COL_RSSI))
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d", hdr.rssi.data);
+      if (tree) {
+        proto_tree_add_uint_format(prism_tree, hf_prism_rssi_data,
+            tvb, offset, 12, hdr.rssi.data,
+            "RSSI: 0x%x (DID 0x%x, Status 0x%x, Length 0x%x)",
+            hdr.rssi.data, hdr.rssi.did, hdr.rssi.status, hdr.rssi.len);
+      }
+    }
+    offset += 12;
+    VALFIELD_PRISM(sq, "SQ");
+    VALFIELD_PRISM(signal, "Signal");
+    VALFIELD_PRISM(noise, "Noise");
+    if (hdr.rate.status == 0) {
+      if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+        col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+      }
+      if (tree) {
+          proto_tree_add_uint64_format(prism_tree, hf_data_rate,
+                  tvb, offset, 12, (guint64)hdr.rate.data * 500000,
+                  "Data Rate: %u.%u Mb/s",
+                  hdr.rate.data / 2, hdr.rate.data & 1 ? 5 : 0);
+      }
+    }
+    offset += 12;
+    VALFIELD_PRISM(istx, "IsTX");
+    VALFIELD_PRISM(frmlen, "Frame Length");
+
+    /* dissect the 802.11 header next */
+    next_tvb = tvb_new_subset(tvb, sizeof hdr, -1, -1);
+    call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+}
+
+static void
+dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree *wlan_tree = NULL;
+    proto_item *ti;
+    tvbuff_t *next_tvb;
+    int offset;
+    guint32 version;
+    guint32 length;
+    guint32 channel;
+    guint32 datarate;
+
+    if(check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
+    if(check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+    offset = 0;
+
+    version = tvb_get_ntohl(tvb, offset) - WLANCAP_MAGIC_COOKIE_BASE;
+
+    length = tvb_get_ntohl(tvb, offset+4);
+
+    if(check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "AVS WLAN Capture v%x, Length %d",version, length);
+
+    if (version > 2) {
+      goto skip;
+    }
+
+    /* Dissect the packet */
+    if (tree) {
+      ti = proto_tree_add_protocol_format(tree, proto_wlancap,
+            tvb, 0, length, "AVS WLAN Monitoring Header");
+      wlan_tree = proto_item_add_subtree(ti, ett_wlan);
+      proto_tree_add_item(wlan_tree, hf_wlan_magic, tvb, offset, 4, FALSE);
+      proto_tree_add_item(wlan_tree, hf_wlan_version, tvb, offset, 4, FALSE);
+    }
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_length, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_mactime, tvb, offset, 8, FALSE);
+    offset+=8;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_hosttime, tvb, offset, 8, FALSE);
+    offset+=8;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_phytype, tvb, offset, 4, FALSE);
+    offset+=4;
+
+    /* XXX cook channel (fh uses different numbers) */
+    channel = tvb_get_ntohl(tvb, offset);
+    if (channel < 256) {
+      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u", channel);
+      if (tree)
+        proto_tree_add_uint(wlan_tree, hf_channel, tvb, offset, 4, channel);
+    } else if (channel < 10000) {
+      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u MHz", channel);
+      if (tree)
+        proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
+                                   4, channel, "Frequency: %u MHz", channel);
+    } else {
+      if (check_col(pinfo->cinfo, COL_FREQ_CHAN))
+        col_add_fstr(pinfo->cinfo, COL_FREQ_CHAN, "%u KHz", channel);
+      if (tree)
+        proto_tree_add_uint_format(wlan_tree, hf_channel_frequency, tvb, offset,
+                                   4, channel, "Frequency: %u KHz", channel);
+    }
+    offset+=4;
+    datarate = tvb_get_ntohl(tvb, offset);
+    if (datarate < 100000) {
+      /* In units of 100 Kb/s; convert to b/s */
+      datarate *= 100000;
+    }
+    if (check_col(pinfo->cinfo, COL_TX_RATE)) {
+      col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
+                   datarate / 1000000,
+                   ((datarate % 1000000) > 500000) ? 5 : 0);
+    }
+    if (tree) {
+      proto_tree_add_uint64_format(wlan_tree, hf_data_rate, tvb, offset, 4,
+                                   datarate,
+                                   "Data Rate: %u.%u Mb/s",
+                                   datarate/1000000,
+                                   ((datarate % 1000000) > 500000) ? 5 : 0);
+    }
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_antenna, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_priority, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_type, tvb, offset, 4, FALSE);
+    offset+=4;
+    /* XXX cook ssi_signal (Based on SSI type; ie format) */
+    if (check_col(pinfo->cinfo, COL_RSSI)) {
+      /* XXX cook ssi_signal (Based on type; ie format) */
+      col_add_fstr(pinfo->cinfo, COL_RSSI, "%u",
+		   tvb_get_ntohl(tvb, offset));
+    }
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_signal, tvb, offset, 4, FALSE);
+    offset+=4;
+    /* XXX cook ssi_noise (Based on SSI type; ie format) */
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_ssi_noise, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_preamble, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (tree)
+      proto_tree_add_item(wlan_tree, hf_wlan_encoding, tvb, offset, 4, FALSE);
+    offset+=4;
+    if (version > 1) {
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_wlan_sequence, tvb, offset, 4, FALSE);
+      offset+=4;
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_wlan_drops, tvb, offset, 4, FALSE);
+      offset+=4;
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_wlan_receiver_addr, tvb, offset, 6, FALSE);
+      offset+=6;
+      if (tree)
+        proto_tree_add_item(wlan_tree, hf_wlan_padding, tvb, offset, 2, FALSE);
+      offset+=2;
+    }
+
+
+ skip:
+    offset = length;
+
+    /* dissect the 802.11 header next */
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
+}
+
 void
 proto_register_ieee80211 (void)
 {
@@ -7571,14 +8028,71 @@ proto_register_ieee80211 (void)
   };
   /*** End: Block Ack/Block Ack Request  - Dustin Johnson***/
 
+  static const value_string phy_type[] = {
+    { 0, "Unknown" },
+    { 1, "FHSS 802.11 '97" },
+    { 2, "DSSS 802.11 '97" },
+    { 3, "IR Baseband" },
+    { 4, "DSSS 802.11b" },
+    { 5, "PBCC 802.11b" },
+    { 6, "OFDM 802.11g" },
+    { 7, "PBCC 802.11g" },
+    { 8, "OFDM 802.11a" },
+    { 0, NULL },
+  };
+
+  static const value_string encoding_type[] = {
+    { 0, "Unknown" },
+    { 1, "CCK" },
+    { 2, "PBCC" },
+    { 3, "OFDM" },
+    { 4, "DSS-OFDM" },
+    { 5, "BPSK" },
+    { 6, "QPSK" },
+    { 7, "16QAM" },
+    { 8, "64QAM" },
+    { 0, NULL },
+  };
+
+  static const value_string ssi_type[] = {
+    { 0, "None" },
+    { 1, "Normalized RSSI" },
+    { 2, "dBm" },
+    { 3, "Raw RSSI" },
+    { 0, NULL },
+  };
+
+  static const value_string preamble_type[] = {
+    { 0, "Unknown" },
+    { 1, "Short" },
+    { 2, "Long" },
+    { 0, NULL },
+  };
+
   static hf_register_info hf[] = {
+    {&hf_mactime,
+     {"MAC timestamp", "wlan.mactime", FT_UINT64, BASE_DEC, NULL, 0x0,
+      "Value in microseconds of the MAC's Time Synchronization Function timer when the first bit of the MPDU arrived at the MAC", HFILL }},
+
+    {&hf_hosttime,
+     {"Host timestamp", "wlan.hosttime", FT_UINT64, BASE_DEC, NULL, 0x0,
+      "", HFILL }},
+
     {&hf_data_rate,
-     {"Data Rate", "wlan.data_rate", FT_UINT8, BASE_DEC, NULL, 0,
-      "Data rate (.5 Mb/s units)", HFILL }},
+     {"Data Rate", "wlan.data_rate", FT_UINT64, BASE_DEC, NULL, 0,
+      "Data rate (b/s)", HFILL }},
 
     {&hf_channel,
      {"Channel", "wlan.channel", FT_UINT8, BASE_DEC, NULL, 0,
-      "Radio channel", HFILL }},
+      "802.11 channel number that this frame was sent/received on", HFILL }},
+
+    {&hf_channel_frequency,
+     {"Channel frequency", "wlan.channel_frequency", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Channel frequency in megahertz that this frame was sent/received on", HFILL }},
+
+    {&hf_wlan_antenna,
+     {"Antenna", "wlan.antenna", FT_UINT32, BASE_DEC, NULL, 0x0,
+      "Antenna number this frame was sent/received over (starting at 0)", HFILL } },
 
     {&hf_signal_strength,
      {"Signal Strength", "wlan.signal_strength", FT_UINT8, BASE_DEC, NULL, 0,
@@ -7857,6 +8371,81 @@ proto_register_ieee80211 (void)
      {"Block Ack Request Type", "wlan.ba.type",
       FT_UINT8, BASE_HEX, VALS(&hf_block_ack_type_flags), 0, "Block Ack Request Type", HFILL }},
     /*** End: Block Ack Request/Block Ack  - Dustin Johnson***/
+  };
+
+  static hf_register_info hf_prism[] = {
+    /* Prism-specific header fields
+       XXX - make as many of these generic as possible. */
+    { &hf_prism_msgcode,
+     {"Message Code", "prism.msgcode", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_msglen,
+     {"Message Length", "prism.msglen", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_rssi_data,
+     {"RSSI Field", "prism.rssi.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_sq_data,
+     {"SQ Field", "prism.sq.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_signal_data,
+     {"Signal Field", "prism.signal.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_noise_data,
+     {"Noise Field", "prism.noise.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_rate_data,
+     {"Rate Field", "prism.rate.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_istx_data,
+     {"IsTX Field", "prism.istx.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+
+    { &hf_prism_frmlen_data,
+     {"Frame Length Field", "prism.frmlen.data", FT_UINT32, BASE_HEX, NULL, 0x0,
+      "", HFILL }},
+  };
+
+  static hf_register_info hf_wlancap[] = {
+    /* AVS-specific header fields.
+       XXX - make as many of these generic as possible. */
+    {&hf_wlan_magic,
+     {"Header magic", "wlancap.magic", FT_UINT32, BASE_HEX, NULL, 0xFFFFFFF0, "", HFILL } },
+    { &hf_wlan_version, { "Header revision", "wlancap.version", FT_UINT32,
+			  BASE_DEC, NULL, 0xF, "", HFILL } },
+    { &hf_wlan_length, { "Header length", "wlancap.length", FT_UINT32,
+			 BASE_DEC, NULL, 0x0, "", HFILL } },
+    {&hf_wlan_phytype,
+     {"PHY type", "wlan.phytype", FT_UINT32, BASE_DEC, VALS(phy_type), 0x0,
+      "", HFILL } },
+
+    { &hf_wlan_priority, { "Priority", "wlancap.priority", FT_UINT32, BASE_DEC,
+			   NULL, 0x0, "", HFILL } },
+    { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
+			   VALS(ssi_type), 0x0, "", HFILL } },
+    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32,
+			     BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32,
+			    BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_preamble, { "Preamble", "wlancap.preamble", FT_UINT32,
+			   BASE_DEC, VALS(preamble_type), 0x0, "", HFILL } },
+    { &hf_wlan_encoding, { "Encoding Type", "wlancap.encoding", FT_UINT32,
+			   BASE_DEC, VALS(encoding_type), 0x0, "", HFILL } },
+    { &hf_wlan_sequence, { "Receive sequence", "wlancap.sequence", FT_UINT32,
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_drops, { "Known Dropped Frames", "wlancap.drops", FT_UINT32,
+			   BASE_DEC, NULL, 0x0, "", HFILL } },
+    { &hf_wlan_receiver_addr, { "Receiver Address", "wlancap.receiver_addr", FT_ETHER,
+			       BASE_NONE, NULL, 0x0, "Receiver Hardware Address", HFILL } },
+    { &hf_wlan_padding, { "Padding", "wlancap.padding", FT_BYTES,
+			  BASE_NONE, NULL, 0x0, "", HFILL } },
   };
 
   static const true_false_string rsn_preauth_flags = {
@@ -10179,7 +10768,9 @@ proto_register_ieee80211 (void)
     &ett_80211_mgt_ie,
     &ett_tsinfo_tree,
     &ett_sched_tree,
-    &ett_fcs
+    &ett_fcs,
+    &ett_prism,
+    &ett_wlan
   };
   module_t *wlan_module;
 
@@ -10203,6 +10794,14 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_ht", dissect_ieee80211_ht, proto_wlan);
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);
+
+  proto_prism = proto_register_protocol("Prism capture header", "Prism", "prism");
+  proto_register_field_array(proto_prism, hf_prism, array_length(hf_prism));
+
+  proto_wlancap = proto_register_protocol("AVS WLAN Capture header",
+      "AVS WLANCAP", "wlancap");
+  proto_register_field_array(proto_wlancap, hf_wlancap, array_length(hf_wlancap));
+  register_dissector("wlancap", dissect_wlancap, proto_wlancap);
 
   wlan_tap = register_tap("wlan");
 
@@ -10305,8 +10904,8 @@ proto_register_ieee80211 (void)
 void
 proto_reg_handoff_ieee80211(void)
 {
-  dissector_handle_t ieee80211_handle;
   dissector_handle_t ieee80211_radio_handle;
+  dissector_handle_t prism_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -10323,6 +10922,13 @@ proto_reg_handoff_ieee80211(void)
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
       ieee80211_radio_handle);
   dissector_add("ethertype", ETHERTYPE_CENTRINO_PROMISC, ieee80211_handle);
+
+  /* Register handoff to radio-header dissectors */
+  prism_handle = create_dissector_handle(dissect_prism, proto_prism);
+  dissector_add("wtap_encap", WTAP_ENCAP_PRISM_HEADER, prism_handle);
+
+  wlancap_handle = create_dissector_handle(dissect_wlancap, proto_wlancap);
+  dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11_WLAN_AVS, wlancap_handle);
 }
 
 #ifdef HAVE_AIRPDCAP
