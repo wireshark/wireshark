@@ -292,8 +292,10 @@ static int hf_nfs_fattr4_space_avail = -1;
 static int hf_nfs_fattr4_space_free = -1;
 static int hf_nfs_fattr4_space_total = -1;
 static int hf_nfs_fattr4_space_used = -1;
+static int hf_nfs_fattr4_mounted_on_fileid = -1;
 static int hf_nfs_who = -1;
 static int hf_nfs_server = -1;
+static int hf_nfs_fslocation4 = -1;
 static int hf_nfs_stable_how4 = -1;
 static int hf_nfs_dirlist4_eof = -1;
 static int hf_nfs_stateid4 = -1;
@@ -6203,19 +6205,26 @@ dissect_nfs_fh4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
+dissect_nfs_server4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) 
+{
+	return dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_server, NULL);
+}
+
+static int
 dissect_nfs_fs_location4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
 	proto_tree *newftree = NULL;
 	proto_item *fitem = NULL;
 
-	fitem = proto_tree_add_text(tree, tvb, offset, 0, "rootpath");
+	fitem = proto_tree_add_text(tree, tvb, offset, 0, "fs_location4");
 
 	if (fitem == NULL) return offset;
 
 	newftree = proto_item_add_subtree(fitem, ett_nfs_fs_location4);
 
-	offset = dissect_nfs_utf8string(tvb, offset, tree, hf_nfs_server, NULL);
+	offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs_server4, hf_nfs_server);
+	offset = dissect_nfs_pathname4(tvb, offset, newftree);
 
 	return offset;
 }
@@ -6235,8 +6244,8 @@ dissect_nfs_fs_locations4(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	offset = dissect_nfs_pathname4(tvb, offset, newftree);
 
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-		dissect_nfs_fs_location4);
+	offset = dissect_rpc_array(tvb, pinfo, newftree, offset,
+		dissect_nfs_fs_location4, hf_nfs_fslocation4);
 
 	return offset;
 }
@@ -6778,6 +6787,10 @@ dissect_nfs_attributes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					case FATTR4_TIME_MODIFY_SET:
 						attr_vals_offset = dissect_nfs_settime4(tvb,
 							attr_vals_offset, attr_newftree, "settime4");
+						break;
+					case FATTR4_MOUNTED_ON_FILEID:
+						attr_vals_offset = dissect_rpc_uint64(tvb, attr_newftree, 
+							hf_nfs_fattr4_mounted_on_fileid, attr_vals_offset);
 						break;
 
 					default:
@@ -9525,6 +9538,10 @@ proto_register_nfs(void)
 			"server", "nfs.server", FT_STRING, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs_fslocation4, {
+			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_DEC, 
+			NULL, 0, NULL, HFILL }}, 
+
 		{ &hf_nfs_fattr4_owner, {
 			"fattr4_owner", "nfs.fattr4_owner", FT_STRING, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -9707,6 +9724,10 @@ proto_register_nfs(void)
 
 		{ &hf_nfs_fattr4_space_used, {
 			"space_used", "nfs.fattr4.space_used", FT_UINT64, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+			
+		{ &hf_nfs_fattr4_mounted_on_fileid, {
+			"fileid", "nfs.fattr4.mounted_on_fileid", FT_UINT64, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_verifier4, {
