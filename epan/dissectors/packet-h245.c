@@ -14120,6 +14120,10 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 offset=0;
 	asn1_ctx_t asn1_ctx;
 
+	/* Clean up from any previous packet dissection */
+	if (upcoming_channel)
+		upcoming_channel = NULL;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 	}
@@ -14142,6 +14146,11 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 void
 dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
+
+  /* Clean up from any previous packet dissection */
+  if (upcoming_channel)
+    upcoming_channel = NULL;
+
   dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
   if (h245_pi != NULL) 
@@ -19749,7 +19758,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 414 "packet-h245-template.c"
+#line 423 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20252,7 +20261,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 421 "packet-h245-template.c"
+#line 430 "packet-h245-template.c"
   };
   module_t *h245_module;
 
