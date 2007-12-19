@@ -65,6 +65,10 @@ static int hf_arp_dst_hw_mac = -1;
 static int hf_arp_dst_proto = -1;
 static int hf_arp_dst_proto_ipv4 = -1;
 static int hf_arp_packet_storm = -1;
+static int hf_arp_duplicate_ip_address = -1;
+static int hf_arp_duplicate_ip_address_earlier_frame = -1;
+static int hf_arp_duplicate_ip_address_seconds_since_earlier_frame = -1;
+
 static int hf_atmarp_src_atm_num_e164 = -1;
 static int hf_atmarp_src_atm_num_nsap = -1;
 static int hf_atmarp_src_atm_subaddr = -1;
@@ -75,6 +79,7 @@ static int hf_atmarp_dst_atm_subaddr = -1;
 static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
+static gint ett_arp_duplicate_address = -1;
 
 static dissector_handle_t atmarp_handle;
 
@@ -88,8 +93,23 @@ static gboolean global_arp_detect_request_storm = FALSE;
 static guint32  global_arp_detect_request_storm_packets = 30;
 static guint32  global_arp_detect_request_storm_period = 100;
 
+static gboolean global_arp_detect_duplicate_ip_addresses = TRUE;
+
 static guint32  arp_request_count = 0;
 static nstime_t time_at_start_of_count;
+
+
+
+
+/* Map of (IP address -> MAC address) to detect duplicate IP addresses
+   Key is unsigned32 */
+static GHashTable *address_hash_table = NULL;
+
+struct address_hash_value {
+    guint8    mac[6];
+    guint     frame_num;
+    time_t    time_of_entry;
+};
 
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
@@ -384,6 +404,105 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 		break;
 	}
 }
+
+/* l.s. 32 bits are ipv4 address */
+static guint address_hash_func(gconstpointer v)
+{
+	return (guint)(guint32)v;
+}
+
+/* Compare 2 ipv4 addresses */
+static gint address_equal_func(gconstpointer v, gconstpointer v2)
+{
+    return (guint32)v == (guint32)v2;
+}
+
+/* Check to see if this mac & ip pair represent 2 devices trying to share
+   the same IP address - report if found */
+static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
+                                          tvbuff_t *tvb,
+                                          const gchar *mac, guint32 ip)
+{
+    struct address_hash_value *value;
+
+    /* Look up any existing entries */
+    value = g_hash_table_lookup(address_hash_table, (gconstpointer)ip);
+
+    /* If MAC matches table, just update details */
+    if (value != NULL)
+    {
+        if (pinfo->fd->num > value->frame_num)
+        {
+            if ((memcmp(value->mac, mac, 6) == 0))
+            {
+                /* Same MAC as before - update existing entry */
+                value->frame_num = pinfo->fd->num;
+                value->time_of_entry = pinfo->fd->abs_ts.secs;
+            }
+            else
+            {
+                /* Doesn't match earlier MAC - report! */
+                proto_tree *duplicate_tree;
+
+                /* Create subtree */
+                proto_item *ti = proto_tree_add_none_format(tree, hf_arp_duplicate_ip_address,
+                                                            tvb, 0, 0,
+                                                            "Duplicate IP address detected for %s (%s) - also in use by %s (frame %u)",
+                                                            arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP),
+                                                            ether_to_str(mac),
+                                                            ether_to_str(value->mac),
+                                                            value->frame_num);
+                PROTO_ITEM_SET_GENERATED(ti);
+                duplicate_tree = proto_item_add_subtree(ti, ett_arp_duplicate_address);
+
+                /* Add item for navigating to earlier frame */
+                ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
+                                         tvb, 0, 0, value->frame_num);
+                PROTO_ITEM_SET_GENERATED(ti);
+                expert_add_info_format(pinfo, ti,
+                                       PI_SEQUENCE, PI_WARN,
+                                       "Duplicate IP address configured (%s)",
+                                       arpproaddr_to_str((guint8*)&ip, 4, ETHERTYPE_IP));
+
+                /* Time since that frame was seen */
+                ti = proto_tree_add_uint(duplicate_tree,
+                                         hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
+                                         tvb, 0, 0,
+                                         (guint32)(pinfo->fd->abs_ts.secs - value->time_of_entry));
+                PROTO_ITEM_SET_GENERATED(ti);
+            }
+        }
+    }
+    else
+    {
+        /* No existing entry. Prepare one */
+        value = se_alloc(sizeof(struct address_hash_value));
+        memcpy(value->mac, mac, 6);
+        value->frame_num = pinfo->fd->num;
+        value->time_of_entry = pinfo->fd->abs_ts.secs;
+
+        /* Add it */
+        g_hash_table_insert(address_hash_table, (void*)ip, value);
+    }
+}
+
+
+
+/* Initializes the hash table each time a new
+ * file is loaded or re-loaded in wireshark */
+static void
+arp_init_protocol(void)
+{
+	/* Destroy any existing hashes. */
+	if (address_hash_table)
+		g_hash_table_destroy(address_hash_table);
+
+	/* Now create it over */
+	address_hash_table = g_hash_table_new(address_hash_func, address_equal_func);
+}
+
+
+
 
 /* Take note that a request has been seen */
 void request_seen(packet_info *pinfo)
@@ -813,7 +932,13 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ip = tvb_get_ipv4(tvb, spa_offset);
     mac = tvb_get_ptr(tvb, sha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0)
+    {
       add_ether_byip(ip, mac);
+      if (global_arp_detect_duplicate_ip_addresses)
+      {
+        check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip);
+      }
+    }
 
     /* Add target address if target MAC address is neither a broadcast/
        multicast address nor an all-zero address and if target IP address
@@ -825,8 +950,14 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ip = tvb_get_ipv4(tvb, tpa_offset);
     mac = tvb_get_ptr(tvb, tha_offset, 6);
     if ((mac[0] & 0x01) == 0 && memcmp(mac, mac_allzero, 6) != 0 && ip != 0
-      && ar_op != ARPOP_REQUEST)
+        && ar_op != ARPOP_REQUEST)
+    {
       add_ether_byip(ip, mac);
+      if (global_arp_detect_duplicate_ip_addresses)
+      {
+        check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip);
+      }
+    }
   }
 
   if (!tree && !check_col(pinfo->cinfo, COL_INFO)) {
@@ -913,25 +1044,31 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_arp_src_hw_mac : hf_arp_src_hw,
-	tvb, sha_offset, ar_hln, FALSE);
+                          ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
+                              hf_arp_src_hw_mac :
+                              hf_arp_src_hw,
+                          tvb, sha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_src_proto_ipv4
-					: hf_arp_src_proto,
-	tvb, spa_offset, ar_pln, FALSE);
+                          ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
+                              hf_arp_src_proto_ipv4 :
+                              hf_arp_src_proto,
+                          tvb, spa_offset, ar_pln, FALSE);
     }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_HW_IS_ETHER(ar_hrd, ar_hln) ? hf_arp_dst_hw_mac : hf_arp_dst_hw,
-	tvb, tha_offset, ar_hln, FALSE);
+                          ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
+                              hf_arp_dst_hw_mac :
+                              hf_arp_dst_hw,
+                          tvb, tha_offset, ar_hln, FALSE);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
-	ARP_PRO_IS_IPv4(ar_pro, ar_pln) ? hf_arp_dst_proto_ipv4
-					: hf_arp_dst_proto,
-	tvb, tpa_offset, ar_pln, FALSE);
+                          ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
+                              hf_arp_dst_proto_ipv4 :
+                              hf_arp_dst_proto,
+                          tvb, tpa_offset, ar_pln, FALSE);
     }
   }
 
@@ -1095,13 +1232,30 @@ proto_register_arp(void)
     { &hf_arp_packet_storm,
       { "Packet storm detected",	"arp.packet-storm-detected",
 	FT_NONE,	BASE_NONE,	NULL,	0x0,
-      "", HFILL }}
+      "", HFILL }},
+
+    { &hf_arp_duplicate_ip_address,
+      { "Duplicate IP address detected",	"arp.duplicate-address-detected",
+	FT_NONE,	BASE_NONE,	NULL,	0x0,
+      "", HFILL }},
+
+    { &hf_arp_duplicate_ip_address_earlier_frame,
+      { "Frame showing earlier use of IP address",	"arp.duplicate-address-frame",
+	FT_FRAMENUM,	BASE_NONE,	NULL,	0x0,
+      "", HFILL }},
+
+    { &hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
+      { "Seconds since earlier frame seen",	"arp.seconds-since-duplicate-address-frame",
+	FT_UINT32,	BASE_DEC,	NULL,	0x0,
+      "", HFILL }},
+
   };
 
   static gint *ett[] = {
     &ett_arp,
     &ett_atmarp_nsap,
-    &ett_atmarp_tl
+    &ett_atmarp_tl,
+    &ett_arp_duplicate_address
   };
 
   module_t *arp_module;
@@ -1132,6 +1286,15 @@ proto_register_arp(void)
     "Detection period (in ms)",
     "Period in milliseconds during which a packet storm may be detected",
     10, &global_arp_detect_request_storm_period);
+
+  prefs_register_bool_preference(arp_module, "detect_duplicate_ips",
+    "Detect duplicate IP address configuration",
+    "Attempt to detect duplicate use of IP addresses",
+     &global_arp_detect_duplicate_ip_addresses);
+
+  /* TODO: define a minimum time between sightings that is worth reporting? */
+
+  register_init_routine(&arp_init_protocol);
 }
 
 void
