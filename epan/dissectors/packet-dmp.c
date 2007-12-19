@@ -304,7 +304,8 @@ static int hf_checksum_bad = -1;
 
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_total_time = -1;
-static int hf_analysis_rto_time = -1;
+static int hf_analysis_retrans_time = -1;
+static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_msg_num = -1;
 static int hf_analysis_msg_missing = -1;
 static int hf_analysis_retrans_no = -1;
@@ -1338,9 +1339,20 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       PROTO_ITEM_SET_GENERATED (en);
       
       nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->prev_msg_time);
-      en = proto_tree_add_time (analysis_tree, hf_analysis_rto_time,
+      en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
 				tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
+      
+      nstime_delta (&ns, &pinfo->fd->abs_ts, &dmp.id_val->first_msg_time);
+      eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
+				tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED (eh);
+      
+      if (dmp.id_val->first_msg_time.secs == dmp.id_val->prev_msg_time.secs &&
+	  dmp.id_val->first_msg_time.nsecs == dmp.id_val->prev_msg_time.nsecs) {
+	/* Time values does not differ, hide the total time */
+	PROTO_ITEM_SET_HIDDEN (eh);
+      }
     }
   } else if (dmp.msg_type == ACK) {
     if (dmp.id_val->msg_type != ACK) {
@@ -4145,9 +4157,12 @@ void proto_register_dmp (void)
     { &hf_analysis_total_time,
       { "Total Time", "dmp.analysis.total_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the first Message and the Acknowledge", HFILL } },
-    { &hf_analysis_rto_time,
+    { &hf_analysis_retrans_time,
       { "Retransmission Time", "dmp.analysis.retrans_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the last Message and this Message", HFILL } },
+    { &hf_analysis_total_retrans_time,
+      { "Total Retransmission Time", "dmp.analysis.total_retrans_time", FT_RELATIVE_TIME, BASE_NONE,
+	NULL, 0x0, "The time between the first Message and this Message", HFILL } },
     { &hf_analysis_msg_num,
       { "Message in", "dmp.analysis.msg_in", FT_FRAMENUM, BASE_NONE,
 	NULL, 0x0, "This packet has a Message in this frame", HFILL } },
