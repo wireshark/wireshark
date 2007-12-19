@@ -116,7 +116,8 @@ static int hf_msg_reassembled_in = -1;
 
 static int hf_analysis_ack_time = -1;
 static int hf_analysis_total_time = -1;
-static int hf_analysis_rto_time = -1;
+static int hf_analysis_retrans_time = -1;
+static int hf_analysis_total_retrans_time = -1;
 static int hf_analysis_last_pdu_num = -1;
 static int hf_analysis_addr_pdu_num = -1;
 static int hf_analysis_addr_pdu_time = -1;
@@ -516,9 +517,20 @@ static p_mul_id_val *p_mul_add_seq_ack (tvbuff_t *tvb, packet_info *pinfo,
 			      pkg_data->msg_resend_count);
       
       nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->prev_msg_time);
-      en = proto_tree_add_time (analysis_tree, hf_analysis_rto_time,
+      en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
 				tvb, 0, 0, &ns);
       PROTO_ITEM_SET_GENERATED (en);
+      
+      nstime_delta (&ns, &pinfo->fd->abs_ts, &pkg_data->first_msg_time);
+      eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
+                                tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED (eh);
+
+      if (pkg_data->first_msg_time.secs == pkg_data->prev_msg_time.secs &&
+	  pkg_data->first_msg_time.nsecs == pkg_data->prev_msg_time.nsecs) {
+	/* Time values does not differ, hide the total time */
+	PROTO_ITEM_SET_HIDDEN (eh);
+      }
     }
   } else if (pdu_type == Ack_PDU) {
     if (pkg_data->msg_type != Ack_PDU) {
@@ -1138,9 +1150,12 @@ void proto_register_p_mul (void)
     { &hf_analysis_total_time,
       { "Total Time", "p_mul.analysis.total_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the first Address PDU and the Ack", HFILL } },
-    { &hf_analysis_rto_time,
+    { &hf_analysis_retrans_time,
       { "Retransmission Time", "p_mul.analysis.retrans_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the last PDU and this PDU", HFILL } },
+    { &hf_analysis_total_retrans_time,
+      { "Total Retransmission Time", "p_mul.analysis.total_retrans_time", FT_RELATIVE_TIME, BASE_NONE,
+	NULL, 0x0, "The time between the first PDU and this PDU", HFILL } },
     { &hf_analysis_addr_pdu_time,
       { "Time since Address PDU", "p_mul.analysis.elapsed_time", FT_RELATIVE_TIME, BASE_NONE,
 	NULL, 0x0, "The time between the Address PDU and this PDU", HFILL } },
