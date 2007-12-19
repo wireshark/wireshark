@@ -34,6 +34,7 @@ ASN_FILE_LIST = \
 	T38_2002.asn
 
 EXTRA_DIST = \
+	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	$(PROTOCOL_NAME).cnf

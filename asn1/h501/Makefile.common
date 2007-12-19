@@ -33,6 +33,7 @@ ASN_FILE_LIST = \
 	H501-MESSAGES.asn 
 
 EXTRA_DIST = \
+	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	$(PROTOCOL_NAME).cnf

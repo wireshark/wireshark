@@ -39,6 +39,7 @@ ASN_FILE_LIST = \
 	RANAP-PDU-Descriptions.asn 
 
 EXTRA_DIST = \
+	Makefile.nmake \
 	$(ASN_FILE_LIST) \
 	packet-$(PROTOCOL_NAME)-template.c \
 	packet-$(PROTOCOL_NAME)-template.h \
