@@ -27,7 +27,7 @@ DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
 
 NEED_PACKET_PROTO_H = 1
 
-EXT_ASN_FILE_LIST = \
+EXT_ASN_FILE_LIST_LATE = \
 	../ros/Remote-Operations-Information-Objects.asn \
 	../ros/Remote-Operations-Generic-ROS-PDUs.asn
 
@@ -56,8 +56,8 @@ EXTRA_DIST = \
 	$(PROTOCOL_NAME).cnf
 
 SRC_FILES = \
-	$(EXTRA_DIST) \
-	$(EXT_ASN_FILE_LIST)
+	$(EXT_ASN_FILE_LIST) \
+	$(EXTRA_DIST)
 
 A2W_FLAGS= -b -L
 
