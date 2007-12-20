@@ -131,7 +131,7 @@
 
 /* Maximum lengths */
 #define MAX_SIC_LEN         30
-#define MAX_MSG_TYPE_LEN    45
+#define MAX_MSG_TYPE_LEN    46
 #define MAX_SEC_CAT_LEN     33
 #define MAX_ENV_FLAGS_LEN  100
 #define MAX_STRUCT_ID_LEN  128
@@ -441,6 +441,7 @@ static struct dmp_data {
   gint     checksum;
   gint     msg_type;
   gint     st_type;
+  gint     prec;
   gint     body_format;
   gint     notif_type;
   gchar   *struct_id;
@@ -843,29 +844,41 @@ static enum_val_t struct_id_options[] = {
 
 static const gchar *msg_type_to_str (void)
 {
-  static gchar *msg_type = NULL;
-  gboolean      have_msg = FALSE;
+  gchar    *msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
+  gboolean  have_msg = FALSE;
+  
+  switch (dmp.msg_type) {
 
-  if (dmp.msg_type == STANAG) {
-    /* STANAG 4406 Message, also include message type */
-    msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
-    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s (%s)",
+  case STANAG:
+    /* Include message type and precedence */
+    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s (%s) [%s]",
 		val_to_str (dmp.msg_type, type_vals, "Unknown"),
-		val_to_str (dmp.st_type, message_type_vals, "Unknown"));
-    return msg_type;
-  } else if (dmp.msg_type == REPORT) {
-    /* Report, also include report types included */
-    msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
+		val_to_str (dmp.st_type, message_type_vals, "Unknown"),
+		(dmp.prec == 0x6 || dmp.prec == 0x7) ?
+		val_to_str (dmp.prec-4, precedence, "Unknown") :
+		val_to_str (dmp.prec, precedence, "Unknown"));
+    break;
+    
+  case IPM:
+    /* Include importance */
+    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s [%s]",
+		val_to_str (dmp.msg_type, type_vals, "Unknown"),
+		val_to_str (dmp.prec, importance, "Unknown"));
+    break;
+    
+  case REPORT:
+    /* Include report types included */
     g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Report (%s%s%s)",
 		dmp.dr ? "DR" : "", (dmp.dr && dmp.ndr) ? " and " : "",
 		dmp.ndr ? "NDR" : "");
-    return msg_type;
-  } else if (dmp.msg_type == NOTIF) {
-    /* Notification */
-    return val_to_str (dmp.notif_type, notif_type, "Unknown");
-  } else if (dmp.msg_type == ACK) {
-    /* Acknowlegdement */
-    msg_type = ep_alloc (MAX_MSG_TYPE_LEN);
+    break;
+    
+  case NOTIF:
+    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "%s",
+		val_to_str (dmp.notif_type, notif_type, "Unknown"));
+    break;
+    
+  case ACK:
     /* If we have msg_time we have a matching packet */
     have_msg = (dmp.id_val &&
 		(dmp.id_val->msg_time.secs>0 || dmp.id_val->msg_time.nsecs>0));
@@ -873,10 +886,14 @@ static const gchar *msg_type_to_str (void)
 		have_msg ? val_to_str (dmp.id_val->msg_type, ack_msg_type,
 				       " (unknown:%d)") : "",
 		dmp.ack_reason ? " [negative]" : "");
-    return msg_type;
+    break;
+    
+  default:
+    g_snprintf (msg_type, MAX_MSG_TYPE_LEN, "Unknown");
+    break;
   }
-  /* IPM-88 Message or Unknown */
-  return val_to_str (dmp.msg_type, type_vals, "Unknown");
+  
+  return msg_type;
 }
 
 static const gchar *non_del_reason_str (guint32 value)
@@ -3079,7 +3096,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *message_tree = NULL;
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL, *tr = NULL;
-  guint8      message, dmp_sec_pol, dmp_sec_class, dmp_prec, exp_time, dtg;
+  guint8      message, dmp_sec_pol, dmp_sec_class, exp_time, dtg;
   gint32      secs = 0;
   gchar      *sec_cat = NULL;
   guint       prev_rec_no = 0;
@@ -3127,12 +3144,12 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       }
 
       /* Precedence */
-      dmp_prec = (message & 0x1C) >> 2;
+      dmp.prec = (message & 0x1C) >> 2;
       tf = proto_tree_add_uint_format (message_tree, hf_message_precedence,
 				       tvb, offset, 1, message,
 				       "Precedence: %s (%d)",
-				       val_to_str (dmp_prec, precedence, ""),
-				       dmp_prec);
+				       val_to_str (dmp.prec, precedence, ""),
+				       dmp.prec);
       field_tree = proto_item_add_subtree (tf, ett_message_precedence);
       proto_tree_add_item (field_tree, hf_message_precedence, tvb, offset,
 			   1, FALSE);
@@ -3151,12 +3168,12 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       }
 
       /* Importance */
-      dmp_prec = (message & 0x1C) >> 2;
+      dmp.prec = (message & 0x1C) >> 2;
       tf = proto_tree_add_uint_format (message_tree, hf_message_importance,
 				       tvb, offset, 1, message,
 				       "Importance: %s (%d)",
-				       val_to_str (dmp_prec, importance, ""),
-				       dmp_prec);
+				       val_to_str (dmp.prec, importance, ""),
+				       dmp.prec);
       field_tree = proto_item_add_subtree (tf, ett_message_importance);
       proto_tree_add_item (field_tree, hf_message_importance, tvb, offset,
 			   1, FALSE);
@@ -3530,9 +3547,9 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     if (dmp_align && !retrans_or_dup_ack) {
       if (dmp.msg_type == ACK) {
 	/* ACK does not have "Msg Id" */
-	col_append_fstr (pinfo->cinfo, COL_INFO, "%-44.44s", msg_type_to_str ());
+	col_append_fstr (pinfo->cinfo, COL_INFO, "%-45.45s", msg_type_to_str ());
       } else {
-	col_append_fstr (pinfo->cinfo, COL_INFO, "%-30.30s", msg_type_to_str ());
+	col_append_fstr (pinfo->cinfo, COL_INFO, "%-31.31s", msg_type_to_str ());
       }
     } else {
       col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
