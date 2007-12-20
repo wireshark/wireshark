@@ -408,13 +408,13 @@ dissect_atm_nsap(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 /* l.s. 32 bits are ipv4 address */
 static guint address_hash_func(gconstpointer v)
 {
-	return (guint)(guint32)v;
+	return GPOINTER_TO_UINT(v);
 }
 
 /* Compare 2 ipv4 addresses */
 static gint address_equal_func(gconstpointer v, gconstpointer v2)
 {
-    return (guint32)v == (guint32)v2;
+    return v == v2;
 }
 
 /* Check to see if this mac & ip pair represent 2 devices trying to share
@@ -426,7 +426,7 @@ static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
     struct address_hash_value *value;
 
     /* Look up any existing entries */
-    value = g_hash_table_lookup(address_hash_table, (gconstpointer)ip);
+    value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
 
     /* If MAC matches table, just update details */
     if (value != NULL)
@@ -482,7 +482,7 @@ static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
         value->time_of_entry = pinfo->fd->abs_ts.secs;
 
         /* Add it */
-        g_hash_table_insert(address_hash_table, (void*)ip, value);
+        g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
     }
 }
 
