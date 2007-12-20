@@ -75,4 +75,3 @@ Terminal=false
 # Categorie entry according to version 1.0 of
 # http://www.freedesktop.org/wiki/Specifications/menu-spec
 Categories=System;Monitor;GTK;
-X-KDE-SubstituteUID=true
