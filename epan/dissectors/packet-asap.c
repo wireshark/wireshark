@@ -97,7 +97,7 @@ dissect_parameters(tvbuff_t *, proto_tree *);
 static void
 dissect_parameter(tvbuff_t *, proto_tree *);
 static void
-dissect_asap_message(tvbuff_t *, packet_info *, proto_tree *);
+dissect_asap(tvbuff_t *, packet_info *, proto_tree *);
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -174,28 +174,28 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   switch(code) {
   case UNRECOGNIZED_PARAMETER_CAUSE_CODE:
     parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
-    dissect_parameter(parameter_tvb, parameter_tree);
+    dissect_parameter(parameter_tvb, cause_tree);
     break;
   case UNRECONGNIZED_MESSAGE_CAUSE_CODE:
     message_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
-    dissect_asap_message(message_tvb, NULL, parameter_tree);
+    dissect_asap(message_tvb, NULL, cause_tree);
     break;
     break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
-    dissect_parameter(parameter_tvb, parameter_tree);
+    dissect_parameter(parameter_tvb, cause_tree);
     break;
   case NON_UNIQUE_PE_IDENTIFIER:
     break;
   case POOLING_POLICY_INCONSISTENT_CAUSE_CODE:
     parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
-    dissect_parameter(parameter_tvb, parameter_tree);
+    dissect_parameter(parameter_tvb, cause_tree);
     break;
   case LACK_OF_RESOURCES_CAUSE_CODE:
     break;
   case INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE:
     parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
-    dissect_parameter(parameter_tvb, parameter_tree);
+    dissect_parameter(parameter_tvb, cause_tree);
     break;
   case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
     break;
@@ -742,9 +742,9 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   proto_tree *flags_tree;
   guint8 type;
 
-  /* pinfo is NULL only if dissect_enrp_message is called from dissect_error cause */
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
+  /* pinfo is NULL only if dissect_asap_message is called via dissect_error cause */
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ASAP type"));
 
@@ -775,7 +775,7 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *asap_item;
   proto_tree *asap_tree;
 
-  /* pinfo is NULL only if dissect_asap_message is called from dissect_error cause */
+  /* pinfo is NULL only if dissect_asap is called from dissect_error cause */
   if (pinfo && (check_col(pinfo->cinfo, COL_PROTOCOL)))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ASAP");
 
