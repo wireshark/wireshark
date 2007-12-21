@@ -119,8 +119,8 @@ G_MODULE_EXPORT void plugin_register_tap_listener(void) {
     stats_tree_register("udp", /* the proto we are going to "tap" */
                         "udp_terms", /* the abbreviation for this tree (to be used as -z udp_terms,tree) */
                         st_str_udp_term, /* the name of the menu and window (use "/" for sub menus)*/
+                        udp_term_stats_tree_packet, /* the per packet callback */
                         udp_term_stats_tree_init, /* the init callback */
-                        ip_hosts_stats_tree_init, /* the per packet callback */
                         NULL ); /* the cleanup callback (in this case there isn't) */
 
 }
