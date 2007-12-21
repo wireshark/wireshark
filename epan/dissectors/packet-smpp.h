@@ -36,8 +36,20 @@
  * SMS forum (www.smsforum.net) in "SMPP protocol specification v3.4"
  * (document version: 12-Oct-1999 Issue 1.2)
  */
+
+#ifndef __PACKET_SMPP_H_
+#define __PACKET_SMPP_H_
  
 /*
  * Export dissection of some parameters
  */
 void smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset);
+
+
+/* Tap Record */
+typedef struct _smpp_tap_rec_t {
+	guint command_id;
+	guint command_status;
+} smpp_tap_rec_t;
+
+#endif

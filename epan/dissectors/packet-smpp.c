@@ -49,10 +49,13 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include <epan/tap.h>
+#include <epan/stats_tree.h>
 
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include "packet-tcp.h"
+#include "packet-smpp.h"
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().
@@ -79,6 +82,11 @@ static void dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
  * Fixed header section
  */
 static int proto_smpp				= -1;
+
+static int st_smpp_ops				= -1;
+static int st_smpp_req				= -1;
+static int st_smpp_res				= -1;
+static int st_smpp_res_status			= -1;
 
 static int hf_smpp_command_id			= -1;
 static int hf_smpp_command_length		= -1;
@@ -212,6 +220,12 @@ static gint ett_dcs		= -1;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_over_tcp = TRUE;
+
+/* Tap */
+static int smpp_tap		= -1;
+
+/* Stats Tree */
+static guint8* st_str_smpp = "SMPP Operations";
 
 /*
  * Value-arrays for field-contents
@@ -727,6 +741,47 @@ static const value_string vals_dcs_wap_charset[] = {
 };
 
 static dissector_handle_t gsm_sms_handle;
+
+/*
+ * For Stats Tree 
+ */
+void 
+smpp_stats_tree_init(stats_tree* st) 
+{
+	st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, TRUE);	
+	st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, TRUE);	
+	st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, TRUE);	
+	st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, TRUE);	
+
+}
+
+int 
+smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */ 
+                                      packet_info *pinfo _U_,  
+                                      epan_dissect_t *edt _U_,
+                                      const void *p) /* Used for getting SMPP command_id values */
+{
+	smpp_tap_rec_t* tap_rec = (smpp_tap_rec_t*)p;
+	
+	tick_stat_node(st, "SMPP Operations", 0, TRUE);
+
+	if ((tap_rec->command_id & 0x80000000) == 0x80000000) /* Response */
+	{
+		tick_stat_node(st, "SMPP Responses", st_smpp_ops, TRUE);
+		tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_res, FALSE);
+
+		tick_stat_node(st, "SMPP Response Status", 0, TRUE);
+		tick_stat_node(st, val_to_str(tap_rec->command_status, vals_command_status, "Unknown 0x%08x"), st_smpp_res_status, FALSE);
+
+	} 
+	else  /* Request */
+	{
+		tick_stat_node(st, "SMPP Requests", st_smpp_ops, TRUE);
+		tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, FALSE);
+	}
+	
+	return 1;
+}
 
 /*!
  * SMPP equivalent of mktime() (3). Convert date to standard 'time_t' format
@@ -1722,6 +1777,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint	 command_id;		/* SMPP command		*/
     guint	 command_status;	/* Status code		*/
     guint	 sequence_number;	/* ...of command	*/
+    smpp_tap_rec_t* tap_rec;		/* Tap record		*/
     const gchar	*command_str;
     const gchar	*command_status_str = NULL;
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1955,9 +2011,17 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    break;
 		    } /* switch (command_id) */
 		} /* if (command_id & 0x80000000) */
+		
 	    } /* if (command_length <= tvb_reported_length(pdu_tvb)) */
 	    offset += command_length;
 	} /* if (tree || (command_id == 4)) */
+		
+	/* Queue packet for Tap */
+	tap_rec = ep_alloc0(sizeof(smpp_tap_rec_t));
+	tap_rec->command_id = command_id;
+	tap_rec->command_status = command_status;
+	tap_queue_packet(smpp_tap, pinfo, tap_rec);
+	
 	first = FALSE;
     }
 
@@ -2757,6 +2821,9 @@ proto_register_smpp(void)
     /* Allow other dissectors to find this one by name. */
     register_dissector("smpp", dissect_smpp, proto_smpp);
 
+    /* Register for tapping */
+    smpp_tap = register_tap("smpp");
+
     /* Preferences */
     smpp_module = prefs_register_protocol (proto_smpp, NULL);
     prefs_register_bool_preference (smpp_module,
@@ -2791,8 +2858,11 @@ proto_reg_handoff_smpp(void)
     heur_dissector_add("tcp", dissect_smpp_heur, proto_smpp);
     heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
 
-	/* Required for call_dissector() */
-	DebugLog(("Finding gsm-sms-ud subdissector\n"));
-	gsm_sms_handle = find_dissector("gsm-sms-ud");
-	DISSECTOR_ASSERT(gsm_sms_handle);
+    /* Required for call_dissector() */
+    DebugLog(("Finding gsm-sms-ud subdissector\n"));
+    gsm_sms_handle = find_dissector("gsm-sms-ud");
+    DISSECTOR_ASSERT(gsm_sms_handle);
+
+    /* Tapping setup */
+    stats_tree_register("smpp","smpp_commands", st_str_smpp, smpp_stats_tree_per_packet, smpp_stats_tree_init, NULL);
 }
