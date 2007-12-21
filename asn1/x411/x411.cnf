@@ -637,8 +637,10 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 
 	if(doing_address && pstring) {
 	    g_strlcat(oraddress, "/DD.", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	    g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	    g_strlcat(ddatype, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
 	}
+	
 #.FN_BODY BuiltInDomainDefinedAttribute/value  VAL_PTR=&pstring
 	tvbuff_t	*pstring = NULL;
 
@@ -646,8 +648,16 @@ AddrTeletexString TeletexPersonalName/surname TeletexPersonalName/given-name Tel
 
 	if(doing_address && pstring) {
 	    g_strlcat(oraddress, "=", MAX_ORA_STR_LEN);
-	  g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	    g_strlcat(oraddress, tvb_format_text(pstring, 0, tvb_length(pstring)), MAX_ORA_STR_LEN);
+	    if (*ddatype) {
+	       proto_item_append_text (tree, " (%%s=%%s)", ddatype, tvb_format_text(pstring, 0, tvb_length(pstring)));
+	    }
 	}
+	
+#.FN_BODY BuiltInDomainDefinedAttribute
+        ddatype = ep_alloc(MAX_ORA_STR_LEN); ddatype[0] = '\0';
+
+	%(DEFAULT_BODY)s
 
 #.FN_BODY ORAddress
 	
