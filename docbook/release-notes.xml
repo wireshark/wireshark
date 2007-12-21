@@ -50,7 +50,7 @@ Wireshark Info
         <listitem>
           <para>
 	    Beyond Security discovered that Wireshark could loop
-	    excessively while reading a malformed DNP packet.
+	    excessively while reading a malformed DNP3 packet.
             <!-- Fixed in r22811 -->
           </para>
           <para>Versions affected: 0.10.12 to 0.99.6</para>
