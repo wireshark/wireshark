@@ -131,27 +131,29 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
   proto_item_append_text(cause_item, " (code %u and %u byte%s information)", code, cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
-#define UNRECOGNIZED_PARAMETER_CAUSE_CODE                  1
-#define UNRECONGNIZED_MESSAGE_CAUSE_CODE                   2
-#define INVALID_VALUES                                     3
-#define NON_UNIQUE_PE_IDENTIFIER                           4
-#define POOLING_POLICY_INCONSISTENT_CAUSE_CODE             5
-#define LACK_OF_RESOURCES_CAUSE_CODE                       6
-#define INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE             7
-#define INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE 8
-#define UNKNOWN_POOL_HANDLE                                9
+#define UNRECOGNIZED_PARAMETER_CAUSE_CODE                  0x1
+#define UNRECONGNIZED_MESSAGE_CAUSE_CODE                   0x2
+#define INVALID_VALUES                                     0x3
+#define NON_UNIQUE_PE_IDENTIFIER                           0x4
+#define POOLING_POLICY_INCONSISTENT_CAUSE_CODE             0x5
+#define LACK_OF_RESOURCES_CAUSE_CODE                       0x6
+#define INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE             0x7
+#define INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE 0x8
+#define UNKNOWN_POOL_HANDLE                                0x9
+#define REJECTION_DUE_TO_SECURITY_CAUSE_CODE               0xa
 
 static const value_string cause_code_values[] = {
-  { UNRECOGNIZED_PARAMETER_CAUSE_CODE,                  "Unrecognized parameter"         },
-  { UNRECONGNIZED_MESSAGE_CAUSE_CODE,                   "Unrecognized message"           },
-  { INVALID_VALUES,                                     "Invalid values"                 },
-  { NON_UNIQUE_PE_IDENTIFIER,                           "Non-unique PE identifier"       },
-  { POOLING_POLICY_INCONSISTENT_CAUSE_CODE,             "Pooling policy inconsistent"    },
-  { LACK_OF_RESOURCES_CAUSE_CODE,                       "Lack of resources"              },
-  { INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE,             "Inconsistent transport type"    },
-  { INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE, "Inconsistent data/control type" },
-  { UNKNOWN_POOL_HANDLE,                                "Unknown pool handle"            },
-  { 0,                                                  NULL                             } };
+  { UNRECOGNIZED_PARAMETER_CAUSE_CODE,                  "Unrecognized parameter"                  },
+  { UNRECONGNIZED_MESSAGE_CAUSE_CODE,                   "Unrecognized message"                    },
+  { INVALID_VALUES,                                     "Invalid values"                          },
+  { NON_UNIQUE_PE_IDENTIFIER,                           "Non-unique PE identifier"                },
+  { POOLING_POLICY_INCONSISTENT_CAUSE_CODE,             "Pooling policy inconsistent"             },
+  { LACK_OF_RESOURCES_CAUSE_CODE,                       "Lack of resources"                       },
+  { INCONSISTENT_TRANSPORT_TYPE_CAUSE_CODE,             "Inconsistent transport type"             },
+  { INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE, "Inconsistent data/control type"          },
+  { UNKNOWN_POOL_HANDLE,                                "Unknown pool handle"                     },
+  { REJECTION_DUE_TO_SECURITY_CAUSE_CODE,               "Rejected due to security considerations" },
+  { 0,                                                  NULL                                      } };
 
 static void
 dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
@@ -200,6 +202,8 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
   case INCONSISTENT_DATA_CONTROL_CONFIGURATION_CAUSE_CODE:
     break;
   case UNKNOWN_POOL_HANDLE:
+    break;
+  case REJECTION_DUE_TO_SECURITY_CAUSE_CODE:
     break;
   default:
     dissect_unknown_cause(cause_tvb, cause_tree, cause_item);
