@@ -339,7 +339,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
-		{ "Proto Init",	"", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Text item",	"", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
 
@@ -2134,8 +2134,8 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
  * IF you must use this function you MUST also disable the
  * TRY_TO_FAKE_THIS_ITEM() optimization for your dissector/function
  * using proto_item_append_string().
- * Do that by faking that the tree is visible by setting :
- *   PTREE_DATA(tree)->visible=1;  (see packet-wsp.c)
+ * Do that by faking that the tree is visible by calling
+ * proto_tree_set_visible(tree, TRUE) (see packet-wsp.c)
  * BEFORE you create the item you are later going to use
  * proto_item_append_string() on.
  */
