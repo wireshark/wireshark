@@ -586,6 +586,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-pana.c		\
 	packet-p_mul.c		\
 	packet-pagp.c		\
+	packet-pce.c		\
 	packet-pcnfsd.c		\
 	packet-per.c		\
 	packet-pflog.c		\
