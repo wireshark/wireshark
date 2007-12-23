@@ -2113,8 +2113,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	proto_tree *parameter_tree = NULL;
 
 	/* this function will call proto_item_append_string() which
-	   doesnt work with the TRY_TO_FAKE_THIS_ITEM
-	   speed optimization.
+	   does not work with the TRY_TO_FAKE_THIS_ITEM speed optimization.
 	   So we have to disable that one and become "slow" by pretending that
 	   the tree is "visible".
 
@@ -2122,7 +2121,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	 * Otherwise this causes a dissector_assert [bug 492] (proto_item_append_string() issue).
 	 */
 	if (tree)
-		PTREE_DATA(tree)->visible=1;
+		proto_tree_set_visible(tree, TRUE);
 
 	*textual_content = NULL;
 	*well_known_content = 0;

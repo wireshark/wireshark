@@ -238,7 +238,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   *
 	   * See proto.h for details.
 	   */
-	  PTREE_DATA(fh_tree)->visible=1;
+	  proto_tree_set_visible(fh_tree, TRUE);
 
 	  if(pinfo->fd->flags.ref_time){
 		ti = proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
