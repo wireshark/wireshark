@@ -146,6 +146,8 @@ static int rtp_tap = -1;
 static dissector_table_t rtp_pt_dissector_table;
 static dissector_table_t rtp_dyn_pt_dissector_table;
 
+static dissector_table_t rtp_hdr_ext_dissector_table;
+
 /* RTP header fields             */
 static int proto_rtp           = -1;
 static int hf_rtp_version      = -1;
@@ -925,6 +927,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	struct _rtp_conversation_info *p_conv_data = NULL;
 	struct srtp_info *srtp_info = NULL;
 	unsigned int srtp_offset;
+	tvbuff_t *newtvb = NULL;
 
 	/* Can tap up to 4 RTP packets within same packet */
 	static struct _rtp_info rtp_info_arr[4];
@@ -1173,6 +1176,15 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				                                tvb_get_ntohl( tvb, offset ) );
 				offset += 4;
 			}
+
+			/* pass interpretation of header extension to a registered subdissector */
+			newtvb = tvb_new_subset(tvb, offset, hdr_extension * 4, hdr_extension * 4);
+			if ( !(rtp_info->info_payload_type_str && dissector_try_string(rtp_hdr_ext_dissector_table, rtp_info->info_payload_type_str, newtvb, pinfo, rtp_csrc_tree)) ) {
+				for (i = 0; i < hdr_extension; i++ ) {
+					if ( tree ) proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+				}
+			}
+			offset += hdr_extension * 4;
 		}
 	}
 
@@ -1854,6 +1866,9 @@ proto_register_rtp(void)
 	rtp_dyn_pt_dissector_table = register_dissector_table("rtp_dyn_payload_type",
 												    "Dynamic RTP payload type", FT_STRING, BASE_NONE);
 
+
+	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext", 
+													"RTP header extension", FT_STRING, BASE_NONE);
 
 	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
 
