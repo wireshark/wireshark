@@ -1945,7 +1945,7 @@ dissect_pce_obj_tree(proto_tree *ti, tvbuff_t *tvb, proto_tree *pce_tree, int le
     	
 	guint8 obj_class;
 	guint8 ot_res_p_i; 
-	guint8 obj_length;
+	guint16 obj_length;
 	int type;
 	int offset2;
 	proto_tree *pce_object_tree;
