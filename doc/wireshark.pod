@@ -132,6 +132,9 @@ Linux Bluez Bluetooth stack B<hcidump -w> traces
 =item *
 Catapult DCT2000 .out files
 
+=item *
+TamoSoft CommView files
+
 =back 4
 
 There is no need to tell B<Wireshark> what type of
