@@ -145,10 +145,10 @@
 #define DEADTIME_PROV			2
 #define RECEP_MALFORM_MSG		3 
 
-/*Different values of Atribute in the XRO object */
-#define INTERFACE			0
-#define NODE				1
-#define SRLG				2
+/*Different values of Attribute in the XRO object */
+#define ATTR_INTERFACE			0
+#define ATTR_NODE			1
+#define ATTR_SRLG			2
 
 /*Mask for the flags of HEADER of Messages*/
 #define  PCE_HDR_MSG_RESERVED		0x1f
@@ -398,9 +398,9 @@ static const value_string pce_close_reason_obj_vals[] = {
 };
 
 static const value_string pce_xro_atribute_obj_vals[] = {
-	{INTERFACE,	 	"Atribute = 0 Interface"	},
-	{NODE,			"Atribute = 1 Node "		},
-	{SRLG, 			"Atribute = 2 SRLG"		},
+	{ATTR_INTERFACE,	 	"Atribute = 0 Interface"	},
+	{ATTR_NODE,			"Atribute = 1 Node "		},
+	{ATTR_SRLG, 			"Atribute = 2 SRLG"		},
 	{0,			         NULL           	}
 };
 
