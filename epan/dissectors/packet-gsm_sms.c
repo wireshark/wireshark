@@ -1693,7 +1693,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
     guint8	iei_len;
 
 
-    while (length > 2)
+    while (length >= 2)
     {
 	iei_fcn = NULL;
 
