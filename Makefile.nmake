@@ -602,7 +602,6 @@ REQUIRED_TOOLS=\
 	/usr/bin/find	\
 	$(PERL)	\
 	$(PYTHON)	\
-	$(NASM)	\
 	sed	\
 	unzip	\
 	wget
@@ -784,6 +783,10 @@ process_libs:
 !IFDEF UPX
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		. upx301w.zip
+!ENDIF
+!IFDEF NASM
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		. nasm-2.00-win32.zip
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.

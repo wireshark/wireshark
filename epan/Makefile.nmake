@@ -252,7 +252,7 @@ reassemble_test_install:
 
 
 #
-# Compile some time crtical code from assembler if NASM available
+# Compile some time critical code from assembler if NASM available
 #
 !IFDEF NASM
 asm_utils_win32_x86.obj: asm_utils_win32_x86.asm

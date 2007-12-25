@@ -98,7 +98,7 @@ MSVC_VARIANT=MSVC6
 # isn't defined.
 #
 #NASM=c:\progs\nasm\nasm.exe
-
+NASM=$(WIRESHARK_LIBS)\nasm-2.00\nasm.exe
 
 
 ##### Libraries #####
