@@ -200,9 +200,6 @@ static int is_http_request_or_reply(const gchar *data, int linelen,
 				    *reqresp_dissector, http_conv_t *conv_data);
 static int chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 		proto_tree *tree, int offset);
-static void http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
-				      proto_tree *sub_tree, packet_info *pinfo,
-				      http_conv_t *conv_data);
 static void process_header(tvbuff_t *tvb, int offset, int next_offset,
     const guchar *line, int linelen, int colon_offset, packet_info *pinfo,
     proto_tree *tree, headers_t *eh_ptr, http_conv_t *conv_data);
@@ -489,6 +486,38 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		call_dissector(gssapi_handle, ntlmssp_tvb, pinfo, tree);
 }
 
+static http_conv_t *
+get_http_conversation_data(packet_info *pinfo)
+{
+	conversation_t  *conversation;
+	http_conv_t	*conv_data;
+
+	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+
+	if(!conversation) {  /* Conversation does not exist yet - create it */
+		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+
+	/* Retrieve information from conversation
+	 * or add it if it isn't there yet
+	 */
+	conv_data = conversation_get_proto_data(conversation, proto_http);
+	if(!conv_data) {
+		/* Setup the conversation structure itself */
+		conv_data = se_alloc(sizeof(http_conv_t));
+
+		conv_data->response_code = 0;
+		conv_data->request_method = NULL;
+	 	conv_data->request_uri = NULL;
+		conv_data->startframe = 0;
+
+		conversation_add_proto_data(conversation, proto_http,
+					    conv_data);
+	}
+
+	return conv_data;
+}
+
 /*
  * TODO: remove this ugly global variable.
  * XXX: do we really want to have to pass this from one function to another?
@@ -497,7 +526,7 @@ static http_info_value_t	*stat_info;
 
 static int
 dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree *tree, http_conv_t *conv_data)
 {
 	http_proto_t	proto;
 	const char	*proto_tag;
@@ -523,32 +552,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean	dissected;
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
-	conversation_t  *conversation;
-	http_conv_t     *conv_data;
 	http_eo_t       *eo_info;
-
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-	if(!conversation) {  /* Conversation does not exist yet - create it */
-		conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-	/* Retrieve information from conversation
-	 * or add it if it isn't there yet
-	 */
-
-	conv_data = conversation_get_proto_data(conversation, proto_http);
-	if(!conv_data) {
-		/* Setup the conversation structure itself */
-		conv_data = se_alloc(sizeof(http_conv_t));
-
-		conv_data->response_code = 0;
-		conv_data->request_method = NULL;
-		conv_data->request_uri = NULL;
-
-		conversation_add_proto_data(conversation, proto_http,
-					    conv_data);
-	}
 
 	/*
 	 * Is this a request or response?
@@ -1172,10 +1176,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				call_dissector(media_handle, next_tvb, pinfo, tree);
 			} else {
-				/* Call the subdissector (defaults to data), otherwise. */
-				http_payload_subdissector(next_tvb, tree,
-							  http_tree, pinfo,
-							  conv_data);
+				/* Call the default data dissector */
+				call_dissector(data_handle, next_tvb, pinfo, http_tree);
 			}
 		}
 
@@ -1465,64 +1467,66 @@ chunked_encoding_dissector(tvbuff_t **tvb_ptr, packet_info *pinfo,
 
 }
 
+/* Call a subdissector to handle HTTP CONNECT's traffic */
 static void
-http_payload_subdissector(tvbuff_t *next_tvb, proto_tree *tree,
-			  proto_tree *sub_tree, packet_info *pinfo,
-			  http_conv_t *conv_data)
+http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
+			  packet_info *pinfo, http_conv_t *conv_data)
 {
-	/* tree = the main protocol tree that the subdissector would be listed in
-	 * sub_tree = the http protocol tree
-	 */
- 	guint32 dissect_as;
-	struct tcpinfo *tcpinfo = pinfo->private_data;
-	struct tcp_analysis *tcpd=NULL;
+	guint32 *ptr = NULL;
+ 	guint32 dissect_as, saved_port;
 	gchar **strings; /* An array for splitting the request URI into hostname and port */
 	proto_item *item;
+	proto_tree *proxy_tree;
 
-	/* Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
-	if(conv_data->response_code == 200 &&
-	   conv_data->request_method &&
-	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
-	   conv_data->request_uri) {
+	/* Grab the destination port number from the request URI to find the right subdissector */
+	strings = g_strsplit(conv_data->request_uri, ":", 2);
 
-		/* Call a subdissector to handle HTTP CONNECT's traffic */
-		tcpd=get_tcp_conversation_data(pinfo);
-
-		/* Grab the destination port number from the request URI to find the right subdissector */
-		strings = g_strsplit(conv_data->request_uri, ":", 2);
-
-		if(strings[0] != NULL && strings[1] != NULL) { /* The string was successfuly split in two */
-
-			item = proto_tree_add_string(sub_tree, hf_http_proxy_connect_host,
-		    	    next_tvb, 0, 0, strings[0]);
+	if(strings[0] != NULL && strings[1] != NULL) {
+		/*
+		 * The string was successfuly split in two
+		 * Create a proxy-connect subtree
+		 */
+		if(tree) {
+			item = proto_tree_add_item(tree, proto_http, tvb, 0, -1, FALSE);
+			proxy_tree = proto_item_add_subtree(item, ett_http);
+	
+			item = proto_tree_add_string(proxy_tree, hf_http_proxy_connect_host,
+		    	    tvb, 0, 0, strings[0]);
 			PROTO_ITEM_SET_GENERATED(item);
-
-			item = proto_tree_add_uint(sub_tree, hf_http_proxy_connect_port,
-			    next_tvb, 0, 0, strtol(strings[1], NULL, 10) );
+	
+			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
+			    tvb, 0, 0, strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
-
-			/* We're going to get stuck in a loop if we let dissect_tcp_payload call
-			   us, so call the data dissector instead for proxy connections to http ports. */
-			dissect_as = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
-
-			if (value_is_in_range(http_tcp_range, dissect_as)) {
-				call_dissector(data_handle, next_tvb, pinfo, tree);
-			} else {
-			   if (value_is_in_range(http_tcp_range, pinfo->destport))
-                                   dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
-                                       tcpinfo->nxtseq, pinfo->srcport, dissect_as, tree, tree, tcpd);
-			   else
-                                   dissect_tcp_payload(next_tvb, pinfo, 0, tcpinfo->seq, /* 0 = offset */
-                                       tcpinfo->nxtseq, dissect_as, pinfo->destport, tree, tree, tcpd);
-			}
 		}
 
-		g_strfreev(strings); /* Free the result of g_strsplit() above */
+		/* We're going to get stuck in a loop if we let process_tcp_payload call
+		   us, so call the data dissector instead for proxy connections to http ports. */
+		dissect_as = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
-	} else {
-		/* Call the default data dissector */
-		   call_dissector(data_handle, next_tvb, pinfo, sub_tree);
+		if (value_is_in_range(http_tcp_range, dissect_as)) {
+			call_dissector(data_handle, tvb, pinfo, tree);
+		} else {
+			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
+			if ( !ptr && value_is_in_range(http_tcp_range, pinfo->destport) ) 
+				ptr = &pinfo->destport;
+			else
+				ptr = &pinfo->srcport;
+
+                        /* Increase pinfo->can_desegment because we are traversing
+                         * http and want to preserve desegmentation functionality for
+                         * the proxied protocol
+                         */
+			if( pinfo->can_desegment>0 )
+				pinfo->can_desegment++;
+
+			saved_port = *ptr;
+			*ptr = dissect_as;
+			decode_tcp_ports(tvb, 0, pinfo, tree,
+				pinfo->srcport, pinfo->destport, NULL);
+			*ptr = saved_port;
+		}
 	}
+	g_strfreev(strings); /* Free the result of g_strsplit() above */
 }
 
 
@@ -2020,28 +2024,47 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 static void
 dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	http_conv_t	*conv_data;
 	int		offset = 0;
 	int		len;
 
-	while (tvb_reported_length_remaining(tvb, offset) != 0) {
-		len = dissect_http_message(tvb, offset, pinfo, tree);
-		if (len == -1)
-			break;
-		offset += len;
-
-		/*
-		 * OK, we've set the Protocol and Info columns for the
-		 * first HTTP message; make the columns non-writable,
-		 * so that we don't change it for subsequent HTTP messages.
-		 */
-		col_set_writable(pinfo->cinfo, FALSE);
+	/*
+	 * Check if this is proxied connection and if so, hand of dissection to the
+	 * payload-dissector.
+	 * Response code 200 means "OK" and strncmp() == 0 means the strings match exactly */
+	conv_data = get_http_conversation_data(pinfo);
+	if(pinfo->fd->num >= conv_data->startframe &&
+	   conv_data->response_code == 200 &&
+	   conv_data->request_method &&
+	   strncmp(conv_data->request_method, "CONNECT", 7) == 0 &&
+	   conv_data->request_uri) {
+		if(conv_data->startframe == 0 && !pinfo->fd->flags.visited)
+			conv_data->startframe = pinfo->fd->num;
+		http_payload_subdissector(tvb, tree, pinfo, conv_data);
+	} else {
+		while (tvb_reported_length_remaining(tvb, offset) != 0) {
+			len = dissect_http_message(tvb, offset, pinfo, tree, conv_data);
+			if (len == -1)
+				break;
+			offset += len;
+	
+			/*
+			 * OK, we've set the Protocol and Info columns for the
+			 * first HTTP message; make the columns non-writable,
+			 * so that we don't change it for subsequent HTTP messages.
+			 */
+			col_set_writable(pinfo->cinfo, FALSE);
+		}
 	}
 }
 
 static void
 dissect_http_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_http_message(tvb, 0, pinfo, tree);
+	http_conv_t	*conv_data;
+
+	conv_data = get_http_conversation_data(pinfo);
+	dissect_http_message(tvb, 0, pinfo, tree, conv_data);
 }
 
 static void range_delete_http_tcp_callback(guint32 port) {

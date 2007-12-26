@@ -53,6 +53,7 @@ typedef struct _http_conv_t {
 	gchar   *http_host;
 	gchar   *request_method;
 	gchar   *request_uri;
+	guint32	startframe;	/* First frame of proxied connection */
 } http_conv_t;
 
 #endif /* __PACKET_HTTP_H__ */
