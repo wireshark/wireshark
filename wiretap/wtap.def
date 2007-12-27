@@ -11,6 +11,9 @@ EXPORTS
 
 buffer_assure_space
 buffer_append
+buffer_free
+buffer_init
+buffer_remove_start
 
 eth_stdio_open
 eth_stdio_rename
