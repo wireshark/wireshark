@@ -14,6 +14,7 @@
  * RFC3633.txt (Prefix options)
  * RFC3646.txt (DNS servers/domains)
  * RFC3898.txt (NIS options)
+ * RFC5007.txt (DHCPv6 Leasequery)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-fqdn-00.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
@@ -78,6 +79,8 @@ static gint ett_dhcpv6_option_vsoption = -1;
 #define	INFORMATION_REQUEST	11
 #define	RELAY_FORW		12
 #define	RELAY_REPLY		13
+#define	LEASEQUERY		14
+#define	LEASEQUERY_REPLY	15
 
 #define	OPTION_CLIENTID		1
 #define	OPTION_SERVERID		2
@@ -105,18 +108,27 @@ static gint ett_dhcpv6_option_vsoption = -1;
 #define	OPTION_DOMAIN_LIST      24
 #define	OPTION_IA_PD		25
 #define	OPTION_IAPREFIX		26
-#define OPTION_NIS_SERVERS	27
-#define OPTION_NISP_SERVERS	28
-#define OPTION_NIS_DOMAIN_NAME  29
-#define OPTION_NISP_DOMAIN_NAME 30
-
-/*
- * The followings are unassigned numbers.
- */
-#define OPTION_CLIENT_FQDN      34
-#define OPTION_SNTP_SERVERS	40
-#define OPTION_TIME_ZONE	41
-#define OPTION_LIFETIME         42
+#define	OPTION_NIS_SERVERS	27
+#define	OPTION_NISP_SERVERS	28
+#define	OPTION_NIS_DOMAIN_NAME  29
+#define	OPTION_NISP_DOMAIN_NAME 30
+#define	OPTION_SNTP_SERVERS	31
+#define	OPTION_LIFETIME         32
+#define	OPTION_BCMCS_SERVER_D	33
+#define	OPTION_BCMCS_SERVER_A	34
+#define	OPTION_GEOCONF_CIVIC	36
+#define	OPTION_REMOTE_ID	37
+#define	OPTION_SUBSCRIBER_ID	38
+#define	OPTION_CLIENT_FQDN      39
+#define	OPTION_PANA_AGENT	40
+#define	OPTION_TIME_ZONE	41
+#define	OPTION_TZDB		42
+#define	OPTION_ERO		43
+#define	OPTION_LQ_QUERY		44
+#define	OPTION_CLIENT_DATA	45
+#define	OPTION_CLT_TIME		46
+#define	OPTION_LQ_RELAY_DATA	47
+#define	OPTION_LQ_CLIENT_LINK	48
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA		165
@@ -146,6 +158,8 @@ static const value_string msgtype_vals[] = {
 	{ INFORMATION_REQUEST,	"Information-request" },
 	{ RELAY_FORW,	"Relay-forw" },
 	{ RELAY_REPLY,	"Relay-reply" },
+	{ LEASEQUERY,	"Leasequery" },
+	{ LEASEQUERY_REPLY,	"Leasequery-reply" },
 	{ 0, NULL }
 };
 
@@ -181,9 +195,22 @@ static const value_string opttype_vals[] = {
 	{ OPTION_NIS_DOMAIN_NAME, "Network Information Server Domain Name" },
 	{ OPTION_NISP_DOMAIN_NAME,"Network Information Server V2 Domain Name" },
 	{ OPTION_SNTP_SERVERS,	"Simple Network Time Protocol Server" },
-	{ OPTION_TIME_ZONE,	"Time zone" },
 	{ OPTION_LIFETIME,      "Lifetime" },
+	{ OPTION_BCMCS_SERVER_D, "BCMCS Server Domain" },
+	{ OPTION_BCMCS_SERVER_A, "BCMCS Servers IPv6 Address List" },
+	{ OPTION_GEOCONF_CIVIC,	"Geoconf Civic Address" },
+	{ OPTION_REMOTE_ID,	"Remote Identifier" },
+	{ OPTION_SUBSCRIBER_ID,	"Subscriber Identifier" },
 	{ OPTION_CLIENT_FQDN,   "Fully Qualified Domain Name" },
+	{ OPTION_PANA_AGENT,	"PANA Agents IPv6 Address List" },
+	{ OPTION_TIME_ZONE,	"Time Zone" },
+	{ OPTION_TZDB,		"Time Zone Database" },
+	{ OPTION_ERO,		"Echo Request Option" },
+	{ OPTION_LQ_QUERY,	"Leasequery Query" },
+	{ OPTION_CLIENT_DATA,	"Leasequery Client Data" },
+	{ OPTION_CLT_TIME,	"Client Last Transaction Time" },
+	{ OPTION_LQ_RELAY_DATA,	"Leasequery Relay Data" },
+	{ OPTION_LQ_CLIENT_LINK, "Leasequery Client Link Address List" },
 	{ OPTION_MIP6_HA,	"Mobile IPv6 Home Agent" },
 	{ OPTION_MIP6_HOA,	"Mobile IPv6 Home Address" },
 	{ OPTION_NAI,		"Network Access Identifier" },
@@ -199,6 +226,10 @@ static const value_string statuscode_vals[] =
 	{4, "NotOnLink" },
 	{5, "UseMulticast" },
 	{6, "NoPrefixAvail" },
+	{7, "UnknownQueryType" },
+	{8, "MalformedQuery" },
+	{9, "NotConfigured" },
+	{10, "NotAllowed" },
 	{0, NULL }
 };
 
@@ -497,6 +528,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         break;
 	case OPTION_ORO:
+	case OPTION_ERO:
 		for (i = 0; i < optlen; i += 2) {
 		    guint16 requested_opt_code;
 		    requested_opt_code = tvb_get_ntohs(tvb, off + i);
@@ -739,12 +771,6 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 				ip6_to_str(&in6));
 		}
 		break;
-	case OPTION_TIME_ZONE:
-	  if (optlen > 0) {
-	      buf = tvb_get_ephemeral_string(tvb, off, optlen);
-	      proto_tree_add_text(subtree, tvb, off, optlen, "time-zone: %s", buf);
-	  }
-	  break;
 	case OPTION_LIFETIME:
 	  if (optlen != 4) {
 	    proto_tree_add_text(subtree, tvb, off,
@@ -754,6 +780,42 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	  proto_tree_add_text(subtree, tvb, off, 4,
 			      "Lifetime: %d",
 			      (guint32)tvb_get_ntohl(tvb, off));
+	  break;
+	case OPTION_BCMCS_SERVER_D:
+		if (optlen > 0) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"BCMCS Servers Domain Search List");
+		}
+		dhcpv6_domain(subtree,tvb, off, optlen);
+		break;
+	case OPTION_BCMCS_SERVER_A:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"BCMCS servers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_get_ipv6(tvb, off + i, &in6);
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "BCMCS servers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_REMOTE_ID:
+	  if (optlen < 4) {
+	    proto_tree_add_text(subtree, tvb, off,
+				optlen, "REMOTE_ID: malformed option");
+	    break;
+	  }
+	  proto_tree_add_text(subtree, tvb, off, optlen, "Remote-ID");
+	  break;
+	case OPTION_SUBSCRIBER_ID:
+	  if (optlen == 0) {
+	    proto_tree_add_text(subtree, tvb, off,
+				optlen, "SUBSCRIBER_ID: malformed option");
+	    break;
+	  }
+	  proto_tree_add_text(subtree, tvb, off, optlen, "Subscriber-ID");
 	  break;
 	case OPTION_CLIENT_FQDN:
 	  if (optlen < 1) {
@@ -775,7 +837,121 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 /* 			      (guint32)tvb_get_guint8(tvb, off)); */
 	  dhcpv6_domain(subtree,tvb, off+1, (guint16) (optlen-1));
 	  break;
+	case OPTION_PANA_AGENT:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"PANA agent address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_get_ipv6(tvb, off + i, &in6);
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "PANA agents address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_TIME_ZONE:
+	  if (optlen > 0) {
+	      buf = tvb_get_ephemeral_string(tvb, off, optlen);
+	      proto_tree_add_text(subtree, tvb, off, optlen, "time-zone: %s", buf);
+	  }
+	  break;
+	case OPTION_TZDB:
+	  if (optlen > 0) {
+	      buf = tvb_get_ephemeral_string(tvb, off, optlen);
+	      proto_tree_add_text(subtree, tvb, off, optlen, "tz-database: %s", buf);
+	  }
+	  break;
+	case OPTION_LQ_QUERY:
+	    {
+		guint8 query_type;
+		struct e_in6_addr in6;
 
+		if (optlen < 17) {
+		    proto_tree_add_text(subtree, tvb, off, optlen,
+					"LQ-QUERY: malformed option");
+		    break;
+		}
+		query_type = tvb_get_guint8(tvb, off);
+		switch (query_type) {
+		case 1:
+		     proto_tree_add_text(subtree, tvb, off, 1,
+					 "Query-type: %s (%u)",
+					 "by-address", query_type);
+		     break;
+		case 2:
+		     proto_tree_add_text(subtree, tvb, off, 1,
+					 "Query-type: %s (%u)",
+					 "by-clientID", query_type);
+		     break;
+		default:
+		     proto_tree_add_text(subtree, tvb, off, 1,
+					 "Query-type: %s (%u)",
+					 "unknown?", query_type);
+		     break;
+		}
+		tvb_get_ipv6(tvb, off + 1, &in6);
+		proto_tree_add_text(subtree, tvb, off + 1, 16,
+				    "Link address: %s", ip6_to_str(&in6));
+		temp_optlen = 17;
+		while ((optlen - temp_optlen) > 0) {
+		    temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+					downstream, off + temp_optlen,
+					off + optlen, at_end);
+		    if (*at_end) {
+			/* Bad option - just skip to the end */
+			temp_optlen = optlen;
+		    }
+		}
+	    }
+	    break;
+	case OPTION_CLIENT_DATA:
+	    temp_optlen = 0;
+	    while ((optlen - temp_optlen) > 0) {
+		temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
+					     downstream, off + temp_optlen,
+					     off + optlen, at_end);
+		if (*at_end) {
+		    /* Bad option - just skip to the end */
+		    temp_optlen = optlen;
+		}
+	    }
+	    break;
+	case OPTION_CLT_TIME:
+	    if (optlen != 4) {
+		proto_tree_add_text(subtree, tvb, off, optlen,
+				    "CLT_TIME: malformed option");
+		break;
+	    }
+	    proto_tree_add_text(subtree, tvb, off, 4,
+				"Clt_time: %d",
+				(guint32)tvb_get_ntohl(tvb, off));
+	    break;
+	case OPTION_LQ_RELAY_DATA:
+	    if (optlen < 16) {
+		proto_tree_add_text(subtree, tvb, off, optlen,
+				    "LQ_RELAY_DATA: malformed option");
+		break;
+	    }
+	    tvb_get_ipv6(tvb, off, &in6);
+	    proto_tree_add_text(subtree, tvb, off, 16,
+				"Peer address: %s", ip6_to_str(&in6));
+	    proto_tree_add_text(subtree, tvb, off + 16, optlen - 16,
+				"DHCPv6 relay message");
+	    break;
+	case OPTION_LQ_CLIENT_LINK:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"LQ client links address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_get_ipv6(tvb, off + i, &in6);
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "LQ client links address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
 	case OPTION_IAPREFIX:
 	    {
 		guint32 preferred_lifetime, valid_lifetime;
