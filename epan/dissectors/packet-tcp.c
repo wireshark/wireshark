@@ -1882,11 +1882,19 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     plen = (*get_pdu_len)(pinfo, tvb, offset);
     if (plen < fixed_len) {
       /*
-       * The PDU length from the fixed-length portion probably didn't
-       * include the fixed-length portion's length, and was probably so
-       * large that the total length overflowed.
+       * Either:
        *
-       * Report this as an error.
+       *	1) the length value extracted from the fixed-length portion
+       *	   doesn't include the fixed-length portion's length, and
+       *	   was so large that, when the fixed-length portion's
+       *	   length was added to it, the total length overflowed;
+       *
+       *	2) the length value extracted from the fixed-length portion
+       *	   includes the fixed-length portion's length, and the value
+       *	   was less than the fixed-length portion's length, i.e. it
+       *	   was bogus.
+       *
+       * Report this as a bounds error.
        */
       show_reported_bounds_error(tvb, pinfo, tree);
       return;
