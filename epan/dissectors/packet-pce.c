@@ -1096,6 +1096,9 @@ dissect_subobj_exrs(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, 
 		
 	l_type = tvb_get_guint8(tvb, *offset2);
 	length2 = tvb_get_guint8(tvb, *offset2+1);
+
+	DISSECTOR_ASSERT(length2);
+
 	type_exrs = (l_type & Mask_Type);	
 		
 	if(type_iro==PCE_SUB_EXRS){
@@ -1372,6 +1375,9 @@ dissect_pce_explicit_route_obj(proto_item *ti, proto_tree *pce_tree,
 	
 	l_type = tvb_get_guint8(tvb, *offset2);	  
 	length = tvb_get_guint8(tvb, *offset2+1);
+
+	DISSECTOR_ASSERT(length);
+
 	type_exp_route = (l_type & Mask_Type);
 	if (body_obj_len <length) {
 		proto_tree_add_text(pce_explicit_route_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_obj_len); 
@@ -1427,6 +1433,8 @@ dissect_pce_record_route_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb
 	
 	type = tvb_get_guint8(tvb, *offset2);	  
 	length = tvb_get_guint8(tvb, *offset2+1);
+
+	DISSECTOR_ASSERT(length);
 
 	if (body_obj_len <length) {
 		proto_tree_add_text(pce_record_route_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_obj_len); 
@@ -1533,6 +1541,9 @@ dissect_pce_iro_obj(proto_item *ti, proto_tree *pce_tree,
 	
 	l_type = tvb_get_guint8(tvb, *offset2);	  
 	length = tvb_get_guint8(tvb, *offset2+1);
+
+	DISSECTOR_ASSERT(length);
+
 	type_iro = (l_type & Mask_Type);
 	
 	if (body_obj_len <length) {
@@ -1899,6 +1910,9 @@ dissect_pce_xro_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *of
 
 	x_type = tvb_get_guint8(tvb, *offset2);	  
 	length = tvb_get_guint8(tvb, *offset2+1);
+
+	DISSECTOR_ASSERT(length);
+
 	type_xro = (x_type & Mask_Type);
 
 	if (body_subobj_len <length) {
