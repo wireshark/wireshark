@@ -111,6 +111,13 @@ void buffer_remove_start(Buffer* buffer, unsigned int bytes)
 
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
+void buffer_clean(Buffer* buffer)
+{
+	buffer_remove_start(buffer, buffer_length(buffer));
+}
+#endif
+
+#ifndef SOME_FUNCTIONS_ARE_DEFINES
 void buffer_increase_length(Buffer* buffer, unsigned int bytes)
 {
 	buffer->first_free += bytes;
@@ -135,5 +142,12 @@ guchar* buffer_start_ptr(Buffer* buffer)
 guchar* buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
+}
+#endif
+
+#ifndef SOME_FUNCTIONS_ARE_DEFINES
+void buffer_append_buffer(Buffer* buffer, Buffer* src_buffer)
+{
+	buffer_append(buffer, buffer_start_ptr(src_buffer), buffer_length(src_buffer));
 }
 #endif
