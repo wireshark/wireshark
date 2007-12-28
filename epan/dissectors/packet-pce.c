@@ -1,5 +1,8 @@
 /* packet-pce.c
  * Routines for PCE packet disassembly
+ * draft-ietf-pce-pcep-09
+ * draft-ietf-pce-pcep-xro-02
+ * See also RFC 4655 and RFC 4657
  *
  * (c) Copyright 2007 Silvia Cristina Tejedor <silviacristina.tejedor@gmail.com> 
  *
@@ -70,7 +73,7 @@
 #define PCE_SUB_EXRS			33
 #define PCE_SUB_AUTONOMOUS_SYS_NUM_XRO	4
 #define PCE_SUB_UNNUMB_INTERFACE_ID_XRO	3
-	
+
 /*Possible values of the NI in the NO-PATH object*/
 #define NO_SATISFYING			0
 #define CHAIN_BROKEN			1
@@ -254,8 +257,6 @@ static gint pce_xro_flags_f= -1;
 static gint pce_subobj_flags_lpa= -1;
 static gint pce_subobj_flags_lpu= -1;
 static gint pce_subobj_label_flags_gl= -1;
-static dissector_table_t pce_dissector_table;
-static dissector_handle_t data_handle;
 
 /* PCE message types.*/
 typedef enum {
@@ -268,7 +269,7 @@ typedef enum {
 	PCE_MSG_ERROR,	
 	PCE_MSG_CLOSE   
 } pce_message_types;
-    
+
 static const value_string message_type_vals[] = {
 	{PCE_MSG_OPEN,				"OPEN MESSAGE"				},
 	{PCE_MSG_KEEPALIVE, 			"KEEPALIVE MESSAGE"			},
@@ -408,7 +409,7 @@ static const value_string pce_xro_atribute_obj_vals[] = {
 enum pce_filter_keys{
 
     PCEF_MSG,
-    
+
     PCEF_OPEN,
     PCEF_KEEPALIVE,
     PCEF_PATH_COMPUTATION_REQUEST,
@@ -416,7 +417,7 @@ enum pce_filter_keys{
     PCEF_NOTIFICATION,
     PCEF_ERROR,
     PCEF_CLOSE,     
-    
+
     PCEF_OBJ_HEADER,
     PCEF_OBJECT,
     PCEF_OBJ_OPEN,
@@ -450,9 +451,9 @@ enum pce_filter_keys{
     PCEF_SUBOBJ_EXRS,
     PCEF_SUBOBJ_XRO,
     PCEF_SUB_XRO_ATRIB,
-       
+
     PCEF_MAX
-     
+
 };
 
 
@@ -486,7 +487,7 @@ static gint *ett[] = {
 	&ett_pce_obj_close, 
 	&ett_pce_obj_xro
 };
-    
+
 /*Registering data structures*/    
 
 static int pce_filter[PCEF_MAX];
@@ -536,7 +537,7 @@ static hf_register_info pcef_info[] = {
     {&pce_filter[PCEF_OBJECT],
      { "Object Class", "pce.object", FT_UINT32, BASE_DEC, VALS(pce_class_vals), 0x0,
      	"", HFILL }},
-	
+
     /* Object types */
     {&pce_filter[PCEF_OBJ_OPEN],
      { "PCE OPEN OBJECT Body", "pce.obj.open", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -601,7 +602,7 @@ static hf_register_info pcef_info[] = {
       {&pce_filter[PCEF_OBJ_SVEC],
      { "PCE SVEC OBJECT Body", "pce.obj.svec", FT_NONE, BASE_NONE, NULL, 0x0,
         "", HFILL }},  
-		
+
 		{ &pce_svec_flags_l,
 		{ "Link diverse (L)", "pce.svec.flags.l", FT_BOOLEAN, 24, TFS(&tfs_set_notset), PCE_SVEC_L,
 			"", HFILL }},
@@ -613,11 +614,11 @@ static hf_register_info pcef_info[] = {
 		{ &pce_svec_flags_s,
 		{ "SRLG diverse (S)", "pce.svec.flags.s", FT_BOOLEAN, 24, TFS(&tfs_set_notset), PCE_SVEC_S,
 			"", HFILL }},		
-	   
+
       {&pce_filter[PCEF_OBJ_NOTIFICATION],
      { "PCE NOTIFICATION OBJECT Body", "pce.obj.notification", FT_NONE, BASE_NONE, NULL, 0x0,
         "", HFILL }},   
-	
+
       {&pce_filter[PCEF_NOTI_TYPE],
      { "Notification Value", "pce.notification.value1", FT_UINT32, BASE_DEC, VALS(pce_notification_types_vals), 0x0,
      	"", HFILL }},
@@ -627,7 +628,7 @@ static hf_register_info pcef_info[] = {
       {&pce_filter[PCEF_NOTI_VAL2],
      { "Notification Type", "pce.notification.type", FT_UINT32, BASE_DEC, VALS(pce_notification_values2_vals), 0x0,
      	"", HFILL }},
-	  
+
       {&pce_filter[PCEF_OBJ_PCEP_ERROR],
      { "PCE ERROR OBJECT Body", "pce.obj.error", FT_NONE, BASE_NONE, NULL, 0x0,
         "", HFILL }},   
@@ -646,12 +647,12 @@ static hf_register_info pcef_info[] = {
 	{&pce_filter[PCEF_OBJ_XRO],
      { "PCE EXCLUDE ROUTE OBJECT (XRO) Body", "pce.obj.xro", FT_NONE, BASE_NONE, NULL, 0x0,
         "", HFILL }},
-	
+
 	/*SUbobjects*/	
 	{&pce_filter[PCEF_SUBOBJ],
      { "Type", "pce.subobj", FT_UINT8, BASE_DEC, VALS(pce_subobj_vals), 0x0,
         "", HFILL }}, 
-	
+
         {&pce_filter[PCEF_SUBOBJ_IPv4],
      { "SUBOBJECT: IPv4 Prefix", "pce.subobj.ipv4", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -683,7 +684,7 @@ static hf_register_info pcef_info[] = {
 	{&pce_filter[PCEF_SUB_XRO_ATRIB],
      { "Attribute", "pce.xro.sub.atribute", FT_UINT32, BASE_DEC, VALS(pce_xro_atribute_obj_vals), 0x0,
 	"", HFILL }},
-	
+
 		{ &pce_subobj_flags_lpa,
 		{ "Local Protection Available", "pce.subobj.flags.lpa", FT_BOOLEAN, 8, TFS(&tfs_set_notset), PCE_SUB_LPA,
 			"", HFILL }},
@@ -696,448 +697,468 @@ static hf_register_info pcef_info[] = {
 
 };
 
+#define	OBJ_HDR_LEN	4	/* length of object header */
 
 static void
-dissect_pce_tlv(proto_item *ti, proto_tree *pce_obj, tvbuff_t *tvb, int *offset2, gint hdr_obj, gint body_obj_obl, gint obj_length, gint ett_pce_obj, gint *len){
-	
+dissect_pce_tlvs(proto_item *ti, proto_tree *pce_obj, tvbuff_t *tvb, int offset, gint length, gint ett_pce_obj)
+{
 	proto_tree *tlv;
-	guint16 tlv_length = 0;
+	guint16 tlv_length;
 	guint16 tlv_type;
-	int j = 0;
-	int m  = 0;
-	int padding = 0;	
-	if (obj_length>(hdr_obj+body_obj_obl)){	
+	int j;
+	int m = 0;
+	int padding = 0;
 
-		for(j=0; j<(obj_length - (hdr_obj+body_obj_obl)); ){
-		m=m+1;
-		
-			tlv_type = tvb_get_ntohs(tvb, *offset2+j);
-			tlv_length = tvb_get_ntohs(tvb, *offset2 + j + 2);
-			ti = proto_tree_add_text(pce_obj, tvb, *offset2 + j, tlv_length+4, "TLV %u", m);
-			tlv = proto_item_add_subtree(ti, ett_pce_obj);
-			proto_tree_add_text(tlv, tvb, *offset2 + j, 2, "Type: %u", tlv_type);
-			proto_tree_add_text(tlv, tvb, *offset2 + 2 + j, 2, "Length: %u", tlv_length);
-			proto_tree_add_text(tlv, tvb, *offset2+4+j, tlv_length, "Data: %s", 
-					bytestring_to_str(tvb_get_ptr(tvb, (*offset2) + 4 + j, tlv_length), tlv_length, ' '));
-			padding = (4 - (tlv_length % 4)) % 4;
-			if (padding != 0){
-				proto_tree_add_text(tlv, tvb, *offset2+4+j+tlv_length, padding, "Padding: %s", 
-					bytestring_to_str(tvb_get_ptr(tvb, (*offset2) + 4 + j + tlv_length, padding), padding, ' '));
-		
-			}	
-			j=(j + tlv_length + 4 + padding);	
-		}
-		
-	*offset2 = (*offset2) + obj_length - (hdr_obj+body_obj_obl);	
-	*len = *len + obj_length - hdr_obj; 
+	for (j = 0; j < length; j += 4 + tlv_length + padding){
+		m = m+1;
 
-	}	 
-	else 
-	*len = (*len) + body_obj_obl;
-	
-};
+		tlv_type = tvb_get_ntohs(tvb, offset+j);
+		tlv_length = tvb_get_ntohs(tvb, offset + j + 2);
+		ti = proto_tree_add_text(pce_obj, tvb, offset + j, tlv_length+4, "TLV %u", m);
+		tlv = proto_item_add_subtree(ti, ett_pce_obj);
+		proto_tree_add_text(tlv, tvb, offset + j, 2, "Type: %u", tlv_type);
+		proto_tree_add_text(tlv, tvb, offset + 2 + j, 2, "Length: %u", tlv_length);
+		proto_tree_add_text(tlv, tvb, offset+4+j, tlv_length, "Data: %s", 
+				bytestring_to_str(tvb_get_ptr(tvb, (offset) + 4 + j, tlv_length), tlv_length, ' '));
+		padding = (4 - (tlv_length % 4)) % 4;
+		if (padding != 0){
+			proto_tree_add_text(tlv, tvb, offset+4+j+tlv_length, padding, "Padding: %s", 
+				bytestring_to_str(tvb_get_ptr(tvb, (offset) + 4 + j + tlv_length, padding), padding, ' '));
+		}	
+	}
+}
 
 /*------------------------------------------------------------------------------
  *SUBOBJECTS
  *------------------------------------------------------------------------------*/
 static void
-dissect_subobj_ipv4(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length){
-
+dissect_subobj_ipv4(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_ipv4;
 	proto_tree *pce_subobj_ipv4_flags;
 	guint8 prefix_length;
 	guint8 resvd;
 	guint l;
-	prefix_length = tvb_get_guint8(tvb, *offset2+6);
-	resvd = tvb_get_guint8(tvb, *offset2+7);
-		
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_IPv4], tvb, *offset2, length, FALSE);
+
+	prefix_length = tvb_get_guint8(tvb, offset+6);
+	resvd = tvb_get_guint8(tvb, offset+7);
+
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_IPv4], tvb, offset, length, FALSE);
 	pce_subobj_ipv4 = proto_item_add_subtree(ti, ett_pce_obj);
-	
-	switch(obj_class){
-	
-	case PCE_EXPLICIT_ROUTE_OBJ:
-	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2+2, 4)));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+6, 1, "Prefix Length: %u", prefix_length);	
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+7, 1, "Padding: 0x%02x", resvd);	
-	break;
-	
-	case PCE_RECORD_ROUTE_OBJ:
-	proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, l_and_or_type);
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2+2, 4)));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+6, 1, "Prefix Length: %u", prefix_length);	
-	ti = proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+7, 1, "Flags: 0x%02x ", resvd);
-	pce_subobj_ipv4_flags = proto_item_add_subtree(ti, ett_pce_obj);
-	proto_tree_add_boolean(pce_subobj_ipv4_flags, pce_subobj_flags_lpa, tvb, *offset2+7, 1, resvd);
-	proto_tree_add_boolean(pce_subobj_ipv4_flags, pce_subobj_flags_lpu, tvb, *offset2+7, 1, resvd);
-	break;
-	
-	case PCE_IRO_OBJ:
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2, 1, "l: %x", (l_and_or_type & 0x80)>>7);
-	proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2+2, 4)));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+6, 1, "Prefix Length: %u", prefix_length);	
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+7, 1, "Padding: 0x%02x", resvd);
-	break;
-	
-	case PCE_XRO_OBJ:
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2, 1, "X: %x", (l_and_or_type & 0x01)>>7);
-	proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ_XRO], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2, 1, "Type: %u", (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2+2, 4)));
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+6, 1, "Prefix Length: %u", prefix_length);	
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2+7, 1, val_to_str(resvd, pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
-	break;
-	
-	default:
-	proto_tree_add_text(pce_subobj_ipv4, tvb, *offset2, 8, "Non defined subobject for this object");
-	break;
+
+	if (length != 8) {
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, length,
+		    "Bad IPv4 subobject: length %u != 8", length);
+		return;
 	}
-	
-	*len = *len + 8;
-	*offset2 = *offset2 + 8;
+
+	switch(obj_class){
+
+	case PCE_EXPLICIT_ROUTE_OBJ:
+		l = (l_and_or_type& Mask_L)>>7;
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+7, 1, "Padding: 0x%02x", resvd);
+		break;
+
+	case PCE_RECORD_ROUTE_OBJ:
+		proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, l_and_or_type);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
+		ti = proto_tree_add_text(pce_subobj_ipv4, tvb, offset+7, 1, "Flags: 0x%02x ", resvd);
+		pce_subobj_ipv4_flags = proto_item_add_subtree(ti, ett_pce_obj);
+		proto_tree_add_boolean(pce_subobj_ipv4_flags, pce_subobj_flags_lpa, tvb, offset+7, 1, resvd);
+		proto_tree_add_boolean(pce_subobj_ipv4_flags, pce_subobj_flags_lpu, tvb, offset+7, 1, resvd);
+		break;
+
+	case PCE_IRO_OBJ:
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, 1, "l: %x", (l_and_or_type & 0x80)>>7);
+		proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+7, 1, "Padding: 0x%02x", resvd);
+		break;
+
+	case PCE_XRO_OBJ:
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
+		proto_tree_add_uint(pce_subobj_ipv4, pce_filter[PCEF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, 1, "Type: %u", (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+2, 4, "IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+6, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset+7, 1, val_to_str(resvd, pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		break;
+
+	default:
+		proto_tree_add_text(pce_subobj_ipv4, tvb, offset, 8, "Non defined subobject for this object");
+		break;
+	}
 }
 
 static void
-dissect_subobj_ipv6(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length){
-
+dissect_subobj_ipv6(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_ipv6;
 	proto_tree *pce_subobj_ipv6_flags;
 	guint8 prefix_length;
 	guint8 resv;
 	int l;
-	
-	prefix_length = tvb_get_guint8(tvb, *offset2+18);
-	resv = tvb_get_guint8(tvb, *offset2+19);
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_IPv6], tvb, *offset2, length, FALSE);
-	pce_subobj_ipv6 = proto_item_add_subtree(ti, ett_pce_obj);	
-	
+
+	prefix_length = tvb_get_guint8(tvb, offset+18);
+	resv = tvb_get_guint8(tvb, offset+19);
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_IPv6], tvb, offset, length, FALSE);
+	pce_subobj_ipv6 = proto_item_add_subtree(ti, ett_pce_obj);
+
+	if (length != 20) {
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset, length,
+		    "Bad IPv6 subobject: length %u != 20", length);
+		return;
+	}
+
 	switch(obj_class){
 	case PCE_EXPLICIT_ROUTE_OBJ:
-	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2+2, 16)));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+18, 1, "Prefix Length: %u", prefix_length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+19, 1, "Padding: 0x%02x", resv);
-	break;
-	
-	case PCE_RECORD_ROUTE_OBJ:
-	proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, l_and_or_type);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2+2, 16)));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+18, 1, "Prefix Length: %u", prefix_length);	
-	ti = proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+19, 1, "Flags: 0x%02x ", resv);
-	pce_subobj_ipv6_flags = proto_item_add_subtree(ti, ett_pce_obj);
-	proto_tree_add_boolean(pce_subobj_ipv6_flags, pce_subobj_flags_lpa, tvb, *offset2+19, 1, resv);
-	proto_tree_add_boolean(pce_subobj_ipv6_flags, pce_subobj_flags_lpu, tvb, *offset2+19, 1, resv);
-	break;
-	
-	case PCE_IRO_OBJ:
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2, 1, "l: %x", (l_and_or_type & 0x80)>>7);
-	proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2+2, 16)));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+18, 1, "Prefix Length: %u", prefix_length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+19, 1, "Padding: 0x%02x", resv);
-	break;
-	
-	case PCE_XRO_OBJ:
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2, 1, "X: %x", (l_and_or_type & 0x01)>>7);
-	proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ_XRO], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2+2, 16)));
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+18, 1, "Prefix Length: %u", prefix_length);
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2+19, 1, val_to_str(resv, pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
-	break;	
-	
-	default:
-	proto_tree_add_text(pce_subobj_ipv6, tvb, *offset2, 20, "Non defined subobject for this object");
-	    break;
-	}	
-	
-	*len = *len + 20;	
-	*offset2 = *offset2 + 20;
+		l = (l_and_or_type& Mask_L)>>7;
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+19, 1, "Padding: 0x%02x", resv);
+		break;
 
+	case PCE_RECORD_ROUTE_OBJ:
+		proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, l_and_or_type);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
+		ti = proto_tree_add_text(pce_subobj_ipv6, tvb, offset+19, 1, "Flags: 0x%02x ", resv);
+		pce_subobj_ipv6_flags = proto_item_add_subtree(ti, ett_pce_obj);
+		proto_tree_add_boolean(pce_subobj_ipv6_flags, pce_subobj_flags_lpa, tvb, offset+19, 1, resv);
+		proto_tree_add_boolean(pce_subobj_ipv6_flags, pce_subobj_flags_lpu, tvb, offset+19, 1, resv);
+		break;
+
+	case PCE_IRO_OBJ:
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset, 1, "l: %x", (l_and_or_type & 0x80)>>7);
+		proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+19, 1, "Padding: 0x%02x", resv);
+		break;
+
+	case PCE_XRO_OBJ:
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
+		proto_tree_add_uint(pce_subobj_ipv6, pce_filter[PCEF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+2, 16, "IPv6 Address: %s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset+2, 16)));
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+18, 1, "Prefix Length: %u", prefix_length);
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset+19, 1, val_to_str(resv, pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		break;
+
+	default:
+		proto_tree_add_text(pce_subobj_ipv6, tvb, offset, 20, "Non defined subobject for this object");
+		break;
+	}	
 }
 
-	
-static void
-dissect_subobj_label_control(proto_item *ti, proto_tree *pce_subobj_tree,  tvbuff_t *tvb,  int *offset2, int *len, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length){
 
+static void
+dissect_subobj_label_control(proto_item *ti, proto_tree *pce_subobj_tree,  tvbuff_t *tvb,  int offset, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_label_control;
 	proto_tree *pce_subobj_label_flags;
 	guint8 u_reserved;
 	guint8 c_type;
 	int l;
 	int u;
-		
-	u_reserved = tvb_get_guint8(tvb, *offset2+2);
-	c_type = tvb_get_guint8(tvb, *offset2+3);
-		
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_LABEL_CONTROL], tvb, *offset2, length, FALSE);
-	pce_subobj_label_control = proto_item_add_subtree(ti, ett_pce_obj);	
-		
-	switch(obj_class){
-	
-	case PCE_EXPLICIT_ROUTE_OBJ:
-	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_uint(pce_subobj_label_control, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+1, 1, "Length: %u", length);
-	u = (u_reserved & 0x80)>>7;
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+2, 1, val_to_str(u, pce_route_u_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+2, 1, "Reserved: %u", (u_reserved & 0x7f));	
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+3, 1, "C-Type: %u", c_type);
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+4, length-4, "Label: %s", 
-				bytestring_to_str(tvb_get_ptr(tvb, *offset2+4, length-4), length-4, ' '));
-	break;
-	
-	case PCE_RECORD_ROUTE_OBJ:	
-	proto_tree_add_uint(pce_subobj_label_control, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, l_and_or_type);
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+1, 1, "Length: %u", length);
-	u = (u_reserved & 0x80)>>7;
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+2, 1, val_to_str(u, pce_route_u_obj_vals, "Unknown Object (%u). "));
-	
-	ti = proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+2, 1, "Flags: 0x%02x ", (u_reserved & 0x7f));
-	pce_subobj_label_flags = proto_item_add_subtree(ti, ett_pce_obj);
-	proto_tree_add_boolean(pce_subobj_label_flags, pce_subobj_label_flags_gl, tvb, *offset2+2, 1, (u_reserved & 0x7f));
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+3, 1, "C-Type: %u", c_type);
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2+4, length-4, "Label: %s", 
-				bytestring_to_str(tvb_get_ptr(tvb, *offset2+4, length-4), length-4, ' '));
-	break;
-	
-	default:
-	proto_tree_add_text(pce_subobj_label_control, tvb, *offset2, length, "Non defined subobject for this object");
-	break;
-	}		
 
-	*len = *len + 8;
-	*offset2 = *offset2 + 8;
+	u_reserved = tvb_get_guint8(tvb, offset+2);
+	c_type = tvb_get_guint8(tvb, offset+3);
+
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_LABEL_CONTROL], tvb, offset, length, FALSE);
+	pce_subobj_label_control = proto_item_add_subtree(ti, ett_pce_obj);
+
+	if (length < 5) {
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset, length,
+		    "Bad label control subobject: length %u < 5", length);
+		return;
+	}
+
+	switch(obj_class){
+
+	case PCE_EXPLICIT_ROUTE_OBJ:
+		l = (l_and_or_type& Mask_L)>>7;
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_uint(pce_subobj_label_control, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+1, 1, "Length: %u", length);
+		u = (u_reserved & 0x80)>>7;
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+2, 1, val_to_str(u, pce_route_u_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+2, 1, "Reserved: %u", (u_reserved & 0x7f));
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+3, 1, "C-Type: %u", c_type);
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+4, length-4, "Label: %s", 
+				bytestring_to_str(tvb_get_ptr(tvb, offset+4, length-4), length-4, ' '));
+		break;
+
+	case PCE_RECORD_ROUTE_OBJ:	
+		proto_tree_add_uint(pce_subobj_label_control, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, l_and_or_type);
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+1, 1, "Length: %u", length);
+		u = (u_reserved & 0x80)>>7;
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+2, 1, val_to_str(u, pce_route_u_obj_vals, "Unknown Object (%u). "));
+
+		ti = proto_tree_add_text(pce_subobj_label_control, tvb, offset+2, 1, "Flags: 0x%02x ", (u_reserved & 0x7f));
+		pce_subobj_label_flags = proto_item_add_subtree(ti, ett_pce_obj);
+		proto_tree_add_boolean(pce_subobj_label_flags, pce_subobj_label_flags_gl, tvb, offset+2, 1, (u_reserved & 0x7f));
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+3, 1, "C-Type: %u", c_type);
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset+4, length-4, "Label: %s", 
+				bytestring_to_str(tvb_get_ptr(tvb, offset+4, length-4), length-4, ' '));
+		break;
+
+	default:
+		proto_tree_add_text(pce_subobj_label_control, tvb, offset, length, "Non defined subobject for this object");
+		break;
+	}		
 }
 
 static void
-dissect_subobj_unnumb_interfaceID(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length){
-
+dissect_subobj_unnumb_interfaceID(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, int obj_class, gint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_unnumb_interfaceID;
 	proto_tree *pce_subobj_unnumb_interfaceID_flags;
 	guint32 router_ID;
 	guint32 interface_ID;
-	guint16 reserved_flags;	
+	guint16 reserved_flags;
 	int l;
-		
-	reserved_flags = tvb_get_ntohs(tvb, *offset2+2);
-	router_ID = tvb_get_ntohl(tvb, *offset2+4);
-	interface_ID = tvb_get_ntohl(tvb, *offset2+8);
-	
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_UNNUM_INTERFACEID], tvb, *offset2, length, FALSE);
+
+	reserved_flags = tvb_get_ntohs(tvb, offset+2);
+	router_ID = tvb_get_ntohl(tvb, offset+4);
+	interface_ID = tvb_get_ntohl(tvb, offset+8);
+
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_UNNUM_INTERFACEID], tvb, offset, length, FALSE);
 	pce_subobj_unnumb_interfaceID = proto_item_add_subtree(ti, ett_pce_obj);
-		
+
+	if (length != 12) {
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset, length,
+		    "Bad unnumbered interface ID subobject: length %u != 12", length);
+		return;
+	}
+
 	switch(obj_class){
-	
+
 	case PCE_EXPLICIT_ROUTE_OBJ:
-	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+1, 1, "Length: %u", length);	
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+2, 2, "Reserved: 0x%04x", reserved_flags);	
-	break;
-	
+		l = (l_and_or_type& Mask_L)>>7;
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+2, 2, "Reserved: 0x%04x", reserved_flags);
+		break;
+
 	case PCE_RECORD_ROUTE_OBJ:
-	proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, l_and_or_type);
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+1, 1, "Length: %u", length);
-	
-	ti = proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+2, 2, "Flags: 0x%02x ", (reserved_flags & 0xff00)>>8);
-	pce_subobj_unnumb_interfaceID_flags = proto_item_add_subtree(ti, ett_pce_obj);
-	proto_tree_add_boolean(pce_subobj_unnumb_interfaceID_flags, pce_subobj_flags_lpa, tvb, *offset2+2, 1, (reserved_flags & 0xff00)>>8);
-	proto_tree_add_boolean(pce_subobj_unnumb_interfaceID_flags, pce_subobj_flags_lpu, tvb, *offset2+2, 1, (reserved_flags & 0xff00)>>8);
-	
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+3, 1, "Reserved: 0x%02x", (reserved_flags & 0x00ff));
-	break;
-	
+		proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, l_and_or_type);
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+1, 1, "Length: %u", length);
+
+		ti = proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+2, 2, "Flags: 0x%02x ", (reserved_flags & 0xff00)>>8);
+		pce_subobj_unnumb_interfaceID_flags = proto_item_add_subtree(ti, ett_pce_obj);
+		proto_tree_add_boolean(pce_subobj_unnumb_interfaceID_flags, pce_subobj_flags_lpa, tvb, offset+2, 1, (reserved_flags & 0xff00)>>8);
+		proto_tree_add_boolean(pce_subobj_unnumb_interfaceID_flags, pce_subobj_flags_lpu, tvb, offset+2, 1, (reserved_flags & 0xff00)>>8);
+
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+3, 1, "Reserved: 0x%02x", (reserved_flags & 0x00ff));
+		break;
+
 	case PCE_IRO_OBJ:
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2, 1, "l: %x", (l_and_or_type & 0x80)>>7);
-	proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+1, 1, "Length: %u", length);
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+2, 2, "Reserved: 0x%04x", reserved_flags);	
-	break;
-	
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset, 1, "l: %x", (l_and_or_type & 0x80)>>7);
+		proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+2, 2, "Reserved: 0x%04x", reserved_flags);
+		break;
+
 	case PCE_XRO_OBJ:
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2, 1, "X: %x", (l_and_or_type & 0x01)>>7);
-	proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ_XRO], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+2, 1, "Reserved: 0x%02x", (reserved_flags & 0xff00)>>4);	
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+3, 1, val_to_str((reserved_flags & 0x00ff), pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
-	break;
-	
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
+		proto_tree_add_uint(pce_subobj_unnumb_interfaceID, pce_filter[PCEF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+2, 1, "Reserved: 0x%02x", (reserved_flags & 0xff00)>>4);
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+3, 1, val_to_str((reserved_flags & 0x00ff), pce_xro_atribute_obj_vals, "Unknown Atribute (%u). "));
+		break;
+
 	default:
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2, 12, "Non defined subobject for this object");
-	break;
+		proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset, 12, "Non defined subobject for this object");
+		break;
 	}	
-	
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+4, 4, "Router ID: 0x%08x", router_ID);
-	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, *offset2+8, 4, "Interface ID: 0x%08x", interface_ID);
-	
-	*offset2 = *offset2 + 12;
-	*len = *len + 12;
-	
+
+	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+4, 4, "Router ID: 0x%08x", router_ID);
+	proto_tree_add_text(pce_subobj_unnumb_interfaceID, tvb, offset+8, 4, "Interface ID: 0x%08x", interface_ID);
 }
 
 static void
-dissect_subobj_autonomous_sys_num(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, int obj_class, guint ett_pce_obj, guint l_and_or_type, guint length){
-
+dissect_subobj_autonomous_sys_num(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, int obj_class, guint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_autonomous_sys_num;
 	guint16 AS_number;
 	guint8 reserved;
 	guint8 attribute;
 	guint16 op_AS_nu_high_oct;
+
 	int l;
 	l = (l_and_or_type& Mask_L)>>7;
-		
-	if(obj_class == PCE_XRO_OBJ){	
-		reserved = tvb_get_guint8(tvb, *offset2+2);
-		attribute = tvb_get_guint8(tvb, *offset2+3);
-		op_AS_nu_high_oct = tvb_get_ntohs(tvb, *offset2+4);
-		AS_number = tvb_get_ntohs(tvb, *offset2+6);
 
-		ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, *offset2, length, FALSE);
+	if(obj_class == PCE_XRO_OBJ){	
+		reserved = tvb_get_guint8(tvb, offset+2);
+		attribute = tvb_get_guint8(tvb, offset+3);
+		op_AS_nu_high_oct = tvb_get_ntohs(tvb, offset+4);
+		AS_number = tvb_get_ntohs(tvb, offset+6);
+
+		ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, FALSE);
 		pce_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pce_obj);
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2, 1, "X: %x", (l_and_or_type & 0x01)>>7);
-		proto_tree_add_uint(pce_subobj_autonomous_sys_num, pce_filter[PCEF_SUBOBJ_XRO], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+1, 1, "Length: %u", length);
-	
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+2, 1, "Reserved: 0x%02x", reserved);
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+3, 1, val_to_str(attribute, pce_xro_atribute_obj_vals, "Unknown Object (%u)."));
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+4, 2, "Optional AS Number High Octets: 0x%04x", AS_number);
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+6, 2, "AS Number: 0x%04x", AS_number);
-	
-		*offset2 = *offset2 + 8;
-		*len = *len + 8;
+		if (length != 8) {
+			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset, length,
+			    "Bad autonomous system number subobject: length %u != 8", length);
+			return;
 		}
-	
-	else{	AS_number = tvb_get_ntohs(tvb, *offset2+2);	
-		ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, *offset2, length, FALSE);
+
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
+		proto_tree_add_uint(pce_subobj_autonomous_sys_num, pce_filter[PCEF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+1, 1, "Length: %u", length);
+
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+2, 1, "Reserved: 0x%02x", reserved);
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+3, 1, val_to_str(attribute, pce_xro_atribute_obj_vals, "Unknown Object (%u)."));
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+4, 2, "Optional AS Number High Octets: 0x%04x", AS_number);
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+6, 2, "AS Number: 0x%04x", AS_number);
+	} else {
+		AS_number = tvb_get_ntohs(tvb, offset+2);
+
+		ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_AUTONOMOUS_SYS_NUM], tvb, offset, length, FALSE);
 		pce_subobj_autonomous_sys_num = proto_item_add_subtree(ti, ett_pce_obj);
-		
+
+		if (length != 4) {
+			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset, length,
+			    "Bad autonomous system number subobject: length %u != 4", length);
+			return;
+		}
+
 		if(obj_class == PCE_IRO_OBJ)
-			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2, 1, "l: %x", (l_and_or_type & 0x80)>>7);
+			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset, 1, "l: %x", (l_and_or_type & 0x80)>>7);
 		else	
-			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-		proto_tree_add_uint(pce_subobj_autonomous_sys_num, pce_filter[PCEF_SUBOBJ], tvb, *offset2, 1, (l_and_or_type & 0x7f));	
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+1, 1, "Length: %u", length);
-		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, *offset2+2, 2, "AS Number: 0x%04x", AS_number);
-		
-		*offset2 = *offset2 + 4;
-		*len = *len + 4;	
+			proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+		proto_tree_add_uint(pce_subobj_autonomous_sys_num, pce_filter[PCEF_SUBOBJ], tvb, offset, 1, (l_and_or_type & 0x7f));
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+1, 1, "Length: %u", length);
+		proto_tree_add_text(pce_subobj_autonomous_sys_num, tvb, offset+2, 2, "AS Number: 0x%04x", AS_number);
 	}
 }
 
 static void
-dissect_subobj_srlg(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, guint ett_pce_obj, guint l_and_or_type, guint length){
-	
+dissect_subobj_srlg(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, guint ett_pce_obj, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_srlg;
 	guint32 srlg_id;
 	guint8 reserved;
 	guint8 attribute;
-		
-	srlg_id = tvb_get_ntohl(tvb, *offset2+2);
-	reserved = tvb_get_guint8(tvb, *offset2+6);
-	attribute = tvb_get_guint8(tvb, *offset2+7);
-	
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_SRLG], tvb, *offset2, length, FALSE);
+
+	srlg_id = tvb_get_ntohl(tvb, offset+2);
+	reserved = tvb_get_guint8(tvb, offset+6);
+	attribute = tvb_get_guint8(tvb, offset+7);
+
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_SRLG], tvb, offset, length, FALSE);
 	pce_subobj_srlg = proto_item_add_subtree(ti, ett_pce_obj);
-	
-	proto_tree_add_text(pce_subobj_srlg, tvb, *offset2, 1, "X: %x", (l_and_or_type & 0x01)>>7);
-	proto_tree_add_uint(pce_subobj_srlg, pce_filter[PCEF_SUBOBJ_XRO], tvb, *offset2, 1, (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_srlg, tvb, *offset2+1, 1, "Length: %u", length);
-	
-	proto_tree_add_text(pce_subobj_srlg, tvb, *offset2+2, 4, "SRLG ID: 0x%08x", srlg_id);
-	proto_tree_add_text(pce_subobj_srlg, tvb, *offset2+6, 1, "Reserved: 0x%02x", reserved);
-	proto_tree_add_text(pce_subobj_srlg, tvb, *offset2+7, 1, val_to_str(attribute, pce_xro_atribute_obj_vals, "Unknown Object (%u)."));
-	
-	*offset2 = *offset2 + 8;
-	*len = *len + 8;
-	
+
+	if (length != 8) {
+		proto_tree_add_text(pce_subobj_srlg, tvb, offset, length,
+		    "Bad SRLG subobject: length %u != 8", length);
+		return;
+	}
+
+	proto_tree_add_text(pce_subobj_srlg, tvb, offset, 1, "X: %x", (l_and_or_type & 0x01)>>7);
+	proto_tree_add_uint(pce_subobj_srlg, pce_filter[PCEF_SUBOBJ_XRO], tvb, offset, 1, (l_and_or_type & 0x7f));
+	proto_tree_add_text(pce_subobj_srlg, tvb, offset+1, 1, "Length: %u", length);
+
+	proto_tree_add_text(pce_subobj_srlg, tvb, offset+2, 4, "SRLG ID: 0x%08x", srlg_id);
+	proto_tree_add_text(pce_subobj_srlg, tvb, offset+6, 1, "Reserved: 0x%02x", reserved);
+	proto_tree_add_text(pce_subobj_srlg, tvb, offset+7, 1, val_to_str(attribute, pce_xro_atribute_obj_vals, "Unknown Object (%u)."));
 }
 
 static void
-dissect_subobj_exrs(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int *offset2, int *len, int obj_class, guint ett_pce_obj, guint type_iro, guint l_and_or_type, guint length){
-	
+dissect_subobj_exrs(proto_item *ti, proto_tree *pce_subobj_tree, tvbuff_t *tvb, int offset, int obj_class, guint ett_pce_obj, guint type_iro, guint l_and_or_type, guint length)
+{
 	proto_tree *pce_subobj_exrs;
 	guint16 reserved;
 	guint8 l_type;
-	guint8 length2;	
+	guint8 length2;
 	guint type_exrs;
 	guint offset_exrs = 0;
 	guint l;
-	
-	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_EXRS], tvb, *offset2, length, FALSE);
+
+	ti = proto_tree_add_item(pce_subobj_tree, pce_filter[PCEF_SUBOBJ_EXRS], tvb, offset, length, FALSE);
 	pce_subobj_exrs = proto_item_add_subtree(ti, ett_pce_obj);
-	
+
+	if (length < 4) {
+		proto_tree_add_text(pce_subobj_exrs, tvb, offset, length,
+		    "Bad EXRS subobject: length %u < 4", length);
+		return;
+	}
+
 	l = (l_and_or_type& Mask_L)>>7;
-	proto_tree_add_text(pce_subobj_exrs, tvb, *offset2, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_text(pce_subobj_exrs, tvb, *offset2, 1, "Type: %u", (l_and_or_type & 0x7f));
-	proto_tree_add_text(pce_subobj_exrs, tvb, *offset2+1, 1, "Length: %u", length);
-	
-	reserved = tvb_get_ntohs(tvb, *offset2+2);
-	proto_tree_add_text(pce_subobj_exrs, tvb, *offset2+2, 2, "Reserved: 0x%04x", reserved);
-	
-	*len = *len + 4;
-	*offset2 = *offset2 + 4;
-	
+	proto_tree_add_text(pce_subobj_exrs, tvb, offset, 1, val_to_str(l, pce_route_l_obj_vals, "Unknown Object (%u). "));
+	proto_tree_add_text(pce_subobj_exrs, tvb, offset, 1, "Type: %u", (l_and_or_type & 0x7f));
+	proto_tree_add_text(pce_subobj_exrs, tvb, offset+1, 1, "Length: %u", length);
+
+	reserved = tvb_get_ntohs(tvb, offset+2);
+	proto_tree_add_text(pce_subobj_exrs, tvb, offset+2, 2, "Reserved: 0x%04x", reserved);
+
+	offset += 4;
+
 	while(offset_exrs<length-4){
-		
-	l_type = tvb_get_guint8(tvb, *offset2);
-	length2 = tvb_get_guint8(tvb, *offset2+1);
 
-	DISSECTOR_ASSERT(length2);
+		l_type = tvb_get_guint8(tvb, offset);
+		length2 = tvb_get_guint8(tvb, offset+1);
 
-	type_exrs = (l_type & Mask_Type);	
-		
-	if(type_iro==PCE_SUB_EXRS){
-		obj_class = PCE_XRO_OBJ;}
-		
-	switch(type_exrs) {
-	  
-	case PCE_SUB_IPv4:
-		dissect_subobj_ipv4(ti, pce_subobj_exrs, tvb, offset2, len,  obj_class, ett_pce_obj, l_type, length2);
-		break;
-	case PCE_SUB_IPv6:
-		dissect_subobj_ipv6(ti, pce_subobj_exrs, tvb, offset2, len, obj_class, ett_pce_obj, l_type, length2);
-		break;
-	case PCE_SUB_UNNUMB_INTERFACE_ID_XRO:
-		dissect_subobj_unnumb_interfaceID(ti, pce_subobj_exrs, tvb, offset2, len, obj_class, ett_pce_obj, l_type, length2);
-		break;
-	case PCE_SUB_AUTONOMOUS_SYS_NUM_XRO:
-		dissect_subobj_autonomous_sys_num(ti, pce_subobj_exrs, tvb, offset2, len,  obj_class, ett_pce_obj, l_type, length2);
-		break;
-	case PCE_SUB_SRLG:
-		dissect_subobj_srlg(ti, pce_subobj_exrs, tvb, offset2, len, ett_pce_obj, l_type, length2);
-		break;	
-	default:
-	    ti = proto_tree_add_text(pce_subobj_exrs, tvb, *offset2+2, length-2,
+		if (length2 < 2) {
+			proto_tree_add_text(pce_subobj_exrs, tvb, offset, 0,
+			    "Bad packet: subobject length %u < 2",
+			    length2);
+			break;
+		}
+
+		type_exrs = (l_type & Mask_Type);
+
+		if(type_iro==PCE_SUB_EXRS)
+			obj_class = PCE_XRO_OBJ;
+
+		switch(type_exrs) {
+
+		case PCE_SUB_IPv4:
+			dissect_subobj_ipv4(ti, pce_subobj_exrs, tvb, offset,  obj_class, ett_pce_obj, l_type, length2);
+			break;
+		case PCE_SUB_IPv6:
+			dissect_subobj_ipv6(ti, pce_subobj_exrs, tvb, offset, obj_class, ett_pce_obj, l_type, length2);
+			break;
+		case PCE_SUB_UNNUMB_INTERFACE_ID_XRO:
+			dissect_subobj_unnumb_interfaceID(ti, pce_subobj_exrs, tvb, offset, obj_class, ett_pce_obj, l_type, length2);
+			break;
+		case PCE_SUB_AUTONOMOUS_SYS_NUM_XRO:
+			dissect_subobj_autonomous_sys_num(ti, pce_subobj_exrs, tvb, offset, obj_class, ett_pce_obj, l_type, length2);
+			break;
+		case PCE_SUB_SRLG:
+			dissect_subobj_srlg(ti, pce_subobj_exrs, tvb, offset, ett_pce_obj, l_type, length2);
+			break;
+		default:
+			proto_tree_add_text(pce_subobj_exrs, tvb, offset+2, length-2,
 				"Non defined subobject (%d)", type_exrs);
-	    break;
-
-	}	
-	
-	offset_exrs = offset_exrs + length2;
-
+			break;
+		}
+		offset_exrs += length2;
+		offset += length2;
 	}
 }
 
 /*------------------------------------------------------------------------------
  * OPEN OBJECT
  *------------------------------------------------------------------------------*/
+#define OPEN_OBJ_MIN_LEN	4
+
 static void
-dissect_pce_open_obj (proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_open_obj (proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {
     proto_tree *pce_open_obj;
     proto_tree *pce_open_obj_flags;
@@ -1145,156 +1166,177 @@ dissect_pce_open_obj (proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *
     guint8 keepalive;
     guint8 deadtimer;
     guint8 SID;
-    guint hdr_obj=4;
-    guint body_obj_obl=4;
-            
-	version_flags = tvb_get_guint8(tvb, *offset2);
-	keepalive = tvb_get_guint8(tvb, *offset2+1);
-    	deadtimer = tvb_get_guint8(tvb, *offset2+2);
-    	SID = tvb_get_guint8(tvb, *offset2+3);
-   
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_OPEN], tvb, *offset2, obj_length-4, FALSE);
-	pce_open_obj = proto_item_add_subtree(ti, ett_pce_obj_open);
-	
-	proto_tree_add_text(pce_open_obj, tvb, *offset2, 1, "PCE Version: %u", (version_flags & 0xe0)>>5);
-			
-	ti = proto_tree_add_text(pce_open_obj, tvb, *offset2, 1, "Flags: ");
-	pce_open_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_open);
-	
-	proto_tree_add_boolean(pce_open_obj_flags, pce_open_flags_res, tvb, *offset2, 1, version_flags & 0x1f);
- 	proto_tree_add_text(pce_open_obj, tvb, *offset2+1, 1, "Keepalive: %u", keepalive);
-	proto_tree_add_text(pce_open_obj, tvb, *offset2+2, 1, "Deadtime: %u", deadtimer);	
-	proto_tree_add_text(pce_open_obj, tvb, *offset2+3, 1, "SID: %u", SID);
 
-	*offset2 =  (*offset2) + body_obj_obl;
-	
-	dissect_pce_tlv(ti, pce_open_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_open, len);
-		
+    ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_OPEN], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+    pce_open_obj = proto_item_add_subtree(ti, ett_pce_obj_open);
+    if (obj_length < OBJ_HDR_LEN+OPEN_OBJ_MIN_LEN) {
+	proto_tree_add_text(pce_open_obj, tvb, offset2, obj_length,
+	    "Bad OPEN object length %u, should be >= %u", obj_length,
+	    OBJ_HDR_LEN+OPEN_OBJ_MIN_LEN);
+	return;
+    }
+
+    version_flags = tvb_get_guint8(tvb, offset2);
+    proto_tree_add_text(pce_open_obj, tvb, offset2, 1, "PCE Version: %u", (version_flags & 0xe0)>>5);
+
+    ti = proto_tree_add_text(pce_open_obj, tvb, offset2, 1, "Flags: 0x%08x", version_flags & 0x1f);
+    pce_open_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_open);
+    proto_tree_add_boolean(pce_open_obj_flags, pce_open_flags_res, tvb, offset2, 1, version_flags & 0x1f);
+
+    keepalive = tvb_get_guint8(tvb, offset2+1);
+    proto_tree_add_text(pce_open_obj, tvb, offset2+1, 1, "Keepalive: %u", keepalive);
+
+    deadtimer = tvb_get_guint8(tvb, offset2+2);
+    proto_tree_add_text(pce_open_obj, tvb, offset2+2, 1, "Deadtime: %u", deadtimer);
+
+    SID = tvb_get_guint8(tvb, offset2+3);
+    proto_tree_add_text(pce_open_obj, tvb, offset2+3, 1, "SID: %u", SID);
+
+    /*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+    offset2 += OPEN_OBJ_MIN_LEN;
+    obj_length -= OBJ_HDR_LEN+OPEN_OBJ_MIN_LEN;
+    dissect_pce_tlvs(ti, pce_open_obj, tvb, offset2, obj_length, ett_pce_obj_open);
 }
 
 /*------------------------------------------------------------------------------
  * RP OBJECT
  *------------------------------------------------------------------------------*/
+#define RP_OBJ_MIN_LEN	8
+
 static void 
 dissect_pce_rp_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+		  tvbuff_t *tvb, int offset2, int obj_length)
 { 
-		   
 	proto_tree *pce_rp_obj;
 	proto_tree *pce_rp_obj_flags;
 	guint8 reserved;
 	guint32 flags;
 	guint32 requested_id_number;
-	guint hdr_obj=4;
-   	guint body_obj_obl=8;	
-	
-	reserved = tvb_get_guint8(tvb, *offset2);
-	flags = tvb_get_ntoh24(tvb, *offset2+1);
-	requested_id_number = tvb_get_ntohl(tvb, *offset2+4);
-	 
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_RP], tvb, *offset2, obj_length-4, FALSE);
-	pce_rp_obj = proto_item_add_subtree(ti, ett_pce_obj_request_parameters);
-	
-	proto_tree_add_text(pce_rp_obj, tvb, *offset2, 1, "Reserved: 0x%02x", reserved);
-	
-	ti = proto_tree_add_text(pce_rp_obj, tvb, *offset2+1, 3, "Flags: 0x%06x ", flags);
-	pce_rp_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_request_parameters);
-	
-	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_reserved, tvb, *offset2+1, 3, flags);
-	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_o, tvb, *offset2+1, 3, flags);
-	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_b, tvb, *offset2+1, 3, flags);
-	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_r, tvb, *offset2+1, 3, flags);
-	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_pri, tvb, *offset2+1, 3, flags);
-		
-	proto_tree_add_text(pce_rp_obj, tvb, *offset2+4, 4, "Requested ID Number: 0x%08x", requested_id_number);
-	*offset2 =  (*offset2) + body_obj_obl;
 
-	dissect_pce_tlv(ti, pce_rp_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_request_parameters, len);
-	
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_RP], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_rp_obj = proto_item_add_subtree(ti, ett_pce_obj_request_parameters);
+
+	if (obj_length < OBJ_HDR_LEN+RP_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_rp_obj, tvb, offset2, obj_length,
+		    "Bad RP object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+RP_OBJ_MIN_LEN);
+		return;
+	}
+
+	reserved = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(pce_rp_obj, tvb, offset2, 1, "Reserved: 0x%02x", reserved);
+
+	flags = tvb_get_ntoh24(tvb, offset2+1);
+	ti = proto_tree_add_text(pce_rp_obj, tvb, offset2+1, 3, "Flags: 0x%06x ", flags);
+	pce_rp_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_request_parameters);
+
+	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_reserved, tvb, offset2+1, 3, flags);
+	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_o, tvb, offset2+1, 3, flags);
+	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_b, tvb, offset2+1, 3, flags);
+	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_r, tvb, offset2+1, 3, flags);
+	proto_tree_add_boolean(pce_rp_obj_flags, pce_rp_flags_pri, tvb, offset2+1, 3, flags);
+
+	requested_id_number = tvb_get_ntohl(tvb, offset2+4);
+	proto_tree_add_text(pce_rp_obj, tvb, offset2+4, 4, "Requested ID Number: 0x%08x", requested_id_number);
+
+	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	offset2 += RP_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+RP_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_rp_obj, tvb, offset2, obj_length, ett_pce_obj_request_parameters);
 }
 
 /*------------------------------------------------------------------------------
  * NO PATH OBJECT
  *------------------------------------------------------------------------------*/
+#define NO_PATH_OBJ_MIN_LEN	4
+
 static void 
 dissect_pce_no_path_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+		  tvbuff_t *tvb, int offset2, int obj_length)
 {    
-		  
-	proto_tree *pce_no_path_obj;	
+	proto_tree *pce_no_path_obj;
 	proto_tree *pce_no_path_obj_flags;
 	guint8 ni;
 	guint16 flags;
 	guint8 reserved;
-	guint hdr_obj=4;
-   	guint body_obj_obl=4;
-	
-	ni = tvb_get_guint8(tvb, *offset2);
-	flags = tvb_get_ntohs(tvb, *offset2+1);
-	reserved = tvb_get_guint8(tvb, *offset2+3);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_NO_PATH], tvb, *offset2, obj_length-4, FALSE);
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_NO_PATH], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 	pce_no_path_obj = proto_item_add_subtree(ti, ett_pce_obj_no_path);
-	
-	proto_tree_add_text(pce_no_path_obj, tvb, *offset2, 1, val_to_str(ni, pce_no_path_obj_vals, "Unknown Object (%u). "));
-	
-	ti = proto_tree_add_text(pce_no_path_obj, tvb, *offset2+1, 2, "Flags: 0x%04x", flags);
-	pce_no_path_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_no_path);	
-	
-	proto_tree_add_boolean(pce_no_path_obj_flags, pce_no_path_flags_c, tvb, *offset2+1, 2, flags);
-	proto_tree_add_text(pce_no_path_obj, tvb, *offset2+3, 1, "Reserved: 0x%02x", reserved);
-	
-	*offset2 =  (*offset2) + body_obj_obl;
-	dissect_pce_tlv(ti, pce_no_path_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_no_path, len);
-		  
+
+	if (obj_length < OBJ_HDR_LEN+NO_PATH_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_no_path_obj, tvb, offset2, obj_length,
+		    "Bad NO-PATH object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+NO_PATH_OBJ_MIN_LEN);
+		return;
+	}
+
+	ni = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(pce_no_path_obj, tvb, offset2, 1, val_to_str(ni, pce_no_path_obj_vals, "Unknown Object (%u). "));
+
+	flags = tvb_get_ntohs(tvb, offset2+1);
+	ti = proto_tree_add_text(pce_no_path_obj, tvb, offset2+1, 2, "Flags: 0x%04x", flags);
+	pce_no_path_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_no_path);
+	proto_tree_add_boolean(pce_no_path_obj_flags, pce_no_path_flags_c, tvb, offset2+1, 2, flags);
+
+	reserved = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(pce_no_path_obj, tvb, offset2+3, 1, "Reserved: 0x%02x", reserved);
+
+	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	offset2 += NO_PATH_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+NO_PATH_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_no_path_obj, tvb, offset2, obj_length, ett_pce_obj_no_path);
 }
 
 /*------------------------------------------------------------------------------
  * END POINT OBJECT
  *------------------------------------------------------------------------------*/
+#define END_POINT_IPV4_OBJ_LEN	8
+#define END_POINT_IPV6_OBJ_LEN	32
+
 static void 
 dissect_pce_end_point_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int *len, int type)
+		  tvbuff_t *tvb, int offset2, int obj_length, int type)
 {
 	proto_tree *pce_end_point_obj;
-	
+
 	switch(type)
 	{
-	  case IPv4:{		
-		ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, *offset2, obj_length-4, FALSE);
+	  case IPv4:	
+		ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 		pce_end_point_obj = proto_item_add_subtree(ti, ett_pce_obj_end_point);
-		
-		proto_tree_add_text(pce_end_point_obj, tvb, *offset2, 4, "Source IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2, 4)));
-		proto_tree_add_text(pce_end_point_obj, tvb, *offset2+4, 4, "Destination IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, *offset2+4, 4)));
-		
-		*len = *len + 8;
-		
-		break;	
-	  	 	
-	  	   }
-	  case IPv6:{
-		
-		ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, *offset2, obj_length-4, FALSE);
-		pce_end_point_obj = proto_item_add_subtree(ti, ett_pce_obj_end_point);
-		
-		proto_tree_add_text(pce_end_point_obj, tvb, *offset2, 16, "Source IPv6 Address: %s",
-			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2, 16)));	
-		proto_tree_add_text(pce_end_point_obj, tvb, *offset2+16, 16, "Destination IPv6 Address: %s",
-			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, *offset2+16, 16)));
-		
-		*len = *len + 32;
-		
+		if (obj_length != OBJ_HDR_LEN+END_POINT_IPV4_OBJ_LEN) {
+			proto_tree_add_text(pce_end_point_obj, tvb, offset2, obj_length,
+			    "Bad IPv4 END-POINTS object length %u, should be %u", obj_length,
+			    OBJ_HDR_LEN+END_POINT_IPV4_OBJ_LEN);
+			return;
+		}
+
+		proto_tree_add_text(pce_end_point_obj, tvb, offset2, 4, "Source IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		proto_tree_add_text(pce_end_point_obj, tvb, offset2+4, 4, "Destination IPv4 Address: (%s)", ip_to_str(tvb_get_ptr(tvb, offset2+4, 4)));
 		break;
-			 	 
-		   }
+
+	  case IPv6:
+		ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+		pce_end_point_obj = proto_item_add_subtree(ti, ett_pce_obj_end_point);
+		if (obj_length != OBJ_HDR_LEN+END_POINT_IPV6_OBJ_LEN) {
+			proto_tree_add_text(pce_end_point_obj, tvb, offset2, obj_length,
+			    "Bad IPv6 END-POINTS object length %u, should be %u", obj_length,
+			    OBJ_HDR_LEN+END_POINT_IPV6_OBJ_LEN);
+			return;
+		}
+
+		proto_tree_add_text(pce_end_point_obj, tvb, offset2, 16, "Source IPv6 Address: %s",
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2, 16)));
+		proto_tree_add_text(pce_end_point_obj, tvb, offset2+16, 16, "Destination IPv6 Address: %s",
+			    ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset2+16, 16)));
+		break;
+
 	  default:
-		 ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, *offset2, obj_length-4, FALSE);
+		 ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_END_POINT], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 		 pce_end_point_obj = proto_item_add_subtree(ti, ett_pce_obj_end_point);
-		 proto_tree_add_text(pce_end_point_obj, tvb, *offset2, 1, "UNKNOWN Type Object (%u)", type);
+		 proto_tree_add_text(pce_end_point_obj, tvb, offset2, obj_length-OBJ_HDR_LEN, "UNKNOWN Type Object (%u)", type);
 		 break;
-	  
 	}     
-	     
 }
 
 
@@ -1302,56 +1344,66 @@ dissect_pce_end_point_obj(proto_item *ti, proto_tree *pce_tree,
 /*------------------------------------------------------------------------------
  * BANDWIDTH OBJECT
  *------------------------------------------------------------------------------*/
+#define BANDWIDTH_OBJ_LEN	4
+
 static void 
-dissect_pce_bandwidth_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
-		  {    
+dissect_pce_bandwidth_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
+{    
 	proto_tree *pce_bandwidth_obj;
 	guint32 bandwidth;
-	
-	bandwidth = tvb_get_ntohl(tvb, *offset2);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_BANDWIDTH], tvb, *offset2, obj_length-4, FALSE);	  
-	pce_bandwidth_obj = proto_item_add_subtree(ti, ett_pce_obj_bandwidth);	  
-	proto_tree_add_text(pce_bandwidth_obj, tvb, *offset2, 4, "Bandwidth: 0x%x", bandwidth);	  
-	
-	*len = *len + 8;
-		  
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_BANDWIDTH], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_bandwidth_obj = proto_item_add_subtree(ti, ett_pce_obj_bandwidth);
+	if (obj_length != OBJ_HDR_LEN+BANDWIDTH_OBJ_LEN) {
+		proto_tree_add_text(pce_bandwidth_obj, tvb, offset2, obj_length,
+		    "Bad BANDWIDTH object length %u, should be %u", obj_length,
+		    OBJ_HDR_LEN+BANDWIDTH_OBJ_LEN);
+		return;
+	}
+		
+	bandwidth = tvb_get_ntohl(tvb, offset2);
+	proto_tree_add_text(pce_bandwidth_obj, tvb, offset2, 4, "Bandwidth: 0x%x", bandwidth);
 }
 
 /*------------------------------------------------------------------------------
  * METRIC OBJECT
  *------------------------------------------------------------------------------*/
+#define METRIC_OBJ_LEN	8
+
 static void 
 dissect_pce_metric_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int *len)
-		  {    
-	
+		  tvbuff_t *tvb, int offset2, int obj_length)
+{    
 	proto_tree *pce_metric_obj;
 	proto_tree *pce_metric_obj_flags;
 	guint16 reserved;
-	guint8 flags; 
+	guint8 flags;
 	guint8 metric_type;
 	guint32 metric_value;
-	
-	reserved = tvb_get_ntohs(tvb, *offset2);
-	flags = tvb_get_guint8(tvb, *offset2+2);
-	metric_type =	tvb_get_guint8(tvb, *offset2+3);  
-	metric_value = tvb_get_ntohl(tvb, *offset2+4);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_METRIC], tvb, *offset2, obj_length-4, FALSE);
-	pce_metric_obj = proto_item_add_subtree(ti, ett_pce_obj_metric);	  
-	
-	proto_tree_add_text(pce_metric_obj, tvb, *offset2, 2, "Reserved: %u", reserved);	  
-		  
-	ti = proto_tree_add_text(pce_metric_obj, tvb, *offset2+2, 1, "Flags: 0x%02x", flags);
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_METRIC], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_metric_obj = proto_item_add_subtree(ti, ett_pce_obj_metric);
+	if (obj_length != OBJ_HDR_LEN+METRIC_OBJ_LEN) {
+		proto_tree_add_text(pce_metric_obj, tvb, offset2, obj_length,
+		    "Bad METRIC object length %u, should be %u", obj_length,
+		    OBJ_HDR_LEN+METRIC_OBJ_LEN);
+		return;
+	}
+
+	reserved = tvb_get_ntohs(tvb, offset2);
+	proto_tree_add_text(pce_metric_obj, tvb, offset2, 2, "Reserved: %u", reserved);
+
+	flags = tvb_get_guint8(tvb, offset2+2);
+	ti = proto_tree_add_text(pce_metric_obj, tvb, offset2+2, 1, "Flags: 0x%02x", flags);
 	pce_metric_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_metric);
-	
-	proto_tree_add_boolean(pce_metric_obj_flags, pce_metric_flags_c, tvb, *offset2+2, 1, flags);
-	proto_tree_add_boolean(pce_metric_obj_flags, pce_metric_flags_b, tvb, *offset2+2, 1, flags);
-	proto_tree_add_text(pce_metric_obj, tvb, *offset2+3, 1, val_to_str(metric_type, pce_metric_obj_vals, "Unknown Object (%u). "));
-	proto_tree_add_text(pce_metric_obj, tvb, *offset2+4, 4, "Metric Value: 0x%x", metric_value);
-	
-	*len = *len + 8;
+	proto_tree_add_boolean(pce_metric_obj_flags, pce_metric_flags_c, tvb, offset2+2, 1, flags);
+	proto_tree_add_boolean(pce_metric_obj_flags, pce_metric_flags_b, tvb, offset2+2, 1, flags);
+
+	metric_type = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(pce_metric_obj, tvb, offset2+3, 1, val_to_str(metric_type, pce_metric_obj_vals, "Unknown Object (%u). "));
+
+	metric_value = tvb_get_ntohl(tvb, offset2+4);
+	proto_tree_add_text(pce_metric_obj, tvb, offset2+4, 4, "Metric Value: 0x%x", metric_value);
 }
 
 /*------------------------------------------------------------------------------
@@ -1359,58 +1411,67 @@ dissect_pce_metric_obj(proto_item *ti, proto_tree *pce_tree,
  *------------------------------------------------------------------------------*/
 static void 
 dissect_pce_explicit_route_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int obj_class, int *len, int *msg_length)
+		  tvbuff_t *tvb, int offset2, int obj_length, int obj_class)
 {   
 	proto_tree *pce_explicit_route_obj;
 	guint8 l_type;
 	guint8 length;
 	guint type_exp_route;
 	guint body_obj_len;
-	body_obj_len = obj_length - 4;
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_EXPLICIT_ROUTE], tvb, *offset2, obj_length-4, FALSE);	  
+
+	body_obj_len = obj_length - OBJ_HDR_LEN;
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_EXPLICIT_ROUTE], tvb, offset2, body_obj_len, FALSE);
 	pce_explicit_route_obj = proto_item_add_subtree(ti, ett_pce_obj_explicit_route);
-	
+
 	while(body_obj_len){
-	
-	l_type = tvb_get_guint8(tvb, *offset2);	  
-	length = tvb_get_guint8(tvb, *offset2+1);
+		if (body_obj_len < 2) {
+			proto_tree_add_text(pce_explicit_route_obj, tvb, offset2, 0,
+			    "Bad ERO object: subobject goes past end of object");
+			break;
+		}
 
-	DISSECTOR_ASSERT(length);
+		l_type = tvb_get_guint8(tvb, offset2);
+		length = tvb_get_guint8(tvb, offset2+1);
 
-	type_exp_route = (l_type & Mask_Type);
-	if (body_obj_len <length) {
-		proto_tree_add_text(pce_explicit_route_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_obj_len); 
-		body_obj_len = 0;
-		*len = *msg_length;
-		}		
-	else{
-	body_obj_len = body_obj_len - length;
-	
-	switch(type_exp_route) {
-	  
-	case PCE_SUB_IPv4:
-		dissect_subobj_ipv4(ti, pce_explicit_route_obj, tvb, offset2, len,  obj_class, ett_pce_obj_explicit_route, l_type, length);
-		break;
-	case PCE_SUB_IPv6:
-		dissect_subobj_ipv6(ti, pce_explicit_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_explicit_route, l_type, length);
-		break;
-	case PCE_SUB_LABEL_CONTROL:
-		dissect_subobj_label_control(ti, pce_explicit_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_explicit_route, l_type, length);
-		break;
-	case PCE_SUB_UNNUMB_INTERFACE_ID:
-		dissect_subobj_unnumb_interfaceID(ti, pce_explicit_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_explicit_route, l_type, length);
-		break;
-	case PCE_SUB_AUTONOMOUS_SYS_NUM:
-		dissect_subobj_autonomous_sys_num(ti, pce_explicit_route_obj, tvb, offset2, len,  obj_class, ett_pce_obj_explicit_route, l_type, length);
-		break;
-	default:
-	    ti = proto_tree_add_text(pce_explicit_route_obj, tvb, *offset2, length, "Non defined subobject (%d)", type_exp_route);
-	    *offset2 =  *offset2 + length;
-	    break;
+		if (length < 2) {
+			proto_tree_add_text(pce_explicit_route_obj, tvb, offset2, 0,
+			    "Bad ERO object: subobject length %u < 2",
+			    length);
+			break;
+		}
 
-	}			
-	}
+		type_exp_route = (l_type & Mask_Type);
+		if (body_obj_len <length) {
+			proto_tree_add_text(pce_explicit_route_obj, tvb, offset2, length,
+			    "Bad ERO object: subobject length %u > remaining length %u",
+			        length, body_obj_len);
+			break;
+		}
+
+		switch(type_exp_route) {
+
+		case PCE_SUB_IPv4:
+			dissect_subobj_ipv4(ti, pce_explicit_route_obj, tvb, offset2, obj_class, ett_pce_obj_explicit_route, l_type, length);
+			break;
+		case PCE_SUB_IPv6:
+			dissect_subobj_ipv6(ti, pce_explicit_route_obj, tvb, offset2, obj_class, ett_pce_obj_explicit_route, l_type, length);
+			break;
+		case PCE_SUB_LABEL_CONTROL:
+			dissect_subobj_label_control(ti, pce_explicit_route_obj, tvb, offset2, obj_class, ett_pce_obj_explicit_route, l_type, length);
+			break;
+		case PCE_SUB_UNNUMB_INTERFACE_ID:
+			dissect_subobj_unnumb_interfaceID(ti, pce_explicit_route_obj, tvb, offset2, obj_class, ett_pce_obj_explicit_route, l_type, length);
+			break;
+		case PCE_SUB_AUTONOMOUS_SYS_NUM:
+			dissect_subobj_autonomous_sys_num(ti, pce_explicit_route_obj, tvb, offset2, obj_class, ett_pce_obj_explicit_route, l_type, length);
+			break;
+		default:
+			proto_tree_add_text(pce_explicit_route_obj, tvb, offset2, length, "Non defined subobject (%d)", type_exp_route);
+			break;
+		}			
+		offset2 += length;
+		body_obj_len -= length;
 	}	   
 }
 
@@ -1418,63 +1479,72 @@ dissect_pce_explicit_route_obj(proto_item *ti, proto_tree *pce_tree,
  * RECORD ROUTE OBJECT (RRO)
  *------------------------------------------------------------------------------*/
 static void 
-dissect_pce_record_route_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int obj_class, int *len, int *msg_length)
+dissect_pce_record_route_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length, int obj_class)
 {
 	proto_tree *pce_record_route_obj;
 	guint8 type;
 	guint8 length;
-	guint body_obj_len;	
-	body_obj_len = obj_length - 4;   	
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_RECORD_ROUTE], tvb, *offset2, obj_length-4, FALSE);	  
+	guint body_obj_len;
+
+	body_obj_len = obj_length - OBJ_HDR_LEN;
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_RECORD_ROUTE], tvb, offset2, body_obj_len, FALSE);
 	pce_record_route_obj = proto_item_add_subtree(ti, ett_pce_obj_record_route);
-		
+
 	while(body_obj_len){
-	
-	type = tvb_get_guint8(tvb, *offset2);	  
-	length = tvb_get_guint8(tvb, *offset2+1);
+		if (body_obj_len < 2) {
+			proto_tree_add_text(pce_record_route_obj, tvb, offset2, 0,
+			    "Bad RRO object: subobject goes past end of object");
+			break;
+		}
 
-	DISSECTOR_ASSERT(length);
+		type = tvb_get_guint8(tvb, offset2);
+		length = tvb_get_guint8(tvb, offset2+1);
 
-	if (body_obj_len <length) {
-		proto_tree_add_text(pce_record_route_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_obj_len); 
-		body_obj_len = 0;
-		*len = *msg_length;
-		}		
-	else{
-	body_obj_len = body_obj_len - length;
-	
-	switch(type) {
-	  
-	case PCE_SUB_IPv4:
-		dissect_subobj_ipv4(ti, pce_record_route_obj, tvb, offset2, len,  obj_class, ett_pce_obj_record_route, type, length);
-		break;
-	case PCE_SUB_IPv6:
-		dissect_subobj_ipv6(ti, pce_record_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_record_route, type, length);
-		break;
-	case PCE_SUB_LABEL_CONTROL:
-		dissect_subobj_label_control(ti, pce_record_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_record_route, type, length);
-		break;
-	case PCE_SUB_UNNUMB_INTERFACE_ID:
-		dissect_subobj_unnumb_interfaceID(ti, pce_record_route_obj, tvb, offset2, len, obj_class, ett_pce_obj_record_route, type, length);
-		break;
-			
-	default:
-	    ti = proto_tree_add_text(pce_record_route_obj, tvb, *offset2, length, "Non defined subobject (%d)", type);
-	    *offset2 =  *offset2 + length;
-	    break;
+		if (length < 2) {
+			proto_tree_add_text(pce_record_route_obj, tvb, offset2, 0,
+			    "Bad RRO object: subobject length %u < 2",
+			    length);
+			break;
+		}
 
-	}
-	}
+		if (body_obj_len <length) {
+			proto_tree_add_text(pce_record_route_obj, tvb, offset2, length,
+			    "Bad RRO subobject: subobject length %u > remaining length %u",
+			        length, body_obj_len);
+			break;
+		}
+
+		switch(type) {
+
+		case PCE_SUB_IPv4:
+			dissect_subobj_ipv4(ti, pce_record_route_obj, tvb, offset2, obj_class, ett_pce_obj_record_route, type, length);
+			break;
+		case PCE_SUB_IPv6:
+			dissect_subobj_ipv6(ti, pce_record_route_obj, tvb, offset2, obj_class, ett_pce_obj_record_route, type, length);
+			break;
+		case PCE_SUB_LABEL_CONTROL:
+			dissect_subobj_label_control(ti, pce_record_route_obj, tvb, offset2, obj_class, ett_pce_obj_record_route, type, length);
+			break;
+		case PCE_SUB_UNNUMB_INTERFACE_ID:
+			dissect_subobj_unnumb_interfaceID(ti, pce_record_route_obj, tvb, offset2, obj_class, ett_pce_obj_record_route, type, length);
+			break;
+		default:
+			proto_tree_add_text(pce_record_route_obj, tvb, offset2, length, "Non defined subobject (%d)", type);
+			break;
+		}
+		offset2 += length;
+		body_obj_len -= length;
 	}			
-	  
 }
 
 /*------------------------------------------------------------------------------
  * LSPA OBJECT
  *------------------------------------------------------------------------------*/
+#define LSPA_OBJ_MIN_LEN	16
+
 static void 
-dissect_pce_lspa_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_lspa_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {    
 	proto_tree *pce_lspa_obj;
 	proto_tree *pce_lspa_obj_flags;
@@ -1485,39 +1555,44 @@ dissect_pce_lspa_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *o
 	guint8 holding_prio;
 	guint8 flags;
 	guint8 reserved;
-	guint hdr_obj=4;
-   	guint body_obj_obl=16;	
-	
-	exclude_any = tvb_get_ntohl(tvb, *offset2);
-	include_any = tvb_get_ntohl(tvb, *offset2+4);
-	include_all = tvb_get_ntohl(tvb, *offset2+8);	  
-	setup_prio = tvb_get_guint8(tvb, *offset2+12);
-	holding_prio = tvb_get_guint8(tvb, *offset2+13);
-	flags = tvb_get_guint8(tvb, *offset2+14);
-	reserved = tvb_get_guint8(tvb, *offset2+15);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_LSPA], tvb, *offset2, obj_length-4, FALSE);	  
-	pce_lspa_obj = proto_item_add_subtree(ti, ett_pce_obj_lspa);	  
-	
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2, 4, "Exclude-Any: 0x%08x", exclude_any);	 
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2+4, 4, "Include-Any: 0x%08x", include_any);
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2+8, 4, "Include-All: 0x%08x", include_all); 
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2+12, 1, "Setup Priority: %u", setup_prio);
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2+13, 1, "Holding Priority: %u", holding_prio);
-	
-	ti = proto_tree_add_text(pce_lspa_obj, tvb, *offset2+14, 1, "Flags: 0x%02x", flags);
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_LSPA], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_lspa_obj = proto_item_add_subtree(ti, ett_pce_obj_lspa);
+
+	if (obj_length < OBJ_HDR_LEN+LSPA_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_lspa_obj, tvb, offset2, obj_length,
+		    "Bad LSPA object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+LSPA_OBJ_MIN_LEN);
+		return;
+	}
+
+	exclude_any = tvb_get_ntohl(tvb, offset2);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2, 4, "Exclude-Any: 0x%08x", exclude_any);
+
+	include_any = tvb_get_ntohl(tvb, offset2+4);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2+4, 4, "Include-Any: 0x%08x", include_any);
+
+	include_all = tvb_get_ntohl(tvb, offset2+8);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2+8, 4, "Include-All: 0x%08x", include_all);
+
+	setup_prio = tvb_get_guint8(tvb, offset2+12);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2+12, 1, "Setup Priority: %u", setup_prio);
+
+	holding_prio = tvb_get_guint8(tvb, offset2+13);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2+13, 1, "Holding Priority: %u", holding_prio);
+
+	flags = tvb_get_guint8(tvb, offset2+14);
+	ti = proto_tree_add_text(pce_lspa_obj, tvb, offset2+14, 1, "Flags: 0x%02x", flags);
 	pce_lspa_obj_flags = proto_item_add_subtree(ti, ett_pce_obj_metric);
-	
-	proto_tree_add_boolean(pce_lspa_obj_flags, pce_lspa_flags_l, tvb, *offset2+14, 1, flags);
-	proto_tree_add_text(pce_lspa_obj, tvb, *offset2+15, 1, "Reserved: 0x%02x", reserved);
-	
+	proto_tree_add_boolean(pce_lspa_obj_flags, pce_lspa_flags_l, tvb, offset2+14, 1, flags);
+
+	reserved = tvb_get_guint8(tvb, offset2+15);
+	proto_tree_add_text(pce_lspa_obj, tvb, offset2+15, 1, "Reserved: 0x%02x", reserved);
+
 	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	*offset2 =  (*offset2) + body_obj_obl;
-	*len = *len + body_obj_obl;
-	
-	dissect_pce_tlv(ti, pce_lspa_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_lspa, len);
-	
-		
+	offset2 += LSPA_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+LSPA_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_lspa_obj, tvb, offset2, obj_length, ett_pce_obj_lspa);
 }
 
 /*------------------------------------------------------------------------------
@@ -1525,68 +1600,79 @@ dissect_pce_lspa_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *o
  *------------------------------------------------------------------------------*/
 static void 
 dissect_pce_iro_obj(proto_item *ti, proto_tree *pce_tree,
-		    tvbuff_t *tvb, int *offset2, int obj_length, int obj_class, int *len, int *msg_length)
+		    tvbuff_t *tvb, int offset2, int obj_length, int obj_class)
 {    
 	proto_tree *pce_iro_obj;
 	guint8 l_type;
 	guint8 length;
 	int type_iro;
-	guint body_obj_len;	
-	body_obj_len = obj_length - 4; 
+	guint body_obj_len;
 
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_IRO], tvb, *offset2, obj_length-4, FALSE);	  
+	body_obj_len = obj_length - OBJ_HDR_LEN;
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_IRO], tvb, offset2, body_obj_len, FALSE);
 	pce_iro_obj = proto_item_add_subtree(ti, ett_pce_obj_iro);
-	
+
 	while(body_obj_len){
-	
-	l_type = tvb_get_guint8(tvb, *offset2);	  
-	length = tvb_get_guint8(tvb, *offset2+1);
+		if (body_obj_len < 2) {
+			proto_tree_add_text(pce_iro_obj, tvb, offset2, 0,
+			    "Bad IRO object: subobject goes past end of object");
+			break;
+		}
 
-	DISSECTOR_ASSERT(length);
+		l_type = tvb_get_guint8(tvb, offset2);
+		length = tvb_get_guint8(tvb, offset2+1);
 
-	type_iro = (l_type & Mask_Type);
-	
-	if (body_obj_len <length) {
-		proto_tree_add_text(pce_iro_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_obj_len); 
-		body_obj_len = 0;
-		*len = *msg_length;
-		}		
-	else{
-	body_obj_len = body_obj_len - length; 
-	
-	switch(type_iro) {
-	  
-	case PCE_SUB_IPv4:
-		dissect_subobj_ipv4(ti, pce_iro_obj, tvb, offset2, len,  obj_class, ett_pce_obj_iro, l_type, length);
-		break;
-	case PCE_SUB_IPv6:
-		dissect_subobj_ipv6(ti, pce_iro_obj, tvb, offset2, len, obj_class, ett_pce_obj_iro, l_type, length);
-		break;
-	case PCE_SUB_UNNUMB_INTERFACE_ID:
-		dissect_subobj_unnumb_interfaceID(ti, pce_iro_obj, tvb, offset2, len, obj_class, ett_pce_obj_iro, l_type, length);
-		break;
-	case PCE_SUB_AUTONOMOUS_SYS_NUM:
-		dissect_subobj_autonomous_sys_num(ti, pce_iro_obj, tvb, offset2, len,  obj_class, ett_pce_obj_iro, l_type, length);
-		break;
-	case PCE_SUB_EXRS:
-		dissect_subobj_exrs(ti, pce_iro_obj, tvb, offset2, len,  obj_class, ett_pce_obj_iro, type_iro, l_type, length);
-		break;	
-	default:
-	    ti = proto_tree_add_text(pce_iro_obj, tvb, *offset2, length, "Non defined subobject (%d)", type_iro);
-	    *offset2 = *offset2 + length;
-	    break;
+		if (length < 2) {
+			proto_tree_add_text(pce_iro_obj, tvb, offset2, 0,
+			    "Bad IRO object: subobject length %u < 2",
+			    length);
+			break;
+		}
 
-	}	
-	} 
+		type_iro = (l_type & Mask_Type);
+
+		if (body_obj_len <length) {
+			proto_tree_add_text(pce_iro_obj, tvb, offset2, length,
+			    "Bad IRO object: subobject length %u > remaining length %u",
+			        length, body_obj_len);
+			break;
+		}
+
+		switch(type_iro) {
+
+		case PCE_SUB_IPv4:
+			dissect_subobj_ipv4(ti, pce_iro_obj, tvb, offset2, obj_class, ett_pce_obj_iro, l_type, length);
+			break;
+		case PCE_SUB_IPv6:
+			dissect_subobj_ipv6(ti, pce_iro_obj, tvb, offset2, obj_class, ett_pce_obj_iro, l_type, length);
+			break;
+		case PCE_SUB_UNNUMB_INTERFACE_ID:
+			dissect_subobj_unnumb_interfaceID(ti, pce_iro_obj, tvb, offset2, obj_class, ett_pce_obj_iro, l_type, length);
+			break;
+		case PCE_SUB_AUTONOMOUS_SYS_NUM:
+			dissect_subobj_autonomous_sys_num(ti, pce_iro_obj, tvb, offset2, obj_class, ett_pce_obj_iro, l_type, length);
+			break;
+		case PCE_SUB_EXRS:
+			dissect_subobj_exrs(ti, pce_iro_obj, tvb, offset2, obj_class, ett_pce_obj_iro, type_iro, l_type, length);
+			break;
+		default:
+			proto_tree_add_text(pce_iro_obj, tvb, offset2, length, "Non defined subobject (%d)", type_iro);
+			break;
+		} 
+		offset2 += length;
+		body_obj_len -= length;
 	}
- }
+}
 
 /*------------------------------------------------------------------------------
  * SVEC OBJECT 
  *------------------------------------------------------------------------------*/
+#define SVEC_OBJ_MIN_LEN	4
+
 static void 
 dissect_pce_svec_obj(proto_item *ti, proto_tree *pce_tree,
-		  tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+		  tvbuff_t *tvb, int offset2, int obj_length)
 {
 	proto_tree *pce_svec_obj;
 	proto_tree *pce_svec_flags_obj;
@@ -1594,86 +1680,98 @@ dissect_pce_svec_obj(proto_item *ti, proto_tree *pce_tree,
 	guint32 flags;
 	int m = 1;
 	int i = 0;
-	
-	reserved = tvb_get_guint8(tvb, *offset2);
-	flags = tvb_get_ntoh24(tvb, *offset2+1);
 
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_SVEC], tvb, *offset2, obj_length-4, FALSE);	  
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_SVEC], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 	pce_svec_obj = proto_item_add_subtree(ti, ett_pce_obj_svec);
 
-	proto_tree_add_text(pce_svec_obj, tvb, *offset2, 1, "Reserved: 0x%02x", reserved);
-	
-	ti =  proto_tree_add_text(pce_svec_obj, tvb, *offset2+1, 3, "Flags 0x%06x ", flags);	
-	pce_svec_flags_obj = proto_item_add_subtree(ti, ett_pce_obj_svec);
-		
-	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_l, tvb, *offset2 + 1, 3, flags);
-    	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_n, tvb, *offset2 + 1, 3, flags);
-   	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_s, tvb, *offset2 + 1, 3, flags);
-	
-	for ( i=4 ; i<(obj_length-4) ; ){
-	
-	proto_tree_add_text(pce_svec_obj, tvb, *offset2+i, 4, "Request-ID-Number %u: 0x%s", m,
-			bytestring_to_str(tvb_get_ptr(tvb, *offset2+i, 4), 4, ' '));
-	
-	i=i+4;
+	if (obj_length < OBJ_HDR_LEN+SVEC_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_svec_obj, tvb, offset2, obj_length,
+		    "Bad SVEC object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+SVEC_OBJ_MIN_LEN);
+		return;
 	}
-	*offset2 = *offset2 + obj_length- 4;
-	*len = *len + obj_length - 4;	  
+
+	reserved = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(pce_svec_obj, tvb, offset2, 1, "Reserved: 0x%02x", reserved);
+
+	flags = tvb_get_ntoh24(tvb, offset2+1);
+	ti = proto_tree_add_text(pce_svec_obj, tvb, offset2+1, 3, "Flags: 0x%06x", flags);
+	pce_svec_flags_obj = proto_item_add_subtree(ti, ett_pce_obj_svec);
+	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_l, tvb, offset2 + 1, 3, flags);
+    	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_n, tvb, offset2 + 1, 3, flags);
+   	proto_tree_add_boolean(pce_svec_flags_obj, pce_svec_flags_s, tvb, offset2 + 1, 3, flags);
+
+	for ( i=4 ; i<(obj_length-OBJ_HDR_LEN) ; ){
+		proto_tree_add_text(pce_svec_obj, tvb, offset2+i, 4, "Request-ID-Number %u: 0x%s", m,
+			bytestring_to_str(tvb_get_ptr(tvb, offset2+i, 4), 4, ' '));
+		i += 4;
+	}
 }
 
 /*------------------------------------------------------------------------------
  * NOTIFICATION OBJECT 
  *------------------------------------------------------------------------------*/		      
+#define NOTIFICATION_OBJ_MIN_LEN	4
+
 static void 
-dissect_pce_notification_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_notification_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {    
 	proto_tree *pce_notification_obj;
 	guint8 reserved;
 	guint8 flags;
 	guint8 nt;
 	guint8 nv;
-	gint hdr_obj=4;
-	gint body_obj_obl=4;
-	
-	reserved = tvb_get_guint8(tvb, *offset2);
-	flags = tvb_get_guint8(tvb, *offset2+1);
-	nt = tvb_get_guint8(tvb, *offset2+2);
-	nv = tvb_get_guint8(tvb, *offset2+3);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_NOTIFICATION], tvb, *offset2, obj_length-4, FALSE);  
-	pce_notification_obj = proto_item_add_subtree(ti, ett_pce_obj_notification);	
-	
-	proto_tree_add_text(pce_notification_obj, tvb, *offset2, 1, "Reserved: 0x%02x", reserved);
-	proto_tree_add_text(pce_notification_obj, tvb, *offset2+1, 1, "Flags: 0x%02x", flags);
-	proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_TYPE], tvb, *offset2+2, 1, nt);
-	
-	switch(nt){
-	
-	case 1:
-	proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_VAL1], tvb, *offset2+2, 1, nt);
-		break;
-	
-	case 2:	
-	proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_VAL2], tvb, *offset2+2, 1, nt);
-		break;
-	default:
-	proto_tree_add_text(pce_notification_obj, tvb, *offset2+2, 1, "Notification Type: %u", nt);
-	
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_NOTIFICATION], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_notification_obj = proto_item_add_subtree(ti, ett_pce_obj_notification);
+
+	if (obj_length < OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_notification_obj, tvb, offset2, obj_length,
+		    "Bad NOTIFICATION object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN);
+		return;
 	}
-		
+
+	reserved = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(pce_notification_obj, tvb, offset2, 1, "Reserved: 0x%02x", reserved);
+
+	flags = tvb_get_guint8(tvb, offset2+1);
+	proto_tree_add_text(pce_notification_obj, tvb, offset2+1, 1, "Flags: 0x%02x", flags);
+
+	nt = tvb_get_guint8(tvb, offset2+2);
+	proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_TYPE], tvb, offset2+2, 1, nt);
+
+	switch(nt){
+
+	case 1:
+		proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_VAL1], tvb, offset2+2, 1, nt);
+		break;
+
+	case 2:	
+		proto_tree_add_uint(pce_notification_obj, pce_filter[PCEF_NOTI_VAL2], tvb, offset2+2, 1, nt);
+		break;
+
+	default:
+		proto_tree_add_text(pce_notification_obj, tvb, offset2+2, 1, "Notification Type: %u", nt);
+		break;
+	}
+
+	nv = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(pce_notification_obj, tvb, offset2+3, 1, "Notification Value: 0x%02x", nv);
+
 	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	*offset2 =  (*offset2) + body_obj_obl;
-	
-	dissect_pce_tlv(ti, pce_notification_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_notification, len);
-		  
-		  
+	offset2 += NOTIFICATION_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+NOTIFICATION_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_notification_obj, tvb, offset2, obj_length, ett_pce_obj_notification);
 }
 
 /*------------------------------------------------------------------------------
  * ERROR OBJECT 
  *------------------------------------------------------------------------------*/		      
+#define ERROR_OBJ_MIN_LEN	4
+
 static void 
-dissect_pce_error_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_error_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {	
 	proto_tree *pce_error_obj;
 	proto_tree *pce_error_types_obj;
@@ -1681,207 +1779,231 @@ dissect_pce_error_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *
 	guint8 flags;
 	guint8 error_type;
 	guint8 error_value;
-	gint hdr_obj=4;
-	gint body_obj_obl=4;
-	
-	reserved = tvb_get_guint8(tvb, *offset2);
-	flags = tvb_get_guint8(tvb, *offset2+1);
-	error_type = tvb_get_guint8(tvb, *offset2+2);
-	error_value = tvb_get_guint8(tvb, *offset2+3);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_PCEP_ERROR], tvb, *offset2, obj_length-4, FALSE);	  
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_PCEP_ERROR], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 	pce_error_obj = proto_item_add_subtree(ti, ett_pce_obj_error);
-	
-	proto_tree_add_text(pce_error_obj, tvb, *offset2, 1, "Reserved: 0x%02x", reserved);
-	proto_tree_add_text(pce_error_obj, tvb, *offset2+1, 1, "Flags: 0x%02x", flags);
-	
-	ti = proto_tree_add_uint(pce_error_obj, pce_filter[PCEF_ERROR_TYPE], tvb, *offset2+2, 1, error_type);
+
+	if (obj_length < OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_error_obj, tvb, offset2, obj_length,
+		    "Bad ERROR object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN);
+		return;
+	}
+
+	reserved = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(pce_error_obj, tvb, offset2, 1, "Reserved: 0x%02x", reserved);
+
+	flags = tvb_get_guint8(tvb, offset2+1);
+	proto_tree_add_text(pce_error_obj, tvb, offset2+1, 1, "Flags: 0x%02x", flags);
+
+	error_type = tvb_get_guint8(tvb, offset2+2);
+	ti = proto_tree_add_uint(pce_error_obj, pce_filter[PCEF_ERROR_TYPE], tvb, offset2+2, 1, error_type);
 	pce_error_types_obj = proto_item_add_subtree(ti, ett_pce_obj_error);
-	
+
+	error_value = tvb_get_guint8(tvb, offset2+3);
 	switch(error_type){	
 	case ESTABLISH_FAILURE:
-	
 		switch(error_value){
 		case RX_MALFORM_PKT:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Reception of a Malformed Message ", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Reception of a Malformed Message ", error_value);
+			break;
 		case NO_OPEN_MSG:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u No Open Message received before the expiration of the OpenWait Timer ", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u No Open Message received before the expiration of the OpenWait Timer ", error_value);
+			break;
 		case UNACEP_NO_NEGO_SSESION:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Unacceptable and non Negotiable session characteristics", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Unacceptable and non Negotiable session characteristics", error_value);
+			break;
 		case UNACEP_NEG_SESSION:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Unacceptable but Negotiable session characteristics", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Unacceptable but Negotiable session characteristics", error_value);
+			break;
 		case TWO_OPEN_MSG_UNACEP:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Reception of a second Open Message with still Unacceptable Session characteristics", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Reception of a second Open Message with still Unacceptable Session characteristics", error_value);
+			break;
 		case RX_PCEERR_UNACEP_SESSION:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Reception of a PCErr message proposing unacceptable session characteristics", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Reception of a PCErr message proposing unacceptable session characteristics", error_value);
+			break;
 		case NO_KEEPALIVE_PCEERR:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u NO Keepalive or PCErr message received before the expiration of the Keepwait timer supported", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u NO Keepalive or PCErr message received before the expiration of the Keepwait timer supported", error_value);
+			break;
 		default:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1,
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1,
 				"Error-value: %u Non defined Error-Value", error_value);
 		}
 		break;
-	
+
 	case CAP_NOT_SUPPORTED:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
 		break;
-		
+
 	case UNKNOWN_OBJ:
 		switch(error_value){
 		case UNRECON_OBJ_CLASS:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Unrecognized object class", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Unrecognized object class", error_value);
+			break;
 		case UNRECON_OBJ_TYPE:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Unrecognized object type", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Unrecognized object type", error_value);
+			break;
 		default:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1,
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1,
 				"Error-value: %u Non defined Error-Value", error_value);
 		} 
 		break;
 	case NOT_SUPP_OBJ:
 		switch(error_value){
 		case NO_SUPP_OBJ:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Not Supported Object Class", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Not Supported Object Class", error_value);
+			break;
 		case NO_SUPP_TYPE:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u Not Supported Object Type", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u Not Supported Object Type", error_value);
+			break;
 		default:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1,
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1,
 				"Error-value: %u Non defined Error-Value", error_value);
 		}
-		break;	
+		break;
 	case POLICY_VIOLATION:
 		switch(error_value){
 		case C_METRIC_SET:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u C bit of the METRIC object set (Request Rejected)", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u C bit of the METRIC object set (Request Rejected)", error_value);
+			break;
 		case O_OBJ_SET:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u O bit of the RP object set (Request Rejected)", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u O bit of the RP object set (Request Rejected)", error_value);
+			break;
 		default:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1,
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1,
 				"Error-value: %u Non defined Error-Value", error_value);
 		}
 		break;
 	case MANDATORY_OBJ_MIS:	
 		switch(error_value){
 		case RP_OBJ_MISS:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u RP Object missing", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u RP Object missing", error_value);
+			break;
 		case RRO_OBJ_MISS:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u RRO Object missing for a reoptimization request (R bit of the RP Object set) when bandwidth is not equal to 0", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u RRO Object missing for a reoptimization request (R bit of the RP Object set) when bandwidth is not equal to 0", error_value);
+			break;
 		case END_POINT_OBJ_MISS:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-value: %u END-POINTS Objects missing", error_value);
-		break;
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-value: %u END-POINTS Objects missing", error_value);
+			break;
 		default:  
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1,
+			proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1,
 				"Error-value: %u Non defined Error-Value", error_value);
 		}
 		break;
 	case SYNCH_PCREQ_MIS:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
 		break;
 	case UNKNOWN_REQ_REF:	
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
 		break;
 	case ATTEMPT_2_SESSION:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
 		break;
 	case UNRECO_IRO_SUBOBJ:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
-		break;	
-	case UNRECO_EXRS_SUBOBJ:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+3, 1, "Error-Value: %u ", error_value);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
 		break;
-	
+	case UNRECO_EXRS_SUBOBJ:
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+3, 1, "Error-Value: %u ", error_value);
+		break;
+
 	default:
-		proto_tree_add_text(pce_error_types_obj, tvb, *offset2+2, 1, "Error-Type: %u Non defined Error-Value", error_type);
+		proto_tree_add_text(pce_error_types_obj, tvb, offset2+2, 1, "Error-Type: %u Non defined Error-Value", error_type);
 	}
-	
+
 	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	*offset2 =  (*offset2) + body_obj_obl;
-	
-	dissect_pce_tlv(ti, pce_error_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_error, len);
+	offset2 += ERROR_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+ERROR_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_error_obj, tvb, offset2, obj_length, ett_pce_obj_error);
 }
 
 
 /*------------------------------------------------------------------------------
  * LOAD-BALANCING OBJECT 
  *------------------------------------------------------------------------------*/		      
+#define LOAD_BALANCING_OBJ_MIN_LEN	8
+
 static void 
-dissect_pce_balancing_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_balancing_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {    
 	proto_tree *pce_load_balancing_obj;
 	guint16 reserved;
 	guint8 flags;
 	guint8 max_LSP;
 	guint32 min_bandwidth;
-	gint hdr_obj=4;
-	gint body_obj_obl=8;
-	
-	reserved = tvb_get_ntohs(tvb, *offset2);
-	flags = tvb_get_guint8(tvb, *offset2+2);
-	max_LSP = tvb_get_guint8(tvb, *offset2+3);
-	min_bandwidth = tvb_get_ntohl(tvb, *offset2+4);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_LOAD_BALANCING], tvb, *offset2, obj_length-4, FALSE); 
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_LOAD_BALANCING], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
 	pce_load_balancing_obj = proto_item_add_subtree(ti, ett_pce_obj_load_balancing);
-	
-	proto_tree_add_text(pce_load_balancing_obj, tvb, *offset2, 2, "Reserved: 0x%04x", reserved);
-	proto_tree_add_text(pce_load_balancing_obj, tvb, *offset2+2, 1, "Flags: 0x%02x", flags);	
-	proto_tree_add_text(pce_load_balancing_obj, tvb, *offset2+3, 1, "Maximun Number of TE LSPs: 0x%02x", max_LSP);
-	proto_tree_add_text(pce_load_balancing_obj, tvb, *offset2+4, 4, "Minimun Bandwidth: 0x%08x", min_bandwidth);
-	
+
+	if (obj_length < OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_load_balancing_obj, tvb, offset2, obj_length,
+		    "Bad LOAD-BALANCING object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN);
+		return;
+	}
+
+	reserved = tvb_get_ntohs(tvb, offset2);
+	proto_tree_add_text(pce_load_balancing_obj, tvb, offset2, 2, "Reserved: 0x%04x", reserved);
+
+	flags = tvb_get_guint8(tvb, offset2+2);
+	proto_tree_add_text(pce_load_balancing_obj, tvb, offset2+2, 1, "Flags: 0x%02x", flags);
+
+	max_LSP = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(pce_load_balancing_obj, tvb, offset2+3, 1, "Maximun Number of TE LSPs: 0x%02x", max_LSP);
+
+	min_bandwidth = tvb_get_ntohl(tvb, offset2+4);
+	proto_tree_add_text(pce_load_balancing_obj, tvb, offset2+4, 4, "Minimun Bandwidth: 0x%08x", min_bandwidth);
+
 	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	*offset2 =  (*offset2) + body_obj_obl;	
-	dissect_pce_tlv(ti, pce_load_balancing_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_load_balancing, len);
+	offset2 += LOAD_BALANCING_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_load_balancing_obj, tvb, offset2, obj_length, ett_pce_obj_load_balancing);
 }
 
 /*------------------------------------------------------------------------------
  * CLOSE OBJECT 
  *------------------------------------------------------------------------------*/		      
+#define CLOSE_OBJ_MIN_LEN	4
+
 static void 
-dissect_pce_close_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int *len)
+dissect_pce_close_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length)
 {
 	proto_tree *pce_close_obj;
 	guint16 reserved;
 	guint8 flags;
 	guint8 reason;
-	gint hdr_obj=4;
-	gint body_obj_obl=4;
-		
-	reserved = tvb_get_ntohs(tvb, *offset2);
-	flags = tvb_get_guint8(tvb, *offset2+2);
-	reason = tvb_get_guint8(tvb, *offset2+3);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_CLOSE], tvb, *offset2, obj_length-4, FALSE);  
-	pce_close_obj = proto_item_add_subtree(ti, ett_pce_obj_close);	  
-	
-	proto_tree_add_text(pce_close_obj, tvb, *offset2, 2, "Reserved: 0x%04x", reserved);
-	proto_tree_add_text(pce_close_obj, tvb, *offset2+2, 1, "Flags: 0x%01x", flags);
-	proto_tree_add_text(pce_close_obj, tvb, *offset2+3, 1, val_to_str(reason, pce_close_reason_obj_vals, "Unknown Object (%u). ")); 
-	
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	*offset2 =  (*offset2) + body_obj_obl;	
-	dissect_pce_tlv(ti, pce_close_obj, tvb, offset2, hdr_obj, body_obj_obl, obj_length, ett_pce_obj_load_balancing, len);
-	
+
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_CLOSE], tvb, offset2, obj_length-OBJ_HDR_LEN, FALSE);
+	pce_close_obj = proto_item_add_subtree(ti, ett_pce_obj_close);
+
+	if (obj_length < OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_close_obj, tvb, offset2, obj_length,
+		    "Bad CLOSE object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN);
+		return;
 	}
+
+	reserved = tvb_get_ntohs(tvb, offset2);
+	proto_tree_add_text(pce_close_obj, tvb, offset2, 2, "Reserved: 0x%04x", reserved);
+
+	flags = tvb_get_guint8(tvb, offset2+2);
+	proto_tree_add_text(pce_close_obj, tvb, offset2+2, 1, "Flags: 0x%01x", flags);
+
+	reason = tvb_get_guint8(tvb, offset2+3);
+	proto_tree_add_text(pce_close_obj, tvb, offset2+3, 1, val_to_str(reason, pce_close_reason_obj_vals, "Unknown Object (%u). "));
+
+	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
+	offset2 += CLOSE_OBJ_MIN_LEN;
+	obj_length -= OBJ_HDR_LEN+CLOSE_OBJ_MIN_LEN;
+	dissect_pce_tlvs(ti, pce_close_obj, tvb, offset2, obj_length, ett_pce_obj_load_balancing);
+}
 
 /*------------------------------------------------------------------------------
  * XRO OBJECT 
  *------------------------------------------------------------------------------*/	
+#define XRO_OBJ_MIN_LEN	4
+
 static void 
-dissect_pce_xro_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *offset2, int obj_length, int obj_class, int *len, int *msg_length)
+dissect_pce_xro_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int offset2, int obj_length, int obj_class)
 {
 	proto_tree *pce_xro_obj;
 	proto_tree *pce_xro_flags_obj;
@@ -1890,63 +2012,79 @@ dissect_pce_xro_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *of
 	guint8 x_type;
 	guint8 length;
 	guint type_xro;
-	guint body_subobj_len;
-	body_subobj_len = obj_length - 8;
-	
-	reserved = tvb_get_ntohs(tvb, *offset2);
-	flags = tvb_get_ntohs(tvb, *offset2+2);
-	
-	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_XRO], tvb, *offset2, obj_length-4, FALSE);  
-	pce_xro_obj = proto_item_add_subtree(ti, ett_pce_obj_xro);	  
-	proto_tree_add_text(pce_xro_obj, tvb, *offset2, 2, "Reserved: 0x%04x", reserved);	
-	ti =  proto_tree_add_text(pce_xro_obj, tvb, *offset2+2, 2, "Flags: 0x%04x ", flags);	
-	pce_xro_flags_obj = proto_item_add_subtree(ti, ett_pce_obj_xro);		
-	proto_tree_add_boolean(pce_xro_flags_obj, pce_xro_flags_f, tvb, *offset2 + 2, 2, flags);
-	
-	*len = *len + 4;
-	*offset2 = *offset2 + 4;
-	
-	while(body_subobj_len){
+	guint body_obj_len;
 
-	x_type = tvb_get_guint8(tvb, *offset2);	  
-	length = tvb_get_guint8(tvb, *offset2+1);
+	body_obj_len = obj_length - OBJ_HDR_LEN;
 
-	DISSECTOR_ASSERT(length);
+	ti = proto_tree_add_item(pce_tree, pce_filter[PCEF_OBJ_XRO], tvb, offset2, body_obj_len, FALSE);
+	pce_xro_obj = proto_item_add_subtree(ti, ett_pce_obj_xro);
 
-	type_xro = (x_type & Mask_Type);
-
-	if (body_subobj_len <length) {
-		proto_tree_add_text(pce_xro_flags_obj, tvb, *offset2, length, "The packet is bad coded!! \nObject Length = %u", body_subobj_len); 
-		body_subobj_len = 0;
-		*len = *msg_length;
-		}		
-	else{
-	body_subobj_len = body_subobj_len - length; 	
-
-	switch(type_xro) {
-	  
-	case PCE_SUB_IPv4:
-		dissect_subobj_ipv4(ti, pce_xro_obj, tvb, offset2, len,  obj_class, ett_pce_obj_xro, x_type, length);
-		break;
-	case PCE_SUB_IPv6:
-		dissect_subobj_ipv6(ti, pce_xro_obj, tvb, offset2, len, obj_class, ett_pce_obj_xro, x_type, length);
-		break;
-	case PCE_SUB_UNNUMB_INTERFACE_ID_XRO:
-		dissect_subobj_unnumb_interfaceID(ti, pce_xro_obj, tvb, offset2, len, obj_class, ett_pce_obj_xro, x_type, length);
-		break;
-	case PCE_SUB_AUTONOMOUS_SYS_NUM_XRO:
-		dissect_subobj_autonomous_sys_num(ti, pce_xro_obj, tvb, offset2, len,  obj_class, ett_pce_obj_xro, x_type, length);
-		break;
-	case PCE_SUB_SRLG:
-		dissect_subobj_srlg(ti, pce_xro_obj, tvb, offset2, len, ett_pce_obj_xro, x_type, length);
-		break;	
-	default:
-	    ti = proto_tree_add_text(pce_xro_obj, tvb, *offset2-4, length, "Non defined subobject (%d)", type_xro);
-	    *offset2 = *offset2 + length;
-	    *len = *len + length;
-	    break;
-	}	
+	if (obj_length < OBJ_HDR_LEN+XRO_OBJ_MIN_LEN) {
+		proto_tree_add_text(pce_xro_obj, tvb, offset2, obj_length,
+		    "Bad XRO object length %u, should be >= %u", obj_length,
+		    OBJ_HDR_LEN+XRO_OBJ_MIN_LEN);
+		return;
 	}
+
+	reserved = tvb_get_ntohs(tvb, offset2);
+	proto_tree_add_text(pce_xro_obj, tvb, offset2, 2, "Reserved: 0x%04x", reserved);
+
+	flags = tvb_get_ntohs(tvb, offset2+2);
+	ti =  proto_tree_add_text(pce_xro_obj, tvb, offset2+2, 2, "Flags: 0x%04x ", flags);
+	pce_xro_flags_obj = proto_item_add_subtree(ti, ett_pce_obj_xro);
+	proto_tree_add_boolean(pce_xro_flags_obj, pce_xro_flags_f, tvb, offset2 + 2, 2, flags);
+
+	offset2 += XRO_OBJ_MIN_LEN;
+	body_obj_len -= XRO_OBJ_MIN_LEN;
+
+	while(body_obj_len >= 2){
+		if (body_obj_len < 2) {
+			proto_tree_add_text(pce_xro_obj, tvb, offset2, 0,
+			    "Bad XRO object: subobject goes past end of object");
+			break;
+		}
+
+		x_type = tvb_get_guint8(tvb, offset2);
+		length = tvb_get_guint8(tvb, offset2+1);
+
+		if (length < 2) {
+			proto_tree_add_text(pce_xro_obj, tvb, offset2, 0,
+			    "Bad XRO object: object length %u < 2", length);
+			break;
+		}
+
+		type_xro = (x_type & Mask_Type);
+
+		if (body_obj_len <length) {
+			proto_tree_add_text(pce_xro_obj, tvb, offset2, length,
+			    "Bad XRO object: object length %u > remaining length %u",
+			        length, body_obj_len);
+			break;
+		}
+
+		switch(type_xro) {
+
+		case PCE_SUB_IPv4:
+			dissect_subobj_ipv4(ti, pce_xro_obj, tvb, offset2, obj_class, ett_pce_obj_xro, x_type, length);
+			break;
+		case PCE_SUB_IPv6:
+			dissect_subobj_ipv6(ti, pce_xro_obj, tvb, offset2, obj_class, ett_pce_obj_xro, x_type, length);
+			break;
+		case PCE_SUB_UNNUMB_INTERFACE_ID_XRO:
+			dissect_subobj_unnumb_interfaceID(ti, pce_xro_obj, tvb, offset2, obj_class, ett_pce_obj_xro, x_type, length);
+			break;
+		case PCE_SUB_AUTONOMOUS_SYS_NUM_XRO:
+			dissect_subobj_autonomous_sys_num(ti, pce_xro_obj, tvb, offset2, obj_class, ett_pce_obj_xro, x_type, length);
+			break;
+		case PCE_SUB_SRLG:
+			dissect_subobj_srlg(ti, pce_xro_obj, tvb, offset2, ett_pce_obj_xro, x_type, length);
+			break;
+		default:
+			proto_tree_add_text(pce_xro_obj, tvb, offset2-4, length, "Non defined subobject (%d)", type_xro);
+			break;
+		}
+		offset2 += length;
+		body_obj_len -= length;
 	}
 }
 
@@ -1956,117 +2094,111 @@ dissect_pce_xro_obj(proto_item *ti, proto_tree *pce_tree, tvbuff_t *tvb, int *of
 static void
 dissect_pce_obj_tree(proto_tree *ti, tvbuff_t *tvb, proto_tree *pce_tree, int len, int offset, int msg_length)  
 {  
-    	
-	guint8 obj_class;
-	guint8 ot_res_p_i; 
-	guint16 obj_length;
-	int type;
-	int offset2;
-	proto_tree *pce_object_tree;
-	proto_tree *pce_header_obj_flags;
- 
+
+  guint8 obj_class;
+  guint8 ot_res_p_i;
+  guint16 obj_length;
+  int type;
+  proto_tree *pce_object_tree;
+  proto_tree *pce_header_obj_flags;
+
   while (len < msg_length) {
-  
 	obj_class = tvb_get_guint8(tvb, offset);
-	ot_res_p_i = tvb_get_guint8(tvb, offset+1);
-	obj_length = tvb_get_ntohs(tvb, offset+2);
-	type = (ot_res_p_i & MASK_OBJ_TYPE)>>4;
-				 
 	ti = proto_tree_add_text(pce_tree, tvb, offset, 4, "PCE %s Header", val_to_str(obj_class, pce_class_vals, "Unknown Message (%u). "));
 	pce_object_tree = proto_item_add_subtree(ti, ett_pce_obj_hdr);
-	
+
+	ot_res_p_i = tvb_get_guint8(tvb, offset+1);
+	type = (ot_res_p_i & MASK_OBJ_TYPE)>>4;
 	proto_tree_add_text(pce_object_tree, tvb, offset+1, 1, "Object Type: %u", type);
-	
+
 	ti = proto_tree_add_text(pce_object_tree, tvb, offset+1, 1, "Flags");
 	pce_header_obj_flags = proto_item_add_subtree(ti, ett_pce_hdr);
 	proto_tree_add_boolean(pce_header_obj_flags, pce_hdr_obj_flags_reserved, tvb, offset+1, 1, ot_res_p_i);
 	proto_tree_add_boolean(pce_header_obj_flags, pce_hdr_obj_flags_p, tvb, offset+1, 1, ot_res_p_i);
 	proto_tree_add_boolean(pce_header_obj_flags, pce_hdr_obj_flags_i, tvb, offset+1, 1, ot_res_p_i);
-		
+
+	obj_length = tvb_get_ntohs(tvb, offset+2);
 	if (obj_length < 4) {
-	    proto_tree_add_text(pce_object_tree, tvb, offset+2, 2, "Length: %u (bogus, must be >= 4)", obj_length);
+	    proto_tree_add_text(pce_object_tree, tvb, offset+2, 2, "Object Length: %u (bogus, must be >= 4)", obj_length);
 	    break;
 	}
-	
+
 	proto_tree_add_text(pce_object_tree, tvb, offset+2, 2, "Object Length: %u", obj_length);
 	proto_tree_add_uint(pce_object_tree, pce_filter[PCEF_OBJECT], tvb, offset, 1, obj_class);
 
-	offset2 = offset+4;
-	len = len + 4;
-	
 	switch(obj_class) {
 
 	case PCE_OPEN_OBJ:
-	    dissect_pce_open_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_open_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_RP_OBJ:
-	    dissect_pce_rp_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_rp_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
-	
+
 	case PCE_NO_PATH_OBJ:
-	    dissect_pce_no_path_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_no_path_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_END_POINT_OBJ:
-	    dissect_pce_end_point_obj(ti, pce_tree, tvb, &offset2, obj_length, &len, type);
+	    dissect_pce_end_point_obj(ti, pce_tree, tvb, offset+4, obj_length, type);
 	    break;
 
 	case PCE_BANDWIDTH_OBJ:
-	    dissect_pce_bandwidth_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_bandwidth_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_METRIC_OBJ:
-	    dissect_pce_metric_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_metric_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_EXPLICIT_ROUTE_OBJ:
-	    dissect_pce_explicit_route_obj(ti, pce_tree, tvb, &offset2, obj_length, obj_class, &len, &msg_length);
+	    dissect_pce_explicit_route_obj(ti, pce_tree, tvb, offset+4, obj_length, obj_class);
 	    break;
 
 	case PCE_RECORD_ROUTE_OBJ:
-	    dissect_pce_record_route_obj(ti, pce_tree, tvb, &offset2, obj_length, obj_class, &len, &msg_length);
+	    dissect_pce_record_route_obj(ti, pce_tree, tvb, offset+4, obj_length, obj_class);
 	    break;
 
 	case PCE_LSPA_OBJ:
-	    dissect_pce_lspa_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_lspa_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_IRO_OBJ:
-	    dissect_pce_iro_obj(ti, pce_tree, tvb, &offset2, obj_length, obj_class, &len, &msg_length);
+	    dissect_pce_iro_obj(ti, pce_tree, tvb, offset+4, obj_length, obj_class);
 	    break;
 
 	case PCE_SVEC_OBJ:
-	    dissect_pce_svec_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_svec_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_NOTIFICATION_OBJ:
-	    dissect_pce_notification_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_notification_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_PCEP_ERROR_OBJ:
-	    dissect_pce_error_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_error_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_LOAD_BALANCING_OBJ:
-	    dissect_pce_balancing_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
+	    dissect_pce_balancing_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
 	case PCE_CLOSE_OBJ:
-	    dissect_pce_close_obj(ti, pce_tree, tvb, &offset2, obj_length, &len);
-	    break;
-	    
-	case PCE_XRO_OBJ:
-	    dissect_pce_xro_obj(ti, pce_tree, tvb, &offset2, obj_length, obj_class, &len, &msg_length);
-	    break;
-	
-	default:
-	    ti = proto_tree_add_text(pce_tree, tvb, offset2, obj_length-4, "PCE Object BODY non defined (%u)", type);	  
+	    dissect_pce_close_obj(ti, pce_tree, tvb, offset+4, obj_length);
 	    break;
 
+	case PCE_XRO_OBJ:
+	    dissect_pce_xro_obj(ti, pce_tree, tvb, offset+4, obj_length, obj_class);
+	    break;
+
+	default:
+	    proto_tree_add_text(pce_tree, tvb, offset+4, obj_length-4, "PCE Object BODY non defined (%u)", type);
+	    break;
 	}
 
-	offset += obj_length; 
+	offset += obj_length;
+	len += obj_length;
     }	
 }
 
@@ -2078,44 +2210,44 @@ static void
 dissect_pce_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_info *pinfo)
 {
     proto_tree *pce_tree = NULL;
-    proto_tree *pce_header_tree; 
+    proto_tree *pce_header_tree;
     proto_tree *ti;
     proto_tree *pce_header_msg_flags;
-    
+
     int offset = 0;
     int len=0;
     guint8 ver_flags;
     guint8 message_type;
-    guint16 msg_length;  
+    guint16 msg_length;
 
     ver_flags = tvb_get_guint8(tvb, 0);
     message_type = tvb_get_guint8(tvb, 1);
     msg_length = tvb_get_ntohs(tvb, 2);
-    
+
     if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
     }
-    
+
     ti = proto_tree_add_item(tree, proto_pce, tvb, offset, msg_length, FALSE);
     pce_tree = proto_item_add_subtree(ti, tree_mode);
-    
+
     proto_item_append_text(pce_tree, ": ");
     proto_item_append_text(pce_tree, "Path Computation Element communication protocol");
-        
+
     ti = proto_tree_add_text(pce_tree, tvb, offset, 4, "PCE %s Header", val_to_str(message_type, message_type_vals, "Unknown Message (%u). "));
 
     pce_header_tree = proto_item_add_subtree(ti, ett_pce_hdr);
 
     proto_tree_add_text(pce_header_tree, tvb, offset, 1, "PCE Version: %x", (ver_flags & 0x20)>>5);
-			
+
     ti = proto_tree_add_text(pce_header_tree, tvb, offset, 1, "Flags: ");
     pce_header_msg_flags = proto_item_add_subtree(ti, ett_pce_hdr);
     proto_tree_add_boolean(pce_header_msg_flags, pce_hdr_msg_flags_reserved, tvb, offset, 1, (ver_flags & 0x1f));
     proto_tree_add_uint(pce_header_tree, pce_filter[PCEF_MSG], tvb, offset+1, 1, message_type);
     proto_tree_add_text(pce_header_tree, tvb, offset+2, 2, "Message length: %u", msg_length);
-			
+
     switch (PCEF_MSG + message_type) {
-   
+
     case PCEF_OPEN:
     case PCEF_KEEPALIVE:
     case PCEF_PATH_COMPUTATION_REQUEST:
@@ -2123,7 +2255,6 @@ dissect_pce_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_in
     case PCEF_NOTIFICATION:
     case PCEF_ERROR:
     case PCEF_CLOSE:
-      	
 	proto_tree_add_boolean_hidden(pce_header_tree, pce_filter[PCEF_MSG + message_type], tvb, offset+1, 1, 1);
 	break;
 
@@ -2134,41 +2265,39 @@ dissect_pce_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_in
 
     offset = 4;
     len = 4;
-    
-    dissect_pce_obj_tree(ti, tvb, pce_tree, len, offset, msg_length);    
+
+    dissect_pce_obj_tree(ti, tvb, pce_tree, len, offset, msg_length);
 }
 
 
 static guint
 get_pce_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint16 plen;
+    guint16 plen;
 
-  /* Get the length of the PCE packet.*/
-  plen = tvb_get_ntohs(tvb, offset+2);
+    /* Get the length of the PCE packet.*/
+    plen = tvb_get_ntohs(tvb, offset+2);
 
-  return plen;
+    return plen;
 }
 
 static void
 dissect_pce_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	
+
 /* Set up structures needed to add the protocol subtree and manage it */
-	
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCE");
-		
+
 	/* Clear out stuff in the info column */
 	if(check_col(pinfo->cinfo,COL_INFO))
 		col_clear(pinfo->cinfo,COL_INFO);
-		
+
 	if (tree) {
 		dissect_pce_msg_tree(tvb, tree, ett_pce, pinfo);
 	}
-		
-};
-
+}
 
 static void
 dissect_pce(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -2186,38 +2315,18 @@ proto_register_pce(void){
 			"PCE Protocol",	/* name*/
 			"PCE",		/* short name */
 			"pce"		/* abbrev*/);
-			
+
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_pce, pcef_info, array_length(pcef_info));
 	proto_register_subtree_array(ett, array_length(ett));
-	pce_dissector_table = register_dissector_table("pce.proto", "PCE Protocol", FT_UINT8, BASE_DEC);
-
 }
 
 /*Dissector Handoff*/
 void
 proto_reg_handoff_pce(void)
 {
-
 	dissector_handle_t pce_handle;
+
 	pce_handle = create_dissector_handle(dissect_pce, proto_pce);
 	dissector_add("tcp.port", TCP_PORT_PPCE, pce_handle);
-	data_handle = find_dissector("data");
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
