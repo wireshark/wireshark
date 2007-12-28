@@ -46,7 +46,11 @@
 #include "g_ascii_strcasecmp.h"
 #endif
 
+/* RFC 2821 */
 #define TCP_PORT_SMTP 25
+
+/* RFC 4409 */
+#define TCP_PORT_SUBMISSION 587
 
 static int proto_smtp = -1;
 
@@ -806,6 +810,7 @@ proto_reg_handoff_smtp(void)
 
   smtp_handle = create_dissector_handle(dissect_smtp, proto_smtp);
   dissector_add("tcp.port", TCP_PORT_SMTP, smtp_handle);
+  dissector_add("tcp.port", TCP_PORT_SUBMISSION, smtp_handle);
 
   /*
    * Get the content type and Internet media type table
