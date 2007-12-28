@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -X -T -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -548,7 +548,15 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,FALSE);
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
 
+	/* fetch ObjectName and its relative oid_info */
+	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
+	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
 
+	add_oid_debug_subtree(oid_info,pt_name);
+
+	if (subids && oid_matched+oid_left) {
+		oid_string = oid_subid2string(subids,oid_matched+oid_left);
+	}
 
 	if (ber_class == BER_CLASS_CON) {
 		/* if we have an error value just add it and get out the way ASAP */
@@ -583,17 +591,8 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		expert_add_info_format(actx->pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "%s",note);
+		strncpy (label, note, ITEM_LABEL_LENGTH);
 		goto set_label;
-	}
-
-	/* fetch ObjectName and its relative oid_info */
-	oid_bytes = ep_tvb_memdup(tvb, name_offset, name_len);
-	oid_info = oid_get_from_encoded(oid_bytes, name_len, &subids, &oid_matched, &oid_left);
-
-	add_oid_debug_subtree(oid_info,pt_name);
-
-	if (subids && oid_matched+oid_left) {
-		oid_string = oid_subid2string(subids,oid_matched+oid_left);
 	}
 
 	/* now we'll try to figure out which are the indexing sub-oids and whether the oid we know about is the one oid we have to use */
@@ -2547,7 +2546,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1385 "packet-snmp-template.c"
+#line 1384 "packet-snmp-template.c"
 
 
 guint
@@ -3325,7 +3324,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1898 "packet-snmp-template.c"
+#line 1897 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3365,7 +3364,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1914 "packet-snmp-template.c"
+#line 1913 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
