@@ -1,4 +1,4 @@
-/* packet-pce.c
+/* packet-pcep.c
  * Routines for PCEP packet disassembly
  * draft-ietf-pce-pcep-09
  * draft-ietf-pce-pcep-xro-02
