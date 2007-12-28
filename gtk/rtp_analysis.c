@@ -46,6 +46,7 @@
 
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
+#include <epan/pint.h>
 
 #include "util.h"
 #include <epan/tap.h>
@@ -2503,8 +2504,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	int to_fd, forw_fd, rev_fd, fread = 0, rread = 0, fwritten, rwritten;
 	gchar f_pd[1] = {0};
 	gchar r_pd[1] = {0};
-	gint16 tmp;
-	gchar pd[1];
+	gint16 sample;
+	gchar pd[4];
 	guint32 f_write_silence = 0;
 	guint32 r_write_silence = 0;
 	progdlg_t *progbar;
@@ -2529,42 +2530,29 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		return FALSE;
 	}
 
-	progbar = create_progress_dlg("Saving voice in a file", dest, TRUE,
-	    &stop_flag);
+	progbar = create_progress_dlg("Saving voice in a file", dest, TRUE, &stop_flag);
 
 	if	(format == SAVE_AU_FORMAT) /* au format */
 	{
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
-		*pd = (unsigned char)0x2e; nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x73; nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x6e; nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x64; nchars=eth_write(to_fd, pd, 1);
+		phtonl(pd, 0x2e736e64);
+		nchars=eth_write(to_fd, pd, 4);
 		/* header offset == 24 bytes */
-		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x18; nchars=eth_write(to_fd, pd, 1);
+		phtonl(pd, 24);
+		nchars=eth_write(to_fd, pd, 4);
 		/* total length, it is permited to set this to 0xffffffff */
-		*pd = (unsigned char)0xff; nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		/* encoding format == 8 bit ulaw */
-		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
+		phtonl(pd, -1);
+		nchars=eth_write(to_fd, pd, 4);
+		/* encoding format == 16-bit linear PCM */
+		phtonl(pd, 3);
+		nchars=eth_write(to_fd, pd, 4);
 		/* sample rate == 8000 Hz */
-		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x1f; nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x40; nchars=eth_write(to_fd, pd, 1);
+		phtonl(pd, 8000);
+		nchars=eth_write(to_fd, pd, 4);
 		/* channels == 1 */
-		*pd = (unsigned char)0x00; nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		nchars=eth_write(to_fd, pd, 1);
-		*pd = (unsigned char)0x01; nchars=eth_write(to_fd, pd, 1);
+		phtonl(pd, 1);
+		nchars=eth_write(to_fd, pd, 4);
 
 
 		switch (channels) {
@@ -2583,11 +2571,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						*pd = *f_pd;
+						sample = ulaw2linear(*f_pd);
+						phtons(pd, sample);
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						tmp = (gint16 )alaw2linear(*f_pd);
-						*pd = (unsigned char)linear2ulaw(tmp);
+						sample = alaw2linear(*f_pd);
+						phtons(pd, sample);
 					}
 					else{
 						eth_close(forw_fd);
@@ -2597,8 +2586,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						return FALSE;
 					}
 
-					fwritten = eth_write(to_fd, pd, 1);
-					if ((fwritten < fread) || (fwritten < 0) || (fread < 0)) {
+					fwritten = eth_write(to_fd, pd, 2);
+					if ((fwritten < 2) || (fwritten < 0) || (fread < 0)) {
 						eth_close(forw_fd);
 						eth_close(rev_fd);
 						eth_close(to_fd);
@@ -2623,11 +2612,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					count++;
 
 					if (user_data->forward.statinfo.pt == PT_PCMU){
-						*pd = *r_pd;
+						sample = ulaw2linear(*f_pd);
+						phtons(pd, sample);
 					}
 					else if(user_data->forward.statinfo.pt == PT_PCMA){
-						tmp = (gint16 )alaw2linear(*r_pd);
-						*pd = (unsigned char)linear2ulaw(tmp);
+						sample = alaw2linear(*f_pd);
+						phtons(pd, sample);
 					}
 					else{
 						eth_close(forw_fd);
@@ -2637,8 +2627,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						return FALSE;
 					}
 
-					rwritten = eth_write(to_fd, pd, 1);
-					if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
+					rwritten = eth_write(to_fd, pd, 2);
+					if ((rwritten < 2) || (rwritten < 0) || (rread < 0)) {
 						eth_close(forw_fd);
 						eth_close(rev_fd);
 						eth_close(to_fd);
@@ -2706,14 +2696,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					if ((rread == 0) && (fread == 0))
 						break;
 					if ((user_data->forward.statinfo.pt == PT_PCMU) && (user_data->reversed.statinfo.pt == PT_PCMU)){
-						tmp = ulaw2linear(*r_pd);
-						tmp += ulaw2linear(*f_pd);
-						*pd = (unsigned char)linear2ulaw(tmp/2);
+						sample = (ulaw2linear(*r_pd) + ulaw2linear(*f_pd)) / 2;
+						phtons(pd, sample);
 					}
 					else if((user_data->forward.statinfo.pt == PT_PCMA) && (user_data->reversed.statinfo.pt == PT_PCMA)){
-						tmp = alaw2linear(*r_pd);
-						tmp += alaw2linear(*f_pd);
-						*pd = (unsigned char)linear2ulaw(tmp/2);
+						sample = (alaw2linear(*r_pd) + alaw2linear(*f_pd)) / 2;
+						phtons(pd, sample);
 					}
 					else
 					{
@@ -2725,8 +2713,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 
 
-					rwritten = eth_write(to_fd, pd, 1);
-					if ((rwritten < 0) || (rread < 0) || (fread < 0)) {
+					rwritten = eth_write(to_fd, pd, 2);
+					if ((rwritten < 2) || (rread < 0) || (fread < 0)) {
 						eth_close(forw_fd);
 						eth_close(rev_fd);
 						eth_close(to_fd);

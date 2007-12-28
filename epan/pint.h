@@ -77,6 +77,23 @@
                      (guint64)*((const guint8 *)(p)+1)<<8|   \
                      (guint64)*((const guint8 *)(p)+0)<<0)
 
+/* Pointer routines to put items out in a particular byte order.
+ * These will work regardless of the byte alignment of the pointer.
+ */
+
+#define phtons(p, v) \
+	{ 				\
+	((guint8*)(p))[0] = (guint8)((v) >> 8);	\
+	((guint8*)(p))[1] = (guint8)((v) >> 0);	\
+	}
+
+#define phtonl(p, v) \
+	{ 				\
+	((guint8*)(p))[0] = (guint8)((v) >> 24);	\
+	((guint8*)(p))[1] = (guint8)((v) >> 16);	\
+	((guint8*)(p))[2] = (guint8)((v) >> 8);	\
+	((guint8*)(p))[3] = (guint8)((v) >> 0);	\
+	}
 
 
 /* Macros to byte-swap 32-bit and 16-bit quantities. */
