@@ -1194,8 +1194,13 @@ void
 dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, SslAssociation* association)
 {
   gboolean save_fragmented;
+  guint16 save_can_desegment;
   SslDataInfo *appl_data;
   tvbuff_t *next_tvb;
+
+  /* Preserve current desegmentation ability to prevent the subdissector
+   * from messing up the ssl desegmentation */
+  save_can_desegment = pinfo->can_desegment;
 
   /* show decrypted data info, if available */
   appl_data = ssl_get_data_info(proto_ssl, pinfo, TVB_RAW_OFFSET(tvb)+offset);
@@ -1230,6 +1235,9 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     process_ssl_payload(next_tvb, 0, pinfo, tree, association);
     pinfo->fragmented = save_fragmented;
   }
+  
+  /* restore desegmentation ability */
+  pinfo->can_desegment = save_can_desegment;
 }
 
 
