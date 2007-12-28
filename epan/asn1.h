@@ -43,6 +43,7 @@ typedef enum {
 typedef enum {
   ASN1_PAR_IRR, /* irrelevant parameter */
   /* value */
+  ASN1_PAR_BOOLEAN,
   ASN1_PAR_INTEGER,
   /* type */
   ASN1_PAR_TYPE
@@ -57,6 +58,7 @@ typedef struct _asn1_par_t {
   const gchar *name;
   asn1_par_type ptype;
   union {
+    gboolean v_boolean;
     gint32 v_integer;
     void *v_type;
   } value;
@@ -179,7 +181,9 @@ extern void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name);
 extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const gchar *name);
 extern void asn1_stack_frame_check(asn1_ctx_t *actx, const gchar *name, const asn1_par_def_t *par_def);
 
+extern void asn1_param_push_boolean(asn1_ctx_t *actx, gboolean value);
 extern void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value);
+extern gboolean asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name);
 extern gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name);
 
 extern void rose_ctx_init(rose_ctx_t *rctx);

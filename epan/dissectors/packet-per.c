@@ -1880,6 +1880,44 @@ guint32 dissect_per_octet_string_containing_pdu_new(tvbuff_t *tvb, guint32 offse
 	return offset;
 }
 
+guint32 dissect_per_size_constrained_type(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, per_type_fn type_cb, const gchar *name, int min_len, int max_len, gboolean has_extension)
+{
+  asn1_stack_frame_push(actx, name);
+  asn1_param_push_integer(actx, min_len);
+  asn1_param_push_integer(actx, max_len);
+  asn1_param_push_boolean(actx, has_extension);
+
+  offset = type_cb(tvb, offset, actx, tree, hf_index);
+
+  asn1_stack_frame_pop(actx, name);
+
+  return offset;
+}
+
+gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int *pmin_len, int *pmax_len, gboolean *phas_extension)
+{
+  asn1_par_t *par;
+
+  if (pmin_len) *pmin_len = NO_BOUND;
+  if (pmax_len) *pmax_len = NO_BOUND;
+  if (phas_extension) *phas_extension = FALSE;
+
+  if (!actx->stack) return FALSE;
+  if (strcmp(actx->stack->name, name)) return FALSE;
+
+  par = actx->stack->par;
+  if (!par || (par->ptype != ASN1_PAR_INTEGER)) return FALSE;
+  if (pmin_len) *pmin_len = par->value.v_integer;
+  par = par->next;
+  if (!par || (par->ptype != ASN1_PAR_INTEGER)) return FALSE;
+  if (pmax_len) *pmax_len = par->value.v_integer;
+  par = par->next;
+  if (!par || (par->ptype != ASN1_PAR_BOOLEAN)) return FALSE;
+  if (phas_extension) *phas_extension = par->value.v_boolean;
+
+  return TRUE;
+}
+
 
 /* 26 Encoding of a value of the external type */
 

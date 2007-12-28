@@ -3011,7 +3011,7 @@ class Type (Node):
     if not ident and ectx.conform.omit_assignment('T', nm, ectx.Module()): return # Assignment to omit
     if not ident:  # Assignment
       ectx.eth_reg_assign(nm, self)
-      if self.type == 'Type_Ref':
+      if self.type == 'Type_Ref' and not self.tr_need_own_fn(ectx):
         ectx.eth_reg_type(nm, self)
     virtual_tr = Type_Ref(val=ectx.conform.use_item('SET_TYPE', nm))
     if (self.type == 'Type_Ref') or ectx.conform.check_item('SET_TYPE', nm):
@@ -3023,6 +3023,9 @@ class Type (Node):
         trnm = nm
       elif ectx.conform.check_item('SET_TYPE', nm):
         trnm = ectx.conform.use_item('SET_TYPE', nm)
+      elif (self.type == 'Type_Ref') and self.tr_need_own_fn(ectx):
+        ectx.eth_reg_type(nm, self)  # need own function, e.g. for constraints
+        trnm = nm
       else:
         trnm = self.val
     else:
@@ -3484,7 +3487,13 @@ class Type_Ref (Type):
     ectx.eth_dep_add(ident, self.val)
 
   def eth_tname(self):
-    return asn2c(self.val)
+    if self.HasSizeConstraint():
+      return asn2c(self.val) + '_' + self.constr.eth_constrname()
+    else:
+      return asn2c(self.val)
+
+  def tr_need_own_fn(self, ectx):
+    return ectx.Per() and self.HasSizeConstraint()
 
   def fld_obj_repr(self, ectx):
     return self.val
@@ -3526,6 +3535,8 @@ class Type_Ref (Type):
     pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
     pars['TYPE_REF_TNAME'] = t
     pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+    if self.HasSizeConstraint():
+      (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
     return pars
 
   def eth_type_default_body(self, ectx, tname):
@@ -3533,8 +3544,13 @@ class Type_Ref (Type):
       body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
     elif (ectx.Per()):
-      body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
-                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
+      if self.HasSizeConstraint():
+        body = ectx.eth_fn_call('dissect_%(ER)s_size_constrained_type', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(TYPE_REF_FN)s',),
+                                     ('"%(TYPE_REF_TNAME)s"', '%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
+      else:
+        body = ectx.eth_fn_call('%(TYPE_REF_FN)s', ret='offset',
+                                par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),))
     else:
       body = '#error Can not decode %s' % (tname)
     return body

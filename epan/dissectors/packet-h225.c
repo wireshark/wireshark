@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h225.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h225 -c ./h225.cnf -s ./packet-h225-template -D . H323-MESSAGES.asn */
+/* ../../tools/asn2wrs.py -e -p h225 -c h225.cnf -s packet-h225-template H323-MESSAGES.asn */
 
 /* Input file: packet-h225-template.c */
 
@@ -406,24 +406,24 @@ static int hf_h225_pISNSpecificNumber = -1;       /* NULL */
 static int hf_h225_localNumber = -1;              /* NULL */
 static int hf_h225_ansi_41_uim = -1;              /* ANSI_41_UIM */
 static int hf_h225_gsm_uim = -1;                  /* GSM_UIM */
-static int hf_h225_imsi = -1;                     /* TBCD_STRING */
-static int hf_h225_min = -1;                      /* TBCD_STRING */
-static int hf_h225_mdn = -1;                      /* TBCD_STRING */
-static int hf_h225_msisdn = -1;                   /* TBCD_STRING */
-static int hf_h225_esn = -1;                      /* TBCD_STRING */
-static int hf_h225_mscid = -1;                    /* TBCD_STRING */
+static int hf_h225_imsi = -1;                     /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_min = -1;                      /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_mdn = -1;                      /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_msisdn = -1;                   /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_esn = -1;                      /* TBCD_STRING_SIZE_16 */
+static int hf_h225_mscid = -1;                    /* TBCD_STRING_SIZE_3_16 */
 static int hf_h225_system_id = -1;                /* T_system_id */
-static int hf_h225_sid = -1;                      /* TBCD_STRING */
-static int hf_h225_mid = -1;                      /* TBCD_STRING */
+static int hf_h225_sid = -1;                      /* TBCD_STRING_SIZE_1_4 */
+static int hf_h225_mid = -1;                      /* TBCD_STRING_SIZE_1_4 */
 static int hf_h225_systemMyTypeCode = -1;         /* OCTET_STRING_SIZE_1 */
 static int hf_h225_systemAccessType = -1;         /* OCTET_STRING_SIZE_1 */
 static int hf_h225_qualificationInformationCode = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_h225_sesn = -1;                     /* TBCD_STRING */
-static int hf_h225_soc = -1;                      /* TBCD_STRING */
+static int hf_h225_sesn = -1;                     /* TBCD_STRING_SIZE_16 */
+static int hf_h225_soc = -1;                      /* TBCD_STRING_SIZE_3_16 */
 static int hf_h225_tmsi = -1;                     /* OCTET_STRING_SIZE_1_4 */
-static int hf_h225_imei = -1;                     /* TBCD_STRING */
-static int hf_h225_hplmn = -1;                    /* TBCD_STRING */
-static int hf_h225_vplmn = -1;                    /* TBCD_STRING */
+static int hf_h225_imei = -1;                     /* TBCD_STRING_SIZE_15_16 */
+static int hf_h225_hplmn = -1;                    /* TBCD_STRING_SIZE_1_4 */
+static int hf_h225_vplmn = -1;                    /* TBCD_STRING_SIZE_1_4 */
 static int hf_h225_isupE164Number = -1;           /* IsupPublicPartyNumber */
 static int hf_h225_isupDataPartyNumber = -1;      /* IsupDigits */
 static int hf_h225_isupTelexPartyNumber = -1;     /* IsupDigits */
@@ -1895,9 +1895,45 @@ dissect_h225_PartyNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 704 "h225.cnf"
+  int min_len, max_len;
+  gboolean has_extension;
+  
+  get_size_constraint_from_stack(actx, "TBCD_STRING", &min_len, &max_len, &has_extension);
+
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
-                                                      NO_BOUND, NO_BOUND, "0123456789#*abc", 15,
+                                                      min_len, max_len, "0123456789#*abc", 15,
                                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h225_TBCD_STRING_SIZE_3_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_h225_TBCD_STRING,
+                                                "TBCD_STRING", 3, 16, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h225_TBCD_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_h225_TBCD_STRING,
+                                                "TBCD_STRING", 16, 16, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_h225_TBCD_STRING_SIZE_1_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_h225_TBCD_STRING,
+                                                "TBCD_STRING", 1, 4, FALSE);
 
   return offset;
 }
@@ -1910,8 +1946,8 @@ static const value_string h225_T_system_id_vals[] = {
 };
 
 static const per_choice_t T_system_id_choice[] = {
-  {   0, &hf_h225_sid            , ASN1_EXTENSION_ROOT    , dissect_h225_TBCD_STRING },
-  {   1, &hf_h225_mid            , ASN1_EXTENSION_ROOT    , dissect_h225_TBCD_STRING },
+  {   0, &hf_h225_sid            , ASN1_EXTENSION_ROOT    , dissect_h225_TBCD_STRING_SIZE_1_4 },
+  {   1, &hf_h225_mid            , ASN1_EXTENSION_ROOT    , dissect_h225_TBCD_STRING_SIZE_1_4 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1936,18 +1972,18 @@ dissect_h225_OCTET_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 
 static const per_sequence_t ANSI_41_UIM_sequence[] = {
-  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_min            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_mdn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_esn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_mscid          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
+  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_min            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_mdn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_esn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_16 },
+  { &hf_h225_mscid          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { &hf_h225_system_id      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h225_T_system_id },
   { &hf_h225_systemMyTypeCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_OCTET_STRING_SIZE_1 },
   { &hf_h225_systemAccessType, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_OCTET_STRING_SIZE_1 },
   { &hf_h225_qualificationInformationCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_OCTET_STRING_SIZE_1 },
-  { &hf_h225_sesn           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_soc            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
+  { &hf_h225_sesn           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_16 },
+  { &hf_h225_soc            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1970,13 +2006,23 @@ dissect_h225_OCTET_STRING_SIZE_1_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+
+static int
+dissect_h225_TBCD_STRING_SIZE_15_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_h225_TBCD_STRING,
+                                                "TBCD_STRING", 15, 16, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t GSM_UIM_sequence[] = {
-  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
+  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { &hf_h225_tmsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_OCTET_STRING_SIZE_1_4 },
-  { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_imei           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_hplmn          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
-  { &hf_h225_vplmn          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING },
+  { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_imei           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_15_16 },
+  { &hf_h225_hplmn          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_1_4 },
+  { &hf_h225_vplmn          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_1_4 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8688,27 +8734,27 @@ void proto_register_h225(void) {
     { &hf_h225_imsi,
       { "imsi", "h225.imsi",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_min,
       { "min", "h225.min",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_mdn,
       { "mdn", "h225.mdn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_msisdn,
       { "msisdn", "h225.msisdn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_esn,
       { "esn", "h225.esn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_16", HFILL }},
     { &hf_h225_mscid,
       { "mscid", "h225.mscid",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_system_id,
       { "system-id", "h225.system_id",
         FT_UINT32, BASE_DEC, VALS(h225_T_system_id_vals), 0,
@@ -8716,11 +8762,11 @@ void proto_register_h225(void) {
     { &hf_h225_sid,
       { "sid", "h225.sid",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_mid,
       { "mid", "h225.mid",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_systemMyTypeCode,
       { "systemMyTypeCode", "h225.systemMyTypeCode",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -8736,11 +8782,11 @@ void proto_register_h225(void) {
     { &hf_h225_sesn,
       { "sesn", "h225.sesn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_16", HFILL }},
     { &hf_h225_soc,
       { "soc", "h225.soc",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_tmsi,
       { "tmsi", "h225.tmsi",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -8748,15 +8794,15 @@ void proto_register_h225(void) {
     { &hf_h225_imei,
       { "imei", "h225.imei",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_15_16", HFILL }},
     { &hf_h225_hplmn,
       { "hplmn", "h225.hplmn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_vplmn,
       { "vplmn", "h225.vplmn",
         FT_STRING, BASE_NONE, NULL, 0,
-        "h225.TBCD_STRING", HFILL }},
+        "h225.TBCD_STRING_SIZE_1_4", HFILL }},
     { &hf_h225_isupE164Number,
       { "e164Number", "h225.e164Number",
         FT_NONE, BASE_NONE, NULL, 0,

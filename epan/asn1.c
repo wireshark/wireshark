@@ -125,12 +125,28 @@ static asn1_par_t *push_new_par(asn1_ctx_t *actx) {
   return par;
 }
 
+void asn1_param_push_boolean(asn1_ctx_t *actx, gboolean value) {
+  asn1_par_t *par;
+
+  par = push_new_par(actx);
+  par->ptype = ASN1_PAR_BOOLEAN;
+  par->value.v_boolean = value;
+}
+
 void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value) {
   asn1_par_t *par;
 
   par = push_new_par(actx);
   par->ptype = ASN1_PAR_INTEGER;
   par->value.v_integer = value;
+}
+
+gboolean asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name) {
+  asn1_par_t *par = NULL;
+
+  par = get_par_by_name(actx, name);
+  DISSECTOR_ASSERT(par);
+  return par->value.v_boolean;
 }
 
 gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name) {

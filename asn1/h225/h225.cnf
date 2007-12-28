@@ -697,6 +697,21 @@ H221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
 
 #=== end of GEF =========================================================================
 
+# TBCD-STRING is additionally constrained
+# parameter stack is used for passing this constraint
+
+#.FN_HDR TBCD-STRING
+  int min_len, max_len;
+  gboolean has_extension;
+  
+  get_size_constraint_from_stack(actx, "TBCD_STRING", &min_len, &max_len, &has_extension);
+#.FN_PARS TBCD-STRING
+MIN_VAL = min_len
+MAX_VAL = max_len
+EXT = has_extension
+#.END
+
+
 #.TYPE_ATTR
 H221NonStandard/t35CountryCode TYPE = FT_UINT32  DISPLAY = BASE_DEC  STRINGS = VALS(T35CountryCode_vals)
 TransportAddress/ipAddress/ip  TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
