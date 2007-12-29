@@ -35,7 +35,7 @@
 #include <string.h>
 
 /* function declarations */
-void proto_reg_handoff_dplay();
+void proto_reg_handoff_dplay(void);
 static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset);
@@ -1662,7 +1662,7 @@ void proto_register_dplay()
     }
 }
 
-void proto_reg_handoff_dplay()
+void proto_reg_handoff_dplay(void)
 {
     static int initialized = FALSE;
 
