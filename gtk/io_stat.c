@@ -89,7 +89,7 @@ static const char *plot_style_name[MAX_PLOT_STYLES] = {
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_BITS     2
 #define COUNT_TYPE_ADVANCED 3
-#define MAX_COUNT_TYPES 4
+#define MAX_COUNT_TYPES     4
 static const char *count_type_names[MAX_COUNT_TYPES] = {"Packets/Tick", "Bytes/Tick", "Bits/Tick", "Advanced..."};
 
 /* unit is in ms */
@@ -103,7 +103,7 @@ static const guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 1
 #define CALC_TYPE_MIN	3
 #define CALC_TYPE_AVG	4
 #define CALC_TYPE_LOAD	5
-#define MAX_CALC_TYPES 6
+#define MAX_CALC_TYPES  6
 static const char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
 
 
@@ -149,6 +149,8 @@ typedef struct _io_stat_t {
 	guint32 last_interval; 
 	guint32 max_interval; /* XXX max_interval and num_items are redundant */
 	guint32 num_items;
+	gboolean view_as_time;
+	nstime_t start_time;
 
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	GtkWidget *window;
@@ -210,6 +212,8 @@ io_stat_reset(io_stat_t *io)
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
 	io->num_items=0;
+	io->start_time.secs=0;
+	io->start_time.nsecs=0;
 
 	io_stat_set_title(io);
 }
@@ -262,6 +266,11 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	if((guint32)idx > git->io->num_items){
 		git->io->num_items=idx;
 		git->io->max_interval=(idx+1)*git->io->interval;
+	}
+
+	/* set start time */
+	if(git->io->start_time.secs == 0 && git->io->start_time.nsecs == 0) {
+		git->io->start_time = pinfo->fd->abs_ts;
 	}
 
 	/*
@@ -520,7 +529,7 @@ io_stat_draw(io_stat_t *io)
 #endif
 	int label_width, label_height;
 	guint32 draw_width, draw_height;
-	char label_string[15];
+	char label_string[45];
 
 	/* new variables */
 	guint32 num_time_intervals;
@@ -584,7 +593,6 @@ io_stat_draw(io_stat_t *io)
                            0, 0,
                            io->draw_area->allocation.width,
                            io->draw_area->allocation.height);
-
 
 	/*
 	 * Calculate the y scale we should use
@@ -808,16 +816,36 @@ io_stat_draw(io_stat_t *io)
 
 		if(xlen==10){
 			int lwidth=10;
-			if(io->interval>=60000){
-				g_snprintf(label_string, 15, "%dm", current_interval/60000);
-			} else if(io->interval>=1000){
-				g_snprintf(label_string, 15, "%ds", current_interval/1000);
-			} else if(io->interval>=100){
-				g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
-			} else if(io->interval>=10){
-				g_snprintf(label_string, 15, "%d.%02ds", current_interval/1000,(current_interval/10)%100);
+			if (io->view_as_time) {
+				struct tm *tmp;
+				time_t sec_val = current_interval/1000 + io->start_time.secs;
+				gint32 nsec_val = current_interval%1000 + io->start_time.nsecs/1000000;
+				if(nsec_val >= 1000) {
+				  sec_val++;
+				  nsec_val -= 1000;
+				}
+				tmp = localtime (&sec_val);
+				if(io->interval>=1000){
+					g_snprintf(label_string, 15, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+				} else if(io->interval>=100){
+					g_snprintf(label_string, 15, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
+				} else if(io->interval>=10){
+					g_snprintf(label_string, 15, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
+				} else {
+					g_snprintf(label_string, 15, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
+				}
 			} else {
-				g_snprintf(label_string, 15, "%d.%03ds", current_interval/1000,current_interval%1000);
+				if(io->interval>=60000){
+					g_snprintf(label_string, 15, "%dm", current_interval/60000);
+				} else if(io->interval>=1000){
+					g_snprintf(label_string, 15, "%ds", current_interval/1000);
+				} else if(io->interval>=100){
+					g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
+				} else if(io->interval>=10){
+					g_snprintf(label_string, 15, "%d.%02ds", current_interval/1000,(current_interval/10)%100);
+				} else {
+					g_snprintf(label_string, 15, "%d.%03ds", current_interval/1000,current_interval%1000);
+				}
 			}
 #if GTK_MAJOR_VERSION < 2
 			if (current_interval!=0) {
@@ -1062,6 +1090,8 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
 	io->num_items=0;
+	io->start_time.secs=0;
+	io->start_time.nsecs=0;
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].gc=NULL;
@@ -1468,11 +1498,32 @@ create_ctrl_menu(io_stat_t *io, GtkWidget *box, const char *name, void (*func)(i
 }
 
 static void
+view_as_time_toggle_dest(GtkWidget *widget _U_, gpointer key)
+{
+	io_stat_t *io;
+
+	io=(io_stat_t *)key;
+	io->view_as_time = io->view_as_time ? FALSE : TRUE;
+
+	io_stat_redraw(io);
+}
+
+static void
 create_ctrl_area(io_stat_t *io, GtkWidget *box)
 {
 	GtkWidget *frame_vbox;
 	GtkWidget *frame;
 	GtkWidget *vbox;
+	GtkWidget *view_cb;
+#if GTK_MAJOR_VERSION < 2
+	GtkAccelGroup *accel_group;
+
+	/* Accelerator group for the accelerators (or, as they're called in
+	   Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+	   Ctrl+<key> is an accelerator). */
+	accel_group = gtk_accel_group_new();
+	gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
+#endif
 
 	frame_vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
@@ -1490,6 +1541,12 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	create_ctrl_menu(io, vbox, "Tick interval:", create_tick_interval_menu_items);
 	create_ctrl_menu(io, vbox, "Pixels per tick:", create_pixels_per_tick_menu_items);
+
+	view_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_View as time of day", accel_group);
+	gtk_container_add(GTK_CONTAINER(vbox), view_cb);
+	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), FALSE);
+	SIGNAL_CONNECT(view_cb, "toggled", view_as_time_toggle_dest, io);
+	gtk_widget_show(view_cb);
 
 	frame = gtk_frame_new("Y Axis");
 	gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
