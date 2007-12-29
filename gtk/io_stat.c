@@ -1522,7 +1522,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	   Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
 	   Ctrl+<key> is an accelerator). */
 	accel_group = gtk_accel_group_new();
-	gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
+	gtk_window_add_accel_group(GTK_WINDOW(io->window), accel_group);
 #endif
 
 	frame_vbox=gtk_vbox_new(FALSE, 0);
@@ -1911,13 +1911,13 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 	GtkWidget *vbox;
 	int i;
 
-    frame=gtk_frame_new("Graphs");
+	frame=gtk_frame_new("Graphs");
 	gtk_container_add(GTK_CONTAINER(box), frame);
 	gtk_widget_show(frame);
 
 	vbox=gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-    gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(vbox);
 
@@ -1951,7 +1951,7 @@ init_io_stat_window(io_stat_t *io)
 
 	hbox=gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(hbox), 3);
+	gtk_container_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 
@@ -1960,41 +1960,41 @@ init_io_stat_window(io_stat_t *io)
 
 	io_stat_set_title(io);
 
-    if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
+	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
 #if GTK_CHECK_VERSION(2,6,0)
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
-				  GTK_STOCK_HELP, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
+					  GTK_STOCK_HELP, NULL);
 #else
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 #endif
-    } else {
+	} else {
 #if GTK_CHECK_VERSION(2,6,0)
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
 #else
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 #endif
-    }
+	}
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+	gtk_widget_show(bbox);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
+	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
 
 #if GTK_CHECK_VERSION(2,6,0)
-    save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
-    gtk_widget_set_sensitive(save_bt, FALSE);
-    OBJECT_SET_DATA(io->window, "save_bt", save_bt);
+	save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+	gtk_widget_set_sensitive(save_bt, FALSE);
+	OBJECT_SET_DATA(io->window, "save_bt", save_bt);
 #endif
 
-    if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
-    }
+	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
+		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
+	}
 
-    SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
 
-    gtk_widget_show(io->window);
-    window_present(io->window);
+	gtk_widget_show(io->window);
+	window_present(io->window);
 }
 
 
