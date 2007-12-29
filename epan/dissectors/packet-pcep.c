@@ -1860,7 +1860,7 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2,
 /*------------------------------------------------------------------------------
  * LOAD-BALANCING OBJECT 
  *------------------------------------------------------------------------------*/		      
-#define LOAD_BALANCING_OBJ_MIN_LEN	8
+#define LOAD_BALANCING_OBJ_LEN	8
 
 static void 
 dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, int obj_length)
@@ -1870,10 +1870,10 @@ dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offs
 	guint8 max_LSP;
 	guint32 min_bandwidth;
 
-	if (obj_length < OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN) {
+	if (obj_length != OBJ_HDR_LEN+LOAD_BALANCING_OBJ_LEN) {
 		proto_tree_add_text(pcep_object_tree, tvb, offset2, obj_length,
-		    "Bad LOAD-BALANCING object length %u, should be >= %u", obj_length,
-		    OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN);
+		    "Bad LOAD-BALANCING object length %u, should be %u", obj_length,
+		    OBJ_HDR_LEN+LOAD_BALANCING_OBJ_LEN);
 		return;
 	}
 
@@ -1888,11 +1888,6 @@ dissect_pcep_balancing_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offs
 
 	min_bandwidth = tvb_get_ntohl(tvb, offset2+4);
 	proto_tree_add_text(pcep_object_tree, tvb, offset2+4, 4, "Minimun Bandwidth: 0x%08x", min_bandwidth);
-
-	/*it's suppose that obj_length is a a valid date. The object can have optional TLV(s)*/
-	offset2 += LOAD_BALANCING_OBJ_MIN_LEN;
-	obj_length -= OBJ_HDR_LEN+LOAD_BALANCING_OBJ_MIN_LEN;
-	dissect_pcep_tlvs(pcep_object_tree, tvb, offset2, obj_length, ett_pcep_obj_load_balancing);
 }
 
 /*------------------------------------------------------------------------------
