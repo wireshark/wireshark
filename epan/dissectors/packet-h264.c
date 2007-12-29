@@ -310,7 +310,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 {
 	gint		leading_zero_bits, bit_offset;
 	guint32		codenum, mask, value, tmp;
-	gint32		se_value;		
+	gint32		se_value=0;		
 	gint		b;
 	char *str;
 	int bit;
