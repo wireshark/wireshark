@@ -51,6 +51,14 @@ static dfilter_macro_t* macros = NULL;
 static guint num_macros;
 static GHashTable* fvt_cache = NULL;
 
+/* #define DUMP_DFILTER_MACRO */
+#ifdef DUMP_DFILTER_MACRO
+void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const char *file, int line);
+#define DUMP_MACRO(m) dump_dfilter_macro_t(m, __func__, __FILE__, __LINE__)
+#else
+#define DUMP_MACRO(m)
+#endif
+
 static gboolean free_value(gpointer k _U_, gpointer v, gpointer u _U_) {
 	fvt_cache_entry_t* e = v;
 	if (e->repr) g_free(e->repr);
@@ -174,6 +182,8 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 			return NULL;
 		}
 	}
+
+	DUMP_MACRO(m);
 
 	if (args) {
 		while(args[argc]) argc++;
@@ -386,6 +396,8 @@ static void macro_update(void* mp, const gchar** error) {
 	int argc = 0;
 	guint i;
 
+	DUMP_MACRO(m);
+
 	*error = NULL;
 
 	for (i = 0; i < num_macros; i++) {
@@ -470,11 +482,15 @@ done:
 
 	macro_dump(m,NULL);
 
+	DUMP_MACRO(m);
+
 	return;
 }
 
 static void macro_free(void* r) {
 	dfilter_macro_t* m = r;
+
+	DUMP_MACRO(r);
 
 	g_free(m->name);
 	g_free(m->text);
@@ -486,23 +502,75 @@ static void macro_free(void* r) {
 static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 	dfilter_macro_t* d = dest;
 	const dfilter_macro_t* m = orig;
-	guint nparts = 0;
+
+	DUMP_MACRO(m);
 
 	d->name = g_strdup(m->name);
 	d->text = g_strdup(m->text);
 	d->usable = m->usable;
 
 	if (m->parts) {
+		guint nparts = 0;
+
+		/*
+		 * Copy the contents of m->priv (a "cooked" version
+		 * of m->text) into d->priv.
+		 * 
+		 * First we clone m->text into d->priv, this gets
+		 * us a NUL terminated string of the proper length.
+		 *
+		 * Then we loop copying bytes from m->priv into 
+		 * d-priv.  Since m->priv contains internal ACSII NULs 
+		 * we use the length of m->text to stop the copy.
+                 */
+
+		d->priv = g_strdup(m->text);
+		{
+			const gchar* oldText = m->text;
+			const gchar* oldPriv = m->priv;
+			gchar* newPriv = d->priv;
+			while(oldText && *oldText) {
+				*(newPriv++) = *(oldPriv++);
+				oldText++; 
+			}
+		}
+
+		/*
+		 * The contents of the m->parts array contains pointers
+		 * into various sections of m->priv.  Since it's
+		 * an argv style array of ponters, this array is
+		 * actually one larger than the number of parts
+		 * to hold the final NULL terminator.
+		 *
+		 * The following copy clones the original m->parts
+		 * array into d->parts but then fixes-up the pointers 
+		 * so that they point into the appropriate sections 
+		 * of the d->priv.
+                 */
+
 		do nparts++; while (m->parts[nparts]);
-		d->priv = g_strdup(m->priv);
-		d->parts = g_memdup(m->parts,nparts*sizeof(void*));
+		d->parts = g_memdup(m->parts,(nparts+1)*sizeof(void*));
+		nparts = 0;
+		while(m->parts[nparts]) {
+			if(nparts) {
+				d->parts[nparts] = d->parts[nparts - 1] + (m->parts[nparts] - m->parts[nparts - 1]);
+			} else {
+				d->parts[nparts] = d->priv;
+			}
+			nparts++;
+		}
+
+		/*
+		 * Clone the contents of m->args_pos into d->args_pos.
+		 */
+
 		d->args_pos = g_memdup(m->args_pos,(--nparts)*sizeof(int));
 	}
 
+	DUMP_MACRO(d);
 
 	return d;
 }
-
 
 static gboolean macro_name_chk(void* r _U_, const char* in_name, unsigned name_len, void* u1 _U_, void* u2 _U_, const char** error) {
 	guint i;
@@ -551,6 +619,97 @@ void dfilter_macro_get_uat(void** p) {
 	*p = dfilter_macro_uat;
 }
 
+#ifdef DUMP_DFILTER_MACRO
+/*
+ * The dfilter_macro_t has several characteristics that are
+ * not immediattly obvious. The dump_dfilter_filter_macro_t() 
+ * function can be used to help "visualize" the contents of 
+ * a dfilter_macro_t.
+ *
+ * Some non-obvious components of this struct include:
+ *
+ *    m->parts is an argv style array of pointers into the
+ *    m->priv string.  
+ *
+ *    The last pointer of an m->parts array should contain
+ *    NULL to indicate the end of the parts pointer array.
+ *
+ *    m->priv is a "cooked" copy of the m->text string.
+ *    Any variable substitution indicators within m->text 
+ *    ("$1", "$2", ...) will have been replaced with ASCII 
+ *    NUL characters within m->priv.
+ *
+ *    The first element of m->parts array (m-parts[0]) will 
+ *    usually have the same pointer value as m->priv (unless 
+ *    the dfilter-macro starts off with a variable 
+ *    substitution indicator (e.g. "$1").
+ */
 
+void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const char *file, int line)
+{
+	printf("\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 
+	if(m == NULL) {
+		printf("  dfilter_macro_t * == NULL! (via: %s(): %s:%d)\n", function, file, line);
+		printf("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+	}
+
+	printf("DUMP of dfilter_macro_t: %p (via: %s(): %s:%d)\n", m, function, file, line);
+
+	printf("  &dfilter_macro->name     == %p\n", &m->name);
+	if(m->name == NULL) {
+		printf("                ->name     == NULL\n");
+	} else {
+		printf("                ->name     == %p\n", m->name);
+		printf("                ->name     == <%s>\n", m->name);
+	}
+
+	printf("  &dfilter_macro->text     == %p\n", &m->text);
+	if(m->text == NULL) {
+		printf("                ->text     == NULL\n");
+	} else {
+		printf("                ->text     == %p\n", m->text);
+		printf("                ->text     == <%s>\n", m->text);
+	}
+
+	printf("  &dfilter_macro->usable   == %p\n", &m->usable);
+	printf("                ->usable   == %u\n", m->usable);
+
+	printf("  &dfilter_macro->parts    == %p\n", &m->parts);
+
+	if(m->parts == NULL) {
+		printf("                ->parts    == NULL\n");
+	} else {
+		int i = 0;
+
+		while (m->parts[i]) {
+			printf("                ->parts[%d] == %p\n", i, m->parts[i]);
+			printf("                ->parts[%d] == <%s>\n", i, m->parts[i]);
+			i++;
+		}
+		printf("                ->parts[%d] == NULL\n", i);
+	}
+
+	printf("  &dfilter_macro->args_pos == %p\n", &m->args_pos);
+	if(m->args_pos == NULL) {
+		printf("                ->args_pos == NULL\n");
+	} else {
+		printf("                ->args_pos == %p\n", m->args_pos);
+		/*printf("                ->args_pos == <%?>\n", m->args_pos);*/
+	}
+
+	printf("  &dfilter_macro->argc     == %p\n", &m->argc);
+	printf("                ->argc     == %d\n", m->argc);
+
+	printf("  &dfilter_macro->priv     == %p\n", &m->priv);
+	if(m->priv == NULL) {
+		printf("                ->priv     == NULL\n");
+	} else {
+		printf("                ->priv     == %p\n", m->priv);
+		printf("                ->priv     == <%s>\n", (char *)m->priv);
+	}
+
+	printf("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+}
+#endif
 
