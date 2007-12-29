@@ -239,7 +239,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	git->io->needs_redraw=TRUE;
 
 	/* 
-	 * Find which interval this is supposed to to in and store the
+	 * Find which interval this is supposed to go in and store the
 	 * interval index as idx
 	 */
 	time_delta=pinfo->fd->rel_ts;
@@ -254,6 +254,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 	/* some sanity checks */
 	if((idx<0)||(idx>=NUM_IO_ITEMS)){
+		git->io->num_items = NUM_IO_ITEMS-1;
 		return FALSE;
 	}
 
@@ -669,6 +670,26 @@ io_stat_draw(io_stat_t *io)
 	draw_width=io->pixmap_width-right_x_border-left_x_border;
 	draw_height=io->pixmap_height-top_y_border-bottom_y_border;
 
+
+	/*
+	 * Add a warning if too many entries
+	 */
+	if (num_time_intervals == NUM_IO_ITEMS) {
+		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
+#if GTK_MAJOR_VERSION < 2
+		gdk_draw_string(io->pixmap,
+				font,
+				io->draw_area->style->black_gc, 5,
+				io->pixmap_height-bottom_y_border-draw_height+label_height/2,
+				label_string);
+#else
+		pango_layout_set_text(layout, label_string, -1);
+		gdk_draw_layout(io->pixmap,
+				io->draw_area->style->black_gc, 5, 
+				io->pixmap_height-bottom_y_border-draw_height-label_height/2,
+				layout);
+#endif
+	}
 
 	/* 
 	 * Draw the y axis and labels
@@ -1735,7 +1756,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(hbox);
 
 	g_snprintf(str, 256, "Graph %d", num);
-    gio->display_button=gtk_toggle_button_new_with_label(str);
+	gio->display_button=gtk_toggle_button_new_with_label(str);
 	gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
@@ -1746,7 +1767,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 #if GTK_MAJOR_VERSION < 2
-    /* setting the color of the display button doesn't work */
+	/* setting the color of the display button doesn't work */
 	rc_style = gtk_rc_style_new ();
 	rc_style->fg[GTK_STATE_NORMAL] = gio->color;
 	rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG;
@@ -1794,7 +1815,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, FALSE, FALSE, 0);
 	gtk_widget_show(gio->filter_field);
 	SIGNAL_CONNECT(gio->filter_field, "activate", filter_callback, gio);
-    SIGNAL_CONNECT(gio->filter_field, "changed", filter_te_syntax_check_cb, NULL);
+	SIGNAL_CONNECT(gio->filter_field, "changed", filter_te_syntax_check_cb, NULL);
 
 	create_advanced_box(gio, hbox);
 
