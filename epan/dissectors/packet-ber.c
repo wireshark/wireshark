@@ -3376,7 +3376,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		  if((seq->class!=class)
 			||(seq->tag!=tag) ){
 			if(!(seq->flags & BER_FLAGS_NOTCHKTAG)) {
-				cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SQ OF");
+				cause = proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SQ OF(tag %u expected %u)",tag,seq->tag);
 				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
 				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "BER Error: Wrong field in Sequence Of");
 				if (decode_unexpected) {
