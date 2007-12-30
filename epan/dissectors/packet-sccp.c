@@ -131,43 +131,43 @@ const value_string sccp_message_type_acro_values[] = {
 #define PARAMETER_SEGMENTING_REASSEMBLING	0x06
 #define PARAMETER_RECEIVE_SEQUENCE_NUMBER	0x07
 #define PARAMETER_SEQUENCING_SEGMENTING		0x08
-#define PARAMETER_CREDIT			0x09
-#define PARAMETER_RELEASE_CAUSE			0x0a
-#define PARAMETER_RETURN_CAUSE			0x0b
-#define PARAMETER_RESET_CAUSE			0x0c
-#define PARAMETER_ERROR_CAUSE			0x0d
-#define PARAMETER_REFUSAL_CAUSE			0x0e
-#define PARAMETER_DATA				0x0f
-#define PARAMETER_SEGMENTATION			0x10
-#define PARAMETER_HOP_COUNTER			0x11
+#define PARAMETER_CREDIT					0x09
+#define PARAMETER_RELEASE_CAUSE				0x0a
+#define PARAMETER_RETURN_CAUSE				0x0b
+#define PARAMETER_RESET_CAUSE				0x0c
+#define PARAMETER_ERROR_CAUSE				0x0d
+#define PARAMETER_REFUSAL_CAUSE				0x0e
+#define PARAMETER_DATA						0x0f
+#define PARAMETER_SEGMENTATION				0x10
+#define PARAMETER_HOP_COUNTER				0x11
 /* The below 2 are ITU only */
-#define PARAMETER_IMPORTANCE			0x12
-#define PARAMETER_LONG_DATA			0x13
+#define PARAMETER_IMPORTANCE				0x12
+#define PARAMETER_LONG_DATA					0x13
 /* ISNI is ANSI only */
-#define PARAMETER_ISNI				0xfa
+#define PARAMETER_ISNI						0xfa
 
 static const value_string sccp_parameter_values[] = {
-  { PARAMETER_END_OF_OPTIONAL_PARAMETERS, "End of Optional Parameters" },
-  { PARAMETER_DESTINATION_LOCAL_REFERENCE, "Destination Local Reference" },
-  { PARAMETER_SOURCE_LOCAL_REFERENCE,     "Source Local Reference" },
-  { PARAMETER_CALLED_PARTY_ADDRESS,       "Called Party Address" },
-  { PARAMETER_CALLING_PARTY_ADDRESS,      "Calling Party Address" },
-  { PARAMETER_CLASS,			  "Protocol Class" },
-  { PARAMETER_SEGMENTING_REASSEMBLING,    "Segmenting/Reassembling" },
-  { PARAMETER_RECEIVE_SEQUENCE_NUMBER,    "Receive Sequence Number" },
-  { PARAMETER_SEQUENCING_SEGMENTING,      "Sequencing/Segmenting" },
-  { PARAMETER_CREDIT,			  "Credit" },
-  { PARAMETER_RELEASE_CAUSE,		  "Release Cause" },
-  { PARAMETER_RETURN_CAUSE,		  "Return Cause" },
-  { PARAMETER_RESET_CAUSE,		  "Reset Cause" },
-  { PARAMETER_ERROR_CAUSE,		  "Error Cause" },
-  { PARAMETER_REFUSAL_CAUSE,		  "Refusal Cause" },
-  { PARAMETER_DATA,			  "Data" },
-  { PARAMETER_SEGMENTATION,		  "Segmentation" },
-  { PARAMETER_HOP_COUNTER,		  "Hop Counter" },
-  { PARAMETER_IMPORTANCE,		  "Importance (ITU)" },
-  { PARAMETER_LONG_DATA,		  "Long Data (ITU)" },
-  { PARAMETER_ISNI,			  "Intermediate Signaling Network Identification (ANSI)" },
+  { PARAMETER_END_OF_OPTIONAL_PARAMETERS,	"End of Optional Parameters" },
+  { PARAMETER_DESTINATION_LOCAL_REFERENCE,	"Destination Local Reference" },
+  { PARAMETER_SOURCE_LOCAL_REFERENCE,		"Source Local Reference" },
+  { PARAMETER_CALLED_PARTY_ADDRESS,			"Called Party Address" },
+  { PARAMETER_CALLING_PARTY_ADDRESS,		"Calling Party Address" },
+  { PARAMETER_CLASS,						"Protocol Class" },
+  { PARAMETER_SEGMENTING_REASSEMBLING,		"Segmenting/Reassembling" },
+  { PARAMETER_RECEIVE_SEQUENCE_NUMBER,		"Receive Sequence Number" },
+  { PARAMETER_SEQUENCING_SEGMENTING,		"Sequencing/Segmenting" },
+  { PARAMETER_CREDIT,						"Credit" },
+  { PARAMETER_RELEASE_CAUSE,				"Release Cause" },
+  { PARAMETER_RETURN_CAUSE,					"Return Cause" },
+  { PARAMETER_RESET_CAUSE,					"Reset Cause" },
+  { PARAMETER_ERROR_CAUSE,					"Error Cause" },
+  { PARAMETER_REFUSAL_CAUSE,				"Refusal Cause" },
+  { PARAMETER_DATA,							"Data" },
+  { PARAMETER_SEGMENTATION,					"Segmentation" },
+  { PARAMETER_HOP_COUNTER,					"Hop Counter" },
+  { PARAMETER_IMPORTANCE,					"Importance (ITU)" },
+  { PARAMETER_LONG_DATA,					"Long Data (ITU)" },
+  { PARAMETER_ISNI,							"Intermediate Signaling Network Identification (ANSI)" },
   { 0,					  NULL } };
 
 
@@ -1513,9 +1513,9 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const mtp3_addr_pc_t* opc;
 
     if (trace_sccp && assoc && assoc != &no_assoc) {
-	pinfo->sccp_info = assoc->curr_msg;
+		pinfo->sccp_info = assoc->curr_msg;
     } else {
-	pinfo->sccp_info = NULL;
+		pinfo->sccp_info = NULL;
     }
 
     switch (pinfo->p2p_dir) {
@@ -1802,39 +1802,39 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_SEGMENTATION:
-      dissect_sccp_segmentation_param(parameter_tvb, sccp_tree, parameter_length);
+		dissect_sccp_segmentation_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_HOP_COUNTER:
-      dissect_sccp_hop_counter_param(parameter_tvb, sccp_tree, parameter_length);
+		dissect_sccp_hop_counter_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     case PARAMETER_IMPORTANCE:
       if (decode_mtp3_standard != ANSI_STANDARD)
-	dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
+		  dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
       else
-	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
+		  dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
       break;
 
     case PARAMETER_LONG_DATA:
       if (decode_mtp3_standard != ANSI_STANDARD)
-	dissect_sccp_data_param(parameter_tvb, pinfo, tree);
+		  dissect_sccp_data_param(parameter_tvb, pinfo, tree);
       else
-	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
+		  dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
       break;
 
     case PARAMETER_ISNI:
       if (decode_mtp3_standard != ANSI_STANDARD)
-	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
+		  dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
       else
-	dissect_sccp_isni_param(parameter_tvb, sccp_tree, parameter_length);
+		  dissect_sccp_isni_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     default:
-      dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
+		dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				 parameter_length);
       break;
     }
@@ -2332,65 +2332,62 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				    variable_pointer2);
 
     if ((parameter_type = tvb_get_guint8(tvb, optional_pointer)) == PARAMETER_SEGMENTATION){
-	if (!sccp_xudt_desegment){
-	    proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
+		if (!sccp_xudt_desegment){
+			proto_tree_add_text(sccp_tree, tvb, variable_pointer3, tvb_get_guint8(tvb, variable_pointer3)+1, "Segmented Data");
+		} else {
+			guint8 octet;
+			gboolean more_frag = TRUE;
 
-	} else {
-	    guint8 octet;
-	    gboolean more_frag = TRUE;
 
+		    /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
+		     * Bit 8 of octet 1 is used for First segment indication
+		     * Bit 7 of octet 1 is used to keep in the message in sequence
+		     *	     delivery option required by the SCCP user
+		     * Bits 6 and 5 in octet 1 are spare bits.
+		     * Bits 4-1 of octet 1 are used to indicate the number of
+		     *		remaining segments.
+		     * The values 0000 to 1111 are possible; the value 0000 indicates
+		     * the last segment.
+		     */
+		    octet = tvb_get_guint8(tvb,optional_pointer+2);
+		    source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
 
-	    /* Get the first octet of parameter Segmentation, Ch 3.17 in Q.713
-	     * Bit 8 of octet 1 is used for First segment indication
-	     * Bit 7 of octet 1 is used to keep in the message in sequence
-	     *	     delivery option required by the SCCP user
-	     * Bits 6 and 5 in octet 1 are spare bits.
-	     * Bits 4-1 of octet 1 are used to indicate the number of
-	     *		remaining segments.
-	     * The values 0000 to 1111 are possible; the value 0000 indicates
-	     * the last segment.
-	     */
-	    octet = tvb_get_guint8(tvb,optional_pointer+2);
-	    source_local_ref = tvb_get_letoh24(tvb, optional_pointer+3);
+		    if ((octet&0x0f) == 0)
+				more_frag = FALSE;
 
-	    if ((octet&0x0f) == 0)
-		more_frag = FALSE;
+			save_fragmented = pinfo->fragmented;
+			pinfo->fragmented = TRUE;
+			frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
+				source_local_ref,				/* ID for fragments belonging together */
+				sccp_xudt_msg_fragment_table,		/* list of message fragments */
+				sccp_xudt_msg_reassembled_table,		/* list of reassembled messages */
+				tvb_get_guint8(tvb,variable_pointer3),	/* fragment length - to the end */
+				more_frag);					/* More fragments? */
 
-	    save_fragmented = pinfo->fragmented;
-	    pinfo->fragmented = TRUE;
-	    frag_msg = fragment_add_seq_next(tvb, variable_pointer3 + 1, pinfo,
-		    source_local_ref,				/* ID for fragments belonging together */
-		    sccp_xudt_msg_fragment_table,		/* list of message fragments */
-		    sccp_xudt_msg_reassembled_table,		/* list of reassembled messages */
-		    tvb_get_guint8(tvb,variable_pointer3),	/* fragment length - to the end */
-		    more_frag);					/* More fragments? */
+			if ((octet&0x80) == 0x80) /*First segment, set number of segments*/
+				fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
 
-	    if ((octet&0x80) == 0x80) /*First segment, set number of segments*/
-		fragment_set_tot_len(pinfo, source_local_ref, sccp_xudt_msg_fragment_table,(octet & 0xf));
-
-	    new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
+			new_tvb = process_reassembled_data(tvb, variable_pointer3 + 1,
 					       pinfo, "Reassembled Message",
 					       frag_msg,
 					       &sccp_xudt_msg_frag_items,
 					       NULL, tree);
 
-	    if (frag_msg) { /* Reassembled */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_str(pinfo->cinfo, COL_INFO,
-				   "(Message reassembled) ");
-	    } else { /* Not last packet of reassembled message */
-		if (check_col(pinfo->cinfo, COL_INFO))
-		    col_append_str(pinfo->cinfo, COL_INFO,
-				    "(Message fragment) ");
-	    }
+			if (frag_msg) { /* Reassembled */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO,"(Message reassembled) ");
+			} else { /* Not last packet of reassembled message */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO,"(Message fragment) ");
+			}
 
-	    pinfo->fragmented = save_fragmented;
+			pinfo->fragmented = save_fragmented;
 
-	    if (new_tvb)
-		dissect_sccp_data_param(new_tvb, pinfo, tree);
-	}
+			if (new_tvb)
+				dissect_sccp_data_param(new_tvb, pinfo, tree);
+		}
     } else {
-	dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
+		dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 					PARAMETER_DATA, variable_pointer3);
     }
     break;
