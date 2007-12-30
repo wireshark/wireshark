@@ -380,13 +380,13 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>Filter:</command> a display filter for this graph (only the 
+	<command>Filter</command>: a display filter for this graph (only the 
 	packets that pass this filter will be taken into account for this graph)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Style:</command> the style of the graph (Line/Impulse/FBar/Dot)
+	<command>Style</command>: the style of the graph (Line/Impulse/FBar/Dot)
 	</para>
 	</listitem>
 	</itemizedlist>	
@@ -405,6 +405,12 @@
 	<listitem>
 	<para>
 	<command>Pixels per tick</command>: use 10/5/2/1 pixels per tick interval
+	</para>
+	</listitem>
+	<listitem>
+	<para>
+	<command>View as time of day</command>: option to view x direction labels 
+	as time of day instead of seconds or minutes since beginning of capture
 	</para>
 	</listitem>
 	</itemizedlist>
