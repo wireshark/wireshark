@@ -418,12 +418,14 @@ static gint address_equal_func(gconstpointer v, gconstpointer v2)
 }
 
 /* Check to see if this mac & ip pair represent 2 devices trying to share
-   the same IP address - report if found */
-static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
-                                          tvbuff_t *tvb,
-                                          const gchar *mac, guint32 ip)
+   the same IP address - report if found (+ return TRUE and set out param) */
+static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
+                                              tvbuff_t *tvb,
+                                              const gchar *mac, guint32 ip,
+                                              guint32 *duplicate_ip)
 {
-    struct address_hash_value *value;
+    struct   address_hash_value *value;
+    gboolean return_value = FALSE;
 
     /* Look up any existing entries */
     value = g_hash_table_lookup(address_hash_table, GUINT_TO_POINTER(ip));
@@ -470,6 +472,9 @@ static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                                          tvb, 0, 0,
                                          (guint32)(pinfo->fd->abs_ts.secs - value->time_of_entry));
                 PROTO_ITEM_SET_GENERATED(ti);
+
+                *duplicate_ip = ip;
+                return_value = TRUE;
             }
         }
     }
@@ -484,6 +489,8 @@ static void check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
         /* Add it */
         g_hash_table_insert(address_hash_table, GUINT_TO_POINTER(ip), value);
     }
+
+    return return_value;
 }
 
 
@@ -848,6 +855,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int         sha_offset, spa_offset, tha_offset, tpa_offset;
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gboolean    is_gratuitous;
+  gboolean    duplicate_detected = FALSE;
+  guint32     duplicate_ip = 0;
 
   /* Call it ARP, for now, so that if we throw an exception before
      we decide whether it's ARP or RARP or IARP or ATMARP, it shows
@@ -923,7 +932,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* inform resolv.c module of the new discovered addresses */
 
-    guint ip;
+    guint32 ip;
     const guint8 *mac;
 
     /* Add sender address if sender MAC address is neither a broadcast/
@@ -936,7 +945,9 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       add_ether_byip(ip, mac);
       if (global_arp_detect_duplicate_ip_addresses)
       {
-        check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip);
+        duplicate_detected =
+            check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
+                                          &duplicate_ip);
       }
     }
 
@@ -955,7 +966,9 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       add_ether_byip(ip, mac);
       if (global_arp_detect_duplicate_ip_addresses)
       {
-        check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip);
+        duplicate_detected =
+            check_for_duplicate_addresses(pinfo, tree, tvb, mac, ip,
+                                          &duplicate_ip);
       }
     }
   }
@@ -1075,6 +1088,16 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (global_arp_detect_request_storm)
   {
     check_for_storm_count(tvb, pinfo, arp_tree);
+  }
+
+  if (duplicate_detected)
+  {
+    /* Also indicate in info column */
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " (duplicate use of %s detected!)",
+                      arpproaddr_to_str((guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
+    }
   }
 }
 
