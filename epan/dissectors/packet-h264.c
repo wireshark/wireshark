@@ -1580,7 +1580,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 */
 
 static void
-dissect_h264_pnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gchar *name) 
+dissect_h264_pnm(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, const gchar *name) 
 {
   asn1_ctx_t *actx;
 
@@ -1611,7 +1611,7 @@ static const int *profile_fields[] = {
 };
 
 static int
-dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
   int offset = 0;
 
@@ -1629,7 +1629,8 @@ static const value_string h264_par_level_values[] = {
   { 0,	NULL }
 };
 
-dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
 {
   int offset = 0;
   guint16 lvl;
