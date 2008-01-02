@@ -6,13 +6,10 @@ MTSAbstractService	x411
 
 #.IMPORT ../ftam/ftam-exp.cnf
 #.IMPORT ../x411/x411-exp.cnf
+#.IMPORT ../p7/p7-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../acse/acse-exp.cnf
-
-#.MODULE
-x420		x420
-ftbp		ftbp
 
 #.EXPORTS
 ORDescriptor
@@ -45,7 +42,6 @@ EncryptedBodyPart/parameters	encrypted_parameters
 TeletexParameters/non-basic-parameters		teletex_non_basic_parameters
 G3FacsimileParameters/non-basic-parameters	g3facsimile_non_basic_parameters
 
-BodyPart/encrypted		encrypted_bp
 CirculationSignatureData/algorithm-identifier	circulation-signature-algorithm-identifier
 
 Account-Attribute/actual-values		account-actual-values
@@ -53,16 +49,20 @@ User-Identity-Attribute/actual-values	identity-actual-values
 
 MessageReference/user-relative-identifier user-relative-identifier-ref
 
-#.PDU
-OriginatingUA
-AbsenceAdvice
-ChangeOfAddressAdvice
-IPMAssemblyInstructions
-FileTransferData
-FileTransferParameters
+BodyPartSignatureVerification/_item/body-part-signature	body-part-signature-status
+BodyPart/basic/encrypted		encrypted-bp
+BodyPartSynopsis/message		message-synopsis
+NonMessageBodyPartSynopsis/type		bp-type
+NonMessageBodyPartSynopsis/parameters	bp-parameters
+
+ForwardedContentToken/_item/body-part-choice	body-part-token-choice
+ForwardedContentToken/_item/body-part-choice/message-or-content-body-part	forwarded-content-token
+
+#.TYPE_RENAME
+
+ForwardedContentToken/_item/body-part-choice	T_body_part_token_choice
 
 #.REGISTER
-OriginatingUA 			B "1.2.826.0.1004.10.1.1" "nexor-originating-ua"
 AbsenceAdvice			B "2.6.1.19.0"  "id-on-absence-advice"
 ChangeOfAddressAdvice	B "2.6.1.19.1"  "id-on-change-of-address-advice"
 IPMAssemblyInstructions	B "2.6.1.17.2"  "id-mst-assembly-instructions"
@@ -87,7 +87,7 @@ IA5TextData 				B "2.6.1.4.0" 	"id-et-ia5-text"
 IA5TextParameters 			B "2.6.1.11.0" 	"id-ep-ia5-text"
 G3FacsimileData 			B "2.6.1.4.2" 	"id-et-g3-facsimile"
 G3FacsimileParameters 		B "2.6.1.11.2" 	"id-ep-g3-facsimile"
-G4Class1Data 				B "2.6.1.4.3" 	"id-et-g4-class1"
+G4Class1BodyPart 			B "2.6.1.4.3" 	"id-et-g4-class1"
 TeletexData 				B "2.6.1.4.4" 	"id-et-teletex"
 TeletexParameters 			B "2.6.1.11.4" 	"id-ep-teletex"
 VideotexData 				B "2.6.1.4.5" 	"id-et-videotex"
@@ -96,7 +96,7 @@ EncryptedData 				B "2.6.1.4.6" 	"id-et-encrypted"
 EncryptedParameters 		B "2.6.1.11.6" 	"id-ep-encrypted"
 MessageData 				B "2.6.1.4.7" 	"id-et-message"
 MessageParameters 			B "2.6.1.11.7" 	"id-ep-message"
-MixedModeData 				B "2.6.1.4.8" 	"id-et-mixed-mode"
+MixedModeBodyPart			B "2.6.1.4.8" 	"id-et-mixed-mode"
 BilaterallyDefinedBodyPart 	B "2.6.1.4.9" 	"id-et-bilaterally-defined"
 
 GeneralTextParameters		B "2.6.1.11.11"	"id-ep-general-text"
@@ -120,6 +120,55 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 
 
 # PKCS#7Bodypart {id-et 18} defined in cms.cnf
+
+# Message Store Attributes
+IPMEntryType		B	"2.6.1.6.0"	"id-sat-ipm-entry-type"
+IPMSynopsis		B	"2.6.1.6.1"	"id-sat-ipm-synopsis"
+BodyPartDescriptor	B	"2.6.1.6.2"	"id-sat-body-parts-summary"
+#Boolean		B	"2.6.1.6.3"	"id-sat-ipm-auto-discarded" - see x509sat.cnf
+
+Heading				B	"2.6.1.7.0"	"id-hat-heading"
+ThisIPMField			B	"2.6.1.7.1"	"id-hat-this-ipm"
+OriginatorField			B	"2.6.1.7.2"	"id-hat-originator"
+RepliedToIPMField		B	"2.6.1.7.3"	"id-hat-replied-to-IPM"
+SubjectField			B	"2.6.1.7.4"	"id-hat-subject"
+ExpiryTimeField			B	"2.6.1.7.5"	"id-hat-expiry-time"
+ReplyTimeField			B	"2.6.1.7.6"	"id-hat-reply-time"
+ImportanceField			B	"2.6.1.7.7"	"id-hat-importance"
+SensitivityField		B	"2.6.1.7.8"	"id-hat-sensitivity"
+AutoForwardedField		B	"2.6.1.7.9"	"id-hat-auto-forwarded"
+AuthorizingUsersSubfield	B	"2.6.1.7.10"	"id-hat-authorizing-users"
+PrimaryRecipientsSubfield	B	"2.6.1.7.11"	"id-hat-primary-recipients"
+CopyRecipientsSubfield		B	"2.6.1.7.12"	"id-hat-copy-recipients"
+BlindCopyRecipientsSubfield	B	"2.6.1.7.13"	"id-hat-blind-copy-recipients"
+ObsoletedIPMsSubfield		B	"2.6.1.7.14"	"id-hat-obsoleted-IPMs"
+RelatedIPMsSubfield		B	"2.6.1.7.15"	"id-hat-related-IPMs"
+ReplyRecipientsSubfield		B	"2.6.1.7.16"	"id-hat-reply-recipients"
+IncompleteCopy			B	"2.6.1.7.17"	"id-hat-incomplete-copy"
+Language			B	"2.6.1.7.18"	"id-hat-languages"
+ORDescriptor			B	"2.6.1.7.19"	"id-hat-rn-requestors"
+ORDescriptor			B	"2.6.1.7.20"	"id-hat-nrn-requestors"
+ORDescriptor			B	"2.6.1.7.21"	"id-hat-reply-requestors"
+AutoSubmitted			B	"2.6.1.7.22"	"id-hat-auto-submitted"
+BodyPartSignatures		B	"2.6.1.7.23"	"id-hat-body-part-signatures"
+IPMSecurityLabel		B	"2.6.1.7.24"	"id-hat-ipm-security-label"
+BodyPartSecurityLabel		B	"2.6.1.7.25"	"id-hat-body-part-security-label"
+BodyPartTokens			B	"2.6.1.7.26"	"id-hat-body-part-encryption-token"
+AuthorizationTime		B	"2.6.1.7.27"	"id-hat-authorization-time"
+CirculationMember		B	"2.6.1.7.28"	"id-hat-circulation-list-recipients"
+DistributionCode		B	"2.6.1.7.29"	"id-hat-distribution-codes"
+ExtendedSubject			B	"2.6.1.7.30"	"id-hat-extended-subject"
+InformationCategory		B	"2.6.1.7.31"	"id-hat-information-category"
+ManualHandlingInstruction	B	"2.6.1.7.32"	"id-hat-manual-handling-instructions"
+OriginatorsReference		B	"2.6.1.7.33"	"id-hat-originators-reference"
+PrecedencePolicyIdentifier	B	"2.6.1.7.34"	"id-hat-precedence-policy-id"
+ForwardedContentToken		B	"2.6.1.7.35"	"id-hat-forwarded-content-token"
+#MessageToken			B	"2.6.1.7.36"	"id-hat-forwarded-token" - see x411.cnf
+Precedence			B	"2.6.1.7.37"	"id-hat-precedence"
+BodyPartSignatureVerification	B	"2.6.1.7.38"	"id-hat-body-part-signature-verification-status"
+
+Body			B	"2.6.1.8.0"	"id-bat-body"
+
 
 #.FN_PARS IPMSExtension/type
 	FN_VARIANT = _str  VAL_PTR = &object_identifier_id
@@ -181,6 +230,9 @@ ForwardedContentParameters 	B "2.6.1.11.17.1.3.26.0.4406.0.4.1" 	"id-ep-content-
 
 #.FN_BODY Contents-Type-Attribute/document-type/parameter
 /* XXX: Not implemented yet */
+
+#.FN_BODY CompressionParameter/compression-algorithm-id
+    offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
 #.FN_BODY CompressionParameter/compression-algorithm-param
 /* XXX: Not implemented yet */

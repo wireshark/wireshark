@@ -1,3 +1,5 @@
+-- $Id$
+-- http://www.itu.int/ITU-T/asn1/database/itu-t/x/x420/1999/index.html
 -- Module IPMSFileTransferBodyPartType (X.420:06/1999)
 IPMSFileTransferBodyPartType {joint-iso-itu-t mhs(6) ipms(1) modules(0)
   file-transfer-body-part-type(9)} DEFINITIONS IMPLICIT TAGS ::=
@@ -14,7 +16,6 @@ IMPORTS
     --==
     FROM ISO8571-FTAM {iso standard 8571 application-context(1) iso-ftam(1)}
   -- ACSE definitions of AP-title and AE-qualifier
-  EXTERNALt, 
   AE-qualifier, AP-title
     --==
     FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0)
@@ -25,10 +26,10 @@ IMPORTS
     FROM IPMSInformationObjects {joint-iso-itu-t mhs(6) ipms(1) modules(0)
       information-objects(2) version-1999(1)}
   -- IPMS Object Identifiers
---  id-ep-file-transfer, id-et-file-transfer
+  id-ep-file-transfer, id-et-file-transfer
     --==
---    FROM IPMSObjectIdentifiers {joint-iso-itu-t mhs(6) ipms(1) modules(0)
---      object-identifiers(0) version-1999(1)}
+    FROM IPMSObjectIdentifiers {joint-iso-itu-t mhs(6) ipms(1) modules(0)
+      object-identifiers(0) version-1999(1)}
   -- MTS Abstract Service
   ORName
     --==
@@ -36,21 +37,22 @@ IMPORTS
       mts-abstract-service(1) version-1999(1)};
 
 -- File Transfer body part
---file-transfer-body-part EXTENDED-BODY-PART-TYPE ::= {
---  PARAMETERS  {FileTransferParameters
---               IDENTIFIED BY  id-ep-file-transfer},
---  DATA        {FileTransferData
---               IDENTIFIED BY  id-et-file-transfer}
---}
+file-transfer-body-part EXTENDED-BODY-PART-TYPE ::= {
+  PARAMETERS  {FileTransferParameters
+               IDENTIFIED BY  id-ep-file-transfer},
+  DATA        {FileTransferData
+               IDENTIFIED BY  id-et-file-transfer}
+}
 
 FileTransferParameters ::= SEQUENCE {
   related-stored-file  [0]  RelatedStoredFile OPTIONAL,
   contents-type
-    [1]  ContentsTypeParameter OPTIONAL
+    [1]  ContentsTypeParameter OPTIONAL,
+-- WS: asn2wrs does not handle DEFAULT, so we make the parameters OPTIONAL
 --      DEFAULT
 --        document-type:
 --          {document-type-name
---           {iso standard 8571 document-type(5) unstructured-binary(3)}}--,
+--           {iso standard 8571 document-type(5) unstructured-binary(3)}},
   environment          [2]  EnvironmentParameter OPTIONAL,
   compression          [3]  CompressionParameter OPTIONAL,
   file-attributes      [4]  FileAttributes OPTIONAL,
@@ -65,7 +67,7 @@ RelatedStoredFile ::=
   SET OF
     SEQUENCE {file-identifier  FileIdentifier,
               relationship
-                Relationship OPTIONAL -- DEFAULT explicit-relationship:unspecified
+                Relationship DEFAULT explicit-relationship:unspecified
     }
 
 FileIdentifier ::= CHOICE {
@@ -100,10 +102,13 @@ ExplicitRelationship ::= INTEGER {
 
 ContentsTypeParameter ::= Contents-Type-Attribute
 
+DOCUMENT-PARAMETER ::= CLASS {&Type  
+}
+
 Contents-Type-Attribute ::= CHOICE {
   document-type
     [0]  SEQUENCE {document-type-name  Document-Type-Name,
-                   parameter           [0]  --DOCUMENT-PARAMETER.&Type -- ANY OPTIONAL
+                   parameter           [0]  DOCUMENT-PARAMETER.&Type OPTIONAL
   },
   -- The actual types to be used for values of the parameter field
   -- are defined in the named document type.
@@ -114,6 +119,7 @@ Contents-Type-Attribute ::= CHOICE {
 
 Document-Type-Name ::= OBJECT IDENTIFIER
 
+-- WS: Moved to before used 
 --DOCUMENT-PARAMETER ::= CLASS {&Type  
 --}
 
@@ -133,19 +139,21 @@ GeneralIdentifier ::= CHOICE {
   descriptive-identifier  [1]  SEQUENCE OF GraphicString
 }
 
+COMPRESSION-ALGORITHM ::= TYPE-IDENTIFIER
+
 CompressionParameter ::= SEQUENCE {
   compression-algorithm-id
-    [0]  -- COMPRESSION-ALGORITHM.&id({CompressionAlgorithmTable}) --OBJECT IDENTIFIER,
+    [0]  COMPRESSION-ALGORITHM.&id({CompressionAlgorithmTable}),
   compression-algorithm-param
-    [1]  --COMPRESSION-ALGORITHM.&Type
---           ({CompressionAlgorithmTable}{@compression-algorithm-id})
-         ANY
+    [1]  COMPRESSION-ALGORITHM.&Type
+           ({CompressionAlgorithmTable}{@compression-algorithm-id})
 }
 
+-- WS: Moved to before where used
 --COMPRESSION-ALGORITHM ::= TYPE-IDENTIFIER
 
---CompressionAlgorithmTable COMPRESSION-ALGORITHM ::=
---  {...}
+CompressionAlgorithmTable COMPRESSION-ALGORITHM ::=
+  {...}
 
 FileAttributes ::= SEQUENCE {
   pathname                                      Pathname-Attribute OPTIONAL,
