@@ -66,6 +66,7 @@ static dissector_handle_t rtcp_handle=NULL;
 static dissector_handle_t t38_handle=NULL;
 static dissector_table_t nsp_object_dissector_table;
 static dissector_table_t nsp_h221_dissector_table;
+static dissector_table_t gef_name_dissector_table;
 static dissector_table_t gef_content_dissector_table;
 static dissector_handle_t nsp_handle;
 static dissector_handle_t data_handle;
@@ -453,6 +454,7 @@ void proto_register_h245(void) {
 
   nsp_object_dissector_table = register_dissector_table("h245.nsp.object", "H.245 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h245.nsp.h221", "H.245 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
+  gef_name_dissector_table = register_dissector_table("h245.gef.name", "H.245 Generic Extensible Framework (names)", FT_STRING, BASE_NONE);
   gef_content_dissector_table = register_dissector_table("h245.gef.content", "H.245 Generic Extensible Framework", FT_STRING, BASE_NONE);
 
   h245_tap = register_tap("h245");

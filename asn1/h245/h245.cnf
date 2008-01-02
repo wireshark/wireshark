@@ -589,11 +589,6 @@ if (h245_pi != NULL)
   actx->private_data = priv_data;
 #.END
 
-#.FN_FTR GenericCapability/capabilityIdentifier
-  gef_ctx_update_key(gef_ctx_get(actx->private_data));
-  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "***DEBUG capabilityIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
-#.END
-
 #.FN_HDR GenericCapability/collapsing/_item
   gef_ctx_t *parent_gefx;
 
@@ -638,6 +633,20 @@ if (h245_pi != NULL)
 #.END
 #----------------------------------------------------------------------------------------
 
+#.FN_HDR CapabilityIdentifier
+  gef_ctx_t *gefx;
+#.FN_FTR
+  gef_ctx_update_key(gef_ctx_get(actx->private_data));
+  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG CapabilityIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    actx->pinfo->private_data = actx;
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree);
+  }
+  actx->private_data = gefx;  /* subdissector could overwrite it */
+#.END
+
 #.FN_BODY CapabilityIdentifier/standard  FN_VARIANT = _str  VAL_PTR = &standard_oid_str
   const gchar *standard_oid_str = NULL;
   gef_ctx_t *gefx;
@@ -655,11 +664,20 @@ if (h245_pi != NULL)
 	h245_lc_dissector = amr_handle;
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_FTR GenericParameter/parameterIdentifier
+#.FN_HDR ParameterIdentifier
+  gef_ctx_t *gefx;
+#.FN_FTR
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
-  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "***DEBUG capabilityIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
+  /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG ParameterIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %s", gefx->key);*/
+    actx->pinfo->private_data = actx;
+    dissector_try_string(gef_name_dissector_table, gefx->key, tvb_new_subset(tvb, offset>>3, 0, 0), actx->pinfo, tree);
+  }
+  actx->private_data = gefx;  /* subdissector could overwrite it */
 #.END
-#----------------------------------------------------------------------------------------
+
 #.FN_BODY ParameterIdentifier/standard  VAL_PTR = &value_int
   gint32 value_int = -1;
   gef_ctx_t *gefx;
@@ -669,6 +687,40 @@ if (h245_pi != NULL)
   if (gefx) gefx->id = ep_strdup_printf("%%d", value_int);
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY ParameterValue/booleanArray  VAL_PTR = &value
+  guint32 value;
+  guint8 *buf;
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    buf = ep_alloc(sizeof(guint8));
+    buf[0] = value;
+    value_tvb = tvb_new_real_data(buf, sizeof(guint8), sizeof(guint8));
+    tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
+  }
+#.END
+#.FN_BODY ParameterValue/unsignedMin  VAL_PTR = &value
+  guint32 value;
+  guint8 *buf;
+  tvbuff_t *value_tvb;
+  gef_ctx_t *gefx;
+
+%(DEFAULT_BODY)s
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+    buf = ep_alloc(sizeof(guint16));
+    phtons(buf, value);
+    value_tvb = tvb_new_real_data(buf, sizeof(guint16), sizeof(guint16));
+    tvb_set_child_real_data_tvbuff(tvb, value_tvb);
+    /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG dissector_try_string: %%s", gefx->key);*/
+    dissector_try_string(gef_content_dissector_table, gefx->key, value_tvb, %(ACTX)s->pinfo, %(TREE)s);
+  }
+#.END
 #.FN_BODY ParameterValue/octetString  VAL_PTR = &value_tvb
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
