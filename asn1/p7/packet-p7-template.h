@@ -26,6 +26,6 @@
 #ifndef PACKET_P7_H
 #define PACKET_P7_H
 
-/* #include "packet-p7-exp.h" */
+#include "packet-p7-exp.h"
 
 #endif  /* PACKET_P7_H */

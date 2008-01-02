@@ -127,7 +127,7 @@ void proto_register_p7(void) {
 /*--- proto_reg_handoff_p7 --- */
 void proto_reg_handoff_p7(void) {
 
-  /* #include "packet-p7-dis-tab.c" */
+  #include "packet-p7-dis-tab.c"
 
   /* APPLICATION CONTEXT */
 

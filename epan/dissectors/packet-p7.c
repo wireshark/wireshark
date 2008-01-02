@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p7.c                                                                */
-/* ../../tools/asn2wrs.py -b -e -X -T -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p p7 -c p7.cnf -s packet-p7-template MSAbstractService.asn MSGeneralAttributeTypes.asn MSAccessProtocol.asn */
 
 /* Input file: packet-p7-template.c */
 
@@ -865,7 +865,7 @@ dissect_p7_EntryType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 
-static int
+int
 dissect_p7_SequenceNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   &seqno);
@@ -3556,7 +3556,7 @@ dissect_p7_SubmissionError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const value_string p7_SignatureStatus_vals[] = {
+const value_string p7_SignatureStatus_vals[] = {
   {   0, "signature-absent" },
   {   1, "verification-in-progress" },
   {   2, "verification-succeeded" },
@@ -3570,7 +3570,7 @@ static const value_string p7_SignatureStatus_vals[] = {
 };
 
 
-static int
+int
 dissect_p7_SignatureStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
@@ -5749,7 +5749,36 @@ void proto_register_p7(void) {
 /*--- proto_reg_handoff_p7 --- */
 void proto_reg_handoff_p7(void) {
 
-  /* #include "packet-p7-dis-tab.c" */
+
+/*--- Included file: packet-p7-dis-tab.c ---*/
+#line 1 "packet-p7-dis-tab.c"
+  register_ber_oid_dissector("2.6.4.3.42", dissect_ReportLocation_PDU, proto_p7, "id-att-ac-correlated-report-list");
+  register_ber_oid_dissector("2.6.4.3.76", dissect_SequenceNumber_PDU, proto_p7, "id-att-ac-report-subject-entry");
+  register_ber_oid_dissector("2.6.4.3.43", dissect_ReportSummary_PDU, proto_p7, "id-att-ac-report-summary");
+  register_ber_oid_dissector("2.6.4.3.44", dissect_PerRecipientReport_PDU, proto_p7, "id-att-ac-uncorrelated-report-list");
+  register_ber_oid_dissector("2.6.4.3.46", dissect_AutoActionError_PDU, proto_p7, "id-att-auto-action-error");
+  register_ber_oid_dissector("2.6.4.3.48", dissect_SequenceNumber_PDU, proto_p7, "id-att-auto-action-subject-entry");
+  register_ber_oid_dissector("2.6.4.3.49", dissect_AutoActionType_PDU, proto_p7, "id-att-auto-action-type");
+  register_ber_oid_dissector("2.6.4.3.0", dissect_SequenceNumber_PDU, proto_p7, "id-att-child-sequence-numbers");
+  register_ber_oid_dissector("2.6.4.3.10", dissect_MS_EIT_PDU, proto_p7, "id-att-converted-EITs");
+  register_ber_oid_dissector("2.6.4.3.11", dissect_CreationTime_PDU, proto_p7, "id-att-creation-time");
+  register_ber_oid_dissector("2.6.4.3.50", dissect_DeferredDeliveryCancellationTime_PDU, proto_p7, "id-att-deferred-delivery-cancellation-time");
+  register_ber_oid_dissector("2.6.4.3.52", dissect_DeletionTime_PDU, proto_p7, "id-att-deletion-time");
+  register_ber_oid_dissector("2.6.4.3.12", dissect_MS_EIT_PDU, proto_p7, "id-att-delivered-EITs");
+  register_ber_oid_dissector("2.6.4.3.16", dissect_EntryType_PDU, proto_p7, "id-att-entry-type");
+  register_ber_oid_dissector("2.6.4.3.57", dissect_MessageGroupName_PDU, proto_p7, "id-att-message-group-name");
+  register_ber_oid_dissector("2.6.4.3.61", dissect_SubmissionError_PDU, proto_p7, "id-att-ms-submission-error");
+  register_ber_oid_dissector("2.6.4.3.25", dissect_MS_EIT_PDU, proto_p7, "id-att-original-EITs");
+  register_ber_oid_dissector("2.6.4.3.29", dissect_SequenceNumber_PDU, proto_p7, "id-att-parent-sequence-number");
+  register_ber_oid_dissector("2.6.4.3.15", dissect_RetrievalStatus_PDU, proto_p7, "id-att-retrieval-status");
+  register_ber_oid_dissector("2.6.4.3.39", dissect_SequenceNumber_PDU, proto_p7, "id-att-sequence-number");
+  register_ber_oid_dissector("2.6.4.3.79", dissect_SignatureVerificationStatus_PDU, proto_p7, "id-att-signature-verification-status");
+  register_ber_oid_dissector("2.6.4.3.73", dissect_StoragePeriod_PDU, proto_p7, "id-att-storage-period");
+  register_ber_oid_dissector("2.6.4.3.74", dissect_StorageTime_PDU, proto_p7, "id-att-storage-time");
+
+
+/*--- End of included file: packet-p7-dis-tab.c ---*/
+#line 131 "packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 
