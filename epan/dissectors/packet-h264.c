@@ -111,6 +111,15 @@ static int hf_h264_pic_scaling_matrix_present_flag	= -1;
 static int hf_h264_second_chroma_qp_index_offset	= -1;
 static int hf_h264_par_profile						= -1;
 static int hf_h264_par_profile_b					= -1;
+static int hf_h264_par_profile_m					= -1;
+static int hf_h264_par_profile_e					= -1;
+static int hf_h264_par_profile_h					= -1;
+static int hf_h264_par_profile_h10					= -1;
+static int hf_h264_par_profile_h4_2_2				= -1;
+static int hf_h264_par_profile_h4_4_4				= -1;
+static int hf_h264_par_add_mode_sup					= -1;
+static int hf_h264_par_AdditionalModesSupported		= -1;
+static int hf_h264_par_add_mode_sup_rcdo			= -1;
 
 /* VUI parameters */
 static int hf_h264_aspect_ratio_info_present_flag	= -1;
@@ -168,6 +177,7 @@ static int ett_h264_nal = -1;
 static int ett_h264_stream = -1;
 static int ett_h264_nal_unit = -1;
 static int ett_h264_par_profile = -1;
+static int ett_h264_par_AdditionalModesSupported = -1;
 
 /* The dynamic payload type which will be dissected as H.264 */
 
@@ -1604,9 +1614,80 @@ dissect_h264_pnm_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dissect_h264_pnm(tvb, pinfo, tree, "Level");
 }
 
+static void
+dissect_h264_pnm_nal_align_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_h264_pnm(tvb, pinfo, tree, "NalAlignedMode");
+}
+
+static void
+dissect_h264_pnm_CustomMaxMBPS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxMBPS");	
+}
+
+static void
+dissect_h264_pnm_CustomMaxFS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxFS");	
+}
+
+static void
+dissect_h264_pnm_CustomMaxDPB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxDPB");	
+}
+
+static void
+dissect_h264_pnm_CustomMaxBRandCPB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxBRandCPB");	
+}
+
+static void
+dissect_h264_pnm_MaxStaticMBPS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "MaxStaticMBPS");	
+}
+
+static void
+dissect_h264_pnm_max_rcmd_nal_unit_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "max-rcmd-nal-unit-size");	
+}
+
+static void
+dissect_h264_pnm_max_nal_unit_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "max-nal-unit-size");	
+}
+
+static void
+dissect_h264_pnm_SampleAspectRatiosSupported(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "SampleAspectRatiosSupported");	
+}
+
+static void
+dissect_h264_pnm_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "AdditionalModesSupporte");	
+}
+
+static void
+dissect_h264_pnm_AdditionalDisplayCapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_h264_pnm(tvb, pinfo, tree, "AdditionalDisplayCapabilities");	
+}
+
 static const int *profile_fields[] = {
   &hf_h264_par_profile_b,
-  /* TO DO */
+  &hf_h264_par_profile_m,
+  &hf_h264_par_profile_e,
+  &hf_h264_par_profile_h,
+  &hf_h264_par_profile_h10,
+  &hf_h264_par_profile_h4_2_2,
+  &hf_h264_par_profile_h4_4_4,
   NULL
 };
 
@@ -1622,10 +1703,39 @@ dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   return offset;
 }
 
+static const int *AdditionalModesSupported_fields[] = {
+  &hf_h264_par_add_mode_sup_rcdo,
+  NULL
+};
+static int
+dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  int offset = 0;
+
+  proto_tree_add_bitmask(tree, tvb, offset, 
+                         hf_h264_par_AdditionalModesSupported, ett_h264_par_AdditionalModesSupported,
+                         AdditionalModesSupported_fields, FALSE);
+  offset += 1;
+  return offset;
+}
+
 static const value_string h264_par_level_values[] = {
-  { 15, "1" },
-  { 19, "1b" },
-  /* TO DO */
+  { 15,		"1" },
+  { 19,		"1b" },
+  { 22,		"1.1" },
+  { 29,		"1.2" },
+  { 36,		"1.3" },
+  { 43,		"2" },
+  { 50,		"2.1" },
+  { 57,		"2.2" },
+  { 64,		"3" },
+  { 71,		"3.1" },
+  { 78,		"3.2" },
+  { 85,		"4" },
+  { 92,		"4.1" },
+  { 99,		"4.2" },
+  { 106,	"5" },
+  { 113 ,	"5.1" },
   { 0,	NULL }
 };
 
@@ -1678,9 +1788,24 @@ proto_reg_handoff_h264(void)
 
   dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", create_dissector_handle(dissect_h264_pnm_profile, proto_h264));
   dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", create_dissector_handle(dissect_h264_pnm_level, proto_h264));
+  
+  /* Table 3 / TS 26.111  H.264 Capability Parameter  NalAlignedMode */
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/45", create_dissector_handle(dissect_h264_pnm_nal_align_mode, proto_h264));
+
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/3", create_dissector_handle(dissect_h264_pnm_CustomMaxMBPS, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/4", create_dissector_handle(dissect_h264_pnm_CustomMaxFS, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/5", create_dissector_handle(dissect_h264_pnm_CustomMaxDPB, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/6", create_dissector_handle(dissect_h264_pnm_CustomMaxBRandCPB, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/7", create_dissector_handle(dissect_h264_pnm_MaxStaticMBPS, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/8", create_dissector_handle(dissect_h264_pnm_max_rcmd_nal_unit_size, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/9", create_dissector_handle(dissect_h264_pnm_max_nal_unit_size, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/10", create_dissector_handle(dissect_h264_pnm_SampleAspectRatiosSupported, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/11", create_dissector_handle(dissect_h264_pnm_AdditionalModesSupported, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/12", create_dissector_handle(dissect_h264_pnm_AdditionalDisplayCapabilities, proto_h264));
 
   dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", new_create_dissector_handle(dissect_h264_par_profile, proto_h264));
   dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", new_create_dissector_handle(dissect_h264_par_level, proto_h264));
+  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/11", new_create_dissector_handle(dissect_h264_par_AdditionalModesSupported, proto_h264));
 
 }
 
@@ -2251,7 +2376,38 @@ proto_register_h264(void)
       { "Baseline Profile", "h264.profile.base",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL}},
-
+    { &hf_h264_par_profile_m,
+      { "Main Profile", "h264.profile.main",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_e,
+      { "Extended Profile.", "h264.profile.ext",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_h,
+      { "High Profile", "h264.profile.high",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_h10,
+      { "High 10 Profile", "h264.profile.high10",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_h4_2_2,
+      { "High 4:2:2 Profile", "h264.profile.high4_2_2",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_h4_4_4,
+      { "High 4:4:4 Profile", "h264.profile.high4_4_4",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL}},
+    { &hf_h264_par_add_mode_sup,
+      { "Additional Modes Supported", "h264.add_mode_sup",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL}},
+	{ &hf_h264_par_add_mode_sup_rcdo,
+      { "Reduced Complexity Decoding Operation (RCDO) support", "h264.add_mode_sup.rcdo",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL}},
 	};
 
 /* Setup protocol subtree array */
@@ -2262,6 +2418,7 @@ proto_register_h264(void)
 		&ett_h264_stream,
 		&ett_h264_nal_unit,
 		&ett_h264_par_profile,
+		&ett_h264_par_AdditionalModesSupported,
 	};
 
 /* Register the protocol name and description */
