@@ -1090,6 +1090,7 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
 	io->num_items=0;
+	io->view_as_time=FALSE;
 	io->start_time.secs=0;
 	io->start_time.nsecs=0;
 
@@ -1544,7 +1545,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	view_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_View as time of day", accel_group);
 	gtk_container_add(GTK_CONTAINER(vbox), view_cb);
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), FALSE);
+	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), io->view_as_time);
 	SIGNAL_CONNECT(view_cb, "toggled", view_as_time_toggle_dest, io);
 	gtk_widget_show(view_cb);
 
