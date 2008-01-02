@@ -39,6 +39,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <epan/asn1.h>
 
 #include "prefs.h"
 
@@ -108,6 +109,8 @@ static int hf_h264_redundant_pic_cnt_present_flag	= -1;
 static int hf_h264_transform_8x8_mode_flag			= -1;
 static int hf_h264_pic_scaling_matrix_present_flag	= -1;
 static int hf_h264_second_chroma_qp_index_offset	= -1;
+static int hf_h264_par_profile						= -1;
+static int hf_h264_par_profile_b					= -1;
 
 /* VUI parameters */
 static int hf_h264_aspect_ratio_info_present_flag	= -1;
@@ -164,6 +167,7 @@ static int ett_h264_profile = -1;
 static int ett_h264_nal = -1;
 static int ett_h264_stream = -1;
 static int ett_h264_nal_unit = -1;
+static int ett_h264_par_profile = -1;
 
 /* The dynamic payload type which will be dissected as H.264 */
 
@@ -1565,6 +1569,85 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
+/* 
+  Parameters are implementd with individual funcions now.
+  If more parameters are necessary it would be better to implement it in table-driven way
+*/
+/*
+  { "GenericCapability/0.0.8.241.0.0.1", "ITU-T Rec. H.241 H.264 Video Capabilities", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/41", "Profile", dissect_h264_par_profile },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/42", "Level", dissect_h264_par_level },
+*/
+
+static void
+dissect_h264_pnm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const gchar *name) 
+{
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+  if (tree) {
+    proto_item_append_text(actx->created_item, " - %s", name);
+    proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", name);
+  }
+}
+
+static void
+dissect_h264_pnm_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_h264_pnm(tvb, pinfo, tree, "Profile");
+}
+
+static void
+dissect_h264_pnm_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_h264_pnm(tvb, pinfo, tree, "Level");
+}
+
+static const int *profile_fields[] = {
+  &hf_h264_par_profile_b,
+  /* TO DO */
+  NULL
+};
+
+static int
+dissect_h264_par_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
+
+  proto_tree_add_bitmask(tree, tvb, offset, 
+                         hf_h264_par_profile, ett_h264_par_profile,
+                         profile_fields, FALSE);
+  offset += 1;
+  return offset;
+}
+
+static const value_string h264_par_level_values[] = {
+  { 15, "1" },
+  { 19, "1b" },
+  /* TO DO */
+  { 0,	NULL }
+};
+
+dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int offset = 0;
+  guint16 lvl;
+  const gchar *p = NULL;
+  asn1_ctx_t *actx;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+
+  lvl = tvb_get_ntohs(tvb, offset);
+  p = match_strval(lvl, VALS(h264_par_level_values));
+  if (p) {
+    proto_item_append_text(actx->created_item, " - Level %s", p);
+  }
+  offset += 2;
+  return offset;
+}
+
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
@@ -1591,6 +1674,12 @@ proto_reg_handoff_h264(void)
 		dissector_add("rtp.pt", dynamic_payload_type, h264_handle);
 	}
 	dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
+
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", create_dissector_handle(dissect_h264_pnm_profile, proto_h264));
+  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", create_dissector_handle(dissect_h264_pnm_level, proto_h264));
+
+  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", new_create_dissector_handle(dissect_h264_par_profile, proto_h264));
+  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", new_create_dissector_handle(dissect_h264_par_level, proto_h264));
 
 }
 
@@ -2152,6 +2241,16 @@ proto_register_h264(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			"frame_num", HFILL }
 		},
+
+    { &hf_h264_par_profile,
+      { "Profile", "h264.profile",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL}},
+    { &hf_h264_par_profile_b,
+      { "Baseline Profile", "h264.profile.base",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL}},
+
 	};
 
 /* Setup protocol subtree array */
@@ -2161,6 +2260,7 @@ proto_register_h264(void)
 		&ett_h264_nal,
 		&ett_h264_stream,
 		&ett_h264_nal_unit,
+		&ett_h264_par_profile,
 	};
 
 /* Register the protocol name and description */
