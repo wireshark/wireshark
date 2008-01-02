@@ -11,6 +11,7 @@ Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
 EXTENSION
 Content
 ContentIdentifier
+ContentIntegrityCheck
 ContentLength
 ContentType
 Credentials
@@ -24,6 +25,7 @@ ImproperlySpecifiedRecipients
 InitiatorCredentials
 MessageDeliveryIdentifier
 MessageDeliveryTime
+MessageOriginAuthenticationCheck
 MessageSecurityLabel
 MessageSubmissionEnvelope
 MessageSubmissionIdentifier
@@ -309,6 +311,8 @@ SubjectSubmissionIdentifier		B	"2.6.4.3.40"	"id-att-subject-submission-identifie
 ORName					B	"2.6.4.3.41"	"id-att-this-recipient-name"
 TraceInformationElement			B	"2.6.4.3.75"	"id-att-trace-information"
 
+# IPMSMessageStoreAttributes - see master list in x420.cnf
+MessageToken				B	"2.6.1.7.36"	"id-hat-forwarded-token" 
 
 #.FN_BODY AdditionalInformation
    proto_item *item = NULL;
