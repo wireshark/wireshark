@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -X -T -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -1511,7 +1511,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 292 "x509sat.cnf"
+#line 298 "x509sat.cnf"
 	tvbuff_t	*wide_tvb;
 	proto_item	*item;
 	char		*string;
@@ -1520,7 +1520,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 298 "x509sat.cnf"
+#line 304 "x509sat.cnf"
 	item = get_ber_last_created_item();
 	string = tvb_get_ephemeral_faked_unicode (wide_tvb, 0, tvb_length(wide_tvb) / 2, FALSE);
 	proto_item_append_text(item, " %s", string);	
@@ -2719,6 +2719,8 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("0.9.2342.19200300.100.1.25", dissect_SyntaxIA5String_PDU, proto_x509sat, "dc");
   register_ber_oid_dissector("1.3.6.1.4.1.311.20.2.3", dissect_SyntaxUTF8String_PDU, proto_x509sat, "id-ms-user-principal-name");
   register_ber_oid_dissector("1.2.826.0.1063.7.0.0.0", dissect_Integer_PDU, proto_x509sat, "unknown-UK-organisation-defined-extension");
+  register_ber_oid_dissector("1.2.826.0.1004.10.1.1", dissect_SyntaxIA5String_PDU, proto_x509sat, "nexor-originating-ua");
+  register_ber_oid_dissector("2.6.1.6.3", dissect_Boolean_PDU, proto_x509sat, "id-sat-ipm-auto-discarded");
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
