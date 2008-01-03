@@ -788,7 +788,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			override_interval = opt_value & 0x0000ffff;
 			proto_tree_add_text(sub_tree, tvb, offset + 4, 1,
 					    "T bit is %s",
-					    opt_value & 0x8000 ? "set" : "not set");
+					    (opt_value & 0x80000000) ? "set" : "not set");
 			proto_tree_add_text(sub_tree, tvb, offset + 4, 2,
 					    "LAN Delay: %ums", lan_delay);
 			proto_tree_add_text(sub_tree, tvb, offset + 6, 2,
