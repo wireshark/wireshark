@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkcs12.c                                                            */
-/* ../../tools/asn2wrs.py -X -T -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
+/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.c */
 
@@ -791,19 +791,19 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 141 "pkcs12.cnf"
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
-	proto_item *item;
+	
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
 #line 147 "pkcs12.cnf"
 
-	item = get_ber_last_created_item();
+	
 
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", (gchar*) object_identifier_id, dissector_handle);
 	
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
 	
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", object_identifier_id);

@@ -140,17 +140,17 @@ PrivateKeyInfo
 #.FN_HDR EncryptedData
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
-	proto_item *item;
+	
 #.END
 
 #.FN_FTR EncryptedData
 
-	item = get_ber_last_created_item();
+	
 
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", (gchar*) object_identifier_id, dissector_handle);
 	
-	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
+	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
 	
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", object_identifier_id);
