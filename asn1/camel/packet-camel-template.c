@@ -251,6 +251,22 @@ static const value_string camel_RP_Cause_values[] = {
   { 0, NULL }
 };
 
+static const value_string camel_holdTreatmentIndicator_values[] = {
+  {   0x01,  "acceptHoldRequest" },
+  {   0x02,  "rejectHoldRequest" },
+  { 0, NULL }
+};
+static const value_string camel_cwTreatmentIndicator_values[] = {
+  {   0x01,  "acceptCw" },
+  {   0x02,  "rejectCw" },
+  { 0, NULL }
+};
+static const value_string camel_ectTreatmentIndicator_values[] = {
+  {   0x01,  "acceptEctRequest" },
+  {   0x02,  "rejectEctRequest" },
+  { 0, NULL }
+};
+
 #include "packet-camel-val.h"
 
 #include "packet-camel-table.c"

@@ -280,15 +280,13 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 
 tvbuff_t *parameter_tvb;
 guint8 Cause_value;
-proto_item *item;
 proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_cause);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_cause);
 
  dissect_q931_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_cause_indicator, &Cause_value);
 #.END
@@ -298,15 +296,13 @@ proto_tree *subtree;
 
 tvbuff_t *parameter_tvb;
 guint8 Cause_value;
-proto_item *item;
 proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_RPcause);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_RPcause);
 
  dissect_RP_cause_ie(parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), subtree, hf_camel_RP_Cause, &Cause_value);
 #.END
@@ -465,7 +461,6 @@ proto_tree *subtree;
 #.FN_BODY EndUserAddress/pDPTypeNumber VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
@@ -473,8 +468,7 @@ proto_tree *subtree;
  if (!parameter_tvb)
 	return offset;
  PDPTypeNumber = tvb_get_guint8(parameter_tvb,0);	
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
 	proto_tree_add_item(tree, hf_camel_PDPTypeNumber_etsi, parameter_tvb, 0, 1, FALSE);
@@ -491,15 +485,13 @@ proto_tree *subtree;
 #.FN_BODY EndUserAddress/pDPAddress VAL_PTR = &parameter_tvb
 
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
  switch (PDPTypeOrganization){
  case 0: /* ETSI */
 	break;
@@ -522,15 +514,13 @@ proto_tree *subtree;
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY LocationInformationGPRS/cellGlobalIdOrServiceAreaIdOrLAI 
-	proto_item *item;
 	proto_tree *subtree;
 	int start_offset;
 
  start_offset = offset;
 %(DEFAULT_BODY)s
 
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_pdptypenumber);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_pdptypenumber);
 
  if (tvb_reported_length_remaining(tvb,start_offset) == 7){
 	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
@@ -542,91 +532,89 @@ proto_tree *subtree;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AChBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_AChBillingChargingCharacteristics);
  dissect_camel_CAMEL_AChBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_AChBillingChargingCharacteristics);
 
 #.FN_BODY FCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCIBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_FCIBillingChargingCharacteristics);
  dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCIBillingChargingCharacteristics);
 
 #.FN_BODY FCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb; 
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCIGPRSBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_FCIGPRSBillingChargingCharacteristics);
  dissect_camel_CAMEL_FCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics);
 
 #.FN_BODY FCISMSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset; 
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_FCISMSBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_FCISMSBillingChargingCharacteristics);
  dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCISMSBillingChargingCharacteristics);
 
 #.FN_BODY SCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_SCIBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_SCIBillingChargingCharacteristics);
  dissect_camel_CAMEL_SCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIBillingChargingCharacteristics);
 
 #.FN_BODY SCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset; 
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
  dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
 
 #.FN_BODY CallResult VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb; 
- proto_item *item;
  proto_tree *subtree; 
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
 	return offset;
- item = get_ber_last_created_item();
- subtree = proto_item_add_subtree(item, ett_camel_CAMEL_CallResult);
+ subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_CallResult);
  dissect_camel_CAMEL_CallResult(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_CallResult);
+
+# V3 and V4 incompatibillity bug #1719
+#.FN_BODY CAMEL-AChBillingChargingCharacteristics/timeDurationCharging/audibleIndicator
+  if (tvb_length_remaining(tvb,offset) < 2)
+	offset = dissect_camel_BOOLEAN(TRUE, tvb, offset, actx , tree, hf_camel_audibleIndicatorTone);
+  else
+%(DEFAULT_BODY)s
+
+#.END
 
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = NONE
 AccessPointName	TYPE = FT_STRING DISPLAY = NONE
 Code/local TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = VALS(camel_opr_code_strings)
+ServiceInteractionIndicatorsTwo/holdTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_holdTreatmentIndicator_values)
+ServiceInteractionIndicatorsTwo/cwTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_cwTreatmentIndicator_values)
+ServiceInteractionIndicatorsTwo/ectTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_ectTreatmentIndicator_values)
 #.END
