@@ -2192,7 +2192,7 @@ ssl_load_key(FILE* fp)
 }
 
 Ssl_private_key_t *
-ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
+ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd _U_) {
     ssl_debug_printf("ssl_load_pkcs12: impossible without glutls. fp %p\n",fp);
     return NULL;
 }
