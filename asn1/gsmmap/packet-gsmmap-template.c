@@ -270,13 +270,11 @@ gsm_map_calc_bitrate(guint8 value){
 static void 
 dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
 	int offset = 0;
-    proto_item *item;
     proto_tree *subtree;
 	guint8 octet;
 	guint16 value;
 
-	item = get_ber_last_created_item();
-	subtree = proto_item_add_subtree(item, ett_gsm_map_ext_qos_subscribed);
+	subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_ext_qos_subscribed);
 	/*  OCTET 1:
 		Allocation/Retention Priority (This octet encodes each priority level defined in
 		23.107 as the binary value of the priority level, declaration in 29.060)

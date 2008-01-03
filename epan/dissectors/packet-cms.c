@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cms.c                                                               */
-/* ../../tools/asn2wrs.py -b -X -T -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
+/* ../../tools/asn2wrs.py -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn */
 
 /* Input file: packet-cms-template.c */
 
@@ -1113,7 +1113,7 @@ dissect_cms_EncryptedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 #line 178 "cms.cnf"
 
-	item = get_ber_last_created_item();
+	item = actx->created_item;
 
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
 
@@ -1277,7 +1277,7 @@ dissect_cms_MessageDigest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
                                        NULL);
 
  
-  pi = get_ber_last_created_item();
+  pi = actx->created_item;
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);

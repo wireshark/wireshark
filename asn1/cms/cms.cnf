@@ -129,7 +129,7 @@ EncryptedContentInfo/contentType	encryptedContentType
 
   %(DEFAULT_BODY)s
  
-  pi = get_ber_last_created_item();
+  pi = actx->created_item;
 
   /* move past TLV */
   old_offset = get_ber_identifier(tvb, old_offset, NULL, NULL, NULL);
@@ -176,7 +176,7 @@ EncryptedContentInfo/contentType	encryptedContentType
 
 #.FN_FTR EncryptedContent
 
-	item = get_ber_last_created_item();
+	item = actx->created_item;
 
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, item);
 
