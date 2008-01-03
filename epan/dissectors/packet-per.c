@@ -868,7 +868,6 @@ dissect_per_object_identifier(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U
   guint length;
   const char *str;
   tvbuff_t *val_tvb = NULL;
-  proto_item *item = NULL;
   header_field_info *hfi;
 
 DEBUG_ENTRY("dissect_per_object_identifier");
@@ -879,10 +878,10 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 	
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
-    item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
+    actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, FALSE);
   } else if (IS_FT_STRING(hfi->type)) {
     str = oid_encoded2string(tvb_get_ptr(val_tvb, 0, length), length);
-    item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
+    actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
   } else {
     DISSECTOR_ASSERT_NOT_REACHED();
   }
