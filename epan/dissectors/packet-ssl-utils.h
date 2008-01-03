@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <gcrypt.h>
 #include <gnutls/x509.h>
+#include <gnutls/pkcs12.h>
 #include <gnutls/openssl.h>
 
 #include <epan/conversation.h>
@@ -320,6 +321,11 @@ typedef struct _SslService {
   guint port;
 } SslService;
 
+typedef struct _Ssl_private_key {
+  gnutls_x509_crt_t     x509_cert;
+  gnutls_x509_privkey_t x509_pkey;
+  SSL_PRIVATE_KEY       *sexp_pkey; 
+} Ssl_private_key_t;
 
 /** Initialize decryption engine/ssl layer. To be called once per execution */
 extern void
@@ -344,13 +350,16 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher, guchar* iv, gint iv_len);
 /** Load an RSA private key from specified file
  @param fp the file that contain the key data
  @return a pointer to the loaded key on success, or NULL */
-extern SSL_PRIVATE_KEY*
+extern Ssl_private_key_t *
 ssl_load_key(FILE* fp);
+
+extern Ssl_private_key_t * 
+ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd);
 
 /** Deallocate the memory used for specified key
  @param pointer to the key to be freed */
 extern void
-ssl_free_key(SSL_PRIVATE_KEY* key);
+ssl_free_key(Ssl_private_key_t* key);
 
 /* Search for the specified cipher souite id
  @param num the id of the cipher suite to be searched

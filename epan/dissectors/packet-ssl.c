@@ -502,11 +502,16 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean need_desegmentation;
     SslDecryptSession* ssl_session;
     guint* conv_version;
+    Ssl_private_key_t * private_key;
+
+
     ti = NULL;
     ssl_tree   = NULL;
     offset = 0;
     first_record_in_frame = TRUE;
     ssl_session = NULL;
+
+
 
     ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
 
@@ -540,7 +545,8 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ssl_session = conv_data;
     else {
         SslService dummy;
-
+        char ip_addr_any[] = {0,0,0,0};
+        
         ssl_session = se_alloc0(sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
         ssl_session->version = SSL_VER_UNKNOWN;
@@ -562,9 +568,29 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * is not always available
          * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
          * and thus decryption never engaged*/
-        ssl_session->private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
-        if (!ssl_session->private_key)
-            ssl_debug_printf("dissect_ssl can't find private key for this server!\n");
+        
+        
+        ssl_session->private_key = 0;
+        private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+        if (!private_key) {
+            ssl_debug_printf("dissect_ssl can't find private key for this server! Try it again with universal address 0.0.0.0\n");
+ 
+            dummy.addr.type = AT_IPv4;
+            dummy.addr.len = 4;
+            dummy.addr.data = ip_addr_any;
+            
+            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+
+            if (!private_key) {
+            	ssl_debug_printf("dissect_ssl can't find any private key!\n");
+            }	
+            else {
+              ssl_session->private_key = private_key->sexp_pkey;	
+            }
+        }  else	{
+        	ssl_session->private_key = private_key->sexp_pkey;
+        }  
+        
     }
     conv_version= & ssl_session->version;
 
