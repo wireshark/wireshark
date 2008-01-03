@@ -2056,13 +2056,13 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     for (j=0; ret==0 && j<gnutls_pkcs12_bag_get_count(bag); j++) {
 
       bag_type = gnutls_pkcs12_bag_get_type(bag, j);
-      if (bag_type < 0) continue;
+      if (bag_type >= GNUTLS_BAG_UNKNOWN) continue;
       ssl_debug_printf( "Bag %d/%d: %s\n", i, j, BAGTYPE(bag_type));
       if (bag_type == GNUTLS_BAG_ENCRYPTED) {
         ret = gnutls_pkcs12_bag_decrypt(bag, cert_passwd);
         if (ret == 0) {
           bag_type = gnutls_pkcs12_bag_get_type(bag, j);
-          if (bag_type < 0) continue;
+          if (bag_type >= GNUTLS_BAG_UNKNOWN) continue;
           ssl_debug_printf( "Bag %d/%d decrypted: %s\n", i, j, BAGTYPE(bag_type));
         }
         ret = 0;
@@ -2669,7 +2669,8 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     ssl_debug_printf("ssl_init private key file %s successfully loaded\n",filename);
     
     //if item exists, remove first 
-    if( tmp_private_key = g_hash_table_lookup(key_hash, service) ) {
+    tmp_private_key = g_hash_table_lookup(key_hash, service);
+    if (tmp_private_key) {
       g_hash_table_remove(key_hash, service);
       ssl_free_key(tmp_private_key);
     } 
