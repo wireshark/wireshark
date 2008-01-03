@@ -283,8 +283,8 @@ void proto_reg_handoff_h460(void)
   for (ftr=h460_feature_tab; ftr->id; ftr++) {
     if (ftr->key_gd) dissector_add_string("h225.gef.name", ftr->key_gd, h460_name_handle);
     if (ftr->key_fd) dissector_add_string("h225.gef.name", ftr->key_fd, h460_name_handle);
-/*    if (ftr->key_gm) dissector_add_string("h245.gef.name", ftr->key_gm, h460_name_handle);
-    if (ftr->key_gi) dissector_add_string("h245.gef.name", ftr->key_gi, h460_name_handle);*/
+    if (ftr->key_gm) dissector_add_string("h245.gef.name", ftr->key_gm, h460_name_handle);
+    if (ftr->key_gi) dissector_add_string("h245.gef.name", ftr->key_gi, h460_name_handle);
     if (ftr->content_hnd) {
       if (ftr->key_gd) dissector_add_string("h225.gef.content", ftr->key_gd, ftr->content_hnd);
       if (ftr->key_fd) dissector_add_string("h225.gef.content", ftr->key_fd, ftr->content_hnd);
