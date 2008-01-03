@@ -1579,106 +1579,7 @@ dissect_h264(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-/* 
-  Parameters are implementd with individual funcions now.
-  If more parameters are necessary it would be better to implement it in table-driven way
-*/
-/*
-  { "GenericCapability/0.0.8.241.0.0.1", "ITU-T Rec. H.241 H.264 Video Capabilities", NULL },
-  { "GenericCapability/0.0.8.241.0.0.1/collapsing/41", "Profile", dissect_h264_par_profile },
-  { "GenericCapability/0.0.8.241.0.0.1/collapsing/42", "Level", dissect_h264_par_level },
-*/
-
-static void
-dissect_h264_pnm(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, const gchar *name) 
-{
-  asn1_ctx_t *actx;
-
-  actx = get_asn1_ctx(pinfo->private_data);
-  DISSECTOR_ASSERT(actx);
-  if (tree) {
-    proto_item_append_text(actx->created_item, " - %s", name);
-    proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", name);
-  }
-}
-
-static void
-dissect_h264_pnm_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_h264_pnm(tvb, pinfo, tree, "Profile");
-}
-
-static void
-dissect_h264_pnm_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_h264_pnm(tvb, pinfo, tree, "Level");
-}
-
-static void
-dissect_h264_pnm_nal_align_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  dissect_h264_pnm(tvb, pinfo, tree, "NalAlignedMode");
-}
-
-static void
-dissect_h264_pnm_CustomMaxMBPS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxMBPS");	
-}
-
-static void
-dissect_h264_pnm_CustomMaxFS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxFS");	
-}
-
-static void
-dissect_h264_pnm_CustomMaxDPB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxDPB");	
-}
-
-static void
-dissect_h264_pnm_CustomMaxBRandCPB(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "CustomMaxBRandCPB");	
-}
-
-static void
-dissect_h264_pnm_MaxStaticMBPS(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "MaxStaticMBPS");	
-}
-
-static void
-dissect_h264_pnm_max_rcmd_nal_unit_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "max-rcmd-nal-unit-size");	
-}
-
-static void
-dissect_h264_pnm_max_nal_unit_size(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "max-nal-unit-size");	
-}
-
-static void
-dissect_h264_pnm_SampleAspectRatiosSupported(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "SampleAspectRatiosSupported");	
-}
-
-static void
-dissect_h264_pnm_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "AdditionalModesSupporte");	
-}
-
-static void
-dissect_h264_pnm_AdditionalDisplayCapabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_h264_pnm(tvb, pinfo, tree, "AdditionalDisplayCapabilities");	
-}
+/* Capability */
 
 static const int *profile_fields[] = {
   &hf_h264_par_profile_b,
@@ -1759,6 +1660,62 @@ dissect_h264_par_level(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_)
   return offset;
 }
 
+typedef struct _h264_capability_t {
+  const gchar *id;
+  const gchar *name;
+  new_dissector_t content_pdu;
+} h264_capability_t;
+
+static h264_capability_t h264_capability_tab[] = {
+  /* ITU-T H.241 (05/2006), 8.3 H.264 capabilities */
+  { "GenericCapability/0.0.8.241.0.0.1", "ITU-T Rec. H.241 H.264 Video Capabilities", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/41", "Profile", dissect_h264_par_profile },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/42", "Level", dissect_h264_par_level },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/3" , "CustomMaxMBPS", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/4" , "CustomMaxFS", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/5" , "CustomMaxDPB", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/6" , "CustomMaxBRandCPB", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/7" , "MaxStaticMBPS", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/8" , "max-rcmd-nal-unit-size", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/9" , "max-nal-unit-size", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/10", "SampleAspectRatiosSupported", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/11", "AdditionalModesSupported", dissect_h264_par_AdditionalModesSupported },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/12", "AdditionalDisplayCapabilities", NULL },
+  /* Table 3 / TS 26.111  H.264 Capability Parameter  NalAlignedMode */
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/45" , "NalAlignedMode", NULL },
+  { NULL, NULL, NULL },
+};                                 
+
+static h264_capability_t *find_cap(const gchar *id) {
+  h264_capability_t *ftr = NULL;
+  h264_capability_t *f;
+
+  for (f=h264_capability_tab; f->id; f++) {
+    if (!strcmp(id, f->id)) { ftr = f; break; }
+  }
+  return ftr;
+}
+
+static void
+dissect_h264_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) 
+{
+  asn1_ctx_t *actx;
+  h264_capability_t *ftr = NULL;
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+  if (tree) {
+    ftr = find_cap(pinfo->match_string);
+    if (ftr) {
+      proto_item_append_text(actx->created_item, " - %s", ftr->name);
+      proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", ftr->name);
+    } else {
+      proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
+    }
+  }
+}
+
+
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
    This format is required because a script is used to find these routines and
@@ -1768,6 +1725,9 @@ void
 proto_reg_handoff_h264(void)
 {
 	dissector_handle_t h264_handle;
+	dissector_handle_t h264_name_handle;
+	h264_capability_t *ftr;
+
 	static int h264_prefs_initialized = FALSE;
 	
 	h264_handle = create_dissector_handle(dissect_h264, proto_h264);
@@ -1786,26 +1746,13 @@ proto_reg_handoff_h264(void)
 	}
 	dissector_add_string("rtp_dyn_payload_type","H264", h264_handle);
 
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", create_dissector_handle(dissect_h264_pnm_profile, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", create_dissector_handle(dissect_h264_pnm_level, proto_h264));
-  
-  /* Table 3 / TS 26.111  H.264 Capability Parameter  NalAlignedMode */
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/45", create_dissector_handle(dissect_h264_pnm_nal_align_mode, proto_h264));
-
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/3", create_dissector_handle(dissect_h264_pnm_CustomMaxMBPS, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/4", create_dissector_handle(dissect_h264_pnm_CustomMaxFS, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/5", create_dissector_handle(dissect_h264_pnm_CustomMaxDPB, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/6", create_dissector_handle(dissect_h264_pnm_CustomMaxBRandCPB, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/7", create_dissector_handle(dissect_h264_pnm_MaxStaticMBPS, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/8", create_dissector_handle(dissect_h264_pnm_max_rcmd_nal_unit_size, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/9", create_dissector_handle(dissect_h264_pnm_max_nal_unit_size, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/10", create_dissector_handle(dissect_h264_pnm_SampleAspectRatiosSupported, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/11", create_dissector_handle(dissect_h264_pnm_AdditionalModesSupported, proto_h264));
-  dissector_add_string("h245.gef.name", "GenericCapability/0.0.8.241.0.0.1/collapsing/12", create_dissector_handle(dissect_h264_pnm_AdditionalDisplayCapabilities, proto_h264));
-
-  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/41", new_create_dissector_handle(dissect_h264_par_profile, proto_h264));
-  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/42", new_create_dissector_handle(dissect_h264_par_level, proto_h264));
-  dissector_add_string("h245.gef.content", "GenericCapability/0.0.8.241.0.0.1/collapsing/11", new_create_dissector_handle(dissect_h264_par_AdditionalModesSupported, proto_h264));
+  h264_name_handle = create_dissector_handle(dissect_h264_name, proto_h264);
+  for (ftr=h264_capability_tab; ftr->id; ftr++) {
+    if (ftr->name) 
+      dissector_add_string("h245.gef.name", ftr->id, h264_name_handle);
+    if (ftr->content_pdu)
+      dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_h264));
+  }
 
 }
 
