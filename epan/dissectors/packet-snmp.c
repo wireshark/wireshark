@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -1932,7 +1932,7 @@ dissect_snmp_SnmpEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &param_tvb);
 	 if (param_tvb) {
-		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		proto_tree* engine_tree = proto_item_add_subtree(actx->created_item,ett_engineid);
 		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_length_remaining(param_tvb,0));
 	}
 
@@ -1950,7 +1950,7 @@ dissect_snmp_T_msgAuthoritativeEngineID(gboolean implicit_tag _U_, tvbuff_t *tvb
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
 	 if (usm_p.engine_tvb) {
-		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		proto_tree* engine_tree = proto_item_add_subtree(actx->created_item,ett_engineid);
 		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
 
@@ -1996,7 +1996,7 @@ dissect_snmp_T_msgAuthenticationParameters(gboolean implicit_tag _U_, tvbuff_t *
 #line 83 "snmp.cnf"
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
-		usm_p.auth_item = get_ber_last_created_item();
+		usm_p.auth_item = actx->created_item;
 		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
 	}
 
@@ -2055,7 +2055,7 @@ dissect_snmp_T_msgFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
-	proto_tree* flags_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_msgFlags);
+	proto_tree* flags_tree = proto_item_add_subtree(actx->created_item,ett_msgFlags);
 	
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
@@ -2153,7 +2153,7 @@ dissect_snmp_T_encryptedPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 		&& usm_p.user_assoc->user.privProtocol ) {
 		
 		const gchar* error = NULL;
-		proto_tree* encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
+		proto_tree* encryptedpdu_tree = proto_item_add_subtree(actx->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
 
 		if (! cleartext_tvb) {

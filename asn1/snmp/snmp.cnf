@@ -62,7 +62,7 @@ gint pdu_type;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &usm_p.engine_tvb);
 	 if (usm_p.engine_tvb) {
-		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
 		dissect_snmp_engineid(engine_tree, usm_p.engine_tvb, 0, tvb_length_remaining(usm_p.engine_tvb,0));
 	}
 
@@ -72,7 +72,7 @@ gint pdu_type;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &param_tvb);
 	 if (param_tvb) {
-		proto_tree* engine_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_engineid);
+		proto_tree* engine_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_engineid);
 		dissect_snmp_engineid(engine_tree, param_tvb, 0, tvb_length_remaining(param_tvb,0));
 	}
 
@@ -82,7 +82,7 @@ gint pdu_type;
 #.FN_BODY UsmSecurityParameters/msgAuthenticationParameters
 	offset = dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &usm_p.auth_tvb);
 	if (usm_p.auth_tvb) {
-		usm_p.auth_item = get_ber_last_created_item();
+		usm_p.auth_item = %(ACTX)s->created_item;
 		usm_p.auth_offset = offset_from_real_beginning(usm_p.auth_tvb,0);
 	}
 #.FN_PARS UsmSecurityParameters/msgPrivacyParameters
@@ -97,7 +97,7 @@ gint pdu_type;
 		&& usm_p.user_assoc->user.privProtocol ) {
 		
 		const gchar* error = NULL;
-		proto_tree* encryptedpdu_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_encryptedPDU);
+		proto_tree* encryptedpdu_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_encryptedPDU);
 		tvbuff_t* cleartext_tvb = usm_p.user_assoc->user.privProtocol(&usm_p, crypt_tvb, &error );
 
 		if (! cleartext_tvb) {
@@ -194,17 +194,17 @@ gint pdu_type;
 		}
 	}
 
-#.FN_PARS HeaderData/msgFlags
+#.END
  
-	VAL_PTR = &parameter_tvb
 
-#.FN_BODY HeaderData/msgFlags
+
+#.FN_BODY HeaderData/msgFlags  VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;
 
  %(DEFAULT_BODY)s
  if (parameter_tvb){
 	guint8 v3_flags = tvb_get_guint8(parameter_tvb, 0);
-	proto_tree* flags_tree = proto_item_add_subtree(get_ber_last_created_item(),ett_msgFlags);
+	proto_tree* flags_tree = proto_item_add_subtree(%(ACTX)s->created_item,ett_msgFlags);
 	
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_report, parameter_tvb, 0, 1, FALSE);
 	proto_tree_add_item(flags_tree, hf_snmp_v3_flags_crypt, parameter_tvb, 0, 1, FALSE);
