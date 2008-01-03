@@ -769,7 +769,7 @@ io_stat_draw(io_stat_t *io)
 	/* plot the x-scale */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-right_x_border+1, io->pixmap_height-bottom_y_border+1);
 
-	if((last_interval/io->interval)>draw_width/io->pixels_per_tick+1){
+	if((last_interval/io->interval)>=draw_width/io->pixels_per_tick){
 		first_interval=(last_interval/io->interval)-draw_width/io->pixels_per_tick+1;
 		first_interval*=io->interval;
 	} else {
@@ -815,7 +815,7 @@ io_stat_draw(io_stat_t *io)
 			io->pixmap_height-bottom_y_border+xlen+1);
 
 		if(xlen==10){
-			int lwidth=10;
+			int lwidth, x_pos;
 			if (io->view_as_time) {
 				struct tm *tmp;
 				time_t sec_val = current_interval/1000 + io->start_time.secs;
@@ -848,23 +848,29 @@ io_stat_draw(io_stat_t *io)
 				}
 			}
 #if GTK_MAJOR_VERSION < 2
-			if (current_interval!=0) {
-				lwidth=gdk_string_width(font, label_string);
+			lwidth=gdk_string_width(font, label_string);
+#else
+			pango_layout_set_text(layout, label_string, -1);
+			pango_layout_get_pixel_size(layout, &lwidth, NULL);
+#endif
+			if ((x-1-io->pixels_per_tick/2-lwidth/2) < 5) {
+				x_pos=5;
+			} else if ((x-1-io->pixels_per_tick/2+lwidth/2) > (io->pixmap_width-5)) {
+				x_pos=io->pixmap_width-lwidth-5;
+			} else {
+				x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
 			}
+#if GTK_MAJOR_VERSION < 2
                         gdk_draw_string(io->pixmap,
                                         font,
                                         io->draw_area->style->black_gc,
-                                        x-1-io->pixels_per_tick/2-lwidth/2,
+                                        x_pos,
                                         io->pixmap_height-bottom_y_border+15+label_height,
                                         label_string);
 #else
-			pango_layout_set_text(layout, label_string, -1);
-			if (current_interval!=0) {
-				pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			}
                         gdk_draw_layout(io->pixmap,
                                         io->draw_area->style->black_gc,
-                                        x-1-io->pixels_per_tick/2-lwidth/2,
+                                        x_pos,
                                         io->pixmap_height-bottom_y_border+15,
                                         layout);
 #endif
