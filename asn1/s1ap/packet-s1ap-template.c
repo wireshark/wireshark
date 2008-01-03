@@ -1,5 +1,5 @@
 /* packet-s1ap.c
- * Routines for E-UTRAN) S1 Application Protocol (S1AP) packet dissection
+ * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id: packet-s1ap-template.c 22778 2007-09-03 16:40:51Z etxrab $
@@ -43,8 +43,6 @@
 
 #include "packet-ber.h"
 #include "packet-per.h"
-#include "packet-gsm_map.h"
-#include "packet-s1ap.h"
 #include "packet-e212.h"
 #include "packet-sccp.h"
 
