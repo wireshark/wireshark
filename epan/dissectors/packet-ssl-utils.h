@@ -322,8 +322,10 @@ typedef struct _SslService {
 } SslService;
 
 typedef struct _Ssl_private_key {
+#ifdef HAVE_LIBGNUTLS
   gnutls_x509_crt_t     x509_cert;
   gnutls_x509_privkey_t x509_pkey;
+#endif
   SSL_PRIVATE_KEY       *sexp_pkey; 
 } Ssl_private_key_t;
 
