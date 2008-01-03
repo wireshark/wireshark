@@ -80,6 +80,7 @@ SUBDIRS = \
 	rrc		\
 	rrlp		\
 	rtse		\
+	s1ap		\
 	s4406		\
 	sabp		\
 	smrse		\
@@ -90,6 +91,7 @@ SUBDIRS = \
 	tcap		\
 	ulp		\
 	wlancertextn	\
+	x2ap		\
 	x411		\
 	x420		\
 	x509af		\

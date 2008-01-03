@@ -98,9 +98,11 @@ per: \
 	rnsap	\
 	rrc		\
 	rrlp	\
+	s1ap	\
 	sabp	\
 	t38		\
-	ulp
+	ulp		\
+	x2ap
 	
 clean:
 	cd acp133
@@ -271,6 +273,9 @@ clean:
 	cd rrlp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
+	cd s1ap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
 	cd s4406
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
@@ -299,6 +304,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd wlancertextn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd x2ap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd x411
@@ -608,6 +616,11 @@ rtse::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
+s1ap::
+	cd s1ap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
 s4406::
 	cd s4406
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
@@ -655,6 +668,11 @@ ulp::
 
 wlancertextn::
 	cd wlancertextn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+x2ap::
+	cd x2ap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 
