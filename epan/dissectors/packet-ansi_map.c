@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_map.c                                                          */
-/* ../../tools/asn2wrs.py -b -X -T -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . ansi_map.asn */
+/* ../../tools/asn2wrs.py -b -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -15706,7 +15706,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 	  /*
 	  g_warning("Find Hash string %s",buf);
 	  */
-	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
 	  if(ansi_map_saved_invokedata){
 		  OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
 		  ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;

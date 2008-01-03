@@ -4273,7 +4273,7 @@ find_saved_invokedata(asn1_ctx_t *actx){
 	  /*
 	  g_warning("Find Hash string %s",buf);
 	  */
-	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, p_private_tcap->TransactionID_str);
+	  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table, buf);
 	  if(ansi_map_saved_invokedata){
 		  OperationCode = ansi_map_saved_invokedata->opcode & 0xff;
 		  ServiceIndicator = ansi_map_saved_invokedata->ServiceIndicator;
