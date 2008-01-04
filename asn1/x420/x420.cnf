@@ -216,11 +216,10 @@ Body			B	"2.6.1.8.0"	"id-bat-body"
 
 #.FN_BODY CharacterSetRegistration
   guint32 crs;
-  proto_item *pi;
   %(DEFAULT_BODY)s
 
-  if((pi = get_ber_last_created_item()))
-    proto_item_append_text(pi, " (%%s)", val_to_str(crs, charsetreg_vals, "unknown"));
+  if(actx->created_item)
+    proto_item_append_text(actx->created_item, " (%%s)", val_to_str(crs, charsetreg_vals, "unknown"));
 
 #.FN_BODY Interchange-Data-Element
 /* XXX Not implemented yet */

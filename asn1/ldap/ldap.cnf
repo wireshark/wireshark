@@ -36,7 +36,7 @@ SortResult			B "1.2.840.113556.1.4.474" "sortResult"
 ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 
 #.FN_FTR LDAPURL
-	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+	PROTO_ITEM_SET_URL(actx->created_item);
 
 #.FN_HDR LDAPOID
 
@@ -57,10 +57,9 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 	name = oid_resolved_from_string(object_identifier_id);
 
 	if(name){
-		item = get_ber_last_created_item();
 
-		proto_item_append_text(item, " (%s)", name);
-		proto_item_append_text(tree, " %s", name);	
+		proto_item_append_text(actx->created_item, " (%s)", name);
+		proto_item_append_text(actx->created_item, " %s", name);	
 	}
 
 
@@ -307,7 +306,7 @@ ldap_conv_info_t *ldap_info;
 
 	if(!parameter_tvb) {
 
-	  proto_item_append_text(ber_last_created_item, " (%%s)", ldapstring); 
+	  proto_item_append_text(actx->created_item, " (%%s)", ldapstring); 
 	}
 
      } else if ((hf_index == hf_ldap_errorMessage) && result) { /* only show message if not success */
@@ -424,7 +423,6 @@ ldap_conv_info_t *ldap_info;
   tvbuff_t	*next_tvb;
   gchar		*string;
   guint32	i, len;
-  proto_item 	*pi;
   int           old_offset = offset;
 
   /* extract the value of the octetstring */
@@ -448,9 +446,8 @@ ldap_conv_info_t *ldap_info;
   if(i == len) {
     string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
  
-    pi = get_ber_last_created_item();
      
-    proto_item_set_text(pi, "%%s", string);
+    proto_item_set_text(actx->created_item, "%%s", string);
 
   }
   

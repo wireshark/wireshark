@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509ce.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -X -T -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509ce -c x509ce.cnf -s packet-x509ce-template CertificateExtensions.asn */
 
 /* Input file: packet-x509ce-template.c */
 
@@ -360,7 +360,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 #line 127 "x509ce.cnf"
   
-	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+	PROTO_ITEM_SET_URL(actx->created_item);
 
 
   return offset;

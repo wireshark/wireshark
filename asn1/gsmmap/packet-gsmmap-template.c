@@ -268,7 +268,7 @@ gsm_map_calc_bitrate(guint8 value){
 }
 
 static void 
-dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_){
+dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, asn1_ctx_t *actx){
 	int offset = 0;
     proto_tree *subtree;
 	guint8 octet;

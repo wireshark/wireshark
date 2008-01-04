@@ -2240,8 +2240,8 @@ dissect_krb5_PA_DATA_value(proto_tree *parent_tree, tvbuff_t *tvb, int offset, a
 {
 	proto_tree *tree=parent_tree;
 
-	if(ber_last_created_item){
-		tree=proto_item_add_subtree(ber_last_created_item, ett_krb_PA_DATA_tree);
+	if(actx->created_item){
+		tree=proto_item_add_subtree(actx->created_item, ett_krb_PA_DATA_tree);
 	}
 
 

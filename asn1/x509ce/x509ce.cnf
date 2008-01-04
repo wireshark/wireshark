@@ -125,7 +125,7 @@ CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAsserti
 
 #.FN_FTR GeneralName/uniformResourceIdentifier
   
-	PROTO_ITEM_SET_URL(get_ber_last_created_item());
+	PROTO_ITEM_SET_URL(actx->created_item);
 
 #.END
 

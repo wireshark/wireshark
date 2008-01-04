@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-dap.c                                                               */
-/* ../../tools/asn2wrs.py -b -e -X -T -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
+/* ../../tools/asn2wrs.py -b -e -L -p dap -c dap.cnf -s packet-dap-template dap.asn DirectoryAccessProtocol.asn */
 
 /* Input file: packet-dap-template.c */
 
@@ -1566,7 +1566,6 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 	tvbuff_t *out_tvb;
 	int 	i;
 	int	len;
-	proto_item	*oct_item;
 
     	  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
@@ -1580,12 +1579,12 @@ dissect_dap_T_pagedResultsQueryReference(gboolean implicit_tag _U_, tvbuff_t *tv
 				break;
 	
 		if(i == len) {
-			if((oct_item = get_ber_last_created_item())) {
+			if(actx->created_item) {
 
-				proto_item_append_text(oct_item," (");
+				proto_item_append_text(actx->created_item," (");
 				for(i=0; i<len; i++)
-					proto_item_append_text(oct_item,"%c",tvb_get_guint8(out_tvb,i));
-				proto_item_append_text(oct_item,")");
+					proto_item_append_text(actx->created_item,"%c",tvb_get_guint8(out_tvb,i));
+				proto_item_append_text(actx->created_item,")");
 			}
 		}
 	}

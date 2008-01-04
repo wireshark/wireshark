@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-logotypecertextn.c                                                  */
-/* ../../tools/asn2wrs.py -b -X -T -p logotypecertextn -c logotypecertextn.cnf -s packet-logotypecertextn-template LogotypeCertExtn.asn */
+/* ../../tools/asn2wrs.py -b -p logotypecertextn -c logotypecertextn.cnf -s packet-logotypecertextn-template LogotypeCertExtn.asn */
 
 /* Input file: packet-logotypecertextn-template.c */
 
@@ -188,7 +188,7 @@ dissect_logotypecertextn_T_logotypeURI_item(gboolean implicit_tag _U_, tvbuff_t 
                                             NULL);
 
 #line 18 "logotypecertextn.cnf"
-	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
+	   PROTO_ITEM_SET_URL(actx->created_item);
 
 
   return offset;
@@ -388,7 +388,7 @@ dissect_logotypecertextn_T_refStructURI_item(gboolean implicit_tag _U_, tvbuff_t
                                             NULL);
 
 #line 21 "logotypecertextn.cnf"
-	   PROTO_ITEM_SET_URL(get_ber_last_created_item());
+	   PROTO_ITEM_SET_URL(actx->created_item);
 
 
   return offset;
