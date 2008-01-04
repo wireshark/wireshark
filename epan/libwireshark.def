@@ -388,7 +388,6 @@ get_addr_name
 get_asn1_ctx
 get_basename
 get_ber_identifier
-get_ber_last_created_item
 get_ber_length
 get_CDR_any
 get_CDR_boolean

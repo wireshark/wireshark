@@ -132,8 +132,6 @@ static gboolean decode_unexpected = FALSE;
 static gchar *decode_as_syntax = NULL;
 static gchar *ber_filename = NULL;
 
-proto_item *ber_last_created_item=NULL;
-
 static dissector_table_t ber_oid_dissector_table=NULL;
 static dissector_table_t ber_syntax_dissector_table=NULL;
 static GHashTable *syntax_table=NULL;
@@ -208,11 +206,6 @@ typedef struct _da_data {
   GHFunc   func;
   gpointer user_data;
 } da_data;
-
-
-proto_item *get_ber_last_created_item(void) {
-  return ber_last_created_item;
-}
 
 
 void
@@ -1008,7 +1001,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		end_offset=offset+len;
 	}
 
-	actx->created_item=ber_last_created_item = NULL;
+	actx->created_item = NULL;
 
 	if (pc) {
 		/* constructed */
@@ -1031,7 +1024,7 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 		}
 		if(hf_id >= 0) {
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, length_remaining, FALSE);
-			actx->created_item=ber_last_created_item = it;
+			actx->created_item = it;
 		} else {
 			proto_item *pi;
 
@@ -1058,7 +1051,7 @@ int dissect_ber_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
 	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
 		if (hf_id >= 0)
-			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
+			tree = proto_item_add_subtree(actx->created_item, ett_ber_octet_string);
 		/* TODO Should hf_id2 be pased as last parameter???*/
 		func(FALSE, out_tvb, 0, actx, tree, -1);
 	}
@@ -1072,7 +1065,7 @@ int dissect_ber_old_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, pr
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_id, (func)?&out_tvb:NULL);
 	if (func && out_tvb && (tvb_length(out_tvb)>0)) {
 		if (hf_id >= 0)
-			tree = proto_item_add_subtree(ber_last_created_item, ett_ber_octet_string);
+			tree = proto_item_add_subtree(actx->created_item, ett_ber_octet_string);
 		/* TODO Should hf_id2 be pased as last parameter???*/
 		func(tree, out_tvb, 0, actx);
 	}
@@ -1183,7 +1176,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 		}
 	}
 
-	actx->created_item=ber_last_created_item=NULL;
+	actx->created_item=NULL;
 
 	if(hf_id >= 0){
 		/*  */
@@ -1217,7 +1210,7 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 			}
 		}
 	}
-	ber_last_created_item = actx->created_item;
+	
 	if(value){
 		*value=val;
 	}
@@ -1260,14 +1253,14 @@ dissect_ber_boolean_value(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *t
 	val=tvb_get_guint8(tvb, offset);
 	offset+=1;
 
-	actx->created_item=ber_last_created_item=NULL;
+	actx->created_item=NULL;
 
 	if(hf_id >= 0){
 		hfi = proto_registrar_get_nth(hf_id);
 		if(hfi->type == FT_BOOLEAN)
-			actx->created_item=ber_last_created_item=proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
+			actx->created_item=proto_tree_add_boolean(tree, hf_id, tvb, offset-1, 1, val);
 		else
-			actx->created_item=ber_last_created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val?1:0);
+			actx->created_item=proto_tree_add_uint(tree, hf_id, tvb, offset-1, 1, val?1:0);
 	}
 
 	if(value){
@@ -3174,7 +3167,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 		eoffset=offset+len;
 	}
 
-	actx->created_item=ber_last_created_item=NULL;
+	actx->created_item=NULL;
 	hfi = proto_registrar_get_nth(hf_id);
 	if (hfi->type == FT_OID) {
 		actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
@@ -3191,7 +3184,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	} else {
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	ber_last_created_item=actx->created_item;
+	
 	if (value_tvb)
 		*value_tvb = tvb_new_subset(tvb, offset, len, len);
 
@@ -3749,7 +3742,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 	  end_offset=offset+len;
 	}
 
-	actx->created_item=ber_last_created_item = NULL;
+	actx->created_item = NULL;
 
 	if(pc) {
 		/* constructed */
@@ -3768,7 +3761,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *p
 		len--;
 		if( hf_id >= 0) {
 			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
-			actx->created_item=ber_last_created_item = item;
+			actx->created_item= item;
 			if(ett_id != -1) {
 				tree = proto_item_add_subtree(item, ett_id);
 			}
@@ -3834,7 +3827,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
 	offset = dissect_ber_bitstring(implicit_tag, actx, parent_tree, tvb, offset, NULL, hf_id, ett_id, &tmp_tvb);
 
-	tree = proto_item_get_subtree(ber_last_created_item);
+	tree = proto_item_get_subtree(actx->created_item);
 	if(bit_fields && tree && tmp_tvb) {
 		/* tmp_tvb points to the actual bitstring (including any pad bits at the end.
 		 * note that this bitstring is not neccessarily always encoded as 4 bytes
@@ -3856,7 +3849,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 			if (**bf >= 0) {
 				hfi = proto_registrar_get_nth(**bf);
 				if(val & hfi->bitmask) {
-					proto_item_append_text(ber_last_created_item, "%s%s", sep, hfi->name);
+					proto_item_append_text(actx->created_item, "%s%s", sep, hfi->name);
 					sep = ", ";
 					term = TRUE;
 				}
@@ -3864,7 +3857,7 @@ int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 			bf++;
 		}
 		if(term)
-			proto_item_append_text(ber_last_created_item, ")");
+			proto_item_append_text(actx->created_item, ")");
 	}
 
 	if(out_tvb)

@@ -239,7 +239,7 @@ ContextRequest/iepscallind				iepscallind_BOOL
 
 #.FN_BODY ErrorDescriptor/errorCode
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_h248_error_code, &error_code);
-    expert_add_info_format(actx->pinfo, get_ber_last_created_item(), PI_RESPONSE_CODE, PI_WARN, "Errored Command");
+    expert_add_info_format(actx->pinfo, actx->created_item, PI_RESPONSE_CODE, PI_WARN, "Errored Command");
     
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
@@ -258,7 +258,7 @@ ContextRequest/iepscallind				iepscallind_BOOL
 #.FN_BODY WildcardField
     tvbuff_t* new_tvb;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
-    tree = proto_item_add_subtree(get_ber_last_created_item(),ett_wildcard);
+    tree = proto_item_add_subtree(actx->created_item,ett_wildcard);
     proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,FALSE);
     proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,FALSE);
     proto_tree_add_item(tree,hf_h248_term_wild_position,new_tvb,0,1,FALSE);
