@@ -579,13 +579,13 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
     name_minor=tvb_get_ntohs(new_tvb, 2);
 
     /* do the prettification */
-    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    proto_item_append_text(asn1_ctx.created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
 
     if(tree){
 	proto_item* pi;
 	const gchar* strval;
 	    
-	package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+	package_tree = proto_item_add_subtree(asn1_ctx.created_item, ett_packagename);
 	proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
 	for(i=0; i < packages->len; i++) {
@@ -731,10 +731,10 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
     packageandid=(name_major<<16)|name_minor;
 
     /* do the prettification */
-    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    proto_item_append_text(actx->created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
 
     if(tree){
-		package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+		package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
 		proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
     }
 
@@ -790,9 +790,9 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
     packageandid=(name_major<<16)|name_minor;
 
     /* do the prettification */
-    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    proto_item_append_text(actx->created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
     if(tree){
-      package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+      package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
     }
     proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
@@ -867,9 +867,9 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
     packageandid=(name_major<<16)|name_minor;
 
     /* do the prettification */
-    proto_item_append_text(ber_last_created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
+    proto_item_append_text(actx->created_item, "  %s (%04x)", val_to_str(name_major, package_name_vals, "Unknown Package"), name_major);
     if(tree){
-      package_tree = proto_item_add_subtree(ber_last_created_item, ett_packagename);
+      package_tree = proto_item_add_subtree(actx->created_item, ett_packagename);
     }
     proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
@@ -980,7 +980,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 	proto_item* pi;
 	
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset,  hf_index, &next_tvb);
-	pi = get_ber_last_created_item();
+	pi = actx->created_item;
 	
 	switch(tvb_length(next_tvb)) {
 		case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
@@ -1049,7 +1049,7 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 	proto_item* pi;
 
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &next_tvb);
-	pi = get_ber_last_created_item();
+	pi = actx->created_item;
 
 	if (next_tvb) {
 		switch(tvb_length(next_tvb)) {
@@ -1134,9 +1134,9 @@ static int dissect_h248_MtpAddress(gboolean implicit_tag, tvbuff_t *tvb, int off
     }
 
     /* do the prettification */
-    proto_item_append_text(ber_last_created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
+    proto_item_append_text(actx->created_item, "  NI = %d, PC = %d ( %d-%d )", val&0x03,val>>2,val&0x03,val>>2);
     if(tree){
-      mtp_tree = proto_item_add_subtree(ber_last_created_item, ett_mtpaddress);
+      mtp_tree = proto_item_add_subtree(actx->created_item, ett_mtpaddress);
     }
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_ni, tvb, old_offset, offset-old_offset, val&0x03);
     proto_tree_add_uint(mtp_tree, hf_h248_mtpaddress_pc, tvb, old_offset, offset-old_offset, val>>2);

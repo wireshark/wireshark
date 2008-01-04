@@ -295,7 +295,7 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
 		
 		if (sub_tvb) {
-			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec);
+			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item, ett_h248_3GTFO_codec);
 			dissect_codec_mode(pt, sub_tvb, 0, tvb_length(tvb));
 		}
 	} else {
@@ -319,7 +319,7 @@ static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_inf
 		dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, 0, hfid, &sub_tvb );
 		
 		if (sub_tvb) {
-			proto_tree* pt = proto_item_add_subtree(get_ber_last_created_item(),ett_h248_3GTFO_codec_list);
+			proto_tree* pt = proto_item_add_subtree(asn1_ctx.created_item,ett_h248_3GTFO_codec_list);
 			int len = tvb_length(sub_tvb);
 			int offset = 0;
 			do {
