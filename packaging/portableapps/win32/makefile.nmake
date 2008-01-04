@@ -13,6 +13,8 @@ APPINFO		= AppInfo
 WIRESHARK 	= Wireshark
 SOURCE		= WiresharkPortableSource
 
+WSMANIFEST	= ../../wireshark.manifest
+
 FINDPROCDLL	= $(MAKENSIS)\..\Plugins\FindProcDLL.dll
 
 TOPDIR		= ..\..\..
@@ -23,6 +25,8 @@ COPY_FLAGS	= /d /y
 !IFNDEF WIN32_SETUP_OPT
 WIN32_SETUP_OPT=--download
 !ENDIF
+
+UPX_FLAGS = -q
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
 
@@ -39,13 +43,31 @@ dirs:
 	if not exist $(FILES)\$(OTHER) $(MKDIR) $(FILES)\$(OTHER)
 	if not exist $(FILES)\$(OTHER)\$(SOURCE) $(MKDIR) $(FILES)\$(OTHER)\$(SOURCE)
 
-wireshark:
-	cd $(U3DIST)
-	nmake -f makefile.nmake test
-	cd ../../portableapps/win32
-	$(COPY) $(U3DIST)\device\* $(FILES)\$(APP)\$(WIRESHARK) /S $(COPY_FLAGS)		
-	$(COPY) $(U3DIST)\host\* $(FILES)\$(APP)\$(WIRESHARK) /S $(COPY_FLAGS)
-#	$(UPX) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+nsis-bits:
+	cd ../../nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
+	cd ../u3/win32
+
+$(WSMANIFEST):
+	cd ../..
+	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake wireshark.manifest
+	cd portableapps/win32
+
+distribution.nmake:	$(WSMANIFEST) makenmake.pl
+	$(PERL) makenmake.pl $(WSMANIFEST) > $@	
+
+distribution:	distribution.nmake
+	nmake -f distribution.nmake
+
+pack:	distribution
+!IFDEF UPX
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.exe	
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\$(GTK_WIMP_DLLDST_DIR)\*.dll
+!ENDIF
+
 
 appinfo.ini: appinfo.tmpl $(TOPDIR)\config.nmake
 	sed -e 's/$$(PAPPS_VERSION)/$(PAPPS_VERSION)/g' \
@@ -67,7 +89,7 @@ findprocdll:
 	@$(SH) $(TOPDIR)\tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(MAKENSIS)\.." \
 		Plugins FindProc.zip
 
-WiresharkPortable-$(VERSION).paf.exe : dirs appinfo wireshark source Files/WiresharkPortable.exe Installer.nsi 
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi 
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
@@ -80,8 +102,12 @@ Files/WiresharkPortable.exe : WiresharkPortable.nsi findprocdll
 	WiresharkPortable.nsi
 
 clean:
+	cd ../../
+	$(MAKE) -f makefile.nmake $@
+	cd portableapps/win32
 	rm -rf $(FILES)
 	rm -rf appinfo.ini
+	rm -rf distribution.nmake
 	rm -rf WiresharkPortable-$(VERSION).paf.exe
    	rm -rf *~ *.*~
 

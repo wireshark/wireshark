@@ -30,7 +30,6 @@
 !define WEBSITE "www.wireshark.org"
 !define DEFAULTEXE "wireshark.exe"
 !define DEFAULTAPPDIR "Wireshark"
-!define DEFAULTSETTINGSDIR "settings"
 !define DEFAULTWINPCAP "WinPcap_4_0_2.exe"
 
 ;=== Program Details
@@ -61,32 +60,26 @@ RequestExecutionLevel user
 ;=== Include
 !include "FileFunc.nsh"
 !insertmacro GetParameters
-;!insertmacro GetRoot
-;!include "ReplaceInFile.nsh"
-;!include "StrRep.nsh"
 
 ;=== Program Icon
 Icon "Files/App/AppInfo/${APP}.ico"
 
 Var PROGRAMDIRECTORY
-Var SETTINGSDIRECTORY
 Var ADDITIONALPARAMETERS
 Var EXECSTRING
 Var PROGRAMEXECUTABLE
 Var INIPATH
-Var SECONDARYLAUNCH
-Var DISABLESPLASHSCREEN
 Var DISABLEWINPCAPINSTALL
 Var WINPCAPINSTALLER
 Var WINPCAP_UNINSTALL ;declare variable for holding the value of a registry key
 Var PDRIVE
 
 Section "Main"
-	;=== Check if already running
+	;=== Check if another WiresharkPortable already running
 	System::Call 'kernel32::CreateMutexA(i 0, i 0, t "${NAME}") i .r1 ?e'
 	Pop $0
 	StrCmp $0 0 CheckINI
-		StrCpy $SECONDARYLAUNCH "true"
+		Goto WarnAnotherInstance
 
 	CheckINI:
 		;=== Find the INI file, if there is one
@@ -103,15 +96,13 @@ Section "Main"
 		;=== Read the parameters from the INI file
 		ReadINIStr $0 "$INIPATH\${NAME}.ini" "${NAME}" "${APP}Directory"
 		StrCpy "$PROGRAMDIRECTORY" "$EXEDIR\$0"
-		ReadINIStr $0 "$INIPATH\${NAME}.ini" "${NAME}" "SettingsDirectory"
-		StrCpy "$SETTINGSDIRECTORY" "$EXEDIR\$0"
 	
 		;=== Check that the above required parameters are present
 		IfErrors NoINI
 
-		ReadINIStr $PROGRAMEXECUTABLE "$INIPATH\${NAME}.ini" "${NAME}" "ProgramExecutable"		
+		ReadINIStr $PROGRAMEXECUTABLE "$INIPATH\${NAME}.ini" "${NAME}" "${APP}Executable"		
 		ReadINIStr $ADDITIONALPARAMETERS "$INIPATH\${NAME}.ini" "${NAME}" "AdditionalParameters"
-		ReadINIStr $DISABLESPLASHSCREEN "$INIPATH\${NAME}.ini" "${NAME}" "DisableSplashScreen"
+
 		ReadINIStr $DISABLEWINPCAPINSTALL "$INIPATH\${NAME}.ini" "${NAME}" "DisableWinPcapInstall"
 		ReadINIStr $WINPCAPINSTALLER "$INIPATH\${NAME}.ini" "${NAME}" "WinPcapInstaller"
 
@@ -137,17 +128,15 @@ Section "Main"
 
 		IfFileExists "$EXEDIR\App\${DEFAULTAPPDIR}\${DEFAULTEXE}" "" CheckPortableProgramDIR
 			StrCpy "$PROGRAMDIRECTORY" "$EXEDIR\App\${DEFAULTAPPDIR}"
-			StrCpy "$SETTINGSDIRECTORY" "$EXEDIR\Data\${DEFAULTSETTINGSDIR}"
 			GoTo EndINI
 
 		CheckPortableProgramDIR:
 			IfFileExists "$EXEDIR\${NAME}\App\${DEFAULTAPPDIR}\${DEFAULTEXE}" "" NoProgramEXE
 			StrCpy "$PROGRAMDIRECTORY" "$EXEDIR\${NAME}\App\${DEFAULTAPPDIR}"
-			StrCpy "$SETTINGSDIRECTORY" "$EXEDIR\${NAME}\Data\${DEFAULTSETTINGSDIR}"
 			GoTo EndINI
 
 	EndINI:
-		IfFileExists "$PROGRAMDIRECTORY\$PROGRAMEXECUTABLE" FoundProgramEXE
+		IfFileExists "$PROGRAMDIRECTORY\$PROGRAMEXECUTABLE" GetPassedParameters
 
 	NoProgramEXE:
 		;=== Program executable not where expected
@@ -155,23 +144,15 @@ Section "Main"
 		Abort
 		
 	FoundProgramEXE:
-		;=== Check if running
-		StrCmp $SECONDARYLAUNCH "true" GetPassedParameters
+		;=== Check if Wireshark running from somwehere else (e.g. U3 device)
 		; if the following step fails, you'll need the FindProcDLL plug-in from:
 		; http://nsis.sourceforge.net/Find_Process_By_Name 
-		FindProcDLL::FindProc "${DEFAULTEXE}"
-		StrCmp $R0 "1" WarnAnotherInstance DisplaySplash
+		FindProcDLL::FindProc "${PROGRAMEXECUTABLE}"
+		StrCmp $R0 "1" WarnAnotherInstance GetPassedParameters
 
 	WarnAnotherInstance:
-		MessageBox MB_OK|MB_ICONINFORMATION `Another instance of ${APP} is already running.  Please close other instances of ${APP} before launching ${FULLNAME}.`
+		MessageBox MB_OK|MB_ICONINFORMATION `Another instance of ${APP} is already running. Please close other instances of ${APP} before launching ${FULLNAME}.`
 		Abort
-	
-	DisplaySplash:
-;		StrCmp $DISABLESPLASHSCREEN "true" GetPassedParameters
-			;=== Show the splash screen while processing registry entries
-;			InitPluginsDir
-;			File /oname=$PLUGINSDIR\splash.jpg "${NAME}.jpg"
-;			newadvsplash::show /NOUNLOAD 1000 100 0 -1 /L $PLUGINSDIR\splash.jpg
 	
 	GetPassedParameters:
 		;=== Get any passed parameters
@@ -221,34 +202,8 @@ Section "Main"
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_DEVICE_EXEC_PATH", "$EXEDIR\App\Wireshark").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_ENV_VERSION", "1.0").r0'
 		System::Call 'Kernel32::SetEnvironmentVariableA(t,t) i("U3_ENV_LANGUAGE", "1033").r0'
-;	SettingsDirectory:
-		;=== Set the settings directory if we have a path
-;		IfFileExists "$SETTINGSDIRECTORY\*.*" CheckForSettings
-;			CreateDirectory $SETTINGSDIRECTORY
-	
-;	CheckForSettings:
 		StrCmp $SECONDARYLAUNCH "true" LaunchAndExit
-;		IfFileExists "$PROGRAMDIRECTORY\sumatrapdfprefs.txt" AdjustPaths
-;		IfFileExists "$SETTINGSDIRECTORY\sumatrapdfprefs.txt" MoveSettings AdjustPaths
-		;IfFileExists "$EXEDIR\App\DefaultData\sumatrapdfprefs.txt" "" LaunchNow
-		;	CopyFiles /SILENT "$EXEDIR\App\DefaultData\sumatrapdfprefs.txt" "$PROGRAMDIRECTORY"
-		;	Goto LaunchNow
 
-;	MoveSettings:
-;		Rename "$SETTINGSDIRECTORY\sumatrapdfprefs.txt" "$PROGRAMDIRECTORY\sumatrapdfprefs.txt"
-		
-;	AdjustPaths:
-;		ReadINIStr $LASTDRIVE "$SETTINGSDIRECTORY\${NAME}Settings.ini" "${NAME}Settings" "LastDrive"
-;		${GetRoot} $EXEDIR $CURRENTDRIVE
-;		StrCmp $LASTDRIVE $CURRENTDRIVE RememberPath
-;		IfFileExists "$PROGRAMDIRECTORY\sumatrapdfprefs.txt" "" RememberPath
-;			${ReplaceInFile} "$PROGRAMDIRECTORY\sumatrapdfprefs.txt" 'File: $LASTDRIVE' 'File: $CURRENTDRIVE'
-;			Delete "$PROGRAMDIRECTORY\sumatrapdfprefs.txt.old"
-	
-;	RememberPath:
-;		WriteINIStr "$SETTINGSDIRECTORY\${NAME}Settings.ini" "${NAME}Settings" "LastDrive" "$CURRENTDRIVE"
-
-	;LaunchNow:
 		ExecWait $EXECSTRING
 		
 	CheckRunning:
@@ -256,18 +211,13 @@ Section "Main"
 		FindProcDLL::FindProc "${DEFAULTEXE}"                  
 		StrCmp $R0 "1" CheckRunning
 
-	;UninstallWinPcap: 
 		StrCmp $WINPCAP_UNINSTALL "" TheEnd ;=== if we installed it, uninstall it
 		ExecWait $WINPCAP_UNINSTALL	
 
-	;=== Put the settings file back
-;	Sleep 500
-;	Rename "$PROGRAMDIRECTORY\sumatrapdfprefs.txt" "$SETTINGSDIRECTORY\sumatrapdfprefs.txt"
 	Goto TheEnd
 	
 	LaunchAndExit:
 		Exec $EXECSTRING
 
 	TheEnd:
-;		newadvsplash::wait
 SectionEnd
