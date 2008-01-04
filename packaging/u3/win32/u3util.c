@@ -760,10 +760,9 @@ main(int argc, char *argv[])
 
   u3_is_device_available = getenv("U3_IS_DEVICE_AVAILABLE");
 
-  if(u3_is_device_available && !strncmp(u3_is_device_available, "true", 5))
-    /* the device is available - wait 5 seconds for user to respond to
-       any dialogs */
-    time_out = 5000; /* 5 seconds */
+  if(u3_is_device_available && !strncmp(u3_is_device_available, "true", 4))
+    /* the device is available - wait for user to respond to any dialogs */
+    time_out = INFINITE;
 
   if(argc > 1) {
 

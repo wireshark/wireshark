@@ -3,10 +3,12 @@
 	<application uuid="$(UUID)" version="$(U3_VERSION)">
 		<icon>wireshark.ico</icon>
 		<name>Wireshark</name>
-		<vendor url="http://www.wireshark.org/">The Wireshark Developer Community</vendor>
+		<vendor url="http://www.wireshark.org/">The Wireshark Community</vendor>
 		<description>Wireshark $(VERSION) is one of the world's foremost network protocol analyzers, and is the standard in many parts of the industry.</description>
+		<shortDescription>Network protocol analyzer</shortDescription>
 		<options>
-			<minFreeSpace>40</minFreeSpace>
+			<minFreeSpace>$(SIZE)</minFreeSpace>
+			<upgrade appData="remove" deviceExec="remove"/>
 		</options>
 	</application>
 	<actions>
