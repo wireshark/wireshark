@@ -61,7 +61,7 @@ distribution:	distribution.nmake
 
 pack:	distribution
 !IFDEF UPX
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.exe	
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe	
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
