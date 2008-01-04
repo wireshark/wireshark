@@ -769,7 +769,7 @@ dissect_x420_NotificationRequests(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_x420_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1067,7 +1067,7 @@ dissect_x420_SensitivityField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_x420_AutoForwardedField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }
@@ -1999,7 +1999,7 @@ dissect_x420_BodyPartNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static const ber_sequence_t T_stored_body_part_sequence[] = {
-  { &hf_x420_message_entry  , -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
+  { &hf_x420_message_entry  , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
   { &hf_x420_body_part_number, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x420_BodyPartNumber },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3418,7 +3418,7 @@ dissect_x420_BodyPartSignatureVerification(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static const ber_sequence_t SET_OF_SequenceNumber_set_of[1] = {
-  { &hf_x420_stored_item    , -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
+  { &hf_x420_stored_item    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
 };
 
 static int
@@ -3470,7 +3470,7 @@ dissect_x420_DeliveredReplyStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t SEQUENCE_OF_SequenceNumber_sequence_of[1] = {
-  { &hf_x420_received_replies_item, -1 /*imported*/, -1 /*imported*/, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
+  { &hf_x420_received_replies_item, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_p7_SequenceNumber },
 };
 
 static int
@@ -5013,11 +5013,11 @@ void proto_register_x420(void) {
         "x420.BodyPartReference", HFILL }},
     { &hf_x420_stored_entry,
       { "stored-entry", "x420.stored_entry",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_stored_content,
       { "stored-content", "x420.stored_content",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_submitted_body_part,
       { "submitted-body-part", "x420.submitted_body_part",
@@ -5029,7 +5029,7 @@ void proto_register_x420(void) {
         "x420.T_stored_body_part", HFILL }},
     { &hf_x420_message_entry,
       { "message-entry", "x420.message_entry",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_body_part_number,
       { "body-part-number", "x420.body_part_number",
@@ -5517,7 +5517,7 @@ void proto_register_x420(void) {
         "x420.NonMessageBodyPartSynopsis", HFILL }},
     { &hf_x420_number,
       { "number", "x420.number",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_synopsis,
       { "synopsis", "x420.synopsis",
@@ -5549,7 +5549,7 @@ void proto_register_x420(void) {
         "x420.OBJECT_IDENTIFIER", HFILL }},
     { &hf_x420_this_child_entry,
       { "this-child-entry", "x420.this_child_entry",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_position,
       { "position", "x420.position",
@@ -5565,7 +5565,7 @@ void proto_register_x420(void) {
         "x420.BodyPartNumber", HFILL }},
     { &hf_x420_body_part_signature_status,
       { "body-part-signature", "x420.body_part_signature",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_INT32, BASE_DEC, VALS(p7_SignatureStatus_vals), 0,
         "p7.SignatureStatus", HFILL }},
     { &hf_x420_stored,
       { "stored", "x420.stored",
@@ -5573,7 +5573,7 @@ void proto_register_x420(void) {
         "x420.SET_OF_SequenceNumber", HFILL }},
     { &hf_x420_stored_item,
       { "Item", "x420.stored_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_absent,
       { "absent", "x420.absent",
@@ -5589,7 +5589,7 @@ void proto_register_x420(void) {
         "x420.SEQUENCE_OF_SequenceNumber", HFILL }},
     { &hf_x420_received_replies_item,
       { "Item", "x420.received_replies_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_no_ipn_received,
       { "no-ipn-received", "x420.no_ipn_received",
@@ -5601,7 +5601,7 @@ void proto_register_x420(void) {
         "x420.SEQUENCE_OF_SequenceNumber", HFILL }},
     { &hf_x420_ipns_received_item,
       { "Item", "x420.ipns_received_item",
-        FT_NONE, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "p7.SequenceNumber", HFILL }},
     { &hf_x420_content_or_arguments,
       { "content-or-arguments", "x420.content_or_arguments",

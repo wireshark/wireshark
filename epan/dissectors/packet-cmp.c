@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cmp.c                                                               */
-/* ../../tools/asn2wrs.py -b -X -T -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
+/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -1486,7 +1486,7 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	proto_tree_add_uint(tree, hf_cmp_type, tvb, 4, 1, pdu_type);
 
         if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_add_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
+            col_set_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
         }
 
 	switch(pdu_type){

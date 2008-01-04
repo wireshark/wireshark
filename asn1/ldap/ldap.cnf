@@ -565,7 +565,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_BODY MatchingRuleAssertion/dnAttributes 
 	gboolean val;
 
-offset = dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
+offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
 
 
 		matching_rule_dnattr = val;

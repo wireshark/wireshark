@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-smrse.c                                                             */
-/* ../../tools/asn2wrs.py -b -X -T -p smrse -c smrse.cnf -s packet-smrse-template SMRSE.asn */
+/* ../../tools/asn2wrs.py -b -p smrse -c smrse.cnf -s packet-smrse-template SMRSE.asn */
 
 /* Input file: packet-smrse-template.c */
 
@@ -338,7 +338,7 @@ dissect_smrse_SMR_Unbind(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_smrse_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

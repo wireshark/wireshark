@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acp133.c                                                            */
-/* ../../tools/asn2wrs.py -b -X -T -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
+/* ../../tools/asn2wrs.py -b -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
 
 /* Input file: packet-acp133-template.c */
 
@@ -499,7 +499,7 @@ dissect_acp133_T_rIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_acp133_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index);
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
 }

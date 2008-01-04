@@ -132,7 +132,6 @@ display_epoch_time
 display_signed_time
 dissect_ber_bitstring
 dissect_ber_boolean
-dissect_ber_boolean_value
 dissect_ber_choice
 dissect_ber_GeneralizedTime
 dissect_ber_identifier

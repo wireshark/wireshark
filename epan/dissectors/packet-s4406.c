@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s4406.c                                                             */
-/* ../../tools/asn2wrs.py -b -X -T -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
+/* ../../tools/asn2wrs.py -b -p s4406 -c s4406.cnf -s packet-s4406-template s4406.asn */
 
 /* Input file: packet-s4406-template.c */
 
@@ -923,7 +923,7 @@ dissect_s4406(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "S4406");
 	if (check_col(pinfo->cinfo, COL_INFO))
-	  col_add_str(pinfo->cinfo, COL_INFO, "Military");
+	  col_set_str(pinfo->cinfo, COL_INFO, "Military");
 
 	dissect_s4406_InformationObject(TRUE, tvb, offset, &asn1_ctx , tree, -1);
 }

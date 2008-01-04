@@ -498,7 +498,7 @@ int dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tre
 			offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_GeneralizedTime, NULL);
 			break;
 		case BER_UNI_TAG_BOOLEAN:
-			offset = dissect_ber_boolean(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_BOOLEAN);
+			offset = dissect_ber_boolean(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_BOOLEAN, NULL);
 			break;
 		default:
 			offset=dissect_ber_identifier(pinfo, tree, tvb, start_offset, &class, &pc, &tag);
@@ -1233,7 +1233,7 @@ dissect_ber_integer(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
 
 int
-dissect_ber_boolean_value(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value)
+dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gboolean *value)
 {
 	gint8 class;
 	gboolean pc;
@@ -1268,12 +1268,6 @@ dissect_ber_boolean_value(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *t
 	}
 
 	return offset;
-}
-
-int
-dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
-{
-	return dissect_ber_boolean_value(implicit_tag, actx, tree, tvb, offset, hf_id, NULL);
 }
 
 

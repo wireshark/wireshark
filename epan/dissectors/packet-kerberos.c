@@ -1948,7 +1948,7 @@ dissect_krb5_crealm(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 static int
 dissect_krb5_PA_PAC_REQUEST_flag(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-	offset=dissect_ber_boolean(FALSE, actx, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag);
+	offset=dissect_ber_boolean(FALSE, actx, tree, tvb, offset, hf_krb_PA_PAC_REQUEST_flag, NULL);
 	return offset;
 }
 
