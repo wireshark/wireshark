@@ -439,28 +439,29 @@ char* uat_unbinstring(const char* si, guint in_len, guint* len_p) {
 	guint8* buf;
 	guint len = in_len/2;
 	int i = 0;
+	int d0, d1;
 
 	if (in_len%2) {
 		return NULL;
 	}
 
-	buf= g_malloc(len);
-	*len_p = len;
+	buf= g_malloc0(len+1);
+	if (len_p) *len_p = len;
 
 	while(in_len) {
-		int d1 = xton(*(si++));
-		int d0 = xton(*(si++));
+		d1 = xton(*(si++));
+		d0 = xton(*(si++));
 
 		buf[i++] = (d1 * 16) + d0;
 
 		in_len -= 2;
 	}
 
-	return (void*)buf;
+	return (char*)buf;
 }
 
 char* uat_unesc(const char* si, guint in_len, guint* len_p) {
-	char* buf = g_malloc0(in_len);
+	char* buf = g_malloc0(in_len+1);
 	char* p = buf;
 	guint len = 0;
 	const char* s;
