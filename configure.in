@@ -1601,6 +1601,7 @@ AC_OUTPUT(
   asn1/rrc/Makefile
   asn1/rrlp/Makefile
   asn1/rtse/Makefile
+  asn1/s1ap/Makefile
   asn1/s4406/Makefile
   asn1/sabp/Makefile
   asn1/smrse/Makefile
@@ -1611,6 +1612,7 @@ AC_OUTPUT(
   asn1/tcap/Makefile
   asn1/ulp/Makefile
   asn1/wlancertextn/Makefile
+  asn1/x2ap/Makefile
   asn1/x411/Makefile
   asn1/x420/Makefile
   asn1/x509af/Makefile
