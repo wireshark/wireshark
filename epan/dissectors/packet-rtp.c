@@ -905,6 +905,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_item *ti            = NULL;
 	proto_tree *rtp_tree      = NULL;
 	proto_tree *rtp_csrc_tree = NULL;
+	proto_tree *rtp_hext_tree = NULL;
 	guint8      octet1, octet2;
 	unsigned int version;
 	gboolean    padding_set;
@@ -1007,7 +1008,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	rtp_info->info_seq_num = seq_num;
 	rtp_info->info_timestamp = timestamp;
 	rtp_info->info_sync_src = sync_src;
-    rtp_info->info_is_srtp = FALSE;
+	rtp_info->info_is_srtp = FALSE;
 	rtp_info->info_setup_frame_num = 0;
 	rtp_info->info_payload_type_str = NULL;
 
@@ -1049,7 +1050,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
 	if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
-    rtp_info->info_is_srtp = is_srtp;
+	rtp_info->info_is_srtp = is_srtp;
 
 	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
@@ -1159,29 +1160,20 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 2;
 
 		hdr_extension = tvb_get_ntohs( tvb, offset );
-		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb,
-		    offset, 2, hdr_extension);
+		if ( tree ) proto_tree_add_uint( rtp_tree, hf_rtp_length, tvb, offset, 2, hdr_extension);
 		offset += 2;
 		if ( hdr_extension > 0 ) {
 			if ( tree ) {
-				ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension * 4,
-				                         FALSE);
-				/* I'm re-using the old tree variable here
-				   from the CSRC list!*/
-				rtp_csrc_tree = proto_item_add_subtree( ti,
-				    ett_hdr_ext );
-			}
-			for (i = 0; i < hdr_extension; i++ ) {
-				if ( tree ) proto_tree_add_uint(rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4,
-				                                tvb_get_ntohl( tvb, offset ) );
-				offset += 4;
+				ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension * 4, FALSE);
+				rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
 			}
 
 			/* pass interpretation of header extension to a registered subdissector */
 			newtvb = tvb_new_subset(tvb, offset, hdr_extension * 4, hdr_extension * 4);
-			if ( !(rtp_info->info_payload_type_str && dissector_try_string(rtp_hdr_ext_dissector_table, rtp_info->info_payload_type_str, newtvb, pinfo, rtp_csrc_tree)) ) {
-				for (i = 0; i < hdr_extension; i++ ) {
-					if ( tree ) proto_tree_add_uint( rtp_csrc_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+			if ( !(rtp_info->info_payload_type_str && dissector_try_string(rtp_hdr_ext_dissector_table,
+				rtp_info->info_payload_type_str, newtvb, pinfo, rtp_hext_tree)) ) {
+				for ( i = 0; i < hdr_extension; i++ ) {
+					if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
 				}
 			}
 			offset += hdr_extension * 4;
