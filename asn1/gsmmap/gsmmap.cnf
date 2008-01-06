@@ -339,21 +339,19 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 #.END
 
 #.FN_BODY USSD-DataCodingScheme VAL_PTR = &parameter_tvb
-#-- The structure of the USSD-DataCodingScheme is defined by
-#-- the Cell Broadcast Data Coding Scheme as described in
-#-- TS 3GPP TS 23.038
-#--
  /*The structure of the USSD-DataCodingScheme is defined by
   * the Cell Broadcast Data Coding Scheme as described in
   * TS 3GPP TS 23.038
-  * TODO: Should smpp_handle_dcs return encoding type? - like 7bit Alphabet
+  * TODO: Should dissect_cbs_data_coding_scheme return encoding type? - like 7bit Alphabet
   */
-  int CodingScheme_offset = 0;
   tvbuff_t	*parameter_tvb;
+  proto_tree *subtree;
+
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
      return offset;
-  smpp_handle_dcs(tree, parameter_tvb, &CodingScheme_offset);
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_cbs_data_coding);
+  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
 
 #.FN_BODY USSD-String VAL_PTR = &parameter_tvb
 
@@ -362,7 +360,6 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   guint8		out_len;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
    * use ep_alloc ?
-   * TODO: Shouldent this function use USSD-DataCodingScheme to chose decoding method???
    */
   static unsigned char bigbuf[1024];
 
@@ -370,15 +367,17 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   if (!parameter_tvb)
      return offset;
 
-  length = tvb_length_remaining(parameter_tvb,0);
+  if(sms_encoding==SMS_ENCODING_7BIT){
+	length = tvb_length_remaining(parameter_tvb,0);
 
-  out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
+	out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
               tvb_get_ptr(parameter_tvb, 0, length), bigbuf);
 
-  bigbuf[out_len] = '\0';
-  gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-  bigbuf[1023] = '\0';
-  proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", bigbuf);
+	bigbuf[out_len] = '\0';
+	gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+	bigbuf[1023] = '\0';
+	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", bigbuf);
+  }
 
 #.FN_FTR ForwardingOptions
 

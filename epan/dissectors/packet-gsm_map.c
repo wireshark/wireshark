@@ -140,6 +140,18 @@ static int hf_gsm_mapIntegrityProtectionInformation = -1;
 static int hf_gsm_mapEncryptionInformation = -1;
 static int hf_gsm_map_PlmnContainer_PDU = -1;
 static int hf_gsm_ss_SS_UserData = -1;
+static int hf_gsm_map_cbs_coding_grp = -1;
+static int hf_gsm_map_cbs_coding_grp0_lang = -1;
+static int hf_gsm_map_cbs_coding_grp1_lang = -1;
+static int hf_gsm_map_cbs_coding_grp2_lang = -1;
+static int hf_gsm_map_cbs_coding_grp3_lang = -1;
+static int hf_gsm_map_cbs_coding_grp4_7_comp = -1;
+static int hf_gsm_map_cbs_coding_grp4_7_class_ind = -1;
+static int hf_gsm_map_cbs_coding_grp4_7_char_set = -1;
+static int hf_gsm_map_cbs_coding_grp4_7_class = -1;
+static int hf_gsm_map_cbs_coding_grp15_mess_code = -1;
+static int hf_gsm_map_cbs_coding_grp15_class = -1;
+
 
 /*--- Included file: packet-gsm_map-hf.c ---*/
 #line 1 "packet-gsm_map-hf.c"
@@ -1353,7 +1365,7 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 136 "packet-gsmmap-template.c"
+#line 148 "packet-gsmmap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1375,6 +1387,7 @@ static gint ett_gsm_map_RadioResourceInformation =-1;
 static gint ett_gsm_map_MSNetworkCapability =-1;
 static gint ett_gsm_map_MSRadioAccessCapability = -1;
 static gint ett_gsm_map_externalsignalinfo = -1;
+static gint ett_gsm_map_cbs_data_coding = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -1936,7 +1949,7 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 159 "packet-gsmmap-template.c"
+#line 172 "packet-gsmmap-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -1958,6 +1971,15 @@ guint protocolId;
 guint AccessNetworkProtocolId;
 const char *obj_id = NULL;
 static int gsm_map_tap = -1;
+
+#define SMS_ENCODING_NOT_SET	0
+#define SMS_ENCODING_7BIT		1
+#define SMS_ENCODING_8BIT		2
+#define SMS_ENCODING_UCS2		3
+#define SMS_ENCODING_7BIT_LANG	4
+#define SMS_ENCODING_UCS2_LANG	5
+
+static guint8 sms_encoding;
 
 /* Forward declarations */
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
@@ -2344,6 +2366,273 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	}
 
 }
+
+static const value_string gsm_map_cbs_data_coding_scheme_coding_grp_vals[] = {
+	{ 0, "Coding Group 0(Language using the GSM 7 bit default alphabet)" }, 
+	{ 1, "Coding Group 1" }, 
+	{ 2, "Coding Group 2" }, 
+	{ 3, "Coding Group 3" }, 
+	{ 4, "General Data Coding indication" }, 
+	{ 5, "General Data Coding indication" }, 
+	{ 6, "General Data Coding indication" }, 
+	{ 7, "General Data Coding indication" }, 
+	{ 8, "Reserved" }, 
+	{ 9, "Message with User Data Header (UDH) structure" }, 
+	{ 10,"Reserved" }, 
+	{ 11,"Reserved" }, 
+	{ 12,"Reserved" }, 
+	{ 13,"Reserved" }, 
+	{ 14,"Defined by the WAP Forum" }, 
+	{ 15,"Data coding / message handling" }, 
+	{ 0, NULL}
+};
+/* Coding group 0 
+ * Bits 3..0 indicate the language:
+ */
+static const value_string gsm_map_cbs_coding_grp0_lang_vals[] = {
+	{ 0, "German"},
+	{ 1, "English"},
+	{ 2, "Italian"},
+	{ 3, "French"},
+	{ 4, "Spanish"},
+	{ 5, "Dutch"},
+	{ 6, "Swedish"},
+	{ 7, "Danish"},
+	{ 8, "Portuguese"},
+	{ 9, "Finnish"},
+	{ 10, "Norwegian"},
+	{ 11, "Greek"},
+	{ 12, "Turkish"},
+	{ 13, "Hungarian"},
+	{ 14, "Polish"},
+	{ 15, "Language unspecified"},
+	{ 0,	NULL }
+};
+
+static const value_string gsm_map_cbs_coding_grp1_lang_vals[] = {
+	{ 0, "GSM 7 bit default alphabet; message preceded by language indication"},
+	{ 1, "UCS2; message preceded by language indication"},
+	{ 2, "Reserved"},
+	{ 3, "Reserved"},
+	{ 4, "Reserved"},
+	{ 5, "Reserved"},
+	{ 6, "Reserved"},
+	{ 7, "Reserved"},
+	{ 8, "Reserved"},
+	{ 9, "Reserved"},
+	{ 10, "Reserved"},
+	{ 11, "Reserved"},
+	{ 12, "Reserved"},
+	{ 13, "Reserved"},
+	{ 14, "Reserved"},
+	{ 15, "Reserved"},
+	{ 0,	NULL }
+};
+static const value_string gsm_map_cbs_coding_grp2_lang_vals[] = {
+	{ 0, "Czech"},
+	{ 1, "Hebrew"},
+	{ 2, "Arabic"},
+	{ 3, "Russian"},
+	{ 4, "Icelandic"},
+	{ 5, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 6, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 7, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 8, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 9, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 10, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 11, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 12, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 13, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 14, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 0,	NULL }
+};
+static const value_string gsm_map_cbs_coding_grp3_lang_vals[] = {
+	{ 0, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 1, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 2, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 3, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 4, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 5, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 6, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 7, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 8, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 9, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 10, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 11, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 12, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 13, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 14, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 15, "Reserved for other languages using the GSM 7 bit default alphabet, with unspecified handling at the MS"},
+	{ 0,	NULL }
+};
+
+static const true_false_string gsm_map_cbs_coding_grp4_7_comp_vals = {
+  "The text is compressed using the compression algorithm defined in 3GPP TS 23.042",
+  "The text is uncompressed"
+};
+
+static const true_false_string gsm_map_cbs_coding_grp4_7_class_ind_vals = {
+  "Bits 1 to 0 have a message class meaning",
+  "Bits 1 to 0 are reserved and have no message class meaning"
+};
+
+/* Bits 3 and 2 indicate the character set being used, as follows: */
+
+static const value_string gsm_map_cbs_coding_grp4_7_char_set_vals[] = {
+	{ 0, "GSM 7 bit default alphabet"},
+	{ 1, "8 bit data"},
+	{ 2, "UCS2 (16 bit)"},
+	{ 3, "Reserved"},
+	{ 0,	NULL }
+};
+
+static const value_string gsm_map_cbs_coding_grp4_7_class_vals[] = {
+	{ 0, "Class 0"},
+	{ 1, "Class 1 Default meaning: ME-specific"},
+	{ 2, "Class 2 (U)SIM specific message"},
+	{ 3, "Class 3 Default meaning: TE-specific (see 3GPP TS 27.005"},
+	{ 0,	NULL }
+};
+
+static const value_string gsm_map_cbs_coding_grp15_mess_code_vals[] = {
+	{ 0, "GSM 7 bit default alphabet"},
+	{ 1, "8 bit data"},
+	{ 0,	NULL }
+};
+
+static const value_string gsm_map_cbs_coding_grp15_class_vals[] = {
+	{ 0, "GSM 7 bit default alphabet"},
+	{ 1, "8 bit data"},
+	{ 0,	NULL }
+};
+
+
+/* 3GPP TS 23.038 version 7.0.0 Release 7 */
+static void
+dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 octet;
+	guint8 coding_grp;
+	guint8 character_set;
+
+	octet = tvb_get_guint8(tvb,0);
+	coding_grp = octet >>4;
+	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, 0, 1, FALSE);
+	
+	sms_encoding = SMS_ENCODING_NOT_SET;
+	switch (coding_grp){
+	case 0:
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp0_lang, tvb, 0, 1, FALSE);
+		sms_encoding = SMS_ENCODING_7BIT;
+		break;
+	case 1:
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp1_lang, tvb, 0, 1, FALSE);
+		if ((octet & 0x0f)== 0){
+			sms_encoding = SMS_ENCODING_7BIT_LANG;
+		}else{
+			sms_encoding = SMS_ENCODING_UCS2_LANG;
+		}
+		break;
+	case 2:
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp2_lang, tvb, 0, 1, FALSE);
+		sms_encoding = SMS_ENCODING_7BIT;
+		break;
+	case 3:
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp3_lang, tvb, 0, 1, FALSE);
+		sms_encoding = SMS_ENCODING_7BIT;
+		break;
+		/* Coding_grp 01xx */
+	case 4:
+	case 5:
+	case 6:
+	case 7:
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
+		if ((octet & 0x10)== 0x10){
+			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, FALSE);
+		}
+		/* Bits 3 and 2 indicate the character set being used, */
+		character_set = (octet&0x0c)>>2;
+		switch (character_set){
+		case 0:
+			/* GSM 7 bit default alphabet */
+			sms_encoding = SMS_ENCODING_7BIT;
+			break;
+		case 1:
+			/* 8 bit data */
+			sms_encoding = SMS_ENCODING_8BIT;
+			break;
+		case 2:
+			/* UCS2 (16 bit) */
+			sms_encoding = SMS_ENCODING_UCS2;
+			break;
+		case 3:
+			/* Reserved */
+			sms_encoding = SMS_ENCODING_NOT_SET;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 8:
+		/* Reserved coding groups */
+		break;
+	case 9:
+		/* Message with User Data Header (UDH) structure:*/
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, FALSE);
+		character_set = (octet&0x0c)>>2;
+		switch (character_set){
+		case 0:
+			/* GSM 7 bit default alphabet */
+			sms_encoding = SMS_ENCODING_7BIT;
+			break;
+		case 1:
+			/* 8 bit data */
+			sms_encoding = SMS_ENCODING_8BIT;
+			break;
+		case 2:
+			/* UCS2 (16 bit) */
+			sms_encoding = SMS_ENCODING_UCS2;
+			break;
+		case 3:
+			/* Reserved */
+			sms_encoding = SMS_ENCODING_NOT_SET;
+			break;
+		default:
+			break;
+		}
+		break;
+	case 10:
+	case 11:
+	case 12:
+	case 13:
+		/* 1010..1101 Reserved coding groups */
+		break;
+	case 14:
+		/* Defined by the WAP Forum 
+		 * "Wireless Datagram Protocol Specification", Wireless Application Protocol Forum Ltd.
+		 */
+		break;
+	case 15:
+		/* Data coding / message handling */
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_mess_code, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_class, tvb, 0, 1, FALSE);
+		character_set = (octet&0x04)>>2;
+		if (character_set == 0){
+			sms_encoding = SMS_ENCODING_7BIT;
+		}else{
+			sms_encoding = SMS_ENCODING_8BIT;
+		}
+		break;
+	default:
+		break;
+	}
+
+}
+
 
 /*--- Included file: packet-gsm_map-fn.c ---*/
 #line 1 "packet-gsm_map-fn.c"
@@ -2749,7 +3038,7 @@ static const ber_sequence_t gsm_map_ExternalSignalInfo_sequence[] = {
 
 static int
 dissect_gsm_map_ExternalSignalInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 539 "gsmmap.cnf"
+#line 538 "gsmmap.cnf"
  guint8		octet;
  guint8		length;
  tvbuff_t	*next_tvb;
@@ -3298,7 +3587,7 @@ dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(gboolean implicit_tag _U_
 
 int
 dissect_gsm_map_LAIFixedLength(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 477 "gsmmap.cnf"
+#line 476 "gsmmap.cnf"
 
         tvbuff_t        *parameter_tvb; 
         proto_tree *subtree; 
@@ -3581,7 +3870,7 @@ dissect_gsm_map_ss_ForwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
-#line 384 "gsmmap.cnf"
+#line 383 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -3900,20 +4189,22 @@ dissect_gsm_map_ss_InterrogateSS_Res(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 int
 dissect_gsm_map_ss_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 346 "gsmmap.cnf"
+#line 342 "gsmmap.cnf"
  /*The structure of the USSD-DataCodingScheme is defined by
   * the Cell Broadcast Data Coding Scheme as described in
   * TS 3GPP TS 23.038
-  * TODO: Should smpp_handle_dcs return encoding type? - like 7bit Alphabet
+  * TODO: Should dissect_cbs_data_coding_scheme return encoding type? - like 7bit Alphabet
   */
-  int CodingScheme_offset = 0;
   tvbuff_t	*parameter_tvb;
+  proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
   if (!parameter_tvb)
      return offset;
-  smpp_handle_dcs(tree, parameter_tvb, &CodingScheme_offset);
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_cbs_data_coding);
+  dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
 
 
 
@@ -3924,14 +4215,13 @@ dissect_gsm_map_ss_USSD_DataCodingScheme(gboolean implicit_tag _U_, tvbuff_t *tv
 
 int
 dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 359 "gsmmap.cnf"
+#line 357 "gsmmap.cnf"
 
   tvbuff_t	*parameter_tvb;
   int			length;
   guint8		out_len;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
    * use ep_alloc ?
-   * TODO: Shouldent this function use USSD-DataCodingScheme to chose decoding method???
    */
   static unsigned char bigbuf[1024];
 
@@ -3941,15 +4231,17 @@ dissect_gsm_map_ss_USSD_String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   if (!parameter_tvb)
      return offset;
 
-  length = tvb_length_remaining(parameter_tvb,0);
+  if(sms_encoding==SMS_ENCODING_7BIT){
+	length = tvb_length_remaining(parameter_tvb,0);
 
-  out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
+	out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
               tvb_get_ptr(parameter_tvb, 0, length), bigbuf);
 
-  bigbuf[out_len] = '\0';
-  gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
-  bigbuf[1023] = '\0';
-  proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %s", bigbuf);
+	bigbuf[out_len] = '\0';
+	gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+	bigbuf[1023] = '\0';
+	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %s", bigbuf);
+  }
 
 
 
@@ -6192,7 +6484,7 @@ dissect_gsm_map_ms_VLR_Capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_gsm_map_ms_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 441 "gsmmap.cnf"
+#line 440 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	guint8		octet;
@@ -6827,7 +7119,7 @@ dissect_gsm_map_ms_UpdateGprsLocationRes(gboolean implicit_tag _U_, tvbuff_t *tv
 
 static int
 dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 513 "gsmmap.cnf"
+#line 512 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -6850,7 +7142,7 @@ dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvb
 
 static int
 dissect_gsm_map_ms_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 525 "gsmmap.cnf"
+#line 524 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -6935,7 +7227,7 @@ dissect_gsm_map_ms_AllowedUMTS_Algorithms(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RadioResourceInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 489 "gsmmap.cnf"
+#line 488 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb; 
 	proto_tree *subtree;
 
@@ -7006,7 +7298,7 @@ dissect_gsm_map_ms_BSSMAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_gsm_map_ms_RANAP_ServiceHandover(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 501 "gsmmap.cnf"
+#line 500 "gsmmap.cnf"
     tvbuff_t        *parameter_tvb;
 	asn1_ctx_t		asn1_ctx;
 
@@ -7740,7 +8032,7 @@ static int
 dissect_gsm_map_ms_T_forwardingOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_gsm_map_ms_Ext_ForwOptions(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-#line 390 "gsmmap.cnf"
+#line 389 "gsmmap.cnf"
 
 	proto_tree_add_item(tree, hf_gsm_map_notification_to_forwarding_party, tvb, 0,1,FALSE);
 	proto_tree_add_item(tree, hf_gsm_map_redirecting_presentation, tvb, 0,1,FALSE);
@@ -8935,7 +9227,7 @@ dissect_gsm_map_ms_ContextId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gsm_map_ms_PDP_Type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 398 "gsmmap.cnf"
+#line 397 "gsmmap.cnf"
 	guint8 pdp_type_org;
 	tvbuff_t	*parameter_tvb;
 
@@ -8978,7 +9270,7 @@ dissect_gsm_map_ms_PDP_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 int
 dissect_gsm_map_ms_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 420 "gsmmap.cnf"
+#line 419 "gsmmap.cnf"
 
 
 	tvbuff_t	*parameter_tvb;
@@ -9010,7 +9302,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 int
 dissect_gsm_map_ms_Ext_QoS_Subscribed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 431 "gsmmap.cnf"
+#line 430 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 
@@ -10165,7 +10457,7 @@ dissect_gsm_map_ms_SubscriberState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 int
 dissect_gsm_map_ms_RAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 465 "gsmmap.cnf"
+#line 464 "gsmmap.cnf"
 
 	tvbuff_t	*parameter_tvb;
 	proto_tree *subtree;
@@ -15160,7 +15452,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 567 "packet-gsmmap-template.c"
+#line 856 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -15372,7 +15664,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 578 "packet-gsmmap-template.c"
+#line 867 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -15577,7 +15869,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 582 "packet-gsmmap-template.c"
+#line 871 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -17245,6 +17537,61 @@ void proto_register_gsm_map(void) {
       { "SS-UserData", "gsm_ss.SS_UserData",
         FT_STRING, BASE_NONE, NULL, 0,
         "gsm_ss.SS_UserData", HFILL }},
+	{ &hf_gsm_map_cbs_coding_grp,
+		{ "Coding Group","gsm_map.cbs.coding_grp",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,          
+		"Coding Group", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp0_lang,
+		{ "Language","gsm_map.cbs.coding_grp0_lang",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp0_lang_vals), 0x0f,          
+		"Language", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp1_lang,
+		{ "Language","gsm_map.cbs.coding_grp1_lang",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp1_lang_vals), 0x0f,          
+		"Language", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp2_lang,
+		{ "Language","gsm_map.cbs.coding_grp2_lang",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp2_lang_vals), 0x0f,          
+		"Language", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp3_lang,
+		{ "Language","gsm_map.cbs.coding_grp3_lang",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp3_lang_vals), 0x0f,          
+		"Language", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp4_7_comp,
+		{ "Compressed indicator","gsm_map.cbs.coding_grp4_7_comp",
+		FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_comp_vals), 0x20,          
+		"Compressed indicator", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp4_7_class_ind,
+		{ "Message Class present","gsm_map.cbs.coding_grp4_7_class_ind",
+		FT_BOOLEAN, 8, TFS(&gsm_map_cbs_coding_grp4_7_class_ind_vals), 0x10,          
+		"Message Class present", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp4_7_char_set,
+		{ "Character set being used","gsm_map.cbs.coding_grp4_7_char_set",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_char_set_vals), 0x0c,          
+		"Character set being used", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp4_7_class,
+		{ "Message Class","gsm_map.cbs.coding_grp4_7_class",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp4_7_class_vals), 0x03,          
+		"Message Class", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp15_mess_code,
+		{ "Message coding","gsm_map.cbs.cbs_coding_grp15_mess_code",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_mess_code_vals), 0x04,          
+		"Message coding", HFILL }
+	},
+	{ &hf_gsm_map_cbs_coding_grp15_class,
+		{ "Message Class","gsm_map.cbs.gsm_map_cbs_coding_grp15_class",
+		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_coding_grp15_class_vals), 0x03,          
+		"Message Class", HFILL }
+	},
 
 
 
@@ -21934,7 +22281,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2252 "packet-gsmmap-template.c"
+#line 2596 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -21958,6 +22305,7 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_MSNetworkCapability,
 	&ett_gsm_map_MSRadioAccessCapability,
 	&ett_gsm_map_externalsignalinfo,
+	&ett_gsm_map_cbs_data_coding,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -22519,7 +22867,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2277 "packet-gsmmap-template.c"
+#line 2622 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
@@ -22595,7 +22943,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2295 "packet-gsmmap-template.c"
+#line 2640 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
