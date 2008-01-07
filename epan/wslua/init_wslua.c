@@ -50,7 +50,8 @@ static int wslua_not_register_menu(lua_State* LS) {
     return 0;
 }
 
-void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
+    int consumed_bytes = tvb->length;
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
@@ -80,12 +81,20 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
         push_Pinfo(L,pinfo);
         push_TreeItem(L,lua_tree);
 
-        if  ( lua_pcall(L,3,0,0) ) {
+        if  ( lua_pcall(L,3,1,0) ) {
             const gchar* error = lua_tostring(L,-1);
 
             proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: %s",error);
             expert_add_info_format(pinfo, pi, PI_DEBUG, PI_ERROR ,"Lua Error");
+        } else {
+
+            /* if the Lua dissector reported the consumed bytes, pass it to our caller */
+            if (lua_isnumber(L, -1)) {
+                consumed_bytes = lua_tonumber(L, -1);
+                lua_pop(L, 1);  /* pop returned value */
         }
+	}
+	
     } else {
         proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: did not find the %s dissector"
                                              " in the dissectors table",pinfo->current_proto);
@@ -101,6 +110,8 @@ void dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;
+
+    return consumed_bytes;
 
 }
 

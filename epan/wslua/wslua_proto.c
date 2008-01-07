@@ -1010,7 +1010,7 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     
     if(!proto->is_postdissector) {
         if (! proto->handle) {
-            proto->handle = create_dissector_handle(dissect_lua, proto->hfid);
+            proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
         }
         
         register_postdissector(proto->handle);
@@ -1049,9 +1049,9 @@ static int Proto_set_dissector(lua_State* L) {
         lua_replace(L, 2);
         lua_settable(L,1);
         
-        proto->handle = create_dissector_handle(dissect_lua, proto->hfid);
+        proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
         
-	register_dissector(loname, dissect_lua, proto->hfid);
+	new_register_dissector(loname, dissect_lua, proto->hfid);
 		
         return 0;
     } else {
