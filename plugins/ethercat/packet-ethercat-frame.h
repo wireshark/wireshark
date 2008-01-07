@@ -33,7 +33,7 @@ typedef union _EtherCATFrameParser
       guint16 length   : 11;
       guint16 reserved : 1;
       guint16 protocol : 4;
-   };
+   } v;
    guint16 hdr;
 } EtherCATFrameParserHDR;
 typedef EtherCATFrameParserHDR *PEtherCATFrameParserHDR;

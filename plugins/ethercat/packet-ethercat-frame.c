@@ -103,12 +103,12 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       handle the rest of the PDU. */
    next_tvb = tvb_new_subset (tvb, offset, -1, -1);
 
-   if (!dissector_try_port (ethercat_frame_dissector_table, hdr.protocol,
+   if (!dissector_try_port (ethercat_frame_dissector_table, hdr.v.protocol,
        next_tvb, pinfo, tree))
    {
       if (check_col (pinfo->cinfo, COL_PROTOCOL))
       {
-         col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.protocol);
+         col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", hdr.v.protocol);
       }
       /* No sub dissector wanted to handle this payload, decode it as general
          data instead. */
