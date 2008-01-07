@@ -1,8 +1,10 @@
-NOTE: this document applies to the Wireshark source releases.  It also
-applies to buildbot source tarballs, but it does not apply to source
-code checked out directly from Subversion, as files such as the
-configuration script are not checked into Subversion, but need to be
-generated from the autoconf and automake files.
+NOTE: this document applies to the Wireshark source releases and
+buildbot source tarballs.  It does not apply to source code checked
+out directly from Subversion, as files such as the configuration
+script are not checked into Subversion, but need to be generated
+from the autoconf and automake files.
+See http://wiki.wireshark.org/Development if you would like to build
+the source code checked out directly from Subversion.
 
 Installation
 ============
