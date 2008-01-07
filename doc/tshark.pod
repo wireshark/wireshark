@@ -755,7 +755,7 @@ SIP packets exchanged by the host at IP address 1.2.3.4 .
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of tcpdump(8).
+See the manual page of pcap-filter(4) or, if that doesn't exist, tcpdump(8).
 
 =head1 READ FILTER SYNTAX
 
@@ -902,8 +902,8 @@ personal preferences file.
 
 =head1 SEE ALSO
 
-wireshark-filter(4), wireshark(1), editcap(1), tcpdump(8), pcap(3),
-dumpcap(1), text2pcap(1)
+wireshark-filter(4), wireshark(1), editcap(1), pcap-filter(4), tcpdump(8),
+pcap(3), dumpcap(1), text2pcap(1)
 
 =head1 NOTES
 

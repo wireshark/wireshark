@@ -2011,7 +2011,7 @@ protocols built into Wireshark are.
 
 =head1 CAPTURE FILTER SYNTAX
 
-See the manual page of tcpdump(8).
+See the manual page of pcap-filter(4) or, if that doesn't exist, tcpdump(8).
 
 =head1 DISPLAY FILTER SYNTAX
 
@@ -2261,8 +2261,8 @@ See above in the description of the About:Plugins page.
 
 =head1 SEE ALSO
 
-wireshark-filter(4), tshark(1), editcap(1), tcpdump(8), pcap(3),
-dumpcap(1), mergecap(1), text2pcap(1)
+wireshark-filter(4), tshark(1), editcap(1), pcap-filter(4), tcpdump(8),
+pcap(3), dumpcap(1), mergecap(1), text2pcap(1)
 
 =head1 NOTES
 
