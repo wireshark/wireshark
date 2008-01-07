@@ -120,6 +120,10 @@ static int hf_h264_par_profile_h4_4_4				= -1;
 static int hf_h264_par_add_mode_sup					= -1;
 static int hf_h264_par_AdditionalModesSupported		= -1;
 static int hf_h264_par_add_mode_sup_rcdo			= -1;
+static int hf_h264_par_ProfileIOP					= -1;
+static int hf_h264_par_constraint_set0_flag			= -1;
+static int hf_h264_par_constraint_set1_flag			= -1;
+static int hf_h264_par_constraint_set2_flag			= -1;
 
 /* VUI parameters */
 static int hf_h264_aspect_ratio_info_present_flag	= -1;
@@ -178,6 +182,7 @@ static int ett_h264_stream = -1;
 static int ett_h264_nal_unit = -1;
 static int ett_h264_par_profile = -1;
 static int ett_h264_par_AdditionalModesSupported = -1;
+static int ett_h264_par_ProfileIOP				 = -1;
 
 /* The dynamic payload type which will be dissected as H.264 */
 
@@ -1620,6 +1625,27 @@ dissect_h264_par_AdditionalModesSupported(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
+
+static const int *ProfileIOP_fields[] = {
+  &hf_h264_par_constraint_set0_flag,
+  &hf_h264_par_constraint_set1_flag,
+  &hf_h264_par_constraint_set2_flag,
+  NULL
+};
+
+
+static int
+dissect_h264_ProfileIOP(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+  int offset = 0;
+
+  proto_tree_add_bitmask(tree, tvb, offset, 
+                         hf_h264_par_ProfileIOP, ett_h264_par_ProfileIOP,
+                         ProfileIOP_fields, FALSE);
+  offset += 1;
+  return offset;
+}
+
 static const value_string h264_par_level_values[] = {
   { 15,		"1" },
   { 19,		"1b" },
@@ -1681,8 +1707,11 @@ static h264_capability_t h264_capability_tab[] = {
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/10", "SampleAspectRatiosSupported", NULL },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/11", "AdditionalModesSupported", dissect_h264_par_AdditionalModesSupported },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/12", "AdditionalDisplayCapabilities", NULL },
-  /* Table 3 / TS 26.111  H.264 Capability Parameter  NalAlignedMode */
+  /* TS 26.111  H.264 */
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/43" , "DecoderConfigurationInformation", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/44" , "AcceptRedundantSlices", NULL },
   { "GenericCapability/0.0.8.241.0.0.1/collapsing/45" , "NalAlignedMode", NULL },
+  { "GenericCapability/0.0.8.241.0.0.1/collapsing/46" , "ProfileIOP", dissect_h264_ProfileIOP },
   { NULL, NULL, NULL },
 };                                 
 
@@ -2347,13 +2376,33 @@ proto_register_h264(void)
       { "High 4:4:4 Profile", "h264.profile.high4_4_4",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL}},
-    { &hf_h264_par_add_mode_sup,
+	{ &hf_h264_par_AdditionalModesSupported,
+      { "AdditionalModesSupported", "h264.AdditionalModesSupported",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL}},
+	{ &hf_h264_par_add_mode_sup,
       { "Additional Modes Supported", "h264.add_mode_sup",
         FT_UINT8, BASE_HEX, NULL, 0x00,
         NULL, HFILL}},
 	{ &hf_h264_par_add_mode_sup_rcdo,
       { "Reduced Complexity Decoding Operation (RCDO) support", "h264.add_mode_sup.rcdo",
         FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL}},
+	{ &hf_h264_par_ProfileIOP,
+      { "ProfileIOP", "h264.ProfileIOP",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        NULL, HFILL}},
+	{ &hf_h264_par_constraint_set0_flag,
+      { "constraint_set0_flag", "h264.par.constraint_set0_flag",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL}},
+	{ &hf_h264_par_constraint_set1_flag,
+      { "constraint_set1_flag", "h264.par.constraint_set1_flag",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL}},
+	{ &hf_h264_par_constraint_set2_flag,
+      { "constraint_set2_flag", "h264.par.constraint_set2_flag",
+        FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL}},
 	};
 
@@ -2366,6 +2415,7 @@ proto_register_h264(void)
 		&ett_h264_nal_unit,
 		&ett_h264_par_profile,
 		&ett_h264_par_AdditionalModesSupported,
+		&ett_h264_par_ProfileIOP,
 	};
 
 /* Register the protocol name and description */

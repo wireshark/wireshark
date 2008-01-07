@@ -1,6 +1,6 @@
 /* packet-amr.c
  * Routines for AMR dissection
- * Copyright 2005, Anders Broman <anders.broman[at]ericsson.com>
+ * Copyright 2005-2008, Anders Broman <anders.broman[at]ericsson.com>
  *
  * $Id$
  *
@@ -40,7 +40,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/expert.h>
-
+#include <epan/asn1.h>
 
 #include "prefs.h"
 
@@ -505,6 +505,52 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 }
 
+typedef struct _amr_capability_t {
+  const gchar *id;
+  const gchar *name;
+  new_dissector_t content_pdu;
+} amr_capability_t;
+
+static amr_capability_t amr_capability_tab[] = {
+  /* ITU-T H.241 (05/2006), 8.3 H.264 capabilities */
+  { "GenericCapability/0.0.8.245.1.1.1", "H.245 - GSM AMR Capability Identifier", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/0", "maxAl-sduAudioFrames", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/1", "bitRate", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/2", "gsmAmrComfortNoise", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/3", "gsmEfrComfortNoise", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/4", "is-641ComfortNoise", NULL },
+  { "GenericCapability/0.0.8.245.1.1.1/collapsing/5", "pdcEFRComfortNoise", NULL },
+  { NULL, NULL, NULL },
+};      
+
+static amr_capability_t *find_cap(const gchar *id) {
+  amr_capability_t *ftr = NULL;
+  amr_capability_t *f;
+
+  for (f=amr_capability_tab; f->id; f++) {
+    if (!strcmp(id, f->id)) { ftr = f; break; }
+  }
+  return ftr;
+}
+
+static void
+dissect_amr_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) 
+{
+  asn1_ctx_t *actx;
+  amr_capability_t *ftr = NULL; 
+
+  actx = get_asn1_ctx(pinfo->private_data);
+  DISSECTOR_ASSERT(actx);
+  if (tree) {
+    ftr = find_cap(pinfo->match_string);
+    if (ftr) {
+      proto_item_append_text(actx->created_item, " - %s", ftr->name);
+      proto_item_append_text(proto_item_get_parent(proto_tree_get_parent(tree)), ": %s", ftr->name);
+    } else {
+      proto_item_append_text(actx->created_item, " - unknown(%s)", pinfo->match_string);
+    }
+  }
+}
 
 /* Register the protocol with Wireshark */
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -515,9 +561,12 @@ void
 proto_reg_handoff_amr(void)
 {
 	dissector_handle_t amr_handle;
+	dissector_handle_t amr_name_handle;
+	amr_capability_t *ftr = NULL; 
 	static int amr_prefs_initialized = FALSE;
 	
 	amr_handle = create_dissector_handle(dissect_amr, proto_amr);
+	amr_name_handle = create_dissector_handle(dissect_amr_name, proto_amr);
 
 	if (!amr_prefs_initialized) {
 		amr_prefs_initialized = TRUE;
@@ -536,6 +585,16 @@ proto_reg_handoff_amr(void)
 /*	Activate the next line for testing with the randpkt tool
 	dissector_add("udp.port", 55555, amr_handle); 
 */
+
+	/* 
+	 * Register H.245 Generic parameter name(s)
+	 */
+	for (ftr=amr_capability_tab; ftr->id; ftr++) {
+		if (ftr->name) 
+			dissector_add_string("h245.gef.name", ftr->id, amr_name_handle);
+		if (ftr->content_pdu)
+			dissector_add_string("h245.gef.content", ftr->id, new_create_dissector_handle(ftr->content_pdu, proto_amr));
+  }
 
 }
 
