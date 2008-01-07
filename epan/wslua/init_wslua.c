@@ -90,7 +90,7 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 
             /* if the Lua dissector reported the consumed bytes, pass it to our caller */
             if (lua_isnumber(L, -1)) {
-                consumed_bytes = lua_tonumber(L, -1);
+                consumed_bytes = (int) lua_tonumber(L, -1);
                 lua_pop(L, 1);  /* pop returned value */
         }
 	}
