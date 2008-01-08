@@ -512,7 +512,9 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
 #ifdef HAVE_G729_G723
 	case PT_G729:	/* G.729 */
-		tmp_buff = g_malloc(sizeof(SAMPLE) * rp->info->info_payload_len * 8); /* G729 8kbps => 64kbps/8kbps = 8  */
+		/* G729 8kbps => 64kbps/8kbps = 8  */
+		/* Compensate for possible 2 octet SID frame (G.729B) */
+		tmp_buff = g_malloc(sizeof(SAMPLE) * ((rp->info->info_payload_len + 8) / 10) * 80);
 		decodeG729(rp->payload_data, rp->info->info_payload_len,
 			  tmp_buff, &decoded_bytes);
 		break; 
@@ -733,21 +735,25 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		if (diff<0) diff = -diff;
   
 		total_time = (double)rp->arrive_offset/1000;
-		
+#if DEBUG		
 		printf("seq = %d arr = %f abs_diff = %f index = %d tim = %f ji=%d jb=%f\n",rp->info->info_seq_num, 
 			total_time, diff, rci->samples->len, ((double)rci->samples->len/8000 - total_time)*1000, 0,
 				(mean_delay + 4*variation)*1000);
 		fflush(stdout);
-
+#endif
 		/* if the jitter buffer was exceeded */	
 		if ( diff*1000 > jitter_buff ) {
+#if DEBUG
 			printf("Packet drop by jitter buffer exceeded\n");
+#endif
 			rci->drop_by_jitter_buff++;
 			status = S_DROP_BY_JITT;
 
 			/* if there was a silence period (more than two packetization period) resync the source */
 			if ( (rtp_time - rtp_time_prev) > pack_period*2 ){
+#if DEBUG
 				printf("Resync...\n");
+#endif
 
 				silence_frames = (gint32)((arrive_time - arrive_time_prev)*SAMPLE_RATE - decoded_bytes_prev/2);
 				for (i = 0; i< silence_frames; i++) {
