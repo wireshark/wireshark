@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __FILTER_H__
-#define __FILTER_H__
+#ifndef __FILTER_DLG_H__
+#define __FILTER_DLG_H__
 
 /** @file
  * "Capture Filter" / "Display Filter" / "Add expression" dialog boxes.
@@ -121,4 +121,4 @@ void filter_te_syntax_check_cb(GtkWidget *widget);
  */
 #define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
-#endif /* filter.h */
+#endif /* filter_dlg.h */

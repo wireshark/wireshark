@@ -1,4 +1,4 @@
-/* filters.c
+/* filters.h
  * Declarations of routines for reading and writing the filters file.
  *
  * $Id$
