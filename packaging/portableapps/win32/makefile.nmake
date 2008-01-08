@@ -30,7 +30,7 @@ UPX_FLAGS = -q
 
 PAPPS_VERSION=$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_MICRO).0
 
-all:	package 
+all:	package
 
 package:	WiresharkPortable-$(VERSION).paf.exe
 
@@ -46,7 +46,7 @@ dirs:
 nsis-bits:
 	cd ../../nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake user-guide.chm NEWS.txt
-	cd ../u3/win32
+	cd ../portableapps/win32
 
 $(WSMANIFEST):
 	cd ../..
@@ -79,7 +79,7 @@ appinfo: appinfo.ini
 	$(COPY) appinfo.ini $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)	
 	$(COPY) $(TOPDIR)\image\wireshark.ico $(FILES)\$(APP)\$(APPINFO) $(COPY_FLAGS)	
 
-source: 
+source:
 	$(COPY) WiresharkPortable.ini $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) WiresharkPortable.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
 	$(COPY) Installer.nsi $(FILES)\$(OTHER)\$(SOURCE) $(COPY_FLAGS)
@@ -89,7 +89,7 @@ findprocdll:
 	@$(SH) $(TOPDIR)\tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(MAKENSIS)\.." \
 		Plugins FindProc.zip
 
-WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi 
+WiresharkPortable-$(VERSION).paf.exe : dirs appinfo nsis-bits pack source Files/WiresharkPortable.exe Installer.nsi
 	$(MAKENSIS) \
 	/DVERSION=$(PAPPS_VERSION) \
 	/DWSVERSION=$(VERSION) \
