@@ -358,6 +358,9 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   tvbuff_t	*parameter_tvb;
   int			length;
   guint8		out_len;
+  gchar *utf8_text = NULL;
+  GIConv cd;	
+  GError *l_conv_error = NULL;
   /* XXX - The maximum item label length is 240.  Does this really need to be 1024? 
    * use ep_alloc ?
    */
@@ -367,9 +370,10 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
   if (!parameter_tvb)
      return offset;
 
-  if(sms_encoding==SMS_ENCODING_7BIT){
-	length = tvb_length_remaining(parameter_tvb,0);
-
+  length = tvb_length_remaining(parameter_tvb,0);
+  switch(sms_encoding){
+    case SMS_ENCODING_7BIT:
+	case SMS_ENCODING_7BIT_LANG:
 	out_len = gsm_sms_char_7bit_unpack(0, length, sizeof(bigbuf),
               tvb_get_ptr(parameter_tvb, 0, length), bigbuf);
 
@@ -377,6 +381,28 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
 	bigbuf[1023] = '\0';
 	proto_tree_add_text(tree, parameter_tvb, 0, length, "USSD String: %%s", bigbuf);
+	break;
+	case SMS_ENCODING_8BIT:
+		proto_tree_add_text(tree, parameter_tvb , 0, length, "USSD String: %%s",tvb_get_ptr(parameter_tvb, 0, length));
+	break;
+	case SMS_ENCODING_UCS2:
+	case SMS_ENCODING_UCS2_LANG:
+	if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
+	{
+		utf8_text = g_convert_with_iconv(parameter_tvb->real_data , length , cd , NULL , NULL , &l_conv_error);
+		if(!l_conv_error)
+			proto_tree_add_text(tree , parameter_tvb , 0 , length, "USSD String: %%s", utf8_text);
+		else
+			proto_tree_add_text(tree , parameter_tvb , 0 , length, "USSD String: g_convert_with_iconv FAILED");
+		if(utf8_text)
+			g_free(utf8_text);
+		g_iconv_close(cd);				
+	}
+	else
+		proto_tree_add_text(tree , parameter_tvb , 0 , length, "USSD String: g_iconv_open FAILED contact wireshark");
+	break;
+	default:
+	break;	
   }
 
 #.FN_FTR ForwardingOptions
