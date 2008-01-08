@@ -5,7 +5,7 @@
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  *
