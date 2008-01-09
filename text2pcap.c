@@ -81,12 +81,6 @@
 # include "config.h"
 #endif
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wiretap/file_util.h>
-
 /*
  * Just make sure we include the prototype for strptime as well
  * (needed for glibc 2.2) but make sure we do this only if not
@@ -95,6 +89,15 @@
 #ifndef __USE_XOPEN
 #  define __USE_XOPEN
 #endif
+#ifndef _XOPEN_SOURCE
+#  define _XOPEN_SOURCE
+#endif
+
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wiretap/file_util.h>
 
 #include <time.h>
 #include <glib.h>
