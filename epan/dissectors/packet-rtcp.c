@@ -494,7 +494,9 @@ void srtcp_add_address( packet_info *pinfo,
 		return;
 	}
 
+#ifdef DEBUG
 	printf("#%u: %srtcp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtcp_info)?"s":"", address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+#endif
 
 	SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
@@ -3999,7 +4001,7 @@ proto_register_rtcp(void)
 		{
 			&hf_rtcp_bye_reason_not_terminated,
 			{
-				"BYE reason string no NULL terminated",
+				"BYE reason string not NULL terminated",
 				"rtcp.bye_reason_not_terminated",
 				FT_NONE,
 				BASE_NONE,
