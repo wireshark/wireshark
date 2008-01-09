@@ -30,6 +30,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+ *
+ *Ref:
+ * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
  */
 
 #ifdef HAVE_CONFIG_H
@@ -103,6 +106,7 @@ static int hf_a11_ase_gre_key = -1;
 static int hf_a11_ase_pcf_addr_key = -1;
 
 /* Foward QoS Information */
+static int hf_a11_fqi_length = -1;
 static int hf_a11_fqi_srid = -1;
 static int hf_a11_fqi_flags = -1;
 static int hf_a11_fqi_flowcount = -1;
@@ -116,6 +120,7 @@ static int hf_a11_fqi_granted_qoslen = -1;
 static int hf_a11_fqi_granted_qos = -1;
 
 /* Reverse QoS Information */
+static int hf_a11_rqi_length = -1;
 static int hf_a11_rqi_srid = -1;
 static int hf_a11_rqi_flowcount = -1;
 static int hf_a11_rqi_flowid = -1;
@@ -874,6 +879,12 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
    guint8 flow_index = 0;
    guint8 dscp_enabled = 0;
 
+   /* 
+    * Starts with a length field 
+    * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
+    */
+	proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, FALSE);
+	clen = clen + 2;
 
    /* SR Id */
    srid = tvb_get_guint8(tvb, offset+clen);
@@ -954,7 +965,14 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
    guint8 flow_count = 0;
    guint8 flow_index = 0;
 
-   /* SR Id */
+   /* 
+    * Starts with a length field 
+    * http://www.3gpp2.org/Public_html/specs/A.S0009-C_v1.0_070801.pdf
+    */
+	proto_tree_add_item(ext_tree, hf_a11_fqi_length, tvb, offset+clen, 2, FALSE);
+	clen = clen + 2;
+
+	/* SR Id */
    srid = tvb_get_guint8(tvb, offset+clen);
    proto_tree_add_item(ext_tree, hf_a11_rqi_srid, tvb, offset+clen, 1, FALSE);
    clen++;
@@ -1875,6 +1893,11 @@ void proto_register_a11(void)
 			FT_IPv4, BASE_NONE, NULL, 0,
 			"PCF IP Address.", HFILL }
 	  },
+	  { &hf_a11_fqi_length,
+		 { "Length",   "a11.ext.fqi.length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+	  },
 	  { &hf_a11_fqi_srid,
 		 { "SRID",   "a11.ext.fqi.srid",
 			FT_UINT8, BASE_DEC, NULL, 0,
@@ -1929,6 +1952,11 @@ void proto_register_a11(void)
 		 { "Granted QoS",   "a11.ext.fqi.graqos",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"Forward Granted QoS.", HFILL }
+	  },
+	  { &hf_a11_rqi_length,
+		 { "Length",   "a11.ext.rqi.length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			NULL, HFILL }
 	  },
 	  { &hf_a11_rqi_srid,
 		 { "SRID",   "a11.ext.rqi.srid",
