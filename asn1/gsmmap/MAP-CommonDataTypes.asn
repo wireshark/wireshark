@@ -65,7 +65,9 @@ AccessNetworkSignalInfo,
 	AgeOfLocationInformation,
 	LCSClientExternalID,
 	LCSClientInternalID,
-	LCSServiceTypeID
+	LCSServiceTypeID,
+-- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
+ProtocolId
 ;
 
 IMPORTS

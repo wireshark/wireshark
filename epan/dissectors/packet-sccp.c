@@ -46,15 +46,17 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "packet-mtp3.h"
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
+#include <epan/uat.h>
+#include "packet-mtp3.h"
 #include "packet-tcap.h"
 #include "packet-sccp.h"
+#include "packet-e164.h"
+#include "packet-e212.h"
 #include "tap.h"
-#include <epan/uat.h>
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "g_ascii_strcasecmp.h"
@@ -1029,7 +1031,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
   proto_tree *gt_tree = 0;
   tvbuff_t *signals_tvb;
   guint offset = 0;
-  guint8 odd_even, nai, tt, np, es;
+  guint8 odd_even, nai = 0, tt, np, es;
   gboolean even = TRUE;
 
   /* Shift GTI to where we can work with it */
@@ -1108,6 +1110,21 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 			       (length - offset));
   dissect_sccp_gt_address_information(signals_tvb, gt_tree, (length - offset),
 				      even, called);
+
+  /* IF Numbering plan indicator is E212 , E214 , E163/E164 and nature of address is international */
+  switch(np >> 4){
+	case 0x01:	/* ISDN/telephony */
+	case 0x07:	/* ISDN/mobile */
+		if(nai == 4)	/* International */
+			dissect_e164_cc(signals_tvb, gt_tree , 0 , TRUE);
+		break;
+	case 0x06:	/* Land mobile */
+		dissect_e212_mcc_mnc(signals_tvb , gt_tree , 0);
+		break;
+	default:
+		break;
+  }
+
 }
 
 static int

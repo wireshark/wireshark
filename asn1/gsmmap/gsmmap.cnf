@@ -189,6 +189,8 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
  np = octet & 0x0f;
  if ((na == 1) && (np==1))/*International Number & E164*/
 	dissect_e164_cc(parameter_tvb, subtree, 1, TRUE);
+ else if(np==6)
+	dissect_e212_mcc_mnc(parameter_tvb, subtree, 1); 
 
 #.FN_BODY TBCD-STRING VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
