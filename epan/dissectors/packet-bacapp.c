@@ -4702,16 +4702,17 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
+	/* objectIdentifier, propertyIdentifier, and
+	   OPTIONAL propertyArrayIndex */
 	offset = fBACnetObjectPropertyReference(tvb, subtree, offset);
-	
-	/* resultFlags */
-	offset = fEnumeratedTag (tvb, tree, offset, "result Flags: ", BACnetResultFlags);
-	
+	/* resultFlags => BACnetResultFlags ::= BIT STRING */
+	offset = fBitStringTagVS (tvb, tree, offset,
+		"resultFlags: ",
+		BACnetResultFlags);
 	/* itemCount */
 	offset = fUnsignedTag (tvb, subtree, offset, "item Count: ");
-
-	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	/* itemData */
+	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 	if (tag_is_opening(tag_info)) {
 		tt = proto_tree_add_text(subtree, tvb, offset, 1, "itemData");
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
@@ -4719,8 +4720,8 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		offset = fAbstractSyntaxNType (tvb, subtree, offset);
 		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	}
-
-	if (fTagNo(tvb, offset) == 6) {	/* firstSequenceNumber - OPTIONAL */
+	/* firstSequenceNumber - OPTIONAL */
+	if (tvb_length_remaining(tvb, offset) > 0) {
 		offset = fUnsignedTag (tvb, subtree, offset, "first Sequence Number: ");
 	}
 
