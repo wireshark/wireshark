@@ -75,17 +75,21 @@ static void erf_close(wtap *wth);
 
 int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 {
-  guint32 i, n;
+  int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   char *s;
-  guint32 records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   int common_type = 0;
-  erf_timestamp_t prevts;
+  erf_timestamp_t prevts,ts; 
+  erf_header_t header;
   guint32 mc_hdr;
   guint16 eth_hdr;
+  guint32 packet_size;
+  guint16 rlen,wlen;
+  size_t r;
+  gchar * buffer;
 
   memset(&prevts, 0, sizeof(prevts));
 
-  /* number of records to scan before deciding if this really is ERF (dflt=3) */
+  /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
     if ((n = atoi(s)) > 0 && n < 101) {
       records_for_erf_check = n;
@@ -96,19 +100,15 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
-    erf_header_t header;
-    guint32 packet_size;
-    erf_timestamp_t ts;
-
-    int r = file_read(&header,1,sizeof(header),wth->fh);
+    r = file_read(&header,1,sizeof(header),wth->fh);
 
     if (r == 0 ) break;
     if (r != sizeof(header)) {
       if ((*err = file_error(wth->fh)) != 0) {
 	return -1;
       } else {
-	/* ERF header too short */
-	/* Accept the file, only if the very first records have been successfully checked */
+	/* ERF header too short accept the file,
+	   only if the very first records have been successfully checked */
 	if (i < MIN_RECORDS_FOR_ERF_CHECK) {
 	  return 0;
 	} else {
@@ -118,7 +118,9 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       }
     }
 
-    packet_size = g_ntohs(header.rlen) - sizeof(header);
+    rlen=g_ntohs(header.rlen);
+    wlen=g_ntohs(header.wlen);
+    packet_size = rlen - sizeof(header);
 
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
@@ -134,6 +136,20 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	return -1;
       }
       continue;
+    }
+
+    if (rlen < wlen) {
+      /* record length must be greater than wire length */
+      switch(header.type) {
+      case ERF_TYPE_ETH:
+      case ERF_TYPE_COLOR_ETH:
+      case ERF_TYPE_DSM_COLOR_ETH:
+	/* skip the test, we have a file with truncated snaplen */
+	break;
+      default:
+	return 0;
+	break;
+      }
     }
 
     /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
@@ -199,8 +215,19 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       break;
     }
 
-    if (file_seek(wth->fh, packet_size, SEEK_CUR, err) == -1) {
-      return -1;
+    /* The file_seek function do not return an error if the end of file
+       is reached whereas the record is truncated */
+    buffer=g_malloc(packet_size);
+    r = file_read(buffer, 1, packet_size, wth->fh);
+    g_free(buffer);
+
+    if (r != packet_size) { 
+      /* ERF record too short, accept the file,
+	 only if the very first records have been successfully checked */
+      if (i < MIN_RECORDS_FOR_ERF_CHECK) {
+	return 0;
+      }
+
     }
   } /* records_for_erf_check */
 
