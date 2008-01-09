@@ -291,13 +291,18 @@ static const value_string sccp_ssn_values[] = {
  * * * * * * * * * * * * * * * * */
 #define GT_NAI_MASK 0x7F
 #define GT_NAI_LENGTH 1
+#define GT_NAI_UNKNOWN			0x00
+#define GT_NAI_SUBSCRIBER_NUMBER	0x01
+#define GT_NAI_RESERVED_NATIONAL	0x02
+#define GT_NAI_NATIONAL_SIG_NUM		0x03
+#define GT_NAI_INTERNATIONAL_NUM	0x04
 static const value_string sccp_nai_values[] = {
-  { 0x00,  "NAI unknown" },
-  { 0x01,  "Subscriber Number" },
-  { 0x02,  "Reserved for national use" },
-  { 0x03,  "National significant number" },
-  { 0x04,  "International number" },
-  { 0,     NULL } };
+  { GT_NAI_UNKNOWN,		"NAI unknown" },
+  { GT_NAI_SUBSCRIBER_NUMBER,	"Subscriber Number" },
+  { GT_NAI_RESERVED_NATIONAL,	"Reserved for national use" },
+  { GT_NAI_NATIONAL_SIG_NUM,	"National significant number" },
+  { GT_NAI_INTERNATIONAL_NUM,	"International number" },
+  { 0,				NULL } };
 
 
 #define GT_OE_MASK 0x80
@@ -343,19 +348,30 @@ static const value_string sccp_address_signal_values[] = {
  * Global Title: ITU GTI == 0011, ANSI GTI == 0001 *
  * * * * * * * * * * * * * * * * * * * * * * * * * */
 #define GT_NP_MASK 0xf0
+#define GT_NP_SHIFT 4
 #define GT_NP_ES_LENGTH 1
+#define GT_NP_UNKNOWN		0x00
+#define GT_NP_ISDN		0x01
+#define GT_NP_GENERIC_RESERVED	0x02
+#define GT_NP_DATA		0x03
+#define GT_NP_TELEX		0x04
+#define GT_NP_MARITIME_MOBILE	0x05
+#define GT_NP_LAND_MOBILE	0x06
+#define GT_NP_ISDN_MOBILE	0x07
+#define GT_NP_PRIVATE_NETWORK	0x0e
+#define GT_NP_RESERVED		0x0f
 static const value_string sccp_np_values[] = {
-  { 0x0,  "Unknown" },
-  { 0x1,  "ISDN/telephony" },
-  { 0x2,  "Generic (ITU)/Reserved (ANSI)" },
-  { 0x3,  "Data" },
-  { 0x4,  "Telex" },
-  { 0x5,  "Maritime mobile" },
-  { 0x6,  "Land mobile" },
-  { 0x7,  "ISDN/mobile" },
-  { 0xe,  "Private network or network-specific" },
-  { 0xf,  "Reserved" },
-  { 0,    NULL } };
+  { GT_NP_UNKNOWN,		"Unknown" },
+  { GT_NP_ISDN,			"ISDN/telephony" },
+  { GT_NP_GENERIC_RESERVED,	"Generic (ITU)/Reserved (ANSI)" },
+  { GT_NP_DATA,			"Data" },
+  { GT_NP_TELEX,		"Telex" },
+  { GT_NP_MARITIME_MOBILE,	"Maritime mobile" },
+  { GT_NP_LAND_MOBILE,		"Land mobile" },
+  { GT_NP_ISDN_MOBILE,		"ISDN/mobile" },
+  { GT_NP_PRIVATE_NETWORK,	"Private network or network-specific" },
+  { GT_NP_RESERVED,		"Reserved" },
+  { 0,				NULL } };
 
 #define GT_ES_MASK     0x0f
 #define GT_ES_UNKNOWN  0x0
@@ -678,6 +694,7 @@ static gint ett_sccp_ansi_isni_routing_control = -1;
 static gint ett_sccp_xudt_msg_fragment = -1;
 static gint ett_sccp_xudt_msg_fragments = -1;
 static gint ett_sccp_assoc = -1;
+static gint ett_sccp_digits = -1;
 
 /* Declarations to desegment XUDT Messages */
 static gboolean sccp_xudt_desegment = TRUE;
@@ -982,13 +999,14 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint length, packet_inf
         || m == SCCP_MSG_TYPE_XUDT|| m == SCCP_MSG_TYPE_XUDTS \
         || m == SCCP_MSG_TYPE_LUDT|| m == SCCP_MSG_TYPE_LUDTS)
 
-static void
+static proto_item *
 dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 				    guint length, gboolean even_length,
 				    gboolean called)
 {
   guint offset = 0;
   guint8 odd_signal, even_signal = 0x0f;
+  proto_item *digits_item;
   char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
 
   while(offset < length)
@@ -1014,13 +1032,17 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 	*gt_ptr  = ep_strdup(gt_digits);
   }
 
-  proto_tree_add_string_format(tree, called ? hf_sccp_called_gt_digits
-					    : hf_sccp_calling_gt_digits,
-			     tvb, 0, length, gt_digits,
-			     "Address information (digits): %s", gt_digits);
-  proto_tree_add_string_hidden(tree, called ? hf_sccp_gt_digits
-					    : hf_sccp_gt_digits,
-			       tvb, 0, length, gt_digits);
+  digits_item = proto_tree_add_string_format(tree,
+					     called ? hf_sccp_called_gt_digits
+						    : hf_sccp_calling_gt_digits,
+					     tvb, 0, length, gt_digits,
+					     "Address information (digits): %s",
+					     gt_digits);
+
+  proto_tree_add_string_hidden(tree, hf_sccp_gt_digits, tvb, 0, length,
+			       gt_digits);
+
+  return digits_item;
 }
 
 static void
@@ -1028,10 +1050,12 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 			  guint8 gti, gboolean called)
 {
   proto_item *gt_item = 0;
+  proto_item *digits_item = 0;
   proto_tree *gt_tree = 0;
+  proto_tree *digits_tree = 0;
   tvbuff_t *signals_tvb;
   guint offset = 0;
-  guint8 odd_even, nai = 0, tt, np, es;
+  guint8 odd_even, nai = 0, tt, np = 0, es;
   gboolean even = TRUE;
 
   /* Shift GTI to where we can work with it */
@@ -1108,23 +1132,29 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 
   signals_tvb = tvb_new_subset(tvb, offset, (length - offset),
 			       (length - offset));
-  dissect_sccp_gt_address_information(signals_tvb, gt_tree, (length - offset),
-				      even, called);
 
-  /* IF Numbering plan indicator is E212 , E214 , E163/E164 and nature of address is international */
-  switch(np >> 4){
-	case 0x01:	/* ISDN/telephony */
-	case 0x07:	/* ISDN/mobile */
-		if(nai == 4)	/* International */
-			dissect_e164_cc(signals_tvb, gt_tree , 0 , TRUE);
-		break;
-	case 0x06:	/* Land mobile */
-		dissect_e212_mcc_mnc(signals_tvb , gt_tree , 0);
-		break;
+  digits_item = dissect_sccp_gt_address_information(signals_tvb, gt_tree,
+						    (length - offset),
+						    even, called);
+
+  /* Display the country code (if we can) */
+  switch(np >> GT_NP_SHIFT) {
+	case GT_NP_ISDN:
+	case GT_NP_ISDN_MOBILE:
+		if(nai == GT_NAI_INTERNATIONAL_NUM) {
+			digits_tree = proto_item_add_subtree(digits_item,
+							     ett_sccp_digits);
+			dissect_e164_cc(signals_tvb, digits_tree, 0, TRUE);
+		}
+	break;
+	case GT_NP_LAND_MOBILE:
+		digits_tree = proto_item_add_subtree(digits_item,
+						     ett_sccp_digits);
+		dissect_e212_mcc_mnc(signals_tvb, digits_tree, 0); 
+	break;
 	default:
-		break;
+	break;
   }
-
 }
 
 static int
@@ -3142,7 +3172,8 @@ proto_register_sccp(void)
     &ett_sccp_ansi_isni_routing_control,
     &ett_sccp_xudt_msg_fragment,
     &ett_sccp_xudt_msg_fragments,
-    &ett_sccp_assoc
+    &ett_sccp_assoc,
+    &ett_sccp_digits
   };
 
 
