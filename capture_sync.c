@@ -517,8 +517,11 @@ sync_pipe_start(capture_options *capture_opts) {
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
 	 not yet sent to be sent, as that stuff should only be sent by
-	 our parent). */
-      _exit(2);
+	 our parent).  We've sent an error message to the parent, so
+	 we exit with an exit status of 1 (any exit status other than
+	 0 or 1 will cause an additional message to report that exit
+	 status, over and above the error message we sent to the parent). */
+      _exit(1);
     }
 
     sync_pipe_read_fd = sync_pipe[PIPE_READ];
@@ -688,8 +691,11 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
         /* Exit with "_exit()", so that we don't close the connection
            to the X server (and cause stuff buffered up by our parent but
            not yet sent to be sent, as that stuff should only be sent by
-           our parent). */
-        _exit(2);
+           our parent).  We've sent an error message to the parent, so
+           we exit with an exit status of 1 (any exit status other than
+           0 or 1 will cause an additional message to report that exit
+           status, over and above the error message we sent to the parent). */
+        _exit(1);
     }
 
     *read_fd = sync_pipe[PIPE_READ];
