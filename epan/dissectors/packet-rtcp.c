@@ -101,7 +101,7 @@ static const value_string rtcp_version_vals[] =
 #define RTCP_APP  204
 #define RTCP_RTPFB  205
 #define RTCP_PSFB  206
-#define RTCP_XR	  207
+#define RTCP_XR    207
 /* Supplemental H.261 specific RTCP packet types according to Section C.3.5 */
 #define RTCP_FIR  192
 #define RTCP_NACK 193
@@ -406,6 +406,7 @@ static int hf_rtcp_xr_stats_devttl = -1;
 static int hf_rtcp_xr_lrr = -1;
 static int hf_rtcp_xr_dlrr = -1;
 static int hf_rtcp_length_check = -1;
+static int hf_rtcp_bye_reason_not_terminated = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
 static int hf_rtcp_psfb_fmt = -1;
 static int hf_rtcp_fci = -1;
@@ -555,7 +556,7 @@ void rtcp_add_address( packet_info *pinfo,
 static gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
- 	unsigned int offset = 0;
+	unsigned int offset = 0;
 	unsigned int first_byte;
 	unsigned int packet_type;
 
@@ -592,7 +593,7 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
        - allow BYE because this happens anyway
        - allow APP because TBCP ("PoC1") packets aren't compound... */
 	if (!((packet_type == RTCP_SR)  || (packet_type == RTCP_RR) ||
-           (packet_type == RTCP_BYE) || (packet_type == RTCP_APP)))
+	      (packet_type == RTCP_BYE) || (packet_type == RTCP_APP)))
 	{
 		return FALSE;
 	}
@@ -1264,7 +1265,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 
 static int
-dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
+dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
     unsigned int count )
 {
 	unsigned int chunk          = 1;
@@ -1279,15 +1280,32 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 
 	if ( tvb_reported_length_remaining( tvb, offset ) > 0 ) {
+		gint reason_offset;
+
 		/* Bye reason consists of an 8 bit length l and a string with length l */
 		reason_length = tvb_get_guint8( tvb, offset );
 		proto_tree_add_item( tree, hf_rtcp_sdes_length, tvb, offset, 1, FALSE );
 		offset++;
 
+		reason_offset = offset;
 		reason_text = (char*)tvb_get_ephemeral_string(tvb, offset, reason_length);
 		proto_tree_add_string( tree, hf_rtcp_sdes_text, tvb, offset, reason_length, reason_text );
-		/* Allow for terminating null character */
-		offset += (reason_length+1);
+		offset += reason_length;
+
+		/* Now check that there is a terminating null character */
+		if ((tvb_reported_length_remaining(tvb, offset) < 1) ||
+			(tvb_get_guint8(tvb, offset+1) != '\0')) {
+			proto_item *ti;
+			ti = proto_tree_add_none_format(tree, hf_rtcp_bye_reason_not_terminated,
+			                                tvb, reason_offset, reason_length,
+			                                "Reason string is not NULL-terminated (see RFC3550, section 6.6)");
+			expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+			                      "Reason string is not NULL-terminated (see RFC3550, section 6.6)");
+			PROTO_ITEM_SET_GENERATED(ti);
+		}
+		else {
+			offset++;
+		}
 	}
 
 	/* BYE packet padded out if string (including null) didn't fit in previous word */
@@ -2431,7 +2449,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                offset = dissect_rtcp_bye( tvb, offset, rtcp_tree, elem_count );
+                offset = dissect_rtcp_bye( tvb, pinfo, offset, rtcp_tree, elem_count );
                 break;
             case RTCP_APP:
                 /* Subtype, 5 bits */
@@ -3974,6 +3992,18 @@ proto_register_rtcp(void)
 				NULL,
 				0x0,
 				"RTCP frame length check", HFILL
+			}
+		},
+		{
+			&hf_rtcp_bye_reason_not_terminated,
+			{
+				"BYE reason string no NULL terminated",
+				"rtcp.bye_reason_not_terminated",
+				FT_NONE,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"RTCP BYE reason string not terminated", HFILL
 			}
 		},
 		{
