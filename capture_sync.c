@@ -507,13 +507,12 @@ sync_pipe_start(capture_options *capture_opts) {
        * Child process - run dumpcap with the right arguments to make
        * it just capture with the specified capture parameters
        */
-      eth_close(2);
-      dup(sync_pipe[PIPE_WRITE]);
+      dup2(sync_pipe[PIPE_WRITE], 2);
       eth_close(sync_pipe[PIPE_READ]);
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		argv[0], strerror(errno));
-      sync_pipe_errmsg_to_parent(1, errmsg, "");
+      sync_pipe_errmsg_to_parent(2, errmsg, "");
 
       /* Exit with "_exit()", so that we don't close the connection
          to the X server (and cause stuff buffered up by our parent but
@@ -589,6 +588,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
     PROCESS_INFORMATION pi;
     int i;
 #else
+    char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
     enum PIPES { PIPE_READ, PIPE_WRITE };   /* Constants 0 and 1 for PIPE_READ and PIPE_WRITE */
 #endif
@@ -678,13 +678,18 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
          * Child process - run dumpcap with the right arguments to make
          * it just capture with the specified capture parameters
          */
-        eth_close(1);
-        dup(sync_pipe[PIPE_WRITE]);
+        dup2(sync_pipe[PIPE_WRITE], 1);
         eth_close(sync_pipe[PIPE_READ]);
         execv(argv[0], (gpointer)argv);
-        *msg = g_strdup_printf("Couldn't run %s in child process: %s",
-                argv[0], strerror(errno));
-        return CANT_RUN_DUMPCAP;
+        g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
+		   argv[0], strerror(errno));
+        sync_pipe_errmsg_to_parent(1, errmsg, "");
+
+        /* Exit with "_exit()", so that we don't close the connection
+           to the X server (and cause stuff buffered up by our parent but
+           not yet sent to be sent, as that stuff should only be sent by
+           our parent). */
+        _exit(2);
     }
 
     *read_fd = sync_pipe[PIPE_READ];
