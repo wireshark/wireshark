@@ -1587,7 +1587,6 @@ class EthCtx:
 
   #--- eth_output_val ------------------------------------------------------
   def eth_output_val(self):
-    if (not len(self.eth_value_ord1)): return
     fx = self.output.file_open('val', ext='h')
     for v in self.eth_value_ord1:
       vv = self.eth_value[v]['value']
@@ -2266,7 +2265,9 @@ class EthCnf:
           par = get_par(line[result.end():], 0, 3, fn=fn, lineno=lineno)
           for i in range(0, len(par)):
             if (par[i] == 'NO_PROT_PREFIX'):   default_flags |= EF_NO_PROT
+            elif (par[i] == 'PROT_PREFIX'):    default_flags &= ~ EF_NO_PROT
             elif (par[i] == 'NO_TYPE_PREFIX'): default_flags |= EF_NO_TYPE
+            elif (par[i] == 'TYPE_PREFIX'):    default_flags &= ~ EF_NO_TYPE
             elif (par[i] == 'UPPER_CASE'):     default_flags |= EF_UCASE
             elif (par[i] == 'NO_UPPER_CASE'):  default_flags &= ~EF_UCASE
             else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
@@ -2397,7 +2398,9 @@ class EthCnf:
         flags = default_flags
         for i in range(1, len(par)):
           if (par[i] == 'NO_PROT_PREFIX'):   flags |= EF_NO_PROT
+          elif (par[i] == 'PROT_PREFIX'):    flags &= ~ EF_NO_PROT
           elif (par[i] == 'NO_TYPE_PREFIX'): flags |= EF_NO_TYPE
+          elif (par[i] == 'TYPE_PREFIX'):    flags &= ~ EF_NO_TYPE
           elif (par[i] == 'UPPER_CASE'):     flags |= EF_UCASE
           elif (par[i] == 'NO_UPPER_CASE'):  flags &= ~EF_UCASE
           else: warnings.warn_explicit("Unknown parameter value '%s'" % (par[i]), UserWarning, fn, lineno)
@@ -4188,6 +4191,11 @@ class ChoiceType (Type):
     vals = self.get_vals(ectx)
     out += ectx.eth_vals(tname, vals)
     return out
+
+  def reg_enum_vals(self, tname, ectx):
+    vals = self.get_vals(ectx)
+    for (val, id) in vals:
+      ectx.eth_reg_value(id, self, val, ethname=ectx.eth_enum_item(tname, id))
 
   def eth_type_enum(self, tname, ectx):
     out = '\n'

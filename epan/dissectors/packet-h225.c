@@ -3099,7 +3099,7 @@ dissect_h225_FastStart_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                        NO_BOUND, NO_BOUND, FALSE, &value_tvb);
 
 	if (value_tvb && tvb_length(value_tvb)) {
-		dissect_h245_OpenLogicalChannelCodec(value_tvb, actx->pinfo, tree, codec_str);
+		dissect_h245_FastStart_OLC(value_tvb, actx->pinfo, tree, codec_str);
 	}
 
     /* Add to packet info */

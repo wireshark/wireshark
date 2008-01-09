@@ -92,123 +92,250 @@ h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
+
+
+/*--- Included file: packet-h245-val.h ---*/
+#line 1 "packet-h245-val.h"
+
+typedef enum _AudioCapability_enum {
+  AudioCapability_nonStandard =   0,
+  AudioCapability_g711Alaw64k =   1,
+  AudioCapability_g711Alaw56k =   2,
+  AudioCapability_g711Ulaw64k =   3,
+  AudioCapability_g711Ulaw56k =   4,
+  AudioCapability_g722_64k =   5,
+  AudioCapability_g722_56k =   6,
+  AudioCapability_g722_48k =   7,
+  AudioCapability_g7231 =   8,
+  AudioCapability_g728 =   9,
+  AudioCapability_g729 =  10,
+  AudioCapability_g729AnnexA =  11,
+  AudioCapability_is11172AudioCapability =  12,
+  AudioCapability_is13818AudioCapability =  13,
+  AudioCapability_g729wAnnexB =  14,
+  AudioCapability_g729AnnexAwAnnexB =  15,
+  AudioCapability_g7231AnnexCCapability =  16,
+  AudioCapability_gsmFullRate =  17,
+  AudioCapability_gsmHalfRate =  18,
+  AudioCapability_gsmEnhancedFullRate =  19,
+  AudioCapability_genericAudioCapability =  20,
+  AudioCapability_g729Extensions =  21,
+  AudioCapability_vbd =  22,
+  AudioCapability_audioTelephonyEvent =  23,
+  AudioCapability_audioTone =  24
+} AudioCapability_enum;
+
+typedef enum _RequestMessage_enum {
+  RequestMessage_nonStandard =   0,
+  RequestMessage_masterSlaveDetermination =   1,
+  RequestMessage_terminalCapabilitySet =   2,
+  RequestMessage_openLogicalChannel =   3,
+  RequestMessage_closeLogicalChannel =   4,
+  RequestMessage_requestChannelClose =   5,
+  RequestMessage_multiplexEntrySend =   6,
+  RequestMessage_requestMultiplexEntry =   7,
+  RequestMessage_requestMode =   8,
+  RequestMessage_roundTripDelayRequest =   9,
+  RequestMessage_maintenanceLoopRequest =  10,
+  RequestMessage_communicationModeRequest =  11,
+  RequestMessage_conferenceRequest =  12,
+  RequestMessage_multilinkRequest =  13,
+  RequestMessage_logicalChannelRateRequest =  14,
+  RequestMessage_genericRequest =  15
+} RequestMessage_enum;
+
+typedef enum _ResponseMessage_enum {
+  ResponseMessage_nonStandard =   0,
+  ResponseMessage_masterSlaveDeterminationAck =   1,
+  ResponseMessage_masterSlaveDeterminationReject =   2,
+  ResponseMessage_terminalCapabilitySetAck =   3,
+  ResponseMessage_terminalCapabilitySetReject =   4,
+  ResponseMessage_openLogicalChannelAck =   5,
+  ResponseMessage_openLogicalChannelReject =   6,
+  ResponseMessage_closeLogicalChannelAck =   7,
+  ResponseMessage_requestChannelCloseAck =   8,
+  ResponseMessage_requestChannelCloseReject =   9,
+  ResponseMessage_multiplexEntrySendAck =  10,
+  ResponseMessage_multiplexEntrySendReject =  11,
+  ResponseMessage_requestMultiplexEntryAck =  12,
+  ResponseMessage_requestMultiplexEntryReject =  13,
+  ResponseMessage_requestModeAck =  14,
+  ResponseMessage_requestModeReject =  15,
+  ResponseMessage_roundTripDelayResponse =  16,
+  ResponseMessage_maintenanceLoopAck =  17,
+  ResponseMessage_maintenanceLoopReject =  18,
+  ResponseMessage_communicationModeResponse =  19,
+  ResponseMessage_conferenceResponse =  20,
+  ResponseMessage_multilinkResponse =  21,
+  ResponseMessage_logicalChannelRateAcknowledge =  22,
+  ResponseMessage_logicalChannelRateReject =  23,
+  ResponseMessage_genericResponse =  24
+} ResponseMessage_enum;
+
+typedef enum _CommandMessage_enum {
+  CommandMessage_nonStandard =   0,
+  CommandMessage_maintenanceLoopOffCommand =   1,
+  CommandMessage_sendTerminalCapabilitySet =   2,
+  CommandMessage_encryptionCommand =   3,
+  CommandMessage_flowControlCommand =   4,
+  CommandMessage_endSessionCommand =   5,
+  CommandMessage_miscellaneousCommand =   6,
+  CommandMessage_communicationModeCommand =   7,
+  CommandMessage_conferenceCommand =   8,
+  CommandMessage_h223MultiplexReconfiguration =   9,
+  CommandMessage_newATMVCCommand =  10,
+  CommandMessage_mobileMultilinkReconfigurationCommand =  11,
+  CommandMessage_genericCommand =  12
+} CommandMessage_enum;
+
+typedef enum _IndicationMessage_enum {
+  IndicationMessage_nonStandard =   0,
+  IndicationMessage_functionNotUnderstood =   1,
+  IndicationMessage_masterSlaveDeterminationRelease =   2,
+  IndicationMessage_terminalCapabilitySetRelease =   3,
+  IndicationMessage_openLogicalChannelConfirm =   4,
+  IndicationMessage_requestChannelCloseRelease =   5,
+  IndicationMessage_multiplexEntrySendRelease =   6,
+  IndicationMessage_requestMultiplexEntryRelease =   7,
+  IndicationMessage_requestModeRelease =   8,
+  IndicationMessage_miscellaneousIndication =   9,
+  IndicationMessage_jitterIndication =  10,
+  IndicationMessage_h223SkewIndication =  11,
+  IndicationMessage_newATMVCIndication =  12,
+  IndicationMessage_userInput =  13,
+  IndicationMessage_h2250MaximumSkewIndication =  14,
+  IndicationMessage_mcLocationIndication =  15,
+  IndicationMessage_conferenceIndication =  16,
+  IndicationMessage_vendorIdentification =  17,
+  IndicationMessage_functionNotSupported =  18,
+  IndicationMessage_multilinkIndication =  19,
+  IndicationMessage_logicalChannelRateRelease =  20,
+  IndicationMessage_flowControlIndication =  21,
+  IndicationMessage_mobileMultilinkReconfigurationIndication =  22,
+  IndicationMessage_genericIndication =  23
+} IndicationMessage_enum;
+
+/*--- End of included file: packet-h245-val.h ---*/
+#line 89 "packet-h245-template.c"
+
 static const value_string h245_RequestMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MSD" },
-	{  2,	"TCS" },
-	{  3,	"OLC" },
-	{  4,	"CLC" },
-	{  5,	"RCC" },
-	{  6,	"MES" },
-	{  7,	"RME" },
-	{  8,	"RM" },
-	{  9,	"RTDR" },
-	{ 10,	"MLR" },
-	{ 11,	"CMR" },
-	{ 12,	"CR" },
-	{ 13,	"MR" },
-	{ 14,	"LCRR" },
-	{ 15,	"GR" },
+	{ RequestMessage_nonStandard              ,	"NSM" },
+	{ RequestMessage_masterSlaveDetermination ,	"MSD" },
+	{ RequestMessage_terminalCapabilitySet    ,	"TCS" },
+	{ RequestMessage_openLogicalChannel       ,	"OLC" },
+	{ RequestMessage_closeLogicalChannel      ,	"CLC" },
+	{ RequestMessage_requestChannelClose      ,	"RCC" },
+	{ RequestMessage_multiplexEntrySend       ,	"MES" },
+	{ RequestMessage_requestMultiplexEntry    ,	"RME" },
+	{ RequestMessage_requestMode              ,	"RM"  },
+	{ RequestMessage_roundTripDelayRequest    ,	"RTDR" },
+	{ RequestMessage_maintenanceLoopRequest   ,	"MLR" },
+	{ RequestMessage_communicationModeRequest ,	"CMR" },
+	{ RequestMessage_conferenceRequest        ,	"CR"  },
+	{ RequestMessage_multilinkRequest         ,	"MR"  },
+	{ RequestMessage_logicalChannelRateRequest,	"LCRR" },
+	{ RequestMessage_genericRequest           ,	"GR"  },
 	{  0, NULL }
 };
 static const value_string h245_ResponseMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MSDAck" },
-	{  2,	"MSDReject" },
-	{  3,	"TCSAck" },
-	{  4,	"TCSReject" },
-	{  5,	"OLCAck" },
-	{  6,	"OLCReject" },
-	{  7,	"CLCAck" },
-	{  8,	"RCCAck" },
-	{  9,	"RCCReject" },
-	{ 10,	"MESAck" },
-	{ 11,	"MESReject" },
-	{ 12,	"RMEAck" },
-	{ 13,	"RMEReject" },
-	{ 14,	"RMAck" },
-	{ 15,	"RMReject" },
-	{ 16,	"RTDResponse" },
-	{ 17,	"MLAck" },
-	{ 18,	"MLReject" },
-	{ 19,	"CMResponse" },
-	{ 20,	"CResponse" },
-	{ 21,	"MResponse" },
-	{ 22,	"LCRAck" },
-	{ 23,	"LCRReject" },
-	{ 24,	"GR" },
+	{ ResponseMessage_nonStandard                   ,	"NSM" },
+	{ ResponseMessage_masterSlaveDeterminationAck   ,	"MSDAck" },
+	{ ResponseMessage_masterSlaveDeterminationReject,	"MSDReject" },
+	{ ResponseMessage_terminalCapabilitySetAck      ,	"TCSAck" },
+	{ ResponseMessage_terminalCapabilitySetReject   ,	"TCSReject" },
+	{ ResponseMessage_openLogicalChannelAck         ,	"OLCAck" },
+	{ ResponseMessage_openLogicalChannelReject      ,	"OLCReject" },
+	{ ResponseMessage_closeLogicalChannelAck        ,	"CLCAck" },
+	{ ResponseMessage_requestChannelCloseAck        ,	"RCCAck" },
+	{ ResponseMessage_requestChannelCloseReject     ,	"RCCReject" },
+	{ ResponseMessage_multiplexEntrySendAck         ,	"MESAck" },
+	{ ResponseMessage_multiplexEntrySendReject      ,	"MESReject" },
+	{ ResponseMessage_requestMultiplexEntryAck      ,	"RMEAck" },
+	{ ResponseMessage_requestMultiplexEntryReject   ,	"RMEReject" },
+	{ ResponseMessage_requestModeAck                ,	"RMAck" },
+	{ ResponseMessage_requestModeReject             ,	"RMReject" },
+	{ ResponseMessage_roundTripDelayResponse        ,	"RTDResponse" },
+	{ ResponseMessage_maintenanceLoopAck            ,	"MLAck" },
+	{ ResponseMessage_maintenanceLoopReject         ,	"MLReject" },
+	{ ResponseMessage_communicationModeResponse     ,	"CMResponse" },
+	{ ResponseMessage_conferenceResponse            ,	"CResponse" },
+	{ ResponseMessage_multilinkResponse             ,	"MResponse" },
+	{ ResponseMessage_logicalChannelRateAcknowledge ,	"LCRAck" },
+	{ ResponseMessage_logicalChannelRateReject      ,	"LCRReject" },
+	{ ResponseMessage_genericResponse               ,	"GR" },
 	{  0, NULL }
 };
 static const value_string h245_IndicationMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"FNU" },
-	{  2,	"MSDRelease" },
-	{  3,	"TCSRelease" },
-	{  4,	"OLCConfirm" },
-	{  5,	"RCCRelease" },
-	{  6,	"MESRelease" },
-	{  7,	"RMERelease" },
-	{  8,	"RMRelease" },
-	{  9,	"MI" },
-	{ 10,	"JI" },
-	{ 11,	"H223SI" },
-	{ 12,	"NATMVCI" },
-	{ 13,	"UII" },
-	{ 14,	"H2250MSI" },
-	{ 15,	"MCLI" },
-	{ 16,	"CI" },
-	{ 17,	"VI" },
-	{ 18,	"FNS" },
-	{ 19,	"MultilinkIndication" },
-	{ 20,	"LCRRelease" },
-	{ 21,	"FCIndication" },
-	{ 22,	"MMRI" },
-	{ 22,	"GI" },
+	{ IndicationMessage_nonStandard                             ,	"NSM" },
+	{ IndicationMessage_functionNotUnderstood                   ,	"FNU" },
+	{ IndicationMessage_masterSlaveDeterminationRelease         ,	"MSDRelease" },
+	{ IndicationMessage_terminalCapabilitySetRelease            ,	"TCSRelease" },
+	{ IndicationMessage_openLogicalChannelConfirm               ,	"OLCConfirm" },
+	{ IndicationMessage_requestChannelCloseRelease              ,	"RCCRelease" },
+	{ IndicationMessage_multiplexEntrySendRelease               ,	"MESRelease" },
+	{ IndicationMessage_requestMultiplexEntryRelease            ,	"RMERelease" },
+	{ IndicationMessage_requestModeRelease                      ,	"RMRelease" },
+	{ IndicationMessage_miscellaneousIndication                 ,	"MI" },
+	{ IndicationMessage_jitterIndication                        ,	"JI" },
+	{ IndicationMessage_h223SkewIndication                      ,	"H223SI" },
+	{ IndicationMessage_newATMVCIndication                      ,	"NATMVCI" },
+	{ IndicationMessage_userInput                               ,	"UII" },
+	{ IndicationMessage_h2250MaximumSkewIndication              ,	"H2250MSI" },
+	{ IndicationMessage_mcLocationIndication                    ,	"MCLI" },
+	{ IndicationMessage_conferenceIndication                    ,	"CI" },
+	{ IndicationMessage_vendorIdentification                    ,	"VI" },
+	{ IndicationMessage_functionNotSupported                    ,	"FNS" },
+	{ IndicationMessage_multilinkIndication                     ,	"MultilinkIndication" },
+	{ IndicationMessage_logicalChannelRateRelease               ,	"LCRRelease" },
+	{ IndicationMessage_flowControlIndication                   ,	"FCIndication" },
+	{ IndicationMessage_mobileMultilinkReconfigurationIndication,	"MMRI" },
+	{ IndicationMessage_genericIndication                       ,	"GI" },
 	{  0, NULL }
 };
 static const value_string h245_CommandMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MLOC" },
-	{  2,	"STCS" },
-	{  3,	"EC" },
-	{  4,	"FCC" },
-	{  5,	"ESC" },
-	{  6,	"MC" },
-	{  7,	"CMC" },
-	{  8,	"CC" },
-	{  9,	"H223MR" },
-	{ 10,	"NATMVCC" },
-	{ 11,	"MMRC" },
-	{ 12,	"GC" },
+	{ CommandMessage_nonStandard                          ,	"NSM" },
+	{ CommandMessage_maintenanceLoopOffCommand            ,	"MLOC" },
+	{ CommandMessage_sendTerminalCapabilitySet            ,	"STCS" },
+	{ CommandMessage_encryptionCommand                    ,	"EC" },
+	{ CommandMessage_flowControlCommand                   ,	"FCC" },
+	{ CommandMessage_endSessionCommand                    ,	"ESC" },
+	{ CommandMessage_miscellaneousCommand                 ,	"MC" },
+	{ CommandMessage_communicationModeCommand             ,	"CMC" },
+	{ CommandMessage_conferenceCommand                    ,	"CC" },
+	{ CommandMessage_h223MultiplexReconfiguration         ,	"H223MR" },
+	{ CommandMessage_newATMVCCommand                      ,	"NATMVCC" },
+	{ CommandMessage_mobileMultilinkReconfigurationCommand,	"MMRC" },
+	{ CommandMessage_genericCommand                       ,	"GC" },
 	{  0, NULL }
 };
+
 static const value_string h245_AudioCapability_short_vals[] = {
-        {  0, "nonStd" },
-        {  1, "g711A" },
-        {  2, "g711A56k" },
-        {  3, "g711U" },
-        {  4, "g711U56k" },
-        {  5, "g722-64k" },
-        {  6, "g722-56k" },
-        {  7, "g722-48k" },
-        {  8, "g7231" },
-        {  9, "g728" },
-        { 10, "g729" },
-        { 11, "g729A" },
-        { 12, "is11172" },
-        { 13, "is13818" },
-        { 14, "g729B" },
-        { 15, "g729AB" },
-        { 16, "g7231C" },
-        { 17, "gsmFR" },
-        { 18, "gsmHR" },
-        { 19, "gsmEFR" },
-        { 20, "generic" },
-        { 21, "g729Ext" },
-        { 22, "vbd" },
-        { 23, "audioTelEvent" },
-        { 24, "audioTone" },
-        {  0, NULL }
+  { AudioCapability_nonStandard           , "nonStd" },
+  { AudioCapability_g711Alaw64k           , "g711A" },
+  { AudioCapability_g711Alaw56k           , "g711A56k" },
+  { AudioCapability_g711Ulaw64k           , "g711U" },
+  { AudioCapability_g711Ulaw56k           , "g711U56k" },
+  { AudioCapability_g722_64k              , "g722-64k" },
+  { AudioCapability_g722_56k              , "g722-56k" },
+  { AudioCapability_g722_48k              , "g722-48k" },
+  { AudioCapability_g7231                 , "g7231" },
+  { AudioCapability_g728                  , "g728" },
+  { AudioCapability_g729                  , "g729" },
+  { AudioCapability_g729AnnexA            , "g729A" },
+  { AudioCapability_is11172AudioCapability, "is11172" },
+  { AudioCapability_is13818AudioCapability, "is13818" },
+  { AudioCapability_g729wAnnexB           , "g729B" },
+  { AudioCapability_g729AnnexAwAnnexB     , "g729AB" },
+  { AudioCapability_g7231AnnexCCapability , "g7231C" },
+  { AudioCapability_gsmFullRate           , "gsmFR" },
+  { AudioCapability_gsmHalfRate           , "gsmHR" },
+  { AudioCapability_gsmEnhancedFullRate   , "gsmEFR" },
+  { AudioCapability_genericAudioCapability, "generic" },
+  { AudioCapability_g729Extensions        , "g729Ext" },
+  { AudioCapability_vbd                   , "vbd" },
+  { AudioCapability_audioTelephonyEvent   , "audioTelEvent" },
+  { AudioCapability_audioTone             , "audioTone" },
+  {  0, NULL }
 };
 
 /* To put the codec type only in COL_INFO when
@@ -223,6 +350,7 @@ typedef struct _unicast_addr_t {
 } unicast_addr_t;
 
 typedef struct _channel_info_t {
+  gchar data_type_str[32];
   unicast_addr_t *upcoming_addr;
   unicast_addr_t media_addr;
   unicast_addr_t media_control_addr;
@@ -230,6 +358,15 @@ typedef struct _channel_info_t {
   gboolean srtp_flag;
 } channel_info_t;
 
+typedef struct _olc_info_t {
+  guint16 fwd_lc_num;
+  channel_info_t fwd_lc;
+  channel_info_t rev_lc;
+} olc_info_t;
+
+static GHashTable* h245_pending_olc_reqs = NULL;
+static gboolean fast_start = FALSE;
+static olc_info_t *upcoming_olc = NULL;
 static channel_info_t *upcoming_channel = NULL;
 
 /* NonStandardParameter */
@@ -289,9 +426,32 @@ static void h223_lc_init( void )
 	h223_fw_lc_num = 0;
 }
 
+static void h245_init(void) 
+{
+	if ( h245_pending_olc_reqs)
+		g_hash_table_destroy(h245_pending_olc_reqs);
+	h245_pending_olc_reqs = g_hash_table_new(g_str_hash, g_str_equal);
+
+	h223_lc_init();
+}
+
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 {
 	h223_add_lc_handle = handle;
+}
+
+static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr)
+{
+  return ep_strdup_printf("%s/%s/%u", address_to_str(dst_addr), address_to_str(src_addr), lc_num);
+}
+
+static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_addr)
+{
+  if (ack_addr->addr.type!=AT_NONE && ack_addr->port!=0) {
+    memcpy(req_addr->addr_buf, ack_addr->addr_buf, sizeof(req_addr->addr_buf));
+    SET_ADDRESS(&req_addr->addr, ack_addr->addr.type, ack_addr->addr.len, req_addr->addr_buf);
+    req_addr->port = ack_addr->port;
+  }
 }
 
 static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel)
@@ -301,8 +461,8 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	if (!upcoming_channel) return;
 
-	if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
-		if(upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle){
+	if (!strcmp(upcoming_channel->data_type_str, "t38fax")) {
+		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle) {
 			t38_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 							upcoming_channel->media_addr.port, 0, 
 							"H245", pinfo->fd->num);
@@ -310,15 +470,15 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	} else {
 		if (upcoming_channel->rfc2198 > 0) {
 #if GLIB_MAJOR_VERSION < 2
-			rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
+			rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
 #else
-			rtp_dyn_payload = g_hash_table_new_full( g_int_hash, g_int_equal, g_free, g_free);
+			rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 #endif
 			key = g_malloc(sizeof(gint));
 			*key = upcoming_channel->rfc2198;
 			g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
 		}
-		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle){
+		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 			if (upcoming_channel->srtp_flag) {
 				struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 				srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
@@ -330,7 +490,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 								"H245", pinfo->fd->num, rtp_dyn_payload);
 			}
 		}
-		if(upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle){
+		if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
 			rtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
 							upcoming_channel->media_control_addr.port, 0, 
 							"H245", pinfo->fd->num);
@@ -1740,7 +1900,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 336 "packet-h245-template.c"
+#line 373 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2241,7 +2401,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 341 "packet-h245-template.c"
+#line 378 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -2329,7 +2489,7 @@ static const per_sequence_t H221NonStandardID_sequence[] = {
 
 static int
 dissect_h245_H221NonStandardID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 867 "h245.cnf"
+#line 912 "h245.cnf"
   t35CountryCode = 0;
   t35Extension = 0;
   manufacturerCode = 0;
@@ -2337,7 +2497,7 @@ dissect_h245_H221NonStandardID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H221NonStandardID, H221NonStandardID_sequence);
 
-#line 871 "h245.cnf"
+#line 916 "h245.cnf"
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
 
@@ -2359,7 +2519,7 @@ static const per_choice_t NonStandardIdentifier_choice[] = {
 
 static int
 dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 848 "h245.cnf"
+#line 893 "h245.cnf"
 	guint32 value;
 
 	nsiOID = "";
@@ -2388,7 +2548,7 @@ dissect_h245_NonStandardIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_T_nsd_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 882 "h245.cnf"
+#line 927 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2411,7 +2571,7 @@ static const per_sequence_t NonStandardParameter_sequence[] = {
 
 static int
 dissect_h245_NonStandardParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 880 "h245.cnf"
+#line 925 "h245.cnf"
   nsp_handle = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -2466,7 +2626,7 @@ dissect_h245_MasterSlaveDetermination(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDetermination, MasterSlaveDetermination_sequence);
 
-#line 498 "h245.cnf"
+#line 584 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDet;
@@ -3364,7 +3524,7 @@ dissect_h245_T_t38fax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_h245_T_standardOid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 651 "h245.cnf"
+#line 723 "h245.cnf"
   const gchar *standard_oid_str = NULL;
   gef_ctx_t *gefx;
 
@@ -3424,14 +3584,14 @@ static const per_choice_t CapabilityIdentifier_choice[] = {
 
 static int
 dissect_h245_CapabilityIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 637 "h245.cnf"
+#line 709 "h245.cnf"
   gef_ctx_t *gefx;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_CapabilityIdentifier, CapabilityIdentifier_choice,
                                  NULL);
 
-#line 639 "h245.cnf"
+#line 711 "h245.cnf"
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
   /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG CapabilityIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
   gefx = gef_ctx_get(actx->private_data);
@@ -3459,7 +3619,7 @@ dissect_h245_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 682 "h245.cnf"
+#line 754 "h245.cnf"
   gint32 value_int = -1;
   gef_ctx_t *gefx;
 
@@ -3492,14 +3652,14 @@ static const per_choice_t ParameterIdentifier_choice[] = {
 
 static int
 dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 668 "h245.cnf"
+#line 740 "h245.cnf"
   gef_ctx_t *gefx;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_ParameterIdentifier, ParameterIdentifier_choice,
                                  NULL);
 
-#line 670 "h245.cnf"
+#line 742 "h245.cnf"
   gef_ctx_update_key(gef_ctx_get(actx->private_data));
   /* DEBUG */ /*proto_tree_add_text(tree, tvb, offset>>3, 0, "*** DEBUG ParameterIdentifier: %s", gef_ctx_get(actx->private_data)->key);*/
   gefx = gef_ctx_get(actx->private_data);
@@ -3517,7 +3677,7 @@ dissect_h245_ParameterIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 691 "h245.cnf"
+#line 763 "h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3544,7 +3704,7 @@ dissect_h245_T_booleanArray(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 708 "h245.cnf"
+#line 780 "h245.cnf"
   guint32 value;
   guint8 *buf;
   tvbuff_t *value_tvb;
@@ -3571,7 +3731,7 @@ dissect_h245_T_unsignedMin(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_h245_T_octetString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 725 "h245.cnf"
+#line 797 "h245.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *gefx;
 
@@ -3668,7 +3828,7 @@ dissect_h245_GenericParameter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_T_collapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 593 "h245.cnf"
+#line 665 "h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
@@ -3676,7 +3836,7 @@ dissect_h245_T_collapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 598 "h245.cnf"
+#line 670 "h245.cnf"
   actx->private_data = parent_gefx;
 
   return offset;
@@ -3699,7 +3859,7 @@ dissect_h245_T_collapsing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_T_nonCollapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 602 "h245.cnf"
+#line 674 "h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
@@ -3707,7 +3867,7 @@ dissect_h245_T_nonCollapsing_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 607 "h245.cnf"
+#line 679 "h245.cnf"
   actx->private_data = parent_gefx;
 
   return offset;
@@ -3730,7 +3890,7 @@ dissect_h245_T_nonCollapsing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_h245_T_nonCollapsingRaw(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 611 "h245.cnf"
+#line 683 "h245.cnf"
   tvbuff_t *value_tvb;
   gef_ctx_t *parent_gefx;
   gef_ctx_t *gefx;
@@ -3765,14 +3925,14 @@ static const per_sequence_t GenericCapability_sequence[] = {
 
 static int
 dissect_h245_GenericCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 586 "h245.cnf"
+#line 658 "h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "GenericCapability");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericCapability, GenericCapability_sequence);
 
-#line 589 "h245.cnf"
+#line 661 "h245.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -3817,7 +3977,7 @@ static const per_choice_t Application_choice[] = {
 
 static int
 dissect_h245_Application(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 420 "h245.cnf"
+#line 506 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -3963,7 +4123,7 @@ dissect_h245_T_payloadDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_T_payloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 833 "h245.cnf"
+#line 878 "h245.cnf"
   unsigned int pt;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -3987,7 +4147,7 @@ static const per_sequence_t RTPPayloadType_sequence[] = {
 
 static int
 dissect_h245_RTPPayloadType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 825 "h245.cnf"
+#line 870 "h245.cnf"
   rfc_number = 0;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -5370,7 +5530,7 @@ dissect_h245_H263VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_H263VideoCapability, H263VideoCapability_sequence);
 
-#line 277 "h245.cnf"
+#line 363 "h245.cnf"
   h245_lc_dissector = h263_handle;
 
   return offset;
@@ -5463,7 +5623,7 @@ static const per_choice_t VideoCapability_choice[] = {
 
 static int
 dissect_h245_VideoCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 410 "h245.cnf"
+#line 496 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -5724,66 +5884,66 @@ dissect_h245_NoPTAudioToneCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const value_string h245_AudioCapability_vals[] = {
-  {   0, "nonStandard" },
-  {   1, "g711Alaw64k" },
-  {   2, "g711Alaw56k" },
-  {   3, "g711Ulaw64k" },
-  {   4, "g711Ulaw56k" },
-  {   5, "g722-64k" },
-  {   6, "g722-56k" },
-  {   7, "g722-48k" },
-  {   8, "g7231" },
-  {   9, "g728" },
-  {  10, "g729" },
-  {  11, "g729AnnexA" },
-  {  12, "is11172AudioCapability" },
-  {  13, "is13818AudioCapability" },
-  {  14, "g729wAnnexB" },
-  {  15, "g729AnnexAwAnnexB" },
-  {  16, "g7231AnnexCCapability" },
-  {  17, "gsmFullRate" },
-  {  18, "gsmHalfRate" },
-  {  19, "gsmEnhancedFullRate" },
-  {  20, "genericAudioCapability" },
-  {  21, "g729Extensions" },
-  {  22, "vbd" },
-  {  23, "audioTelephonyEvent" },
-  {  24, "audioTone" },
+  { AudioCapability_nonStandard, "nonStandard" },
+  { AudioCapability_g711Alaw64k, "g711Alaw64k" },
+  { AudioCapability_g711Alaw56k, "g711Alaw56k" },
+  { AudioCapability_g711Ulaw64k, "g711Ulaw64k" },
+  { AudioCapability_g711Ulaw56k, "g711Ulaw56k" },
+  { AudioCapability_g722_64k, "g722-64k" },
+  { AudioCapability_g722_56k, "g722-56k" },
+  { AudioCapability_g722_48k, "g722-48k" },
+  { AudioCapability_g7231, "g7231" },
+  { AudioCapability_g728, "g728" },
+  { AudioCapability_g729, "g729" },
+  { AudioCapability_g729AnnexA, "g729AnnexA" },
+  { AudioCapability_is11172AudioCapability, "is11172AudioCapability" },
+  { AudioCapability_is13818AudioCapability, "is13818AudioCapability" },
+  { AudioCapability_g729wAnnexB, "g729wAnnexB" },
+  { AudioCapability_g729AnnexAwAnnexB, "g729AnnexAwAnnexB" },
+  { AudioCapability_g7231AnnexCCapability, "g7231AnnexCCapability" },
+  { AudioCapability_gsmFullRate, "gsmFullRate" },
+  { AudioCapability_gsmHalfRate, "gsmHalfRate" },
+  { AudioCapability_gsmEnhancedFullRate, "gsmEnhancedFullRate" },
+  { AudioCapability_genericAudioCapability, "genericAudioCapability" },
+  { AudioCapability_g729Extensions, "g729Extensions" },
+  { AudioCapability_vbd, "vbd" },
+  { AudioCapability_audioTelephonyEvent, "audioTelephonyEvent" },
+  { AudioCapability_audioTone, "audioTone" },
   { 0, NULL }
 };
 
 static const per_choice_t AudioCapability_choice[] = {
-  {   0, &hf_h245_nonStandard    , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardParameter },
-  {   1, &hf_h245_g711Alaw64k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   2, &hf_h245_g711Alaw56k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   3, &hf_h245_g711Ulaw64k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   4, &hf_h245_g711Ulaw56k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   5, &hf_h245_g722_64k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   6, &hf_h245_g722_56k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   7, &hf_h245_g722_48k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {   8, &hf_h245_g7231          , ASN1_EXTENSION_ROOT    , dissect_h245_T_g7231 },
-  {   9, &hf_h245_g728           , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {  10, &hf_h245_g729           , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {  11, &hf_h245_g729AnnexA     , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
-  {  12, &hf_h245_is11172AudioCapability, ASN1_EXTENSION_ROOT    , dissect_h245_IS11172AudioCapability },
-  {  13, &hf_h245_is13818AudioCapability, ASN1_EXTENSION_ROOT    , dissect_h245_IS13818AudioCapability },
-  {  14, &hf_h245_g729wAnnexB    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_1_256 },
-  {  15, &hf_h245_g729AnnexAwAnnexB, ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_1_256 },
-  {  16, &hf_h245_g7231AnnexCCapability, ASN1_NOT_EXTENSION_ROOT, dissect_h245_G7231AnnexCCapability },
-  {  17, &hf_h245_gsmFullRate    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
-  {  18, &hf_h245_gsmHalfRate    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
-  {  19, &hf_h245_gsmEnhancedFullRate, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
-  {  20, &hf_h245_genericAudioCapability, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericCapability },
-  {  21, &hf_h245_g729Extensions , ASN1_NOT_EXTENSION_ROOT, dissect_h245_G729Extensions },
-  {  22, &hf_h245_vbd            , ASN1_NOT_EXTENSION_ROOT, dissect_h245_VBDCapability },
-  {  23, &hf_h245_audioTelephonyEvent, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NoPTAudioTelephonyEventCapability },
-  {  24, &hf_h245_audioTone      , ASN1_NOT_EXTENSION_ROOT, dissect_h245_NoPTAudioToneCapability },
+  { AudioCapability_nonStandard, &hf_h245_nonStandard    , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardParameter },
+  { AudioCapability_g711Alaw64k, &hf_h245_g711Alaw64k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g711Alaw56k, &hf_h245_g711Alaw56k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g711Ulaw64k, &hf_h245_g711Ulaw64k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g711Ulaw56k, &hf_h245_g711Ulaw56k    , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g722_64k, &hf_h245_g722_64k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g722_56k, &hf_h245_g722_56k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g722_48k, &hf_h245_g722_48k       , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g7231, &hf_h245_g7231          , ASN1_EXTENSION_ROOT    , dissect_h245_T_g7231 },
+  { AudioCapability_g728, &hf_h245_g728           , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g729, &hf_h245_g729           , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g729AnnexA, &hf_h245_g729AnnexA     , ASN1_EXTENSION_ROOT    , dissect_h245_INTEGER_1_256 },
+  { AudioCapability_is11172AudioCapability, &hf_h245_is11172AudioCapability, ASN1_EXTENSION_ROOT    , dissect_h245_IS11172AudioCapability },
+  { AudioCapability_is13818AudioCapability, &hf_h245_is13818AudioCapability, ASN1_EXTENSION_ROOT    , dissect_h245_IS13818AudioCapability },
+  { AudioCapability_g729wAnnexB, &hf_h245_g729wAnnexB    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g729AnnexAwAnnexB, &hf_h245_g729AnnexAwAnnexB, ASN1_NOT_EXTENSION_ROOT, dissect_h245_INTEGER_1_256 },
+  { AudioCapability_g7231AnnexCCapability, &hf_h245_g7231AnnexCCapability, ASN1_NOT_EXTENSION_ROOT, dissect_h245_G7231AnnexCCapability },
+  { AudioCapability_gsmFullRate, &hf_h245_gsmFullRate    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
+  { AudioCapability_gsmHalfRate, &hf_h245_gsmHalfRate    , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
+  { AudioCapability_gsmEnhancedFullRate, &hf_h245_gsmEnhancedFullRate, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GSMAudioCapability },
+  { AudioCapability_genericAudioCapability, &hf_h245_genericAudioCapability, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericCapability },
+  { AudioCapability_g729Extensions, &hf_h245_g729Extensions , ASN1_NOT_EXTENSION_ROOT, dissect_h245_G729Extensions },
+  { AudioCapability_vbd, &hf_h245_vbd            , ASN1_NOT_EXTENSION_ROOT, dissect_h245_VBDCapability },
+  { AudioCapability_audioTelephonyEvent, &hf_h245_audioTelephonyEvent, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NoPTAudioTelephonyEventCapability },
+  { AudioCapability_audioTone, &hf_h245_audioTone      , ASN1_NOT_EXTENSION_ROOT, dissect_h245_NoPTAudioToneCapability },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_h245_AudioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 400 "h245.cnf"
+#line 486 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -6365,7 +6525,7 @@ dissect_h245_SET_SIZE_1_256_OF_CapabilityDescriptor(tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 559 "h245.cnf"
+#line 631 "h245.cnf"
   guint32 subMessageIdentifer;
   gef_ctx_t *gefx;
   
@@ -6383,7 +6543,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_h245_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 568 "h245.cnf"
+#line 640 "h245.cnf"
   gef_ctx_t *parent_gefx;
 
   parent_gefx = gef_ctx_get(actx->private_data);
@@ -6391,7 +6551,7 @@ dissect_h245_T_messageContent_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   offset = dissect_h245_GenericParameter(tvb, offset, actx, tree, hf_index);
 
-#line 573 "h245.cnf"
+#line 645 "h245.cnf"
   actx->private_data = parent_gefx;
 
   return offset;
@@ -6420,7 +6580,7 @@ static const per_sequence_t GenericMessage_sequence[] = {
 
 static int
 dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 545 "h245.cnf"
+#line 617 "h245.cnf"
   void *priv_data = actx->private_data;
   gef_ctx_t *gefx;
 
@@ -6434,7 +6594,7 @@ dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_GenericMessage, GenericMessage_sequence);
 
-#line 555 "h245.cnf"
+#line 627 "h245.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -6444,13 +6604,13 @@ dissect_h245_GenericMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_GenericInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 578 "h245.cnf"
+#line 650 "h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "GenericInformation");
 
   offset = dissect_h245_GenericMessage(tvb, offset, actx, tree, hf_index);
 
-#line 581 "h245.cnf"
+#line 653 "h245.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -6485,7 +6645,7 @@ dissect_h245_TerminalCapabilitySet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySet, TerminalCapabilitySet_sequence);
 
-#line 516 "h245.cnf"
+#line 602 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSet;
@@ -6497,7 +6657,7 @@ if (h245_pi != NULL)
 
 static int
 dissect_h245_LogicalChannelNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 132 "h245.cnf"
+#line 121 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 65535U, &value, FALSE);
@@ -6514,7 +6674,8 @@ static int
 dissect_h245_OLC_fw_lcn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 138 "h245.cnf"
+#line 162 "h245.cnf"
+  if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
   h223_fw_lc_num = h245_lc_temp;
 
   return offset;
@@ -6987,7 +7148,7 @@ dissect_h245_H222LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 169 "h245.cnf"
+#line 294 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1Framed;
 
@@ -7000,7 +7161,7 @@ dissect_h245_T_h223_al_type_al1Framed(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 174 "h245.cnf"
+#line 299 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1NotFramed;
 
@@ -7013,7 +7174,7 @@ dissect_h245_T_h223_al_type_al1NotFramed(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 179 "h245.cnf"
+#line 304 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithoutSequenceNumbers;
 
@@ -7026,7 +7187,7 @@ dissect_h245_T_h223_al_type_al2WithoutSequenceNumbers(tvbuff_t *tvb _U_, int off
 
 static int
 dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 184 "h245.cnf"
+#line 309 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2WithSequenceNumbers;
 
@@ -7039,7 +7200,7 @@ dissect_h245_T_h223_al_type_al2WithSequenceNumbers(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 198 "h245.cnf"
+#line 323 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 2U, &value, FALSE);
@@ -7055,7 +7216,7 @@ dissect_h245_T_controlFieldOctets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_h245_T_al3_sendBufferSize(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 207 "h245.cnf"
+#line 332 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               0U, 16777215U, &value, FALSE);
@@ -7086,7 +7247,7 @@ dissect_h245_Al3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 
 static int
 dissect_h245_T_h223_al_type_al3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 189 "h245.cnf"
+#line 314 "h245.cnf"
  if(h223_lc_params_temp) {
 	h223_lc_params_temp->al_type = al3;
 	h223_lc_params_temp->al_params = se_alloc(sizeof(h223_al3_params));
@@ -7281,7 +7442,7 @@ dissect_h245_H223AL1MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al1M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 214 "h245.cnf"
+#line 339 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al1M;
 
@@ -7331,7 +7492,7 @@ dissect_h245_H223AL2MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al2M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 219 "h245.cnf"
+#line 344 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al2M;
 
@@ -7419,7 +7580,7 @@ dissect_h245_H223AL3MParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h245_T_h223_al_type_al3M(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 224 "h245.cnf"
+#line 349 "h245.cnf"
   if(h223_lc_params_temp)
 	h223_lc_params_temp->al_type = al3M;
 
@@ -7468,7 +7629,7 @@ dissect_h245_T_adaptationLayerType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_h245_T_h223_lc_segmentableFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "h245.cnf"
+#line 356 "h245.cnf"
   guint32 value;
   offset = dissect_per_boolean(tvb, offset, actx, tree, hf_index, &value);
 
@@ -7498,7 +7659,7 @@ dissect_h245_H223LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_h245_OLC_fw_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "h245.cnf"
+#line 184 "h245.cnf"
   h223_fw_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_fw_lc_params->al_type = al_nonStandard;
   h223_fw_lc_params->al_params = NULL;
@@ -7672,7 +7833,7 @@ dissect_h245_V76LogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 740 "h245.cnf"
+#line 812 "h245.cnf"
   tvbuff_t *value_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -7692,7 +7853,7 @@ dissect_h245_Ipv4_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h245_TsapIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 751 "h245.cnf"
+#line 823 "h245.cnf"
   guint32 tsapIdentifier;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -7949,13 +8110,13 @@ dissect_h245_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 770 "h245.cnf"
+#line 842 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 774 "h245.cnf"
+#line 846 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -7966,13 +8127,13 @@ dissect_h245_T_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_h245_T_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 788 "h245.cnf"
+#line 860 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 792 "h245.cnf"
+#line 864 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -8103,7 +8264,10 @@ static const per_sequence_t T_forwardLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 142 "h245.cnf"
+#line 167 "h245.cnf"
+
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
+
   h245_lc_dissector = NULL;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_T_forwardLogicalChannelParameters, T_forwardLogicalChannelParameters_sequence);
@@ -8113,6 +8277,11 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
   else if(h223_lc_params_temp)
 	h223_lc_params_temp->subdissector = data_handle;
 
+  if (upcoming_channel && codec_type) {
+    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+  }
+  upcoming_channel = NULL;
+
 
   return offset;
 }
@@ -8121,7 +8290,7 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_h245_OLC_rev_h223_params(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "h245.cnf"
+#line 205 "h245.cnf"
   h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_rev_lc_params->al_type = al_nonStandard;
   h223_rev_lc_params->al_params = NULL;
@@ -8169,20 +8338,19 @@ static const per_sequence_t OLC_reverseLogicalChannelParameters_sequence[] = {
 
 static int
 dissect_h245_OLC_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 811 "h245.cnf"
+#line 193 "h245.cnf"
 
-  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
-
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->rev_lc : NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OLC_reverseLogicalChannelParameters, OLC_reverseLogicalChannelParameters_sequence);
 
-#line 816 "h245.cnf"
 	
-	if (!actx->pinfo->fd->flags.visited) {
-		h245_setup_channels(actx->pinfo, upcoming_channel);
-	}
+  if (upcoming_channel && codec_type) {
+    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+  }
   upcoming_channel = NULL;
+
 
   return offset;
 }
@@ -8357,14 +8525,14 @@ static const per_sequence_t EncryptionSync_sequence[] = {
 
 static int
 dissect_h245_EncryptionSync(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 629 "h245.cnf"
+#line 701 "h245.cnf"
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "EncryptionSync");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_EncryptionSync, EncryptionSync_sequence);
 
-#line 632 "h245.cnf"
+#line 704 "h245.cnf"
   actx->private_data = priv_data;
 
   return offset;
@@ -8383,14 +8551,17 @@ static const per_sequence_t OpenLogicalChannel_sequence[] = {
 
 int
 dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 113 "h245.cnf"
+#line 128 "h245.cnf"
   gint32 temp;
+
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? se_alloc0(sizeof(olc_info_t)) : NULL;
 
   h223_fw_lc_num = 0;
   h223_lc_params_temp = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
+
 
   if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
 	h223_pending_olc *pending = se_alloc(sizeof(h223_pending_olc));
@@ -8401,11 +8572,20 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 		g_hash_table_insert(h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
 
-
-#line 529 "h245.cnf"
+  if (upcoming_olc) {
+    if (fast_start) {
+      h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
+    } else {
+      g_hash_table_insert(h245_pending_olc_reqs, 
+        se_strdup(gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)), 
+        upcoming_olc);
+    }
+  }
+  upcoming_olc = NULL;
 
   if (h245_pi != NULL)
-   h245_pi->msg_type = H245_OpenLogChn;
+    h245_pi->msg_type = H245_OpenLogChn;
+
 
   return offset;
 }
@@ -8469,7 +8649,7 @@ dissect_h245_CloseLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannel, CloseLogicalChannel_sequence);
 
-#line 474 "h245.cnf"
+#line 560 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_CloseLogChn;
@@ -8523,7 +8703,7 @@ dissect_h245_RequestChannelClose(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 57 "h245.cnf"
+#line 66 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 15U, &value, FALSE);
@@ -8538,7 +8718,7 @@ dissect_h245_MultiplexTableEntryNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h245_T_logicalChannelNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 83 "h245.cnf"
+#line 92 "h245.cnf"
   /*MultiplexElement/type/logicalChannelNumber*/
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -8558,7 +8738,7 @@ static const per_sequence_t T_subElementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_subElementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "h245.cnf"
+#line 100 "h245.cnf"
   h223_mux_element dummy_me, *parent_me = h223_me;
   h223_me = &dummy_me;
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
@@ -8599,7 +8779,7 @@ dissect_h245_Me_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_h245_ME_finiteRepeatCount(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "h245.cnf"
+#line 115 "h245.cnf"
   guint32 value;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                               1U, 65535U, &value, FALSE);
@@ -8616,7 +8796,7 @@ static int
 dissect_h245_T_untilClosingFlag(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_null(tvb, offset, actx, tree, hf_index);
 
-#line 100 "h245.cnf"
+#line 109 "h245.cnf"
   h223_me->repeat_count = 0;
 
   return offset;
@@ -8653,7 +8833,7 @@ static const per_sequence_t MultiplexElement_sequence[] = {
 
 static int
 dissect_h245_MultiplexElement(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "h245.cnf"
+#line 82 "h245.cnf"
   /*MultiplexElement*/
   h223_mux_element* me = se_alloc(sizeof(h223_mux_element));
   h223_me->next = me;
@@ -8673,7 +8853,7 @@ static const per_sequence_t T_elementList_sequence_of[1] = {
 
 static int
 dissect_h245_T_elementList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "h245.cnf"
+#line 72 "h245.cnf"
   /* create a h223_mux_element to hold onto the head of the list, since
    * h223_me will track the tail */
   h223_mux_element dummy_me;
@@ -8698,7 +8878,7 @@ static const per_sequence_t MultiplexEntryDescriptor_sequence[] = {
 
 static int
 dissect_h245_MultiplexEntryDescriptor(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 45 "h245.cnf"
+#line 54 "h245.cnf"
   /*MultiplexEntryDescriptor*/
   h223_me = NULL;
   h223_mc = 0;
@@ -8963,7 +9143,7 @@ static const per_choice_t VideoMode_choice[] = {
 
 static int
 dissect_h245_VideoMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 438 "h245.cnf"
+#line 524 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9291,7 +9471,7 @@ static const per_choice_t AudioMode_choice[] = {
 
 static int
 dissect_h245_AudioMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 429 "h245.cnf"
+#line 515 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -9360,7 +9540,7 @@ static const per_choice_t DataModeApplication_choice[] = {
 
 static int
 dissect_h245_DataModeApplication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 447 "h245.cnf"
+#line 533 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -10308,48 +10488,48 @@ dissect_h245_LogicalChannelRateRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const value_string h245_RequestMessage_vals[] = {
-  {   0, "nonStandard" },
-  {   1, "masterSlaveDetermination" },
-  {   2, "terminalCapabilitySet" },
-  {   3, "openLogicalChannel" },
-  {   4, "closeLogicalChannel" },
-  {   5, "requestChannelClose" },
-  {   6, "multiplexEntrySend" },
-  {   7, "requestMultiplexEntry" },
-  {   8, "requestMode" },
-  {   9, "roundTripDelayRequest" },
-  {  10, "maintenanceLoopRequest" },
-  {  11, "communicationModeRequest" },
-  {  12, "conferenceRequest" },
-  {  13, "multilinkRequest" },
-  {  14, "logicalChannelRateRequest" },
-  {  15, "genericRequest" },
+  { RequestMessage_nonStandard, "nonStandard" },
+  { RequestMessage_masterSlaveDetermination, "masterSlaveDetermination" },
+  { RequestMessage_terminalCapabilitySet, "terminalCapabilitySet" },
+  { RequestMessage_openLogicalChannel, "openLogicalChannel" },
+  { RequestMessage_closeLogicalChannel, "closeLogicalChannel" },
+  { RequestMessage_requestChannelClose, "requestChannelClose" },
+  { RequestMessage_multiplexEntrySend, "multiplexEntrySend" },
+  { RequestMessage_requestMultiplexEntry, "requestMultiplexEntry" },
+  { RequestMessage_requestMode, "requestMode" },
+  { RequestMessage_roundTripDelayRequest, "roundTripDelayRequest" },
+  { RequestMessage_maintenanceLoopRequest, "maintenanceLoopRequest" },
+  { RequestMessage_communicationModeRequest, "communicationModeRequest" },
+  { RequestMessage_conferenceRequest, "conferenceRequest" },
+  { RequestMessage_multilinkRequest, "multilinkRequest" },
+  { RequestMessage_logicalChannelRateRequest, "logicalChannelRateRequest" },
+  { RequestMessage_genericRequest, "genericRequest" },
   { 0, NULL }
 };
 
 static const per_choice_t RequestMessage_choice[] = {
-  {   0, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
-  {   1, &hf_h245_masterSlaveDetermination, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDetermination },
-  {   2, &hf_h245_terminalCapabilitySet, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySet },
-  {   3, &hf_h245_openLogicalChannel, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannel },
-  {   4, &hf_h245_closeLogicalChannel, ASN1_EXTENSION_ROOT    , dissect_h245_CloseLogicalChannel },
-  {   5, &hf_h245_requestChannelClose, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelClose },
-  {   6, &hf_h245_multiplexEntrySend, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySend },
-  {   7, &hf_h245_requestMultiplexEntry, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntry },
-  {   8, &hf_h245_requestMode    , ASN1_EXTENSION_ROOT    , dissect_h245_RequestMode },
-  {   9, &hf_h245_roundTripDelayRequest, ASN1_EXTENSION_ROOT    , dissect_h245_RoundTripDelayRequest },
-  {  10, &hf_h245_maintenanceLoopRequest, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopRequest },
-  {  11, &hf_h245_communicationModeRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeRequest },
-  {  12, &hf_h245_conferenceRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceRequest },
-  {  13, &hf_h245_multilinkRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkRequest },
-  {  14, &hf_h245_logicalChannelRateRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateRequest },
-  {  15, &hf_h245_genericRequest , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
+  { RequestMessage_nonStandard, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
+  { RequestMessage_masterSlaveDetermination, &hf_h245_masterSlaveDetermination, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDetermination },
+  { RequestMessage_terminalCapabilitySet, &hf_h245_terminalCapabilitySet, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySet },
+  { RequestMessage_openLogicalChannel, &hf_h245_openLogicalChannel, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannel },
+  { RequestMessage_closeLogicalChannel, &hf_h245_closeLogicalChannel, ASN1_EXTENSION_ROOT    , dissect_h245_CloseLogicalChannel },
+  { RequestMessage_requestChannelClose, &hf_h245_requestChannelClose, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelClose },
+  { RequestMessage_multiplexEntrySend, &hf_h245_multiplexEntrySend, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySend },
+  { RequestMessage_requestMultiplexEntry, &hf_h245_requestMultiplexEntry, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntry },
+  { RequestMessage_requestMode, &hf_h245_requestMode    , ASN1_EXTENSION_ROOT    , dissect_h245_RequestMode },
+  { RequestMessage_roundTripDelayRequest, &hf_h245_roundTripDelayRequest, ASN1_EXTENSION_ROOT    , dissect_h245_RoundTripDelayRequest },
+  { RequestMessage_maintenanceLoopRequest, &hf_h245_maintenanceLoopRequest, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopRequest },
+  { RequestMessage_communicationModeRequest, &hf_h245_communicationModeRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeRequest },
+  { RequestMessage_conferenceRequest, &hf_h245_conferenceRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceRequest },
+  { RequestMessage_multilinkRequest, &hf_h245_multilinkRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkRequest },
+  { RequestMessage_logicalChannelRateRequest, &hf_h245_logicalChannelRateRequest, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateRequest },
+  { RequestMessage_genericRequest, &hf_h245_genericRequest , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 281 "h245.cnf"
+#line 367 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -10369,7 +10549,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 		}
 	}
 
-	if (( check_col(actx->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
+	if (( check_col(actx->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == RequestMessage_openLogicalChannel) ){
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%s) ", codec_type );
 	}
 
@@ -10380,7 +10560,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 		return offset;
 
     /* if it is TCS*/
-    if ((codec_type != NULL) && ( value == 2))
+    if ((codec_type != NULL) && ( value == RequestMessage_terminalCapabilitySet))
                 g_snprintf(h245_pi->frame_label, 50, "%s (%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
     else
                 g_snprintf(h245_pi->frame_label, 50, "%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
@@ -10388,7 +10568,7 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 	g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
     /* if it is OLC or RM*/
-    if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
+    if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
                 g_snprintf(h245_pi->frame_label, 50, "%s (%s) ", h245_pi->frame_label, codec_type);
 
 
@@ -10428,7 +10608,7 @@ dissect_h245_MasterSlaveDeterminationAck(tvbuff_t *tvb _U_, int offset _U_, asn1
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationAck, MasterSlaveDeterminationAck_sequence);
 
-#line 456 "h245.cnf"
+#line 542 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetAck;
@@ -10467,7 +10647,7 @@ dissect_h245_MasterSlaveDeterminationReject(tvbuff_t *tvb _U_, int offset _U_, a
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationReject, MasterSlaveDeterminationReject_sequence);
 
-#line 462 "h245.cnf"
+#line 548 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetRjc;
@@ -10487,7 +10667,7 @@ dissect_h245_TerminalCapabilitySetAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetAck, TerminalCapabilitySetAck_sequence);
 
-#line 492 "h245.cnf"
+#line 578 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetAck;
@@ -10556,7 +10736,7 @@ dissect_h245_TerminalCapabilitySetReject(tvbuff_t *tvb _U_, int offset _U_, asn1
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetReject, TerminalCapabilitySetReject_sequence);
 
-#line 504 "h245.cnf"
+#line 590 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetRjc;
@@ -10570,7 +10750,8 @@ static int
 dissect_h245_OLC_ack_fw_lcn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 269 "h245.cnf"
+#line 274 "h245.cnf"
+  if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
   h223_fw_lc_num = h245_lc_temp;
 
   return offset;
@@ -10582,7 +10763,7 @@ static int
 dissect_h245_T_reverseLogicalChannelNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_h245_LogicalChannelNumber(tvb, offset, actx, tree, hf_index);
 
-#line 273 "h245.cnf"
+#line 288 "h245.cnf"
   h223_rev_lc_num = h245_lc_temp;
 
   return offset;
@@ -10631,13 +10812,13 @@ dissect_h245_OLC_ack_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 761 "h245.cnf"
+#line 833 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 765 "h245.cnf"
+#line 837 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -10648,13 +10829,13 @@ dissect_h245_Ack_mediaChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_h245_Ack_mediaControlChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 779 "h245.cnf"
+#line 851 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = &upcoming_channel->media_control_addr;
 
   offset = dissect_h245_TransportAddress(tvb, offset, actx, tree, hf_index);
 
-#line 783 "h245.cnf"
+#line 855 "h245.cnf"
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
 
@@ -10694,21 +10875,17 @@ static const per_choice_t T_forwardMultiplexAckParameters_choice[] = {
 
 static int
 dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 797 "h245.cnf"
+#line 279 "h245.cnf"
 
-  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
-
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
-#line 803 "h245.cnf"
 	
-	if (!actx->pinfo->fd->flags.visited) {
-		h245_setup_channels(actx->pinfo, upcoming_channel);
-	}
   upcoming_channel = NULL;
+
 
   return offset;
 }
@@ -10726,15 +10903,21 @@ static const per_sequence_t OpenLogicalChannelAck_sequence[] = {
 
 static int
 dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "h245.cnf"
+#line 217 "h245.cnf"
   guint32 temp;
   int p2p_dir;
   h223_pending_olc *pend;
+  const gchar *olc_key;
+  olc_info_t *olc_req;
+
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? ep_alloc0(sizeof(olc_info_t)) : NULL;
+
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
 	
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
+
 
   temp = h223_fw_lc_num;
   p2p_dir = actx->pinfo->p2p_dir;
@@ -10757,11 +10940,27 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   }
   actx->pinfo->p2p_dir = p2p_dir;
 
-
-#line 536 "h245.cnf"
+  if (upcoming_olc) {
+    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->src, &actx->pinfo->dst);
+    olc_req = g_hash_table_lookup(h245_pending_olc_reqs, olc_key);
+    if (olc_req) {
+      printf("#%u: OLC found %s\n", actx->pinfo->fd->num, olc_key);
+      update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);
+      update_unicast_addr(&olc_req->fwd_lc.media_control_addr, &upcoming_olc->fwd_lc.media_control_addr);
+      update_unicast_addr(&olc_req->rev_lc.media_addr, &upcoming_olc->rev_lc.media_addr);
+      update_unicast_addr(&olc_req->rev_lc.media_control_addr, &upcoming_olc->rev_lc.media_control_addr);
+      h245_setup_channels(actx->pinfo, &olc_req->fwd_lc);
+      h245_setup_channels(actx->pinfo, &olc_req->rev_lc);
+      g_hash_table_remove(h245_pending_olc_reqs, olc_key);
+    } else {
+      h245_setup_channels(actx->pinfo, &upcoming_olc->fwd_lc);
+    }
+  }
+  upcoming_olc = NULL;
 
   if (h245_pi != NULL)
 	h245_pi->msg_type = H245_OpenLogChnAck;
+
 
   return offset;
 }
@@ -10827,7 +11026,7 @@ dissect_h245_OpenLogicalChannelReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelReject, OpenLogicalChannelReject_sequence);
 
-#line 468 "h245.cnf"
+#line 554 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_OpenLogChnRjc;
@@ -10846,7 +11045,7 @@ dissect_h245_CloseLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_CloseLogicalChannelAck, CloseLogicalChannelAck_sequence);
 
-#line 480 "h245.cnf"
+#line 566 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_CloseLogChnAck;
@@ -11911,66 +12110,66 @@ dissect_h245_LogicalChannelRateReject(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const value_string h245_ResponseMessage_vals[] = {
-  {   0, "nonStandard" },
-  {   1, "masterSlaveDeterminationAck" },
-  {   2, "masterSlaveDeterminationReject" },
-  {   3, "terminalCapabilitySetAck" },
-  {   4, "terminalCapabilitySetReject" },
-  {   5, "openLogicalChannelAck" },
-  {   6, "openLogicalChannelReject" },
-  {   7, "closeLogicalChannelAck" },
-  {   8, "requestChannelCloseAck" },
-  {   9, "requestChannelCloseReject" },
-  {  10, "multiplexEntrySendAck" },
-  {  11, "multiplexEntrySendReject" },
-  {  12, "requestMultiplexEntryAck" },
-  {  13, "requestMultiplexEntryReject" },
-  {  14, "requestModeAck" },
-  {  15, "requestModeReject" },
-  {  16, "roundTripDelayResponse" },
-  {  17, "maintenanceLoopAck" },
-  {  18, "maintenanceLoopReject" },
-  {  19, "communicationModeResponse" },
-  {  20, "conferenceResponse" },
-  {  21, "multilinkResponse" },
-  {  22, "logicalChannelRateAcknowledge" },
-  {  23, "logicalChannelRateReject" },
-  {  24, "genericResponse" },
+  { ResponseMessage_nonStandard, "nonStandard" },
+  { ResponseMessage_masterSlaveDeterminationAck, "masterSlaveDeterminationAck" },
+  { ResponseMessage_masterSlaveDeterminationReject, "masterSlaveDeterminationReject" },
+  { ResponseMessage_terminalCapabilitySetAck, "terminalCapabilitySetAck" },
+  { ResponseMessage_terminalCapabilitySetReject, "terminalCapabilitySetReject" },
+  { ResponseMessage_openLogicalChannelAck, "openLogicalChannelAck" },
+  { ResponseMessage_openLogicalChannelReject, "openLogicalChannelReject" },
+  { ResponseMessage_closeLogicalChannelAck, "closeLogicalChannelAck" },
+  { ResponseMessage_requestChannelCloseAck, "requestChannelCloseAck" },
+  { ResponseMessage_requestChannelCloseReject, "requestChannelCloseReject" },
+  { ResponseMessage_multiplexEntrySendAck, "multiplexEntrySendAck" },
+  { ResponseMessage_multiplexEntrySendReject, "multiplexEntrySendReject" },
+  { ResponseMessage_requestMultiplexEntryAck, "requestMultiplexEntryAck" },
+  { ResponseMessage_requestMultiplexEntryReject, "requestMultiplexEntryReject" },
+  { ResponseMessage_requestModeAck, "requestModeAck" },
+  { ResponseMessage_requestModeReject, "requestModeReject" },
+  { ResponseMessage_roundTripDelayResponse, "roundTripDelayResponse" },
+  { ResponseMessage_maintenanceLoopAck, "maintenanceLoopAck" },
+  { ResponseMessage_maintenanceLoopReject, "maintenanceLoopReject" },
+  { ResponseMessage_communicationModeResponse, "communicationModeResponse" },
+  { ResponseMessage_conferenceResponse, "conferenceResponse" },
+  { ResponseMessage_multilinkResponse, "multilinkResponse" },
+  { ResponseMessage_logicalChannelRateAcknowledge, "logicalChannelRateAcknowledge" },
+  { ResponseMessage_logicalChannelRateReject, "logicalChannelRateReject" },
+  { ResponseMessage_genericResponse, "genericResponse" },
   { 0, NULL }
 };
 
 static const per_choice_t ResponseMessage_choice[] = {
-  {   0, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
-  {   1, &hf_h245_masterSlaveDeterminationAck, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationAck },
-  {   2, &hf_h245_masterSlaveDeterminationReject, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationReject },
-  {   3, &hf_h245_terminalCapabilitySetAck, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetAck },
-  {   4, &hf_h245_terminalCapabilitySetReject, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetReject },
-  {   5, &hf_h245_openLogicalChannelAck, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelAck },
-  {   6, &hf_h245_openLogicalChannelReject, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelReject },
-  {   7, &hf_h245_closeLogicalChannelAck, ASN1_EXTENSION_ROOT    , dissect_h245_CloseLogicalChannelAck },
-  {   8, &hf_h245_requestChannelCloseAck, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseAck },
-  {   9, &hf_h245_requestChannelCloseReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseReject },
-  {  10, &hf_h245_multiplexEntrySendAck, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendAck },
-  {  11, &hf_h245_multiplexEntrySendReject, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendReject },
-  {  12, &hf_h245_requestMultiplexEntryAck, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryAck },
-  {  13, &hf_h245_requestMultiplexEntryReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryReject },
-  {  14, &hf_h245_requestModeAck , ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeAck },
-  {  15, &hf_h245_requestModeReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeReject },
-  {  16, &hf_h245_roundTripDelayResponse, ASN1_EXTENSION_ROOT    , dissect_h245_RoundTripDelayResponse },
-  {  17, &hf_h245_maintenanceLoopAck, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopAck },
-  {  18, &hf_h245_maintenanceLoopReject, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopReject },
-  {  19, &hf_h245_communicationModeResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeResponse },
-  {  20, &hf_h245_conferenceResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceResponse },
-  {  21, &hf_h245_multilinkResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkResponse },
-  {  22, &hf_h245_logicalChannelRateAcknowledge, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateAcknowledge },
-  {  23, &hf_h245_logicalChannelRateReject, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateReject },
-  {  24, &hf_h245_genericResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
+  { ResponseMessage_nonStandard, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
+  { ResponseMessage_masterSlaveDeterminationAck, &hf_h245_masterSlaveDeterminationAck, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationAck },
+  { ResponseMessage_masterSlaveDeterminationReject, &hf_h245_masterSlaveDeterminationReject, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationReject },
+  { ResponseMessage_terminalCapabilitySetAck, &hf_h245_terminalCapabilitySetAck, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetAck },
+  { ResponseMessage_terminalCapabilitySetReject, &hf_h245_terminalCapabilitySetReject, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetReject },
+  { ResponseMessage_openLogicalChannelAck, &hf_h245_openLogicalChannelAck, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelAck },
+  { ResponseMessage_openLogicalChannelReject, &hf_h245_openLogicalChannelReject, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelReject },
+  { ResponseMessage_closeLogicalChannelAck, &hf_h245_closeLogicalChannelAck, ASN1_EXTENSION_ROOT    , dissect_h245_CloseLogicalChannelAck },
+  { ResponseMessage_requestChannelCloseAck, &hf_h245_requestChannelCloseAck, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseAck },
+  { ResponseMessage_requestChannelCloseReject, &hf_h245_requestChannelCloseReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseReject },
+  { ResponseMessage_multiplexEntrySendAck, &hf_h245_multiplexEntrySendAck, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendAck },
+  { ResponseMessage_multiplexEntrySendReject, &hf_h245_multiplexEntrySendReject, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendReject },
+  { ResponseMessage_requestMultiplexEntryAck, &hf_h245_requestMultiplexEntryAck, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryAck },
+  { ResponseMessage_requestMultiplexEntryReject, &hf_h245_requestMultiplexEntryReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryReject },
+  { ResponseMessage_requestModeAck, &hf_h245_requestModeAck , ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeAck },
+  { ResponseMessage_requestModeReject, &hf_h245_requestModeReject, ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeReject },
+  { ResponseMessage_roundTripDelayResponse, &hf_h245_roundTripDelayResponse, ASN1_EXTENSION_ROOT    , dissect_h245_RoundTripDelayResponse },
+  { ResponseMessage_maintenanceLoopAck, &hf_h245_maintenanceLoopAck, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopAck },
+  { ResponseMessage_maintenanceLoopReject, &hf_h245_maintenanceLoopReject, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopReject },
+  { ResponseMessage_communicationModeResponse, &hf_h245_communicationModeResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeResponse },
+  { ResponseMessage_conferenceResponse, &hf_h245_conferenceResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceResponse },
+  { ResponseMessage_multilinkResponse, &hf_h245_multilinkResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkResponse },
+  { ResponseMessage_logicalChannelRateAcknowledge, &hf_h245_logicalChannelRateAcknowledge, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateAcknowledge },
+  { ResponseMessage_logicalChannelRateReject, &hf_h245_logicalChannelRateReject, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateReject },
+  { ResponseMessage_genericResponse, &hf_h245_genericResponse, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 321 "h245.cnf"
+#line 407 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -12977,42 +13176,42 @@ dissect_h245_MobileMultilinkReconfigurationCommand(tvbuff_t *tvb _U_, int offset
 
 
 static const value_string h245_CommandMessage_vals[] = {
-  {   0, "nonStandard" },
-  {   1, "maintenanceLoopOffCommand" },
-  {   2, "sendTerminalCapabilitySet" },
-  {   3, "encryptionCommand" },
-  {   4, "flowControlCommand" },
-  {   5, "endSessionCommand" },
-  {   6, "miscellaneousCommand" },
-  {   7, "communicationModeCommand" },
-  {   8, "conferenceCommand" },
-  {   9, "h223MultiplexReconfiguration" },
-  {  10, "newATMVCCommand" },
-  {  11, "mobileMultilinkReconfigurationCommand" },
-  {  12, "genericCommand" },
+  { CommandMessage_nonStandard, "nonStandard" },
+  { CommandMessage_maintenanceLoopOffCommand, "maintenanceLoopOffCommand" },
+  { CommandMessage_sendTerminalCapabilitySet, "sendTerminalCapabilitySet" },
+  { CommandMessage_encryptionCommand, "encryptionCommand" },
+  { CommandMessage_flowControlCommand, "flowControlCommand" },
+  { CommandMessage_endSessionCommand, "endSessionCommand" },
+  { CommandMessage_miscellaneousCommand, "miscellaneousCommand" },
+  { CommandMessage_communicationModeCommand, "communicationModeCommand" },
+  { CommandMessage_conferenceCommand, "conferenceCommand" },
+  { CommandMessage_h223MultiplexReconfiguration, "h223MultiplexReconfiguration" },
+  { CommandMessage_newATMVCCommand, "newATMVCCommand" },
+  { CommandMessage_mobileMultilinkReconfigurationCommand, "mobileMultilinkReconfigurationCommand" },
+  { CommandMessage_genericCommand, "genericCommand" },
   { 0, NULL }
 };
 
 static const per_choice_t CommandMessage_choice[] = {
-  {   0, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
-  {   1, &hf_h245_maintenanceLoopOffCommand, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopOffCommand },
-  {   2, &hf_h245_sendTerminalCapabilitySet, ASN1_EXTENSION_ROOT    , dissect_h245_SendTerminalCapabilitySet },
-  {   3, &hf_h245_encryptionCommand, ASN1_EXTENSION_ROOT    , dissect_h245_EncryptionCommand },
-  {   4, &hf_h245_flowControlCommand, ASN1_EXTENSION_ROOT    , dissect_h245_FlowControlCommand },
-  {   5, &hf_h245_endSessionCommand, ASN1_EXTENSION_ROOT    , dissect_h245_EndSessionCommand },
-  {   6, &hf_h245_miscellaneousCommand, ASN1_EXTENSION_ROOT    , dissect_h245_MiscellaneousCommand },
-  {   7, &hf_h245_communicationModeCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeCommand },
-  {   8, &hf_h245_conferenceCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceCommand },
-  {   9, &hf_h245_h223MultiplexReconfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_h245_H223MultiplexReconfiguration },
-  {  10, &hf_h245_newATMVCCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NewATMVCCommand },
-  {  11, &hf_h245_mobileMultilinkReconfigurationCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MobileMultilinkReconfigurationCommand },
-  {  12, &hf_h245_genericCommand , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
+  { CommandMessage_nonStandard, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
+  { CommandMessage_maintenanceLoopOffCommand, &hf_h245_maintenanceLoopOffCommand, ASN1_EXTENSION_ROOT    , dissect_h245_MaintenanceLoopOffCommand },
+  { CommandMessage_sendTerminalCapabilitySet, &hf_h245_sendTerminalCapabilitySet, ASN1_EXTENSION_ROOT    , dissect_h245_SendTerminalCapabilitySet },
+  { CommandMessage_encryptionCommand, &hf_h245_encryptionCommand, ASN1_EXTENSION_ROOT    , dissect_h245_EncryptionCommand },
+  { CommandMessage_flowControlCommand, &hf_h245_flowControlCommand, ASN1_EXTENSION_ROOT    , dissect_h245_FlowControlCommand },
+  { CommandMessage_endSessionCommand, &hf_h245_endSessionCommand, ASN1_EXTENSION_ROOT    , dissect_h245_EndSessionCommand },
+  { CommandMessage_miscellaneousCommand, &hf_h245_miscellaneousCommand, ASN1_EXTENSION_ROOT    , dissect_h245_MiscellaneousCommand },
+  { CommandMessage_communicationModeCommand, &hf_h245_communicationModeCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_CommunicationModeCommand },
+  { CommandMessage_conferenceCommand, &hf_h245_conferenceCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceCommand },
+  { CommandMessage_h223MultiplexReconfiguration, &hf_h245_h223MultiplexReconfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_h245_H223MultiplexReconfiguration },
+  { CommandMessage_newATMVCCommand, &hf_h245_newATMVCCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_NewATMVCCommand },
+  { CommandMessage_mobileMultilinkReconfigurationCommand, &hf_h245_mobileMultilinkReconfigurationCommand, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MobileMultilinkReconfigurationCommand },
+  { CommandMessage_genericCommand, &hf_h245_genericCommand , ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 374 "h245.cnf"
+#line 460 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -13078,7 +13277,7 @@ dissect_h245_MasterSlaveDeterminationRelease(tvbuff_t *tvb _U_, int offset _U_, 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_MasterSlaveDeterminationRelease, MasterSlaveDeterminationRelease_sequence);
 
-#line 510 "h245.cnf"
+#line 596 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_MastSlvDetRls;
@@ -13097,7 +13296,7 @@ dissect_h245_TerminalCapabilitySetRelease(tvbuff_t *tvb _U_, int offset _U_, asn
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_TerminalCapabilitySetRelease, TerminalCapabilitySetRelease_sequence);
 
-#line 522 "h245.cnf"
+#line 608 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetRls;
@@ -13117,7 +13316,7 @@ dissect_h245_OpenLogicalChannelConfirm(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelConfirm, OpenLogicalChannelConfirm_sequence);
 
-#line 486 "h245.cnf"
+#line 572 "h245.cnf"
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_OpenLogChnCnf;
@@ -13895,7 +14094,7 @@ dissect_h245_FunctionNotSupportedCause(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_h245_T_returnedFunction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 891 "h245.cnf"
+#line 936 "h245.cnf"
   tvbuff_t *next_tvb = NULL;
   proto_item *item;
   proto_tree *subtree;
@@ -14031,64 +14230,64 @@ dissect_h245_MobileMultilinkReconfigurationIndication(tvbuff_t *tvb _U_, int off
 
 
 static const value_string h245_IndicationMessage_vals[] = {
-  {   0, "nonStandard" },
-  {   1, "functionNotUnderstood" },
-  {   2, "masterSlaveDeterminationRelease" },
-  {   3, "terminalCapabilitySetRelease" },
-  {   4, "openLogicalChannelConfirm" },
-  {   5, "requestChannelCloseRelease" },
-  {   6, "multiplexEntrySendRelease" },
-  {   7, "requestMultiplexEntryRelease" },
-  {   8, "requestModeRelease" },
-  {   9, "miscellaneousIndication" },
-  {  10, "jitterIndication" },
-  {  11, "h223SkewIndication" },
-  {  12, "newATMVCIndication" },
-  {  13, "userInput" },
-  {  14, "h2250MaximumSkewIndication" },
-  {  15, "mcLocationIndication" },
-  {  16, "conferenceIndication" },
-  {  17, "vendorIdentification" },
-  {  18, "functionNotSupported" },
-  {  19, "multilinkIndication" },
-  {  20, "logicalChannelRateRelease" },
-  {  21, "flowControlIndication" },
-  {  22, "mobileMultilinkReconfigurationIndication" },
-  {  23, "genericIndication" },
+  { IndicationMessage_nonStandard, "nonStandard" },
+  { IndicationMessage_functionNotUnderstood, "functionNotUnderstood" },
+  { IndicationMessage_masterSlaveDeterminationRelease, "masterSlaveDeterminationRelease" },
+  { IndicationMessage_terminalCapabilitySetRelease, "terminalCapabilitySetRelease" },
+  { IndicationMessage_openLogicalChannelConfirm, "openLogicalChannelConfirm" },
+  { IndicationMessage_requestChannelCloseRelease, "requestChannelCloseRelease" },
+  { IndicationMessage_multiplexEntrySendRelease, "multiplexEntrySendRelease" },
+  { IndicationMessage_requestMultiplexEntryRelease, "requestMultiplexEntryRelease" },
+  { IndicationMessage_requestModeRelease, "requestModeRelease" },
+  { IndicationMessage_miscellaneousIndication, "miscellaneousIndication" },
+  { IndicationMessage_jitterIndication, "jitterIndication" },
+  { IndicationMessage_h223SkewIndication, "h223SkewIndication" },
+  { IndicationMessage_newATMVCIndication, "newATMVCIndication" },
+  { IndicationMessage_userInput, "userInput" },
+  { IndicationMessage_h2250MaximumSkewIndication, "h2250MaximumSkewIndication" },
+  { IndicationMessage_mcLocationIndication, "mcLocationIndication" },
+  { IndicationMessage_conferenceIndication, "conferenceIndication" },
+  { IndicationMessage_vendorIdentification, "vendorIdentification" },
+  { IndicationMessage_functionNotSupported, "functionNotSupported" },
+  { IndicationMessage_multilinkIndication, "multilinkIndication" },
+  { IndicationMessage_logicalChannelRateRelease, "logicalChannelRateRelease" },
+  { IndicationMessage_flowControlIndication, "flowControlIndication" },
+  { IndicationMessage_mobileMultilinkReconfigurationIndication, "mobileMultilinkReconfigurationIndication" },
+  { IndicationMessage_genericIndication, "genericIndication" },
   { 0, NULL }
 };
 
 static const per_choice_t IndicationMessage_choice[] = {
-  {   0, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
-  {   1, &hf_h245_functionNotUnderstood, ASN1_EXTENSION_ROOT    , dissect_h245_FunctionNotUnderstood },
-  {   2, &hf_h245_masterSlaveDeterminationRelease, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationRelease },
-  {   3, &hf_h245_terminalCapabilitySetRelease, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetRelease },
-  {   4, &hf_h245_openLogicalChannelConfirm, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelConfirm },
-  {   5, &hf_h245_requestChannelCloseRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseRelease },
-  {   6, &hf_h245_multiplexEntrySendRelease, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendRelease },
-  {   7, &hf_h245_requestMultiplexEntryRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryRelease },
-  {   8, &hf_h245_requestModeRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeRelease },
-  {   9, &hf_h245_miscellaneousIndication, ASN1_EXTENSION_ROOT    , dissect_h245_MiscellaneousIndication },
-  {  10, &hf_h245_jitterIndication, ASN1_EXTENSION_ROOT    , dissect_h245_JitterIndication },
-  {  11, &hf_h245_h223SkewIndication, ASN1_EXTENSION_ROOT    , dissect_h245_H223SkewIndication },
-  {  12, &hf_h245_newATMVCIndication, ASN1_EXTENSION_ROOT    , dissect_h245_NewATMVCIndication },
-  {  13, &hf_h245_userInput      , ASN1_EXTENSION_ROOT    , dissect_h245_UserInputIndication },
-  {  14, &hf_h245_h2250MaximumSkewIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_H2250MaximumSkewIndication },
-  {  15, &hf_h245_mcLocationIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MCLocationIndication },
-  {  16, &hf_h245_conferenceIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceIndication },
-  {  17, &hf_h245_vendorIdentification, ASN1_NOT_EXTENSION_ROOT, dissect_h245_VendorIdentification },
-  {  18, &hf_h245_functionNotSupported, ASN1_NOT_EXTENSION_ROOT, dissect_h245_FunctionNotSupported },
-  {  19, &hf_h245_multilinkIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkIndication },
-  {  20, &hf_h245_logicalChannelRateRelease, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateRelease },
-  {  21, &hf_h245_flowControlIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_FlowControlIndication },
-  {  22, &hf_h245_mobileMultilinkReconfigurationIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MobileMultilinkReconfigurationIndication },
-  {  23, &hf_h245_genericIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
+  { IndicationMessage_nonStandard, &hf_h245_nonStandardMsg , ASN1_EXTENSION_ROOT    , dissect_h245_NonStandardMessage },
+  { IndicationMessage_functionNotUnderstood, &hf_h245_functionNotUnderstood, ASN1_EXTENSION_ROOT    , dissect_h245_FunctionNotUnderstood },
+  { IndicationMessage_masterSlaveDeterminationRelease, &hf_h245_masterSlaveDeterminationRelease, ASN1_EXTENSION_ROOT    , dissect_h245_MasterSlaveDeterminationRelease },
+  { IndicationMessage_terminalCapabilitySetRelease, &hf_h245_terminalCapabilitySetRelease, ASN1_EXTENSION_ROOT    , dissect_h245_TerminalCapabilitySetRelease },
+  { IndicationMessage_openLogicalChannelConfirm, &hf_h245_openLogicalChannelConfirm, ASN1_EXTENSION_ROOT    , dissect_h245_OpenLogicalChannelConfirm },
+  { IndicationMessage_requestChannelCloseRelease, &hf_h245_requestChannelCloseRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestChannelCloseRelease },
+  { IndicationMessage_multiplexEntrySendRelease, &hf_h245_multiplexEntrySendRelease, ASN1_EXTENSION_ROOT    , dissect_h245_MultiplexEntrySendRelease },
+  { IndicationMessage_requestMultiplexEntryRelease, &hf_h245_requestMultiplexEntryRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestMultiplexEntryRelease },
+  { IndicationMessage_requestModeRelease, &hf_h245_requestModeRelease, ASN1_EXTENSION_ROOT    , dissect_h245_RequestModeRelease },
+  { IndicationMessage_miscellaneousIndication, &hf_h245_miscellaneousIndication, ASN1_EXTENSION_ROOT    , dissect_h245_MiscellaneousIndication },
+  { IndicationMessage_jitterIndication, &hf_h245_jitterIndication, ASN1_EXTENSION_ROOT    , dissect_h245_JitterIndication },
+  { IndicationMessage_h223SkewIndication, &hf_h245_h223SkewIndication, ASN1_EXTENSION_ROOT    , dissect_h245_H223SkewIndication },
+  { IndicationMessage_newATMVCIndication, &hf_h245_newATMVCIndication, ASN1_EXTENSION_ROOT    , dissect_h245_NewATMVCIndication },
+  { IndicationMessage_userInput, &hf_h245_userInput      , ASN1_EXTENSION_ROOT    , dissect_h245_UserInputIndication },
+  { IndicationMessage_h2250MaximumSkewIndication, &hf_h245_h2250MaximumSkewIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_H2250MaximumSkewIndication },
+  { IndicationMessage_mcLocationIndication, &hf_h245_mcLocationIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MCLocationIndication },
+  { IndicationMessage_conferenceIndication, &hf_h245_conferenceIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_ConferenceIndication },
+  { IndicationMessage_vendorIdentification, &hf_h245_vendorIdentification, ASN1_NOT_EXTENSION_ROOT, dissect_h245_VendorIdentification },
+  { IndicationMessage_functionNotSupported, &hf_h245_functionNotSupported, ASN1_NOT_EXTENSION_ROOT, dissect_h245_FunctionNotSupported },
+  { IndicationMessage_multilinkIndication, &hf_h245_multilinkIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MultilinkIndication },
+  { IndicationMessage_logicalChannelRateRelease, &hf_h245_logicalChannelRateRelease, ASN1_NOT_EXTENSION_ROOT, dissect_h245_LogicalChannelRateRelease },
+  { IndicationMessage_flowControlIndication, &hf_h245_flowControlIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_FlowControlIndication },
+  { IndicationMessage_mobileMultilinkReconfigurationIndication, &hf_h245_mobileMultilinkReconfigurationIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_MobileMultilinkReconfigurationIndication },
+  { IndicationMessage_genericIndication, &hf_h245_genericIndication, ASN1_NOT_EXTENSION_ROOT, dissect_h245_GenericMessage },
   { 0, NULL, 0, NULL }
 };
 
 static int
 dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 348 "h245.cnf"
+#line 434 "h245.cnf"
   guint32 value;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
@@ -14156,7 +14355,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 350 "packet-h245-template.c"
+#line 387 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -14177,9 +14376,11 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 offset=0;
 	asn1_ctx_t asn1_ctx;
 
+	fast_start = FALSE;
 	/* Clean up from any previous packet dissection */
-	if (upcoming_channel)
-		upcoming_channel = NULL;
+	upcoming_olc = NULL;
+	upcoming_channel = NULL;
+	codec_type = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -14202,11 +14403,13 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 void
-dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
+dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
 
+  fast_start = TRUE;
   /* Clean up from any previous packet dissection */
-  if (upcoming_channel)
-    upcoming_channel = NULL;
+  upcoming_olc = NULL;
+  upcoming_channel = NULL;
+  codec_type = NULL;
 
   dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
@@ -19815,7 +20018,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 424 "packet-h245-template.c"
+#line 465 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20318,12 +20521,13 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 431 "packet-h245-template.c"
+#line 472 "packet-h245-template.c"
   };
   module_t *h245_module;
 
   /* Register protocol */
   proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_init_routine(h245_init);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h245, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -20419,8 +20623,6 @@ void proto_reg_handoff_h245(void) {
 	dissector_add_handle("tcp.port", h245_handle);
 	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
-
-	h223_lc_init();
 }
 
 static void init_h245_packet_info(h245_packet_info *pi)

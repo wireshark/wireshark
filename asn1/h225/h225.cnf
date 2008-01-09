@@ -270,7 +270,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 
 %(DEFAULT_BODY)s
 	if (value_tvb && tvb_length(value_tvb)) {
-		dissect_h245_OpenLogicalChannelCodec(value_tvb, %(ACTX)s->pinfo, tree, codec_str);
+		dissect_h245_FastStart_OLC(value_tvb, %(ACTX)s->pinfo, tree, codec_str);
 	}
 
     /* Add to packet info */

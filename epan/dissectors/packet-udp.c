@@ -122,8 +122,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
-  if (try_conversation_dissector(&pinfo->src, &pinfo->dst, PT_UDP,
-		uh_sport, uh_dport, next_tvb, pinfo, tree)){
+  if (try_conversation_dissector(&pinfo->dst, &pinfo->src, PT_UDP,
+		uh_dport, uh_sport, next_tvb, pinfo, tree)){
     return;
   }
 

@@ -232,6 +232,8 @@ void t38_add_address(packet_info *pinfo,
                 return;
         }
 
+		printf("#%u: t38_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
         /*

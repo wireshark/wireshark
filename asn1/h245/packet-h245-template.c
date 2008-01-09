@@ -84,123 +84,127 @@ h245_packet_info *h245_pi=NULL;
 
 static gboolean h245_reassembly = TRUE;
 static gboolean h245_shorttypes = FALSE;
+
+#include "packet-h245-val.h"
+
 static const value_string h245_RequestMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MSD" },
-	{  2,	"TCS" },
-	{  3,	"OLC" },
-	{  4,	"CLC" },
-	{  5,	"RCC" },
-	{  6,	"MES" },
-	{  7,	"RME" },
-	{  8,	"RM" },
-	{  9,	"RTDR" },
-	{ 10,	"MLR" },
-	{ 11,	"CMR" },
-	{ 12,	"CR" },
-	{ 13,	"MR" },
-	{ 14,	"LCRR" },
-	{ 15,	"GR" },
+	{ RequestMessage_nonStandard              ,	"NSM" },
+	{ RequestMessage_masterSlaveDetermination ,	"MSD" },
+	{ RequestMessage_terminalCapabilitySet    ,	"TCS" },
+	{ RequestMessage_openLogicalChannel       ,	"OLC" },
+	{ RequestMessage_closeLogicalChannel      ,	"CLC" },
+	{ RequestMessage_requestChannelClose      ,	"RCC" },
+	{ RequestMessage_multiplexEntrySend       ,	"MES" },
+	{ RequestMessage_requestMultiplexEntry    ,	"RME" },
+	{ RequestMessage_requestMode              ,	"RM"  },
+	{ RequestMessage_roundTripDelayRequest    ,	"RTDR" },
+	{ RequestMessage_maintenanceLoopRequest   ,	"MLR" },
+	{ RequestMessage_communicationModeRequest ,	"CMR" },
+	{ RequestMessage_conferenceRequest        ,	"CR"  },
+	{ RequestMessage_multilinkRequest         ,	"MR"  },
+	{ RequestMessage_logicalChannelRateRequest,	"LCRR" },
+	{ RequestMessage_genericRequest           ,	"GR"  },
 	{  0, NULL }
 };
 static const value_string h245_ResponseMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MSDAck" },
-	{  2,	"MSDReject" },
-	{  3,	"TCSAck" },
-	{  4,	"TCSReject" },
-	{  5,	"OLCAck" },
-	{  6,	"OLCReject" },
-	{  7,	"CLCAck" },
-	{  8,	"RCCAck" },
-	{  9,	"RCCReject" },
-	{ 10,	"MESAck" },
-	{ 11,	"MESReject" },
-	{ 12,	"RMEAck" },
-	{ 13,	"RMEReject" },
-	{ 14,	"RMAck" },
-	{ 15,	"RMReject" },
-	{ 16,	"RTDResponse" },
-	{ 17,	"MLAck" },
-	{ 18,	"MLReject" },
-	{ 19,	"CMResponse" },
-	{ 20,	"CResponse" },
-	{ 21,	"MResponse" },
-	{ 22,	"LCRAck" },
-	{ 23,	"LCRReject" },
-	{ 24,	"GR" },
+	{ ResponseMessage_nonStandard                   ,	"NSM" },
+	{ ResponseMessage_masterSlaveDeterminationAck   ,	"MSDAck" },
+	{ ResponseMessage_masterSlaveDeterminationReject,	"MSDReject" },
+	{ ResponseMessage_terminalCapabilitySetAck      ,	"TCSAck" },
+	{ ResponseMessage_terminalCapabilitySetReject   ,	"TCSReject" },
+	{ ResponseMessage_openLogicalChannelAck         ,	"OLCAck" },
+	{ ResponseMessage_openLogicalChannelReject      ,	"OLCReject" },
+	{ ResponseMessage_closeLogicalChannelAck        ,	"CLCAck" },
+	{ ResponseMessage_requestChannelCloseAck        ,	"RCCAck" },
+	{ ResponseMessage_requestChannelCloseReject     ,	"RCCReject" },
+	{ ResponseMessage_multiplexEntrySendAck         ,	"MESAck" },
+	{ ResponseMessage_multiplexEntrySendReject      ,	"MESReject" },
+	{ ResponseMessage_requestMultiplexEntryAck      ,	"RMEAck" },
+	{ ResponseMessage_requestMultiplexEntryReject   ,	"RMEReject" },
+	{ ResponseMessage_requestModeAck                ,	"RMAck" },
+	{ ResponseMessage_requestModeReject             ,	"RMReject" },
+	{ ResponseMessage_roundTripDelayResponse        ,	"RTDResponse" },
+	{ ResponseMessage_maintenanceLoopAck            ,	"MLAck" },
+	{ ResponseMessage_maintenanceLoopReject         ,	"MLReject" },
+	{ ResponseMessage_communicationModeResponse     ,	"CMResponse" },
+	{ ResponseMessage_conferenceResponse            ,	"CResponse" },
+	{ ResponseMessage_multilinkResponse             ,	"MResponse" },
+	{ ResponseMessage_logicalChannelRateAcknowledge ,	"LCRAck" },
+	{ ResponseMessage_logicalChannelRateReject      ,	"LCRReject" },
+	{ ResponseMessage_genericResponse               ,	"GR" },
 	{  0, NULL }
 };
 static const value_string h245_IndicationMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"FNU" },
-	{  2,	"MSDRelease" },
-	{  3,	"TCSRelease" },
-	{  4,	"OLCConfirm" },
-	{  5,	"RCCRelease" },
-	{  6,	"MESRelease" },
-	{  7,	"RMERelease" },
-	{  8,	"RMRelease" },
-	{  9,	"MI" },
-	{ 10,	"JI" },
-	{ 11,	"H223SI" },
-	{ 12,	"NATMVCI" },
-	{ 13,	"UII" },
-	{ 14,	"H2250MSI" },
-	{ 15,	"MCLI" },
-	{ 16,	"CI" },
-	{ 17,	"VI" },
-	{ 18,	"FNS" },
-	{ 19,	"MultilinkIndication" },
-	{ 20,	"LCRRelease" },
-	{ 21,	"FCIndication" },
-	{ 22,	"MMRI" },
-	{ 22,	"GI" },
+	{ IndicationMessage_nonStandard                             ,	"NSM" },
+	{ IndicationMessage_functionNotUnderstood                   ,	"FNU" },
+	{ IndicationMessage_masterSlaveDeterminationRelease         ,	"MSDRelease" },
+	{ IndicationMessage_terminalCapabilitySetRelease            ,	"TCSRelease" },
+	{ IndicationMessage_openLogicalChannelConfirm               ,	"OLCConfirm" },
+	{ IndicationMessage_requestChannelCloseRelease              ,	"RCCRelease" },
+	{ IndicationMessage_multiplexEntrySendRelease               ,	"MESRelease" },
+	{ IndicationMessage_requestMultiplexEntryRelease            ,	"RMERelease" },
+	{ IndicationMessage_requestModeRelease                      ,	"RMRelease" },
+	{ IndicationMessage_miscellaneousIndication                 ,	"MI" },
+	{ IndicationMessage_jitterIndication                        ,	"JI" },
+	{ IndicationMessage_h223SkewIndication                      ,	"H223SI" },
+	{ IndicationMessage_newATMVCIndication                      ,	"NATMVCI" },
+	{ IndicationMessage_userInput                               ,	"UII" },
+	{ IndicationMessage_h2250MaximumSkewIndication              ,	"H2250MSI" },
+	{ IndicationMessage_mcLocationIndication                    ,	"MCLI" },
+	{ IndicationMessage_conferenceIndication                    ,	"CI" },
+	{ IndicationMessage_vendorIdentification                    ,	"VI" },
+	{ IndicationMessage_functionNotSupported                    ,	"FNS" },
+	{ IndicationMessage_multilinkIndication                     ,	"MultilinkIndication" },
+	{ IndicationMessage_logicalChannelRateRelease               ,	"LCRRelease" },
+	{ IndicationMessage_flowControlIndication                   ,	"FCIndication" },
+	{ IndicationMessage_mobileMultilinkReconfigurationIndication,	"MMRI" },
+	{ IndicationMessage_genericIndication                       ,	"GI" },
 	{  0, NULL }
 };
 static const value_string h245_CommandMessage_short_vals[] = {
-	{  0,	"NSM" },
-	{  1,	"MLOC" },
-	{  2,	"STCS" },
-	{  3,	"EC" },
-	{  4,	"FCC" },
-	{  5,	"ESC" },
-	{  6,	"MC" },
-	{  7,	"CMC" },
-	{  8,	"CC" },
-	{  9,	"H223MR" },
-	{ 10,	"NATMVCC" },
-	{ 11,	"MMRC" },
-	{ 12,	"GC" },
+	{ CommandMessage_nonStandard                          ,	"NSM" },
+	{ CommandMessage_maintenanceLoopOffCommand            ,	"MLOC" },
+	{ CommandMessage_sendTerminalCapabilitySet            ,	"STCS" },
+	{ CommandMessage_encryptionCommand                    ,	"EC" },
+	{ CommandMessage_flowControlCommand                   ,	"FCC" },
+	{ CommandMessage_endSessionCommand                    ,	"ESC" },
+	{ CommandMessage_miscellaneousCommand                 ,	"MC" },
+	{ CommandMessage_communicationModeCommand             ,	"CMC" },
+	{ CommandMessage_conferenceCommand                    ,	"CC" },
+	{ CommandMessage_h223MultiplexReconfiguration         ,	"H223MR" },
+	{ CommandMessage_newATMVCCommand                      ,	"NATMVCC" },
+	{ CommandMessage_mobileMultilinkReconfigurationCommand,	"MMRC" },
+	{ CommandMessage_genericCommand                       ,	"GC" },
 	{  0, NULL }
 };
+
 static const value_string h245_AudioCapability_short_vals[] = {
-        {  0, "nonStd" },
-        {  1, "g711A" },
-        {  2, "g711A56k" },
-        {  3, "g711U" },
-        {  4, "g711U56k" },
-        {  5, "g722-64k" },
-        {  6, "g722-56k" },
-        {  7, "g722-48k" },
-        {  8, "g7231" },
-        {  9, "g728" },
-        { 10, "g729" },
-        { 11, "g729A" },
-        { 12, "is11172" },
-        { 13, "is13818" },
-        { 14, "g729B" },
-        { 15, "g729AB" },
-        { 16, "g7231C" },
-        { 17, "gsmFR" },
-        { 18, "gsmHR" },
-        { 19, "gsmEFR" },
-        { 20, "generic" },
-        { 21, "g729Ext" },
-        { 22, "vbd" },
-        { 23, "audioTelEvent" },
-        { 24, "audioTone" },
-        {  0, NULL }
+  { AudioCapability_nonStandard           , "nonStd" },
+  { AudioCapability_g711Alaw64k           , "g711A" },
+  { AudioCapability_g711Alaw56k           , "g711A56k" },
+  { AudioCapability_g711Ulaw64k           , "g711U" },
+  { AudioCapability_g711Ulaw56k           , "g711U56k" },
+  { AudioCapability_g722_64k              , "g722-64k" },
+  { AudioCapability_g722_56k              , "g722-56k" },
+  { AudioCapability_g722_48k              , "g722-48k" },
+  { AudioCapability_g7231                 , "g7231" },
+  { AudioCapability_g728                  , "g728" },
+  { AudioCapability_g729                  , "g729" },
+  { AudioCapability_g729AnnexA            , "g729A" },
+  { AudioCapability_is11172AudioCapability, "is11172" },
+  { AudioCapability_is13818AudioCapability, "is13818" },
+  { AudioCapability_g729wAnnexB           , "g729B" },
+  { AudioCapability_g729AnnexAwAnnexB     , "g729AB" },
+  { AudioCapability_g7231AnnexCCapability , "g7231C" },
+  { AudioCapability_gsmFullRate           , "gsmFR" },
+  { AudioCapability_gsmHalfRate           , "gsmHR" },
+  { AudioCapability_gsmEnhancedFullRate   , "gsmEFR" },
+  { AudioCapability_genericAudioCapability, "generic" },
+  { AudioCapability_g729Extensions        , "g729Ext" },
+  { AudioCapability_vbd                   , "vbd" },
+  { AudioCapability_audioTelephonyEvent   , "audioTelEvent" },
+  { AudioCapability_audioTone             , "audioTone" },
+  {  0, NULL }
 };
 
 /* To put the codec type only in COL_INFO when
@@ -215,6 +219,7 @@ typedef struct _unicast_addr_t {
 } unicast_addr_t;
 
 typedef struct _channel_info_t {
+  gchar data_type_str[32];
   unicast_addr_t *upcoming_addr;
   unicast_addr_t media_addr;
   unicast_addr_t media_control_addr;
@@ -222,6 +227,15 @@ typedef struct _channel_info_t {
   gboolean srtp_flag;
 } channel_info_t;
 
+typedef struct _olc_info_t {
+  guint16 fwd_lc_num;
+  channel_info_t fwd_lc;
+  channel_info_t rev_lc;
+} olc_info_t;
+
+static GHashTable* h245_pending_olc_reqs = NULL;
+static gboolean fast_start = FALSE;
+static olc_info_t *upcoming_olc = NULL;
 static channel_info_t *upcoming_channel = NULL;
 
 /* NonStandardParameter */
@@ -281,9 +295,32 @@ static void h223_lc_init( void )
 	h223_fw_lc_num = 0;
 }
 
+static void h245_init(void) 
+{
+	if ( h245_pending_olc_reqs)
+		g_hash_table_destroy(h245_pending_olc_reqs);
+	h245_pending_olc_reqs = g_hash_table_new(g_str_hash, g_str_equal);
+
+	h223_lc_init();
+}
+
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
 {
 	h223_add_lc_handle = handle;
+}
+
+static const gchar *gen_olc_key(guint16 lc_num, address *dst_addr, address *src_addr)
+{
+  return ep_strdup_printf("%s/%s/%u", address_to_str(dst_addr), address_to_str(src_addr), lc_num);
+}
+
+static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_addr)
+{
+  if (ack_addr->addr.type!=AT_NONE && ack_addr->port!=0) {
+    memcpy(req_addr->addr_buf, ack_addr->addr_buf, sizeof(req_addr->addr_buf));
+    SET_ADDRESS(&req_addr->addr, ack_addr->addr.type, ack_addr->addr.len, req_addr->addr_buf);
+    req_addr->port = ack_addr->port;
+  }
 }
 
 static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel)
@@ -293,8 +330,8 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	if (!upcoming_channel) return;
 
-	if (codec_type && (strcmp(codec_type, "t38fax")==0)) {
-		if(upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle){
+	if (!strcmp(upcoming_channel->data_type_str, "t38fax")) {
+		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle) {
 			t38_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 							upcoming_channel->media_addr.port, 0, 
 							"H245", pinfo->fd->num);
@@ -302,15 +339,15 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	} else {
 		if (upcoming_channel->rfc2198 > 0) {
 #if GLIB_MAJOR_VERSION < 2
-			rtp_dyn_payload = g_hash_table_new( g_int_hash, g_int_equal);
+			rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
 #else
-			rtp_dyn_payload = g_hash_table_new_full( g_int_hash, g_int_equal, g_free, g_free);
+			rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 #endif
 			key = g_malloc(sizeof(gint));
 			*key = upcoming_channel->rfc2198;
 			g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
 		}
-		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle){
+		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 			if (upcoming_channel->srtp_flag) {
 				struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 				srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
@@ -322,7 +359,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 								"H245", pinfo->fd->num, rtp_dyn_payload);
 			}
 		}
-		if(upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle){
+		if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
 			rtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
 							upcoming_channel->media_control_addr.port, 0, 
 							"H245", pinfo->fd->num);
@@ -367,9 +404,11 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 offset=0;
 	asn1_ctx_t asn1_ctx;
 
+	fast_start = FALSE;
 	/* Clean up from any previous packet dissection */
-	if (upcoming_channel)
-		upcoming_channel = NULL;
+	upcoming_olc = NULL;
+	upcoming_channel = NULL;
+	codec_type = NULL;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
@@ -392,11 +431,13 @@ dissect_h245_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 }
 
 void
-dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
+dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str) {
 
+  fast_start = TRUE;
   /* Clean up from any previous packet dissection */
-  if (upcoming_channel)
-    upcoming_channel = NULL;
+  upcoming_olc = NULL;
+  upcoming_channel = NULL;
+  codec_type = NULL;
 
   dissect_OpenLogicalChannel_PDU(tvb, pinfo, tree);
 
@@ -433,6 +474,7 @@ void proto_register_h245(void) {
 
   /* Register protocol */
   proto_h245 = proto_register_protocol(PNAME, PSNAME, PFNAME);
+  register_init_routine(h245_init);
   /* Register fields and subtrees */
   proto_register_field_array(proto_h245, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -528,8 +570,6 @@ void proto_reg_handoff_h245(void) {
 	dissector_add_handle("tcp.port", h245_handle);
 	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_h245, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
-
-	h223_lc_init();
 }
 
 static void init_h245_packet_info(h245_packet_info *pi)

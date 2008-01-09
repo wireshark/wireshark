@@ -24,6 +24,15 @@ Capability
 #.PDU
 OpenLogicalChannel
 
+#.MAKE_ENUM
+RequestMessage     TYPE_PREFIX
+ResponseMessage    TYPE_PREFIX
+CommandMessage     TYPE_PREFIX
+IndicationMessage  TYPE_PREFIX
+
+AudioCapability TYPE_PREFIX
+#.END
+
 #----------------------------------------------------------------------------------------
 
 #.VIRTUAL_ASSGN
@@ -108,14 +117,23 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   h223_me->repeat_count = value & 0xffff;
 #.END
 #----------------------------------------------------------------------------------------
-# OpenLogicalChannel .FN_FTR is also declared, line 460ish
+#.FN_BODY LogicalChannelNumber  VAL_PTR = &value
+  guint32 value;
+%(DEFAULT_BODY)s
+  h245_lc_temp = value & 0xfff;
+#.END
+
+#=== OpenLogicalChannel =================================================================
 #.FN_BODY OpenLogicalChannel
   gint32 temp;
+
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? se_alloc0(sizeof(olc_info_t)) : NULL;
 
   h223_fw_lc_num = 0;
   h223_lc_params_temp = NULL;
 
 %(DEFAULT_BODY)s
+
   if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
 	h223_pending_olc *pending = se_alloc(sizeof(h223_pending_olc));
 	pending->fw_channel_params = h223_fw_lc_params;
@@ -124,27 +142,42 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	if (%(ACTX)s->pinfo->p2p_dir > -1)
 		g_hash_table_insert(h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp), pending);
   }
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_PARS LogicalChannelNumber
-  VAL_PTR = &value
-#.FN_BODY LogicalChannelNumber
-  guint32 value;
-%(DEFAULT_BODY)s
-  h245_lc_temp = value & 0xfff;
+
+  if (upcoming_olc) {
+    if (fast_start) {
+      h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
+    } else {
+      g_hash_table_insert(h245_pending_olc_reqs, 
+        se_strdup(gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src)), 
+        upcoming_olc);
+    }
+  }
+  upcoming_olc = NULL;
+
+  if (h245_pi != NULL)
+    h245_pi->msg_type = H245_OpenLogChn;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR OpenLogicalChannel/forwardLogicalChannelNumber
+  if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
   h223_fw_lc_num = h245_lc_temp;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY OpenLogicalChannel/forwardLogicalChannelParameters
+
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
+
   h245_lc_dissector = NULL;
 %(DEFAULT_BODY)s
   if(h223_lc_params_temp && h245_lc_dissector)
 	h223_lc_params_temp->subdissector = h245_lc_dissector;
   else if(h223_lc_params_temp)
 	h223_lc_params_temp->subdissector = data_handle;
+
+  if (upcoming_channel && codec_type) {
+    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+  }
+  upcoming_channel = NULL;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR OpenLogicalChannel/forwardLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters
@@ -156,6 +189,18 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   h223_lc_params_temp = h223_fw_lc_params;
 #.END
 #----------------------------------------------------------------------------------------
+#.FN_BODY OpenLogicalChannel/reverseLogicalChannelParameters
+
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->rev_lc : NULL;
+
+%(DEFAULT_BODY)s
+	
+  if (upcoming_channel && codec_type) {
+    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+  }
+  upcoming_channel = NULL;
+#.END
+#----------------------------------------------------------------------------------------
 #.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters/multiplexParameters/h223LogicalChannelParameters
   h223_rev_lc_params = se_alloc(sizeof(h223_lc_params));
   h223_rev_lc_params->al_type = al_nonStandard;
@@ -164,6 +209,86 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   h223_rev_lc_params->subdissector = NULL;
   h223_lc_params_temp = h223_rev_lc_params;
 #.END
+#========================================================================================
+
+
+#=== OpenLogicalChannelAck ==============================================================
+#.FN_BODY OpenLogicalChannelAck
+  guint32 temp;
+  int p2p_dir;
+  h223_pending_olc *pend;
+  const gchar *olc_key;
+  olc_info_t *olc_req;
+
+  upcoming_olc = (!actx->pinfo->fd->flags.visited) ? ep_alloc0(sizeof(olc_info_t)) : NULL;
+
+  h223_fw_lc_num = 0;
+  h223_rev_lc_num = 0;
+	
+%(DEFAULT_BODY)s
+
+  temp = h223_fw_lc_num;
+  p2p_dir = %(ACTX)s->pinfo->p2p_dir;
+  
+  if(%(ACTX)s->pinfo->p2p_dir == P2P_DIR_SENT)
+	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_RECV;
+  else
+	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_SENT;
+  pend = g_hash_table_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
+  if (pend) {
+	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
+				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
+	if(h223_add_lc_handle) {
+	  (*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_fw_lc_num, pend->fw_channel_params );
+	  if(h223_rev_lc_num)
+		(*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_rev_lc_num, pend->rev_channel_params );
+	}
+  } else {
+	/* we missed the OpenLogicalChannel packet */
+  }
+  %(ACTX)s->pinfo->p2p_dir = p2p_dir;
+
+  if (upcoming_olc) {
+    olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->src, &%(ACTX)s->pinfo->dst);
+    olc_req = g_hash_table_lookup(h245_pending_olc_reqs, olc_key);
+    if (olc_req) {
+      printf("#%%u: OLC found %%s\n", %(ACTX)s->pinfo->fd->num, olc_key);
+      update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);
+      update_unicast_addr(&olc_req->fwd_lc.media_control_addr, &upcoming_olc->fwd_lc.media_control_addr);
+      update_unicast_addr(&olc_req->rev_lc.media_addr, &upcoming_olc->rev_lc.media_addr);
+      update_unicast_addr(&olc_req->rev_lc.media_control_addr, &upcoming_olc->rev_lc.media_control_addr);
+      h245_setup_channels(actx->pinfo, &olc_req->fwd_lc);
+      h245_setup_channels(actx->pinfo, &olc_req->rev_lc);
+      g_hash_table_remove(h245_pending_olc_reqs, olc_key);
+    } else {
+      h245_setup_channels(actx->pinfo, &upcoming_olc->fwd_lc);
+    }
+  }
+  upcoming_olc = NULL;
+
+  if (h245_pi != NULL)
+	h245_pi->msg_type = H245_OpenLogChnAck;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck/forwardLogicalChannelNumber
+  if (upcoming_olc) upcoming_olc->fwd_lc_num = h245_lc_temp;
+  h223_fw_lc_num = h245_lc_temp;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY OpenLogicalChannelAck/forwardMultiplexAckParameters
+
+  upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
+
+%(DEFAULT_BODY)s
+	
+  upcoming_channel = NULL;
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR OpenLogicalChannelAck/reverseLogicalChannelParameters/reverseLogicalChannelNumber
+  h223_rev_lc_num = h245_lc_temp;
+#.END
+#========================================================================================
+
 #----------------------------------------------------------------------------------------
 #.FN_HDR H223LogicalChannelParameters/adaptationLayerType/al1Framed
   if(h223_lc_params_temp)
@@ -234,45 +359,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	h223_lc_params_temp->segmentable = value & 1;
 #.END
 #----------------------------------------------------------------------------------------
-# OpenLogicalChannelAck .FN_FTR is also declared, line 460ish
-#.FN_BODY OpenLogicalChannelAck
-  guint32 temp;
-  int p2p_dir;
-  h223_pending_olc *pend;
-  h223_fw_lc_num = 0;
-  h223_rev_lc_num = 0;
-	
-%(DEFAULT_BODY)s
-  temp = h223_fw_lc_num;
-  p2p_dir = %(ACTX)s->pinfo->p2p_dir;
-  
-  if(%(ACTX)s->pinfo->p2p_dir == P2P_DIR_SENT)
-	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_RECV;
-  else
-	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_SENT;
-  pend = g_hash_table_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
-  if (pend) {
-	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
-				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
-	if(h223_add_lc_handle) {
-	  (*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_fw_lc_num, pend->fw_channel_params );
-	  if(h223_rev_lc_num)
-		(*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_rev_lc_num, pend->rev_channel_params );
-	}
-  } else {
-	/* we missed the OpenLogicalChannel packet */
-  }
-  %(ACTX)s->pinfo->p2p_dir = p2p_dir;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR OpenLogicalChannelAck/forwardLogicalChannelNumber
-  h223_fw_lc_num = h245_lc_temp;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR OpenLogicalChannelAck/reverseLogicalChannelParameters/reverseLogicalChannelNumber
-  h223_rev_lc_num = h245_lc_temp;
-#.END
-#----------------------------------------------------------------------------------------
 #.FN_FTR H263VideoCapability
   h245_lc_dissector = h263_handle;
 #.END
@@ -294,7 +380,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 		}
 	}
 
-	if (( check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == 3) ){
+	if (( check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)) && ( codec_type != NULL ) && ( value == RequestMessage_openLogicalChannel) ){
 		col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "(%%s) ", codec_type );
 	}
 
@@ -305,7 +391,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 		return offset;
 
     /* if it is TCS*/
-    if ((codec_type != NULL) && ( value == 2))
+    if ((codec_type != NULL) && ( value == RequestMessage_terminalCapabilitySet))
                 g_snprintf(h245_pi->frame_label, 50, "%%s (%%s) ",val_to_str(value, h245_RequestMessage_short_vals, "UKN"), h245_pi->frame_label);
     else
                 g_snprintf(h245_pi->frame_label, 50, "%%s ", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
@@ -313,7 +399,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
     /* if it is OLC or RM*/
-    if ((codec_type != NULL) && (( value == 3) || ( value == 8)))
+    if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
                 g_snprintf(h245_pi->frame_label, 50, "%%s (%%s) ", h245_pi->frame_label, codec_type);
 #.END
 #----------------------------------------------------------------------------------------
@@ -522,20 +608,6 @@ if (h245_pi != NULL)
 
 if (h245_pi != NULL)
   h245_pi->msg_type = H245_TermCapSetRls;
-#.END
-#----------------------------------------------------------------------------------------
-# OpenLogicalChannel .FN_BODY is also declared, line 70ish
-#.FN_FTR OpenLogicalChannel
-
-  if (h245_pi != NULL)
-   h245_pi->msg_type = H245_OpenLogChn;
-#.END
-#----------------------------------------------------------------------------------------
-# OpenLogicalChannelAck .FN_BODY is also declared, line 200ish
-#.FN_FTR OpenLogicalChannelAck
-
-  if (h245_pi != NULL)
-	h245_pi->msg_type = H245_OpenLogChnAck;
 #.END
 #----------------------------------------------------------------------------------------
 
@@ -791,33 +863,6 @@ if (h245_pi != NULL)
 #.FN_FTR H2250LogicalChannelParameters/mediaControlChannel
   if (upcoming_channel)
     upcoming_channel->upcoming_addr = NULL;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_HDR OpenLogicalChannelAck/forwardMultiplexAckParameters
-
-  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
-
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_FTR OpenLogicalChannelAck/forwardMultiplexAckParameters
-	
-	if (!actx->pinfo->fd->flags.visited) {
-		h245_setup_channels(actx->pinfo, upcoming_channel);
-	}
-  upcoming_channel = NULL;
-#.END
-#----------------------------------------------------------------------------------------
-#.FN_HDR OpenLogicalChannel/reverseLogicalChannelParameters
-
-  upcoming_channel = ep_alloc0(sizeof(channel_info_t));
-
-#.END
-#.FN_FTR OpenLogicalChannel/reverseLogicalChannelParameters
-	
-	if (!actx->pinfo->fd->flags.visited) {
-		h245_setup_channels(actx->pinfo, upcoming_channel);
-	}
-  upcoming_channel = NULL;
 #.END
 
 #--- RTPPayloadType ---------------------------------------------------------------------

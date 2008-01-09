@@ -150,7 +150,7 @@ int dissect_h245_MulticastAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 /*--- End of included file: packet-h245-exp.h ---*/
 #line 125 "packet-h245-template.h"
-void dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
+void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 
 #endif  /* PACKET_H245_H */

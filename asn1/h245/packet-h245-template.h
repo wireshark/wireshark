@@ -122,7 +122,7 @@ typedef void (*h223_add_lc_handle_t) ( packet_info* pinfo, guint16 lc, h223_lc_p
 extern void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle );
 
 #include "packet-h245-exp.h"
-void dissect_h245_OpenLogicalChannelCodec(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
+void dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, char *codec_str);
 
 
 #endif  /* PACKET_H245_H */

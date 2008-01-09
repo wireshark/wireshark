@@ -277,6 +277,8 @@ void t38_add_address(packet_info *pinfo,
                 return;
         }
 
+		printf("#%u: t38_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
         /*
@@ -977,7 +979,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 400 "packet-t38-template.c"
+#line 402 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1348,7 +1350,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 694 "packet-t38-template.c"
+#line 696 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1403,7 +1405,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 735 "packet-t38-template.c"
+#line 737 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
