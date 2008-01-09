@@ -149,7 +149,7 @@ typedef struct _voip_calls_info {
 
 typedef struct _voip_calls_tapinfo {
 	int     ncalls;       /* number of call */
-	GList*  strinfo_list;   /* list with all calls */
+	GList*  callsinfo_list;   /* list with all calls */
 	int     npackets;       /* total number of packets of all calls */
 	voip_calls_info_t* filter_calls_fwd;  /* used as filter in some tap modes */
 	guint32 launch_count;   /* number of times the tap has been run */

@@ -194,7 +194,7 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	/* Update the status label with the number of total messages */
         g_snprintf(label_text, 256,
        		"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-			g_list_length(voip_calls_get_info()->strinfo_list),
+			g_list_length(voip_calls_get_info()->callsinfo_list),
 			voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
@@ -420,7 +420,7 @@ on_graph_bt_clicked                    (GtkButton       *button _U_,
 
 
 	/* set the display for selected calls */
-	list = g_list_first(voip_calls_get_info()->strinfo_list);
+	list = g_list_first(voip_calls_get_info()->callsinfo_list);
 	while (list){
 		tmp_listinfo=list->data;
 		if (tmp_listinfo->selected){
@@ -478,7 +478,7 @@ voip_calls_on_select_row(GtkCList *clist,
 
         /* count the selected calls */
 	calls_ns = 0;
-        list = g_list_first(voip_calls_get_info()->strinfo_list);
+        list = g_list_first(voip_calls_get_info()->callsinfo_list);
         while (list){
                 listinfo=list->data;
                 if (listinfo->selected){
@@ -540,7 +540,7 @@ voip_calls_on_unselect_row(GtkCList *clist,
 
         /* count the selected calls */
 	calls_ns = 0;
-        list = g_list_first(voip_calls_get_info()->strinfo_list);
+        list = g_list_first(voip_calls_get_info()->callsinfo_list);
         while (list){
                 listinfo=list->data;
                 if (listinfo->selected){
@@ -849,7 +849,7 @@ void voip_calls_dlg_update(GList *list)
 
 		g_snprintf(label_text, 256,
 			"Total: Calls: %d   Start packets: %d   Completed calls: %d   Rejected calls: %d",
-			g_list_length(voip_calls_get_info()->strinfo_list),
+			g_list_length(voip_calls_get_info()->callsinfo_list),
 			voip_calls_get_info()->start_packets, 
 			voip_calls_get_info()->completed_calls,
 			voip_calls_get_info()->rejected_calls);
@@ -883,7 +883,7 @@ void voip_calls_dlg_update(GList *list)
 void voip_calls_dlg_draw(void *ptr _U_)
 {
 	if (voip_calls_get_info()->redraw) {
-		voip_calls_dlg_update(voip_calls_get_info()->strinfo_list);
+		voip_calls_dlg_update(voip_calls_get_info()->callsinfo_list);
 		voip_calls_get_info()->redraw = FALSE;
 	}
 }
