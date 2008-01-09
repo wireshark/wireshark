@@ -660,6 +660,18 @@ static int hf_smb_logged_in = -1;
 static int hf_smb_logged_out = -1;
 static int hf_smb_file_rw_offset = -1;
 static int hf_smb_file_rw_length = -1;
+static int hf_smb_posix_acl_version = -1;
+static int hf_smb_posix_num_file_aces = -1;
+static int hf_smb_posix_num_def_aces = -1;
+static int hf_smb_posix_ace_type = -1;
+static int hf_smb_posix_ace_flags = -1;
+static int hf_smb_posix_ace_perm_read = -1;
+static int hf_smb_posix_ace_perm_write = -1;
+static int hf_smb_posix_ace_perm_execute = -1;
+static int hf_smb_posix_ace_perm_owner_uid = -1;
+static int hf_smb_posix_ace_perm_owner_gid = -1;
+static int hf_smb_posix_ace_perm_uid = -1;
+static int hf_smb_posix_ace_perm_gid = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_fid = -1;
@@ -736,6 +748,8 @@ static gint ett_smb_secblob = -1;
 static gint ett_smb_unicode_password = -1;
 static gint ett_smb_ea = -1;
 static gint ett_smb_unix_capabilities = -1;
+static gint ett_smb_posic_ace = -1;
+static gint ett_smb_posix_ace_perms = -1;
 
 static int smb_tap = -1;
 
@@ -1076,6 +1090,22 @@ static const value_string buffer_format_vals[] = {
 	{3,     "Pathname"},
 	{4,     "ASCII"},
 	{5,     "Variable Block"},
+	{0,     NULL}
+};
+
+#define POSIX_ACE_TYPE_USER_OBJ		0x01
+#define POSIX_ACE_TYPE_USER		0x02
+#define POSIX_ACE_TYPE_GROUP_OBJ	0x04
+#define POSIX_ACE_TYPE_GROUP		0x08
+#define POSIX_ACE_TYPE_MASK		0x10
+#define POSIX_ACE_TYPE_OTHER		0x20
+static const value_string ace_type_vals[] = {
+	{POSIX_ACE_TYPE_USER_OBJ,	"User Obj"},
+	{POSIX_ACE_TYPE_USER,		"User"},
+	{POSIX_ACE_TYPE_GROUP_OBJ,	"Group Obj"},
+	{POSIX_ACE_TYPE_GROUP,		"Group"},
+	{POSIX_ACE_TYPE_MASK,		"Mask"},
+	{POSIX_ACE_TYPE_OTHER,		"Other"},
 	{0,     NULL}
 };
 
@@ -11844,10 +11874,109 @@ dissect_4_2_16_13(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 /* unix ACL
 */
 static int
-dissect_qpi_unix_acl(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
-		  int offset _U_, guint16 *bcp _U_, gboolean *trunc _U_)
+dissect_qpi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+		  int offset, guint16 *bcp, gboolean *trunc)
 {
-	proto_tree_add_text(tree, tvb, offset, 0, "Not Implemented yet");
+	guint16 version, num_file_aces, num_def_aces;
+	static const int *perm_fields[] = {
+		&hf_smb_posix_ace_perm_read,
+		&hf_smb_posix_ace_perm_write,
+		&hf_smb_posix_ace_perm_execute,
+		NULL
+	};
+
+	/* version */
+	CHECK_BYTE_COUNT_SUBR(2);
+	version = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb_posix_acl_version, tvb, offset, 2, TRUE);
+	COUNT_BYTES_SUBR(2);
+
+	/* num file acls */
+	CHECK_BYTE_COUNT_SUBR(2);
+	num_file_aces = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb_posix_num_file_aces, tvb, offset, 2, TRUE);
+	COUNT_BYTES_SUBR(2);
+
+	/* num default acls */
+	CHECK_BYTE_COUNT_SUBR(2);
+	num_def_aces = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb_posix_num_def_aces, tvb, offset, 2, TRUE);
+	COUNT_BYTES_SUBR(2);
+
+	while(num_file_aces--){
+		proto_item *it;
+		proto_tree *tr;
+		int old_offset = offset;
+		guint8 ace_type;
+
+		it = proto_tree_add_text(tree, tvb, offset, 0, "ACE");
+		tr = proto_item_add_subtree(it, ett_smb_posic_ace);
+
+		/* ace type */
+		CHECK_BYTE_COUNT_SUBR(1);
+		ace_type = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, TRUE);
+		COUNT_BYTES_SUBR(1);
+
+		CHECK_BYTE_COUNT_SUBR(1);
+		proto_tree_add_bitmask(tr, tvb, offset, hf_smb_posix_ace_flags, ett_smb_posix_ace_perms, perm_fields, FALSE);
+		COUNT_BYTES_SUBR(1);
+
+		switch(ace_type){
+		case POSIX_ACE_TYPE_USER_OBJ:
+			CHECK_BYTE_COUNT_SUBR(4);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_uid, tvb, offset, 4, TRUE);
+			COUNT_BYTES_SUBR(4);
+
+			CHECK_BYTE_COUNT_SUBR(4);
+			/* 4 reserved bytes */
+			COUNT_BYTES_SUBR(4);
+			break;
+		case POSIX_ACE_TYPE_GROUP_OBJ:
+			CHECK_BYTE_COUNT_SUBR(4);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_gid, tvb, offset, 4, TRUE);
+			COUNT_BYTES_SUBR(4);
+
+			CHECK_BYTE_COUNT_SUBR(4);
+			/* 4 reserved bytes */
+			COUNT_BYTES_SUBR(4);
+			break;
+
+		case POSIX_ACE_TYPE_MASK:
+		case POSIX_ACE_TYPE_OTHER:
+			CHECK_BYTE_COUNT_SUBR(8);
+			/* 8 reserved bytes */
+			COUNT_BYTES_SUBR(8);
+			break;
+
+		case POSIX_ACE_TYPE_USER:
+			CHECK_BYTE_COUNT_SUBR(4);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_uid, tvb, offset, 4, TRUE);
+			COUNT_BYTES_SUBR(4);
+
+			CHECK_BYTE_COUNT_SUBR(4);
+			/* 4 reserved bytes */
+			COUNT_BYTES_SUBR(4);
+			break;
+
+		case POSIX_ACE_TYPE_GROUP:
+			CHECK_BYTE_COUNT_SUBR(4);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_gid, tvb, offset, 4, TRUE);
+			COUNT_BYTES_SUBR(4);
+
+			CHECK_BYTE_COUNT_SUBR(4);
+			/* 4 reserved bytes */
+			COUNT_BYTES_SUBR(4);
+			break;
+		default:
+			proto_tree_add_text(tr, tvb, offset, 0, "Unknown posix ace type");
+			CHECK_BYTE_COUNT_SUBR(8);
+			/* skip 8 bytes */
+			COUNT_BYTES_SUBR(8);
+		}
+
+		proto_item_set_len(it, offset-old_offset);
+	}
 
 	return offset;
 }
@@ -18905,6 +19034,54 @@ proto_register_smb(void)
 	  { "File RW Length", "smb.file.rw.length", FT_UINT32, BASE_DEC,
 		NULL, 0, "", HFILL }},
 
+	{ &hf_smb_posix_acl_version,
+	  { "Posix ACL version", "smb.posix_acl.version", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_num_file_aces,
+	  { "Number of file ACEs", "smb.posix_acl.num_file_aces", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_num_def_aces,
+	  { "Number of default ACEs", "smb.posix_acl.num_def_aces", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_type,
+	  { "ACE Type", "smb.posix_acl.ace_type", FT_UINT8, BASE_DEC,
+		VALS(&ace_type_vals), 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_flags,
+	  { "Permissions", "smb.posix_acl.ace_perms", FT_UINT8, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_perm_read,
+          {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8, 
+		NULL, 0x04, "", HFILL}},
+
+	{ &hf_smb_posix_ace_perm_write,
+          {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8, 
+		NULL, 0x02, "", HFILL}},
+
+	{ &hf_smb_posix_ace_perm_execute,
+          {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8, 
+		NULL, 0x01, "", HFILL}},
+
+	{ &hf_smb_posix_ace_perm_owner_uid,
+	  { "Owner UID", "smb.posix_acl.ace_perms.owner_uid", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_perm_owner_gid,
+	  { "Owner GID", "smb.posix_acl.ace_perms.owner_gid", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_perm_uid,
+	  { "UID", "smb.posix_acl.ace_perms.uid", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb_posix_ace_perm_gid,
+	  { "GID", "smb.posix_acl.ace_perms.gid", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -18982,7 +19159,9 @@ proto_register_smb(void)
 		&ett_smb_mac_support_flags,
 		&ett_smb_unicode_password,
 		&ett_smb_ea,
-		&ett_smb_unix_capabilities
+		&ett_smb_unix_capabilities,
+		&ett_smb_posic_ace,
+		&ett_smb_posix_ace_perms
 	};
 	module_t *smb_module;
 
