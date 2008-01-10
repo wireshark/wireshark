@@ -814,9 +814,9 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy (tvb, (guint8 *)&cthdr, offset, FCCT_PRMBL_SIZE);
     cthdr.revision = tvb_get_guint8 (tvb, offset);
     cthdr.in_id = tvb_get_ntoh24 (tvb, offset+1);
-    cthdr.opcode = ntohs (cthdr.opcode);
+    cthdr.opcode = g_ntohs (cthdr.opcode);
     opcode = tvb_get_ntohs (tvb, offset+8);
-    cthdr.maxres_size = ntohs (cthdr.maxres_size);
+    cthdr.maxres_size = g_ntohs (cthdr.maxres_size);
 
     if ((opcode != FCCT_MSG_ACC) && (opcode != FCCT_MSG_RJT)) {
         conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
