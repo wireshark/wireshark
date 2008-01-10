@@ -1598,12 +1598,12 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             
             /* MOS LQ */
             proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moslq, tvb, offset, 1, 
-                                 (gfloat)(int)(tvb_get_guint8(tvb, offset) / 10));
+                                 (gfloat)(tvb_get_guint8(tvb, offset) / 10));
             offset++;
             
             /* MOS CQ */
             proto_tree_add_float(content_tree, hf_rtcp_xr_voip_metrics_moscq, tvb, offset, 1, 
-                                 (gfloat)(int)(tvb_get_guint8(tvb, offset) / 10));
+                                 (gfloat)(tvb_get_guint8(tvb, offset) / 10));
             offset++;
             
             /* PLC, JB Adaptive, JB Rate */
