@@ -590,158 +590,165 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
   tvb=erf_tvb;
   new_tvb=erf_tvb;
   flags = pinfo->pseudo_header->erf.phdr.flags;
-  /* Set if frame is Received or Sent */
-  pinfo->p2p_dir = ( (flags & 0x01) ? TRUE : FALSE);
+  /*
+   * Set if frame is Received or Sent.
+   * XXX - this is really testing the low-order bit of the capture
+   * interface number, so interface 0 is assumed to be capturing
+   * in one direction on a bi-directional link, interface 1 is
+   * assumed to be capturing in the other direction on that link,
+   * and interfaces 2 and 3 are assumed to be capturing in two
+   * different directions on another link.  We don't distinguish
+   * between the two links.
+   */
+  pinfo->p2p_dir = ( (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT);
   
-  if (pinfo->pseudo_header) {
-    erf_type=pinfo->pseudo_header->erf.phdr.type;
+  erf_type=pinfo->pseudo_header->erf.phdr.type;
 
-    switch(erf_type) {
+  switch(erf_type) {
 
-    case ERF_TYPE_LEGACY:
-    case ERF_TYPE_IP_COUNTER:
-    case ERF_TYPE_TCP_FLOW_COUNTER:
-      /* undefined */
+  case ERF_TYPE_LEGACY:
+  case ERF_TYPE_IP_COUNTER:
+  case ERF_TYPE_TCP_FLOW_COUNTER:
+    /* undefined */
+    break;
+
+  case ERF_TYPE_PAD:
+    /* Nothing to do */
+    break;
+      
+  case ERF_TYPE_MC_RAW:
+    dissect_mc_raw_header(tvb, pinfo, erf_tree);
+    if (data_handle)
+      call_dissector(data_handle, tvb, pinfo, tree);
+    break;
+      
+  case ERF_TYPE_MC_RAW_CHANNEL:
+    dissect_mc_rawlink_header(tvb, pinfo, erf_tree);
+    if (data_handle)
+      call_dissector(data_handle, tvb, pinfo, tree);
+    break;
+      
+  case ERF_TYPE_MC_ATM:
+    dissect_mc_atm_header(tvb, pinfo, erf_tree);
+    /* continue with type ATM */
+      
+  case ERF_TYPE_ATM:
+    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+
+    /* Work around to have decoding working */
+    pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
+    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+      
+    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    /* Try to guess the type according to the first bytes */
+    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);
+      
+    if (erf_atm_dissector[erf_atm_default])
+      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    break;
+
+  case ERF_TYPE_MC_AAL5:
+    dissect_mc_aal5_header(tvb, pinfo, erf_tree);
+    /* continue with type AAL5 */
+      
+  case ERF_TYPE_AAL5: 
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+    /* Work around to have decoding working */
+    pinfo->pseudo_header->atm.aal = AAL_5;
+    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    /* Try to guess the type according to the first bytes */
+    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
+
+    if (erf_atm_dissector[erf_atm_default])
+      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    break;
+
+  case ERF_TYPE_MC_AAL2:
+    dissect_mc_aal2_header(tvb, pinfo, erf_tree);
+    /* continue with type AAL2 */
+
+  case ERF_TYPE_AAL2:
+    atm_hdr = tvb_get_ntohl(tvb, 0);
+    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+    pinfo->pseudo_header->atm.channel = (flags & 0x03);
+    /* Work around to have decoding working */
+    pinfo->pseudo_header->atm.aal = AAL_2;
+    pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
+    pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+
+    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    /* Try to guess the type according to the first bytes */
+    erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
+
+    if (erf_atm_dissector[erf_atm_default])
+      call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    break;
+
+  case ERF_TYPE_ETH:
+  case ERF_TYPE_COLOR_ETH:
+  case ERF_TYPE_DSM_COLOR_ETH:
+    dissect_eth_header(tvb, pinfo, erf_tree);
+
+    /* Clean the pseudo header (if used in subdissector) */
+    switch (erf_eth_default) {
+    case ERF_ETH_ETHFCS:
+    case ERF_ETH_ETHNOFCS:
+      memset(&pinfo->pseudo_header->eth, 0, sizeof(pinfo->pseudo_header->eth));
       break;
+    }
+      
+    if (erf_eth_dissector[erf_eth_default])
+      call_dissector(erf_eth_dissector[erf_eth_default], tvb, pinfo, tree);
+    break;
 
-    case ERF_TYPE_PAD:
-      /* Nothing to do */
+  case ERF_TYPE_MC_HDLC:
+    dissect_mc_hdlc_header(tvb, pinfo, erf_tree);
+    /* continue with type HDLC */
+      
+  case ERF_TYPE_HDLC_POS:
+  case ERF_TYPE_COLOR_HDLC_POS:
+  case ERF_TYPE_DSM_COLOR_HDLC_POS:
+  case ERF_TYPE_COLOR_MC_HDLC_POS:
+    /* Clean the pseudo header (if used in subdissector) */
+    switch (erf_hdlc_default) {
+    case ERF_HDLC_CHDLC:
       break;
-      
-    case ERF_TYPE_MC_RAW:
-      dissect_mc_raw_header(tvb, pinfo, erf_tree);
-      if (data_handle)
-	call_dissector(data_handle, tvb, pinfo, tree);
+    case ERF_HDLC_PPP:
       break;
-      
-    case ERF_TYPE_MC_RAW_CHANNEL:
-      dissect_mc_rawlink_header(tvb, pinfo, erf_tree);
-      if (data_handle)
-	call_dissector(data_handle, tvb, pinfo, tree);
+    case ERF_HDLC_FRELAY: 
+      memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
       break;
-      
-    case ERF_TYPE_MC_ATM:
-      dissect_mc_atm_header(tvb, pinfo, erf_tree);
-      /* continue with type ATM */
-      
-    case ERF_TYPE_ATM:
-      memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-      atm_hdr = tvb_get_ntohl(tvb, 0);
-      pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-      pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-      pinfo->pseudo_header->atm.channel = (flags & 0x03);
-
-      /* Work around to have decoding working */
-      pinfo->pseudo_header->atm.aal = AAL_UNKNOWN;
-      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
-      
-      new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-      new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
-      /* Try to guess the type according to the first bytes */
-      erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);
-      
-      if (erf_atm_dissector[erf_atm_default])
-	call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    case ERF_HDLC_MTP2:
+      /* not used, but .. */
+      memset(&pinfo->pseudo_header->mtp2, 0, sizeof(pinfo->pseudo_header->mtp2));
       break;
-
-    case ERF_TYPE_MC_AAL5:
-      dissect_mc_aal5_header(tvb, pinfo, erf_tree);
-      /* continue with type AAL5 */
-      
-    case ERF_TYPE_AAL5: 
-      atm_hdr = tvb_get_ntohl(tvb, 0);
-      memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-      pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-      pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-      pinfo->pseudo_header->atm.channel = (flags & 0x03);
-      /* Work around to have decoding working */
-      pinfo->pseudo_header->atm.aal = AAL_5;
-      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
-
-      new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-      new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
-      /* Try to guess the type according to the first bytes */
-      erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
-
-      if (erf_atm_dissector[erf_atm_default])
-		  call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
-      break;
-
-    case ERF_TYPE_MC_AAL2:
-      dissect_mc_aal2_header(tvb, pinfo, erf_tree);
-      /* continue with type AAL2 */
-
-    case ERF_TYPE_AAL2:
-      atm_hdr = tvb_get_ntohl(tvb, 0);
-      memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
-      pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
-      pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
-      pinfo->pseudo_header->atm.channel = (flags & 0x03);
-      /* Work around to have decoding working */
-      pinfo->pseudo_header->atm.aal = AAL_2;
-      pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
-      pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
-
-      new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-      new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
-      /* Try to guess the type according to the first bytes */
-      erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
-
-      if (erf_atm_dissector[erf_atm_default])
-	call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
-      break;
-
-    case ERF_TYPE_ETH:
-    case ERF_TYPE_COLOR_ETH:
-    case ERF_TYPE_DSM_COLOR_ETH:
-      dissect_eth_header(tvb, pinfo, erf_tree);
-
-      /* Clean the pseudo header (if used in subdissector) */
-      switch (erf_eth_default) {
-      case ERF_ETH_ETHFCS:
-      case ERF_ETH_ETHNOFCS:
-	memset(&pinfo->pseudo_header->eth, 0, sizeof(pinfo->pseudo_header->eth));
-	break;
-      }
-      
-      if (erf_eth_dissector[erf_eth_default])
-	call_dissector(erf_eth_dissector[erf_eth_default], tvb, pinfo, tree);
-      break;
-
-    case ERF_TYPE_MC_HDLC:
-      dissect_mc_hdlc_header(tvb, pinfo, erf_tree);
-      /* continue with type HDLC */
-      
-    case ERF_TYPE_HDLC_POS:
-    case ERF_TYPE_COLOR_HDLC_POS:
-    case ERF_TYPE_DSM_COLOR_HDLC_POS:
-    case ERF_TYPE_COLOR_MC_HDLC_POS:
-      /* Clean the pseudo header (if used in subdissector) */
-      switch (erf_hdlc_default) {
-      case ERF_HDLC_CHDLC:
-	break;
-      case ERF_HDLC_PPP:
-	break;
-      case ERF_HDLC_FRELAY: 
-	memset(&pinfo->pseudo_header->x25, 0, sizeof(pinfo->pseudo_header->x25));
-	break;
-      case ERF_HDLC_MTP2:
-	/* not used, but .. */
-	memset(&pinfo->pseudo_header->mtp2, 0, sizeof(pinfo->pseudo_header->mtp2));
-	break;
-      default:
-	break;
-      }
-      if (erf_hdlc_dissector[erf_hdlc_default])
-	call_dissector(erf_hdlc_dissector[erf_hdlc_default], tvb, pinfo, tree);
-      break;
-      
     default:
       break;
-    } /* erf type */
-  } /* pseudo header */
+    }
+    if (erf_hdlc_dissector[erf_hdlc_default])
+      call_dissector(erf_hdlc_dissector[erf_hdlc_default], tvb, pinfo, tree);
+    break;
+      
+  default:
+    break;
+  } /* erf type */
 }
 
 static void
