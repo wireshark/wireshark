@@ -71,6 +71,8 @@
 #define DebugLog(x) ;
 #endif
 
+#define SMPP_MIN_LENGTH 16
+
 /* Forward declarations		*/
 static void dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_smpp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
@@ -743,26 +745,26 @@ static const value_string vals_dcs_wap_charset[] = {
 static dissector_handle_t gsm_sms_handle;
 
 /*
- * For Stats Tree 
+ * For Stats Tree
  */
-void 
-smpp_stats_tree_init(stats_tree* st) 
+void
+smpp_stats_tree_init(stats_tree* st)
 {
-	st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, TRUE);	
-	st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, TRUE);	
-	st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, TRUE);	
-	st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, TRUE);	
+	st_smpp_ops = stats_tree_create_node(st, "SMPP Operations", 0, TRUE);
+	st_smpp_req = stats_tree_create_node(st, "SMPP Requests", st_smpp_ops, TRUE);
+	st_smpp_res = stats_tree_create_node(st, "SMPP Responses", st_smpp_ops, TRUE);
+	st_smpp_res_status = stats_tree_create_node(st, "SMPP Response Status", 0, TRUE);
 
 }
 
-int 
-smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */ 
-                                      packet_info *pinfo _U_,  
+int
+smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
+                                      packet_info *pinfo _U_,
                                       epan_dissect_t *edt _U_,
                                       const void *p) /* Used for getting SMPP command_id values */
 {
 	smpp_tap_rec_t* tap_rec = (smpp_tap_rec_t*)p;
-	
+
 	tick_stat_node(st, "SMPP Operations", 0, TRUE);
 
 	if ((tap_rec->command_id & 0x80000000) == 0x80000000) /* Response */
@@ -773,13 +775,13 @@ smpp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
 		tick_stat_node(st, "SMPP Response Status", 0, TRUE);
 		tick_stat_node(st, val_to_str(tap_rec->command_status, vals_command_status, "Unknown 0x%08x"), st_smpp_res_status, FALSE);
 
-	} 
+	}
 	else  /* Request */
 	{
 		tick_stat_node(st, "SMPP Requests", st_smpp_ops, TRUE);
 		tick_stat_node(st, val_to_str(tap_rec->command_id, vals_command_id, "Unknown 0x%08x"), st_smpp_req, FALSE);
 	}
-	
+
 	return 1;
 }
 
@@ -1704,10 +1706,10 @@ dissect_smpp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint	 command_status;	/* Status code		*/
     guint	 command_length;	/* length of PDU	*/
 
-    if (tvb_reported_length(tvb) < 4 * 4)	/* Mandatory header	*/
+    if (tvb_reported_length(tvb) < SMPP_MIN_LENGTH)	/* Mandatory header	*/
 	return FALSE;
     command_length = tvb_get_ntohl(tvb, 0);
-    if (command_length > 64 * 1024)
+    if (command_length > 64 * 1024 || command_length < SMPP_MIN_LENGTH)
 	return FALSE;
     command_id = tvb_get_ntohl(tvb, 4);		/* Only known commands	*/
     if (match_strval(command_id, vals_command_id) == NULL)
@@ -1788,7 +1790,7 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * Safety: don't even try to dissect the PDU
      * when the mandatory header isn't present.
      */
-    if (tvb_reported_length(tvb) < 4 * 4)
+    if (tvb_reported_length(tvb) < SMPP_MIN_LENGTH)
 	return;
     command_length = tvb_get_ntohl(tvb, offset);
     offset += 4;
@@ -2011,17 +2013,17 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    break;
 		    } /* switch (command_id) */
 		} /* if (command_id & 0x80000000) */
-		
+
 	    } /* if (command_length <= tvb_reported_length(pdu_tvb)) */
 	    offset += command_length;
 	} /* if (tree || (command_id == 4)) */
-		
+
 	/* Queue packet for Tap */
 	tap_rec = ep_alloc0(sizeof(smpp_tap_rec_t));
 	tap_rec->command_id = command_id;
 	tap_rec->command_status = command_status;
 	tap_queue_packet(smpp_tap, pinfo, tap_rec);
-	
+
 	first = FALSE;
     }
 
