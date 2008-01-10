@@ -254,6 +254,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-clearcase.c	\
 	packet-clip.c		\
 	packet-clnp.c		\
+	packet-cmpp.c		\
 	packet-componentstatus.c \
 	packet-cops.c 		\
 	packet-cosine.c		\
