@@ -1,3 +1,14 @@
+/* XXX see bug 1852:
+ *
+ * packet-gsm_map.c: There are 1174 display filter fields registered.  Most are
+ * prefixed appropriately as "gsm_map", but many others are prefixed as
+ * "gsm_old", or even "gad", "gsm_ss", or with no prefix at all.  I don't know
+ * if the ones with "gsm_old" are simply obsolete display filter fields or if
+ * they should be prefixed as "gsm_map.old." or what.  Similar uncertainties
+ * for the others. Someone more knowledgeable than I am with respect to this
+ * dissector should provide a patch for it.
+ */
+
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * including GSM SS.
