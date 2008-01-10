@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -50,7 +50,7 @@ typedef union tMbxHeaderControlUnion
       guint16 Type        : 4; /* TETHERCAT_MBOX_TYPE_xxx*/
       guint16 Counter     : 3; /* 0 = counter not used (old version)*/
       guint16 Unsupported : 1; /* unsupported protocol detected*/
-   };
+   } v;
 } MbxHeaderControlUnion;
 
 typedef struct TETHERCAT_MBOX_HEADER
@@ -101,13 +101,13 @@ typedef struct TETHERCAT_MBOX_HEADER
 typedef union tEoeMacFilterOptionsUnion
 {
    struct
-   {  
+   {
       guint16          MacFilterCount     :4;
       guint16          MacFilterMaskCount :2;
       guint16          Reserved1          :1;
       guint16          NoBroadcasts       :1;
       guint16          Reserved2          :8;
-   };
+   } v;
    guint16 Options;
 } EoeMacFilterOptionsUnion;
 
@@ -134,26 +134,26 @@ typedef union tEoeHeaderDataUnion
       guint16 OffsetBuffer : 6; /* byte offset multiplied by 32 (if Fragment != 0)  (EOE_TYPE_FRAME_FRAG only) */
                                 /* buffer size multiplied by 32 (if Fragment == 0) (EOE_TYPE_FRAME_FRAG only)  */
       guint16 FrameNo      : 4; /* frame number (EOE_TYPE_FRAME_FRAG and EOE_TYPE_TIMESTAMP_RES only) */
-   };
+   } v;
    guint16 Result;              /* EOE_TYPE_INIT_RES and EOE_TYPE_MACFILTER_RES only */
 } EoeHeaderDataUnion;
 
 typedef union tEoeHeaderInfoUnion
 {
    struct
-   {                            
+   {
       guint16 Type               : 4; /* specifies following data */
       guint16 PortAssign         : 4; /* 0 = unspecified, 1 = port 1 */
       guint16 LastFragment       : 1; /* TRUE if last fragment (EOE_TYPE_FRAME_FRAG only) */
       guint16 TimeStampAppended  : 1; /* 32 bit time stamp appended  (EOE_TYPE_FRAME_FRAG with LastFragment=1 only) */
       guint16 TimeStampRequested : 1; /* time stamp response requested (EOE_TYPE_FRAME_FRAG only) */
       guint16 Reserved           : 5;
-   };
+   } v;
    guint16 Info;
 } EoeHeaderInfoUnion;
 
 typedef struct TETHERCAT_EOE_HEADER
-{   
+{
    EoeHeaderInfoUnion anEoeHeaderInfoUnion;
    EoeHeaderDataUnion anEoeHeaderDataUnion;
 } ETHERCAT_EOE_HEADER, *PETHERCAT_EOE_HEADER;
@@ -177,7 +177,7 @@ typedef union TETHERCAT_COE_HEADER
       guint16 Number   : 9; /* e.g. PDO number*/
       guint16 Reserved : 3; /* = 0*/
       guint16 Type     : 4; /* CANopen type*/
-   };
+   } v;
    guint16 header;
 } ETHERCAT_COE_HEADER, *PETHERCAT_COE_HEADER;
 #define ETHERCAT_COE_HEADER_LEN sizeof(ETHERCAT_COE_HEADER)
@@ -352,7 +352,7 @@ typedef union tSdoControlUnion
    {
       guint8  OpCode     : 7; /* == SDO_INFO_TYPE_XXX */
       guint8  InComplete : 1;
-   };
+   } v;
    guint8 Control;
 } SdoControlUnion;
 
@@ -392,13 +392,13 @@ typedef union tFoeHeaderDataUnion
    {
       guint16 PacketNo;  /* (DATA, ACK)*/
       guint16 Reserved2; /* (DATA, ACK)*/
-   };
+   } v;
    guint32 ErrorCode; /* (ERR)*/
    struct
    {
       guint16 Done;   /* (BUSY)*/
       guint16 Entire; /* (BUSY)*/
-   };
+   } v2;
 } FoeHeaderDataUnion;
 
 typedef struct TETHERCAT_FOE_HEADER
@@ -451,12 +451,12 @@ typedef union tSoeHeaderControlUnion
       guint8 Max        : 1; /* follows or requested */
       guint8 Value      : 1; /* follows or requested */
       guint8 Reserved   : 1;
-   };
+   } v;
    struct
    {
       guint8 Control;
       guint8 Element;
-   };
+   } v2;
 } SoeHeaderControlUnion;
 
 typedef union tSoeHeaderDataUnion
@@ -471,8 +471,8 @@ typedef struct TETHERCAT_SOE_HEADER
    SoeHeaderDataUnion anSoeHeaderDataUnion;
    /* typedef union tMailBoxDataUnion
    {
-   guint8    Data[]   rest of mailbox data  if (Error==0) 
-   guint16 ErrorCode                        if (Error==1) 
+   guint8    Data[]   rest of mailbox data  if (Error==0)
+   guint16 ErrorCode                        if (Error==1)
    } MailBoxDataUnion;*/
 } ETHERCAT_SOE_HEADER, *PETHERCAT_SOE_HEADER;
 #define ETHERCAT_SOE_HEADER_LEN sizeof(ETHERCAT_SOE_HEADER)

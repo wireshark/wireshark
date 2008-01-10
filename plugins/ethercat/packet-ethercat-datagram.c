@@ -8,17 +8,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -223,7 +223,7 @@ static const true_false_string tfs_ecat_syncman_flag13 =
 
 static const true_false_string tfs_ecat_syncman_flag16 =
 {
-   "SyncMan enabled", "SyncMan disabled", 
+   "SyncMan enabled", "SyncMan disabled",
 };
 
 static const char* convertEcCmdToText(int cmd)
@@ -326,26 +326,26 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
    {
       guint16 len = ecFirst.len&0x07ff;
       guint16 cnt = get_wc(&ecFirst, tvb, offset);
-      g_snprintf ( szText, nMax, "'%s', Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ", 
+      g_snprintf ( szText, nMax, "'%s', Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
          convertEcCmdToText(ecFirst.cmd), len, ecFirst.anAddrUnion.adp, ecFirst.anAddrUnion.ado, cnt );
    }
    else if ( nSub == 2 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d ", 
+      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d ",
          nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1]);
    }
    else if ( nSub == 3 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d, '%s', Len %d", 
+      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d, '%s', Len %d",
          nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1], convertEcCmdToText(nCmds[2]), nLens[2]);
    }
    else if ( nSub == 4 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', L %d, '%s', L %d, '%s', L %d, '%s', L %d", 
+      g_snprintf ( szText, nMax, "%d Cmds, '%s', L %d, '%s', L %d, '%s', L %d, '%s', L %d",
          nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1], convertEcCmdToText(nCmds[2]), nLens[2], convertEcCmdToText(nCmds[3]), nLens[3]);
    }
    else
-      g_snprintf ( szText, nMax, "%d Cmds, SumLen %d, '%s'... ", 
+      g_snprintf ( szText, nMax, "%d Cmds, SumLen %d, '%s'... ",
          nSub, nLen, convertEcCmdToText(ecFirst.cmd));
 }
 
@@ -372,13 +372,13 @@ static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
    case EC_CMD_TYPE_BRW:
    case EC_CMD_TYPE_ARMW:
    case EC_CMD_TYPE_FRMW:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d", 
+      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d",
          convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.adp, ecParser.anAddrUnion.ado, cnt);
       break;
    case EC_CMD_TYPE_LRD:
    case EC_CMD_TYPE_LWR:
    case EC_CMD_TYPE_LRW:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d", 
+      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d",
          convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.addr, cnt);
       break;
    case EC_CMD_TYPE_EXT:
@@ -390,7 +390,7 @@ static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
 }
 
 static void EcLenFormater(guint16 len, char *szText, gint nMax)
-{   
+{
    g_snprintf( szText, nMax, "(0x%x) - %s - %s", len&0x07ff, len&0x4000 ? "Roundtrip" : "No Roundtrip", len&0x8000 ? "More Follows...":"Last Sub Command" );
 }
 
@@ -422,11 +422,11 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       if ( (ecHdr.len&0x8000) == 0 )
          break;
    }
- 
+
    EcSummaryFormater(ecLength, tvb, offset, szText, nMax);
-   if (check_col(pinfo->cinfo, COL_INFO)) 
+   if (check_col(pinfo->cinfo, COL_INFO))
       col_append_str(pinfo->cinfo, COL_INFO, szText);
-   
+
    if( tree )
    {
       ti = proto_tree_add_item(tree, proto_ecat_datagram, tvb, 0, -1, TRUE);
@@ -453,14 +453,14 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       len = ecHdr.len&0x7fff;
 
       if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
-         (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) && 
-         ecHdr.anAddrUnion.ado>=0x1000 
+         (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&
+         ecHdr.anAddrUnion.ado>=0x1000
          )
       {
          ETHERCAT_MBOX_HEADER mbox;
          init_mbx_header(&mbox, tvb, suboffset+EcParserHDR_Len);
 
-         switch ( mbox.aControlUnion.Type )
+         switch ( mbox.aControlUnion.v.Type )
          {
          case ETHERCAT_MBOX_TYPE_EOE:
          case ETHERCAT_MBOX_TYPE_ADS:
@@ -735,8 +735,8 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
       if ( (ecHdr.len&0x8000) == 0 )
          break;
-      
-      offset+=subsize;         
+
+      offset+=subsize;
       subCount++;
    }
 }
@@ -746,11 +746,11 @@ void proto_register_ecat(void)
 {
    static hf_register_info hf[] =
    {
-      { &hf_ecat_sub, 
+      { &hf_ecat_sub,
       { "Sub Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_header, 
+      { &hf_ecat_header,
       { "Header", "ecat.header",
       FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
       },
@@ -794,11 +794,11 @@ void proto_register_ecat(void)
       {  "Data      ", "ecat.sub10.data",
       FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
       },
-      { &hf_ecat_data, 
+      { &hf_ecat_data,
       {  "Data      ", "ecat.data",
       FT_BYTES, BASE_NONE, NULL, 0x0, "", HFILL }
       },
-      { &hf_ecat_cnt, 
+      { &hf_ecat_cnt,
       { "Working Cnt", "ecat.cnt",
       FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
       },
@@ -842,7 +842,7 @@ void proto_register_ecat(void)
       { "Working Cnt", "ecat.sub10.cnt",
       FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
       },
-      { &hf_ecat_cmd, 
+      { &hf_ecat_cmd,
       { "Command    ", "ecat.cmd",
       FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
       },
@@ -886,7 +886,7 @@ void proto_register_ecat(void)
       { "Command    ", "ecat.sub10.cmd",
       FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
       },
-      { &hf_ecat_idx, 
+      { &hf_ecat_idx,
       { "Index      ", "ecat.idx",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -941,7 +941,7 @@ void proto_register_ecat(void)
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_adp, 
+      { &hf_ecat_adp,
       { "Slave Addr ", "ecat.adp",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -996,7 +996,7 @@ void proto_register_ecat(void)
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_ado, 
+      { &hf_ecat_ado,
       { "Offset Addr", "ecat.ado",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -1051,7 +1051,7 @@ void proto_register_ecat(void)
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_lad, 
+      { &hf_ecat_lad,
       { "Log Addr   ", "ecat.lad",
       FT_UINT32, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -1126,7 +1126,7 @@ void proto_register_ecat(void)
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
       },
-      { &hf_ecat_syncman_len, 
+      { &hf_ecat_syncman_len,
       { "SM Length ", "ecat.syncman.len",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       "", HFILL }
@@ -1196,7 +1196,7 @@ void proto_register_ecat(void)
       FT_BOOLEAN, 32, TFS(&tfs_ecat_syncman_flag16), 0x00010000,
       "", HFILL }
       },
-      { &hf_ecat_fmmu, 
+      { &hf_ecat_fmmu,
       { "FMMU", "ecat.fmmu",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       "", HFILL }
@@ -1215,17 +1215,17 @@ void proto_register_ecat(void)
       { "Log StartBit ", "ecat.fmmu.lstartbit",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
-      }, 
+      },
       { &hf_ecat_fmmu_lendbit,
       { "Log EndBit   ", "ecat.fmmu.lendbit",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
-      }, 
+      },
       { &hf_ecat_fmmu_pstart,
       { "Phys Start   ", "ecat.fmmu.pstart",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "", HFILL }
-      }, 
+      },
       { &hf_ecat_fmmu_pstartbit,
       { "Phys StartBit", "ecat.fmmu.pstartbit",
       FT_UINT8, BASE_HEX, NULL, 0x0,

@@ -288,8 +288,8 @@ void init_foe_header(PETHERCAT_FOE_HEADER pFoE, tvbuff_t *tvb, gint offset)
 
 void init_soe_header(PETHERCAT_SOE_HEADER pSoE, tvbuff_t *tvb, gint offset)
 {
-   pSoE->anSoeHeaderControlUnion.Control = tvb_get_guint8(tvb, offset++);
-   pSoE->anSoeHeaderControlUnion.Element = tvb_get_guint8(tvb, offset++);
+   pSoE->anSoeHeaderControlUnion.v2.Control = tvb_get_guint8(tvb, offset++);
+   pSoE->anSoeHeaderControlUnion.v2.Element = tvb_get_guint8(tvb, offset++);
    pSoE->anSoeHeaderDataUnion.FragmentsLeft = tvb_get_letohs(tvb, offset);
 }
 
@@ -320,64 +320,64 @@ static void MailboxTypeFormater(PETHERCAT_MBOX_HEADER pMbx, char *szText, gint n
 
    for(i = 0; i<sizeof(EcMBoxType)/sizeof(value_string); i++ )
    {
-      if( EcMBoxType[i].value == pMbx->aControlUnion.Type )
+      if( EcMBoxType[i].value == pMbx->aControlUnion.v.Type )
       {
-         g_snprintf(szText, nMax, "Type    : %s (0x%x)", EcMBoxType[i].strptr, pMbx->aControlUnion.Type);
+         g_snprintf(szText, nMax, "Type    : %s (0x%x)", EcMBoxType[i].strptr, pMbx->aControlUnion.v.Type);
          return;
       }
    }
-   g_snprintf ( szText, nMax,"Type    : %d", pMbx->aControlUnion.Type);
+   g_snprintf ( szText, nMax,"Type    : %d", pMbx->aControlUnion.v.Type);
 }
 
 static void EoETypeFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 {
-   switch (pEoE->anEoeHeaderInfoUnion.Type)
+   switch (pEoE->anEoeHeaderInfoUnion.v.Type)
    {
    case EOE_TYPE_FRAME_FRAG:
-      g_snprintf ( szText, nMax, "Type(%d)    : Fragment", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : Fragment", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    case EOE_TYPE_TIMESTAMP_RES:
-      g_snprintf ( szText, nMax, "Type(%d)    : TimeStamp", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : TimeStamp", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    case EOE_TYPE_INIT_REQ:
-      g_snprintf ( szText, nMax, "Type(%d)    : Init Req", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : Init Req", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    case EOE_TYPE_INIT_RES:
-      g_snprintf ( szText, nMax, "Type(%d)    : Init Res", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : Init Res", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    case EOE_TYPE_MACFILTER_REQ:
-      g_snprintf ( szText, nMax, "Type(%d)    : MAC Req", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : MAC Req", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    case EOE_TYPE_MACFILTER_RES:
-      g_snprintf ( szText, nMax, "Type(%d)    : MAC Res", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : MAC Res", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    default:
-      g_snprintf ( szText, nMax, "Type(%d)    : Unknown", pEoE->anEoeHeaderInfoUnion.Type);
+      g_snprintf ( szText, nMax, "Type(%d)    : Unknown", pEoE->anEoeHeaderInfoUnion.v.Type);
       break;
    }
 }
 
 static void EoEFragNoFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 {
-   g_snprintf ( szText, nMax, "FragNo     : %d", pEoE->anEoeHeaderDataUnion.Fragment);
+   g_snprintf ( szText, nMax, "FragNo     : %d", pEoE->anEoeHeaderDataUnion.v.Fragment);
 }
 
 static void EoEOffsetFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 {
-   if ( pEoE->anEoeHeaderDataUnion.Fragment == 0 )
-      g_snprintf ( szText, nMax, "BufferSize : %d", 32*pEoE->anEoeHeaderDataUnion.OffsetBuffer);
+   if ( pEoE->anEoeHeaderDataUnion.v.Fragment == 0 )
+      g_snprintf ( szText, nMax, "BufferSize : %d", 32*pEoE->anEoeHeaderDataUnion.v.OffsetBuffer);
    else
-      g_snprintf ( szText, nMax, "Offset     : %d", 32*pEoE->anEoeHeaderDataUnion.OffsetBuffer);
+      g_snprintf ( szText, nMax, "Offset     : %d", 32*pEoE->anEoeHeaderDataUnion.v.OffsetBuffer);
 }
 
 static void EoEFrameFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 {
-   g_snprintf ( szText, nMax, "FrameNo    : %d", pEoE->anEoeHeaderDataUnion.FrameNo);
+   g_snprintf ( szText, nMax, "FrameNo    : %d", pEoE->anEoeHeaderDataUnion.v.FrameNo);
 }
 
 static void EoELastFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 {
-   if ( pEoE->anEoeHeaderInfoUnion.LastFragment != 0 )
+   if ( pEoE->anEoeHeaderInfoUnion.v.LastFragment != 0 )
       g_snprintf ( szText, nMax, "Last Frag");
    else
       g_snprintf ( szText, nMax, "More Frags...");
@@ -385,36 +385,36 @@ static void EoELastFormater(PETHERCAT_EOE_HEADER pEoE, char *szText, gint nMax)
 
 static void CANopenNumberFormater(PETHERCAT_COE_HEADER pCoE, char *szText, gint nMax)
 {
-   g_snprintf( szText, nMax, "Number  : %d", pCoE->Number);
+   g_snprintf( szText, nMax, "Number  : %d", pCoE->v.Number);
 }
 
 static void CANopenTypeFormater(PETHERCAT_COE_HEADER pCoE, char *szText, gint nMax)
 {
-   switch ( pCoE->Type)
+   switch ( pCoE->v.Type)
    {
    case ETHERCAT_COE_TYPE_EMERGENCY:
-      g_snprintf ( szText, nMax, "Type    : EMERGENCY(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : EMERGENCY(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_SDOREQ:
-      g_snprintf ( szText, nMax, "Type    : SDO Req(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : SDO Req(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_SDORES:
-      g_snprintf ( szText, nMax, "Type    : SDO Res(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : SDO Res(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_TXPDO:
-      g_snprintf ( szText, nMax, "Type    : TxPDO(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : TxPDO(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_RXPDO:
-      g_snprintf ( szText, nMax, "Type    : RxPDO(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : RxPDO(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_TXPDO_RTR:
-      g_snprintf ( szText, nMax, "Type    : TxPDO_RTR(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : TxPDO_RTR(%d)", pCoE->v.Type);
       break;
    case ETHERCAT_COE_TYPE_RXPDO_RTR:
-      g_snprintf ( szText, nMax, "Type    : RxPDO_RTR(%d)", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    : RxPDO_RTR(%d)", pCoE->v.Type);
       break;
    default:
-      g_snprintf ( szText, nMax, "Type    :%d", pCoE->Type);
+      g_snprintf ( szText, nMax, "Type    :%d", pCoE->v.Type);
    }
 }
 
@@ -449,9 +449,9 @@ static void CANopenSdoResFormater(PETHERCAT_SDO_HEADER pSdo, char *szText, gint 
 
 static void CANopenSdoInfoFormater(PETHERCAT_SDO_INFO_HEADER pHead, char *szText, gint nMax)
 {
-   guint8 opCode = pHead->anSdoControlUnion.OpCode&0x7F;
+   guint8 opCode = pHead->anSdoControlUnion.v.OpCode & 0x7F;
    char* txt2 = "";
-   if ( (pHead->anSdoControlUnion.OpCode&0x80) != 0 )
+   if ( (pHead->anSdoControlUnion.v.OpCode & 0x80) != 0 )
       txt2 = " - More Follows";
    switch (opCode)
    {
@@ -508,19 +508,19 @@ static void FoeFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gui
       g_snprintf ( szText, nMax, "FoE WRQ (%d) : '%s'", foe.aFoeHeaderDataUnion.FileLength, tmp);
       break;
    case ECAT_FOE_OPMODE_DATA:
-      g_snprintf ( szText, nMax, "FoE DATA (%d) : %d Bytes", foe.aFoeHeaderDataUnion.PacketNo, foe_length-ETHERCAT_FOE_HEADER_LEN);
+      g_snprintf ( szText, nMax, "FoE DATA (%d) : %d Bytes", foe.aFoeHeaderDataUnion.v.PacketNo, foe_length-ETHERCAT_FOE_HEADER_LEN);
       break;
    case ECAT_FOE_OPMODE_ACK:
-      g_snprintf ( szText, nMax, "FoE ACK (%d)", foe.aFoeHeaderDataUnion.PacketNo);
+      g_snprintf ( szText, nMax, "FoE ACK (%d)", foe.aFoeHeaderDataUnion.v.PacketNo);
       break;
    case ECAT_FOE_OPMODE_ERR:
       g_snprintf ( szText, nMax, "FoE ERR (%d) : '%s'", foe.aFoeHeaderDataUnion.ErrorCode, tmp);
       break;
    case ECAT_FOE_OPMODE_BUSY:
-      if ( foe.aFoeHeaderDataUnion.Entire > 0 )
-         g_snprintf ( szText, nMax, "FoE BUSY (%d%%)", ((guint32)foe.aFoeHeaderDataUnion.Done*100)/foe.aFoeHeaderDataUnion.Entire);
+      if ( foe.aFoeHeaderDataUnion.v2.Entire > 0 )
+         g_snprintf ( szText, nMax, "FoE BUSY (%d%%)", ((guint32)foe.aFoeHeaderDataUnion.v2.Done*100)/foe.aFoeHeaderDataUnion.v2.Entire);
       else
-         g_snprintf ( szText, nMax, "FoE BUSY (%d/%d)", foe.aFoeHeaderDataUnion.Done, foe.aFoeHeaderDataUnion.Entire);
+         g_snprintf ( szText, nMax, "FoE BUSY (%d/%d)", foe.aFoeHeaderDataUnion.v2.Done, foe.aFoeHeaderDataUnion.v2.Entire);
       break;
    }
 }
@@ -543,27 +543,27 @@ static void SoeFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gui
    init_soe_header(&soe, tvb, offset);
    offset+=ETHERCAT_SOE_HEADER_LEN;
 
-   if ( !soe.anSoeHeaderControlUnion.Error )
+   if ( !soe.anSoeHeaderControlUnion.v.Error )
    {
-      if ( !soe.anSoeHeaderControlUnion.InComplete )
+      if ( !soe.anSoeHeaderControlUnion.v.InComplete )
       {
          SoEIdToString(tmp, soe.anSoeHeaderDataUnion.IDN, sizeof(tmp)-1);
          elm[0] = 0;
-         if ( soe.anSoeHeaderControlUnion.DataState )
+         if ( soe.anSoeHeaderControlUnion.v.DataState )
             strcat(elm, "D");
-         if ( soe.anSoeHeaderControlUnion.Name )
+         if ( soe.anSoeHeaderControlUnion.v.Name )
             strcat(elm, "N");
-         if ( soe.anSoeHeaderControlUnion.Attribute )
+         if ( soe.anSoeHeaderControlUnion.v.Attribute )
             strcat(elm, "A");
-         if ( soe.anSoeHeaderControlUnion.Unit )
+         if ( soe.anSoeHeaderControlUnion.v.Unit )
             strcat(elm, "U");
-         if ( soe.anSoeHeaderControlUnion.Min )
+         if ( soe.anSoeHeaderControlUnion.v.Min )
             strcat(elm, "I");
-         if ( soe.anSoeHeaderControlUnion.Max )
+         if ( soe.anSoeHeaderControlUnion.v.Max )
             strcat(elm, "X");
-         if ( soe.anSoeHeaderControlUnion.Value )
+         if ( soe.anSoeHeaderControlUnion.v.Value )
             strcat(elm, "V");
-         switch ( soe.anSoeHeaderControlUnion.OpCode )
+         switch ( soe.anSoeHeaderControlUnion.v.OpCode )
          {
          case ECAT_SOE_OPCODE_RRQ:
             g_snprintf ( szText, nMax, "SoE: RRQ (%s, '%s')", tmp, elm);
@@ -626,17 +626,17 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          ecat_coe_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_coe);
 
          CANopenNumberFormater(&coe, szText, nMax);
-         aitem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_number, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.Number);
+         aitem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_number, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.v.Number);
          proto_item_set_text(aitem, szText);
 
          CANopenTypeFormater(&coe, szText, nMax);
-         aitem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_type, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.Type);
+         aitem = proto_tree_add_uint(ecat_coe_tree, hf_ecat_mailbox_coe_type, tvb, offset, ETHERCAT_COE_HEADER_LEN, coe.v.Type);
          proto_item_set_text(aitem, szText);
       }
 
       offset += ETHERCAT_COE_HEADER_LEN;
 
-      switch (coe.Type)
+      switch (coe.v.Type)
       {
       case ETHERCAT_COE_TYPE_SDOREQ:
          {
@@ -833,7 +833,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                aitem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfofrag, tvb, offset, 2, TRUE);
                offset+=2;
 
-               switch ( info.anSdoControlUnion.OpCode )
+               switch ( info.anSdoControlUnion.v.OpCode )
                {
                case ECAT_COE_INFO_OPCODE_LIST_Q:
                   {
@@ -987,11 +987,11 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          aitem = proto_tree_add_item(ecat_soeflag_tree, hf_ecat_mailbox_soe_header_reserved, tvb, offset, 2, TRUE);
          offset+=2;
 
-         if ( !soe.anSoeHeaderControlUnion.Error )
+         if ( !soe.anSoeHeaderControlUnion.v.Error )
          {
-            if ( !soe.anSoeHeaderControlUnion.InComplete )
+            if ( !soe.anSoeHeaderControlUnion.v.InComplete )
             {
-               switch (soe.anSoeHeaderControlUnion.OpCode)
+               switch (soe.anSoeHeaderControlUnion.v.OpCode)
                {
                case ECAT_SOE_OPCODE_RRQ:
                case ECAT_SOE_OPCODE_WRS:
@@ -1055,8 +1055,8 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
       init_eoe_header(&eoe, tvb, offset);
       if (check_col(pinfo->cinfo, COL_INFO))
       {
-         if ( eoe.anEoeHeaderInfoUnion.Type == EOE_TYPE_FRAME_FRAG )
-            g_snprintf ( szText, nMax, "EoE-Frag %d", eoe.anEoeHeaderDataUnion.Fragment);
+         if ( eoe.anEoeHeaderInfoUnion.v.Type == EOE_TYPE_FRAME_FRAG )
+            g_snprintf ( szText, nMax, "EoE-Frag %d", eoe.anEoeHeaderDataUnion.v.Fragment);
          else
             g_snprintf ( szText, nMax, "EoE");
          col_append_str(pinfo->cinfo, COL_INFO, szText);
@@ -1070,51 +1070,51 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
          proto_item_set_text(aitem, "Header");
          ecat_fraghead_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_fraghead);
 
-         aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_type, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.Type);
+         aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_type, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.Type);
          EoETypeFormater(&eoe, szText, nMax);
          proto_item_set_text(aitem,szText);
 
-         switch ( eoe.anEoeHeaderInfoUnion.Type )
+         switch ( eoe.anEoeHeaderInfoUnion.v.Type )
          {
          case EOE_TYPE_FRAME_FRAG:
-            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_fragno, tvb, offset, 4, eoe.anEoeHeaderDataUnion.Fragment);
+            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_fragno, tvb, offset, 4, eoe.anEoeHeaderDataUnion.v.Fragment);
             EoEFragNoFormater(&eoe, szText, nMax);
             proto_item_set_text(aitem,szText);
 
-            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_offset, tvb, offset, 4, 32*eoe.anEoeHeaderDataUnion.OffsetBuffer);
+            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_offset, tvb, offset, 4, 32*eoe.anEoeHeaderDataUnion.v.OffsetBuffer);
             EoEOffsetFormater(&eoe, szText, nMax);
             proto_item_set_text(aitem,szText);
 
-            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_frame, tvb, offset, 4, eoe.anEoeHeaderDataUnion.FrameNo);
+            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_frame, tvb, offset, 4, eoe.anEoeHeaderDataUnion.v.FrameNo);
             EoEFrameFormater(&eoe, szText, nMax);
             proto_item_set_text(aitem,szText);
 
-            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_last, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.LastFragment);
+            aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_last, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.LastFragment);
             EoELastFormater(&eoe, szText, nMax);
             proto_item_set_text(aitem,szText);
 
-            if ( eoe.anEoeHeaderInfoUnion.TimeStampRequested )
+            if ( eoe.anEoeHeaderInfoUnion.v.TimeStampRequested )
             {
-               aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_timestampreq, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.TimeStampRequested);
+               aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_timestampreq, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.TimeStampRequested);
                proto_item_set_text(aitem, "Time Stamp Requested");
             }
 
-            if ( eoe.anEoeHeaderInfoUnion.TimeStampAppended )
+            if ( eoe.anEoeHeaderInfoUnion.v.TimeStampAppended )
             {
-               aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_timestampapp, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.TimeStampAppended);
+               aitem = proto_tree_add_uint(ecat_fraghead_tree, hf_ecat_mailbox_eoe_timestampapp, tvb, offset, 4, eoe.anEoeHeaderInfoUnion.v.TimeStampAppended);
                proto_item_set_text(aitem, "Time Stamp Appended");
             }
 
             offset+=ETHERCAT_EOE_HEADER_LEN;
             aitem = proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_fragment, tvb, offset, eoe_length-offset, TRUE);
 
-            if ( eoe.anEoeHeaderDataUnion.Fragment == 0 )
+            if ( eoe.anEoeHeaderDataUnion.v.Fragment == 0 )
             {
                next_tvb = tvb_new_subset(tvb, offset, eoe_length-offset, eoe_length-offset);
                call_dissector( eth_handle, next_tvb, pinfo, ecat_eoe_tree);
             }
 
-            if ( eoe.anEoeHeaderInfoUnion.TimeStampAppended )
+            if ( eoe.anEoeHeaderInfoUnion.v.TimeStampAppended )
             {
                aitem = proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_timestamp, tvb, eoe_length-ETHERCAT_EOE_TIMESTAMP_LEN, ETHERCAT_EOE_TIMESTAMP_LEN, TRUE);
             }
@@ -1177,13 +1177,13 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
                   aitem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filter, tvb, offset, 16*ETHERNET_ADDRESS_LEN, TRUE);
                   ecat_eoe_macfilter_filter_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_eoe_macfilter_filter);
-                  for( nCnt=0; nCnt<options.MacFilterCount; nCnt++)
+                  for( nCnt=0; nCnt<options.v.MacFilterCount; nCnt++)
                      aitem = proto_tree_add_item(ecat_eoe_macfilter_filter_tree, hf_ecat_mailbox_eoe_macfilter_filters[nCnt], tvb, offset+nCnt*ETHERNET_ADDRESS_LEN, ETHERNET_ADDRESS_LEN, TRUE);
                   offset+=16*ETHERNET_ADDRESS_LEN;
 
                   aitem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*sizeof(guint32), TRUE);
                   ecat_eoe_macfilter_filtermask_tree = proto_item_add_subtree(aitem, ett_ecat_mailbox_eoe_macfilter_filtermask);
-                  for( nCnt=0; nCnt<options.MacFilterMaskCount; nCnt++)
+                  for( nCnt=0; nCnt<options.v.MacFilterMaskCount; nCnt++)
                      aitem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*sizeof(guint32), sizeof(guint32), TRUE);
                }
                else
@@ -1348,14 +1348,14 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             proto_item_set_text(aitem,szText);
 
             aitem = proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxcounter, tvb, offset, 1,TRUE);
-            proto_item_set_text(aitem,"Counter : %d",hdr.aControlUnion.Counter);
+            proto_item_set_text(aitem,"Counter : %d",hdr.aControlUnion.v.Counter);
             offset++;
          }
          else
             offset+=ETHERCAT_MBOX_HEADER_LEN;
 
          next_tvb = tvb_new_subset (tvb, offset, hdr.Length, hdr.Length);
-         switch ( hdr.aControlUnion.Type )
+         switch ( hdr.aControlUnion.v.Type )
          {
          case ETHERCAT_MBOX_TYPE_ADS:
             call_dissector(ams_handle, next_tvb, pinfo, ecat_mailbox_tree);
