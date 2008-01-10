@@ -397,5 +397,3 @@ static int erf_read_header(
   }
   return TRUE;
 }
-
-
