@@ -345,32 +345,32 @@ proto_register_gmrp(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_gmrp_proto_id,
-	    { "Protocol ID", "garp.protocol_id",
+	    { "Protocol ID", "gmrp.protocol_id",
 	    FT_UINT16,      BASE_HEX,      NULL,  0x0,
 	    "" , HFILL }
 	},
 	{ &hf_gmrp_attribute_type,
-	    { "Type",        "garp.attribute_type",
+	    { "Type",        "gmrp.attribute_type",
 	    FT_UINT8,        BASE_HEX,      VALS(attribute_type_vals),  0x0,
 	    "" , HFILL }
 	},
 	{ &hf_gmrp_attribute_length,
-	    { "Length",      "garp.attribute_length",
+	    { "Length",      "gmrp.attribute_length",
 	    FT_UINT8,        BASE_DEC,      NULL,  0x0,
 	    "" , HFILL }
 	},
 	{ &hf_gmrp_attribute_event,
-	    { "Event",       "garp.attribute_event",
+	    { "Event",       "gmrp.attribute_event",
 	    FT_UINT8,        BASE_DEC,      VALS(event_vals),  0x0,
 	    "" , HFILL }
 	},
 	{ &hf_gmrp_attribute_value_group_membership,
-	    { "Value",       "garp.attribute_value_group_membership",
+	    { "Value",       "gmrp.attribute_value_group_membership",
 	    FT_ETHER,        BASE_HEX,      NULL,  0x0,
 	    "" , HFILL }
 	},
 	{ &hf_gmrp_attribute_value_service_requirement,
-	    { "Value",       "garp.attribute_value_service_requirement",
+	    { "Value",       "gmrp.attribute_value_service_requirement",
 	    FT_UINT8,        BASE_HEX,      NULL,  0x0,
 	    "" , HFILL }
 	}

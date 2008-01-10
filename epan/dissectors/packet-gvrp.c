@@ -301,27 +301,27 @@ proto_register_gvrp(void)
 {
     static hf_register_info hf[] = {
 	{ &hf_gvrp_proto_id,
-	    { "Protocol ID", "garp.protocol_id",
+	    { "Protocol ID", "gvrp.protocol_id",
 	    FT_UINT16,      BASE_HEX,      NULL,  0x0,
 	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_type,
-	    { "Type",        "garp.attribute_type",
+	    { "Type",        "gvrp.attribute_type",
 	    FT_UINT8,        BASE_HEX,      VALS(attribute_type_vals),  0x0,
 	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_length,
-	    { "Length",      "garp.attribute_length",
+	    { "Length",      "gvrp.attribute_length",
 	    FT_UINT8,        BASE_DEC,      NULL,  0x0,
 	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_event,
-	    { "Event",       "garp.attribute_event",
+	    { "Event",       "gvrp.attribute_event",
 	    FT_UINT8,        BASE_DEC,      VALS(event_vals),  0x0,
 	    "", HFILL }
 	},
 	{ &hf_gvrp_attribute_value,
-	    { "Value",       "garp.attribute_value",
+	    { "Value",       "gvrp.attribute_value",
 	    FT_UINT16,       BASE_DEC,      NULL,  0x0,
 	    "", HFILL }
 	}

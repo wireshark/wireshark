@@ -47,12 +47,12 @@
 
 static int proto_gryphon = -1;
 
-static int hf_gryph_src = -1;
-static int hf_gryph_srcchan = -1;
-static int hf_gryph_dest = -1;
-static int hf_gryph_destchan= -1;
-static int hf_gryph_type = -1;
-static int hf_gryph_cmd = -1;
+static int hf_gryphon_src = -1;
+static int hf_gryphon_srcchan = -1;
+static int hf_gryphon_dest = -1;
+static int hf_gryphon_destchan= -1;
+static int hf_gryphon_type = -1;
+static int hf_gryphon_cmd = -1;
 
 static gint ett_gryphon = -1;
 static gint ett_gryphon_header = -1;
@@ -264,18 +264,18 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	"Source: %s, channel %u",
 	val_to_str(src, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 1));
-    proto_tree_add_uint_hidden(header_tree, hf_gryph_src, tvb,
+    proto_tree_add_uint_hidden(header_tree, hf_gryphon_src, tvb,
 	offset, 1, src);
-    proto_tree_add_uint_hidden(header_tree, hf_gryph_srcchan, tvb,
+    proto_tree_add_uint_hidden(header_tree, hf_gryphon_srcchan, tvb,
 	offset+1, 1, tvb_get_guint8(tvb, offset + 1));
 
     proto_tree_add_text(header_tree, tvb, offset+2, 2,
 	"Destination: %s, channel %u",
 	val_to_str(dest, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 3));
-    proto_tree_add_uint_hidden(header_tree, hf_gryph_dest, tvb,
+    proto_tree_add_uint_hidden(header_tree, hf_gryphon_dest, tvb,
 	offset+2, 1, dest);
-    proto_tree_add_uint_hidden(header_tree, hf_gryph_destchan, tvb,
+    proto_tree_add_uint_hidden(header_tree, hf_gryphon_destchan, tvb,
 	offset+3, 1, tvb_get_guint8(tvb, offset + 3));
 
     proto_tree_add_text(header_tree, tvb, offset+4, 2,
@@ -296,7 +296,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     proto_tree_add_text(header_tree, tvb, offset+7, 1, "reserved");
 
-    proto_tree_add_uint_hidden(header_tree, hf_gryph_type, tvb,
+    proto_tree_add_uint_hidden(header_tree, hf_gryphon_type, tvb,
 	offset+6, 1, frmtyp);
     msgpad = 3 - (msglen + 3) % 4;
     msgend = offset + msglen + msgpad + MSG_HDR_SZ;
@@ -638,7 +638,7 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     cmd = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_hidden(pt, hf_gryph_cmd, tvb, offset, 1, cmd);
+    proto_tree_add_uint_hidden(pt, hf_gryphon_cmd, tvb, offset, 1, cmd);
     if (cmd > 0x3F)
     	cmd += dst * 256;
 
@@ -2224,23 +2224,23 @@ void
 proto_register_gryphon(void)
 {
     static hf_register_info hf[] = {
-	{ &hf_gryph_src,
-	{ "Source",           "gryph.src", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
+	{ &hf_gryphon_src,
+	{ "Source",           "gryphon.src", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
 	    	"", HFILL }},
-	{ &hf_gryph_srcchan,
-	{ "Source channel",   "gryph.srcchan", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ &hf_gryphon_srcchan,
+	{ "Source channel",   "gryphon.srcchan", FT_UINT8, BASE_DEC, NULL, 0x0,
 	    	"", HFILL }},
-	{ &hf_gryph_dest,
-	{ "Destination",      "gryph.dest", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
+	{ &hf_gryphon_dest,
+	{ "Destination",      "gryphon.dest", FT_UINT8, BASE_HEX, VALS(src_dest), 0x0,
 	    	"", HFILL }},
-	{ &hf_gryph_destchan,
-	{ "Destination channel", "gryph.dstchan", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ &hf_gryphon_destchan,
+	{ "Destination channel", "gryphon.destchan", FT_UINT8, BASE_DEC, NULL, 0x0,
 	    	"", HFILL }},
-	{ &hf_gryph_type,
-	{ "Frame type",       "gryph.type", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ &hf_gryphon_type,
+	{ "Frame type",       "gryphon.type", FT_UINT8, BASE_DEC, NULL, 0x0,
 	    	"", HFILL }},
-	{ &hf_gryph_cmd,
-	{ "Command",          "gryph.cmd.cmd", FT_UINT8, BASE_DEC, NULL, 0x0,
+	{ &hf_gryphon_cmd,
+	{ "Command",          "gryphon.cmd", FT_UINT8, BASE_DEC, NULL, 0x0,
 	    	"", HFILL }},
     };
 
