@@ -70,14 +70,11 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 			      union wtap_pseudo_header *pseudo_header, guchar *pd,
 			      int length, int *err, gchar **err_info);
-static void erf_close(wtap *wth);
-
 
 int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   char *s;
-  int common_type = 0;
   erf_timestamp_t prevts,ts; 
   erf_header_t header;
   guint32 mc_hdr;
@@ -96,7 +93,11 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
   }
 
-  /* ERF is a little hard because there's no magic number */
+  /*
+   * ERF is a little hard because there's no magic number; we look at
+   * the first few records and see if they look enough like ERF
+   * records.
+   */
 
   for (i = 0; i < records_for_erf_check; i++) {  /* records_for_erf_check */
 
@@ -178,15 +179,6 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
     memcpy(&prevts, &ts, sizeof(prevts));
 
-    /* Check for multiple encapsulation in the same file */
-    if (common_type == 0) {
-      common_type = header.type;
-    } else {
-      if (common_type > 0 && common_type != header.type) {
-	common_type = -1;
-      }
-    }
-
     /* Read over MC or ETH subheader */
     switch(header.type) {
     case ERF_TYPE_MC_HDLC:
@@ -242,16 +234,12 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
   wth->snapshot_length = 0;	/* not available in header, only in frame */
 
   /*
-   * Really want WTAP_ENCAP_PER_PACKET here but that severely limits
-   * the number of output formats we can write to. If all the records
-   * tested in the loop above were the same encap then use that one,
-   * otherwise use WTAP_ENCAP_PER_PACKET.
+   * Use the encapsulation for ERF records.
    */
-  wth->file_encap = (common_type < 0 ? WTAP_ENCAP_PER_PACKET : WTAP_ENCAP_ERF);
+  wth->file_encap = WTAP_ENCAP_ERF;
 
   wth->subtype_read = erf_read;
   wth->subtype_seek_read = erf_seek_read;
-  wth->subtype_close = erf_close;
   wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
   return 1;
@@ -303,11 +291,6 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
   wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err);
 
   return TRUE;
-}
-
-static void erf_close(wtap *wth)
-{
-  if (wth) { }
 }
 
 static int erf_read_header(
@@ -372,10 +355,6 @@ static int erf_read_header(
   case ERF_TYPE_ATM:
   case ERF_TYPE_AAL5:
   case ERF_TYPE_AAL2:
-    if (phdr != NULL) {
-      phdr->len =  g_htons(erf_header->wlen);
-      phdr->caplen = g_htons(erf_header->rlen);
-    }
     break;
 
   case ERF_TYPE_ETH:
@@ -386,10 +365,6 @@ static int erf_read_header(
       *bytes_read += sizeof(eth_hdr);
     *packet_size -=  sizeof(eth_hdr);
     pseudo_header->erf.subhdr.eth_hdr = g_htons(eth_hdr);
-    if (phdr != NULL) {
-      phdr->len =  g_htons(erf_header->wlen);
-      phdr->caplen = g_htons(erf_header->rlen);
-    }
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -404,10 +379,6 @@ static int erf_read_header(
       *bytes_read += sizeof(mc_hdr);
     *packet_size -=  sizeof(mc_hdr);
     pseudo_header->erf.subhdr.mc_hdr = g_htonl(mc_hdr);
-    if (phdr != NULL) {
-      phdr->len =  g_htons(erf_header->wlen);
-      phdr->caplen = g_htons(erf_header->rlen);
-    }
     break;
 
   case ERF_TYPE_IP_COUNTER:
@@ -421,9 +392,9 @@ static int erf_read_header(
   }
 
   if (phdr != NULL) {
-    phdr->pkt_encap = WTAP_ENCAP_ERF;
+    phdr->len =  g_htons(erf_header->wlen);
+    phdr->caplen = g_htons(erf_header->rlen);
   }
-
   return TRUE;
 }
 
