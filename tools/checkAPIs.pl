@@ -59,6 +59,19 @@ my @prohibitedAPIs=
 	'strncasecmp',
 	'g_strcasecmp',
 	'g_strncasecmp',
+	# Use the eth_* version of these:
+	# (Necessary because on Windows we use UTF8 for throughout the code
+	# so we must tweak that to UTF16 before operating on the file.  Code
+	# using these functions will work unless the file/path name contains
+	# non-ASCII chars.)
+	'open',
+	'rename',
+	'mkdir',
+	'stat',
+	'unlink',
+	'remove',
+	'fopen',
+	'freopen'
 );
 
 # APIs that SHOULD NOT be used in Wireshark (any more)
@@ -91,7 +104,7 @@ my @deprecatedAPIs=
 sub findAPIinList($$$)
 {
     my ($apiList, $fileContentsRef, $foundAPIsRef)=@_;
-    
+
     for my $api (@{$apiList})
     {
         if ($$fileContentsRef =~ m/\W$api\W*\(/)
