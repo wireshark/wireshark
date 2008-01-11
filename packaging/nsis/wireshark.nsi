@@ -619,6 +619,8 @@ push $R0
   	Call Associate
   	StrCpy $R0 ".wpz"
   	Call Associate
+  	StrCpy $R0 ".rf5"
+  	Call Associate
 ; if somethings added here, add it also to the uninstall section and the AdditionalTask page
 pop $R0
 !insertmacro UpdateIcons
@@ -943,6 +945,8 @@ push $R0
   	StrCpy $R0 ".wpc"
   	Call un.unlink
   	StrCpy $R0 ".wpz"
+  	Call un.unlink
+  	StrCpy $R0 ".rf5"
   	Call un.unlink
 pop $R0
 
