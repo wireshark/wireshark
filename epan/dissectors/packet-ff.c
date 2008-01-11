@@ -13161,7 +13161,7 @@ dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	return(dissect_ff(tvb, pinfo, tree));
+	dissect_ff(tvb, pinfo, tree);
 }
 
 
