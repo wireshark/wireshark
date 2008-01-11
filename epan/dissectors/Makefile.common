@@ -394,6 +394,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-fcsp.c		\
 	packet-fcswils.c	\
 	packet-fddi.c		\
+	packet-ff.c		\
 	packet-fix.c		\
 	packet-fmp.c		\
 	packet-fmp_notify.c	\
@@ -885,6 +886,7 @@ DISSECTOR_INCLUDES =	\
 	packet-fcsb3.h	\
 	packet-fcswils.h	\
 	packet-fddi.h	\
+	packet-ff.h	\
 	packet-fmp.h	\
 	packet-fmp_notify.h	\
 	packet-fr.h	\
