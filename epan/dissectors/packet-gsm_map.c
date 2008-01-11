@@ -6,6 +6,17 @@
 /* Input file: packet-gsmmap-template.c */
 
 #line 1 "packet-gsmmap-template.c"
+/* XXX see bug 1852:
+ *
+ * packet-gsm_map.c: There are 1174 display filter fields registered.  Most are
+ * prefixed appropriately as "gsm_map", but many others are prefixed as
+ * "gsm_old", or even "gad", "gsm_ss", or with no prefix at all.  I don't know
+ * if the ones with "gsm_old" are simply obsolete display filter fields or if
+ * they should be prefixed as "gsm_map.old." or what.  Similar uncertainties
+ * for the others. Someone more knowledgeable than I am with respect to this
+ * dissector should provide a patch for it.
+ */
+
 /* packet-gsm_map-template.c
  * Routines for GSM MobileApplication packet dissection
  * including GSM SS.
@@ -79,7 +90,7 @@
 int proto_gsm_map = -1;
 int proto_gsm_map_dialogue = -1;
 
-static int hf_gsm_old_Component_PDU = -1;
+static int hf_gsm_map_old_Component_PDU = -1;
 static int hf_gsm_map_getPassword = -1;
 static int hf_gsm_map_currentPassword = -1;
 static int hf_gsm_map_extension = -1;
@@ -118,28 +129,28 @@ static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
 static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
 static int hf_gsm_map_GSNAddress_IPv4 = -1;
 static int hf_gsm_map_GSNAddress_IPv6 = -1;
-static int hf_geo_loc_type_of_shape = -1;
-static int hf_geo_loc_sign_of_lat	= -1;
-static int hf_geo_loc_deg_of_lat =-1;
-static int hf_geo_loc_deg_of_long =-1;
-static int hf_geo_loc_uncertainty_code = -1;
-static int hf_geo_loc_uncertainty_semi_major = -1;
-static int hf_geo_loc_uncertainty_semi_minor = -1;
-static int hf_geo_loc_orientation_of_major_axis = -1;
-static int hf_geo_loc_uncertainty_altitude = -1;
-static int hf_geo_loc_confidence = -1;
-static int hf_geo_loc_no_of_points = -1;
-static int hf_geo_loc_D = -1;
-static int hf_geo_loc_altitude = -1;
-static int hf_geo_loc_inner_radius = -1;
-static int hf_geo_loc_uncertainty_radius = -1;
-static int hf_geo_loc_offset_angle = -1;
-static int hf_geo_loc_included_angle = -1;
+static int hf_gsm_map_geo_loc_type_of_shape = -1;
+static int hf_gsm_map_geo_loc_sign_of_lat	= -1;
+static int hf_gsm_map_geo_loc_deg_of_lat =-1;
+static int hf_gsm_map_geo_loc_deg_of_long =-1;
+static int hf_gsm_map_geo_loc_uncertainty_code = -1;
+static int hf_gsm_map_geo_loc_uncertainty_semi_major = -1;
+static int hf_gsm_map_geo_loc_uncertainty_semi_minor = -1;
+static int hf_gsm_map_geo_loc_orientation_of_major_axis = -1;
+static int hf_gsm_map_geo_loc_uncertainty_altitude = -1;
+static int hf_gsm_map_geo_loc_confidence = -1;
+static int hf_gsm_map_geo_loc_no_of_points = -1;
+static int hf_gsm_map_geo_loc_D = -1;
+static int hf_gsm_map_geo_loc_altitude = -1;
+static int hf_gsm_map_geo_loc_inner_radius = -1;
+static int hf_gsm_map_geo_loc_uncertainty_radius = -1;
+static int hf_gsm_map_geo_loc_offset_angle = -1;
+static int hf_gsm_map_geo_loc_included_angle = -1;
 static int hf_gsm_map_ranap_service_Handover = -1;
-static int hf_gsm_mapIntegrityProtectionInformation = -1;
-static int hf_gsm_mapEncryptionInformation = -1;
+static int hf_gsm_map_IntegrityProtectionInformation = -1;
+static int hf_gsm_map_EncryptionInformation = -1;
 static int hf_gsm_map_PlmnContainer_PDU = -1;
-static int hf_gsm_ss_SS_UserData = -1;
+static int hf_gsm_map_ss_SS_UserData = -1;
 static int hf_gsm_map_cbs_coding_grp = -1;
 static int hf_gsm_map_cbs_coding_grp0_lang = -1;
 static int hf_gsm_map_cbs_coding_grp1_lang = -1;
@@ -1365,7 +1376,7 @@ static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
 static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 148 "packet-gsmmap-template.c"
+#line 159 "packet-gsmmap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -1949,7 +1960,7 @@ static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
 
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 172 "packet-gsmmap-template.c"
+#line 183 "packet-gsmmap-template.c"
 
 static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t	data_handle;
@@ -2226,7 +2237,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	 * The Location Estimate field is composed of 1 or more octets with an internal structure 
 	 * according to section 7 in [23.032].
 	 */
-	proto_tree_add_item(tree, hf_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
 	if (length<2)
 		return;
 	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
@@ -2240,17 +2251,17 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		offset++;
 		if (length<4)
 			return;
-		proto_tree_add_item(tree, hf_geo_loc_sign_of_lat, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_geo_loc_sign_of_lat, tvb, offset, 1, FALSE);
 
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
 		/* convert degrees (X/0x7fffff) * 90 = degrees */
-		lat_item = proto_tree_add_item(tree, hf_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
+		lat_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
 		proto_item_append_text(lat_item,"(%.5f degrees)", (((double)value32/8388607) * 90));
 		if (length<7)
 			return;
 		offset = offset + 3;
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
-		long_item = proto_tree_add_item(tree, hf_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
+		long_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
 		/* (X/0xffffff) *360 = degrees */
 		proto_item_append_text(long_item,"(%.5f degrees)", (((double)value32/16777215) * 360));
 		offset = offset + 3;
@@ -2259,21 +2270,21 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			if (length<8)
 				return;
 			/* Uncertainty code */
-			proto_tree_add_item(tree, hf_geo_loc_uncertainty_code, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_code, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==3){
 			/* Ellipsoid Point with uncertainty Ellipse */
 			/* Uncertainty semi-major octet 10
 			 * To convert to metres 10*(((1.1)^X)-1) 
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f; 
-			major_item = proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			major_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
 			 * To convert to metres 10*(((1.1)^X)-1) 
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f; 
-			minor_item = proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			minor_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
@@ -2281,35 +2292,35 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			 * to actual degrees multiply by 2.
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			proto_tree_add_uint(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
+			proto_tree_add_uint(tree, hf_gsm_map_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
 			offset++;
 			/* Confidence */
-			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==8){
 			/* Ellipsoid Point with Altitude */
 			/*D: Direction of Altitude */
-			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_D, tvb, offset, 1, FALSE);
 			/* Altitude */
-			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_altitude, tvb, offset, 2, FALSE);
 		}else if(type_of_shape==9){
 			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
 			/*D: Direction of Altitude octet 8,9 */
-			proto_tree_add_item(tree, hf_geo_loc_D, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_D, tvb, offset, 1, FALSE);
 			/* Altitude Octet 8,9*/
-			proto_tree_add_item(tree, hf_geo_loc_altitude, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_altitude, tvb, offset, 2, FALSE);
 			offset = offset +2;
 			/* Uncertainty semi-major octet 10
 			 * To convert to metres 10*(((1.1)^X)-1) 
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f; 
-			major_item = proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			major_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
 			 * To convert to metres 10*(((1.1)^X)-1) 
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f; 
-			minor_item = proto_tree_add_item(tree, hf_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			minor_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
@@ -2317,42 +2328,42 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			 * to actual degrees multiply by 2.
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			proto_tree_add_uint(tree, hf_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
+			proto_tree_add_uint(tree, hf_gsm_map_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
 			offset++;
 			/* Uncertainty Altitude 13
 			 * to convert to metres 45*(((1.025)^X)-1) 
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f; 
-			alt_item = proto_tree_add_item(tree, hf_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
+			alt_item = proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
 			proto_item_append_text(alt_item,"(%.1f m)", 45 * (pow(1.025, (double)value) - 1));
 			offset++;
 			/* Confidence octet 14
 			 */
-			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==10){
 			/* Ellipsoid Arc */
 			offset++;
 			/* Inner radius */
-			proto_tree_add_item(tree, hf_geo_loc_inner_radius, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_inner_radius, tvb, offset, 2, FALSE);
 			offset= offset +2;
 			/* Uncertainty radius */
-			proto_tree_add_item(tree, hf_geo_loc_uncertainty_radius, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_uncertainty_radius, tvb, offset, 1, FALSE);
 			offset++;
 			/* Offset angle */
-			proto_tree_add_item(tree, hf_geo_loc_offset_angle, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_offset_angle, tvb, offset, 1, FALSE);
 			offset++;
 			/* Included angle */
-			proto_tree_add_item(tree, hf_geo_loc_included_angle, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_included_angle, tvb, offset, 1, FALSE);
 			offset++;
 			/* Confidence */
-			proto_tree_add_item(tree, hf_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}
 
 		break;
 	case 5:					/* Polygon */
 		/* Number of points */
 		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
-		proto_tree_add_item(tree, hf_geo_loc_no_of_points, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_geo_loc_no_of_points, tvb, offset, 1, FALSE);
 		/*
 		while ( no_of_points > 0){
 			offset++;
@@ -7159,7 +7170,7 @@ dissect_gsm_map_ms_IntegrityProtectionInformation(gboolean implicit_tag _U_, tvb
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
-	dissect_ranap_IntegrityProtectionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapIntegrityProtectionInformation);
+	dissect_ranap_IntegrityProtectionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_map_IntegrityProtectionInformation);
 
 
 
@@ -7182,7 +7193,7 @@ dissect_gsm_map_ms_EncryptionInformation(gboolean implicit_tag _U_, tvbuff_t *tv
                 return offset;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, actx->pinfo);
-	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_mapEncryptionInformation);
+	dissect_ranap_EncryptionInformation(parameter_tvb, 0, &asn1_ctx, tree, hf_gsm_map_EncryptionInformation);
 
 
 
@@ -15480,7 +15491,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 856 "packet-gsmmap-template.c"
+#line 867 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -15692,7 +15703,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 867 "packet-gsmmap-template.c"
+#line 878 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -15897,7 +15908,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 871 "packet-gsmmap-template.c"
+#line 882 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -16099,7 +16110,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_old_GetPasswordArg(FALSE, tvb, offset, actx, tree, hf_gsm_map_getPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_map_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesArg(FALSE, tvb, offset, actx, tree, -1);
@@ -16441,7 +16452,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset=dissect_gsm_old_CurrentPassword(FALSE, tvb, offset, actx, tree, hf_gsm_map_currentPassword);
     break;
   case 19: /* SS-Protocol processUnstructuredSS-Data (19) */
-    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_ss_SS_UserData);
+    offset=dissect_gsm_ss_SS_UserData(FALSE, tvb, offset, actx, tree, hf_gsm_map_ss_SS_UserData);
     break;
   case 20: /*releaseResources*/
     offset=dissect_gsm_map_ch_ReleaseResourcesRes(FALSE, tvb, offset, actx, tree, -1);
@@ -16875,7 +16886,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
     col_set_str(actx->pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP PDU (%u)"));
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   }
-  offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_old_Component_PDU);
+  offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_map_old_Component_PDU);
   return offset;
 /*
   offset = dissect_ber_choice(pinfo, tree, tvb, offset,
@@ -17310,10 +17321,10 @@ void proto_register_gsm_map(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_gsm_old_Component_PDU,
-      { "Component", "gsm_old.Component",
+    { &hf_gsm_map_old_Component_PDU,
+      { "Component", "gsm_map.old.Component",
         FT_UINT32, BASE_DEC, VALS(gsm_old_Component_vals), 0,
-        "gsm_old.Component", HFILL }},
+        "gsm_map.old.Component", HFILL }},
     { &hf_gsm_map_currentPassword,
       { "currentPassword", "gsm_map.currentPassword",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -17459,88 +17470,88 @@ void proto_register_gsm_map(void) {
       { "GSN Address IPv6",  "gsm_map.gsnaddress_ipv6",
 	  FT_IPv4, BASE_NONE, NULL, 0,
 	  "IPAddress IPv6", HFILL }},
-	{ &hf_geo_loc_type_of_shape,
-		{ "Location estimate","gad.location_estimate",
+	{ &hf_gsm_map_geo_loc_type_of_shape,
+		{ "Location estimate","gsm_map.gad.location_estimate",
 		FT_UINT8,BASE_DEC, VALS(type_of_shape_vals), 0xf0,          
 		"Location estimate", HFILL }
 	},
-	{ &hf_geo_loc_sign_of_lat,
-		{ "Sign of latitude","gad.sign_of_latitude",
+	{ &hf_gsm_map_geo_loc_sign_of_lat,
+		{ "Sign of latitude","gsm_map.gad.sign_of_latitude",
 		FT_UINT8,BASE_DEC, VALS(sign_of_latitude_vals), 0x80,          
 		"Sign of latitude", HFILL }
 	},
-	{ &hf_geo_loc_deg_of_lat,
-		{ "Degrees of latitude","gad.sign_of_latitude",
+	{ &hf_gsm_map_geo_loc_deg_of_lat,
+		{ "Degrees of latitude","gsm_map.gad.sign_of_latitude",
 		FT_UINT24,BASE_DEC, NULL, 0x7fffff,          
 		"Degrees of latitude", HFILL }
 	},
-	{ &hf_geo_loc_deg_of_long,
-		{ "Degrees of longitude","gad.sign_of_longitude",
+	{ &hf_gsm_map_geo_loc_deg_of_long,
+		{ "Degrees of longitude","gsm_map.gad.sign_of_longitude",
 		FT_UINT24,BASE_DEC, NULL, 0xffffff,          
 		"Degrees of longitude", HFILL }
 	},
-	{ &hf_geo_loc_uncertainty_code,
-		{ "Uncertainty code","gad.uncertainty_code",
+	{ &hf_gsm_map_geo_loc_uncertainty_code,
+		{ "Uncertainty code","gsm_map.gad.uncertainty_code",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Uncertainty code", HFILL }
 	},
-	{ &hf_geo_loc_uncertainty_semi_major,
-		{ "Uncertainty semi-major","gad.uncertainty_semi_major",
+	{ &hf_gsm_map_geo_loc_uncertainty_semi_major,
+		{ "Uncertainty semi-major","gsm_map.gad.uncertainty_semi_major",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Uncertainty semi-major", HFILL }
 	},
-	{ &hf_geo_loc_uncertainty_semi_minor,
-		{ "Uncertainty semi-minor","gad.uncertainty_semi_minor",
+	{ &hf_gsm_map_geo_loc_uncertainty_semi_minor,
+		{ "Uncertainty semi-minor","gsm_map.gad.uncertainty_semi_minor",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Uncertainty semi-minor", HFILL }
 	},
-	{ &hf_geo_loc_orientation_of_major_axis,
-		{ "Orientation of major axis","gad.orientation_of_major_axis",
+	{ &hf_gsm_map_geo_loc_orientation_of_major_axis,
+		{ "Orientation of major axis","gsm_map.gad.orientation_of_major_axis",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Orientation of major axis", HFILL }
 	},
-	{ &hf_geo_loc_uncertainty_altitude,
-		{ "Uncertainty Altitude","gad.uncertainty_altitude",
+	{ &hf_gsm_map_geo_loc_uncertainty_altitude,
+		{ "Uncertainty Altitude","gsm_map.gad.uncertainty_altitude",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Uncertainty Altitude", HFILL }
 	},
-	{ &hf_geo_loc_confidence,
-		{ "Confidence(%)","gad.confidence",
+	{ &hf_gsm_map_geo_loc_confidence,
+		{ "Confidence(%)","gsm_map.gad.confidence",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Confidence(%)", HFILL }
 	},
-	{ &hf_geo_loc_no_of_points,
-		{ "Number of points","gad.no_of_points",
+	{ &hf_gsm_map_geo_loc_no_of_points,
+		{ "Number of points","gsm_map.gad.no_of_points",
 		FT_UINT8,BASE_DEC, NULL, 0x0f,          
 		"Number of points", HFILL }
 	},
-	{ &hf_geo_loc_D,
-		{ "D: Direction of Altitude","gad.D",
+	{ &hf_gsm_map_geo_loc_D,
+		{ "D: Direction of Altitude","gsm_map.gad.D",
 		FT_UINT16,BASE_DEC, VALS(dir_of_alt_vals), 0x8000,          
 		"D: Direction of Altitude", HFILL }
 	},
-	{ &hf_geo_loc_altitude,
-		{ "Altitude in meters","gad.altitude",
+	{ &hf_gsm_map_geo_loc_altitude,
+		{ "Altitude in meters","gsm_map.gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x7fff,          
 		"Altitude", HFILL }
 	},
-	{ &hf_geo_loc_inner_radius,
-		{ "Inner radius","gad.altitude",
+	{ &hf_gsm_map_geo_loc_inner_radius,
+		{ "Inner radius","gsm_map.gad.altitude",
 		FT_UINT16,BASE_DEC, NULL, 0x0,          
 		"Inner radius", HFILL }
 	},
-	{ &hf_geo_loc_uncertainty_radius,
-		{ "Uncertainty radius","gad.no_of_points",
+	{ &hf_gsm_map_geo_loc_uncertainty_radius,
+		{ "Uncertainty radius","gsm_map.gad.no_of_points",
 		FT_UINT8,BASE_DEC, NULL, 0x7f,          
 		"Uncertainty radius", HFILL }
 	},
-	{ &hf_geo_loc_offset_angle,
-		{ "Offset angle","gad.offset_angle",
+	{ &hf_gsm_map_geo_loc_offset_angle,
+		{ "Offset angle","gsm_map.gad.offset_angle",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Offset angle", HFILL }
 	},
-	{ &hf_geo_loc_included_angle,
-		{ "Included angle","gad.included_angle",
+	{ &hf_gsm_map_geo_loc_included_angle,
+		{ "Included angle","gsm_map.gad.included_angle",
 		FT_UINT8,BASE_DEC, NULL, 0x0,          
 		"Included angle", HFILL }
 	},
@@ -17549,11 +17560,11 @@ void proto_register_gsm_map(void) {
       { "service-Handover", "gsm_map.ranap.service_Handover",
         FT_UINT32, BASE_DEC, VALS(ranap_Service_Handover_vals), 0,
         "gsm_map.ranap.Service_Handover", HFILL }},
-    { &hf_gsm_mapIntegrityProtectionInformation,
+    { &hf_gsm_map_IntegrityProtectionInformation,
       { "IntegrityProtectionInformation", "gsm_map.ranap.IntegrityProtectionInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.ranap.IntegrityProtectionInformation", HFILL }},
-    { &hf_gsm_mapEncryptionInformation,
+    { &hf_gsm_map_EncryptionInformation,
       { "EncryptionInformation", "gsm_map.ranap.EncryptionInformation",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.ranap.EncryptionInformation", HFILL }},
@@ -17561,10 +17572,10 @@ void proto_register_gsm_map(void) {
       { "PlmnContainer", "gsm_map.PlmnContainer",
         FT_NONE, BASE_NONE, NULL, 0,
         "gsm_map.PlmnContainer", HFILL }},
-    { &hf_gsm_ss_SS_UserData,
+    { &hf_gsm_map_ss_SS_UserData,
       { "SS-UserData", "gsm_ss.SS_UserData",
         FT_STRING, BASE_NONE, NULL, 0,
-        "gsm_ss.SS_UserData", HFILL }},
+        "gsm_map.ss.SS_UserData", HFILL }},
 	{ &hf_gsm_map_cbs_coding_grp,
 		{ "Coding Group","gsm_map.cbs.coding_grp",
 		FT_UINT8,BASE_DEC, VALS(gsm_map_cbs_data_coding_scheme_coding_grp_vals), 0xf0,          
@@ -22309,7 +22320,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2596 "packet-gsmmap-template.c"
+#line 2607 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -22895,7 +22906,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2622 "packet-gsmmap-template.c"
+#line 2633 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
@@ -22971,7 +22982,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2640 "packet-gsmmap-template.c"
+#line 2651 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
