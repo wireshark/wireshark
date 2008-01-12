@@ -2495,11 +2495,11 @@ dissect_ff_msg_sm_id_rsp_h1_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_entries_node_addr(tvbuff_t *tvb,
-	gint offset, proto_tree *tree, guint16 value)
+	gint offset, proto_tree *tree, guint32 value)
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
-	gint d = 0;
+	guint d = 0;
 
 	if(!tree) {
 		return;
@@ -2563,7 +2563,7 @@ dissect_ff_msg_sm_id_rsp_h1_live_list(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_id_rsp_entries_link_id(tvbuff_t *tvb,
-	gint offset, proto_tree *tree, guint16 value)
+	gint offset, proto_tree *tree, guint32 value)
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
@@ -3701,11 +3701,11 @@ dissect_ff_msg_sm_dev_annunc_req_h1_node_addr(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_entries_node_addr(tvbuff_t *tvb,
-	gint offset, proto_tree *tree, guint16 value)
+	gint offset, proto_tree *tree, guint32 value)
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
-	gint d = 0;
+	guint d = 0;
 
 	if(!tree) {
 		return;
@@ -3769,7 +3769,7 @@ dissect_ff_msg_sm_dev_annunc_req_h1_live_list(tvbuff_t *tvb,
 
 static void
 dissect_ff_msg_sm_dev_annunc_req_entries_link_id(tvbuff_t *tvb,
-	gint offset, proto_tree *tree, guint16 value)
+	gint offset, proto_tree *tree, guint32 value)
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
