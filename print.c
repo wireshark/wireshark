@@ -425,11 +425,13 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		for (i = -1; i < pdata->level; i++) {
 			fputs("  ", pdata->fh);
 		}
-		if (fi->hfinfo->type == FT_PROTOCOL) {
-			fputs("</proto>\n", pdata->fh);
-		}
-		else {
-			fputs("</field>\n", pdata->fh);
+		if (fi->hfinfo->id != proto_data) {   /* Data protocol uses simple tags */
+			if (fi->hfinfo->type == FT_PROTOCOL) {
+				fputs("</proto>\n", pdata->fh);
+			}
+			else {
+				fputs("</field>\n", pdata->fh);
+			}
 		}
 	}
 }
