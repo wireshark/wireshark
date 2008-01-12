@@ -3643,8 +3643,13 @@ int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *
 int
 dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id)
 {
-	char str[32];
+	char str[35];
 	const guint8 *tmpstr;
+	char *strptr;
+	char first_delim[2];
+	int first_digits;
+	char second_delim[2];
+	int second_digits;
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
@@ -3677,12 +3682,49 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 	  end_offset=offset+len;
 	}
 
-
 	tmpstr=tvb_get_ptr(tvb, offset, len);
-	g_snprintf(str, 32, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s (%.1s)",
-		tmpstr, tmpstr+4, tmpstr+6, tmpstr+8,
-		tmpstr+10, tmpstr+12, tmpstr+14);
-	str[31]=0; /* just in case ... */
+	strptr = str;
+	/* those fields are allways present */
+	strptr += g_snprintf(str, 20, "%.4s-%.2s-%.2s %.2s:%.2s:%.2s",
+			tmpstr, tmpstr+4, tmpstr+6, tmpstr+8,
+			tmpstr+10, tmpstr+12);
+
+	first_delim[0]=0;
+	second_delim[0]=0;
+	sscanf( tmpstr, "%*14d%1[.,+-Z]%4d%1[+-Z]%4d", first_delim, &first_digits, second_delim, &second_digits);
+
+	switch (first_delim[0]) {
+		case '.':
+		case ',':
+			strptr += g_snprintf(strptr, 5, "%c%.3d", first_delim[0], first_digits);
+			switch (second_delim[0]) {
+				case '+':
+				case '-':
+					g_snprintf(strptr, 12, " (UTC%c%.4d)", second_delim[0], second_digits);
+					break;
+				case 'Z':
+					g_snprintf(strptr, 7, " (UTC)");
+					break;
+				case 0:
+					break;
+				default:
+					/* handle the malformed field */
+					break;
+			}
+			break;
+		case '+':
+		case '-':
+			g_snprintf(strptr, 12, " (UTC%c%.4d)", first_delim[0], first_digits);
+			break;
+		case 'Z':
+			g_snprintf(strptr, 7, " (UTC)");
+			break;
+		case 0:
+			break;
+		default:
+			/* handle the malformed field */
+			break;
+	}
 
 	if(hf_id >= 0){
 		proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
