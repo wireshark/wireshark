@@ -571,6 +571,7 @@ static dissector_handle_t h248_tpkt_handle;
 /* Forward declarations */
 static int dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
+/* http://www.iana.org/assignments/megaco-h248 last updated 2007-11-28*/
 static const value_string package_name_vals[] = {
   {   0x0000, "Media stream properties H.248.1 Annex C" },
   {   0x0001, "Generic H.248.1 Annex E" },
@@ -714,6 +715,65 @@ static const value_string package_name_vals[] = {
   {   0x008f, "NAT Traversal Package" },							/* Annex E of ETSI TS 102 333 */
   {   0x0090, "MPLS Package" },										/* Annex F of ETSI TS 102 333 */
   {   0x0091, "VLAN Package" },										/* Annex G of ETSI TS 102 333 */
+  {   0x0092, "Detailed Congestion Reporting Package" },			/* H.248.32 */
+  {   0x0093, "Stimulus Analogue Lines Package" },					/* H.248.34 */
+  {   0x0094, "icascgen" },											/* H.248.29 Annex B */
+  {   0x0095, "Coin Operated Phone Control Package" },				/* H.248.35 */ 
+  {   0x0096, "Metering Pulse Detection Package" },					/* H.248.26 Amendment 1 */
+  {   0x0097, "Trace Package" },									/* 3GPP TS 29.232 v6.3.0 */
+  {   0x0098, "Hanging Termination Package" },						/* H.248.36 */
+  {   0x0099, "IP NAPT Traversal Package" },						/* H.248.37 */
+  {   0x009a, "Notification Behaviour Package" },					/* H.248.1v3 */
+  {   0x009b, "Base Context Package" },								/* H.248.38 */
+  {   0x009c, "Application Data Inactivity Detection Package" },	/* H.248.40 */
+  {   0x009d, "Domain Connection Package " },						/* H.248.41 */
+  {   0x009e, "Digital Circuit Multiplication Equipment Package" }, /* H.248.42 */
+  {   0x009f, "Multi-level Precedence and Pre-emption Package" },	/* H.248.44 */
+  {   0x00a0, "MGC Information Package" },							/* H.248.45 */
+  {   0x00a1, "Text Overlay Package" },								/* H.248.19 Amendment 1 */
+  {   0x00a2, "Border and Background Package" },					/* H.248.19 Amendment 1 */
+  {   0x00a3, "Segmentation Package" },								/* H.248.1v3 */ 
+  {   0x00a4, "ETSI notification behaviour package" },				/* ETSI ES 283 039-3 */
+  {   0x00a5, "ETSI notification rate package" },					/* ETSI ES 283 039-4 */
+  {   0x00a6, "Automatic Speech Recognition Package" },				/* H.248.9 Amendment 1 */ 
+  {   0x00a7, "Set extension to basic syntax for TTS enhancement Package" },/* H.248.9 Amendment 1 */
+  {   0x00a8, "Advanced audio server base package for TTS enhancement" },	/* H.248.9 Amendment 1 */ 
+  {   0x00a9, "Multimedia Play Package" },							/* H.248.9 Amendment 1 */ 
+  {   0x00aa, "Floor Status Detection Package" },					/* H.248.19 Amendment 2 */
+  {   0x00ab, "Floor Control Policy Package" },						/* H.248.19 Amendment 2 */ 
+  {   0x00ac, "Address Reporting Package" },						/* H.248.37 Amendment 1 */ 
+  {   0x00ad, "Connection Capability Control Package" },			/* H.248.46 */ 
+  {   0x00ae, "Statistic Conditional Reporting Package" },			/* H.248.47 Amendment 1 */
+  {   0x00af, "RTCP HR QoS Statistics Package" },					/* H.248.48 */ 
+  {   0x00b0, "Received RTCP XR Package" },							/* H.248.30 (01/2007) */
+  {   0x00b1, "Received RTCP XR Burst Metrics Package" },			/* H.248.30 (01/2007) */
+  {   0x00b2, "ASCI Group call package" },							/* 3GPP TS 29.232 v7.4.0 */
+  {   0x00b3, "Multimedia Recording Package" },						/* H.248.9 Amendment 1 */
+  {   0x00b4, "H.245 Transport Package" },							/* H.248.12 Amendment 2 */
+  {   0x00b5, "RTCP Handling package" },							/* H.248.57 */
+  {   0x00b6, "Gate Management - Outgoing Destination Address/Port Filtering Package" },/* H.248.43 */
+  {   0x00b7, "Gate Management - Incoming Protocol Filtering Package" },/* H.248.43 */
+  {   0x00b8, "Gate Management - Outgoing Protocol Filtering Package" },/* H.248.43 */
+  {   0x00b9, "Gate Management - Incoming Filtering Behaviour Package" },/* H.248.43 */
+  {   0x00ba, "Gate Management - Outgoing Filtering Behaviour Package" },	/* H.248.43 */
+  {   0x00bb, "Session Description Protocol RFC Package" },					/* H.248.49 */
+  {   0x00bc, "Session Description Protocol Capabilities Package" },		/* H.248.49 */
+  {   0x00bd, "NAT Traversal Toolkit - STUN Base Package" },				/* H.248.50 */
+  {   0x00be, "NAT Traversal Toolkit - MG STUN Client Package" },			/* H.248.50 */
+  {   0x00bf, "NAT Traversal Toolkit - MG TURN Client Package" },			/* H.248.50 */
+  {   0x00c0, "NAT Traversal Toolkit - MGC STUN Client Package" },			/* H.248.50 */
+  {   0x00c1, "NAT Traversal Toolkit - STUN Information Package" },				/* H.248.50 */
+  {   0x00c2, "NAT Traversal Toolkit - MG Act-as STUN Server Package" },			/* H.248.50 */
+  {   0x00c3, "NAT Traversal Toolkit - Originate STUN Continuity Check Package" },	/* H.248.50 */
+  {   0x00c4, "NAT Traversal Toolkit - MGC Originated STUN Request Package" },		/* H.248.50 */
+  {   0x00c5, "NAT Traversal Toolkit - RTP NOOP Request Package" },					/* H.248.50 */
+  {   0x00c6, "Termination Connection Model Package" },					/* H.248.51 */
+  {   0x00c7, "QoS Class Package" },									/* H.248.52 */
+  {   0x00c8, "Traffic Policing Statistics Package" },					/* H.248.53 */
+  {   0x00c9, "Packet Size Package" },									/* H.248.53 */
+  {   0x00ca, "Pull Mode Package" },									/* H.248.55 */
+  {   0x00cb, "RTP Application Data Package" },							/* H.248.58 */
+  {   0x00cc, "Event Timestamp Notification Package" },					/* H.248.59 */
   {   0x8000, "Ericsson IU" },
   {   0x8001, "Ericsson UMTS and GSM Circuit" },
   {   0x8002, "Ericsson Tone Generator Package" },
@@ -725,6 +785,10 @@ static const value_string package_name_vals[] = {
   {   0x8008, "Ericsson  V5.2 Layer" },
   {   0x8009, "Ericsson Detailed Termination Information Package" },
   {   0x800a, "Nokia Bearer Characteristics Package" },
+  {   0x800b, "Nokia Test Call Package" },
+  {   0x800c, "Nokia Extended Continuity Package" },
+  {   0x800d, "Nokia IPnwR Package" },
+  {   0x800e, "Ericsson Tracing Enhancements Package" },
 	{0,     NULL}
 };
 /*
@@ -4928,7 +4992,7 @@ dissect_h248_ServiceChangeReasonStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1151 "packet-h248-template.c"
+#line 1215 "packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6312,7 +6376,7 @@ void proto_register_h248(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1314 "packet-h248-template.c"
+#line 1378 "packet-h248-template.c"
 
 	GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6474,7 +6538,7 @@ void proto_register_h248(void) {
     &ett_h248_Value,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1332 "packet-h248-template.c"
+#line 1396 "packet-h248-template.c"
   };
 
   module_t *h248_module;
