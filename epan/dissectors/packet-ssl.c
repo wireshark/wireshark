@@ -117,6 +117,7 @@
 #include <epan/report_err.h>
 #include <epan/expert.h>
 #include "inet_v6defs.h"
+#include "packet-x509if.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
 #include <wiretap/file_util.h>
@@ -408,7 +409,7 @@ static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
-                                      guint32 offset);
+                                      guint32 offset, packet_info *pinfo);
 
 static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -503,14 +504,14 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     SslDecryptSession* ssl_session;
     guint* conv_version;
     Ssl_private_key_t * private_key;
-
+    guint32 port;
 
     ti = NULL;
     ssl_tree   = NULL;
     offset = 0;
     first_record_in_frame = TRUE;
     ssl_session = NULL;
-
+    port = 0;
 
 
     ssl_debug_printf("\ndissect_ssl enter frame #%u (%s)\n", pinfo->fd->num, (pinfo->fd->flags.visited)?"already visited":"first time");
@@ -555,11 +556,11 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* we need to know witch side of conversation is speaking*/
         if (ssl_packet_from_server(ssl_associations, pinfo->srcport, pinfo->ptype == PT_TCP)) {
             dummy.addr = pinfo->src;
-            dummy.port = pinfo->srcport;
+            dummy.port = port = pinfo->srcport;
         }
         else {
             dummy.addr = pinfo->dst;
-            dummy.port = pinfo->destport;
+            dummy.port = port = pinfo->destport;
         }
         ssl_debug_printf("dissect_ssl server %s:%u\n",
             address_to_str(&dummy.addr),dummy.port);
@@ -572,24 +573,32 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
         ssl_session->private_key = 0;
         private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+
         if (!private_key) {
-            ssl_debug_printf("dissect_ssl can't find private key for this server! Try it again with universal address 0.0.0.0\n");
+            ssl_debug_printf("dissect_ssl can't find private key for this server! Try it again with universal port 0\n");
+ 
+            dummy.port = 0;
+            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+	}
+
+        if (!private_key) {
+            ssl_debug_printf("dissect_ssl can't find private key for this server (universal port)! Try it again with universal address 0.0.0.0\n");
  
             dummy.addr.type = AT_IPv4;
             dummy.addr.len = 4;
             dummy.addr.data = ip_addr_any;
             
-            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+	    dummy.port = port;
 
-            if (!private_key) {
-            	ssl_debug_printf("dissect_ssl can't find any private key!\n");
-            }	
-            else {
-              ssl_session->private_key = private_key->sexp_pkey;	
-            }
-        }  else	{
-        	ssl_session->private_key = private_key->sexp_pkey;
-        }  
+            private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
+	}
+         
+	if (!private_key) {
+	  ssl_debug_printf("dissect_ssl can't find any private key!\n");
+	}	
+	else {
+	  ssl_session->private_key = private_key->sexp_pkey;	
+	}
         
     }
     conv_version= & ssl_session->version;
@@ -1836,7 +1845,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_REQUEST:
-                dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset, pinfo);
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:
@@ -2337,7 +2346,7 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
 
 static void
 dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
-                          proto_tree *tree, guint32 offset)
+                          proto_tree *tree, guint32 offset, packet_info *pinfo)
 {
     /*
      *    enum {
@@ -2356,9 +2365,12 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
     proto_tree *ti;
     proto_tree *subtree;
     guint8      cert_types_count;
-    gint         dnames_length;
+    gint        dnames_length;
+    asn1_ctx_t  asn1_ctx;
     cert_types_count = 0;
     dnames_length = 0;
+
+    asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
     if (tree)
     {
@@ -2422,13 +2434,9 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                 offset += 2;
 
                 tvb_ensure_bytes_exist(tvb, offset, name_length);
-                proto_tree_add_bytes_format(subtree,
-                                            hf_ssl_handshake_dname,
-                                            tvb, offset, name_length,
-                                            tvb_get_ptr(tvb, offset, name_length),
-                                            "Distinguished Name (%u byte%s)",
-                                            name_length,
-                                            plurality(name_length, "", "s"));
+
+		(void) dissect_x509if_DistinguishedName(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_dname);
+
                 offset += name_length;
             }
         }
@@ -4164,7 +4172,7 @@ proto_register_ssl(void)
         },
         { &hf_ssl_handshake_dname,
           { "Distinguished Name", "ssl.handshake.dname",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_NONE, BASE_NONE, NULL, 0x0,
             "Distinguished name of a CA that server trusts", HFILL }
         },
         { &hf_ssl2_handshake_challenge,

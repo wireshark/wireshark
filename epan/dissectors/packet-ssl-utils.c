@@ -2371,10 +2371,12 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
   if(!assoc->handle){
     fprintf(stderr, "association_add() could not find handle for protocol:%s\n",protocol);
   } else {
-    if(tcp)
-      dissector_add("tcp.port", port, handle);
-    else
-      dissector_add("udp.port", port, handle);
+    if(port) { 
+      if(tcp)
+	dissector_add("tcp.port", port, handle);
+      else
+	dissector_add("udp.port", port, handle);
+    }
     g_tree_insert(associations, assoc, assoc);
   }
 }
@@ -2638,8 +2640,12 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     } else {
       sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &ip[0], &ip[1], &ip[2], &ip[3]);
     }
-    
-    service->port = atoi(port);
+
+    if(!strcmp("start_tls", port)) {
+      service->port = 0;
+    } else {
+      service->port = atoi(port);
+    }
     ssl_debug_printf("ssl_init addr '%hhu.%hhu.%hhu.%hhu' port '%d' filename '%s' password(only for p12 file) '%s'\n",
 		     ip[0], ip[1], ip[2], ip[3], service->port, filename, cert_passwd);
 
@@ -2676,7 +2682,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     } 
     g_hash_table_insert(key_hash, service, private_key);
 
-    ssl_association_add(associations, handle, atoi(port), protocol, tcp, TRUE);
+    ssl_association_add(associations, handle, service->port, protocol, tcp, TRUE);
 
   } while (end != NULL);
   free(tmp);
