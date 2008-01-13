@@ -92,6 +92,7 @@
 #include "packet-frame.h"
 #include "packet-ldap.h"
 #include "packet-ntlmssp.h"
+#include "packet-ssl.h"
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -172,10 +173,12 @@ static gboolean is_binary_attr_type = FALSE;
 #define UDP_PORT_CLDAP			389
 #define TCP_PORT_GLOBALCAT_LDAP         3268 /* Windows 2000 Global Catalog */
 
-static dissector_handle_t gssapi_handle;
-static dissector_handle_t gssapi_wrap_handle;
+static dissector_handle_t gssapi_handle = NULL;
+static dissector_handle_t gssapi_wrap_handle = NULL;
 static dissector_handle_t ntlmssp_handle = NULL;
-static dissector_handle_t spnego_handle;
+static dissector_handle_t spnego_handle = NULL;
+static dissector_handle_t ssl_handle = NULL;
+static dissector_handle_t ldap_handle = NULL;
 
 /* different types of rpc calls ontop of ms cldap */
 #define	MSCLDAP_RPC_NETLOGON 	1
@@ -219,6 +222,8 @@ typedef struct ldap_conv_info_t {
   GHashTable *matched;
   gboolean is_mscldap;
   guint32  num_results;
+  gboolean start_tls_pending;
+  guint32  start_tls_frame;
 } ldap_conv_info_t;
 static ldap_conv_info_t *ldap_info_items;
 
@@ -429,6 +434,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         case LDAP_REQ_DELETE:
         case LDAP_REQ_MODRDN:
         case LDAP_REQ_COMPARE:
+        case LDAP_REQ_EXTENDED:
           lcr.is_request=TRUE;
           lcr.req_frame=pinfo->fd->num;
           lcr.rep_frame=0;
@@ -442,6 +448,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         case LDAP_RES_DELETE:
         case LDAP_RES_MODRDN:
         case LDAP_RES_COMPARE:
+        case LDAP_RES_EXTENDED:
           lcr.is_request=FALSE;
           lcr.req_frame=0;
           lcr.rep_frame=pinfo->fd->num;
@@ -465,6 +472,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
       case LDAP_REQ_DELETE:
       case LDAP_REQ_MODRDN:
       case LDAP_REQ_COMPARE:
+      case LDAP_REQ_EXTENDED:
 
 		/* this a a request - add it to the unmatched list */
 
@@ -498,6 +506,7 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
       case LDAP_RES_DELETE:
       case LDAP_RES_MODRDN:
       case LDAP_RES_COMPARE:
+      case LDAP_RES_EXTENDED:
 
 		/* this is a result - it should be in our unmatched list */
 
@@ -682,6 +691,8 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     ldap_info->matched=g_hash_table_new(ldap_info_hash_matched, ldap_info_equal_matched);
     ldap_info->unmatched=g_hash_table_new(ldap_info_hash_unmatched, ldap_info_equal_unmatched);
     ldap_info->num_results = 0;
+    ldap_info->start_tls_frame = 0;
+    ldap_info->start_tls_pending = FALSE;
 
     conversation_add_proto_data(conversation, proto_ldap, ldap_info);
 
@@ -689,7 +700,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     ldap_info_items = ldap_info;
 
   }
-
+  
   switch (ldap_info->auth_type) {
     case LDAP_AUTH_SASL:
     /*
@@ -1399,9 +1410,38 @@ this_was_not_sasl:
 
 	tcp_dissect_pdus(tvb, pinfo, tree, ldap_desegment, 4, get_normal_ldap_pdu_len, dissect_normal_ldap_pdu);
 
+	goto end;
 
 this_was_not_normal_ldap:
 
+	/* perhaps it was SSL? */
+	if(ldap_info && 
+	   ldap_info->start_tls_frame && 
+	   ( pinfo->fd->num >= ldap_info->start_tls_frame)) {
+
+	  /* we have started TLS and so this may be an SSL layer */
+	  guint32 old_start_tls_frame;
+
+	  /* temporarily dissect this port as SSL */
+	  dissector_delete("tcp.port", ldap_tcp_port, ldap_handle); 
+	  ssl_dissector_add(ldap_tcp_port, "ldap", TRUE);
+    
+	  old_start_tls_frame = ldap_info->start_tls_frame;
+	  ldap_info->start_tls_frame = 0; /* make sure we don't call SSL again */
+	  pinfo->can_desegment++; /* ignore this LDAP layer so SSL can use the TCP resegment */
+
+	  offset = call_dissector(ssl_handle, tvb, pinfo, tree);
+
+	  ldap_info->start_tls_frame = old_start_tls_frame;
+	  ssl_dissector_delete(ldap_tcp_port, "ldap", TRUE);
+
+	  /* restore ldap as the dissector for this port */
+	  dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
+
+	  /* we are done */
+	  return;
+	}
+ end:
 	return;
 }
 
@@ -1674,7 +1714,7 @@ void proto_register_ldap(void) {
 void
 proto_reg_handoff_ldap(void)
 {
-	dissector_handle_t ldap_handle, cldap_handle;
+	dissector_handle_t cldap_handle;
 	ldap_handle = create_dissector_handle(dissect_ldap_tcp, proto_ldap);
 
 	dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
@@ -1688,6 +1728,8 @@ proto_reg_handoff_ldap(void)
 	spnego_handle = find_dissector("spnego");
 
 	ntlmssp_handle = find_dissector("ntlmssp");
+
+	ssl_handle = find_dissector("ssl");
 
 /*  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dsml/dsml/ldap_controls_and_session_support.asp */
 	oid_add_from_string("LDAP_PAGED_RESULT_OID_STRING","1.2.840.113556.1.4.319");

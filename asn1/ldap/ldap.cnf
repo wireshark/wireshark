@@ -57,11 +57,33 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 	name = oid_resolved_from_string(object_identifier_id);
 
 	if(name){
-
 		proto_item_append_text(actx->created_item, " (%s)", name);
-		proto_item_append_text(actx->created_item, " %s", name);	
+
+		if((hf_index == hf_ldap_requestName) || (hf_index == hf_ldap_responseName)) {
+			ldap_do_protocolop(actx->pinfo);		
+
+			if(check_col(actx->pinfo->cinfo, COL_INFO))
+			      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", name);
+		}
 	}
 
+	if(((hf_index == hf_ldap_responseName) || (hf_index == hf_ldap_requestName)) && 
+	    !strcmp(object_identifier_id, "1.3.6.1.4.1.1466.20037")) {
+
+		/* we have agreed start_tls */
+		ldap_conv_info_t *ldap_info = NULL;
+
+		ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
+
+		if(ldap_info) {
+			if(hf_index == hf_ldap_responseName) 
+				/* TLS in the next frame */
+				ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
+			else
+				/* remember we have asked to start_tls */
+				ldap_info->start_tls_pending = TRUE;
+		}
+	}
 
 #.FN_BODY MessageID VAL_PTR = &MessageID
 
@@ -84,7 +106,7 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
   }
 
   /* ProtocolOp is the index, not the tag so convert it to the tag value */
-  ProtocolOp = ldap_ProtocolOp_choice_vals[ProtocolOp].value;
+  ProtocolOp = ldap_ProtocolOp_vals[ProtocolOp].value;
 
   lcrp=ldap_match_call_response(tvb, actx->pinfo, tree, MessageID, ProtocolOp);
   if(lcrp){
@@ -118,6 +140,20 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
      default:
    	break;
     } 
+  }
+
+  if(ldap_info && (ProtocolOp == LDAP_RES_EXTENDED)) {
+	/* this is an extend result */
+
+	if(ldap_info->start_tls_pending && !ldap_info->start_tls_frame) {
+		/* XXX: some directories do not correctly return the responseName in the extendedResponse so we don't know start_tls has been negotiated */
+		
+		if(check_col(actx->pinfo->cinfo, COL_INFO))
+		      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[LDAP_START_TLS_OID responseName missing] ");
+		ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
+	}
+
+	ldap_info->start_tls_pending = FALSE;
   }
   
 #.FN_BODY Simple
