@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pcapng.c"
+				>
+			</File>
+			<File
 				RelativePath=".\pppdump.c"
 				>
 			</File>
@@ -347,6 +351,10 @@
 			</File>
 			<File
 				RelativePath=".\ngsniffer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pcapng.h"
 				>
 			</File>
 			<File

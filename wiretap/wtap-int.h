@@ -97,6 +97,12 @@ typedef struct {
 } libpcap_t;
 
 typedef struct {
+	gboolean byte_swapped;
+	guint16	version_major;
+	guint16	version_minor;
+} pcapng_t;
+
+typedef struct {
 	time_t	start_secs;
 	guint32	start_usecs;
 	guint8	version_major;
@@ -180,6 +186,7 @@ struct wtap {
 		catapult_dct2000_t	*catapult_dct2000;
 		mpeg_t			*mpeg;
 		void			*generic;
+		pcapng_t		*pcapng;
 	} capture;
 
 	subtype_read_func	subtype_read;

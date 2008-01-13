@@ -75,6 +75,7 @@
 #include "mpeg.h"
 #include "netscreen.h"
 #include "commview.h"
+#include "pcapng.h"
 
 
 
@@ -118,6 +119,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	catapult_dct2000_open,
 	ber_open,
 	mpeg_open,
+	pcapng_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -572,7 +574,11 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_COMMVIEW */
 	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", TRUE,
-	  commview_dump_can_write_encap, commview_dump_open }
+	  commview_dump_can_write_encap, commview_dump_open },
+	  
+	/* WTAP_FILE_PCAPNG */
+	{ "Wireshark - pcapng (experimental)", "pcapng", "*.pcapng", NULL, FALSE,
+	  pcapng_dump_can_write_encap, pcapng_dump_open }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);
