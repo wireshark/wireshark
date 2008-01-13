@@ -310,10 +310,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 	/* XXX - while a very big snapshot length is valid, it's more likely that it's a bug in the file */
 	/* XXX - so do a sanity check for now, it's likely a byte swap order problem */
 	if(wblock->data.if_descr.snap_len > 65535) {
-#if 0
 		g_warning("pcapng_read_if_descr_block: snapshot length %u unrealistic", 
-			pcapng_read_if_descr_block);
-#endif
+			wblock->data.if_descr.snap_len);
 		/*wblock->data.if_descr.snap_len = 65535;*/
 		return 0;
 	}
@@ -454,7 +452,7 @@ static int
 pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
 	int	bytes_read_header;
-	int	bytes_read_content = -1; /* XXX - Init this differently? */
+	int	bytes_read_content;
 	pcapng_block_header_t bh;
 
 
@@ -493,6 +491,7 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 			break;
 		default:
 			g_warning("pcapng_read_block: Unknown block_type: 0x%x", bh.block_type);
+            bytes_read_content = 0;
 	}
 
 	return (bytes_read_content == 0) ? 0 : bytes_read_header + bytes_read_content;
