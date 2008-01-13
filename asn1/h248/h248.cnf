@@ -26,8 +26,6 @@ ContextID
 IndAudMediaDescriptor/streams			IndAudMediaDescriptorStreams
 ActionRequest/contextId					ContextId
 ActionReply/contextId					ContextId
-TransactionPending/transactionId		TransactionId
-TransactionReply/transactionId			TransactionId
 StatisticsParameter/statName			StatName
 StatisticsParameter/statValue			StatValue
 PropertyParm/propertyName				PropertyName
@@ -79,6 +77,10 @@ IndAudStatisticsDescriptor/statName		iAStatName
 EventParameter/extraInfo				eventPar_extraInfo
 PropertyParm/extraInfo					propParm_extraInfo
 ContextRequest/iepscallind				iepscallind_BOOL
+TransactionRequest/transactionId	transactionId
+SegmentReply/transactionId			seg_rep_transactionId
+TransactionReply/transactionId		trep_transactionId
+TransactionPending/transactionId	tpend_transactionId
 
 #.FN_HDR Message
     curr_info.msg = gcp_msg(actx->pinfo,TVB_RAW_OFFSET(tvb),keep_persistent_data);
@@ -99,6 +101,24 @@ ContextRequest/iepscallind				iepscallind_BOOL
     error_code = 0;
 #.END
 
+#.FN_BODY TransactionPending/transactionId
+    guint32 trx_id = 0;
+	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_PENDING, keep_persistent_data);
+    error_code = 0;
+
+#.FN_BODY TransactionReply/transactionId		
+    guint32 trx_id = 0;
+	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_REPLY, keep_persistent_data);
+    error_code = 0;
+
+#.FN_BODY SegmentReply/transactionId
+    guint32 trx_id = 0;
+	offset = dissect_h248_trx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &trx_id);
+    curr_info.trx = gcp_trx(curr_info.msg, trx_id, GCP_TRX_ACK, keep_persistent_data);
+    error_code = 0;
+
 #.FN_BODY ActionRequest/contextId
     guint32 ctx_id = 0;
 	offset = dissect_h248_ctx_id(implicit_tag, actx->pinfo, tree, tvb, offset, &ctx_id);
@@ -106,6 +126,7 @@ ContextRequest/iepscallind				iepscallind_BOOL
     curr_info.cmd = NULL;
     curr_info.term = NULL;
 #.END
+
 
 #.FN_FTR ActionReply
     if (!curr_info.cmd) {
