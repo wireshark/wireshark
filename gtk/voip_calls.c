@@ -138,6 +138,8 @@ static voip_rtp_tapinfo_t the_tapinfo_rtp_struct =
 void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 {
 	voip_calls_info_t *callsinfo;
+	voip_rtp_tapinfo_t *rtp_tapinfo = &the_tapinfo_rtp_struct;
+	voip_rtp_stream_info_t *strinfo;
 	graph_analysis_item_t *graph_item;
 	GList* list;
 
@@ -194,6 +196,18 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	tapinfo->graph_analysis->list = NULL;
 
 	++(tapinfo->launch_count);
+
+	/* free the strinfo data items first */
+	list = g_list_first(rtp_tapinfo->list);
+	while(list)
+	{
+		strinfo = list->data;
+		g_free(strinfo->pt_str);
+		list = g_list_next(list);
+
+	}
+	g_list_free(rtp_tapinfo->list);
+	rtp_tapinfo->list = NULL;
 
 	return;
 }
@@ -631,7 +645,6 @@ static void RTP_packet_draw(void *prs _U_)
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
 						new_gai->frame_label = g_strdup_printf("%s (%s) %s", (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event")); 
-						g_free(rtp_listinfo->pt_str);
 						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X", 
 															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets, 
 															duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
