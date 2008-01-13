@@ -1,6 +1,6 @@
 /* pcapng.h
  *
- * $Id: pcapng.h 22591 2007-08-22 19:38:49Z morriss $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

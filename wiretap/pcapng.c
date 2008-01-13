@@ -1,6 +1,6 @@
 /* pcapng.c
  *
- * $Id: pcapng.c 22849 2007-09-11 21:31:21Z jake $
+ * $Id$
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
