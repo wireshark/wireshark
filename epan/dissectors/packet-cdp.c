@@ -105,7 +105,10 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_SYSTEM_OID         0x0015 /* System OID */
 #define TYPE_MANAGEMENT_ADDR    0x0016 /* Management Address(es) */
 #define TYPE_LOCATION           0x0017 /* Location */
-
+#define TYPE_EXT_PORT_ID        0x0018 /* External Port-ID */
+#define TYPE_POWER_REQUESTED    0x0019 /* Power Requested */
+#define TYPE_POWER_AVAILABLE    0x001a /* Power Available */
+#define TYPE_PORT_UNIDIR        0x001b /* Port Unidirectional */
 
 static const value_string type_vals[] = {
 	{ TYPE_DEVICE_ID,    	"Device ID" },
@@ -130,6 +133,10 @@ static const value_string type_vals[] = {
 	{ TYPE_SYSTEM_OID,      "System Object ID" },
 	{ TYPE_MANAGEMENT_ADDR, "Management Address" },
 	{ TYPE_LOCATION,        "Location" },
+	{ TYPE_EXT_PORT_ID,     "External Port-ID" },
+	{ TYPE_POWER_REQUESTED, "Power Requested" },
+	{ TYPE_POWER_AVAILABLE, "Power Available" },
+	{ TYPE_PORT_UNIDIR,     "Port Unidirectional" },
 	{ 0,                    NULL }
 };
 
@@ -153,6 +160,8 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *tlv_tree;
     int real_length;
     guint32 naddresses;
+    guint32 power_avail_len, power_avail;
+    guint32 power_req_len, power_req;
     int addr_length;
     guint32 ip_addr;
     vec_t cksum_vec[1];
@@ -578,7 +587,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case TYPE_POWER:
 		    tlvi = proto_tree_add_text(cdp_tree, tvb,
-				offset, length, "Power consumption: %u mW",
+				offset, length, "Power Consumption: %u mW",
 					       tvb_get_ntohs(tvb, offset + 4));
 		    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
@@ -586,7 +595,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
 				offset + TLV_LENGTH, 2, length);
 		    proto_tree_add_text(tlv_tree, tvb, offset + 4,
-				length - 4, "Power consumption: %u mW",
+				length - 4, "Power Consumption: %u mW",
 					tvb_get_ntohs(tvb, offset + 4));
 		    offset += length;
 		    break;
@@ -711,6 +720,82 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  offset += length;
 		  break;
 		  }
+
+		case TYPE_POWER_REQUESTED:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Power Request: ");
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				2, "Request-ID: %u",
+				tvb_get_ntohs(tvb, offset + 4));
+		  proto_tree_add_text(tlv_tree, tvb, offset + 6,
+				2, "Management-ID: %u",
+				tvb_get_ntohs(tvb, offset + 6));
+		  power_req_len = (tvb_get_ntohs(tvb, offset + TLV_LENGTH)) - 8;
+		  /* Move offset to where the list of Power Request Values Exist */
+		  offset += 8;
+			while(power_req_len) {
+				if (power_req_len > 4) {
+					power_req = tvb_get_ntohl(tvb, offset);
+					proto_tree_add_text(tlv_tree, tvb, offset,
+						4, "Power Requested: %u mW", power_req);
+					proto_item_append_text(tlvi, "%u mW, ", power_req);
+					power_req_len -= 4;
+					offset += 4;
+				} else {
+					if (power_req_len == 4) {
+						power_req = tvb_get_ntohl(tvb, offset);
+						proto_tree_add_text(tlv_tree, tvb, offset,
+							4, "Power Requested: %u mW", power_req);
+						proto_item_append_text(tlvi, "%u mW", power_req);
+					}
+					offset += power_req_len;
+					break;
+				}
+			}
+		  break;
+
+		case TYPE_POWER_AVAILABLE:
+		  tlvi = proto_tree_add_text(cdp_tree, tvb,
+					     offset, length, "Power Available: ");
+		  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
+				      offset + TLV_TYPE, 2, type);
+		  proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, tvb,
+				      offset + TLV_LENGTH, 2, length);
+		  proto_tree_add_text(tlv_tree, tvb, offset + 4,
+				2, "Request-ID: %u",
+				tvb_get_ntohs(tvb, offset + 4));
+		  proto_tree_add_text(tlv_tree, tvb, offset + 6,
+				2, "Management-ID: %u",
+				tvb_get_ntohs(tvb, offset + 6));
+		  power_avail_len = (tvb_get_ntohs(tvb, offset + TLV_LENGTH)) - 8;
+		  /* Move offset to where the list of Power Available Values Exist */
+		  offset += 8;
+			while(power_avail_len) {
+				if (power_avail_len > 4) {
+					power_avail = tvb_get_ntohl(tvb, offset);
+					proto_tree_add_text(tlv_tree, tvb, offset,
+						4, "Power Available: %u mW", power_avail);
+					proto_item_append_text(tlvi, "%u mW, ", power_avail);
+					power_avail_len -= 4;
+					offset += 4;
+				} else {
+					if (power_avail_len == 4) {
+						power_avail = tvb_get_ntohl(tvb, offset);
+						proto_tree_add_text(tlv_tree, tvb, offset,
+							4, "Power Available: %u mW", power_avail);
+						proto_item_append_text(tlvi, "%u mW", power_avail);
+					}
+					offset += power_avail_len;
+					break;
+				}
+			}
+		  break;
 
 		default:
 		  tlvi = proto_tree_add_text(cdp_tree, tvb, offset,
