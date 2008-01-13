@@ -195,7 +195,7 @@ typedef struct wtapng_block_s {
 
 
 static int
-pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
+pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	int	bytes_read;
 	int to_read;
@@ -275,7 +275,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t 
 
 /* "Interface Description Block" */
 static int
-pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
+pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info _U_)
 {
 	int	bytes_read;
 	int to_read;
@@ -310,8 +310,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 	/* XXX - while a very big snapshot length is valid, it's more likely that it's a bug in the file */
 	/* XXX - so do a sanity check for now, it's likely a byte swap order problem */
 	if(wblock->data.if_descr.snap_len > 65535) {
+#if 0
 		g_warning("pcapng_read_if_descr_block: snapshot length %u unrealistic", 
 			pcapng_read_if_descr_block);
+#endif
 		/*wblock->data.if_descr.snap_len = 65535;*/
 		return 0;
 	}
@@ -347,7 +349,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 
 
 static int 
-pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info)
+pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
 	int bytes_read;
 	guint64 bytes_read64;
@@ -452,7 +454,7 @@ static int
 pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gchar **err_info)
 {
 	int	bytes_read_header;
-	int	bytes_read_content;
+	int	bytes_read_content = -1; /* XXX - Init this differently? */
 	pcapng_block_header_t bh;
 
 
@@ -460,7 +462,7 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read_header = file_read(&bh, 1, sizeof bh, fh);
 	if (bytes_read_header != sizeof bh) {
-		g_warning("pcapng_read_block: no more bytes", sizeof bh);
+		g_warning("pcapng_read_block: no more bytes");
 		*err = file_error(fh);
 		if (*err != 0)
 			return -1;
@@ -622,7 +624,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 /* classic wtap: seek to file position and read packet */
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length _U_,
     int *err, gchar **err_info)
 {
 	guint64 bytes_read64;
