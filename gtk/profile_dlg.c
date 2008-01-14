@@ -30,6 +30,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 #include <epan/filesystem.h>
 #include <wiretap/file_util.h>
@@ -399,6 +400,23 @@ profile_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
   return FALSE;
 }
 
+static gint
+profile_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
+{
+  void (* func)(GtkWidget *, gpointer);
+  gpointer func_arg;
+
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+    func = OBJECT_GET_DATA(list, E_PROF_SELFUNC_KEY);
+    func_arg = OBJECT_GET_DATA(list, E_PROF_SELARG_KEY);
+
+    if (func)
+      (*func)(list, func_arg);
+  }
+
+  return FALSE;
+}
+
 static void
 profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
 {
@@ -459,6 +477,7 @@ static void
 profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget    *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget    *name_te = OBJECT_GET_DATA(main_w, E_PROF_NAME_TE_KEY);
   GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
   GtkListStore *store;
   GtkTreeIter   iter;
@@ -473,6 +492,9 @@ profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   gtk_list_store_set(store, &iter, 0, name, 1, fl_entry, -1);
   /* Select the item. */
   gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
+
+  gtk_editable_select_region(GTK_EDITABLE(name_te), 0, -1);
+  gtk_widget_grab_focus(name_te);
 }
 
 #if 0
@@ -498,6 +520,10 @@ profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
   gtk_list_store_set(store, &iter, 0, new_name, 1, fl_entry, -1);
   /* Select the item. */
   gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
+
+  gtk_editable_select_region(GTK_EDITABLE(name_te), 0, -1);
+  gtk_widget_grab_focus(name_te);
+
   g_free (new_name);
 }
 #endif
@@ -683,6 +709,7 @@ profile_dialog_new(void)
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
   SIGNAL_CONNECT(sel, "changed", profile_sel_list_cb, profile_vb);
   SIGNAL_CONNECT(profile_l, "button_press_event", profile_sel_list_button_cb, NULL);
+  SIGNAL_CONNECT(profile_l, "key_release_event", profile_key_release_cb, NULL);
   OBJECT_SET_DATA(main_w, E_PROF_PROFILE_L_KEY, profile_l);
   gtk_container_add(GTK_CONTAINER(profile_sc), profile_l);
   gtk_widget_show(profile_l);
@@ -758,6 +785,10 @@ profile_dialog_new(void)
   if (l_select) {
     gtk_tree_selection_select_iter(sel, l_select);
     g_free(l_select);
+  }
+
+  if (profile_l) {
+    gtk_widget_grab_focus(profile_l);
   }
 
   SIGNAL_CONNECT(main_w, "delete_event", profile_dlg_delete_event_cb, NULL);
