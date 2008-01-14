@@ -934,7 +934,7 @@ standard libpcap format.
       Configuration Profiles can be used to configure and use more than one set of preferences
       and configurations. Select the <command>Configuration Profiles...</command> menu item from
       the <command>Edit</command> menu, or simply press Shift-Ctrl-A; and Wireshark will pop up the 
-      Configuration Profiles dialog box as shown in <xref linked="ChCustGUIConfigProfilesPage"/>.
+      Configuration Profiles dialog box as shown in <xref linkend="ChCustGUIConfigProfilesPage"/>.
     </para>
     <para>
       Configuration files stored in the Profiles:
