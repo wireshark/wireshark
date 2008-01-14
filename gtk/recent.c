@@ -547,7 +547,7 @@ recent_set_arg(char *prefarg)
 	 * as we allow it in the preferences file, we might as well
 	 * allow it here).
 	 */
-	while (isspace(*p))
+	while (isspace((guchar)*p))
 		p++;
 	if (*p == '\0') {
 		/*
