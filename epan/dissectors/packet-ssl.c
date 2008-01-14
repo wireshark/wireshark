@@ -297,6 +297,7 @@ ssl_init(void)
 {
   ssl_common_init(&ssl_session_hash, &ssl_decrypted_data, &ssl_compressed_data);
   ssl_fragment_init();
+  ssl_debug_flush();
 }
 
 /* parse ssl related preferences (private keys and ports association strings) */
@@ -354,7 +355,7 @@ ssl_parse(void)
             ssl_parse_key_list(ssl_keys_list,ssl_key_hash,ssl_associations,ssl_handle,TRUE);
         }
     }
-
+	ssl_debug_flush();
 }
 
 /*********************************************************************
