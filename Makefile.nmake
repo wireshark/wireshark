@@ -932,6 +932,7 @@ install-common-files:
 	xcopy ".\plugins\ciscosm\ciscosm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\docsis\docsis.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\enttec\enttec.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\ethercat\ethercat.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\giop\coseventcomm.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\giop\cosnaming.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\giop\parlay.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
