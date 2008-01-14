@@ -1011,7 +1011,6 @@ main(int argc, char *argv[])
       case 'L':        /* Print list of link-layer types and exit */
 #ifdef HAVE_LIBPCAP
         list_link_layer_types = TRUE;
-        break;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2523,7 +2522,6 @@ write_preamble(capture_file *cf)
 
   case WRITE_TEXT:
     return print_preamble(print_stream, cf ? cf->filename : NULL);
-    break;
 
   case WRITE_XML:
     if (verbose)
@@ -2868,7 +2866,6 @@ write_finale(void)
 
   case WRITE_TEXT:
     return print_finale(print_stream);
-    break;
 
   case WRITE_XML:
     if (verbose)

@@ -494,7 +494,6 @@ static gchar *serv_name_lookup(guint port, port_type proto)
     /* not yet implemented */
     return NULL;
     /*NOTREACHED*/
-    break;
   } /* proto */
 
   hash_idx = HASH_PORT(port);

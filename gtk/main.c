@@ -3338,16 +3338,12 @@ static GtkWidget *main_widget_layout(gint layout_content)
     switch(layout_content) {
     case(layout_pane_content_none):
         return NULL;
-        break;
     case(layout_pane_content_plist):
         return pkt_scrollw;
-        break;
     case(layout_pane_content_pdetails):
         return tv_scrollw;
-        break;
     case(layout_pane_content_pbytes):
         return byte_nb_ptr;
-        break;
     default:
         g_assert_not_reached();
         return NULL;

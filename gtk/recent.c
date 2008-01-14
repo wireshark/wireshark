@@ -516,7 +516,7 @@ read_set_recent_pair_dynamic(gchar *key, gchar *value, void *private_data _U_)
 int
 recent_set_arg(char *prefarg)
 {
-	guchar *p, *colonp;
+	gchar *p, *colonp;
 	int ret;
 
 	colonp = strchr(prefarg, ':');
