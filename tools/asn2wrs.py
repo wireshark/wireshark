@@ -5059,14 +5059,14 @@ class IntegerType (Type):
 
   def eth_type_default_body(self, ectx, tname):
     if (ectx.Ber()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
                               par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s', '%(HF_INDEX)s'),
                                    ('%(VAL_PTR)s',),))
     elif (ectx.Per() and not self.HasValueConstraint()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_integer', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_integer%(FN_VARIANT)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s'),))
     elif (ectx.Per() and self.HasValueConstraint()):
-      body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer', ret='offset',
+      body = ectx.eth_fn_call('dissect_%(ER)s_constrained_integer%(FN_VARIANT)s', ret='offset',
                               par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                    ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(VAL_PTR)s', '%(EXT)s'),))
     else:
