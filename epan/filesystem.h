@@ -71,6 +71,55 @@ extern char *get_datafile_path(const char *filename);
 extern const char *get_systemfile_dir(void);
 
 /*
+ * Set the configuration profile name to be used for storing 
+ * personal configuration files.
+ */
+extern void set_profile_name(const gchar *profilename);
+
+/*
+ * Get the current configuration profile name used for storing
+ * personal configuration files.
+ */
+extern const char *get_profile_name(void);
+
+/*
+ * Get the directory used to store configuration profile directories.
+ */
+extern const char *get_profiles_dir(void);
+
+/*
+ * Check if given configuration profile exists.
+ */
+extern gboolean profile_exists(const gchar *profilename);
+
+/* 
+ * Create a directory for the given configuration profile.
+ * If we attempted to create it, and failed, return -1 and
+ * set "*pf_dir_path_return" to the pathname of the directory we failed
+ * to create (it's g_mallocated, so our caller should free it); otherwise,
+ * return 0.
+ */
+extern int create_persconffile_profile(const char *profilename, 
+				       char **pf_dir_path_return);
+
+/* 
+ * Delete the directory for the given configuration profile.
+ * If we attempted to delete it, and failed, return -1 and
+ * set "*pf_dir_path_return" to the pathname of the directory we failed
+ * to delete (it's g_mallocated, so our caller should free it); otherwise,
+ * return 0.
+ */
+extern int delete_persconffile_profile(const char *profilename, 
+				       char **pf_dir_path_return);
+
+/* 
+ * Rename the directory for the given confinguration profile.
+ */
+extern int rename_persconffile_profile(const char *fromname, const char *toname,
+				       char **pf_from_dir_path_return, 
+				       char **pf_to_dir_path_return);
+
+/*
  * Create the directory that holds personal configuration files, if
  * necessary.  If we attempted to create it, and failed, return -1 and
  * set "*pf_dir_path_return" to the pathname of the directory we failed
@@ -81,7 +130,8 @@ extern int create_persconffile_dir(char **pf_dir_path_return);
 
 /*
  * Construct the path name of a personal configuration file, given the
- * file name.
+ * file name.  If using configuration profiles this directory will be
+ * used if "from_profile" is TRUE.
  *
  * On Win32, if "for_writing" is FALSE, we check whether the file exists
  * and, if not, construct a path name relative to the ".wireshark"
@@ -89,7 +139,8 @@ extern int create_persconffile_dir(char **pf_dir_path_return);
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.
  */
-extern char *get_persconffile_path(const char *filename, gboolean for_writing);
+extern char *get_persconffile_path(const char *filename, gboolean from_profile,
+				   gboolean for_writing);
 
 /*
  * Get the (default) directory in which personal data is stored.

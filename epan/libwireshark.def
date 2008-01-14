@@ -99,6 +99,7 @@ copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle
 create_persconffile_dir
+create_persconffile_profile
 data_out_file                   DATA
 dcerpc_add_conv_to_bind_table
 dcerpc_get_proto_hf_opnum
@@ -117,6 +118,7 @@ decode_boolean_bitfield
 decode_enumerated_bitfield_shifted
 decode_enumerated_bitfield
 decode_numeric_bitfield
+delete_persconffile_profile
 deletefile
 dfilter_apply_edt
 dfilter_compile
@@ -437,6 +439,8 @@ get_persconffile_path
 get_persdatafile_dir
 get_plugin_dir
 get_plugins_pers_dir
+get_profile_name
+get_profiles_dir
 get_progfile_dir
 get_rose_ctx
 get_systemfile_dir
@@ -572,14 +576,17 @@ prefs_register_static_text_preference
 prefs_register_string_preference
 prefs_register_uat_preference
 prefs_register_uint_preference
+prefs_reset
 prefs_set_pref
 process_reassembled_data
 process_stat_cmd_arg
+profile_exists
 proto_all_finfos
 proto_can_match_selected
 proto_can_toggle_protocol
 proto_construct_match_selected_string
 proto_data                      DATA
+proto_enable_all
 proto_find_field_from_offset
 proto_find_finfo
 proto_frame                     DATA
@@ -730,6 +737,7 @@ rel_time_to_secs_str
 rel_time_to_str
 relinquish_special_privs_perm
 remove_tap_listener
+rename_persconffile_profile
 report_failure
 report_open_failure
 report_read_failure
@@ -770,6 +778,7 @@ se_strndup
 se_tree_create
 se_tree_create_non_persistent
 set_actual_length
+set_profile_name
 show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA
@@ -923,6 +932,7 @@ uat_fld_chk_str_isxdigit
 uat_foreach_table
 uat_load
 uat_new
+uat_reload_all
 uat_remove_record_idx
 uat_save
 uat_swap

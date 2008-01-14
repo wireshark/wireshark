@@ -72,7 +72,8 @@
 #define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED  "gui.geometry_main_maximized"
 #define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE "gui.geometry_main_upper_pane"
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
-#define RECENT_GUI_GEOMETRY_STATUS_PANE     "gui.geometry_status_pane"
+#define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT  "gui.geometry_status_pane"
+#define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT "gui.geometry_status_pane_right"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
@@ -133,7 +134,7 @@ write_recent(void)
      return FALSE;
   }
 
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, TRUE);
   if ((rf = eth_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -259,9 +260,16 @@ write_recent(void)
   fprintf(rf, "\n# Statusbar left pane size.\n");
   fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
-  if (recent.gui_geometry_status_pane != 0) {
-    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE ": %d\n",
-		  recent.gui_geometry_status_pane);
+  if (recent.gui_geometry_status_pane_left != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT ": %d\n",
+		  recent.gui_geometry_status_pane_left);
+  }
+  fprintf(rf, "\n# Statusbar middle pane size.\n");
+  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
+  fprintf(rf, "# Decimal number.\n");
+  if (recent.gui_geometry_status_pane_right != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
+		  recent.gui_geometry_status_pane_right);
   }
 
   fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
@@ -446,13 +454,21 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE) == 0) {
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
       return PREFS_SET_SYNTAX_ERR;	/* number was bad */
     if (num <= 0)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_status_pane = num;
+    recent.gui_geometry_status_pane_right = num;
+    recent.has_gui_geometry_status_pane = TRUE;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_status_pane_left = num;
     recent.has_gui_geometry_status_pane = TRUE;
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     if(u3_active())
@@ -580,7 +596,8 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   /* pane size of zero will autodetect */
   recent.gui_geometry_main_upper_pane   = 0;
   recent.gui_geometry_main_lower_pane   = 0;
-  recent.gui_geometry_status_pane       = 0;
+  recent.gui_geometry_status_pane_left  = (DEF_WIDTH/3);
+  recent.gui_geometry_status_pane_right = (DEF_WIDTH/3);
 
   /* the following are only used if GTK2 is used (as GTK1 cannot read these geometry values) */
   /* or if set through command line */
@@ -598,7 +615,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.privs_warn_if_no_npf = TRUE;
 
   /* Construct the pathname of the user's recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
@@ -630,7 +647,7 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
 
   /* Construct the pathname of the user's recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;

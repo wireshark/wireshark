@@ -444,7 +444,7 @@ static void initialize_services(void)
 
   /* set personal services path */
   if (g_pservices_path == NULL)
-    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
+    g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE, FALSE);
 
   parse_services_file(g_pservices_path);
 
@@ -1194,7 +1194,7 @@ static void initialize_ethers(void)
    * with it. It's used in get_ethbyname() and get_ethbyaddr()
    */
   if (g_pethers_path == NULL)
-    g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
+    g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE, FALSE);
 
   /* manuf hash table initialization */
 
@@ -1587,7 +1587,7 @@ static void initialize_ipxnets(void)
    * with it. It's used in get_ipxnetbyname() and get_ipxnetbyaddr()
    */
   if (g_pipxnets_path == NULL)
-    g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
+    g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE, FALSE);
 
 } /* initialize_ipxnets */
 
@@ -1784,7 +1784,7 @@ host_name_lookup_init(void) {
   /*
    * Load the user's hosts file, if they have one.
    */
-  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE);
+  hostspath = get_persconffile_path(ENAME_HOSTS, FALSE, FALSE);
   if (!read_hosts_file(hostspath) && errno != ENOENT) {
     report_open_failure(hostspath, errno, FALSE);
   }

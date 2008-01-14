@@ -296,7 +296,7 @@ int wslua_init(lua_State* LS) {
 
     /* if we are indeed superuser run user scripts only if told to do so */
     if ( (!started_with_special_privs()) || run_anyway ) {
-        filename = get_persconffile_path("init.lua", FALSE);
+        filename = get_persconffile_path("init.lua", FALSE, FALSE);
 
         if (( file_exists(filename))) {
             lua_load_script(filename);

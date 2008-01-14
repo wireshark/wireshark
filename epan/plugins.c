@@ -371,7 +371,7 @@ plugins_scan_dir(const char *dirname)
 /* Return value is malloced so the caller should g_free() it. */
 char *get_plugins_pers_dir(void)
 {
-    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE);
+    return get_persconffile_path(PLUGINS_DIR_NAME, FALSE, FALSE);
 }
 
 /*

@@ -66,7 +66,8 @@ typedef struct recent_settings_tag {
     gboolean    has_gui_geometry_main_lower_pane;   /* gui_geometry_main_lower_pane is valid */
     gint        gui_geometry_main_lower_pane;       /* this is autodetected in GTK2 only */
     gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
-    gint        gui_geometry_status_pane;           /* this is autodetected in GTK2 only */
+    gint        gui_geometry_status_pane_left;      /* this is autodetected in GTK2 only */
+    gint        gui_geometry_status_pane_right;      /* this is autodetected in GTK2 only */
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
 } recent_settings_t;

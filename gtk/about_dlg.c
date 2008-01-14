@@ -369,7 +369,7 @@ about_folders_page_new(void)
   g_free((void *) path);
 
   /* pers conf */
-  path = get_persconffile_path("", FALSE);
+  path = get_persconffile_path("", FALSE, FALSE);
   about_folders_row(table, "Personal configuration", path,
       "\"dfilters\", \"preferences\", \"ethers\", ...");
   g_free((void *) path);

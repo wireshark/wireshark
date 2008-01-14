@@ -145,7 +145,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   }
 
   /* try to open personal "cfilters"/"dfilters" file */
-  ff_path = get_persconffile_path(ff_name, FALSE);
+  ff_path = get_persconffile_path(ff_name, TRUE, FALSE);
   if ((ff = eth_fopen(ff_path, "r")) == NULL) {
     /*
      * Did that fail because the file didn't exist?
@@ -168,7 +168,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
      * a particular list.
      */
     g_free(ff_path);
-    ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE);
+    ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE, FALSE);
     if ((ff = eth_fopen(ff_path, "r")) == NULL) {
     /*
      * Did that fail because the file didn't exist?
@@ -487,7 +487,7 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
     return;
   }
 
-  ff_path = get_persconffile_path(ff_name, TRUE);
+  ff_path = get_persconffile_path(ff_name, TRUE, TRUE);
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out

@@ -3731,6 +3731,23 @@ proto_set_decoding(int proto_id, gboolean enabled)
 }
 
 void
+proto_enable_all(void)
+{
+	protocol_t *protocol;
+	GList *list_item = protocols;
+
+	if (protocols == NULL)
+		return;
+
+	while (list_item) {
+		protocol = list_item->data;
+		if (protocol->can_toggle)
+			protocol->is_enabled = TRUE;
+		list_item = g_list_next(list_item);
+	}
+}
+
+void
 proto_set_cant_toggle(int proto_id)
 {
 	protocol_t *protocol;

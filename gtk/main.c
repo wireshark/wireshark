@@ -98,6 +98,7 @@
 #include "merge.h"
 #include "u3.h"
 #include "uat_gui.h"
+#include "epan/uat.h"
 
 
 #ifdef HAVE_LIBPCAP
@@ -210,7 +211,7 @@ GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
 GtkWidget   *pkt_scrollw;
 static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
 static GtkWidget   *main_first_pane, *main_second_pane;
-static GtkWidget   *status_pane;
+static GtkWidget   *status_pane_left, *status_pane_right;
 static GtkWidget   *menubar, *main_vbox, *main_tb, *stat_hbox, *filter_tb;
 static GtkWidget   *priv_warning_dialog;
 
@@ -222,10 +223,13 @@ static int    airpcap_dll_ret_val = -1;
 
 static GtkWidget    *info_bar;
 static GtkWidget    *packets_bar = NULL;
+static GtkWidget    *profile_bar = NULL;
 static GtkWidget    *welcome_pane;
 static guint		main_ctx, file_ctx, help_ctx;
 static guint        packets_ctx;
+static guint        profile_ctx;
 static gchar        *packets_str = NULL;
+static gchar        *profile_str = NULL;
 GString *comp_info_str, *runtime_info_str;
 gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
 
@@ -1033,6 +1037,29 @@ void packets_bar_update(void)
     }
 }
 
+/*
+ * update the packets statusbar to the current values
+ */
+void profile_bar_update(void)
+{
+    const char *profile_name;
+    if (profile_bar) {
+        /* remove old status */
+        if(profile_str) {
+            g_free(profile_str);
+            gtk_statusbar_pop(GTK_STATUSBAR(profile_bar), profile_ctx);
+        }
+
+	profile_name = get_profile_name ();
+	if (!profile_name) {
+	    profile_name = DEFAULT_PROFILE;
+	}
+	profile_str = g_strdup_printf (" Profile: %s", profile_name);
+
+        gtk_statusbar_push(GTK_STATUSBAR(profile_bar), profile_ctx, profile_str);
+    }
+}
+
 void
 main_set_for_capture_file(gboolean have_capture_file_in)
 {
@@ -1168,11 +1195,13 @@ main_load_window_geometry(GtkWidget *widget)
     window_set_geometry(widget, &geom);
 
     if (recent.has_gui_geometry_main_upper_pane && recent.gui_geometry_main_upper_pane)
-        gtk_paned_set_position(GTK_PANED(main_first_pane),  recent.gui_geometry_main_upper_pane);
+        gtk_paned_set_position(GTK_PANED(main_first_pane), recent.gui_geometry_main_upper_pane);
     if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_main_lower_pane)
         gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
-    if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_status_pane)
-        gtk_paned_set_position(GTK_PANED(status_pane),      recent.gui_geometry_status_pane);
+    if (recent.has_gui_geometry_status_pane && recent.gui_geometry_status_pane_left)
+        gtk_paned_set_position(GTK_PANED(status_pane_left), recent.gui_geometry_status_pane_left);
+    if (recent.has_gui_geometry_status_pane && recent.gui_geometry_status_pane_right)
+        gtk_paned_set_position(GTK_PANED(status_pane_right), recent.gui_geometry_status_pane_right);
 }
 
 
@@ -1200,7 +1229,8 @@ main_save_window_geometry(GtkWidget *widget)
 
     recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_first_pane));
     recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_second_pane));
-    recent.gui_geometry_status_pane         = gtk_paned_get_position(GTK_PANED(status_pane));
+    recent.gui_geometry_status_pane_left    = gtk_paned_get_position(GTK_PANED(status_pane_left));
+    recent.gui_geometry_status_pane_right   = gtk_paned_get_position(GTK_PANED(status_pane_right));
 #endif
 }
 
@@ -1303,6 +1333,7 @@ print_usage(gboolean print_ver) {
 
   fprintf(output, "\n");
   fprintf(output, "User interface:\n");
+  fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -m <font>                set the font name used for most text\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
@@ -2146,6 +2177,112 @@ get_gui_runtime_info(GString *str
 
 }
 
+static e_prefs *
+read_configuration_files(char **gdp_path, char **dp_path)
+{
+  int                  gpf_open_errno, gpf_read_errno;
+  int                  cf_open_errno, df_open_errno;
+  int                  gdp_open_errno, gdp_read_errno;
+  int                  dp_open_errno, dp_read_errno;
+  char                *gpf_path, *pf_path;
+  char                *cf_path, *df_path;
+  int                  pf_open_errno, pf_read_errno;
+  e_prefs             *prefs;
+
+  /* Read the preference files. */
+  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+                     &pf_open_errno, &pf_read_errno, &pf_path);
+
+  if (gpf_path != NULL) {
+    if (gpf_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_open_errno));
+    }
+    if (gpf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
+        strerror(gpf_read_errno));
+    }
+  }
+  if (pf_path != NULL) {
+    if (pf_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_open_errno));
+    }
+    if (pf_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
+        strerror(pf_read_errno));
+    }
+    g_free(pf_path);
+    pf_path = NULL;
+  }
+
+#ifdef _WIN32
+  /* if the user wants a console to be always there, well, we should open one for him */
+  if (prefs->gui_console_open == console_open_always) {
+    create_console();
+  }
+#endif
+
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
+
+  /* Read the capture filter file. */
+  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
+  if (cf_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
+        strerror(cf_open_errno));
+      g_free(cf_path);
+  }
+
+  /* Read the display filter file. */
+  read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
+  if (df_path != NULL) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your display filter file\n\"%s\": %s.", df_path,
+        strerror(df_open_errno));
+      g_free(df_path);
+  }
+
+  /* Read the disabled protocols file. */
+  read_disabled_protos_list(gdp_path, &gdp_open_errno, &gdp_read_errno,
+			    dp_path, &dp_open_errno, &dp_read_errno);
+  if (*gdp_path != NULL) {
+    if (gdp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open global disabled protocols file\n\"%s\": %s.",
+	*gdp_path, strerror(gdp_open_errno));
+    }
+    if (gdp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading global disabled protocols file\n\"%s\": %s.",
+	*gdp_path, strerror(gdp_read_errno));
+    }
+    g_free(*gdp_path);
+    *gdp_path = NULL;
+  }
+  if (*dp_path != NULL) {
+    if (dp_open_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "Could not open your disabled protocols file\n\"%s\": %s.", *dp_path,
+        strerror(dp_open_errno));
+    }
+    if (dp_read_errno != 0) {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+        "I/O error reading your disabled protocols file\n\"%s\": %s.", *dp_path,
+        strerror(dp_read_errno));
+    }
+    g_free(*dp_path);
+    *dp_path = NULL;
+  }
+
+  return prefs;
+}
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -2162,14 +2299,7 @@ main(int argc, char *argv[])
 
   char                *rf_path;
   int                  rf_open_errno;
-  char                *gpf_path, *pf_path;
-  char                *cf_path, *df_path;
   char                *gdp_path, *dp_path;
-  int                  gpf_open_errno, gpf_read_errno;
-  int                  pf_open_errno, pf_read_errno;
-  int                  cf_open_errno, df_open_errno;
-  int                  gdp_open_errno, gdp_read_errno;
-  int                  dp_open_errno, dp_read_errno;
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
@@ -2194,7 +2324,7 @@ main(int argc, char *argv[])
   /*gchar			*cant_get_if_list_errstr;*/
 #endif
 
-#define OPTSTRING_INIT "a:b:c:Df:g:Hhi:klLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:klLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -2315,6 +2445,14 @@ main(int argc, char *argv[])
   optind_initial = optind;
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
+      case 'C':        /* Configuration Profile */
+	if (profile_exists (optarg)) {
+	  set_profile_name (optarg);
+	} else {
+	  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+	  exit(1);
+	}
+	break;
       case 'h':        /* Print help and exit */
         print_usage(TRUE);
         exit(0);
@@ -2502,94 +2640,7 @@ main(int argc, char *argv[])
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 
-  /* Read the preference files. */
-  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-                     &pf_open_errno, &pf_read_errno, &pf_path);
-
-  if (gpf_path != NULL) {
-    if (gpf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_open_errno));
-    }
-    if (gpf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global preferences file\n\"%s\": %s.", gpf_path,
-        strerror(gpf_read_errno));
-    }
-  }
-  if (pf_path != NULL) {
-    if (pf_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_open_errno));
-    }
-    if (pf_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your preferences file\n\"%s\": %s.", pf_path,
-        strerror(pf_read_errno));
-    }
-    g_free(pf_path);
-    pf_path = NULL;
-  }
-
-#ifdef _WIN32
-  /* if the user wants a console to be always there, well, we should open one for him */
-  if (prefs->gui_console_open == console_open_always) {
-    create_console();
-  }
-#endif
-
-  /* Fill in capture options with values from the preferences */
-  prefs_to_capture_opts();
-
-  /* Read the capture filter file. */
-  read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
-  if (cf_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your capture filter file\n\"%s\": %s.", cf_path,
-        strerror(cf_open_errno));
-      g_free(cf_path);
-  }
-
-  /* Read the display filter file. */
-  read_filter_list(DFILTER_LIST, &df_path, &df_open_errno);
-  if (df_path != NULL) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your display filter file\n\"%s\": %s.", df_path,
-        strerror(df_open_errno));
-      g_free(df_path);
-  }
-
-  /* Read the disabled protocols file. */
-  read_disabled_protos_list(&gdp_path, &gdp_open_errno, &gdp_read_errno,
-			    &dp_path, &dp_open_errno, &dp_read_errno);
-  if (gdp_path != NULL) {
-    if (gdp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_open_errno));
-    }
-    if (gdp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading global disabled protocols file\n\"%s\": %s.",
-	gdp_path, strerror(gdp_read_errno));
-    }
-    g_free(gdp_path);
-  }
-  if (dp_path != NULL) {
-    if (dp_open_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "Could not open your disabled protocols file\n\"%s\": %s.", dp_path,
-        strerror(dp_open_errno));
-    }
-    if (dp_read_errno != 0) {
-      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-        "I/O error reading your disabled protocols file\n\"%s\": %s.", dp_path,
-        strerror(dp_read_errno));
-    }
-    g_free(dp_path);
-  }
+  prefs = read_configuration_files (&gdp_path, &dp_path);
 
   /* Read the (static part) of the recent file. Only the static part of it will be read, */
   /* as we don't have the gui now to fill the recent lists which is done in the dynamic part. */
@@ -2630,6 +2681,9 @@ main(int argc, char *argv[])
         break;
 
       /*** all non capture option specific ***/
+      case 'C':
+        /* Configuration profile settings were already processed just ignore them this time*/
+	break;
       case 'D':        /* Print a list of capture devices and exit */
 #ifdef HAVE_LIBPCAP
         capture_opts_list_interfaces(FALSE);
@@ -2910,7 +2964,7 @@ main(int argc, char *argv[])
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
   gtk_rc_parse(rc_file);
-  rc_file = get_persconffile_path(RC_FILE, FALSE);
+  rc_file = get_persconffile_path(RC_FILE, FALSE, FALSE);
   gtk_rc_parse(rc_file);
 
   font_init();
@@ -3321,8 +3375,21 @@ static GtkWidget *packets_bar_new(void)
     packets_bar = gtk_statusbar_new();
     packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
     packets_bar_update();
+#if GTK_MAJOR_VERSION >= 2
+    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
+#endif
 
     return packets_bar;
+}
+
+static GtkWidget *profile_bar_new(void)
+{
+    /* tip: tooltips don't work on statusbars! */
+    profile_bar = gtk_statusbar_new();
+    profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
+    profile_bar_update();
+
+    return profile_bar;
 }
 
 
@@ -3377,7 +3444,9 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(stat_hbox);
     gtk_widget_ref(info_bar);
     gtk_widget_ref(packets_bar);
-    gtk_widget_ref(status_pane);
+    gtk_widget_ref(profile_bar);
+    gtk_widget_ref(status_pane_left);
+    gtk_widget_ref(status_pane_right);
     gtk_widget_ref(main_pane_v1);
     gtk_widget_ref(main_pane_v2);
     gtk_widget_ref(main_pane_h1);
@@ -3387,7 +3456,8 @@ void main_widgets_rearrange(void) {
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
     gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
-    gtk_container_foreach(GTK_CONTAINER(status_pane),   foreach_remove_a_child, status_pane);
+    gtk_container_foreach(GTK_CONTAINER(status_pane_left),   foreach_remove_a_child, status_pane_left);
+    gtk_container_foreach(GTK_CONTAINER(status_pane_right),   foreach_remove_a_child, status_pane_right);
     gtk_container_foreach(GTK_CONTAINER(main_pane_v1),  foreach_remove_a_child, main_pane_v1);
     gtk_container_foreach(GTK_CONTAINER(main_pane_v2),  foreach_remove_a_child, main_pane_v2);
     gtk_container_foreach(GTK_CONTAINER(main_pane_h1),  foreach_remove_a_child, main_pane_h1);
@@ -3486,9 +3556,11 @@ void main_widgets_rearrange(void) {
 #endif
 
     /* statusbar */
-    gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane, TRUE, TRUE, 0);
-    gtk_paned_pack1(GTK_PANED(status_pane), info_bar, FALSE, FALSE);
-    gtk_paned_pack2(GTK_PANED(status_pane), packets_bar, FALSE, FALSE);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane_left, TRUE, TRUE, 0);
+    gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar, FALSE, FALSE);
+    gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
+    gtk_paned_pack1(GTK_PANED(status_pane_right), packets_bar, TRUE, FALSE);
+    gtk_paned_pack2(GTK_PANED(status_pane_right), profile_bar, FALSE, FALSE);
 
     /* hide widgets on users recent settings */
     main_widgets_show_or_hide();
@@ -4067,9 +4139,9 @@ main_widgets_show_or_hide(void)
     }
 
     if (recent.statusbar_show) {
-        gtk_widget_show(status_pane);
+        gtk_widget_show(status_pane_left);
     } else {
-        gtk_widget_hide(status_pane);
+        gtk_widget_hide(status_pane_left);
     }
 
     if (recent.filter_toolbar_show) {
@@ -4833,14 +4905,20 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     packets_bar = packets_bar_new();
     gtk_widget_show(packets_bar);
 
+    /* profile statusbar */
+    profile_bar = profile_bar_new();
+    gtk_widget_show(profile_bar);
+
     /* Filter/status hbox */
     stat_hbox = gtk_hbox_new(FALSE, 1);
     gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
     gtk_widget_show(stat_hbox);
 
     /* Pane for the statusbar */
-    status_pane = gtk_hpaned_new();
-    gtk_widget_show(status_pane);
+    status_pane_left = gtk_hpaned_new();
+    gtk_widget_show(status_pane_left);
+    status_pane_right = gtk_hpaned_new();
+    gtk_widget_show(status_pane_right);
 
     /* Pane for the welcome screen */
     welcome_pane = welcome_new();
@@ -4937,4 +5015,38 @@ prefs_to_capture_opts(void)
 
   /* Set the name resolution code's flags from the preferences. */
   g_resolv_flags = prefs.name_resolve;
+}
+
+
+/* Change configuration profile */
+void change_configuration_profile (const gchar *profile_name)
+{
+   char  *gdp_path, *dp_path;
+
+   /* First set profile name and update the status bar */
+   set_profile_name (profile_name);
+   profile_bar_update ();
+
+   /* Reset current preferences and apply the new */
+   prefs_reset();
+   (void) read_configuration_files (&gdp_path, &dp_path);
+   prefs_apply_all();
+   uat_reload_all();
+  
+   /* Update window view and redraw the toolbar */
+   update_main_window_name();
+   toolbar_redraw_all();
+
+   /* Enable all protocols and disable from the disabled list */
+   proto_enable_all();
+   if (gdp_path == NULL && dp_path == NULL) {
+     set_disabled_protos_list();
+   }
+
+   /* Reload color filters */
+   color_filters_reload();
+
+   /* Recreate the packet list according to new preferences */
+   packet_list_recreate ();
+   user_font_apply();
 }

@@ -155,7 +155,7 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
 }
 
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
-	gchar* pers_fname =  get_persconffile_path(uat->filename,for_writing);
+	gchar* pers_fname =  get_persconffile_path(uat->filename, TRUE, for_writing);
 
 	if (! for_writing ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
@@ -283,6 +283,18 @@ void* uat_se_dup(uat_t* uat, guint* len_p) {
 	guint size = (uat->record_size * uat->user_data->len);
 	*len_p = size;
 	return size ? se_memdup(uat->user_data->data,size) : NULL ;
+}
+
+void uat_reload_all(void) {
+	guint i;
+
+	for (i=0; i < all_uats->len; i++) {
+		uat_t* u = g_ptr_array_index(all_uats,i);
+		uat_clear(u);
+		u->loaded = FALSE;
+	}
+
+	uat_load_all();
 }
 
 void uat_cleanup(void) {

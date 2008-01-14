@@ -55,10 +55,12 @@
 #include "privileges.h"
 #include <wiretap/file_util.h>
 
+#define PROFILES_DIR    "profiles"
 #define U3_MY_CAPTURES  "\\My Captures"
 
 char *persconffile_dir = NULL;
 char *persdatafile_dir = NULL;
+char *persconfprofile = NULL;
 
 /*
  * Given a pathname, return a pointer to the last pathname separator
@@ -780,6 +782,27 @@ char *getenv_utf8(const char *varname)
 }
 #endif
 
+void 
+set_profile_name(const gchar *profilename)
+{
+	if (persconfprofile) {
+		g_free (persconfprofile);
+	}
+	
+	if (profilename && strlen(profilename) > 0) {
+		persconfprofile = g_strdup (profilename);
+	} else {
+		/* Default Profile */
+		persconfprofile = NULL;
+	}
+}
+
+const char *
+get_profile_name(void)
+{
+	return persconfprofile;
+}
+
 /*
  * Get the directory in which personal configuration files reside;
  * in UNIX-compatible systems, it's ".wireshark", under the user's home
@@ -788,7 +811,7 @@ char *getenv_utf8(const char *varname)
  * (which is what %APPDATA% normally is on Windows 2000).
  */
 static const char *
-get_persconffile_dir(void)
+get_persconffile_dir_no_profile(void)
 {
 #ifdef _WIN32
 	char *appdatadir;
@@ -828,7 +851,7 @@ get_persconffile_dir(void)
 			 * Concatenate %APPDATA% with "\Wireshark".
 			 */
 			persconffile_dir = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-			    appdatadir, PF_DIR);
+							   appdatadir, PF_DIR);
 		} else {
 			/*
 			 * OK, %APPDATA% wasn't set, so use
@@ -874,6 +897,119 @@ get_persconffile_dir(void)
 	return persconffile_dir;
 }
 
+const char *
+get_profiles_dir(void)
+{
+	static char *profiles_dir = NULL;
+
+	if (profiles_dir) {
+		g_free (profiles_dir);
+	}
+
+	profiles_dir = g_strdup_printf ("%s%s%s", get_persconffile_dir_no_profile (),
+					G_DIR_SEPARATOR_S, PROFILES_DIR);
+
+	return profiles_dir;
+}
+
+static const char *
+get_persconffile_dir(const gchar *profilename)
+{
+	static char *persconffile_profile_dir = NULL;
+
+	if (persconffile_profile_dir) {
+		g_free (persconffile_profile_dir);
+	}
+
+	if (profilename) {
+	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (), G_DIR_SEPARATOR_S,
+						      profilename);
+	} else {
+	  persconffile_profile_dir = g_strdup_printf (get_persconffile_dir_no_profile ());
+	}
+
+	return persconffile_profile_dir;
+}
+
+gboolean
+profile_exists(const gchar *profilename)
+{
+	if (test_for_directory (get_persconffile_dir (profilename)) == EISDIR) {
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+static int 
+delete_directory (const char *directory, char **pf_dir_path_return)
+{
+	ETH_DIR *dir;
+	ETH_DIRENT *file;
+	gchar *filename;
+	int ret = 0;
+
+	if ((dir = eth_dir_open(directory, 0, NULL)) != NULL) {
+		while ((file = eth_dir_read_name(dir)) != NULL) {
+			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, eth_dir_get_name(file));
+			if (test_for_directory(filename) != EISDIR) {
+				ret = eth_remove(filename);
+#if 0
+			} else {
+				/* The user has manually created a directory in the profile directory */
+				/* I do not want to delete the directory recursively yet */
+				ret = delete_directory (filename, pf_dir_path_return);
+#endif
+			}
+			if (ret != 0) {
+				*pf_dir_path_return = filename;
+				break;
+			}
+			g_free (filename);
+		}
+		eth_dir_close(dir);
+	}
+	
+	if (ret == 0 && (ret = eth_remove(directory)) != 0) {
+		*pf_dir_path_return = g_strdup (directory);
+	}
+
+	return ret;
+}
+
+int
+delete_persconffile_profile(const char *profilename, char **pf_dir_path_return)
+{
+	const char *profile_dir = get_persconffile_dir(profilename);
+	int ret = 0;
+
+	if (test_for_directory (profile_dir) == EISDIR) {
+		ret = delete_directory (profile_dir, pf_dir_path_return);
+	}
+
+	return ret;
+}
+
+int
+rename_persconffile_profile(const char *fromname, const char *toname,
+			    char **pf_from_dir_path_return, char **pf_to_dir_path_return)
+{
+  char *from_dir = g_strdup (get_persconffile_dir(fromname));
+  char *to_dir = g_strdup (get_persconffile_dir(toname));
+  int ret = 0;
+
+  ret = eth_rename (from_dir, to_dir);
+  if (ret != 0) {
+    *pf_from_dir_path_return = g_strdup (from_dir);
+    *pf_to_dir_path_return = g_strdup (to_dir);
+  }
+
+  g_free (from_dir);
+  g_free (to_dir);
+
+  return ret;
+}
+
 /*
  * Create the directory that holds personal configuration files, if
  * necessary.  If we attempted to create it, and failed, return -1 and
@@ -882,7 +1018,7 @@ get_persconffile_dir(void)
  * return 0.
  */
 int
-create_persconffile_dir(char **pf_dir_path_return)
+create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 {
 	const char *pf_dir_path;
 #ifdef _WIN32
@@ -891,8 +1027,23 @@ create_persconffile_dir(char **pf_dir_path_return)
 #endif
 	struct stat s_buf;
 	int ret;
+	
+	if (profilename) {
+		/*
+		 * Check if profiles directory exists.
+		 * If not then create it.
+		 */
+		pf_dir_path = get_profiles_dir ();
+		if (eth_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+			ret = eth_mkdir(pf_dir_path, 0755);
+			if (ret == -1) {
+				*pf_dir_path_return = g_strdup(pf_dir_path);
+				return ret;
+			}
+		}
+	}
 
-	pf_dir_path = get_persconffile_dir();
+	pf_dir_path = get_persconffile_dir(profilename);
 	if (eth_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 #ifdef _WIN32
 		/*
@@ -938,6 +1089,12 @@ create_persconffile_dir(char **pf_dir_path_return)
 	if (ret == -1)
 		*pf_dir_path_return = g_strdup(pf_dir_path);
 	return ret;
+}
+
+int
+create_persconffile_dir(char **pf_dir_path_return)
+{
+  return create_persconffile_profile(get_profile_name(), pf_dir_path_return);
 }
 
 /*
@@ -1065,7 +1222,7 @@ get_home_dir(void)
  * from earlier versions can be read.
  */
 char *
-get_persconffile_path(const char *filename, gboolean for_writing
+get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_writing
 #ifndef _WIN32
 	_U_
 #endif
@@ -1077,8 +1234,13 @@ get_persconffile_path(const char *filename, gboolean for_writing
 	char *old_path;
 #endif
 
-	path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_persconffile_dir(),
-	    filename);
+	if (from_profile) {
+	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+				 get_persconffile_dir(get_profile_name()), filename);
+	} else {
+	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+				 get_persconffile_dir(NULL), filename);
+	}
 #ifdef _WIN32
 	if (!for_writing) {
 		if (eth_stat(path, &s_buf) != 0 && errno == ENOENT) {

@@ -50,6 +50,9 @@ typedef struct _color_filter {
 /** Init the color filters (incl. initial read from file). */
 void color_filters_init(void);
 
+/** Reload the color filters */
+void color_filters_reload(void);
+
 /** Cleanup remaining color filter zombies */
 void color_filters_cleanup(void);
 

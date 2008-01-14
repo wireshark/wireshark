@@ -929,6 +929,157 @@ standard libpcap format.
       <graphic entityref="WiresharkGUIPreferences" format="PNG"/>
     </figure>
   </section>
+  <section id="ChCustConfigProfilesSection"><title>Configuration Profiles</title>
+    <para>
+      Configuration Profiles can be used to configure and use more than one set of preferences
+      and configurations. Select the <command>Configuration Profiles...</command> menu item from
+      the <command>Edit</command> menu, or simply press Shift-Ctrl-A; and Wireshark will pop up the 
+      Configuration Profiles dialog box as shown in <xref linked="ChCustGUIConfigProfilesPage"/>.
+    </para>
+    <para>
+      Configuration files stored in the Profiles:
+      <itemizedlist>
+	<listitem>
+	  <para>
+	    Preferences (preferences)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Capture Filters (cfilters)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Display Filters (dfilters)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Coloring Rules (colorfilters)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Disabled Protocols (disabled_protos)
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    User Accessible Tables:
+	    <itemizedlist>
+	      <listitem>
+		<para>
+		  Display Filter Macros (dfilter_macros)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  K12 Protocols (k12_protos)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  SCCP Users Table (sccp_users)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  SMI Modules (smi_modules)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  SMI Paths (smi_paths)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  SNMP Users (snmp_users)
+		</para>
+	      </listitem>
+	      <listitem>
+		<para>
+		  User DLTs Table (user_dlts)
+		</para>
+	      </listitem>
+	    </itemizedlist>
+	  </para>
+	</listitem>
+      </itemizedlist>
+      <note><title>Note!</title>
+      <para>
+	All other configurations are stored in the personal configuration folder,
+	and are common to all profiles.
+      </para>
+      </note>
+    </para>
+    <figure id="ChCustGUIConfigProfilesPage">
+      <title>The configuration profiles dialog box</title>
+      <graphic entityref="WiresharkGUIConfigProfiles" format="PNG"/>
+    </figure>
+    <para>
+      <variablelist>
+	<varlistentry><term><command>New</command></term>
+	<listitem>
+	  <para>
+	    This button adds a new profile to the profiles list. 
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Delete</command></term>
+	<listitem>
+	  <para>
+	    This button deletes the selected profile.
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Configuration Profiles</command></term>
+	<listitem>
+	  <para>
+	    You can select a configuration profile from this list (which will fill 
+	    in the profile name in the fields down at the bottom of the dialog box).
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Profile name:</command></term>
+	<listitem>
+	  <para>
+	    You can change the name of the currently selected profile here.
+	  </para>
+	  <note><title>Note!</title>
+	  <para>
+	    The profile name will be used as a folder name in the configured 
+	    "Personal configurations" folder. If adding multiple profiles with the
+	    same name, only one profile will be created.
+	  </para>
+	  </note>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>OK</command></term>
+	<listitem>
+	  <para>
+	    This button saves all changes, applies the selected profile and closes the dialog.
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Apply</command></term>
+	<listitem>
+	  <para>
+	    This button saves all changes, applies the selected profile and keeps the dialog open.
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Cancel</command></term>
+	<listitem>
+	  <para>
+	    Close this dialog. This will discard unsaved settings.
+	  </para>
+	</listitem>
+	</varlistentry>
+      </variablelist>
+    </para>
+  </section>
   <section id="ChUserTable"><title>User Table</title>
     <para>
       The User Table editor is used for managing various tables in wireshark. Its main dialog works

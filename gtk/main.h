@@ -333,13 +333,22 @@ extern void dnd_open_file_cmd(gchar *cf_names_freeme);
 /** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
 
+/** Update the profile statusbar to the current values. */
+extern void profile_bar_update(void);
+
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
 #endif
 
-/* Fill in capture options with values from the preferences */
+/** Fill in capture options with values from the preferences */
 extern void prefs_to_capture_opts(void);
+
+/** Change configuration profile */
+extern void change_configuration_profile(const gchar *profile_name);
+
+#define DEFAULT_PROFILE      "Default"
+
 
 extern GtkWidget *pkt_scrollw;
 

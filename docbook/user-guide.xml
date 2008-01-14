@@ -178,6 +178,7 @@ FILE SECTION
   <!ENTITY WiresharkGUIColumnsPreferences SYSTEM "./wsug_graphics/ws-gui-columns-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIFontPreferences SYSTEM "./wsug_graphics/ws-gui-font-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIColorsPreferences SYSTEM "./wsug_graphics/ws-gui-colors-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUIConfigProfiles SYSTEM "./wsug_graphics/ws-gui-config-profiles.png" NDATA PNG>
   <!ENTITY WiresharkCapturePreferences SYSTEM "./wsug_graphics/ws-capture-preferences.png" NDATA PNG>
   <!ENTITY WiresharkPrintingPreferences SYSTEM "./wsug_graphics/ws-printing-preferences.png" NDATA PNG>
   <!ENTITY WiresharkNameResolutionPreferences SYSTEM "./wsug_graphics/ws-nameresolution-preferences.png" NDATA PNG>

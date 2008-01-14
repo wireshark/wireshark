@@ -108,7 +108,7 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
   }
 
   /* Construct the pathname of the user's disabled protocols file. */
-  ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, FALSE);
+  ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, TRUE, FALSE);
 
   /* Read the user's disabled protocols file, if it exists. */
   *path_return = NULL;
@@ -319,7 +319,6 @@ void
 save_disabled_protos_list(char **pref_path_return, int *errno_return)
 {
   gchar       *ff_path, *ff_path_new;
-  const gchar *ff_name;
   FILE        *ff;
   gint         i;
   protocol_t  *protocol;
@@ -327,9 +326,7 @@ save_disabled_protos_list(char **pref_path_return, int *errno_return)
 
   *pref_path_return = NULL;	/* assume no error */
 
-  ff_name = PROTOCOLS_FILE_NAME;
-
-  ff_path = get_persconffile_path(ff_name, TRUE);
+  ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, TRUE, TRUE);
 
   /* Write to "XXX.new", and rename if that succeeds.
      That means we don't trash the file if we fail to write it out

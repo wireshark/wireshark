@@ -454,7 +454,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 #ifdef WIN32
 #define PATH_SEPARATOR ";"
 #define DEFAULT_PATH_FMT "%s;%s"
-#define DEFAULT_PATH_ARGS get_datafile_path("snmp\\mibs"), get_persconffile_path("snmp\\mibs", FALSE)
+#define DEFAULT_PATH_ARGS get_datafile_path("snmp\\mibs"), get_persconffile_path("snmp\\mibs", FALSE, FALSE)
 #else
 #define PATH_SEPARATOR ":"
 #define DEFAULT_PATH_FMT  "%s"

@@ -1507,6 +1507,9 @@ extern const char *proto_get_protocol_filter_name(int proto_id);
  @param enabled enable / disable the protocol */
 extern void proto_set_decoding(int proto_id, gboolean enabled);
 
+/** Enable all protocols */
+extern void proto_enable_all(void);
+
 /** Disable disabling/enabling of protocol of the given item number.
  @param proto_id protocol id (0-indexed) */
 extern void proto_set_cant_toggle(int proto_id);

@@ -259,6 +259,7 @@ print_usage(gboolean print_ver)
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
   fprintf(output, "  -w <outfile|->           set the output filename (or '-' for stdout)\n");
+  fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
   fprintf(output, "  -F <output file type>    set the output file type, default is libpcap\n");
   fprintf(output, "                           an empty \"-F\" option will list the file types\n");
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
@@ -725,7 +726,7 @@ main(int argc, char *argv[])
   GLogLevelFlags       log_flags;
   int                  optind_initial;
 
-#define OPTSTRING_INIT "a:b:c:d:De:E:f:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
+#define OPTSTRING_INIT "a:b:c:C:d:De:E:f:F:G:hi:lLnN:o:pqr:R:s:St:T:vVw:xX:y:z:"
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
 #define OPTSTRING_WIN32 "B:"
@@ -761,6 +762,14 @@ main(int argc, char *argv[])
 
   while ((opt = getopt(argc, argv, optstring)) != -1) {
 	  switch (opt) {
+		  case 'C':        /* Configuration Profile */
+		 	  if (profile_exists (optarg)) {
+				  set_profile_name (optarg);
+			  } else {
+				  cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+				  exit(1);
+			  }
+			  break;
 		  case 'X':
 			  ex_opt_add(optarg);
 			  break;
@@ -956,6 +965,9 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'C':
+        /* Configuration profile settings were already processed just ignore them this time*/
+	break;
       case 'd':        /* Decode as rule */
         if (!add_decode_as(optarg))
           exit(1);

@@ -96,6 +96,7 @@ WIRESHARK_GTK_SRC = \
 	prefs_dlg.c	\
 	print_dlg.c	\
 	print_prefs.c	\
+	profile_dlg.c	\
 	progress_dlg.c	\
 	proto_dlg.c	\
 	proto_draw.c	\

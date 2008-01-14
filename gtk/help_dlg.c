@@ -410,6 +410,9 @@ topic_action(topic_action_e action)
     case(HELP_COLORING_RULES_DIALOG):
         help_topic_html("ChCustColorizationSection.html");
         break;
+    case(HELP_CONFIG_PROFILES_DIALOG):
+        help_topic_html("ChCustConfigProfilesSection.html");
+        break;
     case(HELP_PRINT_DIALOG):
         help_topic_html("ChIOPrintSection.html");
         break;

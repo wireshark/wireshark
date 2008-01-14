@@ -299,6 +299,23 @@ color_filters_init(void)
 }
 
 void
+color_filters_reload(void)
+{
+        /* "move" old entries to the deleted list
+         * we must keep them until the dissection no longer needs them */
+        color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
+        color_filter_list = NULL;
+
+        /* start the list with the temporary colorizing rules */
+        color_filters_add_tmp(&color_filter_list);
+
+	/* try to read the users filters */
+	if (!read_users_filters(&color_filter_list))
+		/* if that failed, try to read the global filters */
+		color_filters_read_globals(&color_filter_list);
+}
+
+void
 color_filters_cleanup(void)
 {
         /* delete the previously deleted filters */
@@ -612,7 +629,7 @@ read_users_filters(GSList **cfl)
 	gboolean ret;
 
 	/* decide what file to open (from dfilter code) */
-	path = get_persconffile_path("colorfilters", FALSE);
+	path = get_persconffile_path("colorfilters", TRUE, FALSE);
 	if ((f = eth_fopen(path, "r")) == NULL) {
 		if (errno != ENOENT) {
 			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -737,7 +754,7 @@ color_filters_write(GSList *cfl)
 		return FALSE;
 	}
 
-	path = get_persconffile_path("colorfilters", TRUE);
+	path = get_persconffile_path("colorfilters", TRUE, TRUE);
 	if ((f = eth_fopen(path, "w+")) == NULL) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",

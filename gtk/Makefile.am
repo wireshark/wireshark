@@ -98,6 +98,7 @@ noinst_HEADERS = \
 	plugins_dlg.h	\
 	prefs_dlg.h	\
 	print_prefs.h	\
+	profile_dlg.h	\
 	proto_dlg.h	\
 	proto_draw.h	\
 	proto_hier_stats_dlg.h	\

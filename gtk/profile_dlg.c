@@ -1,0 +1,791 @@
+/* profile_dlg.c
+ * Dialog box for profiles editing
+ * Stig Bjørlykke <stig@bjorlykke.org>, 2008
+ *
+ * $Id$
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <string.h>
+
+#include <gtk/gtk.h>
+
+#include <epan/filesystem.h>
+#include <wiretap/file_util.h>
+
+#include "gtk/main.h"
+#include "profile_dlg.h"
+#include "dlg_utils.h"
+#include "gui_utils.h"
+#include "simple_dialog.h"
+#include "compat_macros.h"
+#include "gtkglobals.h"
+#include "help_dlg.h"
+#include <epan/prefs.h>
+
+#if GTK_MAJOR_VERSION >= 2
+
+#define E_PROF_PROFILE_L_KEY        "profile_profile_l"
+#define E_PROF_COPY_BT_KEY          "profile_copy_bt"
+#define E_PROF_DEL_BT_KEY           "profile_del_bt"
+#define E_PROF_NAME_TE_KEY          "profile_name_te"
+#define E_PROF_SELFUNC_KEY          "profile_selfunc"
+#define E_PROF_SELARG_KEY           "profile_selarg"
+
+static GtkWidget *global_profile_w = NULL;
+static GList *current_profiles = NULL;
+static GList *edited_profiles = NULL;
+
+#define PROF_STAT_DEFAULT  1
+#define PROF_STAT_EXISTS   2
+#define PROF_STAT_NEW      3
+#define PROF_STAT_CHANGED  4
+#define PROF_STAT_COPY     5
+
+typedef struct {
+  char *name;           /* profile name */
+  char *reference;      /* profile reference */
+  int   status;
+} profile_def;
+
+static GList *
+add_profile_entry(GList *fl, const char *profilename, const char *reference, int status)
+{
+    profile_def *profile;
+
+    profile = (profile_def *) g_malloc(sizeof(profile_def));
+    profile->name = g_strdup(profilename);
+    profile->reference = g_strdup(reference);
+    profile->status = status;
+    return g_list_append(fl, profile);
+}
+
+static GList *
+remove_profile_entry(GList *fl, GList *fl_entry)
+{
+  profile_def *profile;
+
+  profile = (profile_def *) fl_entry->data;
+  g_free(profile->name);
+  g_free(profile->reference);
+  g_free(profile);
+  return g_list_remove_link(fl, fl_entry);
+}
+
+static GList *
+add_to_profile_list(const char *name, const char *expression, int status)
+{
+  edited_profiles = add_profile_entry(edited_profiles, name, expression, status);
+
+  return g_list_last(edited_profiles);
+}
+
+static void
+remove_from_profile_list(GList *fl_entry)
+{
+  edited_profiles = remove_profile_entry(edited_profiles, fl_entry);
+}
+
+static void
+empty_profile_list(gboolean edit_list)
+{
+  GList **flpp;
+
+  if (edit_list) {
+    flpp = &edited_profiles;
+
+    while(*flpp) {
+      *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
+    }
+    
+    g_assert(g_list_length(*flpp) == 0);
+  } 
+
+  flpp = &current_profiles;
+
+  while(*flpp) {
+    *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
+  }
+  
+  g_assert(g_list_length(*flpp) == 0);
+}
+
+static void
+copy_profile_list(void)
+{
+    GList      *flp_src;
+    profile_def *profile;
+
+    flp_src = edited_profiles;
+
+    /* throw away the "old" destination list - a NULL list is ok here */
+    empty_profile_list(FALSE);
+
+    /* copy the list entries */
+    while(flp_src) {
+        profile = (flp_src)->data;
+
+        current_profiles = add_profile_entry(current_profiles, profile->name, 
+					     profile->reference, profile->status);
+        flp_src = g_list_next(flp_src);
+    }
+}
+
+
+static GtkTreeIter *
+fill_list(GtkWidget *main_w)
+{
+  ETH_DIR       *dir;             /* scanned directory */
+  ETH_DIRENT    *file;            /* current file */
+  GList         *fl_entry;
+  profile_def   *profile;
+  GtkTreeView   *profile_l;
+  GtkListStore  *store;
+  GtkTreeIter    iter, *l_select = NULL;
+  const gchar   *profile_name = get_profile_name ();
+  const gchar   *profiles_dir, *name;
+  gchar         *filename;
+  
+  profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
+  
+  fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT);
+  gtk_list_store_append(store, &iter);
+  gtk_list_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, fl_entry, -1);
+  if (profile_name == NULL || strlen(profile_name) == 0) {
+    l_select = g_memdup(&iter, sizeof(iter));
+  }
+  
+  /* fill in data */
+  profiles_dir = get_profiles_dir();
+  if ((dir = eth_dir_open(profiles_dir, 0, NULL)) != NULL) {
+    while ((file = eth_dir_read_name(dir)) != NULL) {
+      name = eth_dir_get_name(file);
+      filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
+
+      if (test_for_directory(filename) == EISDIR) {
+	fl_entry = add_to_profile_list(name, name, PROF_STAT_EXISTS);
+	profile    = (profile_def *) fl_entry->data;
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set(store, &iter, 0, profile->name, 1, fl_entry, -1);
+	
+	if (profile_name && profile->name) {
+	  if (strcmp(profile_name, profile->name) == 0) {
+	    /*
+	     * XXX - We're assuming that we can just copy a GtkTreeIter
+	     * and use it later without any crashes.  This may not be a
+	     * valid assumption.
+	     */
+	    l_select = g_memdup(&iter, sizeof(iter));
+	  }
+	}
+      }
+      g_free (filename);
+    }
+    eth_dir_close (dir);
+  }
+
+  /* Make the current list an the edited list equal */
+  copy_profile_list ();
+  
+  return l_select;
+}
+
+static void
+profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
+{
+  GList            *fl_entry;
+  profile_def      *profile;
+  GtkTreeSelection *sel;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+
+  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
+
+  if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    if (fl_entry) {
+      profile = (profile_def *) fl_entry->data;
+      if (strcmp(profile->name, DEFAULT_PROFILE)!=0) {
+	change_configuration_profile (profile->name);
+      } else {
+	change_configuration_profile (NULL);
+      }
+    }
+  }
+
+  if (destroy) {
+    /*
+     * Destroy the profile dialog box.
+     */
+    empty_profile_list (TRUE);
+    window_destroy(main_w);
+  }
+}
+
+static void
+profile_dlg_select(GtkTreeView *profile_l, gpointer main_w_arg)
+{
+  GtkWidget *main_w = GTK_WIDGET(main_w_arg);
+
+  profile_select(main_w, profile_l, TRUE);
+}
+
+static void
+profile_apply(GtkWidget *main_w, gboolean destroy)
+{
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+
+  profile_select(main_w, profile_l, destroy);
+}
+
+static void
+profile_dlg_save(void)
+{
+  char        *pf_dir_path, *pf_dir_path2;
+  GList       *fl1, *fl2;
+  profile_def *profile1, *profile2;
+  gboolean     found;
+
+  fl1 = g_list_first(edited_profiles);
+  while (fl1) {
+    found = FALSE;
+    profile1 = (profile_def *) fl1->data;
+    if (profile1->status == PROF_STAT_NEW) {
+      /* We do not create a directory for the default profile */
+      if (strcmp(profile1->name, DEFAULT_PROFILE)!=0) {
+	if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			"Can't create directory\n\"%s\":\n%s.",
+			pf_dir_path, strerror(errno));
+	  
+	  g_free(pf_dir_path);
+	}
+	profile1->status = PROF_STAT_EXISTS;
+      }
+    } else if (profile1->status == PROF_STAT_CHANGED) {
+      if (strcmp(profile1->reference, profile1->name)!=0) {
+	/* Rename old profile directory to new */
+	if (rename_persconffile_profile(profile1->reference, profile1->name,
+					&pf_dir_path, &pf_dir_path2) == -1) {
+	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+			"Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
+			pf_dir_path, pf_dir_path2, strerror(errno));
+	  
+	  g_free(pf_dir_path);
+	}
+	profile1->status = PROF_STAT_EXISTS;
+      }
+    }
+    fl1 = g_list_next(fl1);
+  }
+      
+  fl1 = g_list_first(current_profiles);
+  while (fl1) {
+    found = FALSE;
+    profile1 = (profile_def *) fl1->data;
+    fl2 = g_list_first(edited_profiles);
+    while (fl2) {
+      profile2 = (profile_def *) fl2->data;
+      if (strcmp(profile1->name, profile2->name)==0) {
+	/* Profile exists in both lists */
+	found = TRUE;
+      } else if (strcmp(profile1->name, profile2->reference)==0) {
+	/* Profile has been renamed */
+	found = TRUE;
+      }
+      fl2 = fl2->next;
+    }
+    if (!found) {
+      /* Exists in existing list and not in edited, this is a deleted profile */
+      if (delete_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
+	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+		      "Can't delete profile directory\n\"%s\":\n%s.",
+		      pf_dir_path, strerror(errno));
+
+	g_free(pf_dir_path);
+      }
+    }
+    fl1 = g_list_next(fl1);
+  }
+
+  copy_profile_list();
+}
+
+static void
+profile_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
+{
+  profile_dlg_save();
+
+  /*
+   * Destroy the dialog box and apply the profile.
+   */
+  profile_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
+}
+
+static void
+profile_dlg_apply_cb(GtkWidget *apply_bt, gpointer data _U_)
+{
+  profile_dlg_save();
+
+  /*
+   * Apply the profile, but don't destroy the dialog box.
+   */
+  profile_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
+}
+
+/* cancel button pressed, revert changes and exit dialog */
+static void
+profile_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data _U_)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(cancel_bt);
+
+  empty_profile_list (TRUE);
+  window_destroy(GTK_WIDGET(main_w));
+}
+
+/* Treat this as a cancel, by calling "profile_dlg_cancel_cb()" */
+static gboolean
+profile_dlg_delete_event_cb(GtkWidget *main_w, GdkEvent *event _U_,
+			    gpointer data)
+{
+  profile_dlg_cancel_cb(main_w, data);
+  return FALSE;
+}
+
+static void
+profile_dlg_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+  global_profile_w = NULL;
+}
+
+
+static gint
+profile_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
+			   gpointer data _U_)
+{
+  void (* func)(GtkWidget *, gpointer);
+  gpointer func_arg;
+
+  if (event->type == GDK_2BUTTON_PRESS) {
+    func = OBJECT_GET_DATA(list, E_PROF_SELFUNC_KEY);
+    func_arg = OBJECT_GET_DATA(list, E_PROF_SELARG_KEY);
+
+    if (func)
+      (*func)(list, func_arg);
+  }
+
+  return FALSE;
+}
+
+static void
+profile_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
+{
+  GtkWidget    *profile_l = GTK_WIDGET(gtk_tree_selection_get_tree_view(sel));
+  GtkWidget    *main_w = gtk_widget_get_toplevel(profile_l);
+  GtkTreeModel *model;
+  GtkTreeIter   iter;
+  GtkWidget    *name_te = OBJECT_GET_DATA(main_w, E_PROF_NAME_TE_KEY);
+  GtkWidget    *copy_bt = OBJECT_GET_DATA(main_w, E_PROF_COPY_BT_KEY);
+  GtkWidget    *del_bt = OBJECT_GET_DATA(main_w, E_PROF_DEL_BT_KEY);
+  profile_def  *profile;
+  gchar        *name = NULL;
+  GList        *fl_entry;
+  gint          sensitivity = FALSE;
+
+  if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    if (fl_entry) {
+      profile= (profile_def *) fl_entry->data;
+      name   = g_strdup(profile->name);
+      if (profile->status!=PROF_STAT_DEFAULT) {
+	sensitivity = TRUE;
+      }
+    }
+  }
+
+  /*
+   * Did you know that this function is called when the window is destroyed?
+   * Funny, that.
+   * This means that we have to:
+   *
+   *	attach to the top-level window data items containing pointers to
+   *	the widgets we affect here;
+   *
+   *	give each of those widgets their own destroy callbacks;
+   *
+   *	clear that pointer when the widget is destroyed;
+   *
+   *	don't do anything to the widget if the pointer we get back is
+   *	null;
+   *
+   * so that if we're called after any of the widgets we'd affect are
+   * destroyed, we know that we shouldn't do anything to those widgets.
+   */
+  if (name_te != NULL) {
+    gtk_entry_set_text(GTK_ENTRY(name_te), name ? name : "");
+    gtk_widget_set_sensitive(name_te, sensitivity);
+  }
+  if (copy_bt != NULL)
+    gtk_widget_set_sensitive(copy_bt, sensitivity);
+  if (del_bt != NULL)
+    gtk_widget_set_sensitive(del_bt, sensitivity);
+  if (name != NULL)
+    g_free(name);
+}
+
+static void
+profile_new_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
+{
+  GtkWidget    *main_w = gtk_widget_get_toplevel(w);
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+  GtkListStore *store;
+  GtkTreeIter   iter;
+  GList        *fl_entry;
+  const gchar  *name = "New profile";
+
+  /* Add a new entry to the profile list. */
+  fl_entry = add_to_profile_list(name, "", PROF_STAT_NEW);
+
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
+  gtk_list_store_append(store, &iter);
+  gtk_list_store_set(store, &iter, 0, name, 1, fl_entry, -1);
+  /* Select the item. */
+  gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
+}
+
+#if 0
+static void
+profile_copy_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
+{
+  GtkWidget    *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget    *name_te = OBJECT_GET_DATA(main_w, E_PROF_NAME_TE_KEY);
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+  GtkListStore *store;
+  GtkTreeIter   iter;
+  GList        *fl_entry;
+  const gchar  *name = gtk_entry_get_text(GTK_ENTRY(name_te));
+  gchar        *new_name;
+
+  new_name = g_strdup_printf ("%s (copy)", name);
+
+  /* Add a new entry to the profile list. */
+  fl_entry = add_to_profile_list(new_name, name, PROF_STAT_COPY);
+
+  store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
+  gtk_list_store_append(store, &iter);
+  gtk_list_store_set(store, &iter, 0, new_name, 1, fl_entry, -1);
+  /* Select the item. */
+  gtk_tree_selection_select_iter(gtk_tree_view_get_selection(profile_l), &iter);
+  g_free (new_name);
+}
+#endif
+
+static void
+profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
+{
+  GtkWidget   *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget   *name_te = OBJECT_GET_DATA(main_w, E_PROF_NAME_TE_KEY);
+  GtkWidget   *profile_l = OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY);
+  profile_def *profile;
+  GList       *fl_entry;
+  const gchar *name = "";
+
+  GtkTreeSelection  *sel;
+  GtkTreeModel      *model;
+  GtkTreeIter        iter;
+
+  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
+  name   = gtk_entry_get_text(GTK_ENTRY(name_te));
+
+  /* if something was selected */
+  if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+    if (fl_entry != NULL) {
+      profile = (profile_def *) fl_entry->data;
+      
+      if (strlen(name) > 0 && profile) {
+	if (profile->status != PROF_STAT_DEFAULT) {
+	  g_free(profile->name);
+	  profile->name = g_strdup(name);
+	  if (profile->status != PROF_STAT_NEW) {
+	    profile->status = PROF_STAT_CHANGED;
+	  }
+	  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, name, -1);
+	}
+      }
+    }
+  }
+}
+
+static void
+profile_del_bt_clicked_cb(GtkWidget *w, gpointer data _U_)
+{
+  GtkWidget  *main_w = gtk_widget_get_toplevel(w);
+  GtkWidget  *profile_l = OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY);
+  GList      *fl_entry;
+
+  GtkTreeSelection  *sel;
+  GtkTreeModel      *model;
+  GtkTreeIter        iter;
+
+  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
+  /* If something was selected */
+  if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
+
+    if (fl_entry != NULL) {
+      remove_from_profile_list (fl_entry);
+      gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+    }
+  }
+
+  if (gtk_tree_model_get_iter_first (model, &iter)) {
+    gtk_tree_selection_select_iter(sel, &iter);
+  }
+}
+
+static GtkWidget *
+profile_dialog_new(void)
+{
+  GtkWidget  *main_w,  /* main window */
+    *main_vb,          /* main container */
+    *bbox,             /* button container */
+    *ok_bt,            /* "OK" button */
+    *apply_bt,         /* "Apply" button */
+    *cancel_bt,        /* "Cancel" button */
+    *help_bt;          /* "Help" button */
+  GtkWidget  *profile_vb,        /* profile settings box */
+    *props_vb;
+  GtkWidget  *top_hb,
+    *list_bb,
+    *new_bt,
+#if 0
+    *copy_bt,
+#endif
+    *del_bt,
+    *profile_sc,
+    *profile_l,
+    *middle_hb,
+    *name_lb,
+    *name_te,
+    *profile_fr,
+    *edit_fr,
+    *props_fr;
+  GtkTooltips       *tooltips;
+  GtkListStore      *store;
+  GtkCellRenderer   *renderer;
+  GtkTreeViewColumn *column;
+  GtkTreeSelection  *sel;
+  GtkTreeIter       *l_select;
+  
+  /* Get a pointer to a static variable holding the type of profile on
+     which we're working, so we can pass that pointer to callback
+     routines. */
+  
+  tooltips = gtk_tooltips_new ();
+  
+  main_w = dlg_window_new("Wireshark: Configuration Profiles");
+  gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
+  
+  main_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_add(GTK_CONTAINER(main_w), main_vb);
+  gtk_widget_show(main_vb);
+
+  /* Container for each row of widgets */
+  profile_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(profile_vb), 0);
+  gtk_container_add(GTK_CONTAINER(main_vb), profile_vb);
+  gtk_widget_show(profile_vb);
+
+  /* Top row: Buttons and profile list */
+  top_hb = gtk_hbox_new(FALSE, 0);
+  gtk_container_add(GTK_CONTAINER(profile_vb), top_hb);
+  gtk_widget_show(top_hb);
+
+  edit_fr = gtk_frame_new("Edit");
+  gtk_box_pack_start(GTK_BOX(top_hb), edit_fr, FALSE, FALSE, 0);
+  gtk_widget_show(edit_fr);
+
+  list_bb = gtk_vbox_new(TRUE, 0);
+  gtk_container_border_width(GTK_CONTAINER(list_bb), 5);
+  gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
+  gtk_widget_show(list_bb);
+
+  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+  SIGNAL_CONNECT(new_bt, "clicked", profile_new_bt_clicked_cb, NULL);
+  gtk_widget_show(new_bt);
+  gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, new_bt,
+			"Create a new profile (with default properties)", NULL);
+
+#if 0
+  copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+  gtk_widget_set_sensitive(copy_bt, FALSE);
+  SIGNAL_CONNECT(copy_bt, "clicked", profile_copy_bt_clicked_cb, NULL);
+  OBJECT_SET_DATA(main_w, E_PROF_COPY_BT_KEY, copy_bt);
+  gtk_widget_show(copy_bt);
+  gtk_box_pack_start (GTK_BOX (list_bb), copy_bt, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, copy_bt,
+			"Copy the selected profile", NULL);
+#endif
+
+  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+  gtk_widget_set_sensitive(del_bt, FALSE);
+  SIGNAL_CONNECT(del_bt, "clicked", profile_del_bt_clicked_cb, NULL);
+  OBJECT_SET_DATA(main_w, E_PROF_DEL_BT_KEY, del_bt);
+  gtk_widget_show(del_bt);
+  gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, del_bt, "Delete the selected profile", NULL);
+
+  profile_fr = gtk_frame_new("Configuration Profiles");
+  gtk_box_pack_start(GTK_BOX(top_hb), profile_fr, TRUE, TRUE, 0);
+  gtk_widget_show(profile_fr);
+
+  profile_sc = scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(profile_sc),
+				      GTK_SHADOW_IN);
+
+  gtk_container_set_border_width  (GTK_CONTAINER (profile_sc), 5);
+  gtk_container_add(GTK_CONTAINER(profile_fr), profile_sc);
+  gtk_widget_show(profile_sc);
+
+  store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
+  profile_l = tree_view_new(GTK_TREE_MODEL(store));
+  gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(profile_l), FALSE);
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("", renderer, "text", 0, NULL);
+  gtk_tree_view_column_set_sort_column_id(column, 0);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
+  sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
+  gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
+  SIGNAL_CONNECT(sel, "changed", profile_sel_list_cb, profile_vb);
+  SIGNAL_CONNECT(profile_l, "button_press_event", profile_sel_list_button_cb, NULL);
+  OBJECT_SET_DATA(main_w, E_PROF_PROFILE_L_KEY, profile_l);
+  gtk_container_add(GTK_CONTAINER(profile_sc), profile_l);
+  gtk_widget_show(profile_l);
+
+  OBJECT_SET_DATA(profile_l, E_PROF_SELFUNC_KEY, profile_dlg_select);
+  OBJECT_SET_DATA(profile_l, E_PROF_SELARG_KEY, main_w);
+
+  /* fill in data */
+  l_select = fill_list(main_w);
+
+  g_object_unref(G_OBJECT(store));
+
+  props_fr = gtk_frame_new("Properties");
+  gtk_box_pack_start(GTK_BOX(profile_vb), props_fr, FALSE, FALSE, 0);
+  gtk_widget_show(props_fr);
+
+  props_vb = gtk_vbox_new(FALSE, 3);
+  gtk_container_border_width(GTK_CONTAINER(props_vb), 5);
+  gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
+  gtk_widget_show(props_vb);
+
+  /* row: Profile name entry */
+  middle_hb = gtk_hbox_new(FALSE, 3);
+  gtk_container_add(GTK_CONTAINER(props_vb), middle_hb);
+  gtk_widget_show(middle_hb);
+
+  name_lb = gtk_label_new("Profile name:");
+  gtk_box_pack_start(GTK_BOX(middle_hb), name_lb, FALSE, FALSE, 0);
+  gtk_widget_show(name_lb);
+
+  name_te = gtk_entry_new();
+  gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
+  OBJECT_SET_DATA(main_w, E_PROF_NAME_TE_KEY, name_te);
+  SIGNAL_CONNECT(name_te, "changed", profile_name_te_changed_cb, NULL);
+  gtk_widget_show(name_te);
+
+  /* button row (create all possible buttons and hide the unrequired later - it's a lot easier) */
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
+  gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
+  gtk_widget_show(bbox);
+
+  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  SIGNAL_CONNECT(ok_bt, "clicked", profile_dlg_ok_cb, NULL);
+  gtk_tooltips_set_tip (tooltips, ok_bt, "Apply the profiles and close this dialog", NULL);
+
+  /* Catch the "activate" signal on the profile name and profile
+     list entries, so that if the user types Return
+     there, we act as if the "OK" button had been selected, as
+     happens if Return is typed if some widget that *doesn't*
+     handle the Return key has the input focus. */
+  dlg_set_activate(name_te, ok_bt);
+
+  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+  SIGNAL_CONNECT(apply_bt, "clicked", profile_dlg_apply_cb, NULL);
+  gtk_tooltips_set_tip (tooltips, apply_bt, "Apply the profiles and keep this dialog open", NULL);
+
+  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel the changes", NULL);
+  SIGNAL_CONNECT(cancel_bt, "clicked", profile_dlg_cancel_cb, NULL);
+  window_set_cancel_button(main_w, cancel_bt, NULL);
+
+  help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+  SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CONFIG_PROFILES_DIALOG);
+  gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+
+  if(ok_bt) {
+    gtk_widget_grab_default(ok_bt);
+  }
+
+
+  /* DO SELECTION THINGS *AFTER* SHOWING THE DIALOG! */
+  /* otherwise the updatings can get confused */
+  if (l_select) {
+    gtk_tree_selection_select_iter(sel, l_select);
+    g_free(l_select);
+  }
+
+  SIGNAL_CONNECT(main_w, "delete_event", profile_dlg_delete_event_cb, NULL);
+  SIGNAL_CONNECT(main_w, "destroy", profile_dlg_destroy_cb, NULL);
+
+  gtk_widget_show(main_w);
+
+  window_present(main_w);
+
+  return main_w;
+}
+
+#endif
+
+
+/* Create a profile dialog for editing display profiles; this is to be used
+   as a callback for menu items, toolbars, etc.. */
+void
+profile_dialog_cb(GtkWidget *w _U_)
+{
+#if GTK_MAJOR_VERSION >= 2
+  /* Has a profiles dialog box already been opened */
+  if (global_profile_w != NULL) {
+    /* Yes.  Just reactivate it. */
+    reactivate_window(global_profile_w);
+  } else {
+    global_profile_w = profile_dialog_new ();
+  }
+#endif
+}
+

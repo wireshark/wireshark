@@ -165,7 +165,7 @@ const char* wslua_get_actual_filename(const char* fname) {
 		return fname_clean;
 	}
 	
-	filename = get_persconffile_path(fname_clean,FALSE);
+	filename = get_persconffile_path(fname_clean,FALSE,FALSE);
 	
 	if ( file_exists(filename) ) {
 		return filename;
@@ -220,7 +220,7 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
 #define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* a filename */
 	const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
-	const char* filename = get_persconffile_path(fname,FALSE);
+	const char* filename = get_persconffile_path(fname,FALSE,FALSE);
 	
 	lua_pushstring(L,filename);
 	WSLUA_RETURN(1); /* the full pathname for a file in the personal configuration directory */

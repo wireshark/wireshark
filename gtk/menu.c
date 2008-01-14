@@ -46,6 +46,7 @@
 #include "capture_dlg.h"
 #include "color_dlg.h"
 #include "filter_dlg.h"
+#include "profile_dlg.h"
 #include "dlg_utils.h"
 #include "capture_file_dlg.h"
 #include "fileset_dlg.h"
@@ -520,6 +521,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/Find Next Reference", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Find Previous Reference", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+#if GTK_MAJOR_VERSION >= 2
+    ITEM_FACTORY_ENTRY("/Edit/_Configuration Profiles...", "<shift><control>A", profile_dialog_cb, 0, NULL, NULL),
+#endif
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),

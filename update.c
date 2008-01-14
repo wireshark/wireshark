@@ -312,7 +312,7 @@ update_check(gboolean interactive)
 
     /* build update file name */
     /* XXX - using the personal path, use temp dir instead? */
-    local_file = get_persconffile_path("wsupdate", TRUE /*for_writing*/);
+    local_file = get_persconffile_path("wsupdate", FALSE, TRUE /*for_writing*/);
     if(local_file == NULL) {
         g_warning("Couldn't create output path!");
         return;
