@@ -246,23 +246,7 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 }
 
 static void
-profile_dlg_select(GtkTreeView *profile_l, gpointer main_w_arg)
-{
-  GtkWidget *main_w = GTK_WIDGET(main_w_arg);
-
-  profile_select(main_w, profile_l, TRUE);
-}
-
-static void
-profile_apply(GtkWidget *main_w, gboolean destroy)
-{
-  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
-
-  profile_select(main_w, profile_l, destroy);
-}
-
-static void
-profile_dlg_save(void)
+profile_save(void)
 {
   char        *pf_dir_path, *pf_dir_path2;
   GList       *fl1, *fl2;
@@ -335,12 +319,28 @@ profile_dlg_save(void)
 }
 
 static void
+profile_dlg_select(GtkTreeView *profile_l, gpointer main_w_arg)
+{
+  GtkWidget *main_w = GTK_WIDGET(main_w_arg);
+
+  profile_save();
+  profile_select(main_w, profile_l, TRUE);
+}
+
+static void
+profile_apply(GtkWidget *main_w, gboolean destroy)
+{
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+
+  profile_save();
+  profile_select(main_w, profile_l, destroy);
+}
+
+static void
 profile_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 {
-  profile_dlg_save();
-
   /*
-   * Destroy the dialog box and apply the profile.
+   * Apply the profile and destroy the dialog box.
    */
   profile_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
 }
@@ -348,8 +348,6 @@ profile_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 static void
 profile_dlg_apply_cb(GtkWidget *apply_bt, gpointer data _U_)
 {
-  profile_dlg_save();
-
   /*
    * Apply the profile, but don't destroy the dialog box.
    */
