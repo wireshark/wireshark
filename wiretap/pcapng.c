@@ -612,7 +612,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 		wth->phdr.ts.nsecs	= wblock.data.packet.ts_low;	/* convert here? */
 
 		/*g_warning("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
-		wth->data_offset += bytes_read;
+		wth->data_offset += bytes_read + 4;
 		return TRUE;
 	} else {
 		return FALSE;
