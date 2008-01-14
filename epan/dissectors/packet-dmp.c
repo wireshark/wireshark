@@ -1064,7 +1064,7 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
   gboolean failure = FALSE;
   gdouble  multiplier;
   guint8   i;
-  gint64   p;
+  guint64  p, tmp;
 
   if (no_char >= MAX_SIC_LEN) {
     /* Illegal length */
@@ -1079,9 +1079,10 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
   }
 
   for (i = 0; i < no_char; i++) {
-    p = (gint64) pow (multiplier, no_char - 1 - i);
-    sic[i] = (gchar) (bin / p);
-    bin -= sic[i] * p;
+    p = (guint64) pow (multiplier, no_char - 1 - i);
+    tmp = bin / p;
+    bin -= tmp * p;
+    sic[i] = (gchar) tmp;
     if (sic[i] <= 9) {
       sic[i] += '0';
     } else if (sic[i] <= 35) {
@@ -1735,7 +1736,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
       offset += 1;
     }
 
-    en = proto_tree_add_uint_format (addr_tree, hf_addr_dir_address_generated,
+    en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address_generated,
 				     tvb, offset, 0, dir_addr,
 				     "%sDirect Address: %d",
 				     val_to_str (addr_type, addr_type_str, ""),
