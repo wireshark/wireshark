@@ -672,7 +672,7 @@ dis_field_dcs(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 oct,
 	case 0x00: str = "GSM 7 bit default alphabet";
 	    *seven_bit = TRUE;
 	    break;
-	case 0x01: str = "8 bit data"; 
+	case 0x01: str = "8 bit data";
 		*eight_bit = TRUE;
 		break;
 	case 0x02: str = "UCS2 (16 bit)";
@@ -1547,7 +1547,7 @@ char_def_alphabet_ext_decode(unsigned char value)
     }
 }
 
-static gunichar 
+static gunichar
 char_def_alphabet_decode(unsigned char value)
 {
     if (value < GN_CHAR_ALPHABET_SIZE)
@@ -1822,7 +1822,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     static guint8	fill_bits_mask[NUM_FILL_BITS_MASKS] =
 	{ 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc };
     proto_item	*item;
-    proto_item	*udh_item , *ucs2_item;
+    proto_item	*udh_item;
     proto_tree	*subtree = NULL;
     proto_tree	*udh_subtree = NULL;
     guint8	oct;
@@ -1830,9 +1830,12 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint32	out_len;
     char	*ustr;
     char        messagebuf[160];
-	gchar *utf8_text = NULL;
-	GIConv cd;	
-	GError *l_conv_error = NULL;	
+#if GLIB_MAJOR_VERSION > 2
+    proto_item *ucs2_item;
+    gchar *utf8_text = NULL;
+    GIConv cd;
+    GError *l_conv_error = NULL;
+#endif
 
     fill_bits = 0;
 
@@ -1915,7 +1918,8 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		}
 		else if (ucs2)
 		{
-			if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)			
+#if GLIB_MAJOR_VERSION > 2
+			if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
 			{
 				utf8_text = g_convert_with_iconv(tvb->real_data +  offset, length , cd , NULL , NULL , &l_conv_error);
 				if(!l_conv_error){
@@ -1926,14 +1930,17 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 				PROTO_ITEM_SET_GENERATED(ucs2_item);
 				if(utf8_text)
 					g_free(utf8_text);
-				g_iconv_close(cd);				
+				g_iconv_close(cd);
 			}
 			else
 			{
+#endif
 				/* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
 				ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
 				proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-			}	
+#if GLIB_MAJOR_VERSION > 2
+			}
+#endif
 		}
     }
 }
