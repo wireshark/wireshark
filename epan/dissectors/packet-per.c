@@ -1036,7 +1036,7 @@ PER_NOT_DECODED_YET("too long integer");
 		if(i==0){
 			if(tvb_get_guint8(tvb, offset>>3)&0x80){
 				/* negative number */
-				val=0xffffffffffffffff;
+				val=G_GINT64_CONSTANT(0xffffffffffffffff);
 			} else {
 				/* positive number */
 				val=0;

@@ -366,7 +366,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
 
 /*--- dissect_camel_arg ------------------------------------------------------*/
 static int   
-dissect_camel_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_camel_arg(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
   int offset;
   rose_ctx_t *rctx;
   gint32 opcode;
@@ -390,7 +390,7 @@ dissect_camel_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*--- dissect_camel_res -------------------------------------------------------*/
 static int
-dissect_camel_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_camel_res(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
   gint offset;
   rose_ctx_t *rctx;
   gint32 opcode;
@@ -413,7 +413,7 @@ dissect_camel_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 /*--- dissect_camel_err ------------------------------------------------------*/
 static int   
-dissect_camel_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_camel_err(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_) {
   int offset;
   rose_ctx_t *rctx;
   gint32 errcode;
