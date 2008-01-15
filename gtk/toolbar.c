@@ -96,6 +96,7 @@
 #include "../image/toolbar/stock_zoom_1_24.xpm"
 #include "../image/toolbar/stock_colorselector_24.xpm"
 #include "../image/toolbar/stock_help_24.xpm"
+#include "../image/toolbar/stock_preferences_24.xpm"
 #endif /* GTK_MAJOR_VERSION */
 
 /* these icons are derived from the original stock icons */
@@ -120,7 +121,6 @@
 #include "../image/toolbar/stock_ok_20.xpm"
 #endif
 #include "../image/toolbar/stock_save_24.xpm"
-#include "../image/toolbar/stock_preferences_24.xpm"
 #if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
 #include "../image/wsicon16.xpm"
@@ -211,7 +211,6 @@ static void wireshark_stock_icons(void) {
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        WIRESHARK_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
-        { WIRESHARK_STOCK_PREFS,                 WIRESHARK_STOCK_LABEL_PREFS,                 0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                WIRESHARK_STOCK_LABEL_BROWSE,                0, 0, NULL },
         { WIRESHARK_STOCK_CREATE_STAT,           WIRESHARK_STOCK_LABEL_CREATE_STAT,           0, 0, NULL },
         { WIRESHARK_STOCK_EXPORT,                WIRESHARK_STOCK_LABEL_EXPORT,                0, 0, NULL },
@@ -264,7 +263,6 @@ static void wireshark_stock_icons(void) {
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
-        { WIRESHARK_STOCK_PREFS,                 stock_preferences_24_xpm },
         { WIRESHARK_STOCK_BROWSE,                stock_open_24_xpm },
         { WIRESHARK_STOCK_CREATE_STAT,           stock_ok_20_xpm },
         { WIRESHARK_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
@@ -780,7 +778,7 @@ toolbar_new(void)
 
     /* the preference button uses it's own Stock icon label "Prefs", as "Preferences" is too long */
     toolbar_item(prefs_button, window, main_tb, 
-	WIRESHARK_STOCK_PREFS, tooltips, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
+	GTK_STOCK_PREFERENCES, tooltips, "Edit preferences...", stock_preferences_24_xpm, prefs_cb, NULL);
 
     toolbar_append_separator(main_tb);
 

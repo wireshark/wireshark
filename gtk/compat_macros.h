@@ -168,6 +168,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_OK                "OK"
 #define GTK_STOCK_OPEN              "Open"
 #define GTK_STOCK_PRINT             "Print"
+#define GTK_STOCK_PREFERENCES       "Prefs"
 #define GTK_STOCK_PROPERTIES        "Properties"
 #define GTK_STOCK_REFRESH           "Reload"
 #define GTK_STOCK_REVERT_TO_SAVED   "Revert"
@@ -194,7 +195,6 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #endif
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Filter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Filter:"
-#define WIRESHARK_STOCK_PREFS                    "Prefs"
 #define WIRESHARK_STOCK_BROWSE                   "Browse"
 #define WIRESHARK_STOCK_CREATE_STAT              "Create Stat"
 #define WIRESHARK_STOCK_EXPORT                   "Export..."
@@ -393,7 +393,6 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 #endif
 #define WIRESHARK_STOCK_DISPLAY_FILTER           "Wireshark_Stock_DisplayFilter"
 #define WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY     "Wireshark_Stock_DisplayFilter_Entry"
-#define WIRESHARK_STOCK_PREFS                    "Wireshark_Stock_Prefs"
 #define WIRESHARK_STOCK_BROWSE                   "Wireshark_Stock_Browse"
 #define WIRESHARK_STOCK_CREATE_STAT              "Wireshark_Stock_CreateStat"
 #define WIRESHARK_STOCK_EXPORT                   "Wireshark_Stock_Export"
