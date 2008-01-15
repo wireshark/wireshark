@@ -1014,8 +1014,59 @@ PER_NOT_DECODED_YET("too long integer");
 
 	return offset;
 }
+/* 64 bits experimental version, internal for now */
+static guint32
+dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint64 *value)
+{
+	guint32 i, length;
+	gint64 val;
+	proto_item *it=NULL;
+	header_field_info *hfi;
+
+	/* 12.2.6 b */
+	offset=dissect_per_length_determinant(tvb, offset, actx, tree, -1, &length);
+	/* gassert here? */
+	if(length>8){
+PER_NOT_DECODED_YET("too long integer");
+		length=4;
+	}
+
+	val=0;
+	for(i=0;i<length;i++){
+		if(i==0){
+			if(tvb_get_guint8(tvb, offset>>3)&0x80){
+				/* negative number */
+				val=0xffffffffffffffff;
+			} else {
+				/* positive number */
+				val=0;
+			}
+		}
+		val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
+		offset+=8;
+	}
+
+	hfi = proto_registrar_get_nth(hf_index);
+	if (! hfi)
+		THROW(ReportedBoundsError);
+        if (IS_FT_INT(hfi->type)) {
+		it=proto_tree_add_int64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+        } else if (IS_FT_UINT(hfi->type)) {
+		it=proto_tree_add_uint64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+	} else {
+		proto_tree_add_text(tree, tvb, (offset>>3)-(length+1), length+1, "Field is not an integer: %s", hfi->abbrev);
+		REPORT_DISSECTOR_BUG("PER integer field that's not an FT_INT* or FT_UINT*");
+	}
 
 
+	actx->created_item = it;
+
+	if(value){
+		*value=val;
+	}
+
+	return offset;
+}
 /* this function reads a constrained integer  with or without a
    PER visible extension marker present
 
@@ -1222,6 +1273,202 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	} else if (IS_FT_INT(hfi->type)) {
 		it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val);
 	} else if (IS_FT_TIME(hfi->type)) {
+		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
+	} else {
+		THROW(ReportedBoundsError);
+	}
+	actx->created_item = it;
+	if (value) *value = val;
+	return offset;}
+
+guint32
+dissect_per_constrained_integer_64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, guint64 min, guint64 max, guint64 *value, gboolean has_extension)
+{
+	proto_item *it=NULL;
+	guint64 range, val;
+	gint val_start, val_length;
+	nstime_t timeval;
+	header_field_info *hfi;
+	int num_bits;
+	int pad;
+	gboolean tmp;
+
+DEBUG_ENTRY("dissect_per_constrained_integer_64b");
+	if(has_extension){
+		gboolean extension_present;
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if(extension_present){
+			offset = dissect_per_integer64b(tvb, offset, actx, tree, hf_index, (gint64*)value);
+			return offset;
+		}
+	}
+
+	hfi = proto_registrar_get_nth(hf_index);
+
+	/* 10.5.3 Let "range" be defined as the integer value ("ub" - "lb"   1), and let the value to be encoded be "n". 
+	 * 10.5.7	In the case of the ALIGNED variant the encoding depends on whether
+	 *			d)	"range" is greater than 64K (the indefinite length case).
+	 */
+	if(((max-min)>65536)&&(actx->aligned)){
+		/* just set range really big so it will fall through
+		   to the bottom of the encoding */
+		range=1000000;
+	} else {
+		/* Copied from the 32 bit version, asuming the same problem occures
+		 * at 64 bit boundary.
+		 * Really ugly hack.
+		 * We should really use guint64 as parameters for min/max.
+		 * This is to prevent range from being 0 if
+		 * the range for a signed integer spans the entire 32 bit range.
+		 * Special case the 2 common cases when this can happen until
+		 * a real fix is implemented.
+		 */
+		if( (max==0x7fffffffffffffff && min==0x8000000000000000)
+		||  (max==0xffffffffffffffff && min==0x0000000000000000) ){
+			range=0xffffffffffffffff;
+		} else {
+			range=max-min+1;
+		}
+	}
+
+	num_bits=0;
+	pad=0;
+	val=0;
+	timeval.secs=0; timeval.nsecs=0;
+	/* 10.5.4 If "range" has the value 1, then the result of the encoding shall be an empty bit-field (no bits).*/
+
+	/* something is really wrong if range is 0 */
+	DISSECTOR_ASSERT(range!=0);
+
+	if(range==1){
+		val_start = offset>>3; val_length = 0;
+		val = min; 
+	} else if((range<=255)||(!actx->aligned)) {
+		/* 10.5.7.1 
+		 * 10.5.6	In the case of the UNALIGNED variant the value ("n" - "lb") shall be encoded
+		 * as a non-negative  binary integer in a bit field as specified in 10.3 with the minimum
+		 * number of bits necessary to represent the range.
+		 */
+		char *str;
+		int i, bit, length;
+		guint32 mask,mask2;
+		/* We only handle 32 bit integers */
+		mask  = 0x80000000;
+		mask2 = 0x7fffffff;
+		i = 32;
+		while ((range & mask)== 0){
+			i = i - 1;
+			mask = mask>>1;
+			mask2 = mask2>>1;
+		}
+		if ((range & mask2) == 0)
+			i = i-1;
+
+		num_bits = i;
+		length=1;
+		if(range<=2){
+			num_bits=1;
+		}
+
+		/* prepare the string */
+		str=ep_alloc(256);
+		g_snprintf(str, 256, "%s: ", hfi->name);
+		for(bit=0;bit<((int)(offset&0x07));bit++){
+			if(bit&&(!(bit%4))){
+				strcat(str, " ");
+			}
+			strcat(str,".");
+		}
+		/* read the bits for the int */
+		for(i=0;i<num_bits;i++){
+			if(bit&&(!(bit%4))){
+				strcat(str, " ");
+			}
+			if(bit&&(!(bit%8))){
+				length+=1;
+				strcat(str, " ");
+			}
+			bit++;
+			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
+			val<<=1;
+			if(tmp){
+				val|=1;
+				strcat(str, "1");
+			} else {
+				strcat(str, "0");
+			}
+		}
+		for(;bit%8;bit++){
+			if(bit&&(!(bit%4))){
+				strcat(str, " ");
+			}
+			strcat(str,".");
+		}
+		val_start = (offset-num_bits)>>3; val_length = length;
+		val+=min;
+		if (display_internal_per_fields)
+			proto_tree_add_text(tree, tvb, val_start,val_length,"Range = %u Bitfield length %u, %s",range, num_bits, str);
+	} else if(range==256){
+		/* 10.5.7.2 */
+		num_bits=8;
+		pad=7-(offset&0x07);
+
+		/* in the aligned case, align to byte boundary */
+		BYTE_ALIGN_OFFSET(offset);
+		val=tvb_get_guint8(tvb, offset>>3);
+		offset+=8;
+
+		val_start = (offset>>3)-1; val_length = 1;
+		val+=min;
+	} else if(range<=65536){
+		/* 10.5.7.3 */
+		num_bits=16;
+		pad=7-(offset&0x07);
+
+		/* in the aligned case, align to byte boundary */
+		BYTE_ALIGN_OFFSET(offset);
+		val=tvb_get_guint8(tvb, offset>>3);
+		val<<=8;
+		offset+=8;
+		val|=tvb_get_guint8(tvb, offset>>3);
+		offset+=8;
+
+		val_start = (offset>>3)-2; val_length = 2;
+		val+=min;
+	} else {
+		int i,num_bytes;
+		gboolean bit;
+
+		/* 10.5.7.4 */
+		/* 12.2.6 */
+		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
+		num_bytes=bit;
+		offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &bit);
+		num_bytes=(num_bytes<<1)|bit;
+
+		num_bytes++;  /* lower bound for length determinant is 1 */
+		if (display_internal_per_fields)
+			proto_tree_add_uint(tree, hf_per_const_int_len, tvb, (offset>>3), 1, num_bytes);
+
+		/* byte aligned */
+		BYTE_ALIGN_OFFSET(offset);
+		val=0;
+		for(i=0;i<num_bytes;i++){
+			val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
+			offset+=8;
+		}
+		val_start = (offset>>3)-(num_bytes+1); val_length = num_bytes+1;
+		val+=min;
+	}
+
+	
+	if (IS_FT_UINT(hfi->type)) {
+		it = proto_tree_add_uint64(tree, hf_index, tvb, val_start, val_length, val);
+	} else if (IS_FT_INT(hfi->type)) {
+		it = proto_tree_add_int64(tree, hf_index, tvb, val_start, val_length, val);
+	} else if (IS_FT_TIME(hfi->type)) {
+		timeval.secs = (guint32)val;
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
 		THROW(ReportedBoundsError);

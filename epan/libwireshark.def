@@ -199,6 +199,7 @@ dissect_per_choice
 dissect_per_constrained_sequence_of
 dissect_per_constrained_set_of
 dissect_per_constrained_integer
+dissect_per_constrained_integer_64b
 dissect_per_enumerated
 dissect_per_external_type
 dissect_per_GeneralString

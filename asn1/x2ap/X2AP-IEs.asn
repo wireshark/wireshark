@@ -294,9 +294,7 @@ RRC-Context ::= OCTET STRING
 
 -- S
 
---SAE-Bearer-BitRate ::= INTEGER (0..210000000000)
--- NOTE THIS needs changes in packet-per.c I think !!!!
-SAE-Bearer-BitRate ::= INTEGER (0..4294967295)
+SAE-Bearer-BitRate ::= INTEGER (0..210000000000)
 
 SAE-BearerLevel-QoS-Parameters ::= SEQUENCE {
 	label				INTEGER (1..256),

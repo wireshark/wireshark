@@ -73,6 +73,9 @@ ProtocolIE-ContainerPairList
 #.TYPE_ATTR
 #.END
 
+# Handle 64 bit constraint
+#.FN_PARS SAE-Bearer-BitRate FN_VARIANT = _64b
+
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
