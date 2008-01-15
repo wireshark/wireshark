@@ -1324,9 +1324,9 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		 * Special case the 2 common cases when this can happen until
 		 * a real fix is implemented.
 		 */
-		if( (max==0x7fffffffffffffff && min==0x8000000000000000)
-		||  (max==0xffffffffffffffff && min==0x0000000000000000) ){
-			range=0xffffffffffffffff;
+		if( (max==G_GINT64_CONSTANT(0x7fffffffffffffff) && min==G_GINT64_CONSTANT(0x8000000000000000))
+		||  G_GINT64_CONSTANT((max==0xffffffffffffffff) && min==0) ){
+			range=G_GINT64_CONSTANT(0xffffffffffffffff);
 		} else {
 			range=max-min+1;
 		}
