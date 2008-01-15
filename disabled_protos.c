@@ -54,6 +54,25 @@ static GList *disabled_protos = NULL;
 
 #define INIT_BUF_SIZE	128
 
+static void
+discard_existing_list (GList **flp)
+{
+  GList      *fl_ent;
+  protocol_def *prot;
+
+  if (*flp != NULL) {
+    fl_ent = g_list_first(*flp);
+    while (fl_ent != NULL) {
+      prot = (protocol_def *) fl_ent->data;
+      g_free(prot->name);
+      g_free(prot);
+      fl_ent = fl_ent->next;
+    }
+    g_list_free(*flp);
+    *flp = NULL;
+  }
+}
+
 /*
  * Read in a list of disabled protocols.
  *
@@ -79,6 +98,9 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
 
   /* Construct the pathname of the global disabled protocols file. */
   gff_path = get_datafile_path(GLOBAL_PROTOCOLS_FILE_NAME);
+
+  /* If we already have a list of protocols, discard it. */
+  discard_existing_list (&global_disabled_protos);
 
   /* Read the global disabled protocols file, if it exists. */
   *gpath_return = NULL;
@@ -109,6 +131,9 @@ read_disabled_protos_list(char **gpath_return, int *gopen_errno_return,
 
   /* Construct the pathname of the user's disabled protocols file. */
   ff_path = get_persconffile_path(PROTOCOLS_FILE_NAME, TRUE, FALSE);
+
+  /* If we already have a list of protocols, discard it. */
+  discard_existing_list (&disabled_protos);
 
   /* Read the user's disabled protocols file, if it exists. */
   *path_return = NULL;
@@ -141,7 +166,6 @@ static int
 read_disabled_protos_list_file(const char *ff_path, FILE *ff,
 			       GList **flp)
 {
-  GList      *fl_ent;
   protocol_def *prot;
   int         c;
   char       *prot_name;
@@ -149,18 +173,6 @@ read_disabled_protos_list_file(const char *ff_path, FILE *ff,
   int         prot_name_index;
   int         line = 1;
 
-  /* If we already have a list of protocols, discard it. */
-  if (*flp != NULL) {
-    fl_ent = g_list_first(*flp);
-    while (fl_ent != NULL) {
-      prot = (protocol_def *) fl_ent->data;
-      g_free(prot->name);
-      g_free(prot);
-      fl_ent = fl_ent->next;
-    }
-    g_list_free(*flp);
-    *flp = NULL;
-  }
 
   /* Allocate the protocol name buffer. */
   prot_name_len = INIT_BUF_SIZE;
