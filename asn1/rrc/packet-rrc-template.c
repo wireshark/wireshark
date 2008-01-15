@@ -52,6 +52,7 @@
 #define PFNAME "rrc"
 
 static dissector_handle_t rrc_handle=NULL;
+static dissector_handle_t gsm_a_dtap_handle=NULL;
 
 /* Include constants */
 #include "packet-rrc-val.h"
@@ -115,7 +116,7 @@ void proto_register_rrc(void) {
   proto_register_field_array(proto_rrc, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
   register_dissector("rrc", dissect_rrc, proto_rrc);
 
 #include "packet-rrc-dis-reg.c"
@@ -129,6 +130,7 @@ proto_reg_handoff_rrc(void)
 {
 
 	rrc_handle = find_dissector("rrc");
+	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
 
 }
 

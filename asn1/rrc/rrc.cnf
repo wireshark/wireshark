@@ -24,3 +24,13 @@ MSCH-Message       @msch
 
 #.END
 
+#.FN_BODY NAS-Message VAL_PTR = &nas_message_tvb
+  tvbuff_t *nas_message_tvb=NULL;
+
+%(DEFAULT_BODY)s
+
+	if (nas_message_tvb)
+		call_dissector(gsm_a_dtap_handle,nas_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+
+#.END
+
