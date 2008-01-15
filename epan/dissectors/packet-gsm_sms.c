@@ -1830,7 +1830,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint32	out_len;
     char	*ustr;
     char        messagebuf[160];
-#if GLIB_MAJOR_VERSION > 2
+#if GLIB_MAJOR_VERSION >= 2
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
     GIConv cd;
@@ -1918,7 +1918,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		}
 		else if (ucs2)
 		{
-#if GLIB_MAJOR_VERSION > 2
+#if GLIB_MAJOR_VERSION >= 2
 			if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
 			{
 				utf8_text = g_convert_with_iconv(tvb->real_data +  offset, length , cd , NULL , NULL , &l_conv_error);
@@ -1938,7 +1938,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 				/* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
 				ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
 				proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-#if GLIB_MAJOR_VERSION > 2
+#if GLIB_MAJOR_VERSION >= 2
 			}
 #endif
 		}
