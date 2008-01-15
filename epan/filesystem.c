@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_DIRENT_H
+#include <dirent.h>
+#endif
+
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -782,13 +786,13 @@ char *getenv_utf8(const char *varname)
 }
 #endif
 
-void 
+void
 set_profile_name(const gchar *profilename)
 {
 	if (persconfprofile) {
 		g_free (persconfprofile);
 	}
-	
+
 	if (profilename && strlen(profilename) > 0) {
 		persconfprofile = g_strdup (profilename);
 	} else {
@@ -941,7 +945,7 @@ profile_exists(const gchar *profilename)
 	return FALSE;
 }
 
-static int 
+static int
 delete_directory (const char *directory, char **pf_dir_path_return)
 {
 	ETH_DIR *dir;
@@ -969,7 +973,7 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 		}
 		eth_dir_close(dir);
 	}
-	
+
 	if (ret == 0 && (ret = eth_remove(directory)) != 0) {
 		*pf_dir_path_return = g_strdup (directory);
 	}
@@ -1027,7 +1031,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 #endif
 	struct stat s_buf;
 	int ret;
-	
+
 	if (profilename) {
 		/*
 		 * Check if profiles directory exists.
@@ -1125,10 +1129,10 @@ get_persdatafile_dir(void)
 	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
 
 	if (u3devicedocumentpath != NULL) {
-	  
-	  /* the "My Captures" sub-directory is created (if it doesn't exist) 
+
+	  /* the "My Captures" sub-directory is created (if it doesn't exist)
 	     by u3util.exe when the U3 Wireshark is first run */
-	  
+
 	  szPath = g_malloc(strlen(u3devicedocumentpath) + strlen(U3_MY_CAPTURES) + 1);
 	  strcpy(szPath, u3devicedocumentpath);
 	  strcat(szPath, U3_MY_CAPTURES);
@@ -1235,10 +1239,10 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 #endif
 
 	if (from_profile) {
-	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 				 get_persconffile_dir(get_profile_name()), filename);
 	} else {
-	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", 
+	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 				 get_persconffile_dir(NULL), filename);
 	}
 #ifdef _WIN32
@@ -1266,7 +1270,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 	return path;
 }
 
-/* 
+/*
  * process command line option belonging to the filesystem settings
  * (move this e.g. to main.c and have set_persconffile_dir() instead in this file?)
  */
