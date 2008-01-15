@@ -3537,8 +3537,16 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
 	 (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) &&
 	dmp.id_val && dmp.id_val->msg_resend_count)
     {
+      guint retrans_num;
+      if (dmp.msg_type == REPORT) {
+	retrans_num = dmp.id_val->rep_id;
+      } else if (dmp.msg_type == NOTIF) {
+	retrans_num = dmp.id_val->not_id;
+      } else {
+	retrans_num = dmp.id_val->msg_id;
+      }
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Retrans %d#%d] ",
-		       dmp.id_val->msg_id, dmp.id_val->msg_resend_count);
+		       retrans_num, dmp.id_val->msg_resend_count);
       retrans_or_dup_ack = TRUE;
     } else if (dmp.msg_type == ACK && dmp.id_val && dmp.id_val->ack_resend_count) {
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
