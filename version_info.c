@@ -526,7 +526,7 @@ const char *
 get_copyright_info(void)
 {
 	return
-"Copyright 1998-2007 Gerald Combs <gerald@wireshark.org> and contributors.\n"
+"Copyright 1998-2008 Gerald Combs <gerald@wireshark.org> and contributors.\n"
 "This is free software; see the source for copying conditions. There is NO\n"
 "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }
