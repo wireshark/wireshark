@@ -1868,7 +1868,7 @@ void register_postdissector(dissector_handle_t handle) {
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint i;
     for(i=0;i<num_of_postdissectors;i++) {
-        call_dissector((dissector_handle_t) g_ptr_array_index(post_dissectors,i),
+        call_dissector_only((dissector_handle_t) g_ptr_array_index(post_dissectors,i),
                        tvb,pinfo,tree);
     }
 }
