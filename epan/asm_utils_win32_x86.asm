@@ -31,8 +31,8 @@ GLOBAL _wrs_check_charset
 GLOBAL _wrs_str_hash
 
     align 16
-_wrs_strcmp
-_wrs_strcmp_with_data
+_wrs_strcmp:
+_wrs_strcmp_with_data:
     mov ecx, dword [esp + 4]  ; a
     mov edx, dword [esp + 8]  ; b
     push ebx
@@ -72,7 +72,7 @@ CMP_NEQ_END:
     retn
 
     align 16
-_wrs_str_equal
+_wrs_str_equal:
     mov ecx, dword [esp + 4]  ; a
     mov edx, dword [esp + 8]  ; b
     push ebx
@@ -133,12 +133,12 @@ CHK_LOOP:
     movzx edx, ah
     test bl, byte [edi+edx]
     jnz CHK_LOOP
-CHK_AH_END
+CHK_AH_END:
     movzx eax, ah
     pop ebx
     pop edi
     retn
-CHK_AL_END
+CHK_AL_END:
     movzx eax, al
     pop ebx
     pop edi
