@@ -275,7 +275,7 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
    Only set *data_offset if data field found. */
 static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
                                                    guint32 *dest_addr_offset,
-                                                   guint8 *dest_addr_length,
+                                                   guint16 *dest_addr_length,
                                                    guint32 *dest_port_offset)
 {
     int offset = *data_offset;
@@ -354,7 +354,7 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
    Only set *data_offset if data field found. */
 static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
                                                    guint32 *dest_addr_offset,
-                                                   guint8 *dest_addr_length,
+                                                   guint16 *dest_addr_length,
                                                    guint32 *dest_port_offset)
 {
     guint16 tag = 0;
@@ -1308,7 +1308,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic)
             {
                 guint32      dest_addr_offset = 0;
-                guint8       dest_addr_length = 0;
+                guint16      dest_addr_length = 0;
                 guint32      dest_port_offset = 0;
                 int          offset_before_sctpprim_header = offset;
 
