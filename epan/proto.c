@@ -887,11 +887,10 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	va_list		ap;
 
 	pi = proto_tree_add_text_node(tree, NULL, 0, 0);
-	if (pi == NULL)
-		return(NULL);
 
 	va_start(ap, format);
-	proto_tree_set_representation(pi, format, ap);
+	if (pi)
+		proto_tree_set_representation(pi, format, ap);
 	vprintf(format, ap);
 	va_end(ap);
 	printf("\n");
