@@ -1215,8 +1215,13 @@ init_prefs(void) {
   prefs.capture_real_time        = TRUE;
   prefs.capture_auto_scroll      = TRUE;
   prefs.capture_show_info        = FALSE;
+
+/* set the default values for the name resolution dialog box */
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
   prefs.name_resolve_concurrency = 500;
+
+/* set the default values for the rtp player dialog box */
+  prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
   prefs_initialized = TRUE;
 }
@@ -1595,6 +1600,9 @@ prefs_set_pref(char *prefarg)
 #define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
 #define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
+
+/*  values for the rtp player preferences dialog box */
+#define PRS_RTP_PLAYER_MAX_VISIBLE        "rtp_player.max_visible"
 
 static const gchar *pr_formats[] = { "text", "postscript" };
 static const gchar *pr_dests[]   = { "command", "file" };
@@ -1983,6 +1991,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     }
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE_CONCURRENCY) == 0) {
     prefs.name_resolve_concurrency = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) {
+    prefs.rtp_player_max_visible = strtol(value, NULL, 10);
   } else {
     /* To which module does this preference belong? */
     module = NULL;
@@ -2736,6 +2746,13 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# A decimal number.\n");
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
 		  prefs.name_resolve_concurrency);
+
+  fprintf(pf, "\n####### RTP Player ########\n");
+
+  fprintf(pf, "\n# Maximum visible channels in RTP Player window.\n");
+  fprintf(pf, "# An integer value greater than 0.\n");
+  fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
+		  prefs.rtp_player_max_visible);
 
   fprintf(pf, "\n####### Protocols ########\n");
 

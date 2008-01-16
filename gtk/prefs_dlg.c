@@ -45,6 +45,7 @@
 #include "layout_prefs.h"
 #include "capture_prefs.h"
 #include "nameres_prefs.h"
+#include "rtp_player_prefs.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
@@ -101,6 +102,7 @@ static GtkWidget* create_preference_uat(GtkWidget*, int, const gchar*, const gch
 #define E_CAPTURE_PAGE_KEY      "capture_options_page"
 #define E_PRINT_PAGE_KEY        "printer_options_page"
 #define E_NAMERES_PAGE_KEY      "nameres_options_page"
+#define E_RTP_PLAYER_PAGE_KEY   "rtp_player_options_page"
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -673,6 +675,16 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_nb_page_add(prefs_nb, label_str, nameres_prefs_show(), E_NAMERES_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
+
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+  /* RTP player prefs */
+  strcpy(label_str, "RTP Player");
+  prefs_nb_page_add(prefs_nb, label_str, rtp_player_prefs_show(), E_RTP_PLAYER_PAGE_KEY);
+  prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
+  cts.page++;
+#endif
+#endif
 
   /* Registered prefs */
   cts.notebook = prefs_nb;
@@ -1349,7 +1361,11 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_fetch(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_fetch(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
-
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+  rtp_player_prefs_fetch(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+#endif
+#endif
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
   return TRUE;
@@ -1385,6 +1401,11 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_apply(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+  rtp_player_prefs_apply(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+#endif
+#endif
 
   /* show/hide the Save button - depending on setting */
   save_bt = OBJECT_GET_DATA(prefs_w, E_PREFSW_SAVE_BT_KEY);
@@ -1429,6 +1450,11 @@ prefs_main_destroy_all(GtkWidget *dlg)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_destroy(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_destroy(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+#ifdef HAVE_LIBPORTAUDIO
+#if GTK_MAJOR_VERSION >= 2
+  rtp_player_prefs_destroy(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+#endif
+#endif
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */

@@ -106,6 +106,7 @@ noinst_HEADERS = \
 	recent.h	\
 	rtp_analysis.h	\
 	rtp_player.h 	\
+	rtp_player_prefs.h 	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	mcast_stream.h  \

@@ -85,6 +85,7 @@
 #include "codecs/G711a/G711adecode.h"
 #include "codecs/G711u/G711udecode.h"
 #include <math.h>
+#include <epan/prefs.h>       /* For prefs.rtp_player_max_visible and RTP_PLAYER_DEFAULT_VISIBLE */
 
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))
@@ -1759,9 +1760,13 @@ decode_streams(void)
 	if (rtp_channels_hash)
 		g_hash_table_foreach( rtp_channels_hash, (GHFunc)add_channel_to_window, &counter);	
 
-	/* Resize the main scroll window to display no more than 5 channels, otherwise the scroll bar need to be used */
+	/* Resize the main scroll window to display no more than preferred (or default) max channels, scroll bar will be used if needed */
+
+        if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
+                prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
+
 	WIDGET_SET_SIZE(main_scrolled_window, CHANNEL_WIDTH, 
-		min(counter, 5) * (CHANNEL_HEIGHT+60));
+		min(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
 
 	gtk_widget_show_all(main_scrolled_window);
 

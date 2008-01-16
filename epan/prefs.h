@@ -39,6 +39,8 @@
 
 #define MAX_VAL_LEN  1024
 
+#define RTP_PLAYER_DEFAULT_VISIBLE 4
+
 /* only GTK1 *or* GTK2 font_name should be used */
 /* (we need to keep both in the preferences file but will only use the one suitable for the programs GTK version used) */
 #if GTK_MAJOR_VERSION < 2
@@ -153,6 +155,7 @@ typedef struct _e_prefs {
   gboolean capture_real_time;
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
+  guint    rtp_player_max_visible;
 } e_prefs;
 
 WS_VAR_IMPORT e_prefs prefs;

@@ -104,6 +104,7 @@ WIRESHARK_GTK_SRC = \
 	range_utils.c	\
 	recent.c	\
 	rtp_player.c	\
+	rtp_player_prefs.c	\
 	rtp_stream.c	\
 	mcast_stream.c	\
 	sctp_stat.c	\
