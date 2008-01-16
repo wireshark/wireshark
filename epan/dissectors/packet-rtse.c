@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-rtse.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p rtse -c rtse.cnf -s packet-rtse-template rtse.asn */
+/* ../../tools/asn2wrs.py -b -e -p rtse -c ./rtse.cnf -s ./packet-rtse-template -D . rtse.asn */
 
 /* Input file: packet-rtse-template.c */
 
@@ -61,9 +61,6 @@ int proto_rtse = -1;
 static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 static gboolean open_request=FALSE;
-/* indirect_reference, used to pick up the signalling so we know what
-   kind of data is transferred in SES_DATA_TRANSFER_PDUs */
-static guint32 indir_ref=0;
 static guint32 app_proto=0;
 
 static proto_tree *top_tree=NULL;
@@ -103,7 +100,7 @@ static int hf_rtse_t61String = -1;                /* T_t61String */
 static int hf_rtse_octetString = -1;              /* T_octetString */
 
 /*--- End of included file: packet-rtse-hf.c ---*/
-#line 70 "packet-rtse-template.c"
+#line 67 "packet-rtse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_rtse = -1;
@@ -120,7 +117,7 @@ static gint ett_rtse_SessionConnectionIdentifier = -1;
 static gint ett_rtse_CallingSSuserReference = -1;
 
 /*--- End of included file: packet-rtse-ett.c ---*/
-#line 74 "packet-rtse-template.c"
+#line 71 "packet-rtse-template.c"
 
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
@@ -234,7 +231,7 @@ call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int o
 static int
 dissect_rtse_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -250,7 +247,7 @@ static const value_string rtse_T_dialogueMode_vals[] = {
 static int
 dissect_rtse_T_dialogueMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -504,7 +501,7 @@ static const value_string rtse_RefuseReason_vals[] = {
 static int
 dissect_rtse_RefuseReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -564,7 +561,7 @@ dissect_rtse_RTORJapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_rtse_RTTPapdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -612,7 +609,7 @@ static const value_string rtse_AbortReason_vals[] = {
 static int
 dissect_rtse_AbortReason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -688,7 +685,7 @@ dissect_rtse_RTSE_apdus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 /*--- End of included file: packet-rtse-fn.c ---*/
-#line 180 "packet-rtse-template.c"
+#line 177 "packet-rtse-template.c"
 
 /*
 * Dissect RTSE PDUs inside a PPDU.
@@ -947,7 +944,7 @@ void proto_register_rtse(void) {
         "rtse.T_octetString", HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 338 "packet-rtse-template.c"
+#line 335 "packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -969,7 +966,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 347 "packet-rtse-template.c"
+#line 344 "packet-rtse-template.c"
   };
 
   module_t *rtse_module;

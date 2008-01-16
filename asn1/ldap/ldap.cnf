@@ -42,7 +42,6 @@ ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
 
 	tvbuff_t	*parameter_tvb;
 	const gchar *name;
-	proto_item	*item = NULL;
 
 #.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 

@@ -81,7 +81,6 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	proto_item	*rrc_item = NULL;
 	proto_tree	*rrc_tree = NULL;
-	int			offset = 0;
 
 	top_tree = tree;
 
@@ -89,9 +88,9 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
 
-    /* create the rrc protocol tree */
-    rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, FALSE);
-    rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
+	/* create the rrc protocol tree */
+	rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, FALSE);
+	rrc_tree = proto_item_add_subtree(rrc_item, ett_rrc);
 
 }
 /*--- proto_register_rrc -------------------------------------------*/

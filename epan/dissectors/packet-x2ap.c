@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x2ap.c                                                              */
-/* ../../tools/asn2wrs.py -p x2ap -c x2ap.cnf -s packet-x2ap-template X2AP-CommonDataTypes.asn X2AP-Constants.asn X2AP-Containers.asn X2AP-IEs.asn X2AP-PDU-Contents.asn X2AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p x2ap -c ./x2ap.cnf -s ./packet-x2ap-template -D . X2AP-CommonDataTypes.asn X2AP-Constants.asn X2AP-Containers.asn X2AP-IEs.asn X2AP-PDU-Contents.asn X2AP-PDU-Descriptions.asn */
 
 /* Input file: packet-x2ap-template.c */
 
@@ -344,7 +344,6 @@ static gint ett_x2ap_UnsuccessfulOutcome = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint32 ddMode;
 static const gchar *ProcedureID;
 
 /* Dissector tables */
@@ -2259,7 +2258,7 @@ static void dissect_X2AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
 
 /*--- End of included file: packet-x2ap-fn.c ---*/
-#line 91 "packet-x2ap-template.c"
+#line 90 "packet-x2ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2861,7 +2860,7 @@ void proto_register_x2ap(void) {
         "x2ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-x2ap-hfarr.c ---*/
-#line 144 "packet-x2ap-template.c"
+#line 143 "packet-x2ap-template.c"
   };
 
   /* List of subtrees */
@@ -2936,7 +2935,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-x2ap-ettarr.c ---*/
-#line 150 "packet-x2ap-template.c"
+#line 149 "packet-x2ap-template.c"
   };
 
 
@@ -3008,7 +3007,7 @@ proto_reg_handoff_x2ap(void)
 
 
 /*--- End of included file: packet-x2ap-dis-tab.c ---*/
-#line 181 "packet-x2ap-template.c"
+#line 180 "packet-x2ap-template.c"
 }
 
 

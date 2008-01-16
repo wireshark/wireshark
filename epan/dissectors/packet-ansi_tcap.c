@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_tcap.c                                                         */
-/* ../../tools/asn2wrs.py -b -p ansi_tcap -c ansi_tcap.cnf -s packet-ansi_tcap-template TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
+/* ../../tools/asn2wrs.py -b -p ansi_tcap -c ./ansi_tcap.cnf -s ./packet-ansi_tcap-template -D . TCAP-Remote-Operations-Information-Objects.asn TCAPPackage.asn */
 
 /* Input file: packet-ansi_tcap-template.c */
 
@@ -166,8 +166,6 @@ static gint ett_ansi_tcap_T_paramSet = -1;
 #line 76 "packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
-static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 gboolean g_ansi_tcap_HandleSRT=FALSE;
 extern gboolean gtcap_PersistentSRT;
@@ -417,7 +415,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
 static int
 dissect_ansi_tcap_T_national(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &ansi_tcap_private.d.OperationCode_national);
+                                                &ansi_tcap_private.d.OperationCode_national);
 
   return offset;
 }
@@ -426,8 +424,8 @@ dissect_ansi_tcap_T_national(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_ansi_tcap_T_private(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &ansi_tcap_private.d.OperationCode_private);
+  offset = dissect_ber_integer_str(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &ansi_tcap_private.d.OperationCode_private);
 
   return offset;
 }
@@ -462,7 +460,7 @@ dissect_ansi_tcap_OperationCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_ansi_tcap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -472,7 +470,7 @@ dissect_ansi_tcap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_ansi_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -504,7 +502,7 @@ dissect_ansi_tcap_ErrorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_ansi_tcap_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -946,7 +944,7 @@ static const value_string ansi_tcap_Problem_vals[] = {
 static int
 dissect_ansi_tcap_Problem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1209,7 +1207,7 @@ static const value_string ansi_tcap_P_Abort_cause_U_vals[] = {
 static int
 dissect_ansi_tcap_P_Abort_cause_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1321,7 +1319,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 322 "packet-ansi_tcap-template.c"
+#line 320 "packet-ansi_tcap-template.c"
 
 
 
@@ -1654,7 +1652,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 446 "packet-ansi_tcap-template.c"
+#line 444 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1691,7 +1689,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 456 "packet-ansi_tcap-template.c"
+#line 454 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

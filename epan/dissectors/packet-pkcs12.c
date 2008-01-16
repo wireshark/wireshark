@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkcs12.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c pkcs12.cnf -s packet-pkcs12-template pkcs12.asn */
+/* ../../tools/asn2wrs.py -b -e -p pkcs12 -c ./pkcs12.cnf -s ./packet-pkcs12-template -D . pkcs12.asn */
 
 /* Input file: packet-pkcs12-template.c */
 
@@ -380,7 +380,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	}
 
 	/* now try an internal function */
-	err = gcry_cipher_open(&cipher, algo, mode, NULL);
+	err = gcry_cipher_open(&cipher, algo, mode, 0);
 	if (gcry_err_code (err))
 			return FALSE;
 
@@ -488,7 +488,7 @@ static const value_string pkcs12_T_version_vals[] = {
 static int
 dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -523,7 +523,7 @@ dissect_pkcs12_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_pkcs12_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL));
+                                                (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL));
 
   return offset;
 }
@@ -730,7 +730,7 @@ static const value_string pkcs12_Version_vals[] = {
 static int
 dissect_pkcs12_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1003,7 +1003,7 @@ dissect_pkcs12_T_saltChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_pkcs12_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }

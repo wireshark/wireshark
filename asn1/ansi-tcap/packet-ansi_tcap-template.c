@@ -75,8 +75,6 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 #include "packet-ansi_tcap-ett.c"
 
 #define MAX_SSN 254
-static range_t *global_ssn_range;
-static range_t *ssn_range;
 
 gboolean g_ansi_tcap_HandleSRT=FALSE;
 extern gboolean gtcap_PersistentSRT;

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h450-ros.c                                                          */
-/* ../../tools/asn2wrs.py -e -p h450.ros -c h450-ros.cnf -s packet-h450-ros-template ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
+/* ../../tools/asn2wrs.py -e -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
 
 /* Input file: packet-h450-ros-template.c */
 
@@ -100,8 +100,6 @@ static gint ett_h450_ros_T_problem = -1;
 static dissector_handle_t data_handle = NULL; 
 
 /* Gloabl variables */
-static rose_ctx_t *rose_ctx_tmp;
-
 static guint32 problem_val;
 static gchar problem_str[64];
 static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
@@ -569,7 +567,7 @@ dissect_h450_ros_ROS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 /*--- End of included file: packet-h450-ros-fn.c ---*/
-#line 79 "packet-h450-ros-template.c"
+#line 77 "packet-h450-ros-template.c"
 
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
@@ -661,7 +659,7 @@ void proto_register_h450_ros(void) {
         "h450_ros.ReturnErrorProblem", HFILL }},
 
 /*--- End of included file: packet-h450-ros-hfarr.c ---*/
-#line 86 "packet-h450-ros-template.c"
+#line 84 "packet-h450-ros-template.c"
   };
 
   /* List of subtrees */
@@ -679,7 +677,7 @@ void proto_register_h450_ros(void) {
     &ett_h450_ros_T_problem,
 
 /*--- End of included file: packet-h450-ros-ettarr.c ---*/
-#line 91 "packet-h450-ros-template.c"
+#line 89 "packet-h450-ros-template.c"
   };
 
   /* Register protocol and dissector */

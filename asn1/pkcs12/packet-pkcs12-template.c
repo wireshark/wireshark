@@ -288,7 +288,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 	}
 
 	/* now try an internal function */
-	err = gcry_cipher_open(&cipher, algo, mode, NULL);
+	err = gcry_cipher_open(&cipher, algo, mode, 0);
 	if (gcry_err_code (err))
 			return FALSE;
 

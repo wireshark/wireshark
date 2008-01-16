@@ -218,7 +218,7 @@ static h460_feature_t *find_ftr(const gchar *key) {
 
 /*--- dissect_h460_name -------------------------------------------*/
 static int
-dissect_h460_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   asn1_ctx_t *actx;
   h460_feature_t *ftr;

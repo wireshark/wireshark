@@ -71,7 +71,6 @@ static int ett_x2ap = -1;
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
-static guint32 ddMode;
 static const gchar *ProcedureID;
 
 /* Dissector tables */
