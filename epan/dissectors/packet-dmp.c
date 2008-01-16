@@ -4160,11 +4160,11 @@ void proto_register_dmp (void)
       { "Checksum", "dmp.checksum", FT_UINT16, BASE_HEX,
 	NULL, 0x0, "Checksum", HFILL } },
     { &hf_checksum_good,
-      { "Good", "dmp.checksum.good", FT_BOOLEAN, BASE_NONE,
+      { "Good", "dmp.checksum_good", FT_BOOLEAN, BASE_NONE,
 	NULL, 0x0, "True: checksum matches packet content; "
 	"False: doesn't match content or not checked", HFILL } },
     { &hf_checksum_bad,
-      { "Bad", "dmp.checksum.bad", FT_BOOLEAN, BASE_NONE,
+      { "Bad", "dmp.checksum_bad", FT_BOOLEAN, BASE_NONE,
 	NULL, 0x0, "True: checksum doesn't match packet content; "
 	"False: matches content or not checked", HFILL } },
 

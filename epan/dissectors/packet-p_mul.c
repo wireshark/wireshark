@@ -1049,11 +1049,11 @@ void proto_register_p_mul (void)
       { "Checksum", "p_mul.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, "Checksum", HFILL } },
     { &hf_checksum_good,
-      { "Good", "p_mul.checksum.good", FT_BOOLEAN, BASE_NONE,
+      { "Good", "p_mul.checksum_good", FT_BOOLEAN, BASE_NONE,
 	NULL, 0x0, "True: checksum matches packet content; "
 	"False: doesn't match content or not checked", HFILL } },
     { &hf_checksum_bad,
-      { "Bad", "p_mul.checksum.bad", FT_BOOLEAN, BASE_NONE,
+      { "Bad", "p_mul.checksum_bad", FT_BOOLEAN, BASE_NONE,
 	NULL, 0x0, "True: checksum doesn't match packet content; "
 	"False: matches content or not checked", HFILL } },
     { &hf_source_id_ack,
