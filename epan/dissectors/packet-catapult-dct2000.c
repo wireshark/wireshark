@@ -72,6 +72,13 @@ static int hf_catapult_dct2000_ipprim_tcp_dst_port = -1;
 static int hf_catapult_dct2000_ipprim_tcp_port = -1;
 static int hf_catapult_dct2000_ipprim_conn_id = -1;
 
+static int hf_catapult_dct2000_sctpprim_addresses = -1;
+static int hf_catapult_dct2000_sctpprim_dst_addr_v4 = -1;
+static int hf_catapult_dct2000_sctpprim_dst_addr_v6 = -1;
+static int hf_catapult_dct2000_sctpprim_addr_v4 = -1;
+static int hf_catapult_dct2000_sctpprim_addr_v6 = -1;
+static int hf_catapult_dct2000_sctpprim_dst_port = -1;
+
 
 /* Variables used for preferences */
 gboolean catapult_dct2000_try_ipprim_heuristic = TRUE;
@@ -80,6 +87,7 @@ gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
 static int ett_catapult_dct2000_ipprim = -1;
+static int ett_catapult_dct2000_sctpprim = -1;
 static int ett_catapult_dct2000_tty = -1;
 
 static const value_string direction_vals[] = {
@@ -265,11 +273,14 @@ static gboolean find_ipprim_data_offset(tvbuff_t *tvb, int *data_offset, guint8 
 
 /* Look for the protocol data within an sctpprim (variant 1 or 2...) packet.
    Only set *data_offset if data field found. */
-static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset)
+static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offset,
+                                                   guint32 *dest_addr_offset,
+                                                   guint8 *dest_addr_length,
+                                                   guint32 *dest_port_offset)
 {
     int offset = *data_offset;
 
-   /* Get the sctpprim command code. */
+    /* Get the sctpprim command code. */
     guint8 first_tag = tvb_get_guint8(tvb, offset++);
     guint8 tag;
     guint8 first_length_byte;
@@ -305,14 +316,25 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
             offset++;
             switch (tag)
             {
-                case 0x01: /* sctpInstanceNum */
                 case 0x0a: /* destPort */
+                    *dest_port_offset = offset;
+                    offset += 2;
+                    break;
+
+                case 0x01: /* sctpInstanceNum */
                 case 0x1e: /* strseqnum */
                 case 0x0d: /* streamnum */
                     offset += 2;
                     continue;
-                case 0x1d:
+
+
                 case 0x09: /* ipv4Address */
+                    *dest_addr_offset = offset;
+                    *dest_addr_length = 4;
+                    offset += 4;
+                    break;
+
+                case 0x1d:
                 case 0x0c: /* payloadType */
                     offset += 4;
                     continue;
@@ -330,8 +352,13 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
 
 /* Look for the protocol data within an sctpprim (variant 3) packet.
    Only set *data_offset if data field found. */
-static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset)
+static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offset,
+                                                   guint32 *dest_addr_offset,
+                                                   guint8 *dest_addr_length,
+                                                   guint32 *dest_port_offset)
 {
+    guint16 tag = 0;
+    guint16 length = 0;
     int offset = *data_offset;
 
     /* Get the sctpprim (2 byte) command code. */
@@ -351,21 +378,57 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
     /* Overall length field is next 2 bytes */
     offset += 2;
 
-    /* DataInd messages have 32 bits fixed here */
+
+    /* Rx/Tx ops have different formats */
+
+    /*****************/
+    /* DataInd        */
     if (top_tag == 0x6200)
     {
-        /* Associate-Id + destination port */
-        offset += 4;
-    }
-
-    /* Skip any other known fields before reach payload */
-    while (tvb_length_remaining(tvb, offset) > 4)
-    {
-        /* Get the next tag */
-        guint16 tag = tvb_get_ntohs(tvb, offset);
+        /* Next 2 bytes are associate ID */
         offset += 2;
 
-        /* Is this the data (i) payload we're expecting? */
+        /* Next 2 bytes are destination port */
+        *dest_port_offset = offset;
+        offset += 2;
+
+        /* Destination address should follow - check tag */
+        tag = tvb_get_ntohs(tvb, offset);
+        if (tag != 0x0900)
+        {
+            return FALSE;
+        }
+        else {
+            /* Skip tag */
+            offset += 2;
+
+            /* Length field */
+            length = tvb_get_ntohs(tvb, offset) / 2;
+            if ((length != 4) && (length != 16))
+            {
+                return FALSE;
+            }
+            offset += 2;
+
+            /* Address data is here */
+            *dest_addr_offset = offset;
+            *dest_addr_length = length;
+
+            offset += length;
+        }
+
+        /* Not interested in remaining (fixed) fields */
+        if (tvb_reported_length_remaining(tvb, offset) > (4 + 2 + 2 + 4))
+        {
+            offset += (4 + 2 + 2 + 4);
+        }
+        else {
+            return FALSE;
+        }
+
+        /* Data should now be here */
+        tag = tvb_get_ntohs(tvb, offset);
+        offset += 2;
         if (tag == 0x1900)
         {
             /* 2-byte length field */
@@ -377,51 +440,116 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         }
         else
         {
-            guint16 length;
-
-            /* Deal with non-data tags */
-            switch (tag)
-            {
-                /* These tags take a fixed-length, 16-bit payload */
-                case 0x2400: /* AssociateId */
-                case 0x3200: /* Delivery Option  */
-                    offset += 2;
-                    break;
-
-                /* These tags take a 2-byte length field */
-                case 0x0d00: /* Stream num */
-                case 0x0900: /* IPv4 address */
-                case 0x0b00: /* Options */
-                case 0x0c00: /* Payload type */
-                    length = tvb_get_ntohs(tvb, offset);
-                    if (top_tag == 0x0400)
-                    {
-                        /* Weird... */
-                        length = length/2;
-                    }
-                    offset += (2+length);
-                    break;
-
-                case 0x0008:
-                    /* 4 bytes of data (IP address) */
-                    offset += 4;
-                    break;
-
-                default:
-                    /* Unexpected tag - abort */
-                    return FALSE;
-            }
-
-            /* Indications always have these fields */
-            if (top_tag == 0x6200 && tag == 0x0900)
-            {
-                /* StrSeqNum + StreamNum + PayloadType */
-                offset += 8;
-            }
+            return FALSE;
         }
     }
 
-    /* No data found... */
+    /***************/
+    /* SendDataReq */
+    else if (top_tag == 0x0400)
+    {
+        /* AssociateId should follow - check tag */
+        tag = tvb_get_ntohs(tvb, offset);
+        if (tag != 0x2400)
+        {
+            return FALSE;
+        }
+        else {
+            /* Skip tag */
+            offset += 2;
+
+            /* Skip 2-byte value */
+            offset += 2;
+        }
+
+        /* Get tag */
+        tag = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+
+        /* Some optional params */
+        while ((tag != 0x0c00) && (tvb_length_remaining(tvb, offset) > 4))
+        {
+            switch (tag)
+            {
+                case 0x0900:   /* Dest address */
+                    /* Length field */
+                    length = tvb_get_ntohs(tvb, offset) / 2;
+                    if ((length != 4) && (length != 16))
+                    {
+                        return FALSE;
+                    }
+                    offset += 2;
+
+                    /* Address data is here */
+                    *dest_addr_offset = offset;
+                    *dest_addr_length = length;
+
+                    offset += length;
+                    break;
+
+                case 0x0a00:   /* Dest port number */
+                    *dest_port_offset = offset;
+                    offset += 2;
+                    break;
+
+                case 0x0d00:   /* StreamNum */
+                    *dest_port_offset = offset;
+                    offset += 2;
+                    break;
+
+
+                default:
+                    return FALSE;
+            }
+
+            /* Get the next tag */
+            tag = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+        }
+
+
+        /* Mandatory payload type */
+        if (tag != 0x0c00)
+        {
+            return FALSE;
+        }
+        length = tvb_get_ntohs(tvb, offset) / 2;
+        offset += 2;
+        offset += length;
+
+
+        /* Optional options */
+        tag = tvb_get_ntohs(tvb, offset);
+        offset += 2;
+        if (tag == 0x0b00)
+        {
+            length = tvb_get_ntohs(tvb, offset) / 2;
+            offset += 2;
+
+            offset += length;
+
+            /* Get next tag */
+            tag = tvb_get_ntohs(tvb, offset);
+            offset += 2;
+        }
+
+
+        /* Data should now be here!! */
+        if (tag == 0x1900)
+        {
+            /* 2-byte length field */
+            offset += 2;
+
+            /* Data is here!!! */
+            *data_offset = offset;
+            return TRUE;
+        }
+        else
+        {
+            return FALSE;
+        }
+    }
+
     return FALSE;
 }
 
@@ -493,6 +621,11 @@ dissector_handle_t look_for_dissector(char *protocol_name)
     if (strncmp(protocol_name, "sabp", strlen("sabp")) == 0)
     {
         return find_dissector("sabp");
+    }
+    else
+    if (strncmp(protocol_name, "wtp", strlen("wtp")) == 0)
+    {
+        return find_dissector("wtp-udp");
     }
 
 
@@ -966,6 +1099,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 return;
             }
 
+            else
+            if (strcmp(protocol_name, "sipprim") == 0)
+            {
+                protocol_handle = find_dissector("sipprim");
+            }
 
             /* Many DCT2000 protocols have at least one IPPrim variant. If the
                protocol name can be matched to a dissector, try to find the
@@ -1169,13 +1307,85 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Try SCTP Prim heuristic if configured to */
             if (!protocol_handle && catapult_dct2000_try_sctpprim_heuristic)
             {
+                guint32      dest_addr_offset = 0;
+                guint8       dest_addr_length = 0;
+                guint32      dest_port_offset = 0;
+                int          offset_before_sctpprim_header = offset;
+
                 heur_protocol_handle = look_for_dissector(protocol_name);
                 if ((heur_protocol_handle != 0) &&
-                    (find_sctpprim_variant1_data_offset(tvb, &offset) ||
-                     find_sctpprim_variant3_data_offset(tvb, &offset)))
+                    (find_sctpprim_variant1_data_offset(tvb, &offset,
+                                                        &dest_addr_offset,
+                                                        &dest_addr_length,
+                                                        &dest_port_offset) ||
+                     find_sctpprim_variant3_data_offset(tvb, &offset,
+                                                        &dest_addr_offset,
+                                                        &dest_addr_length,
+                                                        &dest_port_offset)))
                 {
+                    proto_tree *sctpprim_tree;
+                    proto_item *ti;
+
                     /* Will use this dissector then. */
                     protocol_handle = heur_protocol_handle;
+
+                    ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_sctpprim_addresses,
+                                                       tvb, offset_before_sctpprim_header, 0,
+                                                       "", "SCTPPrim transport:  -> %s:%u",
+                                                       (dest_addr_offset) ?
+                                                         ((dest_addr_length == 4) ?
+                                                              (char *)get_hostname(tvb_get_ipv4(tvb, dest_addr_offset)) :
+                                                              "<ipv6-address>"
+                                                            ) :
+                                                           "0.0.0.0",
+                                                       (dest_port_offset) ?
+                                                         tvb_get_ntohs(tvb, dest_port_offset) :
+                                                         0);
+
+                    /* Add these SCTPPRIM fields inside an SCTPPRIM subtree */
+                    sctpprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_sctpprim);
+
+                    pinfo->ipproto = IP_PROTO_SCTP;
+
+                    /* Destination address */
+                    if (dest_addr_offset != 0)
+                    {
+                        proto_item *addr_ti;
+
+                        SET_ADDRESS(&pinfo->net_dst,
+                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    dest_addr_length,
+                                    (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
+                        SET_ADDRESS(&pinfo->dst,
+                                    (dest_addr_length == 4) ? AT_IPv4 : AT_IPv6,
+                                    dest_addr_length,
+                                    (tvb_get_ptr(tvb, dest_addr_offset, dest_addr_length)));
+                        proto_tree_add_item(sctpprim_tree,
+                                            (dest_addr_length == 4) ? 
+                                                hf_catapult_dct2000_sctpprim_dst_addr_v4 :
+                                                hf_catapult_dct2000_sctpprim_dst_addr_v6,
+                                            tvb, dest_addr_offset, dest_addr_length, FALSE);
+
+                        /* Add hidden item for "side-less" addr */
+                        addr_ti = proto_tree_add_item(sctpprim_tree,
+                                                      (dest_addr_length == 4) ? 
+                                                          hf_catapult_dct2000_sctpprim_addr_v4 :
+                                                          hf_catapult_dct2000_sctpprim_addr_v6,
+                                                      tvb, dest_addr_offset, dest_addr_length, FALSE);
+                        PROTO_ITEM_SET_HIDDEN(addr_ti);
+                    }
+
+                    if (dest_port_offset != 0)
+                    {
+                        pinfo->destport = tvb_get_ntohs(tvb, dest_port_offset);
+
+                        proto_tree_add_item(sctpprim_tree,
+                                            hf_catapult_dct2000_sctpprim_dst_port,
+                                            tvb, dest_port_offset, 2, FALSE);
+                    }
+
+                    /* Set length for SCTPPrim tree */
+                    proto_item_set_len(sctpprim_tree, offset - offset_before_sctpprim_header);
                 }
             }
 
@@ -1311,6 +1521,7 @@ void proto_register_catapult_dct2000(void)
               "Number of bytes dissected by subdissector(s)", HFILL
             }
         },
+
         { &hf_catapult_dct2000_ipprim_addresses,
             { "IPPrim Addresses",
               "dct2000.ipprim", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1395,6 +1606,44 @@ void proto_register_catapult_dct2000(void)
               "IPPrim Connection ID", HFILL
             }
         },
+
+        { &hf_catapult_dct2000_sctpprim_addresses,
+            { "SCTPPrim Addresses",
+              "dct2000.sctpprim", FT_STRING, BASE_NONE, NULL, 0x0,
+              "SCTPPrim Addresses", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sctpprim_dst_addr_v4,
+            { "Destination Address",
+              "dct2000.sctpprim.dst", FT_IPv4, BASE_NONE, NULL, 0x0,
+              "SCTPPrim IPv4 Destination Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sctpprim_dst_addr_v6,
+            { "Destination Address",
+              "dct2000.sctpprim.dstv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "SCTPPrim IPv6 Destination Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sctpprim_addr_v4,
+            { "Address",
+              "dct2000.sctpprim.addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+              "SCTPPrim IPv4 Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sctpprim_addr_v6,
+            { "Address",
+              "dct2000.sctpprim.addrv6", FT_IPv6, BASE_NONE, NULL, 0x0,
+              "SCTPPrim IPv6 Address", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_sctpprim_dst_port,
+            { "UDP Destination Port",
+              "dct2000.sctprim.dstport", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "SCTPPrim Destination Port", HFILL
+            }
+        },
+
         { &hf_catapult_dct2000_tty,
             { "tty contents",
               "dct2000.tty", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1413,6 +1662,7 @@ void proto_register_catapult_dct2000(void)
     {
         &ett_catapult_dct2000,
         &ett_catapult_dct2000_ipprim,
+        &ett_catapult_dct2000_sctpprim,
         &ett_catapult_dct2000_tty
     };
 
