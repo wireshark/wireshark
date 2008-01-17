@@ -1209,56 +1209,56 @@ module_prefs_fetch(module_t *module, gpointer user_data)
 static void
 prefs_airpcap_update()
 {
-GtkWidget *decryption_cm;
-GtkWidget *decryption_en;
-gboolean wireshark_decryption_was_enabled;
-gboolean airpcap_decryption_was_enabled;
-gboolean wireshark_decryption_is_now_enabled;
+  GtkWidget *decryption_cm;
+  GtkWidget *decryption_en;
+  gboolean wireshark_decryption_was_enabled;
+  gboolean airpcap_decryption_was_enabled;
+  gboolean wireshark_decryption_is_now_enabled;
 
-decryption_cm = GTK_WIDGET(OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
-decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
+  decryption_cm = GTK_WIDGET(OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
+  decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
 
-if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
-{
-wireshark_decryption_was_enabled = TRUE;
-airpcap_decryption_was_enabled = FALSE;
-}
-else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
-{
-wireshark_decryption_was_enabled = FALSE;
-airpcap_decryption_was_enabled = TRUE;
-}
-else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
-{
-wireshark_decryption_was_enabled = FALSE;
-airpcap_decryption_was_enabled = FALSE;
-}
+  if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
+  {
+    wireshark_decryption_was_enabled = TRUE;
+    airpcap_decryption_was_enabled = FALSE;
+  }
+  else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
+  {
+    wireshark_decryption_was_enabled = FALSE;
+    airpcap_decryption_was_enabled = TRUE;
+  }
+  else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
+  {
+    wireshark_decryption_was_enabled = FALSE;
+    airpcap_decryption_was_enabled = FALSE;
+  }
 
-wireshark_decryption_is_now_enabled = wireshark_decryption_on();
+  wireshark_decryption_is_now_enabled = wireshark_decryption_on();
 
-if(wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
-	{
-	set_airpcap_decryption(FALSE);
-	gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-	}
-if(wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
-	{
-	set_airpcap_decryption(FALSE);
-	gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
-	}
-else if(!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
-	{
-	if(airpcap_decryption_was_enabled)
-		{
-		set_airpcap_decryption(TRUE);
-		gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
-		}
-	else
-		{
-		set_airpcap_decryption(FALSE);
-		gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
-		}
-	}
+  if(wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
+  {
+    set_airpcap_decryption(FALSE);
+    gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+  }
+  if(wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
+  {
+    set_airpcap_decryption(FALSE);
+    gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+  }
+  else if(!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
+  {
+    if(airpcap_decryption_was_enabled)
+    {
+      set_airpcap_decryption(TRUE);
+      gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+    }
+    else
+    {
+      set_airpcap_decryption(FALSE);
+      gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+    }
+  }
 }
 #endif
 
@@ -1489,11 +1489,11 @@ prefs_main_write(void)
   }
 
 #ifdef HAVE_AIRPCAP
-/*
- * Load the Wireshark decryption keys (just set) and save
- * the changes to the adapters' registry
- */
-airpcap_load_decryption_keys(airpcap_if_list);
+  /*
+   * Load the Wireshark decryption keys (just set) and save
+   * the changes to the adapters' registry
+   */
+  airpcap_load_decryption_keys(airpcap_if_list);
 #endif
 }
 
@@ -1516,9 +1516,9 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
 
-	#ifdef HAVE_AIRPCAP
-	prefs_airpcap_update();
-	#endif
+#ifdef HAVE_AIRPCAP
+  prefs_airpcap_update();
+#endif
 
   /* Now destroy the "Preferences" dialog. */
   window_destroy(GTK_WIDGET(parent_w));
@@ -1548,9 +1548,9 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
 
-  	#ifdef HAVE_AIRPCAP
-	prefs_airpcap_update();
-	#endif
+#ifdef HAVE_AIRPCAP
+  prefs_airpcap_update();
+#endif
 
   if (must_redissect) {
     /* Redissect all the packets, and re-evaluate the display filter. */
@@ -1763,9 +1763,9 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 #if GTK_MAJOR_VERSION < 2
     GtkCTree     *ctree = GTK_CTREE(tree);
     GtkCTreeNode *node = (GtkCTreeNode *) iter;
-	GtkCTreeNode *parent;
+    GtkCTreeNode *parent;
 #else
-	GtkTreeIter  local_iter = *iter;
+    GtkTreeIter  local_iter = *iter;
     GtkTreeView  *tree_view = GTK_TREE_VIEW(tree);
     GtkTreeModel *model;
     GtkTreePath  *first_path;
