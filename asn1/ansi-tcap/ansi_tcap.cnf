@@ -7,7 +7,7 @@
 #.FN_PARS
 OperationCode            VAL_PTR = &ansi_tcap_private.d.OperationCode
 OperationCode/national   VAL_PTR = &ansi_tcap_private.d.OperationCode_national
-OperationCode/private    FN_VARIANT = _str  VAL_PTR = &ansi_tcap_private.d.OperationCode_private
+OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
 #.FN_FTR OperationCode
   ansi_tcap_private.d.OperationCode_item = actx->created_item;
 #.END
