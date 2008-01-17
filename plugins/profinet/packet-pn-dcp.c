@@ -372,9 +372,9 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_item_append_text(block_item, "IP/IP");
 
 		/* BlockInfo? */
-		if( (service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response ||
-			(service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response ||
-			(service_id == PNDCP_SERVICE_ID_GET)      &&  is_response) {
+		if( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
+			((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
+			((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
             offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_ip_block_info, &block_info);
             proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_suboption_ip_block_info, "Undecoded"));
             block_length -= 2;
@@ -436,9 +436,9 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
 	/* BlockInfo? */
-	if( (service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response ||
-		(service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response ||
-		(service_id == PNDCP_SERVICE_ID_GET)      &&  is_response) {
+	if( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
+		((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
+		((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
         have_block_info=TRUE;
 		block_length -= 2;
@@ -563,9 +563,9 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_length, &block_length);
 
 	/* BlockInfo? */
-	if( (service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response ||
-		(service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response ||
-		(service_id == PNDCP_SERVICE_ID_GET)      &&  is_response) {
+	if( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
+		((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
+		((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
         have_block_info=TRUE;
 		block_length -= 2;
@@ -670,9 +670,9 @@ dissect_PNDCP_Suboption_DeviceInitiative(tvbuff_t *tvb, int offset, packet_info 
     proto_item_append_text(block_item, "DeviceInitiative/DeviceInitiative");
 
 	/* BlockInfo? */
-	if( (service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response ||
-		(service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response ||
-		(service_id == PNDCP_SERVICE_ID_GET)      &&  is_response) {
+	if( ((service_id == PNDCP_SERVICE_ID_IDENTIFY) &&  is_response) ||
+		((service_id == PNDCP_SERVICE_ID_HELLO)    && !is_response) ||
+		((service_id == PNDCP_SERVICE_ID_GET)      &&  is_response)) {
         offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
         proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
         block_length -= 2;
