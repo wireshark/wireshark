@@ -365,6 +365,7 @@ static const struct {
 	{ 139,		WTAP_ENCAP_MTP2_WITH_PHDR },
 	{ 140,		WTAP_ENCAP_MTP2 },
 	{ 141,		WTAP_ENCAP_MTP3 },
+	{ 142,		WTAP_ENCAP_SCCP },
 	{ 143,		WTAP_ENCAP_DOCSIS },
 	{ 144,		WTAP_ENCAP_IRDA },	/* IrDA capture */
 

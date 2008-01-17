@@ -3260,6 +3260,7 @@ proto_reg_handoff_sccp(void)
 
   sccp_handle = find_dissector("sccp");
 
+  dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);     
   dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
   dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
