@@ -7,17 +7,17 @@
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
-# 
+#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -27,7 +27,7 @@ include ../Makefile.am.inc
 if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
 wslua_dir = wslua
-wslua_dist_dir = 
+wslua_dist_dir =
 else            # HAVE_LIBLUA
 wslua_lib =
 wslua_dir =
@@ -123,14 +123,14 @@ MAINTAINERCLEANFILES = \
 #
 # Add the object files for missing routines, if any.
 #
-libwireshark_la_LIBADD = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib) @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ -lm
+libwireshark_la_LIBADD = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ -lm
 libwireshark_la_DEPENDENCIES = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ @INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la dfilter/libdfilter.la dissectors/libcleandissectors.la dissectors/libdissectors.la dissectors/libasndissectors.la dissectors/libpidldissectors.la $(wslua_lib)
 
 #EXTRA_PROGRAMS = reassemble_test
 #reassemble_test_LDADD = $(GLIB_LIBS)
 
 reassemble_test: reassemble_test.o tvbuff.o except.o strutil.o emem.o \
-                 reassemble.o 
+                 reassemble.o
 	$(LINK) $^ $(GLIB_LIBS) -lz
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o emem.o
@@ -157,7 +157,7 @@ dtd_grammar.h: dtd_grammar.c
 
 dtd_grammar.c: dtd_grammar.lemon $(LEMON)/lemon$(EXEEXT)
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
-	
+
 tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers make-sminmpec.pl
