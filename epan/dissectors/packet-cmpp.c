@@ -564,10 +564,11 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	total_length = tvb_get_ntohl(tvb, 0); /* Get the pdu length */
 	command_id = tvb_get_ntohl(tvb, 4); /* get the pdu command id */
 
-	if (check_col(pinfo->cinfo, COL_INFO) && match_strval(command_id, vals_command_Id) == NULL)
+	if (match_strval(command_id, vals_command_Id) == NULL)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown command_id %u",
-				command_id);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown command_id %u",
+					command_id);
 		return;
 	}
 
@@ -575,10 +576,11 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 "(Unknown CMPP Operation 0x%08X)");
 
 	/* tvb has less data then the PDU Header status, return */
-	if (check_col(pinfo->cinfo, COL_INFO) && tvb_len < total_length)
+	if (tvb_len < total_length)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s pdu length (%u) < Total_Length (%u)",
-				command_str, tvb_len, total_length);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s pdu length (%u) < Total_Length (%u)",
+					command_str, tvb_len, total_length);
 		return;
 	}
 
@@ -593,7 +595,6 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-
 		ti = proto_tree_add_item(tree, proto_cmpp, tvb, 0, -1, FALSE);
 
 		cmpp_tree = proto_item_add_subtree(ti, ett_cmpp);
@@ -648,20 +649,23 @@ get_cmpp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, gint offset)
 static int
 dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint total_length, command_id, sequence_id; /* Fix Header field */
+	guint total_length, command_id, tvb_len;
 	/* Check that there's enough data */
-	if (tvb_length(tvb) < CMPP_FIX_HEADER_LENGTH)
+	tvb_len = tvb_length(tvb);
+	if (tvb_len < CMPP_FIX_HEADER_LENGTH)
 		return 0;
 
 	/* Get some values from the packet header, probably using tvb_get_*() */
 	total_length = tvb_get_ntohl(tvb, 0); /* Get the pdu length */
 	command_id = tvb_get_ntohl(tvb, 4); /* get the pdu command id */
-	sequence_id = tvb_get_ntohl(tvb, 8); /* get the sequence id */
 
 	if (match_strval(command_id, vals_command_Id) == NULL)
 		/*  This packet does not appear to belong to CMPP.
 		 *  Return 0 to give another dissector a chance to dissect it.
 		 */
+		return 0;
+
+	if (tvb_len < total_length || total_length < CMPP_FIX_HEADER_LENGTH)
 		return 0;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
