@@ -520,7 +520,7 @@ int main(int argc, char *argv[])
 
       memset(&starttm,0,sizeof(struct tm));
 
-      if(!strptime(optarg,"%F %T",&starttm)) {
+      if(!strptime(optarg,"%Y-%m-%d %T",&starttm)) {
         fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
@@ -539,7 +539,7 @@ int main(int argc, char *argv[])
 
       memset(&stoptm,0,sizeof(struct tm));
 
-      if(!strptime(optarg,"%F %T",&stoptm)) {
+      if(!strptime(optarg,"%Y-%m-%d %T",&stoptm)) {
         fprintf(stderr, "editcap: \"%s\" isn't a valid time format\n\n", optarg);
         exit(1);
       }
