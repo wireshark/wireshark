@@ -268,7 +268,7 @@ WTAP_PLUGIN_SOURCES = \
 else		# HAVE_PLUGINS
 
 plugin_ldadd =
-WTAP_PLUGIN_SOURCES = 
+WTAP_PLUGIN_SOURCES =
 
 endif		# HAVE_PLUGINS
 
@@ -356,12 +356,34 @@ mergecap_LDADD = \
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
-	@GLIB_LIBS@
+	epan/libwireshark.la		\
+	@INET_PTON_LO@			\
+	@SSL_LIBS@			\
+	$(plugin_ldadd)			\
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
+	@FRAMEWORKS@			\
+	@LIBICONV@			\
+	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
-	@GLIB_LIBS@
+	epan/libwireshark.la		\
+	@INET_PTON_LO@			\
+	@SSL_LIBS@			\
+	$(plugin_ldadd)			\
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
+	@FRAMEWORKS@			\
+	@LIBICONV@			\
+	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
