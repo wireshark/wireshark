@@ -1843,7 +1843,7 @@ proto_register_h264(void)
 			"Constraint_set1_flag", HFILL }
 		},
 		{ &hf_h264_constraint_set2_flag,
-			{ "Constraint_set1_flag",           "h264.constraint_set2_flag",
+			{ "Constraint_set2_flag",           "h264.constraint_set2_flag",
 			FT_UINT8, BASE_DEC, NULL, 0x20,          
 			"NRI", HFILL }
 		},
