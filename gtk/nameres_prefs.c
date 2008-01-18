@@ -33,6 +33,7 @@
 #include "gtkglobals.h"
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/uat.h>
 #include "prefs_dlg.h"
 #include "gui_utils.h"
 #include "main.h"
@@ -46,15 +47,30 @@
 # define C_RESOLVE_KEY	"c_resolve"
 # define RESOLVE_CONCURRENCY_KEY "resolve_concurrency"
 #endif /* HAVE_GNU_ADNS */
+#ifdef HAVE_LIBSMI
+#define SP_RESOLVE_KEY	"sp_resolve"
+#define SM_RESOLVE_KEY	"sm_resolve"
+extern uat_t *smi_paths_uat;
+extern uat_t *smi_modules_uat;
+#endif
 
 #ifdef HAVE_GNU_ADNS
-# define RESOLV_TABLE_ROWS 5
+# ifdef HAVE_LIBSMI
+#  define RESOLV_TABLE_ROWS 7
+# else
+#  define RESOLV_TABLE_ROWS 5
+# endif
 #else
-# define RESOLV_TABLE_ROWS 3
+# ifdef HAVE_LIBSMI
+#  define RESOLV_TABLE_ROWS 5
+# else
+#  define RESOLV_TABLE_ROWS 3
+# endif
 #endif /* HAVE_GNU_ADNS */
 GtkWidget*
 nameres_prefs_show(void)
 {
+	guint		table_row;
 	GtkWidget	*main_tb, *main_vb;
 	GtkWidget	*m_resolv_cb, *n_resolv_cb, *t_resolv_cb;
 	GtkTooltips *tooltips = gtk_tooltips_new();
@@ -62,7 +78,9 @@ nameres_prefs_show(void)
 	GtkWidget	*c_resolv_cb, *resolv_concurrency_te;
 	char		concur_str[10+1];
 #endif /* HAVE_GNU_ADNS */
-
+#ifdef HAVE_LIBSMI
+	GtkWidget	*sp_resolv_cb, *sm_resolv_cb;
+#endif
 	/*
 	 * XXX - it would be nice if the current setting of the resolver
 	 * flags could be different from the preference flags, so that
@@ -83,40 +101,58 @@ nameres_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
-    OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, tooltips);
+	OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, tooltips);
 
 	/* Resolve MAC addresses */
-	m_resolv_cb = create_preference_check_button(main_tb, 0,
+	table_row = 0;
+	m_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable MAC name resolution:", "e.g. Ethernet address to manufacturer name",
 	    prefs.name_resolve & RESOLV_MAC);
 	OBJECT_SET_DATA(main_vb, M_RESOLVE_KEY, m_resolv_cb);
 
 	/* Resolve network addresses */
-	n_resolv_cb = create_preference_check_button(main_tb, 1,
+	table_row++;
+	n_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable network name resolution:", "e.g. IP address to DNS name (hostname)",
 	    prefs.name_resolve & RESOLV_NETWORK);
 	OBJECT_SET_DATA(main_vb, N_RESOLVE_KEY, n_resolv_cb);
 
 	/* Resolve transport addresses */
-	t_resolv_cb = create_preference_check_button(main_tb, 2,
+	table_row++;
+	t_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable transport name resolution:", "e.g. TCP/UDP port to service name",
 	    prefs.name_resolve & RESOLV_TRANSPORT);
 	OBJECT_SET_DATA(main_vb, T_RESOLVE_KEY, t_resolv_cb);
 
 #ifdef HAVE_GNU_ADNS
 	/* Enable concurrent (asynchronous) DNS lookups */
-	c_resolv_cb = create_preference_check_button(main_tb, 3,
+	table_row++;
+	c_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable concurrent DNS name resolution:", "be sure to enable network name resolution",
 	    prefs.name_resolve & RESOLV_CONCURRENT);
 	OBJECT_SET_DATA(main_vb, C_RESOLVE_KEY, c_resolv_cb);
 
 	/* Max concurrent requests */
+	table_row++;
 	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
-	resolv_concurrency_te = create_preference_entry(main_tb, 4, 
+	resolv_concurrency_te = create_preference_entry(main_tb, table_row, 
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
 #endif /* HAVE_GNU_ADNS */
+#ifdef HAVE_LIBSMI
+	/* SMI paths UAT */
+	table_row++;
+	sp_resolv_cb = create_preference_uat(main_tb, table_row,
+	    "SMI paths", "SMI paths to MIBS", smi_paths_uat);
+	OBJECT_SET_DATA(main_vb, SP_RESOLVE_KEY, sp_resolv_cb);
+
+	/* SMI modules UAT */
+	table_row++;
+	sm_resolv_cb = create_preference_uat(main_tb, table_row,
+	    "SMI modules", "SMI list of modules", smi_modules_uat);
+	OBJECT_SET_DATA(main_vb, SM_RESOLVE_KEY, sm_resolv_cb);
+#endif
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -131,6 +167,9 @@ nameres_prefs_fetch(GtkWidget *w)
 #ifdef HAVE_GNU_ADNS
 	GtkWidget *c_resolv_cb, *resolv_concurrency_te;
 #endif /* HAVE_GNU_ADNS */
+#ifdef HAVE_LIBSMI
+	GtkWidget *sp_resolv_cb, *sm_resolv_cb;
+#endif
 
 	m_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, M_RESOLVE_KEY);
 	n_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, N_RESOLVE_KEY);
@@ -140,6 +179,10 @@ nameres_prefs_fetch(GtkWidget *w)
 	
 	resolv_concurrency_te = (GtkWidget *)OBJECT_GET_DATA(w, RESOLVE_CONCURRENCY_KEY);
 #endif /* HAVE_GNU_ADNS */
+#ifdef HAVE_LIBSMI
+	sp_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, SP_RESOLVE_KEY);
+	sm_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, SM_RESOLVE_KEY);
+#endif
 
 	prefs.name_resolve = RESOLV_NONE;
 	prefs.name_resolve |= (GTK_TOGGLE_BUTTON (m_resolv_cb)->active ? RESOLV_MAC : RESOLV_NONE);
@@ -161,7 +204,7 @@ nameres_prefs_apply(GtkWidget *w _U_)
 	 * changed?
 	 */
 	g_resolv_flags = prefs.name_resolve;
-    menu_name_resolution_changed();
+	menu_name_resolution_changed();
 }
 
 void

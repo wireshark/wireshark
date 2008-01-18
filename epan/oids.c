@@ -186,11 +186,11 @@ typedef struct smi_module_t {
 
 static smi_module_t* smi_paths = NULL;
 static guint num_smi_paths = 0;
-static uat_t* smi_paths_uat = NULL;
+uat_t* smi_paths_uat = NULL;
 
 static smi_module_t* smi_modules = NULL;
 static guint num_smi_modules = 0;
-static uat_t* smi_modules_uat = NULL;
+uat_t* smi_modules_uat = NULL;
 
 static GString* smi_errors;
 
@@ -466,7 +466,6 @@ void register_mibs(void) {
 	SmiNode *smiNode;
 	guint i;
 	int proto_mibs = -1;
-	module_t* mibs_module;
 	GArray* hfa = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	GArray* etta = g_array_new(FALSE,TRUE,sizeof(gint*));
 	static uat_field_t smi_fields[] = {
@@ -673,17 +672,6 @@ void register_mibs(void) {
 	proto_mibs = proto_register_protocol("MIBs", "MIBS", "mibs");
 
 	proto_register_field_array(proto_mibs, (hf_register_info*)hfa->data, hfa->len);
-	mibs_module = prefs_register_protocol(proto_mibs, NULL);
-
-	prefs_register_uat_preference(mibs_module, "smi_paths",
-								  "MIB paths",
-								  "List of directories where MIBs are to be looked for",
-								  smi_paths_uat);
-
-	prefs_register_uat_preference(mibs_module, "smi_modules",
-											   "MIB modules",
-											   "List of MIB modules to be loaded",
-											   smi_modules_uat);
 
 	proto_register_subtree_array((gint**)etta->data, etta->len);
 

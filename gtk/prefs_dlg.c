@@ -83,7 +83,6 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
 #else
 static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #endif
-static GtkWidget* create_preference_uat(GtkWidget*, int, const gchar*, const gchar *, void*);
 
 
 #define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
@@ -992,12 +991,9 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
 	return label;
 }
 
-static GtkWidget *
-create_preference_uat(GtkWidget *main_tb,
-					  int table_position,
-					  const gchar *label_text,
-					  const gchar *tooltip_text,
-					  void* uat)
+GtkWidget *
+create_preference_uat(GtkWidget *main_tb, int table_position,
+    const gchar *label_text, const gchar *tooltip_text, void* uat)
 {
 	GtkTooltips *tooltips;
 	GtkWidget *button = NULL;
