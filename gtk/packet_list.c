@@ -465,7 +465,7 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 	}
 
 	if (cfile.finfo_selected)
-		cf_unselect_packet(&cfile);
+		cf_unselect_field(&cfile);
 
         mode = new_mode;
         eth_clist_set_selection_mode(ETH_CLIST(packet_list), mode);
