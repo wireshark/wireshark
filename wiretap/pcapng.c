@@ -23,6 +23,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+/* File format reference:
+ *   http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -99,8 +103,14 @@ typedef struct pcapng_enhanced_packet_block_s {
 } pcapng_enhanced_packet_block_t;
 
 
-
-
+/* Block types */
+#define BLOCK_TYPE_IDB 0x00000001 /* Interface Description Block */
+#define BLOCK_TYPE_PB  0x00000002 /* Packet Block (obsolete) */
+#define BLOCK_TYPE_SPB 0x00000003 /* Simple Packet Block */
+#define BLOCK_TYPE_NRB 0x00000004 /* Name Resolution Block */
+#define BLOCK_TYPE_ISB 0x00000005 /* Interface Statistics Block */
+#define BLOCK_TYPE_EPB 0x00000006 /* Enhanced Packet Block */
+#define BLOCK_TYPE_SHB 0x0A0D0D0A /* Section Header Block */
 
 
 /* Capture section */
@@ -477,16 +487,16 @@ pcapng_read_block(FILE_T fh, pcapng_t *pn, wtapng_block_t *wblock, int *err, gch
 	/*g_warning("pcapng_read_block: block_type 0x%x", bh.block_type);*/
 
 	switch(bh.block_type) {
-		case(0x0A0D0D0A):
+		case(BLOCK_TYPE_SHB):
 			bytes_read_content = pcapng_read_section_header_block(fh, &bh, pn, wblock, err, err_info);
 			break;
-		case(1):
+		case(BLOCK_TYPE_IDB):
 			bytes_read_content = pcapng_read_if_descr_block(fh, &bh, pn, wblock, err, err_info);
 			break;
-		case(2):
+		case(BLOCK_TYPE_PB):
 			bytes_read_content = pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info);
 			break;
-		case(6):
+		case(BLOCK_TYPE_EPB):
 			bytes_read_content = pcapng_read_packet_block(fh, &bh, pn, wblock, err, err_info);
 			break;
 		default:
@@ -528,7 +538,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->data_offset += bytes_read;
 
 	/* first block must be a "Section Header Block" */
-	if(wblock.type != 0x0A0D0D0A) {
+	if(wblock.type != BLOCK_TYPE_SHB) {
 		g_warning("pcapng_open_new: first block type %u not SHB", wblock.type);
 		return 0;
 	}
@@ -600,7 +610,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 	}
 
 	/* block must be a "Packet Block" or an "Enhanced Packet Block" */
-	if(wblock.type != 0x00000002 && wblock.type != 0x00000006) {
+	if(wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB) {
 		g_warning("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
 		return 0;
 	}
@@ -649,7 +659,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
 	}
 
 	/* block must be a "Packet Block" or an "Enhanced Packet Block" */
-	if(wblock.type != 0x00000002 && wblock.type != 0x00000006) {
+	if(wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB) {
 		g_warning("pcapng_seek_read: block type %u not PB/EPB", wblock.type);
 		return FALSE;
 	}
@@ -870,18 +880,17 @@ static gboolean
 pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, int *err)
 {
 	switch(wblock->type) {
-		case(0x0A0D0D0A):
+		case(BLOCK_TYPE_SHB):
 			return pcapng_write_section_header_block(wdh, wblock, err);
 			break;
-		case(1):
+		case(BLOCK_TYPE_IDB):
 			return pcapng_write_if_descr_block(wdh, wblock, err);
 			break;
-		case(2):
+		case(BLOCK_TYPE_PB):
+			/* Packet Block is obsolete */
 			return FALSE;
-			/* XXX - currently unsupported */
-			/*return pcapng_read_packet_block(wdd, wblock, err);*/
 			break;
-		case(6):
+		case(BLOCK_TYPE_EPB):
 			return pcapng_write_packet_block(wdh, wblock, err);
 			break;
 		default:
@@ -902,7 +911,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	wblock.pseudo_header = pseudo_header;
 
 	/* write the (enhanced) packet block */
-	wblock.type = 0x000006;
+	wblock.type = BLOCK_TYPE_EPB;
 
 	wblock.data.packet.ts_high		= (guint32) phdr->ts.secs;
 	wblock.data.packet.ts_low		= phdr->ts.nsecs;	/* XXX - convert */
@@ -937,7 +946,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	wdh->subtype_close = NULL;
 
 	/* write the section header block */
-	wblock.type = 0x0A0D0D0A;
+	wblock.type = BLOCK_TYPE_SHB;
 	wblock.data.section.section_length = -1;
 
 	/* XXX - options unused */
@@ -951,7 +960,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	}
 
 	/* write the interface description block */
-	wblock.type = 0x00000001;
+	wblock.type = BLOCK_TYPE_IDB;
 	wblock.data.if_descr.link_type	= wdh->encap;
 	wblock.data.if_descr.snap_len	= wdh->snaplen;
 
