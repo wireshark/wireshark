@@ -45,9 +45,10 @@ plugins/agentx. Replace all occurrences of "agentx" in those files with "xxx".
 
 2.3 Makefile.common
 
-Your plugins/xxx/Makefile.common should list the source files for your
-dissector in the DISSECTOR_SRC variable, and all supporting source files
-in the DISSECTOR_SUPPORT_SRC variable.
+Your plugins/xxx/Makefile.common should list the main source file(s), which
+exports register_*() and handoff_*(), for your dissector in the DISSECTOR_SRC
+variable, and all supporting source files in the DISSECTOR_SUPPORT_SRC
+variable.
 The header files for your dissector, if any, must be listed in the
 DISSECTOR_INCLUDES variable. The DISSECTOR_INCLUDES variable should not
 include moduleinfo.h.
@@ -86,7 +87,7 @@ SUBDIRS directive to reflect the addition of your plugin:
 
 SUBDIRS = \
 	gryphon \
-	mgcp \
+	irda \
 	xxx
 
 
@@ -96,7 +97,7 @@ To the Makefile.nmake you need to add your plugin to the all: rule
 
 all: \
 	gryphon \
-	mgcp \
+	irda \
 	xxx
 
 then add a rule for your plugin:
@@ -112,7 +113,8 @@ plugin:
 clean:  clean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ../mgcp
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd xxx
@@ -123,7 +125,8 @@ clean:  clean-local
 distclean: distclean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ../mgcp
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 	cd xxx
@@ -134,7 +137,8 @@ distclean: distclean-local
 maintainer-clean: maintainer-clean-local
 	cd gryphon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ../mgcp
+	cd ..
+	cd irda
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ..
 	cd xxx
@@ -143,19 +147,28 @@ maintainer-clean: maintainer-clean-local
 
 Finally add a copy command to install-plugins rule:
 
-        xcopy mgcp\*.dll $(VERSION) /d
+        xcopy irda\*.dll $(VERSION) /d
         xcopy xxx\*.dll $(VERSION) /d
 
-3.3 Changes to the top level Makefile.am
+3.3 Changes to the top level Makefile.nmake
 
-Unfortunately there are quite some several places in the top level
-Makefile.am that need to be altered for adding a plugin.
+To the top level Makefile.nmake you need to add your plugin to the
+install-common-files: rule
+
+	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\xxx\xxx.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+
+3.4 Changes to the top level Makefile.am
+
+There are several places in the top level Makefile.am that need to be
+altered for adding a plugin.
 
 Add your plugin to the plugin_libs and plugin_ldadd:
 
 plugin_libs = \
         plugins/gryphon/gryphon.la \
-        plugins/mgcp/mgcp.la    \
+        plugins/irda/irda.la    \
         plugins/xxx/xxx.la
 
 if ENABLE_STATIC
@@ -165,10 +178,10 @@ else          # ENABLE_STATIC
 plugin_ldadd = \
         "-dlopen" self  \
         "-dlopen" plugins/gryphon/gryphon.la \
-        "-dlopen" plugins/mgcp/mgcp.la \
+        "-dlopen" plugins/irda/irda.la \
         "-dlopen" plugins/xxx/xxx.la
 
-3.4  Changes to top level configure.in
+3.5  Changes to top level configure.in
 
 You need to add your plugins Makefile to the AC_OUTPUT rule in the
 configure.in
@@ -186,13 +199,13 @@ AC_OUTPUT(
   packaging/svr4/pkginfo
   plugins/Makefile
   plugins/gryphon/Makefile
-  plugins/mgcp/Makefile
+  plugins/irda/Makefile
   plugins/xxx/Makefile
   tools/Makefile
   tools/lemon/Makefile
   ,)
 
-3.5  Changes to the installers
+3.6  Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
 in the NSIS installer Makefile.nmake and wireshark.nsi files, and the U3
