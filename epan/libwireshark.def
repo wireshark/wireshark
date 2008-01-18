@@ -786,6 +786,8 @@ sid_name_snooping               DATA
 sid_name_table                  DATA
 smb2_cmd_vals                    DATA
 smb_cmd_vals                    DATA
+smi_modules_uat
+smi_paths_uat
 sminmpec_values                 DATA
 ssl_dissector_add
 ssl_dissector_delete
