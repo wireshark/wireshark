@@ -116,8 +116,6 @@ static gint hf_ber_encoding = -1;                 /* T_encoding */
 static gint hf_ber_single_ASN1_type = -1;         /* T_single_ASN1_type */
 static gint hf_ber_octet_aligned = -1;            /* OCTET_STRING */
 static gint hf_ber_arbitrary = -1;                /* BIT_STRING */
-static gint hf_ber_real_binary_encoding = -1;
-static gint hf_ber_real_decimal_encoding = -1;
 
 static gint ett_ber_octet_string = -1;
 static gint ett_ber_unknown = -1;
@@ -1280,21 +1278,19 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 
 
 /* 8.5	Encoding of a real value */
-/* NOT FULLY IMPLEMENTED !!!!!*/
+/* NOT Tested*/
 int
 dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id _U_, double *value)
 {
 	gint8 class;
 	gboolean pc;
 	gint32 tag;
-	guint32 len;
-	guint8 encoding;
-	int start_offset;
+	guint32 val_length, end_offset;
+	double val = 0;
 
-	start_offset = offset;
 	if(!implicit_tag){
 		offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
-		offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+		offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &val_length, NULL);
 	} else {
 		/* 8.5.1	The encoding of a real value shall be primitive. */
 		DISSECTOR_ASSERT_NOT_REACHED();
@@ -1302,30 +1298,19 @@ dissect_ber_real(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
 	/* 8.5.2	If the real value is the value zero, 
 	 *			there shall be no contents octets in the encoding.
 	 */
-	if (len==0){
+	if (val_length==0){
 		if (value)
 			*value = 0;
 		return offset;
 	}
-	encoding = tvb_get_guint8(tvb,offset);
-	if(encoding&0x80){
-		/* a)	if bit 8 = 1, then the binary encoding specified in 8.5.6 applies; */
-		if(show_internal_ber_fields){
-			proto_tree_add_item(tree, hf_ber_real_binary_encoding, tvb, offset, 1, FALSE);
-		}
-	}else{
-		/* b)	if bit 8 = 0 and bit 7 = 0,
-		 *		then the decimal encoding specified in 8.5.7 applies;
-		 * c)	if bit 8 = 0 and bit 7 = 1, then a "SpecialRealValue"
-		 *		(see ITU-T Rec. X.680 | ISO/IEC 8824 1) is encoded as specified in 8.5.8.
-		 */
-		if(show_internal_ber_fields){
-			proto_tree_add_item(tree, hf_ber_real_binary_encoding, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tree, hf_ber_real_decimal_encoding, tvb, offset, 1, FALSE);
-		}
-	}
-	offset = start_offset + len;
-	return offset;
+	end_offset = offset + val_length;
+
+	val = asn1_get_real(tvb_get_ptr(tvb, offset, val_length), val_length);
+	actx->created_item = proto_tree_add_double(tree, hf_id, tvb, offset, val_length, val);
+
+	if (value) *value = val;
+
+	return end_offset;
 
 }
 /* this function dissects a BER sequence
@@ -4212,14 +4197,6 @@ proto_register_ber(void)
       { "single-ASN1-type", "ber.single_ASN1_type",
         FT_NONE, BASE_NONE, NULL, 0,
         "ber.T_single_ASN1_type", HFILL }},
-	{ &hf_ber_real_binary_encoding,
-      { "Real binary encoding", "ber.real_binary_encoding",
-        FT_BOOLEAN, 8, TFS(&ber_real_binary_vals), 0x80,
-        "Binary or decimal encoding", HFILL }},
-	{ &hf_ber_real_decimal_encoding,
-      { "Real decimal encoding type", "ber.real_decimal_encoding",
-        FT_BOOLEAN, 8, TFS(&ber_real_decimal_vals), 0x40,
-        "Decimal encoding type ", HFILL }},
     };
 
 
