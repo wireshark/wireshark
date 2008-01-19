@@ -540,7 +540,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
                     /*if(pn->byte_swapped) 
 		                wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);*/
 
-		            g_warning("pcapng_read_if_descr_block: if_speed %u (bps)", wblock->data.if_descr.if_speed);
+		            g_warning("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
                 } else {
 		            g_warning("pcapng_read_if_descr_block: if_speed length %u not 8 as expected", oh.option_length);
                 }
@@ -576,7 +576,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 static int 
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
-	int bytes_read;
+	uint bytes_read;
 	int block_read;
 	int to_read;
 	guint64 file_offset64;
@@ -713,7 +713,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 static int 
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
-	int bytes_read;
+	uint bytes_read;
 	int block_read;
 	guint64 file_offset64;
 	pcapng_simple_packet_block_t spb;
@@ -777,7 +777,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
 
 static int 
-pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
+pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_,int *err, gchar **err_info _U_)
 {
 	int block_read;
 	guint64 file_offset64;
