@@ -576,7 +576,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 static int 
 pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
-	uint bytes_read;
+	int bytes_read;
 	int block_read;
 	int to_read;
 	guint64 file_offset64;
@@ -623,7 +623,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 	/* "(Enhanced) Packet Block" read capture data */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.packet.cap_len, fh);
-	if (bytes_read != wblock->data.packet.cap_len) {
+	if (bytes_read != (int) wblock->data.packet.cap_len) {
 		*err = file_error(fh);
 		g_warning("pcapng_read_packet_block: couldn't read %u bytes of captured data", 
 			wblock->data.packet.cap_len);
@@ -713,7 +713,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 static int 
 pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wtapng_block_t *wblock,int *err, gchar **err_info _U_)
 {
-	uint bytes_read;
+	int bytes_read;
 	int block_read;
 	guint64 file_offset64;
 	pcapng_simple_packet_block_t spb;
@@ -751,7 +751,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 	/* "Simple Packet Block" read capture data */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read((guchar *) (wblock->frame_buffer), 1, wblock->data.simple_packet.cap_len, fh);
-	if (bytes_read != wblock->data.simple_packet.cap_len) {
+	if (bytes_read != (int) wblock->data.simple_packet.cap_len) {
 		*err = file_error(fh);
 		g_warning("pcapng_read_simple_packet_block: couldn't read %u bytes of captured data", 
 			wblock->data.simple_packet.cap_len);
