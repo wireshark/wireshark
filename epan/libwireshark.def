@@ -935,7 +935,6 @@ uat_fld_chk_str_isxdigit
 uat_foreach_table
 uat_load
 uat_new
-uat_reload_all
 uat_remove_record_idx
 uat_save
 uat_swap

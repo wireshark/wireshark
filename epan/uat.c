@@ -285,7 +285,7 @@ void* uat_se_dup(uat_t* uat, guint* len_p) {
 	return size ? se_memdup(uat->user_data->data,size) : NULL ;
 }
 
-void uat_reload_all(void) {
+void uat_unload_all(void) {
 	guint i;
 
 	for (i=0; i < all_uats->len; i++) {
@@ -293,8 +293,6 @@ void uat_reload_all(void) {
 		uat_clear(u);
 		u->loaded = FALSE;
 	}
-
-	uat_load_all();
 }
 
 void uat_cleanup(void) {

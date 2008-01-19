@@ -51,8 +51,6 @@
 #define E_PROF_COPY_BT_KEY          "profile_copy_bt"
 #define E_PROF_DEL_BT_KEY           "profile_del_bt"
 #define E_PROF_NAME_TE_KEY          "profile_name_te"
-#define E_PROF_SELFUNC_KEY          "profile_selfunc"
-#define E_PROF_SELARG_KEY           "profile_selarg"
 
 static GtkWidget *global_profile_w = NULL;
 static GList *current_profiles = NULL;
@@ -246,7 +244,7 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 }
 
 static void
-profile_save(void)
+profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 {
   char        *pf_dir_path, *pf_dir_path2;
   GList       *fl1, *fl2;
@@ -316,42 +314,31 @@ profile_save(void)
   }
 
   copy_profile_list();
-}
-
-static void
-profile_dlg_select(GtkTreeView *profile_l, gpointer main_w_arg)
-{
-  GtkWidget *main_w = GTK_WIDGET(main_w_arg);
-
-  profile_save();
-  profile_select(main_w, profile_l, TRUE);
-}
-
-static void
-profile_apply(GtkWidget *main_w, gboolean destroy)
-{
-  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
-
-  profile_save();
   profile_select(main_w, profile_l, destroy);
 }
 
 static void
 profile_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 {
+  GtkWidget    *main_w = gtk_widget_get_toplevel(ok_bt);
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+  
   /*
    * Apply the profile and destroy the dialog box.
    */
-  profile_apply(gtk_widget_get_toplevel(ok_bt), TRUE);
+  profile_apply(main_w, profile_l, TRUE);
 }
 
 static void
 profile_dlg_apply_cb(GtkWidget *apply_bt, gpointer data _U_)
 {
+  GtkWidget    *main_w = gtk_widget_get_toplevel(apply_bt);
+  GtkTreeView  *profile_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_PROF_PROFILE_L_KEY));
+
   /*
    * Apply the profile, but don't destroy the dialog box.
    */
-  profile_apply(gtk_widget_get_toplevel(apply_bt), FALSE);
+  profile_apply(main_w, profile_l, FALSE);
 }
 
 /* cancel button pressed, revert changes and exit dialog */
@@ -381,18 +368,12 @@ profile_dlg_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
 static gint
-profile_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
-			   gpointer data _U_)
+profile_button_press_cb(GtkWidget *list, GdkEventButton *event, gpointer data _U_)
 {
-  void (* func)(GtkWidget *, gpointer);
-  gpointer func_arg;
-
   if (event->type == GDK_2BUTTON_PRESS) {
-    func = OBJECT_GET_DATA(list, E_PROF_SELFUNC_KEY);
-    func_arg = OBJECT_GET_DATA(list, E_PROF_SELARG_KEY);
+    GtkWidget *main_w = gtk_widget_get_toplevel(list);
 
-    if (func)
-      (*func)(list, func_arg);
+    profile_apply (main_w, GTK_TREE_VIEW(list), TRUE);
   }
 
   return FALSE;
@@ -401,15 +382,10 @@ profile_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
 static gint
 profile_key_release_cb(GtkWidget *list, GdkEventKey *event, gpointer data _U_)
 {
-  void (* func)(GtkWidget *, gpointer);
-  gpointer func_arg;
-
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
-    func = OBJECT_GET_DATA(list, E_PROF_SELFUNC_KEY);
-    func_arg = OBJECT_GET_DATA(list, E_PROF_SELARG_KEY);
+    GtkWidget    *main_w = gtk_widget_get_toplevel(list);
 
-    if (func)
-      (*func)(list, func_arg);
+    profile_apply (main_w, GTK_TREE_VIEW(list), TRUE);
   }
 
   return FALSE;
@@ -706,14 +682,11 @@ profile_dialog_new(void)
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
   SIGNAL_CONNECT(sel, "changed", profile_sel_list_cb, profile_vb);
-  SIGNAL_CONNECT(profile_l, "button_press_event", profile_sel_list_button_cb, NULL);
+  SIGNAL_CONNECT(profile_l, "button_press_event", profile_button_press_cb, NULL);
   SIGNAL_CONNECT(profile_l, "key_release_event", profile_key_release_cb, NULL);
   OBJECT_SET_DATA(main_w, E_PROF_PROFILE_L_KEY, profile_l);
   gtk_container_add(GTK_CONTAINER(profile_sc), profile_l);
   gtk_widget_show(profile_l);
-
-  OBJECT_SET_DATA(profile_l, E_PROF_SELFUNC_KEY, profile_dlg_select);
-  OBJECT_SET_DATA(profile_l, E_PROF_SELARG_KEY, main_w);
 
   /* fill in data */
   l_select = fill_list(main_w);

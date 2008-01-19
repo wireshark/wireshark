@@ -269,7 +269,7 @@ gboolean uat_fld_chk_str_ ## what (void*, const char*, unsigned, void*, void*, c
 
 typedef void (*uat_cb_t)(void* uat,void* user_data);
 void uat_foreach_table(uat_cb_t cb,void* user_data);
-void uat_reload_all(void);
+void uat_unload_all(void);
 
 char* uat_undquote(const char* si, guint in_len, guint* len_p);
 char* uat_unbinstring(const char* si, guint in_len, guint* len_p);

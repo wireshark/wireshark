@@ -1231,6 +1231,33 @@ void
 prefs_reset(void)
 {
   prefs_initialized = FALSE;
+  if (prefs.pr_file)
+    g_free(prefs.pr_file);
+  if (prefs.pr_cmd)
+    g_free(prefs.pr_cmd);
+  free_col_info(&prefs);
+  if (prefs.gui_font_name1)
+    g_free(prefs.gui_font_name1);
+  if (prefs.gui_font_name2)
+    g_free(prefs.gui_font_name2);
+  if (prefs.gui_colorized_fg)
+    g_free(prefs.gui_colorized_fg);
+  if (prefs.gui_colorized_bg)
+    g_free(prefs.gui_colorized_bg);
+  if (prefs.gui_fileopen_dir)
+    g_free(prefs.gui_fileopen_dir);
+  if (prefs.gui_webbrowser)
+    g_free(prefs.gui_webbrowser);
+  if (prefs.gui_window_title)
+    g_free(prefs.gui_window_title);
+  if (prefs.capture_device)
+    g_free(prefs.capture_device);
+  if (prefs.capture_devices_descr)
+    g_free(prefs.capture_devices_descr);
+  if (prefs.capture_devices_hide)
+    g_free(prefs.capture_devices_hide);
+
+  uat_unload_all();
   init_prefs();
 }
 

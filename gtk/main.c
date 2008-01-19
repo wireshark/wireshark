@@ -5031,7 +5031,6 @@ void change_configuration_profile (const gchar *profile_name)
    prefs_reset();
    (void) read_configuration_files (&gdp_path, &dp_path);
    prefs_apply_all();
-   uat_reload_all();
   
    /* Update window view and redraw the toolbar */
    update_main_window_name();
