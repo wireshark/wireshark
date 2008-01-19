@@ -1148,17 +1148,17 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	    		guint16 length = template->scopes[i].length;
 	   		switch( type ) {
 	   		case 1: /* system */
-				if( length <= 4) {
+				if( length == 4) {
 				 	 proto_tree_add_item(pdutree, hf_cflow_scope_system,
 						tvb, offset, length, FALSE);
-				} else {
+				} else if (length > 0) {
 				 	 proto_tree_add_text(pdutree,
 						tvb, offset, length,
 						"ScopeSystem: invalid size %d", length );
-				}
+				} /* zero-length system scope is valid */
 				break;
 	   		case 2: /* interface */
-				if( length <= 4) {
+				if( length == 4) {
 				 	 proto_tree_add_item(pdutree, hf_cflow_scope_interface,
 						tvb, offset, length, FALSE);
 				} else {
@@ -1390,34 +1390,34 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			break;
 
 		case 25: /* length_min */
-		  proto_tree_add_item(pdutree, hf_cflow_length_min,
+		  	  proto_tree_add_item(pdutree, hf_cflow_length_min,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 26: /* length_max */
-		  proto_tree_add_item(pdutree, hf_cflow_length_max,
+		  	  proto_tree_add_item(pdutree, hf_cflow_length_max,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 27: /* IPv6 src addr */
-		  proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
+		  	  proto_tree_add_item(pdutree, hf_cflow_srcaddr_v6,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 28: /* IPv6 dst addr */
-		  proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
+		  	  proto_tree_add_item(pdutree, hf_cflow_dstaddr_v6,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 29: /* IPv6 src addr mask */
-		  proto_tree_add_item(pdutree, hf_cflow_srcmask_v6,
+		  	  proto_tree_add_item(pdutree, hf_cflow_srcmask_v6,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 30: /* IPv6 dst addr mask */
-		  proto_tree_add_item(pdutree, hf_cflow_dstmask_v6,
+		  	  proto_tree_add_item(pdutree, hf_cflow_dstmask_v6,
 				      tvb, offset, length, FALSE);
-		  break;
+		  	  break;
 
 		case 32: /* ICMP_TYPE */
 			proto_tree_add_item(pdutree, hf_cflow_icmp_type,
@@ -1453,9 +1453,12 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			if( length == 8 ) {
 				proto_tree_add_item(pdutree, hf_cflow_octets_exp64,
 					      tvb, offset, length, FALSE);
-			} else {
+			} else if( length == 4 ) {
 				proto_tree_add_item(pdutree, hf_cflow_octets_exp,
 					      tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "BytesExported: length %u", length);
 			}
 			break;
 
@@ -1463,9 +1466,12 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			if( length == 8 ) {
 				proto_tree_add_item(pdutree, hf_cflow_packets_exp64,
 				    tvb, offset, length, FALSE);
-			} else {
+			} else if( length == 4 ) {
 				proto_tree_add_item(pdutree, hf_cflow_packets_exp,
 				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "PacketsExported: length %u", length);
 			}
 			break;
 
@@ -1473,9 +1479,12 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			if( length == 8 ) {
 				proto_tree_add_item(pdutree, hf_cflow_flows_exp64,
 				    tvb, offset, length, FALSE);
-			} else {
+			} else if( length == 4 ) {
 				proto_tree_add_item(pdutree, hf_cflow_flows_exp,
 				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree, tvb, offset, length,
+				    "FlowsExported: length %u", length);
 			}
 			break;
 
@@ -1700,7 +1709,7 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 
 		default:
 			proto_tree_add_text(pdutree, tvb, offset, length,
-			    "Type %u %s", type, decode_v9_template_types(type));
+					"Type %u %s", type, decode_v9_template_types(type));
 			break;
 		}
 
