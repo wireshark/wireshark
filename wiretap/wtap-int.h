@@ -280,7 +280,16 @@ extern int wtap_dump_file_ferror(wtap_dumper *wdh);
 
 extern gint wtap_num_file_types;
 
-/* Macros to byte-swap 32-bit and 16-bit quantities. */
+/* Macros to byte-swap 64-bit, 32-bit and 16-bit quantities. */
+#define BSWAP64(x) \
+	((((x)&G_GINT64_CONSTANT(0xFF00000000000000U))>>56) |	\
+         (((x)&G_GINT64_CONSTANT(0x00FF000000000000U))>>40) |	\
+	 (((x)&G_GINT64_CONSTANT(0x0000FF0000000000U))>>24) |	\
+	 (((x)&G_GINT64_CONSTANT(0x000000FF00000000U))>>8) |	\
+	 (((x)&G_GINT64_CONSTANT(0x00000000FF000000U))<<8) |	\
+	 (((x)&G_GINT64_CONSTANT(0x0000000000FF0000U))<<24) |	\
+	 (((x)&G_GINT64_CONSTANT(0x000000000000FF00U))<<40) |	\
+	 (((x)&G_GINT64_CONSTANT(0x00000000000000FFU))<<56))
 #define	BSWAP32(x) \
 	((((x)&0xFF000000)>>24) | \
 	 (((x)&0x00FF0000)>>8) | \

@@ -320,7 +320,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t 
 
 			g_warning("pcapng_read_section_header_block: SHB (little endian) V%u.%u, len %u",
 				pn->version_major, pn->version_minor, bh->block_total_length);
-		break;
+			break;
 		case(0x4D3C2B1A):
 			/* this seems pcapng with swapped byte order */
 			pn->byte_swapped		= TRUE;
@@ -536,9 +536,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
             case(8): /* if_speed */
                 if(oh.option_length == 8) {
                     wblock->data.if_descr.if_speed = *((guint64 *)option_content);
-                    /* XXX - need 64 bit byte swap */
-                    /*if(pn->byte_swapped) 
-		                wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);*/
+                    if(pn->byte_swapped) 
+		                wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
 
 		            g_warning("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
                 } else {
