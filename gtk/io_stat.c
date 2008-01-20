@@ -1205,7 +1205,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 
 #if GTK_CHECK_VERSION(2,6,0)
 	save_bt = OBJECT_GET_DATA(io->window, "save_bt");
-	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, io->pixmap);
+	OBJECT_SET_DATA(save_bt, "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
 #endif
     
@@ -2050,6 +2050,7 @@ init_io_stat_window(io_stat_t *io)
 	save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
 	gtk_tooltips_set_tip(tooltips, save_bt, "Save the displayed graph to a file", NULL);
+	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, NULL);
 	OBJECT_SET_DATA(io->window, "save_bt", save_bt);
 #endif
 

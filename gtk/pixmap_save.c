@@ -93,9 +93,9 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 }
 
 void
-pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr)
+pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 {
-	GdkPixmap *pixmap = pixmap_ptr;
+	GdkPixmap *pixmap = OBJECT_GET_DATA(w, "pixmap");
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;
 	GtkWidget *main_vb, *save_as_type_hb, *type_lb, *type_cm;
