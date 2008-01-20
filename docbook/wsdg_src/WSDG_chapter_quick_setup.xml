@@ -28,16 +28,16 @@
     </warning>
     <section id="ChSetupMSVC">
       <title>Install Microsoft C compiler and Platform SDK</title>
-      <para>You need to install: 
+      <para>You need to install:
       <orderedlist>
         <listitem>
-          <para>C compiler: 
-          <ulink url="http://msdn.microsoft.com/vstudio/express/visualc/download/">
+          <para>C compiler:
+          <ulink url="http://www.microsoft.com/express/2005/download/default.aspx">
           Download</ulink>(474MB) and install "Visual C++ 2005
           Express Edition"</para>
         </listitem>
         <listitem>
-          <para>Platform SDK : 
+          <para>Platform SDK :
           <ulink url="http://www.microsoft.com/downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&amp;displaylang=en">
           Download</ulink>(420MB) and install Platform SDK Server
           2003 R2</para>
@@ -51,14 +51,14 @@
         <title>Other Microsoft C compiler variants
         possible!</title>
         <para>It's possible to compile Wireshark with a wide range
-        of Microsoft C compiler variants, for details see 
+        of Microsoft C compiler variants, for details see
         <xref linkend="ChToolsMSChain" />!</para>
       </tip>
       <warning>
         <title>Don't use cygwin's gcc!</title>
         <para>Using cygwin's gcc is not recommended and will
         certainly not work (at least without a lot of advanced
-        tweaking). For further details on this topic, see 
+        tweaking). For further details on this topic, see
         <xref linkend="ChToolsGNUChain" />.</para>
       </warning>
       <para>XXX - mention the compiler and PSDK web installers -
@@ -79,7 +79,7 @@
       some additional packages, which are not installed by default.
       Navigate to the required Category/Package row and click on
       the "Skip" item in the "New" column so it shows a version
-      number for: 
+      number for:
       <itemizedlist>
         <listitem>
           <para>Archive/unzip</para>
@@ -110,7 +110,7 @@
     </section>
     <section id="ChSetupPython">
       <title>Install Python</title>
-      <para>Get the python 2.4 installer from: 
+      <para>Get the python 2.4 installer from:
       <ulink url="http://python.org/download/" /> and install python
       into the default location (currently: C:/Python24).</para>
       <para>Beware: python 2.5 won't work without
@@ -131,22 +131,22 @@
       <section>
         <title>Subversion</title>
         <para>If you want to work with the Wireshark Subversion
-        source repositories (which is highly recommended, see 
+        source repositories (which is highly recommended, see
         <xref linkend="ChSrcObtain" />), it's recommended to
         install Subversion. This makes the first time setup easy
         and enables the Wireshark build process to determine your
         current source code revision. You can download the setup
-        from 
+        from
         <ulink url="http://subversion.tigris.org/" /> and simply
         install it.</para>
       </section>
       <section>
         <title>TortoiseSVN</title>
         <para>If you want to work with the Wireshark Subversion
-        source repositories (which is highly recommended, see 
+        source repositories (which is highly recommended, see
         <xref linkend="ChSrcObtain" />), it's recommended to use
         TortoiseSVN for your everyday work. You can download the
-        setup from 
+        setup from
         <ulink url="http://tortoisesvn.tigris.org/" /> and simply
         install it.</para>
       </section>
@@ -158,7 +158,7 @@
       <para>It's a good idea to successfully compile and run
       Wireshark at least once before you start hacking the
       Wireshark sources for your own project! </para>
-      </tip> 
+      </tip>
       <orderedlist>
         <listitem>
           <para>Download sources : Download Wireshark sources into:
@@ -177,7 +177,7 @@
                 <para>
                   <orderedlist>
                     <listitem>
-                      <para>URL of repository: " 
+                      <para>URL of repository: "
                       <literal>
                       http://anonsvn.wireshark.org/wireshark/trunk/</literal>"</para>
                     </listitem>
@@ -198,7 +198,7 @@
               </listitem>
               <listitem>
                 <para>if the download fails you may be behind a
-                restrictive firewall, see 
+                restrictive firewall, see
                 <xref linkend="ChSrcObtain" />for alternative
                 download methods</para>
               </listitem>
@@ -217,13 +217,13 @@
               </listitem>
               <listitem>
                 <para>PROGRAM_FILES : where your programs reside,
-                usually just keep the default: C:/Program Files 
+                usually just keep the default: C:/Program Files
                 <superscript>2</superscript></para>
               </listitem>
               <listitem>
                 <para>MSVC_VARIANT : search for the line:
                 #MSVC_VARIANT=MSVC2005EE and remove the tailing #
-                comment char from this line 
+                comment char from this line
                 <superscript>1</superscript></para>
               </listitem>
             </orderedlist>
@@ -233,7 +233,7 @@
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      at 
+      at
       <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
@@ -243,7 +243,7 @@
     </section>
     <section id="ChSetupPrepareCommandCom">
       <title>Prepare cmd.exe</title>
-      <para>Prepare cmd.exe - set environment and current dir. 
+      <para>Prepare cmd.exe - set environment and current dir.
       <orderedlist>
         <listitem>
           <para>start cmd.exe</para>
@@ -251,13 +251,13 @@
         <listitem>
           <para>call "C:\Program Files\Microsoft Platform SDK for
           Windows Server 2003 R2\SetEnv.Cmd" to set environment
-          variables of Platform SDK Server 2003 R2 
+          variables of Platform SDK Server 2003 R2
           <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
           <para>call "C:\Program Files\Microsoft Visual Studio
           8\VC\bin\vcvars32.bat" to set environment variables of
-          Visual C++ 2005 Express Edition 
+          Visual C++ 2005 Express Edition
           <superscript>1,2</superscript></para>
         </listitem>
         <listitem>
@@ -268,7 +268,7 @@
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      at 
+      at
       <xref linkend="ChToolsMSChain" />!</para>
       <para>
       <superscript>2</superscript>International Windows might use
@@ -279,10 +279,10 @@
     </section>
     <section id="ChToolsWin32Verify">
       <title>Verify installed tools</title>
-      <para>After you've installed the Wireshark sources (see 
+      <para>After you've installed the Wireshark sources (see
       <xref linkend="ChSrcObtain" />), you can check the correct
       installation of all tools by using the verify_tools target of
-      the 
+      the
       <filename>Makefile.nmake</filename> from the source
       package.</para>
       <warning>
@@ -320,7 +320,7 @@
 </programlisting>
       </para>
       <para>If you have problems with all the first three items (cl, link, nmake),
-      check if you called vcvars32/SetEnv as mentioned in 
+      check if you called vcvars32/SetEnv as mentioned in
       <xref linkend="ChSetupPrepareCommandCom" /> (which will "fix"
       your PATH settings). However, the exact text will be slightly
       different depending on the MSVC version used.</para>
@@ -357,7 +357,7 @@
       <para>The released Wireshark sources contain files that are
       prepared for a UNIX build (e.g. config.h).</para>
       <para>You must distclean your sources before building the
-      first time! 
+      first time!
       <orderedlist>
         <listitem>
           <para>If you've closed cmd.exe in the meantime, prepare
@@ -371,7 +371,7 @@
     </section>
     <section>
       <title>Build Wireshark</title>
-      <para>Now it's time to build Wireshark ... 
+      <para>Now it's time to build Wireshark ...
       <orderedlist>
         <listitem>
           <para>If you've closed cmd.exe in the meantime, prepare
@@ -415,28 +415,28 @@
       <para>Note: You should have successfully built Wireshark
       before doing the following!</para>
       <para>If you want to build your own wireshark-setup.exe,
-      you'll need NSIS. 
+      you'll need NSIS.
       <orderedlist>
         <listitem>
-          <para>NSIS: 
+          <para>NSIS:
           <ulink url="http://nsis.sourceforge.net">
           Download</ulink> and install NSIS</para>
-          <para>You may check the MAKENSIS setting in the file 
+          <para>You may check the MAKENSIS setting in the file
           <filename>config.nmake</filename> of the Wireshark
           sources.</para>
         </listitem>
         <listitem>
-          <para>vcredist_x86.exe : 
+          <para>vcredist_x86.exe :
           <ulink url="http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&amp;displaylang=en">
           Download</ulink> the C-Runtime redistributable for Visual
           C++ 2005 Express Edition (vcredist_x86.exe) and copy it
-          into C:\wireshark-win32-libs 
+          into C:\wireshark-win32-libs
           <superscript>1</superscript>
           <warning>
             <title>Beware of Visual Studio Service Packs!</title>
             <para>If you have installed the Visual Studio Service
             Pack 1, you need a different vcredist_x86.exe version!
-            See 
+            See
             <xref linkend="ChToolsMSChain" />for details!</para>
           </warning></para>
         </listitem>
@@ -458,7 +458,7 @@
       <superscript>1</superscript>Compiler dependent: This step
       depends on the compiler variant used, for other variants than
       the recommended Visual C++ 2005 Express Edition see the table
-      at 
+      at
       <xref linkend="ChToolsMSChain" />!</para>
     </section>
   </section>
