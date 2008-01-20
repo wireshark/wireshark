@@ -512,6 +512,45 @@ print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max)
 	}
 }
 
+
+static void
+print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io,
+		      gboolean ext)
+{
+	if (io->view_as_time) {
+		struct tm *tmp;
+		time_t sec_val = interval/1000 + io->start_time.secs;
+		gint32 nsec_val = interval%1000 + io->start_time.nsecs/1000000;
+
+		if(nsec_val >= 1000) {
+			sec_val++;
+			nsec_val -= 1000;
+		}
+		tmp = localtime (&sec_val);
+		if(io->interval>=1000){
+			g_snprintf(buf, buf_len, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+		} else if(io->interval>=100){
+			g_snprintf(buf, buf_len, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
+		} else if(io->interval>=10){
+			g_snprintf(buf, buf_len, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
+		} else {
+			g_snprintf(buf, buf_len, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
+		}
+	} else {
+		if(io->interval>=60000 && ext){
+			g_snprintf(buf, buf_len, "%d%s", interval/60000, ext?"m":"");
+		} else if(io->interval>=1000){
+			g_snprintf(buf, buf_len, "%d%s", interval/1000, ext?"s":"");
+		} else if(io->interval>=100){
+			g_snprintf(buf, buf_len, "%d.%1d%s", interval/1000,(interval/100)%10, ext?"s":"");
+		} else if(io->interval>=10){
+			g_snprintf(buf, buf_len, "%d.%02d%s", interval/1000,(interval/10)%100, ext?"s":"");
+		} else {
+			g_snprintf(buf, buf_len, "%d.%03d%s", interval/1000,interval%1000, ext?"s":"");
+		}
+	}
+}
+
 static void
 io_stat_draw(io_stat_t *io)
 {
@@ -816,37 +855,7 @@ io_stat_draw(io_stat_t *io)
 
 		if(xlen==10){
 			int lwidth, x_pos;
-			if (io->view_as_time) {
-				struct tm *tmp;
-				time_t sec_val = current_interval/1000 + io->start_time.secs;
-				gint32 nsec_val = current_interval%1000 + io->start_time.nsecs/1000000;
-				if(nsec_val >= 1000) {
-				  sec_val++;
-				  nsec_val -= 1000;
-				}
-				tmp = localtime (&sec_val);
-				if(io->interval>=1000){
-					g_snprintf(label_string, 15, "%02d:%02d:%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
-				} else if(io->interval>=100){
-					g_snprintf(label_string, 15, "%02d:%02d:%02d.%1d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/100);
-				} else if(io->interval>=10){
-					g_snprintf(label_string, 15, "%02d:%02d:%02d.%02d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val/10);
-				} else {
-					g_snprintf(label_string, 15, "%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, nsec_val);
-				}
-			} else {
-				if(io->interval>=60000){
-					g_snprintf(label_string, 15, "%dm", current_interval/60000);
-				} else if(io->interval>=1000){
-					g_snprintf(label_string, 15, "%ds", current_interval/1000);
-				} else if(io->interval>=100){
-					g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10);
-				} else if(io->interval>=10){
-					g_snprintf(label_string, 15, "%d.%02ds", current_interval/1000,(current_interval/10)%100);
-				} else {
-					g_snprintf(label_string, 15, "%d.%03ds", current_interval/1000,current_interval%1000);
-				}
-			}
+			print_interval_string (label_string, 15, current_interval, io, TRUE);
 #if GTK_MAJOR_VERSION < 2
 			lwidth=gdk_string_width(font, label_string);
 #else
@@ -1936,6 +1945,44 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 }
 
 
+#if GTK_MAJOR_VERSION >= 2
+static void
+copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
+{
+	guint32         i, interval, val;
+	char            string[15];
+	GtkClipboard    *cb;  
+	GString         *CSV_str=g_string_new("");
+	io_stat_t       *io=(io_stat_t *)data;
+   
+	g_string_append(CSV_str, "Interval start");
+	for(i=0;i<MAX_GRAPHS;i++) {
+		if (io->graphs[i].display) {
+			g_string_sprintfa(CSV_str, ",Graph %d", i+1);
+		}
+	}
+	g_string_append(CSV_str,"\n");
+
+	for(interval=0; interval<io->max_interval; interval+=io->interval) {
+		print_interval_string (string, 15, interval, io, FALSE);
+		g_string_append(CSV_str, string);
+		for(i=0;i<MAX_GRAPHS;i++) {
+			if (io->graphs[i].display) {
+				val=get_it_value(io, i, interval/io->interval);
+				g_string_sprintfa(CSV_str, ",%d", val);
+			}
+		}
+		g_string_append(CSV_str,"\n");
+	}
+
+	/* Now that we have the CSV data, copy it into the default clipboard */
+	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);    /* Get the default clipboard */
+	gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
+	g_string_free(CSV_str, TRUE);                       /* Free the memory */
+} 
+#endif
+
+
 static void 
 init_io_stat_window(io_stat_t *io)
 {
@@ -1943,6 +1990,10 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *hbox;
 	GtkWidget *bbox;
 	GtkWidget *close_bt, *help_bt;
+	GtkTooltips *tooltips = gtk_tooltips_new();
+#if GTK_MAJOR_VERSION >= 2
+	GtkWidget *copy_bt;
+#endif
 #if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
 #endif
@@ -1970,13 +2021,20 @@ init_io_stat_window(io_stat_t *io)
 	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
 #if GTK_CHECK_VERSION(2,6,0)
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
+					  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+#elif GTK_MAJOR_VERSION >= 2
+
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, 
 					  GTK_STOCK_HELP, NULL);
 #else
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 #endif
 	} else {
 #if GTK_CHECK_VERSION(2,6,0)
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, 
+					  GTK_STOCK_COPY, NULL);
+#elif GTK_MAJOR_VERSION >= 2
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
 #else
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 #endif
@@ -1986,16 +2044,26 @@ init_io_stat_window(io_stat_t *io)
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
 	window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
+	gtk_tooltips_set_tip(tooltips, close_bt, "Close this dialog", NULL);
 
 #if GTK_CHECK_VERSION(2,6,0)
 	save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
+	gtk_tooltips_set_tip(tooltips, save_bt, "Save the displayed graph to a file", NULL);
 	OBJECT_SET_DATA(io->window, "save_bt", save_bt);
+#endif
+
+#if GTK_MAJOR_VERSION >= 2
+	copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+	gtk_tooltips_set_tip(tooltips, copy_bt, 
+			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
+	SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, io);
 #endif
 
 	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
 		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
+		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 	}
 
 	SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
