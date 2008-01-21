@@ -10,6 +10,7 @@ S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
 S<[ B<-B> E<lt>capture buffer size (Win32 only)E<gt> ] >
 S<[ B<-c> E<lt>capture packet countE<gt> ]>
+S<[ B<-C> E<lt>configuration profileE<gt> ]>
 S<[ B<-d> E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt> ]>
 S<[ B<-D> ]>
 S<[ B<-e> E<lt>fieldE<gt> ]>
@@ -183,6 +184,10 @@ disk. If you encounter packet drops while capturing, try to increase this size.
 
 Set the maximum number of packets to read when capturing live
 data. If reading a capture file, set the maximum number of packets to read.
+
+=item -C  E<lt>configuration profileE<gt>
+
+Run with the given configuration profile.
 
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
