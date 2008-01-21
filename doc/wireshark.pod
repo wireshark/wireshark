@@ -1532,11 +1532,6 @@ your own personal taste:
 
 =over 6
 
-=item Scrollbars
-
-The vertical scrollbars in the three panes can be set to be either on
-the left or the right. 
-
 =item Selection Bars
 
 The selection bar in the packet list and packet details can have either
@@ -1547,22 +1542,17 @@ the selection until you press the space bar.  If the selection bar has a
 "select" behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or packet details.
 
-=item Tree Line Style
+=item Tree Line Style (GTK1 only)
 
 Trees can be drawn with no lines, solid lines, or dotted lines between
 items, or can be drawn with "tab" headings.
 
-=item Tree Expander Style
+=item Tree Expander Style (GTK1 only)
 
 The expander item that can be clicked to show or hide items under a tree
 item can be omitted (note that this will prevent you from changing
 whether those items are shown or hidden!), or can be drawn as squares,
 triangles, or circles.
-
-=item Hex Display
-
-The highlight method in the hex dump display for the selected protocol
-item can be set to use either inverse video, or bold characters.
 
 =item Save Window Position
 
@@ -1573,6 +1563,11 @@ be saved when Wireshark exits, and used when Wireshark is started again.
 
 If this item is selected, the size of the main Wireshark window will
 be saved when Wireshark exits, and used when Wireshark is started again.
+
+=item Save Window Maximized state
+
+If this item is selected the maximize state of the main Wireshark window
+will be saved when Wireshark exists, and used when Wireshark is started again.
 
 =item File Open Dialog Behavior
 
@@ -1588,6 +1583,18 @@ that the dialog will always default to.
 Allows the user to specify a persistent File Open directory.  Trailing
 slashes or backslashes will automatically be added.
 
+=item File Open Preview timeout
+
+=item Open Recent maximum list entries
+
+=item Ask for unsaved capture files
+
+=item Wrap during find
+
+=item Settings dialogs show a save button
+
+=item Web browser command
+
 =back
 
 =item Layout Preferences
@@ -1595,6 +1602,28 @@ slashes or backslashes will automatically be added.
 The I<Layout> page lets you specify the general layout of the main window.
 You can choose from six different layouts and fill the three panes with the 
 contents you like.
+
+=over 6
+
+=item Scrollbars
+
+The vertical scrollbars in the three panes can be set to be either on
+the left or the right.
+
+=item Alternating row colors
+
+=item Hex Display
+
+The highlight method in the hex dump display for the selected protocol
+item can be set to use either inverse video, or bold characters.
+
+=item Toolbar style
+
+=item Filter toolbar placement
+
+=item Custom window title
+
+=back
 
 =item Column Preferences
 
@@ -1681,6 +1710,29 @@ is the command to send files to (usually B<lpr>), and the I<File:> entry
 box lets you enter the name of the file you wish to save to. 
 Additionally, you can select the I<File:> button to browse the file
 system for a particular save file.
+
+=item Name Resolution Preferences
+
+The I<Enable MAC name resolution>, I<Enable network name resolution> and
+I<Enable transport name resolution> check boxes let you specify whether
+MAC addresses, network addresses, and transport-layer port numbers
+should be translated to names.
+
+The I<Enable concurrent DNS name resolution> allows Wireshark to send out
+multiple name resolution requests and not wait for the result before
+continuing dissection. This speeds up dissection with network name
+resolution but initially may miss resolutions. The number of concurrent
+requests can be set here as well.
+
+I<SMI paths>
+
+I<SMI modules>
+
+=item RTP Player Preferences
+
+This page allows you to select the number of channels visible in the
+RTP player window. It determines the height of the window, more channels
+are possible and visible by means of a scroll bar.
 
 =item Protocol Preferences
 
