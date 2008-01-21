@@ -346,8 +346,12 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t 
 		return 0;
 	}
 
-	/* XXX - no proper way to read/swap 64 bit values -> so ignore the 64bit section_length for now! */
-	wblock->data.section.section_length = -1;	/* shb.section_length */
+	/* 64bit section_length (currently unused) */
+    if(pn->byte_swapped) {
+	    wblock->data.section.section_length = BSWAP64(shb.section_length);
+    } else {
+	    wblock->data.section.section_length = shb.section_length;
+    }
 
 	/* Option defaults */
 	wblock->data.section.opt_comment	= NULL;
@@ -538,7 +542,6 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
                     wblock->data.if_descr.if_speed = *((guint64 *)option_content);
                     if(pn->byte_swapped) 
 		                wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
-
 		            g_warning("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
                 } else {
 		            g_warning("pcapng_read_if_descr_block: if_speed length %u not 8 as expected", oh.option_length);
