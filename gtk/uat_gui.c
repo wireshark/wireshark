@@ -309,7 +309,6 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				text = *(char**)e;
 				text = text ? text : "";
 				len = strlen(text);
-				g_ptr_array_add(dd->tobe_freed,e);
 				break;
 			}
 			default:
@@ -363,6 +362,10 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 	if (dd->uat->rep)
 		window_present(GTK_WIDGET(dd->uat->rep->window));
+
+	while (dd->tobe_freed->len) g_free( g_ptr_array_remove_index_fast(dd->tobe_freed, dd->tobe_freed->len - 1 ) );
+
+	g_free(dd);
 
 	return TRUE;
 on_failure:
