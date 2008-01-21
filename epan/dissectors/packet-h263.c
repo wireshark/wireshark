@@ -50,6 +50,8 @@
 #include <epan/rtp_pt.h>
 #include <epan/iax2_codec_type.h>
 
+#include "prefs.h"
+
 static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 
 /* H.263 header fields             */
@@ -223,6 +225,11 @@ static gint ett_h263P			= -1;
 static gint ett_h263P_extra_hdr = -1;
 static gint ett_h263P_payload	= -1;
 static gint ett_h263P_data = -1;
+
+/* The dynamic payload type which will be dissected as H.263-1998/H263-2000 */
+
+static guint dynamic_payload_type = 0;
+static guint temp_dynamic_payload_type = 0;
 
 static void
 dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -1037,6 +1044,42 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 void
+proto_reg_handoff_h263(void)
+{
+	dissector_handle_t h263_handle;
+
+	h263_handle = find_dissector("h263");
+	dissector_add("rtp.pt", PT_H263, h263_handle);
+	dissector_add("iax2.codec", AST_FORMAT_H263, h263_handle);
+}
+
+void
+proto_reg_handoff_h263P(void)
+{
+	dissector_handle_t h263P_handle;
+	static int h263P_prefs_initialized = FALSE;
+
+	h263P_handle = create_dissector_handle(dissect_h263P, proto_h263P);
+
+	if (!h263P_prefs_initialized) {
+		h263P_prefs_initialized = TRUE;
+	  }
+	else {
+		if ( dynamic_payload_type > 95 )
+			dissector_delete("rtp.pt", dynamic_payload_type, h263P_handle);
+	}
+	dynamic_payload_type = temp_dynamic_payload_type;
+
+	if ( dynamic_payload_type > 95 ){
+		dissector_add("rtp.pt", dynamic_payload_type, h263P_handle);
+	}
+
+	h263P_handle = find_dissector("h263P");
+	dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
+	dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
+}
+
+void
 proto_register_h263(void)
 {
 	static hf_register_info hf[] =
@@ -1615,6 +1658,8 @@ proto_register_h263(void)
 void
 proto_register_h263P(void)
 {
+	module_t *h263P_module;
+
 	static hf_register_info hf[] =
 	{
 		{
@@ -1781,26 +1826,16 @@ proto_register_h263P(void)
 	proto_register_field_array(proto_h263P, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	h263P_module = prefs_register_protocol(proto_h263P, proto_reg_handoff_h263P);
+
+	prefs_register_uint_preference(h263P_module, "dynamic.payload.type",
+								   "H263-1998 and H263-2000 dynamic payload type",
+								   "The dynamic payload type which will be interpreted as H264",
+								   10,
+								   &temp_dynamic_payload_type);
+
 	register_dissector("h263P", dissect_h263P, proto_h263P);
 
 }
 
-void
-proto_reg_handoff_h263(void)
-{
-	dissector_handle_t h263_handle;
 
-	h263_handle = find_dissector("h263");
-	dissector_add("rtp.pt", PT_H263, h263_handle);
-	dissector_add("iax2.codec", AST_FORMAT_H263, h263_handle);
-}
-
-void
-proto_reg_handoff_h263P(void)
-{
-	dissector_handle_t h263P_handle;
-
-	h263P_handle = find_dissector("h263P");
-	dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
-	dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
-}
