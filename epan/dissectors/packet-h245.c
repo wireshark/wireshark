@@ -20601,7 +20601,7 @@ void proto_register_h245(void) {
   oid_add_from_string("logical-channel-bit-ratemanagement","0.0.8.245.1.3.0");
 
   oid_add_from_string("h264 generic-capabilities","0.0.8.241.0.0.1");
-  oid_add_from_string("iPpacketization_h241AnnexA","0.0.8.241.0.0.0.0");
+  oid_add_from_string("iPpacketization_h241AnnexA(single NAL unit mode)","0.0.8.241.0.0.0.0");
   oid_add_from_string("iPpacketization_RFC3984NonInterleaved","0.0.8.241.0.0.0.1");
   oid_add_from_string("iPpacketization_RFC3984Interleaved","0.0.8.241.0.0.0.2");
 }
