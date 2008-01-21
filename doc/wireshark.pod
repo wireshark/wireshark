@@ -830,6 +830,11 @@ marked packet.
 
 Mark / Unmark all packets that are currently displayed.
 
+=item Edit:Configuration Profiles
+
+Manage configuration profiles to be able to use more than one set of
+preferences and configurations.
+
 =item Edit:Preferences
 
 Set the GUI, capture, printing and protocol options
@@ -1509,10 +1514,10 @@ The right mouse button can be used to pop up a menu of operations.
 
 =item Statusbar
 
-The statusbar is divided into two parts, on the left some context dependant 
-things are shown, like information about the loaded file, on the right the 
-number of packets are displayed: P = Packets captured/loaded, D = Displayed 
-in packet list (after filtering), M = Marked by user.
+The statusbar is divided into three parts, on the left some context dependant 
+things are shown, like information about the loaded file, in the center the 
+number of packets are displayed, and on the right the current configuration
+profile.
 
 The statusbar can be hidden by I<View:Statusbar>.
 
