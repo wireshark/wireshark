@@ -127,6 +127,7 @@
 #include <epan/emem.h>
 
 #define ENAME_HOSTS		"hosts"
+#define ENAME_SUBNETS	"subnets"
 #define ENAME_ETHERS 		"ethers"
 #define ENAME_IPXNETS 		"ipxnets"
 #define ENAME_MANUF		"manuf"
@@ -138,6 +139,7 @@
 #define HASHIPXNETSIZE	256
 #define HASHMANUFSIZE   256
 #define HASHPORTSIZE	256
+#define SUBNETLENGTHSIZE 32 /*1-32 inc.*/
 
 /* hash table used for IPv4 lookup */
 
@@ -161,6 +163,13 @@ typedef struct hashipv6 {
   gboolean              is_dummy_entry;	/* name is IPv6 address in colon format */
   struct hashipv6 	*next;
 } hashipv6_t;
+
+/* Array of entries of subnets of different lengths */
+typedef struct {
+    gsize mask_length; /*1-32*/
+    guint32 mask;        /* e.g. 255.255.255.*/
+    hashipv4_t** subnet_addresses; /* Hash table of subnet addresses */
+} subnet_length_entry_t;
 
 /* hash table used for TCP/UDP/SCTP port lookup */
 
@@ -232,6 +241,9 @@ static hashmanuf_t	*manuf_table[HASHMANUFSIZE];
 static hashether_t	*(*wka_table[48])[HASHETHSIZE];
 static hashipxnet_t	*ipxnet_table[HASHIPXNETSIZE];
 
+static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
+static gboolean have_subnet_entry = FALSE;
+
 static int 		eth_resolution_initialized = 0;
 static int 		ipxnet_resolution_initialized = 0;
 static int 		service_resolution_initialized = 0;
@@ -280,6 +292,11 @@ GList *adns_queue_head = NULL;
 
 #endif /* HAVE_GNU_ADNS */
 
+typedef struct {
+    guint32 mask;
+    gsize mask_length;
+    const gchar* name; /* Shallow copy */
+} subnet_entry_t;
 
 /*
  *  Miscellaneous functions
@@ -326,6 +343,8 @@ static int fgetline(char **buf, int *size, FILE *fp)
 /*
  *  Local function definitions
  */
+static subnet_entry_t subnet_lookup(const guint32 addr);
+static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gchar* name);
 
 
 static void add_service_name(hashport_t **proto_table, guint port, const char *service_name)
@@ -544,6 +563,48 @@ static void abort_network_query(int sig _U_)
 }
 #endif /* AVOID_DNS_TIMEOUT */
 
+/* Fill in an IP4 structure with info from subnets file or just with
+ * string form of address.
+ */
+static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
+{
+  subnet_entry_t subnet_entry;
+  tp->is_dummy_entry = TRUE; /* Overwrite if we get async DNS reply */
+
+  /* Do we have a subnet for this address? */
+  subnet_entry = subnet_lookup(addr);
+  if(0 != subnet_entry.mask) {
+        /* Print name, then '.' then IP address after subnet mask */
+      guint32 host_addr;
+      gchar buffer[MAX_IP_STR_LEN];
+      gchar* paddr;
+      gsize i;
+
+      host_addr = addr & (~(guint32)subnet_entry.mask);
+      ip_to_str_buf((guint8 *)&host_addr, buffer, MAX_IP_STR_LEN);
+      paddr = buffer;
+
+      /* Skip to first octet that is not totally masked
+       * If length of mask is 32, we chomp the whole address.
+       * If the address string starts '.' (should not happen?),
+       * we skip that '.'.
+       */      
+      i = subnet_entry.mask_length / 8;
+      while(*(paddr) != '\0' && i > 0) {
+        if(*(++paddr) == '.') {
+            --i;
+        }
+      }
+
+      /* There are more efficient ways to do this, but this is safe if we 
+       * trust g_snprintf and MAXNAMELEN
+       */
+      g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);  
+  } else {  
+      ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
+  }
+}
+
 static gchar *host_name_lookup(guint addr, gboolean *found)
 {
   int hash_idx;
@@ -591,8 +652,10 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
     qmsg->submitted = FALSE;
     adns_queue_head = g_list_append(adns_queue_head, (gpointer) qmsg);
 
-    tp->is_dummy_entry = TRUE;
-    ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
+    /* XXX found is set to TRUE, which seems a bit odd, but I'm not
+     * going to risk changing the semantics.
+     */
+    fill_dummy_ip4(addr, tp);
     return tp->name;
   }
 #endif /* HAVE_GNU_ADNS */
@@ -636,11 +699,9 @@ static gchar *host_name_lookup(guint addr, gboolean *found)
   }
 
   /* unknown host or DNS timeout */
-
-  ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
-  tp->is_dummy_entry = TRUE;
   *found = FALSE;
 
+  fill_dummy_ip4(addr, tp);
   return (tp->name);
 
 } /* host_name_lookup */
@@ -1765,6 +1826,250 @@ read_hosts_file (const char *hostspath)
   return TRUE;
 } /* read_hosts_file */
 
+
+/* Read in a list of subnet definition - name pairs.
+ * <line> = <comment> | <entry> | <whitespace>
+ * <comment> = <whitespace>#<any>
+ * <entry> = <subnet_definition> <whitespace> <subnet_name> [<comment>|<whitespace><any>] 
+ * <subnet_definition> = <ipv4_address> / <subnet_mask_length>
+ * <ipv4_address> is a full address; it will be masked to get the subnet-ID.
+ * <subnet_mask_length> is a decimal 1-31
+ * <subnet_name> is a string containing no whitespace.
+ * <whitespace> = (space | tab)+
+ * Any malformed entries are ignored.
+ * Any trailing data after the subnet_name is ignored.
+ *
+ * XXX Support IPv6
+ */
+static gboolean
+read_subnets_file (const char *subnetspath)
+{
+  FILE *hf;
+  char *line = NULL;
+  int size = 0;
+  gchar *cp, *cp2;
+  guint32 host_addr; /* IPv4 ONLY */
+  int mask_length;
+
+  if ((hf = eth_fopen(subnetspath, "r")) == NULL)
+    return FALSE;
+
+  while (fgetline(&line, &size, hf) >= 0) {
+    if ((cp = strchr(line, '#')))
+      *cp = '\0';
+
+    if ((cp = strtok(line, " \t")) == NULL)
+      continue; /* no tokens in the line */
+
+
+    /* Expected format is <IP4 address>/<subnet length> */
+    cp2 = strchr(cp, '/');
+    if(NULL == cp2) {
+        //No length
+        continue;
+    }
+    *cp2 = '\0'; /* Cut token */
+    ++cp2    ;
+    
+    /* Check if this is a valid IPv4 address */
+    if (inet_pton(AF_INET, cp, &host_addr) != 1) {
+        continue; /* no */
+    }
+
+    mask_length = atoi(cp2);
+    if(0 >= mask_length || mask_length > 31) {
+        continue; /* invalid mask length */
+    }    
+
+    if ((cp = strtok(NULL, " \t")) == NULL)
+      continue; /* no subnet name */
+
+    subnet_entry_set(host_addr, (guint32)mask_length, cp);
+  }
+  if (line != NULL)
+    g_free(line);
+
+  fclose(hf);
+  return TRUE;
+} /* read_subnets_file */
+
+static subnet_entry_t subnet_lookup(const guint32 addr)
+{
+    subnet_entry_t subnet_entry;
+    guint32 i;
+
+    /* Search mask lengths linearly, longest first */
+
+    i = SUBNETLENGTHSIZE;
+    while(have_subnet_entry && i > 0) {
+        guint32 masked_addr;
+        subnet_length_entry_t* length_entry;
+        
+        /* Note that we run from 31 (length 32)  to 0 (length 1)  */
+        --i;
+        g_assert(i < SUBNETLENGTHSIZE);
+
+
+        length_entry = &subnet_length_entries[i];
+
+        if(NULL != length_entry->subnet_addresses) {
+            hashipv4_t * tp;
+            guint32 hash_idx;
+    
+            masked_addr = addr & length_entry->mask;
+            hash_idx = HASH_IPV4_ADDRESS(masked_addr);
+
+            tp = length_entry->subnet_addresses[hash_idx];
+            while(tp != NULL && tp->addr != masked_addr) {
+                tp = tp->next;
+            }
+
+            if(NULL != tp) {
+                subnet_entry.mask = length_entry->mask;
+                subnet_entry.mask_length = i + 1; /* Length is offset + 1 */
+                subnet_entry.name = tp->name;
+                return subnet_entry;
+            }
+        }
+    }
+    
+    subnet_entry.mask = 0;
+    subnet_entry.mask_length = 0;
+    subnet_entry.name = NULL;
+
+    return subnet_entry;
+}
+
+/* Add a subnet-definition - name pair to the set.
+ * The definition is taken by masking the address passed in with the mask of the
+ * given length.
+ */
+static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gchar* name)
+{
+    subnet_length_entry_t* entry;
+    hashipv4_t * tp;
+    gsize hash_idx;
+
+    g_assert(mask_length > 0 && mask_length <= 32);
+
+    entry = &subnet_length_entries[mask_length - 1];
+
+    subnet_addr &= entry->mask;
+
+    hash_idx = HASH_IPV4_ADDRESS(subnet_addr);
+
+    if(NULL == entry->subnet_addresses) {
+        entry->subnet_addresses = g_new0(hashipv4_t*,HASHHOSTSIZE);
+    }
+
+    if(NULL != (tp = entry->subnet_addresses[hash_idx])) {
+        if(tp->addr == subnet_addr) {
+            return;    /* XXX provide warning that an address was repeated? */
+        } else {
+           hashipv4_t * new_tp = g_new(hashipv4_t,1);
+           tp->next = new_tp;
+           tp = new_tp;
+        }
+    } else {
+        tp = entry->subnet_addresses[hash_idx] = g_new(hashipv4_t,1);
+    }
+
+    tp->next = NULL;
+    tp->addr = subnet_addr;
+    tp->is_dummy_entry = FALSE; /*Never used again...*/
+    strncpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
+    have_subnet_entry = TRUE;
+}
+
+static guint32 get_subnet_mask(guint32 mask_length) {
+
+    static guint32 masks[SUBNETLENGTHSIZE];
+    static gboolean initialised = FALSE;
+
+    if(!initialised) {
+        memset(masks, 0, sizeof(masks));
+
+        initialised = TRUE;
+
+        /* XXX There must be a better way to do this than 
+         * hand-coding the values, but I can't seem to
+         * come up with one!
+         */
+
+        inet_pton(AF_INET, "128.0.0.0", &masks[0]);
+        inet_pton(AF_INET, "192.0.0.0", &masks[1]);
+        inet_pton(AF_INET, "224.0.0.0", &masks[2]);
+        inet_pton(AF_INET, "240.0.0.0", &masks[3]);
+        inet_pton(AF_INET, "248.0.0.0", &masks[4]);
+        inet_pton(AF_INET, "252.0.0.0", &masks[5]);
+        inet_pton(AF_INET, "254.0.0.0", &masks[6]);
+        inet_pton(AF_INET, "255.0.0.0", &masks[7]);
+		
+        inet_pton(AF_INET, "255.128.0.0", &masks[8]);
+        inet_pton(AF_INET, "255.192.0.0", &masks[9]);
+        inet_pton(AF_INET, "255.224.0.0", &masks[10]);
+        inet_pton(AF_INET, "255.240.0.0", &masks[11]);
+        inet_pton(AF_INET, "255.248.0.0", &masks[12]);
+        inet_pton(AF_INET, "255.252.0.0", &masks[13]);
+        inet_pton(AF_INET, "255.254.0.0", &masks[14]);
+        inet_pton(AF_INET, "255.255.0.0", &masks[15]);
+		
+        inet_pton(AF_INET, "255.255.128.0", &masks[16]);
+        inet_pton(AF_INET, "255.255.192.0", &masks[17]);
+        inet_pton(AF_INET, "255.255.224.0", &masks[18]);
+        inet_pton(AF_INET, "255.255.240.0", &masks[19]);
+        inet_pton(AF_INET, "255.255.248.0", &masks[20]);
+        inet_pton(AF_INET, "255.255.252.0", &masks[21]);
+        inet_pton(AF_INET, "255.255.254.0", &masks[22]);
+        inet_pton(AF_INET, "255.255.255.0", &masks[23]);
+		
+        inet_pton(AF_INET, "255.255.255.128", &masks[24]);
+        inet_pton(AF_INET, "255.255.255.192", &masks[25]);
+        inet_pton(AF_INET, "255.255.255.224", &masks[26]);
+        inet_pton(AF_INET, "255.255.255.240", &masks[27]);
+        inet_pton(AF_INET, "255.255.255.248", &masks[28]);
+        inet_pton(AF_INET, "255.255.255.252", &masks[29]);
+        inet_pton(AF_INET, "255.255.255.254", &masks[30]);
+        inet_pton(AF_INET, "255.255.255.255", &masks[31]);
+    }
+    
+    if(mask_length == 0 || mask_length > SUBNETLENGTHSIZE) {
+        g_assert_not_reached();
+        return 0;
+    } else {
+        return masks[mask_length - 1];
+    }
+}
+
+static void subnet_name_lookup_init()
+{
+    gchar* subnetspath;
+
+    guint32 i;
+    for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
+        guint32 length = i + 1;
+        
+        subnet_length_entries[i].subnet_addresses  = NULL;
+        subnet_length_entries[i].mask_length  = length;
+        subnet_length_entries[i].mask = get_subnet_mask(length);
+    }
+
+    subnetspath = get_persconffile_path(ENAME_SUBNETS, FALSE, FALSE);
+    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
+        report_open_failure(subnetspath, errno, FALSE);
+    }
+    g_free(subnetspath);
+
+    /*
+    * Load the global subnets file, if we have one.
+    */
+    subnetspath = get_datafile_path(ENAME_SUBNETS);
+    if (!read_subnets_file(subnetspath) && errno != ENOENT) {
+        report_open_failure(subnetspath, errno, FALSE);
+    }
+    g_free(subnetspath);
+}
+
 /*
  *  External Functions
  */
@@ -1845,6 +2150,8 @@ host_name_lookup_init(void) {
   gnu_adns_initialized = TRUE;
   adns_currently_queued = 0;
 #endif /* HAVE_GNU_ADNS */
+
+    subnet_name_lookup_init();
 }
 
 #ifdef HAVE_GNU_ADNS

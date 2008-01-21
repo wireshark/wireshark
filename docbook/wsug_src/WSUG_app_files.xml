@@ -204,6 +204,12 @@
 		<entry>%WIRESHARK%\hosts, %APPDATA%\Wireshark\hosts</entry>
 	      </row>
 	      <row>
+		<entry><command>subnets</command></entry>
+		<entry>IPv4 subnet name resolution.</entry>
+		<entry>/etc/subnets, $HOME/.wireshark/subnets</entry>
+		<entry>%WIRESHARK%\subnets, %APPDATA%\Wireshark\subnets</entry>
+	      </row>
+	      <row>
 		<entry><command>ipxnets</command></entry>
 		<entry>IPX name resolution.</entry>
 		<entry>/etc/ipxnets, $HOME/.wireshark/ipxnets</entry>
@@ -420,6 +426,38 @@ c0-00-ff-ff-ff-ff    TR_broadcast
 	  </listitem>
 	</varlistentry>
 	<varlistentry>
+	  <term><command>subnets</command></term>
+	  <listitem>
+	    <para>
+	      Wireshark uses the files listed in <xref linkend="AppFilesTabFolders"/>
+		  to translate an IPv4 address into a subnet name. If no exact match from the
+		  hosts file or from DNS is found, Wireshark will attempt a partial match for the subnet
+		  of the address.
+	    </para>
+	    <para>
+		  Each line of this file consists of an IPv4 address, a subnet mask length separated
+		  only by a '/' and a name separated by whitespace. While the address must be a full IPv4
+		  address, any values beyond the mask length are subsequently ignored.
+	    </para>
+		
+	    <para>
+	      An example is:
+	      <programlisting>
+# Comments must be prepended by the # sign!
+192.168.0.0/24 ws_test_network
+	      </programlisting>
+	    </para>
+		<para>
+		A partially matched name will be printed as "subnet-name.remaining-address". For example,
+		"192.168.0.1" under the subnet above would be printed as "ws_test_network.1"; if the mask length
+		above had been 16 rather than 24, the printed address would be "ws_test_network.0.1".
+		</para>
+		<para>
+ 		The settings from this file are read in at program start and never 
+		written by Wireshark.
+		</para>
+	  </listitem>
+	</varlistentry>	<varlistentry>
 	  <term><command>ipxnets</command></term>
 	  <listitem>
 	    <para>
