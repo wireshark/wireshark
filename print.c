@@ -1329,13 +1329,10 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
     fputc('\n', fh);
 }
 
-
-
-
 static void proto_tree_get_node_field_values(proto_node *node, gpointer data) 
 {
     write_field_data_t *call_data;
-	field_info	*fi;
+    field_info *fi;
     gpointer field_index;
 
     call_data = data;
@@ -1355,11 +1352,11 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
         }
     }
     
-	/* Recurse here. */
-	if (node->first_child != NULL) {
-		proto_tree_children_foreach(node,
-				proto_tree_get_node_field_values, call_data);
-	}
+    /* Recurse here. */
+    if (node->first_child != NULL) {
+        proto_tree_children_foreach(node, proto_tree_get_node_field_values,
+                                    call_data);
+    }
 }
 
 void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh)
@@ -1393,8 +1390,8 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
     /* Buffer to store values for this packet */
     fields->field_values = ep_alloc_array0(const gchar*, fields->fields->len);
     
-	proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
-	    &data);
+    proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
+                                &data);
 
     for(i = 0; i < fields->fields->len; ++i) {
         if(0 != i) {
@@ -1420,81 +1417,80 @@ void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
 /* Returns an ep_alloced string or a static constant*/
 static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
 {
-	/* Text label. */
-	if (fi->hfinfo->id == hf_text_only) {
-		/* Get the text */
-		if (fi->rep) {
+    if (fi->hfinfo->id == hf_text_only) {
+        /* Text label.
+         * Get the text */
+        if (fi->rep) {
             return fi->rep->representation;
-		}
-		else {
-			return get_field_hex_value(edt->pi.data_src, fi);
-		}
-	}
-	/* Uninterpreted data, i.e., the "Data" protocol, is
-	 * printed as a field instead of a protocol. */
-	else if (fi->hfinfo->id == proto_data) {
+        }
+        else {
+            return get_field_hex_value(edt->pi.data_src, fi);
+        }
+    }
+    else if (fi->hfinfo->id == proto_data) {
+        /* Uninterpreted data, i.e., the "Data" protocol, is
+         * printed as a field instead of a protocol. */
         return get_field_hex_value(edt->pi.data_src, fi);
-	}
+    }
+    else {
+        /* Normal protocols and fields */
+        gchar      *dfilter_string;
+        gint        chop_len;
 
-	/* Normal protocols and fields */
-	else {
-    	gchar		*dfilter_string;
-	    gint		chop_len;
-
-		switch (fi->hfinfo->type)
-		{
-		case FT_PROTOCOL:
+        switch (fi->hfinfo->type)
+        {
+        case FT_PROTOCOL:
             /* Print out the full details for the protocol. */
-		    if (fi->rep) {
+            if (fi->rep) {
                 return fi->rep->representation;
-		    } else {
+            } else {
                 /* Just print out the protocol abbreviation */
                 return fi->hfinfo->abbrev;;
             }
-		case FT_NONE:
-                        /* Return "1" so that the presence of a field of type
-                         * FT_NONE can be checked when using -T fields */
-			return "1";
-		default:
-			/* XXX - this is a hack until we can just call
-			 * fvalue_to_string_repr() for *all* FT_* types. */
-			dfilter_string = proto_construct_match_selected_string(fi,
-			    edt);
-			if (dfilter_string != NULL) {
-				chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
+        case FT_NONE:
+            /* Return "1" so that the presence of a field of type
+             * FT_NONE can be checked when using -T fields */
+            return "1";
+        default:
+            /* XXX - this is a hack until we can just call
+             * fvalue_to_string_repr() for *all* FT_* types. */
+            dfilter_string = proto_construct_match_selected_string(fi,
+                edt);
+            if (dfilter_string != NULL) {
+                chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
-				/* XXX - Remove double-quotes. Again, once we
-				 * can call fvalue_to_string_repr(), we can
-				 * ask it not to produce the version for
-				 * display-filters, and thus, no
-				 * double-quotes. */
-				if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-					dfilter_string[strlen(dfilter_string)-1] = '\0';
-					chop_len++;
-				}
+                /* XXX - Remove double-quotes. Again, once we
+                 * can call fvalue_to_string_repr(), we can
+                 * ask it not to produce the version for
+                 * display-filters, and thus, no
+                 * double-quotes. */
+                if (dfilter_string[strlen(dfilter_string)-1] == '"') {
+                    dfilter_string[strlen(dfilter_string)-1] = '\0';
+                    chop_len++;
+                }
 
                 return &(dfilter_string[chop_len]);
-			} else {
-    			return get_field_hex_value(edt->pi.data_src, fi);
+            } else {
+                return get_field_hex_value(edt->pi.data_src, fi);
             }
-		}
+        }
     }
 }
 
 static const gchar*
 get_field_hex_value(GSList* src_list, field_info *fi)
 {
-	const guint8 *pd;
+    const guint8 *pd;
 
-	if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
-		return "field length invalid!";
-	}
+    if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
+        return "field length invalid!";
+    }
 
-	/* Find the data for this field. */
-	pd = get_field_data(src_list, fi);
+    /* Find the data for this field. */
+    pd = get_field_data(src_list, fi);
 
-	if (pd) {
-    	int i;
+    if (pd) {
+        int i;
         gchar* buffer;
         gchar* p;
         int len;
@@ -1504,14 +1500,14 @@ get_field_hex_value(GSList* src_list, field_info *fi)
         buffer = ep_alloc_array(gchar, len + 1);
         buffer[len] = '\0'; /* Ensure NULL termination in bad cases */
         p = buffer;
-		/* Print a simple hex dump */
-		for (i = 0 ; i < fi->length; i++) {
-			g_snprintf(p, len, "%02x", pd[i]);
+        /* Print a simple hex dump */
+        for (i = 0 ; i < fi->length; i++) {
+            g_snprintf(p, len, "%02x", pd[i]);
             p += chars_per_byte;
             len -= chars_per_byte;
-		}
+        }
         return buffer;
-	} else {
+    } else {
         return NULL;
     }
 }
