@@ -465,7 +465,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 	/* XXX - sanity check of snapshot length */
 	/* XXX - while a very big snapshot length is valid, it's more likely that it's a bug in the file */
 	/* XXX - so do a sanity check for now, it's likely e.g. a byte swap order problem */
-	if(wblock->data.if_descr.snap_len > 65535) {
+	if(wblock->data.if_descr.snap_len > WTAP_MAX_PACKET_SIZE) {
 		g_warning("pcapng_read_if_descr_block: snapshot length %u unrealistic", 
 			wblock->data.if_descr.snap_len);
 		/*wblock->data.if_descr.snap_len = 65535;*/
