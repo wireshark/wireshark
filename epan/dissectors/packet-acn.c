@@ -476,6 +476,8 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 
   switch (ip_address_type) {
   case ACN_ADDR_NULL:
+    proto_tree_add_item(tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
+    offset += 1;
     break;
   case ACN_ADDR_IPV4:
     /* Build tree and add type*/
@@ -2647,7 +2649,7 @@ void proto_register_acn(void)
     /* Address Type */
     /* PDU flags*/
     { &hf_acn_ip_address_type,
-      { "Type", "acn.ip_address_type",
+      { "Addr Type", "acn.ip_address_type",
         FT_UINT8, BASE_DEC, VALS(acn_ip_address_type_vals), 0x0,
         NULL, HFILL }
     },
