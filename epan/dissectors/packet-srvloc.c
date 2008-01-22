@@ -1153,7 +1153,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, TRUE);
+                attr_list2(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
                 offset += length;
 		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrauthcount, tvb, offset, 1, count);
