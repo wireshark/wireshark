@@ -156,6 +156,7 @@ static int hf_srvloc_srvrply_svcname = -1;
 
 
 static gint ett_srvloc = -1;
+static gint ett_srvloc_attr = -1;
 static gint ett_srvloc_flags = -1;
 
 
@@ -567,7 +568,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 for (foffset = offset; foffset<length; foffset += 2) {
         
                     ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
-                    srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
+                    srvloc_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
         
                     svc = tvb_get_guint8(tvb, foffset+1);
         			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
@@ -641,7 +642,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
         for (foffset = offset + (type_len); foffset<length; foffset++) {
 
             ti = proto_tree_add_text(tree, tvb, foffset, -1, "Item %d", i);
-            srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
+            srvloc_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
 
             svc = tvb_get_guint8(tvb, foffset+1);
 			proto_tree_add_text(srvloc_tree, tvb, foffset+1, 1,
@@ -704,6 +705,53 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
     default:
             proto_tree_add_item(tree, hf, tvb, offset, length, TRUE);
             break;
+    }
+}
+
+static void
+attr_list2(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length, guint16 encoding _U_)
+{
+    guint8      *start;
+    guint8       c;
+    guint32      x;
+    guint32      cnt;
+    proto_item  *ti;
+    proto_tree  *attr_tree;
+
+    /* if we were to decode:
+     * For slp, these 9 characters: (),\!<=>~ and 0x00-1F, 0x7f are reserved and must be escaped in the form \HH
+     */
+
+    /* create a sub tree for attributes */
+    ti = proto_tree_add_item(tree, hf, tvb, offset, length, TRUE);
+    attr_tree = proto_item_add_subtree(ti, ett_srvloc_attr);
+
+    /* this will ensure there is a terminating null */
+    start = tvb_get_ephemeral_string(tvb, offset, length);
+
+    cnt = 0;
+    x = 0;
+    c = start[x];
+    while (c) {
+        if  (c == ',') {
+            cnt++; /* Attribute count */
+            start[x] = 0;
+            proto_tree_add_text(attr_tree, tvb, offset, x, "Item %d: %s", cnt, start);
+            offset += x+1;
+            start += x+1;
+            /* reset string length */
+            x = 0;
+            c = start[x];
+        } else {
+            /* increment and get next */
+            x++;
+            c = start[x];
+        }
+    }
+    /* display anything remaining */
+    if (x) {
+        cnt++;
+        proto_tree_add_text(attr_tree, tvb, offset, x, "Item %d: %s", cnt, start);
     }
 }
 
@@ -1178,7 +1226,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
                 if (length > 0) {
                     offset += 2;
-                    attr_list(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                    attr_list2(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
                     offset += length;
             		count = tvb_get_guint8(tvb, offset);
             		proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
@@ -1788,6 +1836,7 @@ proto_register_srvloc(void)
 
     static gint *ett[] = {
 	&ett_srvloc,
+	&ett_srvloc_attr,
 	&ett_srvloc_flags,
     };
 	module_t *srvloc_module;
