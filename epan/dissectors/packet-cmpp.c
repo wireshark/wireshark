@@ -566,9 +566,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (match_strval(command_id, vals_command_Id) == NULL)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown command_id %u",
-					command_id);
+		/* Should never happen: we checked this in dissect_cmpp() */
 		return;
 	}
 
@@ -578,9 +576,7 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* tvb has less data then the PDU Header status, return */
 	if (tvb_len < total_length)
 	{
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s pdu length (%u) < Total_Length (%u)",
-					command_str, tvb_len, total_length);
+		/* Should never happen: TCP should have desegmented for us */
 		return;
 	}
 
@@ -659,13 +655,14 @@ dissect_cmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	total_length = tvb_get_ntohl(tvb, 0); /* Get the pdu length */
 	command_id = tvb_get_ntohl(tvb, 4); /* get the pdu command id */
 
-	if (match_strval(command_id, vals_command_Id) == NULL)
-		/*  This packet does not appear to belong to CMPP.
-		 *  Return 0 to give another dissector a chance to dissect it.
-		 */
+	/*  Looking at this protocol, it seems unlikely that the messages would
+	 *  get as big as a couple hundred bytes but that's not certain; just
+	 *  added a hopefully-way-too-big number to strengthen the heuristics.
+	 */
+	if (total_length < CMPP_FIX_HEADER_LENGTH || total_length > 1000)
 		return 0;
 
-	if (tvb_len < total_length || total_length < CMPP_FIX_HEADER_LENGTH)
+	if (match_strval(command_id, vals_command_Id) == NULL)
 		return 0;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
