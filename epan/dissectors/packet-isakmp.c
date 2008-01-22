@@ -744,6 +744,8 @@ static const guint8 VID_CISCO_UNITY[VID_LEN]= {0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x7
 
 static const guint8 VID_CISCO_UNITY_10[VID_LEN]= {0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9, 0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC, 0x01, 0x00}; /* CISCO-UNITY 1.0 */
 
+static const guint8 VID_CISCO_CONCENTRATOR[VID_LEN]= {0x1F, 0x07, 0xF7, 0x0E, 0xAA, 0x65, 0x14, 0xD3, 0xB0, 0xFA, 0x96, 0x54, 0x2A, 0x50, 0x01, 0x00}; /* CISCO-CONCENTRATOR */
+
 #define VID_LEN_8 8
 static const guint8 VID_draft_ietf_ipsec_antireplay_00[VID_LEN_8]= {0x32, 0x5D, 0xF2, 0x9A, 0x23, 0x19, 0xF2, 0xDD}; /* draft-ietf-ipsec-antireplay-00.txt */
 
@@ -2154,6 +2156,9 @@ vid_to_str(tvbuff_t* tvb, int offset, int length)
   else
   if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
         vendorstring = "MS NT5 ISAKMPOAKLEY";
+  else
+  if (memcmp(pVID,  VID_CISCO_CONCENTRATOR, isakmp_min(VID_LEN, length)) == 0)
+        vendorstring = "CISCO-CONCENTRATOR";
   else
   if (memcmp(pVID,  VID_CISCO_UNITY_10, isakmp_min(VID_LEN, length)) == 0)
         vendorstring = "CISCO-UNITY-1.0";
