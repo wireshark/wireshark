@@ -1452,7 +1452,9 @@ static const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
                 return fi->hfinfo->abbrev;;
             }
 		case FT_NONE:
-			return NULL;
+                        /* Return "1" so that the presence of a field of type
+                         * FT_NONE can be checked when using -T fields */
+			return "1";
 		default:
 			/* XXX - this is a hack until we can just call
 			 * fvalue_to_string_repr() for *all* FT_* types. */
