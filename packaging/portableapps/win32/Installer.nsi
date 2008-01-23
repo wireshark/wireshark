@@ -34,6 +34,8 @@
 !define CLOSENAME "Wireshark Portable"
 !define ADDONSDIRECTORYPRESERVE "NONE"
 
+!addplugindir "${EXTRA_PLUGINS}"
+
 ;=== Program Details
 Name "${NAME}"
 OutFile "${FILENAME}-${WSVERSION}.paf.exe"

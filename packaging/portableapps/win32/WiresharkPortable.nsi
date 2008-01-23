@@ -32,6 +32,8 @@
 !define DEFAULTAPPDIR "Wireshark"
 !define DEFAULTWINPCAP "WinPcap_4_0_2.exe"
 
+!addplugindir "${EXTRA_PLUGINS}"
+
 ;=== Program Details
 Name "${FULLNAME}"
 OutFile "Files\${NAME}.exe"
