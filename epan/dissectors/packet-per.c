@@ -2180,7 +2180,7 @@ gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *name, int
   } 
 }
 */
-/* NOTE – This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
+/* NOTE: This sequence type differs from that in ITU-T Rec. X.680 | ISO/IEC 8824-1 for historical reasons. */
 
 static int
 dissect_per_T_direct_reference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
