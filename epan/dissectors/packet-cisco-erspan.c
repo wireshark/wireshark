@@ -32,7 +32,7 @@
  *	No real specs exist. Some general description can be found at:
  *	http://www.cisco.com/en/US/products/hw/routers/ps368/products_configuration_guide_chapter09186a008069952a.html
  *
- *	For ERSPAN packets, the “protocol type” field value in the GRE header
+ *	For ERSPAN packets, the "protocol type" field value in the GRE header
  *	is 0x88BE.
  *
  * 0000000: d4c3 b2a1 0200 0400 0000 0000 0000 0000 <-- pcap header
