@@ -128,6 +128,7 @@ airpcap_fill_if_combo(GtkWidget *combo, GList* if_list)
         ifn--;
     }
     gtk_combo_set_popdown_strings( GTK_COMBO(combo), popdown_if_list) ;
+    g_list_free(popdown_if_list);
 
     if (airpcap_if_selected != NULL)
     {
@@ -1220,7 +1221,6 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     /* Selected entry in the key list (if any)*/
     airpcap_key_ls_selected_info_t* selected_item;
 
-    GList *item = NULL;
     gint r,c;
 
     airpcap_advanced_w = GTK_WIDGET(data);
@@ -1532,7 +1532,6 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     *row_key,
     *row_ssid;
 
-    GList *item = NULL;
     gint r,c;
 
     airpcap_advanced_w = GTK_WIDGET(data);
@@ -1744,8 +1743,6 @@ on_move_key_up_bt_clicked(GtkWidget *button, gpointer data _U_)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
-    GList *new_list = NULL;
-    GList *item = NULL;
 
     gint keys_in_list;
 
@@ -1796,8 +1793,6 @@ on_move_key_down_bt_clicked(GtkWidget *button, gpointer data _U_)
 {
     GtkWidget *airpcap_advanced_w;
     GtkWidget *key_ls;
-    GList *new_list = NULL;
-    GList *item = NULL;
 
     gint keys_in_list;
 
@@ -2014,7 +2009,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 
     /* other stuff */
     /*GList				*channel_list,*capture_list;*/
-    GList				*linktype_list = NULL;
+    /*GList				*linktype_list = NULL;*/
     gchar				*capture_s;
 
     /* user data - RETRIEVE pointers of toolbar widgets */
@@ -2593,7 +2588,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     GtkWidget *enable_decryption_tb;
     GtkWidget *enable_decryption_lb;
     GtkWidget *enable_decryption_cb;
-    GList     *enable_decryption_cb_items = NULL;
+    /*GList     *enable_decryption_cb_items = NULL;*/
     GtkWidget *enable_decryption_en;
     GtkWidget *keys_v_sub_box;
     GtkWidget *keys_scrolled_w;
@@ -2622,7 +2617,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 
     /* other stuff */
     /*GList				*channel_list,*capture_list;*/
-    GList				*linktype_list = NULL;
+    /*GList				*linktype_list = NULL;*/
 
     /* Selected row/column structure */
     airpcap_key_ls_selected_info_t *key_ls_selected_item;
