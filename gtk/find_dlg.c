@@ -298,6 +298,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   glist = g_list_append(glist, "ASCII Unicode");
 
   gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
+  g_list_free(glist);
   /* You only get to choose from the options we offer */
   gtk_entry_set_editable(GTK_ENTRY(GTK_COMBO(combo_cb)->entry), FALSE);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_cb);
