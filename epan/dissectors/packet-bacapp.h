@@ -1846,7 +1846,7 @@ fVTSession (tvbuff_t *tvb, proto_tree *tree, guint offset);
  * -- 4 = days numbered 22-28
  * -- 5 = days numbered 29-31
  * -- 6 = last 7 days of this month
- * -- X’FF’ = any week of this month
+ * -- X'FF' = any week of this month
  * -- third octet dayOfWeek (1..7) where 1 = Monday
  * -- 7 = Sunday
  * -- X'FF' = any day of week
