@@ -3736,13 +3736,13 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_st
 		/* MBMS Service ID (octet 4, 5 and 6) */
 		proto_tree_add_item(tree, hf_gsm_a_mbs_service_id, tvb, offset, 1, FALSE);
 		curr_offset += 3;
-		if(oct&0x10==0x10){
+		if((oct&0x10)==0x10){
 			/* MCC/MNC*/
 			/* MCC, Mobile country code (octet 6a, octet 6b bits 1 to 4)*/
 			/* MNC, Mobile network code (octet 6b bits 5 to 8, octet 6c) */
 			curr_offset += 3;
 		}
-		if(oct&0x20==0x20){
+		if((oct&0x20)==0x20){
 			/* MBMS Session Identity (octet 7)
 			 * The MBMS Session Identity field is encoded as the value part
 			 * of the MBMS Session Identity IE as specified in 3GPP TS 48.018 [86].
