@@ -325,7 +325,7 @@ main(int argc, char *argv[])
   pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
   if (pdh == NULL) {
     merge_close_in_files(in_file_count, in_files);
-    free(in_files);
+    g_free(in_files);
     fprintf(stderr, "mergecap: Can't open or create %s: %s\n", out_filename,
             wtap_strerror(open_err));
     exit(1);
@@ -398,7 +398,7 @@ main(int argc, char *argv[])
             wtap_strerror(write_err));
   }
 
-  free(in_files);
+  g_free(in_files);
 
   return (!got_read_error && !got_write_error) ? 0 : 2;
 }

@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
       out_frame_type = wtap_file_encap(wth);
 
     if (split_packet_count > 0) {
-      filename = (char *) malloc(strlen(argv[optind+1]) + 20);
+      filename = (char *) g_malloc(strlen(argv[optind+1]) + 20);
       if (!filename) {
         exit(5);
       }

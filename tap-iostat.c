@@ -504,7 +504,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 				    calc_type_table[j].func_name);
 				exit(10);
 			}
-			field=malloc(parenp-p+1);
+			field=g_malloc(parenp-p+1);
 			if(!field){
 				fprintf(stderr, "tshark: Out of memory.\n");
 				exit(10);
@@ -517,7 +517,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			if(!hfi){
 				fprintf(stderr, "tshark: There is no field named '%s'.\n",
 				    field);
-				free(field);
+				g_free(field);
 				exit(10);
 			}
 	
@@ -583,7 +583,7 @@ register_io_tap(io_stat_t *io, int i, const char *filter)
 			}
 			break;
 		}
-		free(field);
+		g_free(field);
 	}
 
 /*

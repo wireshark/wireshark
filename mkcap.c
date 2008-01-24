@@ -535,7 +535,7 @@ process_drop_list(char *drop_list)
     fprintf(stderr, "Strange drop list. NULL or an empty string. No drops!\n");
     return;
   }
-  save = (char *)strdup(drop_list);
+  save = (char *)g_strdup(drop_list);
 
   for (tok=(char *)strtok(drop_list, ","); tok; tok=(char *)strtok(NULL, ",")) {
     commas++;
@@ -544,11 +544,11 @@ process_drop_list(char *drop_list)
   /* Now, we have commas, divide by two and round up */
 
   seg_drop_count = (commas+1)/2;
-  drops = (seg_drop_t *)malloc(sizeof(seg_drop_t) * seg_drop_count);
+  drops = (seg_drop_t *)g_malloc(sizeof(seg_drop_t) * seg_drop_count);
   if (!drops) {
     fprintf(stderr, "Unable to allocate space for drops ... going without!\n");
     seg_drop_count = 0;
-    free(save);
+    g_free(save);
     return;
   }
 
@@ -563,8 +563,8 @@ process_drop_list(char *drop_list)
       fprintf(stderr, "Error in segment offset or count. Not all digits: %s\n",
 	      tok);
       fprintf(stderr, "No packet drops being performed!\n");
-      free(save);
-      free(drops);
+      g_free(save);
+      g_free(drops);
       seg_drop_count = 0; drops = NULL;
       return;
     }

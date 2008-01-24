@@ -1138,7 +1138,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   /* open the input files */
   if (!merge_open_in_files(in_file_count, in_filenames, &in_files,
                            &open_err, &err_info, &err_fileno)) {
-    free(in_files);
+    g_free(in_files);
     cf_open_failure_alert_box(in_filenames[err_fileno], open_err, err_info,
                               FALSE, 0);
     return CF_ERROR;
@@ -1159,7 +1159,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   if (out_fd == -1) {
     err_info = NULL;
     merge_close_in_files(in_file_count, in_files);
-    free(in_files);
+    g_free(in_files);
     cf_open_failure_alert_box(out_filename, open_err, NULL, TRUE, file_type);
     return CF_ERROR;
   }
@@ -1171,7 +1171,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
   if (pdh == NULL) {
     eth_close(out_fd);
     merge_close_in_files(in_file_count, in_files);
-    free(in_files);
+    g_free(in_files);
     cf_open_failure_alert_box(out_filename, open_err, err_info, TRUE,
                               file_type);
     return CF_ERROR;
