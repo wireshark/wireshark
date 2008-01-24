@@ -620,7 +620,7 @@ int main(int argc, char *argv[])
     if (split_packet_count > 0) {
       filename = (char *) malloc(strlen(argv[optind+1]) + 20);
       if (!filename) {
-	exit(5);
+        exit(5);
       }
       sprintf(filename, "%s-%05d", argv[optind+1], 0);
     } else {
@@ -628,44 +628,43 @@ int main(int argc, char *argv[])
     }
 
     pdh = wtap_dump_open(filename, out_file_type,
-			 out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+        out_frame_type, wtap_snapshot_length(wth),
+        FALSE /* compressed */, &err);
     if (pdh == NULL) {
 
       fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
 	      wtap_strerror(err));
       exit(1);
-
     }
 
     for (i = optind + 2; i < argc; i++)
       if (add_selection(argv[i]) == FALSE)
-	break;
+        break;
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
 
       if (split_packet_count > 0 && (written_count % split_packet_count == 0)) {
-	if (!wtap_dump_close(pdh, &err)) {
+        if (!wtap_dump_close(pdh, &err)) {
 
-	  fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
-		  wtap_strerror(err));
-	  exit(1);
-	}
+          fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+              wtap_strerror(err));
+          exit(1);
+        }
 
-	sprintf(filename, "%s-%05d",argv[optind+1], count / split_packet_count);
+        sprintf(filename, "%s-%05d",argv[optind+1], count / split_packet_count);
 
-	if (verbose) {
-	  fprintf(stderr, "Continuing writing in file %s\n", filename);
-	}
+        if (verbose) {
+          fprintf(stderr, "Continuing writing in file %s\n", filename);
+        }
 
-	pdh = wtap_dump_open(filename, out_file_type,
-			     out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
-	if (pdh == NULL) {
+        pdh = wtap_dump_open(filename, out_file_type,
+            out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+        if (pdh == NULL) {
 
-	  fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
-		  wtap_strerror(err));
-	  exit(1);
-
-	}
+          fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+              wtap_strerror(err));
+          exit(1);
+        }
       }
 
       check_ts = check_timestamp(wth);
@@ -726,16 +725,17 @@ int main(int argc, char *argv[])
           phdr = &snap_phdr;
         }
 
-	if (dup_detect) {
-	  buf = wtap_buf_ptr(wth);
-	  if (is_duplicate(buf, phdr->caplen)) {
+        if (dup_detect) {
+          buf = wtap_buf_ptr(wth);
+          if (is_duplicate(buf, phdr->caplen)) {
             if (verbose)
               printf("Skipping duplicate: %u\n", count);
             count++;
-	    continue;
+            continue;
           }
-	}
+        }
 
+        /* Random error mutation */
         if (err_prob > 0.0) {
           buf = wtap_buf_ptr(wth);
           for (i = 0; i < (int) phdr->caplen; i++) {
@@ -788,9 +788,9 @@ int main(int argc, char *argv[])
                   filename, wtap_strerror(err));
           exit(1);
 
-	}
+        }
 
-	written_count++;
+        written_count++;
 
       }
 
@@ -808,8 +808,8 @@ int main(int argc, char *argv[])
       case WTAP_ERR_UNSUPPORTED:
       case WTAP_ERR_UNSUPPORTED_ENCAP:
       case WTAP_ERR_BAD_RECORD:
-	fprintf(stderr, "(%s)\n", err_info);
-	break;
+        fprintf(stderr, "(%s)\n", err_info);
+        break;
       }
     }
 
