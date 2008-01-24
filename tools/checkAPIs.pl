@@ -166,6 +166,13 @@ while ($_ = $ARGV[0])
 		$errorCount++;
 	}
 
+	if ($fileContents =~ m{%ll})
+	{
+		# use G_GINT64_MODIFIER instead of ll
+		print "Error: found %ll in " .$filename."\n";
+		$errorCount++;
+	}
+
 	# Remove all the C-comments and strings
 	$fileContents =~ s {$commentAndStringRegex} []g;
 
