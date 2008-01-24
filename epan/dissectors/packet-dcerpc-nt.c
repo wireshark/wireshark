@@ -670,10 +670,10 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			if (strcmp(pol->name, name) != 0)
 				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
-			free(pol->name);
+			g_free(pol->name);
 		}
 
-		pol->name = strdup(name);
+		pol->name = g_strdup(name);
 
 		return;
 	}
@@ -688,9 +688,9 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	pol->last_frame = 0;
 	pol->type = 0;
 	if (name)
-		pol->name = strdup(name);
+		pol->name = g_strdup(name);
 	else
-		pol->name = strdup("<UNKNOWN>");
+		pol->name = g_strdup("<UNKNOWN>");
 
 	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
 }
@@ -758,7 +758,7 @@ static void free_pol_keyvalue(gpointer key _U_, gpointer value_arg,
 	/* Free user data */
 
 	for (pol = value->list; pol != NULL; pol = pol->next) {
-		free(pol->name);
+		g_free(pol->name);
 		pol->name = NULL;
 	}
 }

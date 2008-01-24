@@ -774,9 +774,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 
   /* free buffers allocs and return */
   *err = 0;
-  free (asciibuf);
-  free (tcpdatabuf);
-  free (workbuf);
+  g_free (asciibuf);
+  g_free (tcpdatabuf);
+  g_free (workbuf);
   return wth->phdr.len;
 }
 

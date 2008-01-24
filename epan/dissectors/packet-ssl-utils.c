@@ -2006,7 +2006,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
   private_key->sexp_pkey = 0;
     
   rest = 4096;
-  data.data = malloc(rest);
+  data.data = g_malloc(rest);
   data.size = rest;
   p = data.data;
   while ((len = fread(p, 1, rest, fp)) > 0) {
@@ -2014,7 +2014,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     rest -= len;
     if (!rest) {
       rest = 1024;
-      data.data = realloc(data.data, data.size + rest);
+      data.data = g_realloc(data.data, data.size + rest);
       p = data.data + data.size;
       data.size += rest;
     }
@@ -2034,7 +2034,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
     return 0;
   }
   ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0);
-  free(data.data);
+  g_free(data.data);
   if (ret < 0) {
     ssl_debug_printf("gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0) - %s\n", gnutls_strerror(ret));
     g_free(private_key);
@@ -2559,7 +2559,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
   Ssl_private_key_t * private_key, *tmp_private_key;
   FILE* fp;
 
-  start = strdup(keys_list);
+  start = g_strdup(keys_list);
   tmp = start;
   ssl_debug_printf("ssl_init keys string:\n%s\n", start);
   do {
@@ -2685,7 +2685,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     ssl_association_add(associations, handle, service->port, protocol, tcp, TRUE);
 
   } while (end != NULL);
-  free(tmp);
+  g_free(tmp);
 }
 
 /* store master secret into session data cache */

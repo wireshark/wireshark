@@ -1368,11 +1368,11 @@ void wimax_defragment_init(void)
 	cid_adj_array_size = 0;
 	/* Free the array memory. */
 	if (cid_adj_array) {
-		free(cid_adj_array);
+		g_free(cid_adj_array);
 	}
 	cid_adj_array = NULL;
 	if (frag_num_array) {
-		free(frag_num_array);
+		g_free(frag_num_array);
 	}
 	frag_num_array = NULL;
 
