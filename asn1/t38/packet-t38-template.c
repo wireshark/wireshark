@@ -232,8 +232,6 @@ void t38_add_address(packet_info *pinfo,
                 return;
         }
 
-		printf("#%u: t38_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, address_to_str(addr), port, other_port, setup_method, setup_frame_number);
-
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
         /*
@@ -480,7 +478,8 @@ init_t38_info_conv(packet_info *pinfo)
 
 		/* copy the t38 conversation info to the packet t38 conversation */
 		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
-		strcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method);
+		strncpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
+		p_t38_packet_conv->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));

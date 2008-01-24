@@ -990,12 +990,12 @@ capture_loop_init_output(capture_options *capture_opts, int save_file_fd, loop_d
     switch (err) {
 
     case WTAP_ERR_CANT_OPEN:
-      strcpy(errmsg, "The file to which the capture would be saved"
+      g_snprintf(errmsg, errmsg_len, "The file to which the capture would be saved"
                " couldn't be created for some unknown reason.");
       break;
 
     case WTAP_ERR_SHORT_WRITE:
-      strcpy(errmsg, "A full header couldn't be written to the file"
+      g_snprintf(errmsg, errmsg_len, "A full header couldn't be written to the file"
                " to which the capture would be saved.");
       break;
 

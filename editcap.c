@@ -765,7 +765,7 @@ int main(int argc, char *argv[])
 
               if (err_type < ERR_WT_FMT) {
                 if ((unsigned int)i < phdr->caplen - 2)
-                  strcpy((char*) &buf[i],  "%s");
+                  strncpy((char*) &buf[i],  "%s", 2);
                 err_type = ERR_WT_TOTAL;
               } else {
                 err_type -= ERR_WT_FMT;

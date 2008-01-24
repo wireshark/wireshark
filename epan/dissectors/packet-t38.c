@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-t38.c                                                               */
-/* ../../tools/asn2wrs.py -p t38 -c t38.cnf -s packet-t38-template T38_2002.asn */
+/* ../../tools/asn2wrs.py -p t38 -c ./t38.cnf -s ./packet-t38-template -D . T38_2002.asn */
 
 /* Input file: packet-t38-template.c */
 
@@ -276,8 +276,6 @@ void t38_add_address(packet_info *pinfo,
         {
                 return;
         }
-
-		printf("#%u: t38_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, address_to_str(addr), port, other_port, setup_method, setup_frame_number);
 
         SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
@@ -808,7 +806,7 @@ dissect_t38_IFPPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &seq_number, FALSE);
+                                                            0U, 65535U, &seq_number, FALSE);
 
 #line 232 "t38.cnf"
     /* info for tap */
@@ -979,7 +977,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 402 "packet-t38-template.c"
+#line 400 "packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1061,7 +1059,8 @@ init_t38_info_conv(packet_info *pinfo)
 
 		/* copy the t38 conversation info to the packet t38 conversation */
 		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
-		strcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method);
+		strncpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
+		p_t38_packet_conv->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));
@@ -1350,7 +1349,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 696 "packet-t38-template.c"
+#line 695 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1405,7 +1404,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 737 "packet-t38-template.c"
+#line 736 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
