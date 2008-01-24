@@ -2139,8 +2139,8 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
         default: ;
       }
-    }  // j 
-  }  // i 
+    }  /* j */
+  }  /* i */
 
   return private_key; 
 }
@@ -2619,7 +2619,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     service->addr.len = 4;
     service->addr.data = ip = ((guchar*)service) + sizeof(SslService);
     
-    //remove all spaces in addr
+    /* remove all spaces in addr */
     read_index = 0;
     write_index = 0;
     
@@ -2663,7 +2663,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
     {	
       private_key = ssl_load_pkcs12(fp,cert_passwd);
     }
-    //!!!
+    /* !!! */
     if (!private_key) {
       fprintf(stderr,"can't load private key from %s\n",
 	      filename);
@@ -2674,7 +2674,7 @@ ssl_parse_key_list(const gchar * keys_list, GHashTable *key_hash, GTree* associa
 
     ssl_debug_printf("ssl_init private key file %s successfully loaded\n",filename);
     
-    //if item exists, remove first 
+    /* if item exists, remove first */
     tmp_private_key = g_hash_table_lookup(key_hash, service);
     if (tmp_private_key) {
       g_hash_table_remove(key_hash, service);

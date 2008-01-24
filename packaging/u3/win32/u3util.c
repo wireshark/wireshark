@@ -153,8 +153,8 @@ DWORD TerminateApp( DWORD dwPID, DWORD dwTimeout )
   HANDLE   hProc ;
   DWORD   dwRet ;
 
-  // If we can't open the process with PROCESS_TERMINATE rights,
-  // then we give up immediately.
+  /* If we can't open the process with PROCESS_TERMINATE rights,
+   * then we give up immediately. */
   hProc = OpenProcess(SYNCHRONIZE|PROCESS_TERMINATE, FALSE, dwPID);
 
   if(hProc == NULL){
@@ -231,7 +231,7 @@ DWORD Terminate16App( DWORD dwPID, DWORD dwThread, WORD w16Task, DWORD dwTimeout
   if( hInstLib == NULL )
     return TA_FAILED ;
 
-  // Get procedure addresses.
+  /* Get procedure addresses. */
   lpfVDMTerminateTaskWOW = (BOOL (WINAPI *)(DWORD, WORD ))
     GetProcAddress( hInstLib, "VDMTerminateTaskWOW" ) ;
 

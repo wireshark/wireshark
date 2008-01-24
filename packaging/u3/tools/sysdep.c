@@ -91,9 +91,9 @@ void get_system_time(uuid_time_t *uuid_time)
     GetSystemTimeAsFileTime((FILETIME *)&time);
     time.QuadPart +=
 
-          (unsigned __int64) (1000*1000*10)       // seconds
-        * (unsigned __int64) (60 * 60 * 24)       // days
-        * (unsigned __int64) (17+30+31+365*18+5); // # of days
+          (unsigned __int64) (1000*1000*10)       /* seconds */
+        * (unsigned __int64) (60 * 60 * 24)       /* days */
+        * (unsigned __int64) (17+30+31+365*18+5); /* # of days */
     *uuid_time = time.QuadPart;
 }
 
