@@ -1865,7 +1865,7 @@ read_subnets_file (const char *subnetspath)
     /* Expected format is <IP4 address>/<subnet length> */
     cp2 = strchr(cp, '/');
     if(NULL == cp2) {
-        //No length
+        /* No length */
         continue;
     }
     *cp2 = '\0'; /* Cut token */
