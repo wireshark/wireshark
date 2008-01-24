@@ -199,7 +199,15 @@ static int hf_gtp_ext_sac			= -1;
 static int hf_gtp_ext_imeisv		= -1;
 static int hf_gtp_targetid			= -1;
 static int hf_gtp_bssgp_cause		= -1;
-
+static int hf_gtp_cmn_flg_ppc		= -1;
+static int hf_gtp_cmn_flg_mbs_srv_type = -1;
+static int hf_gtp_cmn_flg_mbs_ran_pcd_rdy = -1;
+static int hf_gtp_cmn_flg_mbs_cnt_inf = -1;
+static int hf_gtp_cmn_flg_nrsn		= -1;
+static int hf_gtp_cmn_flg_no_qos_neg = -1;
+static int hf_gtp_cmn_flg_upgrd_qos_sup = -1;
+static int hf_gtp_tmgi				= -1;
+static int hf_gtp_mbs_2g_3g_ind		= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp					= -1;
@@ -246,6 +254,7 @@ static gint ett_gtp_ext_ms_time_zone		= -1;
 static gint ett_gtp_ext_camel_chg_inf_con	= -1;
 static gint ett_GTP_EXT_MBMS_UE_CTX			= -1;
 static gint ett_gtp_ext_tmgi				= -1;
+static gint ett_gtp_tmgi					= -1;
 static gint ett_gtp_ext_rim_ra				= -1;
 static gint ett_gtp_ext_mbms_prot_conf_opt	= -1;
 static gint ett_gtp_ext_mbms_sa				= -1;
@@ -4678,7 +4687,7 @@ decode_gtp_add_rab_setup_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
   }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.48 Common Flags
+ * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.48 Common Flags
  */
  static int
  decode_gtp_common_flgs(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
@@ -4694,8 +4703,20 @@ decode_gtp_add_rab_setup_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* Upgrade QoS Supported */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_upgrd_qos_sup, tvb, offset, 1, FALSE);
+	/* No QoS negotiation */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_no_qos_neg, tvb, offset, 1, FALSE);
+	/* NRSN bit field */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_nrsn, tvb, offset, 1, FALSE);
+	/* MBMS Counting Information bi */ 
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_cnt_inf, tvb, offset, 1, FALSE);
+	/* RAN Procedures Ready */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_ran_pcd_rdy, tvb, offset, 1, FALSE);
+	/* MBMS Service Type */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_mbs_srv_type, tvb, offset, 1, FALSE);
+	/* Prohibit Payload Compression */
+	proto_tree_add_item(ext_tree, hf_gtp_cmn_flg_ppc, tvb, offset, 1, FALSE);
 
 	return 3 + length;
 
@@ -4917,15 +4938,20 @@ decode_gtp_mbms_ue_ctx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
  }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.56
+ * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.56
  * Temporary Mobile Group Identity (TMGI)
+ * The Temporary Mobile Group Identity (TMGI) information element contains
+ * a TMGI allocated by the BM-SC. It is coded as in the value part defined
+ * in 3GPP T S 24.008 [5] (i.e. the IEI and octet length indicator are not included).
  */
+
 static int
 decode_gtp_tmgi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
 	guint16		length;
-	proto_tree	*ext_tree;
-	proto_item	*te;
+	proto_tree	*ext_tree, *tmgi_tree;
+	proto_item	*te, *ti;
+	tvbuff_t	*next_tvb;
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_TMGI, gtp_val, "Unknown"));
@@ -4935,8 +4961,11 @@ decode_gtp_tmgi(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
-
+	ti = proto_tree_add_item(ext_tree, hf_gtp_tmgi, tvb, offset, length, FALSE);
+	
+	tmgi_tree = proto_item_add_subtree(ti, ett_gtp_tmgi);
+	next_tvb = tvb_new_subset(tvb, offset, length, length);
+	de_mid(next_tvb, tmgi_tree, 0, length, NULL, 0);
 	return 3 + length;
 
  }
@@ -5011,7 +5040,13 @@ decode_gtp_mbms_ses_dur(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
+	/* The MBMS Session Duration is defined in 3GPP TS 23.246 [26].
+	 * The MBMS Session Duration information element indicates the estimated
+	 * session duration of the MBMS service data transmission if available.
+	 * The payload shall be encoded as per the MBMS-Session-Duration AVP defined
+	 * in 3GPP TS 29.061 [27], excluding the AVP Header fields
+	 * (as defined in IETF RFC 3588 [36], section 4.1).
+	 */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
 	return 3 + length;
@@ -5036,7 +5071,13 @@ decode_gtp_mbms_sa(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
+	/* The MBMS Service Area is defined in 3GPP TS 23.246 [26].
+	 * The MBMS Service Area information element indicates the area over
+	 * which the Multimedia Broadcast/Multicast Service is to be distributed.
+	 * The payload shall be encoded as per the MBMS-Service-Area AVP defined
+	 * in 3GPP TS 29.061 [27], excluding the AVP Header fields (as defined in
+	 * IETF RFC 3588 [36], section 4.1). 
+	 */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
 	return 3 + length;
@@ -5172,6 +5213,13 @@ decode_gtp_mbms_ses_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
  * UMTS:	29.060 v6.11.0, chapter 7.7.66
  * MBMS 2G/3G Indicator
  */
+static const value_string gtp_mbs_2g_3g_ind_vals[] = {
+	{ 0, "2G only" },
+	{ 1, "3G only" },
+	{ 2, "Both 2G and 3G" },
+	{ 0, NULL }
+};
+
 static int
 decode_gtp_mbms_2g_3g_ind(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -5186,8 +5234,8 @@ decode_gtp_mbms_2g_3g_ind(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* MBMS 2G/3G Indicator */
+	proto_tree_add_item(ext_tree, hf_gtp_mbs_2g_3g_ind, tvb, offset, 1, FALSE);
 
 	return 3 + length;
 
@@ -5286,7 +5334,14 @@ decode_gtp_mbms_time_to_data_tr(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
-	/* TODO add decoding of data */
+	/* TODO add decoding of data 
+	 * The MBMS Time To Data Transfer is defined in 3GPP TS 23.246 [26].
+	 * The MBMS Time To Data Transfer information element contains a 
+	 * MBMS Time To Data Transfer allocated by the BM-SC. 
+	 * The payload shall be encoded as per the MBMS-Time-To-Data-Transfer AVP 
+	 * defined in 3GPP TS 29.061 [27], excluding the AVP Header fields 
+	 * (as defined in IETF RFC 3588 [36], section 4.1).
+	 */
 	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
 
 	return 3 + length;
@@ -6086,7 +6141,43 @@ proto_register_gtp(void)
 			{ "BSSGP Cause", "gtp.bssgp_cause",
 			FT_UINT8, BASE_DEC, VALS(tab_cause), 0,
 			"BSSGP Cause", HFILL }},
-
+		{ &hf_gtp_cmn_flg_ppc,
+			{ "Prohibit Payload Compression", "gtp.cmn_flg.ppc",
+			FT_BOOLEAN, 8, NULL, 0x01,
+			"Prohibit Payload Compression", HFILL}},
+		{ &hf_gtp_cmn_flg_mbs_srv_type,
+			{ "MBMS Service Type", "gtp.cmn_flg.mbs_srv_type",
+			FT_BOOLEAN, 8, NULL, 0x02,
+			"MBMS Service Type", HFILL}},
+		{ &hf_gtp_cmn_flg_mbs_ran_pcd_rdy,
+			{ "RAN Procedures Ready", "gtp.cmn_flg.ran_pcd_rd",
+			FT_BOOLEAN, 8, NULL, 0x04,
+			"RAN Procedures Ready", HFILL}},
+		{ &hf_gtp_cmn_flg_mbs_cnt_inf,
+			{ "MBMS Counting Information", "gtp.cmn_flg.mbs_cnt_inf",
+			FT_BOOLEAN, 8, NULL, 0x08,
+			"MBMS Counting Information", HFILL}},
+		{ &hf_gtp_cmn_flg_nrsn,
+			{ "NRSN bit field", "gtp.cmn_flg.nrsn",
+			FT_BOOLEAN, 8, NULL, 0x10,
+			"NRSN bit field", HFILL}},
+		{ &hf_gtp_cmn_flg_no_qos_neg,
+			{ "No QoS negotiation", "gtp.cmn_flg.no_qos_neg",
+			FT_BOOLEAN, 8, NULL, 0x20,
+			"No QoS negotiation", HFILL}},
+		{ &hf_gtp_cmn_flg_upgrd_qos_sup,
+			{ "Upgrade QoS Supported", "gtp.cmn_flg.ran_pcd_rd",
+			FT_BOOLEAN, 8, NULL, 0x40,
+			"Upgrade QoS Supported", HFILL}},
+		{ &hf_gtp_tmgi,
+			{ "Temporary Mobile Group Identity (TMGI)", "gtp.cmn_flg.ran_pcd_rd",
+			FT_BYTES, BASE_HEX, NULL, 0x0,
+			"Temporary Mobile Group Identity (TMGI)", HFILL}},
+		{ &hf_gtp_mbs_2g_3g_ind,
+			{ "MBMS 2G/3G Indicator", "gtp.mbs_2g_3g_ind",
+			FT_UINT8, BASE_DEC, VALS(gtp_mbs_2g_3g_ind_vals), 0x0,
+			"MBMS 2G/3G Indicator", HFILL }
+		},
 	};
 
 	static gint *ett_gtp_array[] = {
@@ -6134,6 +6225,7 @@ proto_register_gtp(void)
 		&ett_gtp_ext_camel_chg_inf_con,
 		&ett_GTP_EXT_MBMS_UE_CTX,
 		&ett_gtp_ext_tmgi,
+		&ett_gtp_tmgi,
 		&ett_gtp_ext_rim_ra,
 		&ett_gtp_ext_mbms_prot_conf_opt,
 		&ett_gtp_ext_mbms_sa,
