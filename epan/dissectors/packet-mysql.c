@@ -1034,7 +1034,7 @@ static void dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	generation= conn_data->generation;
 	if (tree) {
 		proto_tree_add_text(mysql_tree, tvb, offset, 0, "conversation: %p", conversation);
-		proto_tree_add_text(mysql_tree, tvb, offset, 0, "generation: %lld", generation);
+		proto_tree_add_text(mysql_tree, tvb, offset, 0, "generation: %" G_GINT64_MODIFIER "d", generation);
 		proto_tree_add_text(mysql_tree, tvb, offset, 0, "proto state: %s (%u)",
 				    val_to_str(state_in, state_vals, "Unknown (%u)"),
 				    state_in);

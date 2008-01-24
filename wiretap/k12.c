@@ -219,7 +219,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	/* where the next unknown 0x10 bytes are stuffed to the file */
 	guint junky_offset = 0x2000 - (gint) ( (file_offset - 0x200) % 0x2000 );
 
-	K12_DBG(6,("get_record: ENTER: junky_offset=%lld, file_offset=%lld",junky_offset,file_offset));
+	K12_DBG(6,("get_record: ENTER: junky_offset=%" G_GINT64_MODIFIER "d, file_offset=%" G_GINT64_MODIFIER "d",junky_offset,file_offset));
 
 	/* no buffer is given, lets create it */
 	if (buffer == NULL) {
@@ -268,7 +268,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	left -= 4;
 
 	do {
-		K12_DBG(6,("get_record: looping left=%d junky_offset=%lld",left,junky_offset));
+		K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
 
 		if (junky_offset > left) {
 			read += last_read = file_read(writep,1, left, fh);

@@ -1103,7 +1103,7 @@ pr_loc_response(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 	temp_int |= ((value & bit_mask) >> (16 - (18 - bit_offset)));
 
 	proto_tree_add_text(tree, tvb, offset-1, 1,
-	    "%s :  CLOCK_DRIFT: (MSB) (%llu)",
+	    "%s :  CLOCK_DRIFT: (MSB) (%" G_GINT64_MODIFIER "u)",
 	    bigbuf,
 	    temp_int);
 

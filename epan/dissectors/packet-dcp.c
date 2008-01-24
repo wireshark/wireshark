@@ -298,18 +298,18 @@ static guint64 tvb_get_ntoh_var(tvbuff_t *tvb, gint offset, guint nbytes)
         return value;
 }
 
-static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb, int offset, guint8 option_len, 
+static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb, int offset, guint8 option_len,
 				    guint8 option_type)
 {
 	guint8 feature_number = tvb_get_guint8(tvb, offset + 2);
 	proto_item *dcp_item;
 	int i;
-	
+
 	proto_tree_add_uint_hidden(dcp_options_tree, hf_dcp_feature_number, tvb, offset + 2, 1, feature_number);
 
 	dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "%s(",
 				       val_to_str(option_type, dcp_feature_options_vals, "Unknown Type"));
-		
+
 	/* decode the feature according to whether it is server-priority (list) or NN (single number) */
 	switch (feature_number) {
 	/*		Server Priority features (RFC 4340, 6.3.1)		*/
@@ -321,21 +321,21 @@ static void dissect_feature_options(proto_tree *dcp_options_tree, tvbuff_t *tvb,
 	case 8:			/* Minimum Checksum Coverage; fall through	*/
 	case 9:			/* Check Data Checksum; fall through		*/
 	case 192:		/* Send Loss Event Rate, RFC 4342, section 8.4	*/
-		proto_item_append_text(dcp_item, "%s", 
+		proto_item_append_text(dcp_item, "%s",
 				       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
-		for (i = 0; i < option_len - 3; i++) 
+		for (i = 0; i < option_len - 3; i++)
 			proto_item_append_text(dcp_item, "%s %d", i? "," : "", tvb_get_guint8(tvb, offset + 3 + i));
 		break;
 	/*	 Non-negotiable features (RFC 4340, 6.3.2)	 */
 	case 3:			/* Sequence Window; fall through */
 	case 5: 		/* Ack Ratio			 */
-		proto_item_append_text(dcp_item, "%s", 
+		proto_item_append_text(dcp_item, "%s",
 				       val_to_str(feature_number, dcp_feature_numbers_vals, "Unknown Type"));
 
 		if (option_len > 3)	/* could be empty Confirm */
 			proto_item_append_text(dcp_item, " %" G_GINT64_MODIFIER "u", tvb_get_ntoh_var(tvb, offset + 3, option_len - 3));
 		break;
-	/* Reserved, specific, or unknown features */		
+	/* Reserved, specific, or unknown features */
 	default:
 		if (feature_number == 0 ||
 		    (feature_number >= 10 && feature_number <= 127))
@@ -440,7 +440,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 38:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Ack Vector [Nonce 0]:");
-			for (i = 0; i < option_len - 2; i++) 
+			for (i = 0; i < option_len - 2; i++)
 				proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
 			break;
 
@@ -453,7 +453,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 		case 40:
 			dcp_item = proto_tree_add_text(dcp_options_tree, tvb, offset, option_len, "Data Dropped:");
-			for (i = 0; i < option_len - 2; i++) 
+			for (i = 0; i < option_len - 2; i++)
 				proto_item_append_text(dcp_item, " %02x", tvb_get_guint8(tvb, offset + 2 + i));
 			break;
 
@@ -636,12 +636,12 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dcph->seq=tvb_get_ntohs(tvb, offset+10);
 		dcph->seq<<=32;
 		dcph->seq+=tvb_get_ntohl(tvb, offset+12);
-		/* DBG("dcph->seq[48bits]: %llu\n", dcph->seq); */
+		/* DBG("dcph->seq[48bits]: %" G_GINT64_MODIFIER "u\n", dcph->seq); */
 	} else {
 		dcph->seq=tvb_get_guint8(tvb, offset+9);
 		dcph->seq<<=16;
 		dcph->seq+=tvb_get_ntohs(tvb, offset+10);
-		/* DBG("dcph->seq[24bits]: %llu\n", dcph->seq); */
+		/* DBG("dcph->seq[24bits]: %" G_GINT64_MODIFIER "u\n", dcph->seq); */
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))

@@ -268,7 +268,7 @@ file_seek(void *stream, gint64 offset, int whence, int *err)
 	if (ret == -1)
 		*err = file_error(stream);
 #endif
-        /*g_warning("Seek %lld whence %u ret %lld size %u", offset, whence, ret, sizeof(fpos_t));*/
+        /*g_warning("Seek %" G_GINT64_MODIFIER "d whence %u ret %" G_GINT64_MODIFIER "d size %u", offset, whence, ret, sizeof(fpos_t));*/
 	return ret;
 }
 
