@@ -175,6 +175,12 @@ void
 airpcap_channel_combo_set_by_number(GtkWidget* w,UINT channel);
 
 /*
+ * Free a channel combo list
+ */
+void
+airpcap_free_channel_combo_list(GList *channel_list);
+
+/*
  * Returns '1' if this is the "Any" adapter, '0' otherwise
  */
 int

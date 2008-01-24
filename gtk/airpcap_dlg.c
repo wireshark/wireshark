@@ -2201,6 +2201,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
             channel_cm_items = g_list_append(channel_cm_items, ieee80211_mhz_to_str(airpcap_if_selected->pSupportedChannels[i].Frequency));
         }
         gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_cm_items);
+        airpcap_free_channel_combo_list (channel_cm_items);
     }
 
     /* Select the first entry */
@@ -2209,7 +2210,6 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
         airpcap_update_channel_combo(GTK_WIDGET(channel_cm), airpcap_if_selected);
     }
 
-    g_list_free (channel_cm_items);
 
     channel_en = GTK_COMBO (channel_cm)->entry;
     gtk_editable_set_editable(GTK_EDITABLE(channel_en),FALSE);

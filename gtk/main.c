@@ -4462,6 +4462,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GtkTooltips	  *airpcap_tooltips;
     /* gchar	  *if_label_text; */
     gint          *from_widget = NULL;
+    gchar         *chan_str;
 #endif
 
     /* Display filter construct dialog has an Apply button, and "OK" not
@@ -4611,8 +4612,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
             channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(airpcap_if_active->pSupportedChannels[i].Frequency));
         }
         gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list);
-        /* XXX: Need to free the items in the list before freeing the list */
-        /* g_list_free(channel_list); */
+        airpcap_free_channel_combo_list(channel_list);
     }
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
@@ -4620,11 +4620,14 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     WIDGET_SET_SIZE(channel_cm, 120, 28);
 
-    if(airpcap_if_active != NULL)
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), ieee80211_mhz_to_str(airpcap_if_active->channelInfo.Frequency));
-    else
-    gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
-
+    if(airpcap_if_active != NULL) {
+        chan_str = ieee80211_mhz_to_str(airpcap_if_active->channelInfo.Frequency);
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry), chan_str);
+        g_free(chan_str);
+    }
+    else {
+        gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cm)->entry),"");
+    }
     gtk_widget_show(channel_cm);
 
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_cm,

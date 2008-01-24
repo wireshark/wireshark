@@ -559,6 +559,7 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_item *ti = NULL;
     ptvcursor_t *csr = NULL;
     guint16 ext_frequency;
+    gchar *chan_str;
 
     if (!tree)
         return;
@@ -594,8 +595,10 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ptvcursor_add_invalid_check(csr, hf_80211n_mac_phy_rssi_ant3_ext, 1, 255);
 
     ext_frequency = tvb_get_letohs(ptvcursor_tvbuff(csr), ptvcursor_current_offset(csr));
+    chan_str = ieee80211_mhz_to_str(ext_frequency);
     proto_tree_add_uint_format(ptvcursor_tree(csr), hf_80211n_mac_phy_ext_chan_freq, ptvcursor_tvbuff(csr),
-	ptvcursor_current_offset(csr), 2, ext_frequency, "Ext. Channel frequency: %s", ieee80211_mhz_to_str(ext_frequency));
+	ptvcursor_current_offset(csr), 2, ext_frequency, "Ext. Channel frequency: %s", chan_str);
+    g_free(chan_str);
     ptvcursor_advance(csr, 2);
 
     ptvcursor_add_with_subtree(csr, hf_80211n_mac_phy_ext_chan_flags, 2, TRUE,

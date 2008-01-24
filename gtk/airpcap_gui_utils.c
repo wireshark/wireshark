@@ -77,6 +77,7 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
     airpcap_if_info_t* current_adapter;
     GString *freq_str = g_string_new("");
     gchar *sep = "";
+    gchar *chan_str;
 
     if(airpcap_if_is_any(if_info))
     {
@@ -88,8 +89,9 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
             current_adapter = (airpcap_if_info_t*)current_item->data;
             if(current_adapter != if_info && g_ascii_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
             {
-                g_string_sprintfa(freq_str, "%s%s", sep,
-                    ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency));
+                chan_str = ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency);
+                g_string_sprintfa(freq_str, "%s%s", sep, chan_str);
+                g_free(chan_str);
                 sep = ", ";
             }
         }
@@ -170,7 +172,7 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
 			}
 			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
-			g_list_free(channel_list);
+			airpcap_free_channel_combo_list(channel_list);
 		}
 
 		airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
@@ -270,7 +272,7 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   				channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(if_info->pSupportedChannels[i].Frequency));
   			}
   			gtk_combo_set_popdown_strings( GTK_COMBO(airpcap_toolbar_channel), channel_list);
-  			g_list_free(channel_list);
+  			airpcap_free_channel_combo_list(channel_list);
   		}
 
   		airpcap_update_channel_combo(GTK_WIDGET(airpcap_toolbar_channel),if_info);
@@ -592,6 +594,24 @@ airpcap_get_channel_name(UINT n)
 }
 
 /*
+ * Free a channel combo list
+ */
+static void
+free_channel_string(gpointer data, gpointer user_data _U_)
+{
+  g_free(data);
+}
+
+void
+airpcap_free_channel_combo_list(GList *channel_list)
+{
+  if (channel_list != NULL) {
+    g_list_foreach(channel_list, free_channel_string, NULL);
+    g_list_free(channel_list);
+  }
+}
+
+/*
  * Set the combo box entry string given an UINT channel number
  */
 void
@@ -600,7 +620,7 @@ airpcap_channel_combo_set_by_number(GtkWidget* w,UINT chan_freq)
 	gchar *entry_text;
 
 	entry_text = ieee80211_mhz_to_str(chan_freq);
-	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),ieee80211_mhz_to_str(chan_freq));
+	gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(w)->entry),entry_text);
 	g_free(entry_text);
 }
 
@@ -644,7 +664,7 @@ airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkW
   }
 
 	current_offset = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(channel_offset_cb)->entry));
-	strcpy (current_offset_copy, current_offset);
+	g_strlcpy (current_offset_copy, current_offset, sizeof(current_offset_copy));
 	chan_flags = airpcap_load_channel_offset_cb(if_info, channel_offset_cb, ch_freq);
 
 	new_offset_str = current_offset_copy;
@@ -672,8 +692,6 @@ airpcap_update_channel_offset_cb(airpcap_if_info_t* if_info, ULONG ch_freq, GtkW
   if (!airpcap_update_frequency_and_offset(if_info)){
     simple_dialog(ESD_TYPE_ERROR,ESD_BTN_OK,"Adapter failed to be set with the following settings: Frequency - %ld   Extension Channel - %d", if_info->channelInfo.Frequency, if_info->channelInfo.ExtChannel);
   }
-
-	g_free(new_offset_str);
 }
 
 /*

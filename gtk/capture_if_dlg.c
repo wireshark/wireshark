@@ -299,6 +299,7 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
 #endif
 }
 
+#if 0
 GtkWidget*
 combo_channel_new(void)
 {
@@ -327,7 +328,7 @@ combo_channel_new(void)
 	  popdown = g_list_append(popdown, "14");
 
       gtk_combo_set_popdown_strings( GTK_COMBO(channel_cb), popdown) ;
-
+      g_list_free(popdown);
 	  #if GTK_MAJOR_VERSION < 2
 	  gtk_widget_set_usize( GTK_WIDGET(channel_cb),
                                   45,
@@ -341,6 +342,7 @@ combo_channel_new(void)
 
 	  return channel_cb;
 }
+#endif
 
 /*
  * Sorts the Interface List in alphabetical order
