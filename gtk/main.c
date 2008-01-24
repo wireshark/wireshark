@@ -4616,7 +4616,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
             channel_list = g_list_append(channel_list, ieee80211_mhz_to_str(airpcap_if_active->pSupportedChannels[i].Frequency));
         }
         gtk_combo_set_popdown_strings( GTK_COMBO(channel_cm), channel_list);
-        g_list_free(channel_list);
+        /* XXX: Need to free the items in the list before freeing the list */
+        /* g_list_free(channel_list); */
     }
 
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
