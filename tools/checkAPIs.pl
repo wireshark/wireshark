@@ -160,6 +160,12 @@ while ($_ = $ARGV[0])
 	# Read in the file (ouch, but it's easier that way)
 	my $fileContents = `cat $filename`;
 
+	if ($fileContents =~ m{[\x80-\xFF]})
+	{
+		print "Error: found non-ASCII characters in " .$filename."\n";
+		$errorCount++;
+	}
+
 	# Remove all the C-comments and strings
 	$fileContents =~ s {$commentAndStringRegex} []g;
 
