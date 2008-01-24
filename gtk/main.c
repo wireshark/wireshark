@@ -2227,9 +2227,6 @@ read_configuration_files(char **gdp_path, char **dp_path)
   }
 #endif
 
-  /* Fill in capture options with values from the preferences */
-  prefs_to_capture_opts();
-
   /* Read the capture filter file. */
   read_filter_list(CFILTER_LIST, &cf_path, &cf_open_errno);
   if (cf_path != NULL) {
@@ -2945,6 +2942,9 @@ main(int argc, char *argv[])
     exit(status);
   }
 
+  /* Fill in capture options with values from the preferences */
+  prefs_to_capture_opts();
+
   capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
   capture_opts_trim_ring_num_files(capture_opts);
 #endif /* HAVE_LIBPCAP */
@@ -2992,6 +2992,8 @@ main(int argc, char *argv[])
   packet_list_set_column_titles();
 
   menu_recent_read_finished();
+  menu_auto_scroll_live_changed(auto_scroll_live);
+
 
   switch (user_font_apply()) {
   case FA_SUCCESS:
@@ -5031,7 +5033,7 @@ void change_configuration_profile (const gchar *profile_name)
    prefs_reset();
    (void) read_configuration_files (&gdp_path, &dp_path);
    prefs_apply_all();
-  
+
    /* Update window view and redraw the toolbar */
    update_main_window_name();
    toolbar_redraw_all();
