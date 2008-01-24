@@ -288,8 +288,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_misc_set_alignment(GTK_MISC(combo_lb), 0.0, 0.5);
   gtk_widget_show(combo_lb);
 
-  /* String Type Selection Dropdown Box
-     These only apply to the Hex Window search option */
+  /* Character Type Selection Dropdown Box
+     These only apply to the string find option */
   /* Create Combo Box */
   combo_cb = gtk_combo_new();
 
@@ -640,7 +640,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     if (!found_packet) {
       /* We didn't find a packet */
       simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sFound no match!%s\n\n"
+            "%sNo match found!%s\n\n"
             "No packet contained those bytes.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
       return;
@@ -656,7 +656,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sFound no match!%s\n\n"
+            "%sNo match found!%s\n\n"
             "No packet contained that string in its dissected display.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         return;
@@ -670,7 +670,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sFound no match!%s\n\n"
+            "%sNo match found!%s\n\n"
             "No packet contained that string in its Info column.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         return;
@@ -684,7 +684,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       if (!found_packet) {
         /* We didn't find the packet. */
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-            "%sFound no match!%s\n\n"
+            "%sNo match found!%s\n\n"
             "No packet contained that string in its data.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
         return;
@@ -696,7 +696,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     if (!found_packet) {
       /* We didn't find a packet */
       simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-          "%sFound no match!%s\n\n"
+          "%sNo match found!%s\n\n"
           "No packet matched that filter.",
           simple_dialog_primary_start(), simple_dialog_primary_end());
       g_free(bytes);
