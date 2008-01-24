@@ -26,6 +26,12 @@
 #define FILESYSTEM_H
 
 /*
+ * Default profile name.
+ */
+#define DEFAULT_PROFILE      "Default"
+
+
+/*
  * Get the pathname of the directory from which the executable came,
  * and save it for future use.  Returns NULL on success, and a
  * g_mallocated string containing an error on failure.

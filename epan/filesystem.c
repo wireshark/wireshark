@@ -804,7 +804,11 @@ set_profile_name(const gchar *profilename)
 const char *
 get_profile_name(void)
 {
-	return persconfprofile;
+	if (persconfprofile) {
+		return persconfprofile;
+	} else {
+		return DEFAULT_PROFILE;
+	}
 }
 
 /*
@@ -1098,7 +1102,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 int
 create_persconffile_dir(char **pf_dir_path_return)
 {
-  return create_persconffile_profile(get_profile_name(), pf_dir_path_return);
+  return create_persconffile_profile(persconfprofile, pf_dir_path_return);
 }
 
 /*
@@ -1240,7 +1244,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 
 	if (from_profile) {
 	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
-				 get_persconffile_dir(get_profile_name()), filename);
+				 get_persconffile_dir(persconfprofile), filename);
 	} else {
 	  path = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 				 get_persconffile_dir(NULL), filename);

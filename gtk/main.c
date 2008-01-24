@@ -1042,7 +1042,6 @@ void packets_bar_update(void)
  */
 void profile_bar_update(void)
 {
-    const char *profile_name;
     if (profile_bar) {
         /* remove old status */
         if(profile_str) {
@@ -1050,11 +1049,7 @@ void profile_bar_update(void)
             gtk_statusbar_pop(GTK_STATUSBAR(profile_bar), profile_ctx);
         }
 
-	profile_name = get_profile_name ();
-	if (!profile_name) {
-	    profile_name = DEFAULT_PROFILE;
-	}
-	profile_str = g_strdup_printf (" Profile: %s", profile_name);
+	profile_str = g_strdup_printf (" Profile: %s", get_profile_name ());
 
         gtk_statusbar_push(GTK_STATUSBAR(profile_bar), profile_ctx, profile_str);
     }

@@ -172,7 +172,7 @@ fill_list(GtkWidget *main_w)
   fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT);
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, fl_entry, -1);
-  if (profile_name == NULL || strlen(profile_name) == 0) {
+  if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
     l_select = g_memdup(&iter, sizeof(iter));
   }
   
@@ -189,7 +189,7 @@ fill_list(GtkWidget *main_w)
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter, 0, profile->name, 1, fl_entry, -1);
 	
-	if (profile_name && profile->name) {
+	if (profile->name) {
 	  if (strcmp(profile_name, profile->name) == 0) {
 	    /*
 	     * XXX - We're assuming that we can just copy a GtkTreeIter

@@ -347,9 +347,6 @@ extern void prefs_to_capture_opts(void);
 /** Change configuration profile */
 extern void change_configuration_profile(const gchar *profile_name);
 
-#define DEFAULT_PROFILE      "Default"
-
-
 extern GtkWidget *pkt_scrollw;
 
 #endif /* __MAIN_H__ */
