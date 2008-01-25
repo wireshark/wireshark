@@ -907,7 +907,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset = dissect_url_entry_v1(tvb, offset, srvloc_tree,
                                                   encoding, flags);
                     count--;
-                };
+                }
             break;
 
             case SRVREG:
@@ -1058,13 +1058,13 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     add_v1_string(srvloc_tree, hf_srvloc_srvtyperply_srvtype, tvb, offset, length, encoding);
                     offset += length;
                     count--;
-                };
+                }
             break;
 
             default:
                 expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
                 expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
-	    };
+	    }
 	}
 	else { /* Version 2 */
 	    length = tvb_get_ntoh24(tvb, offset + 2);
@@ -1258,13 +1258,13 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (length) {
                     attr_list2(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
                     offset += length;
-            		count = tvb_get_guint8(tvb, offset);
-            		proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
-            		offset += 1;
-            		while (count > 0) {
-            		    offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
-            		    count--;
-            		}
+                }
+                count = tvb_get_guint8(tvb, offset);
+                proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrauthcount, tvb, offset, 1, count);
+                offset += 1;
+                while (count > 0) {
+                    offset = dissect_attrauthblk_v2(tvb, offset, srvloc_tree);
+                    count--;
                 }
             break;
 
