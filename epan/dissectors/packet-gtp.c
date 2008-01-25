@@ -41,6 +41,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/sminmpec.h>
 #include <epan/asn1.h>
 #include "packet-ipv6.h"
@@ -207,7 +208,12 @@ static int hf_gtp_cmn_flg_nrsn		= -1;
 static int hf_gtp_cmn_flg_no_qos_neg = -1;
 static int hf_gtp_cmn_flg_upgrd_qos_sup = -1;
 static int hf_gtp_tmgi				= -1;
+static int hf_gtp_mbms_ses_dur_days	= -1;
+static int hf_gtp_mbms_ses_dur_s	= -1;
+static int hf_gtp_no_of_mbms_sa_codes = -1;
+static int hf_gtp_mbms_sa_code		= -1;
 static int hf_gtp_mbs_2g_3g_ind		= -1;
+static int hf_gtp_time_2_dta_tr		= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_gtp					= -1;
@@ -5023,7 +5029,7 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
  }
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.59
+ * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.59
  * MBMS Session Duration
  */
 static int
@@ -5047,14 +5053,22 @@ decode_gtp_mbms_ses_dur(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	 * in 3GPP TS 29.061 [27], excluding the AVP Header fields
 	 * (as defined in IETF RFC 3588 [36], section 4.1).
 	 */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* The MBMS-Session-Duration AVP (AVP code 904) is of type OctetString
+	 * with a length of three octets and indicates the estimated session duration
+	 * (MBMS Service data transmission). Bits 0 to 16 (17 bits) express seconds, for which the
+	 * maximum allowed value is 86400 seconds. Bits 17 to 23 (7 bits) express days,
+	 * for which the maximum allowed value is 18 days. For the whole session duration the seconds
+	 * and days are added together and the maximum session duration is 19 days.
+	 */
+	proto_tree_add_item(ext_tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ext_tree, hf_gtp_mbms_ses_dur_s, tvb, offset, 3, FALSE);
 
 	return 3 + length;
 
  }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.60
+ * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.60
  * MBMS Service Area
  */
 static int
@@ -5062,14 +5076,16 @@ decode_gtp_mbms_sa(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 
 	guint16		length;
 	proto_tree	*ext_tree;
-	proto_item	*te;
+	proto_item	*te, *item;
+	guint8 no_of_mbms_sa_codes;
+	int i;
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_MBMS_SA, gtp_val, "Unknown"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext_mbms_sa);
 	
 	offset++;
-	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
+	item = proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 	/* The MBMS Service Area is defined in 3GPP TS 23.246 [26].
 	 * The MBMS Service Area information element indicates the area over
@@ -5078,7 +5094,26 @@ decode_gtp_mbms_sa(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	 * in 3GPP TS 29.061 [27], excluding the AVP Header fields (as defined in
 	 * IETF RFC 3588 [36], section 4.1). 
 	 */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* Number N of MBMS service area codes coded as:
+	 * 1 binary value is '00000000'
+	 * ... ...
+	 * 256 binary value is '11111111'
+	 */
+	no_of_mbms_sa_codes = tvb_get_guint8(tvb,offset) + 1;
+	if(length != ((no_of_mbms_sa_codes <<1) +1)){
+		expert_add_info_format(pinfo, item, PI_RESPONSE_CODE, PI_WARN, 
+			"Wrong length: %u. The length of an MBMS service area code is 2 octets",length);
+	}
+	proto_tree_add_uint(ext_tree, hf_gtp_no_of_mbms_sa_codes, tvb, offset, 1, no_of_mbms_sa_codes);
+	offset++;
+	/* A consecutive list of N MBMS service area codes 
+	 * The MBMS Service Area Identity and its semantics are defined in 3GPP TS 23.003
+	 * The length of an MBMS service area code is 2 octets.
+	 */
+	for (i=0;i<no_of_mbms_sa_codes;i++) {
+		item = proto_tree_add_item(ext_tree, hf_gtp_mbms_sa_code, tvb, offset, 2, FALSE);
+		offset = offset +2;
+	}
 
 	return 3 + length;
 
@@ -5317,7 +5352,7 @@ decode_gtp_mbms_ses_id_rep_no(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  }
 
 /* GPRS:	?
- * UMTS:	29.060 v6.11.0, chapter 7.7.70
+ * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7
  * MBMS Time To Data Transfer
  */
 static int
@@ -5326,6 +5361,7 @@ decode_gtp_mbms_time_to_data_tr(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	guint16		length;
 	proto_tree	*ext_tree;
 	proto_item	*te;
+	guint8 time_2_dta_tr;
 
 	length = tvb_get_ntohs(tvb, offset+1);
 	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s", val_to_str(GTP_EXT_MBMS_TIME_TO_DATA_TR, gtp_val, "Unknown"));
@@ -5342,7 +5378,18 @@ decode_gtp_mbms_time_to_data_tr(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	 * defined in 3GPP TS 29.061 [27], excluding the AVP Header fields 
 	 * (as defined in IETF RFC 3588 [36], section 4.1).
 	 */
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
+	/* The coding is specified as per the Time to MBMS Data Transfer Value Part Coding
+	 * of the Time to MBMS Data Transfer IE in 3GPP TS 48.018
+	 * Bits
+	 * 8 7 6 5 4 3 2 1
+	 * 0 0 0 0 0 0 0 0 1s
+	 * 0 0 0 0 0 0 0 1 2s
+	 * 0 0 0 0 0 0 1 0 3s
+	 * :
+	 * 1 1 1 1 1 1 1 1 256s
+	 */
+	time_2_dta_tr = tvb_get_guint8(tvb,offset) + 1;
+	proto_tree_add_uint(ext_tree, hf_gtp_time_2_dta_tr, tvb, offset, 1, time_2_dta_tr);
 
 	return 3 + length;
 
@@ -6173,10 +6220,35 @@ proto_register_gtp(void)
 			{ "Temporary Mobile Group Identity (TMGI)", "gtp.cmn_flg.ran_pcd_rd",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			"Temporary Mobile Group Identity (TMGI)", HFILL}},
+		{ &hf_gtp_no_of_mbms_sa_codes,
+			{ "Number of MBMS service area codes", "gtp.no_of_mbms_sa_codes",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Number N of MBMS service area codes", HFILL }
+		},
+		{ &hf_gtp_mbms_ses_dur_days,
+			{ "Estimated session duration days", "gtp.mbms_ses_dur_days",
+			FT_UINT8, BASE_DEC, NULL, 0xfe,
+			"Estimated session duration days", HFILL }
+		},
+		{ &hf_gtp_mbms_ses_dur_s,
+			{ "Estimated session duration seconds", "gtp.mbms_ses_dur_s",
+			FT_UINT24, BASE_DEC, NULL, 0x01ffff,
+			"Estimated session duration seconds", HFILL }
+		},
+		{ &hf_gtp_mbms_sa_code,
+			{ "MBMS service area code", "gtp.mbms_sa_code",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			"MBMS service area code", HFILL }
+		},
 		{ &hf_gtp_mbs_2g_3g_ind,
 			{ "MBMS 2G/3G Indicator", "gtp.mbs_2g_3g_ind",
 			FT_UINT8, BASE_DEC, VALS(gtp_mbs_2g_3g_ind_vals), 0x0,
 			"MBMS 2G/3G Indicator", HFILL }
+		},
+		{ &hf_gtp_time_2_dta_tr,
+			{ "Time to MBMS Data Transfer", "gtp.time_2_dta_tr",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Time to MBMS Data Transfer", HFILL }
 		},
 	};
 
