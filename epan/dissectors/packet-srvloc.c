@@ -1098,28 +1098,38 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
 		length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_srvtypelen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
 		length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, TRUE);
-		offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, TRUE);
+		    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, TRUE);
-		offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, TRUE);
+		    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_slpspilen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
-		offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
+		    offset += length;
+                }
 		break;
 
             case SRVRPLY: /* RFC2608 8.2 */
@@ -1135,7 +1145,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 while (count > 0) {
 		    offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
                     count--;
-                };
+                }
             break;
 
             case SRVREG: /* RFC2608 8.3 */
@@ -1143,18 +1153,24 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_srvtypelen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrlistlen, tvb, offset, 2, length);
                 offset += 2;
-                attr_list2(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
-                offset += length;
+                if (length) {
+                    attr_list2(srvloc_tree, hf_srvloc_srvreg_attrlist, tvb, offset, length, CHARSET_UTF_8);
+                    offset += length;
+                }
 		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_attrauthcount, tvb, offset, 1, count);
 		offset += 1;
@@ -1168,14 +1184,18 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
 		offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
 		break;
 
             case SRVACK: /* RFC2608 8.4 */
@@ -1191,28 +1211,38 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_taglistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_slpspilen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, TRUE);
+                    offset += length;
+                }
             break;
 
             case ATTRRPLY: /* RFC2608 10.4 */
@@ -1224,8 +1254,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_attrrply_attrlistlen, tvb, offset, 2, length);
-                if (length > 0) {
-                    offset += 2;
+                offset += 2;
+                if (length) {
                     attr_list2(srvloc_tree, hf_srvloc_attrrply_attrlist, tvb, offset, length, CHARSET_UTF_8);
                     offset += length;
             		count = tvb_get_guint8(tvb, offset);
@@ -1253,23 +1283,31 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_attrlistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_slpspilen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
+                    offset += length;
+                }
 		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_authcount, tvb, offset, 1, count);
 		offset += 1;
@@ -1283,8 +1321,10 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
                 length = tvb_get_ntohs(tvb, offset);
 		if (0xFFFF == length) {
 		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlenall, tvb, offset, 2, length);
@@ -1292,14 +1332,18 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		} else {
 		    proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
 		    offset += 2;
-		    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, TRUE);
-		    offset += length;
-		}
+                    if (length) {
+		        proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, TRUE);
+		        offset += length;
+		    }
+                }
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
                 offset += 2;
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, TRUE);
-                offset += length;
+                if (length) {
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
             break;
 
 	    case SRVTYPERPLY: /* rfc2608 10.2 */
@@ -1312,26 +1356,34 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 length = tvb_get_ntohs(tvb, offset);
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelistlen, tvb, offset, 2, length);
                 offset += 2;
-		proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, TRUE);
+                if (length) {
+		    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, TRUE);
+                    offset += length;
+                }
             break;
 
 	    case SAADVERT: /* rfc2608 10.2 */
 		length = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_urllen, tvb, offset, 2,
-				    length);
+                  proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_urllen, tvb, offset, 2, length);
 		offset += 2;
-		proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
-		offset += length;
+                  if (length) {
+			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
+			offset += length;
+                  }
 		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_scopelistlen, tvb, offset, 2, length);
 		offset += 2;
-		proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
-		offset += length;
+                  if (length) {
+			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
+			offset += length;
+                  }
 		length = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_attrlistlen, tvb, offset, 2, length);
 		offset += 2;
-		proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, TRUE);
-		offset += length;
+                  if (length) {
+			proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, TRUE);
+			offset += length;
+                  }
 		count = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_authcount, tvb, offset, 1, length);
 		offset += 1;
@@ -1344,8 +1396,8 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             default:
                 expert_item = proto_tree_add_text(srvloc_tree, tvb, offset, -1, "Unknown Function Type");
                 expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "Unknown Function Type: %d", function);
-	    };
-	};
+	    }
+	}
     }
 }
 
