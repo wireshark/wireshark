@@ -1758,6 +1758,13 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
        dismiss the alert box popped up for the open error,
        try again. */
     g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */
+    if (file_save_as_w)
+      window_destroy(GTK_WIDGET (fs));
+#endif
     return;
   }
 
@@ -1914,8 +1921,14 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
-
        g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+      /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+       * as this will prevent the user from closing the now existing error
+       * message, simply close the dialog (this is the best we can do here). */
+      if (file_save_as_w)
+        window_destroy(GTK_WIDGET (fs));
+#endif
        return;
    }
 
