@@ -684,6 +684,13 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
     g_free(cf_name);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */	
+    if (file_open_w)
+      window_destroy(file_open_w);
+#endif
     return;
   }
 
@@ -1081,6 +1088,13 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
     g_free(tmpname);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+    /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+     * as this will prevent the user from closing the now existing error
+     * message, simply close the dialog (this is the best we can do here). */	
+    if (file_open_w)
+      window_destroy(file_open_w);
+#endif
     return;
   }
   g_free(tmpname);
