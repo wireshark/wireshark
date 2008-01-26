@@ -96,9 +96,9 @@ DistinguishedName	B	"2.5.4.49"	"id-at-distinguishedName"
 
 DistinguishedName	B	"2.5.18.3"	"id-oa-creatorsName"
 DistinguishedName	B	"2.5.18.4"	"id-oa-modifiersName"
-#SubtreeSpecification 	B 	"2.5.18.6" 	"id-oa-subtreeSpecification"
+SubtreeSpecification 	B 	"2.5.18.6" 	"id-oa-subtreeSpecification"
 DistinguishedName	B	"2.5.18.10"	"id-oa-subschemaSubentry"
-DistinguishedName	B	"2.5.18.11"	"id-oa-subschemaSubentry"
+DistinguishedName	B	"2.5.18.11"	"id-oa-accessControlSubentry"
 DistinguishedName	B	"2.5.18.12"	"id-oa-collectiveAttributeSubentry"
 DistinguishedName	B	"2.5.18.13"	"id-oa-contextDefaultSubentry"
 
@@ -150,6 +150,11 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
      /* append it to the tree */
      proto_item_append_text(tree, " (%%s=", name);
+    }
+
+    if(doing_attr) {
+      /* append it to the parent item */
+      proto_item_append_text(tree, " (%%s)", name);
     }
 
     if((fmt = val_to_str(hf_index, fmt_vals, "")) && *fmt) {
@@ -301,6 +306,12 @@ DistinguishedName B "2.16.840.1.101.2.2.1.140" "id-at-garrison"
 
 	ava_hf_index=-1;
 
+#.FN_BODY Attribute
+	doing_attr = TRUE;
+
+	%(DEFAULT_BODY)s
+
+	doing_attr = FALSE;
 #.END
 
 
