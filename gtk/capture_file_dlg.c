@@ -1493,6 +1493,15 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
         file_save_as_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+        /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
+         * as this will prevent the user from closing the now existing error
+         * message, simply close the dialog (this is the best we can do here). */
+        if (file_save_as_w)
+            window_destroy(file_save_as_w);
+#else
+        gtk_widget_show(file_save_as_w);
+#endif
         break;
     default:
         g_assert_not_reached();
