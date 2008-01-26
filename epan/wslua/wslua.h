@@ -53,6 +53,9 @@
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
+#if GLIB_MAJOR_VERSION < 2
+#include <dirent.h>
+#endif
 
 #include "declare_wslua.h"
 
