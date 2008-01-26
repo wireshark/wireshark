@@ -30,10 +30,14 @@ Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 AssertionValue TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 
 #.REGISTER
-SearchControlValue 	B "1.2.840.113556.1.4.319" "pagedResultsControl"
+SearchControlValue 		B "1.2.840.113556.1.4.319" "pagedResultsControl"
 SortKeyList	   		B "1.2.840.113556.1.4.473" "sortKeyList"
 SortResult			B "1.2.840.113556.1.4.474" "sortResult"
-ReplControlValue	B "1.2.840.113556.1.4.841" "replControlValue"
+ReplControlValue		B "1.2.840.113556.1.4.841" "replControlValue"
+#RFC 3062
+PasswdModifyRequestValue	B "1.3.6.1.4.1.4203.1.11.1" "passwdModifyOID"
+#RFC 3909
+CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 
 #.FN_FTR LDAPURL
 	PROTO_ITEM_SET_URL(actx->created_item);
@@ -316,7 +320,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY LDAPString VAL_PTR = &parameter_tvb
   tvbuff_t	*parameter_tvb = NULL;
-  char          *ldapstring;
+  char          *ldapstring = NULL;
   gchar		*sc = NULL; /* semi-colon pointer */
  
   %(DEFAULT_BODY)s
@@ -327,14 +331,15 @@ ldap_conv_info_t *ldap_info;
 
      if(parameter_tvb)
         ldapstring = tvb_get_ephemeral_string(parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
-     else
-        ldapstring = "<ROOT>";
 
      if(hf_index == hf_ldap_baseObject) {
   	/* this is search - put it on the scanline */
+	if(!ldapstring || !*ldapstring)
+	  ldapstring = "<ROOT>";
+
 	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
 	  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);
-  
+
   	if(ldm_tree)
   	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
 
@@ -344,13 +349,22 @@ ldap_conv_info_t *ldap_info;
 	  proto_item_append_text(actx->created_item, " (%%s)", ldapstring); 
 	}
 
-     } else if ((hf_index == hf_ldap_errorMessage) && result) { /* only show message if not success */
+     } else if ((hf_index == hf_ldap_errorMessage) && ldapstring && *ldapstring) { /* only show message if not success */
 	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
           col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s) ", ldapstring);     
 
         if(ldm_tree)
   	  proto_item_append_text(ldm_tree, " (%%s)", ldapstring); 
-     } else if (hf_index == hf_ldap_objectName) {
+
+     } else if ((hf_index == hf_ldap_objectName) || 
+		(hf_index == hf_ldap_name) || 
+	        (hf_index == hf_ldap_entry) ||
+		(hf_index == hf_ldap_object) ||
+		(hf_index == hf_ldap_delRequest) ) {
+
+	if(!ldapstring || !*ldapstring)
+	  ldapstring = "<ROOT>";
+
 	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
           col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);     
 
@@ -420,17 +434,14 @@ ldap_conv_info_t *ldap_info;
 
   ldap_do_protocolop(actx->pinfo);
 
-  if(result) {
-  
-    valstr = val_to_str(result, ldap_T_resultCode_vals, "Unknown result(%%u)");
+  valstr = val_to_str(result, ldap_T_resultCode_vals, "Unknown result(%%u)");
 
-    if (check_col(actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
+  if (check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
-    if(ldm_tree)
-      proto_item_append_text(ldm_tree, " %%s", valstr); 
+  if(ldm_tree)
+    proto_item_append_text(ldm_tree, " %%s", valstr); 
 
-  }
 
 #.FN_BODY BindResponse/_untag/resultCode  VAL_PTR = &result
 
@@ -440,17 +451,13 @@ ldap_conv_info_t *ldap_info;
 
   ldap_do_protocolop(actx->pinfo);
 
-  if(result) {
-  
-    valstr = val_to_str(result, ldap_BindResponse_resultCode_vals, "Unknown result(%%u)");
+  valstr = val_to_str(result, ldap_BindResponse_resultCode_vals, "Unknown result(%%u)");
 
-    if (check_col(actx->pinfo->cinfo, COL_INFO))
-      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
+  if (check_col(actx->pinfo->cinfo, COL_INFO))
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
-    if(ldm_tree)
-      proto_item_append_text(ldm_tree, " %%s", valstr); 
-
-  }
+  if(ldm_tree)
+    proto_item_append_text(ldm_tree, " %%s", valstr); 
 
   
 #.FN_BODY AttributeValue
@@ -563,8 +570,10 @@ ldap_conv_info_t *ldap_info;
 
 %(DEFAULT_BODY)s
 
-	proto_item_append_text(it, "%%s", and_filter_string);
-	Filter_string=ep_strdup_printf("%%s",and_filter_string);
+	if(and_filter_string) {
+		proto_item_append_text(it, "%%s", and_filter_string);
+		Filter_string=ep_strdup_printf("%%s",and_filter_string);
+	}
 	and_filter_string=old_and_filter_string;
 
 #.FN_FTR Filter/or/_item
@@ -587,8 +596,10 @@ ldap_conv_info_t *ldap_info;
 		tree = tr;
 	} 
 %(DEFAULT_BODY)s
-	proto_item_append_text(it, "%%s", or_filter_string);
-	Filter_string=ep_strdup_printf("%%s",or_filter_string);
+	if(or_filter_string) {
+		proto_item_append_text(it, "%%s", or_filter_string);
+		Filter_string=ep_strdup_printf("%%s",or_filter_string);
+	}
 	or_filter_string=old_or_filter_string;
 
 #.FN_FTR Filter/present
@@ -663,7 +674,8 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 		tree = tr;
 	}
 %(DEFAULT_BODY)s
-	proto_item_append_text(it, "%%s", Filter_string);
+	if(Filter_string)
+		proto_item_append_text(it, "%%s", Filter_string);
 
 #.FN_BODY AuthenticationChoice/ntlmsspNegotiate
 	/* make sure the protocol op comes first */
@@ -712,6 +724,29 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	} else {
 		%(DEFAULT_BODY)s
 	}
+
+
+#.FN_BODY ExtendedRequest/_untag/requestValue
+
+	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
+		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
+	} else {
+		%(DEFAULT_BODY)s
+	}
+
+#.FN_BODY SearchResultReference
+
+ %(DEFAULT_BODY)s
+
+ ldap_do_protocolop(actx->pinfo);  
+
+
+#.FN_BODY AbandonRequest
+
+ %(DEFAULT_BODY)s
+
+ ldap_do_protocolop(actx->pinfo);  
+
 
 #.NO_EMIT
 AttributeType

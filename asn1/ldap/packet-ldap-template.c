@@ -161,17 +161,22 @@ static gint ett_mscldap_netlogon_flags = -1;
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */
 
-/* desegmentation of LDAP */
-static gboolean ldap_desegment = TRUE;
-static guint    ldap_tcp_port = 389;
-
 static gboolean do_protocolop = FALSE;
 static gchar    *attr_type = NULL;
 static gboolean is_binary_attr_type = FALSE;
+static guint32 last_frame_seen = 0;
 
 #define TCP_PORT_LDAP			389
+#define TCP_PORT_LDAPS			636
 #define UDP_PORT_CLDAP			389
 #define TCP_PORT_GLOBALCAT_LDAP         3268 /* Windows 2000 Global Catalog */
+
+/* desegmentation of LDAP */
+static gboolean ldap_desegment = TRUE;
+static guint global_ldap_tcp_port = TCP_PORT_LDAP;
+static guint global_ldaps_tcp_port = TCP_PORT_LDAPS;
+static guint tcp_port = 0;
+static guint ssl_port = 0;
 
 static dissector_handle_t gssapi_handle = NULL;
 static dissector_handle_t gssapi_wrap_handle = NULL;
@@ -179,6 +184,9 @@ static dissector_handle_t ntlmssp_handle = NULL;
 static dissector_handle_t spnego_handle = NULL;
 static dissector_handle_t ssl_handle = NULL;
 static dissector_handle_t ldap_handle = NULL;
+
+void prefs_register_ldap(void); /* forward declaration for use in preferences registration */
+
 
 /* different types of rpc calls ontop of ms cldap */
 #define	MSCLDAP_RPC_NETLOGON 	1
@@ -733,7 +741,17 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
      * Info column.
      */
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) col_set_str(pinfo->cinfo, COL_PROTOCOL, pinfo->current_proto);
-    if (check_col(pinfo->cinfo, COL_INFO)) col_clear(pinfo->cinfo, COL_INFO);
+
+    if(last_frame_seen == pinfo->fd->num) {
+      /* we have already dissected an ldap PDU in this frame - add a separator and set a fence */
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_append_str(pinfo->cinfo, COL_INFO, "| ");
+	col_set_fence(pinfo->cinfo, COL_INFO);
+      }
+    } else
+      if (check_col(pinfo->cinfo, COL_INFO)) col_clear(pinfo->cinfo, COL_INFO);
+
+    last_frame_seen = pinfo->fd->num;
 
     ldap_item = proto_tree_add_item(tree, is_mscldap?proto_cldap:proto_ldap, tvb, 0, -1, FALSE);
     ldap_tree = proto_item_add_subtree(ldap_item, ett_ldap);
@@ -1423,8 +1441,8 @@ this_was_not_normal_ldap:
 	  guint32 old_start_tls_frame;
 
 	  /* temporarily dissect this port as SSL */
-	  dissector_delete("tcp.port", ldap_tcp_port, ldap_handle); 
-	  ssl_dissector_add(ldap_tcp_port, "ldap", TRUE);
+	  dissector_delete("tcp.port", tcp_port, ldap_handle); 
+	  ssl_dissector_add(tcp_port, "ldap", TRUE);
     
 	  old_start_tls_frame = ldap_info->start_tls_frame;
 	  ldap_info->start_tls_frame = 0; /* make sure we don't call SSL again */
@@ -1433,10 +1451,10 @@ this_was_not_normal_ldap:
 	  offset = call_dissector(ssl_handle, tvb, pinfo, tree);
 
 	  ldap_info->start_tls_frame = old_start_tls_frame;
-	  ssl_dissector_delete(ldap_tcp_port, "ldap", TRUE);
+	  ssl_dissector_delete(tcp_port, "ldap", TRUE);
 
 	  /* restore ldap as the dissector for this port */
-	  dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
+	  dissector_add("tcp.port", tcp_port, ldap_handle);
 
 	  /* we are done */
 	  return;
@@ -1471,6 +1489,7 @@ ldap_reinit(void)
   }
 
   ldap_info_items = NULL;
+  last_frame_seen = 0;
 
 }
 
@@ -1685,7 +1704,7 @@ void proto_register_ldap(void) {
 
   register_dissector("ldap", dissect_ldap_tcp, proto_ldap);
 
-  ldap_module = prefs_register_protocol(proto_ldap, NULL);
+  ldap_module = prefs_register_protocol(proto_ldap, prefs_register_ldap);
   prefs_register_bool_preference(ldap_module, "desegment_ldap_messages",
     "Reassemble LDAP messages spanning multiple TCP segments",
     "Whether the LDAP dissector should reassemble messages spanning multiple TCP segments."
@@ -1694,7 +1713,11 @@ void proto_register_ldap(void) {
 
   prefs_register_uint_preference(ldap_module, "tcp.port", "LDAP TCP Port",
 				 "Set the port for LDAP operations",
-				 10, &ldap_tcp_port);
+				 10, &global_ldap_tcp_port);
+
+  prefs_register_uint_preference(ldap_module, "ssl.port", "LDAPS TCP Port",
+				 "Set the port for LDAP operations over SSL",
+				 10, &global_ldaps_tcp_port);
 
   prefs_register_obsolete_preference(ldap_module, "max_pdu");
 
@@ -1717,8 +1740,10 @@ proto_reg_handoff_ldap(void)
 	dissector_handle_t cldap_handle;
 	ldap_handle = create_dissector_handle(dissect_ldap_tcp, proto_ldap);
 
-	dissector_add("tcp.port", ldap_tcp_port, ldap_handle);
+	dissector_add("tcp.port", global_ldap_tcp_port, ldap_handle);
 	dissector_add("tcp.port", TCP_PORT_GLOBALCAT_LDAP, ldap_handle);
+
+	ssl_dissector_add(global_ldaps_tcp_port, "ldap", TRUE);
 
 	cldap_handle = create_dissector_handle(dissect_mscldap, proto_cldap);
 	dissector_add("udp.port", UDP_PORT_CLDAP, cldap_handle);
@@ -1781,4 +1806,29 @@ proto_reg_handoff_ldap(void)
 
 }
 
+void prefs_register_ldap(void) {
 
+  if(tcp_port != global_ldap_tcp_port) {
+    if(tcp_port)
+      dissector_delete("tcp.port", tcp_port, ldap_handle);
+
+    /* Set our port number for future use */
+    tcp_port = global_ldap_tcp_port;
+
+    if(tcp_port) 
+      dissector_add("tcp.port", tcp_port, ldap_handle);
+
+  }
+
+  if(ssl_port != global_ldaps_tcp_port) {
+    if(ssl_port)
+      ssl_dissector_delete(ssl_port, "ldap", TRUE);
+
+    /* Set our port number for future use */
+    ssl_port = global_ldaps_tcp_port;
+
+    if(ssl_port) 
+      ssl_dissector_add(ssl_port, "ldap", TRUE);
+  }
+
+}
