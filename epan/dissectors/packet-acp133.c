@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-acp133.c                                                            */
-/* ../../tools/asn2wrs.py -b -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn */
+/* ../../tools/asn2wrs.py -b -p acp133 -c acp133.cnf -s packet-acp133-template acp133.asn MHSDirectoryObjectsAndAttributes.asn */
 
 /* Input file: packet-acp133-template.c */
 
@@ -208,7 +208,7 @@ static const value_string acp133_ALType_vals[] = {
 static int
 dissect_acp133_ALType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -272,7 +272,7 @@ static const value_string acp133_ACPLegacyFormat_vals[] = {
 static int
 dissect_acp133_ACPLegacyFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -357,7 +357,7 @@ dissect_acp133_Kmid(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_acp133_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -506,11 +506,11 @@ dissect_acp133_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static const ber_sequence_t RIParameters_set[] = {
-  { &hf_acp133_rI           , BER_CLASS_CON, 0, 0, dissect_acp133_PrintableString },
-  { &hf_acp133_rIType       , BER_CLASS_CON, 1, 0, dissect_acp133_T_rIType },
-  { &hf_acp133_minimize     , BER_CLASS_CON, 2, 0, dissect_acp133_BOOLEAN },
-  { &hf_acp133_sHD          , BER_CLASS_CON, 3, 0, dissect_acp133_PrintableString },
-  { &hf_acp133_classification, BER_CLASS_CON, 4, 0, dissect_acp133_Classification },
+  { &hf_acp133_rI           , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acp133_PrintableString },
+  { &hf_acp133_rIType       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acp133_T_rIType },
+  { &hf_acp133_minimize     , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acp133_BOOLEAN },
+  { &hf_acp133_sHD          , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_acp133_PrintableString },
+  { &hf_acp133_classification, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_acp133_Classification },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -553,9 +553,9 @@ static const value_string acp133_MLReceiptPolicy_vals[] = {
 };
 
 static const ber_choice_t MLReceiptPolicy_choice[] = {
-  {   0, &hf_acp133_none         , BER_CLASS_CON, 0, 0, dissect_acp133_NULL },
-  {   1, &hf_acp133_insteadOf    , BER_CLASS_CON, 1, 0, dissect_acp133_SEQUENCE_OF_GeneralNames },
-  {   2, &hf_acp133_inAdditionTo , BER_CLASS_CON, 2, 0, dissect_acp133_SEQUENCE_OF_GeneralNames },
+  {   0, &hf_acp133_none         , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acp133_NULL },
+  {   1, &hf_acp133_insteadOf    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acp133_SEQUENCE_OF_GeneralNames },
+  {   2, &hf_acp133_inAdditionTo , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acp133_SEQUENCE_OF_GeneralNames },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -587,10 +587,10 @@ static const value_string acp133_DLSubmitPermission_vals[] = {
 };
 
 static const ber_choice_t DLSubmitPermission_choice[] = {
-  {   0, &hf_acp133_individual   , BER_CLASS_CON, 0, 0, dissect_x411_ORName },
-  {   1, &hf_acp133_member_of_dl , BER_CLASS_CON, 1, 0, dissect_x411_ORName },
-  {   2, &hf_acp133_pattern_match, BER_CLASS_CON, 2, 0, dissect_acp133_ORNamePattern },
-  {   3, &hf_acp133_member_of_group, BER_CLASS_CON, 3, 0, dissect_x509if_Name },
+  {   0, &hf_acp133_individual   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x411_ORName },
+  {   1, &hf_acp133_member_of_dl , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_x411_ORName },
+  {   2, &hf_acp133_pattern_match, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_acp133_ORNamePattern },
+  {   3, &hf_acp133_member_of_group, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_x509if_Name },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -615,7 +615,7 @@ static const value_string acp133_T_report_propagation_vals[] = {
 static int
 dissect_acp133_T_report_propagation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -631,7 +631,7 @@ static const value_string acp133_T_report_from_dl_vals[] = {
 static int
 dissect_acp133_T_report_from_dl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -649,7 +649,7 @@ static const value_string acp133_T_originating_MTA_report_vals[] = {
 static int
 dissect_acp133_T_originating_MTA_report(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -667,7 +667,7 @@ static const value_string acp133_T_originator_report_vals[] = {
 static int
 dissect_acp133_T_originator_report(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -702,7 +702,7 @@ static const value_string acp133_T_priority_vals[] = {
 static int
 dissect_acp133_T_priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -771,7 +771,7 @@ static const value_string acp133_T_proof_of_delivery_vals[] = {
 static int
 dissect_acp133_T_proof_of_delivery(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -785,8 +785,8 @@ static const value_string acp133_T_requested_delivery_method_vals[] = {
 };
 
 static const ber_choice_t T_requested_delivery_method_choice[] = {
-  {   0, &hf_acp133_unchanged    , BER_CLASS_CON, 0, 0, dissect_acp133_NULL },
-  {   1, &hf_acp133_removed      , BER_CLASS_CON, 1, 0, dissect_acp133_NULL },
+  {   0, &hf_acp133_unchanged    , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_acp133_NULL },
+  {   1, &hf_acp133_removed      , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_acp133_NULL },
   {   2, &hf_acp133_replaced     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x411_RequestedDeliveryMethod },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -802,9 +802,9 @@ dissect_acp133_T_requested_delivery_method(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static const ber_sequence_t AlgorithmInformation_sequence[] = {
-  { &hf_acp133_algorithm_identifier, BER_CLASS_CON, 0, 0, dissect_x509af_AlgorithmIdentifier },
-  { &hf_acp133_originator_certificate_selector, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_x509ce_CertificateAssertion },
-  { &hf_acp133_recipient_certificate_selector, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_x509ce_CertificateAssertion },
+  { &hf_acp133_algorithm_identifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_x509af_AlgorithmIdentifier },
+  { &hf_acp133_originator_certificate_selector, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CertificateAssertion },
+  { &hf_acp133_recipient_certificate_selector, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x509ce_CertificateAssertion },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -831,21 +831,21 @@ dissect_acp133_SEQUENCE_OF_AlgorithmInformation(gboolean implicit_tag _U_, tvbuf
 
 
 static const ber_sequence_t DLPolicy_set[] = {
-  { &hf_acp133_report_propagation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_acp133_T_report_propagation },
-  { &hf_acp133_report_from_dl, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_acp133_T_report_from_dl },
-  { &hf_acp133_originating_MTA_report, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_acp133_T_originating_MTA_report },
-  { &hf_acp133_originator_report, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_acp133_T_originator_report },
-  { &hf_acp133_return_of_content, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_acp133_T_return_of_content },
-  { &hf_acp133_priority     , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL, dissect_acp133_T_priority },
-  { &hf_acp133_disclosure_of_other_recipients, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL, dissect_acp133_T_disclosure_of_other_recipients },
-  { &hf_acp133_implicit_conversion_prohibited, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL, dissect_acp133_T_implicit_conversion_prohibited },
-  { &hf_acp133_conversion_with_loss_prohibited, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL, dissect_acp133_T_conversion_with_loss_prohibited },
-  { &hf_acp133_further_dl_expansion_allowed, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL, dissect_acp133_BOOLEAN },
-  { &hf_acp133_originator_requested_alternate_recipient_removed, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL, dissect_acp133_BOOLEAN },
-  { &hf_acp133_proof_of_delivery, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL, dissect_acp133_T_proof_of_delivery },
-  { &hf_acp133_requested_delivery_method, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL, dissect_acp133_T_requested_delivery_method },
-  { &hf_acp133_token_encryption_algorithm_preference, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL, dissect_acp133_SEQUENCE_OF_AlgorithmInformation },
-  { &hf_acp133_token_signature_algorithm_preference, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL, dissect_acp133_SEQUENCE_OF_AlgorithmInformation },
+  { &hf_acp133_report_propagation, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_report_propagation },
+  { &hf_acp133_report_from_dl, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_report_from_dl },
+  { &hf_acp133_originating_MTA_report, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_originating_MTA_report },
+  { &hf_acp133_originator_report, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_originator_report },
+  { &hf_acp133_return_of_content, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_return_of_content },
+  { &hf_acp133_priority     , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_priority },
+  { &hf_acp133_disclosure_of_other_recipients, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_disclosure_of_other_recipients },
+  { &hf_acp133_implicit_conversion_prohibited, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_implicit_conversion_prohibited },
+  { &hf_acp133_conversion_with_loss_prohibited, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_conversion_with_loss_prohibited },
+  { &hf_acp133_further_dl_expansion_allowed, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_BOOLEAN },
+  { &hf_acp133_originator_requested_alternate_recipient_removed, BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_BOOLEAN },
+  { &hf_acp133_proof_of_delivery, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_proof_of_delivery },
+  { &hf_acp133_requested_delivery_method, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_T_requested_delivery_method },
+  { &hf_acp133_token_encryption_algorithm_preference, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_SEQUENCE_OF_AlgorithmInformation },
+  { &hf_acp133_token_signature_algorithm_preference, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_SEQUENCE_OF_AlgorithmInformation },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -883,10 +883,10 @@ dissect_acp133_SET_OF_ExtendedContentType(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static const ber_sequence_t Capability_set[] = {
-  { &hf_acp133_content_types, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_acp133_SET_OF_ExtendedContentType },
-  { &hf_acp133_maximum_content_length, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_x411_ContentLength },
-  { &hf_acp133_encoded_information_types_constraints, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_x411_EncodedInformationTypesConstraints },
-  { &hf_acp133_security_labels, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_x411_SecurityContext },
+  { &hf_acp133_content_types, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_acp133_SET_OF_ExtendedContentType },
+  { &hf_acp133_maximum_content_length, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_ContentLength },
+  { &hf_acp133_encoded_information_types_constraints, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_EncodedInformationTypesConstraints },
+  { &hf_acp133_security_labels, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_x411_SecurityContext },
   { NULL, 0, 0, 0, NULL }
 };
 
