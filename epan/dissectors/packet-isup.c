@@ -3557,47 +3557,46 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 	}
 	/*
 	 * Defragment ?
-	 * (si_and_apm_seg_ind != 0xc0) -> Non segmented APM message
-	 * (si_and_apm_seg_ind & H_8BIT_MASK)
-	 *    -> NO Segmentation local ref ( without SLR defrag. does not work)
 	 *
 	 */
-	if (isup_apm_desegment &&
-	    (si_and_apm_seg_ind != 0xc0 || si_and_apm_seg_ind & H_8BIT_MASK)){
-		/* Segmented message */
-		save_fragmented = pinfo->fragmented;
-		pinfo->fragmented = TRUE;
-		more_frag = TRUE;
-		if ((si_and_apm_seg_ind == 0))
-			more_frag = FALSE;
+	if (isup_apm_desegment){
+		if ((si_and_apm_seg_ind != 0xc0) && ((si_and_apm_seg_ind & H_8BIT_MASK)!=0x80)){
+			g_warning("got here Frame %u",pinfo->fd->num);
+			/* Segmented message */
+			save_fragmented = pinfo->fragmented;
+			pinfo->fragmented = TRUE;
+			more_frag = TRUE;
+			if ((si_and_apm_seg_ind == 0))
+				more_frag = FALSE;
 
-		frag_msg = fragment_add_seq_next(parameter_tvb, offset, pinfo,
-				(apm_Segmentation_local_ref & 0x7f),			/* ID for fragments belonging together */
-				isup_apm_msg_fragment_table,					/* list of message fragments */
-				isup_apm_msg_reassembled_table,					/* list of reassembled messages */
-				tvb_length_remaining(parameter_tvb, offset),	/* fragment length - to the end */
-				more_frag);										/* More fragments? */
+			frag_msg = fragment_add_seq_next(parameter_tvb, offset, pinfo,
+					(apm_Segmentation_local_ref & 0x7f),			/* ID for fragments belonging together */
+					isup_apm_msg_fragment_table,					/* list of message fragments */
+					isup_apm_msg_reassembled_table,					/* list of reassembled messages */
+					tvb_length_remaining(parameter_tvb, offset),	/* fragment length - to the end */
+					more_frag);										/* More fragments? */
 
-		if ((si_and_apm_seg_ind & 0x3f) !=0 && (si_and_apm_seg_ind &0x40) !=0){
-			/* First fragment set number of fragments */
-			fragment_set_tot_len(pinfo, apm_Segmentation_local_ref & 0x7f, isup_apm_msg_fragment_table, (si_and_apm_seg_ind & 0x3f));
+			if ((si_and_apm_seg_ind & 0x3f) !=0 && (si_and_apm_seg_ind &0x40) !=0){
+				/* First fragment set number of fragments */
+				fragment_set_tot_len(pinfo, apm_Segmentation_local_ref & 0x7f, isup_apm_msg_fragment_table, (si_and_apm_seg_ind & 0x3f));
+			}
+
+			new_tvb = process_reassembled_data(parameter_tvb, offset, pinfo,
+				"Reassembled Message", frag_msg, &isup_apm_msg_frag_items,
+				NULL, parameter_tree);
+
+			if (frag_msg) { /* Reassembled */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO,
+					" (Message Reassembled)");
+			} else { /* Not last packet of reassembled Short Message */
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_append_str(pinfo->cinfo, COL_INFO,
+					" (Message fragment )");
+			}
+
+			pinfo->fragmented = save_fragmented;
 		}
-
-		new_tvb = process_reassembled_data(parameter_tvb, offset, pinfo,
-			"Reassembled Message", frag_msg, &isup_apm_msg_frag_items,
-			NULL, parameter_tree);
-
-		if (frag_msg) { /* Reassembled */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
-				" (Message Reassembled)");
-		} else { /* Not last packet of reassembled Short Message */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_str(pinfo->cinfo, COL_INFO,
-				" (Message fragment )");
-		}
-
-		pinfo->fragmented = save_fragmented;
 	}/*isup_apm_desegment*/
 
 	if ( offset == (gint)length){
