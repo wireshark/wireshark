@@ -340,6 +340,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dhcp-failover.c	\
 	packet-dhcpv6.c		\
 	packet-diameter.c	\
+	packet-diameter_3gpp.c	\
 	packet-dis.c		\
 	packet-dis-enums.c	\
 	packet-dis-fields.c	\

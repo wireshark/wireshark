@@ -1120,6 +1120,8 @@ static int hf_gsm_a_dtap_cause = -1;
 
 static int hf_gsm_a_MSC_rev = -1;
 static int hf_gsm_a_ES_IND			= -1;
+static int hf_gsm_a_qos_delay_cls	= -1;
+static int hf_gsm_a_qos_qos_reliability_cls = -1;
 static int hf_gsm_a_qos_traffic_cls = -1;
 static int hf_gsm_a_qos_del_order = -1;
 static int hf_gsm_a_qos_del_of_err_sdu = -1;
@@ -11513,8 +11515,29 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 }
 
 /*
- * [7] 10.5.6.5
+ * [7] 10.5.6.5 3GPP TS 24.008 version 7.8.0 Release 7
  */
+
+ static const value_string gsm_a_qos_delay_cls_vals[] = {
+	{ 0x00, "Subscribed delay class (in MS to network direction)" },
+	{ 0x01, "Delay class 1" },
+	{ 0x02, "Delay class 2" },
+	{ 0x03, "Delay class 3" },
+	{ 0x04, "Delay class 4 (best effort)" },
+	{ 0x07,	"Reserved" },
+	{ 0, NULL }
+};
+
+ static const value_string gsm_a_qos_reliability_vals[] = {
+	{ 0x00, "Subscribed reliability class (in MS to network direction)" },
+	{ 0x01, "Acknowledged GTP, LLC, and RLC; Protected data" },
+	{ 0x02, "Unacknowledged GTP, Ack LLC/RLC, Protected data" },
+	{ 0x03, "Unacknowledged GTP/LLC, Ack RLC, Protected data" },
+	{ 0x04, "Unacknowledged GTP/LLC/RLC, Protected data" },
+	{ 0x05, "Unacknowledged GTP/LLC/RLC, Unprotected data" },
+	{ 0x07, "Reserved" },
+	{ 0, NULL }
+};
  /* Delivery of erroneous SDUs, octet 6 (see 3GPP TS 23.107) Bits 3 2 1 */
 const value_string gsm_a_qos_del_of_err_sdu_vals[] = {
 	{ 0, "Subscribed delivery of erroneous SDUs/Reserved" },
@@ -11596,36 +11619,8 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    switch ( (oct>>3)&7 )
-    {
-    	case 0x00: str="Subscribed delay class/reserved"; break;
-    	case 0x01: str="Delay class 1"; break;
-    	case 0x02: str="Delay class 2"; break;
-    	case 0x03: str="Delay class 3"; break;
-    	case 0x04: str="Delay class 4 (best effort)"; break;
-    	case 0x07: str="Reserved"; break;
-    	default: str="Delay class 4 (best effort)";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Delay class: (%u) %s",(oct>>3)&7,str);
-
-    switch ( oct&0x7 )
-    {
-    	case 0x00: str="Subscribed reliability class/reserved"; break;
-    	case 0x01: str="Acknowledged GTP, LLC, and RLC; Protected data"; break;
-    	case 0x02: str="Unacknowledged GTP; Acknowledged LLC and RLC, Protected data"; break;
-    	case 0x03: str="Unacknowledged GTP and LLC; Acknowledged RLC, Protected data"; break;
-    	case 0x04: str="Unacknowledged GTP, LLC, and RLC, Protected data"; break;
-    	case 0x05: str="Unacknowledged GTP, LLC, and RLC, Unprotected data"; break;
-    	case 0x07: str="Reserved"; break;
-    	default: str="Unacknowledged GTP and LLC; Acknowledged RLC, Protected data";
-    }
-
-    proto_tree_add_text(tree,
-    	tvb, curr_offset, 1,
-    	"Reliability class: (%u) %s",oct&7,str);
+    proto_tree_add_item(tree, hf_gsm_a_qos_delay_cls, tvb, curr_offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gsm_a_qos_qos_reliability_cls, tvb, curr_offset, 1, FALSE);
 
     curr_offset+= 1;	   
     curr_len-= 1;
@@ -19053,6 +19048,15 @@ proto_register_gsm_a(void)
 		FT_UINT8,BASE_DEC,  VALS(ES_IND_vals), 0x10,          
 			"ES IND", HFILL }
 	},
+	{ &hf_gsm_a_qos_delay_cls, 
+     { "Delay class", "gsm_a.qos.delay_cls",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x38, 
+		"Quality of Service Delay Class", HFILL }},
+	{ &hf_gsm_a_qos_qos_reliability_cls, 
+     { "Reliability class", "gsm_a.qos.delay_cls",
+		FT_UINT8, BASE_DEC, VALS(gsm_a_qos_delay_cls_vals), 0x07, 
+		"Reliability class", HFILL }},
+
     { &hf_gsm_a_qos_traffic_cls,
       { "Traffic class", "gsm_a.qos.traffic_cls",
         FT_UINT8, BASE_DEC, VALS(gsm_a_qos_traffic_cls_vals), 0xe0,

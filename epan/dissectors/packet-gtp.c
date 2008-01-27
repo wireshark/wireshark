@@ -934,11 +934,11 @@ static const value_string qos_delay_type[] = {
 
 static const value_string qos_reliability_type[] = {
 	{ 0x00, "Subscribed reliability class (in MS to network direction)" },
-	{ 0x01, "Ack GTP/LLC/RLC, Protected data" },
-	{ 0x02, "Unack GTP, Ack LLC/RLC, Protected data" },
-	{ 0x03, "Unack GTP/LLC, Ack RLC, Protected data" },
-	{ 0x04, "Unack GTP/LLC/RLC, Protected data" },
-	{ 0x05, "Unack GTP/LLC/RLC, Unprotected data" },
+	{ 0x01, "Acknowledged GTP, LLC, and RLC; Protected data" },
+	{ 0x02, "Unacknowledged GTP, Ack LLC/RLC, Protected data" },
+	{ 0x03, "Unacknowledged GTP/LLC, Ack RLC, Protected data" },
+	{ 0x04, "Unacknowledged GTP/LLC/RLC, Protected data" },
+	{ 0x05, "Unacknowledged GTP/LLC/RLC, Unprotected data" },
 	{ 0x07, "Reserved" },
 	{ 0, NULL }
 };
@@ -5032,6 +5032,18 @@ decode_gtp_mbms_prot_conf_opt(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7, chapter 7.7.59
  * MBMS Session Duration
  */
+/* Used for Diameter */
+static int dissect_gtp_mbms_ses_dur(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	int offset = 0;
+
+	proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_days, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gtp_mbms_ses_dur_s, tvb, offset, 3, FALSE);
+
+	return 3;
+
+}
+
 static int
 decode_gtp_mbms_ses_dur(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -5355,6 +5367,19 @@ decode_gtp_mbms_ses_id_rep_no(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  * UMTS:	3GPP TS 29.060 version 7.8.0 Release 7
  * MBMS Time To Data Transfer
  */
+/* Used for Diameter */
+static int dissect_gtp_mbms_time_to_data_tr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	int offset = 0;
+	guint8 time_2_dta_tr;
+
+	time_2_dta_tr = tvb_get_guint8(tvb,offset) + 1;
+	proto_tree_add_uint(tree, hf_gtp_time_2_dta_tr, tvb, offset, 1, time_2_dta_tr);
+
+	return 3;
+
+}
+
 static int
 decode_gtp_mbms_time_to_data_tr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -6397,5 +6422,11 @@ proto_reg_handoff_gtp(void)
 	data_handle = find_dissector("data");
 	gtpcdr_handle = find_dissector("gtpcdr");
 	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
+	/* AVP Code: 904 MBMS-Session-Duration */
+	dissector_add("diameter.3gpp", 904, new_create_dissector_handle(dissect_gtp_mbms_ses_dur, proto_gtp));
+	/* AVP Code: 911 MBMS-Time-To-Data-Transfer */
+	dissector_add("diameter.3gpp", 911, new_create_dissector_handle(dissect_gtp_mbms_time_to_data_tr, proto_gtp));
+
+	
 
 }

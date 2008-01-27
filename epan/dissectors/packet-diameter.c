@@ -268,6 +268,10 @@ static range_t *diameter_tcp_port_range;
 /* desegmentation of Diameter over TCP */
 static gboolean gbl_diameter_desegment = TRUE;
 
+/* Dissector tables */
+#define VND_3GPP		10415
+static dissector_table_t diameter_3gpp_avp_dissector_table;
+
 static const char* avpflags_str[] = {
 	"---",
 	"--P",
@@ -397,6 +401,20 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	c->tree = save_tree;
 
 	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
+
+	/* Call subdissectors for AVP:s */
+	switch (vendorid){
+	case 0:
+		break;
+	case VND_3GPP:
+		dissector_try_port(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
+		break;
+	default:
+		break;
+	}
+	/* Debug
+	proto_tree_add_text(avp_tree, subtvb, 0, -1, "AVP %u data, Vendor Id %u ",code,vendorid);
+	*/
 
 	return len;
 }
@@ -1342,6 +1360,9 @@ proto_register_diameter(void)
 
 	/* Allow dissector to find be found by name. */
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
+	
+	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */ 
+	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
