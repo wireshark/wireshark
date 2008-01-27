@@ -7,8 +7,8 @@
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save privious tag.
-#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2007-12-25/packages/"
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-01-15/packages/"
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-01-15/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-01-27/packages/"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 # DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
