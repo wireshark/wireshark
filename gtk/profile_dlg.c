@@ -226,9 +226,12 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
     gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
     if (fl_entry) {
       profile = (profile_def *) fl_entry->data;
-      if (strcmp(profile->name, DEFAULT_PROFILE)!=0) {
+      if (profile_exists (profile->name)) {
+	/* The new profile exists, change */
 	change_configuration_profile (profile->name);
-      } else {
+      } else if (!profile_exists (get_profile_name())) {
+	/* The new profile does not exist, and the previous profile has 
+	   been deleted.  Change to the default profile */
 	change_configuration_profile (NULL);
       }
     }

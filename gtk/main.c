@@ -5026,7 +5026,12 @@ void change_configuration_profile (const gchar *profile_name)
 {
    char  *gdp_path, *dp_path;
 
-   /* First set profile name and update the status bar */
+   /* First check if profile exists */
+   if (!profile_exists(profile_name)) {
+     return;
+   }
+
+   /* Set profile name and update the status bar */
    set_profile_name (profile_name);
    profile_bar_update ();
 

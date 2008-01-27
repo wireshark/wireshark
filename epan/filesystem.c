@@ -793,7 +793,8 @@ set_profile_name(const gchar *profilename)
 		g_free (persconfprofile);
 	}
 
-	if (profilename && strlen(profilename) > 0) {
+	if (profilename && strlen(profilename) > 0 && 
+	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
 		persconfprofile = g_strdup (profilename);
 	} else {
 		/* Default Profile */
@@ -929,9 +930,10 @@ get_persconffile_dir(const gchar *profilename)
 		g_free (persconffile_profile_dir);
 	}
 
-	if (profilename) {
-	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (), G_DIR_SEPARATOR_S,
-						      profilename);
+	if (profilename && strlen(profilename) > 0 &&
+	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
+	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (), 
+						      G_DIR_SEPARATOR_S, profilename);
 	} else {
 	  persconffile_profile_dir = g_strdup_printf (get_persconffile_dir_no_profile ());
 	}
@@ -959,7 +961,8 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 
 	if ((dir = eth_dir_open(directory, 0, NULL)) != NULL) {
 		while ((file = eth_dir_read_name(dir)) != NULL) {
-			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, eth_dir_get_name(file));
+			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, 
+						    eth_dir_get_name(file));
 			if (test_for_directory(filename) != EISDIR) {
 				ret = eth_remove(filename);
 #if 0
