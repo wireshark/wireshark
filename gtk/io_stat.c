@@ -448,7 +448,7 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 			break;
 		case CALC_TYPE_AVG:
 			if(it->frames){
-				value=it->int_tot/it->frames;
+				value=(it->int_max+it->int_min)/2;
 			} else {
 				value=0;
 			}
@@ -473,11 +473,13 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 			break;
 		case CALC_TYPE_AVG:
 			if(it->frames){
-				guint64 t; /* time in us */
+				guint64 t1, t2; /* time in us */
 
-				t=it->time_tot.secs;
-				t=t*1000000+it->time_tot.nsecs/1000;
-				value=(guint32) (t/it->frames);
+				t1=it->time_max.secs;
+				t1=t1*1000000+it->time_max.nsecs/1000;
+				t2=it->time_min.secs;
+				t2=t2*1000000+it->time_min.nsecs/1000;
+				value=(guint32) ((t1+t2)/2);
 			} else {
 				value=0;
 			}
