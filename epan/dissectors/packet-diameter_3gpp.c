@@ -56,8 +56,9 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 	int offset = 0;
 
 	proto_tree_add_item(tree, hf_diameter_3gpp_ipaddr, tvb, 0, 4, FALSE);
+	offset += 4;
 
-	return 4;
+	return offset;
 
 }
 
