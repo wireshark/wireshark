@@ -5,7 +5,7 @@
  *                 Nicolas Balkota <balkota@mac.com>
  *
  * Updates and corrections:
- * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2006 - 2008, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -5111,7 +5111,7 @@ decode_gtp_mbms_sa(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 	 * The length of an MBMS service area code is 2 octets.
 	 */
 	for (i=0;i<no_of_mbms_sa_codes;i++) {
-		item = proto_tree_add_item(ext_tree, hf_gtp_mbms_sa_code, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ext_tree, hf_gtp_mbms_sa_code, tvb, offset, 2, FALSE);
 		offset = offset +2;
 	}
 
