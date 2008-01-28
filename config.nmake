@@ -287,7 +287,7 @@ ICONV_DIR=$(WIRESHARK_LIBS)\libiconv-1.9.1.bin.woe32
 #
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
-GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17
+GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
 #
 # Optional: AirPcap developer's pack to capture wireless network traffic 
 # incl. 802.11 management frames.
