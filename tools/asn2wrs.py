@@ -3744,10 +3744,7 @@ class SeqType (SqType):
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
-    if (ectx.Ber()):
-      table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
-    else:
-        table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
+    table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
     else:
@@ -3778,10 +3775,7 @@ class SeqOfType (SqType):
       f = fname + '/' + self.val.name
     else:
       f = fname + '/' + '_item'
-    if (ectx.Ber()):
-      table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
-    else:
-      table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
+    table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
     table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
     table += "};\n"
     return table
@@ -4243,10 +4237,7 @@ class ChoiceType (Type):
     #print "eth_type_default_table(tname='%s')" % (tname)
     fname = ectx.eth_type[tname]['ref'][0]
     tagval = self.detect_tagval(ectx)
-    if (ectx.Ber()):
-      table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
-    else:
-      table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
+    table = "static const %(ER)s_choice_t %(TABLE)s[] = {\n"
     cnt = 0
     if hasattr(self, 'ext_list'):
       ext = 'ASN1_EXTENSION_ROOT'
