@@ -871,6 +871,38 @@
 		</avp>
 		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
+			<enum name="Diameter Common Messages" code="0"/>
+			<enum name="Diameter NASREQ Application" code="1"/>
+			<enum name="Diameter Mobile IPv4 Application" code="2"/>
+			<enum name="Diameter Base Accounting" code="3"/>
+			<enum name="3GPP CX/DX" code="16777216"/>
+			<enum name="3GPP Sh" code="16777217"/>
+			<enum name="3GPP Re/Rf" code="16777218"/>
+			<enum name="3GPP Wx" code="16777219"/>
+			<enum name="GPP Zn" code="16777220"/>
+			<enum name="3GPP Zh" code="16777221"/>
+			<enum name="3GPP Gq" code="16777222"/>
+			<enum name="3GPP Gmb" code="16777223"/>
+			<enum name="3GPP Gx" code="16777224"/>
+			<enum name="3GPP Gx over Gy" code="16777225"/>
+			<enum name="3GPP MM10" code="16777226"/>
+			<enum name="Ericsson MSI" code="16777227"/>
+			<enum name="Ericsson Zx" code="16777228"/>
+			<enum name="3GPP Rx" code="16777229"/>
+			<enum name="3GPP Pr" code="16777230"/>
+			<enum name="ETSI e4" code="16777231"/>
+			<enum name="Ericsson Charging-CIP" code="16777232"/>
+			<enum name="Ericsson Mm" code="16777233"/>
+			<enum name="Vodafone Gx+" code="16777234"/>
+			<enum name="ITU-T Rs" code="16777235"/>
+
+			<enum name="3GPP Rx" code="16777236"/>
+			<enum name="3GPP2 Ty" code="16777237"/>
+			<enum name="3GPP Gx" code="16777238"/>
+			<enum name="Juniper Cluster" code="16777239"/>
+			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
+			<enum name="iptego USPI" code="16777241"/>
+			<enum name="Relay" code="4294967295"/>
 		</avp>		
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>

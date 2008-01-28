@@ -270,6 +270,7 @@ static gboolean gbl_diameter_desegment = TRUE;
 
 /* Dissector tables */
 #define VND_3GPP		10415
+static dissector_table_t diameter_dissector_table;
 static dissector_table_t diameter_3gpp_avp_dissector_table;
 
 static const char* avpflags_str[] = {
@@ -282,6 +283,21 @@ static const char* avpflags_str[] = {
 	"VM-",
 	"VMP",
 };
+
+/* Special decoding of some AVP:s */
+
+static int
+dissect_diameter_vedor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	int offset = 0;
+
+	proto_tree_add_item(tree, hf_diameter_vendor_id, tvb, 0, 4, FALSE);
+
+	offset++;
+	return offset;
+
+}
+
 
 /* Dissect an AVP at offset */
 static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
@@ -405,6 +421,7 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 	/* Call subdissectors for AVP:s */
 	switch (vendorid){
 	case 0:
+		dissector_try_port(diameter_dissector_table, code, subtvb, c->pinfo, avp_tree);
 		break;
 	case VND_3GPP:
 		dissector_try_port(diameter_3gpp_avp_dissector_table, code, subtvb, c->pinfo, avp_tree);
@@ -1234,6 +1251,11 @@ proto_reg_handoff_diameter(void)
 	SctpPort=gbl_diameterSctpPort;
 
 	dissector_add("sctp.port", gbl_diameterSctpPort, diameter_handle);
+
+	/* Register special decoding for some AVP:s */
+	/* AVP Code: 266 Vendor-Id */
+	dissector_add("diameter.base", 266, new_create_dissector_handle(dissect_diameter_vedor_id, proto_diameter));
+
 }
 
 /* registration with the filtering engine */
@@ -1362,6 +1384,7 @@ proto_register_diameter(void)
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
 	
 	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */ 
+	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 
 	/* Set default TCP ports */
