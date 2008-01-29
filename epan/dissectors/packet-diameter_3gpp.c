@@ -42,20 +42,48 @@
 #include <epan/proto.h>
 
 #include "packet-gsm_a.h"
+#include "packet-e212.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_diameter_3gpp			= -1; 
 
 static int hf_diameter_3gpp_ipaddr					= -1;
 static int hf_diameter_3gpp_mbms_required_qos_prio	= -1;
+static int hf_diameter_3gpp_tmgi					= -1;
+static int hf_diameter_mbms_service_id				= -1;
+
+static gint diameter_3gpp_tmgi_ett					= -1;
 
 /* Used for Diameter */
+
+dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+
+	proto_item* item;
+	proto_tree *sub_tree;
+	int offset = 0;
+
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_tmgi, tvb, offset, 6, FALSE);
+	sub_tree = proto_item_add_subtree(item,diameter_3gpp_tmgi_ett);
+
+	/* MBMS Service ID consisting of three octets. MBMS Service ID consists of a 6-digit
+	 * fixed-length hexadecimal number between 000000 and FFFFFF. 
+	 * MBMS Service ID uniquely identifies an MBMS bearer service within a PLMN.
+	 */
+
+	proto_tree_add_item(sub_tree, hf_diameter_mbms_service_id, tvb, offset, 3, FALSE);
+	offset = offset+3;
+	offset = dissect_e212_mcc_mnc(tvb,sub_tree, offset);
+
+	return offset;
+
+}
+
 static int 
 dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	int offset = 0;
 
-	proto_tree_add_item(tree, hf_diameter_3gpp_ipaddr, tvb, 0, 4, FALSE);
+	proto_tree_add_item(tree, hf_diameter_3gpp_ipaddr, tvb, offset, 4, FALSE);
 	offset += 4;
 
 	return offset;
@@ -78,7 +106,7 @@ dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb _U_, packet_info *pinfo _U
 	 * 2-N		QoS Profile as specified by the Quality-of-Service information element,
 	 *			from octet 3 onwards, in 3GPP TS 24.008
 	 */
-	proto_tree_add_item(tree, hf_diameter_3gpp_mbms_required_qos_prio, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_diameter_3gpp_mbms_required_qos_prio, tvb, offset, 1, FALSE);
 	offset++;
 	length = tvb_length(tvb) - 1;
 	de_sm_qos(tvb, tree, offset, length, NULL, 0);
@@ -90,11 +118,15 @@ void
 proto_reg_handoff_diameter_3gpp(void)
 {
 
+	/* AVP Code: 900 TMGI */
+	dissector_add("diameter.3gpp", 900, new_create_dissector_handle(dissect_diameter_3gpp_tmgi, proto_diameter_3gpp));
+
 	/* AVP Code: 918 MBMS-BMSC-SSM-IP-Address */
 	dissector_add("diameter.3gpp", 918, new_create_dissector_handle(dissect_diameter_3gpp_ipaddr, proto_diameter_3gpp));
 
 	/* AVP Code: 913 MBMS-Required-QoS */
 	dissector_add("diameter.3gpp", 913, new_create_dissector_handle(dissect_diameter_3gpp_mbms_required_qos, proto_diameter_3gpp));
+
 
 }
 
@@ -114,10 +146,26 @@ proto_register_diameter_3gpp(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			"Allocation/Retention Priority", HFILL }
 		},
+		{ &hf_diameter_3gpp_tmgi,
+			{ "TMGI",           "diameter.3gpp.tmgi",
+			FT_BYTES, BASE_HEX, NULL, 0x0,          
+			"TMGI", HFILL }
+		},
+		{ &hf_diameter_mbms_service_id,
+			{ "MBMS Service ID",           "diameter.3gpp.mbms_service_id",
+			FT_UINT24, BASE_HEX, NULL, 0x0,          
+			"MBMS Service ID", HFILL }
+		},
 	};
-	
+
+	/* Setup protocol subtree array */
+	static gint *ett[] = {
+		&diameter_3gpp_tmgi_ett,
+	};
+
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_diameter_3gpp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	proto_diameter_3gpp = proto_register_protocol("Diameter 3GPP","Diameter3GPP", "diameter3gpp");
 }
