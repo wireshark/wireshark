@@ -7429,7 +7429,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SSI_DBM:
       /* dBm */
       if (check_col(pinfo->cinfo, COL_RSSI))
-        col_add_fstr(pinfo->cinfo, COL_RSSI, "%u dBm", tvb_get_ntohl(tvb, offset));
+        col_add_fstr(pinfo->cinfo, COL_RSSI, "%d dBm", tvb_get_ntohl(tvb, offset));
       if (tree)
         proto_tree_add_item(wlan_tree, hf_dbm_antsignal, tvb, offset, 4, FALSE);
       break;
