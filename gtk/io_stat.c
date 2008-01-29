@@ -116,6 +116,7 @@ typedef struct _io_stat_calc_type_t {
 typedef struct _io_item_t {
 	guint32 frames; /* always calculated, will hold number of frames*/
 	guint32 bytes;  /* always calculated, will hold number of bytes*/
+	guint32 fields;
 	gint32 int_max;
 	gint32 int_min;
 	gint32 int_tot;
@@ -201,6 +202,7 @@ io_stat_reset(io_stat_t *io)
 
 			ioi->frames=0;
 			ioi->bytes=0;
+			ioi->fields=0;
 			ioi->int_max=0;
 			ioi->int_min=0;
 			ioi->int_tot=0;
@@ -293,7 +295,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 		}
 
 		/* update the appropriate counters, make sure that if 
-		 * frames==0 then this is the first seen value so
+		 * fields==0 then this is the first seen value so
 		 * set any min/max values accordingly 
 		 */
 		for(i=0;i<gp->len;i++){
@@ -307,26 +309,28 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 			case FT_UINT32:
 				new_int=fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
 
-				if((new_int>it->int_max)||(it->frames==0)){
+				if((new_int>it->int_max)||(it->fields==0)){
 					it->int_max=new_int;
 				}
-				if((new_int<it->int_min)||(it->frames==0)){
+				if((new_int<it->int_min)||(it->fields==0)){
 					it->int_min=new_int;
 				}
 				it->int_tot+=new_int;
+				it->fields++;
 				break;
 			case FT_INT8:
 			case FT_INT16:
 			case FT_INT24:
 			case FT_INT32:
 				new_int=fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-				if((new_int>it->int_max)||(it->frames==0)){
+				if((new_int>it->int_max)||(it->fields==0)){
 					it->int_max=new_int;
 				}
-				if((new_int<it->int_min)||(it->frames==0)){
+				if((new_int<it->int_min)||(it->fields==0)){
 					it->int_min=new_int;
 				}
 				it->int_tot+=new_int;
+				it->fields++;
 				break;
 			case FT_RELATIVE_TIME:
 				new_time=fvalue_get(&((field_info *)gp->pdata[0])->value);
@@ -372,18 +376,18 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 					if( (new_time->secs>it->time_max.secs)
 					||( (new_time->secs==it->time_max.secs)
 					  &&(new_time->nsecs>it->time_max.nsecs))
-					||(it->frames==0)){
+					||(it->fields==0)){
 						it->time_max=*new_time;
 					}
 					if( (new_time->secs<it->time_min.secs)
 					||( (new_time->secs==it->time_min.secs)
 					  &&(new_time->nsecs<it->time_min.nsecs))
-					||(it->frames==0)){
+					||(it->fields==0)){
 						it->time_min=*new_time;
 					}
 					nstime_add(&it->time_tot, new_time);
+					it->fields++;
 				}
-
 			}
 		}
 	}
@@ -447,8 +451,8 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 			value=it->int_min;
 			break;
 		case CALC_TYPE_AVG:
-			if(it->frames){
-				value=(it->int_max+it->int_min)/2;
+			if(it->fields){
+				value=it->int_tot/it->fields;
 			} else {
 				value=0;
 			}
@@ -472,14 +476,12 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 			value=(guint32) (it->time_tot.secs*1000000+it->time_tot.nsecs/1000);
 			break;
 		case CALC_TYPE_AVG:
-			if(it->frames){
-				guint64 t1, t2; /* time in us */
+			if(it->fields){
+				guint64 t; /* time in us */
 
-				t1=it->time_max.secs;
-				t1=t1*1000000+it->time_max.nsecs/1000;
-				t2=it->time_min.secs;
-				t2=t2*1000000+it->time_min.nsecs/1000;
-				value=(guint32) ((t1+t2)/2);
+				t=it->time_tot.secs;
+				t=t*1000000+it->time_tot.nsecs/1000;
+				value=(guint32) (t/it->fields);
 			} else {
 				value=0;
 			}
