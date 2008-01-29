@@ -1,19 +1,20 @@
-/* packet-jxta.h
+/* packet-jxta.c
+ *
  * Routines for JXTA packet dissection
- * Copyright 2004-05, Mike Duigou <bondolo@jxta.org>
- * Heavily based on packet-jabber.c, which in turn is heavily based on 
- * on packet-acap.c, which in turn is heavily based on 
+ * JXTA specification from https://jxta-spec.dev.java.net
+ *
+ * Copyright 2004-08, Mike Duigou <bondolo@dev.java.net>
+ *
+ * Heavily based on packet-jabber.c, which in turn is heavily based on
+ * on packet-acap.c, which in turn is heavily based on
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
+ * Copied from packet-pop.c, packet-jabber.c, packet-udp.c, packet-http.c
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs
- *
- * Copied from packet-pop.c, packet-jabber.c, packet-udp.c
- *
- * JXTA specification from http://spec.jxta.org
+ * Copyright 2000 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
