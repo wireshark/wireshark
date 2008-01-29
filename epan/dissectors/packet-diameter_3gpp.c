@@ -56,6 +56,7 @@ static gint diameter_3gpp_tmgi_ett					= -1;
 
 /* Used for Diameter */
 
+static int
 dissect_diameter_3gpp_tmgi(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
 
 	proto_item* item;
