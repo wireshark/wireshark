@@ -81,11 +81,12 @@ static void lct_timestamp_parse(guint32 t, nstime_t* s)
 	s->nsecs = (t % 1000) * 1000000;
 }
 
-void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
+gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f)
 {
 	guint32 buffer32;
 	proto_item *ti;
 	proto_tree *ext_tree;
+	gboolean is_flute = FALSE;
 
 	switch (e->het)
 	{
@@ -180,6 +181,7 @@ void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, pro
 				proto_tree_add_text(ext_tree, tvb, e->offset+1, 3,
 					"FDT Instance ID: %u", buffer32 & 0x000FFFFF);
 			}
+			is_flute = TRUE;
 			break;
 		}
 		break;
@@ -213,6 +215,7 @@ void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, pro
 	default:
 		rmt_ext_decode_default(e, tvb, tree, ett);
 	}
+	return is_flute;
 }
 
 /* LCT exported functions */
@@ -252,12 +255,14 @@ void lct_info_column(struct _lct *lct, packet_info *pinfo)
  * tree - tree where to add LCT header subtree
  * offset - ptr to offset to use and update
  */
-void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset)
+gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
 	guint i;
 	guint offset_old;
 	guint offset_start;
 	guint16 buffer16;
+	gboolean is_flute_tmp =FALSE;
+	gboolean is_flute =FALSE;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
@@ -462,9 +467,14 @@ void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tr
 			lct_ext_tree = NULL;
 
 		/* Add the extensions to the subtree */
-		for (i = 0; i < l.lct->ext->len; i++)
-			lct_ext_decode(&g_array_index(l.lct->ext, struct _ext, i), l.prefs, tvb, lct_ext_tree, l.ett->ext_ext, f);
+		for (i = 0; i < l.lct->ext->len; i++){
+			is_flute_tmp = lct_ext_decode(&g_array_index(l.lct->ext, struct _ext, i), l.prefs, tvb, lct_ext_tree, l.ett->ext_ext, f);
+			if (is_flute_tmp == TRUE )
+				is_flute = TRUE;
+		}
 	}
+
+	return is_flute;
 }
 
 void lct_dissector_free(struct _lct *lct)

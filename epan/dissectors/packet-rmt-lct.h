@@ -176,11 +176,11 @@ struct _lct_ptr
 
 void lct_info_column(struct _lct *lct, packet_info *pinfo);
 
-void lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset);
+gboolean lct_dissector(struct _lct_ptr l, struct _fec_ptr f, tvbuff_t *tvb, proto_tree *tree, guint *offset);
 void lct_dissector_free(struct _lct *lct);
 
 void lct_prefs_set_default(struct _lct_prefs *prefs);
 void lct_prefs_register(struct _lct_prefs *prefs, module_t *module);
-void lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f);
+gboolean lct_ext_decode(struct _ext *e, struct _lct_prefs *prefs, tvbuff_t *tvb, proto_tree *tree, gint ett, struct _fec_ptr f);
 
 #endif

@@ -64,6 +64,8 @@ static struct _alc_ett ett;
 static gboolean preferences_initialized = FALSE;
 static struct _alc_prefs preferences;
 static struct _alc_prefs preferences_old;
+dissector_handle_t xml_handle;
+
 
 /* Preferences */
 /* =========== */
@@ -117,6 +119,10 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Set up structures needed to add the protocol subtree and manage it */
 	proto_item *ti;
 	proto_tree *alc_tree;
+
+	/* Flute or not */
+	tvbuff_t *new_tvb;
+	gboolean is_flute = FALSE;
 	
 	/* Structures and variables initialization */
 	offset = 0;
@@ -169,7 +175,7 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* LCT header dissection */
 		/* --------------------- */
 			
-		lct_dissector(l, f, tvb, alc_tree, &offset);
+		is_flute = lct_dissector(l, f, tvb, alc_tree, &offset);
 		
 		/* FEC header dissection */
 		/* --------------------- */
@@ -181,8 +187,14 @@ static void dissect_alc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			fec_dissector(f, tvb, alc_tree, &offset);
 		
 		/* Add the Payload item */
-		if (tvb_length(tvb) > offset)
-			proto_tree_add_none_format(alc_tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+		if (tvb_length(tvb) > offset){
+			if(is_flute){
+				new_tvb = tvb_new_subset(tvb,offset,-1,-1);
+				call_dissector(xml_handle, new_tvb, pinfo, alc_tree);
+			}else{
+				proto_tree_add_none_format(alc_tree, hf.payload, tvb, offset, -1, "Payload (%u bytes)", tvb_length(tvb) - offset);
+			}
+		}
 		
 		/* Complete entry in Info column on summary display */
 		/* ------------------------------------------------ */
@@ -228,6 +240,8 @@ void proto_reg_handoff_alc(void)
 		dissector_add("udp.port", preferences.default_udp_port, handle);
 		
 	alc_prefs_save(&preferences, &preferences_old);
+	xml_handle = find_dissector("xml");
+
 }
 
 void proto_register_alc(void)
@@ -272,5 +286,6 @@ void proto_register_alc(void)
 	
 	/* Register preferences */
 	module = prefs_register_protocol(proto, proto_reg_handoff_alc);
-	alc_prefs_register(&preferences, module);	
+	alc_prefs_register(&preferences, module);
+
 }
