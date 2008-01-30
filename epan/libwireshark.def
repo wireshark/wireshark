@@ -786,8 +786,6 @@ sid_name_snooping               DATA
 sid_name_table                  DATA
 smb2_cmd_vals                    DATA
 smb_cmd_vals                    DATA
-smi_modules_uat
-smi_paths_uat
 sminmpec_values                 DATA
 ssl_dissector_add
 ssl_dissector_delete
@@ -934,6 +932,7 @@ uat_fld_chk_str_isdigit
 uat_fld_chk_str_isprint
 uat_fld_chk_str_isxdigit
 uat_foreach_table
+uat_get_table_by_name
 uat_load
 uat_new
 uat_remove_record_idx

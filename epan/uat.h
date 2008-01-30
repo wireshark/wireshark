@@ -253,6 +253,7 @@ gboolean uat_load(uat_t* uat_in, char** err);
  */
 void* uat_dup(uat_t*, guint* len_p); /* to be freed */
 void* uat_se_dup(uat_t*, guint* len_p);
+uat_t* uat_get_table_by_name(const char* name);
 
 /*
  * Some common uat_fld_chk_cbs 

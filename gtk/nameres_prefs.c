@@ -50,8 +50,6 @@
 #ifdef HAVE_LIBSMI
 #define SP_RESOLVE_KEY	"sp_resolve"
 #define SM_RESOLVE_KEY	"sm_resolve"
-extern uat_t *smi_paths_uat;
-extern uat_t *smi_modules_uat;
 #endif
 
 #ifdef HAVE_GNU_ADNS
@@ -80,6 +78,8 @@ nameres_prefs_show(void)
 #endif /* HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	GtkWidget	*sp_resolv_cb, *sm_resolv_cb;
+	uat_t *smi_paths_uat;
+	uat_t *smi_modules_uat;
 #endif
 	/*
 	 * XXX - it would be nice if the current setting of the resolver
@@ -142,16 +142,22 @@ nameres_prefs_show(void)
 #endif /* HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
 	/* SMI paths UAT */
-	table_row++;
-	sp_resolv_cb = create_preference_uat(main_tb, table_row,
-	    "SMI paths", "SMI paths to MIBS", smi_paths_uat);
-	OBJECT_SET_DATA(main_vb, SP_RESOLVE_KEY, sp_resolv_cb);
+	smi_paths_uat = uat_get_table_by_name("SMI Paths");
+	if (smi_paths_uat) {
+		table_row++;
+		sp_resolv_cb = create_preference_uat(main_tb, table_row,
+		    "SMI paths", "SMI paths to MIBS", smi_paths_uat);
+		OBJECT_SET_DATA(main_vb, SP_RESOLVE_KEY, sp_resolv_cb);
+	}
 
 	/* SMI modules UAT */
-	table_row++;
-	sm_resolv_cb = create_preference_uat(main_tb, table_row,
-	    "SMI modules", "SMI list of modules", smi_modules_uat);
-	OBJECT_SET_DATA(main_vb, SM_RESOLVE_KEY, sm_resolv_cb);
+	smi_modules_uat = uat_get_table_by_name("SMI Modules");
+	if (smi_modules_uat) {
+		table_row++;
+		sm_resolv_cb = create_preference_uat(main_tb, table_row,
+		    "SMI modules", "SMI list of modules", smi_modules_uat);
+		OBJECT_SET_DATA(main_vb, SM_RESOLVE_KEY, sm_resolv_cb);
+	}
 #endif
 
 	/* Show 'em what we got */

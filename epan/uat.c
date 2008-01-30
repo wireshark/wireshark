@@ -172,6 +172,19 @@ gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 	return pers_fname;
 }
 
+uat_t* uat_get_table_by_name(const char* name) {
+	guint i;
+
+	for (i=0; i < all_uats->len; i++) {
+		uat_t* u = g_ptr_array_index(all_uats,i);
+		if ( g_str_equal(u->name,name) ) {
+			return (u);
+		}
+	}
+
+	return NULL;
+}
+
 static void putfld(FILE* fp, void* rec, uat_field_t* f) {
 	guint fld_len;
 	const char* fld_ptr;

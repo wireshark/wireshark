@@ -186,11 +186,11 @@ typedef struct smi_module_t {
 
 static smi_module_t* smi_paths = NULL;
 static guint num_smi_paths = 0;
-uat_t* smi_paths_uat = NULL;
+static uat_t* smi_paths_uat = NULL;
 
 static smi_module_t* smi_modules = NULL;
 static guint num_smi_modules = 0;
-uat_t* smi_modules_uat = NULL;
+static uat_t* smi_modules_uat = NULL;
 
 static GString* smi_errors;
 
