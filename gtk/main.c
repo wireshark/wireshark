@@ -865,7 +865,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         }
         statusbar_pop_field_msg();	/* get rid of current help msg */
         if (length) {
-            help_str = g_strdup_printf("%s (%s)%s",
+            help_str = g_strdup_printf(" %s (%s)%s",
                     (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
                     finfo->hfinfo->abbrev, len_str);
             statusbar_push_field_msg(help_str);
@@ -1708,7 +1708,7 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
     set_menus_for_capture_in_progress(TRUE);
 
     /* update statusbar */
-    statusbar_push_file_msg("Waiting for capture input data ...");
+    statusbar_push_file_msg(" Waiting for capture input data ...");
 
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
