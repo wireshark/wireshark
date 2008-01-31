@@ -1,3 +1,4 @@
+
 /* stats_tree_stat.c
  * GTK Tap implementation of stats_tree
  * 2005, Luis E. G. Ontanon
@@ -318,7 +319,8 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 									G_TYPE_STRING, G_TYPE_STRING);
 	
 	st->pr->tree = gtk_tree_view_new_with_model (GTK_TREE_MODEL (st->pr->store));
-	
+	g_object_unref(G_OBJECT(st->pr->store));
+
 	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->tree);
 	
 	/* the columns */
@@ -398,10 +400,6 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	
 	gtk_widget_show_all(st->pr->win);
 	window_present(st->pr->win);
-	
-#if GTK_MAJOR_VERSION >= 2
-	gtk_tree_view_set_model(GTK_TREE_VIEW(st->pr->tree),GTK_TREE_MODEL(st->pr->store));
-#endif
 	
 	cf_retap_packets(&cfile, FALSE);
 }

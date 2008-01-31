@@ -1350,6 +1350,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
                                G_TYPE_STRING, G_TYPE_POINTER);
     OBJECT_SET_DATA(G_OBJECT(decode_w), "sctp_data", store);
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+    g_object_unref(G_OBJECT(store));
     sortable = GTK_TREE_SORTABLE(store);
     gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
     gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
@@ -1583,6 +1584,7 @@ decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
 #else
     sctp_store = OBJECT_GET_DATA(decode_w, "sctp_data");
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
+    g_object_unref(G_OBJECT(sctp_store));
     sortable = GTK_TREE_SORTABLE(sctp_store);
     gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
     gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);

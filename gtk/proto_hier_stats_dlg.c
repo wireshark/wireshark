@@ -436,6 +436,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, 
 			       G_TYPE_STRING, G_TYPE_POINTER);
     tree = tree_view_new(GTK_TREE_MODEL(store));
+    g_object_unref(G_OBJECT(store));
     tree_view = GTK_TREE_VIEW(tree);
     gtk_tree_view_set_headers_visible(tree_view, TRUE);
     gtk_tree_view_set_headers_clickable(tree_view, FALSE);

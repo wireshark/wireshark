@@ -319,6 +319,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 						 G_TYPE_STRING);
 
 	object_list->tree = tree_view_new(GTK_TREE_MODEL(object_list->store));
+	g_object_unref(G_OBJECT(object_list->store));
 
 	object_list->tree_view = GTK_TREE_VIEW(object_list->tree);
 
