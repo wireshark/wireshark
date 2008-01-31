@@ -401,6 +401,7 @@ File "..\..\diameter\mobileipv4.xml"
 File "..\..\diameter\nasreq.xml"
 File "..\..\diameter\sip.xml"
 File "..\..\diameter\sunping.xml"
+File "..\..\diameter\TGPPGmb.xml"
 File "..\..\diameter\TGPPSh.xml"
 SetOutPath $INSTDIR
 

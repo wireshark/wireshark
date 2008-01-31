@@ -12,6 +12,10 @@
 		<command name="Push-Profile"             code="305" vendor-id="TGPP"/>
 
 		<!-- ************************** IMS Cx Dx AVPS ********************* -->
+<!--
+	These AVP:s collide(share AVP code number) with other 3GPP AVP:s (TGPPGmb.xml)
+	comment out 1 - 28 here and uncomment the ones in TGPPGmb.xml if you want to use them.
+-->
 		<avp name="Visited-Network-Identifier" code="1" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
 			<type type-name="OctetString"/>
 		</avp>
