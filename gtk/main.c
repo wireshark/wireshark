@@ -225,7 +225,7 @@ static GtkWidget    *info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *profile_bar = NULL;
 static GtkWidget    *welcome_pane;
-static guint		main_ctx, file_ctx, help_ctx;
+static guint        main_ctx, file_ctx, help_ctx, filter_ctx;
 static guint        packets_ctx;
 static guint        profile_ctx;
 static gchar        *packets_str = NULL;
@@ -1006,6 +1006,24 @@ void
 statusbar_pop_field_msg(void)
 {
 	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
+}
+
+/*
+ * Push a message referring to the current filter onto the statusbar.
+ */
+void
+statusbar_push_filter_msg(const gchar *msg)
+{
+	gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
+}
+
+/*
+ * Pop a message referring to the current filter off the statusbar.
+ */
+void
+statusbar_pop_filter_msg(void)
+{
+	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), filter_ctx);
 }
 
 /*
@@ -3358,6 +3376,7 @@ static GtkWidget *info_bar_new(void)
     main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
     file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
+    filter_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "filter");
 #if GTK_MAJOR_VERSION >= 2
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif

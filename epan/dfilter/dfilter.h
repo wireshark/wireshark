@@ -65,7 +65,7 @@ dfilter_free(dfilter_t *df);
 
 
 /* dfilter_error_msg is NULL if there was no error during dfilter_compile,
- * otherwise it points to a displayable error message. With MSVC and a 
+ * otherwise it points to a displayable error message. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 
@@ -83,6 +83,9 @@ dfilter_apply(dfilter_t *df, proto_tree *tree);
 /* Prime a proto_tree using the fields/protocols used in a dfilter. */
 void
 dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree);
+
+GPtrArray *
+dfilter_deprecated_tokens(dfilter_t *df);
 
 /* Print bytecode of dfilter to stdout */
 void

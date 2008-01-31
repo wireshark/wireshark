@@ -92,6 +92,7 @@ stnode_new(sttype_id_t type_id, gpointer data)
 
 	node = g_new(stnode_t, 1);
 	node->magic = STNODE_MAGIC;
+        node->deprecated_token = NULL;
 
 	if (type_id == STTYPE_UNINITIALIZED) {
 		node->type = NULL;
@@ -187,4 +188,13 @@ stnode_value(stnode_t *node)
 {
 	assert_magic(node, STNODE_MAGIC);
 	return node->value;
+}
+
+char *
+stnode_deprecated(stnode_t *node)
+{
+	if (!node) {
+		return NULL;
+	}
+	return node->deprecated_token;
 }

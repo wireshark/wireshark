@@ -88,10 +88,10 @@ dfilter_init(void)
 	/* Trace parser */
 	DfilterTrace(stdout, "lemon> ");
 #endif
-	
+
 	/* Initialize the syntax-tree sub-sub-system */
 	sttype_init();
-	
+
 	dfilter_macro_init();
 }
 
@@ -115,6 +115,7 @@ dfilter_new(void)
 
 	df = g_new(dfilter_t, 1);
 	df->insns = NULL;
+        df->deprecated = NULL;
 
 	return df;
 }
@@ -141,7 +142,7 @@ dfilter_free(dfilter_t *df)
 
 	if (!df)
 		return;
-			
+
 	if (df->insns) {
 		free_insns(df->insns);
 	}
@@ -152,7 +153,7 @@ dfilter_free(dfilter_t *df)
 	if (df->interesting_fields) {
 		g_free(df->interesting_fields);
 	}
-	
+
 	/* clear registers */
 	for (i = 0; i < df->max_registers; i++) {
 		if (df->registers[i]) {
@@ -208,7 +209,7 @@ dfwork_free(dfwork_t *dfw)
 	if (dfw->consts) {
 		free_insns(dfw->consts);
 	}
-	
+
 	g_free(dfw);
 }
 
@@ -219,13 +220,16 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
 	gboolean failure = FALSE;
-		
+	char		*depr_test;
+	guint		i;
+	GPtrArray	*deprecated = g_ptr_array_new();
+
 	dfilter_error_msg = NULL;
 
 	if ( !( text = dfilter_macro_apply(text, 0, &dfilter_error_msg) ) ) {
 		return FALSE;
 	}
-	
+
 	dfw = dfwork_new();
 
 	df_scanner_text(text);
@@ -245,6 +249,22 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 			break;
 		}
 
+		/* See if the node is deprecated */
+		depr_test = stnode_deprecated(df_lval);
+
+		if (depr_test) {
+			for (i = 0; i < deprecated->len; i++) {
+				if (strcasecmp(depr_test, g_ptr_array_index(deprecated, i)) == 0) {
+					/* It's already in our list */
+					depr_test = NULL;
+				}
+			}
+		}
+
+		if (depr_test) {
+			g_ptr_array_add(deprecated, depr_test);
+		}
+
 		/* Give the token to the parser */
 		Dfilter(ParserObj, token, df_lval, dfw);
 		/* We've used the stnode_t, so we don't want to free it */
@@ -254,6 +274,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 			failure = TRUE;
 			break;
 		}
+
 	} /* while (1) */
 
 	/* If we created an stnode_t but didn't use it, free it; the
@@ -285,6 +306,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	 * it and set *dfp to NULL */
 	if (dfw->st_root == NULL) {
 		*dfp = NULL;
+		g_ptr_array_free(deprecated, TRUE);
 	}
 	else {
 
@@ -314,6 +336,9 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 		/* Initialize constants */
 		dfvm_init_const(dfilter);
 
+		/* Add any deprecated items */
+		dfilter->deprecated = deprecated;
+
 		/* And give it to the user. */
 		*dfp = dfilter;
 	}
@@ -325,6 +350,7 @@ FAILURE:
 	if (dfw) {
 		dfwork_free(dfw);
 	}
+	g_ptr_array_free(deprecated, TRUE);
 	dfilter_fail("Unable to parse filter string \"%s\".", text);
 	*dfp = NULL;
 	return FALSE;
@@ -355,9 +381,28 @@ dfilter_prime_proto_tree(const dfilter_t *df, proto_tree *tree)
     }
 }
 
+GPtrArray *
+dfilter_deprecated_tokens(dfilter_t *df) {
+	if (df->deprecated && df->deprecated->len > 0) {
+		return df->deprecated;
+	}
+	return NULL;
+}
 
 void
 dfilter_dump(dfilter_t *df)
 {
+	guint i;
+	gchar *sep = "";
+
 	dfvm_dump(stdout, df->insns);
+
+	if (df->deprecated && df->deprecated->len) {
+		printf("\nDeprecated tokens: ");
+		for (i = 0; i < df->deprecated->len; i++) {
+			printf("%s\"%s\"", sep, (char *) g_ptr_array_index(df->deprecated, i));
+			sep = ", ";
+		}
+		printf("\n");
+	}
 }

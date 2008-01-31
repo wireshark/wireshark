@@ -98,7 +98,7 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	insn->arg1 = val1;
 	insn->arg2 = val2;
 	dfw_append_insn(dfw, insn);
-	
+
 	if (added_new_hfinfo) {
 		while (hfinfo) {
 			/* Record the FIELD_ID in hash of interesting fields. */
@@ -186,7 +186,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 
     /* Create the new DFVM instruction */
     insn = dfvm_insn_new(CALL_FUNCTION);
-    
+
     val1 = dfvm_value_new(FUNCTION_DEF);
     val1->value.funcdef = sttype_function_funcdef(node);
     insn->arg1 = val1;
@@ -241,7 +241,7 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
     dfw_append_insn(dfw, insn);
 
     g_free(jmps);
-    
+
     return val2->value.numeric;
 }
 
@@ -450,7 +450,7 @@ dfw_gencode(dfwork_t *dfw)
 	int		id, id1, length;
 	dfvm_insn_t	*insn, *insn1, *prev;
 	dfvm_value_t	*arg1;
-	
+
 	dfw->insns = g_ptr_array_new();
 	dfw->consts = g_ptr_array_new();
 	dfw->loaded_fields = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -467,17 +467,17 @@ dfw_gencode(dfwork_t *dfw)
                 if (insn->op == IF_TRUE_GOTO || insn->op == IF_FALSE_GOTO) {
                     dfvm_opcode_t revert = (insn->op == IF_FALSE_GOTO)?IF_TRUE_GOTO:IF_FALSE_GOTO;
                     id1 = arg1->value.numeric;
-                    do { 
+                    do {
                       insn1 = g_ptr_array_index(dfw->insns, id1);
                       if (insn1->op == revert) {
                         /* this one is always false and the branch is not taken*/
                         id1 = id1 +1;
                         continue;
                       }
-                      else if (insn1->op == READ_TREE && prev && prev->op == READ_TREE && 
+                      else if (insn1->op == READ_TREE && prev && prev->op == READ_TREE &&
                                 prev->arg2->value.numeric == insn1->arg2->value.numeric) {
-                        /* hack if it's the same register it's the same field 
-                         * and it returns the same value 
+                        /* hack if it's the same register it's the same field
+                         * and it returns the same value
                         */
                         id1 = id1 +1;
                         continue;
@@ -508,26 +508,26 @@ dfw_gencode(dfwork_t *dfw)
         length = dfw->consts->len;
 	for (id = 0; id < length; id++) {
 		insn = g_ptr_array_index(dfw->consts, id);
-		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )  
+		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )
 		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
 	}
 
         length = dfw->insns->len;
 	for (id = 0; id < length; id++) {
 		insn = g_ptr_array_index(dfw->insns, id);
-		if (insn->arg1 && insn->arg1->type == REGISTER && (int)insn->arg1->value.numeric < 0 )  
+		if (insn->arg1 && insn->arg1->type == REGISTER && (int)insn->arg1->value.numeric < 0 )
 		  insn->arg1->value.numeric = dfw->first_constant - insn->arg1->value.numeric -1;
 
-		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )  
+		if (insn->arg2 && insn->arg2->type == REGISTER && (int)insn->arg2->value.numeric < 0 )
 		  insn->arg2->value.numeric = dfw->first_constant - insn->arg2->value.numeric -1;
 
-		if (insn->arg3 && insn->arg3->type == REGISTER && (int)insn->arg3->value.numeric < 0 )  
+		if (insn->arg3 && insn->arg3->type == REGISTER && (int)insn->arg3->value.numeric < 0 )
 		  insn->arg3->value.numeric = dfw->first_constant - insn->arg3->value.numeric -1;
 
-		if (insn->arg4 && insn->arg4->type == REGISTER && (int)insn->arg4->value.numeric < 0 )  
+		if (insn->arg4 && insn->arg4->type == REGISTER && (int)insn->arg4->value.numeric < 0 )
 		  insn->arg4->value.numeric = dfw->first_constant - insn->arg4->value.numeric -1;
 	}
-	
+
 
 }
 

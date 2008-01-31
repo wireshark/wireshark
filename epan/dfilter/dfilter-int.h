@@ -39,6 +39,7 @@ struct _dfilter_t {
 	gboolean	*attempted_load;
 	int		*interesting_fields;
 	int		num_interesting_fields;
+	GPtrArray	*deprecated;
 };
 
 typedef struct {

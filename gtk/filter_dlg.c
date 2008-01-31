@@ -1440,7 +1440,7 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	 * through file->open, make the latest dialog modal also so that it
 	 * takes over "control" from the other modal dialogs.  Also set
 	 * the transient property of the new dialog so the user doesn't try
-	 * to interact with the previous window when they can't. 
+	 * to interact with the previous window when they can't.
          * XXX: containing widget might be the Filter Toolbar */
 
 	if ( GTK_IS_WINDOW(main_w) && gtk_window_get_modal(GTK_WINDOW(main_w))) {
@@ -1483,6 +1483,13 @@ colorize_filter_te_as_invalid(GtkWidget *w)
 }
 
 void
+colorize_filter_te_as_deprecated(GtkWidget *w)
+{
+    /* light yellow */
+    color_filter_te(w, 0xFFFF, 0xFFFF, 0xAFFF);
+}
+
+void
 colorize_filter_te_as_valid(GtkWidget *w)
 {
     /* light green */
@@ -1494,19 +1501,39 @@ filter_te_syntax_check_cb(GtkWidget *w)
 {
     const gchar *strval;
     dfilter_t   *dfp;
+    GPtrArray   *depr = NULL;
+    gchar       *msg;
+
+    statusbar_pop_filter_msg();
 
     strval = gtk_entry_get_text(GTK_ENTRY(w));
 
     /* colorize filter string entry */
     if (strval && dfilter_compile(strval, &dfp)) {
-    	if (dfp != NULL)
-    	  dfilter_free(dfp);
-        if (strlen(strval) == 0)
+    	if (dfp != NULL) {
+          depr = dfilter_deprecated_tokens(dfp);
+          dfilter_free(dfp);
+        }
+        if (strlen(strval) == 0) {
             colorize_filter_te_as_empty(w);
-        else
+        } else if (depr) {
+            /* You keep using that word. I do not think it means what you think it means. */
+            colorize_filter_te_as_deprecated(w);
+            /*
+             * We're being lazy and only printing the first "problem" token.
+             * Would it be better to print all of them?
+             */
+            msg = g_strdup_printf("\"%s\" may have unexpected results.",
+                (char *) g_ptr_array_index(depr, 0));
+            statusbar_push_filter_msg(msg);
+            g_free(msg);
+        } else {
             colorize_filter_te_as_valid(w);
-    } else
+        }
+    } else {
         colorize_filter_te_as_invalid(w);
+        statusbar_push_filter_msg("Invalid filter");
+    }
 }
 
 

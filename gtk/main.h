@@ -129,14 +129,14 @@ typedef enum {
 /** "bitwise or" this with MATCH_SELECTED_E value for copy to clipboard instead of prepare only */
 #define MATCH_SELECTED_COPY_ONLY    0x200
 
-/** User highlited item in details window and then right clicked and selected the copy option 
+/** User highlited item in details window and then right clicked and selected the copy option
  *
  * @param widget parent widget
  * @param data parent widget
  */
 extern void copy_selected_plist_cb(GtkWidget *w _U_, gpointer data);
 
-/** User requested one of "Apply as Filter" or "Prepare a Filter" functions 
+/** User requested one of "Apply as Filter" or "Prepare a Filter" functions
  *  by menu or context menu of protocol tree.
  *
  * @param widget parent widget
@@ -289,7 +289,7 @@ extern gboolean dfilter_combo_add_recent(gchar *dftext);
 /** Empty out the combobox entry field */
 extern void dfilter_combo_add_empty(void);
 
-/** Write all non empty display filters (until maximum count) 
+/** Write all non empty display filters (until maximum count)
  *  of the combo box GList to the user's recent file.
  *
  * @param rf the recent file
@@ -308,7 +308,7 @@ extern void main_widgets_rearrange(void);
 /** Show or hide the main window widgets, user changed it's preferences. */
 extern void main_widgets_show_or_hide(void);
 
-/** Apply a new filter string. 
+/** Apply a new filter string.
  *  Call cf_filter_packets() and add this filter string to the recent filter list.
  *
  * @param cf the capture file
@@ -348,5 +348,17 @@ extern void prefs_to_capture_opts(void);
 extern void change_configuration_profile(const gchar *profile_name);
 
 extern GtkWidget *pkt_scrollw;
+
+/** Push a message referring to the current filter onto the statusbar.
+ *
+ * @param msg The message
+ */
+void
+statusbar_push_filter_msg(const gchar *msg);
+
+/** Pop a message referring to the current filter off the statusbar.
+ */
+void
+statusbar_pop_filter_msg(void);
 
 #endif /* __MAIN_H__ */

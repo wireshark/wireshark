@@ -26,17 +26,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -83,6 +83,7 @@ static int set_lval_int(int token, char *s);
 static int simple(int token);
 static gboolean str_to_gint32(char *s, gint32* pint);
 GString* quoted_string = NULL;
+static void mark_lval_deprecated(const char *s);
 
 %}
 
@@ -102,8 +103,14 @@ GString* quoted_string = NULL;
 
 "=="			return simple(TOKEN_TEST_EQ);
 "eq"			return simple(TOKEN_TEST_EQ);
-"!="			return simple(TOKEN_TEST_NE);
-"ne"			return simple(TOKEN_TEST_NE);
+"!="			{
+	mark_lval_deprecated("!=");
+	return simple(TOKEN_TEST_NE);
+}
+"ne"			{
+	mark_lval_deprecated("ne");
+	return simple(TOKEN_TEST_NE);
+}
 ">"				return simple(TOKEN_TEST_GT);
 "gt"			return simple(TOKEN_TEST_GT);
 ">="			return simple(TOKEN_TEST_GE);
@@ -351,7 +358,7 @@ set_lval_int(int token, char *s)
 
 	if (!str_to_gint32(s, &val)) {
 		return SCAN_FAILED;
-	}	
+	}
 
 	switch (token) {
 		case TOKEN_INTEGER:
@@ -415,6 +422,12 @@ str_to_gint32(char *s, gint32* pint)
 
 	*pint = integer;
 	return TRUE;
+}
+
+static void
+mark_lval_deprecated(const char *s)
+{
+	df_lval->deprecated_token = s;
 }
 
 #include <lemonflex-tail.inc>
