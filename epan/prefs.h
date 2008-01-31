@@ -417,4 +417,9 @@ typedef enum {
 
 extern prefs_set_pref_e prefs_set_pref(char *prefarg);
 
+/*
+ * Returns TRUE if the given device is hidden
+ */
+extern gboolean prefs_is_capture_device_hidden(const char *name);
+
 #endif /* prefs.h */

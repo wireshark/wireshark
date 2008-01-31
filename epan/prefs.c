@@ -1555,6 +1555,30 @@ prefs_set_pref(char *prefarg)
 	return ret;
 }
 
+/*
+ * Returns TRUE if the given device is hidden
+ */
+gboolean
+prefs_is_capture_device_hidden(const char *name)
+{
+	gchar *tok, *devices;
+	size_t len;
+
+	if (prefs.capture_devices_hide && name) {
+		devices = g_strdup (prefs.capture_devices_hide);
+		len = strlen (name);
+		for (tok = strtok (devices, ","); tok; tok = strtok(NULL, ",")) {
+			if (strlen (tok) == len && strcmp (name, tok) == 0) {
+				g_free (devices);
+				return TRUE;
+			}
+		}
+		g_free (devices);
+	}
+
+	return FALSE;
+}
+
 #define PRS_PRINT_FMT                    "print.format"
 #define PRS_PRINT_DEST                   "print.destination"
 #define PRS_PRINT_FILE                   "print.file"

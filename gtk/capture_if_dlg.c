@@ -528,6 +528,12 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
       g_string_assign(if_tool_str, "");
       if_info = curr->data;
+
+      /* Continue if capture device is hidden */
+      if (prefs_is_capture_device_hidden(if_info->name)) {
+          continue;
+      }
+
       if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
       if_dlg_data->if_info = *if_info;
 

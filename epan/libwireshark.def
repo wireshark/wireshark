@@ -560,6 +560,7 @@ postseq_cleanup_all_protocols
 prefs                           DATA
 prefs_apply
 prefs_apply_all
+prefs_is_capture_device_hidden
 prefs_find_module
 prefs_get_title_by_name
 prefs_is_registered_protocol

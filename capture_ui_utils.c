@@ -226,9 +226,7 @@ build_capture_combo_list(GList *if_list, gboolean do_hide)
 
       /* Is this interface hidden and, if so, should we include it
          anyway? */
-      if (prefs.capture_devices_hide == NULL ||
-	  strstr(prefs.capture_devices_hide, if_info->name) == NULL ||
-	  !do_hide) {
+      if (!prefs_is_capture_device_hidden(if_info->name) || !do_hide) {
 	/* It's not hidden, or it is but we should include it in the list. */
 
 	/* Do we have a user-supplied description? */
