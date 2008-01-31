@@ -60,7 +60,7 @@ typedef struct {
 	 * set aside to time to do so. */
 	gpointer	data;
 	gint32		value;
-        char            *deprecated_token;
+        const char      *deprecated_token;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */

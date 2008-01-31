@@ -122,6 +122,7 @@ delete_persconffile_profile
 deletefile
 dfilter_apply_edt
 dfilter_compile
+dfilter_deprecated_tokens
 dfilter_dump
 dfilter_error_msg               DATA
 dfilter_free
