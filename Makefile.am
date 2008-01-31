@@ -119,6 +119,7 @@ diameter_DATA = \
 	diameter/nasreq.xml \
 	diameter/sip.xml \
 	diameter/sunping.xml \
+	diameter/TGPPGmb.xml \
 	diameter/TGPPSh.xml
 
 #
