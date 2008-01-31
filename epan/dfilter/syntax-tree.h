@@ -60,7 +60,7 @@ typedef struct {
 	 * set aside to time to do so. */
 	gpointer	data;
 	gint32		value;
-        char            *deprecated_token;
+        const char      *deprecated_token;
 } stnode_t;
 
 /* These are the sttype_t registration function prototypes. */
@@ -104,7 +104,7 @@ stnode_data(stnode_t *node);
 gint32
 stnode_value(stnode_t *node);
 
-char *
+const char *
 stnode_deprecated(stnode_t *node);
 
 #define assert_magic(obj, mnum) \

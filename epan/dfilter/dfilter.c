@@ -220,7 +220,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	dfilter_t	*dfilter;
 	dfwork_t	*dfw;
 	gboolean failure = FALSE;
-	char		*depr_test;
+	const char	*depr_test;
 	guint		i;
 	GPtrArray	*deprecated = g_ptr_array_new();
 
@@ -262,7 +262,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 		}
 
 		if (depr_test) {
-			g_ptr_array_add(deprecated, depr_test);
+			g_ptr_array_add(deprecated, g_strdup(depr_test));
 		}
 
 		/* Give the token to the parser */
@@ -306,6 +306,10 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 	 * it and set *dfp to NULL */
 	if (dfw->st_root == NULL) {
 		*dfp = NULL;
+		for (i = 0; i < deprecated->len; ++i) {
+			gchar* depr = g_ptr_array_index(deprecated,i);
+			g_free(depr);
+		}
 		g_ptr_array_free(deprecated, TRUE);
 	}
 	else {
@@ -349,6 +353,10 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 FAILURE:
 	if (dfw) {
 		dfwork_free(dfw);
+	}
+	for (i = 0; i < deprecated->len; ++i) {
+		gchar* depr = g_ptr_array_index(deprecated,i);
+		g_free(depr);
 	}
 	g_ptr_array_free(deprecated, TRUE);
 	dfilter_fail("Unable to parse filter string \"%s\".", text);

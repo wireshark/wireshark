@@ -190,7 +190,7 @@ stnode_value(stnode_t *node)
 	return node->value;
 }
 
-char *
+const char *
 stnode_deprecated(stnode_t *node)
 {
 	if (!node) {
