@@ -269,6 +269,10 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  g_free(pf_dir_path);
 	}
 	profile1->status = PROF_STAT_EXISTS;
+	if (profile1->reference) {
+	  g_free (profile1->reference);
+	}
+	profile1->reference = g_strdup(profile1->name);
       }
     } else if (profile1->status == PROF_STAT_CHANGED) {
       if (strcmp(profile1->reference, profile1->name)!=0) {
@@ -282,6 +286,8 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  g_free(pf_dir_path);
 	}
 	profile1->status = PROF_STAT_EXISTS;
+	g_free (profile1->reference);
+	profile1->reference = g_strdup(profile1->name);
       }
     }
     fl1 = g_list_next(fl1);
@@ -530,6 +536,22 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
       
       if (strlen(name) > 0 && profile) {
 	if (profile->status != PROF_STAT_DEFAULT) {
+#ifdef _WIN32
+	  char *invalid_dir_char = "\\/:*?\"<>|";
+	  int i;
+	  for (i = 0; i < 9; i++) {
+	    if (strchr(name, invalid_dir_char[i])) {
+	      /* Invalid character in directory */
+	      gtk_entry_set_text(GTK_ENTRY(name_te), profile->name);
+	      return;
+	    }
+	  }
+#endif
+	  if (name[0] == ' ' || name[strlen(name)-1] == ' ') {
+	    /* Profile name cannot start or end with space */
+	    gtk_entry_set_text(GTK_ENTRY(name_te), profile->name);
+	    return;
+	  }
 	  g_free(profile->name);
 	  profile->name = g_strdup(name);
 	  if (profile->status != PROF_STAT_NEW) {
@@ -718,6 +740,11 @@ profile_dialog_new(void)
   gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
   OBJECT_SET_DATA(main_w, E_PROF_NAME_TE_KEY, name_te);
   SIGNAL_CONNECT(name_te, "changed", profile_name_te_changed_cb, NULL);
+#ifdef _WIN32
+  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start or end with a space, and cannot contain any of the following characters:  \\ / : * ? \" < > |", NULL);
+#else
+  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start or end with a space", NULL);
+#endif
   gtk_widget_show(name_te);
 
   /* button row (create all possible buttons and hide the unrequired later - it's a lot easier) */
