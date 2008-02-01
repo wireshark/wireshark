@@ -128,8 +128,8 @@ void new_window_cb(GtkWidget *w _U_)
   for (i = 0; i < cfile.cinfo.num_cols; ++i) {
     TextPtr = cfile.cinfo.col_data[i];
     if ((strlen(Title) + strlen(TextPtr)) < NewWinTitleLen - 1) {
-      strcat(Title, TextPtr);
-      strcat(Title, " ");
+      strncat(Title, TextPtr, NewWinTitleLen - 1);
+      strncat(Title, " ", 2);
     }
   }
 

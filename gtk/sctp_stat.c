@@ -264,7 +264,7 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 	{
 		if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated) > 0.5)
 		{
-			strcpy(data->checksum_type,"ADLER32");
+			strncpy(data->checksum_type,"ADLER32",8);
 			data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
 			ok = TRUE;
 		}
@@ -274,7 +274,7 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 	{
 		if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated) > 0.5)
 		{
-			strcpy(data->checksum_type,"CRC32C");
+			strncpy(data->checksum_type,"CRC32C",8);
 			data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
 			ok = TRUE;
 		}
@@ -282,7 +282,7 @@ static sctp_assoc_info_t *calc_checksum(struct _sctp_info *check_data, sctp_asso
 
 	if (!ok)
 	{
-		strcpy(data->checksum_type,"UNKNOWN");
+		strncpy(data->checksum_type,"UNKNOWN",8);
 		data->n_checksum_errors=0;
 	}
 
@@ -883,13 +883,14 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			{
 				error = g_malloc(sizeof(sctp_error_info_t));
 				error->frame_number = pinfo->fd->num;
-				strcpy(str,"");
-				strcpy(error->chunk_info,"");
+				str[0] = '\0';
+				error->chunk_info[0] = '\0';
 				if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
-					strcpy(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved"));
+					strncpy(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved"), 200);
 				else
 					for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
-						strcat(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[chunk_number],0),chunk_type_values,"Reserved"));
+						strncat(error->chunk_info, val_to_str(tvb_get_guint8(sctp_info->tvb[chunk_number],0),chunk_type_values,"Reserved"), 200 - strlen (error->chunk_info));
+				error->chunk_info[199] = '\0';
 				error->info_text = "INFOS";
 				info->error_info_list = g_list_append(info->error_info_list, error);
 			}

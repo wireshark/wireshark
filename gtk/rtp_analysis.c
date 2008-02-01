@@ -1549,7 +1549,7 @@ static void dialog_graph_draw(user_data_t* user_data)
          * Draw "x" for Sequence Errors and "m" for Marks
          */
 	/* Draw the labels Fwd and Rev */
-	strcpy(label_string,"<-Fwd");
+	strncpy(label_string,"<-Fwd",15);
 #if GTK_MAJOR_VERSION < 2
 	lwidth=gdk_string_width(font, label_string);
 	gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
@@ -1567,7 +1567,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
 		layout);
 #endif
-        strcpy(label_string,"<-Rev");
+        strncpy(label_string,"<-Rev",15);
 #if GTK_MAJOR_VERSION < 2
         lwidth=gdk_string_width(font, label_string);
         gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
@@ -1604,9 +1604,9 @@ static void dialog_graph_draw(user_data_t* user_data)
 			if(user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)){
 				int lwidth;
 				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ){
-					strcpy(label_string,"x");
+					strncpy(label_string,"x",15);
 				} else {
-				        strcpy(label_string,"m");
+					strncpy(label_string,"m",15);
 				}
 
 #if GTK_MAJOR_VERSION < 2
@@ -1991,7 +1991,7 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
 
         for(i=0;i<MAX_YSCALE;i++){
                 if(yscale_max[i]==AUTO_MAX_YSCALE){
-                        strcpy(str,"Auto");
+			strncpy(str,"Auto",15);
                 } else {
                         g_snprintf(str, 15, "%u ms", yscale_max[i]/1000);
                 }
@@ -3418,16 +3418,20 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	strcpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)));
-	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)));
+	strncpy(str_ip_src, get_addr_name(&(user_data->ip_src_fwd)), 16);
+	str_ip_src[15] = '\0';
+	strncpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_fwd)), 16);
+	str_ip_dst[15] = '\0';
 
 	g_snprintf(label_forward, 149,
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
 		str_ip_src, user_data->port_src_fwd, str_ip_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
-	strcpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)));
-	strcpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)));
+	strncpy(str_ip_src, get_addr_name(&(user_data->ip_src_rev)), 16);
+	str_ip_src[15] = '\0';
+	strncpy(str_ip_dst, get_addr_name(&(user_data->ip_dst_rev)), 16);
+	str_ip_dst[15] = '\0';
 
 	g_snprintf(label_reverse, 149,
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
@@ -3768,7 +3772,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 	guint nfound;
 
 	/* Try to compile the filter. */
-	strcpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)");
+	strncpy(filter_text,"rtp && rtp.version && rtp.ssrc && (ip || ipv6)",256);
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;

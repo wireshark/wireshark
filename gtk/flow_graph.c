@@ -348,10 +348,10 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
     bpos = 1 << i;
     if (tcph->th_flags & bpos) {
       if (fpos) {
-        strcpy(&flags[fpos], ", ");
+        strncpy(&flags[fpos], ", ", 64 - fpos - 1);
         fpos += 2;
       }
-      strcpy(&flags[fpos], fstr[i]);
+      strncpy(&flags[fpos], fstr[i], 64 - fpos - 1);
       fpos += 3;
     }
   }

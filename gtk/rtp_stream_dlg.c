@@ -144,7 +144,7 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, strinfo);
 
 	/* Update the top label with the number of detected streams */
-	sprintf(label_text,
+	g_snprintf(label_text, 256,
 	        "Detected %d RTP streams. Choose one for forward and reverse direction for analysis",
 	        ++streams_nb);
 	gtk_label_set(GTK_LABEL(top_label), label_text);
@@ -375,10 +375,10 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_fwd)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			strcpy(ip_version,"v6");
+			strncpy(ip_version,"v6",3);
 		}		
 		else{
-			strcpy(ip_version,"");
+			strncpy(ip_version,"",3);
 		}
 		filter_string_fwd = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",
@@ -395,10 +395,10 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_rev)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			strcpy(ip_version,"v6");
+			strncpy(ip_version,"v6",3);
 		}		
 		else{
-			strcpy(ip_version,"");
+			strncpy(ip_version,"",3);
 		}
 		filter_string_rev = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u && rtp.ssrc==0x%X)",

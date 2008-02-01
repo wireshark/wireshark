@@ -759,8 +759,8 @@ ifopts_write_new_descr(void)
 			tmp_descr = g_strdup_printf("%s(%s)", ifnm, desc);
 		else
 			tmp_descr = g_strdup_printf(",%s(%s)", ifnm, desc);
-		strcat(new_descr, tmp_descr);
-        g_free(tmp_descr);
+		strncat(new_descr, tmp_descr, MAX_VAL_LEN - strlen(new_descr));
+		g_free(tmp_descr);
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}
@@ -815,8 +815,8 @@ ifopts_write_new_hide(void)
 		else
 			tmp_hide = g_strdup_printf(",%s", ifnm);
 
-		strcat(new_hide, tmp_hide);
-        g_free(tmp_hide);
+		strncat(new_hide, tmp_hide, MAX_VAL_LEN - strlen(new_hide));
+		g_free(tmp_hide);
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}

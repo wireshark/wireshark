@@ -610,7 +610,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 		
 	}
 
-	strcpy(label_string, "sec");
+	strncpy(label_string, "sec", 15);
 
 #if GTK_MAJOR_VERSION < 2
 	lwidth=gdk_string_width(font, label_string);

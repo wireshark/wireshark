@@ -153,14 +153,14 @@ pref_show(pref_t *pref, gpointer user_data)
      and left-align it. */
   title = pref->title;
   label_string = g_malloc(strlen(title) + 2);
-  strcpy(label_string, title);
+  strncpy(label_string, title, strlen(title) + 1);
 
   /*
    * Sometimes we don't want to append a ':' after a static text string...
    * If it is needed, we will specify it in the string itself.
    */
   if(pref->type != PREF_STATIC_TEXT)
-    strcat(label_string, ":");
+    strncat(label_string, ":", 2);
 
   /* Save the current value of the preference, so that we can revert it if
      the user does "Apply" and then "Cancel", and create the control for
@@ -303,7 +303,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   /*
    * Add this module to the tree.
    */
-  strcpy(label_str, module->title);
+  strncpy(label_str, module->title, MAX_TREE_NODE_NAME_LEN);
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->tree), cts->node, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, !prefs_module_has_submodules(module),
@@ -571,30 +571,30 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.page = 0;
 
   /* Blank Page */
-  strcpy(label_str, "(No Specific Preferences)");
+  strncpy(label_str, "(No Specific Preferences)", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, NULL, NULL);
   blank_page = cts.page++;
 
   /* GUI prefs */
-  strcpy(label_str, "User Interface");
+  strncpy(label_str, "User Interface", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, gui_prefs_show(), E_GUI_PAGE_KEY);
   gui_iter = prefs_tree_page_add(label_str, cts.page, store, NULL, TRUE);
   cts.page++;
 
   /* GUI layout prefs */
-  strcpy(label_str, "Layout");
+  strncpy(label_str, "Layout", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, layout_prefs_show(), E_GUI_LAYOUT_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
   cts.page++;
 
   /* GUI Column prefs */
-  strcpy(label_str, "Columns");
+  strncpy(label_str, "Columns", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, column_prefs_show(), E_GUI_COLUMN_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
   cts.page++;
 
   /* GUI Font prefs */
-  strcpy(label_str, "Font");
+  strncpy(label_str, "Font", MAX_TREE_NODE_NAME_LEN);
   gui_font_pg = gui_font_prefs_show();
   prefs_nb_page_add(prefs_nb, label_str, gui_font_pg, E_GUI_FONT_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
@@ -634,7 +634,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #endif
 
   /* GUI Colors prefs */
-  strcpy(label_str, "Colors");
+  strncpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
   cts.page++;
@@ -654,7 +654,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   if (has_wpcap) {
 #endif /* _WIN32 */
   /* capture prefs */
-  strcpy(label_str, "Capture");
+  strncpy(label_str, "Capture", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, capture_prefs_show(), E_CAPTURE_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
@@ -664,13 +664,13 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #endif /* HAVE_LIBPCAP */
 
   /* Printing prefs */
-  strcpy(label_str, "Printing");
+  strncpy(label_str, "Printing", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, printer_prefs_show(), E_PRINT_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
 
   /* Name resolution prefs */
-  strcpy(label_str, "Name Resolution");
+  strncpy(label_str, "Name Resolution", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, nameres_prefs_show(), E_NAMERES_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
@@ -678,7 +678,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #ifdef HAVE_LIBPORTAUDIO
 #if GTK_MAJOR_VERSION >= 2
   /* RTP player prefs */
-  strcpy(label_str, "RTP Player");
+  strncpy(label_str, "RTP Player", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, rtp_player_prefs_show(), E_RTP_PLAYER_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;

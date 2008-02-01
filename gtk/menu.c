@@ -1323,7 +1323,7 @@ register_stat_menu_item(
          */
         menupathlen = strlen(toolspath) + 1 + (p - name);
         menupath = g_malloc(menupathlen);
-        strcpy(menupath, toolspath);
+        strncpy(menupath, toolspath, strlen(toolspath) + 1);
         strncat(menupath, name, p - name);
 
         /*
@@ -1362,8 +1362,8 @@ register_stat_menu_item(
      */
     menupathlen = strlen(toolspath) + 1 + strlen(name);
     menupath = g_malloc(menupathlen);
-    strcpy(menupath, toolspath);
-    strcat(menupath, name);
+    strncpy(menupath, toolspath, strlen(toolspath) + 1);
+    strncat(menupath, name, strlen(name) + 1);
 
     /*
      * Construct an item factory entry for the item, and add it to

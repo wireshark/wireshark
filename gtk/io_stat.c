@@ -1056,7 +1056,7 @@ enable_graph(io_stat_graph_t *gio, const char *filter, const char *field)
 		}
 		if(*field){
 			if(real_filter[0]!=0){
-				strcat(real_filter, " && ");
+			  strncat(real_filter, " && ", 261-strlen(real_filter));
 			}
 			strncat(real_filter, field, 261-strlen(real_filter));
 			real_filter[261]=0;
@@ -1424,7 +1424,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_YSCALE;i++){
 		if(yscale_max[i]==AUTO_MAX_YSCALE){
-			strcpy(str,"Auto");
+			strncpy(str, "Auto", 15);
 		} else {
 			g_snprintf(str, 15, "%u", yscale_max[i]);
 		}

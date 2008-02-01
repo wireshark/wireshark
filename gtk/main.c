@@ -859,7 +859,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         if (finfo_length == 0) {
             len_str[0] = '\0';
         } else if (finfo_length == 1) {
-            strcpy (len_str, ", 1 byte");
+            strncpy (len_str, ", 1 byte", sizeof len_str);
         } else {
             g_snprintf (len_str, sizeof len_str, ", %d bytes", finfo_length);
         }

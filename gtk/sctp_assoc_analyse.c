@@ -834,7 +834,7 @@ static void sctp_analyse_cb(struct sctp_analyse* u_data, gboolean ext)
 	int i;
 	guint32 *fn;
 
-	strcpy(filter_text,"sctp");
+	strncpy(filter_text,"sctp",250);
 	if (!dfilter_compile(filter_text, &sfcode)) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
 		return;
