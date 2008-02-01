@@ -718,7 +718,7 @@
 		<entry><programlisting>==</programlisting></entry>
 		<entry><para>
 		    <command>Equal</command></para><para>
-		    <programlisting>ip.addr==10.0.0.5</programlisting>
+		    <programlisting>ip.src==10.0.0.5</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -726,7 +726,7 @@
 		<entry><programlisting>!=</programlisting></entry>
 		<entry><para>
 		    <command>Not equal</command></para><para>
-		    <programlisting>ip.addr!=10.0.0.5</programlisting>
+		    <programlisting>ip.src!=10.0.0.5</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -734,14 +734,14 @@
 		<entry><programlisting>&gt;</programlisting></entry>
 		<entry><para>
 		    <command>Greater than</command></para><para>
-		    <programlisting>frame.pkt_len &gt; 10</programlisting>
+		    <programlisting>frame.len &gt; 10</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
 		<entry>lt</entry>
 		<entry><programlisting>&lt;</programlisting></entry>
 		<entry><para><command>Less than</command></para><para>
-		    <programlisting>frame.pkt_len &lt; 128</programlisting>
+		    <programlisting>frame.len &lt; 128</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -749,7 +749,7 @@
 		<entry><programlisting>&gt;=</programlisting></entry>
 		<entry><para>
 		    <command>Greater than or equal to</command></para><para>
-		    <programlisting>frame.pkt_len ge 0x100</programlisting>
+		    <programlisting>frame.len ge 0x100</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -757,7 +757,7 @@
 		<entry><programlisting>&lt;=</programlisting></entry>
 		<entry><para>
 		    <command>Less than or equal to</command></para><para>
-		    <programlisting>frame.pkt_len &lt;= 0x20</programlisting>
+		    <programlisting>frame.len &lt;= 0x20</programlisting>
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -820,9 +820,9 @@ ip.len le 0x436
 		    <entry><para>Separators can be a colon
 			(:), dot (.) or dash (-) and can have one or
 			two bytes between separators:<programlisting>
-eth.addr == ff:ff:ff:ff:ff:ff
-eth.addr == ff-ff-ff-ff-ff-ff
-eth.addr == ffff.ffff.ffff</programlisting></para></entry>
+eth.dst == ff:ff:ff:ff:ff:ff
+eth.dst == ff-ff-ff-ff-ff-ff
+eth.dst == ffff.ffff.ffff</programlisting></para></entry>
 		  </row>
 		  <row>
 		    <entry>IPv4 address</entry>
@@ -876,7 +876,7 @@ eth.addr == ffff.ffff.ffff</programlisting></para></entry>
 		<entry>&amp;&amp;</entry>
 		<entry><para>
 		    <command>Logical AND</command></para><para>
-		    <programlisting>ip.addr==10.0.0.5 and tcp.flags.fin</programlisting>
+		    <programlisting>ip.src==10.0.0.5 and tcp.flags.fin</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -884,7 +884,7 @@ eth.addr == ffff.ffff.ffff</programlisting></para></entry>
 		<entry>||</entry>
 		<entry><para>
 		    <command>Logical OR</command></para><para>
-		    <programlisting>ip.addr==10.0.0.5 or ip.addr==192.1.1.1</programlisting>
+		    <programlisting>ip.scr==10.0.0.5 or ip.src==192.1.1.1</programlisting>
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1246,7 +1246,7 @@ eth.src[1-2] == 00:83
 			<para>
 			For example, to find the three way handshake for a connection from 
 			host 192.168.0.1, use the following filter string:
-			<programlisting>ip.addr==192.168.0.1 and tcp.flags.syn</programlisting>
+			<programlisting>ip.src==192.168.0.1 and tcp.flags.syn==1</programlisting>
 			For more details on display filters, see <xref linkend="ChWorkDisplayFilterSection"/>
 			</para>
 		</listitem>
