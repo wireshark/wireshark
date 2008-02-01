@@ -4839,7 +4839,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* setting a tooltip for a combobox will do nothing, so add it to the corresponding text entry */
     gtk_tooltips_set_tip(tooltips, filter_te,
         "Enter a display filter, or choose one of your recently used filters. "
-        "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).",
+        "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid, yellow may have unexpected results).",
         NULL);
 
     /* Create the "Add Expression..." button, to pop up a dialog

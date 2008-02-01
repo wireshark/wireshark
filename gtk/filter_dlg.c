@@ -606,7 +606,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     if (list_type == DFILTER_EDITED_LIST) {
         gtk_tooltips_set_tip(tooltips, filter_te,
             "Enter a display filter. "
-            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid).",
+            "The background color of this field is changed by a continuous syntax check (green is valid, red is invalid, yellow may have unexpected results).",
             NULL);
 
         /* Create the "Add Expression..." button, to pop up a dialog
