@@ -477,7 +477,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * the payload length in the packet, and the amount of
 	 * data following the PPPoE header, as an error.
 	 */
-	if (tvb_reported_length(tvb) >= 46 &&
+	if (tvb_reported_length(tvb) > 46 &&
 	    reported_payload_length != actual_payload_length) {
 		proto_item_append_text(ti, " [incorrect, should be %u]",
 				       actual_payload_length);
