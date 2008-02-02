@@ -463,7 +463,7 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 
 	/* Initialize the message for an empty string */
 	msgIndex = msg;
-	strcpy(msgIndex, "No command specified");
+	strncpy(msgIndex, "No command specified", MAX_MSG_SIZE);
 
 	for (i = 0; cmd != 0 && i < 32; i++) {
 
@@ -472,31 +472,31 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 		if (cmd & bitValue) {
 			switch (bitValue) {
 			case FMP_COMMIT_SPECIFIED:
-				strcpy(msgIndex, "COMMIT_SPECIFIED");
+				strncpy(msgIndex, "COMMIT_SPECIFIED", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("COMMIT_SPECIFIED");
 				break;
 			case FMP_RELEASE_SPECIFIED:
-				strcpy(msgIndex, "RELEASE_SPECIFIED");
+				strncpy(msgIndex, "RELEASE_SPECIFIED", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("RELEASE_SPECIFIED");
 				break;
 			case FMP_RELEASE_ALL:
-				strcpy(msgIndex, "RELEASE_ALL");
+				strncpy(msgIndex, "RELEASE_ALL", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("RELEASE_ALL");
 				break;
 			case FMP_CLOSE_FILE:
-				strcpy(msgIndex, "CLOSE_FILE");
+				strncpy(msgIndex, "CLOSE_FILE", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("CLOSE_FILE");
 				break;
 			case FMP_UPDATE_TIME:
-				strcpy(msgIndex, "UPDATE_TIME");
+				strncpy(msgIndex, "UPDATE_TIME", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("UPDATE_TIME");
 				break;
 			case FMP_ACCESS_TIME:
-				strcpy(msgIndex, "ACCESS_TIME");
+				strncpy(msgIndex, "ACCESS_TIME", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("ACCESS_TIME");
 				break;
 			default:
-				strcpy(msgIndex, "UNKNOWN");
+				strncpy(msgIndex, "UNKNOWN", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen("UNKNOWN");
 				break;
 			}
@@ -506,11 +506,12 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 	
 			/* add a "bitwise inclusive OR" symbol between cmds */
 			if (cmd) {
-				strcpy(msgIndex, " | ");
+				strncpy(msgIndex, " | ", MAX_MSG_SIZE - strlen(msg));
 				msgIndex += strlen(" | ");
 			}
 		}
 	}
+	msg[MAX_MSG_SIZE-1] = '\0';
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Cmd: %s", msg);
 	offset += 4;
