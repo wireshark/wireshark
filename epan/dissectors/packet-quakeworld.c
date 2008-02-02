@@ -507,11 +507,12 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					offset + Cmd_Argv_start(1),
 					Cmd_Argv_length(1), password);
 			}
+			remaining[0] = 0;
 			for (i=2; i<Cmd_Argc() ; i++) {
-				remaining[0] = 0;
-				strcat (remaining, Cmd_Argv(i) );
-				strcat (remaining, " ");
+				strncat (remaining, Cmd_Argv(i), MAX_TEXT_SIZE - strlen(remaining));
+				strncat (remaining, " ", MAX_TEXT_SIZE - strlen(remaining));
 			}
+			remaining[MAX_TEXT_SIZE] = '\0';
 			if (text_tree) {
 				proto_tree_add_string(argument_tree,
 					hf_quakeworld_connectionless_rcon_command,
