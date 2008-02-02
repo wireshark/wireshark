@@ -228,104 +228,104 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     {
         if (flags & bvalue) 
         {
-            strcat(flags_str, sep);
+            strncat(flags_str, sep, 1024 - strlen(flags_str));
             switch(bvalue)
             {
                 case 0x00000001:
-                        strcat(flags_str, "Enhanced Protection");
+                        strncat(flags_str, "Enhanced Protection", 1024 - strlen(flags_str));
                         break;
                 case 0x00000002:        
-                        strcat(flags_str, "Create ID");
+                        strncat(flags_str, "Create ID", 1024 - strlen(flags_str));
                         break;
                 case 0x00000004:        
-                        strcat(flags_str, "Remove Lock");
+                        strncat(flags_str, "Remove Lock", 1024 - strlen(flags_str));
                         break;
                 case 0x00000008:        
-                        strcat(flags_str, "Repair");
+                        strncat(flags_str, "Repair", 1024 - strlen(flags_str));
                         break;
                 case 0x00000010:        
-                        strcat(flags_str, "Unicode");
+                        strncat(flags_str, "Unicode", 1024 - strlen(flags_str));
                         break;
                 case 0x00000020:        
-                        strcat(flags_str, "EP Master Password Used");
+                        strncat(flags_str, "EP Master Password Used", 1024 - strlen(flags_str));
                         break;
                 case 0x00000040:        
-                        strcat(flags_str, "EP Password Used");
+                        strncat(flags_str, "EP Password Used", 1024 - strlen(flags_str));
                         break;
                 case 0x00000080:        
-                        strcat(flags_str, "Set Tree Name");
+                        strncat(flags_str, "Set Tree Name", 1024 - strlen(flags_str));
                         break;
                 case 0x00000100:        
-                        strcat(flags_str, "Get Context");
+                        strncat(flags_str, "Get Context", 1024 - strlen(flags_str));
                         break;
                 case 0x00000200:        
-                        strcat(flags_str, "Destroy Context");
+                        strncat(flags_str, "Destroy Context", 1024 - strlen(flags_str));
                         break;
                 case 0x00000400:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x00000800:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x00001000:
-                        strcat(flags_str, "EP Lock");
+                        strncat(flags_str, "EP Lock", 1024 - strlen(flags_str));
                         break;
                 case 0x00002000:        
-                        strcat(flags_str, "Not Initialized");
+                        strncat(flags_str, "Not Initialized", 1024 - strlen(flags_str));
                         break;
                 case 0x00004000:        
-                        strcat(flags_str, "Enhanced Protection");
+                        strncat(flags_str, "Enhanced Protection", 1024 - strlen(flags_str));
                         break;
                 case 0x00008000:        
-                        strcat(flags_str, "Store Not Synced");
+                        strncat(flags_str, "Store Not Synced", 1024 - strlen(flags_str));
                         break;
                 case 0x00010000:        
-                        strcat(flags_str, "Admin Last Modified");
+                        strncat(flags_str, "Admin Last Modified", 1024 - strlen(flags_str));
                         break;
                 case 0x00020000:        
-                        strcat(flags_str, "EP Password Present");
+                        strncat(flags_str, "EP Password Present", 1024 - strlen(flags_str));
                         break;
                 case 0x00040000:        
-                        strcat(flags_str, "EP Master Password Present");
+                        strncat(flags_str, "EP Master Password Present", 1024 - strlen(flags_str));
                         break;
                 case 0x00080000:        
-                        strcat(flags_str, "MP Disabled");
+                        strncat(flags_str, "MP Disabled", 1024 - strlen(flags_str));
                         break;
                 case 0x00100000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x00200000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x00400000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x00800000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x01000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x02000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x04000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x08000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x10000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x20000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x40000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 case 0x80000000:        
-                        strcat(flags_str, "Not Defined");
+                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
                         break;
                 default:
                         break;
@@ -334,6 +334,7 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
         }
             bvalue = bvalue*2;
     }
+    flags_str[1024-1] = '\0';
     tinew = proto_tree_add_uint_format(sss_tree, hf_flags, tvb, foffset, 4, flags, "%s 0x%08x", "Flags:", flags);
 	flags_tree = proto_item_add_subtree(tinew, ett_nds);
                                                 

@@ -437,11 +437,8 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 	  p_private_tcap=pinfo->private_data;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
-		  strcpy(buf,p_private_tcap->TransactionID_str);
 	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
-		  strcat(buf,src_str);
-		  strcat(buf,dst_str);
-		  strcat(buf,"\0");
+		  g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
 		  /* If the entry allready exists don't owervrite it */
 		  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
 		  if(ansi_map_saved_invokedata)
@@ -4265,11 +4262,8 @@ find_saved_invokedata(asn1_ctx_t *actx){
 	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  src_str = address_to_str(src);
 	  dst_str = address_to_str(dst);
-	  strcpy(buf, p_private_tcap->TransactionID_str);
 	  /* Reverse order to invoke */
-	  strcat(buf,dst_str);
-	  strcat(buf,src_str);
-	  strcat(buf,"\0");
+	  g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
 	  /*
 	  g_warning("Find Hash string %s",buf);
 	  */

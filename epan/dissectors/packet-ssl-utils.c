@@ -2091,14 +2091,14 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd) {
 
           buf_len = sizeof(buf_name);
           ret = gnutls_x509_crt_get_dn_by_oid(ssl_cert, GNUTLS_OID_X520_COMMON_NAME, 0, 0, buf_name, &buf_len);
-          if (ret < 0) { strcpy(buf_name, "<ERROR>"); }
+          if (ret < 0) { strncpy(buf_name, "<ERROR>", 256); }
           buf_len = sizeof(buf_email);
           ret = gnutls_x509_crt_get_dn_by_oid(ssl_cert, GNUTLS_OID_PKCS9_EMAIL, 0, 0, buf_email, &buf_len);
-          if (ret < 0) { strcpy(buf_email, "<ERROR>"); }
+          if (ret < 0) { strncpy(buf_email, "<ERROR>", 256); }
 
           buf_len = sizeof(buf_keyid);
           ret = gnutls_x509_crt_get_key_id(ssl_cert, 0, buf_keyid, &buf_len); 
-          if (ret < 0) { strcpy(buf_keyid, "<ERROR>"); }
+          if (ret < 0) { strncpy(buf_keyid, "<ERROR>", 256); }
 
           private_key->x509_cert = ssl_cert;
           ssl_debug_printf( "Certificate imported: %s <%s>, KeyID %s\n", buf_name, buf_email, bytes_to_str(buf_keyid, buf_len));
@@ -2355,7 +2355,7 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
   assoc->tcp = tcp;
   assoc->ssl_port = port;
   assoc->info=g_malloc(strlen(protocol)+1);
-  strcpy(assoc->info, protocol);
+  strncpy(assoc->info, protocol, strlen(protocol)+1);
   assoc->handle = find_dissector(protocol);
   assoc->from_key_list = from_key_list;
 

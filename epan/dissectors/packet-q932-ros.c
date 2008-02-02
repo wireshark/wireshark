@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-q932-ros.c                                                          */
-/* ../../tools/asn2wrs.py -b -p q932.ros -c q932-ros.cnf -s packet-q932-ros-template ../ros/Remote-Operations-Information-Objects.asn Facility-Information-Element-Components.asn */
+/* ../../tools/asn2wrs.py -b -p q932.ros -c ./q932-ros.cnf -s ./packet-q932-ros-template -D . ../ros/Remote-Operations-Information-Objects.asn Facility-Information-Element-Components.asn */
 
 /* Input file: packet-q932-ros-template.c */
 
@@ -120,7 +120,7 @@ static tvbuff_t *arg_next_tvb, *res_next_tvb, *err_next_tvb;
 static int
 dissect_q932_ros_T_local(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &actx->rose_ctx->d.code_local);
+                                                &actx->rose_ctx->d.code_local);
 
   return offset;
 }
@@ -164,7 +164,7 @@ dissect_q932_ros_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_q932_ros_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -205,7 +205,7 @@ dissect_q932_ros_InvokeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_q932_ros_InvokeId_present(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -245,7 +245,7 @@ dissect_q932_ros_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_q932_ros_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "q932-ros.cnf"
+#line 73 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -320,7 +320,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_q932_ros_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "q932-ros.cnf"
+#line 91 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -409,7 +409,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_q932_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "q932-ros.cnf"
+#line 110 "q932-ros.cnf"
 
   gint len;
 
@@ -492,10 +492,11 @@ static const value_string q932_ros_GeneralProblem_vals[] = {
 static int
 dissect_q932_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem_val);
+                                                &problem_val);
 
 #line 54 "q932-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -517,10 +518,11 @@ static const value_string q932_ros_InvokeProblem_vals[] = {
 static int
 dissect_q932_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem_val);
+                                                &problem_val);
 
-#line 56 "q932-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""));
+#line 57 "q932-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -537,10 +539,11 @@ static const value_string q932_ros_ReturnResultProblem_vals[] = {
 static int
 dissect_q932_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem_val);
+                                                &problem_val);
 
-#line 58 "q932-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""));
+#line 60 "q932-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -559,10 +562,11 @@ static const value_string q932_ros_ReturnErrorProblem_vals[] = {
 static int
 dissect_q932_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem_val);
+                                                &problem_val);
 
-#line 60 "q932-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""));
+#line 63 "q932-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }

@@ -1917,11 +1917,11 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Unknown (0x%02x)");
   flag_string[0] = '\0';
   if (cnf_type & CNF_SEG_OK)
-    strcat(flag_string, "S ");
+    strncat(flag_string, "S ", 3);
   if (cnf_type & CNF_MORE_SEGS)
-    strcat(flag_string, "M ");
+    strncat(flag_string, "M ", 3);
   if (cnf_type & CNF_ERR_OK)
-    strcat(flag_string, "E ");
+    strncat(flag_string, "E ", 3);
   if (tree) {
     ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
 			       cnf_type,

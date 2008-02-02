@@ -1592,12 +1592,12 @@ col_append_str_gtp(column_info *cinfo, gint el, const gchar *proto_name) {
       			}
 
 			_tmp[0] = '\0';
-			strcat(_tmp, proto_name);
-			strcat(_tmp, " <");
-			strcat(_tmp, cinfo->col_buf[i]);
-			strcat(_tmp, ">");
+			strncat(_tmp, proto_name, COL_MAX_LEN);
+			strncat(_tmp, " <", COL_MAX_LEN - strlen(_tmp));
+			strncat(_tmp, cinfo->col_buf[i], COL_MAX_LEN - strlen(_tmp));
+			strncat(_tmp, ">", COL_MAX_LEN - strlen(_tmp));
 			cinfo->col_buf[i][0] = '\0';
-			strcat(cinfo->col_buf[i], _tmp);
+			strncat(cinfo->col_buf[i], _tmp, COL_MAX_LEN);
 			cinfo->col_data[i] = cinfo->col_buf[i];
 		}
 	}

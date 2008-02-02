@@ -649,13 +649,13 @@ static gint ett_afs_vldb_flags = -1;
 		int acllen; \
 		char tmp[10]; \
 		tmp[0] = 0; \
-		if ( acl & PRSFS_READ ) strcat(tmp, "r"); \
-		if ( acl & PRSFS_LOOKUP ) strcat(tmp, "l"); \
-		if ( acl & PRSFS_INSERT ) strcat(tmp, "i"); \
-		if ( acl & PRSFS_DELETE ) strcat(tmp, "d"); \
-		if ( acl & PRSFS_WRITE ) strcat(tmp, "w"); \
-		if ( acl & PRSFS_LOCK ) strcat(tmp, "k"); \
-		if ( acl & PRSFS_ADMINISTER ) strcat(tmp, "a"); \
+		if ( acl & PRSFS_READ ) strncat(tmp, "r", 2);	\
+		if ( acl & PRSFS_LOOKUP ) strncat(tmp, "l", 2);	\
+		if ( acl & PRSFS_INSERT ) strncat(tmp, "i", 2);	\
+		if ( acl & PRSFS_DELETE ) strncat(tmp, "d", 2);	\
+		if ( acl & PRSFS_WRITE ) strncat(tmp, "w", 2);	\
+		if ( acl & PRSFS_LOCK ) strncat(tmp, "k", 2);	\
+		if ( acl & PRSFS_ADMINISTER ) strncat(tmp, "a", 2);  \
 		ti = proto_tree_add_text(tree, tvb, offset, bytes, \
 			"ACL:  %s %s%s", \
 			who, tmp, positive ? "" : " (negative)"); \

@@ -1459,7 +1459,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					if (verb_description != NULL)
 					{
 						/* Can show verb along with code if known */
-						sprintf(code_with_verb, "%s (%s)", code, verb_description);
+						g_snprintf(code_with_verb, 64, "%s (%s)", code, verb_description);
 					}
 
 					proto_tree_add_string_format(tree, hf_mgcp_req_verb, tvb,
@@ -1597,7 +1597,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							mi->request_available = TRUE;
 							mgcp_call->responded = TRUE;
 							mi->req_num = mgcp_call->req_num;
-							strcpy(mi->code,mgcp_call->code);
+							strncpy(mi->code,mgcp_call->code,5);
 							item = proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
 							                                  tvb, 0, 0, mgcp_call->req_num,
 							                                  "This is a response to a request in frame %u",
@@ -1751,7 +1751,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					mgcp_call->transid = mi->transid;
 					mgcp_call->responded = FALSE;
 					mgcp_call->req_time=pinfo->fd->abs_ts;
-					strcpy(mgcp_call->code,mi->code);
+					strncpy(mgcp_call->code,mi->code,5);
 
 					/* Store it */
 					g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);

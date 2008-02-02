@@ -560,7 +560,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                 type_len = strcspn(tmp, ")");
                 add_v1_string(tree, hf_srvloc_srvrply_svcname, tvb, offset, type_len*2, encoding);
                 offset += (type_len*2)+4;
-                strcpy(attr_type, "\0");
+                attr_type[0] = '\0';
             }
             /* If this is the attribute svcaddr */
             if (strcmp(attr_type, "svcaddr-ws")==0) {
@@ -625,7 +625,7 @@ attr_list(proto_tree *tree, int hf, tvbuff_t *tvb, int offset, int length,
                     foffset += 57;
                 }
                 offset = foffset;
-                strcpy(attr_type, "\0");
+                attr_type[0] = '\0';
             }
             /* If there are no more supported attributes available then abort dissection */
             if (strcmp(attr_type, "svcaddr-ws")!=0 && strcmp(attr_type, "svcname-ws")!=0 && strcmp(attr_type, "\0")!=0) {

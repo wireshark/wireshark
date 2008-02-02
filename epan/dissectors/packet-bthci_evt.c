@@ -640,20 +640,20 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 		buf[0] = 0;
 
 		proto_item_append_text(item, " (%s - services:", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
-		if (cod2 & 0x80) strcat(buf, " Information,");
-		if (cod2 & 0x40) strcat(buf, " Telephony,");
-		if (cod2 & 0x20) strcat(buf, " Audio,");
-		if (cod2 & 0x10) strcat(buf, " Object transfer,");
-		if (cod2 & 0x08) strcat(buf, " Capturing,");
-		if (cod2 & 0x04) strcat(buf, " Rendering,");
-		if (cod2 & 0x02) strcat(buf, " Networking,");
-		if (cod2 & 0x01) strcat(buf, " Positioning,");
-		if (cod1 & 0x20) strcat(buf, " Limited discoverable mode,");
+		if (cod2 & 0x80) strncat(buf, " Information,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x40) strncat(buf, " Telephony,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x20) strncat(buf, " Audio,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x10) strncat(buf, " Object transfer,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x08) strncat(buf, " Capturing,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x04) strncat(buf, " Rendering,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x02) strncat(buf, " Networking,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x01) strncat(buf, " Positioning,", sizeof(buf) - strlen(buf));
+		if (cod1 & 0x20) strncat(buf, " Limited discoverable mode,", sizeof(buf) - strlen(buf));
 
 		buf[strlen(buf)-1] = 0; /* skip last comma */
 
-		strcat(buf, ")");
-
+		strncat(buf, ")", sizeof(buf) - strlen(buf));
+		buf[128-1] = '\0';
 		proto_item_append_text(item, buf);
 	}
 	else

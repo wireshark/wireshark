@@ -1612,7 +1612,7 @@ dcom_tvb_get_nwstringz0(tvbuff_t *tvb, gint offset, guint32 inLength, gchar *psz
         for(u32IdxA = 0, u32IdxW = 0; 
             u32IdxW < u32Idx && u32IdxA < outLength-2;
             u32IdxW++, u32IdxA+=2) {
-            sprintf(&pszStr[u32IdxA], "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
+		    g_snprintf(&pszStr[u32IdxA], 3, "%02X", tvb_get_guint8(tvb, offset+u32IdxW));
         }
     }
 

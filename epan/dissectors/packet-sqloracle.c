@@ -298,7 +298,7 @@ char * convertHexToString(BYTE *pSrc, UI16_T length)
     */
 
     /* hexString = buf; */
-	strcpy (hexString, buf);
+/* 	strcpy (hexString, buf); */
 	return hexString;
 }
 #endif

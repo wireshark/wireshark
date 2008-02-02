@@ -2635,7 +2635,8 @@ cops_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8 op
 
      /* Write the right data into the 'info field' on the Gui */
      g_snprintf(info,sizeof(info),"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
-     strcat(info,val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"));
+     strncat(info,val_to_str(code16,table_cops_dqos_transaction_id, "Unknown"), sizeof(info)-strlen(info));
+     info[sizeof(info)-1] = '\0';
 
      if (check_col(pinfo->cinfo, COL_INFO)) {
           col_clear(pinfo->cinfo, COL_INFO);
@@ -3031,7 +3032,7 @@ cops_mm_transaction_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *st, guint8
 
      /* Write the right data into the 'info field' on the Gui */
      g_snprintf(info,sizeof(info),"COPS %-20s - ",val_to_str(op_code,cops_op_code_vals, "Unknown"));
-     strcat(info,val_to_str(code16,table_cops_mm_transaction_id, "Unknown"));
+     strncat(info,val_to_str(code16,table_cops_mm_transaction_id, "Unknown"), sizeof(info)-strlen(info));
 
      if (check_col(pinfo->cinfo, COL_INFO)) {
           col_clear(pinfo->cinfo, COL_INFO);

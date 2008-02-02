@@ -331,7 +331,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
       tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
       cur[copylen] = '\0';
       if (overflow)
-        strcat(cur, "...");
+        strncat(cur, "...",4);
       string_len = *len;
       string = cur;
     } else {

@@ -178,7 +178,7 @@ dissect_h450_ros_InvokeId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_h450_ros_T_invokeIdConstrained(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "h450-ros.cnf"
+#line 68 "h450-ros.cnf"
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                            0U, 65535U, NULL, TRUE);
 
@@ -410,7 +410,8 @@ dissect_h450_ros_GeneralProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
 #line 51 "h450-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_GeneralProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(h450_ros_GeneralProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -433,8 +434,9 @@ static int
 dissect_h450_ros_InvokeProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 53 "h450-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_InvokeProblem_vals), ""));
+#line 54 "h450-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(h450_ros_InvokeProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -452,8 +454,9 @@ static int
 dissect_h450_ros_ReturnResultProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 55 "h450-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnResultProblem_vals), ""));
+#line 57 "h450-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnResultProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }
@@ -473,8 +476,9 @@ static int
 dissect_h450_ros_ReturnErrorProblem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, &problem_val);
 
-#line 57 "h450-ros.cnf"
-  strcpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnErrorProblem_vals), ""));
+#line 60 "h450-ros.cnf"
+  strncpy(problem_str, val_to_str(problem_val, VALS(h450_ros_ReturnErrorProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 
   return offset;
 }

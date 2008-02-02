@@ -1319,7 +1319,8 @@ dissect_fhandle_data_NETAPP(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 		flag_string[0]=0;
 		while (bit--)
 			if (flags & (1<<bit))
-				strcat(flag_string, strings[bit]);
+				strncat(flag_string, strings[bit], 512 - strlen(flag_string));
+		flag_string[512-1] = '\0';
 		item = proto_tree_add_text(tree, tvb, offset + 0, 8,
 					   "mount (inode %u)", mount);
 		subtree = proto_item_add_subtree(item, ett_nfs_fh_mount);
@@ -1438,10 +1439,10 @@ dissect_fhandle_data_NETAPP_V4(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree
 
 		while (bit--) {
 			if (flags & (1<<bit)) {
-				strcat(flag_string, strings[bit]);
+				strncat(flag_string, strings[bit], 512 - strlen(flag_string));
 			}
 		}
-
+		flag_string[512-1] = '\0';
 		item = proto_tree_add_text(tree, tvb, offset + 0, 8, "export (inode %u)", fileid);
 		subtree = proto_item_add_subtree(item, ett_nfsv4_fh_export);
 		

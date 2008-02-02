@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ansi_map.c                                                          */
-/* ../../tools/asn2wrs.py -b -p ansi_map -c ansi_map.cnf -s packet-ansi_map-template ansi_map.asn */
+/* ../../tools/asn2wrs.py -b -p ansi_map -c ./ansi_map.cnf -s ./packet-ansi_map-template -D . ansi_map.asn */
 
 /* Input file: packet-ansi_map-template.c */
 
@@ -1206,11 +1206,8 @@ update_saved_invokedata(packet_info *pinfo, proto_tree *tree _U_, tvbuff_t *tvb 
 	  p_private_tcap=pinfo->private_data;
 	  if ((!pinfo->fd->flags.visited)&&(p_private_tcap->TransactionID_str)){
 		  /* Only do this once XXX I hope its the right thing to do */
-		  strcpy(buf,p_private_tcap->TransactionID_str);
 	  	  /* The hash string needs to contain src and dest to distiguish differnt flows */
-		  strcat(buf,src_str);
-		  strcat(buf,dst_str);
-		  strcat(buf,"\0");
+		  g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,src_str,dst_str);
 		  /* If the entry allready exists don't owervrite it */
 		  ansi_map_saved_invokedata = g_hash_table_lookup(TransactionId_table,buf);
 		  if(ansi_map_saved_invokedata)
@@ -4485,7 +4482,7 @@ dissect_ansi_map_AuthenticationResponseUniqueChallenge(gboolean implicit_tag _U_
 static int
 dissect_ansi_map_CallHistoryCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4948,7 +4945,7 @@ dissect_ansi_map_SystemCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_ansi_map_CallHistoryCountExpected(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5765,7 +5762,7 @@ dissect_ansi_map_ChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ansi_map_InterSwitchCount(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7880,7 +7877,7 @@ static const value_string ansi_map_SignalQuality_vals[] = {
 static int
 dissect_ansi_map_SignalQuality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -9807,7 +9804,7 @@ dissect_ansi_map_ControlChannelData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 static int
 dissect_ansi_map_ReceivedSignalQuality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -11670,7 +11667,7 @@ dissect_ansi_map_TimeDateOffset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_ansi_map_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -14297,7 +14294,7 @@ dissect_ansi_map_ACGDirective(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_ansi_map_InvokingNEType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -14307,7 +14304,7 @@ dissect_ansi_map_InvokingNEType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_ansi_map_Range(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -15052,7 +15049,7 @@ dissect_ansi_map_ReturnData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 /*--- End of included file: packet-ansi_map-fn.c ---*/
-#line 3623 "packet-ansi_map-template.c"
+#line 3620 "packet-ansi_map-template.c"
 
 /*
  * 6.5.2.dk N.S0013-0 v 1.0,X.S0004-550-E v1.0 2.301
@@ -15698,11 +15695,8 @@ find_saved_invokedata(asn1_ctx_t *actx){
 	  /* The hash string needs to contain src and dest to distiguish differnt flows */
 	  src_str = address_to_str(src);
 	  dst_str = address_to_str(dst);
-	  strcpy(buf, p_private_tcap->TransactionID_str);
 	  /* Reverse order to invoke */
-	  strcat(buf,dst_str);
-	  strcat(buf,src_str);
-	  strcat(buf,"\0");
+	  g_snprintf(buf,1024,"%s%s%s",p_private_tcap->TransactionID_str,dst_str,src_str);
 	  /*
 	  g_warning("Find Hash string %s",buf);
 	  */
@@ -18795,7 +18789,7 @@ void proto_register_ansi_map(void) {
         "ansi_map.StatusRequestRes", HFILL }},
 
 /*--- End of included file: packet-ansi_map-hfarr.c ---*/
-#line 5217 "packet-ansi_map-template.c"
+#line 5211 "packet-ansi_map-template.c"
   };
 
   /* List of subtrees */
@@ -19048,7 +19042,7 @@ void proto_register_ansi_map(void) {
     &ett_ansi_map_ReturnData,
 
 /*--- End of included file: packet-ansi_map-ettarr.c ---*/
-#line 5250 "packet-ansi_map-template.c"
+#line 5244 "packet-ansi_map-template.c"
   };
 
 

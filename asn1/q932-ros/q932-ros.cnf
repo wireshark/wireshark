@@ -51,13 +51,17 @@ InvokeProblem        VAL_PTR = &problem_val
 ReturnResultProblem  VAL_PTR = &problem_val
 ReturnErrorProblem   VAL_PTR = &problem_val
 #.FN_FTR GeneralProblem
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 #.FN_FTR InvokeProblem
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 #.FN_FTR ReturnResultProblem
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 #.FN_FTR ReturnErrorProblem
-  strcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""));
+  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
+  problem_str[64-1] = '\0';
 #.END
 
 #--- INVOKE ---
