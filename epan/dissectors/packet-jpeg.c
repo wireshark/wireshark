@@ -77,6 +77,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_tree *main_hdr_tree = NULL;
 	proto_tree *restart_hdr_tree = NULL;
 	proto_tree *qtable_hdr_tree = NULL;
+	guint32 fragment_offset = 0;
 	guint16 len = 0;
 	guint8 type = 0;
 	guint8 q = 0;
@@ -103,6 +104,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_ts, tvb, offset, 1, FALSE);
 		offset += 1;
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_offs, tvb, offset, 3, FALSE);
+		fragment_offset = tvb_get_ntoh24(tvb, offset);
 		offset += 3;
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, FALSE);
 		type = tvb_get_guint8(tvb, offset);
@@ -128,19 +130,19 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			offset += 2;
 		}
 
-		if (q >= 128) {
+		if (q >= 128 && fragment_offset == 0) {
 			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_qtable_hdr, tvb, offset, -1, FALSE);
 			qtable_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
-			proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_qtable_hdr_mbz, tvb, offset, 1, FALSE);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_mbz, tvb, offset, 1, FALSE);
 			offset += 1;
-			proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_qtable_hdr_prec, tvb, offset, 1, FALSE);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_prec, tvb, offset, 1, FALSE);
 			offset += 1;
-			proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_qtable_hdr_length, tvb, offset, 2, FALSE);
-			len = tvb_get_letohs(tvb, offset);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_length, tvb, offset, 2, FALSE);
+			len = tvb_get_ntohs(tvb, offset);
 			offset += 2;
 			if (len > 0) {
-				proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_qtable_hdr_data, tvb, offset, len, FALSE);
-				offset += 1;
+				proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_data, tvb, offset, len, FALSE);
+				offset += len;
 			}
 			proto_item_set_len(ti, len + 4);
 		}
