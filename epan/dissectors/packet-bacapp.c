@@ -2673,11 +2673,21 @@ static guint
 fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	proto_tree *subtree = tree;
+	proto_item *tt;
 
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		if (tag_is_closing(tag_info)) {
+			offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);
+			subtree = tree;
+			continue;
+		}
 
-		switch (fTagNo(tvb,offset)) {
+		switch (tag_no) {
 		case 0:	/* ProcessId */
 			offset = fUnsignedTag (tvb, tree, offset, "subscriber Process Id: ");
 			break;
@@ -2691,7 +2701,16 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fTimeSpan (tvb,tree,offset,"life time");
 			break;
 		case 4:	/* monitoredPropertyIdentifier */
-			offset = fBACnetPropertyReference (tvb, tree, offset, 0);
+			if (tag_is_opening(tag_info)) {
+				tt = proto_tree_add_text(subtree, tvb, offset, 1, "monitoredPropertyIdentifier");
+				if (tt) {
+					subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+				}
+				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+				offset = fBACnetPropertyReference (tvb, subtree, offset, 1);
+				break;
+			}
+			FAULT;
 			break;
 		case 5:	/* covIncrement */
 			offset = fRealTag (tvb, tree, offset, "COV Increment: ");
