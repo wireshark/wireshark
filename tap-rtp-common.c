@@ -33,6 +33,7 @@
 # include "config.h"
 #endif
 
+#include <math.h>
 #include "globals.h"
 
 #include <epan/tap.h>
