@@ -490,7 +490,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 	time(&system_time);
 	current_time = localtime(&system_time);
 	memset(&comment, 0x00, sizeof(comment));
-	sprintf(comment, "This capture was saved from Wireshark on %s", asctime(current_time));
+	g_snprintf(comment, 64, "This capture was saved from Wireshark on %s", asctime(current_time));
 
 	/* create the file header */
 	if (fseek(wdh->fh, 0, SEEK_SET) == -1) {
@@ -498,7 +498,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 		return FALSE;
 	}
 	memset(&file_header, 0x00, sizeof(capture_file_header));
-	strcpy(file_header.observer_version, network_instruments_magic);
+	strncpy(file_header.observer_version, network_instruments_magic, 32);
 	file_header.offset_to_first_packet = sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment);
 	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
 	file_header.number_of_information_elements = 1;

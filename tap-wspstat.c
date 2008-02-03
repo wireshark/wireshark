@@ -247,8 +247,7 @@ wspstat_init(const char *optarg, void* userdata _U_)
 	sp->num_pdus = 16;
 	sp->pdu_stats=g_malloc( (sp->num_pdus+1) * sizeof( wsp_pdu_t) );
 	if(filter){
-		sp->filter=g_malloc(strlen(filter)+1);
-		strcpy(sp->filter,filter);
+		sp->filter=g_strdup(filter);
 	} else {
 		sp->filter=NULL;
 	}

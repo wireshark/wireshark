@@ -663,8 +663,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 			if(pos==str){
 				register_io_tap(io, i, NULL);
 			} else if(pos==NULL) {
-				tmp=g_malloc(strlen(str)+1);
-				strcpy(tmp,str);
+				tmp=g_strdup(str);
 				register_io_tap(io, i, tmp);
 			} else {
 				tmp=g_malloc((pos-str)+1);

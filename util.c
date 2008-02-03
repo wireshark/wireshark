@@ -75,14 +75,14 @@ get_args_as_string(int argc, char **argv, int optind)
 	/*
 	 * Now construct the string.
 	 */
-	strcpy(argstring, "");
+	argstring[0] = '\0';
 	i = optind;
 	for (;;) {
-		strcat(argstring, argv[i]);
+		strncat(argstring, argv[i], len - strlen(argstring));
 		i++;
 		if (i == argc)
 			break;
-		strcat(argstring, " ");
+		strncat(argstring, " ", len - strlen(argstring));
 	}
 	return argstring;
 }

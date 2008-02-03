@@ -394,6 +394,7 @@ int main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename;
+  size_t filenamelen;
   gboolean check_ts;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
@@ -618,11 +619,12 @@ int main(int argc, char *argv[])
       out_frame_type = wtap_file_encap(wth);
 
     if (split_packet_count > 0) {
-      filename = (char *) g_malloc(strlen(argv[optind+1]) + 20);
+      filenamelen = strlen(argv[optind+1]) + 20;
+      filename = (char *) g_malloc(filenamelen);
       if (!filename) {
         exit(5);
       }
-      sprintf(filename, "%s-%05d", argv[optind+1], 0);
+      snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], 0);
     } else {
       filename = argv[optind+1];
     }
@@ -651,7 +653,7 @@ int main(int argc, char *argv[])
           exit(1);
         }
 
-        sprintf(filename, "%s-%05d",argv[optind+1], count / split_packet_count);
+        snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
 
         if (verbose) {
           fprintf(stderr, "Continuing writing in file %s\n", filename);

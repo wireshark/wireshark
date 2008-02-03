@@ -449,12 +449,11 @@ add_decode_as(const gchar *cl_param)
   ftenum_t                      dissector_table_selector_type;
   struct protocol_name_search   user_protocol_name;
 
-/* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
+  /* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
 
   g_assert(cl_param);
-  decoded_param = g_malloc( sizeof(gchar) * (strlen(cl_param) + 1) ); /* Allocate enough space to have a working copy of the command-line parameter */
+  decoded_param = g_strdup(cl_param);
   g_assert(decoded_param);
-  strcpy(decoded_param, cl_param);
 
 
   /* The lines below will parse this string (modifying it) to extract all

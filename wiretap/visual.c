@@ -886,7 +886,7 @@ static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
     vfile_hdr.max_length = htoles(65535);
     vfile_hdr.file_flags = htoles(1);  /* indexes are present */
     vfile_hdr.file_version = htoles(1);
-    strcpy(vfile_hdr.description, "Wireshark file");
+    strncpy(vfile_hdr.description, "Wireshark file", 64);
 
     /* Translate the encapsulation type */
     switch (wdh->encap)

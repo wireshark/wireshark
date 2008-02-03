@@ -184,19 +184,18 @@ radiusstat_init(const char *optarg, void* userdata _U_)
 	}
 
 	rs=g_malloc(sizeof(radiusstat_t));
-	rs->filter=g_malloc(strlen(filter)+1);
-	strcpy(rs->filter, filter);
+	rs->filter=g_strdup(filter);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		rs->rtd[i].num=0;
 		rs->rtd[i].min_num=0;
 		rs->rtd[i].max_num=0;
 		rs->rtd[i].min.secs=0;
-        rs->rtd[i].min.nsecs=0;
-        rs->rtd[i].max.secs=0;
-        rs->rtd[i].max.nsecs=0;
-        rs->rtd[i].tot.secs=0;
-        rs->rtd[i].tot.nsecs=0;
+		rs->rtd[i].min.nsecs=0;
+		rs->rtd[i].max.secs=0;
+		rs->rtd[i].max.nsecs=0;
+		rs->rtd[i].tot.secs=0;
+		rs->rtd[i].tot.nsecs=0;
 	}
 
 	rs->open_req_num=0;

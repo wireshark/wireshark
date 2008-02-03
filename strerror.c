@@ -35,7 +35,7 @@ strerror(int errnum)
 	static char errbuf[5+1+11+1];	/* "Error %d" */
 
 	if (errnum < 0 || errnum >= sys_nerr) {
-		sprintf(errbuf, "Error %d", errnum);
+		g_snprintf(errbuf, 18, "Error %d", errnum);
 		return errbuf;
 	} else
 		return sys_errlist[errnum];

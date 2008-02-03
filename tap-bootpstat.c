@@ -152,8 +152,7 @@ dhcpstat_init(const char *optarg, void* userdata _U_)
 	sp = g_malloc( sizeof(dhcpstat_t) );
 	sp->hash = g_hash_table_new( g_str_hash, g_str_equal);
 	if(filter){
-		sp->filter=g_malloc(strlen(filter)+1);
-		strcpy(sp->filter,filter);
+		sp->filter=g_strdup(filter);
 	} else {
 		sp->filter=NULL;
 	}

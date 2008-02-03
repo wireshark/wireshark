@@ -961,7 +961,7 @@ put_string_list(GList *sl)
         pref_str[cur_len] = '\n'; cur_len++;
         pref_str[cur_len] = '\t'; cur_len++;
       }
-      sprintf(&pref_str[cur_len], "\"%s\", ", quoted_str);
+      g_snprintf(&pref_str[cur_len], MAX_FMT_PREF_LEN - cur_len, "\"%s\", ", quoted_str);
       cur_pos += fmt_len;
       cur_len += fmt_len;
     }

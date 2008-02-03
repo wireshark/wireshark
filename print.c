@@ -718,9 +718,7 @@ print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 		if (multiple_sources) {
 			name = src->name;
 			print_line(stream, 0, "");
-			line = g_malloc(strlen(name) + 2);	/* <name>:\0 */
-			strcpy(line, name);
-			strcat(line, ":");
+			line = g_strdup_printf("%s:", name);
 			print_line(stream, 0, line);
 			g_free(line);
 		}

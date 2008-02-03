@@ -226,8 +226,7 @@ h225rassrt_init(const char *optarg, void* userdata _U_)
 	}
 
 	hs = g_malloc(sizeof(h225rassrt_t));
-	hs->filter=g_malloc(strlen(filter)+1);
-	strcpy(hs->filter, filter);
+	hs->filter=g_strdup(filter);
 
 	h225rassrt_reset(hs);
 

@@ -215,8 +215,7 @@ smbstat_init(const char *optarg,void* userdata _U_)
 
 	ss=g_malloc(sizeof(smbstat_t));
 	if(filter){
-		ss->filter=g_malloc(strlen(filter)+1);
-		strcpy(ss->filter, filter);
+		ss->filter=g_strdup(filter);
 	} else {
 		ss->filter=NULL;
 	}

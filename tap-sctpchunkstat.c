@@ -233,10 +233,9 @@ sctpstat_init(const char *optarg, void* userdata _U_)
 	}
 
 	hs = g_malloc(sizeof(sctpstat_t));
-	hs->filter=g_malloc(strlen(filter)+1);
+	hs->filter=g_strdup(filter);
 	hs->ep_list = NULL;
 	hs->number_of_packets = 0;
-	strcpy(hs->filter, filter);
 
 	sctpstat_reset(hs);
 

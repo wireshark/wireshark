@@ -104,8 +104,7 @@ static void camelcounter_init(const char *optarg, void* userdata _U_)
 
   p_camelcounter = g_malloc(sizeof(struct camelcounter_t));
   if(filter){
-    p_camelcounter->filter=g_malloc(strlen(filter)+1);
-    strcpy(p_camelcounter->filter,filter);
+    p_camelcounter->filter=g_strdup(filter);
   } else {
     p_camelcounter->filter=NULL;
   }

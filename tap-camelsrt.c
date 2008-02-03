@@ -222,8 +222,7 @@ static void camelsrt_init(const char *optarg, void* userdata _U_)
 
   p_camelsrt = g_malloc(sizeof(struct camelsrt_t));
   if(filter){
-    p_camelsrt->filter=g_malloc(strlen(filter)+1);
-    strcpy(p_camelsrt->filter,filter);
+    p_camelsrt->filter=g_strdup(filter);
   } else {
     p_camelsrt->filter=NULL;
   }

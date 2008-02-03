@@ -200,8 +200,7 @@ protohierstat_init(const char *optarg, void* userdata _U_)
 	rs=new_phs_t(NULL);
 
 	if(filter){
-		rs->filter=g_malloc(strlen(filter)+1);
-		strcpy(rs->filter, filter);
+		rs->filter=g_strdup(filter);
 	} else {
 		rs->filter=NULL;
 	}

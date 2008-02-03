@@ -495,14 +495,14 @@ const char
 #ifdef HAVE_LIBZ
 		if (err >= WTAP_ERR_ZLIB_MIN && err <= WTAP_ERR_ZLIB_MAX) {
 			/* Assume it's a zlib error. */
-			sprintf(errbuf, "Uncompression error: %s",
+			g_snprintf(errbuf, 128, "Uncompression error: %s",
 			    zError(err - WTAP_ERR_ZLIB));
 			return errbuf;
 		}
 #endif
 		wtap_errlist_index = -1 - err;
 		if (wtap_errlist_index >= WTAP_ERRLIST_SIZE) {
-			sprintf(errbuf, "Error %d", err);
+			g_snprintf(errbuf, 128, "Error %d", err);
 			return errbuf;
 		}
 		if (wtap_errlist[wtap_errlist_index] == NULL)

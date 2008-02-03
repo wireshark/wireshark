@@ -386,10 +386,7 @@ init_progfile_dir(const char *arg0
 			return g_strdup_printf("getcwd failed: %s\n",
 			    strerror(errno));
 		}
-		path = g_malloc(strlen(curdir) + 1 + strlen(arg0) + 1);
-		strcpy(path, curdir);
-		strcat(path, "/");
-		strcat(path, arg0);
+		path = g_strdup_printf("%s/%s", curdir, arg0);
 		g_free(curdir);
 		prog_pathname = path;
 	} else {
@@ -411,8 +408,8 @@ init_progfile_dir(const char *arg0
 				    + strlen(arg0) + 1);
 				memcpy(path, path_start, path_component_len);
 				path[path_component_len] = '\0';
-				strcat(path, "/");
-				strcat(path, arg0);
+				strncat(path, "/", 2);
+				strncat(path, arg0, strlen(arg0) + 1);
 				if (access(path, X_OK) == 0) {
 					/*
 					 * Found it!
@@ -1140,9 +1137,7 @@ get_persdatafile_dir(void)
 	  /* the "My Captures" sub-directory is created (if it doesn't exist)
 	     by u3util.exe when the U3 Wireshark is first run */
 
-	  szPath = g_malloc(strlen(u3devicedocumentpath) + strlen(U3_MY_CAPTURES) + 1);
-	  strcpy(szPath, u3devicedocumentpath);
-	  strcat(szPath, U3_MY_CAPTURES);
+	  szPath = g_strdup_printf("%s%s", 3devicedocumentpath, U3_MY_CAPTURES);
 
 	  persdatafile_dir = szPath;
 	  return szPath;
@@ -1192,10 +1187,7 @@ get_home_dir(void)
 			 * This is cached, so we don't need to worry about
 			 * allocating multiple ones of them.
 			 */
-			homestring =
-			    g_malloc(strlen(homedrive) + strlen(homepath) + 1);
-			strcpy(homestring, homedrive);
-			strcat(homestring, homepath);
+			homestring = g_strdup_printf("%s%s", homedrive, homepath);
 
 			/*
 			 * Trim off any trailing slash or backslash.

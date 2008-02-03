@@ -195,8 +195,7 @@ mgcpstat_init(const char *optarg, void* userdata _U_)
 	}
 
 	ms=g_malloc(sizeof(mgcpstat_t));
-	ms->filter=g_malloc(strlen(filter)+1);
-	strcpy(ms->filter, filter);
+	ms->filter=g_strdup(filter);
 
 	for(i=0;i<NUM_TIMESTATS;i++) {
 		ms->rtd[i].num=0;

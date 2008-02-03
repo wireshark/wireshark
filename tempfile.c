@@ -57,9 +57,7 @@ setup_tmpdir(const char *dir)
 		return dir;
 	}
 	else {
-		newdir = g_malloc(len + 2);
-		strcpy(newdir, dir);
-		strcat(newdir, G_DIR_SEPARATOR_S);
+		newdir = g_strdup_printf("%s%s", dir, G_DIR_SEPARATOR_S);
 		return newdir;
 	}
 }
@@ -72,17 +70,14 @@ try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
 	int old_umask;
 	int tmp_fd;
 
+	g_snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
 	if (namebuflen < namelen) {
-		/* Stick in a truncated name, so that if this error is
+		/* Stick with the truncated name, so that if this error is
 		   reported with the file name, you at least get
 		   something. */
-		g_snprintf(namebuf, namebuflen, "%s%s%s", dir, pfx, suffix);
 		errno = ENAMETOOLONG;
 		return -1;
 	}
-	strcpy(namebuf, dir);
-	strcat(namebuf, pfx);
-	strcat(namebuf, suffix);
 
 	/* The Single UNIX Specification doesn't say that "mkstemp()"
 	   creates the temporary file with mode rw-------, so we

@@ -249,8 +249,7 @@ dcerpcstat_init(const char *optarg, void* userdata _U_)
 	rs->ver=ver;
 
 	if(filter){
-		rs->filter=g_malloc(strlen(filter)+1);
-		strcpy(rs->filter, filter);
+		rs->filter=g_strdup(filter);
 	} else {
 		rs->filter=NULL;
 	}

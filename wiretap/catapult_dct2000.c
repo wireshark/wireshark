@@ -331,7 +331,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             char timestamp_string[32];
             gint64 *pkey = NULL;
 
-            sprintf(timestamp_string, "%d.%04d", seconds, useconds/100);
+            g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
             /* All packets go to Catapult DCT2000 stub dissector */
             wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -470,7 +470,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
         int n;
         int stub_offset = 0;
         char timestamp_string[32];
-        sprintf(timestamp_string, "%d.%04d", seconds, useconds/100);
+        g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
 
         /* Make sure all packets go to catapult dct2000 dissector */
         wth->phdr.pkt_encap = WTAP_ENCAP_CATAPULT_DCT2000;

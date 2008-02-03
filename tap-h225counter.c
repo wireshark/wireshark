@@ -363,8 +363,7 @@ h225counter_init(const char *optarg, void* userdata _U_)
 	}
 
 	hs = g_malloc(sizeof(h225counter_t));
-	hs->filter=g_malloc(strlen(filter)+1);
-	strcpy(hs->filter, filter);
+	hs->filter=g_strdup(filter);
 
 	h225counter_reset(hs);
 
