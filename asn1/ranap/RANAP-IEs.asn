@@ -1,7 +1,7 @@
 -- RANAP-IEs.asn
 --
--- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+-- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
 --
 -- 9.3.4	Information Element Definitions
 --
@@ -73,7 +73,8 @@ IMPORTS
 	id-newLAListofIdleModeUEs,
 	id-LAListwithNoIdleModeUEsAnyMore,
 	id-ExtendedRNC-ID,
-	id-GANSS-PositioningDataSet
+	id-GANSS-PositioningDataSet,
+	id-d-RNTI-for-NoIuCSUP
 
 
 FROM RANAP-Constants
@@ -368,7 +369,9 @@ CauseRadioNetworkExtension ::= INTEGER {
 	periodicLocationInformationNotAvailable(262),
 	gTP-Resources-Unavailable(263),
 	tMGI-inUse-overlapping-MBMS-service-area(264),
-	mBMS-no-cell-in-MBMS-service-area(265)
+	mBMS-no-cell-in-MBMS-service-area(265),
+	no-Iu-CS-UP-relocation(266)
+
 } (257..512)
 
 CauseNon-Standard ::= INTEGER (129..256)
@@ -935,7 +938,8 @@ LoadValue	::= INTEGER (0..100)
 LocationRelatedDataRequestType	::= SEQUENCE {
 	requestedLocationRelatedDataType			RequestedLocationRelatedDataType,
 	requestedGPSAssistanceData					RequestedGPSAssistanceData	OPTIONAL,
-	-- This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GPS' --
+	-- This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GPS' or
+	-- `Dedicated Assistance Data for Assisted GPS and GANSS'
 	...
 }
 
@@ -1325,7 +1329,9 @@ RequestedLocationRelatedDataType ::= ENUMERATED {
 	..., 
 -- Release 7 extension elements --
 	decipheringKeysAssistedGANSS,
-	dedicatedAssistanceDataAssistedGANSS
+	dedicatedAssistanceDataAssistedGANSS,
+	decipheringKeysAssistedGPSandGANSS,
+	dedicatedAssistanceDataAssistedGPSandGANSS
 }
 
 RequestedMBMSIPMulticastAddressandAPNRequest ::= SEQUENCE (SIZE (1..maxnoofMulticastServicesPerRNC)) OF
@@ -1584,7 +1590,8 @@ SourceRNC-ToTargetRNC-TransparentContainer-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to provide Trace Recording Session Information to the Target RNC --
 	{ID id-TraceRecordingSessionInformation		CRITICALITY ignore		EXTENSION TraceRecordingSessionInformation		PRESENCE optional}|
 -- Extension for Release 6 to indicate to the Target RNC that the UE has activated Multicast Service --
-	{ID id-MBMSLinkingInformation		CRITICALITY ignore		EXTENSION MBMSLinkingInformation	PRESENCE optional},
+	{ID id-MBMSLinkingInformation		CRITICALITY ignore		EXTENSION MBMSLinkingInformation	PRESENCE optional}|
+	{ID id-d-RNTI-for-NoIuCSUP			CRITICALITY reject		EXTENSION D-RNTI					PRESENCE optional},
 	...
 }
 
@@ -1884,3 +1891,4 @@ VerticalSpeedDirection ::= ENUMERATED {
 VerticalAccuracyCode			::= INTEGER (0..127)
 
 END
+

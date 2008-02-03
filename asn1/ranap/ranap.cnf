@@ -425,7 +425,8 @@ id-newLAListofIdleModeUEs								ProtocolIE-ID
 id-LAListwithNoIdleModeUEsAnyMore						ProtocolIE-ID 
 id-GANSS-PositioningDataSet								ProtocolIE-ID 
 id-RequestedGANSSAssistanceData							ProtocolIE-ID 
-
+id-BroadcastGANSSAssistanceDataDecipheringKeys			ProtocolIE-ID
+id-d-RNTI-for-NoIuCSUP									ProtocolIE-ID
 
 #.END
 

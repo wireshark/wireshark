@@ -1,13 +1,12 @@
 -- RANAP-Constants.asn
 --
--- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+-- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
 --
 -- 9.3.6	Constant Definitions
 --
 -- $Id$
 --
-
 -- **************************************************************
 --
 -- Constant definitions
@@ -114,7 +113,7 @@ maxnoofMulticastServicesPerRNC		INTEGER ::= 512
 maxMBMSSA							INTEGER ::= 256
 maxMBMSRA							INTEGER ::= 65536
 maxNrOfEDCHMACdFlows-1				INTEGER ::= 7
-maxGANSSSet							INTEGER ::= 32
+maxGANSSSet							INTEGER ::= 9
 
 -- **************************************************************
 --
@@ -286,6 +285,7 @@ id-RedirectAttemptFlag									INTEGER ::= 166
 id-RAT-Type												INTEGER ::= 167
 id-PeriodicLocationInfo									INTEGER ::= 168
 id-MBMSCountingInformation								INTEGER ::= 169
+id-170-not-to-be-used-for-IE-ids						INTEGER ::= 170
 id-ExtendedRNC-ID										INTEGER ::= 171
 id-Alt-RAB-Parameter-ExtendedGuaranteedBitrateInf		INTEGER ::= 172
 id-Alt-RAB-Parameter-ExtendedMaxBitrateInf				INTEGER ::= 173
@@ -298,7 +298,11 @@ id-Requested-RAB-Parameter-ExtendedGuaranteedBitrateList	INTEGER ::= 179
 id-LAofIdleModeUEs										INTEGER ::= 180
 id-newLAListofIdleModeUEs								INTEGER ::= 181
 id-LAListwithNoIdleModeUEsAnyMore						INTEGER ::= 182
+id-183-not-to-be-used-for-IE-ids						INTEGER ::= 183
 id-GANSS-PositioningDataSet								INTEGER ::= 184
 id-RequestedGANSSAssistanceData							INTEGER ::= 185
+id-BroadcastGANSSAssistanceDataDecipheringKeys			INTEGER ::= 186
+id-d-RNTI-for-NoIuCSUP									INTEGER ::= 187
 
 END
+

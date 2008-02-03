@@ -1,7 +1,7 @@
 -- RANAP-PDU-Contents.asn
 --
--- Taken from 3GPP TS 25.413 V7.6.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-760.zip/25413-760.DOC
+-- Taken from 3GPP TS 25.413 V7.8.0 (2008-01)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.413/25413-780.zip/25413-780.DOC
 --
 -- 9.3.3	PDU Definitions
 --
@@ -321,7 +321,8 @@ FROM RANAP-Containers
 	id-UnsuccessfulLinkingList,
 	id-VelocityEstimate,
 	id-VerticalAccuracyCode,
-	id-PeriodicLocationInfo
+	id-PeriodicLocationInfo,
+	id-BroadcastGANSSAssistanceDataDecipheringKeys
 FROM RANAP-Constants;
 
 -- **************************************************************
@@ -1603,7 +1604,6 @@ InitialUE-MessageIEs RANAP-PROTOCOL-IES ::= {
 	{ ID id-NAS-PDU					CRITICALITY ignore	TYPE NAS-PDU					PRESENCE mandatory	} |
 	{ ID id-IuSigConId				CRITICALITY ignore 	TYPE IuSignallingConnectionIdentifier  		PRESENCE mandatory 	} |
 	{ ID id-GlobalRNC-ID				CRITICALITY ignore	TYPE GlobalRNC-ID				PRESENCE mandatory 	},
-
 	...
 }
 
@@ -2151,7 +2151,8 @@ LocationRelatedDataRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable LCS support for GERAN Iu mode --
 	{ ID id-LocationRelatedDataRequestTypeSpecificToGERANIuMode		CRITICALITY reject	EXTENSION LocationRelatedDataRequestTypeSpecificToGERANIuMode		PRESENCE optional	}|
 	-- The previous extension is optional for GERAN Iu Mode only, not applicable for UTRAN --
-	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to 'Dedicated Assistance Data for Assisted GANSS' --
+	-- Extension for Release 7 to request GANSS Assistance Data. This IE shall be present if the Requested Location Related Data Type IE is set to
+	-- 'Dedicated Assistance Data for Assisted GANSS' or `Dedicated Assistance Data for Assisted GPS and GANSS'--
 	{ ID id-RequestedGANSSAssistanceData							CRITICALITY reject	EXTENSION RequestedGANSSAssistanceData							PRESENCE conditional	},
 	...
 }
@@ -2175,7 +2176,8 @@ LocationRelatedDataResponseIEs RANAP-PROTOCOL-IES ::= {
 
 LocationRelatedDataResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for error handling
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	EXTENSION CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	EXTENSION CriticalityDiagnostics							PRESENCE optional	}|
+	{ ID id-BroadcastGANSSAssistanceDataDecipheringKeys	CRITICALITY ignore	EXTENSION BroadcastAssistanceDataDecipheringKeys		PRESENCE optional},
 	...
 }
 
@@ -2950,3 +2952,4 @@ MBMSRABReleaseFailureExtensions RANAP-PROTOCOL-EXTENSION ::= {
 
 
 END
+
