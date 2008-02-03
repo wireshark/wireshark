@@ -1,7 +1,7 @@
 -- NBAP-IEs.asn
 --
--- Taken from 3GPP TS 25.433 V7.5.0 (2007-06)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/25433-750.zip/25433-750.DOC
+-- Taken from 3GPP TS 25.433 V7.7.0 (2007-12)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.433/25433-770.zip/25433-770.DOC
 --
 -- 9.3.4	Information Elements Definitions
 --
@@ -92,12 +92,16 @@ IMPORTS
 	maxNrOfCommonMACFlows-1,
 	maxNrOfPagingMACFlow,
 	maxNrOfPagingMACFlow-1,
-	maxNrOfCCHSRB1MACQueues,
 	maxNrOfcommonMACQueues,
+	maxNrOfpagingMACQueues,
 	maxNrOfHS-DSCHTBSsE-PCH,
 	maxGANSSSat,
 	maxNoGANSS,
 	maxSgnType,
+	maxHSDPAFrequency,
+	maxHSDPAFrequency-1,
+	maxGANSSSatAlmanac,
+	maxGANSSClockMod,
 
 
 
@@ -164,24 +168,39 @@ IMPORTS
 	id-ueCapability-Info,
 	id-ContinuousPacketConnectivityHS-SCCH-less-Information,
 	id-ContinuousPacketConnectivityHS-SCCH-less-Information-Response,
-	id-MIMO-Information,
-	id-MIMO-InformationToModify,
+	id-MIMO-ActivationIndicator,
+	id-MIMO-Mode-Indicator,
+	id-MIMO-N-M-Ratio,
 	id-Additional-failed-HS-SICH,
 	id-Additional-missed-HS-SICH,
 	id-Additional-total-HS-SICH,
 	id-Additional-HS-SICH-Reception-Quality-Measurement-Value,
 	id-LCRTDD-uplink-Physical-Channel-Capability,
-	id-SixteenQAM-UL-Information,
-	id-SixteenQAM-UL-Information-to-Modify,
-	id-E-TFCI-BetaEC-Boost,
-	id-E-TFCI-BetaED-Switch,
+	id-SixteenQAM-UL-Operation-Indicator,
+	id-E-TFCI-Boost-Information,
+	id-E-DPDCH-PowerInterpolation,
 	id-MaximumMACdPDU-SizeExtended,
 	id-GANSS-Common-Data,
 	id-GANSS-Information,
 	id-GANSS-Generic-Data,
 	id-TUTRANGANSSMeasurementThresholdInformation,
 	id-TUTRANGANSSMeasurementValueInformation,
-	id-Extended-RNC-ID
+	id-Extended-RNC-ID,
+	id-HARQ-MemoryPartitioningInfoExtForMIMO,
+	id-Ext-Reference-E-TFCI-PO,
+	id-Ext-Max-Bits-MACe-PDU-non-scheduled,
+	id-TransportBearerNotSetupIndicator,
+	id-TransportBearerNotRequestedIndicator,
+	id-UARFCNforNt,
+	id-number-Of-Supported-Carriers,
+	id-multipleFreq-HSPDSCH-InformationList-ResponseTDDLCR,
+	id-tSN-Length,
+	id-multicarrier-number,
+	id-Extended-HS-SICH-ID,
+	id-Default-Serving-Grant-in-DTX-Cycle2,
+	id-SixtyfourQAM-UsageAllowedIndicator,
+	id-SixtyfourQAM-DL-UsageIndicator,
+	id-IPMulticastDataBearerIndication
 
 
 
@@ -453,6 +472,7 @@ CauseRadioNetwork ::= ENUMERATED {
 	rl-timing-adjustment-not-supported,
 	mich-not-supported,
 	f-DPCH-not-supported,
+	modification-period-not-available,
 	pLCCH-not-supported,
 	continuous-packet-connectivity-DTX-DRX-operation-not-available,
 	continuous-packet-connectivity-UE-DTX-Cycle-not-available,
@@ -465,17 +485,6 @@ CauseTransport ::= ENUMERATED {
 	...
 }
 
-CCCH-SRB1-PriorityQueue-Information ::= SEQUENCE (SIZE (1..maxNrOfCCHSRB1MACQueues)) OF CCCH-SRB1-PriorityQueue-InformationItem 
-
-CCCH-SRB1-PriorityQueue-InformationItem ::= SEQUENCE {
-	priority-Queue-Information-for-Enhanced-FACH		Priority-Queue-Information-for-Enhanced-FACH,
-		iE-Extensions									ProtocolExtensionContainer { { CCCH-SRB1-PriorityQueue-InformationItemExtIEs } }		OPTIONAL,
-	...
-}
-
-CCCH-SRB1-PriorityQueue-InformationItemExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 CCTrCH-ID ::= INTEGER (0..15)
 
@@ -533,6 +542,18 @@ CommonChannelsCapacityConsumptionLaw-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Common-MACFlows-to-DeleteFDD ::= SEQUENCE (SIZE (1.. maxNrOfCommonMACFlows)) OF Common-MACFlows-to-DeleteFDD-Item
+
+Common-MACFlows-to-DeleteFDD-Item ::= SEQUENCE {
+	common-MACFlow-ID								Common-MACFlow-ID,
+	iE-Extensions									ProtocolExtensionContainer { { Common-MACFlows-to-DeleteFDD-Item-ExtIEs} }					OPTIONAL,
+	...
+}
+
+Common-MACFlows-to-DeleteFDD-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Common-MACFlow-ID ::= INTEGER (0..maxNrOfCommonMACFlows-1)
 
 CommonMACFlow-Specific-InfoList ::= SEQUENCE (SIZE (1.. maxNrOfCommonMACFlows)) OF CommonMACFlow-Specific-InfoItem
@@ -570,7 +591,7 @@ CommonMACFlow-Specific-InfoItem-Response-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 Common-MACFlow-PriorityQueue-Information  ::= SEQUENCE (SIZE (1..maxNrOfcommonMACQueues)) OF Common-MACFlow-PriorityQueue-Item  
 
 Common-MACFlow-PriorityQueue-Item  ::= SEQUENCE {
-	priority-Queue-Information-for-Enhanced-FACH		Priority-Queue-Information-for-Enhanced-FACH,
+	priority-Queue-Information-for-Enhanced-FACH		Priority-Queue-Information-for-Enhanced-FACH-PCH,
 		iE-Extensions									ProtocolExtensionContainer { { Common-MACFlow-PriorityQueue-Item-ExtIEs } }		OPTIONAL,
 	...
 }
@@ -704,7 +725,8 @@ CommonTransportChannel-InformationResponse ::= SEQUENCE {
 }
 
 CommonTransportChannel-InformationResponse-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID	id-BroadcastCommonTransportBearerIndication	CRITICALITY ignore EXTENSION BroadcastCommonTransportBearerIndication	 PRESENCE optional },
+	{ ID	id-BroadcastCommonTransportBearerIndication	CRITICALITY ignore EXTENSION BroadcastCommonTransportBearerIndication	 PRESENCE optional }|
+	{ ID	id-IPMulticastDataBearerIndication			CRITICALITY ignore EXTENSION IPMulticastDataBearerIndication				 PRESENCE optional },
 	...
 }
 
@@ -745,7 +767,6 @@ ContinuousPacketConnectivityDTX-DRX-Information ::= SEQUENCE {
 	enabling-Delay								Enabling-Delay,
 	dTX-Information								DTX-Information	,
 	dRX-Information								DRX-Information							OPTIONAL,
-	cPC-DPCCH-Slot-Format						CPC-DPCCH-Slot-Format,
 	iE-Extensions								ProtocolExtensionContainer { { ContinuousPacketConnectivityDTX-DRX-Information-ExtIEs } }			OPTIONAL,
 	...
 }
@@ -759,7 +780,6 @@ ContinuousPacketConnectivityDTX-DRX-Information-to-Modify ::= SEQUENCE {
 	enabling-Delay								Enabling-Delay							OPTIONAL,
 	dTX-Information-to-Modify					DTX-Information-to-Modify				OPTIONAL,
 	dRX-Information-to-Modify					DRX-Information-to-Modify				OPTIONAL,
-	cPC-DPCCH-Slot-Format						CPC-DPCCH-Slot-Format					OPTIONAL,
 	iE-Extensions								ProtocolExtensionContainer { { ContinuousPacketConnectivityDTX-DRX-Information-to-Modify-ExtIEs } }			OPTIONAL,
 	...
 }
@@ -800,6 +820,8 @@ ContinuousPacketConnectivityHS-SCCH-less-Information-Response-ExtIEs NBAP-PROTOC
 	...
 }
 
+ControlGAP ::= INTEGER (1..255)
+
 CPC-Information ::= SEQUENCE {
 	continuousPacketConnectivityDTX-DRX-Information					ContinuousPacketConnectivityDTX-DRX-Information						OPTIONAL,
 	continuousPacketConnectivityDTX-DRX-Information-to-Modify		ContinuousPacketConnectivityDTX-DRX-Information-to-Modify		OPTIONAL,
@@ -807,8 +829,6 @@ CPC-Information ::= SEQUENCE {
 	iE-Extensions				ProtocolExtensionContainer { { CPC-Information-ExtIEs} }														OPTIONAL,
 	...
 }
-
-CPC-DPCCH-Slot-Format ::= ENUMERATED {v1, v3, v4}
 
 CPC-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -921,6 +941,7 @@ DCH-InformationResponseItem ::= SEQUENCE {
 }
 
 DCH-InformationResponseItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TransportBearerNotSetupIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotSetupIndicator		PRESENCE optional	}, -- FDD only
 	...
 }
 
@@ -1161,7 +1182,7 @@ DGANSSCorrections-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 DGANSS-Information ::= SEQUENCE (SIZE (1..maxSgnType)) OF DGANSS-InformationItem
 
 DGANSS-InformationItem ::= SEQUENCE {
-	gANSS-SignalId						INTEGER(0..3,...)											OPTIONAL,
+	gANSS-SignalId						GANSS-Signal-ID												OPTIONAL,
 	gANSS-StatusHealth					GANSS-StatusHealth,
 -- The following IE shall be present if the Status Health IE value is not equal to "no data" or "invalid data"
 	dGANSS-SignalInformation			DGANSS-SignalInformation									OPTIONAL,
@@ -1530,7 +1551,7 @@ DTX-Information ::= SEQUENCE {
 	e-DCH-TTI-Length					E-DCH-TTI-Length, 
 	inactivity-Threshold-for-UE-DTX-Cycle2					Inactivity-Threshold-for-UE-DTX-Cycle2,
 	uE-DTX-Long-Preamble 				UE-DTX-Long-Preamble,
-	uE-Inactivity-Threshold				UE-Inactivity-Threshold	,
+	mAC-Inactivity-Threshold				MAC-Inactivity-Threshold	,
 	cQI-DTX-Timer 				CQI-DTX-Timer,
 	uE-DPCCH-burst1				UE-DPCCH-burst1,
 	uE-DPCCH-burst2				UE-DPCCH-burst2, 
@@ -1553,7 +1574,7 @@ DTX-Information-to-Modify-Items ::= SEQUENCE {
 	e-DCH-TTI-Length-to-Modify		E-DCH-TTI-Length-to-Modify			OPTIONAL, 
 	inactivity-Threshold-for-UE-DTX-Cycle2					Inactivity-Threshold-for-UE-DTX-Cycle2					OPTIONAL,
 	uE-DTX-Long-Preamble 			UE-DTX-Long-Preamble				OPTIONAL,
-	uE-Inactivity-Threshold			UE-Inactivity-Threshold				OPTIONAL,
+	mAC-Inactivity-Threshold			MAC-Inactivity-Threshold				OPTIONAL,
 	cQI-DTX-Timer 					CQI-DTX-Timer						OPTIONAL,
 	uE-DPCCH-burst1					UE-DPCCH-burst1					OPTIONAL,
 	uE-DPCCH-burst2					UE-DPCCH-burst2						OPTIONAL,
@@ -1665,6 +1686,7 @@ E-DCH-FDD-DL-Control-Channel-Information ::= SEQUENCE {
 }
 
 E-DCH-FDD-DL-Control-Channel-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Default-Serving-Grant-in-DTX-Cycle2		CRITICALITY ignore		EXTENSION E-Serving-Grant-Value			PRESENCE optional },
 	...
 }
 
@@ -1680,7 +1702,7 @@ E-DCH-FDD-Information ::= SEQUENCE {
 
 E-DCH-FDD-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo		PRESENCE optional}|
-	{ ID id-SixteenQAM-UL-Information					CRITICALITY reject	EXTENSION	SixteenQAM-UL-Information					PRESENCE optional},
+	{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator			PRESENCE optional},
 	...
 }
 
@@ -1708,7 +1730,7 @@ E-DCH-FDD-Information-to-Modify ::= SEQUENCE {
 
 E-DCH-FDD-Information-to-Modify-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-E-DCH-PowerOffset-for-SchedulingInfo		CRITICALITY ignore	EXTENSION	E-DCH-PowerOffset-for-SchedulingInfo		PRESENCE optional}|
-	{ ID id-SixteenQAM-UL-Information-to-Modify			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Information-to-Modify 		PRESENCE optional},
+	{ ID id-SixteenQAM-UL-Operation-Indicator			CRITICALITY reject	EXTENSION	SixteenQAM-UL-Operation-Indicator			PRESENCE optional},
 	...
 }
 
@@ -1761,7 +1783,7 @@ E-DCH-LogicalChannelInformationItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-E-DCH-Maximum-Bitrate ::= INTEGER (0..5742,...)
+E-DCH-Maximum-Bitrate ::= INTEGER (0..5742,...,5743..11498)
 
 E-DCH-PowerOffset-for-SchedulingInfo ::= INTEGER (0.. maxNrOfEDCH-HARQ-PO-QUANTSTEPs)
 
@@ -1851,6 +1873,7 @@ E-DCH-MACdFlow-Specific-InfoItem ::= SEQUENCE {
 }
 
 E-DCH-MACdFlow-Specific-InfoItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TransportBearerNotRequestedIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotRequestedIndicator		PRESENCE optional	},
 	...
 }
 
@@ -1866,6 +1889,7 @@ E-DCH-MACdFlow-Specific-InformationResp-Item ::= SEQUENCE {
 }
 
 E-DCH-MACdFlow-Specific-InformationResp-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TransportBearerNotSetupIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotSetupIndicator		PRESENCE optional	}, -- FDD only
 	...
 }
 
@@ -1905,13 +1929,16 @@ E-DCH-MACdFlow-to-Delete-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 }
 
 E-DCH-Non-Scheduled-Transmission-Grant-Items ::= SEQUENCE {
+	-- The following IE shall be ignored if id-Ext-Max-Bits-MACe-PDU-non-scheduled is present in E-DCH-Non-Scheduled-Transmission-Grant-Items-ExtIEs
 	maxBits-MACe-PDU-non-scheduled				Max-Bits-MACe-PDU-non-scheduled,
-	hARQ-Process-Allocation-NonSched-2ms					HARQ-Process-Allocation-2ms-EDCH												OPTIONAL,
+	hARQ-Process-Allocation-NonSched-2ms		HARQ-Process-Allocation-2ms-EDCH												OPTIONAL,
 	iE-Extensions								ProtocolExtensionContainer { { E-DCH-Non-Scheduled-Transmission-Grant-Items-ExtIEs} }		OPTIONAL,
 	...
 }
 
 E-DCH-Non-Scheduled-Transmission-Grant-Items-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	-- The following IE shall be present if the maximum number of bits to be signalled exceeds maxNrOfBits-MACe-PDU-non-scheduled
+	{ ID id-Ext-Max-Bits-MACe-PDU-non-scheduled		CRITICALITY reject		EXTENSION	Ext-Max-Bits-MACe-PDU-non-scheduled		PRESENCE optional},
 	...
 }
 
@@ -1999,6 +2026,8 @@ E-DCH-TTI-Length-to-Modify ::= CHOICE {
 
 E-DPCCH-PO ::= INTEGER (0..maxNrOfEDPCCH-PO-QUANTSTEPs)
 
+E-DPDCH-PowerInterpolation ::= BOOLEAN
+
 E-Primary-Secondary-Grant-Selector ::= ENUMERATED {
 	primary,
 	secondary
@@ -2035,7 +2064,18 @@ E-TFCI ::= INTEGER (0..127)
 
 E-TFCI-BetaEC-Boost ::= INTEGER (0..127,...)
 
-E-TFCI-BetaED-Switch ::= INTEGER (0..127,...)
+
+E-TFCI-Boost-Information ::= SEQUENCE {
+	e-TFCI-BetaEC-Boost								E-TFCI-BetaEC-Boost,
+	uL-Delta-T2TP									UL-Delta-T2TP			OPTIONAL,
+	-- This IE shall be present if the E-TFCI BetaEC Boost IE value is not set to 127.
+	iE-Extensions									ProtocolExtensionContainer { { E-TFCI-Boost-Information-ExtIEs} }		OPTIONAL,
+	...
+}
+
+E-TFCI-Boost-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 E-TFCS-Information ::= SEQUENCE {
 	e-DCH-TFCI-Table-Index								E-DCH-TFCI-Table-Index,
@@ -2046,8 +2086,8 @@ E-TFCS-Information ::= SEQUENCE {
 }
 
 E-TFCS-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-E-TFCI-BetaEC-Boost		CRITICALITY reject		EXTENSION	E-TFCI-BetaEC-Boost		PRESENCE mandatory}|
-	{ ID id-E-TFCI-BetaED-Switch	CRITICALITY reject		EXTENSION	E-TFCI-BetaED-Switch 	PRESENCE mandatory},
+	{ ID id-E-TFCI-Boost-Information		CRITICALITY reject		EXTENSION	E-TFCI-Boost-Information		PRESENCE optional}|
+	{ ID id-E-DPDCH-PowerInterpolation	CRITICALITY reject		EXTENSION	E-DPDCH-PowerInterpolation 	PRESENCE optional},
 	...
 }
 
@@ -2486,6 +2526,9 @@ Enhanced-PCH-Capability ::= ENUMERATED {
 	enhanced-PCH-non-capable
 }
 
+Ext-Max-Bits-MACe-PDU-non-scheduled ::= INTEGER(19983..22978,...)
+
+Ext-Reference-E-TFCI-PO ::= INTEGER(30..31,...)
 
 ExtendedPropagationDelay ::= INTEGER(255..1023)
 
@@ -2494,6 +2537,9 @@ Extended-RNC-ID					::= INTEGER (4096..65535)
 Extended-Round-Trip-Time-Value ::= INTEGER(32767..103041)
 -- See also mapping in [22]
 
+Extended-HS-SCCH-ID					::= INTEGER (32..255)
+
+Extended-HS-SICH-ID					::= INTEGER (32..255)
 
 -- ==========================================
 --	F
@@ -2577,7 +2623,6 @@ FPACH-Power ::= INTEGER (-150..400,...) -- FPACH-power = power * 10
 -- ==========================================
 GANSS-Almanac ::= SEQUENCE{
 	ganss-wk-number						INTEGER(0..255),
-	ganss-sat-id						BIT STRING (SIZE (36)),
 	gANSS-AlmanacModel					GANSS-AlmanacModel,
 	ie-Extensions		 				ProtocolExtensionContainer { { GANSS-Almanac-ExtIEs } }		OPTIONAL,
 	...
@@ -2592,7 +2637,7 @@ GANSS-AlmanacModel ::= CHOICE {
 	...
 }
 
-GANSS-Clock-Model ::= SEQUENCE (SIZE (1..4)) OF GANSS-SatelliteClockModelItem
+GANSS-Clock-Model ::= SEQUENCE (SIZE (1..maxGANSSClockMod)) OF GANSS-SatelliteClockModelItem
 
 GANSS-Common-Data ::= SEQUENCE {
 	ganss-Ionospheric-Model				GANSS-Ionospheric-Model																OPTIONAL,
@@ -2615,16 +2660,77 @@ GANSS-CommonDataInfoReq-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-Data-Bit-Assistance ::= SEQUENCE {
+	ganssTod							INTEGER (0..59,...),
+	dataBitAssistancelist				GANSS-DataBitAssistanceList, 
+	ie-Extensions						ProtocolExtensionContainer { { GANSS-Data-Bit-Assistance-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-Data-Bit-Assistance-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-DataBitAssistanceList ::= SEQUENCE (SIZE (1..maxGANSSSat)) OF GANSS-DataBitAssistanceItem
+
+GANSS-DataBitAssistanceItem ::= SEQUENCE {
+	satId							INTEGER(0..63),
+	dataBitAssistanceSgnList		GANSS-DataBitAssistanceSgnList,
+	ie-Extensions					ProtocolExtensionContainer { { GANSS-DataBitAssistanceItem-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-DataBitAssistanceItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-DataBitAssistanceSgnList ::= SEQUENCE (SIZE (1..maxSgnType)) OF GANSS-DataBitAssistanceSgnItem
+
+
+
+GANSS-DataBitAssistanceSgnItem ::= SEQUENCE {
+	ganss-SignalId			GANSS-Signal-ID,
+	ganssDataBits			BIT STRING (SIZE (1..1024)),
+	ie-Extensions			ProtocolExtensionContainer { { GANSS-DataBitAssistanceSgnItem-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-DataBitAssistanceSgnItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-Data-Bit-Assistance-ReqItem ::= SEQUENCE {
+	ganssTod								INTEGER (0..86399),
+	ganss-Data-Bit-Assistance-ReqList		GANSS-Data-Bit-Assistance-ReqList,
+	iE-Extensions							ProtocolExtensionContainer { { GANSS-Data-Bit-Assistance-ReqItem-ExtIEs } }	OPTIONAL,
+	...
+}
+
+GANSS-Data-Bit-Assistance-ReqItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GANSS-Data-Bit-Assistance-ReqList ::= SEQUENCE (SIZE (1..maxSgnType)) OF SEQUENCE {
+	ganssDataBitAssistance				BOOLEAN,
+	iE-Extensions						ProtocolExtensionContainer { { GANSS-Data-Bit-Assistance-ReqList-ExtIEs } }			OPTIONAL,
+	...
+}
+
+GANSS-Data-Bit-Assistance-ReqList-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-GenericDataInfoReqList ::= SEQUENCE (SIZE(1..maxNoGANSS)) OF GANSS-GenericDataInfoReqItem
 
 GANSS-GenericDataInfoReqItem ::= SEQUENCE {
-	ganss-Id							INTEGER(0..7)																		OPTIONAL,
-	ganss-Navigation-Model				BOOLEAN														OPTIONAL,
-	ganss-Time-Model					BIT STRING (SIZE (8))											OPTIONAL,
-	ganss-UTC-Model						BOOLEAN														OPTIONAL,
-	ganss-Almanac						BOOLEAN														OPTIONAL,
-	ganss-Real-Time-Integrity			BOOLEAN														OPTIONAL,
-	ie-Extensions						ProtocolExtensionContainer { { GANSS-GenericDataInfoReqItem-ExtIEs } }	OPTIONAL,
+	ganss-Id									GANSS-ID																			OPTIONAL,
+	ganss-Navigation-Model-And-Time-Recovery	BOOLEAN															OPTIONAL,
+	ganss-Time-Model-GNSS-GNSS					BIT STRING (SIZE (9))											OPTIONAL,
+	ganss-UTC-Model								BOOLEAN															OPTIONAL,
+	ganss-Almanac								BOOLEAN															OPTIONAL,
+	ganss-Real-Time-Integrity					BOOLEAN															OPTIONAL,
+	ganss-Data-Bit-Assistance-Req				GANSS-Data-Bit-Assistance-ReqItem								OPTIONAL,
+	ie-Extensions								ProtocolExtensionContainer { { GANSS-GenericDataInfoReqItem-ExtIEs } }		OPTIONAL,
 	...
 }
 
@@ -2632,24 +2738,27 @@ GANSS-GenericDataInfoReqItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-
 GANSS-Generic-Data ::= SEQUENCE (SIZE(1..maxNoGANSS)) OF GANSS-Generic-DataItem
 
 GANSS-Generic-DataItem ::= SEQUENCE {
-	ganss-Id							INTEGER(0..7)																		OPTIONAL,
-	dganss-Correction					DGANSSCorrections																	OPTIONAL,
-	ganss-Navigation-Model				GANSS-Navigation-Model																OPTIONAL,
-	ganss-Time-Model					GANSS-Time-Model																	OPTIONAL,
-	ganss-UTC-TIME						GANSS-UTC-Model																		OPTIONAL,
-	ganss-Almanac						GANSS-Almanac																		OPTIONAL,
-	ganss-Real-Time-Integrity			GANSS-Real-Time-Integrity															OPTIONAL,
-	ie-Extensions						ProtocolExtensionContainer { { GANSS-Generic-DataItem-ExtIEs } }	OPTIONAL,
+	ganss-Id									GANSS-ID																			OPTIONAL,
+	dganss-Correction							DGANSSCorrections																	OPTIONAL,
+	ganss-Navigation-Model-And-Time-Recovery	GANSS-Navigation-Model-And-Time-Recovery											OPTIONAL,
+	ganss-Time-Model							GANSS-Time-Model																	OPTIONAL,
+	ganss-UTC-TIME								GANSS-UTC-Model																		OPTIONAL,
+	ganss-Almanac								GANSS-Almanac																		OPTIONAL,
+	ganss-Real-Time-Integrity					GANSS-Real-Time-Integrity															OPTIONAL,
+	ganss-Data-Bit-Assistance					GANSS-Data-Bit-Assistance															OPTIONAL,
+	ie-Extensions								ProtocolExtensionContainer { { GANSS-Generic-DataItem-ExtIEs } }			OPTIONAL,
 	...
 }
 
 GANSS-Generic-DataItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+GANSS-ID ::= INTEGER(0..7,...)
+
 
 GANSS-Information ::= SEQUENCE {
 	gANSS-CommonDataInfoReq				GANSS-CommonDataInfoReq											OPTIONAL,
@@ -2726,19 +2835,19 @@ GANSS-KeplerianParametersOrb-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-GANSS-Navigation-Model ::= SEQUENCE {
-	ganss-Ref-Time				GANSS-Reference-Time,
+GANSS-Navigation-Model-And-Time-Recovery ::= SEQUENCE {
+	ganss-Transmission-Time		GANSS-Transmission-Time,
 	non-broadcastIndication		ENUMERATED{true}		OPTIONAL,
 -- The three following IEs shall be present if the GANSS Orbit Model IE indicates "Keplerian Parameters" 
 	toe-c-msb					INTEGER(0..31)			OPTIONAL,
 	e-msb						INTEGER(0..127)			OPTIONAL,
 	sqrtA-msb					INTEGER(0..63)			OPTIONAL,
 	ganssSatInfoNav				GANSS-Sat-Info-Nav,
-	ie-Extensions				ProtocolExtensionContainer { { GANSS-Navigation-Model-ExtIEs } } OPTIONAL,
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-Navigation-Model-And-Time-Recovery-ExtIEs } } OPTIONAL,
 	...
 }
 
-GANSS-Navigation-Model-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+GANSS-Navigation-Model-And-Time-Recovery-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2751,24 +2860,12 @@ GANSS-Real-Time-Integrity ::= SEQUENCE (SIZE (1..maxGANSSSat)) OF GANSS-RealTime
 
 GANSS-RealTimeInformationItem ::= SEQUENCE {
 	bad-ganss-satId						INTEGER(0..63),
-	bad-ganss-signalId					INTEGER(0..4,...)											OPTIONAL,
+	bad-ganss-signalId					BIT STRING(SIZE(8))											OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-RealTimeInformationItem-ExtIEs } }	OPTIONAL,
 	...
 }
 
 GANSS-RealTimeInformationItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-GANSS-Reference-Time ::= SEQUENCE {
-	ganssDay					INTEGER(0..8191)																			OPTIONAL,
-	ganssTod					INTEGER(0..86399),
-	ganssTodUncertainty			INTEGER(0..127)														OPTIONAL,
-	ie-Extensions				ProtocolExtensionContainer { { GANSS-Reference-Time-ExtIEs } } 								OPTIONAL,
-	...
-}
-
-GANSS-Reference-Time-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2791,8 +2888,8 @@ GANSS-SatelliteClockModelItem ::= SEQUENCE {
 	a-i2								BIT STRING (SIZE (12)),
 	a-i1								BIT STRING (SIZE (18)),
 	a-i0								BIT STRING (SIZE (28)),
-	t-gd								BIT STRING (SIZE (10)),
-	model-id							INTEGER(0..1)												OPTIONAL,
+	t-gd								BIT STRING (SIZE (10))										OPTIONAL,
+	model-id							INTEGER(0..1,...)											OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-SatelliteClockModelItem-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -2801,9 +2898,10 @@ GANSS-SatelliteClockModelItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-GANSS-SatelliteInformationKP ::= SEQUENCE (SIZE (1..maxGANSSSat)) OF GANSS-SatelliteInformationKPItem
+GANSS-SatelliteInformationKP ::= SEQUENCE (SIZE (1..maxGANSSSatAlmanac)) OF GANSS-SatelliteInformationKPItem
 
 GANSS-SatelliteInformationKPItem ::= SEQUENCE {
+	satId								INTEGER(0..63),
 	ganss-e-alm							BIT STRING (SIZE (11)), 
 	ganss-delta-I-alm					BIT STRING (SIZE (11)),
 	ganss-omegadot-alm					BIT STRING (SIZE (11)),
@@ -2836,6 +2934,8 @@ GANSS-Sat-Info-Nav-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GANSS-Signal-ID ::= INTEGER(0..7,...)
+
 GANSS-StatusHealth ::= ENUMERATED {
 	udre-scale-1dot0,
 	udre-scale-0dot75,
@@ -2848,11 +2948,11 @@ GANSS-StatusHealth ::= ENUMERATED {
 }
 
 GANSS-Time-Model ::= SEQUENCE {
-	ganss-time-model					INTEGER(0..65535),
+	ganss-time-model-Ref-Time					INTEGER(0..37799),
 	ganss-t-a0							INTEGER(-2147483648.. 2147483647),
 	ganss-t-a1							INTEGER(-8388608.. 8388607)									OPTIONAL,
 	ganss-t-a2							INTEGER(-64..63)											OPTIONAL,
-	ganss-to-id							INTEGER(0..7),
+	gnss-to-id							ENUMERATED{gps,...},
 	ganss-wk-number						INTEGER(0..8191)											OPTIONAL,
 	ie-Extensions						ProtocolExtensionContainer { { GANSS-Time-Model-ExtIEs } }	OPTIONAL,
 	...
@@ -2861,6 +2961,18 @@ GANSS-Time-Model ::= SEQUENCE {
 GANSS-Time-Model-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+GANSS-Transmission-Time ::= SEQUENCE {
+	ganssDay					INTEGER(0..8191)																			OPTIONAL,
+	ganssTod					INTEGER(0..86399),
+	ie-Extensions				ProtocolExtensionContainer { { GANSS-Transmission-Time-ExtIEs } } 						OPTIONAL,
+	...
+}
+
+GANSS-Transmission-Time-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GANSS-UTC-Model ::= SEQUENCE {
 	a-one-utc							BIT STRING (SIZE (24)),
 	a-zero-utc							BIT STRING (SIZE (32)),
@@ -3050,7 +3162,7 @@ HARQ-MemoryPartitioning	::= CHOICE {
 	}
 
 HARQ-MemoryPartitioning-Implicit	::= SEQUENCE {
-	number-of-Processes			INTEGER (1..8,...),
+	number-of-Processes			INTEGER (1..8,...,12|14|16),
 	iE-Extensions				ProtocolExtensionContainer { { HARQ-MemoryPartitioning-Implicit-ExtIEs } }			OPTIONAL,
 	...
 }
@@ -3066,10 +3178,14 @@ HARQ-MemoryPartitioning-Explicit	::= SEQUENCE {
 }
 
 HARQ-MemoryPartitioning-Explicit-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+-- The following IE may only be used in FDD, in MIMO dual stream transmission mode
+	{ID id-HARQ-MemoryPartitioningInfoExtForMIMO	CRITICALITY ignore	EXTENSION HARQ-MemoryPartitioningInfoExtForMIMO	PRESENCE optional},
 	...
 }
 
 HARQ-MemoryPartitioningList	::= SEQUENCE (SIZE (1..maxNrOfHARQProcesses)) OF HARQ-MemoryPartitioningItem
+
+HARQ-MemoryPartitioningInfoExtForMIMO ::= SEQUENCE (SIZE (4|6|8)) OF HARQ-MemoryPartitioningItem
 
 HARQ-MemoryPartitioningItem ::= SEQUENCE {
 	process-Memory-Size					ENUMERATED {
@@ -3232,8 +3348,8 @@ HSDSCH-Common-System-Information-ResponseFDD-ExtIEs NBAP-PROTOCOL-EXTENSION ::= 
 
 HSDSCH-Common-Information ::= SEQUENCE {
 	cCCH-PriorityQueue-Id											PriorityQueue-Id,
-	sRB1-PriorityQueue-Id											PriorityQueue-Id, 
-	cCCH-SRB1-PriorityQueue-Information								CCCH-SRB1-PriorityQueue-Information, 
+	sRB1-PriorityQueue-Id											PriorityQueue-Id,
+	associatedCommon-MACFlow										Common-MACFlow-ID,
 	fACH-Measurement-Occasion-Cycle-Length-Coefficient				FACH-Measurement-Occasion-Cycle-Length-Coefficient				OPTIONAL,
 	rACH-Measurement-Result											RACH-Measurement-Result,
 	bCCH-Specific-HSDSCH-RNTI-Information							BCCH-Specific-HSDSCH-RNTI-Information,
@@ -3263,9 +3379,10 @@ HSDSCH-FDD-Information ::= SEQUENCE {
 }
 
 HSDSCH-FDD-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-HARQ-Preamble-Mode 			CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode		PRESENCE optional}|
-	{ ID id-MIMO-Information			CRITICALITY reject		EXTENSION 	MIMO-Information		PRESENCE optional}|
-	{ ID id-HSDSCH-MACdPDUSizeFormat 	CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat	PRESENCE optional},
+	{ ID id-HARQ-Preamble-Mode 					CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode			PRESENCE optional}|
+	{ ID id-MIMO-ActivationIndicator			CRITICALITY reject		EXTENSION	MIMO-ActivationIndicator			PRESENCE optional}|
+	{ ID id-HSDSCH-MACdPDUSizeFormat 			CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat			PRESENCE optional}|
+	{ ID id-SixtyfourQAM-UsageAllowedIndicator	CRITICALITY ignore		EXTENSION	SixtyfourQAM-UsageAllowedIndicator		PRESENCE optional},
 	...
 }
 
@@ -3283,7 +3400,9 @@ HSDSCH-TDD-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
  -- Applicable to 1.28Mcps TDD only
 	{ ID id-HSSICH-TPC-StepSize		CRITICALITY	ignore			EXTENSION 	TDD-TPC-UplinkStepSize-LCR	PRESENCE 	optional}|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-HSDSCH-MACdPDUSizeFormat 	CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 	PRESENCE optional},
+	{ ID id-HSDSCH-MACdPDUSizeFormat 	CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 	PRESENCE optional}|
+	{ ID id-tSN-Length				CRITICALITY reject			EXTENSION  TSN-Length				PRESENCE optional },
+	-- Applicable for 1.28Mcps TDD when using multiple frequencies
 	...
 }
 
@@ -3307,16 +3426,17 @@ HSDSCH-Information-to-Modify ::= SEQUENCE {
 }
 
 HSDSCH-Information-to-Modify-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-HARQ-Preamble-Mode		CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode	PRESENCE optional}|
-	{ ID id-HSSICH-SIRTarget		CRITICALITY	ignore		EXTENSION	UL-SIR						PRESENCE optional}|
+	{ ID id-HARQ-Preamble-Mode					CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode	PRESENCE optional}|
+	{ ID id-HSSICH-SIRTarget					CRITICALITY	ignore		EXTENSION	UL-SIR			PRESENCE optional}|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-ueCapability-Info		CRITICALITY	ignore		EXTENSION	UE-Capability-Information	PRESENCE optional}|
-	{ ID id-HSSICH-TPC-StepSize		CRITICALITY	ignore		EXTENSION 	TDD-TPC-UplinkStepSize-LCR	PRESENCE optional}|
+	{ ID id-ueCapability-Info					CRITICALITY	ignore		EXTENSION	UE-Capability-Information	PRESENCE optional}|
+	{ ID id-HSSICH-TPC-StepSize					CRITICALITY	ignore		EXTENSION 	TDD-TPC-UplinkStepSize-LCR	PRESENCE optional}|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-HS-PDSCH-Code-Change-Grant		CRITICALITY	ignore		EXTENSION	HS-PDSCH-Code-Change-Grant	PRESENCE optional}|
+	{ ID id-HS-PDSCH-Code-Change-Grant			CRITICALITY	ignore		EXTENSION	HS-PDSCH-Code-Change-Grant	PRESENCE optional}|
 	 -- Applicable to FDD only
-	{ ID id-MIMO-InformationToModify		CRITICALITY reject		EXTENSION 	MIMO-InformationToModify	PRESENCE optional }|
-	{ ID id-HSDSCH-MACdPDUSizeFormat		CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 	PRESENCE optional},
+	{ ID id-MIMO-Mode-Indicator					CRITICALITY reject		EXTENSION 	MIMO-Mode-Indicator	PRESENCE optional }|
+	{ ID id-HSDSCH-MACdPDUSizeFormat			CRITICALITY reject		EXTENSION	HSDSCH-MACdPDUSizeFormat 	PRESENCE optional}|
+	{ ID id-SixtyfourQAM-UsageAllowedIndicator	CRITICALITY ignore		EXTENSION 	SixtyfourQAM-UsageAllowedIndicator	PRESENCE optional},
 	...
 }
 
@@ -3360,13 +3480,14 @@ HSDSCH-Information-to-Modify-Unsynchronised ::= SEQUENCE {
 }
 
 HSDSCH-Information-to-Modify-Unsynchronised-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-HARQ-Preamble-Mode		CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode			PRESENCE optional}|
-	{ ID id-HSSICH-SIRTarget		CRITICALITY	ignore		EXTENSION	UL-SIR						PRESENCE optional}|
+	{ ID id-HARQ-Preamble-Mode					CRITICALITY ignore		EXTENSION	HARQ-Preamble-Mode	PRESENCE optional}|
+	{ ID id-HSSICH-SIRTarget					CRITICALITY	ignore		EXTENSION	UL-SIR			PRESENCE optional}|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-ueCapability-Info		CRITICALITY	ignore		EXTENSION	UE-Capability-Information	PRESENCE optional}|
-	{ ID id-HSSICH-TPC-StepSize		CRITICALITY	ignore		EXTENSION 	TDD-TPC-UplinkStepSize-LCR	PRESENCE optional}|
+	{ ID id-ueCapability-Info					CRITICALITY	ignore		EXTENSION	UE-Capability-Information	PRESENCE optional}|
+	{ ID id-HSSICH-TPC-StepSize					CRITICALITY	ignore		EXTENSION 	TDD-TPC-UplinkStepSize-LCR	PRESENCE optional}|
 	 -- Applicable to 1.28Mcps TDD only
-	{ ID id-MIMO-InformationToModify	CRITICALITY reject	EXTENSION MIMO-InformationToModify		PRESENCE	optional },
+	{ ID id-MIMO-Mode-Indicator					CRITICALITY reject		EXTENSION MIMO-Mode-Indicator	PRESENCE	optional }|
+	{ ID id-SixtyfourQAM-UsageAllowedIndicator	CRITICALITY ignore		EXTENSION 	SixtyfourQAM-UsageAllowedIndicator	PRESENCE optional},
 	...
 }
 
@@ -3379,7 +3500,9 @@ HSDSCH-FDD-Information-Response ::= SEQUENCE {
 }
 
 HSDSCH-FDD-Information-Response-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-{	ID id-HARQ-Preamble-Mode-Activation-Indicator		CRITICALITY	ignore	EXTENSION	HARQ-Preamble-Mode-Activation-Indicator	PRESENCE	optional},
+{	ID id-HARQ-Preamble-Mode-Activation-Indicator		CRITICALITY	ignore	EXTENSION	HARQ-Preamble-Mode-Activation-Indicator						PRESENCE	optional}|
+	{ ID id-MIMO-N-M-Ratio								CRITICALITY	ignore	EXTENSION	MIMO-N-M-Ratio										PRESENCE optional}|
+	{ ID id-SixtyfourQAM-DL-UsageIndicator				CRITICALITY ignore	EXTENSION SixtyfourQAM-DL-UsageIndicator		PRESENCE optional },
 	...
 }
 
@@ -3415,14 +3538,20 @@ HSDSCH-Paging-System-Information-ResponseList-ExtIEs NBAP-PROTOCOL-EXTENSION ::=
 HSDSCH-TDD-Information-Response ::= SEQUENCE {
 	hsDSCH-MACdFlow-Specific-InformationResp		HSDSCH-MACdFlow-Specific-InformationResp	OPTIONAL,
 	hsSCCH-Specific-Information-ResponseTDD			HSSCCH-Specific-InformationRespListTDD		OPTIONAL, -- Not Applicable to 1.28Mcps TDD or 7.68Mcps TDD
-	hsSCCH-Specific-Information-ResponseTDDLCR		HSSCCH-Specific-InformationRespListTDDLCR	OPTIONAL, -- Not Applicable to 3.84Mcps TDD or 7.68Mcps TDD
-	hARQ-MemoryPartitioning							HARQ-MemoryPartitioning						OPTIONAL,
+	hsSCCH-Specific-Information-ResponseTDDLCR		HSSCCH-Specific-InformationRespListTDDLCR	OPTIONAL, -- Not Applicable to 3.84Mcps TDD or 7.68Mcps TDD,This HSSCCH Specific Information is for the first Frequency repetition, HSSCCH Specific Information for Frequency repetitions 2 and on, should be defined in MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR
+	hARQ-MemoryPartitioning							HARQ-MemoryPartitioning						OPTIONAL, -- This HARQ Memory Partitioning Information is for the first Frequency repetition, HARQ Memory Partitioning Information for Frequency repetitions 2 and on, should be defined in MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR
 	iE-Extensions									ProtocolExtensionContainer { { HSDSCH-TDD-Information-Response-ExtIEs } }		OPTIONAL,
 	...
 }
 
 HSDSCH-TDD-Information-Response-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	{ID id-hsSCCH-Specific-Information-ResponseTDD768 	CRITICALITY ignore		EXTENSION	HSSCCH-Specific-InformationRespListTDD768	PRESENCE optional},
+	{ID id-hsSCCH-Specific-Information-ResponseTDD768 					CRITICALITY ignore	EXTENSION HSSCCH-Specific-InformationRespListTDD768	PRESENCE optional}|
+{ ID id-UARFCNforNt														CRITICALITY ignore	EXTENSION UARFCN																PRESENCE optional}|
+	-- Applicable to 1.28Mcps TDD when using multiple frequencies ,This is the UARFCN for the first Frequency repetition
+{ ID id-multipleFreq-HSPDSCH-InformationList-ResponseTDDLCR				CRITICALITY ignore	EXTENSION MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR	PRESENCE optional }|
+	-- Applicable to 1.28Mcps TDD when using multiple frequencies ,This MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR is the HS-SCCH and HARQ Memory Partitioning information for the 2nd and beyond HS-PDSCH frequencies.
+{ ID id-multicarrier-number												CRITICALITY ignore	EXTENSION  Multicarrier-Number													PRESENCE optional },
+	-- Applicable for 1.28Mcps TDD when using multiple frequencies
 	...
 }
 
@@ -3542,6 +3671,8 @@ HSSCCH-Specific-InformationRespItemTDDLCR ::= SEQUENCE {
 }
 
 HSSCCH-Specific-InformationRespItemTDDLCR-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ID id-UARFCNforNt		CRITICALITY reject		EXTENSION UARFCN		PRESENCE optional},
+	-- Applicable for 1.28Mcps TDD when using multiple frequencies. this IE indicates the frequency which is actually used by the  HS-SCCH
 	...
 }
 HSSCCH-Specific-InformationRespListTDD768 ::= SEQUENCE (SIZE (1..maxNrOfHSSCCHCodes)) OF HSSCCH-Specific-InformationRespItemTDD768
@@ -3583,6 +3714,8 @@ HSSICH-InfoLCR ::= SEQUENCE {
 }
 
 HSSICH-Info-LCR-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Extended-HS-SICH-ID							CRITICALITY ignore	EXTENSION Extended-HS-SICH-ID	PRESENCE optional},
+	-- used if the HS-SICH identity has a value larger than 31
 	...
 }
 
@@ -3794,9 +3927,9 @@ IB-Type ::= ENUMERATED {
 	sIB5,
 	sIB6,
 	sIB7,
-	sIB8,
-	sIB9,
-	sIB10,
+	not-Used-sIB8,
+	not-Used-sIB9,
+	not-Used-sIB10,
 	sIB11,
 	sIB12,
 	sIB13,
@@ -3830,10 +3963,10 @@ IB-Type ::= ENUMERATED {
 Inactivity-Threshold-for-UE-DRX-Cycle ::= ENUMERATED {v0, v1, v2, v4, v8, v16, v32, v64, v128, v256, v512}
 -- Unit subframe
 
-Inactivity-Threshold-for-UE-DTX-Cycle2 ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64, v128, v256}
+Inactivity-Threshold-for-UE-DTX-Cycle2 ::= ENUMERATED {v1, v4, v8, v16, v32, v64, v128, v256}
 -- Unit E-DCH TTI
 
-Inactivity-Threshold-for-UE-Grant-Monitoring ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64, v128, v256}
+Inactivity-Threshold-for-UE-Grant-Monitoring ::= ENUMERATED {v0, v1, v2, v4, v8, v16, v32, v64, v128, v256}
 -- Unit E-DCH TTI
 
 
@@ -3940,6 +4073,21 @@ IPDL-TDD-Parameters-LCR ::= SEQUENCE {
 	...
 }
 
+IPMulticastIndication ::= SEQUENCE {
+	transportLayerAddress			TransportLayerAddress,
+	bindingID						BindingID,
+	cFNOffset						INTEGER(0..255),
+	iE-Extensions			ProtocolExtensionContainer { { IPMulticastIndication-ExtIEs} }	OPTIONAL,
+	...
+}
+
+IPMulticastIndication-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+IPMulticastDataBearerIndication ::= BOOLEAN
+-- true: IP Multicast used, false: IP Multicast not used
+
 BurstModeParams ::= SEQUENCE {
 	burstStart							INTEGER(0..15),
 	burstLength							INTEGER(10..25),
@@ -3979,7 +4127,7 @@ LTGI-Presence ::= BOOLEAN
 
 LCRTDD-Uplink-Physical-Channel-Capability ::= SEQUENCE {
 	maxTimeslotsPerSubFrame				INTEGER(1..6),
-	maxPhysChPerTimeslot				ENUMERATED {one,two,...},
+	maxPhysChPerTimeslot				ENUMERATED {one,two,...,three,four},
 	iE-Extensions						ProtocolExtensionContainer { { LCRTDD-Uplink-Physical-Channel-Capability-ExtIEs} } OPTIONAL,
 	...
 }
@@ -3996,10 +4144,14 @@ MAC-DTX-Cycle-2ms ::= ENUMERATED {v1, v4, v5, v8, v10, v16, v20}
 
 MAC-DTX-Cycle-10ms ::= ENUMERATED {v5, v10, v20}
 
+MAC-ehs-Reset-Timer ::= ENUMERATED {v1, v2, v3, v4,...}
+
 MACdPDU-Size ::= INTEGER (1..5000,...)
 
-MAC-PDU-SizeExtended ::= INTEGER (1..12032,...)
+MAC-PDU-SizeExtended ::= INTEGER (1..1504,...)
 
+MAC-Inactivity-Threshold ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64, v128, v256, v512, infinity}
+	-- Unit subframe
 
 MACdPDU-Size-Indexlist ::= SEQUENCE (SIZE (1..maxNrOfMACdPDUIndexes)) OF MACdPDU-Size-IndexItem
 
@@ -4027,16 +4179,17 @@ MACdPDU-Size-IndexItem-to-Modify-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-MACesGuaranteedBitRate ::= INTEGER (0..16777215,...)
+MACesGuaranteedBitRate ::= INTEGER (0..16777215,...,16777216..256000000)
 
 MACeReset-Indicator ::= ENUMERATED {mACeReset}
 
-MAChsGuaranteedBitRate ::= INTEGER (0..16777215,...)
+MAChsGuaranteedBitRate ::= INTEGER (0..16777215,...,16777216..256000000)
 
 MAChsReorderingBufferSize-for-RLC-UM ::= INTEGER (0..300,...)
 -- Unit kBytes
 
 MAC-hsWindowSize		::= ENUMERATED {v4, v6, v8, v12, v16, v24, v32,...}
+-- For 1.28Mcps TDD when TSN length is configured to 9bits, ENUMERATED (32, 64, 96, 128, 160, 192, 256,...)
 
 MaximumDL-PowerCapability ::=  INTEGER(0..500)
 -- Unit dBm, Range 0dBm .. 50dBm, Step +0.1dB
@@ -4044,6 +4197,9 @@ MaximumDL-PowerCapability ::=  INTEGER(0..500)
 Max-Bits-MACe-PDU-non-scheduled ::= INTEGER(1..maxNrOfBits-MACe-PDU-non-scheduled)
 
 Maximum-Number-of-Retransmissions-For-E-DCH ::= INTEGER (0..15)
+
+Maximum-Target-ReceivedTotalWideBandPower-LCR ::= INTEGER (0..621)
+-- mapping as for RTWP measurement value, as specified in [23]
 
 MaximumTransmissionPower ::=  INTEGER(0..500)
 -- Unit dBm, Range 0dBm .. 50dBm, Step +0.1dB
@@ -4213,31 +4369,13 @@ MidambleConfigurationBurstType2-768 ::=		ENUMERATED {v4, v8}
 
 MidambleShiftShort768 ::=				INTEGER (0..7)
 
+MIMO-ActivationIndicator ::= NULL
+
 MIMO-Capability ::= ENUMERATED {
 	mimo-capable,
 	mimo-non-capable
 }
 
-MIMO-Information ::= SEQUENCE {
-	mIMO-N-M-Ratio								MIMO-N-M-Ratio,
-	iE-Extensions								ProtocolExtensionContainer { { MIMO-Information-ExtIEs } }			OPTIONAL,
-	...
-}
-
-MIMO-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-MIMO-InformationToModify ::= SEQUENCE {
-	mIMO-Mode-Indicator							MIMO-Mode-Indicator						OPTIONAL,
-	mIMO-N-M-Ratio								MIMO-N-M-Ratio							OPTIONAL,
-	iE-Extensions								ProtocolExtensionContainer { { MIMO-InformationToModify-ExtIEs } }			OPTIONAL,
-	...
-}
-
-MIMO-InformationToModify-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 MIMO-Mode-Indicator ::= ENUMERATED {
 	activate,
@@ -4310,6 +4448,7 @@ ModulationMBSFN ::= ENUMERATED {
 }
 
 MBSFN-CPICH-secondary-CCPCH-power-offset ::= INTEGER(-11..4,...)
+-- Unit dB, Step 1 dB, Range -11..4 dB.
 
 ModulationPO-MBSFN ::= CHOICE {
 	qPSK				NULL,
@@ -4325,6 +4464,22 @@ MBSFN-Only-Mode-Capability ::= ENUMERATED {
 	mBSFN-Only-Mode-non-capable
 }
 
+Multicarrier-Number ::= INTEGER (1..maxHSDPAFrequency)
+
+MultipleFreq-HSPDSCH-InformationList-ResponseTDDLCR ::= SEQUENCE (SIZE (1.. maxHSDPAFrequency-1)) OF MultipleFreq-HSPDSCH-InformationItem-ResponseTDDLCR
+--Includes the 2nd through the max number of frequency repetitions.
+
+MultipleFreq-HSPDSCH-InformationItem-ResponseTDDLCR ::= SEQUENCE{
+	hsSCCH-Specific-Information-ResponseTDDLCR		HSSCCH-Specific-InformationRespListTDDLCR	OPTIONAL,
+	hARQ-MemoryPartitioning							HARQ-MemoryPartitioning						OPTIONAL,
+	uARFCN											UARFCN, -- This is the UARFCN for the second and beyond Frequency repetition.
+	iE-Extensions									ProtocolExtensionContainer { { MultipleFreq-HSPDSCH-InformationItem-ResponseTDDLCR-ExtIEs } }		OPTIONAL,
+	...
+}
+
+MultipleFreq-HSPDSCH-InformationItem-ResponseTDDLCR-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+...
+}
 -- ==========================================
 --	N
 -- ==========================================
@@ -4445,6 +4600,15 @@ N-E-UCCH ::= INTEGER (1..12)
 
 N-E-UCCHLCR ::= INTEGER (1..8)
 
+Number-Of-Supported-Carriers  ::= ENUMERATED {
+	one-one-carrier,
+	one-three-carrier,
+	three-three-carrier,
+	one-six-carrier,
+	three-six-carrier,
+	six-six-carrier,
+	...
+}
 
 -- ==========================================
 --	O
@@ -4493,21 +4657,50 @@ PICH-Mode ::= ENUMERATED {
 PICH-Power ::= INTEGER (-10..5)
 -- Unit dB, Range -10dB .. +5dB, Step +1dB
 
-Paging-MACFlow-Specific-Information ::= SEQUENCE (SIZE (1.. maxNrOfPagingMACFlow)) OF Paging-MAC-Flow-Sopecific-Information-Item
+Paging-MACFlows-to-DeleteFDD ::= SEQUENCE (SIZE (1.. maxNrOfPagingMACFlow)) OF Paging-MACFlows-to-DeleteFDD-Item
 
-Paging-MAC-Flow-Sopecific-Information-Item ::= SEQUENCE {
+Paging-MACFlows-to-DeleteFDD-Item ::= SEQUENCE {
+	paging-MACFlow-ID								Paging-MACFlow-ID,
+	iE-Extensions									ProtocolExtensionContainer { { Paging-MACFlows-to-DeleteFDD-Item-ExtIEs} }					OPTIONAL,
+	...
+}
+
+Paging-MACFlows-to-DeleteFDD-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+Paging-MACFlow-Specific-Information ::= SEQUENCE (SIZE (1.. maxNrOfPagingMACFlow)) OF Paging-MAC-Flow-Specific-Information-Item
+
+Paging-MAC-Flow-Specific-Information-Item ::= SEQUENCE {
 	paging-MACFlow-Id								Paging-MACFlow-ID,
 	hSDPA-associated-PICH-Info						HSDPA-Associated-PICH-Information, 
 	bindingID										BindingID									OPTIONAL,
 	transportLayerAddress							TransportLayerAddress						OPTIONAL,
 	tnl-qos											TnlQos										OPTIONAL,
-	iE-Extensions									ProtocolExtensionContainer { { Paging-MAC-Flow-Sopecific-Information-Item-ExtIEs } }		OPTIONAL,
+	toAWS											ToAWS,
+	toAWE											ToAWE,
+	paging-MACFlow-PriorityQueue-Information		Paging-MACFlow-PriorityQueue-Information	OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { { Paging-MAC-Flow-Specific-Information-Item-ExtIEs } }		OPTIONAL,
 	...
 }
 
-Paging-MAC-Flow-Sopecific-Information-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+Paging-MAC-Flow-Specific-Information-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+Paging-MACFlow-PriorityQueue-Information  ::= SEQUENCE (SIZE (1..maxNrOfpagingMACQueues)) OF Paging-MACFlow-PriorityQueue-Item
+
+Paging-MACFlow-PriorityQueue-Item  ::= SEQUENCE {
+	priority-Queue-Information-for-Enhanced-PCH		Priority-Queue-Information-for-Enhanced-FACH-PCH,
+		iE-Extensions									ProtocolExtensionContainer { { Paging-MACFlow-PriorityQueue-Item-ExtIEs } }		OPTIONAL,
+	...
+}
+
+Paging-MACFlow-PriorityQueue-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 PLCCHsequenceNumber ::= INTEGER (0..14)
 
@@ -4602,18 +4795,20 @@ PrimaryScramblingCode ::= INTEGER (0..511)
 PriorityLevel				::= INTEGER (0..15)
 -- 0 = spare, 1 = highest priority, ...14 = lowest priority and 15 = no priority
 
-Priority-Queue-Information-for-Enhanced-FACH ::= SEQUENCE {
+Priority-Queue-Information-for-Enhanced-FACH-PCH ::= SEQUENCE {
 	priorityQueue-Id					PriorityQueue-Id,
 	schedulingPriorityIndicator			SchedulingPriorityIndicator,
 	t1									T1,
+	mAC-ehs-Reset-Timer					MAC-ehs-Reset-Timer,
+	-- shall be ignored in case of Enhanced PCH
 	discardTimer						DiscardTimer							OPTIONAL,
 	mAC-hsWindowSize					MAC-hsWindowSize,
 	maximum-MACcPDU-Size				MAC-PDU-SizeExtended,
-	iE-Extensions						ProtocolExtensionContainer { { Priority-Queue-Information-for-Enhanced-FACH-ExtIEs } }			OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { Priority-Queue-Information-for-Enhanced-FACH-PCH-ExtIEs } }			OPTIONAL,
 	...
 }
 
-Priority-Queue-Information-for-Enhanced-FACH-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+Priority-Queue-Information-for-Enhanced-FACH-PCH-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -4771,6 +4966,7 @@ RL-Specific-DCH-Info-Item ::= SEQUENCE {
 }
 
 RL-Specific-DCH-Info-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-TransportBearerNotRequestedIndicator	CRITICALITY ignore	EXTENSION TransportBearerNotRequestedIndicator		PRESENCE optional	}, -- FDD only
 	...
 }
 
@@ -4808,9 +5004,6 @@ Range-Correction-Rate ::= INTEGER (-127..127)
 Reference-ReceivedTotalWideBandPower ::= INTEGER (0..621)
 -- mapping as for RTWP measurement value, as specified in [22]
 
-Reference-ReceivedTotalWideBandPower-LCR ::= INTEGER (0..621)
--- mapping as for RTWP measurement value, as specified in [23]
-
 
 Reference-ReceivedTotalWideBandPowerReporting::= ENUMERATED {
 	reference-ReceivedTotalWideBandPower-Requested
@@ -4831,17 +5024,19 @@ Reference-E-TFCI-Information ::= SEQUENCE (SIZE (1..maxNrOfRefETFCIs)) OF Refere
 
 Reference-E-TFCI-Information-Item ::= SEQUENCE {
 	reference-E-TFCI				E-TFCI,
+	-- The following IE shall be ignored if id-Ext-Reference-E-TFCI-PO is present in Reference-E-TFCI-Information-Item-ExtIEs
 	reference-E-TFCI-PO				Reference-E-TFCI-PO,
 	iE-Extensions					ProtocolExtensionContainer { { Reference-E-TFCI-Information-Item-ExtIEs} }		OPTIONAL,
 	...
 }
 
 Reference-E-TFCI-Information-Item-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
+	-- The following IE shall be present if the ref E-TFCI power offset to be signalled exceeds maxNrOfRefETFCI-PO-QUANTSTEPs
+	{ ID id-Ext-Reference-E-TFCI-PO		CRITICALITY reject		EXTENSION	Ext-Reference-E-TFCI-PO		PRESENCE optional},
 	...
 }
 
 Reference-E-TFCI-PO ::= INTEGER (0.. maxNrOfRefETFCI-PO-QUANTSTEPs)
-	-- FFS according to mapping in [21]
 
 RepetitionLength ::= INTEGER (1..63)
 
@@ -5443,6 +5638,17 @@ SIR-Value-IncrDecrThres ::= INTEGER (0..62)
 
 SignallingBearerRequestIndicator::= ENUMERATED {bearerRequested}
 
+
+SixtyfourQAM-UsageAllowedIndicator ::= ENUMERATED {
+	allowed,
+	not-allowed
+}
+
+SixtyfourQAM-DL-UsageIndicator ::= ENUMERATED {
+	sixteenQAM-DL-used,
+	sixteenQAM-DL-not-used
+}
+
 SixtyfourQAM-DL-Capability ::= ENUMERATED {
 	sixtyfourQAM-DL-supported,
 	sixtyfourQAM-DL-not-supported
@@ -5454,31 +5660,6 @@ SignatureSequenceGroupIndex ::= INTEGER (0..19)
 SixteenQAM-UL-Capability ::= ENUMERATED {
 	sixteenQAM-UL-capable,
 	sixteenQAM-UL-non-capable
-}
-
-SixteenQAM-UL-Delta-T2TP ::= INTEGER (0..6,...)
-
-
-SixteenQAM-UL-Information ::= SEQUENCE {
-	sixteenQAM-UL-Operation-Indicator		SixteenQAM-UL-Operation-Indicator,
-	sixteenQAM-UL-Delta-T2TP	 			SixteenQAM-UL-Delta-T2TP,
-	iE-Extensions							ProtocolExtensionContainer { { SixteenQAM-UL-Information-ExtIEs } }		OPTIONAL,
-	...
-}
-
-SixteenQAM-UL-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-SixteenQAM-UL-Information-to-Modify ::= SEQUENCE {
-	sixteenQAM-UL-Operation-Indicator		SixteenQAM-UL-Operation-Indicator		OPTIONAL,
-	sixteenQAM-UL-Delta-T2TP	 			SixteenQAM-UL-Delta-T2TP				OPTIONAL,
-	iE-Extensions							ProtocolExtensionContainer { { SixteenQAM-UL-Information-to-Modify-ExtIEs } }		OPTIONAL,
-	...
-}
-
-SixteenQAM-UL-Information-to-Modify-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-	...
 }
 
 SixteenQAM-UL-Operation-Indicator ::= ENUMERATED {
@@ -5782,14 +5963,14 @@ TDD-DL-Code-768-InformationItem-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
 TDD-DL-DPCH-TimeSlotFormat-LCR ::= CHOICE {
 	qPSK						QPSK-DL-DPCH-TimeSlotFormatTDD-LCR,
 	eightPSK					EightPSK-DL-DPCH-TimeSlotFormatTDD-LCR,
-	--8PSK denotes 16QAM for S-CCPCH
+	-- For 1.28 Mcps TDD, if the cell is operating in MBSFN only mode, this IE denotes MBSFN S-CCPCH time slot format
 	...
 }
 
 QPSK-DL-DPCH-TimeSlotFormatTDD-LCR ::= INTEGER(0..24,...)
 
 EightPSK-DL-DPCH-TimeSlotFormatTDD-LCR ::= INTEGER(0..24,...)
---8PSK denotes 16QAM for S-CCPCH?INTEGER(0..5,...)
+-- For 1.28 Mcps TDD, if the cell is operating in MBSFN only mode, this IE denotes MBSFN S-CCPCH time slot format?INTEGER(0..11,...)
 
 TDD-DPCHOffset ::= CHOICE {
 	initialOffset		INTEGER (0..255),
@@ -5938,6 +6119,12 @@ TimeSlotDirection ::= ENUMERATED {
 }
 
 TimeSlotLCR ::= INTEGER (0..6)
+
+TimeslotLCR-Extension ::= ENUMERATED {
+	ts7,
+	...
+}
+-- ts7 indicates the MBSFN Special Timeslot for 1.28Mcps TDD MBSFN Dedicated Carrier.
 
 TimeSlotStatus ::= ENUMERATED {
 	active,
@@ -6115,6 +6302,15 @@ TransportBearerRequestIndicator ::= ENUMERATED {
 	...
 }
 
+TransportBearerNotRequestedIndicator ::= ENUMERATED {
+	transport-bearer-shall-not-be-established,
+	transport-bearer-may-not-be-established
+}
+
+TransportBearerNotSetupIndicator ::= ENUMERATED {
+	transport-bearer-not-setup
+}
+
 TransportFormatSet ::= SEQUENCE {
 	dynamicParts			TransportFormatSet-DynamicPartList,
 	semi-staticPart			TransportFormatSet-Semi-staticPart,
@@ -6249,6 +6445,12 @@ TSTD-Indicator ::= ENUMERATED {
 	inactive
 }
 
+
+TSN-Length ::= ENUMERATED {
+	tsn-6bits,
+	tsn-9bits
+}
+
 TUTRANGANSS ::= SEQUENCE {
 	mS				INTEGER(0..16383),
 	lS				INTEGER(0..4294967295)
@@ -6372,7 +6574,8 @@ UE-Capability-Information ::= SEQUENCE {
 }
 
 UE-Capability-Information-ExtIEs NBAP-PROTOCOL-EXTENSION ::= {
-{ID id-LCRTDD-uplink-Physical-Channel-Capability		CRITICALITY ignore		EXTENSION LCRTDD-Uplink-Physical-Channel-Capability		PRESENCE optional},
+	{ID id-LCRTDD-uplink-Physical-Channel-Capability		CRITICALITY ignore		EXTENSION LCRTDD-Uplink-Physical-Channel-Capability			PRESENCE optional}|
+	{ID id-number-Of-Supported-Carriers						CRITICALITY reject		EXTENSION Number-Of-Supported-Carriers							PRESENCE optional},
 	...
 }
 
@@ -6406,10 +6609,10 @@ UE-DTX-DRX-Offset ::= INTEGER (0..159)
 UE-DTX-Long-Preamble ::= ENUMERATED {v2, v4, v15}
 	-- Units of slots
 
-UE-Inactivity-Threshold ::= ENUMERATED {v1, v2, v4, v8, v16, v32, v64, v128, v256, v512, infinity}
-	-- Unit subframe
 
 UL-CapacityCredit ::= INTEGER (0..65535)
+
+UL-Delta-T2TP ::= INTEGER (0..6,...)
 
 UL-DL-mode ::= ENUMERATED {
 	ul-only,
@@ -6523,6 +6726,8 @@ UL-Synchronisation-StepSize ::= INTEGER (1..8)
 
 UL-Synchronisation-Frequency ::= INTEGER (1..8)
 
+UPPCHPositionLCR ::= INTEGER (0..127)
+
 UL-TimeSlot-ISCP-Info ::= SEQUENCE (SIZE (1..maxNrOfULTSs)) OF	UL-TimeSlot-ISCP-InfoItem
 
 UL-TimeSlot-ISCP-InfoItem ::= SEQUENCE {
@@ -6618,4 +6823,3 @@ USCH-ID ::= INTEGER (0..255)
 -- ==========================================
 
 END
-
