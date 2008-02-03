@@ -85,7 +85,7 @@ rtp_streams_stat_draw(void *arg _U_)
     {
         strinfo = (rtp_stream_info_t*)(list->data);
 
-        // payload type
+        /* payload type */
         if(strinfo->pt>95){
     	if(strinfo->info_payload_type_str != NULL){
             payload_type = g_strdup(strinfo->info_payload_type_str);
@@ -98,7 +98,7 @@ rtp_streams_stat_draw(void *arg _U_)
 	        "Unknown (%u)"));
         }
     
-        // packet count, lost packets
+        /* packet count, lost packets */
 	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
             - strinfo->rtp_stats.start_seq_nr + 1;
         lost = expected - strinfo->rtp_stats.total_nr;
