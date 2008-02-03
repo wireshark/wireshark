@@ -1137,7 +1137,7 @@ get_persdatafile_dir(void)
 	  /* the "My Captures" sub-directory is created (if it doesn't exist)
 	     by u3util.exe when the U3 Wireshark is first run */
 
-	  szPath = g_strdup_printf("%s%s", 3devicedocumentpath, U3_MY_CAPTURES);
+	  szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
 
 	  persdatafile_dir = szPath;
 	  return szPath;
