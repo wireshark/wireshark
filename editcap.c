@@ -624,7 +624,7 @@ int main(int argc, char *argv[])
       if (!filename) {
         exit(5);
       }
-      snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], 0);
+      g_snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], 0);
     } else {
       filename = argv[optind+1];
     }
@@ -653,7 +653,7 @@ int main(int argc, char *argv[])
           exit(1);
         }
 
-        snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
+        g_snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], count / split_packet_count);
 
         if (verbose) {
           fprintf(stderr, "Continuing writing in file %s\n", filename);
