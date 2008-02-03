@@ -676,7 +676,6 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 	ti = proto_tree_add_text(t, tvb, offset,
 				 curr_count * 4, "ServiceRecordHandleList");
 	st = proto_item_add_subtree(ti, ett_btsdp_ssr);
-	offset+=4;
 
 	while(curr_count>0){
 		proto_tree_add_text(st, tvb, offset, 4, "0x%x", tvb_get_ntohl(tvb, offset));

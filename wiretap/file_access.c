@@ -76,7 +76,7 @@
 #include "netscreen.h"
 #include "commview.h"
 #include "pcapng.h"
-
+#include "btsnoop.h"
 
 
 /* The open_file_* routines should return:
@@ -120,6 +120,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	ber_open,
 	mpeg_open,
 	pcapng_open,
+	btsnoop_open,
 	/* Files that don't have magic bytes at a fixed location,
 	 * but that instead require a heuristic of some sort to
 	 * identify them.  This includes the ASCII trace files that
@@ -578,7 +579,10 @@ static const struct file_type_info dump_open_table_base[] = {
 	  
 	/* WTAP_FILE_PCAPNG */
 	{ "Wireshark - pcapng (experimental)", "pcapng", "*.pcapng", NULL, FALSE,
-	  pcapng_dump_can_write_encap, pcapng_dump_open }
+	  pcapng_dump_can_write_encap, pcapng_dump_open },
+
+	/* WTAP_FILE_BTSNOOP */
+	{ "Symbian OS btsnoop", "btsnoop", "*.log", NULL, FALSE, NULL, NULL }
 };
 
 gint wtap_num_file_types = sizeof(dump_open_table_base) / sizeof(struct file_type_info);

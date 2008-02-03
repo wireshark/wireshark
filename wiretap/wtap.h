@@ -196,6 +196,7 @@ extern "C" {
 #define WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR	99
 #define WTAP_ENCAP_SITA				100
 #define WTAP_ENCAP_SCCP				101
+#define WTAP_ENCAP_BLUETOOTH_HCI			102 /*raw packets without a transport layer header e.g. H4*/
 
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
@@ -254,6 +255,7 @@ extern "C" {
 #define WTAP_FILE_NETSCREEN					48
 #define WTAP_FILE_COMMVIEW					49
 #define WTAP_FILE_PCAPNG					50
+#define WTAP_FILE_BTSNOOP					51
 
 #define WTAP_NUM_FILE_TYPES			wtap_get_num_file_types()
 
@@ -710,6 +712,16 @@ struct sita_phdr {
    guint8  proto;
 };
 
+/*pseudo header for Bluetooth HCI*/
+struct bthci_phdr {
+	gboolean sent;
+	guint8 channel;
+};
+
+#define BTHCI_CHANNEL_COMMAND 1
+#define BTHCI_CHANNEL_ACL     2
+#define BTHCI_CHANNEL_SCO     3
+#define BTHCI_CHANNEL_EVENT   4
 
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
@@ -729,6 +741,7 @@ union wtap_pseudo_header {
 	struct linux_usb_phdr	linux_usb;
 	struct erf_mc_phdr      erf;
 	struct sita_phdr	sita;
+	struct bthci_phdr	bthci;
 };
 
 struct wtap_nstime {

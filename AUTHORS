@@ -2691,8 +2691,12 @@ Fulko Hew		<fulko.hew [AT] gmail.com> {
 	Link Control) WAN protocol dissection
 }
 
-Andy Chu	<chu.dev [AT] gmail.com> {
+Andy Chu		<chu.dev [AT] gmail.com> {
 	China Mobile Point to Point
+}
+
+Shane Kearns		<shane.kearns [AT] symbian.com> {
+	Support Symbian OS btsnoop
 }
 
 and by:

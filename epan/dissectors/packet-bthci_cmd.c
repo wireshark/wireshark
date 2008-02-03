@@ -2916,5 +2916,6 @@ proto_reg_handoff_bthci_cmd(void)
 	dissector_handle_t bthci_cmd_handle;
 	bthci_cmd_handle = find_dissector("bthci_cmd");
 	dissector_add("hci_h4.type", HCI_H4_TYPE_CMD, bthci_cmd_handle);
+	dissector_add("hci_h1.type", BTHCI_CHANNEL_COMMAND, bthci_cmd_handle);
 }
 

@@ -290,6 +290,7 @@ proto_reg_handoff_btacl(void)
 
 	bthci_acl_handle = find_dissector("bthci_acl");
 	dissector_add("hci_h4.type", HCI_H4_TYPE_ACL, bthci_acl_handle);
+	dissector_add("hci_h1.type", BTHCI_CHANNEL_ACL, bthci_acl_handle);
 
 
 	btl2cap_handle = find_dissector("btl2cap");
