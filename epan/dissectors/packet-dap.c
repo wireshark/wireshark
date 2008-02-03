@@ -74,7 +74,6 @@ void prefs_register_dap(void); /* forwad declaration for use in preferences regi
 /* Initialize the protocol and registered fields */
 int proto_dap = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 
 /*--- Included file: packet-dap-hf.c ---*/
@@ -477,7 +476,7 @@ static int hf_dap_SearchControlOptions_separateFamilyMembers = -1;
 static int hf_dap_SearchControlOptions_searchFamily = -1;
 
 /*--- End of included file: packet-dap-hf.c ---*/
-#line 72 "packet-dap-template.c"
+#line 71 "packet-dap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_dap = -1;
@@ -655,7 +654,7 @@ static gint ett_dap_UpdateError = -1;
 static gint ett_dap_T_signedUpdateError = -1;
 
 /*--- End of included file: packet-dap-ett.c ---*/
-#line 76 "packet-dap-template.c"
+#line 75 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-val.h ---*/
@@ -680,7 +679,7 @@ static gint ett_dap_T_signedUpdateError = -1;
 #define id_errcode_dsaReferral         9
 
 /*--- End of included file: packet-dap-val.h ---*/
-#line 78 "packet-dap-template.c"
+#line 77 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table.c ---*/
@@ -718,7 +717,7 @@ static const value_string dap_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-dap-table.c ---*/
-#line 80 "packet-dap-template.c"
+#line 79 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-fn.c ---*/
@@ -797,7 +796,7 @@ static const value_string dap_T_priority_vals[] = {
 static int
 dissect_dap_T_priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -807,7 +806,7 @@ dissect_dap_T_priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_dap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -823,7 +822,7 @@ static const value_string dap_T_scopeOfReferral_vals[] = {
 static int
 dissect_dap_T_scopeOfReferral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -958,7 +957,7 @@ static const value_string dap_T_infoTypes_vals[] = {
 static int
 dissect_dap_T_infoTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1681,7 +1680,7 @@ static const value_string dap_ProtectionRequest_vals[] = {
 static int
 dissect_dap_ProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1699,7 +1698,7 @@ static const value_string dap_ErrorProtectionRequest_vals[] = {
 static int
 dissect_dap_ErrorProtectionRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2102,7 +2101,7 @@ dissect_dap_ServiceProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -2133,7 +2132,7 @@ dissect_dap_SecurityProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -2785,7 +2784,7 @@ dissect_dap_LimitProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -2972,7 +2971,7 @@ dissect_dap_T_subset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   guint32 subset;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &subset);
+                                                &subset);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -3998,7 +3997,7 @@ static const value_string dap_AbandonProblem_vals[] = {
 static int
 dissect_dap_AbandonProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4076,7 +4075,7 @@ static const value_string dap_AttributeProblem_vals[] = {
 static int
 dissect_dap_AttributeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4181,7 +4180,7 @@ static const value_string dap_NameProblem_vals[] = {
 static int
 dissect_dap_NameProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4445,7 +4444,7 @@ dissect_dap_UpdateProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -4765,7 +4764,7 @@ static int dissect_UpdateError_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-dap-fn.c ---*/
-#line 82 "packet-dap-template.c"
+#line 81 "packet-dap-template.c"
 
 
 /*--- Included file: packet-dap-table11.c ---*/
@@ -4797,7 +4796,7 @@ static const ros_opr_t dap_opr_tab[] = {
 
 
 /*--- End of included file: packet-dap-table11.c ---*/
-#line 84 "packet-dap-template.c"
+#line 83 "packet-dap-template.c"
 
 /*--- Included file: packet-dap-table21.c ---*/
 #line 1 "packet-dap-table21.c"
@@ -4826,7 +4825,7 @@ static const ros_err_t dap_err_tab[] = {
 
 
 /*--- End of included file: packet-dap-table21.c ---*/
-#line 85 "packet-dap-template.c"
+#line 84 "packet-dap-template.c"
 
 static const ros_info_t dap_ros_info = {
   "DAP",
@@ -6430,7 +6429,7 @@ void proto_register_dap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-dap-hfarr.c ---*/
-#line 104 "packet-dap-template.c"
+#line 103 "packet-dap-template.c"
   };
 
   /* List of subtrees */
@@ -6610,7 +6609,7 @@ void proto_register_dap(void) {
     &ett_dap_T_signedUpdateError,
 
 /*--- End of included file: packet-dap-ettarr.c ---*/
-#line 110 "packet-dap-template.c"
+#line 109 "packet-dap-template.c"
   };
   module_t *dap_module;
 
@@ -6635,7 +6634,6 @@ void proto_register_dap(void) {
 
 /*--- proto_reg_handoff_dap --- */
 void proto_reg_handoff_dap(void) {
-  dissector_handle_t handle = NULL;
 
   /* #include "packet-dap-dis-tab.c" */
 

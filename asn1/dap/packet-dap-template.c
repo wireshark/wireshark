@@ -66,7 +66,6 @@ void prefs_register_dap(void); /* forwad declaration for use in preferences regi
 /* Initialize the protocol and registered fields */
 int proto_dap = -1;
 
-static struct SESSION_DATA_STRUCTURE* session = NULL;
 
 #include "packet-dap-hf.c"
 
@@ -131,7 +130,6 @@ void proto_register_dap(void) {
 
 /*--- proto_reg_handoff_dap --- */
 void proto_reg_handoff_dap(void) {
-  dissector_handle_t handle = NULL;
 
   /* #include "packet-dap-dis-tab.c" */
 
