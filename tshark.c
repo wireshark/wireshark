@@ -185,6 +185,34 @@ static void read_failure_message(const char *filename, int err);
 
 capture_file cfile;
 
+/*
+ * Mark a particular frame.
+ * Copied from file.c
+ */
+void
+cf_mark_frame(capture_file *cf, frame_data *frame)
+{
+  if (! frame->flags.marked) {
+    frame->flags.marked = TRUE;
+    if (cf->count > cf->marked_count)
+      cf->marked_count++;
+  }
+}
+
+/*
+ * Unmark a particular frame.
+ * Copied from file.c
+ */
+void
+cf_unmark_frame(capture_file *cf, frame_data *frame)
+{
+  if (frame->flags.marked) {
+    frame->flags.marked = FALSE;
+    if (cf->marked_count > 0)
+      cf->marked_count--;
+  }
+}
+
 
 static void list_capture_types(void) {
     int i;

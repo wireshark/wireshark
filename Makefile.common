@@ -59,6 +59,7 @@ WIRESHARK_COMMON_SRC =	\
 	sync_pipe_write.c	\
 	timestats.c	\
 	util.c	\
+	tap-rtp-common.c	\
 	version_info.c
 
 # corresponding headers
@@ -83,6 +84,7 @@ WIRESHARK_COMMON_INCLUDES =	\
 	tempfile.h	\
 	timestats.h	\
 	util.h	\
+	tap-rtp-common.h	\
 	version_info.h
 
 # sources for TShark taps
@@ -106,6 +108,7 @@ TSHARK_TAP_SRC =	\
 	tap-radiusstat.c	\
 	tap-rpcstat.c	\
 	tap-rpcprogs.c	\
+	tap-rtp.c	\
 	tap-sctpchunkstat.c	\
 	tap-sipstat.c \
 	tap-smbsids.c	\
