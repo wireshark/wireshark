@@ -57,6 +57,9 @@ static int hf_btl2cap_status = -1;
 static int hf_btl2cap_rej_reason = -1;
 static int hf_btl2cap_sig_mtu = -1;
 static int hf_btl2cap_info_mtu = -1;
+static int hf_btl2cap_info_flowcontrol = -1;
+static int hf_btl2cap_info_retransmission = -1;
+static int hf_btl2cap_info_bidirqos = -1;
 static int hf_btl2cap_info_type = -1;
 static int hf_btl2cap_info_result = -1;
 static int hf_btl2cap_continuation_flag = -1;
@@ -73,6 +76,12 @@ static int hf_btl2cap_option_tokenbucketsize = -1;
 static int hf_btl2cap_option_peakbandwidth = -1;
 static int hf_btl2cap_option_latency = -1;
 static int hf_btl2cap_option_delayvariation = -1;
+static int hf_btl2cap_option_retransmissionmode = -1;
+static int hf_btl2cap_option_txwindow = -1;
+static int hf_btl2cap_option_maxtransmit = -1;
+static int hf_btl2cap_option_retransmittimeout = -1;
+static int hf_btl2cap_option_monitortimeout = -1;
+static int hf_btl2cap_option_mps = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
@@ -157,6 +166,7 @@ static const value_string reason_vals[] = {
 
 static const value_string info_type_vals[] = {
 	{ 0x0001, "Connectionless MTU" },
+	{ 0x0002, "Extended Features Mask" },
 	{ 0, NULL }
 };
 
@@ -177,9 +187,16 @@ static const value_string option_type_vals[] = {
 	{ 0x01, "Maximum Transmission Unit" },
 	{ 0x02, "Flush Timeout" },
 	{ 0x03, "Quality of Service" },
+	{ 0x04, "Retransmission and Flow Control" },
 	{ 0, NULL }
 };
 
+static const value_string option_retransmissionmode_vals[] = {
+	{ 0x00, "Basic Mode" },
+	{ 0x01, "Retransmission Mode" },
+	{ 0x02, "Flow Control Mode" },
+	{ 0, NULL }
+};
 
 static int 
 dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
@@ -240,13 +257,13 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 
 static int
-dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int length)
+dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length)
 {
 	proto_item *ti_option=NULL;
 	proto_tree *ti_option_subtree=NULL;
 	guint8 option_type, option_length;
 
-	if(length>0){
+	while(length>0){
 		option_type   = tvb_get_guint8(tvb, offset);
 		option_length = tvb_get_guint8(tvb, offset+1);
 
@@ -300,13 +317,35 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 				proto_item_append_text(ti_option, "QOS");
 				break;
 
+			case 0x04: /* Retransmission and Flow Control*/
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmissionmode, tvb, offset, 1, TRUE);
+				offset++;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_txwindow, tvb, offset, 1, TRUE);
+				offset++;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_maxtransmit, tvb, offset, 1, TRUE);
+				offset++;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmittimeout, tvb, offset, 2, TRUE);
+				offset+= 2;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_monitortimeout, tvb, offset, 2, TRUE);
+				offset+= 2;
+
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mps, tvb, offset, 2, TRUE);
+				offset+= 2;
+
+				proto_item_append_text(ti_option, "Retransmission and Flow Control");
+				break;
+
 			default:
 				proto_item_append_text(ti_option, "unknown");
-				offset+=tvb_length_remaining(tvb, offset);
+				offset+=option_length;
 				break;
 			}
 		}
-		offset+=dissect_options(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
+		length -= (option_length + 2);
 	}
 	return offset;
 }
@@ -314,7 +353,7 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
 {
 	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -323,7 +362,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		offset=dissect_options(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 4); 
 	}
 
 	return offset;
@@ -344,7 +383,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 {
 	guint16 info_type;
 
-	info_type=tvb_get_ntohs(tvb, offset);
+	info_type=tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, TRUE);
 	offset+=2;
 
@@ -356,6 +395,13 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 		case 0x0001: /* Connectionless MTU */
 			proto_tree_add_item(tree, hf_btl2cap_info_mtu, tvb, offset, 2, TRUE);
 			offset+=2;
+
+			break;
+		case 0x0002: /* Extended Features */
+			proto_tree_add_item(tree, hf_btl2cap_info_flowcontrol, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_btl2cap_info_retransmission, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_btl2cap_info_bidirqos, tvb, offset, 1, TRUE);
+			offset+=4;
 
 			break;
 		default:
@@ -370,7 +416,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 length)
 {
 	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
 	offset+=2;
@@ -382,7 +428,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
-		offset=dissect_options(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset)); 
+		offset=dissect_options(tvb, offset, pinfo, tree, length - 6); 
 	}
 
 	return offset;
@@ -500,7 +546,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident, tvb, offset, 1, TRUE);
 			offset++;
 
-			cmd_length=tvb_get_letohs(tvb, offset+2);
+			cmd_length=tvb_get_letohs(tvb, offset);
 			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_length, tvb, offset, 2, TRUE);
 			proto_item_set_len(ti_command, cmd_length+4);
 			offset+=2;
@@ -530,7 +576,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				break;
 			case 0x04: /* Configure Request */
-				offset=dissect_configrequest(tvb, offset, pinfo, btl2cap_cmd_tree);
+				offset=dissect_configrequest(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
 				proto_item_append_text(ti_command, "Configure Request");
 				if ((check_col(pinfo->cinfo, COL_INFO))){
 					col_append_str(pinfo->cinfo, COL_INFO, "Configure Request");
@@ -538,7 +584,7 @@ static void dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case 0x05: /* Configure Response */
-				offset=dissect_configresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
+				offset=dissect_configresponse(tvb, offset, pinfo, btl2cap_cmd_tree, cmd_length);
 				proto_item_append_text(ti_command, "Configure Response");
 				if ((check_col(pinfo->cinfo, COL_INFO))){
 					col_append_str(pinfo->cinfo, COL_INFO, "Configure Response");
@@ -747,6 +793,21 @@ proto_register_btl2cap(void)
 				FT_UINT16, BASE_DEC, NULL, 0x0,          
 				"Remote entitiys acceptable connectionless MTU", HFILL }
 		},
+		{ &hf_btl2cap_info_flowcontrol,
+			{ "Flow Control Mode",           "btl2cap.info_flowcontrol",
+				FT_UINT8, BASE_DEC, NULL, 0x01,
+				"Flow Control mode support", HFILL }
+		},
+		{ &hf_btl2cap_info_retransmission,
+			{ "Retransmission Mode",         "btl2cap.info_retransmission",
+				FT_UINT8, BASE_DEC, NULL, 0x02,
+				"Retransmission mode support", HFILL }
+		},
+		{ &hf_btl2cap_info_bidirqos,
+			{ "Bi-Directional QOS",          "btl2cap.info_bidirqos",
+				FT_UINT8, BASE_DEC, NULL, 0x04,
+				"Bi-Directional QOS support", HFILL }
+		},
 		{ &hf_btl2cap_info_type,
 			{ "Information Type",           "btl2cap.info_type",
 				FT_UINT16, BASE_HEX, VALS(info_type_vals), 0x0,          
@@ -821,6 +882,36 @@ proto_register_btl2cap(void)
 			{ "Delay Variation (microseconds)",           "btl2cap.option_dealyvar",
 				FT_UINT32, BASE_DEC, NULL, 0x0,          
 				"Difference between maximum and minimum delay (microseconds)", HFILL }
+		},
+		{ &hf_btl2cap_option_retransmissionmode,
+			{ "Mode",								"btl2cap.retransmissionmode",
+				FT_UINT8, BASE_HEX, VALS(option_retransmissionmode_vals), 0x0,
+				"Retransmission/Flow Control mode", HFILL }
+		},
+		{ &hf_btl2cap_option_txwindow,
+			{ "TxWindow",							"btl2cap.txwindow",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Retransmission window size", HFILL }
+		},
+		{ &hf_btl2cap_option_maxtransmit,
+			{ "MaxTransmit",						"btl2cap.maxtransmit",
+				FT_UINT8, BASE_DEC, NULL, 0x0,
+				"Maximum I-frame retransmissions", HFILL }
+		},
+		{ &hf_btl2cap_option_retransmittimeout,
+			{ "Retransmit timeout (ms)",			"btl2cap.retransmittimeout",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Retransmission timeout (milliseconds)", HFILL }
+		},
+		{ &hf_btl2cap_option_monitortimeout,
+			{ "Monitor Timeout (ms)",				"btl2cap.monitortimeout",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"S-frame transmission interval (milliseconds)", HFILL }
+		},
+		{ &hf_btl2cap_option_mps,
+			{ "MPS",								"btl2cap.mps",
+				FT_UINT16, BASE_DEC, NULL, 0x0,
+				"Maximum PDU Payload Size", HFILL }
 		},
 		{ &hf_btl2cap_option,
 			{ "Configuration Parameter Option",           "btl2cap.conf_param_option",
