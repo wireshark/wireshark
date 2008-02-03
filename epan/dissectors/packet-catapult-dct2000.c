@@ -327,7 +327,6 @@ static gboolean find_sctpprim_variant1_data_offset(tvbuff_t *tvb, int *data_offs
                     offset += 2;
                     continue;
 
-
                 case 0x09: /* ipv4Address */
                     *dest_addr_offset = offset;
                     *dest_addr_length = 4;
@@ -371,13 +370,13 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
         case 0x0400:  /* SendDataReq */
         case 0x6200:  /* DataInd */
             break;
+
         default:
             return FALSE;
     }
 
     /* Overall length field is next 2 bytes */
     offset += 2;
-
 
     /* Rx/Tx ops have different formats */
 
@@ -555,10 +554,11 @@ static gboolean find_sctpprim_variant3_data_offset(tvbuff_t *tvb, int *data_offs
 
 
 
-/* Look up dissector by protocol name.  Fix up known name mis-matches. */
+/* Look up dissector by protocol name.  Fix up known name mis-matches.
+   This includes exact matches and prefixes (e.g. "diameter_rx" -> "diameter") */
 dissector_handle_t look_for_dissector(char *protocol_name)
 {
-    /* Use known aliases... */
+    /* Use known aliases and protocol name prefixes */
     if (strcmp(protocol_name, "tbcp") == 0)
     {
         return find_dissector("rtcp");
@@ -623,11 +623,15 @@ dissector_handle_t look_for_dissector(char *protocol_name)
         return find_dissector("sabp");
     }
     else
-    if (strncmp(protocol_name, "wtp", strlen("wtp")) == 0)
+    if (strcmp(protocol_name, "wtp") == 0)
     {
         return find_dissector("wtp-udp");
     }
-
+    else
+    if (strncmp(protocol_name, "s1ap", strlen("s1ap")) == 0)
+    {
+        return find_dissector("s1ap");
+    }
 
     /* Try for an exact match */
     else
@@ -719,6 +723,8 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     }
     else
     {
+        /* Really shouldn't get here */
+        DISSECTOR_ASSERT_NOT_REACHED();
         return;
     }
 
@@ -924,44 +930,54 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Context Name */
     context_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
-                        offset, context_length, FALSE);
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
+                            offset, context_length, FALSE);
+    }
     offset += context_length;
 
     /* Context port number */
     port_number = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_port_number, tvb,
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_port_number, tvb,
                             offset, 1, FALSE);
+    }
     offset++;
 
     /* Timestamp in file */
     timestamp_start = offset;
     timestamp_length = tvb_strsize(tvb, offset);
-    proto_tree_add_double_format_value(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
-                                       offset, timestamp_length,
-                                       atof(tvb_format_text(tvb, offset, timestamp_length)),
-                                       "%s", tvb_format_text(tvb, offset, timestamp_length-1));
+    if (dct2000_tree) {
+        proto_tree_add_double_format_value(dct2000_tree, hf_catapult_dct2000_timestamp, tvb,
+                                           offset, timestamp_length,
+                                           atof(tvb_format_text(tvb, offset, timestamp_length)),
+                                           "%s", tvb_format_text(tvb, offset, timestamp_length-1));
+    }
     offset += timestamp_length;
 
 
     /* DCT2000 protocol name */
     protocol_start = offset;
     protocol_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
-                        offset, protocol_length, FALSE);
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
+                            offset, protocol_length, FALSE);
+    }
     offset += protocol_length;
 
     /* Protocol Variant */
     variant_start = offset;
     variant_length = tvb_strsize(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
-                        offset, variant_length, FALSE);
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
+                            offset, variant_length, FALSE);
+    }
     offset += variant_length;
 
     /* Outhdr (shown as string) */
     outhdr_start = offset;
     outhdr_length = tvb_strsize(tvb, offset);
-    if (outhdr_length > 1)
+    if ((outhdr_length > 1) && dct2000_tree)
     {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
                             offset, outhdr_length, FALSE);
@@ -971,16 +987,20 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Direction */
     direction = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_direction, tvb,
-                        offset, 1, FALSE);
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_direction, tvb,
+                            offset, 1, FALSE);
+    }
     offset++;
 
     /* Read frame encapsulation set by wiretap */
-    proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, FALSE);
+    if (dct2000_tree) {
+        proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_encap, tvb, offset, 1, FALSE);
+    }
     encap = tvb_get_guint8(tvb, offset);
     offset++;
 
-    if (tree)
+    if (dct2000_tree)
     {
         /* Set selection length of dct2000 tree */
         proto_item_set_len(dct2000_tree, offset);
@@ -1391,7 +1411,6 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             break;
 
-
         default:
             /* !! If get here, there is a mismatch between
                this dissector and the wiretap module catapult_dct2000.c !!
@@ -1401,7 +1420,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
 
-    /* Try appropriate dissector, if selected */
+    /* Try appropriate dissector, if one has been selected */
     if (protocol_handle != 0)
     {
         /* Dissect the remainder of the frame using chosen protocol handle */
@@ -1435,10 +1454,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else
     {
         /* Show number of dissected bytes */
-        proto_item *ti = proto_tree_add_uint(dct2000_tree,
-                                             hf_catapult_dct2000_dissected_length,
-                                             tvb, 0, 0, tvb_reported_length(tvb)-offset);
-        PROTO_ITEM_SET_GENERATED(ti);
+        if (dct2000_tree) {
+            proto_item *ti = proto_tree_add_uint(dct2000_tree,
+                                                 hf_catapult_dct2000_dissected_length,
+                                                 tvb, 0, 0, tvb_reported_length(tvb)-offset);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
     }
 }
 
@@ -1603,7 +1624,7 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_ipprim_conn_id,
             { "Conn Id",
               "dct2000.ipprim.conn-id", FT_UINT16, BASE_DEC, NULL, 0x0,
-              "IPPrim Connection ID", HFILL
+              "IPPrim TCP Connection ID", HFILL
             }
         },
 
