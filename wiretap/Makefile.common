@@ -79,6 +79,7 @@ NONGENERATED_HEADER_FILES = \
 	atm.h			\
 	ber.h			\
 	buffer.h		\
+	btsnoop.h		\
 	catapult_dct2000.h	\
 	commview.h		\
 	cosine.h		\
