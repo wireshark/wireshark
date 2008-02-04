@@ -1231,7 +1231,7 @@ main_save_window_geometry(GtkWidget *widget)
     }
 
     if (prefs.gui_geometry_save_size) {
-        recent.gui_geometry_main_width  = geom.width,
+        recent.gui_geometry_main_width  = geom.width;
         recent.gui_geometry_main_height = geom.height;
     }
 
