@@ -112,6 +112,8 @@ static const value_string vs_service_classes[] = {
 	{0x0019, "AVDTP"},
 	{0x001B, "CMPT"},
 	{0x001D, "UDI_C-Plane"},
+	{0x001E, "MCAPControlChannel"},
+	{0x001F, "MCAPDataChannel"},
 	{0x0100, "L2CAP"},
 	{0x1000, "ServiceDiscoveryServerServiceClassID"},
 	{0x1001, "BrowseGroupDescriptorServiceClassID"},
@@ -145,15 +147,6 @@ static const value_string vs_service_classes[] = {
 	{0x111B, "ImagingResponder"},
 	{0x111C, "ImagingAutomaticArchive"},
 	{0x111D, "ImagingReferencedObjects"},
-	{0x1115, "PANU"},
-	{0x1116, "NAP"},
-	{0x1117, "GN"},
-	{0x1118, "DirectPrinting"},
-	{0x1119, "ReferencePrinting"},
-	{0x111A, "Imaging"},
-	{0x111B, "ImagingResponder"},
-	{0x111C, "ImagingAutomaticArchive"},
-	{0x111D, "ImagingReferencedObjects"},
 	{0x111E, "Handsfree"},
 	{0x111F, "HandsfreeAudioGateway"},
 	{0x1120, "DirectPrintingReferenceObjectsService"},
@@ -170,6 +163,9 @@ static const value_string vs_service_classes[] = {
 	{0x112B, "UDI_TA"},
 	{0x112C, "Audio/Video"},
 	{0x112D, "SIM_Access"},
+	{0x112E, "PBAP client"},
+	{0x112F, "PBAP server"},
+	{0x1130, "PBAP"},
 	{0x1200, "PnPInformation"},
 	{0x1201, "GenericNetworking"},
 	{0x1202, "GenericFileTransfer"},
@@ -180,6 +176,12 @@ static const value_string vs_service_classes[] = {
 	{0x1300, "ESDP_UPNP_IP_PAN"},
 	{0x1301, "ESDP_UPNP_IP_LAP"},
 	{0x1302, "ESDP_UPNP_L2CAP"},
+	{0x1303, "VideoSource"},
+	{0x1304, "VideoSink"},
+	{0x1305, "VideoDistribution"},
+	{0x1400, "Medical Device Profile"},
+	{0x1401, "MDP Source"},
+	{0x1402, "MDP Sink"},
 	{0, NULL}
 };
 
@@ -265,6 +267,8 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset)
 	proto_item *ti;
 	proto_tree *st;
 	int start_offset, bytes_to_go;
+	guint16 id;
+	const char *att_name;
 
 	start_offset=offset;
 	ti = proto_tree_add_text(t, tvb, offset, 2, "AttributeIDList");
@@ -278,8 +282,9 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset)
 
 		if (byte0 == 0x09) { /* 16 bit attribute id */
 
-			proto_tree_add_text(st, tvb, offset, 3, "0x%04x",
-					    tvb_get_ntohs(tvb, offset + 1));
+			id = tvb_get_ntohs(tvb, offset+1);
+			att_name = val_to_str(id, vs_general_attribute_id, "Unknown");
+			proto_tree_add_text(st, tvb, offset, 3, "%s (0x%04x)", att_name, id);
 			offset+=3;
 			bytes_to_go-=3;
 		} else if (byte0 == 0x0a) { /* 32 bit attribute range */
