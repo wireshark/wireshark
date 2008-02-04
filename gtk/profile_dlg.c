@@ -211,6 +211,46 @@ fill_list(GtkWidget *main_w)
   return l_select;
 }
 
+static gboolean
+profile_is_invalid_name(gchar *name)
+{
+  gchar  *message = NULL;
+
+#ifdef _WIN32
+  char *invalid_dir_char = "\\/:*?\"<>|";
+  gboolean invalid = FALSE;
+  int i;
+
+  for (i = 0; i < 9; i++) {
+    if (strchr(name, invalid_dir_char[i])) {
+      /* Invalid character in directory */
+      invalid = TRUE;
+    }
+  }
+  if (name[0] == '.' || name[strlen(name)-1] == '.') {
+    /* Profile name cannot start or end with period */
+    invalid = TRUE;
+  }
+  if (invalid) {
+    message = g_strdup_printf("start or end with period (.), or contain any of the following characters:\n"
+			      "   \\ / : * ? \" &lt; &gt; |");
+  }
+#else
+  if (strchr(name, '/')) {
+    /* Invalid character in directory */
+    message = g_strdup_printf("contain the '/' character.");
+  }
+#endif
+
+  if (message) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "A profile name cannot %s\nProfiles unchanged.", message);
+    g_free(message);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
 static void
 profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 {
@@ -254,6 +294,19 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
   profile_def *profile1, *profile2;
   gboolean     found;
 
+  /* First validate all profile names */
+  fl1 = g_list_first(edited_profiles);
+  while (fl1) {
+    found = FALSE;
+    profile1 = (profile_def *) fl1->data;
+    g_strstrip(profile1->name);
+    if (profile_is_invalid_name(profile1->name)) {
+      return;
+    }
+    fl1 = g_list_next(fl1);
+  }
+
+  /* Then create new and rename changed */
   fl1 = g_list_first(edited_profiles);
   while (fl1) {
     found = FALSE;
@@ -293,7 +346,8 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
     }
     fl1 = g_list_next(fl1);
   }
-      
+
+  /* Last remove deleted */
   fl1 = g_list_first(current_profiles);
   while (fl1) {
     found = FALSE;
@@ -537,38 +591,12 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
       
       if (strlen(name) > 0 && profile) {
 	if (profile->status != PROF_STAT_DEFAULT) {
-	  gboolean revert = FALSE;
-#ifdef _WIN32
-	  char *invalid_dir_char = "\\/:*?\"<>|";
-	  int i;
-	  for (i = 0; i < 9; i++) {
-	    if (strchr(name, invalid_dir_char[i])) {
-	      /* Invalid character in directory */
-	      revert = TRUE;
-	    }
+	  g_free(profile->name);
+	  profile->name = g_strdup(name);
+	  if (profile->status != PROF_STAT_NEW) {
+	    profile->status = PROF_STAT_CHANGED;
 	  }
-#else
-	  if (strchr(name, '/')) {
-	    /* Invalid character in directory */
-	    revert = TRUE;
-	  }
-#endif
-	  if (name[0] == ' ') {
-	    /* Profile name cannot start with space */
-	    revert = TRUE;
-	  }
-	  if (revert) {
-	    gint pos = gtk_editable_get_position(GTK_EDITABLE(name_te));
-	    gtk_entry_set_text(GTK_ENTRY(name_te), profile->name);
-	    gtk_editable_set_position(GTK_EDITABLE(name_te), pos - 1);
-	  } else {
-	    g_free(profile->name);
-	    profile->name = g_strdup(name);
-	    if (profile->status != PROF_STAT_NEW) {
-	      profile->status = PROF_STAT_CHANGED;
-	    }
-	    gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, name, -1);
-	  }
+	  gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, name, -1);
 	}
       }
     }
@@ -752,9 +780,9 @@ profile_dialog_new(void)
   OBJECT_SET_DATA(main_w, E_PROF_NAME_TE_KEY, name_te);
   SIGNAL_CONNECT(name_te, "changed", profile_name_te_changed_cb, NULL);
 #ifdef _WIN32
-  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start with a space, and cannot contain any of the following characters:\n  \\ / : * ? \" < > |", NULL);
+  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |", NULL);
 #else
-  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start with a space or contain '/'", NULL);
+  gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot contain the '/' character", NULL);
 #endif
   gtk_widget_show(name_te);
 

@@ -1054,6 +1054,15 @@ standard libpcap format.
 	    same name, only one profile will be created.
 	  </para>
 	  </note>
+	  <note><title>Note!</title>
+	  <para>
+	    On Windows the profile name cannot start or end with a period (.), and cannot contain
+	    any of the following characters: <command>\ / : * ? " &lt; &gt; |</command>
+	  </para>
+	  <para>
+	    On Unix the profile name cannot contain the '<command>/</command>' character.
+	  </para>
+	  </note>
 	</listitem>
 	</varlistentry>
 	<varlistentry><term><command>OK</command></term>
