@@ -1024,7 +1024,7 @@ usage (void)
             "      <output-filename> specifies output filename (use - for standard output)\n"
             "\n"
             "Input:\n"
-            "  -o hex|oct             parse offsets as (h)ex or (o)ctal, default is hex\n"
+            "  -o hex|oct|dec         parse offsets as (h)ex, (o)ctal or (d)ecimal, default is hex\n"
             "  -t <timefmt>           treats the text before the packet as a date/time code;\n"
             "                         the specified argument is a format string of the sort \n"
             "                         supported by strptime.\n"
@@ -1096,11 +1096,15 @@ parse_options (int argc, char *argv[])
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
         case 'm': max_offset = strtol(optarg, NULL, 0); break;
         case 'o':
-            if (optarg[0]!='h' && optarg[0] != 'o') {
+            if (optarg[0]!='h' && optarg[0] != 'o' && optarg[0] != 'd') {
                 fprintf(stderr, "Bad argument for '-o': %s\n", optarg);
                 usage();
             }
-            offset_base = (optarg[0]=='o') ? 8 : 16;
+			switch(optarg[0]) {
+			case 'o': offset_base = 8; break;
+			case 'h': offset_base = 16; break;
+			case 'd': offset_base = 10; break;
+			}
             break;
         case 'e':
             hdr_ethernet = TRUE;
