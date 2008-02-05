@@ -290,21 +290,19 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		for (r=0; r < row_count;r++) {
 			for (c=0;(c < global_disp_col_count) && (((r*global_disp_col_count)+c) < ui);c++) {
 				if ((c % (global_disp_col_count/2)) == 0) {
-					sprintf(ptr, " ");
-					ptr++;
+					ptr += g_snprintf(ptr, sizeof string - strlen(string), " ");
 				}
 				v = dmx_data[(r*global_disp_col_count)+c];
 				if (global_disp_chan_val_type == 0) {
 					v = (v * 100) / 255;
 					if (v == 100) {
-						sprintf(ptr, "FL ");
+						ptr += g_snprintf(ptr, sizeof string - strlen(string), "FL ");
 					} else {
-						sprintf(ptr, chan_format[global_disp_chan_val_type], v);
+						ptr += g_snprintf(ptr, sizeof string - strlen(string), chan_format[global_disp_chan_val_type], v);
 					}
 				} else {
-					sprintf(ptr, chan_format[global_disp_chan_val_type], v);
+					ptr += g_snprintf(ptr, sizeof string - strlen(string), chan_format[global_disp_chan_val_type], v);
 				}
-				ptr += strlen(ptr);
 			}
 
 			start_offset = dmx_data_offset[(r*global_disp_col_count)];

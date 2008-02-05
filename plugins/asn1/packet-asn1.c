@@ -572,7 +572,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 			for (i=0; i<len; i++) {
 				p += sprintf(p, "%2.2X", octets[i]);
 			}
-			strcpy(p, endstr);
+			strncpy(p, endstr, len*2 + 5);
 		} else {
 			if (len <= hexlen) { /* show both hex and ascii, assume hexlen < MAX_OTSLEN */
 				str = p = g_malloc(len*3+2);
@@ -586,7 +586,7 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 				/* g_strdup_printf("%*s%s", len, octets, endstr) does not work ?? */
 				str = g_malloc(len+5);
 				strncpy(str, octets, len);
-				strcpy(&str[len], endstr);
+				strncpy(&str[len], endstr, 5);
 			}
 		}
 	}
@@ -3311,7 +3311,7 @@ PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 			}
 		}
 	} else {
-		strcpy(txt, "no info available");
+		strncpy(txt, "no info available", 20);
 	}
 
 	return;

@@ -326,11 +326,11 @@ static int convert_oid_to_str(guint32 *oid, int len, char* str, int slen, char p
 	if(slen < len) return 0;
 
 	if(prefix) {
-		tlen+= sprintf(str,".1.3.6.1.%d",prefix);
+		tlen += g_snprintf(str,slen,".1.3.6.1.%d",prefix);
 	}
 
 	for(i=0; i < len && tlen < slen; i++) {
-		tlen += sprintf(str+tlen,".%d",oid[i]);
+		tlen += g_snprintf(str+tlen,slen-tlen,".%d",oid[i]);
 	}
 	return tlen;
 }

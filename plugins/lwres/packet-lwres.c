@@ -315,7 +315,7 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	break;
 
       default:
-	strcpy(name, "<Unknown extended label>");
+	strncpy(name, "<Unknown extended label>", maxname);
 	/* Parsing will propably fail from here on, since the */
 	/* label length is unknown... */
 	len = offset - start_offset;
@@ -345,7 +345,7 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
          will make us look at some character again, which means we're
 	 looping. */
       if (chars_processed >= data_size) {
-        strcpy(name, "<Name contains a pointer that loops>");
+        strncpy(name, "<Name contains a pointer that loops>", maxname);
         if (len < min_len)
           THROW(ReportedBoundsError);
         return len;
@@ -363,7 +363,7 @@ lwres_get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
     len = offset - start_offset;
   /* Zero-length name means "root server" */
   if (*name == '\0')
-    strcpy(name, "<Root>");
+    strncpy(name, "<Root>", maxname);
   if (len < min_len)
     THROW(ReportedBoundsError);
   return len;

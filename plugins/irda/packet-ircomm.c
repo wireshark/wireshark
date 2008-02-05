@@ -188,9 +188,9 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 
 
         if (len > 0)
-            sprintf(buf, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
+            g_snprintf(buf, 128, "Clen=%d, UserData: %d byte%s", clen, len, (len > 1)? "s": "");
         else
-            sprintf(buf, "Clen=%d", clen);
+            g_snprintf(buf, 128, "Clen=%d", clen);
         col_add_str(pinfo->cinfo, COL_INFO, buf);
     }
 
@@ -238,8 +238,7 @@ static void dissect_raw_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     {
         char    buf[128];
 
-
-        sprintf(buf, "User Data: %d byte%s", len, (len > 1)? "s": "");
+        g_snprintf(buf, 128, "User Data: %d byte%s", len, (len > 1)? "s": "");
         col_add_str(pinfo->cinfo, COL_INFO, buf);
     }
 
@@ -293,15 +292,15 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
 
                     pv = tvb_get_guint8(tvb, offset+2);
                     if (pv & IRCOMM_3_WIRE_RAW)
-                        strcat(buf, ", 3-Wire raw");
+                        strncat(buf, ", 3-Wire raw", 256 - strlen(buf));
                     if (pv & IRCOMM_3_WIRE)
-                        strcat(buf, ", 3-Wire");
+                        strncat(buf, ", 3-Wire", 256 - strlen(buf));
                     if (pv & IRCOMM_9_WIRE)
-                        strcat(buf, ", 9-Wire");
+                        strncat(buf, ", 9-Wire", 256 - strlen(buf));
                     if (pv & IRCOMM_CENTRONICS)
-                        strcat(buf, ", Centronics");
+                        strncat(buf, ", Centronics", 256 - strlen(buf));
 
-                    strcat(buf, ")");
+                    strncat(buf, ")", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -312,11 +311,11 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
 
                     pv = tvb_get_guint8(tvb, offset+2);
                     if (pv & IRCOMM_SERIAL)
-                        strcat(buf, ", serial");
+                        strncat(buf, ", serial", 256 - strlen(buf));
                     if (pv & IRCOMM_PARALLEL)
-                        strcat(buf, ", parallel");
+                        strncat(buf, ", parallel", 256 - strlen(buf));
 
-                    strcat(buf, ")");
+                    strncat(buf, ")", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 

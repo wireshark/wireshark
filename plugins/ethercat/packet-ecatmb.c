@@ -550,19 +550,19 @@ static void SoeFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax, gui
          SoEIdToString(tmp, soe.anSoeHeaderDataUnion.IDN, sizeof(tmp)-1);
          elm[0] = 0;
          if ( soe.anSoeHeaderControlUnion.v.DataState )
-            strcat(elm, "D");
+            strncat(elm, "D", 2);
          if ( soe.anSoeHeaderControlUnion.v.Name )
-            strcat(elm, "N");
+            strncat(elm, "N", 2);
          if ( soe.anSoeHeaderControlUnion.v.Attribute )
-            strcat(elm, "A");
+            strncat(elm, "A", 2);
          if ( soe.anSoeHeaderControlUnion.v.Unit )
-            strcat(elm, "U");
+            strncat(elm, "U", 2);
          if ( soe.anSoeHeaderControlUnion.v.Min )
-            strcat(elm, "I");
+            strncat(elm, "I", 2);
          if ( soe.anSoeHeaderControlUnion.v.Max )
-            strcat(elm, "X");
+            strncat(elm, "X", 2);
          if ( soe.anSoeHeaderControlUnion.v.Value )
-            strcat(elm, "V");
+            strncat(elm, "V", 2);
          switch ( soe.anSoeHeaderControlUnion.v.OpCode )
          {
          case ECAT_SOE_OPCODE_RRQ:

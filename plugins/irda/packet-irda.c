@@ -477,7 +477,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
         char    buf[128];
 
 
-        sprintf(buf, ", Credit=%d", head & ~TTP_PARAMETERS);
+        g_snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
         col_append_str(pinfo->cinfo, COL_INFO, buf);
     }
 
@@ -745,25 +745,25 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
             case GET_VALUE_BY_CLASS:
                 if (retcode == 0)
                 {
+                    guint8 *string;
                     switch (tvb_get_guint8(tvb, offset + 6))
                     {
                         case IAS_MISSING:
-                            strcpy(buf, ", Missing");
+                            g_snprintf(buf, 300, ", Missing");
                             break;
 
                         case IAS_INTEGER:
-                            sprintf(buf, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
+                            g_snprintf(buf, 300, ", Integer: %d", tvb_get_ntohl(tvb, offset + 7));
                             break;
 
                         case IAS_OCT_SEQ:
-                            sprintf(buf, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
+                            g_snprintf(buf, 300, ", %d Octets", tvb_get_ntohs(tvb, offset + 7));
                             break;
 
                         case IAS_STRING:
-                            strcpy(buf, ", \"");
                             n = tvb_get_guint8(tvb, offset + 8);
-                            tvb_memcpy(tvb, buf + 3, offset + 9, n);
-                            strcpy(buf + 3 + n, "\"");
+                            string = tvb_get_ephemeral_string(tvb, offset + 9, n);
+                            g_snprintf(buf, 300, ", \"%s\"", string);
                             break;
                     }
                     col_append_str(pinfo->cinfo, COL_INFO, buf);
@@ -1303,25 +1303,25 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Baud Rate (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 2400");
+                        strncat(buf, ", 2400", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 9600");
+                        strncat(buf, ", 9600", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 19200");
+                        strncat(buf, ", 19200", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 38400");
+                        strncat(buf, ", 38400", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 57600");
+                        strncat(buf, ", 57600", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 115200");
+                        strncat(buf, ", 115200", 256 - strlen(buf));
                     if (pv & 0x40)
-                        strcat(buf, ", 576000");
+                        strncat(buf, ", 576000", 256 - strlen(buf));
                     if (pv & 0x80)
-                        strcat(buf, ", 1152000");
+                        strncat(buf, ", 1152000", 256 - strlen(buf));
                     if ((p_len > 1) && (tvb_get_guint8(tvb, offset+3) & 0x01))
-                        strcat(buf, ", 4000000");
+                        strncat(buf, ", 4000000", 256 - strlen(buf));
 
-                    strcat(buf, " bps)");
+                    strncat(buf, " bps)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1331,15 +1331,15 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Maximum Turn Time (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 500");
+                        strncat(buf, ", 500", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 250");
+                        strncat(buf, ", 250", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 100");
+                        strncat(buf, ", 100", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 50");
+                        strncat(buf, ", 50", 256 - strlen(buf));
 
-                    strcat(buf, " ms)");
+                    strncat(buf, " ms)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1349,19 +1349,19 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Data Size (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 64");
+                        strncat(buf, ", 64", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 128");
+                        strncat(buf, ", 128", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 256");
+                        strncat(buf, ", 256", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 512");
+                        strncat(buf, ", 512", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 1024");
+                        strncat(buf, ", 1024", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 2048");
+                        strncat(buf, ", 2048", 256 - strlen(buf));
 
-                    strcat(buf, " bytes)");
+                    strncat(buf, " bytes)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1371,21 +1371,21 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Window Size (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 1");
+                        strncat(buf, ", 1", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 2");
+                        strncat(buf, ", 2", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 3");
+                        strncat(buf, ", 3", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 4");
+                        strncat(buf, ", 4", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 5");
+                        strncat(buf, ", 5", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 6");
+                        strncat(buf, ", 6", 256 - strlen(buf));
                     if (pv & 0x40)
-                        strcat(buf, ", 7");
+                        strncat(buf, ", 7", 256 - strlen(buf));
 
-                    strcat(buf, " frame window)");
+                    strncat(buf, " frame window)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1395,23 +1395,23 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Additional BOFs (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 48");
+                        strncat(buf, ", 48", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 24");
+                        strncat(buf, ", 24", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 12");
+                        strncat(buf, ", 12", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 5");
+                        strncat(buf, ", 5", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 3");
+                        strncat(buf, ", 3", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 2");
+                        strncat(buf, ", 2", 256 - strlen(buf));
                     if (pv & 0x40)
-                        strcat(buf, ", 1");
+                        strncat(buf, ", 1", 256 - strlen(buf));
                     if (pv & 0x80)
-                        strcat(buf, ", 0");
+                        strncat(buf, ", 0", 256 - strlen(buf));
 
-                    strcat(buf, " additional BOFs at 115200)");
+                    strncat(buf, " additional BOFs at 115200)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1421,23 +1421,23 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Minimum Turn Time (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 10");
+                        strncat(buf, ", 10", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 5");
+                        strncat(buf, ", 5", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 1");
+                        strncat(buf, ", 1", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 0.5");
+                        strncat(buf, ", 0.5", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 0.1");
+                        strncat(buf, ", 0.1", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 0.05");
+                        strncat(buf, ", 0.05", 256 - strlen(buf));
                     if (pv & 0x40)
-                        strcat(buf, ", 0.01");
+                        strncat(buf, ", 0.01", 256 - strlen(buf));
                     if (pv & 0x80)
-                        strcat(buf, ", 0");
+                        strncat(buf, ", 0", 256 - strlen(buf));
 
-                    strcat(buf, " ms)");
+                    strncat(buf, " ms)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1447,23 +1447,23 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
                     proto_item_append_text(ti, ": Link Disconnect/Threshold Time (");
 
                     if (pv & 0x01)
-                        strcat(buf, ", 3/0");
+                        strncat(buf, ", 3/0", 256 - strlen(buf));
                     if (pv & 0x02)
-                        strcat(buf, ", 8/3");
+                        strncat(buf, ", 8/3", 256 - strlen(buf));
                     if (pv & 0x04)
-                        strcat(buf, ", 12/3");
+                        strncat(buf, ", 12/3", 256 - strlen(buf));
                     if (pv & 0x08)
-                        strcat(buf, ", 16/3");
+                        strncat(buf, ", 16/3", 256 - strlen(buf));
                     if (pv & 0x10)
-                        strcat(buf, ", 20/3");
+                        strncat(buf, ", 20/3", 256 - strlen(buf));
                     if (pv & 0x20)
-                        strcat(buf, ", 25/3");
+                        strncat(buf, ", 25/3", 256 - strlen(buf));
                     if (pv & 0x40)
-                        strcat(buf, ", 30/3");
+                        strncat(buf, ", 30/3", 256 - strlen(buf));
                     if (pv & 0x80)
-                        strcat(buf, ", 40/3");
+                        strncat(buf, ", 40/3", 256 - strlen(buf));
 
-                    strcat(buf, " s)");
+                    strncat(buf, " s)", 256 - strlen(buf));
 
                     proto_item_append_text(ti, buf+2);
 
@@ -1592,29 +1592,29 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 service_hints[0] = 0;
 
                 if (hint1 & 0x01)                
-                    strcat(service_hints, ", PnP Compatible");
+                    strncat(service_hints, ", PnP Compatible", 256 - strlen(service_hints));
                 if (hint1 & 0x02)
-                    strcat(service_hints, ", PDA/Palmtop");
+                    strncat(service_hints, ", PDA/Palmtop", 256 - strlen(service_hints));
                 if (hint1 & 0x04)
-                    strcat(service_hints, ", Computer");
+                    strncat(service_hints, ", Computer", 256 - strlen(service_hints));
                 if (hint1 & 0x08)
-                    strcat(service_hints, ", Printer");
+                    strncat(service_hints, ", Printer", 256 - strlen(service_hints));
                 if (hint1 & 0x10)
-                    strcat(service_hints, ", Modem");
+                    strncat(service_hints, ", Modem", 256 - strlen(service_hints));
                 if (hint1 & 0x20)
-                    strcat(service_hints, ", Fax");
+                    strncat(service_hints, ", Fax", 256 - strlen(service_hints));
                 if (hint1 & 0x40)
-                    strcat(service_hints, ", LAN Access");
+                    strncat(service_hints, ", LAN Access", 256 - strlen(service_hints));
                 if (hint2 & 0x01)
-                    strcat(service_hints, ", Telephony");
+                    strncat(service_hints, ", Telephony", 256 - strlen(service_hints));
                 if (hint2 & 0x02)
-                    strcat(service_hints, ", File Server");
+                    strncat(service_hints, ", File Server", 256 - strlen(service_hints));
                 if (hint2 & 0x04)
-                    strcat(service_hints, ", IrCOMM");
+                    strncat(service_hints, ", IrCOMM", 256 - strlen(service_hints));
                 if (hint2 & 0x20)
-                    strcat(service_hints, ", OBEX");
+                    strncat(service_hints, ", OBEX", 256 - strlen(service_hints));
 
-                strcat(service_hints, ")");
+                strncat(service_hints, ")", 256 - strlen(service_hints));
                 service_hints[0] = ' ';
                 service_hints[1] = '(';
 

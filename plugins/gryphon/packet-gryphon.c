@@ -937,11 +937,11 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
     length =  tvb_get_guint8(tvb, offset+4) + tvb_get_guint8(tvb, offset+5)
 	+ tvb_get_ntohs(tvb, offset+6);
     if (flag)
-    	strcpy (mode, "Pass");
+       strncpy (mode, "Pass", 10);
     else
-    	strcpy (mode, "Block");
+       strncpy (mode, "Block", 10);
     if (length == 0)
-    	strcat (mode, " all");
+       strncat (mode, " all", 10);
     proto_tree_add_text(pt, tvb, offset, 4, "Pass/Block flag: %s", mode);
     proto_tree_add_text(pt, tvb, offset+4, 4, "Length of Pattern & Mask: %d", length);
     offset += 8;
@@ -2197,21 +2197,21 @@ blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
     switch (x) {
     case 0:
     	mode = "Off";
-	sprintf (line, "reserved");
+	g_snprintf (line, 50, "reserved");
     	break;
     case 1:
     	mode = "Average over time";
 	seconds = y / 1000;
 	y = y % 1000;
-	sprintf (line, "Averaging period: %d.%03d seconds", seconds, y);
+	g_snprintf (line, 50, "Averaging period: %d.%03d seconds", seconds, y);
     	break;
     case 2:
     	mode = "Average over frame count";
-	sprintf (line, "Averaging period: %d frames", y);
+	g_snprintf (line, 50, "Averaging period: %d frames", y);
     	break;
     default:
     	mode = "- unknown -";
-	sprintf (line, "reserved");
+	g_snprintf (line, 50, "reserved");
     }
     proto_tree_add_text(pt, tvb, offset, 4, "Mode: %s", mode);
     offset += 4;
