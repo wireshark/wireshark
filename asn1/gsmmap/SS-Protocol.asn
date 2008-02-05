@@ -1,6 +1,8 @@
 -- $Id$
+-- 3GPP TS 24.080 V7.4.0 (2007-09)
 -- 4.5	Operations and errors implementation
 -- For the actual implementation of supplementary services, operations and errors have to be defined by value. The following ASN.1 module, imports operation from the ASN.1 module described in subclause 4.2 and operations and errors from MAP. 
+
 SS-Protocol {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Access (2) modules (3) ss-Protocol (3) version10 (10)}

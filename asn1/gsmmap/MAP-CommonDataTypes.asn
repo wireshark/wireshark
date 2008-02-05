@@ -1,6 +1,7 @@
 -- $Id$
+-- 3GPP TS 29.002 V8.4.0 (2007-12)
 -- 17.7.8	Common data types
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -66,9 +67,8 @@ AccessNetworkSignalInfo,
 	LCSClientExternalID,
 	LCSClientInternalID,
 	LCSServiceTypeID,
--- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
-ProtocolId
-;
+-- WS added exports needed by gsmmap.asn (extra asn1 file to handle older prot. ver.)
+	ProtocolId;
 
 IMPORTS
 	TeleserviceCode,
@@ -159,8 +159,7 @@ maxISDN-AddressLength  INTEGER ::= 9
 FTN-AddressString ::= 
 			AddressString (SIZE (1..maxFTN-AddressLength))
 	-- This type is used to represent forwarded-to numbers. 
-	-- For long forwarded-to numbers (longer than 15 digits) NPI shall be unknown;
-	-- if NAI = international the first digits represent the country code (CC)
+	-- If NAI = international the first digits represent the country code (CC)
 	-- and the network destination code (NDC) as for E.164.
 
 maxFTN-AddressLength  INTEGER ::= 15
@@ -374,7 +373,8 @@ AdditionalNetworkResource ::= ENUMERATED {
 	gsmSCF (3),
 	nplr (4),
 	auc (5),
-	...}
+	... ,
+	ue (6)}
 	-- if unknown value is received in AdditionalNetworkResource
 	-- it shall be ignored.
 

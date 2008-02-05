@@ -1,6 +1,7 @@
 -- $Id$
---17.7.5	Supplementary service codes
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+-- 3GPP TS 29.002 V8.4.0 (2007-12)
+-- 17.7.5	Supplementary service codes
+
 MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-SS-Code (15) version11 (11)}
@@ -81,6 +82,8 @@ hold				SS-Code ::= '01000010'B
 	-- call hold
 ccbs-A			SS-Code ::= '01000011'B
 	-- completion of call to busy subscribers, originating side
+	-- this SS-Code is used only in InsertSubscriberData, DeleteSubscriberData 
+	-- and InterrogateSS
 ccbs-B			SS-Code ::= '01000100'B
 	-- completion of call to busy subscribers, destination side
 	-- this SS-Code is used only in InsertSubscriberData and DeleteSubscriberData

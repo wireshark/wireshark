@@ -1,6 +1,7 @@
 -- $Id$
+-- 3GPP TS 29.002 V8.4.0 (2007-12) 
 -- 17.7.7	Error data types
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ER-DataTypes (17) version11 (11)}
@@ -187,7 +188,14 @@ ExtensibleSystemFailureParam ::= SEQUENCE {
 	networkResource	NetworkResource	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	additionalNetworkResource	[0] AdditionalNetworkResource	OPTIONAL }
+	additionalNetworkResource	[0] AdditionalNetworkResource	OPTIONAL,
+	failureCauseParam	[1] FailureCauseParam	OPTIONAL }
+
+FailureCauseParam ::= ENUMERATED {
+	limitReachedOnNumberOfConcurrentLocationRequests (0),
+	... }
+	-- if unknown value is received in FailureCauseParam it shall be ignored
+
 
 DataMissingParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,

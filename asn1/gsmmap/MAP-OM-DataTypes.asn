@@ -1,6 +1,7 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+-- 3GPP TS 29.002 V8.4.0 (2007-12)
+ 
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-OM-DataTypes (12) version11 (11)}

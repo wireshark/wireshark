@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+-- 3GPP TS 29.002 V8.4.0 (2007-12) 
 -- 17.7.1	Mobile Service data types
 
 MAP-MS-DataTypes {
@@ -64,7 +64,8 @@ AuthenticationFailureReportRes,
 	DeleteSubscriberDataArg,
 	DeleteSubscriberDataRes,
 	Ext-QoS-Subscribed,
-	Ext2-QoS-Subscribed,
+	Ext2-QoS-Subscribed, 
+	Ext3-QoS-Subscribed,
 	SubscriberData,
 	ODB-Data,
 	SubscriberStatus,
@@ -942,8 +943,10 @@ PDP-Context ::= SEQUENCE {
 	... ,
 	ext-QoS-Subscribed	[0] Ext-QoS-Subscribed	OPTIONAL, 
 	pdp-ChargingCharacteristics	[1] ChargingCharacteristics	OPTIONAL,
-	ext2-QoS-Subscribed	[2] Ext2-QoS-Subscribed	OPTIONAL
+	ext2-QoS-Subscribed	[2] Ext2-QoS-Subscribed	OPTIONAL,
 	-- ext2-QoS-Subscribed may be present only if ext-QoS-Subscribed is present.
+	ext3-QoS-Subscribed	[3] Ext3-QoS-Subscribed	OPTIONAL
+	-- ext3-QoS-Subscribed may be present only if ext2-QoS-Subscribed is present.
 	 }
 
 ContextId ::= INTEGER (1..maxNumOfPDP-Contexts)
@@ -1043,6 +1046,9 @@ Ext2-QoS-Subscribed ::= OCTET STRING (SIZE (1..3))
 	-- Octets 1-3 are coded according to 3GPP TS 24.008 [35] Quality of Service Octets 14-16.
 	-- If Quality of Service information is structured with 14 octet length, then
 	-- Octet 1 is coded according to 3GPP TS 24.008 [35] Quality of Service Octet 14.
+
+Ext3-QoS-Subscribed ::= OCTET STRING (SIZE (1..2))
+	-- Octets 1-2 are coded according to 3GPP TS 24.008 [35] Quality of Service Octets 17-18.
 
 ChargingCharacteristics ::= OCTET STRING (SIZE (2))
 	-- Octets are coded according to 3GPP TS 32.215.
@@ -2253,9 +2259,15 @@ PDP-ContextInfo ::= SEQUENCE {
 	-- qos2-Subscribed may be present only if qos-Subscribed is present.
 	qos2-Requested	[19] Ext2-QoS-Subscribed	OPTIONAL,
 	-- qos2-Requested may be present only if qos-Requested is present.
-	qos2-Negotiated	[20] Ext2-QoS-Subscribed	OPTIONAL
+	qos2-Negotiated	[20] Ext2-QoS-Subscribed	OPTIONAL,
 	-- qos2-Negotiated may be present only if qos-Negotiated is present.
-	}
+		qos3-Subscribed	[21] Ext3-QoS-Subscribed	OPTIONAL,
+	-- qos3-Subscribed may be present only if qos2-Subscribed is present.
+	qos3-Requested	[22] Ext3-QoS-Subscribed	OPTIONAL,
+	-- qos3-Requested may be present only if qos2-Requested is present.
+	qos3-Negotiated	[23] Ext3-QoS-Subscribed	OPTIONAL
+	-- qos3-Negotiated may be present only if qos2-Negotiated is present.
+}
 
 NSAPI ::= INTEGER (0..15)
 --	This type is used to indicate the Network layer Service Access Point

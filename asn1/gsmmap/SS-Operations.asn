@@ -1,4 +1,6 @@
 -- $Id$
+-- 3GPP TS 24.080 V7.4.0 (2007-09)
+-- 4.2	Operation types
 SS-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
    ss-Operations (0) version10 (10)}

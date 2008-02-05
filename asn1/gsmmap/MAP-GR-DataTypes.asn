@@ -1,7 +1,7 @@
 -- $Id$
 --
--- Taken from 3GPP TS 29.002 V8.1.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-810.zip/29002-810.doc
+-- Taken from 3GPP TS 29.002 V8.4.0 (2007-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-840.zip/29002-840.doc
 --
 --17.7.12	Group Call data types
  
@@ -35,7 +35,8 @@ IMPORTS
 	EMLPP-Priority,
 	ASCI-CallReference,
 	SignalInfo,
-	GlobalCellId
+	GlobalCellId,
+	AccessNetworkSignalInfo
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -75,7 +76,8 @@ PrepareGroupCallArg ::= SEQUENCE {
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
 	...,
 	vstk			[5] VSTK		OPTIONAL,
-	vstk-rand		[6] VSTK-RAND	OPTIONAL }
+	vstk-rand		[6] VSTK-RAND	OPTIONAL,
+	talkerChannelParameter	[7] NULL		OPTIONAL }
 
 VSTK ::= OCTET STRING (SIZE (16))
 
@@ -118,7 +120,7 @@ ForwardGroupCallSignallingArg ::= SEQUENCE {
 	additionalInfo	[7] AdditionalInfo	OPTIONAL,
 	emergencyModeResetCommandFlag	[8] NULL		OPTIONAL,
 	sm-RP-UI		[9] SignalInfo	OPTIONAL,
-	notificationData	[10] SignalInfo	OPTIONAL
+	an-APDU	[10] AccessNetworkSignalInfo	OPTIONAL
  }
 
 ProcessGroupCallSignallingArg ::= SEQUENCE {
@@ -130,7 +132,7 @@ ProcessGroupCallSignallingArg ::= SEQUENCE {
 	talkerPriority	[3] TalkerPriority	OPTIONAL,
 	additionalInfo	[4] AdditionalInfo	OPTIONAL,
 	emergencyModeResetCommandFlag	[5] NULL		OPTIONAL,
-	notificationData	[6] SignalInfo	OPTIONAL }
+	an-APDU	[6] AccessNetworkSignalInfo	OPTIONAL }
 
 GroupKeyNumber ::= INTEGER (0..15)
 

@@ -1,6 +1,7 @@
 -- $Id$
+-- 3GPP TS 29.002 V8.4.0 (2007-12)
 -- 17.7.3	Call handling data types
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+ 
 MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CH-DataTypes (13) version11 (11)}
@@ -38,8 +39,7 @@ ReleaseResourcesArg,
 ReleaseResourcesRes,
 -- WS added exports needed by gsmmap.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
-CUG-CheckInfo
-;
+CUG-CheckInfo;
 
 IMPORTS
 	SubscriberInfo,
@@ -123,7 +123,8 @@ SendRoutingInfoArg ::= SEQUENCE {
 	gsmSCF-InitiatedCall	[24]	NULL		OPTIONAL,
 	basicServiceGroup2	[25] Ext-BasicServiceCode	OPTIONAL,
 	networkSignalInfo2	[26] ExternalSignalInfo	OPTIONAL,
-	suppressMTSS	[27] SuppressMTSS	OPTIONAL
+	suppressMTSS	[27] SuppressMTSS	OPTIONAL,
+	mtRoamingRetrySupported	[28] NULL		OPTIONAL
 	 }
 
 SuppressionOfAnnouncement ::= NULL
@@ -250,7 +251,8 @@ ProvideRoamingNumberArg ::= SEQUENCE {
 	pre-pagingSupported	[17] NULL		OPTIONAL,
 	longFTN-Supported	[18]	NULL		OPTIONAL,
 	suppress-VT-CSI	[19]	NULL		OPTIONAL,
-	offeredCamel4CSIsInInterrogatingNode	[20] OfferedCamel4CSIs	OPTIONAL
+	offeredCamel4CSIsInInterrogatingNode	[20] OfferedCamel4CSIs	OPTIONAL,
+	mtRoamingRetrySupported	[21] NULL		OPTIONAL
 	 }
 
 ProvideRoamingNumberRes ::= SEQUENCE {
@@ -274,7 +276,8 @@ ResumeCallHandlingArg ::= SEQUENCE {
 	...,
 	d-csi		[12]	D-CSI	OPTIONAL,
 	o-BcsmCamelTDPCriteriaList 	[13]	O-BcsmCamelTDPCriteriaList 	OPTIONAL,
-	basicServiceGroup2	[14] Ext-BasicServiceCode	OPTIONAL
+	basicServiceGroup2	[14] Ext-BasicServiceCode	OPTIONAL,
+	mtRoamingRetry	[15] NULL		OPTIONAL
 	 }
 
 UU-Data ::= SEQUENCE {

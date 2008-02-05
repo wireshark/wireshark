@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.002 V8.1.0 (2007-03) 
+-- 3GPP TS 29.002 V8.4.0 (2007-12) 
 -- 17.4	MAP Dialogue Information
 
 MAP-DialogueInformation {
@@ -126,3 +126,4 @@ MAP-ProviderAbortReason ::= ENUMERATED {
 	invalidPDU  (1)}
 
 END
+

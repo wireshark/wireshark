@@ -39,7 +39,7 @@
  * References GSM MAP: 
  * ETSI TS 129 002
  * Updated to ETSI TS 129 002 V7.5.0 (3GPP TS 29.002 V7.5.0 (2006-09) Release 7)
- * Updated to ETSI TS 129 002 V8.1.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
+ * Updated to ETSI TS 129 002 V8.4.0 (3GPP TS 29.002 V8.1.0 (2007-06) Release 8)
  * References GSM SS
  * References: 3GPP TS 24.080
  */

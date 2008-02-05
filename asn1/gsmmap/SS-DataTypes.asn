@@ -1,4 +1,5 @@
 -- $Id$
+-- 3GPP TS 24.080 V7.4.0 (2007-09)
 -- 4.4.2	ASN.1 data types
 SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Access (2) modules (3)
@@ -234,11 +235,45 @@ LocationNotificationArg	::= SEQUENCE {
 	lcsRequestorID		[4] LCSRequestorID			OPTIONAL,
 	lcsCodeword			[5]	LCSCodeword				OPTIONAL,
 	lcsServiceTypeID	[6]	LCSServiceTypeID		OPTIONAL }
+
+-- The notificationType may only be set to notifyLocationAllowed, 
+-- notifyAndVerify-LocationAllowedIfNoResponse, 
+-- or notifyAndVerify-LocationNotAllowedIfNoResponse.
+-- The locationEstimateType field of the locationType may only be set to 
+-- currentLocation, currentOrLastKnownLocation, 
+-- notificationVerificationOnly, or activateDeferredLocation.
+-- The deferredLocationEventType field of the locationType may only be set to 
+-- enteringIntoArea, and/or leavingFromArea, and/or beingInsideArea, 
+-- and/or periodicLDR.
+-- For LCS location notification of MT-LR for current location, the 
+-- locationEstimateType field of the locationType shall be set to currentLocation.
+-- For LCS location notification of MT-LR for current or last known location, the 
+-- locationEstimateType field of the locationType shall be set to currentOrLastKnownLocation.
+-- For the LCS location notification for the LDR of MS available event, 
+-- the locationEstimateType field of the locationType shall be set to currentLocation.
+-- For LCS location notification for the LDR of change of area event, 
+-- the locationEstimateType field of the locationType shall be set to
+-- activateDeferredLocation, and the deferredLocationEventType shall be 
+-- set to enteringIntoArea, and/or leavingFromArea, and/or beingInsideArea.
+-- For the post positioning LCS location notification, the locationEstimateType 
+-- field of the locationType shall be set to notificationVerificationOnly.
+-- For LCS location notification for the LDR of periodic location event, 
+-- the locationEstimateType field of the locationType shall be set to
+-- activateDeferredLocation, and the 
+-- deferredLocationEventType shall be set to periodicLDR.
+
 -- exception handling:
 -- At reception of an unrecognised notificationType value the receiver shall reject the 
 -- operation with a return error cause of unexpected data value.
 -- At reception of an unrecognised locationType value the receiver shall reject the
--- operation with a return error cause of unexpected data value.
+-- operation with a return error cause of unexpected data value. 
+-- At reception of an unallowed notificationType value the receiver shall either ignore the
+-- received operation or reject the operation with a return error cause of unexpected 
+-- data value.
+-- At reception of an unallowed locationType value the receiver shall either ignore the
+-- received operation or reject the operation with a return error cause of unexpected 
+-- data value.
+
 
 
 LocationNotificationRes	::= SEQUENCE {
@@ -274,11 +309,14 @@ LCS-MOLRArg	::= SEQUENCE {
 	locationUpdateRequest	[16]	NULL				OPTIONAL,
 	sequenceNumber 		[17] SequenceNumber 		OPTIONAL,
 	terminationCause 	[18] TerminationCause 		OPTIONAL,
-	mo-lrShortCircuit	[19]	NULL				OPTIONAL }
+	mo-lrShortCircuit	[19]	NULL				OPTIONAL,
+	ganssAssistanceData	[20] GANSSAssistanceData	OPTIONAL }
 -- The parameter locationMethod shall be included if and only if the molr-Type is set to value 
 -- deCipheringKeys or assistanceData.
 -- The parameter gpsAssistanceData shall be included if and only if the molr-Type is set to value 
--- assistanceData and locationMethod is set to value assistedGPS.
+-- assistanceData and locationMethod is set to value assistedGPS or assistedGPSandGANSS.
+-- The parameter ganssAssistanceData shall be included if and only if the molr-Type is set to value 
+-- assistanceData and locationMethod is set to value assistedGANSS or assistedGPSandGANSS.
 -- supportedGADShapes shall not be included for deferred MO-LR initiation or deferred MO-LR or MT-LR
 -- responses 
 
@@ -298,9 +336,11 @@ MOLR-Type::= ENUMERATED {
 LocationMethod::= ENUMERATED {
 	msBasedEOTD			(0),
 	msAssistedEOTD		(1),
-	assistedGPS			(2), 
+	assistedGPS			(2),
 	...,
-	msBasedOTDOA		(3)
+	msBasedOTDOA		(3),
+	assistedGANSS		(4),
+	assistedGPSandGANSS (5)
 	}
 -- exception handling:
 -- When this parameter is received with value msBasedEOTD or msAssistedEOTD and the MS 
@@ -314,7 +354,11 @@ LocationMethod::= ENUMERATED {
 
 GPSAssistanceData::= OCTET STRING (SIZE (1..38))
 -- Octets 1 to 38 are coded in the same way as the octets 3 to 7+2n of Requested GPS Data IE
--- in 3GPP TS 49.031.
+-- in 3GPP TS 49.031 [14].
+
+GANSSAssistanceData::= OCTET STRING (SIZE (1..40))
+-- Octets 1 to 40 are coded in the same way as the octets 3 to 9+2n of Requested GANSS Data IE
+-- in 3GPP TS 49.031 [14] .
 
 TerminationCause ::= ENUMERATED {
 	subscriberTermination  (0),
@@ -352,7 +396,7 @@ LCS-MOLRRes::= SEQUENCE {
 
 DecipheringKeys::= OCTET STRING (SIZE (15))
 -- Octets in DecipheringKeys are coded in the same way as the octets 3 to 17 of Deciphering Key IE
--- in 3GPP TS 49.031. I.e. these octets contain Current Deciphering Key, Next Deciphering Key and 
+-- in 3GPP TS 49.031 [14]. I.e. these octets contain Current Deciphering Key, Next Deciphering Key and 
 -- Ciphering Key Flag.
 LCS-AreaEventRequestArg	::= SEQUENCE {
 	referenceNumber				[0]	LCS-ReferenceNumber,

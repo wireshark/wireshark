@@ -1,8 +1,8 @@
 -- $Id$
 -- MAP-ExtensionDataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V8.1.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-810.zip/29002-810.doc
+-- Taken from 3GPP TS 29.002 V8.4.0 (2007-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-840.zip/29002-840.doc
 --
 -- 17.7.11 Extension data types
 --
@@ -25,7 +25,9 @@ EXPORTS
 	ExtensionContainer,
 	SLR-ArgExtensionContainer;
 
+
 -- IOC for private MAP extensions
+
 
 MAP-EXTENSION  ::= CLASS {
 	&ExtensionType				OPTIONAL,

@@ -1,8 +1,8 @@
 -- $Id$
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V8.1.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-810.zip/29002-810.doc
+-- Taken from 3GPP TS 29.002 V8.4.0 (2007-12)
+-- http://www.3gpp.org/ftp/Specs/archive/29_series/29.002/29002-840.zip/29002-840.doc
 --
 -- 17.7.13 Location service data types
 --
@@ -23,23 +23,23 @@ EXPORTS
 	ProvideSubscriberLocation-Res,
 	SubscriberLocationReport-Arg,
 	SubscriberLocationReport-Res,
-	LocationType, 
-	DeferredLocationEventType,
-	LCSClientName,
-	LCS-QoS,
-	Horizontal-Accuracy,
-	ResponseTime,
-	Ext-GeographicalInformation, 
-	VelocityEstimate,
-	SupportedGADShapes,
-	Add-GeographicalInformation,
-	LCSRequestorID, 
-	LCS-ReferenceNumber,
-	LCSCodeword,
-	AreaEventInfo,
-	ReportingPLMNList,
-	PeriodicLDRInfo,
-	SequenceNumber
+LocationType, 
+DeferredLocationEventType,
+LCSClientName,
+LCS-QoS,
+Horizontal-Accuracy,
+ResponseTime,
+Ext-GeographicalInformation, 
+VelocityEstimate,
+SupportedGADShapes,
+Add-GeographicalInformation,
+LCSRequestorID, 
+LCS-ReferenceNumber,
+LCSCodeword,
+AreaEventInfo,
+ReportingPLMNList,
+PeriodicLDRInfo,
+SequenceNumber
 ;
 
 IMPORTS
@@ -52,9 +52,9 @@ IMPORTS
 	AgeOfLocationInformation,
 	LCSClientExternalID,
 	LCSClientInternalID,
-	LCSServiceTypeID,
-	CellGlobalIdOrServiceAreaIdOrLAI,
-	PLMN-Id
+LCSServiceTypeID,
+CellGlobalIdOrServiceAreaIdOrLAI,
+PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -66,7 +66,7 @@ FROM MAP-ExtensionDataTypes {
    gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version11 (11)}
 
 	USSD-DataCodingScheme,
-	USSD-String
+USSD-String
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
    map-SS-DataTypes (14) version11 (11)}
@@ -83,6 +83,7 @@ FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-SM-DataTypes (16) version11 (11)}
 ;
+
 
 RoutingInfoForLCS-Arg ::= SEQUENCE {
 	mlcNumber		[0] ISDN-AddressString,
@@ -651,5 +652,6 @@ SubscriberLocationReport-Res ::= SEQUENCE {
 --
 -- exception handling
 -- receipt of both na-ESRK and na-ESRD shall be treated the same as a return error
+
 
 END
