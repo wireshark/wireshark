@@ -90,70 +90,25 @@ SUBDIRS = \
 	irda \
 	xxx
 
-
 3.2 Changes to plugins/Makefile.nmake
 
-To the Makefile.nmake you need to add your plugin to the all: rule
+To the Makefile.nmake you need to add the following (in
+alphabetical order) for your plugin to the process-plugins: rule
 
-all: \
-	gryphon \
-	irda \
-	xxx
-
-then add a rule for your plugin:
-
-xxx:
 	cd xxx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
 
-and add to the clean rules support for cleaning up after your
-plugin:
+Then add a copy command to the install-plugins rule:
 
-clean:  clean-local
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-	cd xxx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
-	cd ..
-
-
-distclean: distclean-local
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-	cd xxx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
-	cd ..
-
-
-maintainer-clean: maintainer-clean-local
-	cd gryphon
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
-	cd irda
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
-	cd xxx
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
-	cd ..
-
-Finally add a copy command to install-plugins rule:
-
-        xcopy irda\*.dll $(VERSION) /d
-        xcopy xxx\*.dll $(VERSION) /d
+	...
+	xcopy xxx\*.dll $(VERSION) /d
+	if exist Custom.nmake $(MAKE) /$(MAKEFLAGS) -f Custom.nmake install-plugins
 
 3.3 Changes to the top level Makefile.nmake
 
-To the top level Makefile.nmake you need to add your plugin to the
-install-common-files: rule
+To the top level Makefile.nmake you need to add your plugin (in alphabetical order)
+to the install-common-files: rule
 
 	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
@@ -161,25 +116,14 @@ install-common-files: rule
 
 3.4 Changes to the top level Makefile.am
 
-There are several places in the top level Makefile.am that need to be
-altered for adding a plugin.
+Add your plugin (in alphabetical order) to the plugin_ldadd:
 
-Add your plugin to the plugin_libs and plugin_ldadd:
+if HAVE_PLUGINS
 
-plugin_libs = \
-        plugins/gryphon/gryphon.la \
-        plugins/irda/irda.la    \
-        plugins/xxx/xxx.la
-
-if ENABLE_STATIC
-plugin_ldadd = (plugin_libs)
-
-else          # ENABLE_STATIC
 plugin_ldadd = \
-        "-dlopen" self  \
-        "-dlopen" plugins/gryphon/gryphon.la \
-        "-dlopen" plugins/irda/irda.la \
-        "-dlopen" plugins/xxx/xxx.la
+	...
+	-dlopen plugins/xxx/xxx.la      \
+	-dlopen plugins/wimax/wimax.la
 
 3.5  Changes to top level configure.in
 
