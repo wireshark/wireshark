@@ -2699,6 +2699,10 @@ Shane Kearns		<shane.kearns [AT] symbian.com> {
 	Support Symbian OS btsnoop
 }
 
+Thomas Dreibholz	<dreibh [AT] iem.uni-due.de> {
+	Scripting Service Protocol support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
