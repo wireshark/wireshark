@@ -25,6 +25,9 @@
   From David Frascone: duUpdate to Diameter dissector to load the
   dictionary as an XML file rather than building it in, and various
   Diameter updates.
+    
+  Revision 1.8  2008/01/06 02:49:24  grzegorz  Added missing RFC 3588 
+  AVP 299 by Grzegorz Szczytowski
 
   Revision 1.7  2001/08/24 18:03:24  chaos
   Mark's Changes
@@ -1191,13 +1194,20 @@
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 		</avp>
+		<!-- RFC3588 AVP -->
+		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="NO_INBAND_SECURITY" code="0"/>
+			<enum name="TLS" code="1"/>
+		</avp>
+
 		<avp name="E2E-Sequence" code="300" mandatory="must">
 			<grouped>
 				<gavp name="foo"/>
 			</grouped>
 		</avp>
 		<!-- 301-317    Unallocated -->
-<!-- AVP:s 317 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
+<!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
 <!-- AVP:s 349-362        Unassigned -->
 <!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
 <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
