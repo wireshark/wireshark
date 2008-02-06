@@ -32,7 +32,7 @@ typedef union
    {
       guint16 adp;
       guint16 ado;
-   };
+   } a;
    guint32 addr;
 } EcParserAddrUnion;
 

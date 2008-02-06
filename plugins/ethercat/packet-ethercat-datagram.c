@@ -257,8 +257,8 @@ static void init_EcParserHDR(EcParserHDR* pHdr, tvbuff_t *tvb, gint offset)
 {
    pHdr->cmd = tvb_get_guint8(tvb, offset++);
    pHdr->idx = tvb_get_guint8(tvb, offset++);
-   pHdr->anAddrUnion.adp = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
-   pHdr->anAddrUnion.ado = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pHdr->anAddrUnion.a.adp = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
+   pHdr->anAddrUnion.a.ado = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
    pHdr->len = tvb_get_letohs(tvb, offset); offset+=sizeof(guint16);
    pHdr->intr = tvb_get_letohs(tvb, offset);
 }
@@ -327,7 +327,7 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
       guint16 len = ecFirst.len&0x07ff;
       guint16 cnt = get_wc(&ecFirst, tvb, offset);
       g_snprintf ( szText, nMax, "'%s', Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
-         convertEcCmdToText(ecFirst.cmd), len, ecFirst.anAddrUnion.adp, ecFirst.anAddrUnion.ado, cnt );
+         convertEcCmdToText(ecFirst.cmd), len, ecFirst.anAddrUnion.a.adp, ecFirst.anAddrUnion.a.ado, cnt );
    }
    else if ( nSub == 2 )
    {
@@ -373,7 +373,7 @@ static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
    case EC_CMD_TYPE_ARMW:
    case EC_CMD_TYPE_FRMW:
       g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d",
-         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.adp, ecParser.anAddrUnion.ado, cnt);
+         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.a.adp, ecParser.anAddrUnion.a.ado, cnt);
       break;
    case EC_CMD_TYPE_LRD:
    case EC_CMD_TYPE_LWR:
@@ -454,7 +454,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
       if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
          (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&
-         ecHdr.anAddrUnion.ado>=0x1000
+         ecHdr.anAddrUnion.a.ado>=0x1000
          )
       {
          ETHERCAT_MBOX_HEADER mbox;
@@ -501,23 +501,23 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          case 10:
          case 11:
          case 12:
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_lad, tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado), TRUE);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_lad, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
 
-            suboffset += (sizeof(ecHdr.anAddrUnion.adp)+sizeof(ecHdr.anAddrUnion.ado));
+            suboffset += (sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado));
             break;
          default:
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp), TRUE);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.adp), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), TRUE);
 
-            suboffset+= sizeof(ecHdr.anAddrUnion.adp);
-            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.anAddrUnion.ado), TRUE);
+            suboffset+= sizeof(ecHdr.anAddrUnion.a.adp);
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.ado), TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
 
-            suboffset+= sizeof(ecHdr.anAddrUnion.ado);
+            suboffset+= sizeof(ecHdr.anAddrUnion.a.ado);
          }
 
          aitem = proto_tree_add_uint(ecat_header_tree, hf_ecat_len, tvb, suboffset, sizeof(ecHdr.len), ecHdr.len&0x07FF);
@@ -534,7 +534,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          suboffset+=EcParserHDR_Len;
       }
 
-      if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.ado>=0x600 && ecHdr.anAddrUnion.ado<0x700 && (ecHdr.anAddrUnion.ado%16)==0 && (len%16)==0 )
+      if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.a.ado>=0x600 && ecHdr.anAddrUnion.a.ado<0x700 && (ecHdr.anAddrUnion.a.ado%16)==0 && (len%16)==0 )
       {
          if( tree )
          {
@@ -603,7 +603,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             }
          }
       }
-      else if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.ado>=0x800 && ecHdr.anAddrUnion.ado<0x880 && (ecHdr.anAddrUnion.ado%8)==0 && (len%8)==0 )
+      else if ( ecHdr.cmd>=1 && ecHdr.cmd<=9 && ecHdr.anAddrUnion.a.ado>=0x800 && ecHdr.anAddrUnion.a.ado<0x880 && (ecHdr.anAddrUnion.a.ado%8)==0 && (len%8)==0 )
       {
          if( tree )
          {
@@ -637,7 +637,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             }
          }
       }
-      else if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.ado == 0x900 && ecHdr.len >= 16 )
+      else if ( (ecHdr.cmd == 1 || ecHdr.cmd == 4) && ecHdr.anAddrUnion.a.ado == 0x900 && ecHdr.len >= 16 )
       {
          if (tree)
          {
