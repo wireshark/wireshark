@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
   int split_packet_count = 0;
   int written_count = 0;
   char *filename;
-  size_t filenamelen;
+  size_t filenamelen = 0;
   gboolean check_ts;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
