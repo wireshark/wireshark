@@ -1494,7 +1494,6 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 		}
-		return;
 		break;
 	case 2:	/* URLC */
 		offset++;
@@ -1511,11 +1510,10 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 		}
-		return;
 		break;
 	default:
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Unknown protocol %u",pd);
-		return;
+		break;
 	}
 }
 
@@ -1577,7 +1575,6 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_uma_IE(tvb, pinfo, uma_tree, offset);
 		}
 		return offset;
-		break;
 	default:
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Wrong message type %u",octet);
 		return tvb_length(tvb);

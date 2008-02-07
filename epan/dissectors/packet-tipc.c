@@ -1604,7 +1604,6 @@ call_tipc_v2_data_subdissectors(tvbuff_t *data_tvb, packet_info *pinfo, guint32 
 	 * found */
 
 	call_dissector(data_handle, data_tvb, pinfo, top_tree);
-	return;
 }
 
 
@@ -1919,7 +1918,6 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 					ORIGINAL_MSG, where message count is zero, and no packet is wrapped inside.
 				*/
 				proto_tree_add_text(tipc_tree, tvb, offset, -1,"TIPC_CHANGEOVER_PROTOCOL Protol/dissection Error");
-				return;
 				break;
 			}
 			break;
@@ -1977,7 +1975,6 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			}
 		
 			proto_tree_add_text(tipc_tree, next_tvb, 0, -1,"%u bytes Data Fragment",(msg_size - 28));
-			return;
 			break;
 		case TIPC_MSG_BUNDLER:
 			proto_tree_add_text(tipc_tree, tvb, offset, -1,"Message Bundle");
@@ -1996,7 +1993,6 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 			proto_tree_add_text(tipc_tree, tvb, offset, -1,"%u bytes Data",(msg_size - 28));
 			break;
 	}
-	return;
 }
 
 
@@ -2175,9 +2171,8 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TIPC_MSG_BUNDLER:
 			dissect_tipc_int_prot_msg(tipc_tvb, pinfo, tipc_tree, offset, user, msg_size);
 			return;
-			break;
 		default:
-		break;		 
+			break;		 
 	}
 
 	dword = tvb_get_ntohl(tipc_tvb,offset);
@@ -2274,7 +2269,6 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 14, "TIPC_NAMED_MSG Hdr");
 					proto_tree_add_text(tipc_tree, data_tvb,0, -1, "%u bytes Data", (msg_size - hdr_size *4));
 					return;
-					break;
 				case TIPC_DIRECT_MSG:
 					previous_offset = offset;
 					while (tvb_reported_length_remaining(tipc_tvb,offset) > 0){
@@ -2288,7 +2282,6 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					}
 					proto_tree_add_text(tipc_tree, tipc_tvb, previous_offset, -1,"%u bytes Data", (msg_size - hdr_size *4));
 					return;
-					break;
 				default:
 					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1,"%u bytes Data", (msg_size - hdr_size *4));
 					break;

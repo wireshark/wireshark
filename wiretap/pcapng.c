@@ -1285,17 +1285,13 @@ pcapng_write_block(wtap_dumper *wdh, /*pcapng_t *pn, */wtapng_block_t *wblock, i
 	switch(wblock->type) {
 		case(BLOCK_TYPE_SHB):
 			return pcapng_write_section_header_block(wdh, wblock, err);
-			break;
 		case(BLOCK_TYPE_IDB):
 			return pcapng_write_if_descr_block(wdh, wblock, err);
-			break;
 		case(BLOCK_TYPE_PB):
 			/* Packet Block is obsolete */
 			return FALSE;
-			break;
 		case(BLOCK_TYPE_EPB):
 			return pcapng_write_packet_block(wdh, wblock, err);
-			break;
 		default:
 			pcapng_debug1("Unknown block_type: 0x%x", wblock->type);
 			return FALSE;

@@ -177,11 +177,9 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		FVALUE_FREE(fv_bytes);
 		return TRUE;
 	}
-	else {
-		/* Just turn it into a string */
-		return val_from_string(fv, s, logfunc);
-	}
-	g_assert_not_reached();
+
+	/* Just turn it into a string */
+	return val_from_string(fv, s, logfunc);
 }
 
 static guint

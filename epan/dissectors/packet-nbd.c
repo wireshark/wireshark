@@ -106,11 +106,9 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		switch(type){
 		case NBD_CMD_WRITE:
 			return tvb_get_ntohl(tvb, offset+24)+28;
-			break;
 		default:
 			return 28;
 		}
-		break;
 	case NBD_RESPONSE_MAGIC:
 		/*
 		 * Do we have a conversation for this connection?
@@ -169,11 +167,12 @@ get_nbd_tcp_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
 		} else {
 			return 16;
 		}
-		break;
 	default:
-		/* Did not really look like a NBD packet after all */
-		return 0;
+		break;
 	}
+
+	/* Did not really look like a NBD packet after all */
+	return 0;
 }
 
 static void
@@ -433,7 +432,6 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 28, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu);
 		return TRUE;
-		break;
 	case NBD_RESPONSE_MAGIC:
 		/* responses are 16 bytes or more */
 		if(tvb_length(tvb)<16){
@@ -442,10 +440,10 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 16, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu);
 		return TRUE;
 	default:
-		return FALSE;
+		break;
 	}
 
-        return FALSE;
+	return FALSE;
 }
 
 void proto_register_nbd(void)

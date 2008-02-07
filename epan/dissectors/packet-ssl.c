@@ -3815,6 +3815,7 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
     guint8 msg_type;
     guint16 version;
     guint32 sum;
+    gint ret = 0;
 
     /* fetch the msg_type */
     msg_type = tvb_get_guint8(tvb, offset);
@@ -3823,13 +3824,13 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
     case SSL2_HND_CLIENT_HELLO:
         /* version follows msg byte, so verify that this is valid */
         version = tvb_get_ntohs(tvb, offset+1);
-        return ssl_is_valid_ssl_version(version);
+        ret = ssl_is_valid_ssl_version(version);
         break;
 
     case SSL2_HND_SERVER_HELLO:
         /* version is three bytes after msg_type */
         version = tvb_get_ntohs(tvb, offset+3);
-        return ssl_is_valid_ssl_version(version);
+        ret = ssl_is_valid_ssl_version(version);
         break;
 
     case SSL2_HND_CLIENT_MASTER_KEY:
@@ -3839,17 +3840,16 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
         sum  = tvb_get_ntohs(tvb, offset + 4); /* clear_key_length */
         sum += tvb_get_ntohs(tvb, offset + 6); /* encrypted_key_length */
         sum += tvb_get_ntohs(tvb, offset + 8); /* key_arg_length */
-        if (sum > record_length)
-        {
-            return 0;
+        if (sum <= record_length) {
+            ret = 1;
         }
-        return 1;
         break;
 
     default:
-        return 0;
+        break;
     }
-    return 0;
+
+    return ret;
 }
 
 /* applies a heuristic to determine whether
@@ -3876,6 +3876,7 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
     guint8 msg_type;
     guint16 version;
     guint32 sum;
+    gint ret = 0;
 
     /* fetch the msg_type */
     msg_type = tvb_get_guint8(tvb, offset);
@@ -3884,14 +3885,12 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
     case PCT_MSG_CLIENT_HELLO:
         /* version follows msg byte, so verify that this is valid */
         version = tvb_get_ntohs(tvb, offset+1);
-        return version == PCT_VERSION_1;
-        break;
+        ret = (version == PCT_VERSION_1);
 
     case PCT_MSG_SERVER_HELLO:
         /* version is one byte after msg_type */
         version = tvb_get_ntohs(tvb, offset+2);
-        return version == PCT_VERSION_1;
-        break;
+        ret = (version == PCT_VERSION_1);
 
     case PCT_MSG_CLIENT_MASTER_KEY:
         /* sum of various length fields must be less than record length */
@@ -3901,26 +3900,24 @@ ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
         sum += tvb_get_ntohs(tvb, offset + 12); /* verify_prelude_length */
         sum += tvb_get_ntohs(tvb, offset + 14); /* client_cert_length */
         sum += tvb_get_ntohs(tvb, offset + 16); /* response_length */
-        if (sum > record_length)
-        {
-            return 0;
+        if (sum <= record_length) {
+            ret = 1;
         }
-        return 1;
         break;
 
     case PCT_MSG_SERVER_VERIFY:
 	/* record is 36 bytes longer than response_length */
 	sum = tvb_get_ntohs(tvb, offset + 34); /* response_length */
-	if ((sum + 36) == record_length)
-	    return 1;
-	else
-	    return 0;
-	break;
+	if ((sum + 36) == record_length) {
+	    ret = 1;
+        }
+        break;
 
     default:
-        return 0;
+        break;
     }
-    return 0;
+
+    return ret;
 }
 
 

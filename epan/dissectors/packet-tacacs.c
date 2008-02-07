@@ -771,24 +771,23 @@ dissect_tacplus_body(tvbuff_t * hdr_tvb, tvbuff_t * tvb, proto_tree * tree )
 		} else {
 			dissect_tacplus_body_authen_rep( tvb, tree );
 		}
-		return;
 		break;
 	  case TAC_PLUS_AUTHOR:
 		if ( seq_no & 0x01)
 			dissect_tacplus_body_author_req( tvb, tree );
 		else
 			dissect_tacplus_body_author_rep( tvb, tree );
-		return;
 		break;
 	  case TAC_PLUS_ACCT:
 		if ( seq_no & 0x01)
 			dissect_tacplus_body_acct_req( tvb, tree );
 		else
 			dissect_tacplus_body_acct_rep( tvb, tree );
-		return;
+		break;
+	  default:
+		proto_tree_add_text( tree, tvb, 0, tvb_length( tvb ), "Bogus..");
 		break;
 	}
-	proto_tree_add_text( tree, tvb, 0, tvb_length( tvb ), "Bogus..");
 }
 
 #ifdef DEB_TACPLUS

@@ -6496,7 +6496,6 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			/* Reset code page: not needed as return from recursion */
 			DebugLog(("STAG: level = %u, Return: len = %u\n", *level, off - offset));
 			return (off - offset);
-			break;
 		case 0x02: /* ENTITY */
 			ent = tvb_get_guintvar (tvb, off+1, &len);
 			proto_tree_add_text (tree, tvb, off, 1+len,
@@ -6909,7 +6908,6 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 			DebugLog(("STAG: level = %u, Return: len = %u\n",
 				  *level, off - offset));
 			return (off - offset);
-			break;
 		case 0x02: /* ENTITY */
 			ent = tvb_get_guintvar (tvb, off+1, &len);
 			proto_tree_add_text (tree, tvb, off, 1+len,

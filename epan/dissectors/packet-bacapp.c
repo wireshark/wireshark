@@ -1924,7 +1924,6 @@ fCalendaryEntry (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		break;
 	default:
 		return offset;
-		break;
 	}
 
 	return offset;
@@ -1952,7 +1951,6 @@ static guint fTimeStamp (tvbuff_t *tvb, proto_tree *tree,
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	
@@ -2717,7 +2715,6 @@ fSubscribeCOVPropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -2871,7 +2868,6 @@ fConfirmedTextMessageRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -2980,7 +2976,6 @@ fLifeSafetyOperationRequest(tvbuff_t *tvb, proto_tree *tree, guint offset, const
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3621,7 +3616,6 @@ fConfirmedCOVNotificationRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3668,7 +3662,6 @@ fAcknowledgeAlarmRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3728,7 +3721,6 @@ fGetEnrollmentSummaryRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3824,7 +3816,6 @@ flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3850,7 +3841,6 @@ fGetEventInformationACK (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3891,7 +3881,6 @@ fAddListElementRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3924,7 +3913,6 @@ fDeviceCommunicationControlRequest(tvbuff_t *tvb, proto_tree *tree, guint offset
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -3949,7 +3937,6 @@ fReinitializeDeviceRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
 	return offset;
@@ -4946,7 +4933,6 @@ fConfirmedServiceRequest (tvbuff_t *tvb, proto_tree *tree, guint offset, gint se
 		break;
 	default:
 		return offset;
-		break;
 	}
 	return offset;
 }
@@ -5053,7 +5039,6 @@ fWhoIsRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			break;
 		default:
 			return offset;
-			break;
 		}
 	}
  	return offset;
@@ -5392,7 +5377,6 @@ fBACnetError (tvbuff_t *tvb, proto_tree *tree, guint offset, guint service)
         offset = fVTCloseError (tvb,tree,offset);
     default:
         return fError (tvb, tree, offset);
-        break;
     }
     return offset;
 }

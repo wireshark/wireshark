@@ -924,20 +924,20 @@ static int get_size_by_coltype(int servertype)
 {
    switch(servertype)
    {
-      case SYBINT1:        return 1;  break;
-      case SYBINT2:        return 2;  break;
-      case SYBINT4:        return 4;  break;
-      case SYBINT8:        return 8;  break;
-      case SYBREAL:        return 4;  break;
-      case SYBFLT8:        return 8;  break;
-      case SYBDATETIME:    return 8;  break;
-      case SYBDATETIME4:   return 4;  break;
-      case SYBBIT:         return 1;  break;
-      case SYBBITN:        return 1;  break;
-      case SYBMONEY:       return 8;  break;
-      case SYBMONEY4:      return 4;  break;
-      case SYBUNIQUE:      return 16; break;
-      default:             return -1; break;
+      case SYBINT1:        return 1;
+      case SYBINT2:        return 2;
+      case SYBINT4:        return 4;
+      case SYBINT8:        return 8;
+      case SYBREAL:        return 4;
+      case SYBFLT8:        return 8;
+      case SYBDATETIME:    return 8;
+      case SYBDATETIME4:   return 4;
+      case SYBBIT:         return 1;
+      case SYBBITN:        return 1;
+      case SYBMONEY:       return 8;
+      case SYBMONEY4:      return 4;
+      case SYBUNIQUE:      return 16;
+      default:             return -1;
    }
 }
 # if 0

@@ -149,7 +149,6 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 	break;
       default:
 	return 0;
-	break;
       }
     }
 
