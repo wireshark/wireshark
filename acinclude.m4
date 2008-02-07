@@ -467,13 +467,20 @@ and did you also install that package?]]))
 	fi
 	AC_CHECK_FUNCS(pcap_open_dead pcap_freecode)
 	#
-	# pcap_breakloop may be present in the library and not declared in the
-	# header file. We are therefore testing whether the function is present
-	# first and then if it is usable. It is usable if it compiles without
-	# an implicit warning. If it is not usable, we output a warning telling
-	# the user to update his pcap header.
+	# pcap_breakloop may be present in the library but not declared
+	# in the pcap.h header file.  If it's not declared in the header
+	# file, attempts to use it will get warnings, and, if we're
+	# building with warnings treated as errors, that warning will
+	# cause compilation to fail.
+	#
+	# We are therefore first testing whether the function is present
+	# and then, if we're compiling with warnings as errors, testing
+	# whether it is usable.  It is usable if it compiles without
+	# a -Wimplicit warning (the "compile with warnings as errors"
+	# option requires GCC). If it is not usable, we fail and tell
+	# the user that the pcap.h header needs to be updated.
 	# 
-	# Ceteris paribus, it should only happen with Mac OS X 10.3[.x] which
+	# Ceteris paribus, this should only happen with Mac OS X 10.3[.x] which
 	# can have an up-to-date pcap library without the corresponding pcap
 	# header.
 	#
@@ -482,25 +489,31 @@ and did you also install that package?]]))
 	# e.g. hand made symbolic link from libpcap.so -> libpcap.so.0.8 but
 	# having the pcap header version 0.7.
 	#
-	AC_MSG_CHECKING([whether pcap_breakloop is present and usable])
+	AC_MSG_CHECKING([whether pcap_breakloop is present])
 	ac_CFLAGS_saved="$CFLAGS"
 	AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK
 	if test "x$ws_breakloop_compiled" = "xyes"; then
-	  CFLAGS="$CFLAGS -Werror -Wimplicit"
-	  AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK
-	  if test "x$ws_breakloop_compiled" = "xyes"; then
-	    AC_MSG_RESULT(yes)
-	    AC_DEFINE(HAVE_PCAP_BREAKLOOP, 1, [Define if pcap_breakloop is known])
-	  else
-	    AC_MSG_RESULT(broken)
-	    AC_MSG_WARN([Your pcap library is more recent than your pcap header.])
-	    AC_MSG_WARN([Wireshark won't be able to use functions not declared])
-	    AC_MSG_WARN([in that header. You should install a newer version of])
-	    AC_MSG_WARN([the header file.])
+	  AC_MSG_RESULT(yes)
+	  AC_DEFINE(HAVE_PCAP_BREAKLOOP, 1, [Define if pcap_breakloop is known])
+	  if test "x$with_warnings_as_errors" = "xyes"; then
+	    AC_MSG_CHECKING([whether pcap_breakloop is usable])
+	    CFLAGS="$CFLAGS -Werror -Wimplicit"
+	    AC_WIRESHARK_PCAP_BREAKLOOP_TRY_LINK
+	    if test "x$ws_breakloop_compiled" = "xyes"; then
+	      AC_MSG_RESULT(yes)
+	    else
+	      AC_MSG_RESULT(no)
+	      AC_MSG_ERROR(
+[Your pcap library is more recent than your pcap header.
+As you are building with compiler warnings treated as errors, Wireshark
+won't be able to use functions not declared in that header.
+If you wish to build with compiler warnings treated as errors, You should
+install a newer version of the header file.])
+	    fi
+	    CFLAGS="$ac_CFLAGS_saved"
 	  fi
-	  CFLAGS="$ac_CFLAGS_saved"
 	else
-	  AC_MSG_RESULT(function not present)
+	  AC_MSG_RESULT(no)
 	fi
 
 	#
