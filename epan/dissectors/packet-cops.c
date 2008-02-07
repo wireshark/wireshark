@@ -1535,7 +1535,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 		  
 		  break;
 	  }
-	  case COPS_OBJ_GPERR:
+  case COPS_OBJ_GPERR:
     if (s_type != 1) /* Not Global Provisioning Error Object (GPERR) */
       break;
 
@@ -1557,8 +1557,6 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
   case COPS_OBJ_CPERR:
     if (s_type != 1) /*Not PRC Class Provisioning Error Object (CPERR) */
       break;
-
-    break;
 
     cperror = tvb_get_ntohs(tvb, offset);
     cperror_sub = tvb_get_ntohs(tvb, offset + 2);
