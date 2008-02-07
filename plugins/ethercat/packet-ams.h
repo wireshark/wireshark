@@ -696,7 +696,7 @@ typedef union tUserUnion
    {
       guint16 fragmentNo;
       guint16 packetNo;
-   };
+   } a;
 } UserUnion;
 
 typedef struct
