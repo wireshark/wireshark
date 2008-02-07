@@ -86,7 +86,7 @@ static const value_string  k12_port_types[] = {
 };
 
 static void
-fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint length)
+fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
 {
 	guint adj = 0;
 			/* 0x11=control frame 0x30=data frame */

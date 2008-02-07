@@ -107,15 +107,15 @@ static gint proto_tpncp = -1,
 static gint ett_tpncp = -1,
             ett_tpncp_body = -1;
 
-static gint global_tpncp_trunkpack_tcp_port = TCP_PORT_TPNCP_TRUNKPACK,
-            global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK,
-            global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST,
-            global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
+static guint global_tpncp_trunkpack_tcp_port = TCP_PORT_TPNCP_TRUNKPACK,
+             global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK,
+             global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST,
+             global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
 
-static gint trunkpack_tcp_port = 0,
-            trunkpack_udp_port = 0,
-            host_tcp_port = 0,
-            host_udp_port = 0;
+static guint trunkpack_tcp_port = 0,
+             trunkpack_udp_port = 0,
+             host_tcp_port = 0,
+             host_udp_port = 0;
 
 static value_string tpncp_commands_id_vals[MAX_TPNCP_DB_SIZE];
 static value_string tpncp_events_id_vals[MAX_TPNCP_DB_SIZE];
@@ -334,7 +334,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
-                                proto_item *item, gint *offset) {
+                                proto_item *item, guint *offset) {
     switch (event_id) {
         /* Place non-standard events here. */
         default:
@@ -346,7 +346,7 @@ static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
-                                  proto_item *item, gint *offset) {
+                                  proto_item *item, guint *offset) {
     switch (command_id) {
         /* Place non-standard commands here. */
         default:

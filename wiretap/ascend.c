@@ -173,7 +173,7 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
   struct stat statbuf;
   guint8 buf[ASCEND_MAX_PKT_LEN];
   ascend_pkthdr header;
-  guint64 dummy_seek_start;
+  gint64 dummy_seek_start;
 
   /* We haven't yet allocated a data structure for our private stuff;
      set the pointer to null, so that "ascend_seek()" knows not to
