@@ -262,8 +262,27 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 	int		chop_len;
 	int		i;
 
+	/* Will wrap up top-level field items inside a fake protocol wrapper to
+	   preserve the PDML schema */
+	gboolean wrap_in_fake_protocol =
+	    (((fi->hfinfo->type != FT_PROTOCOL) ||
+	     (fi->hfinfo->id == proto_data)) &&
+	    (pdata->level == 0));
+
+	/* Indent to the correct level */
 	for (i = -1; i < pdata->level; i++) {
 		fputs("  ", pdata->fh);
+	}
+
+	if (wrap_in_fake_protocol) {
+		/* Open fake protocol wrapper */
+		fputs("<proto name=\"fake-field-wrapper\">\n", pdata->fh);
+
+		/* Indent to increased level before writint out field */
+		pdata->level++;
+		for (i = -1; i < pdata->level; i++) {
+			fputs("  ", pdata->fh);
+		}
 	}
 
 	/* Text label. It's printed as a field with no name. */
@@ -294,16 +313,15 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 			fputs("\"/>\n", pdata->fh);
 		}
 	}
+
 	/* Uninterpreted data, i.e., the "Data" protocol, is
 	 * printed as a field instead of a protocol. */
 	else if (fi->hfinfo->id == proto_data) {
 
+		/* Write out field with data */
 		fputs("<field name=\"data\" value=\"", pdata->fh);
-
 		write_pdml_field_hex_value(pdata, fi);
-
 		fputs("\"/>\n", pdata->fh);
-
 	}
 	/* Normal protocols and fields */
 	else {
@@ -421,10 +439,17 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		pdata->level--;
 	}
 
+	/* Take back the extra level we added for fake wrapper protocol */
+	if (wrap_in_fake_protocol) {
+		pdata->level--;
+	}
+
 	if (node->first_child != NULL) {
+		/* Indent to correct level */
 		for (i = -1; i < pdata->level; i++) {
 			fputs("  ", pdata->fh);
 		}
+		/* Close off current element */
 		if (fi->hfinfo->id != proto_data) {   /* Data protocol uses simple tags */
 			if (fi->hfinfo->type == FT_PROTOCOL) {
 				fputs("</proto>\n", pdata->fh);
@@ -433,6 +458,11 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 				fputs("</field>\n", pdata->fh);
 			}
 		}
+	}
+
+	/* Close off fake wrapper protocol */
+	if (wrap_in_fake_protocol) {
+		fputs("</proto>\n", pdata->fh);
 	}
 }
 
