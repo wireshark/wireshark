@@ -2561,7 +2561,6 @@ static int get_label_dim (struct axis *axis, int dir, double label)
 	default:
 		puts ("initialize axis: an axis must be either horizontal or vertical");
 		return -1;
-		break;
 	}
 	return dim;
 }
@@ -2571,13 +2570,10 @@ static double axis_zoom_get (struct axis *axis, int dir)
 	switch (dir) {
 	case AXIS_HORIZONTAL:
 		return axis->g->zoom.x;
-		break;
 	case AXIS_VERTICAL:
 		return axis->g->zoom.y;
-		break;
 	default:
 		return -1;
-		break;
 	}
 }
 

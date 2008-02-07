@@ -131,6 +131,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	const radius_info_t *ri=pri;
 	nstime_t delta;
 	radius_category radius_cat = OTHERS;
+	int ret = 0;
 
 	switch (ri->code) { 
 		case RADIUS_ACCESS_REQUEST:
@@ -175,14 +176,12 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			/* Duplicate is ignored */
 			rs->radius_rtd[OVERALL].req_dup_num++;
 			rs->radius_rtd[radius_cat].req_dup_num++;
-			return 0;
 		}
 		else {
 			rs->radius_rtd[OVERALL].open_req_num++;
 			rs->radius_rtd[radius_cat].open_req_num++;
-			return 0;
 		}
-	break;
+		break;
 
 	case RADIUS_ACCESS_ACCEPT:
 	case RADIUS_ACCESS_REJECT:
@@ -198,13 +197,11 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			/* Duplicate is ignored */
 			rs->radius_rtd[OVERALL].rsp_dup_num++;
 			rs->radius_rtd[radius_cat].rsp_dup_num++;
-			return 0;
 		}
 		else if (!ri->request_available) {
 			/* no request was seen */
 			rs->radius_rtd[OVERALL].disc_rsp_num++;
 			rs->radius_rtd[radius_cat].disc_rsp_num++;
-			return 0;
 		}
 		else {
 			rs->radius_rtd[OVERALL].open_req_num--;
@@ -215,14 +212,15 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			time_stat_update(&(rs->radius_rtd[OVERALL].stats),&delta, pinfo);
 			time_stat_update(&(rs->radius_rtd[radius_cat].stats),&delta, pinfo);
 
-			return 1;
+			ret = 1;
 		}
-	break;
+		break;
 
 	default:
-		return 0;
-	break;
+		break;
 	}
+
+	return ret;
 }
 
 static void

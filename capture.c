@@ -324,7 +324,6 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
       return FALSE;
-      break;
     }
   }
 

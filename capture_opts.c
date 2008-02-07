@@ -540,7 +540,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg,
 #endif
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
-        break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = linktype_name_to_val(optarg);

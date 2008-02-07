@@ -70,6 +70,7 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	radiusstat_t *rs=(radiusstat_t *)prs;
 	const radius_info_t *ri=pri;
 	nstime_t delta;
+	int ret = 0;
 
 	switch (ri->code) {
 
@@ -82,13 +83,11 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
 			rs->req_dup_num++;
-			return 0;
 		}
 		else {
 			rs->open_req_num++;
-			return 0;
 		}
-	break;
+		break;
 
 	case RADIUS_ACCESS_ACCEPT:
 	case RADIUS_ACCESS_REJECT:
@@ -103,12 +102,10 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
 			rs->rsp_dup_num++;
-			return 0;
 		}
 		else if (!ri->request_available) {
 			/* no request was seen */
 			rs->disc_rsp_num++;
-			return 0;
 		}
 		else {
 			rs->open_req_num--;
@@ -122,21 +119,19 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			else if (ri->code == RADIUS_ACCOUNTING_RESPONSE) {
 				time_stat_update(&(rs->rtd[2]),&delta, pinfo);
 			}
-
-
-
 			else {
 				time_stat_update(&(rs->rtd[7]),&delta, pinfo);
 			}
 
-			return 1;
+			ret = 1;
 		}
-	break;
+		break;
 
 	default:
-		return 0;
-	break;
+		break;
 	}
+
+	return ret;
 }
 
 static void

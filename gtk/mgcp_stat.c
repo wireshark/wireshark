@@ -118,6 +118,7 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	const mgcp_info_t *mi=pmi;
 	nstime_t delta;
+	int ret = 0;
 
 	switch (mi->mgcp_type) {
 
@@ -125,24 +126,20 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		if(mi->is_duplicate){
 			/* Duplicate is ignored */
 			ms->req_dup_num++;
-			return 0;
 		}
 		else {
 			ms->open_req_num++;
-			return 0;
 		}
-	break;
+		break;
 
 	case MGCP_RESPONSE:
 		if(mi->is_duplicate){
 			/* Duplicate is ignored */
 			ms->rsp_dup_num++;
-			return 0;
 		}
 		else if (!mi->request_available) {
 			/* no request was seen */
 			ms->disc_rsp_num++;
-			return 0;
 		}
 		else {
 			ms->open_req_num--;
@@ -180,14 +177,15 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
 			}
 
-			return 1;
+			ret = 1;
 		}
-	break;
+		break;
 
 	default:
-		return 0;
-	break;
+		break;
 	}
+
+	return ret;
 }
 
 static void

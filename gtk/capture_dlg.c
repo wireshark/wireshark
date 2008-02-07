@@ -448,16 +448,12 @@ guint32 value)
     switch(unit) {
     case(TIME_UNIT_SECOND):
         return value;
-        break;
     case(TIME_UNIT_MINUTE):
         return value * 60;
-        break;
     case(TIME_UNIT_HOUR):
         return value * 60 * 60;
-        break;
     case(TIME_UNIT_DAY):
         return value * 60 * 60 * 24;
-        break;
     default:
         g_assert_not_reached();
         return 0;
@@ -543,21 +539,18 @@ guint32 value)
     switch(unit) {
     case(SIZE_UNIT_KILOBYTES):
         return value;
-        break;
     case(SIZE_UNIT_MEGABYTES):
         if(value > G_MAXINT / 1024) {
             return 0;
         } else {
             return value * 1024;
         }
-        break;
     case(SIZE_UNIT_GIGABYTES):
         if(value > G_MAXINT / (1024 * 1024)) {
             return 0;
         } else {
             return value * 1024 * 1024;
         }
-        break;
     default:
         g_assert_not_reached();
         return 0;
