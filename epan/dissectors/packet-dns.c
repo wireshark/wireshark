@@ -1198,7 +1198,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, tvb, cur_offset, pname_len, "Domain name: %s",
 			name_out);
       }
-      break;
     }
     break;
 
@@ -1311,7 +1310,6 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	proto_tree_add_text(rr_tree, tvb, os_offset, 1 + os_len, "OS: %.*s",
 			os_len, os);
       }
-      break;
     }
     break;
 

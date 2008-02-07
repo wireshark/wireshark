@@ -2712,7 +2712,6 @@ printf("CHOICE dissect_ber_choice(%s) trying again\n",name);
 			 }
 			}
 			return end_offset;
-			break;
 		}
 		ch++;
 	}
@@ -2943,7 +2942,6 @@ printf("CHOICE dissect_ber_old_choice(%s) trying again\n",name);
 			 }
 			}
 			return end_offset;
-			break;
 		}
 		ch++;
 	}

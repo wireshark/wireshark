@@ -535,7 +535,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_megaco_errordescriptor(tvb, megaco_tree, tvb_len-1, tvb_command_start_offset);
 			}
 			return;
-			break;
 			/* transactionResponseAck
 			 * transactionResponseAck = ResponseAckToken LBRKT transactionAck
              *                           *(COMMA transactionAck) RBRKT
@@ -574,7 +573,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 			tvb_previous_offset = tvb_LBRKT +1;
 			return;
-			break;
 		/* Pe and PN is transactionPending, P+"any char" is transactionReply */
 		case PENDINGTOKEN:
 			trx_type = GCP_TRX_PENDING;
@@ -604,7 +602,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb_offset, len,
 				tvb_format_text(tvb,tvb_offset,len));
 			return;
-			break;
 
 		/* transactionReply */
 		case REPLYTOKEN:
@@ -678,7 +675,6 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    "Sorry, can't understand errorDescriptor / transactionList = %s, can't parse it pos %u",
                          tvb_format_text(tvb,tvb_previous_offset,2),tvb_previous_offset);
 			return;
-			break;
 		} /* end switch */
 /* 		Only these remains now
  *		transactionReply = ReplyToken EQUAL TransactionID LBRKT
@@ -1086,8 +1082,6 @@ nextcontext:
 								tvb_previous_offset, tokenlen,
 								"No Command detectable !");
 							return;
-
-							break;
 						}
 					}
 					else{

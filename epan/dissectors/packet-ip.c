@@ -523,7 +523,6 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
       /* padding - skip this tag */
       offset += 1;
       continue;
-      break;
     case 1:
       /* restrictive bitmap, see CIPSO draft section 3.4.2 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||

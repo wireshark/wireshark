@@ -238,7 +238,6 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* This is not a valid telegram. So cancel dissection
                and try the next dissector */
             return FALSE;
-	    break;
 	}
 	if (tvb_get_guint8(tvb,offset + position + 1) < 1)
 	    THROW(ReportedBoundsError);

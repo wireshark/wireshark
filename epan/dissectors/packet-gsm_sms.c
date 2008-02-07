@@ -1533,17 +1533,17 @@ char_def_alphabet_ext_decode(unsigned char value)
 {
     switch (value)
     {
-    case 0x0a: return 0x0c; break; /* form feed */
-    case 0x14: return '^';  break;
-    case 0x28: return '{';  break;
-    case 0x29: return '}';  break;
-    case 0x2f: return '\\'; break;
-    case 0x3c: return '[';  break;
-    case 0x3d: return '~';  break;
-    case 0x3e: return ']';  break;
-    case 0x40: return '|';  break;
-    case 0x65: return 0x20ac; break; /* euro */
-    default: return '?';    break; /* invalid character */
+    case 0x0a: return 0x0c; /* form feed */
+    case 0x14: return '^';
+    case 0x28: return '{';
+    case 0x29: return '}';
+    case 0x2f: return '\\';
+    case 0x3c: return '[';
+    case 0x3d: return '~';
+    case 0x3e: return ']';
+    case 0x40: return '|';
+    case 0x65: return 0x20ac; /* euro */
+    default: return '?'; /* invalid character */
     }
 }
 

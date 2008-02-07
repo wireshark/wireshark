@@ -1735,8 +1735,6 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			return;
 		proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
 		break;
-
-		break;
 	case BSSAP_LOCATION_UPDATE_REQUEST:			/*  17.1.11 BSSAP+-LOCATION-UPDATE-REQUEST */
 		/* IMSI IMSI 18.4.10 M TLV 6-10 */
 		if ( check_ie(tvb, tree, &offset, BSSAP_IMSI))
@@ -1987,7 +1985,6 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			/* VLR number VLR number 18.4.26 C TLV 5-11 */
 			if ( check_optional_ie(tvb, offset, BSSAP_VLR_NUMBER)){
 				offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
-				return;
 				if (tvb_length_remaining(tvb,offset) == 0)
 					return;
 				proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");
@@ -2007,7 +2004,6 @@ static void dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			/* VLR number VLR number 18.4.26 C TLV 5-11 */
 			if ( check_optional_ie(tvb, offset, BSSAP_VLR_NUMBER)){
 				offset = dissect_bssap_vlr_number(tvb, bssap_tree, offset);
-				return;
 				if (tvb_length_remaining(tvb,offset) == 0)
 					return;
 				proto_tree_add_text(tree, tvb, offset, -1, "Extraneous data");

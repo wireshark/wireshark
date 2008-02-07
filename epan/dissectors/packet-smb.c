@@ -16042,22 +16042,18 @@ static const char *decode_smb_error(guint8 errcls, guint16 errcode)
   case SMB_SUCCESS:
 
     return("No Error");   /* No error ??? */
-    break;
 
   case SMB_ERRDOS:
 
     return(val_to_str(errcode, DOS_errors, "Unknown DOS error (%x)"));
-    break;
 
   case SMB_ERRSRV:
 
     return(val_to_str(errcode, SRV_errors, "Unknown SRV error (%x)"));
-    break;
 
   case SMB_ERRHRD:
 
     return(val_to_str(errcode, HRD_errors, "Unknown HRD error (%x)"));
-    break;
 
   default:
 

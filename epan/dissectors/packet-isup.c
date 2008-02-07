@@ -2296,7 +2296,6 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 		    length, "Diagnostic: %s",
 		    tvb_bytes_to_str(parameter_tvb, offset, length));
 		return;
-		break;
 	case 2:
 		/*ANSI*/
 		proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, FALSE);
@@ -2318,7 +2317,6 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
 		    length, "Diagnostic: %s",
 		    tvb_bytes_to_str(parameter_tvb, offset, length));
 		return;
-		break;
 	default:
 		proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
 		proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);

@@ -266,7 +266,7 @@ parse_extended_pasv_response(const guchar *line, int linelen, guint16 *ftp_port)
 					delimiter = c;
 				}
 				if (c != delimiter) {
-					break;;
+					break;
 				}
 			p++;
 			}

@@ -914,7 +914,6 @@ static void dissect_dcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(tree)
 			proto_tree_add_text(dcp_tree, tvb, offset, -1, "Reserved packet type: unable to dissect further");
 		return;
-		break;
 	}
 
 

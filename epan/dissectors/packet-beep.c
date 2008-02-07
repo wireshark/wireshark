@@ -213,7 +213,7 @@ static int
 dissect_beep_more(tvbuff_t *tvb, int offset,
 		  proto_tree *tree)
 {
-
+  int ret = 0;
 
   switch (beep_get_more(tvb_get_guint8(tvb, offset))) {
 
@@ -224,7 +224,7 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
       proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
     }
 
-    return 0;
+    ret = 0;
 
     break;
 
@@ -235,7 +235,7 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
       proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
     }
 
-    return 1;
+    ret = 1;
 
     break;
 
@@ -246,11 +246,12 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
       proto_tree_add_text(tree, tvb, offset, 1, "PROTOCOL VIOLATION: Expected More Flag (* or .)");
     }
 
-    return -1;
+    ret = -1;
 
     break;
   }
 
+  return ret;
 }
 
 #if 0

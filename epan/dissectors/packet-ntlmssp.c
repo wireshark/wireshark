@@ -1259,7 +1259,6 @@ get_encrypted_state(packet_info *pinfo, int cryptpeer)
       }
     }
   }
-  return NULL;
 }
 
 /*

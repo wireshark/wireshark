@@ -1753,48 +1753,37 @@ val_to_str_err_code(guint8 class, guint8 code)
 	switch(class) {
 		case 1:
 			return(val_to_str(code, names_err_code_vfd_state, "Unknown"));
-			break;
 
 		case 2:
 			return(val_to_str(code, names_err_code_appl_ref, "Unknown"));
-			break;
 
 		case 3:
 			return(val_to_str(code, names_err_code_def, "Unknown"));
-			break;
 
 		case 4:
 			return(val_to_str(code, names_err_code_res, "Unknown"));
-			break;
 
 		case 5:
 			return(val_to_str(code, names_err_code_srv, "Unknown"));
-			break;
 
 		case 6:
 			return(val_to_str(code, names_err_code_access, "Unknown"));
-			break;
 
 		case 7:
 			return(val_to_str(code, names_err_code_od, "Unknown"));
-			break;
 
 		case 8:
 			return(val_to_str(code, names_err_code_other, "Unknown"));
-			break;
 
 		case 9:
 			return(val_to_str(code, names_err_code_reject, "Unknown"));
-			break;
 
 		case 10:
 			return(val_to_str(code,
 				names_err_code_h1_sm_reason_code, "Unknown"));
-			break;
 
 		case 11:
 			return(val_to_str(code, names_err_code_fms_init, "Unknown"));
-			break;
 
 		default:
 			return("Unknown");

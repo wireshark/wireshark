@@ -183,7 +183,7 @@ static gint circuit_chain_equal(gconstpointer v, gconstpointer w)
     gint result;
     result = ( v1->call == v2->call &&
 	       v1->vc == v2 -> vc );
-    return result;;
+    return result;
 }
 
 static guint circuit_chain_hash (gconstpointer v)
@@ -1142,7 +1142,6 @@ static gboolean h223_mux_check_hdlc(int h223_level, guint32 nbytes, guint32 tail
             /* level 0 isn't byte-aligned, so is a complete pain to implement */
             DISSECTOR_ASSERT_NOT_REACHED();
             return FALSE;
-            break;
 
         case 1:
             masked = tail_buf & 0xffff;

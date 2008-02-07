@@ -287,7 +287,7 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_item *ti;
     proto_item *auth_item;
     proto_tree *auth_tree;
-    char *password;
+    guint8 *password;
 
     auth_type = tvb_get_guint8(tvb, offset);
     auth_len = tvb_get_guint8(tvb, offset + 1);

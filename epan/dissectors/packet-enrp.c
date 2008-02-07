@@ -189,7 +189,6 @@ dissect_error_cause(tvbuff_t *cause_tvb, proto_tree *parameter_tree)
     message_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
     dissect_enrp(message_tvb, NULL, cause_tree);
     break;
-    break;
   case INVALID_VALUES:
     parameter_tvb = tvb_new_subset(cause_tvb, CAUSE_INFO_OFFSET, -1, -1);
     dissect_parameter(parameter_tvb, cause_tree);

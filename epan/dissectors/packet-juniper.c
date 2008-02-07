@@ -1267,11 +1267,9 @@ ppp_heuristic_guess(guint16 proto) {
     case PPP_IPV6 :
     case PPP_IPV6CP :
         return TRUE;
-        break;
 
     default:
         return FALSE; /* did not find a ppp header */
-        break;
     }
 }
 
@@ -1295,7 +1293,6 @@ ip_heuristic_guess(guint8 ip_header_byte) {
     case 0x4e:
     case 0x4f:
         return PROTO_IP;
-        break;
     case 0x60:
     case 0x61:
     case 0x62:
@@ -1313,7 +1310,6 @@ ip_heuristic_guess(guint8 ip_header_byte) {
     case 0x6e:
     case 0x6f:
         return PROTO_IP6;
-        break;
     default:
         return PROTO_UNKNOWN; /* did not find a ip header */
     }

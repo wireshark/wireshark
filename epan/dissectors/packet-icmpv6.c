@@ -619,7 +619,6 @@ again:
 						ip6_to_str(&opt_nr->fmip6_opt_prefix));
 				break;
 			}
-			break;
 		case FMIP6_OPT_LINK_LAYER_ADDRESS:
 			{
 				int len, p;

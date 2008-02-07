@@ -6152,7 +6152,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		    str = "Reserved";
 		    break;
 		}
-		break;
 	    }
 	    else
 	    {
@@ -6165,7 +6164,6 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar 
 		    str = "Reserved";
 		    break;
 		}
-		break;
 	    }
 	    break;
 
@@ -18470,8 +18468,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
     /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
-    return;
-	break;
+	return;
     }
 
     /*
@@ -18746,8 +18743,7 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     default:
     /* XXX - hf_idx is still -1! this is a bug in the implementation, and I don't know how to fix it so simple return here */
-    return;
-	break;
+	return;
     }
 
 	sccp_msg = pinfo->sccp_info;

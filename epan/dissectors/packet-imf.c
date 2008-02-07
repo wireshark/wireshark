@@ -437,7 +437,6 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 			  if(last_field)
 				  *last_field = TRUE;
 			  return offset;
-			  break;
 		  case  ' ':
 		  case '\t':
 			  /* continuation line */
@@ -445,7 +444,6 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 		  default:
 			  /* this is a new field */
 			  return offset;
-			  break;
 		  }
 	  }
 	}else {

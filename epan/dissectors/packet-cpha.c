@@ -439,19 +439,13 @@ static const char *
 version2str(guint16 version) {
   switch(version) {
 	case 1: return "4.1";
-		break;
 	case 6: return "NG Feature Pack 2";
-		break;
 	case 530: return "NG Feature Pack 3";
-		break;
 	case 540: return "NG with Application Intelligence (Early Availability)";
-		break;
 	case 541: return "NG with Application Intelligence";
-		break;
-	default: return "Unknown Version";
-	break;	
+	default: break;
   }
-  return NULL;
+  return "Unknown Version";
 }
 static const char *
 opcode2str_short(guint16 opcode) {

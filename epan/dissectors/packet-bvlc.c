@@ -48,7 +48,7 @@
  * configured locally to a different value without it being considered
  * a violation of this protocol.
  */
-static int additional_bvlc_udp_port = 0;
+static guint additional_bvlc_udp_port = 0;
 
 static int proto_bvlc = -1;
 static int hf_bvlc_type = -1;
@@ -428,7 +428,7 @@ proto_reg_handoff_bvlc(void)
 {
 	static int bvlc_initialized = FALSE;
 	static dissector_handle_t bvlc_handle;
-	static int bvlc_udp_port;
+	static guint bvlc_udp_port;
 	
 	if (!bvlc_initialized)
 	{

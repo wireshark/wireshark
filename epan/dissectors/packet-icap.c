@@ -205,7 +205,6 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 				is_icap = TRUE;
 				goto is_icap_header;
-				break;
 			}
 		}
 

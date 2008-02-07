@@ -1616,7 +1616,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 		  else
 			  g_hash_table_insert(transport_info->media[ transport_info->media_count-1 ].rtp_dyn_payload,
 					key, g_strdup(transport_info->encoding_name));
-   	  return;
 	  break;
   case SDP_FMTP:
 	  if(sdp_media_attribute_tree){
@@ -1667,7 +1666,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 			  offset = next_offset + 1;
 		  }
 	  }
-	  return;
 	  break;
   case SDP_PATH:
 	  /* msrp attributes that contain address needed for conversation */

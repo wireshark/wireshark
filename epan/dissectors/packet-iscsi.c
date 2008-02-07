@@ -666,7 +666,6 @@ handleHeaderDigest(iscsi_session_t *iscsi_session, proto_item *ti, tvbuff_t *tvb
 	    }
 	}
 	return offset + headerLen + 4;
-        break;
     }
     return offset + headerLen;
 }

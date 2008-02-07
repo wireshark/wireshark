@@ -845,8 +845,6 @@ static int ositp_decode_DR(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     case (2):     str = "Session entity not attached to TSAP"; break;
     case (3):     str = "Address unknown"; break;
     default:      return -1;
-      /*NOTREACHED*/
-      break;
   }
 
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -961,8 +959,6 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
     default : /* bad TPDU */
       return -1;
-      /*NOTREACHED*/
-      break;
   }
 
   pinfo->clnp_dstref = dst_ref;
@@ -1155,8 +1151,6 @@ static int ositp_decode_ED(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
     default : /* bad TPDU */
       return -1;
-      /*NOTREACHED*/
-      break;
   } /* li */
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -1234,8 +1228,6 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       break;
     default :
       return -1;
-      /*NOTREACHED*/
-      break;
   }
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -1571,8 +1563,6 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
     default : /* bad TPDU */
       return -1;
-      /*NOTREACHED*/
-      break;
   } /* li */
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);
@@ -1650,8 +1640,6 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
       break;
     default:
       return -1;
-      /*NOTREACHED*/
-      break;
   }
 
   dst_ref = tvb_get_ntohs(tvb, offset + P_DST_REF);

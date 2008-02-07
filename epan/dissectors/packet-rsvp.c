@@ -1457,7 +1457,6 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_MESSAGE_ID_ACK :
     case RSVP_CLASS_MESSAGE_ID_LIST :
 	return classnum + RSVPF_OBJECT;
-	break;
 
     case RSVP_CLASS_RECOVERY_LABEL :
     case RSVP_CLASS_UPSTREAM_LABEL :

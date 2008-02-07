@@ -705,8 +705,6 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 	case FMP_WRITER_ZEROED_BLK:
 		*rval = 0;
 		break;
-		*rval = 1;
-		break;
 	case FMP_WRONG_HANDLE:
 		*rval = 0;
 		break;

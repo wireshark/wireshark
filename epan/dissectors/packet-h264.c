@@ -411,7 +411,6 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 					}
 				}
 				return codenum;
-				break;
 			default:
 				break;
 			}
@@ -1346,7 +1345,6 @@ dissect_h264_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 				/* else*/
 					/* scaling_list( ScalingList8x8[ i - 6 ], 64, UseDefaultScalingMatrix8x8Flag[ i - 6 ] )*/
 			/* }*/
-			proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
 			}
 
 		/* second_chroma_qp_index_offset 1 se(v)*/

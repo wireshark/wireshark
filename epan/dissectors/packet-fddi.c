@@ -254,7 +254,6 @@ fddifc_to_str(int fc)
       g_snprintf(strbuf, sizeof(strbuf), "Implementor sync frame, control %x",
 			fc & FDDI_FC_ZZZZ);
       return strbuf;
-      break;
 
     default:
       return "Unknown frame type";

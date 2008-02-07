@@ -120,11 +120,9 @@ val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 		fv->value.tvb = new_tvb;
 		return TRUE;
 	}
-	else {
-		/* Treat it as a string. */
-		return val_from_string(fv, s, logfunc);
-	}
-	g_assert_not_reached();
+
+	/* Treat it as a string. */
+	return val_from_string(fv, s, logfunc);
 }
 
 static int

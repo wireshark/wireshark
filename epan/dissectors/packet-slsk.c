@@ -259,10 +259,8 @@ static gboolean check_slsk_format(tvbuff_t *tvb, int offset, const char format[]
 		break;
 		case '*':
 			return TRUE;
-		break;
 		default:
 			return FALSE;
-		break;
 	}
 
 	if (format[1] == '\0' ) {

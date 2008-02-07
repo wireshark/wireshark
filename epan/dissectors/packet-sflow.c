@@ -531,7 +531,6 @@ dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 							"Unknown address type (%d)", address_type);
 		len += 4;  /* not perfect, but what else to do? */
 		return len;  /* again, this is wrong.  but... ? */
-		break;
 	};
 	
 	proto_tree_add_item(tree, hf_sflow_nexthop_src_mask, tvb, offset + len,
@@ -863,9 +862,8 @@ dissect_sflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 16;
 		break;
 	default:
-		return 0;
 		/* unknown address.  this will cause a malformed packet.  */
-		break;
+		return 0;
 	};
 
 	if (version == 5) {

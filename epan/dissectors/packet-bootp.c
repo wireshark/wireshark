@@ -677,7 +677,6 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		consumed = i;
 		return consumed;
-		break;
 
 	case 255:	/* End Option */
 		if (!first_pass) {

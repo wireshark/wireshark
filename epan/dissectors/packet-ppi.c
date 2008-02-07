@@ -357,14 +357,12 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
         case 1: /* DLT_EN10MB */
             capture_eth(pd, ppi_len, len, ld);
             return;
-            break;
         case 105: /* DLT_DLT_IEEE802_11 */
             if (is_htc)
                 capture_ieee80211_ht(pd, ppi_len, len, ld);
             else
                 capture_ieee80211(pd, ppi_len, len, ld);
             return;
-            break;
         default:
             break;
     }

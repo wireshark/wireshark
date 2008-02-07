@@ -3696,7 +3696,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		case PIPE_LANMAN:
 			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
 			    tree);
-			break;
 
 		case PIPE_DCERPC:
 			/*
@@ -3721,7 +3720,6 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		case PIPE_LANMAN:
 			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
 			    tree);
-			break;
 		}
 		break;
 
