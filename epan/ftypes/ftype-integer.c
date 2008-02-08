@@ -35,7 +35,7 @@
 
 /*
  * GLib 1.2[.x] doesn't define G_MAXUINT32 or G_MAXUINT64; if they're
- * not defined, we define them as the maximum 32-bit and 32-bit
+ * not defined, we define them as the maximum 32-bit and 64-bit
  * unsigned numbers.
  */
 #ifndef G_MAXUINT32
