@@ -466,5 +466,6 @@ typedef struct pol_value {
 } pol_value;
 
 
+extern int hf_dcerpc_drep_byteorder;
 
 #endif /* packet-dcerpc.h */

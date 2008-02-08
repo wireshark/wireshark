@@ -281,6 +281,9 @@ static gint hf_krb_gssapi_c_flag_dce_style = -1;
 static gint hf_krb_smb_nt_status = -1;
 static gint hf_krb_smb_unknown = -1;
 static gint hf_krb_midl_blob_len = -1;
+static gint hf_krb_midl_fill_bytes = -1;
+static gint hf_krb_midl_version = -1;
+static gint hf_krb_midl_hdr_len = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -333,6 +336,7 @@ static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 static gint ett_krb_e_checksum = -1;
 static gint ett_krb_PAC_MIDL_BLOB = -1;
+static gint ett_krb_PAC_DREP = -1;
 
 guint32 krb5_errorcode;
 
@@ -2455,6 +2459,29 @@ dissect_krb5_subkey(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
 	return offset;
 }
 
+static int
+dissect_krb5_PAC_DREP(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	guint8 val;
+
+	if(parent_tree){
+		item=proto_tree_add_text(parent_tree, tvb, offset, 16, "DREP");
+		tree=proto_item_add_subtree(item, ett_krb_PAC_DREP);
+	}
+
+	val = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_dcerpc_drep_byteorder, tvb, offset, 1, val>>4);
+
+	offset++;
+
+	if (drep) {
+		*drep = val;
+	}
+
+	return offset;
+}
 
 /* This might be some sort of header that MIDL generates when creating
  * marshalling/unmarshalling code for blobs that are not to be transported
@@ -2462,32 +2489,36 @@ dissect_krb5_subkey(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *act
  * endianess and similar are not available.
  */
 static int
-dissect_krb5_PAC_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
+dissect_krb5_PAC_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *drep, asn1_ctx_t *actx _U_)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 
 	if(parent_tree){
-		item=proto_tree_add_text(parent_tree, tvb, offset, 16, "unknown MIDL blob");
+		item=proto_tree_add_text(parent_tree, tvb, offset, 16, "MES header");
 		tree=proto_item_add_subtree(item, ett_krb_PAC_MIDL_BLOB);
 	}
-	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			TRUE);
-	offset += 4;
 
-	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
+	/* modified DREP field that is used for stuff that is transporetd ontop
+	   of non dcerpc
+	*/
+	proto_tree_add_item(tree, hf_krb_midl_version, tvb, offset, 1, TRUE);
+	offset++;
+
+	offset = dissect_krb5_PAC_DREP(tree, tvb, offset, drep);
+
+
+	proto_tree_add_item(tree, hf_krb_midl_hdr_len, tvb, offset, 2, TRUE);
+	offset+=2;
+
+	proto_tree_add_item(tree, hf_krb_midl_fill_bytes, tvb, offset, 4,
 			TRUE);
 	offset += 4;
 
 	/* length of blob that follows */
-	proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 4,
+	proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 8,
 			TRUE);
-	offset += 4;
-
-	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			TRUE);
-	offset += 4;
-
+	offset += 8;
 
 	return offset;
 }
@@ -2509,7 +2540,7 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
 	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	offset=dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, actx);
+	offset=dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
 	/* the PAC_LOGON_INFO blob */
 	/* fake whatever state the dcerpc runtime support needs */
@@ -2543,7 +2574,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
 	/* skip the first 16 bytes, they are some magic created by the idl
 	 * compiler   the first 4 bytes might be flags?
 	 */
-	offset=dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, actx);
+	offset=dissect_krb5_PAC_NDRHEADERBLOB(tree, tvb, offset, &drep[0], actx);
 
 
 	/* the PAC_CONSTRAINED_DELEGATION blob */
@@ -5034,8 +5065,20 @@ proto_register_kerberos(void)
 		{ "Unknown", "kerberos.smb.unknown", FT_UINT32, BASE_HEX,
 		NULL, 0, "unknown", HFILL }},
 	{ &hf_krb_midl_blob_len,
-		{ "Blob Length", "kerberos.midl_blob_len", FT_UINT32, BASE_DEC,
+		{ "Blob Length", "kerberos.midl_blob_len", FT_UINT64, BASE_DEC,
 		NULL, 0, "Length of NDR encoded data that follows", HFILL }},
+
+	{ &hf_krb_midl_fill_bytes,
+		{ "Fill bytes", "kerberos.midl.fill_bytes", FT_UINT32, BASE_HEX,
+		NULL, 0, "Just some fill bytes", HFILL }},
+
+	{ &hf_krb_midl_version,
+		{ "Version", "kerberos.midl.version", FT_UINT8, BASE_DEC,
+		NULL, 0, "Version of pickling", HFILL }},
+
+	{ &hf_krb_midl_hdr_len,
+		{ "HDR Length", "kerberos.midl.hdr_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of header", HFILL }},
 
     };
 
@@ -5090,7 +5133,8 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
 	&ett_krb_PAC_CONSTRAINED_DELEGATION,
 	&ett_krb_e_checksum,
-	&ett_krb_PAC_MIDL_BLOB
+	&ett_krb_PAC_MIDL_BLOB,
+	&ett_krb_PAC_DREP
     };
     module_t *krb_module;
 
