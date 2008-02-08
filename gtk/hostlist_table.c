@@ -78,6 +78,7 @@ hostlist_port_to_str(int port_type, guint32 port)
 	switch(port_type){
 	case PT_TCP:
 	case PT_UDP:
+	case PT_SCTP:
 		g_snprintf(strp, 11, "%d", port);
 		return strp;
 	}
@@ -112,8 +113,8 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 				return "fddi.addr";
 			case SAT_TOKENRING:
 				return "tr.addr";
-                        default :
-                                ;
+                        default:
+                                break;
 			}
                         break;
 		case AT_IPv4:
@@ -129,13 +130,13 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 			case SAT_JXTA:
 				return "jxta.message.address";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_USB:
 			return "usb.addr";
 		default:
-			;
+			break;
 		}
 	case FN_ANY_PORT:
 		switch(port_type){
@@ -143,6 +144,8 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 			return "tcp.port";
 		case PT_UDP:
 			return "udp.port";
+		case PT_SCTP:
+			return "sctp.port";
 		}
 		break;
 	}
@@ -516,6 +519,9 @@ draw_hostlist_table_address(hostlist_table *hl, int hostlist_idx)
         break;
     case(PT_UDP):
         entry=get_udp_port(hl->hosts[hostlist_idx].port);
+        break;
+    case(PT_SCTP):
+        entry=get_sctp_port(hl->hosts[hostlist_idx].port);
         break;
     default:
         port=hostlist_port_to_str(hl->hosts[hostlist_idx].port_type, hl->hosts[hostlist_idx].port);

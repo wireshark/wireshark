@@ -92,8 +92,9 @@ ct_port_to_str(int port_type, guint32 port)
 
 	switch(port_type){
 	case PT_TCP:
-    case PT_UDP:
-    case PT_NCP:
+        case PT_UDP:
+        case PT_SCTP:
+        case PT_NCP:
 		g_snprintf(strp, 11, "%d", port);
 		return strp;
 	}
@@ -132,7 +133,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			case SAT_TOKENRING:
 				return "tr.src";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_IPv4:
@@ -148,13 +149,13 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			case SAT_JXTA:
 				return "jxta.message.src";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_USB:
 			return "usb.sa";
 		default:
-			;
+			break;
 		}
                 break;
 	case FN_DST_ADDRESS:
@@ -170,7 +171,7 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			case SAT_TOKENRING:
 				return "tr.dst";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_IPv4:
@@ -186,13 +187,13 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			case SAT_JXTA:
 				return "jxta.message.dst";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_USB:
 			return "usb.da";
 		default:
-			;
+			break;
 		}
                 break;
 	case FN_ANY_ADDRESS:
@@ -224,13 +225,13 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			case SAT_JXTA:
 				return "jxta.message.address";
                         default:
-                            ;
+                                break;
 			}
                         break;
 		case AT_USB:
 			return "usb.addr";
 		default:
-			;
+			break;
 		}
                 break;
 	case FN_SRC_PORT:
@@ -239,10 +240,12 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "tcp.srcport";
 		case PT_UDP:
 			return "udp.srcport";
-        case PT_NCP:
-            return "ncp.connection";
-                default:
-                        ;
+		case PT_SCTP:
+			return "sctp.srcport";
+		case PT_NCP:
+			return "ncp.connection";
+		default:
+			break;
 		}
 		break;
 	case FN_DST_PORT:
@@ -251,10 +254,12 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "tcp.dstport";
 		case PT_UDP:
 			return "udp.dstport";
-        case PT_NCP:
-            return "ncp.connection";
-                default:
-                        ;
+		case PT_SCTP:
+			return "sctp.dstport";
+		case PT_NCP:
+			return "ncp.connection";
+		default:
+			break;
 		}
 		break;
 	case FN_ANY_PORT:
@@ -263,10 +268,12 @@ ct_get_filter_name(address *addr, int specific_addr_type, int port_type, int nam
 			return "tcp.port";
 		case PT_UDP:
 			return "udp.port";
-        case PT_NCP:
-            return "ncp.connection";
-                default:
-                        ;
+		case PT_SCTP:
+			return "sctp.port";
+		case PT_NCP:
+			return "ncp.connection";
+		default:
+			break;
 		}
 		break;
 	}
@@ -1092,6 +1099,9 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
     case(PT_UDP):
         entry=get_udp_port(ct->conversations[conversation_idx].src_port);
         break;
+    case(PT_SCTP):
+        entry=get_sctp_port(ct->conversations[conversation_idx].src_port);
+        break;
     default:
         port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].src_port);
         entry=port?port:"";
@@ -1111,6 +1121,9 @@ draw_ct_table_address(conversations_table *ct, int conversation_idx)
         break;
     case(PT_UDP):
         entry=get_udp_port(ct->conversations[conversation_idx].dst_port);
+        break;
+    case(PT_SCTP):
+        entry=get_sctp_port(ct->conversations[conversation_idx].dst_port);
         break;
     default:
         port=ct_port_to_str(ct->conversations[conversation_idx].port_type, ct->conversations[conversation_idx].dst_port);

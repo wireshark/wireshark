@@ -138,14 +138,14 @@ WIRESHARK_TAP_SRC = \
 	conversations_ip.c	\
 	conversations_ipx.c	\
 	conversations_jxta.c		\
+	conversations_ncp.c     \
+	conversations_rsvp.c	\
 	conversations_sctp.c	\
 	conversations_tcpip.c	\
 	conversations_tr.c	\
 	conversations_udpip.c	\
 	conversations_usb.c	\
 	conversations_wlan.c	\
-	conversations_ncp.c     \
-	conversations_rsvp.c	\
 	dcerpc_stat.c	\
 	expert_comp_dlg.c     \
 	expert_dlg.c	\
@@ -164,12 +164,13 @@ WIRESHARK_TAP_SRC = \
 	hostlist_ipx.c	\
 	hostlist_jxta.c	\
 	hostlist_ncp.c	\
+	hostlist_rsvp.c \
+	hostlist_sctp.c	\
 	hostlist_tcpip.c \
 	hostlist_tr.c	\
 	hostlist_udpip.c \
 	hostlist_usb.c \
 	hostlist_wlan.c \
-	hostlist_rsvp.c \
 	io_stat.c	\
 	ldap_stat.c	\
 	mgcp_stat.c	\
