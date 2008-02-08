@@ -445,6 +445,7 @@ get_profile_name
 get_profiles_dir
 get_progfile_dir
 get_rose_ctx
+get_sctp_port
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
