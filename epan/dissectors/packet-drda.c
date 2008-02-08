@@ -3,7 +3,7 @@
  *
  * metatech <metatech@flashmail.com>
  *
- * $Id: packet-drda.c 18196 2006-05-21 04:49:01Z sahlberg $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

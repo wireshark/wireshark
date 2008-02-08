@@ -1,7 +1,7 @@
 /* conversations_ncp.c 2005 Greg Morris
  * modified from conversations_eth.c   2003 Ronnie Sahlberg
  *
- * $Id: conversations_wlan.c 15501 2005-08-21 19:24:11Z guy $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

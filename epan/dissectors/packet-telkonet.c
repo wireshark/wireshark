@@ -1,7 +1,7 @@
 /* packet-telkonet.c
  * Routines for ethertype 0x88A1 tunneling dissection
  *
- * $Id: packet-telkonet.c 18196 2006-05-21 04:49:01Z sahlberg $
+ * $Id$
  *
  * Copyright 2006 Joerg Mayer (see AUTHORS file)
  *

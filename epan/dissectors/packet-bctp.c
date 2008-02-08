@@ -4,7 +4,7 @@
  *
  *  (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
- * $Id: $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -1,7 +1,7 @@
 /* ncp_stat.c
  * ncp_stat   2005 Greg Morris
  *
- * $Id: ncp_stat.c 00000 2005-09-22 11:09:36Z xxx $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

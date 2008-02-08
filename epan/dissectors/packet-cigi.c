@@ -4,7 +4,7 @@
  * CIGI - http://cigi.sourceforge.net/
  * Copyright (c) 2005 The Boeing Company
  *
- * $Id: README.developer 15753 2005-09-10 19:43:41Z guy $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

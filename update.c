@@ -1,6 +1,6 @@
 /* update.c
  *
- * $Id: update.c 19935 2006-11-19 23:23:53Z gerald $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

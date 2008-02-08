@@ -2,7 +2,7 @@
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-s1ap-template.c 22778 2007-09-03 16:40:51Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

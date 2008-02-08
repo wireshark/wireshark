@@ -1,7 +1,7 @@
 /* scsi_stat.c
  * scsi_stat   2006 Ronnie Sahlberg
  *
- * $Id: scsi_stat.c 17252 2006-02-11 13:05:24Z lego $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

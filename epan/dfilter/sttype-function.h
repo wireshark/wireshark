@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-test.h 11400 2004-07-18 00:24:25Z guy $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

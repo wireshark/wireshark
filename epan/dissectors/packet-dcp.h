@@ -6,7 +6,7 @@
  *
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
- * $Id: README.developer 11973 2004-09-11 23:10:14Z guy $
+ * $Id$
  *
  * template taken from packet-udp.c
  *
