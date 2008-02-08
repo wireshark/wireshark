@@ -1343,6 +1343,8 @@ static const value_string gtp_ext_rat_type_vals[] = {
 	{ 1,	"UTRAN" },
 	{ 2,	"GERAN" },
 	{ 3,	"WLAN" },
+	{ 4,	"GAN" },
+	{ 5,	"HSPA Evolution" },
 	{ 0,	NULL }
 };
 
@@ -2938,14 +2940,22 @@ decode_gtp_recovery(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 /* GPRS:	9.60 v7.6.0, chapter 7.9.13, page 42
  * UMTS:	29.060 v4.0, chapter 7.7.12, page 49
  */
+
+
+static const gchar* dissect_radius_selection_mode(proto_tree *tree, tvbuff_t *tvb) {
+	guint8 sel_mode;
+
+	/* Value in ASCII(UTF-8) */
+	sel_mode = tvb_get_guint8(tvb,0)- 0x30;
+	proto_tree_add_uint(tree, hf_gtp_sel_mode, tvb, 0, 1, sel_mode);
+
+	return val_to_str(sel_mode, sel_mode_type, "Unknown");
+}
+
 static int
 decode_gtp_sel_mode(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
-	guint8	sel_mode;
-
-	sel_mode = tvb_get_guint8(tvb, offset+1) & 0x03;
-	proto_tree_add_uint(tree, hf_gtp_sel_mode, tvb, offset, 2, sel_mode);
-
+	proto_tree_add_item(tree, hf_gtp_sel_mode, tvb, offset, 2, FALSE);
 	return 2;
 }
 
@@ -4756,6 +4766,14 @@ decode_gtp_apn_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
  * RAT Type
  * Type = 151 (Decimal)
  */
+
+static const gchar* dissect_radius_rat_type(proto_tree *tree, tvbuff_t *tvb) {
+	guint8 octet;
+	octet = tvb_get_guint8(tvb,0);
+	proto_tree_add_item(tree, hf_gtp_ext_rat_type, tvb, 0, 1, FALSE);
+	return val_to_str(octet, gtp_ext_rat_type_vals, "Unknown");
+}
+
 static int
 decode_gtp_rat_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -4781,6 +4799,32 @@ decode_gtp_rat_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
  * User Location Information
  * Type = 152 (Decimal)
  */
+
+static const gchar* dissect_radius_user_loc(proto_tree *tree, tvbuff_t *tvb) {
+
+	int			offset = 0;
+	guint8		geo_loc_type;
+	guint16		length = tvb_length(tvb);
+
+	/* Geographic Location Type */
+	proto_tree_add_item(tree, hf_gtp_ext_geo_loc_type, tvb, offset, 1, FALSE);
+	geo_loc_type = tvb_get_guint8(tvb,offset);
+	offset++;
+	
+	if (geo_loc_type == 0)
+		/* Use gsm_a's function to dissect Geographic Location by faking disc ( last 0) */
+		be_cell_id_aux(tvb, tree, offset, length-1, NULL, 0, 0);
+	if (geo_loc_type == 1){
+		/* Use gsm_a's function to dissect Geographic Location by faking disc ( last 4) */
+		be_cell_id_aux(tvb, tree, offset, length-1, NULL, 0, 4);
+		offset = offset + 5;
+		proto_tree_add_item(tree, hf_gtp_ext_sac, tvb, offset, 2, FALSE);
+	}
+
+
+	return tvb_bytes_to_str(tvb, 0, length);
+}
+
 static int
 decode_gtp_usr_loc_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree) {
 
@@ -6121,7 +6165,11 @@ proto_register_gtp(void)
 		{ &hf_gtp_rp_nsapi, { "NSAPI in Radio Priority", "gtp.rp_nsapi", FT_UINT8, BASE_DEC, NULL, GTPv1_EXT_RP_NSAPI_MASK, "Network layer Service Access Point Identifier in Radio Priority", HFILL }},
 		{ &hf_gtp_rp_sms, { "Radio Priority SMS", "gtp.rp_sms",	FT_UINT8, BASE_DEC, NULL, 0, "Radio Priority for MO SMS", HFILL }},
 		{ &hf_gtp_rp_spare, { "Reserved", "gtp.rp_spare", FT_UINT8, BASE_DEC, NULL, GTPv1_EXT_RP_SPARE_MASK, "Spare bit", HFILL }},
-		{ &hf_gtp_sel_mode, { "Selection mode", "gtp.sel_mode", FT_UINT8, BASE_DEC, VALS(sel_mode_type), 0, "Selection Mode", HFILL }},
+		{ &hf_gtp_sel_mode,
+			{ "Selection mode", "gtp.sel_mode",
+			FT_UINT8, BASE_DEC, VALS(sel_mode_type), 0x03,
+			"Selection Mode", HFILL }
+		},
 		{ &hf_gtp_seq_number, { "Sequence number", "gtp.seq_number", FT_UINT16, BASE_HEX, NULL, 0, "Sequence Number", HFILL }},
 		{ &hf_gtp_sndcp_number, { "SNDCP N-PDU LLC Number", "gtp.sndcp_number", FT_UINT8, BASE_HEX, NULL, 0, "SNDCP N-PDU LLC Number", HFILL }},
 		{ &hf_gtp_tear_ind, { "Teardown Indicator", "gtp.tear_ind", FT_BOOLEAN, BASE_NONE,NULL, 0, "Teardown Indicator", HFILL }},
@@ -6386,6 +6434,9 @@ proto_reg_handoff_gtp(void)
 		ppp_subdissector_table = find_dissector_table("ppp.protocol");
 
 		radius_register_avp_dissector(VENDOR_THE3GPP,5,dissect_radius_qos_umts);
+		radius_register_avp_dissector(VENDOR_THE3GPP,12,dissect_radius_selection_mode);
+		radius_register_avp_dissector(VENDOR_THE3GPP,21,dissect_radius_rat_type);
+		radius_register_avp_dissector(VENDOR_THE3GPP,22,dissect_radius_user_loc);
 
 		Initialized = TRUE;
 	} else {

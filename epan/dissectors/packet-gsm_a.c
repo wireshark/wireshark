@@ -120,6 +120,7 @@
 #include "packet-gsm_a.h"
 #include "packet-ipv6.h"
 #include "packet-sccp.h"
+#include "packet-e212.h"
 
 #include "packet-ppp.h"
 
@@ -1282,7 +1283,7 @@ static gint ett_gmm_attach_type = -1;
 static gint ett_gmm_context_stat = -1;
 static gint ett_gmm_update_type = -1;
 static gint ett_gmm_radio_cap = -1;
-
+static gint ett_gmm_rai = -1;
 
 static gint ett_sm_tft = -1;
 
@@ -2336,12 +2337,9 @@ be_chan_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 guint8
 be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string, int string_len, guint8 disc)
 {
-    guint8	octs[3];
     guint32	value;
     guint32	curr_offset;
-    gchar	mcc[4];
-    gchar	mnc[4];
-
+ 
     if (add_string)
 	add_string[0] = '\0';
     curr_offset = offset;
@@ -2355,19 +2353,8 @@ be_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 	/* FALLTHRU */
 
     case 0x08:  /* For intersystem handover from GSM to UMTS or cdma2000: */
-	octs[0] = tvb_get_guint8(tvb, curr_offset);
-	octs[1] = tvb_get_guint8(tvb, curr_offset + 1);
-	octs[2] = tvb_get_guint8(tvb, curr_offset + 2);
 
-	mcc_mnc_aux(octs, mcc, mnc);
-
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 3,
-	    "Mobile Country Code (MCC): %s, Mobile Network Code (MNC): %s",
-	    mcc,
-	    mnc);
-
-	curr_offset += 3;
+	curr_offset = dissect_e212_mcc_mnc(tvb, tree, curr_offset);
 
 	/* FALLTHRU */
 
@@ -10602,6 +10589,9 @@ de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *
 guint8
 de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+    proto_tree		*subtree;
+    proto_item		*item;
+
     guint32	mcc;
     guint32	mnc;
     guint32	lac;
@@ -10625,11 +10615,13 @@ de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
     lac |= tvb_get_guint8(tvb, curr_offset+4);
     rac = tvb_get_guint8(tvb, curr_offset+5);
 
-	proto_tree_add_text(tree,
+	item = proto_tree_add_text(tree,
 		tvb, curr_offset, 6,
 		"Routing area identification: %x-%x-%x-%x",
 		mcc,mnc,lac,rac);
 
+	subtree = proto_item_add_subtree(item, ett_gmm_rai);
+	dissect_e212_mcc_mnc(tvb, subtree, offset);
     curr_offset+=6;
 
     /* no length check possible */
@@ -19592,7 +19584,7 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	38
+#define	NUM_INDIVIDUAL_ELEMS	39
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -19638,8 +19630,9 @@ proto_register_gsm_a(void)
     ett[34] = &ett_gmm_context_stat;
     ett[35] = &ett_gmm_update_type;
     ett[36] = &ett_gmm_radio_cap;
+	ett[37] = &ett_gmm_rai;
 
-    ett[37] = &ett_sm_tft;
+    ett[38] = &ett_sm_tft;
 
 
     last_offset = NUM_INDIVIDUAL_ELEMS;

@@ -58,4 +58,7 @@ ATTRIBUTE	3GPP-Camel-Charging-Info			24		octets
 ATTRIBUTE	3GPP-Packet-Filter					25		octets
 ATTRIBUTE	3GPP-Negotiated-DSCP				26		octets
 
+VALUE		3GPP-PDP-Type		IPv4			0
+VALUE		3GPP-PDP-Type		PPP				1
+VALUE		3GPP-PDP-Type		IPv6			2
 END-VENDOR	3GPP

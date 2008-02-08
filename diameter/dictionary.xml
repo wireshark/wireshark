@@ -899,13 +899,16 @@
 			<enum name="Ericsson Mm" code="16777233"/>
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
-
 			<enum name="3GPP Rx" code="16777236"/>
 			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
 			<enum name="iptego USPI" code="16777241"/>
+			<enum name="Covergence-specific SIP routing" code="16777242"/>
+			<enum name="Policy Processing" code="16777243"/>
+			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>
+			<enum name="ITU-T S-TC1" code="16777245"/>						<!-- ITU-T Rec. Q.3221 -->
 			<enum name="Relay" code="4294967295"/>
 		</avp>		
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
@@ -934,13 +937,16 @@
 			<enum name="Ericsson Mm" code="16777233"/>
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
-
 			<enum name="3GPP Rx" code="16777236"/>
 			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
 			<enum name="iptego USPI" code="16777241"/>
+			<enum name="Covergence-specific SIP routing" code="16777242"/>
+			<enum name="Policy Processing" code="16777243"/>
+			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>
+			<enum name="ITU-T S-TC1" code="16777245"/>						<!-- ITU-T Rec. Q.3221 -->
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
