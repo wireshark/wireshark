@@ -90,7 +90,7 @@ static gsm_a_stat_dlg_t		dlg_dtap_gmm;
 static gsm_a_stat_dlg_t		dlg_dtap_sms;
 static gsm_a_stat_dlg_t		dlg_dtap_sm;
 static gsm_a_stat_dlg_t		dlg_dtap_ss;
-static gsm_a_stat_t		stat;
+static gsm_a_stat_t		gsm_a_stat;
 
 
 static void
@@ -485,7 +485,7 @@ gsm_a_stat_gtk_bssmap_cb(
 	i++;
     }
 
-    gsm_a_stat_draw(&stat);
+    gsm_a_stat_draw(&gsm_a_stat);
 }
 
 
@@ -536,7 +536,7 @@ gsm_a_stat_gtk_dtap_cb(
 	i++;
     }
 
-    gsm_a_stat_draw(&stat);
+    gsm_a_stat_draw(&gsm_a_stat);
 }
 
 static void
@@ -666,10 +666,10 @@ register_tap_listener_gtkgsm_a_stat(void)
     GString		*err_p;
 
 
-    memset((void *) &stat, 0, sizeof(gsm_a_stat_t));
+    memset((void *) &gsm_a_stat, 0, sizeof(gsm_a_stat_t));
 
     err_p =
-	register_tap_listener("gsm_a", &stat, NULL,
+	register_tap_listener("gsm_a", &gsm_a_stat, NULL,
 	    gsm_a_stat_reset,
 	    gsm_a_stat_packet,
 	    gsm_a_stat_draw);

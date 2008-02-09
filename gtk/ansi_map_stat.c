@@ -91,7 +91,7 @@ typedef struct _ansi_map_stat_t {
 } ansi_map_stat_t;
 
 static ansi_map_stat_dlg_t	dlg;
-static ansi_map_stat_t		stat;
+static ansi_map_stat_t		ansi_a_stat;
 
 
 static void
@@ -408,7 +408,7 @@ ansi_map_stat_gtk_cb(
 	i++;
     }
 
-    ansi_map_stat_draw(&stat);
+    ansi_map_stat_draw(&ansi_a_stat);
 }
 
 
@@ -427,10 +427,10 @@ register_tap_listener_gtkansi_map_stat(void)
     GString		*err_p;
 
 
-    memset((void *) &stat, 0, sizeof(ansi_map_stat_t));
+    memset((void *) &ansi_a_stat, 0, sizeof(ansi_map_stat_t));
 
     err_p =
-	register_tap_listener("ansi_map", &stat, NULL,
+	register_tap_listener("ansi_map", &ansi_a_stat, NULL,
 	    ansi_map_stat_reset,
 	    ansi_map_stat_packet,
 	    ansi_map_stat_draw);

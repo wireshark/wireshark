@@ -78,7 +78,7 @@ typedef struct _ansi_a_stat_t {
 
 static ansi_a_stat_dlg_t	dlg_bsmap;
 static ansi_a_stat_dlg_t	dlg_dtap;
-static ansi_a_stat_t		stat;
+static ansi_a_stat_t		ansi_a_stat;
 
 
 static void
@@ -398,7 +398,7 @@ ansi_a_stat_gtk_bsmap_cb(
 	i++;
     }
 
-    ansi_a_stat_draw(&stat);
+    ansi_a_stat_draw(&ansi_a_stat);
 }
 
 
@@ -445,7 +445,7 @@ ansi_a_stat_gtk_dtap_cb(
 	i++;
     }
 
-    ansi_a_stat_draw(&stat);
+    ansi_a_stat_draw(&ansi_a_stat);
 }
 
 
@@ -464,10 +464,10 @@ register_tap_listener_gtkansi_a_stat(void)
     GString		*err_p;
 
 
-    memset((void *) &stat, 0, sizeof(ansi_a_stat_t));
+    memset((void *) &ansi_a_stat, 0, sizeof(ansi_a_stat_t));
 
     err_p =
-	register_tap_listener("ansi_a", &stat, NULL,
+	register_tap_listener("ansi_a", &ansi_a_stat, NULL,
 	    ansi_a_stat_reset,
 	    ansi_a_stat_packet,
 	    ansi_a_stat_draw);
