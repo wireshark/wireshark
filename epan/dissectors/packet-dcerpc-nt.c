@@ -1180,7 +1180,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 {
 	gint options = GPOINTER_TO_INT(callback_args);
 	gint levels = CB_STR_ITEM_LEVELS(options);
-	char *s;
+	guint8 *s;
 
 	/* Align start_offset on 4-byte boundary. */
 
@@ -1515,8 +1515,6 @@ dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 			dissect_LOGON_HOURS_entry);
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-
 	return offset;
 }
 

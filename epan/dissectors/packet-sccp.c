@@ -1029,7 +1029,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
   if (is_connectionless(message_type) && sccp_msg) {
 	guint8** gt_ptr = called ? &(sccp_msg->data.ud.called_gt) : &(sccp_msg->data.ud.calling_gt);
 
-	*gt_ptr  = ep_strdup(gt_digits);
+	*gt_ptr  = (guint8 *)ep_strdup(gt_digits);
   }
 
   digits_item = proto_tree_add_string_format(tree,
@@ -1209,7 +1209,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
   proto_item *call_item = 0, *call_ai_item = 0, *item;
   proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint offset;
-  guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
+  guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
   tvbuff_t *gt_tvb;
   dissector_handle_t ssn_dissector = NULL, tcap_ssn_dissector = NULL;
   const char *ssn_dissector_short_name = NULL;
@@ -2639,6 +2639,10 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *  An example is A-interface traffic having ANSI MTP3/ANSI SCCP/3GPP2 IOS
      *  and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
      */
+    /** XX: mtp3_addr-p->type is an   mtp3_net_addr_fmt_e enum **/
+    /**     decode_mtp3_standard is a STANDARD_TYPE       enum **/
+    /**  Is the following OK ??                                **/
+    /**  (The Sun C compiler says 'enum type mismatch')        **/
     decode_mtp3_standard = mtp3_addr_p->type;
   }
   else

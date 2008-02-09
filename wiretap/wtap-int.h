@@ -53,7 +53,7 @@ typedef struct {
 } ngsniffer_comp_stream_t;
 
 typedef struct {
-  guint8 *sdate;          /* Packet start date        */	
+  char *sdate;            /* Packet start date        */	
   gboolean tcp_formatted; /* TCP/IP data formated Y/N */
   int format;             /* Trace format type        */
 } iseries_t;

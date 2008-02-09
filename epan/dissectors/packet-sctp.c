@@ -504,7 +504,7 @@ static guint32
 sctp_crc32c(const unsigned char* buf, unsigned int len)
 {
   unsigned int i;
-  guint32 crc32 = ~0L;
+  guint32 crc32 = ~0U;
   guint32 result;
   unsigned char byte0,byte1,byte2,byte3;
 

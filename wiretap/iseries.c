@@ -255,7 +255,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
   guint line;
   int num_items_scanned;
   char buf[ISERIES_LINE_LENGTH], protocol[9], tcpformat[2];
-  guint8 *sdate;
+  char *sdate;
 
   /* Save trace format for passing between packets */
   sdate = g_malloc (10);
@@ -273,7 +273,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	   */
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
-	      iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
+             iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
 	  g_strup(buf);
 	  num_items_scanned = sscanf (buf,
@@ -386,7 +386,7 @@ iseries_seek_next_packet (wtap * wth, int *err)
 	  if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	    {
 	      /* buflen is #bytes to 1st 0x0A */
-	      buflen = iseries_UNICODE_to_ASCII (buf, ISERIES_LINE_LENGTH);
+             buflen = iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
 	  else
 	    {
@@ -481,7 +481,8 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
     tcpheader[81];
   char hex1[17], hex2[17], hex3[17], hex4[17];
   char data[ISERIES_LINE_LENGTH * 2];
-  guint8 *buf, *asciibuf, *tcpdatabuf, *workbuf;
+  guint8 *buf;
+  char   *asciibuf, *tcpdatabuf, *workbuf;
   struct tm tm;
 
   /*
@@ -505,7 +506,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
+         iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
       /* look for packet header */
       for (i=0; i<8; i++) {      
@@ -543,7 +544,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
   /*
    * If we have Wiretap Header then populate it here
    *
-   * XXX - Timer resolution on the iSeries is hardware dependant, the value for csec may be
+   * XXX - Timer resolution on the iSeries is hardware dependant; the value for csec may be
    * different on other platforms though all the traces I've seen seem to show resolution
    * to Milliseconds (i.e HH:MM:SS.nnnnn) or Nanoseconds (i.e HH:MM:SS.nnnnnn)
    */
@@ -614,7 +615,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
       /* Convert UNICODE data to ASCII and determine line length */
       if (wth->capture.iseries->format == ISERIES_FORMAT_UNICODE)
 	{
-	  buflen = iseries_UNICODE_to_ASCII (data, ISERIES_LINE_LENGTH);
+         buflen = iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
       else
 	{
