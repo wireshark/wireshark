@@ -41,7 +41,7 @@ typedef enum {
 } mtp3_net_addr_fmt_e;
 
 typedef struct _mtp3_addr_pc_t {
-  mtp3_net_addr_fmt_e	type;
+  Standard_Type		type;
   guint32		pc;
   guint8		ni;
 } mtp3_addr_pc_t;

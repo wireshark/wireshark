@@ -2639,10 +2639,6 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      *  An example is A-interface traffic having ANSI MTP3/ANSI SCCP/3GPP2 IOS
      *  and at the same time ITU MTP3/ITU SCCP/ANSI TCAP/ANSI MAP.
      */
-    /** XX: mtp3_addr-p->type is an   mtp3_net_addr_fmt_e enum **/
-    /**     decode_mtp3_standard is a STANDARD_TYPE       enum **/
-    /**  Is the following OK ??                                **/
-    /**  (The Sun C compiler says 'enum type mismatch')        **/
     decode_mtp3_standard = mtp3_addr_p->type;
   }
   else
