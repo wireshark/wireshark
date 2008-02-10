@@ -61,7 +61,7 @@ typedef struct {
 typedef struct {
 	guint	maj_vers;
 	guint	min_vers;
-	double	timeunit;
+	guint32	timeunit;
 	time_t	start;
 	guint	network;		/* network type */
 	ngsniffer_comp_stream_t seq;	/* sequential access */

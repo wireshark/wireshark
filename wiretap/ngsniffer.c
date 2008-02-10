@@ -130,10 +130,7 @@ struct vers_rec {
 /*
  * Sniffer type 2 data record format - followed by frame data.
  *
- * The manual at
- *
- *	http://www.mcafee.com/common/media/sniffer/support/sdos/operation.pdf
- *
+ * The Expert Sniffer Network Analyzer Operations manual, Release 5.50,
  * documents some of the values used in "fs" and "flags".  "flags" don't
  * look as if they'd be of much interest to us, as those are internal
  * flags for state used by the Sniffer, but "fs" gives various status
@@ -151,16 +148,37 @@ struct vers_rec {
  * starts with "TRSNIFF data, no matter where the frames were
  * collected".
  *
- * It also says that "time_high" is really "tstamp_high" and "tstamp_day";
- * did some older manual have it as a 16-bit "tstamp_high", so that perhaps
- * it depends on the version number in the file, or is it "tstamp_high"
- * plus "tstamp_day" in all versions?  (I forget whether this came purely
- * from tcpview, or if I saw any of it in an NAI document.)
+ * It also says that a type 2 record has an 8-bit "time_high"
+ * and an 8-bit "time_day" field; the code here used to have a
+ * 16-bit "time_high" value, but that gave wrong time stamps on at
+ * least some captures.  Did some older manual have it as a 16-bit
+ * "tstamp_high", so that perhaps it depends on the version number
+ * in the file, or is it "tstamp_high" plus "tstamp_day" in all
+ * versions?  (I forget whether this came purely from tcpview, or if
+ * I saw any of it in an NAI document.)
+ *
+ * We interpret them as unsigned, as interpreting them as signed
+ * would appear to allow time stamps that precede the start of the
+ * capture.  The description of the record format shows them as
+ * "char", but the section "How the Analyzer Stores Time" shows a
+ * time stamp structure with those fields being "unsigned char".
+ *
+ * In addition, the description of the record format has the comment
+ * for the "time_day" field saying it's the time in days since the
+ * start of the capture, but the "How the Analyzer Stores Time"
+ * section says it's increased by 1 if the capture continues past
+ * midnight - and also says that the time stamp structure has a time
+ * relative to midnight when the capture started, not since the
+ * actual capture start, so that might be a difference between
+ * the internal time stamp in the Sniffer software and the time
+ * stamp in capture files (i.e., the latter might be relative to
+ * the time when the capture starts).
  */
 struct frame2_rec {
 	guint16	time_low;	/* low part of time stamp */
 	guint16	time_med;	/* middle part of time stamp */
-	guint16	time_high;	/* high part of time stamp */
+	guint8	time_high;	/* high part of the time stamp */
+	guint8	time_day;	/* time in days since start of capture */
 	gint16	size;		/* number of bytes of data */
 	guint8	fs;		/* frame error status bits */
 	guint8	flags;		/* buffer flags */
@@ -339,8 +357,8 @@ typedef struct _ATMSaveInfo {
 struct frame4_rec {
 	guint16	time_low;	/* low part of time stamp */
 	guint16	time_med;	/* middle part of time stamp */
-	gint8	time_high;	/* high part of time stamp */
-	gint8	time_day;	/* time in days since start of capture */
+	guint8	time_high;	/* high part of time stamp */
+	guint8	time_day;	/* time in days since start of capture */
 	gint16	size;		/* number of bytes of data */
 	gint8	fs;		/* frame error status bits */
 	gint8	flags;		/* buffer flags */
@@ -359,8 +377,8 @@ struct frame4_rec {
 struct frame6_rec {
 	guint16	time_low;	/* low part of time stamp */
 	guint16	time_med;	/* middle part of time stamp */
-	gint8	time_high;	/* high part of time stamp */
-	gint8	time_day;	/* time in days since start of capture */
+	guint8	time_high;	/* high part of time stamp */
+	guint8	time_day;	/* time in days since start of capture */
 	gint16	size;		/* number of bytes of data */
 	guint8	fs;		/* frame error status bits */
 	guint8	flags;		/* buffer flags */
@@ -419,9 +437,27 @@ struct frame6_rec {
 				   version 5 in the file format and thus
 				   might not be using type 7 records */
 
-/* values for V.timeunit */
-#define NUM_NGSNIFF_TIMEUNITS 7
-static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
+/*
+ * Values for V.timeunit, in picoseconds, so that they can be represented
+ * as integers.  These values must be < 2^(64-40); see below.
+ *
+ * XXX - at least some captures with a V.timeunit value of 2 show
+ * packets with time stamps in 2011 if the time stamp is interpreted
+ * to be in units of 15 microseconds.  The capture predates 2008,
+ * so that interpretation is probably wrong.  Perhaps the interpretation
+ * of V.timeunit depends on the version number of the file?
+ */
+static guint32 Psec[] = {
+	15000000,		/* 15.0 usecs = 15000000 psecs */
+	  838096,		/* .838096 usecs = 838096 psecs */
+	15000000,		/* 15.0 usecs = 15000000 psecs */
+	  500000,		/* 0.5 usecs = 500000 psecs */
+	 2000000,		/* 2.0 usecs = 2000000 psecs */
+	 1000000,		/* 1.0 usecs = 1000000 psecs */
+				/* XXX - Sniffer doc says 0.08 usecs = 80000 psecs */
+	  100000		/* 0.1 usecs = 100000 psecs */
+};
+#define NUM_NGSNIFF_TIMEUNITS (sizeof Psec / sizeof Psec[0])
 
 static int process_header_records(wtap *wth, int *err, gchar **err_info,
     gint16 maj_vers, guint8 network);
@@ -666,7 +702,7 @@ int ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_sequential_close = ngsniffer_sequential_close;
 	wth->subtype_close = ngsniffer_close;
 	wth->snapshot_length = 0;	/* not available in header, only in frame */
-	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
+	wth->capture.ngsniffer->timeunit = Psec[version.timeunit];
 	wth->capture.ngsniffer->network = version.network;
 
 	/* Get capture start time */
@@ -974,8 +1010,9 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
-	double	t;
-	guint16	time_low, time_med, time_high, true_size, size;
+	guint16	time_low, time_med, true_size, size;
+	guint8	time_high, time_day;
+	guint64 t, tsecs, tpsecs;
 	guchar	*pd;
 
 	for (;;) {
@@ -1012,14 +1049,12 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 			wth->data_offset += sizeof frame2;
 			time_low = pletohs(&frame2.time_low);
 			time_med = pletohs(&frame2.time_med);
-			time_high = pletohs(&frame2.time_high);
+			time_high = frame2.time_high;
+			time_day = frame2.time_day;
 			size = pletohs(&frame2.size);
 			true_size = pletohs(&frame2.true_size);
 
 			length -= sizeof frame2;	/* we already read that much */
-
-			t = (double)time_low+(double)(time_med)*65536.0 +
-			    (double)time_high*4294967296.0;
 
 			set_pseudo_header_frame2(wth, &wth->pseudo_header,
 			    &frame2);
@@ -1045,11 +1080,12 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
 			time_high = frame4.time_high;
+			time_day = frame4.time_day;
 			size = pletohs(&frame4.size);
 			true_size = pletohs(&frame4.true_size);
 
 			/*
-			 * XXX - it looks as if version 4 captures have
+			 * XXX - it looks as if some version 4 captures have
 			 * a bogus record length, based on the assumption
 			 * that the record is a frame2 record.
 			 */
@@ -1061,13 +1097,6 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 				else
 					length -= sizeof frame4;
 			}
-
-			/*
-			 * XXX - use the "time_day" field?  Is that for captures
-			 * that take a *really* long time?
-			 */
-			t = (double)time_low+(double)(time_med)*65536.0 +
-			    (double)time_high*4294967296.0;
 
 			set_pseudo_header_frame4(&wth->pseudo_header, &frame4);
 			goto found;
@@ -1082,17 +1111,11 @@ static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
 			time_low = pletohs(&frame6.time_low);
 			time_med = pletohs(&frame6.time_med);
 			time_high = frame6.time_high;
+			time_day = frame6.time_day;
 			size = pletohs(&frame6.size);
 			true_size = pletohs(&frame6.true_size);
 
 			length -= sizeof frame6;	/* we already read that much */
-
-			/*
-			 * XXX - use the "time_day" field?  Is that for captures
-			 * that take a *really* long time?
-			 */
-			t = (double)time_low+(double)(time_med)*65536.0 +
-			    (double)time_high*4294967296.0;
 
 			set_pseudo_header_frame6(wth, &wth->pseudo_header,
 			    &frame6);
@@ -1148,11 +1171,36 @@ found:
 	wth->phdr.pkt_encap = fix_pseudo_header(wth->file_encap, pd, length,
 	    &wth->pseudo_header);
 
-	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
-	t += wth->capture.ngsniffer->start;
-	wth->phdr.ts.secs = (long)t;
-	wth->phdr.ts.nsecs = (unsigned long)((t-(double)(wth->phdr.ts.secs))
-			*1.0e9);
+	/*
+	 * 40-bit time stamp, in units of timeunit picoseconds.
+	 */
+	t = (((guint64)time_high)<<32) | (((guint32)time_med) << 16) | time_low;
+
+	/*
+	 * timeunit is always < 2^(64-40), so t * timeunit fits in 64
+	 * bits.  That gives a 64-bit time stamp, in units of
+	 * picoseconds.
+	 */
+	t *= wth->capture.ngsniffer->timeunit;
+
+	/*
+	 * Convert to seconds and picoseconds.
+	 */
+	tsecs = t/G_GINT64_CONSTANT(1000000000000U);
+	tpsecs = t - tsecs*G_GINT64_CONSTANT(1000000000000U);
+
+	/*
+	 * Add in the time_day value (86400 seconds/day).
+	 */
+	tsecs += time_day*86400;
+
+	/*
+	 * Add in the capture start time.
+	 */
+	tsecs += wth->capture.ngsniffer->start;
+
+	wth->phdr.ts.secs = (time_t)tsecs;
+	wth->phdr.ts.nsecs = (int)(tpsecs/1000);	/* psecs to nsecs */
 	return TRUE;
 }
 
@@ -1981,8 +2029,10 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     struct frame2_rec rec_hdr;
     size_t nwritten;
     char buf[6];
-    double t;
-    guint16 t_low, t_med, t_high;
+    time_t tsecs;
+    guint64 t;
+    guint16 t_low, t_med;
+    guint8 t_high;
     struct vers_rec version;
     gint16 maj_vers, min_vers;
     guint16 start_date;
@@ -2045,14 +2095,22 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	    *err = WTAP_ERR_SHORT_WRITE;
 	return FALSE;
     }
-    t = (double)phdr->ts.secs + (double)phdr->ts.nsecs/1.0e9; /* # of secs */
-    t = (t - priv->start)*1.0e6 / Usec[1]; /* timeunit = 1 */
-    t_low = (guint16)(t-(double)((guint32)(t/65536.0))*65536.0);
-    t_med = (guint16)((guint32)(t/65536.0) % 65536);
-    t_high = (guint16)(t/4294967296.0);
+    /* Seconds since the start of the capture */
+    tsecs = phdr->ts.secs - priv->start;
+    /* Extract the number of days since the start of the capture */
+    rec_hdr.time_day = tsecs / 86400;	/* # days of capture - 86400 secs/day */
+    tsecs -= rec_hdr.time_day * 86400;	/* time within day */
+    /* Convert to picoseconds */
+    t = tsecs*G_GINT64_CONSTANT(1000000000000U) +
+        phdr->ts.nsecs*G_GINT64_CONSTANT(1000U);
+    /* Convert to units of timeunit = 1 */
+    t /= Psec[1];
+    t_low = (guint16)((t >> 0) & 0xFFFF);
+    t_med = (guint16)((t >> 16) & 0xFFFF);
+    t_high = (guint8)((t >> 32) & 0xFF);
     rec_hdr.time_low = htoles(t_low);
     rec_hdr.time_med = htoles(t_med);
-    rec_hdr.time_high = htoles(t_high);
+    rec_hdr.time_high = t_high;
     rec_hdr.size = htoles(phdr->caplen);
     switch (wdh->encap) {
 
