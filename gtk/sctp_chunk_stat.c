@@ -287,8 +287,8 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
 
-	if(strncmp(optarg,"sctp,stat,",11) == 0){
-		filter=optarg+11;
+	if(strncmp(optarg,"sctp,stat,",10) == 0){
+		filter=optarg+10;
 	} else {
 		filter="";
 	}

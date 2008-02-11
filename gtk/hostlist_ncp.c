@@ -1,7 +1,8 @@
 /* hostlist_ncp.c   2006 Greg Morris 
  * modified from endpoint_talkers_eth.c   2003 Ronnie Sahlberg
  *
- * $Id: hostlist_ncp.c 
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -61,8 +62,8 @@ gtk_ncp_hostlist_init(const char *optarg, void* userdata _U_)
 {
         const char *filter=NULL;
 
-        if(!strncmp(optarg,"hosts,ncp,",11)){
-                filter=optarg+11;
+        if(!strncmp(optarg,"hosts,ncp,",10)){
+                filter=optarg+10;
         } else {
                 filter=NULL;
         }
