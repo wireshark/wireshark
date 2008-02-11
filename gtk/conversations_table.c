@@ -522,7 +522,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	switch(direction){
 	case DIR_A_TO_FROM_B:
 		/* A <-> B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -539,7 +539,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_B:
 		/* A --> B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -556,7 +556,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_FROM_B:
 		/* A <-- B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s && %s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -573,7 +573,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_FROM_ANY:
 		/* A <-> ANY */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -584,7 +584,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_ANY:
 		/* A --> ANY */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -595,7 +595,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_FROM_ANY:
 		/* A <-- ANY */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -606,7 +606,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_TO_FROM_B:
 		/* ANY <-> B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
@@ -617,7 +617,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_FROM_B:
 		/* ANY <-- B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
@@ -628,7 +628,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_TO_B:
 		/* ANY --> B */
-		g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",

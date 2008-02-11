@@ -339,7 +339,7 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 
 	sport=hostlist_port_to_str(hl->hosts[selection].port_type, hl->hosts[selection].port);
 
-	g_snprintf(dirstr, 127, "%s==%s %s%s%s%s",
+	g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
 		hostlist_get_filter_name(&hl->hosts[selection].address,
 		hl->hosts[selection].sat, hl->hosts[selection].port_type,  FN_ANY_ADDRESS),
 		address_to_str(&hl->hosts[selection].address),
