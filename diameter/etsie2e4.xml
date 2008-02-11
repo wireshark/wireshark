@@ -3,6 +3,22 @@
 <!-- ETSI ES 283 034 V1.2.0 (2007-05) -->
 <!-- ETSI ES 283 035 V1.2.1 (2007-06) -->
 
+<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some eperimental resultcodes with vendor id ETSI 
+6.3.2 Experimental-Result-Code AVP values defined in the present
+document
+This clause defines the specific values of the Experimental-Result-Code AVP (vendor-id is ETSI):
+-->
+		<avp name="Experimental-Result-Code" code="298" mandatory="must" protected="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="no" >
+			<type type-name="Unsigned32"/>
+			<enum name="INSUFFICIENT_RESOURCES" code="4041"/>
+			<enum name="COMMIT_FAILURE"			code="4043"/>
+			<enum name="REFRESH_FAILURE"		code="4044"/>
+			<enum name="QOS_PROFILE_FAILURE"	code="4045"/>
+			<enum name="ACCESS_PROFILE_FAILURE" code="4046"/>
+			<enum name="PRIORITY_NOT_GRANTED"	code="4047"/>
+			<enum name="MODIFICATION_FAILURE"	code="5041"/>
+
+
 	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
 
 		<!-- User-Data (306) already defined by Sh -->
@@ -106,6 +122,62 @@
 				<enum name="INITIAL-GATE-SETTING" code="8"/>
 				<enum name="QOS-PROFILE" code="9"/>
 				<enum name="IP-CONNECTIVITY-STATUS" code="10"/>
+		</avp>
+		<!--- ETSI ES 283 026 V1.6.0 (2008-02) -->
+		<avp name="Session-Bundle-Id" code="400" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<!-- ETSI TS 183 017 V1.4.0 (2007-08) -->
+		<avp name="Binding-information" code="450" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="Binding-Input-List"/>
+				<gavp name="Binding-Output-List"/>
+			</grouped>
+		</avp>
+		<avp name="Binding-Input-List" code="451" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="V6-Transport-Address"/>
+				<gavp name="V4-Transport-Address"/>
+			</grouped>
+		</avp>
+		<avp name="Binding-Output-List" code="452" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="V6-Transport-Address"/>
+				<gavp name="V4-Transport-Address"/>
+			</grouped>
+		</avp>
+		<avp name="V6-Transport-address" code="453" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="Framed-IPv6-Prefix"/>
+				<gavp name="Port-Number"/>
+			</grouped>
+		</avp>
+		<avp name="V4-Transport-Address" code="454" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<grouped>
+				<gavp name="Framed-IP-Address"/>
+				<gavp name="Port-Number"/>
+			</grouped>
+		</avp>
+		<avp name="Port-Number" code="455" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reservation-Class" code="456" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="no">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Requested-Information" code="457" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+				<enum name="LATCH" code="0"/>
+				<enum name="RELATCH" code="1"/>
+		</avp>
+		<avp name="Reservation-priority" code="458" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+				<enum name="PRIORITY-ONE" code="1"/>
+				<enum name="PRIORITY-TWO" code="2"/>
+				<enum name="PRIORITY-THREE" code="3"/>
+				<enum name="PRIORITY-FOUR" code="4"/>
+				<enum name="PRIORITY-FIVE" code="5"/>
+				<enum name="PRIORITY-SIX" code="6"/>
+				<enum name="PRIORITY-SEVEN" code="7"/>
 		</avp>
 		<!--- ETSI TS 183 033 V1.2.0 (2007-10) -->
 		<!-- The Line-Identifier AVP has a Vendor-Id header set to ETSI (13019). 

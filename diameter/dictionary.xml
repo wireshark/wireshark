@@ -1187,6 +1187,8 @@
 			<enum name="DIAMETER_ERROR_W-APN_UNUSED_BY_USER" code="5042"/>
 			<enum name="DIAMETER_ERROR_W-DIAMETER_ERROR_NO_ACCESS_INDEPENDENT_SUBSCRIPTION" code="5043"/>
 			<enum name="DIAMETER_ERROR_USER_NO_W-APN_SUBSCRIPTION" code="5044"/>
+			<enum name="INVALID_SERVICE_INFORMATION" code="5061"/>
+			<enum name="FILTER_RESTRICTIONS" code="5062"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_NOT_RECOGNIZED" code="5100"/>
 			<enum name="DIAMETER_ERROR_OPERATION_NOT_ALLOWED" code="5101"/>
 			<enum name="DIAMETER_ERROR_USER_DATA_CANNOT_BE_READ" code="5102"/>
@@ -1406,6 +1408,9 @@ Note: TThe AVP codes from 410 to 499 are reserved for TS 29.109
 				<gavp name="MFlow-Status"/>
 				<gavp name="RS-Bandwidth"/>
 				<gavp name="RR-Bandwidth"/>
+				<gavp name="Reservation-Priority"/>
+				<gavp name="Reservation-Class"/>
+				<gavp name="Transport-Class"/>
 			</grouped>
 		</avp>
 		<avp name="Media-Component-Number" code="518" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
