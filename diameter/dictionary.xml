@@ -1487,7 +1487,7 @@ Note: The AVP codes from 634 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************	  700 - 709         **************************
+ **************************	  700 - 711         **************************
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
@@ -2033,6 +2033,18 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		<type type-name="OctetString"/>
 		</avp>
 <!--
+1016 QoS-Information Grouped
+1018 Charging-Rule-Report Grouped
+1019 PCC-Rule-Status Enumerated
+1020 Bearer-Identifier OctetString
+1021 Bearer-Operation Enumerated
+1022 Access-Network-Charging-Identifier-Gx Grouped
+1023 Bearer-Control-Mode Enumerated
+1024 Network-Request-Support Enumerated
+1025 Guaranteed-Bitrate-DL Unsigned32
+1026 Guaranteed-Bitrate-UL Unsigned32
+1027 IP-CAN-Type Enumerated
+1028 QoS-Class-Identifier Enumerated
 29.210 [15]
 Note: The AVP codes from 1015 to 1099 are reserved for TS 29.210
 
@@ -2405,9 +2417,9 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 			<type type-name="UTF8String"/>
 		</avp>
 <!--
-1252 Reserved
-1253 Reserved
-1254 Reserved
+1252 PoC-User-Role Grouped
+1253 PoC-User-Role-IDs UTF8String
+1254 PoC-User-Role-info-Units Enumerated
 -->
 		<avp name="Talk-Burst-Exchange" code="1255" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
@@ -2435,25 +2447,37 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 			<type type-name="Time"/>
 		</avp>
 <!--
-		<avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP"><type type-name="OctetString"/></avp>
+		<avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
 
 		</avp>
-		<avp name="Base-Time-Interval" code="1265" vendor-bit="must" vendor-id="TGPP"><type type-name="Unsigned32"/></avp>
+		<avp name="Base-Time-Interval" code="1265" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<avp name="Envelope" code="1266" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
 		</avp>
-		<avp name="Envelope-End-Time" code="1267" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
-		<avp name="Envelope-Reporting" code="1268" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>
-		<avp name="Envelope-Start-Time" code="1269" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
+		<avp name="Envelope-End-Time" code="1267" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="Envelope-Reporting" code="1268" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>	
+		</avp>
+		<avp name="Envelope-Start-Time" code="1269" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
 		<avp name="Time-Quota-Mechanism" code="1270" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
 		</avp>	
-		<avp name="Time-Quota-Type" code="1271" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>
+		<avp name="Time-Quota-Type" code="1271" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			</avp>
 		<avp name="Early-Media-Description" code="1272" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
@@ -2462,19 +2486,29 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 					<grouped>
 					</grouped>
 		</avp>
-		<avp name="SDP-Offer-Timestamp" code="1274" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
-		<avp name="SDP-Answer-Timestamp" code="1275" vendor-bit="must" vendor-id="TGPP"><type type-name="Time"/></avp>
+		<avp name="SDP-Offer-Timestamp" code="1274" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="SDP-Answer-Timestamp" code="1275" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
 		<avp name="AF-Correlation-Information" code="1276" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
 		</avp>	
-		<avp name="PoC-Session-Initiation-type" code="1277"><type type-name="Enumerated"/></avp>
+		<avp name="PoC-Session-Initiation-type" code="1277">
+			<type type-name="Enumerated"/>
+		</avp>
 		<avp name="Offline-Charging" code="1278" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
 		</avp>
-		<avp name="User-Participating-Type" code="1279" vendor-bit="must" vendor-id="TGPP"><type type-name="Enumerated"/></avp>	
-		<avp name="Alternate-Charged-Party-Address" code="1280" vendor-bit="must" vendor-id="TGPP"><type type-name="UTF8String"/></avp>
+		<avp name="User-Participating-Type" code="1279" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+		</avp>	
+		<avp name="Alternate-Charged-Party-Address" code="1280" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
 Note: The AVP codes from 1281 to 1299 are reserved for TS 32.299
 -->
 <!--- 3GPP2 AVP's X.S0013-014-0 
