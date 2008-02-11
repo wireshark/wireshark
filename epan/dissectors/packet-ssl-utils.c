@@ -2256,7 +2256,7 @@ void
 ssl_session_init(SslDecryptSession* ssl_session)
 {
     ssl_debug_printf("ssl_session_init: initializing ptr %p size %lu\n",
-        ssl_session, (gulong)sizeof(SslDecryptSession));
+                     (void *)ssl_session, (gulong)sizeof(SslDecryptSession));
 
     ssl_session->master_secret.data = ssl_session->_master_secret;
     ssl_session->session_id.data = ssl_session->_session_id;
@@ -2360,7 +2360,7 @@ ssl_association_add(GTree* associations, dissector_handle_t handle, guint port, 
   assoc->from_key_list = from_key_list;
 
   ssl_debug_printf("association_add %s port %d protocol %s handle %p\n",
-		   (assoc->tcp)?"TCP":"UDP", port, protocol, assoc->handle);
+		   (assoc->tcp)?"TCP":"UDP", port, protocol, (void *)(assoc->handle));
 
 
   if (!assoc->handle) {
@@ -2385,7 +2385,7 @@ void
 ssl_association_remove(GTree* associations, SslAssociation *assoc)
 {
   ssl_debug_printf("ssl_association_remove removing %s %u - %s handle %p\n",
-		   (assoc->tcp)?"TCP":"UDP", assoc->ssl_port, assoc->info, assoc->handle);
+		   (assoc->tcp)?"TCP":"UDP", assoc->ssl_port, assoc->info, (void *)(assoc->handle));
   if (assoc->handle)
     dissector_delete((assoc->tcp)?"tcp.port":"udp.port", assoc->ssl_port, assoc->handle);
 
@@ -2411,7 +2411,7 @@ ssl_association_find(GTree * associations, guint port, gboolean tcp)
   assoc_tmp.ssl_port = port;
   ret = g_tree_lookup(associations, &assoc_tmp);
 
-  ssl_debug_printf("association_find: %s port %d found %p\n", (tcp)?"TCP":"UDP", port, ret);
+  ssl_debug_printf("association_find: %s port %d found %p\n", (tcp)?"TCP":"UDP", port, (void *)ret);
   return ret;
 }
 

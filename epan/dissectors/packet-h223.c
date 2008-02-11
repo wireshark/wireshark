@@ -744,7 +744,7 @@ static void dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb,
 
         if( subcircuit == NULL ) {
             g_message( "Frame %d: Subcircuit id %d not found for call %p VC %d", pinfo->fd->num,
-                       pinfo->circuit_id, call_info, vc );
+                       pinfo->circuit_id, (void *)call_info, vc );
         } else {
             vc_info = circuit_get_proto_data(subcircuit, proto_h223);
             if( vc_info != NULL ) {

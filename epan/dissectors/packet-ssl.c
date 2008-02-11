@@ -537,7 +537,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* create a new conversation */
         conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
                                         pinfo->srcport, pinfo->destport, 0);
-        ssl_debug_printf("  new conversation = %p created\n", conversation);
+        ssl_debug_printf("  new conversation = %p created\n", (void *)conversation);
     }
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
@@ -610,7 +610,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (pinfo->fd->flags.visited)
          ssl_session = NULL;
 
-    ssl_debug_printf("  conversation = %p, ssl_session = %p\n", conversation, ssl_session);
+    ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl_session);
 
     /* Initialize the protocol column; we'll set it later when we
      * figure out what flavor of SSL it is (assuming we don't
@@ -1221,7 +1221,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
   next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
   if (association && association->handle) {
-    ssl_debug_printf("dissect_ssl3_record found association %p\n", association);
+    ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
     call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
   }
 }
@@ -3499,7 +3499,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
   if (!conversation) {
     /* create a new conversation */
     conversation = conversation_new(frame_num, addr_srv, addr_cli, ptype, port_srv, port_cli, 0);
-    ssl_debug_printf("  new conversation = %p created\n", conversation);
+    ssl_debug_printf("  new conversation = %p created\n", (void *)conversation);
   }
   conv_data = conversation_get_proto_data(conversation, proto_ssl);
 
@@ -3512,7 +3512,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     conversation_add_proto_data(conversation, proto_ssl, ssl);
   }
 
-  ssl_debug_printf("  conversation = %p, ssl_session = %p\n", conversation, ssl);
+  ssl_debug_printf("  conversation = %p, ssl_session = %p\n", (void *)conversation, (void *)ssl);
 
   /* version */
   if ((ssl->version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
