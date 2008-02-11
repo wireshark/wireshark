@@ -255,7 +255,7 @@ static const value_string opt53_text[] = {
 	{ 11,	"Lease Unassigned" },	/* RFC4388 */
 	{ 12,	"Lease Unknown" },		/* RFC4388 */
 	{ 13,	"Lease Active" },		/* RFC4388 */
-	/* draft-ietf-dhc-leasequery-09.txt 
+	/* draft-ietf-dhc-leasequery-09.txt
 	{ 13,	"Lease query" },			*/
 	{ 14,	"Lease known" },
 	{ 15,	"Lease unknown" },
@@ -3210,7 +3210,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	at_end;
 	const char	*dhcp_type = NULL;
 	const guint8	*vendor_class_id = NULL;
-	guint16		flags;
+	guint16		flags, secs;
 	int		offset_delta;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -3271,8 +3271,19 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    3, 1, FALSE);
 		proto_tree_add_item(bp_tree, hf_bootp_id, tvb,
 				    4, 4, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
+		/*
+		 * Windows (98, XP and Vista tested) sends the "secs" value on
+		 * the wire formatted as little-endian. See if the LE value
+		 * makes sense.
+		 */
+		secs = tvb_get_letohs(tvb, 8);
+		if (secs > 0 && secs <= 0xff) {
+			proto_tree_add_uint_format(bp_tree, hf_bootp_secs, tvb,
+				    8, 2, secs, "Seconds elapsed: %u (little endian bug?)", secs);
+		} else {
+			proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
 				    8, 2, FALSE);
+		}
 		flags = tvb_get_ntohs(tvb, 10);
 		fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
 				    10, 2, flags);
