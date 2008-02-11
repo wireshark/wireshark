@@ -555,7 +555,6 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
     }
     else return special_tagtype;
 
-    return EDONKEY_STAG_UNKNOWN;
 }
 
 static proto_item* edonkey_tree_add_metatag_name(proto_tree *tree, tvbuff_t *tvb,
