@@ -4974,6 +4974,9 @@ show_main_window(gboolean doing_work)
   /* Pop up any queued-up alert boxes. */
   display_queued_messages();
 
+  /* Move the main window to the front, in case it isn't already there */
+  gdk_window_raise(top_level->window);
+
 #ifdef HAVE_AIRPCAP
   /*
    * This will read the decryption keys from the preferences file, and will
