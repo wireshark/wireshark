@@ -26,6 +26,9 @@
   dictionary as an XML file rather than building it in, and various
   Diameter updates.
 
+  Revision 1.8  2008/01/06 02:49:24  grzegorz  Added missing RFC 3588   
+  AVP 299 by Grzegorz Szczytowski 
+
   Revision 1.7  2001/08/24 18:03:24  chaos
   Mark's Changes
 
@@ -895,14 +898,18 @@
 			<enum name="Ericsson Mm" code="16777233"/>
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
-
 			<enum name="3GPP Rx" code="16777236"/>
 			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
 			<enum name="iptego USPI" code="16777241"/>
+			<enum name="Covergence-specific SIP routing" code="16777242"/>   
+			<enum name="Policy Processing" code="16777243"/>   
+			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
+			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
+
 		</avp>		
 		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="AppId"/>
@@ -930,13 +937,16 @@
 			<enum name="Ericsson Mm" code="16777233"/>
 			<enum name="Vodafone Gx+" code="16777234"/>
 			<enum name="ITU-T Rs" code="16777235"/>
-
 			<enum name="3GPP Rx" code="16777236"/>
 			<enum name="3GPP2 Ty" code="16777237"/>
 			<enum name="3GPP Gx" code="16777238"/>
 			<enum name="Juniper Cluster" code="16777239"/>
 			<enum name="Juniper Policy-Control-AAA" code="16777240"/>
 			<enum name="iptego USPI" code="16777241"/>
+			<enum name="Covergence-specific SIP routing" code="16777242"/>   
+			<enum name="Policy Processing" code="16777243"/>   
+			<enum name="Juniper Policy-Control-JSRC" code="16777244"/>   
+			<enum name="ITU-T S-TC1" code="16777245"/>                                              <!-- ITU-T Rec. Q.3221 --> 
 			<enum name="Relay" code="4294967295"/>
 		</avp>
 		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
@@ -1190,13 +1200,20 @@
 			<enum name="DIAMETER_ERROR_INITIAL_PARAMETERS" code="5140"/>
 			<enum name="DIAMETER_ERROR_TRIGGER_EVENT" code="5141"/>
 		</avp>
+		<!-- RFC3588 AVP -->   
+		<avp name="Inband-Security-Id" code="299" mandatory="must" may-encrypt="no" protected="may" vendor-bit="mustnot">   
+			<type type-name="Unsigned32"/>   
+				<enum name="NO_INBAND_SECURITY" code="0"/>   
+				<enum name="TLS" code="1"/>   
+		</avp> 
+
 		<avp name="E2E-Sequence" code="300" mandatory="must">
 			<grouped>
 				<gavp name="foo"/>
 			</grouped>
 		</avp>
 		<!-- 301-317    Unallocated -->
-<!-- AVP:s 317 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
+<!-- AVP:s 318 - 348 Belongs to Diameter Mobile IPv4 Application and is defined in mobileipv4.xml --> 
 <!-- AVP:s 349-362        Unassigned -->
 <!-- AVP:s 363 - 408 Belongs to Diameter Network Access Server Application and is defined in nasreq.xml -->
 <!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml --> 
@@ -1348,7 +1365,7 @@ Note: The AVP codes from 634 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
- **************************	  700 - 709         **************************
+ **************************	  700 - 711         **************************
 Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 -->
 		<!-- 3GPP Diameter charging applications (3GPP TS 32.299 version 7.0.0 Release 7)-->
