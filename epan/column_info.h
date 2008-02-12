@@ -115,7 +115,6 @@ enum {
   COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
   COL_EXPERT,         /* Expert Info */
   COL_FREQ_CHAN,      /* IEEE 802.11 (and WiMax?) - Channel */
-  COL_CUSTOM,         /* Custom column (any filter name's contents) */
   NUM_COL_FMTS        /* Should always be last */
 };
 

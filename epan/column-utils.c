@@ -40,10 +40,8 @@
 #include "ipv6-utils.h"
 #include "osi-utils.h"
 #include "value_string.h"
-#include "globals.h"
 
 #include <epan/strutil.h>
-#include <epan/epan.h>
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -266,55 +264,6 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
     }
   }
   va_end(ap);
-}
-
-void
-col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
-{
-  va_list ap;
-  int     i;
-
-  if (!check_col(&cfile.cinfo, COL_CUSTOM))
-    return;
-
-  va_start(ap, format);
-  for (i = cfile.cinfo.col_first[COL_CUSTOM];
-       i <= cfile.cinfo.col_last[COL_CUSTOM]; i++) {
-    if (strcmp(cfile.cinfo.col_title[i], field_name) == 0 &&
-	cfile.cinfo.fmt_matx[i][COL_CUSTOM]) {
-      cfile.cinfo.col_data[i] = cfile.cinfo.col_buf[i];
-      g_vsnprintf(cfile.cinfo.col_buf[i], COL_MAX_LEN, format, ap);
-      strncpy(cfile.cinfo.col_expr[i], field_name, COL_MAX_LEN);
-      strncpy(cfile.cinfo.col_expr_val[i], cfile.cinfo.col_buf[i], COL_MAX_LEN);
-    }
-  }
-  va_end(ap);
-}
-
-void
-col_custom_prime_edt(epan_dissect_t *edt)
-{
-  int i;
-  dfilter_t *dfilter_code;
-
-  for (i = cfile.cinfo.col_first[COL_CUSTOM];
-       i <= cfile.cinfo.col_last[COL_CUSTOM]; i++) {
-    if (cfile.cinfo.fmt_matx[i][COL_CUSTOM]) {
-      if(dfilter_compile(cfile.cinfo.col_title[i], &dfilter_code))
-        epan_dissect_prime_dfilter(edt, dfilter_code);
-    }
-  }
-}
-
-gboolean
-have_custom_cols(void)
-{
-  /* The same as check_col(), but without the check to see if the column
-   * is writable. */
-  if (cfile.cinfo.col_first[COL_CUSTOM] >= 0)
-    return TRUE;
-  else
-    return FALSE;
 }
 
 static void
@@ -1448,9 +1397,6 @@ col_fill_in(packet_info *pinfo)
 
     case COL_FREQ_CHAN:    /* done by radio dissectors */
         break;
-
-    case COL_CUSTOM:     /* done by col_custom_set_fstr() called from proto.c */
-	break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
