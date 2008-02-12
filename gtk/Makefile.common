@@ -195,4 +195,5 @@ WIRESHARK_TAP_SRC = \
 	t38_analysis.c  \
 	tcp_graph.c	\
 	voip_calls_dlg.c \
+	wlan_stat_dlg.c	 \
 	wsp_stat.c

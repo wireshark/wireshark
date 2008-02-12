@@ -141,6 +141,9 @@ static gint wlan_ignore_wep = WLAN_IGNORE_WEP_NO;
 static GHashTable *wlan_fragment_table = NULL;
 static GHashTable *wlan_reassembled_table = NULL;
 
+/* Statistical data */
+static struct _wlan_stats wlan_stats;
+
 /* Stuff for the WEP decoder */
 static gboolean enable_decryption = FALSE;
 static void init_wepkeys(void);
@@ -4128,6 +4131,9 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         if (tag_len > 0) {
           proto_item_append_text(ti, ": \"%s\"",
                                  format_text(ssid, tag_len));
+          if (tag_len < 32) {
+            g_snprintf (wlan_stats.ssid, MAX_SSID_LEN, ssid);
+          }
         } else {
           proto_item_append_text(ti, ": Broadcast");
         }
@@ -4199,6 +4205,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
                              tag_len, out_buff);
       proto_item_append_text(ti, ": %s", out_buff);
+      wlan_stats.channel = tvb_get_guint8(tvb, offset + 2);
       break;
 
     case TAG_CF_PARAMETER:
@@ -6704,6 +6711,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       }
     }
 
+    if (algorithm == PROTECTION_ALG_WEP) {
+      strncpy (wlan_stats.protection, "WEP", MAX_PROTECT_LEN);
+    } else if (algorithm == PROTECTION_ALG_TKIP) {
+      strncpy (wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
+    } else if (algorithm == PROTECTION_ALG_CCMP) {
+      strncpy (wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
+    } else {
+      strncpy (wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
+    }
+
 #ifndef HAVE_AIRPDCAP
     if (can_decrypt)
       next_tvb = try_decrypt_wep(tvb, hdr_len, reported_len + 8);
@@ -6973,7 +6990,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   pinfo->fragmented = save_fragmented;
 
   end_of_wlan:
+  whdr->stats = wlan_stats;
   tap_queue_packet(wlan_tap, pinfo, whdr);
+  memset (&wlan_stats, 0, sizeof wlan_stats);
 }
 
 /*
@@ -10867,6 +10886,7 @@ proto_register_ieee80211 (void)
   };
   module_t *wlan_module;
 
+  memset (&wlan_stats, 0, sizeof wlan_stats);
 
   proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN aggregate frame",
       "IEEE 802.11 Aggregate Data", "wlan_aggregate");

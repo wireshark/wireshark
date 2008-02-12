@@ -38,9 +38,19 @@ void capture_wlancap(const guchar *, int, int, packet_counts *);
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
        packet_info * pinfo, proto_tree * tree, int tagged_parameters_len);
 
+#define MAX_SSID_LEN    32
+#define MAX_PROTECT_LEN 10
+
+struct _wlan_stats {
+  guint8 channel;
+  guchar ssid[MAX_SSID_LEN];
+  guchar protection[MAX_PROTECT_LEN];
+};
+
 typedef struct _wlan_hdr {
         address bssid;
         address src;
         address dst;
         guint16 type;
+        struct _wlan_stats stats;
 } wlan_hdr;

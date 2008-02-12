@@ -2460,6 +2460,8 @@ Stig Bjørlykke		<stig [AT] bjorlykke.org> {
 	CDT (CompressedDataType) support
 	DMP (STANAG 4406 Direct Message Profile) support
 	COTP and RTSE reassembly improvements
+	Configuration Profiles
+	WLAN Traffic Statistics
 }
 
 Kyle J. Harms		<kyle.j.harms [AT] boeing.com> {
