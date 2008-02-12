@@ -77,8 +77,7 @@
 #include <epan/timestamp.h>
 #include <epan/dfilter/dfilter-macro.h>
 #include "file_util.h"
-
-
+#include <epan/column-utils.h>
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -939,11 +938,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
 	we have tap listeners;
 
+	we have custom columns;
+
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
   if ((dfcode != NULL && refilter) || color_filters_used()
-        || num_tap_filters != 0)
+      || num_tap_filters != 0 || have_custom_cols())
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
@@ -956,6 +957,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (color_filters_used()) {
       color_filters_prime_edt(edt);
   }
+
+  col_custom_prime_edt(edt);
+
   tap_queue_init(edt);
   epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
   tap_push_tapped_queue(edt);

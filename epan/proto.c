@@ -45,6 +45,7 @@
 #include "emem.h"
 #include "charsets.h"
 #include "asm_utils.h"
+#include "column-utils.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "g_ascii_strcasecmp.h"
@@ -1640,6 +1641,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 static void
 proto_tree_set_ipxnet(field_info *fi, guint32 value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%u", value);
 	fvalue_set_uinteger(&fi->value, value);
 }
 
@@ -2166,10 +2168,13 @@ proto_item_append_string(proto_item *pi, const char *str)
 static void
 proto_tree_set_string(field_info *fi, const char* value)
 {
-	if (value)
+	if (value) {
+		col_custom_set_fstr(fi->hfinfo->abbrev, "%s", value);
 		fvalue_set(&fi->value, (gpointer) value, FALSE);
-	else
+	} else {
+		col_custom_set_fstr(fi->hfinfo->abbrev, "[ Null ]");
 		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
+	}
 }
 
 static void
@@ -2278,6 +2283,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s", value);
 	fvalue_set(&fi->value, (gpointer) value, FALSE);
 }
 
@@ -2634,6 +2640,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 			integer >>= hfinfo->bitshift;
 		}
 	}
+	col_custom_set_fstr(hfinfo->abbrev, "%u", value);
 	fvalue_set_uinteger(&fi->value, integer);
 }
 
@@ -2798,6 +2805,8 @@ proto_tree_set_int(field_info *fi, gint32 value)
 			integer >>= hfinfo->bitshift;
 		}
 	}
+
+	col_custom_set_fstr(hfinfo->abbrev, "%u", value);
 	fvalue_set_sinteger(&fi->value, integer);
 }
 
