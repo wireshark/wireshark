@@ -2,49 +2,20 @@
 <!-- $Id$ -->
 
     <application id="16777222" name="3GPP Gq" uri="http://www.3GPP.org/ftp/Specs/html-info/29209.htm">
-
-        <!-- RQ AVPs (uses same application Id) -->
-        <avp name="Session-Bundle-Id" code="400" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
-        </avp>
-        <avp name="Reservation-Class" code="456" mandatory="must" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
-        </avp>
-        <avp name="Reservation-Priority" code="458" mandatory="may" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-            <type type-name="Enumerated"/>
-                <enum name="DEFAULT" code="0"/>
-                <enum name="PRIORITY-ONE" code="1"/>
-                <enum name="PRIORITY-TWO" code="2"/>
-                <enum name="PRIORITY-THREE" code="3"/>
-                <enum name="PRIORITY-FOUR" code="4"/>
-                <enum name="PRIORITY-FIVE" code="5"/>
-                <enum name="PRIORITY-SIX" code="6"/>
-                <enum name="PRIORITY-SEVEN" code="7"/>
-        </avp>
-        <avp name="Service-Class" code="459" mandatory="mustnot" vendor-bit="must" vendor-id="ETSI" may-encrypt="yes">
-            <type type-name="UTF8String"/>
-        </avp>
-
-
-        <!-- IMS Cx Dx Application -->
-        <command name="AA"                        code="265" vendor-id="TGPP"/>
-        <command name="Re-Auth"                   code="258" vendor-id="TGPP"/>
-        <command name="Session-Termination"       code="275" vendor-id="TGPP"/>
-        <command name="Abort-Session"             code="274" vendor-id="TGPP"/>
-
-        <!-- TODO: return codes -->
         
         <!-- ************************** Gq AVPS ********************* -->
-        <avp name="Abort-Cause" code="500" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
-                <enum name="BEARER_RELEASED" code="0"/>
-                <enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
-                <enum name="NSUFFICIENT_BEARER_RESOURCES" code="2"/>
-        </avp>
+		<!-- ETSI TS 129 209 V6.7.0 (2007-06) -->
 
-        <avp name="Access-Network-Charging-Address" code="501" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="OctetString"/>
-        </avp>
+		<avp name="Abort-Cause" code="500" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="BEARER_RELEASED" code="0"/>
+			<enum name="INSUFFICIENT_SERVER_RESOURCES" code="1"/>
+			<enum name="INSUFFICIENT_BEARER_RESOURCES" code="2"/>
+		</avp>
+
+		<avp name="Access-Network-Charging-Address" code="501" vendor-bit="must" may-encrypt="no" vendor-id="TGPP"> 
+			<type type-name="IPAddress"/>
+		</avp>
 
         <avp name="Access-Network-Charging-Identifier" code="502" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
             <grouped>
@@ -69,10 +40,9 @@
             <type type-name="OctetString"/>
         </avp>
 
-        <!-- type IPFilterRule -->
-        <avp name="Flow-Description" code="507" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="OctetString"/>
-        </avp>
+		<avp name="Flow-Description" code="507" vendor-id="TGPP" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must">
+			<type type-name="IPFilterRule"/>
+		</avp>
 
         <avp name="Flow-Grouping" code="508" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
             <grouped>
@@ -92,7 +62,7 @@
         </avp>
 
         <avp name="Flow-Status" code="511" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
+            <type type-name="Enumerated"/>
                 <enum name="ENABLED-UPLINK" code="0"/>
                 <enum name="ENABLED-DOWNLINK" code="1"/>
                 <enum name="ENABLED" code="2"/>
@@ -101,13 +71,13 @@
         </avp>
 
         <avp name="Flow-Usage" code="512" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-            <type type-name="Unsigned32"/>
+            <type type-name="Enumerated"/>
                 <enum name="NO_INFORMATION" code="0"/>
                 <enum name="RTCP" code="1"/>
         </avp>
 
         <avp name="Specific-Action" code="513" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
-            <type type-name="Unsigned32"/>
+            <type type-name="Enumerated"/>
                 <enum name="SERVICE_INFORMATION_REQUEST" code="0"/>
                 <enum name="CHARGING_CORRELATION_EXCHANGE" code="1"/>
                 <enum name="INDICATION_OF_LOSS_OF_BEARER" code="2"/>
@@ -154,7 +124,7 @@
         </avp>
 
         <avp name="Media-Type" code="520" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
+            <type type-name="Enumerated"/>
                 <enum name="AUDIO" code="0"/>
                 <enum name="VIDEO" code="1"/>
                 <enum name="DATA" code="2"/>
@@ -175,7 +145,7 @@
         </avp>
         
         <avp name="SIP-Forking-Indication" code="523" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
-            <type type-name="Unsigned32"/>
+            <type type-name="Enumerated"/>
                 <enum name="SINGLE_DIALOGUE" code="0"/>
                 <enum name="SEVERAL_DIALOGUES" code="1"/>
         </avp>
