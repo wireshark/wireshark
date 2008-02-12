@@ -96,8 +96,8 @@ wlanstat_reset (void *phs)
 
 	while (list) {
 		tmp = list;
-		g_free (list);
 		list = tmp->next;
+		g_free (tmp);
 	}
 
 	wlan_stat->ep_list = NULL;
@@ -396,6 +396,7 @@ win_destroy_cb (GtkWindow *win _U_, gpointer data)
 		window_destroy(wlanstat_dlg_w);
 		wlanstat_dlg_w = NULL;
 	}
+	wlanstat_reset (hs);
 	g_free (hs);
 }
 
