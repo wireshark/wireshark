@@ -2098,7 +2098,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Seconds since the start of the capture */
     tsecs = phdr->ts.secs - priv->start;
     /* Extract the number of days since the start of the capture */
-    rec_hdr.time_day = tsecs / 86400;	/* # days of capture - 86400 secs/day */
+    rec_hdr.time_day = (guint8)(tsecs / 86400);	/* # days of capture - 86400 secs/day */
     tsecs -= rec_hdr.time_day * 86400;	/* time within day */
     /* Convert to picoseconds */
     t = tsecs*G_GINT64_CONSTANT(1000000000000U) +
