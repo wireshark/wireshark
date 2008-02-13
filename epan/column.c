@@ -105,7 +105,8 @@ col_format_to_string(gint fmt) {
     "%C",
     "%l",
     "%a",
-    "%F"
+    "%F",
+    "%Cus"
   };
 
   if (fmt < 0 || fmt >= NUM_COL_FMTS)
@@ -174,7 +175,8 @@ static const gchar *dlist[NUM_COL_FMTS] = {
 	"Frame Relay DLCI",                         /* COL_FR_DLCI */
 	"GPRS BSSGP TLLI",                          /* COL_BSSGP_TLLI */
 	"Expert Info Severity",                     /* COL_EXPERT */
-	"Frequency/Channel"                         /* COL_FREQ_CHAN */
+	"Frequency/Channel",                        /* COL_FREQ_CHAN */
+	"Custom"                                    /* COL_CUSTOM */
 };
 
 const gchar *
@@ -298,6 +300,9 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       break;
     case COL_FREQ_CHAN:
       fmt_list[COL_FREQ_CHAN] = TRUE;
+      break;
+    case COL_CUSTOM:
+      fmt_list[COL_CUSTOM] = TRUE;
       break;
     default:
       break;

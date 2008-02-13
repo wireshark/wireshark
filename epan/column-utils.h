@@ -30,6 +30,7 @@
 #include "gnuc_format_check.h"
 #include "column_info.h"
 #include "packet_info.h"
+#include <epan/epan.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -141,6 +142,16 @@ extern void	col_add_str(column_info *cinfo, gint col, const gchar *str);
  */
 extern void	col_add_fstr(column_info *cinfo, gint col, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 3, 4);
+
+/* For internal Wireshark use only.  Not to be called from dissectors. */
+void col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
+    GNUC_FORMAT_CHECK(printf, 2, 3);
+
+/* For internal Wireshark use only.  Not to be called from dissectors. */
+void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
+
+/* For internal Wireshark use only.  Not to be called from dissectors. */
+gboolean have_custom_cols(column_info *cinfo);
 
 /** Append the given text to a column element, the text will be copied.
  *

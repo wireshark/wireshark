@@ -40,8 +40,12 @@
 #include "ipv6-utils.h"
 #include "osi-utils.h"
 #include "value_string.h"
+#include "column_info.h"
 
 #include <epan/strutil.h>
+#include <epan/epan.h>
+
+static column_info *ci;
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -264,6 +268,61 @@ col_add_fstr(column_info *cinfo, gint el, const gchar *format, ...) {
     }
   }
   va_end(ap);
+}
+
+void
+col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
+{
+  va_list ap;
+  int     i;
+
+  if (!check_col(ci, COL_CUSTOM))
+    return;
+
+  va_start(ap, format);
+  for (i = ci->col_first[COL_CUSTOM];
+       i <= ci->col_last[COL_CUSTOM]; i++) {
+    if (strcmp(ci->col_title[i], field_name) == 0 &&
+	ci->fmt_matx[i][COL_CUSTOM]) {
+      ci->col_data[i] = ci->col_buf[i];
+      g_vsnprintf(ci->col_buf[i], COL_MAX_LEN, format, ap);
+      strncpy(ci->col_expr[i], field_name, COL_MAX_LEN);
+      strncpy(ci->col_expr_val[i], ci->col_buf[i], COL_MAX_LEN);
+    }
+  }
+  va_end(ap);
+}
+
+void
+col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
+{
+  int i;
+  dfilter_t *dfilter_code;
+
+  ci = cinfo; /* Save this into the static variable ci for use by
+	       * col_custom_set_fstr() later. */
+
+  if(!check_col(cinfo, COL_CUSTOM))
+      return;
+
+  for (i = cinfo->col_first[COL_CUSTOM];
+       i <= cinfo->col_last[COL_CUSTOM]; i++) {
+    if (cinfo->fmt_matx[i][COL_CUSTOM]) {
+      if(dfilter_compile(cinfo->col_title[i], &dfilter_code))
+        epan_dissect_prime_dfilter(edt, dfilter_code);
+    }
+  }
+}
+
+gboolean
+have_custom_cols(column_info *cinfo)
+{
+  /* The same as check_col(), but without the check to see if the column
+   * is writable. */
+  if (cinfo->col_first[COL_CUSTOM] >= 0)
+    return TRUE;
+  else
+    return FALSE;
 }
 
 static void
@@ -1397,6 +1456,9 @@ col_fill_in(packet_info *pinfo)
 
     case COL_FREQ_CHAN:    /* done by radio dissectors */
         break;
+
+    case COL_CUSTOM:     /* done by col_custom_set_fstr() called from proto.c */
+	break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();

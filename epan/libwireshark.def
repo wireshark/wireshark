@@ -76,6 +76,8 @@ col_append_sep_fstr
 col_append_sep_str
 col_append_str
 col_clear
+col_custom_prime_edt
+col_custom_set_fstr
 col_format_desc
 col_format_to_string
 col_get_writable
@@ -474,6 +476,7 @@ h225_RasMessage_vals                 DATA
 h225_ReleaseCompleteReason_vals      DATA
 h245_set_h223_add_lc_handle
 h245_set_h223_set_mc_handle
+have_custom_cols
 have_tap_listeners
 heur_dissector_add
 hex_str_to_bytes
