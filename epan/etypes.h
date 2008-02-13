@@ -343,6 +343,10 @@
 #define ETHERTYPE_LLDP	        0x88cc  /* IEEE 802.1AB Link Layer Discovery Protocol (LLDP) */
 #endif
 
+#ifndef ETHERTYPE_SERCOS
+#define ETHERTYPE_SERCOS        0x88cd  /* SERCOS interface real-time protocol for motion control */
+#endif
+
 #ifndef ETHERTYPE_3GPP2
 #define ETHERTYPE_3GPP2	        0x88d2  /* This will be used in a revision of the Interoperabi */
 #endif									/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
