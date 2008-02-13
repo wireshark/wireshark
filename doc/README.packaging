@@ -43,10 +43,10 @@ NOT RUN THEM AS ROOT.
 There are two configure-time options on non-Windows systems that affect
 the privileges a normal user needs to capture traffic and list
 interfaces: "--enable-setuid-install" and "--with-libcap". Setting
-"--enable-setuid-install" to "yes" will install TShark and dumpcap
-setuid root.  This is necessary for non-root users to be able to capture
-on most systems, e.g. on Linux or FreeBSD if the user doesn't have
-permissions to access /dev/bpf*. It is disabled by default.
+"--enable-setuid-install" to "yes" will install dumpcap setuid root.
+This is necessary for non-root users to be able to capture on most
+systems, e.g. on Linux or FreeBSD if the user doesn't have permissions
+to access /dev/bpf*. It is disabled by default.
 
 If the "--with-libcap" option is enabled, dumpcap will try to drop any
 setuid privileges it may have while retaining the CAP_NET_ADMIN and
