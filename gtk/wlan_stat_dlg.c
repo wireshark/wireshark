@@ -82,11 +82,13 @@ wlanstat_reset (void *phs)
 	wlanstat_t* wlan_stat = (wlanstat_t *)phs;
 	wlan_ep_t* list = (wlan_ep_t*)wlan_stat->ep_list;
 	wlan_ep_t* tmp = NULL;
-	char title[256];
 
-	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
-		    cf_get_display_name(&cfile));
-	gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
+	if (wlanstat_dlg_w != NULL) {
+		char title[256];
+		g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
+			    cf_get_display_name(&cfile));
+		gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
+	}
 
 	/* remove all entries from the clist */
 	gtk_clist_clear (GTK_CLIST(wlan_stat->table));
