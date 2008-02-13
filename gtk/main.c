@@ -221,17 +221,29 @@ static GtkWidget *driver_warning_dialog;
 static int    airpcap_dll_ret_val = -1;
 #endif
 
+/*
+ * The order below defines the priority of info bar contexts.
+ */
+typedef enum {
+    STATUS_LEVEL_MAIN,
+    STATUS_LEVEL_FILE,
+    STATUS_LEVEL_FILTER,
+    STATUS_LEVEL_HELP,
+    NUM_STATUS_LEVELS
+} status_level_e;
+
 static GtkWidget    *info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *profile_bar = NULL;
 static GtkWidget    *welcome_pane;
 static guint        main_ctx, file_ctx, help_ctx, filter_ctx;
+static guint        status_levels[NUM_STATUS_LEVELS];
 static guint        packets_ctx;
 static guint        profile_ctx;
 static gchar        *packets_str = NULL;
 static gchar        *profile_str = NULL;
 GString *comp_info_str, *runtime_info_str;
-gboolean have_capture_file = FALSE; /* XXX - is there an aquivalent in cfile? */
+gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
@@ -972,8 +984,15 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void
 statusbar_push_file_msg(const gchar *msg)
 {
+    int i;
+
     /*g_warning("statusbar_push: %s", msg);*/
-	gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
+    for (i = STATUS_LEVEL_FILE + 1; i < NUM_STATUS_LEVELS; i++) {
+        if (status_levels[i])
+            return;
+    }
+    status_levels[STATUS_LEVEL_FILE]++;
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
 }
 
 /*
@@ -983,7 +1002,10 @@ void
 statusbar_pop_file_msg(void)
 {
     /*g_warning("statusbar_pop");*/
-	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
+    if (status_levels[STATUS_LEVEL_FILE] > 0) {
+        status_levels[STATUS_LEVEL_FILE]--;
+    }
+    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 }
 
 /*
@@ -996,7 +1018,15 @@ statusbar_pop_file_msg(void)
 void
 statusbar_push_field_msg(const gchar *msg)
 {
-	gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
+    int i;
+
+    for (i = STATUS_LEVEL_HELP + 1; i < NUM_STATUS_LEVELS; i++) {
+        if (status_levels[i])
+            return;
+    }
+    status_levels[STATUS_LEVEL_HELP]++;
+
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
 }
 
 /*
@@ -1005,7 +1035,10 @@ statusbar_push_field_msg(const gchar *msg)
 void
 statusbar_pop_field_msg(void)
 {
-	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
+    if (status_levels[STATUS_LEVEL_HELP] > 0) {
+        status_levels[STATUS_LEVEL_HELP]--;
+    }
+    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
 }
 
 /*
@@ -1014,7 +1047,15 @@ statusbar_pop_field_msg(void)
 void
 statusbar_push_filter_msg(const gchar *msg)
 {
-	gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
+    int i;
+
+    for (i = STATUS_LEVEL_FILTER + 1; i < NUM_STATUS_LEVELS; i++) {
+        if (status_levels[i])
+            return;
+    }
+    status_levels[STATUS_LEVEL_FILTER]++;
+
+    gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
 }
 
 /*
@@ -1023,7 +1064,10 @@ statusbar_push_filter_msg(const gchar *msg)
 void
 statusbar_pop_filter_msg(void)
 {
-	gtk_statusbar_pop(GTK_STATUSBAR(info_bar), filter_ctx);
+    if (status_levels[STATUS_LEVEL_FILTER] > 0) {
+        status_levels[STATUS_LEVEL_FILTER]--;
+    }
+    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), filter_ctx);
 }
 
 /*
@@ -3370,6 +3414,8 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 static GtkWidget *info_bar_new(void)
 {
+    int i;
+
     /* tip: tooltips don't work on statusbars! */
     info_bar = gtk_statusbar_new();
     main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
@@ -3380,6 +3426,10 @@ static GtkWidget *info_bar_new(void)
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
+
+    for (i = 0; i < NUM_STATUS_LEVELS; i++) {
+        status_levels[i] = 0;
+    }
 
     return info_bar;
 }

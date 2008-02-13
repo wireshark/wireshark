@@ -1523,8 +1523,8 @@ filter_te_syntax_check_cb(GtkWidget *w)
              * We're being lazy and only printing the first "problem" token.
              * Would it be better to print all of them?
              */
-            msg = g_strdup_printf(" \"%s\" may have unexpected results",
-                (char *) g_ptr_array_index(depr, 0));
+            msg = g_strdup_printf(" \"%s\" may have unexpected results (see the User's Guide)",
+                (const char *) g_ptr_array_index(depr, 0));
             statusbar_push_filter_msg(msg);
             g_free(msg);
         } else {
