@@ -273,7 +273,7 @@ PORTAUDIO_VERSION=19
 
 #
 # Iconv: Mandatory for Glib >= 2 and <= 2.14.4
-# [win-iconv statically linked for Glib >= 2.14.5]
+# [win-iconv statically linked as part of Glib >= 2.14.5]
 # Set ICONV_DIR to the directory in which the
 # ICONV include files and library resides.
 #
