@@ -1641,7 +1641,6 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 static void
 proto_tree_set_ipxnet(field_info *fi, guint32 value)
 {
-	col_custom_set_fstr(fi->hfinfo->abbrev, "%u", value);
 	fvalue_set_uinteger(&fi->value, value);
 }
 
@@ -2006,6 +2005,8 @@ proto_tree_set_oid_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length)
 static void
 proto_tree_set_uint64(field_info *fi, guint64 value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%" G_GINT64_MODIFIER "u",
+			    value);
 	fvalue_set_integer64(&fi->value, value);
 }
 
@@ -2283,7 +2284,6 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
-	col_custom_set_fstr(fi->hfinfo->abbrev, "%s", value);
 	fvalue_set(&fi->value, (gpointer) value, FALSE);
 }
 
@@ -2372,6 +2372,7 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 static void
 proto_tree_set_boolean(field_info *fi, guint32 value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%u", value);
 	proto_tree_set_uint(fi, value);
 }
 
@@ -2453,6 +2454,8 @@ proto_tree_add_float_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_float(field_info *fi, float value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%." STRINGIFY(FLT_DIG) "f",
+			    value);
 	fvalue_set_floating(&fi->value, value);
 }
 
@@ -2534,6 +2537,8 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 static void
 proto_tree_set_double(field_info *fi, double value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%." STRINGIFY(DBL_DIG) "g",
+			    value);
 	fvalue_set_floating(&fi->value, value);
 }
 
@@ -2806,7 +2811,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		}
 	}
 
-	col_custom_set_fstr(hfinfo->abbrev, "%u", value);
+	col_custom_set_fstr(hfinfo->abbrev, "%d", value);
 	fvalue_set_sinteger(&fi->value, integer);
 }
 
