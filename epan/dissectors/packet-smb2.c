@@ -61,6 +61,7 @@ static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
 static int hf_smb2_aid = -1;
 static int hf_smb2_sesid = -1;
+static int hf_smb2_previous_sesid = -1;
 static int hf_smb2_flags_response = -1;
 static int hf_smb2_flags_async_cmd = -1;
 static int hf_smb2_flags_dfs_op = -1;
@@ -204,6 +205,11 @@ static int hf_smb2_dialect = -1;
 static int hf_smb2_max_trans_size = -1;
 static int hf_smb2_max_read_size = -1;
 static int hf_smb2_max_write_size = -1;
+static int hf_smb2_vcnum = -1;
+static int hf_smb2_channel = -1;
+static int hf_smb2_session_flags = -1;
+static int hf_smb2_ses_flags_guest = -1;
+static int hf_smb2_ses_flags_null = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -249,6 +255,7 @@ static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
 static gint ett_smb2_flags = -1;
 static gint ett_smb2_sec_mode = -1;
 static gint ett_smb2_capabilities = -1;
+static gint ett_smb2_ses_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -1803,18 +1810,43 @@ dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 static int
 dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	guint16 sm;
+	guint8 sm;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 
-	sm = tvb_get_letohs(tvb, offset);
+	sm = tvb_get_guint8(tvb, offset);
 
-	item = proto_tree_add_item(parent_tree, hf_smb2_security_mode, tvb, offset, 2, TRUE);
+	item = proto_tree_add_item(parent_tree, hf_smb2_security_mode, tvb, offset, 1, TRUE);
 	tree = proto_item_add_subtree(item, ett_smb2_sec_mode);
 
 
-	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 2, sm);
-	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_enabled, tvb, offset, 2, sm);
+	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 1, sm);
+	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_enabled, tvb, offset, 1, sm);
+
+
+	offset += 1;
+
+	return offset;
+}
+
+#define SES_FLAGS_GUEST		0x0001
+#define SES_FLAGS_NULL		0x0002
+
+static int
+dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	guint16 sf;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	sf = tvb_get_letohs(tvb, offset);
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_session_flags, tvb, offset, 2, TRUE);
+	tree = proto_item_add_subtree(item, ett_smb2_ses_flags);
+
+
+	proto_tree_add_boolean(tree, hf_smb2_ses_flags_null, tvb, offset, 2, sf);
+	proto_tree_add_boolean(tree, hf_smb2_ses_flags_guest, tvb, offset, 2, sf);
 
 
 	offset += 2;
@@ -1860,15 +1892,28 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
-	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, FALSE);
-	offset += 8;
+	/* num vcs */
+	proto_tree_add_item(tree, hf_smb2_vcnum, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* security mode */
+	offset = dissect_smb2_secmode(tree, tvb, offset);
+
+	/* capabilities */
+	offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+	/* channel */
+	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* security blob offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_security_blob);
+
+	/* previous session id */
+	proto_tree_add_item(tree, hf_smb2_previous_sesid, tvb, offset, 8, TRUE);
+	offset += 8;
+
 
 	/* the security blob itself */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
@@ -1902,6 +1947,7 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
+
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
 	offset += 2;
@@ -1926,9 +1972,9 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
-	offset += 2;
+
+	/* session flags */
+	offset = dissect_smb2_ses_flags(tree, tvb, offset);
 
 	/* security blob offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_security_blob);
@@ -2280,8 +2326,9 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	proto_tree_add_item(tree, hf_smb2_dialect_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* security mode */
+	/* security mode, skip second byte */
 	offset = dissect_smb2_secmode(tree, tvb, offset);
+	offset++;
 
 
 	/* reserved */
@@ -2319,8 +2366,9 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* security mode */
+	/* security mode, skip second byte */
 	offset = dissect_smb2_secmode(tree, tvb, offset);
+	offset++;
 
 	/* dialect picked */
 	proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, TRUE);
@@ -4741,6 +4789,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_sesid,
 		{ "Session Id", "smb2.sesid", FT_UINT64, BASE_HEX,
 		NULL, 0, "SMB2 Session Id", HFILL }},
+	{ &hf_smb2_previous_sesid,
+		{ "Previous Session Id", "smb2.previous_sesid", FT_UINT64, BASE_HEX,
+		NULL, 0, "SMB2 Previous Session Id", HFILL }},
 	{ &hf_smb2_chain_offset,
 		{ "Chain Offset", "smb2.chain_offset", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Chain Offset", HFILL }},
@@ -5228,7 +5279,11 @@ proto_register_smb2(void)
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_security_mode,
-		{ "Security mode", "smb2.sec_mode", FT_UINT16, BASE_DEC,
+		{ "Security mode", "smb2.sec_mode", FT_UINT8, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_session_flags,
+		{ "Session Flags", "smb2.session_flags", FT_UINT16, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_capabilities,
@@ -5275,12 +5330,20 @@ proto_register_smb2(void)
 		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Unknown timestamp", HFILL }},
 
+	{ &hf_smb2_ses_flags_guest,
+		{ "Guest", "smb2.ses_flags.guest", FT_BOOLEAN, 16,
+		NULL, SES_FLAGS_GUEST, "", HFILL }},
+
+	{ &hf_smb2_ses_flags_null,
+		{ "Null", "smb2.ses_flags.null", FT_BOOLEAN, 16,
+		NULL, SES_FLAGS_NULL, "", HFILL }},
+
 	{ &hf_smb2_secmode_flags_sign_required,
-		{ "Signing required", "smb2.sec_mode.sign_required", FT_BOOLEAN, 16,
+		{ "Signing required", "smb2.sec_mode.sign_required", FT_BOOLEAN, 8,
 		NULL, NEGPROT_SIGN_REQ, "Is signing required", HFILL }},
 
 	{ &hf_smb2_secmode_flags_sign_enabled,
-		{ "Signing enabled", "smb2.sec_mode.sign_enabled", FT_BOOLEAN, 16,
+		{ "Signing enabled", "smb2.sec_mode.sign_enabled", FT_BOOLEAN, 8,
 		NULL, NEGPROT_SIGN_ENABLED, "Is signing enabled", HFILL }},
 
 	{ &hf_smb2_cap_dfs,
@@ -5298,6 +5361,14 @@ proto_register_smb2(void)
 	{ &hf_smb2_max_write_size,
 		{ "Max Write Size", "smb2.max_write_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "Maximum size of a write", HFILL }},
+
+	{ &hf_smb2_vcnum,
+		{ "VC Num", "smb2.num_vc", FT_UINT8, BASE_DEC,
+		NULL, 0, "Number of VCs", HFILL }},
+
+	{ &hf_smb2_channel,
+		{ "Channel", "smb2.channel", FT_UINT32, BASE_DEC,
+		NULL, 0, "Channel", HFILL }},
 
 	};
 
@@ -5346,6 +5417,7 @@ proto_register_smb2(void)
 		&ett_smb2_flags,
 		&ett_smb2_sec_mode,
 		&ett_smb2_capabilities,
+		&ett_smb2_ses_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
