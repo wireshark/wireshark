@@ -100,6 +100,7 @@ static int hf_smb2_find_pattern = -1;
 static int hf_smb2_find_info_level = -1;
 static int hf_smb2_find_continue_flags = -1;
 static int hf_smb2_find_info_blob = -1;
+static int hf_smb2_client_guid = -1;
 static int hf_smb2_server_guid = -1;
 static int hf_smb2_object_id = -1;
 static int hf_smb2_birth_volume_id = -1;
@@ -193,6 +194,16 @@ static int hf_smb2_signature = -1;
 static int hf_smb2_epoch = -1;
 static int hf_smb2_credits_requested = -1;
 static int hf_smb2_credits_granted = -1;
+static int hf_smb2_dialect_count = -1;
+static int hf_smb2_security_mode = -1;
+static int hf_smb2_secmode_flags_sign_required = -1;
+static int hf_smb2_secmode_flags_sign_enabled = -1;
+static int hf_smb2_capabilities = -1;
+static int hf_smb2_cap_dfs = -1;
+static int hf_smb2_dialect = -1;
+static int hf_smb2_max_trans_size = -1;
+static int hf_smb2_max_read_size = -1;
+static int hf_smb2_max_write_size = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -236,6 +247,8 @@ static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
 static gint ett_smb2_FILE_OBJECTID_BUFFER = -1;
 static gint ett_smb2_flags = -1;
+static gint ett_smb2_sec_mode = -1;
+static gint ett_smb2_capabilities = -1;
 
 static int smb2_tap = -1;
 
@@ -719,6 +732,11 @@ static const true_false_string tfs_flags_chained = {
 static const true_false_string tfs_flags_signature = {
 	"This pdu is SIGNED",
 	"This pdu is NOT signed"
+};
+
+static const true_false_string tfs_cap_dfs = {
+	"This host supports DFS",
+	"This host does NOT support DFS"
 };
 
 static const value_string compression_format_vals[] = {
@@ -1755,6 +1773,56 @@ dissect_smb2_buffercode(proto_tree *tree, tvbuff_t *tvb, int offset, guint16 *le
 	return offset;
 }
 
+#define NEGPROT_CAP_DFS		0x00000001
+static int
+dissect_smb2_capabilities(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	guint32 cap;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	cap = tvb_get_letohl(tvb, offset);
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_capabilities, tvb, offset, 4, TRUE);
+	tree = proto_item_add_subtree(item, ett_smb2_capabilities);
+
+
+	proto_tree_add_boolean(tree, hf_smb2_cap_dfs, tvb, offset, 4, cap);
+
+
+	offset += 4;
+
+	return offset;
+}
+
+
+
+#define NEGPROT_SIGN_REQ	0x0002
+#define NEGPROT_SIGN_ENABLED	0x0001
+
+static int
+dissect_smb2_secmode(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+{
+	guint16 sm;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+
+	sm = tvb_get_letohs(tvb, offset);
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_security_mode, tvb, offset, 2, TRUE);
+	tree = proto_item_add_subtree(item, ett_smb2_sec_mode);
+
+
+	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_required, tvb, offset, 2, sm);
+	proto_tree_add_boolean(tree, hf_smb2_secmode_flags_sign_enabled, tvb, offset, 2, sm);
+
+
+	offset += 2;
+
+	return offset;
+}
+
+
 static void
 dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
 {
@@ -2202,12 +2270,38 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	guint16 dc;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 0x24, TRUE);
-	offset += 0x24;
+	/* dialect count */
+	dc = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_dialect_count, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* security mode */
+	offset = dissect_smb2_secmode(tree, tvb, offset);
+
+
+	/* reserved */
+	offset += 2;
+
+	/* capabilities */
+	offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+	/* client guid */
+	proto_tree_add_item(tree, hf_smb2_client_guid, tvb, offset, 16, TRUE);
+	offset += 16;
+
+	/* client boot time */
+	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_boot_time);
+	offset += 8;
+
+	for(;dc>0;dc--){
+		proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, TRUE);
+		offset += 2;
+	}
 
 	return offset;
 }
@@ -2224,22 +2318,35 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+
+	/* security mode */
+	offset = dissect_smb2_secmode(tree, tvb, offset);
+
+	/* dialect picked */
+	proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, TRUE);
 	offset += 2;
 
-
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* reserved */
+	offset += 2;
 
 	/* server GUID */
 	proto_tree_add_item(tree, hf_smb2_server_guid, tvb, offset, 16, TRUE);
 	offset += 16;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	/* capabilities */
+	offset = dissect_smb2_capabilities(tree, tvb, offset);
+
+	/* max trans size */
+	proto_tree_add_item(tree, hf_smb2_max_trans_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* max read size */
+	proto_tree_add_item(tree, hf_smb2_max_read_size, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* max write size */
+	proto_tree_add_item(tree, hf_smb2_max_write_size, tvb, offset, 4, TRUE);
+	offset += 4;
 
 	/* current time */
 	dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_current_time);
@@ -2255,8 +2362,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* the security blob itself */
 	dissect_smb2_olb_buffer(pinfo, tree, tvb, &s_olb, si, dissect_smb2_secblob);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* reserved */
 	offset += 4;
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
@@ -4784,6 +4890,10 @@ proto_register_smb2(void)
 	  { "Server Guid", "smb2.server_guid", FT_GUID, BASE_NONE,
 		NULL, 0, "Server GUID", HFILL }},
 
+	{ &hf_smb2_client_guid,
+	  { "Client Guid", "smb2.client_guid", FT_GUID, BASE_NONE,
+		NULL, 0, "Client GUID", HFILL }},
+
 	{ &hf_smb2_object_id,
 	  { "ObjectId", "smb2.object_id", FT_GUID, BASE_NONE,
 		NULL, 0, "ObjectID for this FID", HFILL }},
@@ -5109,6 +5219,22 @@ proto_register_smb2(void)
 		{ "Credits granted", "smb2.credits.granted", FT_UINT16, BASE_DEC,
 		NULL, 0, "", HFILL }},
 
+	{ &hf_smb2_dialect_count,
+		{ "Dialect count", "smb2.dialect_count", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_dialect,
+		{ "Dialect", "smb2.dialect", FT_UINT16, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_security_mode,
+		{ "Security mode", "smb2.sec_mode", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_capabilities,
+		{ "Capabilities", "smb2.capabilities", FT_UINT32, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_ioctl_shadow_copy_count,
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes for shadow copy label strings", HFILL }},
@@ -5148,6 +5274,31 @@ proto_register_smb2(void)
 	{ &hf_smb2_unknown_timestamp,
 		{ "Timestamp", "smb2.unknown.timestamp", FT_ABSOLUTE_TIME, BASE_NONE,
 		NULL, 0, "Unknown timestamp", HFILL }},
+
+	{ &hf_smb2_secmode_flags_sign_required,
+		{ "Signing required", "smb2.sec_mode.sign_required", FT_BOOLEAN, 16,
+		NULL, NEGPROT_SIGN_REQ, "Is signing required", HFILL }},
+
+	{ &hf_smb2_secmode_flags_sign_enabled,
+		{ "Signing enabled", "smb2.sec_mode.sign_enabled", FT_BOOLEAN, 16,
+		NULL, NEGPROT_SIGN_ENABLED, "Is signing enabled", HFILL }},
+
+	{ &hf_smb2_cap_dfs,
+		{ "DFS", "smb2.capabilities.dfs", FT_BOOLEAN, 32,
+		TFS(&tfs_cap_dfs), NEGPROT_CAP_DFS, "If the host supports dfs", HFILL }},
+
+	{ &hf_smb2_max_trans_size,
+		{ "Max Transaction Size", "smb2.max_trans_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum size of a transaction", HFILL }},
+
+	{ &hf_smb2_max_read_size,
+		{ "Max Read Size", "smb2.max_read_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum size of a read", HFILL }},
+
+	{ &hf_smb2_max_write_size,
+		{ "Max Write Size", "smb2.max_write_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum size of a write", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -5193,6 +5344,8 @@ proto_register_smb2(void)
 		&ett_smb2_ioctl_function,
 		&ett_smb2_FILE_OBJECTID_BUFFER,
 		&ett_smb2_flags,
+		&ett_smb2_sec_mode,
+		&ett_smb2_capabilities,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
