@@ -460,6 +460,13 @@
 	</para>
   </section>
   
+  <section id="ChStatWLANTraffic">
+    <title>WLAN Traffic Statistics</title>
+    <para>
+	Statistics of the captured WLAN traffic.
+    </para>
+  </section>
+
   <section id="ChStatSRT">
     <title>Service Response Time</title>
     <para>

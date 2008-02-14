@@ -455,6 +455,9 @@ topic_action(topic_action_e action)
     case(HELP_STATS_IO_GRAPH_DIALOG):
         help_topic_html("ChStatIOGraphs.html");
         break;
+    case(HELP_STATS_WLAN_TRAFFIC_DIALOG):
+        help_topic_html("ChStatWLANTraffic.html");
+        break;
     case(HELP_FILESET_DIALOG):
         help_topic_html("ChIOFileSetSection.html");
         break;

@@ -48,6 +48,7 @@
 #include <epan/dissectors/packet-ieee80211.h>
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
+#include "help_dlg.h"
 
 #define NUM_COLS 12
 static const gchar *titles[] = {"BSSID", "Channel", "SSID", "Beacons", "Data Packets", "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Percent", "Protection" };
@@ -72,6 +73,7 @@ static GtkWidget  *wlanstat_dlg_w = NULL;
 typedef struct _wlan_stat_t {
 	GtkWidget  *table;
 	guint32    number_of_packets;
+	gboolean   resolve_names;
 	gboolean   show_only_existing;
 	wlan_ep_t* ep_list;
 } wlanstat_t;
@@ -313,11 +315,15 @@ wlanstat_draw(void *phs)
 		  tmp->type[0x05] - tmp->type[0x0B] - tmp->type[0x0C];
 		f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
-		g_snprintf (str[0],  sizeof(char[256]),"%s", get_addr_name(&tmp->bssid));
-		if (tmp->stats.channel) {
-		  g_snprintf (str[1],  sizeof(char[256]),"%u", tmp->stats.channel);
+		if (hs->resolve_names) {
+			g_snprintf (str[0],  sizeof(char[256]),"%s", get_addr_name(&tmp->bssid));
 		} else {
-		  str[1][0] = '\0';
+			g_snprintf (str[0],  sizeof(char[256]),"%s", address_to_str(&tmp->bssid));
+		}
+		if (tmp->stats.channel) {
+			g_snprintf (str[1],  sizeof(char[256]),"%u", tmp->stats.channel);
+		} else {
+			str[1][0] = '\0';
 		}
 		g_snprintf (str[2],  sizeof(char[256]),"%s", tmp->stats.ssid);
 		g_snprintf (str[3],  sizeof(char[256]),"%u", tmp->type[0x08]);
@@ -335,6 +341,16 @@ wlanstat_draw(void *phs)
 	gtk_clist_thaw(GTK_CLIST(hs->table));
 	gtk_clist_sort(GTK_CLIST(hs->table));
 	gtk_widget_show (GTK_WIDGET(hs->table));
+}
+
+static void
+wlan_resolve_toggle_dest(GtkWidget *widget, gpointer data)
+{
+	wlanstat_t *hs = (wlanstat_t *)data;
+
+	hs->resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+	wlanstat_draw(hs);
 }
 
 static void
@@ -412,8 +428,10 @@ wlanstat_dlg_create (void)
 	GtkWidget *bbox;
 	GtkWidget  *vbox;
 	GtkWidget  *hbox;
+	GtkWidget *resolv_cb;
 	GtkWidget *existing_cb;
 	GtkWidget *close_bt;
+	GtkWidget *help_bt;
 	GtkTooltips *tooltips = gtk_tooltips_new();
 #if GTK_MAJOR_VERSION >= 2
 	GtkWidget *copy_bt;
@@ -426,6 +444,7 @@ wlanstat_dlg_create (void)
 	hs=g_malloc (sizeof(wlanstat_t));
 	hs->ep_list = NULL;
 	hs->number_of_packets = 0;
+	hs->resolve_names = TRUE;
 	hs->show_only_existing = FALSE;
 
 	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
@@ -498,6 +517,14 @@ wlanstat_dlg_create (void)
 	hbox = gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+	resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Name resolution", NULL);
+	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
+	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
+	gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
+			     "Please note: The corresponding name resolution must be enabled.", NULL);
+
+	SIGNAL_CONNECT(resolv_cb, "toggled", wlan_resolve_toggle_dest, hs);
+
 	existing_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Only show existing networks", NULL);
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
@@ -507,10 +534,19 @@ wlanstat_dlg_create (void)
 
 	/* Button row. */
 #if GTK_MAJOR_VERSION >= 2
-	bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
+		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+	} else {
+		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
+	}
 #else
-	bbox = dlg_button_row_new (GTK_STOCK_CLOSE, NULL);
+	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
+		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+	} else {
+		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, NULL);
+	}
 #endif
+
 	gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA (bbox, GTK_STOCK_CLOSE);
@@ -522,6 +558,11 @@ wlanstat_dlg_create (void)
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	SIGNAL_CONNECT(copy_bt, "clicked", wlan_copy_as_csv, hs->table);
 #endif                 
+
+	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
+		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_WLAN_TRAFFIC_DIALOG);
+	}
 
 	SIGNAL_CONNECT (wlanstat_dlg_w, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT (wlanstat_dlg_w, "destroy", win_destroy_cb, hs);
