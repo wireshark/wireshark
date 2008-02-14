@@ -37,7 +37,9 @@ libwireshark_LIBS = \
 	$(LUA_LIBS) \
 	$(SMI_LIBS) \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+!IFDEF ICONV_DIR
 	$(ICONV_DIR)\lib\iconv.lib \
+!ENDIF
 	crypt\airpdcap.lib \
 	ftypes\ftypes.lib \
 	dfilter\dfilter.lib \

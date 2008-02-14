@@ -662,8 +662,10 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-dev-1.3.0-20030115.zip
 !ENDIF
+!IFDEF ICONV_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		libiconv-1.9.1.bin.woe32 libiconv-1.9.1.bin.woe32.zip
+!ENDIF
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gettext-runtime-0.17-1 gettext-runtime-0.17-1.zip
 !IFDEF KFW_DIR
@@ -1030,7 +1032,9 @@ install-common-deps:
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
+!IFDEF ICONV_DIR
 	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
+!ENDIF
 	xcopy $(GETTEXT_DIR)\bin\intl.dll $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
 	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR) /d
