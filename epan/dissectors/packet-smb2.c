@@ -210,6 +210,16 @@ static int hf_smb2_channel = -1;
 static int hf_smb2_session_flags = -1;
 static int hf_smb2_ses_flags_guest = -1;
 static int hf_smb2_ses_flags_null = -1;
+static int hf_smb2_share_flags = -1;
+static int hf_smb2_share_flags_dfs = -1;
+static int hf_smb2_share_flags_dfs_root = -1;
+static int hf_smb2_share_flags_restrict_exclusive_opens = -1;
+static int hf_smb2_share_flags_force_shared_delete = -1;
+static int hf_smb2_share_flags_allow_namespace_caching = -1;
+static int hf_smb2_share_flags_access_based_dir_enum = -1;
+static int hf_smb2_share_caching = -1;
+static int hf_smb2_share_caps = -1;
+static int hf_smb2_share_caps_dfs = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -256,6 +266,8 @@ static gint ett_smb2_flags = -1;
 static gint ett_smb2_sec_mode = -1;
 static gint ett_smb2_capabilities = -1;
 static gint ett_smb2_ses_flags = -1;
+static gint ett_smb2_share_flags = -1;
+static gint ett_smb2_share_caps = -1;
 
 static int smb2_tap = -1;
 
@@ -1854,6 +1866,71 @@ dissect_smb2_ses_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	return offset;
 }
 
+#define SHARE_FLAGS_manual_caching		0x00000000
+#define SHARE_FLAGS_auto_caching		0x00000010
+#define SHARE_FLAGS_vdo_caching			0x00000020
+#define SHARE_FLAGS_no_caching			0x00000030
+
+static const value_string share_cache_vals[] = {
+	{ SHARE_FLAGS_manual_caching,	"manual_caching" },
+	{ SHARE_FLAGS_auto_caching,	"auto_caching" },
+	{ SHARE_FLAGS_vdo_caching,	"vdo_caching" },
+	{ SHARE_FLAGS_no_caching,	"no_caching" },
+	{ 0, NULL }
+};
+
+#define SHARE_FLAGS_dfs				0x00000001
+#define SHARE_FLAGS_dfs_root			0x00000002
+#define SHARE_FLAGS_restrict_exclusive_opens	0x00000100
+#define SHARE_FLAGS_force_shared_delete		0x00000200
+#define SHARE_FLAGS_allow_namespace_caching	0x00000400
+#define SHARE_FLAGS_access_based_dir_enum	0x00000800
+
+static int
+dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	static const int *sf_fields[] = {
+		&hf_smb2_share_flags_dfs,
+		&hf_smb2_share_flags_dfs_root,
+		&hf_smb2_share_flags_restrict_exclusive_opens,
+		&hf_smb2_share_flags_force_shared_delete,
+		&hf_smb2_share_flags_allow_namespace_caching,
+		&hf_smb2_share_flags_access_based_dir_enum,
+		NULL
+	};
+	proto_item *item;
+	guint32 cp;
+
+	item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_flags, ett_smb2_share_flags, sf_fields, TRUE);
+
+	cp = tvb_get_letohl(tvb, offset);
+	cp &= 0x00000030;
+	proto_tree_add_uint_format(item, hf_smb2_share_caching, tvb, offset, 4, cp, "Caching policy: %s (%08x)", val_to_str(cp, share_cache_vals, "Unknown:%u"), cp);
+
+
+	offset += 4;
+
+	return offset;
+}
+
+#define SHARE_CAPS_DFS		0x00000008
+
+static int
+dissect_smb2_share_caps(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	static const int *sc_fields[] = {
+		&hf_smb2_share_caps_dfs,
+		NULL
+	};
+	proto_item *item;
+
+	item = proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_share_caps, ett_smb2_share_caps, sc_fields, TRUE);
+
+
+	offset += 4;
+
+	return offset;
+}
 
 static void
 dissect_smb2_secblob(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si _U_)
@@ -1996,8 +2073,7 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* reserved */
 	offset += 2;
 
 	/* tree  offset/length */
@@ -2062,9 +2138,11 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		si->saved->extra_info=NULL;
 	}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* share flags */
+	offset = dissect_smb2_share_flags(tree, tvb, offset);
+
+	/* share capabilities */
+	offset = dissect_smb2_share_caps(tree, tvb, offset);
 
 	/* this is some sort of access mask */
 	offset = dissect_smb_access_mask(tvb, tree, offset);
@@ -5368,6 +5446,46 @@ proto_register_smb2(void)
 		{ "Channel", "smb2.channel", FT_UINT32, BASE_DEC,
 		NULL, 0, "Channel", HFILL }},
 
+	{ &hf_smb2_share_flags,
+		{ "Share flags", "smb2.share_flags", FT_UINT32, BASE_HEX,
+		NULL, 0, "share flags", HFILL }},
+
+	{ &hf_smb2_share_flags_dfs,
+		{ "dfs", "smb2.share_flags.dfs", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_dfs, "", HFILL }},
+
+	{ &hf_smb2_share_flags_dfs_root,
+		{ "dfs_root", "smb2.share_flags.dfs_root", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_dfs_root, "", HFILL }},
+
+	{ &hf_smb2_share_flags_restrict_exclusive_opens,
+		{ "restrict_exclusive_opens", "smb2.share_flags.restrict_exclusive_opens", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_restrict_exclusive_opens, "", HFILL }},
+
+	{ &hf_smb2_share_flags_force_shared_delete,
+		{ "force_shared_delete", "smb2.share_flags.force_shared_delete", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_force_shared_delete, "", HFILL }},
+
+	{ &hf_smb2_share_flags_allow_namespace_caching,
+		{ "allow_namespace_caching", "smb2.share_flags.allow_namespace_caching", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_allow_namespace_caching, "", HFILL }},
+
+	{ &hf_smb2_share_flags_access_based_dir_enum,
+		{ "access_based_dir_enum", "smb2.share_flags.access_based_dir_enum", FT_BOOLEAN, 32,
+		NULL, SHARE_FLAGS_access_based_dir_enum, "", HFILL }},
+
+	{ &hf_smb2_share_caching,
+		{ "Caching policy", "smb2.share.caching", FT_UINT32, BASE_HEX,
+		VALS(share_cache_vals), 0, "", HFILL }},
+
+	{ &hf_smb2_share_caps,
+		{ "Share Capabilities", "smb2.share_caps", FT_UINT32, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_share_caps_dfs,
+		{ "dfs", "smb2.share_caps.dfs", FT_BOOLEAN, 32,
+		NULL, SHARE_CAPS_DFS, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -5416,6 +5534,8 @@ proto_register_smb2(void)
 		&ett_smb2_sec_mode,
 		&ett_smb2_capabilities,
 		&ett_smb2_ses_flags,
+		&ett_smb2_share_flags,
+		&ett_smb2_share_caps,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
