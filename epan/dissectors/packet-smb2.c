@@ -77,11 +77,7 @@ static int hf_smb2_ioctl_out_data = -1;
 static int hf_smb2_unknown = -1;
 static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
-static int hf_smb2_create_flags = -1;
-static int hf_smb2_create_flags_request_oplock = -1;
-static int hf_smb2_create_flags_request_exclusive_oplock = -1;
-static int hf_smb2_create_flags_grant_oplock = -1;
-static int hf_smb2_create_flags_grant_exclusive_oplock = -1;
+static int hf_smb2_oplock = -1;
 static int hf_smb2_close_flags = -1;
 static int hf_smb2_last_access_timestamp = -1;
 static int hf_smb2_last_write_timestamp = -1;
@@ -220,6 +216,7 @@ static int hf_smb2_share_flags_access_based_dir_enum = -1;
 static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
+static int hf_smb2_create_flags = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -257,7 +254,6 @@ static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
 static gint ett_smb2_sesid_tree = -1;
-static gint ett_smb2_create_flags = -1;
 static gint ett_smb2_create_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
 static gint ett_smb2_ioctl_function = -1;
@@ -963,6 +959,8 @@ dissect_smb2_ioctl_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *paren
 #define FID_MODE_OPEN		0
 #define FID_MODE_CLOSE		1
 #define FID_MODE_USE		2
+#define FID_MODE_DHNQ		3
+#define FID_MODE_DHNC		4
 static int
 dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si, int mode)
 {
@@ -996,6 +994,8 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, TRUE);
 		break;
 	case FID_MODE_USE:
+	case FID_MODE_DHNQ:
+	case FID_MODE_DHNC:
 		offset = dissect_nt_guid_hnd(tvb, offset, pinfo, tree, drep, hf_smb2_fid, &policy_hnd, &hnd_item, FALSE, FALSE);
 		break;
 	}
@@ -1753,24 +1753,20 @@ dissect_smb2_fs_info_04(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 	return offset;
 }
 
+static const value_string oplock_vals[] = {
+	{ 0x00, "No oplock" },
+	{ 0x01, "Level2 oplock" },
+	{ 0x08, "Exclusive oplock" },
+	{ 0x09, "Batch oplock" },
+	{ 0, NULL }
+};
+
 static int
-dissect_smb2_create_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+dissect_smb2_oplock(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_tree_add_item(parent_tree, hf_smb2_oplock, tvb, offset, 1, TRUE);
 
-	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, hf_smb2_create_flags, tvb, offset, 2, TRUE);
-		tree = proto_item_add_subtree(item, ett_smb2_create_flags);
-	}
-
-	proto_tree_add_item(tree, hf_smb2_create_flags_request_exclusive_oplock, tvb, offset, 2, TRUE);
-	proto_tree_add_item(tree, hf_smb2_create_flags_request_oplock, tvb, offset, 2, TRUE);
-	proto_tree_add_item(tree, hf_smb2_create_flags_grant_exclusive_oplock, tvb, offset, 2, TRUE);
-	proto_tree_add_item(tree, hf_smb2_create_flags_grant_oplock, tvb, offset, 2, TRUE);
-
-
-	offset += 2;
+	offset += 1;
 	return offset;
 }
 
@@ -3506,6 +3502,25 @@ dissect_smb2_TWrp_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	return;
 }
 
+
+static void
+dissect_smb2_AlSi_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	proto_tree_add_item(tree, hf_smb2_allocation_size, tvb, 0, 8, TRUE);
+}
+
+static void
+dissect_smb2_DHnQ_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	dissect_smb2_fid(tvb, pinfo, tree, 0, si, FID_MODE_DHNQ);
+}
+
+static void
+dissect_smb2_DHnC_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, smb2_info_t *si)
+{
+	dissect_smb2_fid(tvb, pinfo, tree, 0, si, FID_MODE_DHNC);
+}
+
 static void
 dissect_smb2_MxAc_buffer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
 {
@@ -3584,8 +3599,14 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	dissector = NULL;
 	if(!strcmp(tag, "ExtA")){
 		dissector = dissect_smb2_ExtA_buffer;
+	} else if(!strcmp(tag, "AlSi")){
+		dissector = dissect_smb2_AlSi_buffer;
 	} else if(!strcmp(tag, "MxAc")){
 		dissector = dissect_smb2_MxAc_buffer;
+	} else if(!strcmp(tag, "DHnQ")){
+		dissector = dissect_smb2_DHnQ_buffer;
+	} else if(!strcmp(tag, "DHnC")){
+		dissector = dissect_smb2_DHnC_buffer;
 	} else if(!strcmp(tag, "TWrp")){
 		dissector = dissect_smb2_TWrp_buffer;
 	}
@@ -3611,19 +3632,21 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* create flags */
-	offset = dissect_smb2_create_flags(tree, tvb, offset);
+	/* security flags */
+	offset++;
+
+	/* oplock */
+	offset = dissect_smb2_oplock(tree, tvb, offset);
 
 	/* impersonation level */
 	proto_tree_add_item(tree, hf_smb2_impersonation_level, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	/* create flags */
+	proto_tree_add_item(tree, hf_smb2_create_flags, tvb, offset, 8, TRUE);
 	offset += 8;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
+	/* reserved */
 	offset += 8;
 
 	/* access mask */
@@ -3692,8 +3715,11 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* create flags */
-	offset = dissect_smb2_create_flags(tree, tvb, offset);
+	/* oplock */
+	offset = dissect_smb2_oplock(tree, tvb, offset);
+
+	/* reserved */
+	offset++;
 
 	/* create action */
 	proto_tree_add_item(tree, hf_smb2_create_action, tvb, offset, 4, TRUE);
@@ -3722,7 +3748,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	/* File Attributes */
 	offset = dissect_file_attributes(tvb, tree, offset, 4);
 
-	/* padding */
+	/* reserved */
 	offset += 4;
 
 	/* fid */
@@ -4995,6 +5021,10 @@ proto_register_smb2(void)
 		{ "Read Length", "smb2.read_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Amount of data to read", HFILL }},
 
+	{ &hf_smb2_create_flags,
+		{ "Create Flags", "smb2.create_flags", FT_UINT64, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_read_offset,
 		{ "Read Offset", "smb2.read_offset", FT_UINT64, BASE_DEC,
 		NULL, 0, "At which offset to read the data", HFILL }},
@@ -5240,25 +5270,9 @@ proto_register_smb2(void)
 		{ "Is Directory", "smb2.is_directory", FT_UINT8, BASE_DEC,
 		NULL, 0, "Is this a directory?", HFILL }},
 
-	{ &hf_smb2_create_flags,
-		{ "Create Flags", "smb2.create.flags", FT_UINT16, BASE_HEX,
-		NULL, 0, "Create flags", HFILL }},
-
-	{ &hf_smb2_create_flags_request_oplock,
-		{ "Request Oplock", "smb2.create_flags.request_oplock", FT_BOOLEAN, 16,
-		NULL, 0x0100, "", HFILL }},
-
-	{ &hf_smb2_create_flags_request_exclusive_oplock,
-		{ "Request Exclusive Oplock", "smb2.create_flags.request_exclusive_oplock", FT_BOOLEAN, 16,
-		NULL, 0x0800, "", HFILL }},
-
-	{ &hf_smb2_create_flags_grant_oplock,
-		{ "Grant Oplock", "smb2.create_flags.grant_oplock", FT_BOOLEAN, 16,
-		NULL, 0x0001, "", HFILL }},
-
-	{ &hf_smb2_create_flags_grant_exclusive_oplock,
-		{ "Grant Exclusive Oplock", "smb2.create_flags.grant_exclusive_oplock", FT_BOOLEAN, 16,
-		NULL, 0x0008, "", HFILL }},
+	{ &hf_smb2_oplock,
+		{ "Oplock", "smb2.create.oplock", FT_UINT8, BASE_HEX,
+		VALS(oplock_vals), 0, "Oplock type", HFILL }},
 
 	{ &hf_smb2_close_flags,
 		{ "Close Flags", "smb2.close.flags", FT_UINT16, BASE_HEX,
@@ -5523,7 +5537,6 @@ proto_register_smb2(void)
 		&ett_smb2_sec_info_00,
 		&ett_smb2_tid_tree,
 		&ett_smb2_sesid_tree,
-		&ett_smb2_create_flags,
 		&ett_smb2_create_chain_element,
 		&ett_smb2_MxAc_buffer,
 		&ett_smb2_ioctl_function,
