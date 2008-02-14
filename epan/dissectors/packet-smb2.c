@@ -59,10 +59,12 @@ static int hf_smb2_header_len = -1;
 static int hf_smb2_seqnum = -1;
 static int hf_smb2_pid = -1;
 static int hf_smb2_tid = -1;
-static int hf_smb2_uid = -1;
+static int hf_smb2_aid = -1;
+static int hf_smb2_sesid = -1;
 static int hf_smb2_flags_response = -1;
-static int hf_smb2_flags_pid_valid = -1;
-static int hf_smb2_flags_end_of_chain = -1;
+static int hf_smb2_flags_async_cmd = -1;
+static int hf_smb2_flags_dfs_op = -1;
+static int hf_smb2_flags_chained = -1;
 static int hf_smb2_flags_signature = -1;
 static int hf_smb2_chain_offset = -1;
 static int hf_smb2_response_buffer_offset = -1;
@@ -188,6 +190,9 @@ static int hf_smb2_auth_frame = -1;
 static int hf_smb2_tcon_frame = -1;
 static int hf_smb2_share_type = -1;
 static int hf_smb2_signature = -1;
+static int hf_smb2_epoch = -1;
+static int hf_smb2_credits_requested = -1;
+static int hf_smb2_credits_granted = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -224,7 +229,7 @@ static gint ett_smb2_fs_info_07 = -1;
 static gint ett_smb2_fs_objectid_info = -1;
 static gint ett_smb2_sec_info_00 = -1;
 static gint ett_smb2_tid_tree = -1;
-static gint ett_smb2_uid_tree = -1;
+static gint ett_smb2_sesid_tree = -1;
 static gint ett_smb2_create_flags = -1;
 static gint ett_smb2_create_chain_element = -1;
 static gint ett_smb2_MxAc_buffer = -1;
@@ -430,19 +435,19 @@ smb2_tid_info_hash(gconstpointer k)
    conversation.   we dont worry about that yet for simplicity
 */
 static gint
-smb2_uid_info_equal(gconstpointer k1, gconstpointer k2)
+smb2_sesid_info_equal(gconstpointer k1, gconstpointer k2)
 {
-	smb2_uid_info_t *key1 = (smb2_uid_info_t *)k1;
-	smb2_uid_info_t *key2 = (smb2_uid_info_t *)k2;
-	return key1->uid==key2->uid;
+	smb2_sesid_info_t *key1 = (smb2_sesid_info_t *)k1;
+	smb2_sesid_info_t *key2 = (smb2_sesid_info_t *)k2;
+	return key1->sesid==key2->sesid;
 }
 static guint
-smb2_uid_info_hash(gconstpointer k)
+smb2_sesid_info_hash(gconstpointer k)
 {
-	smb2_uid_info_t *key = (smb2_uid_info_t *)k;
+	smb2_sesid_info_t *key = (smb2_sesid_info_t *)k;
 	guint32 hash;
 
-	hash=((key->uid>>32)&&0xffffffff)+((key->uid)&&0xffffffff);
+	hash=((key->sesid>>32)&&0xffffffff)+((key->sesid)&&0xffffffff);
 	return hash;
 }
 
@@ -696,14 +701,19 @@ static const true_false_string tfs_flags_response = {
 	"This is a REQUEST"
 };
 
-static const true_false_string tfs_flags_pid_valid = {
-	"The PID field is VALID",
-	"The pid field if NOT valid"
+static const true_false_string tfs_flags_async_cmd = {
+	"This is an ASYNC command",
+	"This is a SYNC command"
 };
 
-static const true_false_string tfs_flags_end_of_chain = {
-	"This pdu is the END OF A CHAIN",
-	"This pdu is NOT an end of a chain"
+static const true_false_string tfs_flags_dfs_op = {
+	"This is a DFS OPERATION",
+	"This is a normal operation"
+};
+
+static const true_false_string tfs_flags_chained = {
+	"This pdu a CHAINED command",
+	"This pdu is NOT a chained command"
 };
 
 static const true_false_string tfs_flags_signature = {
@@ -1802,15 +1812,15 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		idx=0;
 		while((ntlmssph=fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL){
 			if(ntlmssph && ntlmssph->type==3){
-				smb2_uid_info_t *uid;
-				uid=se_alloc(sizeof(smb2_uid_info_t));
-				uid->uid=si->uid;
-				uid->acct_name=se_strdup(ntlmssph->acct_name);
-				uid->domain_name=se_strdup(ntlmssph->domain_name);
-				uid->host_name=se_strdup(ntlmssph->host_name);
-				uid->auth_frame=pinfo->fd->num;
-				uid->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
-				g_hash_table_insert(si->conv->uids, uid, uid);
+				smb2_sesid_info_t *sesid;
+				sesid=se_alloc(sizeof(smb2_sesid_info_t));
+				sesid->sesid=si->sesid;
+				sesid->acct_name=se_strdup(ntlmssph->acct_name);
+				sesid->domain_name=se_strdup(ntlmssph->domain_name);
+				sesid->host_name=se_strdup(ntlmssph->host_name);
+				sesid->auth_frame=pinfo->fd->num;
+				sesid->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+				g_hash_table_insert(si->conv->sesids, sesid, sesid);
 			}
 		}
 	}
@@ -3231,7 +3241,7 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	 * If the pidvalid flag is set we assume it is a deferred
 	 * STATUS_PENDING read and thus a named pipe (==dcerpc)
 	 */
-	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||(si->flags & SMB2_FLAGS_PID_VALID))){
+	if(length && ( (si->tree && si->tree->share_type == SMB2_SHARE_TYPE_IPC)||(si->flags & SMB2_FLAGS_ASYNC_CMD))){
 		offset = dissect_file_data_dcerpc(tvb, pinfo, tree, offset, length, si->top_tree);
 		return offset;
 	}
@@ -4211,39 +4221,51 @@ dissect_smb2_command(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int of
 }
 
 static int
-dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
+dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, smb2_info_t *si)
 {
 	proto_item *tid_item=NULL;
 	proto_tree *tid_tree=NULL;
 	smb2_tid_info_t tid_key;
-	int tid_offset;
-	proto_item *uid_item=NULL;
-	proto_tree *uid_tree=NULL;
-	smb2_uid_info_t uid_key;
-	int uid_offset;
+	int tid_offset = 0;
+	proto_item *sesid_item=NULL;
+	proto_tree *sesid_tree=NULL;
+	smb2_sesid_info_t sesid_key;
+	int sesid_offset;
 	proto_item *item;
+	unsigned int pid;
 
-	/* Tree ID */
-	tid_offset = offset;
-	si->tid=tvb_get_letohl(tvb, offset);
-	tid_item=proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 4, TRUE);
-	if(tree){
-		tid_tree=proto_item_add_subtree(tid_item, ett_smb2_tid_tree);
+
+	if (si->flags&SMB2_FLAGS_ASYNC_CMD) {
+		proto_tree_add_item(tree, hf_smb2_aid, tvb, offset, 8, TRUE);
+		offset += 8;
+	} else {
+		/* Process ID */
+		pid=tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint_format(tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x",pid);
+		offset += 4;
+
+		/* Tree ID */
+		tid_offset = offset;
+		si->tid=tvb_get_letohl(tvb, offset);
+		tid_item=proto_tree_add_item(tree, hf_smb2_tid, tvb, offset, 4, TRUE);
+		if(tree){
+			tid_tree=proto_item_add_subtree(tid_item, ett_smb2_tid_tree);
+		}
+		offset += 4;
 	}
-	offset += 4;
 
-	/* User ID */
-	uid_offset = offset;
-	si->uid=tvb_get_letoh64(tvb, offset);
-	uid_item=proto_tree_add_item(tree, hf_smb2_uid, tvb, offset, 8, TRUE);
+	/* Session ID */
+	sesid_offset = offset;
+	si->sesid=tvb_get_letoh64(tvb, offset);
+	sesid_item=proto_tree_add_item(tree, hf_smb2_sesid, tvb, offset, 8, TRUE);
 	if(tree){
-		uid_tree=proto_item_add_subtree(uid_item, ett_smb2_uid_tree);
+		sesid_tree=proto_item_add_subtree(sesid_item, ett_smb2_sesid_tree);
 	}
 	offset += 8;
 
 	/* now we need to first lookup the uid session */
-	uid_key.uid=si->uid;
-	si->session=g_hash_table_lookup(si->conv->uids, &uid_key);
+	sesid_key.sesid=si->sesid;
+	si->session=g_hash_table_lookup(si->conv->sesids, &sesid_key);
 	if(!si->session) {
 		if (si->opcode != 0x03) return offset;
 
@@ -4251,49 +4273,51 @@ dissect_smb2_tid_uid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, in
 		 * a tree connect, we create a dummy sessison, so we can hang the
 		 * tree data on it
 		 */
-		si->session=se_alloc(sizeof(smb2_uid_info_t));
-		si->session->uid=si->uid;
+		si->session=se_alloc(sizeof(smb2_sesid_info_t));
+		si->session->sesid=si->sesid;
 		si->session->acct_name=NULL;
 		si->session->domain_name=NULL;
 		si->session->host_name=NULL;
 		si->session->auth_frame=(guint32)-1;
 		si->session->tids= g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
-		g_hash_table_insert(si->conv->uids, si->session, si->session);
+		g_hash_table_insert(si->conv->sesids, si->session, si->session);
 
 		return offset;
 	}
 
 	if (si->session->auth_frame != (guint32)-1) {
-		item=proto_tree_add_string(uid_tree, hf_smb2_acct_name, tvb, uid_offset, 0, si->session->acct_name);
+		item=proto_tree_add_string(sesid_tree, hf_smb2_acct_name, tvb, sesid_offset, 0, si->session->acct_name);
 		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, " Acct:%s", si->session->acct_name);
+		proto_item_append_text(sesid_item, " Acct:%s", si->session->acct_name);
 
-		item=proto_tree_add_string(uid_tree, hf_smb2_domain_name, tvb, uid_offset, 0, si->session->domain_name);
+		item=proto_tree_add_string(sesid_tree, hf_smb2_domain_name, tvb, sesid_offset, 0, si->session->domain_name);
 		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, " Domain:%s", si->session->domain_name);
+		proto_item_append_text(sesid_item, " Domain:%s", si->session->domain_name);
 
-		item=proto_tree_add_string(uid_tree, hf_smb2_host_name, tvb, uid_offset, 0, si->session->host_name);
+		item=proto_tree_add_string(sesid_tree, hf_smb2_host_name, tvb, sesid_offset, 0, si->session->host_name);
 		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(uid_item, " Host:%s", si->session->host_name);
+		proto_item_append_text(sesid_item, " Host:%s", si->session->host_name);
 
-		item=proto_tree_add_uint(uid_tree, hf_smb2_auth_frame, tvb, uid_offset, 0, si->session->auth_frame);
+		item=proto_tree_add_uint(sesid_tree, hf_smb2_auth_frame, tvb, sesid_offset, 0, si->session->auth_frame);
 		PROTO_ITEM_SET_GENERATED(item);
 	}
 
-	/* see if we can find the name for this tid */
-	tid_key.tid=si->tid;
-	si->tree=g_hash_table_lookup(si->session->tids, &tid_key);
-	if(!si->tree) return offset;
+	if (!(si->flags&SMB2_FLAGS_ASYNC_CMD)) {
+		/* see if we can find the name for this tid */
+		tid_key.tid=si->tid;
+		si->tree=g_hash_table_lookup(si->session->tids, &tid_key);
+		if(!si->tree) return offset;
 
-	item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);
-	PROTO_ITEM_SET_GENERATED(item);
-	proto_item_append_text(tid_item, "  %s", si->tree->name);
+		item=proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(tid_item, "  %s", si->tree->name);
 
-	item=proto_tree_add_uint(tid_tree, hf_smb2_share_type, tvb, tid_offset, 0, si->tree->share_type);
-	PROTO_ITEM_SET_GENERATED(item);
-
-	item=proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
-	PROTO_ITEM_SET_GENERATED(item);
+		item=proto_tree_add_uint(tid_tree, hf_smb2_share_type, tvb, tid_offset, 0, si->tree->share_type);
+		PROTO_ITEM_SET_GENERATED(item);
+	
+		item=proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
 
 	return offset;
 }
@@ -4314,7 +4338,6 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	conversation_t *conversation;
 	smb2_saved_info_t *ssi=NULL, ssi_key;
 	smb2_info_t *si;
-	unsigned int pid;
 
 	si=ep_alloc(sizeof(smb2_info_t));
 	si->conv=NULL;
@@ -4343,8 +4366,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			smb2_saved_info_equal_matched);
 		si->conv->unmatched= g_hash_table_new(smb2_saved_info_hash_unmatched,
 			smb2_saved_info_equal_unmatched);
-		si->conv->uids= g_hash_table_new(smb2_uid_info_hash,
-			smb2_uid_info_equal);
+		si->conv->sesids= g_hash_table_new(smb2_sesid_info_hash,
+			smb2_sesid_info_equal);
 
 		conversation_add_proto_data(conversation, proto_smb2, si->conv);
 	}
@@ -4384,7 +4407,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree_add_item(header_tree, hf_smb2_header_len, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* padding */
+	/* epoch */
+	proto_tree_add_item(header_tree, hf_smb2_epoch, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* Status Code */
@@ -4398,20 +4422,27 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	proto_tree_add_item(header_tree, hf_smb2_cmd, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(header_tree, hf_smb2_unknown, tvb, offset, 2, FALSE);
+	/* we need the flags before we know how to parse the credits field */
+	si->flags=tvb_get_letohl(tvb, offset+2);
+
+	/* credits */
+	if (si->flags & SMB2_FLAGS_RESPONSE) {
+		proto_tree_add_item(header_tree, hf_smb2_credits_granted, tvb, offset, 2, TRUE);
+	} else {
+		proto_tree_add_item(header_tree, hf_smb2_credits_requested, tvb, offset, 2, TRUE);
+	}
 	offset += 2;
 
 	/* flags */
-	si->flags=tvb_get_letohl(tvb, offset);
 	if(header_tree){
 		flags_item = proto_tree_add_text(header_tree, tvb, offset, 4,
 			"Flags: 0x%08x", si->flags);
 		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_flags);
 	}
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_dfs_op, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_signature, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_end_of_chain, tvb, offset, 4, si->flags);
-	proto_tree_add_boolean(flags_tree, hf_smb2_flags_pid_valid, tvb, offset, 4, si->flags);
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_chained, tvb, offset, 4, si->flags);
+	proto_tree_add_boolean(flags_tree, hf_smb2_flags_async_cmd, tvb, offset, 4, si->flags);
 	proto_tree_add_boolean(flags_tree, hf_smb2_flags_response, tvb, offset, 4, si->flags);
 
 	offset += 4;
@@ -4430,13 +4461,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	}
 	offset += 8;
 
-	/* Process ID */
-	pid=tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint_format(header_tree, hf_smb2_pid, tvb, offset, 4, pid, "Process Id: %08x %s",pid,(si->flags&SMB2_FLAGS_PID_VALID)?"":"(not valid)");
-	offset += 4;
-
-	/* Tree ID and User ID */
-	offset = dissect_smb2_tid_uid(pinfo, header_tree, tvb, offset, si);
+	/* Tree ID and Session ID */
+	offset = dissect_smb2_tid_sesid(pinfo, header_tree, tvb, offset, si);
 
 	/* Signature */
 	proto_tree_add_item(header_tree, hf_smb2_signature, tvb, offset, 16, FALSE);
@@ -4601,11 +4627,14 @@ proto_register_smb2(void)
 		{ "Command Sequence Number", "smb2.seq_num", FT_INT64, BASE_DEC,
 		NULL, 0, "SMB2 Command Sequence Number", HFILL }},
 	{ &hf_smb2_tid,
-		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_DEC,
+		{ "Tree Id", "smb2.tid", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Tree Id", HFILL }},
-	{ &hf_smb2_uid,
-		{ "User Id", "smb2.uid", FT_UINT64, BASE_HEX,
-		NULL, 0, "SMB2 User Id", HFILL }},
+	{ &hf_smb2_aid,
+		{ "Async Id", "smb2.aid", FT_UINT64, BASE_HEX,
+		NULL, 0, "SMB2 Async Id", HFILL }},
+	{ &hf_smb2_sesid,
+		{ "Session Id", "smb2.sesid", FT_UINT64, BASE_HEX,
+		NULL, 0, "SMB2 Session Id", HFILL }},
 	{ &hf_smb2_chain_offset,
 		{ "Chain Offset", "smb2.chain_offset", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB2 Chain Offset", HFILL }},
@@ -4645,12 +4674,15 @@ proto_register_smb2(void)
 	{ &hf_smb2_flags_response,
 		{ "Response", "smb2.flags.response", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_response), SMB2_FLAGS_RESPONSE, "Whether this is an SMB2 Request or Response", HFILL }},
-	{ &hf_smb2_flags_pid_valid,
-		{ "PID Valid", "smb2.flags.pid_valid", FT_BOOLEAN, 32,
-		TFS(&tfs_flags_pid_valid), SMB2_FLAGS_PID_VALID, "Whether the PID field is valid or not", HFILL }},
-	{ &hf_smb2_flags_end_of_chain,
-		{ "End Of Chain", "smb2.flags.end_of_chain", FT_BOOLEAN, 32,
-		TFS(&tfs_flags_end_of_chain), SMB2_FLAGS_ENDOFCHAIN, "Whether the pdu ends a chain or not", HFILL }},
+	{ &hf_smb2_flags_async_cmd,
+		{ "Async command", "smb2.flags.async", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_async_cmd), SMB2_FLAGS_ASYNC_CMD, "", HFILL }},
+	{ &hf_smb2_flags_dfs_op,
+		{ "DFS operation", "smb2.flags.dfs", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_dfs_op), SMB2_FLAGS_DFS_OP, "", HFILL }},
+	{ &hf_smb2_flags_chained,
+		{ "Chained", "smb2.flags.chained", FT_BOOLEAN, 32,
+		TFS(&tfs_flags_chained), SMB2_FLAGS_CHAINED, "Whether the pdu continues a chain or not", HFILL }},
 	{ &hf_smb2_flags_signature,
 		{ "Signing", "smb2.flags.signature", FT_BOOLEAN, 32,
 		TFS(&tfs_flags_signature), SMB2_FLAGS_SIGNATURE, "Whether the pdu is signed or not", HFILL }},
@@ -5065,6 +5097,18 @@ proto_register_smb2(void)
 		{ "Share Type", "smb2.share_type", FT_UINT16, BASE_DEC,
 		VALS(smb2_share_type_vals), 0, "Type of share", HFILL }},
 
+	{ &hf_smb2_epoch,
+		{ "Epoch", "smb2.epoch", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_credits_requested,
+		{ "Credits requested", "smb2.credits.requested", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_credits_granted,
+		{ "Credits granted", "smb2.credits.granted", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_ioctl_shadow_copy_count,
 		{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
 		NULL, 0, "Number of bytes for shadow copy label strings", HFILL }},
@@ -5142,7 +5186,7 @@ proto_register_smb2(void)
 		&ett_smb2_fs_objectid_info,
 		&ett_smb2_sec_info_00,
 		&ett_smb2_tid_tree,
-		&ett_smb2_uid_tree,
+		&ett_smb2_sesid_tree,
 		&ett_smb2_create_flags,
 		&ett_smb2_create_chain_element,
 		&ett_smb2_MxAc_buffer,

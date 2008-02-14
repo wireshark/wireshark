@@ -64,14 +64,14 @@ typedef struct _smb2_tid_info_t {
 	char *name;
 } smb2_tid_info_t;
 
-typedef struct _smb2_uid_info_t {
-	guint64 uid;
+typedef struct _smb2_sesid_info_t {
+	guint64 sesid;
 	guint32 auth_frame;
 	char *acct_name;
 	char *domain_name;
 	char *host_name;
 	GHashTable *tids;
-} smb2_uid_info_t;
+} smb2_sesid_info_t;
 
 /* Structure to keep track of conversations and the hash tables.
  * There is one such structure for each conversation.
@@ -80,7 +80,7 @@ typedef struct _smb2_conv_info_t {
 	/* these two tables are used to match requests with responses */
 	GHashTable *unmatched;
 	GHashTable *matched;
-	GHashTable *uids;
+	GHashTable *sesids;
 } smb2_conv_info_t;
 
 /* This structure contains information from the SMB2 header
@@ -88,21 +88,22 @@ typedef struct _smb2_conv_info_t {
  * structures.
  */
 #define SMB2_FLAGS_RESPONSE	0x00000001
-#define SMB2_FLAGS_PID_VALID	0x00000002
-#define SMB2_FLAGS_ENDOFCHAIN	0x00000004
+#define SMB2_FLAGS_ASYNC_CMD	0x00000002
+#define SMB2_FLAGS_CHAINED	0x00000004
 #define SMB2_FLAGS_SIGNATURE	0x00000008
+#define SMB2_FLAGS_DFS_OP	0x10000000
 typedef struct _smb2_info_t {
 	guint16 opcode;
 	guint32 ioctl_function;
 	guint32 status;
 	guint32 tid;
-	guint64 uid;
+	guint64 sesid;
 	gint64  seqnum;
 	guint32 flags;
 	smb2_conv_info_t	*conv;
 	smb2_saved_info_t	*saved;
 	smb2_tid_info_t		*tree;
-	smb2_uid_info_t		*session;
+	smb2_sesid_info_t	*session;
 	proto_tree *top_tree;	
 } smb2_info_t;
 
