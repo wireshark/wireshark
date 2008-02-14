@@ -856,8 +856,8 @@ static COPS_CNV CopsCnv [] =
 
 static int cops_tag_cls2syntax ( guint tag, guint cls ) {
 	COPS_CNV *cnv;
-	
-	
+
+
 	cnv = CopsCnv;
 	while (cnv->syntax != -1)
 	{
@@ -1070,7 +1070,7 @@ static void dissect_cops_pr_objects(tvbuff_t *tvb, packet_info *pinfo, guint32 o
   int ret;
   proto_tree *cops_pr_tree, *obj_tree;
   proto_item *ti;
-  
+
   cops_pr_tree = proto_item_add_subtree(tree, ett_cops_pr_obj);
 
   while (pr_len >= COPS_OBJECT_HDR_SIZE) {
@@ -1349,22 +1349,22 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 	guint32 subid = 0;
 	guint32* subids;
 	guint32* subid_overflow;
-	
+
 	for (i=0; i<encoded_len; i++) { if (! (encoded_subids[i] & 0x80 )) n++; }
-	
+
 	*subids_p = subids = ep_alloc(sizeof(guint32)*(n+pprid_subids_len));
 	subid_overflow = subids+n+pprid_subids_len;
 	for (i=0;i<pprid_subids_len;i++) subids[i] = pprid_subids[i];
-	
+
 	subids += pprid_subids_len;
-	
-	
+
+
 	for (i=0; i<encoded_len; i++){
 		guint8 byte = encoded_subids[i];
-		
+
 		subid <<= 7;
 		subid |= byte & 0x7F;
-		
+
 		if (byte & 0x80) {
 			continue;
 		}
@@ -1373,7 +1373,7 @@ static guint redecode_oid(guint32* pprid_subids, guint pprid_subids_len, guint8*
 		*subids++ = subid;
 		subid = 0;
 	}
-	
+
 	return pprid_subids_len+n;
 }
 
@@ -1385,30 +1385,30 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
   proto_tree *asn_tree, *gperror_tree, *cperror_tree;
   guint16 gperror=0, gperror_sub=0, cperror=0, cperror_sub=0;
   asn1_ctx_t actx;
-  
+
   memset(&actx,0,sizeof(actx));
   actx.pinfo = pinfo;
-  
+
   switch (s_num){
 	  case COPS_OBJ_PPRID: {
-		  tvbuff_t* oid_tvb;
-		  
+		  tvbuff_t* oid_tvb = NULL;
+
 		  if (s_type != 1) /* Not Prefix Provisioning Instance Identifier (PPRID) */
 			  break;
 		  /* Never tested this branch */
 		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
 		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
-		  
+
 		  offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_pprid_oid, &oid_tvb);
-		  
+
 		  if (oid_tvb) {
 			  guint encoid_len = tvb_length_remaining(oid_tvb,0);
 			  guint8* encoid = ep_tvb_memdup(oid_tvb,0,encoid_len);
-			  
+
 			  (*pprid_subids_len) = oid_encoded2subid(encoid, encoid_len, pprid_subids);
 		  }
 		  break;
-	  }			  
+	  }
 	  case COPS_OBJ_PRID: {
 		  guint32* subids;
 		  guint subids_len;
@@ -1420,17 +1420,17 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 		  guint encoid_len;
 		  guint8* encoid;
 		  oid_info_t* oid_info;
-		  
+
 		  if (s_type != 1) break; /* Not Provisioning Instance Identifier (PRID) */
-		  
+
 		  ti=proto_tree_add_text(tree, tvb, offset, len, "Contents:");
 		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
-		  
+
 		  offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
 		  offset = get_ber_length(tvb, offset, &encoid_len, NULL);
 
 		  /* TODO: check pc, class and tag */
-		  
+
 		  encoid = ep_tvb_memdup(tvb,offset,encoid_len);
 
 		  if (*pprid_subids) {
@@ -1440,11 +1440,11 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 		  } else {
 			  subids_len = oid_encoded2subid(encoid, encoid_len, &subids);
 		  }
-		  
+
 		  proto_tree_add_oid(asn_tree,hf_cops_prid_oid,tvb,offset,encoid_len,encoid);
-			  
+
 		  oid_info = oid_get(subids_len, subids, &matched, &left);
-		
+
 		  /*
 		     TODO: from RFC 3159 find-out how the values are mapped,
 		           when instead of an oid for an xxEntry
@@ -1456,18 +1456,18 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 		  } else {
 			  *oid_info_p = NULL;
 		  }
-		  
+
 		  break;
 	  }
 	  case COPS_OBJ_EPD: {
 		  oid_info_t* oid_info;
 		  guint end_offset = offset + len;
-		  
+
 		  if (s_type != 1) break;/* Not Encoded Provisioning Instance Data (EPD) */
-			  
+
 		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
 		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
-		  
+
 		  /*
 		   * XXX: LAZYNESS WARNING:
 		   * We are assuming that for the first element in the sequence
@@ -1481,23 +1481,23 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 			  if ((*oid_info_p)->kind == OID_KIND_ROW) {
 				  oid_info = emem_tree_lookup32((*oid_info_p)->children,1);
 			  } else {
-				  oid_info = NULL;  
+				  oid_info = NULL;
 			  }
 		  } else {
 			  oid_info = NULL;
 		  }
-			  
-			  
+
+
 		  while(offset < end_offset) {
 			  gint8 ber_class;
 			  gboolean ber_pc;
 			  gint32 ber_tag;
 			  guint32 ber_length;
 			  gboolean ber_ind;
-			  
+
 			  offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);
 			  offset = get_ber_length(tvb, offset, &ber_length, &ber_ind);
-			  
+
 			  if (oid_info) {
 				  /*
 				   * XXX: LAZYNESS WARNING:
@@ -1510,29 +1510,29 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 				   * does not work here.
 				   * -- a lazy lego
 				   */
-				  
+
 				  proto_tree_add_item(asn_tree,oid_info->value_hfid,tvb,offset,ber_length,FALSE);
-			  
+
 				  oid_info = emem_tree_lookup32((*oid_info_p)->children,oid_info->subid+1);
 			  } else {
 				  int hfid = cops_tag_cls2syntax( ber_tag, ber_class );
 				  proto_tree_add_item(asn_tree,hfid,tvb,offset,ber_length,FALSE);
 			  }
-			  
+
 			  offset += ber_length;
 		  }
-		  
+
 		  (*oid_info_p) = NULL;
 		  break;
 	  }
 	  case COPS_OBJ_ERRPRID: {
 		  if (s_type != 1) break; /*Not  Error Provisioning Instance Identifier (ErrorPRID)*/
-		  
+
 		  ti = proto_tree_add_text(tree, tvb, offset, len, "Contents:");
 		  asn_tree = proto_item_add_subtree(ti, ett_cops_asn1);
-		  
+
 		  offset = dissect_ber_object_identifier(FALSE, &actx, asn_tree, tvb, offset, hf_cops_errprid_oid, NULL);
-		  
+
 		  break;
 	  }
   case COPS_OBJ_GPERR:
@@ -1798,7 +1798,7 @@ void proto_register_cops(void)
   { &hf_cops_epd_opaque, { "EPD Opaque Data", "cops.epd.opaque", FT_BYTES, BASE_NONE, NULL, 0, "", HFILL } },
   { &hf_cops_epd_i64, { "EPD Inetger64 Data", "cops.epd.integer64", FT_INT64, BASE_DEC, NULL, 0, "", HFILL } },
   { &hf_cops_epd_u64, { "EPD Unsigned64 Data", "cops.epd.unsigned64", FT_UINT64, BASE_DEC, NULL, 0, "", HFILL } },
-	  
+
     /* Added for PacketCable */
 
     { &hf_cops_subtree,
