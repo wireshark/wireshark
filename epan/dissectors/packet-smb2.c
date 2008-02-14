@@ -2156,8 +2156,7 @@ dissect_smb2_tree_disconnect_request(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* reserved */
 	offset += 2;
 
 	return offset;
@@ -2174,8 +2173,7 @@ dissect_smb2_tree_disconnect_response(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* reserved */
 	offset += 2;
 
 	return offset;
