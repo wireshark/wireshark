@@ -316,7 +316,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 	    if(!(new_module = find_subtree(subtree_module, ptr))) {
 	      /* create it */
 	      new_module = prefs_register_subtree(subtree_module, ptr, NULL);
-	    } 
+	    }
 
 	    subtree_module = new_module;
 	    ptr = sep;
@@ -324,13 +324,13 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 	  }
 
 	  /* g_free(csubtree); */
-	  
+
 	}
 
 	protocol = find_protocol_by_id(id);
 	return prefs_register_module(subtree_module,
 	    proto_get_protocol_filter_name(id),
-	    proto_get_protocol_short_name(protocol), 
+	    proto_get_protocol_short_name(protocol),
 	    proto_get_protocol_name(id), apply_cb);
 }
 
@@ -366,7 +366,7 @@ prefs_register_protocol_obsolete(int id)
 #if GLIB_MAJOR_VERSION < 2
 static void *discard_const(const void *const_ptr)
 {
-	union { 
+	union {
 		const void *const_ptr;
 		void *ptr;
 	} stupid_const;
@@ -429,8 +429,8 @@ prefs_module_list_foreach(emem_tree_t *module_list, module_cb callback,
 	if (module_list == NULL)
 		module_list = prefs_top_level_modules;
 
-	call_data.callback = callback; 
-	call_data.user_data = user_data; 
+	call_data.callback = callback;
+	call_data.user_data = user_data;
 	call_data.ret = 0;
 	pe_tree_foreach(module_list, call_foreach_cb, &call_data);
 	return call_data.ret;
@@ -476,7 +476,7 @@ prefs_modules_foreach(module_cb callback, gpointer user_data)
  * silently ignored in preference files.  Does not ignore subtrees,
  * as this can be used when walking the display tree of modules.
  */
-guint 
+guint
 prefs_modules_foreach_submodules(module_t *module, module_cb callback, gpointer user_data)
 {
 	return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data);
@@ -765,9 +765,9 @@ extern void prefs_register_uat_preference(module_t *module,
 										  const char *title,
 										  const char *description,
 										  void* uat) {
-	
+
 	pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
-	
+
 	preference->varp.uat = uat;
 
 }
@@ -1078,7 +1078,7 @@ init_prefs(void) {
     return;
 
   uat_load_all();
-  
+
   prefs.pr_format  = PR_FMT_TEXT;
   prefs.pr_dest    = PR_DEST_CMD;
   prefs.pr_file    = g_strdup("wireshark.out");
@@ -1282,7 +1282,7 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   FILE        *pf;
 
   init_prefs();
-  
+
   /*
    * If we don't already have the pathname of the global preferences
    * file, construct it.  Then, in either case, try to open the file.
@@ -1505,6 +1505,52 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
 }
 
 /*
+ * If we were handed a preference starting with "uat:", try to turn it into
+ * a valid uat entry.
+ */
+static gboolean
+prefs_set_uat_pref(char *uat_entry) {
+	gchar *p, *colonp;
+	uat_t *uat;
+	gchar *err;
+
+	colonp = strchr(uat_entry, ':');
+	if (colonp == NULL)
+		return FALSE;
+
+	p = colonp;
+	*p++ = '\0';
+
+	/*
+	 * Skip over any white space (there probably won't be any, but
+	 * as we allow it in the preferences file, we might as well
+	 * allow it here).
+	 */
+	while (isspace((guchar)*p))
+		p++;
+	if (*p == '\0') {
+		/*
+		 * Put the colon back, so if our caller uses, in an
+		 * error message, the string they passed us, the message
+		 * looks correct.
+		 */
+		*colonp = ':';
+		return FALSE;
+	}
+
+	uat = uat_find(uat_entry);
+	*colonp = ':';
+	if (uat == NULL) {
+		return FALSE;
+	}
+
+	if (uat_load_str(uat, p, &err)) {
+		return TRUE;
+	}
+	return FALSE;
+}
+
+/*
  * Given a string of the form "<pref name>:<pref value>", as might appear
  * as an argument to a "-o" option, parse it and set the preference in
  * question.  Return an indication of whether it succeeded or failed
@@ -1549,8 +1595,11 @@ prefs_set_pref(char *prefarg)
 		*colonp = ':';
 		return PREFS_SET_SYNTAX_ERR;
 	}
-
-	ret = set_pref(prefarg, p, NULL);
+        if (strcmp(prefarg, "uat")) {
+		ret = set_pref(prefarg, p, NULL);
+	} else {
+		ret = prefs_set_uat_pref(p) ? PREFS_SET_OK : PREFS_SET_SYNTAX_ERR;
+	}
 	*colonp = ':';	/* put the colon back */
 	return ret;
 }

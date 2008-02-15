@@ -381,6 +381,17 @@ standard libpcap format.
 		preferences file, see <xref linkend="AppFiles"/>.
 		</para>
 		</tip>
+	    <para>User access tables can be overridden using "uat," followed by
+	    the UAT file name and a valid record for the file: </para>
+	    <para>
+	      <command>
+		wireshark -o "uat:user_dlts:\"User 0 (DLT=147)\",\"http\",\"0\",\"\",\"0\",\"\""
+	      </command>
+	    <para>The example above would dissect packets with a libpcap data
+	    link type 147 as HTTP, just as if you had configured it in the
+	    DLT_USER protocol preferences.</para>
+	    <para>
+	    </para>
 	  </listitem>
 	</varlistentry>
 	<varlistentry><term><command>-p</command></term>
@@ -876,7 +887,7 @@ standard libpcap format.
   <section id="ChCustPreferencesSection"><title>Preferences</title>
     <para>
       There are a number of preferences you can set. Simply
-      select the <command>Preferences...</command> menu item from 
+      select the <command>Preferences...</command> menu item from
       the <command>Edit</command> menu; and Wireshark
       will pop up the Preferences dialog box as shown in
       <xref linkend="ChCustGUIPrefPage"/>, with the "User Interface" page as

@@ -5,23 +5,23 @@
  *
  *  User Accessible Tables
  *  Mantain an array of user accessible data strucures
- *  
+ *
  * (c) 2007, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
@@ -40,7 +40,7 @@
  * the behaviour of the table is controlled by a series of callbacks
  * the caller must provide.
  *
- * BEWARE that the user can change an uat at (almost) any time, 
+ * BEWARE that the user can change an uat at (almost) any time,
  * That is pointers to records in an uat are valid only during the call
  * to the function that obtains them (do not store them).
  *
@@ -96,7 +96,7 @@ typedef void (*uat_update_cb_t)(void* , const char** );
  * the caller should provide one of these for every field!
  ********/
 
-/* 
+/*
  * given an input string (ptr, len) checks if the value is OK for a field in the record.
  * it will return TRUE if OK or else
  * it will return FALSE and may set *error to inform the user on what's
@@ -125,18 +125,18 @@ typedef void (*uat_fld_set_cb_t)(void*, const char*, unsigned, void*, void*);
  */
 typedef void (*uat_fld_tostr_cb_t)(void*, const char**, unsigned*, void*, void*);
 
-/*********** 
+/***********
  * Text Mode
  *
  * used for file and dialog representation of fileds in columns,
- * when the file is read it modifies the way the value is passed back to the fld_set_cb 
+ * when the file is read it modifies the way the value is passed back to the fld_set_cb
  * (see definition bellow for description)
  ***********/
 
 typedef enum _uat_text_mode_t {
 	PT_TXTMOD_NONE,
 	/* not used */
-	
+
 	PT_TXTMOD_STRING,
 	/*
 	 file:
@@ -179,21 +179,21 @@ typedef enum _uat_text_mode_t {
 typedef struct _uat_field_t {
 	const char* name;
 	uat_text_mode_t mode;
-	
+
 	struct {
 		uat_fld_chk_cb_t chk;
 		uat_fld_set_cb_t set;
 		uat_fld_tostr_cb_t tostr;
 	} cb;
-	
+
 	struct {
 		void* chk;
 		void* set;
 		void* tostr;
 	} cbdata;
-	
+
 	void* fld_data;
-	
+
 	const char* desc;
 	struct _fld_data_t* priv;
 } uat_field_t;
@@ -207,28 +207,18 @@ typedef struct _uat_field_t {
 #define UAT_CAT_CRYPTO "Decryption"
 #define UAT_CAT_FFMT "File Formats"
 
-/*
- * uat_new()
+/** Create a new uat
  *
- * creates a new uat
+ * @param name The name of the table
+ * @param data_ptr A pointer to a null terminated array of pointers to the data
+ * @param default_data A pointer to a struct containing default values
+ * @param size The size of the structure
+ * @param filename The filename to be used (either in userdir or datadir)
+ * @param copy_cb A function that copies the data in the struct
+ * @param update_cb Will be called when a record is updated
+ * @param free_cb Will be called to destroy a struct in the dataset
  *
- * name: the name of the table
- *
- * data_ptr: a pointer to a null terminated array of pointers to the data
- *
- * default_data: a pinter to a struct containing default values
- *
- * size: the size of the structure
- *
- * filename: the filename to be used (either in userdir or datadir)
- *
- * copy_cb: a function that copies the data in the struct
- *
- * update_cb: will be called when a record is updated
- *
- * free_cb: will be called to destroy a struct in the dataset
- *
- * 
+ * @return A freshly-allocated and populated uat_t struct.
  */
 uat_t* uat_new(const char* name,
 			   size_t size,
@@ -242,7 +232,33 @@ uat_t* uat_new(const char* name,
 			   uat_free_cb_t free_cb,
 			   uat_field_t* flds_array);
 
+/** Populate a uat using its file.
+ *
+ * @param uat_in Pointer to a uat. Must not be NULL.
+ * @param err Upon failure, points to an error string.
+ *
+ * @return TRUE on success, FALSE on failure.
+ */
 gboolean uat_load(uat_t* uat_in, char** err);
+
+/** Create or update a single uat entry using a string.
+ *
+ * @param uat_in Pointer to a uat. Must not be NULL.
+ * @param entry The string representation of the entry. Format must match
+ * what's written to the uat's output file.
+ * @param err Upon failure, points to an error string.
+ *
+ * @return TRUE on success, FALSE on failure.
+ */
+gboolean uat_load_str(uat_t* uat_in, char* entry, char** err);
+
+/** Given a uat name or filename, find its pointer.
+ *
+ * @param name The name or filename of the uat
+ *
+ * @return A pointer to the uat on success, NULL on failure.
+ */
+uat_t *uat_find(gchar *name);
 
 /*
  * uat_dup()
@@ -256,7 +272,7 @@ void* uat_se_dup(uat_t*, guint* len_p);
 uat_t* uat_get_table_by_name(const char* name);
 
 /*
- * Some common uat_fld_chk_cbs 
+ * Some common uat_fld_chk_cbs
  */
 gboolean uat_fld_chk_str(void*, const char*, unsigned, void*,void*, const char** err);
 gboolean uat_fld_chk_proto(void*, const char*, unsigned, void*,void*, const char** err);
@@ -361,7 +377,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 
 /*
  * DEC Macros,
- *   a decimal number contained in 
+ *   a decimal number contained in
  */
 #define UAT_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
@@ -376,7 +392,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 
 /*
  * HEX Macros,
- *   an hexadecimal number contained in 
+ *   an hexadecimal number contained in
  */
 #define UAT_HEX_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, unsigned len, void* u1 _U_, void* u2 _U_) {\
@@ -391,8 +407,8 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 
 /*
  * ENUM macros
- *  enum_t: name = ((enum_t*)ptr)->strptr 
- *          value = ((enum_t*)ptr)->value 
+ *  enum_t: name = ((enum_t*)ptr)->strptr
+ *          value = ((enum_t*)ptr)->value
  *  rec_t:
  *        value
  */
@@ -435,7 +451,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 		*out_ptr = (((rec_t*)rec)->name_field); \
 		*out_len = strlen(*out_ptr); \
 	} else { \
-		*out_ptr = ""; *out_len = 0; } } 
+		*out_ptr = ""; *out_len = 0; } }
 
 
 #define UAT_FLD_PROTO(basename,field_name,desc) \
@@ -454,7 +470,7 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	if ( ((rec_t*)rec)->field_name ) { \
 		*out_ptr = range_convert_range(((rec_t*)rec)->field_name);  *out_len = strlen(*out_ptr); \
 	} else { \
-		*out_ptr = ""; *out_len = 0; } } 
+		*out_ptr = ""; *out_len = 0; } }
 
 
 #define UAT_FLD_RANGE(basename,field_name,max,desc) \

@@ -271,6 +271,19 @@ void uat_destroy(uat_t* uat) {
 
 }
 
+uat_t *uat_find(gchar *name) {
+    guint i;
+
+	for (i=0; i < all_uats->len; i++) {
+		uat_t* u = g_ptr_array_index(all_uats,i);
+
+        if (strcmp(u->name, name) == 0 || strcmp(u->filename, name) == 0) {
+            return u;
+        }
+	}
+    return NULL;
+}
+
 void uat_clear(uat_t* uat) {
 	guint i;
 
@@ -595,3 +608,15 @@ CHK_STR_IS_DEF(isalnum)
 CHK_STR_IS_DEF(isdigit)
 CHK_STR_IS_DEF(isxdigit)
 
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 expandtab
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
