@@ -305,7 +305,9 @@ File "..\..\epan\libwireshark.dll"
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
+!IFDEF ICONV_DIR
 File "${ICONV_DIR}\bin\iconv.dll"
+!ENDIF
 File "${GETTEXT_DIR}\bin\intl.dll"
 !ifdef ZLIB_DIR
 File "${ZLIB_DIR}\zlib1.dll"
