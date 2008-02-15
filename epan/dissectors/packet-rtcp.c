@@ -283,7 +283,7 @@ static const value_string rtcp_app_poc1_qsresp_priority_vals[] =
 /* RFC 4585 */
 static const value_string rtcp_rtpfb_fmt_vals[] =
 {
-	{  1,	"Generic negative acknowledgement"},
+	{  1,	"Generic negative acknowledgement (NACK)"},
 	{  31,	"Reserved for future extensions"},
 	{  0,	NULL }
 };
@@ -408,6 +408,8 @@ static int hf_rtcp_xr_dlrr = -1;
 static int hf_rtcp_length_check = -1;
 static int hf_rtcp_bye_reason_not_terminated = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
+static int hf_rtcp_rtpfb_nack_pid = -1;
+static int hf_rtcp_rtpfb_nack_blp = -1;
 static int hf_rtcp_psfb_fmt = -1;
 static int hf_rtcp_fci = -1;
 static int hf_srtcp_e = -1;
@@ -429,6 +431,16 @@ static int hf_rtcp_roundtrip_delay  = -1;
 
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp			= -1;
+static gint ett_rtcp_sr			= -1;
+static gint ett_rtcp_rr			= -1;
+static gint ett_rtcp_sdes		= -1;
+static gint ett_rtcp_bye		= -1;
+static gint ett_rtcp_app		= -1;
+static gint ett_rtcp_rtpfb		= -1;
+static gint ett_rtcp_psfb		= -1;
+static gint ett_rtcp_xr			= -1;
+static gint ett_rtcp_fir		= -1;
+static gint ett_rtcp_nack		= -1;
 static gint ett_ssrc			= -1;
 static gint ett_ssrc_item		= -1;
 static gint ett_ssrc_ext_high		= -1;
@@ -442,7 +454,7 @@ static gint ett_xr_block_contents       = -1;
 static gint ett_xr_ssrc                 = -1;
 static gint ett_xr_loss_chunk		= -1;
 static gint ett_poc1_conn_contents	= -1;
-
+static gint ett_rtcp_nack_blp           = -1;
 /* Protocol registration */
 void proto_register_rtcp(void);
 void proto_reg_handoff_rtcp(void);
@@ -652,6 +664,128 @@ dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 	offset += 2;
 
 	return offset;
+}
+
+static int
+dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
+{
+    unsigned int rtcp_rtpfb_fmt = 0;
+    unsigned int rtcp_rtpfb_nack_pid = 0;
+    unsigned int rtcp_rtpfb_nack_blp = 0;
+    int i;
+    proto_item *ti;
+    proto_tree *bitfield_tree;
+    char strbuf[64];
+    int start_offset = offset;
+    int packet_length = 0;
+    int nack_num_frames_lost = 0;
+
+    /* Transport layer FB message */
+    /* Feedback message type (FMT): 5 bits */
+    proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, FALSE );
+    rtcp_rtpfb_fmt = (tvb_get_guint8(tvb, offset) & 0x1f);
+    offset++;
+
+    /* Packet type, 8 bits */
+    proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+    offset++;
+
+    /* Packet length in 32 bit words MINUS one, 16 bits */
+    packet_length = (tvb_get_ntohs(tvb, offset) + 1) * 4;
+    offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
+
+    /* SSRC of packet sender, 32 bits */
+    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
+			 tvb_get_ntohl( tvb, offset ) );
+    offset += 4;
+
+    /* SSRC of media source, 32 bits */
+    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
+			 tvb_get_ntohl( tvb, offset ) );
+    offset += 4;
+
+    /* Transport-Layer Feedback Message Elements */
+    switch(rtcp_rtpfb_fmt) {
+    case 1: 
+	/* NACK */
+	while ((offset - start_offset) < packet_length) {
+	    proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_nack_pid,
+				 tvb, offset, 2, FALSE);
+	    rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
+	    offset += 2;
+	    ti = proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_nack_blp,
+				      tvb, offset, 2, FALSE);
+	    proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
+	    rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
+	    bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
+	    nack_num_frames_lost ++;
+	    if (rtcp_rtpfb_nack_blp) {
+		for (i = 0; i < 16; i ++) {
+		    sprintf(strbuf, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
+		    proto_tree_add_text(
+			bitfield_tree, tvb, offset, 2,
+			decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
+						16, strbuf, ""));
+		    if (rtcp_rtpfb_nack_blp & (1<<i)) {
+			proto_tree_add_uint_hidden(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
+						   tvb, offset, 2,
+						   rtcp_rtpfb_nack_pid + i + 1);
+			proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
+			nack_num_frames_lost ++;
+		    }
+		}
+	    } else {
+		proto_item_set_text(ti, "0 (No additional frames lost)");
+	    }
+	    offset += 2;
+	}
+	if (top_item) {
+	    proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
+	}
+	break;
+    default:
+	/* Unknown FMT */
+	proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
+	offset = start_offset + packet_length;
+    }
+    return offset;
+
+}
+static int
+dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
+		   int packet_length )
+{
+    unsigned int rtcp_psfb_fmt = 0;
+
+    /* Payload-specific FB message */
+    /* Feedback message type (FMT): 5 bits */
+    proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, FALSE );
+    rtcp_psfb_fmt = (tvb_get_guint8(tvb, offset) & 0x1f);
+    offset++;
+
+    /* Packet type, 8 bits */
+    proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
+    offset++;
+
+    /* Packet length in 32 bit words MINUS one, 16 bits */
+    offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
+
+    /* SSRC of packet sender, 32 bits */
+    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4,
+			 tvb_get_ntohl( tvb, offset ) );
+    offset += 4;
+
+    /* SSRC of media source, 32 bits */
+    proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, 
+			 tvb_get_ntohl( tvb, offset ) );
+    offset += 4;
+
+    /* Feedback Control Information (FCI) */
+    if (packet_length > 2) {
+	proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
+    }
+
+    return offset;
 }
 
 static int
@@ -2297,7 +2431,26 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	}
 }
 
+static int
+rtcp_packet_type_to_tree( int rtcp_packet_type)
+{
+    int tree = ett_rtcp;
 
+    switch(rtcp_packet_type) {
+    case RTCP_SR: tree = ett_rtcp_sr; break;
+    case RTCP_RR: tree = ett_rtcp_rr; break;
+    case RTCP_SDES: tree = ett_rtcp_sdes; break;
+    case RTCP_BYE: tree = ett_rtcp_bye; break;
+    case RTCP_APP: tree = ett_rtcp_app; break;
+    case RTCP_RTPFB: tree = ett_rtcp_rtpfb; break;
+    case RTCP_PSFB: tree = ett_rtcp_psfb; break;
+    case RTCP_XR: tree = ett_rtcp_xr; break;
+    case RTCP_FIR: tree = ett_rtcp_fir; break;
+    case RTCP_NACK: tree = ett_rtcp_nack; break;
+    default: tree = ett_rtcp;
+    }
+    return tree;
+}
 
 static void
 dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -2388,7 +2541,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		                                  rtcp_packet_type_vals,
 		                                  "Unknown"));
 
-		rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
+		rtcp_tree = proto_item_add_subtree( ti, rtcp_packet_type_to_tree(packet_type) );
 
 		/* Conversation setup info */
 		if (global_rtcp_show_setup_info)
@@ -2485,45 +2638,10 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                 offset = dissect_rtcp_nack( tvb, offset, rtcp_tree );
                 break;
             case RTCP_RTPFB:
-                /* Transport layer FB message */
-                /* Feedback message type (FMT): 5 bits */
-                proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_fmt, tvb, offset, 1, FALSE );
-                offset++;
-                /* Packet type, 8 bits */
-                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-                offset++;
-                /* Packet length in 32 bit words MINUS one, 16 bits */
-                offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                /* SSRC of packet sender, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-                offset += 4;
-                /* SSRC of media source, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-                offset += 4;
-                /* Feedback Control Information (FCI) */
-                if (packet_length > 2)
-                    proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+                offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti );
                 break;
-
             case RTCP_PSFB:
-                /* Payload-specific FB message */
-                /* Feedback message type (FMT): 5 bits */
-                proto_tree_add_item( rtcp_tree, hf_rtcp_psfb_fmt, tvb, offset, 1, FALSE );
-                offset++;
-                /* Packet type, 8 bits */
-                proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
-                offset++;
-                /* Packet length in 32 bit words MINUS one, 16 bits */
-                offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                /* SSRC of packet sender, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-                offset += 4;
-                /* SSRC of media source, 32 bits */
-                proto_tree_add_uint( rtcp_tree, hf_rtcp_ssrc_sender, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
-                offset += 4;
-                /* Feedback Control Information (FCI) */
-                if (packet_length > 2)
-                    proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, 1, FALSE );
+                offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length );
                 break;
             default:
                 /*
@@ -4035,6 +4153,30 @@ proto_register_rtcp(void)
 			}
 		},
 		{
+			&hf_rtcp_rtpfb_nack_pid,
+			{
+				"RTCP Transport Feedback NACK",
+				"rtcp.rtpfb.nack",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"RTCP Transport Feedback NACK", HFILL
+			}
+		},
+		{
+			&hf_rtcp_rtpfb_nack_blp,
+			{
+				"RTCP Transport Feedback NACK BLP",
+				"rtcp.rtpfb.nack.blp",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"RTCP Transport Feedback NACK BLP", HFILL
+			}
+		},
+		{
 			&hf_rtcp_fci,
 			{
 				"Feedback Control Information (FCI)",
@@ -4099,6 +4241,16 @@ proto_register_rtcp(void)
 	static gint *ett[] =
 	{
 		&ett_rtcp,
+		&ett_rtcp_sr,
+		&ett_rtcp_rr,
+		&ett_rtcp_sdes,
+		&ett_rtcp_bye,
+		&ett_rtcp_app,
+		&ett_rtcp_rtpfb,
+		&ett_rtcp_psfb,
+		&ett_rtcp_xr,
+		&ett_rtcp_fir,
+		&ett_rtcp_nack,
 		&ett_ssrc,
 		&ett_ssrc_item,
 		&ett_ssrc_ext_high,
@@ -4111,7 +4263,8 @@ proto_register_rtcp(void)
 		&ett_xr_block_contents,
  		&ett_xr_ssrc,
 		&ett_xr_loss_chunk,
-		&ett_poc1_conn_contents
+		&ett_poc1_conn_contents,
+		&ett_rtcp_nack_blp,
 	};
 
 	module_t *rtcp_module;
