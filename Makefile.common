@@ -191,6 +191,18 @@ tshark_SOURCES =	\
 	tshark-tap-register.c	\
 	tshark.c
 
+# rawshark specifics
+rawshark_SOURCES =	\
+	$(WIRESHARK_COMMON_SRC)	\
+	capture_opts.c		\
+	capture_loop.c		\
+	capture_stop_conditions.c	\
+	conditions.c		\
+	pcapio.c		\
+	ringbuffer.c		\
+	tempfile.c		\
+	rawshark.c
+
 # text2pcap specifics
 text2pcap_SOURCES = \
 	text2pcap.c \

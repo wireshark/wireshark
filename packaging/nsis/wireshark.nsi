@@ -753,6 +753,15 @@ File "..\..\tshark.exe"
 File "..\..\doc\tshark.html"
 SectionEnd
 
+Section "Rawshark" SecRawshark
+;-------------------------------------------
+!ifdef GTK1_DIR & GTK2_DIR
+SectionIn 1 2
+!endif
+SetOutPath $INSTDIR
+File "..\..\rawshark.exe"
+SectionEnd
+
 SectionGroup "Plugins / Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
@@ -893,6 +902,12 @@ Section "Uninstall" un.SecUinstall
 ;
 SectionIn 1 2
 SetShellVarContext all
+
+Delete "$INSTDIR\rawshark.exe"
+IfErrors 0 NoRawsharkErrorMsg
+	MessageBox MB_OK "Please note: rawshark.exe could not be removed, it's probably in use!" IDOK 0 ;skipped if rawshark.exe removed
+	Abort "Please note: rawshark.exe could not be removed, it's probably in use! Abort uninstall process!"
+NoRawsharkErrorMsg:
 
 Delete "$INSTDIR\tshark.exe"
 IfErrors 0 NoTSharkErrorMsg
@@ -1114,6 +1129,7 @@ SectionEnd
 !endif
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."

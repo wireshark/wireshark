@@ -139,6 +139,18 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--noindex							\
 	$(srcdir)/dumpcap.pod > ../dumpcap.html
 
+../rawshark.1: rawshark.pod ../config.h
+	$(POD2MAN)					\
+	--center="The Wireshark Network Analyzer"	\
+	--release=$(VERSION)				\
+	$(srcdir)/rawshark.pod > ../rawshark.1
+
+../rawshark.html: rawshark.pod ../config.h
+	$(POD2HTML)                     \
+	--title="rawshark - The Wireshark Network Analyzer $(VERSION)"	\
+	--noindex							\
+	$(srcdir)/rawshark.pod > ../rawshark.html
+
 CLEANFILES =		\
 	wireshark-filter.pod \
 	wireshark-tmp.pod \
@@ -159,7 +171,9 @@ CLEANFILES =		\
 	../dumpcap.1	\
 	../dumpcap.html	\
 	../idl2wrs.1	\
-	../idl2wrs.html
+	../idl2wrs.html	\
+	../rawshark.1	\
+	../rawshark.html
 
 DISTCLEANFILES =	\
 	pod2htmi.tmp	\

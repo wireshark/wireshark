@@ -577,6 +577,7 @@ EXTRA_DIST = \
 	doc/idl2wrs.pod		\
 	doc/mergecap.pod	\
 	doc/randpkt.txt		\
+	doc/rawshark.pod	\
 	doc/sgml.doc.template	\
 	doc/text2pcap.pod	\
 	doc/tshark.pod		\
@@ -808,6 +809,10 @@ dumpcap.1: doc/dumpcap.pod
 	(cd doc ; \
 	$(MAKE) ../dumpcap.1 )
 
+rawshark.1: doc/rawshark.pod
+	(cd doc ; \
+	$(MAKE) ../rawshark.1 )
+
 wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT
 	(cd doc ; \
 	$(MAKE) ../wireshark.html )
@@ -843,6 +848,10 @@ text2pcap.html: doc/text2pcap.pod
 dumpcap.html: doc/dumpcap.pod
 	(cd doc ; \
 	$(MAKE) ../dumpcap.html )
+
+rawshark.html: doc/rawshark.pod
+	(cd doc ; \
+	$(MAKE) ../rawshark.html )
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck

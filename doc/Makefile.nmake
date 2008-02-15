@@ -27,10 +27,11 @@
 include ../config.nmake
 
 doc: wireshark.html tshark.html wireshark-filter.html capinfos.html \
-	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html
+	editcap.html idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
+	rawshark.html
 
 man: wireshark.1 tshark.1 wireshark-filter.4 capinfos.1 editcap.1 \
-	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1
+	idl2wrs.1 mergecap.1 text2pcap.1 dumpcap.1 rawshark.1
 
 wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
 	copy /B wireshark.pod + ..\AUTHORS-SHORT-FORMAT wireshark-tmp.pod
@@ -161,6 +162,18 @@ dumpcap.html: dumpcap.pod ../config.h
 	--noindex                                 \
 	dumpcap.pod > dumpcap.html
 
+rawshark.1: rawshark.pod ../config.h
+	$(POD2MAN)                      \
+	--center="The Wireshark Network Analyzer" \
+	--release=$(VERSION)			 \
+	rawshark.pod > rawshark.1
+
+rawshark.html: rawshark.pod ../config.h
+	$(POD2HTML)                     \
+	--title="rawshark - The Wireshark Network Analyzer $(VERSION)" \
+	--noindex                                 \
+	rawshark.pod > rawshark.html
+
 clean:
 	rm -f wireshark.html wireshark.1 wireshark-tmp.pod
 	rm -f tshark.html tshark.1
@@ -171,6 +184,7 @@ clean:
 	rm -f mergecap.html mergecap.1
 	rm -f text2pcap.html text2pcap.1
 	rm -f dumpcap.html dumpcap.1
+	rm -f rawshark.html rawshark.1
 	rm -f pod2htm*
 
 distclean: clean
