@@ -2256,10 +2256,11 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
       /* Stop reading if we have the maximum number of packets;
-       * note that a zero max_packet_count will never be matched
-       * (unless we roll over the packet number?)
+       * When the -c option has not been used, max_packet_count
+       * starts at 0, which practically means, never stop reading.
+       * (unless we roll over max_packet_count ?)
        */
-      if(max_packet_count == cf->count || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+      if( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
         err = 0; /* This is not an error */
         break;
       }
