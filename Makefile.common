@@ -230,7 +230,6 @@ randpkt_SOURCES = \
 dumpcap_SOURCES =	\
 	$(PLATFORM_SRC) \
 	capture_opts.c \
-	capture_loop.c	\
 	capture-pcap-util.c	\
 	capture_stop_conditions.c	\
 	clopts_common.c	\
@@ -246,7 +245,6 @@ dumpcap_SOURCES =	\
 
 # corresponding headers
 dumpcap_INCLUDES = \
-	capture_loop.h	\
 	capture_stop_conditions.h	\
 	conditions.h	\
 	pcapio.h	\
