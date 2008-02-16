@@ -1209,7 +1209,14 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_sm_ReportSM_DeliveryStatusArg(FALSE, tvb, offset, actx, tree, -1);
     break;
     /* reserved noteSubscriberPresent (48) */
-    /* reserved alertServiceCentreWithoutResult (49) */
+    /* reserved alertServiceCentreWithoutResult (49)  
+	 * ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
+	 * -- alertServiceCentreWithoutResult must not be used in
+	 * -- version greater 1
+	 */
+  case 49:
+	offset = dissect_gsm_map_sm_AlertServiceCentreArg(FALSE, tvb, offset, actx, tree, -1);
+	break;
   case 50: /*activateTraceMode*/
     offset=dissect_gsm_map_om_ActivateTraceModeArg(FALSE, tvb, offset, actx, tree, -1);
     break;
