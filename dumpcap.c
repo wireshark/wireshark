@@ -82,9 +82,7 @@
 #include "epan/unicode-utils.h"
 #endif
 
-#ifdef HAVE_LIBCAP
 #include "epan/privileges.h"
-#endif
 
 #include "sync_pipe.h"
 
@@ -1075,6 +1073,10 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 						  WTAP_MAX_PACKET_SIZE,
 		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
+#endif
+
+#ifndef HAVE_LIBCAP
+  relinquish_special_privs_perm();
 #endif
 
   if (ld->pcap_h != NULL) {
@@ -2245,8 +2247,8 @@ main(int argc, char *argv[])
     sigaction(SIGHUP, &action, NULL);
 #endif  /* _WIN32 */
 
-#ifdef HAVE_LIBCAP
   get_credential_info();
+#ifdef HAVE_LIBCAP
   relinquish_privs_except_capture();
 #endif
 
