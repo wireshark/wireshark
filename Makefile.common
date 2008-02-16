@@ -194,7 +194,6 @@ tshark_SOURCES =	\
 # rawshark specifics
 rawshark_SOURCES =	\
 	$(WIRESHARK_COMMON_SRC)	\
-	pcapio.c		\
 	rawshark.c
 
 # text2pcap specifics
