@@ -413,9 +413,13 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 }
 
 static guint
-get_frame_num(io_stat_t *io, int idx, gboolean first)
+get_frame_num(io_stat_t *io, guint32 idx, gboolean first)
 {
 	guint i, frame_num=0;
+
+	if (idx>io->num_items) {
+		return 0;
+	}
 
 	if (first) {
 		frame_num=io->first_frame_num[idx];
