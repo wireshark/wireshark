@@ -86,7 +86,7 @@
 
 #include "sync_pipe.h"
 
-#include "capture.h"
+#include "capture_opts.h"
 #include "capture_sync.h"
 
 #include "conditions.h"
