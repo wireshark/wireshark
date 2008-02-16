@@ -105,6 +105,10 @@
                     <gavp name="Flow-Status"/>
                     <gavp name="RS-Bandwidth"/>
                     <gavp name="RR-Bandwidth"/>
+					<!-- ETSI ES 283 026 V1.6.0 (2008-02) -->
+                    <gavp name="Reservation-Priority"/>
+                    <gavp name="Reservation-Class"/>
+                    <gavp name="Transport-Class"/>
             </grouped>
         </avp>
 
