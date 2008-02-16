@@ -375,22 +375,22 @@ standard libpcap format.
 		wireshark -o mgcp.display_dissect_tree:TRUE -o mgcp.udp.callagent_port:2627
 	      </command>
 	    </para>
-		<tip><title>Tip!</title>
-		<para>
+	    <tip><title>Tip!</title>
+	      <para>
 		You can get a list of all available preference strings from the
 		preferences file, see <xref linkend="AppFiles"/>.
-		</para>
-		</tip>
+	      </para>
+	    </tip>
 	    <para>User access tables can be overridden using "uat," followed by
 	    the UAT file name and a valid record for the file: </para>
 	    <para>
 	      <command>
 		wireshark -o "uat:user_dlts:\"User 0 (DLT=147)\",\"http\",\"0\",\"\",\"0\",\"\""
 	      </command>
+	    </para>
 	    <para>The example above would dissect packets with a libpcap data
 	    link type 147 as HTTP, just as if you had configured it in the
 	    DLT_USER protocol preferences.</para>
-	    <para>
 	    </para>
 	  </listitem>
 	</varlistentry>
