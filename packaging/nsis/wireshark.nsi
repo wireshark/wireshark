@@ -316,7 +316,7 @@ File "${ZLIB_DIR}\zlib1.dll"
 File "${ADNS_DIR}\adns_win32\LIB\adns_dll.dll"
 !endif
 !ifdef PCRE_DIR
-File "${PCRE_DIR}\bin\pcre.dll"
+File "${PCRE_DIR}\bin\pcre3.dll"
 File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 !endif
 !ifdef KFW_DIR
