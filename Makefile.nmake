@@ -667,9 +667,9 @@ process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK2_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-2.14.5.zip
+		glib gtk2.12/glib-2.14.6-2.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-dev-2.14.5.zip
+		glib gtk2.12/glib-dev-2.14.6-2.zip
 !ELSEIF "$(GTK2_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.13.zip
@@ -711,9 +711,9 @@ process_libs:
 !ENDIF
 !IFDEF PCRE_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		pcre-6.4 pcre-6.4-bin.zip
+		pcre-7.0 pcre-7.0-bin.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		pcre-6.4 pcre-6.4-lib.zip
+		pcre-7.0 pcre-7.0-lib.zip
 !ENDIF
 !IFDEF ZLIB_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -740,9 +740,9 @@ process_libs:
 !IFDEF GTK2_DIR
 !IF "$(GTK2_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-2.12.6.zip
+		gtk2 gtk2.12/gtk+-2.12.8.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-dev-2.12.6.zip
+		gtk2 gtk2.12/gtk+-dev-2.12.8.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/cairo-1.4.14.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -836,6 +836,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
+    rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
     rm -r -f $(WIRESHARK_LIBS)/user-guide
@@ -1024,7 +1025,7 @@ install-deps2: install-common-deps2
 #	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
 	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* $(INSTALL2_DIR)\etc\gtk-2.0 /d
 	xcopy $(GTK2_DIR)\etc\pango\pango.* $(INSTALL2_DIR)\etc\pango /d
-#	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
+	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
 	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
 #	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
 !IFDEF NEED_LIBPNG_DLL
@@ -1077,7 +1078,7 @@ install-common-deps:
 	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF PCRE_DIR
-	xcopy $(PCRE_DIR)\bin\pcre.dll $(INSTALL_DIR) /d
+	xcopy $(PCRE_DIR)\bin\pcre3.dll $(INSTALL_DIR) /d
 	xcopy $(PCRE_DIR)\man\cat3\pcrepattern.3.txt $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF KFW_DIR

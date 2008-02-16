@@ -206,7 +206,7 @@ ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
 # isn't defined.
 #
-PCRE_DIR=$(WIRESHARK_LIBS)\pcre-6.4
+PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 
 #
 # Optional: the GNUTLS library enables ssl decryption.
