@@ -150,6 +150,8 @@ typedef struct _io_stat_t {
 	guint32 last_interval; 
 	guint32 max_interval; /* XXX max_interval and num_items are redundant */
 	guint32 num_items;
+	guint32 left_x_border;
+	guint32 right_x_border;
 	gboolean view_as_time;
 	nstime_t start_time;
 
@@ -159,6 +161,8 @@ typedef struct _io_stat_t {
 	GdkPixmap *pixmap;
 	GtkAdjustment *scrollbar_adjustment;
 	GtkWidget *scrollbar;
+	guint first_frame_num[NUM_IO_ITEMS];
+	guint last_frame_num;
 	int pixmap_width;
 	int pixmap_height;
 	int pixels_per_tick;
@@ -216,6 +220,10 @@ io_stat_reset(io_stat_t *io)
 	io->num_items=0;
 	io->start_time.secs=0;
 	io->start_time.nsecs=0;
+	for(j=0;j<NUM_IO_ITEMS;j++) {
+		io->first_frame_num[j]=0;
+	}
+	io->last_frame_num=0;
 
 	io_stat_set_title(io);
 }
@@ -274,6 +282,12 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	if(git->io->start_time.secs == 0 && git->io->start_time.nsecs == 0) {
 		git->io->start_time = pinfo->fd->abs_ts;
 	}
+
+	/* set first and last frame num in current interval */
+	if (git->io->first_frame_num[idx] == 0) {
+		git->io->first_frame_num[idx]=pinfo->fd->num;
+	}
+	git->io->last_frame_num=pinfo->fd->num;
 
 	/*
 	 * Find the appropriate io_item_t structure 
@@ -398,6 +412,38 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 	return TRUE;
 }
 
+static guint
+get_frame_num(io_stat_t *io, int idx, gboolean first)
+{
+	guint i, frame_num=0;
+
+	if (first) {
+		frame_num=io->first_frame_num[idx];
+	}
+
+	if (frame_num==0) {
+		/*
+		 * If first frame not found we select the last 
+		 * frame in the previous interval 
+		 *
+		 * If selecting the last frame we select the frame
+		 * before the first frame in the next interval
+		 */
+		for(i=idx+1;i<=io->num_items;i++) {
+			frame_num=io->first_frame_num[i];
+			if (frame_num != 0) {
+				return frame_num-1;
+			}
+		}
+
+		/* 
+		 * If not found we select the last frame
+		 */
+		frame_num=io->last_frame_num;
+	}
+
+	return frame_num;
+}
 
 static guint32
 get_it_value(io_stat_t *io, int graph_id, int idx)
@@ -561,8 +607,6 @@ io_stat_draw(io_stat_t *io)
 	int i;
 	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
 	gint32 current_interval;
-	guint32 left_x_border;
-	guint32 right_x_border;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
 #if GTK_MAJOR_VERSION < 2
@@ -709,8 +753,8 @@ io_stat_draw(io_stat_t *io)
         layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #endif
-	left_x_border=10;
-	right_x_border=label_width+20;
+	io->left_x_border=10;
+	io->right_x_border=label_width+20;
 	top_y_border=10;
 	bottom_y_border=label_height+20;
 
@@ -718,7 +762,7 @@ io_stat_draw(io_stat_t *io)
 	/*
 	 * Calculate the size of the drawing area for the actual plot
 	 */
-	draw_width=io->pixmap_width-right_x_border-left_x_border;
+	draw_width=io->pixmap_width-io->right_x_border-io->left_x_border;
 	draw_height=io->pixmap_height-top_y_border-bottom_y_border;
 
 
@@ -747,9 +791,9 @@ io_stat_draw(io_stat_t *io)
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
-		io->pixmap_width-right_x_border+1, 
+		io->pixmap_width-io->right_x_border+1, 
 		top_y_border,
-		io->pixmap_width-right_x_border+1, 
+		io->pixmap_width-io->right_x_border+1, 
 		io->pixmap_height-bottom_y_border);
 	for(i=0;i<=10;i++){
 		int xwidth, lwidth;
@@ -761,9 +805,9 @@ io_stat_draw(io_stat_t *io)
 		}
 		/* draw the tick */
 		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
-			io->pixmap_width-right_x_border+1, 
+			io->pixmap_width-io->right_x_border+1, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10, 
-			io->pixmap_width-right_x_border+1+xwidth, 
+			io->pixmap_width-io->right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
 		/* draw the labels */
 		if(i==0 || i==5 || i==10){
@@ -777,7 +821,7 @@ io_stat_draw(io_stat_t *io)
 	                gdk_draw_string(io->pixmap,
         	                        font,
 	                                io->draw_area->style->black_gc,
-	                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+	                                io->pixmap_width-io->right_x_border+15+label_width-lwidth,
         	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
                 	                label_string);
 #else
@@ -785,7 +829,7 @@ io_stat_draw(io_stat_t *io)
 	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(io->pixmap,
                 	                io->draw_area->style->black_gc,
-                        	        io->pixmap_width-right_x_border+15+label_width-lwidth,
+                        	        io->pixmap_width-io->right_x_border+15+label_width-lwidth,
                                 	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
 	                                layout);
 #endif
@@ -810,7 +854,7 @@ io_stat_draw(io_stat_t *io)
 
 /*XXX*/
 	/* plot the x-scale */
-	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-right_x_border+1, io->pixmap_height-bottom_y_border+1);
+	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, io->left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-io->right_x_border+1, io->pixmap_height-bottom_y_border+1);
 
 	if((last_interval/io->interval)>=draw_width/io->pixels_per_tick){
 		first_interval=(last_interval/io->interval)-draw_width/io->pixels_per_tick+1;
@@ -850,7 +894,7 @@ io_stat_draw(io_stat_t *io)
 			xlen=10;
 		}
 
-		x=draw_width+left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
+		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
 		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
 			x-1-io->pixels_per_tick/2,
 			io->pixmap_height-bottom_y_border+1, 
@@ -908,7 +952,7 @@ io_stat_draw(io_stat_t *io)
 		}
 
 		/* initialize prev x/y to the value of the first interval */
-		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval)+left_x_border;
+		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval)+io->left_x_border;
 		val=get_it_value(io, i, first_interval/io->interval);
 		if(val>max_y){
 			prev_y_pos=0;
@@ -917,7 +961,7 @@ io_stat_draw(io_stat_t *io)
 		}
 
 		for(interval=first_interval;interval<last_interval;interval+=io->interval){
-			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+left_x_border;
+			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+io->left_x_border;
 
 			val=get_it_value(io, i, interval/io->interval);
 			if(val>max_y){
@@ -1109,6 +1153,8 @@ gtk_iostat_init(const char *optarg _U_, void* userdata _U_)
 	io->last_interval=0xffffffff;
 	io->max_interval=0;
 	io->num_items=0;
+	io->left_x_border=0;
+	io->right_x_border=500;
 	io->view_as_time=FALSE;
 	io->start_time.secs=0;
 	io->start_time.nsecs=0;
@@ -1176,6 +1222,46 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 		}
 	}
 	g_free(io);
+
+	return TRUE;
+}
+
+static gint
+pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
+{
+	io_stat_t *io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
+	guint32 draw_width, interval, last_interval;
+	guint frame_num;
+
+	if (!io) {
+		return FALSE;
+	}
+
+	draw_width=io->pixmap_width-io->right_x_border-io->left_x_border;
+	
+	if ((event->x <= (draw_width+io->left_x_border+1-(draw_width/io->pixels_per_tick)*io->pixels_per_tick)) ||
+	    (event->x >= (draw_width+io->left_x_border-io->pixels_per_tick/2))) {
+	      /* Outside draw area */
+	      return FALSE;
+	}
+
+	if ((event->button==1 || event->button==3) && io->pixmap!=NULL) {
+		/*
+		 * Button 1 selects the first package in the interval.
+		 * Button 3 selects the last package in the interval.
+		 */
+		if (io->last_interval==0xffffffff) {
+			last_interval=io->max_interval;
+		} else {
+			last_interval=io->last_interval;
+		}
+
+		interval=(last_interval/io->interval)-(draw_width+io->left_x_border-event->x-io->pixels_per_tick/2-1)/io->pixels_per_tick;
+		frame_num=get_frame_num (io, interval, event->button==1?TRUE:FALSE);
+		if (frame_num != 0) {
+			cf_goto_frame(&cfile, frame_num);
+		}
+	}
 
 	return TRUE;
 }
@@ -1296,6 +1382,8 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	/* signals needed to handle backing pixmap */
 	SIGNAL_CONNECT(io->draw_area, "expose_event", expose_event, NULL);
 	SIGNAL_CONNECT(io->draw_area, "configure_event", configure_event, io);
+	gtk_widget_add_events (io->draw_area, GDK_BUTTON_PRESS_MASK);
+	SIGNAL_CONNECT(io->draw_area, "button-press-event", pixmap_clicked_event, NULL);
 
 	gtk_widget_show(io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
