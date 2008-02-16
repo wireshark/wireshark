@@ -133,13 +133,11 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 # (MAJOR + MINOR Version number but without MICRO version number) 
 # These macros are used by the nsis installer script and by the setup target.
 #
-# GTK 2.6 is the old mainline since Ethereal 0.10.14
-#GTK2_INST_VERSION=2.6
-#PANGO_INST_VERSION=1.8
-# Support for GTK 2.8 
-#GTK2_INST_VERSION=2.8
-#PANGO_INST_VERSION=1.14
-# GTK 2.10 is the mainline since Wireshark 0.99.5
+# GTK 2.10 is the old mainline since Wireshark 0.99.5
+#  0.99.5: PANGO=1.14; 0.99.6: PANGO=1.16
+#GTK2_INST_VERSION=2.10
+#PANGO_INST_VERSION=1.16
+# GTK 2.12 is the mainline since Wireshark 0.99.7
 GTK2_INST_VERSION=2.12
 PANGO_INST_VERSION=1.18
 
@@ -285,7 +283,6 @@ PORTAUDIO_VERSION=19
 # Set GETTEXT_DIR to the directory in which the
 # GETTEXT include files and library resides.
 #
-#GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.13.1
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
 #
@@ -649,38 +646,16 @@ GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.8"
-# the lib dir of GTK2.6 didn't changed since 2.4.0
-GTK2_LIB_DIR=2.4.0
-NEED_LIBPNG_DLL=USE
-NEED_CAIRO_DLL=USE
-GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
-GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.4.0\engines
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.4.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
-GTK_WIMP_RCDST_DIR=etc\gtk-2.0
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.6"
-GTK2_LIB_DIR=2.4.0
-GTK_WIMP_DLLSRC_DIR=$(GTK_WIMP_DIR)
-GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.4.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
-GTK_WIMP_RCDST_DIR=share\themes\Default\gtk-2.0
-GTK_THEME_DIR=$(GTK_WIMP_DIR)\Theme\gtk-2.0
+!ELSE
+!ERROR ? Unknown or invalid GTK2_INST_VERSION
 !ENDIF
 
-# the lib dir of PANGO changed in 1.12
 !IF "$(PANGO_INST_VERSION)" == "1.18"
 PANGO_LIB_DIR=1.5.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.14"
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
 PANGO_LIB_DIR=1.5.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.10"
-PANGO_LIB_DIR=1.4.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.8"
-PANGO_LIB_DIR=1.4.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.4"
-PANGO_LIB_DIR=1.4.0
-!ELSEIF "$(PANGO_INST_VERSION)" == "1.2"
-PANGO_LIB_DIR=1.2.0
+!ELSE
+!ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 
 !IFDEF AIRPCAP_DIR

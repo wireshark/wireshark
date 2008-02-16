@@ -526,7 +526,7 @@ image::
 	cd ..
 
 !IFDEF ZLIB_DIR
-# None MSVC6 variants have to avoid indirectly using msvcrt.dll,
+# Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
 # therefore compile the zlib dll from source ZLIB_DIR package.
 # To avoid path problems, copy the zlib sources to a temp dir,
 # compile and copy the resulting files back to (source) ZLIB_DIR
@@ -676,10 +676,7 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-dev-2.12.13.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib glib-2.2.3-20040116.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib glib-dev-2.2.3-20040116.zip
+!ERROR ? Unknown or invalid GTK2_INST_VERSION
 !ENDIF
 !IFDEF GTK1_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -773,14 +770,7 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/libpng-1.2.8-bin.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/gtk+-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/gtk+-dev-2.2.4-20040124.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/atk-1.4.0.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/atk-dev-1.4.0.zip
+!ERROR ? Unknown or invalid GTK2_INST_VERSION
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.18"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -793,10 +783,7 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-dev-1.16.4.zip
 !ELSE
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/pango-1.2.5-20040124.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2/pango-dev-1.2.5-20040124.zip
+!ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 !ENDIF
 !IFDEF GTK_WIMP_DIR
@@ -944,9 +931,6 @@ install-common-files:
 	xcopy ".\epan\wslua\console.lua" $(INSTALL_DIR) /d
 !ENDIF
 	xcopy doc\*.html $(INSTALL_DIR) /d
-!IFDEF ETHEREAL_EUG_DIR
-	xcopy $(ETHEREAL_EUG_DIR) $(INSTALL_DIR) /d
-!ENDIF
 	if not exist $(INSTALL_DIR)\help mkdir $(INSTALL_DIR)\help
 	xcopy ".\help\*.*" $(INSTALL_DIR)\help /d
 	if not exist $(INSTALL_DIR)\dtds mkdir $(INSTALL_DIR)\dtds
