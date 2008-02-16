@@ -106,7 +106,6 @@
 #include <setjmp.h>
 #include "capture-pcap-util.h"
 #include "pcapio.h"
-#include <wiretap/wtap-capture.h>
 #ifdef _WIN32
 #include "capture-wpcap.h"
 #include "capture_errs.h"
@@ -134,11 +133,9 @@ typedef enum {
 	WRITE_XML	/* PDML or PSML */
 	/* Add CSV and the like here */
 } output_action_e;
-static output_action_e output_action;
 static gboolean line_buffered;
 static guint32 cum_bytes = 0;
 static print_format_e print_format = PR_FMT_TEXT;
-static print_stream_t *print_stream;
 
 /*
  * Standard secondary message for unexpected errors.
@@ -216,7 +213,7 @@ print_usage(gboolean print_ver)
 
   /*fprintf(output, "\n");*/
   fprintf(output, "Output:\n");
-  fprintf(output, "  -S                       format string for fields (%D - name, %S - stringval, %N numval\n");
+  fprintf(output, "  -S                       format string for fields (%%D - name, %%S - stringval, %%N numval\n");
   fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
   fprintf(output, "  -l                       flush output after each packet\n");
 
@@ -231,22 +228,6 @@ static void
 log_func_ignore (const gchar *log_domain _U_, GLogLevelFlags log_level _U_,
     const gchar *message _U_, gpointer user_data _U_)
 {
-}
-
-static char *
-output_file_description(const char *fname)
-{
-  char *save_file_string;
-
-  /* Get a string that describes what we're writing to */
-  if (strcmp(fname, "-") == 0) {
-    /* We're writing to the standard output */
-    save_file_string = g_strdup("standard output");
-  } else {
-    /* We're writing to a file with the name in save_file */
-    save_file_string = g_strdup_printf("file \"%s\"", fname);
-  }
-  return save_file_string;
 }
 
 /**
@@ -285,12 +266,9 @@ raw_pipe_open(const char *pipe_name)
   } else {
 #ifndef _WIN32
     if (eth_stat(pipe_name, &pipe_stat) < 0) {
-      if (errno == ENOENT || errno == ENOTDIR)
-      else {
-        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
-          "The capture session could not be initiated "
-          "due to error on pipe: %s", strerror(errno));
-      }
+      g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+        "The capture session could not be initiated "
+        "due to error on pipe: %s", strerror(errno));
       return -1;
     }
     if (! S_ISFIFO(pipe_stat.st_mode)) {
@@ -447,14 +425,8 @@ main(int argc, char *argv[])
   int                  gdp_open_errno, gdp_read_errno;
   int                  dp_open_errno, dp_read_errno;
   int                  err;
-  gboolean             list_link_layer_types = FALSE;
-  gboolean             quiet = FALSE;
-  int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *pipe_name = NULL;
   gchar               *rfilters[64];
-#ifdef HAVE_PCAP_OPEN_DEAD
-  struct bpf_program   fcode;
-#endif
   e_prefs             *prefs;
   char                 badopt;
   GLogLevelFlags       log_flags;
@@ -667,7 +639,7 @@ main(int argc, char *argv[])
         pipe_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
-        if(n_rfilters < sizeof(rfilters) / sizeof(rfilters[0])) {
+        if(n_rfilters < (int) sizeof(rfilters) / (int) sizeof(rfilters[0])) {
           rfilters[n_rfilters++] = optarg;
         }
         else {
@@ -898,8 +870,8 @@ main(int argc, char *argv[])
 static gboolean
 raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
   struct pcap_pkthdr hdr;
-  size_t bytes_read = 0;
-  size_t bytes_needed = sizeof(struct pcap_pkthdr);
+  int bytes_read = 0;
+  int bytes_needed = sizeof(struct pcap_pkthdr);
   gchar err_str[1024+1];
 
   /* Copied from capture_loop.c */
@@ -1091,9 +1063,9 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 	  /* The user sends an empty packet when he wants to get output from us even if we don't currently have
 	     packets to process. We spit out a line with the timestamp and the text "void"
 	  */
-	  printf("%lu %lu %lu void -\n", (unsigned int)cf->count,
-		  (unsigned int)whdr->ts.secs,
-		  (unsigned int)whdr->ts.nsecs);
+	  printf("%lu %lu %lu void -\n", (unsigned long int)cf->count,
+		  (unsigned long int)whdr->ts.secs,
+		  (unsigned long int)whdr->ts.nsecs);
 
 	  fflush(stdout);
 
@@ -1128,7 +1100,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
 
   tap_queue_init(edt);
 
-  printf("%lu", (unsigned int)cf->count);
+  printf("%lu", (unsigned long int)cf->count);
 
   /* We only need the columns if we're printing packet info but we're
      *not* verbose; in verbose mode, we print the protocol tree, not
@@ -1413,7 +1385,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 }
 
 static int
-protocolinfo_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_)
+protocolinfo_packet(void *prs, packet_info *pinfo _U_, epan_dissect_t *edt, const void *dummy _U_)
 {
 	pci_t *rs=prs;
 	GPtrArray *gp;
@@ -1444,7 +1416,6 @@ static void
 protocolinfo_init(char *field)
 {
 	pci_t *rs;
-	const char *filter=NULL;
 	header_field_info *hfi;
 	GString *error_string;
 
@@ -1683,7 +1654,7 @@ cmdarg_err_cont(const char *fmt, ...)
 
 /** Report a new capture file having been opened. */
 void
-report_new_capture_file(const char *filename)
+report_new_capture_file(const char *filename _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();
@@ -1691,7 +1662,7 @@ report_new_capture_file(const char *filename)
 
 /** Report a number of new packets captured. */
 void
-report_packet_count(int packet_count)
+report_packet_count(int packet_count _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();
@@ -1699,7 +1670,7 @@ report_packet_count(int packet_count)
 
 /** Report the packet drops once the capture finishes. */
 void
-report_packet_drops(int drops)
+report_packet_drops(int drops _U_)
 {
     /* shouldn't happen */
     g_assert_not_reached();
@@ -1744,6 +1715,15 @@ signal_pipe_check_running(void)
 #endif  /* _WIN32 */
 
 #endif /* HAVE_LIBPCAP */
+
+/****************************************************************************************************************/
+/* other "dummies" */
+void
+cf_mark_frame(capture_file *cf _U_, frame_data *frame _U_)
+{
+    /* shouldn't happen */
+    g_assert_not_reached();
+}
 
 /*
  * Editor modelines

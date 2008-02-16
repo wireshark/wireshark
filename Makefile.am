@@ -72,8 +72,10 @@ bin_PROGRAMS = \
 	@editcap_bin@	\
 	@randpkt_bin@	\
 	@dftest_bin@	\
-	@dumpcap_bin@
+	@dumpcap_bin@	\
+	@rawshark_bin@
 bin_SCRIPTS = @idl2wrs_bin@
+
 man1_MANS = \
 	@wireshark_man@	\
 	@tshark_man@	\
@@ -82,12 +84,13 @@ man1_MANS = \
 	@capinfos_man@	\
 	@editcap_man@	\
 	@dumpcap_man@	\
-	@idl2wrs_man@
+	@idl2wrs_man@	\
+	@rawshark_man@
 man4_MANS = @wiresharkfilter_man@
 man_MANS =
 
 EXTRA_PROGRAMS = wireshark tshark capinfos editcap mergecap dftest \
-	randpkt text2pcap dumpcap
+	randpkt text2pcap dumpcap rawshark
 EXTRA_SCRIPTS = idl2wrs
 
 idl2wrs: tools/idl2wrs.sh Makefile
@@ -100,7 +103,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
-	cfilters colorfilters dfilters smi_modules
+	rawshark.html cfilters colorfilters dfilters smi_modules
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -324,6 +327,29 @@ endif
 
 # Libraries and plugin flags with which to link tshark.
 tshark_LDADD = \
+	$(wireshark_optional_objects)	\
+	wiretap/libwiretap.la		\
+	epan/libwireshark.la		\
+	@INET_PTON_LO@			\
+	@SSL_LIBS@			\
+	$(plugin_ldadd)			\
+	@PCRE_LIBS@			\
+	@GLIB_LIBS@ -lm			\
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
+	@FRAMEWORKS@			\
+	@LIBICONV@			\
+	@LIBGCRYPT_LIBS@		\
+	@LIBGNUTLS_LIBS@		\
+	@LIBSMI_LDFLAGS@
+
+if ENABLE_STATIC
+rawshark_LDFLAGS = -Wl,-static -all-static
+else
+rawshark_LDFLAGS = -export-dynamic
+endif
+
+# Libraries and plugin flags with which to link tshark.
+rawshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
