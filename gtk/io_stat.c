@@ -1256,7 +1256,7 @@ pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
 			last_interval=io->last_interval;
 		}
 
-		interval=(last_interval/io->interval)-(draw_width+io->left_x_border-(guint32)event->x-io->pixels_per_tick/2-1)/io->pixels_per_tick;
+		interval=(guint32)((last_interval/io->interval)-(draw_width+io->left_x_border-event->x-io->pixels_per_tick/2-1)/io->pixels_per_tick);
 		frame_num=get_frame_num (io, interval, event->button==1?TRUE:FALSE);
 		if (frame_num != 0) {
 			cf_goto_frame(&cfile, frame_num);
