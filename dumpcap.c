@@ -171,8 +171,6 @@ static void capture_loop_stop(void);
 #define MUST_DO_SELECT
 #endif
 
-typedef void (*capture_packet_cb_fct)(u_char *, const struct pcap_pkthdr *, const u_char *);
-
 /** init the capture filter */
 typedef enum {
   INITFILTER_NO_ERROR,
@@ -186,8 +184,6 @@ typedef struct _loop_data {
   int            err;                   /* if non-zero, error seen while capturing */
   gint           packet_count;          /* Number of packets we have already captured */
   gint           packet_max;            /* Number of packets we're supposed to capture - 0 means infinite */
-
-  capture_packet_cb_fct  packet_cb;     /* callback for a single captured packet */
 
   /* pcap "input file" */
   pcap_t        *pcap_h;                /* pcap handle */
@@ -951,7 +947,7 @@ cap_pipe_dispatch(loop_data *ld, guchar *data, char *errmsg, int errmsgl)
     phdr.caplen = ld->cap_pipe_rechdr.hdr.incl_len;
     phdr.len = ld->cap_pipe_rechdr.hdr.orig_len;
 
-    ld->packet_cb((u_char *)ld, &phdr, data);
+    capture_loop_packet_cb((u_char *)ld, &phdr, data);
 
     ld->cap_pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
@@ -1466,7 +1462,8 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
          * processing immediately, rather than processing all packets
          * in a batch before quitting.
          */
-        inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *)ld);
+        inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb,
+                               (u_char *)ld);
         if (inpkts < 0) {
           ld->pcap_err = TRUE;
           ld->go = FALSE; /* error or pcap_breakloop() - stop capturing */
@@ -1495,9 +1492,9 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
        * after processing packets.  We therefore process only one packet
        * at a time, so that we can check the pipe after every packet.
        */
-      inpkts = pcap_dispatch(ld->pcap_h, 1, ld->packet_cb, (u_char *) ld);
+      inpkts = pcap_dispatch(ld->pcap_h, 1, capture_loop_packet_cb, (u_char *) ld);
 #else
-      inpkts = pcap_dispatch(ld->pcap_h, -1, ld->packet_cb, (u_char *) ld);
+      inpkts = pcap_dispatch(ld->pcap_h, -1, capture_loop_packet_cb, (u_char *) ld);
 #endif
       if (inpkts < 0) {
         if (inpkts == -1) {
@@ -1530,7 +1527,7 @@ capture_loop_dispatch(capture_options *capture_opts _U_, loop_data *ld,
         in = 0;
         while(ld->go &&
               (in = pcap_next_ex(ld->pcap_h, &pkt_header, &pkt_data)) == 1)
-          ld->packet_cb( (u_char *) ld, pkt_header, pkt_data);
+          capture_loop_packet_cb( (u_char *) ld, pkt_header, pkt_data);
 
         if(in < 0) {
           ld->pcap_err = TRUE;
@@ -1705,8 +1702,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #ifdef MUST_DO_SELECT
   ld.pcap_fd            = 0;
 #endif
-  ld.packet_cb          = capture_loop_packet_cb;
-
 
   /* We haven't yet gotten the capture statistics. */
   *stats_known      = FALSE;
