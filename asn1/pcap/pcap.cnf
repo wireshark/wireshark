@@ -1,0 +1,306 @@
+# pcap.cnf
+# pcap conformation file
+
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.EXPORTS
+
+#.PDU_NEW
+PCAP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+
+#.TYPE_RENAME
+
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+Outcome/value Outcome_value
+
+#.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+Outcome/value outcome_value
+
+
+PrivateIE-Field/id private_id
+ProtocolExtensionField/id ext_id
+
+PrivateIE-Field/value private_value
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(pcap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+
+#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                              "unknown message"));
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+#.FN_PARS Outcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_OutcomeValue
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, PCAP-PROTOCOL-IES : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-Container {{IEsSetParam}}
+
+#.FN_PARS ProtocolIE-ContainerList
+MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+#.FN_HDR ProtocolIE-ContainerList
+  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+    { "lowerBound", ASN1_PAR_INTEGER },
+    { "upperBound", ASN1_PAR_INTEGER },
+    { NULL, 0 }
+  };
+  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+#.END
+
+#ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, PCAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-ContainerPair {{IEsSetParam}}
+
+
+
+#RAB-IE-ContainerList            { PCAP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfRABs,   {IEsSetParam} }
+
+#ProtocolError-IE-ContainerList  { PCAP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfRABs,   {IEsSetParam} }
+# FN_BODY ProtocolError-IE-ContainerList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfRABs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+# END
+
+
+
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(pcap_ProtocolIE_ID_vals)
+
+#.ASSIGN_VALUE_TO_TYPE  # PCAP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+
+id-PositionCalculation				ProcedureCode
+id-InformationExchangeInitiation	ProcedureCode
+id-InformationReporting				ProcedureCode
+id-InformationExchangeTermination	ProcedureCode
+id-InformationExchangeFailure		ProcedureCode
+id-ErrorIndication					ProcedureCode
+id-privateMessage					ProcedureCode
+id-PositionParameterModification	ProcedureCode
+id-PositionInitiation				ProcedureCode
+id-PositionActivation				ProcedureCode
+id-Abort							ProcedureCode
+id-PositionPeriodicReport			ProcedureCode
+id-PositionPeriodicResult			ProcedureCode
+id-PositionPeriodicTermination		ProcedureCode
+
+
+# ProtocolIE-ID
+id-Cause										ProtocolIE-ID
+id-CriticalityDiagnostics						ProtocolIE-ID
+id-GPS-UTRAN-TRU								ProtocolIE-ID
+id-InformationExchangeID						ProtocolIE-ID
+id-InformationExchangeObjectType-InfEx-Rprt		ProtocolIE-ID
+id-InformationExchangeObjectType-InfEx-Rqst		ProtocolIE-ID
+id-InformationExchangeObjectType-InfEx-Rsp		ProtocolIE-ID
+id-InformationReportCharacteristics				ProtocolIE-ID
+id-InformationType								ProtocolIE-ID
+id-GPS-MeasuredResultsList						ProtocolIE-ID
+id-MethodType									ProtocolIE-ID
+id-RefPosition-InfEx-Rqst						ProtocolIE-ID
+id-RefPosition-InfEx-Rsp						ProtocolIE-ID
+id-RefPosition-Inf-Rprt							ProtocolIE-ID
+id-RequestedDataValue							ProtocolIE-ID
+id-RequestedDataValueInformation				ProtocolIE-ID
+id-TransactionID								ProtocolIE-ID
+id-UE-PositionEstimate							ProtocolIE-ID
+id-CellId-MeasuredResultsSets					ProtocolIE-ID
+id-OTDOA-MeasurementGroup						ProtocolIE-ID
+id-AccuracyFulfilmentIndicator					ProtocolIE-ID
+id-HorizontalAccuracyCode						ProtocolIE-ID
+id-VerticalAccuracyCode							ProtocolIE-ID
+id-UTDOA-Group									ProtocolIE-ID
+id-RequestType									ProtocolIE-ID
+id-UE-PositioningCapability						ProtocolIE-ID
+id-UC-id										ProtocolIE-ID
+id-ResponseTime									ProtocolIE-ID
+id-PositioningPriority							ProtocolIE-ID
+id-ClientType									ProtocolIE-ID
+id-PositioningMethod							ProtocolIE-ID
+id-UTDOAPositioning								ProtocolIE-ID
+id-GPSPositioning								ProtocolIE-ID
+id-OTDOAAssistanceData							ProtocolIE-ID
+id-Positioning-ResponseTime						ProtocolIE-ID
+id-EnvironmentCharacterisation					ProtocolIE-ID
+id-PositionData									ProtocolIE-ID
+id-IncludeVelocity								ProtocolIE-ID
+id-VelocityEstimate								ProtocolIE-ID
+id-rxTimingDeviation768Info						ProtocolIE-ID
+id-UC-ID-InfEx-Rqst								ProtocolIE-ID
+id-UE-PositionEstimateInfo						ProtocolIE-ID
+id-UTRAN-GPSReferenceTime						ProtocolIE-ID
+id-UTRAN-GPSReferenceTimeResult					ProtocolIE-ID
+id-UTRAN-GPS-DriftRate							ProtocolIE-ID
+id-OTDOA-AddMeasuredResultsInfo					ProtocolIE-ID
+id-GPS-ReferenceLocation						ProtocolIE-ID
+id-OTDOA-MeasuredResultsSets					ProtocolIE-ID
+id-rxTimingDeviation384extInfo					ProtocolIE-ID
+id-ExtendedRoundTripTime						ProtocolIE-ID
+id-PeriodicPosCalcInfo							ProtocolIE-ID
+id-PeriodicLocationInfo							ProtocolIE-ID
+id-AmountOfReporting							ProtocolIE-ID
+id-MeasInstructionsUsed							ProtocolIE-ID
+id-RRCstateChange								ProtocolIE-ID
+id-PeriodicTerminationCause						ProtocolIE-ID
+id-MeasurementValidity							ProtocolIE-ID
+id-roundTripTimeInfoWithType1					ProtocolIE-ID
+id-CellIDPositioning							ProtocolIE-ID
+id-AddMeasurementInfo							ProtocolIE-ID
+id-Extended-RNC-ID								ProtocolIE-ID
+id-GANSS-CommonAssistanceData					ProtocolIE-ID
+id-GANSS-GenericAssistanceDataList				ProtocolIE-ID
+id-GANSS-MeasuredResultsList					ProtocolIE-ID
+id-GANSS-UTRAN-TRU								ProtocolIE-ID
+id-GANSSPositioning								ProtocolIE-ID 
+id-GANSS-PositioningDataSet						ProtocolIE-ID
+id-GNSS-PositioningMethod						ProtocolIE-ID
+id-NetworkAssistedGANSSSuport					ProtocolIE-ID
+id-TUTRANGANSSMeasurementValueInfo				ProtocolIE-ID
+id-AdditionalGPSAssistDataRequired				ProtocolIE-ID
+id-AdditionalGanssAssistDataRequired			ProtocolIE-ID
+id-angleOfArrivalLCR							ProtocolIE-ID
+id-extendedTimingAdvanceLCR						ProtocolIE-ID
+id-additionalMeasurementInforLCR				ProtocolIE-ID
+id-timingAdvanceLCR-R7							ProtocolIE-ID
+id-rxTimingDeviationLCR 						ProtocolIE-ID
+id-GPSReferenceTimeUncertainty					ProtocolIE-ID 
+#.END
+
+#.REGISTER_NEW
+
+#PCAP-PROTOCOL-IES
+Cause											N pcap.ies id-Cause
+CriticalityDiagnostics							N pcap.ies id-CriticalityDiagnostics
+GPS-UTRAN-TRU									N pcap.ies id-GPS-UTRAN-TRU
+InformationExchangeID							N pcap.ies id-InformationExchangeID
+InformationExchangeObjectType-InfEx-Rprt		N pcap.ies id-InformationExchangeObjectType-InfEx-Rprt
+InformationExchangeObjectType-InfEx-Rqst		N pcap.ies id-InformationExchangeObjectType-InfEx-Rqst
+InformationExchangeObjectType-InfEx-Rsp			N pcap.ies id-InformationExchangeObjectType-InfEx-Rsp
+InformationReportCharacteristics				N pcap.ies id-InformationReportCharacteristics
+InformationType									N pcap.ies id-InformationType
+MeasuredResultsList								N pcap.ies id-GPS-MeasuredResultsList
+UE-PositionEstimate								N pcap.ies id-UE-PositionEstimate
+CellId-MeasuredResultsSets						N pcap.ies id-CellId-MeasuredResultsSets
+OTDOA-MeasurementGroup							N pcap.ies id-OTDOA-MeasurementGroup
+AccuracyFulfilmentIndicator						N pcap.ies id-AccuracyFulfilmentIndicator
+HorizontalAccuracyCode							N pcap.ies id-HorizontalAccuracyCode
+VerticalAccuracyCode							N pcap.ies id-VerticalAccuracyCode
+UTDOA-Group										N pcap.ies id-UTDOA-Group
+RequestType										N pcap.ies id-RequestType
+UE-PositioningCapability						N pcap.ies id-UE-PositioningCapability
+UC-ID											N pcap.ies id-UC-id
+ResponseTime									N pcap.ies id-ResponseTime
+PositioningPriority								N pcap.ies id-PositioningPriority
+ClientType										N pcap.ies id-ClientType
+PositioningMethod								N pcap.ies id-PositioningMethod
+UTDOAPositioning								N pcap.ies id-UTDOAPositioning
+GPSPositioning									N pcap.ies id-GPSPositioning
+OTDOAAssistanceData								N pcap.ies id-OTDOAAssistanceData
+Positioning-ResponseTime						N pcap.ies id-Positioning-ResponseTime
+EnvironmentCharacterisation						N pcap.ies id-EnvironmentCharacterisation
+PositionData									N pcap.ies id-PositionData
+VelocityEstimate								N pcap.ies id-VelocityEstimate
+N pcap.ies id-rxTimingDeviation768Info
+UC-ID-InfEx-Rqst								N pcap.ies id-UC-ID-InfEx-Rqst
+UE-PositionEstimateInfo							N pcap.ies id-UE-PositionEstimateInfo
+OTDOA-MeasuredResultsSets						N pcap.ies id-OTDOA-MeasuredResultsSets
+PeriodicPosCalcInfo								N pcap.ies id-PeriodicPosCalcInfo
+PeriodicLocationInfo							N pcap.ies id-PeriodicLocationInfo
+MeasInstructionsUsed							N pcap.ies id-MeasInstructionsUsed
+PeriodicTerminationCause						N pcap.ies id-PeriodicTerminationCause
+
+#PCAP-PROTOCOL-EXTENSION
+IncludeVelocity									N pcap.extension id-IncludeVelocity
+AmountOfReporting								N pcap.extension id-AmountOfReporting
+CellIDPositioning								N pcap.extension id-CellIDPositioning
+GANSSPositioning								N pcap.extension id-GANSSPositioning
+RRCstateChange									N pcap.extension id-RRCstateChange
+GANSS-MeasuredResultsList						N pcap.extension id-GANSS-MeasuredResultsList
+GANSS-UTRAN-TRU									N pcap.extension id-GANSS-UTRAN-TRU
+AdditionalGPSAssistDataRequired					N pcap.extension id-AdditionalGPSAssistDataRequired
+AdditionalGanssAssistDataRequired				N pcap.extension id-AdditionalGanssAssistDataRequired
+
+#PCAP-ELEMENTARY-PROCEDURE
+
+PositionCalculationRequest						N pcap.proc.imsg id-PositionCalculation
+PositionCalculationResponse						N pcap.proc.sout id-PositionCalculation
+PositionCalculationFailure						N pcap.proc.uout id-PositionCalculation
+
+InformationExchangeInitiationRequest			N pcap.proc.imsg id-InformationExchangeInitiation
+InformationExchangeInitiationResponse			N pcap.proc.sout id-InformationExchangeInitiation
+InformationExchangeInitiationFailure			N pcap.proc.uout id-InformationExchangeInitiation
+
+PositionInitiationRequest						N pcap.proc.imsg id-PositionInitiation
+PositionInitiationResponse						N pcap.proc.sout id-PositionInitiation
+PositionInitiationFailure						N pcap.proc.uout id-PositionInitiation
+
+
+PositionActivationRequest						N pcap.proc.imsg id-PositionActivation
+PositionActivationResponse						N pcap.proc.sout id-PositionActivation
+PositionActivationFailure						N pcap.proc.uout id-PositionActivation
+
+InformationReport								N pcap.proc.imsg id-InformationReporting
+
+InformationExchangeTerminationRequest			N pcap.proc.imsg id-InformationExchangeTermination
+
+InformationExchangeFailureIndication			N pcap.proc.imsg id-InformationExchangeFailure
+
+ErrorIndication									N pcap.proc.imsg id-ErrorIndication
+
+PrivateMessage									N pcap.proc.imsg id-privateMessage
+
+PositionParameterModification					N pcap.proc.imsg id-PositionParameterModification
+
+Abort											N pcap.proc.imsg id-Abort
+
+PositionPeriodicReport							N pcap.proc.imsg id-PositionPeriodicReport
+
+PositionPeriodicResult							N pcap.proc.imsg id-PositionPeriodicResult
+
+PositionPeriodicTermination						N pcap.proc.imsg id-PositionPeriodicTermination
+
+#.END
