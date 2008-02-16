@@ -124,8 +124,8 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	  option_len = tvb_strsize(tvb, offset);	/* length of option */
 	  value_offset = offset + option_len;
 	  value_len = tvb_strsize(tvb, value_offset);	/* length of value */
-	  optionname = tvb_get_ptr(tvb, offset, option_len);
-	  optionvalue = tvb_get_ptr(tvb, value_offset, value_len);
+	  optionname = tvb_format_text(tvb, offset, option_len);
+	  optionvalue = tvb_format_text(tvb, value_offset, value_len);
 	  opt_item = proto_tree_add_text(tree, tvb, offset, option_len+value_len,
 	          "Option: %s = %s", optionname, optionvalue);
 
@@ -220,7 +220,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	  col_add_str(pinfo->cinfo, COL_INFO, 
+	  col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	}
@@ -245,7 +245,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_get_ptr(tvb, offset, i1));
+			    tvb_format_text(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -256,7 +256,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_get_ptr(tvb, offset, i1));
+			    tvb_format_text(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -273,7 +273,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    tvb_get_ptr(tvb, offset, i1));
+			    tvb_format_text(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -284,7 +284,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
-			    tvb_get_ptr(tvb, offset, i1));
+			    tvb_format_text(tvb, offset, i1));
 	  }
 	  offset += i1;
 
@@ -348,7 +348,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
-			    tvb_get_ptr(tvb, offset, i1));
+			    tvb_format_text(tvb, offset, i1));
 	  }
 	  expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE,
 		PI_NOTE, "TFTP blocksize out of range");
