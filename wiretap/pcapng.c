@@ -167,7 +167,7 @@ typedef struct wtapng_if_descr_s {
 	/* XXX: if_MACaddr */
 	/* XXX: if_EUIaddr */
 	guint64				if_speed;		/* 0xFFFFFFFF if unknown */
-	guint8				if_tsaccur;		/* default is 6 for microsecond resolution */
+	guint8				if_tsresol;		/* default is 6 for microsecond resolution */
 	/* XXX: if_filter */
 	gchar				*if_os;			/* NULL if not available */
 	gchar				if_fcslen;		/* -1 if unknown or changes between packets */
@@ -178,7 +178,7 @@ typedef struct wtapng_if_descr_s {
 typedef struct wtapng_packet_s {
 	/* mandatory */
 	guint32				ts_high;		/* seconds since 1.1.1970 */
-	guint32				ts_low;			/* fraction of seconds, depends on if_tsaccur */
+	guint32				ts_low;			/* fraction of seconds, depends on if_tsresol */
 	guint32				cap_len;        /* data length in the file */
 	guint32				packet_len;     /* data length on the wire */
 	/* options */
@@ -493,7 +493,7 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 	/* XXX: if_MACaddr */
 	/* XXX: if_EUIaddr */
 	wblock->data.if_descr.if_speed			= 0xFFFFFFFF;	/* "unknown" */
-	wblock->data.if_descr.if_tsaccur		= 6;			/* default is 6 for microsecond resolution */
+	wblock->data.if_descr.if_tsresol		= 6;			/* default is 6 for microsecond resolution */
 	/* XXX: if_filter */
 	wblock->data.if_descr.if_os				= NULL;
 	wblock->data.if_descr.if_fcslen			= (gchar) -1;	/* unknown or changes between packets */
@@ -559,12 +559,12 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, w
 		            pcapng_debug1("pcapng_read_if_descr_block: if_speed length %u not 8 as expected", oh.option_length);
                 }
                 break;
-            case(9): /* if_tsaccur */
+            case(9): /* if_tsresol */
                 if(oh.option_length == 1) {
-                    wblock->data.if_descr.if_tsaccur = option_content[0];
-		            pcapng_debug1("pcapng_read_if_descr_block: if_tsaccur %u", wblock->data.if_descr.if_tsaccur);
+                    wblock->data.if_descr.if_tsresol = option_content[0];
+		            pcapng_debug1("pcapng_read_if_descr_block: if_tsresol %u", wblock->data.if_descr.if_tsresol);
                 } else {
-		            pcapng_debug1("pcapng_read_if_descr_block: if_tsaccur length %u not 1 as expected", oh.option_length);
+		            pcapng_debug1("pcapng_read_if_descr_block: if_tsresol length %u not 1 as expected", oh.option_length);
                 }
                 break;
             case(13): /* if_fcslen */
@@ -625,8 +625,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 
 	/*pcapng_debug2("pcapng_read_packet_block: packet data: packet_len %u captured_len %u",
 		wblock->data.packet.packet_len, wblock->data.packet.cap_len);*/
-
-	/* xxx - convert timestamps if we have an odd if_tsaccur */
 
 	/* XXX - implement other linktypes then Ethernet */
 	/* (or even better share the code with libpcap.c) */
@@ -720,7 +718,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         }
     }
 
-	return block_read;
+    return block_read;
 }
 
 
@@ -968,16 +966,16 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close		= pcapng_close;
 
 	wth->file_type			= WTAP_FILE_PCAPNG;
-    switch(wblock.data.if_descr.if_tsaccur) {
+    switch(wblock.data.if_descr.if_tsresol) {
         case(6):
-	    wth->tsprecision	= WTAP_FILE_TSPREC_USEC;	/* usec is the default (without the if_tsaccur option) */
+	    wth->tsprecision	= WTAP_FILE_TSPREC_USEC;	/* usec is the default (without the if_tsresol option) */
         break;
         case(9):
 	    wth->tsprecision	= WTAP_FILE_TSPREC_NSEC;
         break;
         default:
-            pcapng_debug1("pcapng_open: if_tsaccur %u not implemented, timestamp conversion omitted",
-                wblock.data.if_descr.if_tsaccur);
+            pcapng_debug1("pcapng_open: if_tsresol %u not implemented, timestamp conversion omitted",
+                wblock.data.if_descr.if_tsresol);
     }
 
 	return 1;
@@ -990,6 +988,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int bytes_read;
+	guint64 ts;
 	wtapng_block_t wblock;
 
 
@@ -1023,8 +1022,25 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 
 	wth->phdr.caplen	= wblock.data.packet.cap_len;
 	wth->phdr.len		= wblock.data.packet.packet_len;
-	wth->phdr.ts.secs	= wblock.data.packet.ts_high;
-	wth->phdr.ts.nsecs	= wblock.data.packet.ts_low;
+
+	/* Combine the two 32-bit pieces of the timestamp into one 64-bit
+         * value */
+        ts = (((guint64)wblock.data.packet.ts_high)<<32) |
+                wblock.data.packet.ts_low;
+	
+        switch(wth->tsprecision) {
+
+        case(WTAP_FILE_TSPREC_USEC):
+                wth->phdr.ts.secs       = ts / 1000000;
+                wth->phdr.ts.nsecs      = ts % 1000000;
+                break;
+        case(WTAP_FILE_TSPREC_NSEC):
+		wth->phdr.ts.secs	= ts / 1000000000;
+		wth->phdr.ts.nsecs	= ts % 1000000000;
+		break;
+	default :
+		pcapng_debug1("pcapng_read: if_tsresol %u not implemented, timestamp conversion omitted", wblock.data.if_descr.if_tsresol);
+	}
 
 	/*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
 	wth->data_offset += bytes_read;
@@ -1305,6 +1321,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
 	wtapng_block_t wblock;
+	guint64 ts = 0;
 
 	wblock.frame_buffer = pd;
 	wblock.pseudo_header = pseudo_header;
@@ -1312,8 +1329,22 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	/* write the (enhanced) packet block */
 	wblock.type = BLOCK_TYPE_EPB;
 
-	wblock.data.packet.ts_high		= (guint32) phdr->ts.secs;
-	wblock.data.packet.ts_low		= phdr->ts.nsecs;	/* XXX - convert */
+        switch(wdh->tsprecision) {
+
+        case(WTAP_FILE_TSPREC_USEC):
+                ts = (phdr->ts.secs * 1000000) + (phdr->ts.nsecs / 1000);
+                break;
+        case(WTAP_FILE_TSPREC_NSEC):
+                ts = (phdr->ts.secs * 1000000000) + phdr->ts.nsecs;
+                break;
+	default:
+		pcapng_debug1("pcapng_dump: if_tsresol %u not implemented, timestamp conversion omitted", wdh->tsprecision);
+        }
+
+	/* Split the 64-bit timestamp into two 32-bit pieces */
+        wblock.data.packet.ts_high              = (guint32)(ts << 32);
+        wblock.data.packet.ts_low               = (guint32)ts;
+	
 	wblock.data.packet.cap_len		= phdr->caplen;
 	wblock.data.packet.packet_len	= phdr->len;
 
@@ -1365,7 +1396,7 @@ pcapng_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 
 	/* XXX - options unused */
 	wblock.data.if_descr.if_speed	= -1;
-	wblock.data.if_descr.if_tsaccur	= 6;	/* default: usec */
+	wblock.data.if_descr.if_tsresol	= 6;	/* default: usec */
 	wblock.data.if_descr.if_os		= NULL;
 	wblock.data.if_descr.if_fcslen  = -1;
 
