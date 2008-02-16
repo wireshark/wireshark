@@ -96,8 +96,6 @@
 #include "log.h"
 #include "file_util.h"
 
-#include "epan/unicode-utils.h"
-
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "epan/g_ascii_strcasecmp.h"
 #endif
