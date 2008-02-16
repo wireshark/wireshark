@@ -1001,24 +1001,24 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 	wblock.pseudo_header = &wth->pseudo_header;
 
 	/* read next block */
-    while(1) {
-	    bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
-	    if (bytes_read <= 0) {
-		    *err = file_error(wth->fh);
-		    /*pcapng_debug0("pcapng_read: couldn't read packet block");*/
-		    if (*err != 0)
-			    return -1;
-		    return 0;
-	    }
+	while(1) {
+		bytes_read = pcapng_read_block(wth->fh, wth->capture.pcapng, &wblock, err, err_info);
+		if (bytes_read <= 0) {
+			*err = file_error(wth->fh);
+			/*pcapng_debug0("pcapng_read: couldn't read packet block");*/
+			if (*err != 0)
+				return -1;
+			return 0;
+		}
 
-	    /* block must be a "Packet Block" or an "Enhanced Packet Block" -> otherwise continue */
-	    if(wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
-            break;
-        }
+		/* block must be a "Packet Block" or an "Enhanced Packet Block" -> otherwise continue */
+		if(wblock.type == BLOCK_TYPE_PB || wblock.type == BLOCK_TYPE_EPB) {
+		  break;
+		}
 
-        /* XXX - improve handling of "unknown" blocks */
+		/* XXX - improve handling of "unknown" blocks */
 		pcapng_debug1("pcapng_read: block type 0x%x not PB/EPB", wblock.type);
-    }
+	}
 
 	wth->phdr.caplen	= wblock.data.packet.cap_len;
 	wth->phdr.len		= wblock.data.packet.packet_len;
@@ -1031,12 +1031,12 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
         switch(wth->tsprecision) {
 
         case(WTAP_FILE_TSPREC_USEC):
-                wth->phdr.ts.secs       = ts / 1000000;
-                wth->phdr.ts.nsecs      = ts % 1000000;
+		wth->phdr.ts.secs       = (time_t) (ts / 1000000);
+		wth->phdr.ts.nsecs      = (int) (ts % 1000000);
                 break;
         case(WTAP_FILE_TSPREC_NSEC):
-		wth->phdr.ts.secs	= ts / 1000000000;
-		wth->phdr.ts.nsecs	= ts % 1000000000;
+		wth->phdr.ts.secs	= (time_t) (ts / 1000000000);
+		wth->phdr.ts.nsecs	= (int) (ts % 1000000000);
 		break;
 	default :
 		pcapng_debug1("pcapng_read: if_tsresol %u not implemented, timestamp conversion omitted", wblock.data.if_descr.if_tsresol);
