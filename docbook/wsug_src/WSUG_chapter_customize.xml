@@ -390,7 +390,7 @@ standard libpcap format.
 	    </para>
 	    <para>The example above would dissect packets with a libpcap data
 	    link type 147 as HTTP, just as if you had configured it in the
-	    DLT_USER protocol preferences.</para>
+	    DLT_USER protocol preferences.
 	    </para>
 	  </listitem>
 	</varlistentry>
