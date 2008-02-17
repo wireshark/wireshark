@@ -59,7 +59,7 @@
 #include <epan/prefs.h>
 #include "colors.h"
 #include "proto_draw.h"
-
+#include "help_dlg.h"
 
 
 static const value_string expert_severity_om_vals[] = {
@@ -466,12 +466,14 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	GtkWidget *table;
 	GtkWidget *bbox;
 	GtkWidget *close_bt;
+	GtkWidget *help_bt;
 
 	GtkWidget *severity_box;
 	GtkWidget *severity_om;
 	GtkWidget *menu;
 	GtkWidget *menu_item;
 	GtkWidget *label;
+	GtkTooltips *tooltips = gtk_tooltips_new();
 	int i;
 
 	if(!strncmp(optarg,"afp,srt,",8)){
@@ -546,11 +548,21 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	}
 
 	/* Button row. */
-	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+	} else {
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+	}
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
 	window_set_cancel_button(etd->win, close_bt, window_cancel_button_cb);
+
+	if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
+		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPERT_INFO_DIALOG);
+		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+	}
 
 	SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);

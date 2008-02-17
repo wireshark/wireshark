@@ -44,6 +44,7 @@
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
 #include <epan/stat_cmd_args.h>
+#include "help_dlg.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _expert_comp_dlg_t {
@@ -185,19 +186,21 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *vbox;
     GtkWidget *bbox;
     GtkWidget *close_bt;
-	expert_tapdata_t * etd;
+    GtkWidget *help_bt;
+    expert_tapdata_t *etd;
+    GtkTooltips *tooltips = gtk_tooltips_new();
     
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
-	etd=g_malloc(sizeof(expert_tapdata_t));
-	etd->all_events = NULL;
-	etd->new_events = NULL;
-	etd->disp_events = 0;
-	etd->chat_events = 0;
-	etd->note_events = 0;
-	etd->warn_events = 0;
-	etd->error_events = 0;
-	etd->severity_report_level = PI_CHAT;
+    etd=g_malloc(sizeof(expert_tapdata_t));
+    etd->all_events = NULL;
+    etd->new_events = NULL;
+    etd->disp_events = 0;
+    etd->chat_events = 0;
+    etd->note_events = 0;
+    etd->warn_events = 0;
+    etd->error_events = 0;
+    etd->severity_report_level = PI_CHAT;
 
     ss->win=window_new(GTK_WINDOW_TOPLEVEL, "err");
     gtk_window_set_default_size(GTK_WINDOW(ss->win), 700, 300);
@@ -238,8 +241,8 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->all_label = gtk_label_new("Details");
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, ss->all_label);
 
-	etd->label=gtk_label_new("Please wait ...");
-	gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
+    etd->label=gtk_label_new("Please wait ...");
+    gtk_misc_set_alignment(GTK_MISC(etd->label), 0.0, 0.5);
 
     etd->win=ss->win;
     expert_dlg_init_table(etd, temp_page);
@@ -247,19 +250,19 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Add tap listener functions for expert details, From expert_dlg.c*/
 
-	error_string=register_tap_listener("expert", etd, NULL /* fstring */,
-		expert_dlg_reset,
-		expert_dlg_packet,
-		expert_dlg_draw);
-	if(error_string){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
-		g_string_free(error_string, TRUE);
-		g_free(etd);
-		return;
-	}
+    error_string=register_tap_listener("expert", etd, NULL /* fstring */,
+                                       expert_dlg_reset,
+                                       expert_dlg_packet,
+                                       expert_dlg_draw);
+    if(error_string){
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        g_string_free(error_string, TRUE);
+        g_free(etd);
+        return;
+    }
 
-	SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);
+    SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);
 
     /* Register the tap listener */
 
@@ -276,11 +279,21 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     }
 
     /* Button row. */
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
+    } else {
+        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    }
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
+
+    if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
+        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPERT_INFO_DIALOG);
+        gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
+    }
 
     SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
     SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);

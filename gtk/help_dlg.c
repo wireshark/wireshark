@@ -440,6 +440,9 @@ topic_action(topic_action_e action)
     case(HELP_FOLLOW_TCP_STREAM_DIALOG):
         help_topic_html("ChAdvFollowTCPSection.html");
         break;
+    case(HELP_EXPERT_INFO_DIALOG):
+        help_topic_html("ChAdvExpert.html");
+        break;
     case(HELP_STATS_SUMMARY_DIALOG):
         help_topic_html("ChStatSummary.html");
         break;
