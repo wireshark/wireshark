@@ -1626,7 +1626,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 #endif
 
 	frame_vbox=gtk_vbox_new(FALSE, 0);
-	gtk_container_add(GTK_CONTAINER(box), frame_vbox);
+	gtk_box_pack_start(GTK_BOX(box), frame_vbox, FALSE, FALSE, 0);
 	gtk_widget_show(frame_vbox);
 
 	frame = gtk_frame_new("X Axis");
@@ -1864,7 +1864,7 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
 
 	gio->calc_field=gtk_entry_new_with_max_length(50);
-	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->calc_field);
 	SIGNAL_CONNECT(gio->calc_field, "activate", filter_callback, gio);
 }
@@ -1878,7 +1878,7 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 	hbox=gtk_hbox_new(FALSE, 0);
 	gio->advanced_buttons=hbox;
 	gtk_container_add(GTK_CONTAINER(box), hbox);
-	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_box_set_child_packing(GTK_BOX(box), hbox, TRUE, TRUE, 0, GTK_PACK_START);
 	gtk_widget_hide(hbox);
 
 	gio->calc_type=CALC_TYPE_SUM;
@@ -1969,7 +1969,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	OBJECT_SET_DATA(gio->filter_bt, E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */
 
-	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->filter_field);
 	SIGNAL_CONNECT(gio->filter_field, "activate", filter_callback, gio);
 	SIGNAL_CONNECT(gio->filter_field, "changed", filter_te_syntax_check_cb, NULL);
@@ -2012,7 +2012,7 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 	int i;
 
 	frame=gtk_frame_new("Graphs");
-	gtk_container_add(GTK_CONTAINER(box), frame);
+	gtk_box_pack_start(GTK_BOX(box), frame, TRUE, TRUE, 0);
 	gtk_widget_show(frame);
 
 	vbox=gtk_vbox_new(FALSE, 1);
