@@ -1358,6 +1358,8 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
 								  g_string_append(label_s, val_to_str(uvalue, cVALS(hfinfo->strings), "Unknown"));
 								}
 								break;
+							default:
+								break;
 						}
 						break;
 					default:
