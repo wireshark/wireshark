@@ -191,138 +191,157 @@
   <section id="ChStatConversations">
     <title>Conversations</title>
     <para>
-	Statistics of the captured conversations. 
+      Statistics of the captured conversations. 
     </para>
-	<section><title>What is a Conversation?</title>
-    <para>
+    <section>
+      <title>What is a Conversation?</title>
+      <para>
 	A network conversation is the traffic between two specific endpoints. For 
 	example, an IP conversation is all the traffic between two IP addresses. 
 	The description of the known endpoint types can be found in 
 	<xref linkend="ChStatEndpointDefinition"/>.
-    </para>
-	</section>
-	<section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
+      </para>
+    </section>
+    <section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
     <para>
-	Other than the list content, the conversations window works the same way as the 
-	endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
-	description how it works.
-	<figure><title>The "Conversations" window</title>
-	  <graphic entityref="WiresharkStatsConversations" format="PNG"/>
-	</figure>
+      Other than the list content, the conversations window works the same way as the 
+      endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
+      description how it works.
+      <figure><title>The "Conversations" window</title>
+      <graphic entityref="WiresharkStatsConversations" format="PNG"/>
+      </figure>
     </para>
     <para>
-        The <command>copy</command> button will copy the list values to the 
-	clipboard in CSV (Comma Seperated Values) format.
+      Each row in the list shows the statistical values for exactly one conversation.
     </para>
-	</section>
-	<section id="ChStatConversationListWindow">
-	  <title>The protocol specific "Conversation List" windows</title>
-	  <para>
-	    Before the combined window described above was available, each of its 
-	    pages was shown as a separate window. Even though the combined window is 
-	    much more convenient to use, these separate windows are still 
-	    available. The main reason is that they might process faster for 
-	    very large capture files. However, as the functionality is exactly the 
-	    same as in the combined window, they won't be discussed in detail here.
-	  </para>
-	</section>
+    <para>
+      <command>Name resolution</command> will be done if selected in the window 
+      and if it is active for the specific protocol layer (MAC layer for the 
+      selected Ethernet endpoints page).
+    </para>
+    <para>
+      <command>Limit to display filter</command> will only show conversations matching
+      the current display filter.
+    </para>
+    <para>
+      The <command>copy</command> button will copy the list values to the 
+      clipboard in CSV (Comma Seperated Values) format.
+    </para>
+    <tip><title>Tip!</title>
+    <para>
+      This window will be updated frequently, so it will be useful, even if 
+      you open it before (or while) you are doing a live capture.
+    </para>
+    </tip>
+    </section>
+    <section id="ChStatConversationListWindow">
+      <title>The protocol specific "Conversation List" windows</title>
+      <para>
+	Before the combined window described above was available, each of its 
+	pages was shown as a separate window. Even though the combined window is 
+	much more convenient to use, these separate windows are still 
+	available. The main reason is that they might process faster for 
+	very large capture files. However, as the functionality is exactly the 
+	same as in the combined window, they won't be discussed in detail here.
+      </para>
+    </section>
   </section>
 
   <section id="ChStatEndpoints">
     <title>Endpoints</title>
     <para>
-	Statistics of the endpoints captured.
-	<tip><title>Tip!</title>
-	<para>
+      Statistics of the endpoints captured.
+      <tip><title>Tip!</title>
+      <para>
 	If you are looking for a feature other network tools call a <command>
 	hostlist</command>, here is the right place to look. The list of 
 	Ethernet or IP endpoints is usually what you're looking for.
-	</para>
-	</tip>
+      </para>
+      </tip>
     </para>
-	<section id="ChStatEndpointDefinition"><title>What is an Endpoint?</title>
+    <section id="ChStatEndpointDefinition"><title>What is an Endpoint?</title>
     <para>
-	A network endpoint is the logical endpoint of separate protocol traffic of 
-	a specific protocol layer. The endpoint statistics of Wireshark will take 
-	the following endpoints into account:
+      A network endpoint is the logical endpoint of separate protocol traffic of 
+      a specific protocol layer. The endpoint statistics of Wireshark will take 
+      the following endpoints into account:
     </para>
-	<itemizedlist>
-	<listitem>
-    <para>
-	<command>Ethernet</command>: an Ethernet endpoint is identical to the 
-	Ethernet's MAC address.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>Fibre Channel</command>: XXX - insert info here.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>FDDI</command>: a FDDI endpoint is identical to the FDDI MAC 
-	address.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>IPv4</command>: an IP endpoint is identical to its IP address.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>IPX</command>: XXX - insert info here.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>TCP</command>: a TCP endpoint is a combination of the IP address 
-	and the TCP port used, so different TCP ports on the same IP address are
-	different TCP endpoints.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>Token Ring</command>: a Token Ring endpoint is identical to the 
-	Token Ring MAC address.
-    </para>
-	</listitem>
-	<listitem>
-    <para>
-	<command>UDP</command>: a UDP endpoint is a combination of the IP address 
-	and the UDP port used, so different UDP ports on the same IP address are
-	different UDP endpoints.
-    </para>
-	</listitem>
-	</itemizedlist>	
-	<note><title>Broadcast / multicast endpoints</title>
+    <itemizedlist>
+      <listitem>
 	<para>
-	Broadcast / multicast traffic will be shown separately as additional
-	endpoints. Of course, as these endpoints are virtual endpoints, the real 
-	traffic will be received by all (multicast: some) of the listed unicast 
-	endpoints.
+	  <command>Ethernet</command>: an Ethernet endpoint is identical to the 
+	  Ethernet's MAC address.
 	</para>
-	</note>
-	</section>
-  <section id="ChStatEndpointsWindow">
-    <title>The "Endpoints" window</title>
+      </listitem>
+      <listitem>
 	<para>
+	  <command>Fibre Channel</command>: XXX - insert info here.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>FDDI</command>: a FDDI endpoint is identical to the FDDI MAC 
+	  address.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>IPv4</command>: an IP endpoint is identical to its IP address.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>IPX</command>: XXX - insert info here.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>TCP</command>: a TCP endpoint is a combination of the IP address 
+	  and the TCP port used, so different TCP ports on the same IP address are
+	  different TCP endpoints.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>Token Ring</command>: a Token Ring endpoint is identical to the 
+	  Token Ring MAC address.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>UDP</command>: a UDP endpoint is a combination of the IP address 
+	  and the UDP port used, so different UDP ports on the same IP address are
+	  different UDP endpoints.
+	</para>
+      </listitem>
+    </itemizedlist>	
+    <note><title>Broadcast / multicast endpoints</title>
+    <para>
+      Broadcast / multicast traffic will be shown separately as additional
+      endpoints. Of course, as these endpoints are virtual endpoints, the real 
+      traffic will be received by all (multicast: some) of the listed unicast 
+      endpoints.
+    </para>
+    </note>
+    </section>
+    <section id="ChStatEndpointsWindow">
+      <title>The "Endpoints" window</title>
+      <para>
 	This window shows statistics about the endpoints captured. 
-	</para>
-	<figure><title>The "Endpoints" window</title>
-	  <graphic entityref="WiresharkStatsEndpoints" format="PNG"/>
-	</figure>
-	<para>
+      </para>
+      <figure><title>The "Endpoints" window</title>
+      <graphic entityref="WiresharkStatsEndpoints" format="PNG"/>
+      </figure>
+      <para>
 	For each supported protocol, a tab is shown in this window.
 	Each tab label shows the number of endpoints captured (e.g. the 
 	tab label "Ethernet: 5" tells you that five ethernet endpoints have been 
 	captured). If no endpoints of a specific protocol were captured, the tab 
 	label will be greyed out (although the related page can still be selected).
-	</para>
-	<para>
+      </para>
+      <para>
 	Each row in the list shows the statistical values for exactly one endpoint.
-	</para>
-	<para>
+      </para>
+      <para>
 	<command>Name resolution</command> will be done if selected in the window 
 	and if it is active for the specific protocol layer (MAC layer for the 
 	selected Ethernet endpoints page). As you might have noticed, the first 
@@ -331,29 +350,33 @@
 	resolved to an IP address (using ARP) and the third was resolved 
 	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two 
 	Ethernet addresses remain unresolved.
-	</para>
-	<para>
-	  The <command>copy</command> button will copy the list values to the 
-	  clipboard in CSV (Comma Seperated Values) format.
-	</para>
-	<tip><title>Tip!</title>
-	<para>
+      </para>
+      <para>
+	<command>Limit to display filter</command> will only show conversations matching
+	the current display filter.
+      </para>
+      <para>
+	The <command>copy</command> button will copy the list values to the 
+	clipboard in CSV (Comma Seperated Values) format.
+      </para>
+      <tip><title>Tip!</title>
+      <para>
 	This window will be updated frequently, so it will be useful, even if 
 	you open it before (or while) you are doing a live capture.
-	</para>
-	</tip>
-  </section>	
-  <section id="ChStatEndpointListWindow">
-    <title>The protocol specific "Endpoint List" windows</title>
-	<para>
+      </para>
+      </tip>
+    </section>	
+    <section id="ChStatEndpointListWindow">
+      <title>The protocol specific "Endpoint List" windows</title>
+      <para>
 	Before the combined window described above was available, each of its 
 	pages was shown as a separate window. Even though the combined window is 
 	much more convenient to use, these separate windows are still 
 	available. The main reason is that they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
 	same as in the combined window, they won't be discussed in detail here.
-	</para>	
-  </section>
+      </para>	
+    </section>
   </section>
   
   <section id="ChStatIOGraphs">
@@ -458,13 +481,46 @@
 	  graphs to the clipboard in CSV (Comma Seperated Values) format.
 	  The copy feature is only available in Wireshark version 0.99.8 or higher.
 	</para>
+	<tip><title>Tip!</title>
+	<para>
+	  Click in the graph to select the first package in the selected interval.
+	</para>
+	</tip>
   </section>
   
   <section id="ChStatWLANTraffic">
     <title>WLAN Traffic Statistics</title>
     <para>
-	Statistics of the captured WLAN traffic.
+      Statistics of the captured WLAN traffic.  This window will summarize the 
+      wireless network traffic found in the capture.  Probe requests will be 
+      merged into an existing network if the SSID matches.
     </para>
+
+    <figure><title>The "WLAN Traffic Statistics" window</title>
+    <graphic entityref="WiresharkStatsWLANTraffic" format="PNG"/>
+    </figure>
+	
+    <para>
+      Each row in the list shows the statistical values for exactly one wireless network.
+    </para>
+    <para>
+      <command>Name resolution</command> will be done if selected in the window 
+      and if it is active for the MAC layer.
+    </para>
+    <para>
+      <command>Only show existing networks</command> will exclude probe requests 
+      with a SSID not matching any network from the list.
+    </para>
+    <para>
+      The <command>copy</command> button will copy the list values to the 
+      clipboard in CSV (Comma Seperated Values) format.
+    </para>
+    <tip><title>Tip!</title>
+    <para>
+      This window will be updated frequently, so it will be useful, even if 
+      you open it before (or while) you are doing a live capture.
+    </para>
+    </tip>
   </section>
 
   <section id="ChStatSRT">
