@@ -2199,7 +2199,7 @@ get_gui_compiled_info(GString *str)
 #ifdef PORTAUDIO_API_1
   g_string_append(str, "with PortAudio <= V18");
 #else /* PORTAUDIO_API_1 */
-  g_string_append(str, "with PortAudio ");
+  g_string_append(str, "with ");
   g_string_append(str, Pa_GetVersionText());
 #endif /* PORTAUDIO_API_1 */
 #else /* HAVE_LIBPORTAUDIO */
