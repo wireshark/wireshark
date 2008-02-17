@@ -609,7 +609,7 @@ static void
 io_stat_draw(io_stat_t *io)
 {
 	int i;
-	guint32 last_interval, first_interval, interval_delta, delta_multiplier;
+	guint32 last_interval, first_interval, interval_delta;
 	gint32 current_interval;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
@@ -867,35 +867,23 @@ io_stat_draw(io_stat_t *io)
 		first_interval=0;
 	}
 
-	if (io->pixels_per_tick==1) {
-		interval_delta=25*io->interval;
-	} else if (io->pixels_per_tick==2) {
-		interval_delta=20*io->interval;
-	} else {
-		interval_delta=5*io->interval;
-	}
-	delta_multiplier=5;
-	while(interval_delta<((last_interval-first_interval)/10)){
-		interval_delta*=delta_multiplier;
-		if(delta_multiplier==5){
-			delta_multiplier=2;
-		} else {
-			delta_multiplier=5;
-		}
-	}
-
+	interval_delta=(100/io->pixels_per_tick)*io->interval;
 	for(current_interval=last_interval;current_interval>=(gint32)first_interval;current_interval=current_interval-io->interval){
 		int x, xlen;
 
-		/* if pixels_per_tick is <10, only draw every 10 ticks */
-		if((io->pixels_per_tick<10) && (current_interval%(10*io->interval))){
+		/* if pixels_per_tick is 1 or 2, only draw every 10 ticks */
+		/* if pixels_per_tick is 5, only draw every 5 ticks */
+		if(((io->pixels_per_tick<5) && (current_interval%(10*io->interval))) ||
+		   ((io->pixels_per_tick==5) && (current_interval%(5*io->interval)))){
 			continue;
 		}
 
-		if(current_interval%interval_delta){
-			xlen=5;
-		} else {
+		if(!(current_interval%interval_delta)){
 			xlen=10;
+		} else if(!(current_interval%(interval_delta/2))){
+			xlen=8;
+		} else {
+			xlen=5;
 		}
 
 		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
