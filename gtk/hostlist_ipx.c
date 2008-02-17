@@ -70,7 +70,7 @@ gtk_ipx_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "IPX Hosts", "ipx", filter, ipx_hostlist_packet);
+	init_hostlist_table(TRUE, "IPX", "ipx", filter, ipx_hostlist_packet);
 
 }
 

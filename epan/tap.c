@@ -411,6 +411,53 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring, t
 	return NULL;
 }
 
+/* this function sets a new dfilter to a tap listener
+ */
+GString *
+set_tap_dfilter(void *tapdata, const char *fstring)
+{
+	tap_listener_t *tl=NULL,*tl2;
+	GString *error_string;
+
+	if(!tap_listener_queue){
+		return NULL;
+	}
+
+	if(tap_listener_queue->tapdata==tapdata){
+		tl=(tap_listener_t *)tap_listener_queue;
+	} else {
+		for(tl2=(tap_listener_t *)tap_listener_queue;tl2->next;tl2=tl2->next){
+			if(tl2->next->tapdata==tapdata){
+				tl=tl2->next;
+				break;
+			}
+			
+		}
+	}
+
+	if(tl){
+		if(tl->code){
+			dfilter_free(tl->code);
+			num_tap_filters--;
+			tl->code=NULL;
+		}
+		tl->needs_redraw=1;
+		if(fstring){
+			if(!dfilter_compile(fstring, &tl->code)){
+				error_string = g_string_new("");
+				g_string_sprintf(error_string,
+						 "Filter \"%s\" is invalid - %s",
+						 fstring, dfilter_error_msg);
+				return error_string;
+			} else {
+				num_tap_filters++;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 /* this function removes a tap listener
  */
 void

@@ -68,7 +68,7 @@ gtk_usb_hostlist_init(const char *optarg, void* userdata _U_)
                 filter = NULL;
         }
 
-        init_hostlist_table(TRUE, "USB Hosts", "usb", filter, usb_hostlist_packet);
+        init_hostlist_table(TRUE, "USB", "usb", filter, usb_hostlist_packet);
 
 }
 

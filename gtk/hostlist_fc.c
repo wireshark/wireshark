@@ -72,7 +72,7 @@ gtk_fc_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Fibre Channel Hosts", "fc", filter, fc_hostlist_packet);
+	init_hostlist_table(TRUE, "Fibre Channel", "fc", filter, fc_hostlist_packet);
 
 }
 

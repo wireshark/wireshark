@@ -69,7 +69,7 @@ gtk_sctp_hostlist_init(const char *optarg, void* userdata _U_)
                 filter=NULL;
         }
 
-        init_hostlist_table(FALSE, "SCTP Hosts", "sctp", filter, sctp_hostlist_packet);
+        init_hostlist_table(FALSE, "SCTP", "sctp", filter, sctp_hostlist_packet);
 }
 
 

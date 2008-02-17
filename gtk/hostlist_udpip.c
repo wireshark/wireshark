@@ -70,7 +70,7 @@ gtk_udpip_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(FALSE, "UDP Endpoints", "udp", filter, udpip_hostlist_packet);
+	init_hostlist_table(FALSE, "UDP", "udp", filter, udpip_hostlist_packet);
 
 }
 

@@ -73,7 +73,7 @@ gtk_rsvp_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "RSVP Hosts", "rsvp", filter, 
+	init_hostlist_table(TRUE, "RSVP", "rsvp", filter, 
 			    rsvp_hostlist_packet);
 
 }

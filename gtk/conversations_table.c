@@ -296,9 +296,24 @@ reset_ct_table_data(conversations_table *ct)
 {
     guint32 i;
     char title[256];
+    GString *error_string;
+    const char *filter;
 
-	/* Allow clist to update */
-	gtk_clist_thaw(ct->table);
+    if (ct->use_dfilter) {
+        filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    } else {
+        filter = ct->filter;
+    }
+
+    error_string = set_tap_dfilter (ct, filter);
+    if (error_string) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        g_string_free(error_string, TRUE);
+        return;
+    }
+
+    /* Allow clist to update */
+    gtk_clist_thaw(ct->table);
 
     if(ct->page_lb) {
         g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
@@ -306,6 +321,17 @@ reset_ct_table_data(conversations_table *ct)
         g_snprintf(title, 255, "%s", ct->name);
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
         gtk_widget_set_sensitive(ct->page_lb, FALSE);
+
+        if (ct->use_dfilter) {
+            if (filter && strlen(filter)) {
+                g_snprintf(title, 255, "%s Conversations - Filter: %s", ct->name, filter);
+            } else {
+                g_snprintf(title, 255, "%s Conversations - No Filter", ct->name);
+            }
+        } else {
+            g_snprintf(title, 255, "%s Conversations", ct->name);
+        }
+        gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     } else {
         g_snprintf(title, 255, "%s Conversations: %s", ct->name, cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(ct->win), title);
@@ -1160,6 +1186,13 @@ draw_ct_table_data(conversations_table *ct)
         }
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
         gtk_widget_set_sensitive(ct->page_lb, ct->num_conversations);
+    } else {
+        if(ct->num_conversations) {
+            g_snprintf(title, 255, "%s Conversations: %u", ct->name, ct->num_conversations);
+        } else {
+            g_snprintf(title, 255, "%s Conversations", ct->name);
+        }
+        gtk_label_set_text(GTK_LABEL(ct->name_lb), title);
     }
 
     for(i=0;i<ct->num_conversations;i++){
@@ -1270,7 +1303,6 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     GtkStyle *win_style;
     GtkWidget *column_lb;
     GString *error_string;
-    GtkWidget *label;
     char title[256];
 
     conversations->page_lb=NULL;
@@ -1297,8 +1329,8 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     }
 
     g_snprintf(title, 255, "%s Conversations", table_name);
-    label=gtk_label_new(title);
-    gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+    conversations->name_lb=gtk_label_new(title);
+    gtk_box_pack_start(GTK_BOX(vbox), conversations->name_lb, FALSE, FALSE, 0);
 
 
     conversations->scrolled_window=scrolled_window_new(NULL, NULL);
@@ -1385,6 +1417,8 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     conversations=g_malloc(sizeof(conversations_table));
 
     conversations->name=table_name;
+    conversations->filter=filter;
+    conversations->use_dfilter=FALSE;
     g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
     conversations->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 
@@ -1490,7 +1524,9 @@ init_ct_notebook_page_cb(gboolean hide_ports, const char *table_name, const char
 
     conversations=g_malloc(sizeof(conversations_table));
     conversations->name=table_name;
+    conversations->filter=filter;
     conversations->resolve_names=TRUE;
+    conversations->use_dfilter=FALSE;
 
     page_vbox=gtk_vbox_new(FALSE, 6);
     conversations->win = page_vbox;
@@ -1557,6 +1593,32 @@ ct_resolve_toggle_dest(GtkWidget *widget, gpointer data)
     }
 }
 
+
+static void
+ct_filter_toggle_dest(GtkWidget *widget, gpointer data)
+{
+    int page;
+    void ** pages = data;
+    gboolean use_filter;
+    conversations_table *conversations;
+
+    use_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        conversations = pages[page];
+        conversations->use_dfilter = use_filter;
+        reset_ct_table_data(conversations);
+    }
+
+    cf_retap_packets(&cfile, FALSE);
+
+    /* after retapping, redraw table */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        draw_ct_table_data(pages[page]);
+    }
+}
+
+
 void
 init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -1568,6 +1630,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *close_bt, *help_bt;
     GtkWidget *win;
     GtkWidget *resolv_cb;
+    GtkWidget *filter_cb;
     int page;
     void ** pages;
     GtkWidget *nb;
@@ -1622,6 +1685,13 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         "Please note: The corresponding name resolution must be enabled.", NULL);
 
     SIGNAL_CONNECT(resolv_cb, "toggled", ct_resolve_toggle_dest, pages);
+
+    filter_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Limit to display filter", NULL);
+    gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+    gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to conversations matching the current display filter.", NULL);
+
+    SIGNAL_CONNECT(filter_cb, "toggled", ct_filter_toggle_dest, pages);
 
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */

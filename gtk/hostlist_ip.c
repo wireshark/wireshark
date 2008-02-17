@@ -69,7 +69,7 @@ gtk_ip_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "IPv4 Hosts", "ip", filter, ip_hostlist_packet);
+	init_hostlist_table(TRUE, "IPv4", "ip", filter, ip_hostlist_packet);
 
 }
 

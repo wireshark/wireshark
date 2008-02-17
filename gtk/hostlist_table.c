@@ -167,8 +167,22 @@ reset_hostlist_table_data(hostlist_table *hosts)
 {
     guint32 i;
     char title[256];
+    GString *error_string;
+    const char *filter;
+
+    if (hosts->use_dfilter) {
+        filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+    } else {
+        filter = hosts->filter;
+    }
+    error_string = set_tap_dfilter (hosts, filter);
+    if (error_string) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+        g_string_free(error_string, TRUE);
+        return;
+    }
 	
-	/* Allow clist to update */
+    /* Allow clist to update */
     gtk_clist_thaw(hosts->table);
 
     if(hosts->page_lb) {
@@ -177,6 +191,17 @@ reset_hostlist_table_data(hostlist_table *hosts)
         g_snprintf(title, 255, "%s", hosts->name);
         gtk_label_set_text(GTK_LABEL(hosts->page_lb), title);
         gtk_widget_set_sensitive(hosts->page_lb, FALSE);
+
+        if (hosts->use_dfilter) {
+            if (filter && strlen(filter)) {
+                g_snprintf(title, 255, "%s Endpoints - Filter: %s", hosts->name, filter);
+            } else {
+                g_snprintf(title, 255, "%s Endpoints - No Filter", hosts->name);
+            }
+        } else {
+            g_snprintf(title, 255, "%s Endpoints", hosts->name);
+        }
+        gtk_label_set_text(GTK_LABEL(hosts->name_lb), title);
     } else {
         g_snprintf(title, 255, "%s Endpoints: %s", hosts->name, cf_get_display_name(&cfile));
         gtk_window_set_title(GTK_WINDOW(hosts->win), title);
@@ -557,6 +582,13 @@ draw_hostlist_table_data(hostlist_table *hl)
         }
         gtk_label_set_text(GTK_LABEL(hl->page_lb), title);
         gtk_widget_set_sensitive(hl->page_lb, hl->num_hosts);
+    } else {
+        if(hl->num_hosts) {
+            g_snprintf(title, 255, "%s Endpoints: %u", hl->name, hl->num_hosts);
+        } else {
+            g_snprintf(title, 255, "%s Endpoints", hl->name);
+        }
+        gtk_label_set_text(GTK_LABEL(hl->name_lb), title);
     }
 
     for(i=0;i<hl->num_hosts;i++){
@@ -662,10 +694,11 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->has_ports=!hide_ports;
     hosttable->num_hosts = 0;
     hosttable->resolve_names=TRUE;
+    hosttable->page_lb = NULL;
 
     g_snprintf(title, 255, "%s Endpoints", table_name); 
-    hosttable->page_lb = gtk_label_new(title);                                                 
-    gtk_box_pack_start(GTK_BOX(vbox), hosttable->page_lb, FALSE, FALSE, 0);
+    hosttable->name_lb = gtk_label_new(title);                                                 
+    gtk_box_pack_start(GTK_BOX(vbox), hosttable->name_lb, FALSE, FALSE, 0);
 
     hosttable->scrolled_window=scrolled_window_new(NULL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), hosttable->scrolled_window, TRUE, TRUE, 0);
@@ -750,6 +783,8 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     hosttable=g_malloc(sizeof(hostlist_table));
 
     hosttable->name=table_name;
+    hosttable->filter=filter;
+    hosttable->use_dfilter=FALSE;
     g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
     hosttable->win=window_new(GTK_WINDOW_TOPLEVEL, title);
     
@@ -858,7 +893,9 @@ init_hostlist_notebook_page_cb(gboolean hide_ports, const char *table_name, cons
 
     hosttable=g_malloc(sizeof(hostlist_table));
     hosttable->name=table_name;
+    hosttable->filter=filter;
     hosttable->resolve_names=TRUE;
+    hosttable->use_dfilter=FALSE;
 
     page_vbox=gtk_vbox_new(FALSE, 6);
     hosttable->win = page_vbox;
@@ -925,6 +962,31 @@ hostlist_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 }
 
 
+static void
+hostlist_filter_toggle_dest(GtkWidget *widget, gpointer data)
+{
+    int page;
+    void ** pages = data;
+    gboolean use_filter;
+    hostlist_table *hosttable;
+
+    use_filter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        hosttable = pages[page];
+	hosttable->use_dfilter = use_filter;
+	reset_hostlist_table_data(hosttable);
+    }
+
+    cf_retap_packets(&cfile, FALSE);
+
+    /* after retapping, redraw table */
+    for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {
+        draw_hostlist_table_data(pages[page]);
+    }
+}
+
+
 void
 init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 {
@@ -936,6 +998,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GtkWidget *close_bt, *help_bt;
     GtkWidget *win;
     GtkWidget *resolv_cb;
+    GtkWidget *filter_cb;
     int page;
     void ** pages;
     GtkWidget *nb;
@@ -992,6 +1055,13 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         "Please note: The corresponding name resolution must be enabled.", NULL);
 
     SIGNAL_CONNECT(resolv_cb, "toggled", hostlist_resolve_toggle_dest, pages);
+
+    filter_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Limit to display filter", NULL);
+    gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+    gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to endpoints matching the current display filter.", NULL);
+
+    SIGNAL_CONNECT(filter_cb, "toggled", hostlist_filter_toggle_dest, pages);
 
     /* Button row. */
 #if (GTK_MAJOR_VERSION >= 2)
@@ -1135,3 +1205,16 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         draw_hostlist_table_address(hl, talker_idx);
     }
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

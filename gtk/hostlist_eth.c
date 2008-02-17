@@ -71,7 +71,7 @@ gtk_eth_hostlist_init(const char *optarg,
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Ethernet Hosts", "eth", filter, eth_hostlist_packet);
+	init_hostlist_table(TRUE, "Ethernet", "eth", filter, eth_hostlist_packet);
 
 }
 

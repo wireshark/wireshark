@@ -787,6 +787,7 @@ se_tree_create
 se_tree_create_non_persistent
 set_actual_length
 set_profile_name
+set_tap_dfilter
 show_fragment_seq_tree
 show_fragment_tree
 sid_name_snooping               DATA

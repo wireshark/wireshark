@@ -70,7 +70,7 @@ gtk_tr_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "Token Ring Hosts", "tr", filter, tr_hostlist_packet);
+	init_hostlist_table(TRUE, "Token Ring", "tr", filter, tr_hostlist_packet);
 
 }
 

@@ -71,7 +71,7 @@ gtk_tcpip_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(FALSE, "TCP Endpoints", "tcp", filter, tcpip_hostlist_packet);
+	init_hostlist_table(FALSE, "TCP", "tcp", filter, tcpip_hostlist_packet);
 
 }
 

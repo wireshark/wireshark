@@ -70,7 +70,7 @@ gtk_fddi_hostlist_init(const char *optarg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_hostlist_table(TRUE, "FDDI Hosts", "fddi", filter, fddi_hostlist_packet);
+	init_hostlist_table(TRUE, "FDDI", "fddi", filter, fddi_hostlist_packet);
 
 }
 
