@@ -16,6 +16,7 @@ my %u3locs = qw($INSTDIR device
 		$INSTDIR\${GTK_WIMP_RCDST_DIR} host
 		$INSTDIR\etc\gtk-2.0 host
 		$INSTDIR\etc\pango host
+		$INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders host
 		$INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules host
 		$INSTDIR\${GTK_WIMP_DLLDST_DIR} host);
 
