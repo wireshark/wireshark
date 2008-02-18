@@ -402,6 +402,9 @@ static int dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset) {
 
 	if ( len == (guint32)(vendor_flag ? 12 : 8) ) {
 		/* Data is empty so return now */
+		proto_item* iu = proto_tree_add_text(avp_tree,tvb,offset,0,"No data");
+		expert_add_info_format(c->pinfo, iu, PI_UNDECODED, PI_WARN, "Data is empty");
+		PROTO_ITEM_SET_GENERATED(iu);
 		return len;
 	}
 
