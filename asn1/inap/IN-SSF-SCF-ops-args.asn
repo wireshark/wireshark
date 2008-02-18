@@ -1,4 +1,4 @@
--- $Id: IN-CS-1-Datatypes.asn 22021 2007-06-01 19:52:26Z etxrab $
+-- $Id$
 -- Small modifications made to the original due to as2wrs shortfalls, to be corrected.
 -- Module IN-SSF-SCF-ops-args (Q.1248.2:07/2001)
 IN-SSF-SCF-ops-args {itu-t recommendation q 1248 modules(1)

@@ -1,4 +1,4 @@
--- $Id: IN-object-identifiers.asn 22031 2007-06-03 19:58:59Z etxrab $
+-- $Id$
 -- Module IN-SSF-SCF-Classes (Q.1248.2:07/2001)
 IN-SSF-SCF-Classes {itu-t recommendation q 1248 modules(1)
   in-ssf-scf-classes(7) version1(0)} DEFINITIONS ::=
