@@ -1,6 +1,9 @@
 /* tap_camelcounter.c
  * camel message counter for tshark
  * Copyright 2006 Florent DROUIN
+ *
+ * $Id$
+ *
  * This part of code is extracted from tap-h225counter.c from Lars Roland
  *
  * Wireshark - Network traffic analyzer

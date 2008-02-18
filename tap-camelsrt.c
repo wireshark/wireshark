@@ -2,6 +2,8 @@
  * CAMEL Service Response Time statistics for tshark
  * Copyright 2006 Florent Drouin (based on tap_h225rassrt.c from Lars Roland)
  *
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

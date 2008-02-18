@@ -1,3 +1,6 @@
+#
+# $Id$
+#
 WSUG_FILES =	\
 	wsug_src/WSUG_app_files.xml		\
 	wsug_src/WSUG_app_howitworks.xml	\

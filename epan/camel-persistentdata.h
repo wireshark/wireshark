@@ -4,6 +4,8 @@
  * for calculation of delays in camel-transactions
  * Copyright 2006 Florent Drouin
  *
+ * $Id$
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
