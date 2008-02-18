@@ -198,6 +198,9 @@ sub update_config_nmake
 		if ($line =~ /^VERSION_EXTRA=/) {
 			$line = "VERSION_EXTRA=$package_string\n";
 		}
+		if ($line =~ /^VERSION_BUILD=/ && int($revision) > 0) {
+			$line = "VERSION_BUILD=$revision\n";
+		}
 		$contents .= $line
 	}
 	
