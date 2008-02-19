@@ -1394,7 +1394,7 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   octet = tvb_get_guint8(tvb, 0);
   proto_tree_add_text(atm_tree, tvb, 0, 1, "GFC: 0x%x", octet >> 4);
-  vpi = (octet & 0xF0) << 4;
+  vpi = (octet & 0xF) << 4;
   octet = tvb_get_guint8(tvb, 1);
   vpi |= octet >> 4;
   proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 2, vpi);
