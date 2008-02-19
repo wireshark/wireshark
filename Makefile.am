@@ -639,6 +639,7 @@ EXTRA_DIST = \
 	image/mergecap.rc.in	\
 	image/nsis-checked.bmp	\
 	image/nsis-unchecked.bmp	\
+	image/rawshark.rc.in	\
 	image/README.image	\
 	image/stock_dialog_error_48.xpm	\
 	image/stock_dialog_info_48.xpm	\

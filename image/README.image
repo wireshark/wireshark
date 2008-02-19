@@ -49,6 +49,7 @@ lo48-app-wireshark.png
 wireshark.rc.in			MSVC++ resource templates
 editcap.rc.in
 mergecap.rc.in
+rawshark.rc.in
 tshark.rc.in
 text2pcap.rc.in
 

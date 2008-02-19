@@ -37,11 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            SNMP
-            <!-- Fixed in r24341 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
+            The SNMP dissector could crash.
+            <!-- Fixed in r23962 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2144">2144</ulink>) -->
           </para>
-          <para>Versions affected: 0.6.0 to 0.99.7</para>
+          <para>Versions affected: 0.99.6 to 0.99.7</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
