@@ -112,12 +112,6 @@ Wireshark Info
 
         <listitem>
           <para>
-            You can now put any display filter field in a column.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
             Temporary coloring rules have been added, which let you color or
             filter on a conversation.
           </para>
