@@ -1,7 +1,6 @@
 <!-- WSDG Chapter Setup -->
 <!-- $Id$ -->
 
-<?xml version='1.0' encoding='utf-8'?>
 <chapter id="ChapterSetup">
   <title>Quick Setup</title>
   <section id="ChSetupUNIX">
