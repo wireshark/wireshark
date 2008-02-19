@@ -1,4 +1,6 @@
-$Id$
+$Revision$
+$Date$
+$Author$
 
 This file is a HOWTO for Wireshark developers. It describes how to start coding
 a Wireshark protocol dissector and the use of some of the important functions
