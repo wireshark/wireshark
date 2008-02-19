@@ -31,17 +31,31 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-01.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
         <listitem>
           <para>
-            Wireshark could crash at any moment.
-            <!-- Fixed in r????? -->
+            SNMP
+            <!-- Fixed in r24341 -->
             <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
           </para>
-          <para>Versions affected: 0.2.0 to 0.99.7</para>
+          <para>Versions affected: 0.6.0 to 0.99.7</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The TFTP dissector could crash Wireshark on Ubuntu 7.10. (This
+            appears to be a bug in the Cairo library on that platform.) Reported
+            by Noam Rathaus.
+            <!-- Fixed in r24341 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
+          </para>
+          <para>Versions affected: 0.6.0 to 0.99.7</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
@@ -58,7 +72,23 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash without warning.
+            Wireshark could crash when saving I/O graphs.
+        </para></listitem>
+
+        <listitem><para>
+            Wireshark could crash when editing table-based preferences.
+        </para></listitem>
+
+        <listitem><para>
+            Wireshark could crash when trying to play RTP streams.
+        </para></listitem>
+
+        <listitem><para>
+            Wireshark could crash when trying to apply a display filter macro.
+        </para></listitem>
+
+        <listitem><para>
+            Wireshark could crash in Turkish and other locales.
         </para></listitem>
 
       </itemizedlist>
@@ -76,7 +106,52 @@ Wireshark Info
 
         <listitem>
           <para>
-            Packet loss magically fixes itself.
+            You can now have multiple configuration profiles.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            You can now put any display filter field in a column.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Temporary coloring rules have been added, which let you color or
+            filter on a conversation.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            I/O graphs have been improved.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Wireshark now has WLAN traffic statistics.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The Wireshark GUI now supports RPCAP.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Conversations and endopoints can now be limited to the current
+            display filter.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            Experimental support for the NTAR/PcapNG file format has been
+            added.
           </para>
         </listitem>
 
@@ -88,16 +163,153 @@ Wireshark Info
     <section><title>New Protocol Support</title>
     <para>
 
+AiroPeek Remote Capture,
+China Mobile Point to Point,
+Distributed Lock Manager 3,
+EUTRAN X2 Application Protocol,
+Fieldbus Foundation,
+International Passenger Airline Reservation System/Airline Link Control,
+Microsoft DirectPlay,
+Path Computation Element communication Protocol,
+Real Time Messaging Protocol,
+S1 Application Protocol,
+Scripting Service Protocol,
+Societe Internationale de Telecommunications Aeronautiques,
+Unisys Transmittal System,
+Wi-fi Protected Setup,
+
     </para>
     </section>
 
     <section><title>Updated Protocol Support</title> <para>
+
+3G A11,
+3GPP,
+ACN,
+ACP133,
+ALCAP,
+AMR,
+ANSI A,
+ANSI IS-637-A,
+ANSI MAP,
+ARP,
+ASAP,
+AVS WLAN,
+BACapp,
+BER,
+BOOTP,
+Bluetooth (HCI ACL, HCI CMD, HCI EVT, HCI SCO, L2CAP, SDP),
+CDP,
+CFM,
+CMS,
+COPS,
+Camel,
+Cisco ERSPAN,
+DAP,
+DCERPC SPOOLSS,
+DCERPC,
+DHCP,
+DHCPv6,
+DIAMETER,
+DMP,
+DTLS,
+E.164,
+EAP,
+ENIP,
+ENRP,
+EtherCAT,
+Ethernet,
+FMP,
+FTAM,
+GMRP,
+GRE,
+GSM MAP,
+GSM SMS,
+GSS-API,
+GTP,
+Gryphon,
+H.223,
+H.225,
+H.245,
+H.263,
+H.264,
+H.460,
+HCI H1,
+HTTP,
+ICMP,
+IEEE 802.11,
+IGMP,
+IPP,
+ISAKMP,
+ISUP,
+JFIF,
+JPEG,
+JXTA,
+Kerberos,
+LDAP,
+MP2T,
+MS MMS,
+MTP3MG,
+NBAP,
+NFS,
+NHRP,
+NetFlow,
+P7,
+PER,
+PIM,
+PKCS12,
+PPPoE,
+PTP,
+P_Mul,
+Q.932,
+Quakeworld,
+RANAP,
+RMT ALC,
+RMT LCT,
+ROS,
+RPC,
+RPL,
+RRC,
+RTCP,
+RTP,
+SCCP,
+SCTP,
+SDP,
+SLL,
+SMB,
+SMB2,
+SMPP,
+SMTP,
+SNMP,
+SRVLOC,
+SSL,
+STUN2,
+T.38,
+TCAP,
+TCP,
+TFTP,
+TiVoConnect,
+UCP,
+UDP-Lite,
+USB,
+VLAN,
+WBXML,
+X.411,
+X.420,
+X.509if,
+X.509sat
 
     </para>
     </section>
 
     <section><title>New and Updated Capture File Support</title>
     <para>
+
+Catapult DCT2000,
+DBS Etherwatch,
+NTAR/PcapNG,
+TamoSoft CommView,
+Visual Networks
 
     </para>
     </section>
@@ -113,10 +325,10 @@ Wireshark Info
 
     <section><title>Vendor-supplied Packages</title>
       <para>
-	Most Linux and Unix vendors supply their own Wireshark packages.
-	You can usually install or upgrade Wireshark using the package management
-	system specific to that platform.  A list of third-party packages
-	can be found on the
+	Most Linux and Unix vendors supply their own Wireshark packages. You can
+	usually install or upgrade Wireshark using the package management system
+	specific to that platform. A list of third-party packages can be found
+	on the
 	<ulink url="http://www.wireshark.org/download.html#otherplat">download page</ulink> on the Wireshark web site.
       </para>
     </section>
@@ -133,7 +345,7 @@ Wireshark Info
   <section id="FileLocations"><title>File Locations</title>
     <para>
       Wireshark and TShark look in several different locations for
-      preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+      preference files, plugins, MIBS, and RADIUS dictionaries.
       These locations vary from platform to platform.  You can use
       About->Folders to find the default locations on your system.
     </para>
