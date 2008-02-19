@@ -1406,12 +1406,14 @@ drsuapi_dissect_DsReplicaSyncRequest1Info_str_len(tvbuff_t *tvb, int offset, pac
 }
 
 
+#if 0
 static int
 drsuapi_dissect_uint16(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param _U_)
 {
     offset=dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, hf_index, NULL);
     return offset;
 }
+#endif
 
 
 int
@@ -2910,7 +2912,7 @@ drsuapi_dissect_DsGetNCChangesCtr6(tvbuff_t *tvb, int offset, packet_info *pinfo
 }
 
 int
-drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, guint8 *drep, int hf_index, guint32 param _U_)
+drsuapi_dissect_DsGetNCChangesCtr7(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
     proto_item *item=NULL;
     proto_tree *tree=NULL;
