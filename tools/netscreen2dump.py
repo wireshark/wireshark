@@ -2,6 +2,8 @@
 """
 Converts netscreen snoop hex-dumps to a hex-dump that text2pcap can read.
 
+$Id$
+
 Copyright (c) 2004 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 This program is free software; you can redistribute it and/or
@@ -76,7 +78,7 @@ class OutputFile:
         print >> self.fh
 
 # Find a timestamp line
-re_timestamp = re.compile(r"^(?P<time>\d+\.\d): \d+\((?P<io>.)\)(:| len=)")
+re_timestamp = re.compile(r"^(?P<time>\d+\.\d): [\w/]+\((?P<io>.)\)(:| len=)")
 
 # Find a hex dump line
 re_hex_line = re.compile(r"(?P<hex>([0-9a-f]{2} ){1,16})\s+(?P<ascii>.){1,16}")
