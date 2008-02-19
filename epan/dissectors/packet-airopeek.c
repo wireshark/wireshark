@@ -27,6 +27,8 @@
  */
 
 /*
+ * TODO: Decode meta information.
+ *       Check on fillup bytes in capture (fcs sometimes wrong)
  * From:
  * http://www.cisco.com/univercd/cc/td/doc/product/wireless/pahcont/oweb.pdf
  * "It will include information on timestamp, signal strength, packet size
