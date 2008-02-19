@@ -1342,11 +1342,32 @@ Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
 615 Deregistration-Reason Grouped
 616 Reason-Code Enumerated
 617 Reason-Info UTF8String
-618 Charging-Information Grouped
-619 Primary-Event-Charging-Function-Name DiameterURI
-620 Secondary-Event-Charging-Function-Name DiameterURI
-621 Primary-Charging-Collection-Function-Name DiameterURI
-622 Secondary-Charging-Collection-Function-Name DiameterURI
+-->
+		<avp name="Charging-Information" code="618" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
+			<grouped>
+				<gavp name="Primary-Event-Charging-Function-Name"/>
+				<gavp name="Secondary-Event-Charging-Function-Name"/>
+				<gavp name="Primary-Charging-Collection-Function-Name"/>
+				<gavp name="Secondary-Charging-Collection-Function-Name"/>
+			</grouped>
+		</avp>		
+		
+		<avp name="Primary-Event-Charging-Function-Name" code="619" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		
+		<avp name="Secondary-Event-Charging-Function-Name" code="620" vendor-id="TGPP" mandatory="must"	may-encrypt="no" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		
+		<avp name="Primary-Charging-Collection-Function-Name" code="621" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+		
+		<avp name="Secondary-Charging-Collection-Function-Name"	code="622" vendor-id="TGPP" mandatory="must" may-encrypt="no" vendor-bit="must">
+			<type type-name="UTF8String"/>
+		</avp>
+<!--
 623 User-Authorization-Type Enumerated
 624 User-Data-Already-Available Enumerated
 625 Confidentiality-Key OctetString
@@ -1841,11 +1862,14 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		<avp name="Charging-Rule-Install" code="1001" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Charging-Rule-Definition"/>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Charging-Rule-Base-Name"/>
 			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Remove" code="1002" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Charging-Rule-Base-Name"/>
 			</grouped>
 		</avp>
 		<avp name="Charging-Rule-Definition" code="1003" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
@@ -1910,6 +1934,11 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		<avp name="ToS-Traffic-Class" code="1014" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 		</avp>
+		<avp name="PDP-Session-operation" code="1015" vendor-id="TGPP" protected="may" mandatory="must"	may-encrypt="yes" vendor-bit="must">
+			<type type-name="Unsigned32" />	
+			<enum name="PDP-SESSION-TERMINATION" code="0" />								
+		</avp>
+
 <!--
   1016 QoS-Information Grouped   
   1018 Charging-Rule-Report Grouped   
@@ -2332,18 +2361,19 @@ Note: The AVP codes from 1119 to 1199 are reserved for TS 29.140
 		<avp name="PoC-Change-Time" code="1262" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Time"/>
 		</avp>
-<!--
 		<avp name="Access-Network-Information" code="1263" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Trigger" code="1264" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
+					<gavp name="Trigger-Type_3GPP"/>
 					</grouped>
 
 		</avp>
 		<avp name="Base-Time-Interval" code="1265" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+<!--
 		<avp name="Envelope" code="1266" vendor-bit="must" vendor-id="TGPP">
 					<grouped>
 					</grouped>
