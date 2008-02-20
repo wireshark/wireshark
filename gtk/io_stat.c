@@ -32,7 +32,7 @@
 #endif
 
 #include <string.h>
-
+#include <math.h>
 #include <ctype.h>
 
 #include <gtk/gtk.h>
@@ -62,9 +62,11 @@ void unprotect_thread_critical_region(void);
 
 #define MAX_GRAPHS 5
 
-#define MAX_YSCALE 27
-#define AUTO_MAX_YSCALE 0
-static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000, 2000000000};
+#define MAX_YSCALE 28
+#define LOGARITHMIC_YSCALE 0
+#define AUTO_MAX_YSCALE 1
+#define DEFAULT_YSCALE 1
+static guint32 yscale_max[MAX_YSCALE] = {LOGARITHMIC_YSCALE, AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000, 2000000000};
 
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK 2
@@ -551,16 +553,16 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 
 
 static void
-print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max)
+print_time_scale_string(char *buf, int buf_len, guint32 t, guint32 t_max, gboolean log)
 {
-	if(t_max>=10000000){
+	if(t_max>=10000000 || (log && t_max>=1000000)){
 		g_snprintf(buf, buf_len, "%ds",t/1000000);
 	} else if(t_max>=1000000){
-		g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
-	} else if(t_max>=10000){
+		g_snprintf(buf, buf_len, "%d.%1ds",t/1000000,(t%1000000)/100000);
+	} else if(t_max>=10000 || (log && t_max>=1000)){
 		g_snprintf(buf, buf_len, "%dms",t/1000);
 	} else if(t_max>=1000){
-		g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
+		g_snprintf(buf, buf_len, "%d.%1dms",t/1000,(t%1000)/100);
 	} else {
 		g_snprintf(buf, buf_len, "%dus",t);
 	}
@@ -608,7 +610,7 @@ print_interval_string(char *buf, int buf_len, guint32 interval, io_stat_t *io,
 static void
 io_stat_draw(io_stat_t *io)
 {
-	int i;
+	int i, tics, ystart, ys;
 	guint32 last_interval, first_interval, interval_delta;
 	gint32 current_interval;
 	guint32 top_y_border;
@@ -690,9 +692,16 @@ io_stat_draw(io_stat_t *io)
 	 */
 	if(io->max_y_units==AUTO_MAX_YSCALE){
 		max_y=yscale_max[MAX_YSCALE-1];
-		for(i=MAX_YSCALE-1;i>0;i--){
+		for(i=MAX_YSCALE-1;i>1;i--){
 			if(max_value<yscale_max[i]){
 				max_y=yscale_max[i];
+			}
+		}
+	} else if(io->max_y_units==LOGARITHMIC_YSCALE){
+		max_y=1000000000;
+		for(i=1000000000;i>1;i/=10){
+			if(max_value<(guint32)i){
+				max_y=i;
 			}
 		}
 	} else {
@@ -746,7 +755,11 @@ io_stat_draw(io_stat_t *io)
 	 * top y scale label will be the widest one
 	 */
 	if(draw_y_as_time){
-		print_time_scale_string(label_string, 15, max_y, max_y);
+		if(io->max_y_units==LOGARITHMIC_YSCALE){
+			print_time_scale_string(label_string, 15, 100000, 100000, TRUE); /* 100 ms */
+		} else {
+			print_time_scale_string(label_string, 15, max_y, max_y, FALSE);
+		}
 	} else {
 		g_snprintf(label_string, 15, "%d", max_y);
 	}
@@ -799,34 +812,78 @@ io_stat_draw(io_stat_t *io)
 		top_y_border,
 		io->pixmap_width-io->right_x_border+1, 
 		io->pixmap_height-bottom_y_border);
-	for(i=0;i<=10;i++){
-		int xwidth, lwidth;
+
+	if(io->max_y_units==LOGARITHMIC_YSCALE){
+		tics=(int)log10((double)max_y);
+		ystart=draw_height/10;
+		ys=-1;
+	} else {
+		tics=10;
+		ystart=ys=0;
+	}
+
+	for(i=ys;i<=tics;i++){
+		int xwidth, lwidth, ypos;
 
 		xwidth=5;
-		if(!(i%5)){
-			/* first, middle and last tick are slightly longer */
+		if(io->max_y_units==LOGARITHMIC_YSCALE){
+			if(i==ys) {
+				/* position for the 0 value */
+				ypos=io->pixmap_height-bottom_y_border;
+			} else if(i==tics) {
+				/* position for the top value, do not draw logarithmic tics above graph */
+				ypos=io->pixmap_height-bottom_y_border-draw_height; 
+			} else {
+				int j;
+				/* draw the logarithmic tics */
+				for(j=2;j<10;j++) {
+					ypos=(int)(io->pixmap_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
+					/* draw the tick */
+					gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
+						      io->pixmap_width-io->right_x_border+1, ypos,
+						      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
+				}
+				ypos=io->pixmap_height-bottom_y_border-(draw_height-ystart)*i/tics-ystart; 
+			}
+			/* all "main" logarithmic lines are slightly longer */
 			xwidth=10;
+		} else {
+			if(!(i%5)){
+				/* first, middle and last tick are slightly longer */
+				xwidth=10;
+			}
+			ypos=io->pixmap_height-bottom_y_border-draw_height*i/10;
 		}
 		/* draw the tick */
 		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, 
-			io->pixmap_width-io->right_x_border+1, 
-			io->pixmap_height-bottom_y_border-draw_height*i/10, 
-			io->pixmap_width-io->right_x_border+1+xwidth, 
-			io->pixmap_height-bottom_y_border-draw_height*i/10);
+			      io->pixmap_width-io->right_x_border+1, ypos,
+			      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
 		/* draw the labels */
-		if(i==0 || i==5 || i==10){
-			if(draw_y_as_time){
-				print_time_scale_string(label_string, 15, (max_y/10)*i, max_y);
+		if(xwidth==10) {
+			guint32 value;
+			if(io->max_y_units==LOGARITHMIC_YSCALE){
+				value=(guint32)(max_y/pow(10,tics-i));
+				if(draw_y_as_time){
+					print_time_scale_string(label_string, 15, value, value, TRUE);
+				} else {
+					g_snprintf(label_string, 15, "%d", value);
+				}
 			} else {
-				g_snprintf(label_string, 15, "%d", (max_y/10)*i);
+				value=(max_y/10)*i;
+				if(draw_y_as_time){
+					print_time_scale_string(label_string, 15, value, max_y, FALSE);
+				} else {
+					g_snprintf(label_string, 15, "%d", value);
+				}
 			}
+
 #if GTK_MAJOR_VERSION < 2
 	                lwidth=gdk_string_width(font, label_string);
 	                gdk_draw_string(io->pixmap,
         	                        font,
 	                                io->draw_area->style->black_gc,
 	                                io->pixmap_width-io->right_x_border+15+label_width-lwidth,
-        	                        io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+        	                        ypos+label_height/2,
                 	                label_string);
 #else
 	                pango_layout_set_text(layout, label_string, -1);
@@ -834,12 +891,11 @@ io_stat_draw(io_stat_t *io)
 			gdk_draw_layout(io->pixmap,
                 	                io->draw_area->style->black_gc,
                         	        io->pixmap_width-io->right_x_border+15+label_width-lwidth,
-                                	io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+                                	ypos-label_height/2,
 	                                layout);
 #endif
 		}
 	}
-
 
 
 	/* 
@@ -948,6 +1004,12 @@ io_stat_draw(io_stat_t *io)
 		val=get_it_value(io, i, first_interval/io->interval);
 		if(val>max_y){
 			prev_y_pos=0;
+		} else if(io->max_y_units==LOGARITHMIC_YSCALE){
+			if (val==0) {
+				prev_y_pos=(guint32)(draw_height-1+top_y_border);
+			} else {
+				prev_y_pos=(guint32)((draw_height-ystart)-1-((log10((double)val))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+			}
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 		}
@@ -958,6 +1020,12 @@ io_stat_draw(io_stat_t *io)
 			val=get_it_value(io, i, interval/io->interval);
 			if(val>max_y){
 				y_pos=0;
+			} else if(io->max_y_units==LOGARITHMIC_YSCALE){
+				if (val==0) {
+					y_pos=(guint32)(draw_height-1+top_y_border);
+				} else {
+					y_pos=(guint32)((draw_height-ystart)-1-((log10((double)val))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+				}
 			} else {
 				y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 			}
@@ -1503,7 +1571,9 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_YSCALE;i++){
-		if(yscale_max[i]==AUTO_MAX_YSCALE){
+		if(yscale_max[i]==LOGARITHMIC_YSCALE){
+			strncpy(str, "Logarithmic", 15);
+		} else if(yscale_max[i]==AUTO_MAX_YSCALE){
 			strncpy(str, "Auto", 15);
 		} else {
 			g_snprintf(str, 15, "%u", yscale_max[i]);
@@ -1515,6 +1585,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
+	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_YSCALE);
 	return;
 }
 
