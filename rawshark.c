@@ -101,6 +101,9 @@
 #include "epan/proto.h"
 #include <epan/tap.h>
 
+#include <wtap.h>
+#include <libpcap.h>
+
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
 #include <setjmp.h>
@@ -385,7 +388,10 @@ set_link_type(const char *lt_arg) {
 #endif
     dlt_val = strtol(spec_ptr, NULL, 10);
     if (errno != EINVAL && dlt_val >= 0) {
-      encap = dlt_val;
+      encap = wtap_pcap_encap_to_wtap_encap(dlt_val);
+      if (encap == WTAP_ENCAP_UNKNOWN) {
+        return FALSE;
+      }
       return TRUE;
     }
   } else if (strncmp(lt_arg, "proto:", strlen("proto:")) == 0) {
