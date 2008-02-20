@@ -205,8 +205,9 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     num1 = atof(text1);
     num2 = atof(text2);
     if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
-        ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) || (col_fmt == COL_RES_SRC_PORT) ||
-                                      (col_fmt == COL_DEF_DST_PORT) || (col_fmt == COL_RES_DST_PORT)))) {
+        ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) ||
+	(col_fmt == COL_RES_SRC_PORT) || (col_fmt == COL_DEF_DST_PORT) ||
+	(col_fmt == COL_RES_DST_PORT)))) {
 
       /* Compare numeric column */
 
