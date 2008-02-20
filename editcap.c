@@ -120,6 +120,8 @@ static time_t stoptime = 0;
 static gboolean check_startstop = FALSE;
 static gboolean dup_detect = FALSE;
 
+static int find_dct2000_real_data(guint8 *buf);
+
 /* Add a selection item, a simple parser for now */
 static gboolean
 add_selection(char *sel)
@@ -172,11 +174,11 @@ selected(int recno)
 
     if (selectfrm[i].inclusive) {
       if (selectfrm[i].first <= recno && selectfrm[i].second >= recno)
-	return 1;
+        return 1;
     }
     else {
       if (recno == selectfrm[i].first)
-	return 1;
+        return 1;
     }
   }
 
@@ -194,8 +196,8 @@ check_timestamp(wtap *wth)
   if (!((i++)%250))
     printf("== %d starttime=%lu stoptime=%lu ts=%lu\n",i,
            (unsigned long)starttime,
-	   (unsigned long)stoptime,
-	   (unsigned long)pkthdr->ts.secs);
+           (unsigned long)stoptime,
+           (unsigned long)pkthdr->ts.secs);
   return ( pkthdr->ts.secs >= starttime ) && ( pkthdr->ts.secs <= stoptime );
 }
 
@@ -401,12 +403,12 @@ int main(int argc, char *argv[])
 
   /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
-	  g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
-	  g_free(init_progfile_dir_error);
-    } else {
-		init_report_err(failure_message,NULL,NULL);
-		init_plugins();
-    }
+    g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);
+    g_free(init_progfile_dir_error);
+  } else {
+    init_report_err(failure_message,NULL,NULL);
+    init_plugins();
+  }
 #endif
 
   /* Process the options */
@@ -417,9 +419,9 @@ int main(int argc, char *argv[])
     case 'E':
       err_prob = strtod(optarg, &p);
       if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
-      	fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
-      	    optarg);
-      	exit(1);
+        fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
+            optarg);
+        exit(1);
       }
       srand( (unsigned int) (time(NULL) + getpid()) );
       break;
@@ -427,41 +429,41 @@ int main(int argc, char *argv[])
     case 'F':
       out_file_type = wtap_short_string_to_file_type(optarg);
       if (out_file_type < 0) {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
-      	    optarg);
+        fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
+            optarg);
         list_capture_types();
-      	exit(1);
+        exit(1);
       }
       break;
 
     case 'c':
       split_packet_count = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
-      	    optarg);
-      	exit(1);
+        fprintf(stderr, "editcap: \"%s\" isn't a valid packet count\n",
+            optarg);
+        exit(1);
       }
       if (split_packet_count <= 0) {
-      	fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
-		split_packet_count);
-      	exit(1);
+        fprintf(stderr, "editcap: \"%d\" packet count must be larger than zero\n",
+            split_packet_count);
+        exit(1);
       }
       break;
 
     case 'C':
       choplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
-      	    optarg);
-      	exit(1);
+        fprintf(stderr, "editcap: \"%s\" isn't a valid chop length\n",
+            optarg);
+        exit(1);
       }
       break;
 
     case 'd':
       dup_detect = TRUE;
       for (i = 0; i < DUP_DEPTH; i++) {
-	memset(&fd_hash[i].digest, 0, 16);
-	fd_hash[i].len = 0;
+        memset(&fd_hash[i].digest, 0, 16);
+        fd_hash[i].len = 0;
       }
       break;
 
@@ -491,9 +493,9 @@ int main(int argc, char *argv[])
     case 's':
       snaplen = strtol(optarg, &p, 10);
       if (p == optarg || *p != '\0') {
-      	fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
-      	    optarg);
-      	exit(1);
+        fprintf(stderr, "editcap: \"%s\" isn't a valid snapshot length\n",
+                optarg);
+        exit(1);
       }
       break;
 
@@ -602,10 +604,8 @@ int main(int argc, char *argv[])
   }
 
   if (verbose) {
-
     fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
-	    wtap_file_type_string(wtap_file_type(wth)));
-
+            wtap_file_type_string(wtap_file_type(wth)));
   }
 
   /*
@@ -635,7 +635,7 @@ int main(int argc, char *argv[])
     if (pdh == NULL) {
 
       fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
-	      wtap_strerror(err));
+              wtap_strerror(err));
       exit(1);
     }
 
@@ -739,8 +739,13 @@ int main(int argc, char *argv[])
 
         /* Random error mutation */
         if (err_prob > 0.0) {
+          int real_data_start = 0;
           buf = wtap_buf_ptr(wth);
-          for (i = 0; i < (int) phdr->caplen; i++) {
+          /* Protect non-protocol data */
+          if (wtap_file_type(wth) == WTAP_FILE_CATAPULT_DCT2000) {
+            real_data_start = find_dct2000_real_data(buf);
+          }
+          for (i = real_data_start; i < (int) phdr->caplen; i++) {
             if (rand() <= err_prob * RAND_MAX) {
               err_type = rand() / (RAND_MAX / ERR_WT_TOTAL + 1);
 
@@ -785,26 +790,20 @@ int main(int argc, char *argv[])
 
         if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), wtap_buf_ptr(wth),
                        &err)) {
-
           fprintf(stderr, "editcap: Error writing to %s: %s\n",
                   filename, wtap_strerror(err));
           exit(1);
-
         }
-
         written_count++;
-
       }
-
       count++;
-
     }
 
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
       fprintf(stderr,
               "editcap: An error occurred while reading \"%s\": %s.\n",
-	      argv[optind], wtap_strerror(err));
+              argv[optind], wtap_strerror(err));
       switch (err) {
 
       case WTAP_ERR_UNSUPPORTED:
@@ -818,7 +817,7 @@ int main(int argc, char *argv[])
     if (!wtap_dump_close(pdh, &err)) {
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
-	      wtap_strerror(err));
+          wtap_strerror(err));
       exit(1);
 
     }
@@ -827,3 +826,24 @@ int main(int argc, char *argv[])
   return 0;
 }
 
+/* Skip meta-information read from file to return offset of real
+   protocol data */
+static int find_dct2000_real_data(guint8 *buf)
+{
+  int n=0;
+
+  for (n=0; buf[n] != '\0'; n++);   /* Context name */
+  n++;
+  n++;                              /* Context port number */
+  for (; buf[n] != '\0'; n++);      /* Timestamp */
+  n++;
+  for (; buf[n] != '\0'; n++);      /* Protocol name */
+  n++;
+  for (; buf[n] != '\0'; n++);      /* Variant number (as string) */
+  n++;
+  for (; buf[n] != '\0'; n++);      /* Outhdr (as string) */
+  n++;
+  n += 2;                           /* Direction & encap */
+
+  return n;
+}
