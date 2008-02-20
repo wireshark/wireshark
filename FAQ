@@ -221,7 +221,7 @@
    platforms including Windows, OS X, Linux, and UNIX. Network
    professionals, security experts, developers, and educators around the
    world use it regularly. It is freely available as open source, and is
-   released under the GNU General Public License.
+   released under the GNU General Public License version 2.
    It is developed and maintained by a global team of protocol experts,
    and it is an example of a disruptive technology.
    Wireshark used to be known as Ethereal®. See the next question for
@@ -1177,7 +1177,8 @@
    won't be able to capture on that device.
    On Solaris, note that libpcap 0.6.2 and earlier didn't support Token
    Ring interfaces; the current version, 0.7.2, does support Token Ring,
-   and the current version of Wireshark works with libcap 0.7.2 and later.
+   and the current version of Wireshark works with libpcap 0.7.2 and
+   later.
    If an interface doesn't show up in the list of interfaces in the
    "Interface:" field, and you know the name of the interface, try
    entering that name in the "Interface:" field and capturing on that

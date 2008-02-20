@@ -1032,7 +1032,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info,
 
         case(WTAP_FILE_TSPREC_USEC):
 		wth->phdr.ts.secs       = (time_t) (ts / 1000000);
-		wth->phdr.ts.nsecs      = (int) (ts % 1000000);
+		wth->phdr.ts.nsecs      = (int) (ts % 1000000) * 1000;
                 break;
         case(WTAP_FILE_TSPREC_NSEC):
 		wth->phdr.ts.secs	= (time_t) (ts / 1000000000);
@@ -1321,7 +1321,7 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	const guchar *pd, int *err)
 {
 	wtapng_block_t wblock;
-	guint64 ts = 0;
+	guint64 ts;
 
 	wblock.frame_buffer = pd;
 	wblock.pseudo_header = pseudo_header;
@@ -1329,20 +1329,11 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 	/* write the (enhanced) packet block */
 	wblock.type = BLOCK_TYPE_EPB;
 
-        switch(wdh->tsprecision) {
-
-        case(WTAP_FILE_TSPREC_USEC):
-                ts = (phdr->ts.secs * 1000000) + (phdr->ts.nsecs / 1000);
-                break;
-        case(WTAP_FILE_TSPREC_NSEC):
-                ts = (phdr->ts.secs * 1000000000) + phdr->ts.nsecs;
-                break;
-	default:
-		pcapng_debug1("pcapng_dump: if_tsresol %u not implemented, timestamp conversion omitted", wdh->tsprecision);
-        }
+	/* default is to write out in microsecond resolution */
+	ts = (((guint64)phdr->ts.secs) * 1000000) + (phdr->ts.nsecs / 1000);
 
 	/* Split the 64-bit timestamp into two 32-bit pieces */
-        wblock.data.packet.ts_high              = (guint32)(ts << 32);
+        wblock.data.packet.ts_high              = (guint32)(ts >> 32);
         wblock.data.packet.ts_low               = (guint32)ts;
 	
 	wblock.data.packet.cap_len		= phdr->caplen;
