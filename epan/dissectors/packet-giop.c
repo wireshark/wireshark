@@ -4804,7 +4804,6 @@ static const value_string giop_code_set_vals[] = {
   { 0x00010104,	"ISO_UCS_4_LEVEL_1" },
   { 0x00010105,	"ISO_UCS_4_LEVEL_2" },
   { 0x00010106,	"ISO_UCS_4_LEVEL_3" },
-  /*
   { 0x00010108, "ISO_UTF_8" },
   { 0x00010109, "ISO_UTF_16" },
   { 0x00030001, "JIS_X0201" },
@@ -4979,7 +4978,6 @@ static const value_string giop_code_set_vals[] = {
   { 0x10040004, "EBCDIC_ASCII_AND_JEF" },
   { 0x10040005, "EBCDIC_KATAKANA_AND_JEF" },
   { 0x10040006, "EBCDIC_JAPANESE_ENGLISH_AND_JEF" },
-  */
   { 0, NULL }
 };
 
