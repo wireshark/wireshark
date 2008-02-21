@@ -90,7 +90,7 @@ extern GList *capture_interface_list(int *err, char **err_str);
 /**
  * Fetch the linktype list for the specified interface from a child process.
  */
-extern GList *capture_pcap_linktype_list(char *devname, char **err_str);
+extern GList *capture_pcap_linktype_list(const char *devname, char **err_str);
 
 
 struct if_stat_cache_s;

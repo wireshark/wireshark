@@ -695,7 +695,7 @@ capture_interface_list(int *err, char **err_str)
 /* XXX - We parse simple text output to get our interface list.  Should
  * we use "real" data serialization instead, e.g. via XML? */
 GList *
-capture_pcap_linktype_list(gchar *ifname, char **err_str)
+capture_pcap_linktype_list(const gchar *ifname, char **err_str)
 {
     GList     *linktype_list = NULL;
     int        err, i;

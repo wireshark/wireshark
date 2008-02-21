@@ -69,7 +69,7 @@ sync_interface_list_open(gchar **msg);
 
 /** Get a linktype list using dumpcap */
 extern int
-sync_linktype_list_open(gchar *ifname, gchar **msg);
+sync_linktype_list_open(const gchar *ifname, gchar **msg);
 
 /** Start getting interface statistics using dumpcap. */
 extern int

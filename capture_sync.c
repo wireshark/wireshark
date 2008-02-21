@@ -870,7 +870,7 @@ sync_interface_list_open(gchar **msg) {
  * exit value.  In either case, msg must be freed with g_free().
  */
 int
-sync_linktype_list_open(gchar *ifname, gchar **msg) {
+sync_linktype_list_open(const gchar *ifname, gchar **msg) {
     int argc;
     const char **argv;
 
