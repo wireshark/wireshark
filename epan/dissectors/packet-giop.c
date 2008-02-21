@@ -302,12 +302,16 @@
 #include "packet-giop.h"
 #include "packet-tcp.h"
 #include <wiretap/file_util.h>
+
+#ifdef NEED_G_ASCII_STRCASECMP_H
+#include "g_ascii_strcasecmp.h"
+#endif
+
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
  */
 
 #define DEBUG   0
-static char * gMessageType = "";
 
 /*
  * ------------------------------------------------------------------------------------------+
@@ -1473,7 +1477,7 @@ static gchar * get_modname_from_repoid(gchar *repoid) {
 
   /* Must start with IDL: , otherwise I get confused */
 
-  if (g_strncasecmp("IDL:",repoid,4))
+  if (g_ascii_strncasecmp("IDL:",repoid,4))
     return NULL;
 
   /* Looks like a RepoID to me, so get Module or interface name */
@@ -3770,7 +3774,7 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
 
 static void
 dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-		MessageHeader * header,	gboolean stream_is_big_endian)
+		gboolean stream_is_big_endian)
 {
   guint32 offset = 0;
   guint32 request_id;
@@ -3814,6 +3818,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
   guint message_size;
   guint minor_version;
   gboolean stream_is_big_endian;
+  const char *gMessageType;
 
 
   /* DEBUG */
@@ -3892,7 +3897,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
   if (check_col (pinfo->cinfo, COL_INFO))
   {
-      gMessageType = (char *)val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)");
+      gMessageType = val_to_str(header.message_type, giop_message_types, "Unknown message type (0x%02x)");
       col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s s=%u",
                     header.GIOP_version.major, header.GIOP_version.minor, gMessageType, message_size );
   }
@@ -3929,7 +3934,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 	  break;
 	}			/* minor_version */
 
-      gMessageType = (char *)val_to_str(header.message_type, giop_message_types, "(0x%02x)" );
+      gMessageType = val_to_str(header.message_type, giop_message_types, "(0x%02x)" );
 
       proto_tree_add_uint_format (clnp_tree,
 				  hf_giop_message_type,
@@ -4002,7 +4007,7 @@ static void dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree
 				  stream_is_big_endian);
 	break;
     case Fragment:
-        dissect_giop_fragment(payload_tvb, pinfo, tree, &header,
+        dissect_giop_fragment(payload_tvb, pinfo, tree,
 			      stream_is_big_endian);
         break;
     default:
@@ -4028,8 +4033,8 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 	guint message_size;
 	gboolean stream_is_big_endian;
 
-   if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) != 0)
-	  return 0;
+	if ( tvb_memeql(tvb, 0, GIOP_MAGIC ,4) != 0)
+		return 0;
 
 	tvb_memcpy (tvb, (guint8 *)&header, offset, GIOP_HEADER_SIZE );
 
@@ -4041,7 +4046,7 @@ get_giop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 		message_size = pletohl (&header.message_size);
 
 
-  return message_size + GIOP_HEADER_SIZE;
+	return message_size + GIOP_HEADER_SIZE;
 }
 
 static void
@@ -4800,182 +4805,182 @@ static const value_string giop_code_set_vals[] = {
   { 0x00010105,	"ISO_UCS_4_LEVEL_2" },
   { 0x00010106,	"ISO_UCS_4_LEVEL_3" },
   /*
-  { "ISO_UTF_8", 0x00010108 },
-  { "ISO_UTF_16", 0x00010109 },
-  { "JIS_X0201", 0x00030001 },
-  { "JIS_X0208_1978", 0x00030004 },
-  { "JIS_X0208_1983", 0x00030005 },
-  { "JIS_X0208_1990", 0x00030006 },
-  { "JIS_X0212", 0x0003000A },
-  { "JIS_EUCJP", 0x00030010 },
-  { "KS_C5601", 0x00040001 },
-  { "KS_C5657", 0x00040002 },
-  { "KS_EUCKR", 0x0004000A },
-  { "CNS_11643_1986", 0x00050001 },
-  { "CNS_11643_1992", 0x00050002 },
-  { "CNS_EUCTW_1991", 0x0005000A },
-  { "CNS_EUCTW_1993", 0x00050010 },
-  { "TIS_620_2529", 0X000B0001 },
-  { "TTB_CCDC", 0x000D0001 },
-  { "OSF_JAPANESE_UJIS", 0x05000010 },
-  { "OSF_JAPANESE_SJIS_1", 0x05000011 },
-  { "OSF_JAPANESE_SJIS_2", 0x05000012 },
-  { "XOPEN_UTF_8", 0x05010001 },
-  { "JVC_EUCJP", 0x05020001 },
-  { "JVC_SJIS", 0x05020002 },
-  { "DEC_KANJI", 0x10000001 },
-  { "SUPER_DEC_KANJI", 0x10000002 },
-  { "DEC_SHIFT_JIS", 0x10000003 },
-  { "HP_ROMAN8", 0x10010001 },
-  { "HP_KANA8", 0x10010002 },
-  { "HP_ARABIC8", 0x10010003 },
-  { "HP_GREEK8", 0x10010004 },
-  { "HP_HEBREW8", 0x10010005 },
-  { "HP_TURKISH8", 0x10010006 },
-  { "HP15CN", 0x10010007 },
-  { "HP_BIG5", 0x10010008 },
-  { "HP_JAPANESE15__SJIS_", 0x10010009 },
-  { "HP_SJISHI", 0x1001000A },
-  { "HP_SJISPC", 0x1001000B },
-  { "HP_UJIS", 0x1001000C },
-  { "IBM_037", 0x10020025 },
-  { "IBM_273", 0x10020111 },
-  { "IBM_277", 0x10020115 },
-  { "IBM_278", 0x10020116 },
-  { "IBM_280", 0x10020118 },
-  { "IBM_282", 0x1002011A },
-  { "IBM_284", 0x1002011C },
-  { "IBM_285", 0x1002011D },
-  { "IBM_290", 0x10020122 },
-  { "IBM_297", 0x10020129 },
-  { "IBM_300", 0x1002012C },
-  { "IBM_301", 0x1002012D },
-  { "IBM_420", 0x100201A4 },
-  { "IBM_424", 0x100201A8 },
-  { "IBM_437", 0x100201B5 },
-  { "IBM_500", 0x100201F4 },
-  { "IBM_833", 0x10020341 },
-  { "IBM_834", 0x10020342 },
-  { "IBM_835", 0x10020343 },
-  { "IBM_836", 0x10020344 },
-  { "IBM_837", 0x10020345 },
-  { "IBM_838", 0x10020346 },
-  { "IBM_839", 0x10020347 },
-  { "IBM_850", 0x10020352 },
-  { "IBM_852", 0x10020354 },
-  { "IBM_855", 0x10020357 },
-  { "IBM_856", 0x10020358 },
-  { "IBM_857", 0x10020359 },
-  { "IBM_861", 0x1002035D },
-  { "IBM_862", 0x1002035E },
-  { "IBM_863", 0x1002035F },
-  { "IBM_864", 0x10020360 },
-  { "IBM_866", 0x10020362 },
-  { "IBM_868", 0x10020364 },
-  { "IBM_869", 0x10020365 },
-  { "IBM_870", 0x10020366 },
-  { "IBM_871", 0x10020367 },
-  { "IBM_874", 0x1002036A },
-  { "IBM_875", 0x1002036B },
-  { "IBM_880", 0x10020370 },
-  { "IBM_891", 0x1002037B },
-  { "IBM_896", 0x10020380 },
-  { "IBM_897", 0x10020381 },
-  { "IBM_903", 0x10020387 },
-  { "IBM_904", 0x10020388 },
-  { "IBM_918", 0x10020396 },
-  { "IBM_921", 0x10020399 },
-  { "IBM_922", 0x1002039A },
-  { "IBM_926", 0x1002039E },
-  { "IBM_927", 0x1002039F },
-  { "IBM_928", 0x100203A0 },
-  { "IBM_929", 0x100203A1 },
-  { "IBM_930", 0x100203A2 },
-  { "IBM_932", 0x100203A4 },
-  { "IBM_933", 0x100203A5 },
-  { "IBM_934", 0x100203A6 },
-  { "IBM_935", 0x100203A7 },
-  { "IBM_936", 0x100203A8 },
-  { "IBM_937", 0x100203A9 },
-  { "IBM_938", 0x100203AA },
-  { "IBM_939", 0x100203AB },
-  { "IBM_941", 0x100203AD },
-  { "IBM_942", 0x100203AE },
-  { "IBM_943", 0x100203AF },
-  { "IBM_946", 0x100203B2 },
-  { "IBM_947", 0x100203B3 },
-  { "IBM_948", 0x100203B4 },
-  { "IBM_949", 0x100203B5 },
-  { "IBM_950", 0x100203B6 },
-  { "IBM_951", 0x100203B7 },
-  { "IBM_955", 0x100203BB },
-  { "IBM_964", 0x100203C4 },
-  { "IBM_970", 0x100203CA },
-  { "IBM_1006", 0x100203EE },
-  { "IBM_1025", 0x10020401 },
-  { "IBM_1026", 0x10020402 },
-  { "IBM_1027", 0x10020403 },
-  { "IBM_1040", 0x10020410 },
-  { "IBM_1041", 0x10020411 },
-  { "IBM_1043", 0x10020413 },
-  { "IBM_1046", 0x10020416 },
-  { "IBM_1047", 0x10020417 },
-  { "IBM_1088", 0x10020440 },
-  { "IBM_1097", 0x10020449 },
-  { "IBM_1098", 0x1002044A },
-  { "IBM_1112", 0x10020458 },
-  { "IBM_1114", 0x1002045A },
-  { "IBM_1115", 0x1002045B },
-  { "IBM_1122", 0x10020462 },
-  { "IBM_1250", 0x100204E2 },
-  { "IBM_1251", 0x100204E3 },
-  { "IBM_1252", 0x100204E4 },
-  { "IBM_1253", 0x100204E5 },
-  { "IBM_1254", 0x100204E6 },
-  { "IBM_1255", 0x100204E7 },
-  { "IBM_1256", 0x100204E8 },
-  { "IBM_1257", 0x100204E9 },
-  { "IBM_1380", 0x10020564 },
-  { "IBM_1381", 0x10020565 },
-  { "IBM_1383", 0x10020567 },
-  { "IBM_4396", 0x1002112C },
-  { "IBM_4946", 0x10021352 },
-  { "IBM_4948", 0x10021354 },
-  { "IBM_4951", 0x10021357 },
-  { "IBM_4952", 0x10021358 },
-  { "IBM_4953", 0x10021359 },
-  { "IBM_4960", 0x10021360 },
-  { "IBM_4964", 0x10021364 },
-  { "IBM_4965", 0x10021365 },
-  { "IBM_5026", 0x100213A2 },
-  { "IBM_5031", 0x100213A7 },
-  { "IBM_5035", 0x100213AB },
-  { "IBM_5048", 0x100213B8 },
-  { "IBM_5049", 0x100213B9 },
-  { "IBM_5067", 0x100213CB },
-  { "IBM_8612", 0x100221A4 },
-  { "IBM_9025", 0x10022341 },
-  { "IBM_9026", 0x10022342 },
-  { "IBM_9030", 0x10022346 },
-  { "IBM_9056", 0x10022360 },
-  { "IBM_9066", 0x1002236A },
-  { "IBM_9125", 0x100223A5 },
-  { "IBM_25426", 0x10026352 },
-  { "IBM_25432", 0x10026358 },
-  { "IBM_1042", 0x10026412 },
-  { "IBM_28709", 0x10027025 },
-  { "IBM_33624", 0x10028358 },
-  { "IBM_33722", 0x100283BA },
-  { "HTCSJIS", 0x10030001 },
-  { "HTCUJIS", 0x10030002 },
-  { "FUJITSU_U90", 0x10040001 },
-  { "FUJITSU_S90", 0x10040002 },
-  { "FUJITSU_R90", 0x10040003 },
-  { "EBCDIC_ASCII_AND_JEF", 0x10040004 },
-  { "EBCDIC_KATAKANA_AND_JEF", 0x10040005 },
-  { "EBCDIC_JAPANESE_ENGLISH_AND_JEF", 0x10040006 },
+  { 0x00010108, "ISO_UTF_8" },
+  { 0x00010109, "ISO_UTF_16" },
+  { 0x00030001, "JIS_X0201" },
+  { 0x00030004, "JIS_X0208_1978" },
+  { 0x00030005, "JIS_X0208_1983" },
+  { 0x00030006, "JIS_X0208_1990" },
+  { 0x0003000A, "JIS_X0212" },
+  { 0x00030010, "JIS_EUCJP" },
+  { 0x00040001, "KS_C5601" },
+  { 0x00040002, "KS_C5657" },
+  { 0x0004000A, "KS_EUCKR" },
+  { 0x00050001, "CNS_11643_1986" },
+  { 0x00050002, "CNS_11643_1992" },
+  { 0x0005000A, "CNS_EUCTW_1991" },
+  { 0x00050010, "CNS_EUCTW_1993" },
+  { 0x000B0001, "TIS_620_2529"  },
+  { 0x000D0001, "TTB_CCDC" },
+  { 0x05000010, "OSF_JAPANESE_UJIS" },
+  { 0x05000011, "OSF_JAPANESE_SJIS_1" },
+  { 0x05000012, "OSF_JAPANESE_SJIS_2" },
+  { 0x05010001, "XOPEN_UTF_8" },
+  { 0x05020001, "JVC_EUCJP" },
+  { 0x05020002, "JVC_SJIS" },
+  { 0x10000001, "DEC_KANJI" },
+  { 0x10000002, "SUPER_DEC_KANJI" },
+  { 0x10000003, "DEC_SHIFT_JIS" },
+  { 0x10010001, "HP_ROMAN8" },
+  { 0x10010002, "HP_KANA8" },
+  { 0x10010003, "HP_ARABIC8" },
+  { 0x10010004, "HP_GREEK8" },
+  { 0x10010005, "HP_HEBREW8" },
+  { 0x10010006, "HP_TURKISH8" },
+  { 0x10010007, "HP15CN" },
+  { 0x10010008, "HP_BIG5" },
+  { 0x10010009, "HP_JAPANESE15__SJIS_" },
+  { 0x1001000A, "HP_SJISHI" },
+  { 0x1001000B, "HP_SJISPC" },
+  { 0x1001000C, "HP_UJIS" },
+  { 0x10020025, "IBM_037" },
+  { 0x10020111, "IBM_273" },
+  { 0x10020115, "IBM_277" },
+  { 0x10020116, "IBM_278" },
+  { 0x10020118, "IBM_280" },
+  { 0x1002011A, "IBM_282" },
+  { 0x1002011C, "IBM_284" },
+  { 0x1002011D, "IBM_285" },
+  { 0x10020122, "IBM_290" },
+  { 0x10020129, "IBM_297" },
+  { 0x1002012C, "IBM_300" },
+  { 0x1002012D, "IBM_301" },
+  { 0x100201A4, "IBM_420" },
+  { 0x100201A8, "IBM_424" },
+  { 0x100201B5, "IBM_437" },
+  { 0x100201F4, "IBM_500" },
+  { 0x10020341, "IBM_833" },
+  { 0x10020342, "IBM_834" },
+  { 0x10020343, "IBM_835" },
+  { 0x10020344, "IBM_836" },
+  { 0x10020345, "IBM_837" },
+  { 0x10020346, "IBM_838" },
+  { 0x10020347, "IBM_839" },
+  { 0x10020352, "IBM_850" },
+  { 0x10020354, "IBM_852" },
+  { 0x10020357, "IBM_855" },
+  { 0x10020358, "IBM_856" },
+  { 0x10020359, "IBM_857" },
+  { 0x1002035D, "IBM_861" },
+  { 0x1002035E, "IBM_862" },
+  { 0x1002035F, "IBM_863" },
+  { 0x10020360, "IBM_864" },
+  { 0x10020362, "IBM_866" },
+  { 0x10020364, "IBM_868" },
+  { 0x10020365, "IBM_869" },
+  { 0x10020366, "IBM_870" },
+  { 0x10020367, "IBM_871" },
+  { 0x1002036A, "IBM_874" },
+  { 0x1002036B, "IBM_875" },
+  { 0x10020370, "IBM_880" },
+  { 0x1002037B, "IBM_891" },
+  { 0x10020380, "IBM_896" },
+  { 0x10020381, "IBM_897" },
+  { 0x10020387, "IBM_903" },
+  { 0x10020388, "IBM_904" },
+  { 0x10020396, "IBM_918" },
+  { 0x10020399, "IBM_921" },
+  { 0x1002039A, "IBM_922" },
+  { 0x1002039E, "IBM_926" },
+  { 0x1002039F, "IBM_927" },
+  { 0x100203A0, "IBM_928" },
+  { 0x100203A1, "IBM_929" },
+  { 0x100203A2, "IBM_930" },
+  { 0x100203A4, "IBM_932" },
+  { 0x100203A5, "IBM_933" },
+  { 0x100203A6, "IBM_934" },
+  { 0x100203A7, "IBM_935" },
+  { 0x100203A8, "IBM_936" },
+  { 0x100203A9, "IBM_937" },
+  { 0x100203AA, "IBM_938" },
+  { 0x100203AB, "IBM_939" },
+  { 0x100203AD, "IBM_941" },
+  { 0x100203AE, "IBM_942" },
+  { 0x100203AF, "IBM_943" },
+  { 0x100203B2, "IBM_946" },
+  { 0x100203B3, "IBM_947" },
+  { 0x100203B4, "IBM_948" },
+  { 0x100203B5, "IBM_949" },
+  { 0x100203B6, "IBM_950" },
+  { 0x100203B7, "IBM_951" },
+  { 0x100203BB, "IBM_955" },
+  { 0x100203C4, "IBM_964" },
+  { 0x100203CA, "IBM_970" },
+  { 0x100203EE, "IBM_1006" },
+  { 0x10020401, "IBM_1025" },
+  { 0x10020402, "IBM_1026" },
+  { 0x10020403, "IBM_1027" },
+  { 0x10020410, "IBM_1040" },
+  { 0x10020411, "IBM_1041" },
+  { 0x10020413, "IBM_1043" },
+  { 0x10020416, "IBM_1046" },
+  { 0x10020417, "IBM_1047" },
+  { 0x10020440, "IBM_1088" },
+  { 0x10020449, "IBM_1097" },
+  { 0x1002044A, "IBM_1098" },
+  { 0x10020458, "IBM_1112" },
+  { 0x1002045A, "IBM_1114" },
+  { 0x1002045B, "IBM_1115" },
+  { 0x10020462, "IBM_1122" },
+  { 0x100204E2, "IBM_1250" },
+  { 0x100204E3, "IBM_1251" },
+  { 0x100204E4, "IBM_1252" },
+  { 0x100204E5, "IBM_1253" },
+  { 0x100204E6, "IBM_1254" },
+  { 0x100204E7, "IBM_1255" },
+  { 0x100204E8, "IBM_1256" },
+  { 0x100204E9, "IBM_1257" },
+  { 0x10020564, "IBM_1380" },
+  { 0x10020565, "IBM_1381" },
+  { 0x10020567, "IBM_1383" },
+  { 0x1002112C, "IBM_4396" },
+  { 0x10021352, "IBM_4946" },
+  { 0x10021354, "IBM_4948" },
+  { 0x10021357, "IBM_4951" },
+  { 0x10021358, "IBM_4952" },
+  { 0x10021359, "IBM_4953" },
+  { 0x10021360, "IBM_4960" },
+  { 0x10021364, "IBM_4964" },
+  { 0x10021365, "IBM_4965" },
+  { 0x100213A2, "IBM_5026" },
+  { 0x100213A7, "IBM_5031" },
+  { 0x100213AB, "IBM_5035" },
+  { 0x100213B8, "IBM_5048" },
+  { 0x100213B9, "IBM_5049" },
+  { 0x100213CB, "IBM_5067" },
+  { 0x100221A4, "IBM_8612" },
+  { 0x10022341, "IBM_9025" },
+  { 0x10022342, "IBM_9026" },
+  { 0x10022346, "IBM_9030" },
+  { 0x10022360, "IBM_9056" },
+  { 0x1002236A, "IBM_9066" },
+  { 0x100223A5, "IBM_9125" },
+  { 0x10026352, "IBM_25426" },
+  { 0x10026358, "IBM_25432" },
+  { 0x10026412, "IBM_1042" },
+  { 0x10027025, "IBM_28709" },
+  { 0x10028358, "IBM_33624" },
+  { 0x100283BA, "IBM_33722" },
+  { 0x10030001, "HTCSJIS" },
+  { 0x10030002, "HTCUJIS" },
+  { 0x10040001, "FUJITSU_U90" },
+  { 0x10040002, "FUJITSU_S90" },
+  { 0x10040003, "FUJITSU_R90" },
+  { 0x10040004, "EBCDIC_ASCII_AND_JEF" },
+  { 0x10040005, "EBCDIC_KATAKANA_AND_JEF" },
+  { 0x10040006, "EBCDIC_JAPANESE_ENGLISH_AND_JEF" },
   */
-  { NULL, 0 }
+  { 0, NULL }
 };
 
 static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
@@ -4998,7 +5003,7 @@ static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
     code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
 
     proto_tree_add_text (tree, tvb, *offset - 4, 4,
-                             "wchar_data: 0x%08x %s", val_to_str(code_set_id, giop_code_set_vals, "Unknown (%u)") );
+                             "wchar_data: 0x%08x %s", code_set_id, val_to_str(code_set_id, giop_code_set_vals, "Unknown (%u)") );
 
   }
 
@@ -6011,5 +6016,3 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, proto_tree *tree, gint *off
   } /* data_type */
 
 }
-
-
