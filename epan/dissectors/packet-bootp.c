@@ -22,6 +22,7 @@
  * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * RFC 3442: Classless Static Route Option for DHCP version 4
  * RFC 4243: Vendor-Specific Information Suboption for the Dynamic Host Configuration Protocol (DHCP) Relay Agent Option
+ * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
  * draft-ietf-dhc-fqdn-option-07.txt
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
@@ -131,6 +132,53 @@ static gint ett_bootp = -1;
 static gint ett_bootp_flags = -1;
 static gint ett_bootp_option = -1;
 static gint ett_bootp_fqdn = -1;
+
+
+/* Civic Address What field (RFC 4776) */
+static const value_string civic_address_what_values[] = {
+	{ 0,	"Location of the DHCP server" },
+	{ 1,	"Location of the network element believed to be closest to the client" },
+	{ 2,	"Location of the client"},
+	{ 0, NULL}
+};
+
+/* Civic Address Type field (RFC 4119, RFC 4776, draft-ietf-geopriv-revised-civic-lo-07) */
+static const value_string civic_address_type_values[] = {
+	{ 0,	"Language" },
+	{ 1,	"A1" },
+	{ 2,	"A2" },
+	{ 3,	"A3" },
+	{ 4,	"A4" },
+	{ 5,	"A5" },
+	{ 6,	"A6" },
+	{ 16,	"PRD (Leading street direction)" },
+	{ 17,	"POD (Trailing street suffix)" },
+	{ 18,	"STS (Street suffix)" },
+	{ 19,	"HNO (House number)" },
+	{ 20,	"HNS (House number suffix)" },
+	{ 21,	"LMK (Landmark or vanity address)" },
+	{ 22,	"LOC (Additional location information)" },
+	{ 23,	"NAM" },
+	{ 24, 	"PC (Postal/ZIP code)" },
+	{ 25,	"BLD (Building)" },
+	{ 26,	"UNIT" },
+	{ 27,	"FLR (Floor)" },
+	{ 28,	"ROOM" },
+	{ 29,	"PLC (Place-type)" },
+	{ 30,	"PCN (Postal community name)" },
+	{ 31,   "POBOX" },
+	{ 32,	"ADDCODE (Additional Code)" },
+	{ 33,	"SEAT" },
+	{ 34,	"RD (Primary road or street)" },
+	{ 35,	"RDSEC (Road section)" },
+	{ 36,	"RDBR (Road branch)" },
+	{ 37,	"RDSUBBR (Road sub-branch)" },
+	{ 38,	"PRM (Road pre-modifier)" },
+	{ 39,	"POM (Road post-modifier" },
+	{ 128,	"Script" },
+	{ 0, NULL }
+};
+
 
 gboolean novell_string = FALSE;
 
@@ -415,7 +463,7 @@ static struct opt_info bootp_opt[] = {
 /*  96 */ { "IPv6 Transitions",				opaque, NULL },
 /*  97 */ { "UUID/GUID-based Client Identifier",	special, NULL },
 /*  98 */ { "Open Group's User Authentication",		opaque, NULL },
-/*  99 */ { "Unassigned",				opaque, NULL },
+/*  99 */ { "Civic Addresses Configuration",		opaque, NULL },
 /* 100 */ { "Printer Name",				opaque, NULL },
 /* 101 */ { "MDHCP multicast address",			opaque, NULL },
 /* 102 */ { "Removed/unassigned",			opaque, NULL },
@@ -439,7 +487,7 @@ static struct opt_info bootp_opt[] = {
 /* 120 */ { "SIP Servers",				opaque, NULL },
 /* 121 */ { "Classless Static Route",		       	special, NULL },
 /* 122 */ { "CableLabs Client Configuration",		opaque, NULL },
-/* 123 */ { "Unassigned",				opaque, NULL },
+/* 123 */ { "Coordinate-based Location Configuration",	opaque, NULL },
 /* 124 */ { "V-I Vendor Class",				opaque, NULL },
 /* 125 */ { "V-I Vendor-specific Information",		opaque, NULL },
 /* 126 */ { "Extension",				opaque, NULL },
@@ -1275,6 +1323,58 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				tvb_bytes_to_str(tvb, optoff, optleft));
 			break;
 		}
+		break;
+
+	case 99: /* civic location (RFC 4776) */
+		
+		optleft = optlen;
+		if (optleft >= 3)
+		{
+			proto_tree_add_text(v_tree, tvb, optoff, 1, "What: %d (%s)",
+				tvb_get_guint8(tvb, optoff), val_to_str(tvb_get_guint8(tvb, optoff),
+				civic_address_what_values, "Unknown") );
+			proto_tree_add_text(v_tree, tvb, optoff + 1, 2, "Country: \"%s\"",
+				tvb_format_text(tvb, optoff + 1, 2) );
+			optleft = optleft - 3;
+			optoff = optoff + 3;
+
+			while (optleft >= 2)
+			{
+				int catype = tvb_get_guint8(tvb, optoff);
+				optoff++;
+				optleft--;
+				s_option = tvb_get_guint8(tvb, optoff);
+				optoff++;
+				optleft--;
+
+				if (s_option == 0)
+				{
+					proto_tree_add_text(v_tree, tvb, optoff, s_option,
+						"CAType %d [%s] (l=%d): EMTPY", catype,
+						val_to_str(catype, civic_address_type_values,
+						"Unknown"), s_option);
+					continue;
+				}
+
+				if ((optleft >= s_option) && (s_option > 0))
+				{
+					proto_tree_add_text(v_tree, tvb, optoff, s_option,
+						"CAType %d [%s] (l=%d): \"%s\"", catype,
+						val_to_str(catype, civic_address_type_values,
+						"Unknown"), s_option,
+						tvb_format_text(tvb, optoff, s_option));
+					optoff = optoff + s_option;
+					optleft = optleft - s_option;
+				}
+				else
+				{
+					optleft = 0;
+					proto_tree_add_text(v_tree, tvb, optoff, s_option,
+						"Error with CAType");
+				}
+			}
+		}
+
 		break;
 
 	case 121:	/* Classless Static Route */
