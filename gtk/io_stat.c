@@ -1008,7 +1008,7 @@ io_stat_draw(io_stat_t *io)
 			if (val==0) {
 				prev_y_pos=(guint32)(draw_height-1+top_y_border);
 			} else {
-				prev_y_pos=(guint32)((draw_height-ystart)-1-((log10((double)val))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+                            prev_y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
 			}
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
@@ -1024,7 +1024,7 @@ io_stat_draw(io_stat_t *io)
 				if (val==0) {
 					y_pos=(guint32)(draw_height-1+top_y_border);
 				} else {
-					y_pos=(guint32)((draw_height-ystart)-1-((log10((double)val))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
+                                    y_pos=(guint32)((draw_height-ystart)-1-((log10((double)((gint64)val)))*(draw_height-ystart))/(log10((double)max_y))+top_y_border);
 				}
 			} else {
 				y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
