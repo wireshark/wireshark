@@ -6,6 +6,7 @@
 #.OPT
 PER
 ALIGNED
+-L
 #.END
 
 #.EXPORTS
@@ -40,6 +41,13 @@ ProtocolExtensionField/id ext_id
 PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+
+# Handle 64 bit constraint
+#.FN_PARS UTRAN-GPSReferenceTimeResult/ue-GPSTimingOfCell FN_VARIANT = _64b
+#.FN_PARS UTRAN-GANSSReferenceTimeUL/ue-GANSSTimingOfCellFrames FN_VARIANT = _64b
+#.FN_PARS UTRAN-GPSReferenceTime/utran-GPSTimingOfCell FN_VARIANT = _64b
+
+
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
   if (tree) {
@@ -58,7 +66,7 @@ ProtocolIE-Field/value ie_field_value
 #.FN_FTR ProcedureCode
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
        col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str(ProcedureCode, s1ap_ProcedureCode_vals,
+                   val_to_str(ProcedureCode, pcap_ProcedureCode_vals,
                               "unknown message"));
 #.END
 
@@ -244,7 +252,6 @@ Positioning-ResponseTime						N pcap.ies id-Positioning-ResponseTime
 EnvironmentCharacterisation						N pcap.ies id-EnvironmentCharacterisation
 PositionData									N pcap.ies id-PositionData
 VelocityEstimate								N pcap.ies id-VelocityEstimate
-N pcap.ies id-rxTimingDeviation768Info
 UC-ID-InfEx-Rqst								N pcap.ies id-UC-ID-InfEx-Rqst
 UE-PositionEstimateInfo							N pcap.ies id-UE-PositionEstimateInfo
 OTDOA-MeasuredResultsSets						N pcap.ies id-OTDOA-MeasuredResultsSets

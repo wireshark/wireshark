@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 
 #include <stdio.h>
@@ -55,8 +56,15 @@
 #define PSNAME "PCAP"
 #define PFNAME "pcap"
 
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
+
+static dissector_table_t sccp_ssn_table;
+
 #include "packet-pcap-val.h"
 
+static dissector_handle_t data_handle;
 static dissector_handle_t pcap_handle = NULL;
 
 /* Initialize the protocol and registered fields */
@@ -152,6 +160,50 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_PCAP_PDU_PDU(tvb, pinfo, pcap_tree);
 }
 
+
+static void range_delete_callback(guint32 ssn)
+{
+    if ( ssn ) {
+        dissector_delete("sccp.ssn", ssn, pcap_handle);
+    }
+}
+
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+        dissector_add("sccp.ssn", ssn, pcap_handle);
+    }
+}
+
+
+static void init_pcap(void) {
+    if (ssn_range) {
+        range_foreach(ssn_range, range_delete_callback);
+        g_free(ssn_range);
+    }
+
+    ssn_range = range_copy(global_ssn_range);
+    range_foreach(ssn_range, range_add_callback);
+}
+
+
+/*--- proto_reg_handoff_pcap ---------------------------------------*/
+void
+proto_reg_handoff_pcap(void)
+{
+
+    static gboolean prefs_initialized = FALSE;
+
+    if (! prefs_initialized) {
+        sccp_ssn_table = find_dissector_table("sccp.ssn");
+        prefs_initialized = TRUE;
+    }
+
+    data_handle = find_dissector("data");
+
+#include "packet-pcap-dis-tab.c"
+}
+
 /*--- proto_register_pcap -------------------------------------------*/
 void proto_register_pcap(void) {
 
@@ -168,12 +220,15 @@ void proto_register_pcap(void) {
 #include "packet-pcap-ettarr.c"
   };
 
+  module_t *pcap_module;
 
   /* Register protocol */
   proto_pcap = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */
   proto_register_field_array(proto_pcap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  pcap_module = prefs_register_protocol(proto_pcap, proto_reg_handoff_pcap);
  
   /* Register dissector */
   register_dissector("pcap", dissect_pcap, proto_pcap);
@@ -190,16 +245,19 @@ void proto_register_pcap(void) {
   pcap_proc_out_dissector_table = register_dissector_table("pcap.proc.out", "PCAP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC);
 
 
+  /* Preferences */
+    /* Set default SSNs */
+  range_convert_str(&global_ssn_range, "", MAX_SSN);
+  ssn_range = range_empty();
+
+  prefs_register_range_preference(pcap_module, "ssn", "SCCP SSNs",
+  "SCCP (and SUA) SSNs to decode as PCAP",
+  &global_ssn_range, MAX_SSN);
+
+
+  register_init_routine(&init_pcap);
 }
 
 
-/*--- proto_reg_handoff_pcap ---------------------------------------*/
-void
-proto_reg_handoff_pcap(void)
-{
-
-
-#include "packet-pcap-dis-tab.c"
-}
 
 
