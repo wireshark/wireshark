@@ -123,10 +123,16 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     item = proto_tree_add_bytes(tree_item->tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len, (const guint8*) luaL_checkstring(L,1));
                     break;
                 case FT_UINT64:
+                    item = proto_tree_add_uint64(tree_item->tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(guint64)luaL_checknumber(L,1));
+                    break;
                 case FT_INT64:
+                    item = proto_tree_add_int64(tree_item->tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(gint64)luaL_checknumber(L,1));
+                    break;
+                case FT_IPv4:
+                    item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb,tvbr->offset,tvbr->len,(guint32)lua_touserdata(L,1));
+                    break;
                 case FT_ETHER:
                 case FT_UINT_BYTES:
-                case FT_IPv4:
                 case FT_IPv6:
                 case FT_IPXNET:
                 case FT_GUID:
