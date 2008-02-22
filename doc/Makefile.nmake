@@ -41,8 +41,8 @@ wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake AUTHORS-SHORT-FORMAT
 	cd doc
 
-../ws.css: ../docbook/ws.css
-	copy ..\docbook\ws.css ..
+ws.css: ../docbook/ws.css
+	copy ..\docbook\ws.css .
 
 wireshark.1: wireshark.pod ../config.h
 	$(POD2MAN)                     \
@@ -50,7 +50,7 @@ wireshark.1: wireshark.pod ../config.h
 	--release=$(VERSION)			 \
 	wireshark-tmp.pod > wireshark.1
 
-wireshark.html: wireshark-tmp.pod ../config.h ../ws.css
+wireshark.html: wireshark-tmp.pod ../config.h ws.css
 	$(POD2HTML)                    \
 	--title="The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -68,7 +68,7 @@ tshark.1: tshark.pod ../config.h
 	--release=$(VERSION)			 \
 	tshark.pod > tshark.1
 
-tshark.html: tshark.pod ../config.h ../ws.css
+tshark.html: tshark.pod ../config.h ws.css
 	$(POD2HTML)                    \
 	--title="tshark - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -81,7 +81,7 @@ wireshark-filter.4: wireshark-filter.pod ../config.h
 	--release=$(VERSION)			 \
 	wireshark-filter.pod > wireshark.4
 
-wireshark-filter.html: wireshark-filter.pod ../config.h ../ws.css
+wireshark-filter.html: wireshark-filter.pod ../config.h ws.css
 	$(POD2HTML)                    \
 	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -101,7 +101,7 @@ capinfos.1: capinfos.pod ../config.h
 	--release=$(VERSION)			 \
 	capinfos.pod > capinfos.1
 
-capinfos.html: capinfos.pod ../config.h ../ws.css
+capinfos.html: capinfos.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="capinfos - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -115,7 +115,7 @@ editcap.1: editcap.pod ../config.h
 	--release=$(VERSION)			 \
 	editcap.pod > editcap.1
 
-editcap.html: editcap.pod ../config.h ../ws.css
+editcap.html: editcap.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="editcap - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -128,7 +128,7 @@ idl2wrs.1: idl2wrs.pod ../config.h
 	--release=$(VERSION)			 \
 	idl2wrs.pod > idl2wrs.1
 
-idl2wrs.html: idl2wrs.pod ../config.h ../ws.css
+idl2wrs.html: idl2wrs.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -141,7 +141,7 @@ mergecap.1: mergecap.pod ../config.h
 	--release=$(VERSION)			 \
 	mergecap.pod > mergecap.1
 
-mergecap.html: mergecap.pod ../config.h ../ws.css
+mergecap.html: mergecap.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="mergecap - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -154,7 +154,7 @@ text2pcap.1: text2pcap.pod ../config.h
 	--release=$(VERSION)			 \
 	text2pcap.pod > text2pcap.1
 
-text2pcap.html: text2pcap.pod ../config.h ../ws.css
+text2pcap.html: text2pcap.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="text2pcap - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -167,7 +167,7 @@ dumpcap.1: dumpcap.pod ../config.h
 	--release=$(VERSION)			 \
 	dumpcap.pod > dumpcap.1
 
-dumpcap.html: dumpcap.pod ../config.h ../ws.css
+dumpcap.html: dumpcap.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="dumpcap - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
@@ -180,7 +180,7 @@ rawshark.1: rawshark.pod ../config.h
 	--release=$(VERSION)			 \
 	rawshark.pod > rawshark.1
 
-rawshark.html: rawshark.pod ../config.h ../ws.css
+rawshark.html: rawshark.pod ../config.h ws.css
 	$(POD2HTML)                     \
 	--title="rawshark - The Wireshark Network Analyzer $(VERSION)" \
 	--css=ws.css \
