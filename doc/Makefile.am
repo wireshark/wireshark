@@ -27,15 +27,19 @@
 wireshark-tmp.pod: $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	cat $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT > wireshark-tmp.pod
 
+../ws.css: ../docbook/ws.css
+	cp ../docbook/ws.css ../
+
 ../wireshark.1: wireshark-tmp.pod ../config.h
 	$(POD2MAN)					\
 	--center="The Wireshark Network Analyzer"	\
 	--release=$(VERSION)				\
 	wireshark-tmp.pod | sed 's/WIRESHARK-TMP/WIRESHARK/' > ../wireshark.1
 
-../wireshark.html: wireshark-tmp.pod ../config.h
+../wireshark.html: wireshark-tmp.pod ../config.h ../ws.css
 	$(POD2HTML)						\
 	--title="The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css						\
 	--noindex						\
 	wireshark-tmp.pod > ../wireshark.html
 
@@ -45,9 +49,10 @@ wireshark-tmp.pod: $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	--release=$(VERSION)				\
 	$(srcdir)/tshark.pod > ../tshark.1
 
-../tshark.html: tshark.pod ../config.h
+../tshark.html: tshark.pod ../config.h ../ws.css
 	$(POD2HTML)							\
 	--title="tshark - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/tshark.pod > ../tshark.html
 
@@ -58,9 +63,10 @@ wireshark-tmp.pod: $(srcdir)/wireshark.pod $(top_builddir)/AUTHORS-SHORT-FORMAT
 	--release=$(VERSION)				\
 	wireshark-filter.pod > ../wireshark-filter.4
 
-../wireshark-filter.html: wireshark-filter.pod ../config.h
+../wireshark-filter.html: wireshark-filter.pod ../config.h ../ws.css
 	$(POD2HTML)								\
 	--title="wireshark-filter - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css								\
 	--noindex								\
 	wireshark-filter.pod > ../wireshark-filter.html
 
@@ -73,9 +79,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/capinfos.pod > ../capinfos.1
 
-../capinfos.html: capinfos.pod ../config.h
+../capinfos.html: capinfos.pod ../config.h ../ws.css
 	$(POD2HTML)							\
 	--title="capinfos - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/capinfos.pod > ../capinfos.html
 
@@ -85,9 +92,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/editcap.pod > ../editcap.1
 
-../editcap.html: editcap.pod ../config.h
+../editcap.html: editcap.pod ../config.h ../ws.css
 	$(POD2HTML)							\
 	--title="editcap - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/editcap.pod > ../editcap.html
 
@@ -97,9 +105,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/idl2wrs.pod > ../idl2wrs.1
 
-../idl2wrs.html: idl2wrs.pod ../config.h
+../idl2wrs.html: idl2wrs.pod ../config.h ../ws.css
 	$(POD2HTML)							\
 	--title="idl2wrs - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/idl2wrs.pod > ../idl2wrs.html
 
@@ -109,9 +118,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/mergecap.pod > ../mergecap.1
 
-../mergecap.html: mergecap.pod ../config.h
+../mergecap.html: mergecap.pod ../config.h ../ws.css
 	$(POD2HTML)							\
 	--title="mergecap - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/mergecap.pod > ../mergecap.html
 
@@ -121,9 +131,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/text2pcap.pod > ../text2pcap.1
 
-../text2pcap.html: text2pcap.pod ../config.h
+../text2pcap.html: text2pcap.pod ../config.h ../ws.css
 	$(POD2HTML)                     \
 	--title="text2pcap - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/text2pcap.pod > ../text2pcap.html
 
@@ -133,9 +144,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/dumpcap.pod > ../dumpcap.1
 
-../dumpcap.html: dumpcap.pod ../config.h
+../dumpcap.html: dumpcap.pod ../config.h ../ws.css
 	$(POD2HTML)                     \
 	--title="dumpcap - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/dumpcap.pod > ../dumpcap.html
 
@@ -145,9 +157,10 @@ wireshark-filter.pod: wireshark-filter.pod.template  ../tshark
 	--release=$(VERSION)				\
 	$(srcdir)/rawshark.pod > ../rawshark.1
 
-../rawshark.html: rawshark.pod ../config.h
+../rawshark.html: rawshark.pod ../config.h ../ws.css
 	$(POD2HTML)                     \
 	--title="rawshark - The Wireshark Network Analyzer $(VERSION)"	\
+	--css=ws.css							\
 	--noindex							\
 	$(srcdir)/rawshark.pod > ../rawshark.html
 

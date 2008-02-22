@@ -348,6 +348,7 @@ File "..\..\COPYING"
 File "NEWS.txt"
 File "..\..\manuf"
 File "..\..\services"
+File "..\..\doc\ws.css"
 File "..\..\doc\wireshark.html"
 File "..\..\doc\wireshark-filter.html"
 File "..\..\dumpcap.exe"
@@ -760,6 +761,7 @@ SectionIn 1 2
 !endif
 SetOutPath $INSTDIR
 File "..\..\rawshark.exe"
+File "..\..\doc\rawshark.html"
 SectionEnd
 
 SectionGroup "Plugins / Extensions" SecPluginsGroup
