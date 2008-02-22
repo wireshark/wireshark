@@ -364,6 +364,7 @@ DetailPrint "vcredist_x86 returned $0"
 !else
 !ifdef MSVCR_DLL
 ; msvcr*.dll (MSVC V7 or V7.1) - simply copy the dll file
+!echo "IF YOU GET AN ERROR HERE, check the MSVC_VARIANT setting in config.nmake: MSVC2005 vs. MSVC2005EE!"
 File "${MSVCR_DLL}"
 !else
 !if ${MSVC_VARIANT} != "MSVC6"
