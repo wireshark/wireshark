@@ -1,13 +1,13 @@
 /* packet-bacapp.c
  * Routines for BACnet (APDU) dissection
- * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
- * Enhanced by Steve Karg, 2005, <skarg@users.sourceforge.net>, Atlanta
- * Enhanced by Herbert Lischka, 2005, <lischka@kieback-peter.de>, Berlin
+ * Copyright 2001, Hartmut Mueller <hartmut[AT]abmlinux.org>, FH Dortmund
+ * Enhanced by Steve Karg, 2005, <skarg[AT]users.sourceforge.net>, Atlanta
+ * Enhanced by Herbert Lischka, 2005, <lischka[AT]kieback-peter.de>, Berlin
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@wireshark.org>
+ * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * Copied from README.developer,v 1.23
@@ -599,9 +599,9 @@ static const value_string
 BACnetErrorCode [] = {
 	{0,"other"},
 	{1,"authentication-failed"},
-	{2,"character-set-not-supported"},
-	{3,"configuration-in-progress"},
-	{4,"device-busy"},
+	{2,"configuration-in-progress"},
+	{3,"device-busy"},
+	{4,"dynamic-creation-not-supported"},
 	{5,"file-access-denied"},
 	{6,"incompatible-security-levels"},
 	{7,"inconsistent-parameters"},
@@ -642,7 +642,7 @@ BACnetErrorCode [] = {
 	{42,"invalid-array-index"},
 	{43,"cov-subscription-failed"},
 	{44,"not-cov-property"},
-	{45,"optional-functionaltity-not-supported"},
+	{45,"optional-functionality-not-supported"},
 	{46,"invalid-configuration-data"},
 	{47,"datatype-not-supported"},
 	{48,"duplicate-name"},
