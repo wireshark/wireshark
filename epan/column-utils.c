@@ -276,7 +276,7 @@ col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
   va_list ap;
   int     i;
 
-  if (!check_col(ci, COL_CUSTOM))
+  if (!have_custom_cols(ci))
     return;
 
   va_start(ap, format);
@@ -302,7 +302,7 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
   ci = cinfo; /* Save this into the static variable ci for use by
 	       * col_custom_set_fstr() later. */
 
-  if(!check_col(cinfo, COL_CUSTOM))
+  if(!have_custom_cols(cinfo))
       return;
 
   for (i = cinfo->col_first[COL_CUSTOM];
