@@ -52,6 +52,7 @@ DOC=../../doc/ws.css			\
 	../../doc/mergecap.html 	\
 	../../doc/rawshark.html 	\
 	../../doc/text2pcap.html 	\
+	../../doc/rawshark.html		\
 	../../doc/tshark.html		\
 	../../doc/wireshark-filter.html	\
 	../../doc/wireshark.html	\
