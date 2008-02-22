@@ -41,6 +41,7 @@ div.example p.title
 }
 
 body h1 {
+  font-size: 1.4em;
   margin: .0em 0 0 -4%;
   line-height: 1.3;
   border-bottom: 2px solid silver;
