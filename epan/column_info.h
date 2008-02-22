@@ -41,6 +41,7 @@ typedef struct _column_info {
   gint         *col_first;   /* First column number with a given format */
   gint         *col_last;    /* Last column number with a given format */
   gchar       **col_title;   /* Column titles */
+  gchar       **col_custom_field;   /* Custom column field */
   const gchar **col_data;    /* Column data */
   gchar       **col_buf;     /* Buffer into which to copy data for column */
   int         *col_fence;    /* Stuff in column buffer before this index is immutable */

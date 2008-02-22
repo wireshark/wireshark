@@ -1088,6 +1088,7 @@ init_prefs(void) {
     cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title = g_strdup(col_fmt[i * 2]);
     cfmt->fmt   = g_strdup(col_fmt[(i * 2) + 1]);
+    cfmt->custom_field = NULL;
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
   }
   prefs.num_cols  = DEF_NUM_COLS;
@@ -1783,6 +1784,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
   module_t *module;
   pref_t   *pref;
   gboolean had_a_dot;
+  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+  int cust_format_len = strlen(cust_format);
 
   if (strcmp(pref_name, PRS_PRINT_FMT) == 0) {
     if (strcmp(value, pr_formats[PR_FMT_TEXT]) == 0) {
@@ -1829,10 +1832,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       col_l_elt = col_l_elt->next;
 
       /* Check the format.  */
-      if (get_column_format_from_str(col_l_elt->data) == -1) {
-        /* It's not a valid column format.  */
-        clear_string_list(col_l);
-        return PREFS_SET_SYNTAX_ERR;
+      if (strncmp(col_l_elt->data, cust_format, cust_format_len) != 0) {
+        if (get_column_format_from_str(col_l_elt->data) == -1) {
+          /* It's not a valid column format.  */
+          clear_string_list(col_l);
+          return PREFS_SET_SYNTAX_ERR;
+        }
       }
 
       /* Go past the format.  */
@@ -1847,7 +1852,15 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
       cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
       cfmt->title    = g_strdup(col_l_elt->data);
       col_l_elt      = col_l_elt->next;
-      cfmt->fmt      = g_strdup(col_l_elt->data);
+      if (strncmp(col_l_elt->data, cust_format, cust_format_len) == 0) {
+        gchar *fmt     = g_strdup(col_l_elt->data);
+        cfmt->fmt      = g_strdup(cust_format);
+        cfmt->custom_field = g_strdup(&fmt[cust_format_len+1]);  /* add 1 for ':' */
+        g_free (fmt);
+      } else {
+        cfmt->fmt      = g_strdup(col_l_elt->data);
+        cfmt->custom_field = NULL;
+      }
       col_l_elt      = col_l_elt->next;
       prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
@@ -2546,6 +2559,7 @@ write_prefs(char **pf_path_return)
   FILE        *pf;
   GList       *clp, *col_l;
   fmt_data    *cfmt;
+  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
 
   /* Needed for "-G defaultprefs" */
   init_prefs();
@@ -2704,7 +2718,12 @@ write_prefs(char **pf_path_return)
   while (clp) {
     cfmt = (fmt_data *) clp->data;
     col_l = g_list_append(col_l, cfmt->title);
-    col_l = g_list_append(col_l, cfmt->fmt);
+    if ((strcmp(cfmt->fmt, cust_format) == 0) && (cfmt->custom_field)) {
+      gchar *fmt = g_strdup_printf("%s:%s", cfmt->fmt, cfmt->custom_field);
+      col_l = g_list_append(col_l, fmt);
+    } else {
+      col_l = g_list_append(col_l, cfmt->fmt);
+    }
     clp = clp->next;
   }
   fprintf (pf, "\n# Packet list column format.\n");
@@ -2884,6 +2903,11 @@ copy_prefs(e_prefs *dest, e_prefs *src)
     dest_cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
     dest_cfmt->title = g_strdup(src_cfmt->title);
     dest_cfmt->fmt = g_strdup(src_cfmt->fmt);
+    if (src_cfmt->custom_field) {
+      dest_cfmt->custom_field = g_strdup(src_cfmt->custom_field);
+    } else {
+      dest_cfmt->custom_field = NULL;
+    }
     dest->col_list = g_list_append(dest->col_list, dest_cfmt);
   }
   dest->num_cols = src->num_cols;
@@ -2988,6 +3012,9 @@ free_col_info(e_prefs *pr)
     cfmt = pr->col_list->data;
     g_free(cfmt->title);
     g_free(cfmt->fmt);
+    if (cfmt->custom_field) {
+      g_free(cfmt->custom_field);
+    }
     g_free(cfmt);
     pr->col_list = g_list_remove_link(pr->col_list, pr->col_list);
   }

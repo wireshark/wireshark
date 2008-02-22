@@ -60,6 +60,7 @@ col_setup(column_info *cinfo, gint num_cols)
   cinfo->col_first	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   cinfo->col_last 	= (int *) g_malloc(sizeof(int) * (NUM_COL_FMTS));
   cinfo->col_title	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
+  cinfo->col_custom_field = (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   cinfo->col_data	= (const gchar **) g_malloc(sizeof(gchar *) * num_cols);
   cinfo->col_buf	= (gchar **) g_malloc(sizeof(gchar *) * num_cols);
   cinfo->col_fence	= (int *) g_malloc(sizeof(int) * num_cols);
@@ -282,8 +283,8 @@ col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
   va_start(ap, format);
   for (i = ci->col_first[COL_CUSTOM];
        i <= ci->col_last[COL_CUSTOM]; i++) {
-    if (strcmp(ci->col_title[i], field_name) == 0 &&
-	ci->fmt_matx[i][COL_CUSTOM]) {
+    if (ci->fmt_matx[i][COL_CUSTOM] &&
+	strcmp(ci->col_custom_field[i], field_name) == 0) {
       ci->col_data[i] = ci->col_buf[i];
       g_vsnprintf(ci->col_buf[i], COL_MAX_LEN, format, ap);
       strncpy(ci->col_expr[i], field_name, COL_MAX_LEN);
@@ -307,8 +308,9 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
 
   for (i = cinfo->col_first[COL_CUSTOM];
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
-    if (cinfo->fmt_matx[i][COL_CUSTOM]) {
-      if(dfilter_compile(cinfo->col_title[i], &dfilter_code))
+    if (cinfo->fmt_matx[i][COL_CUSTOM] &&
+	strlen(cinfo->col_custom_field[i]) > 0) {
+      if(dfilter_compile(cinfo->col_custom_field[i], &dfilter_code))
         epan_dissect_prime_dfilter(edt, dfilter_code);
     }
   }

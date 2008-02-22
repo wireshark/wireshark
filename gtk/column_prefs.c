@@ -37,7 +37,7 @@
 #include "gui_utils.h"
 #include "packet_list.h"
 
-static GtkWidget *column_l, *del_bt, *title_te, *fmt_m, *up_bt, *dn_bt;
+static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
 
 #if GTK_MAJOR_VERSION < 2
@@ -48,6 +48,7 @@ static void   column_list_unselect_cb(GtkCList *clist, gint row, gint column,
 #else
 static void   column_list_select_cb(GtkTreeSelection *, gpointer);
 static void   column_entry_changed_cb(GtkEditable *, gpointer);
+static void   column_field_changed_cb(GtkEditable *, gpointer);
 #endif
 static void   column_list_new_cb(GtkWidget *, gpointer);
 static void   column_menu_changed_cb(GtkWidget *, gpointer);
@@ -74,6 +75,7 @@ column_prefs_show() {
   GList             *clp = NULL;
   fmt_data          *cfmt;
   gint               i;
+  gchar             *fmt;
   const gchar       *column_titles[] = {"Title", "Format"};
 #if GTK_MAJOR_VERSION < 2
   const gchar       *col_ent[2];
@@ -190,22 +192,26 @@ column_prefs_show() {
   clp = g_list_first(prefs.col_list);
   while (clp) {
     cfmt    = (fmt_data *) clp->data;
+    if (cfmt->custom_field) {
+      fmt = g_strdup_printf("%s (%s)", col_format_desc(get_column_format_from_str(cfmt->fmt)), cfmt->custom_field);
+    } else {
+      fmt = g_strdup_printf("%s", col_format_desc(get_column_format_from_str(cfmt->fmt)));
+    }
 #if GTK_MAJOR_VERSION < 2
     col_ent[0] = cfmt->title;
-    col_ent[1] = col_format_desc(get_column_format_from_str(cfmt->fmt));
+    col_ent[1] = fmt;
     row = gtk_clist_append(GTK_CLIST(column_l), (gchar **) col_ent);
     gtk_clist_set_row_data(GTK_CLIST(column_l), row, clp);
 #else
     gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, 0, cfmt->title, 1,
-                       col_format_desc(get_column_format_from_str(cfmt->fmt)),
-                       2, clp, -1);
+    gtk_list_store_set(store, &iter, 0, cfmt->title, 1, fmt, 2, clp, -1);
     if (first_row) {
         first_iter = iter;
         first_row = FALSE;
     }
 #endif
     clp = clp->next;
+    g_free (fmt);
   }
 #if GTK_MAJOR_VERSION >= 2
   g_object_unref(G_OBJECT(store));
@@ -251,7 +257,7 @@ column_prefs_show() {
   gtk_widget_show(props_fr);
 
   /* Colunm name entry and format selection */
-  tb = gtk_table_new(2, 2, FALSE);
+  tb = gtk_table_new(2, 3, FALSE);
   gtk_container_border_width(GTK_CONTAINER(tb), 5);
   gtk_container_add(GTK_CONTAINER(props_fr), tb);
   gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
@@ -264,7 +270,7 @@ column_prefs_show() {
   gtk_widget_show(lb);
 
   title_te = gtk_entry_new();
-  gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 2, 0, 1);
+  gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 3, 0, 1);
   gtk_widget_set_sensitive(title_te, FALSE);
   gtk_widget_show(title_te);
 
@@ -277,6 +283,11 @@ column_prefs_show() {
   gtk_table_attach(GTK_TABLE(tb), props_hb, 1, 2, 1, 2, GTK_FILL,
                    GTK_SHRINK, 0, 0);
   gtk_widget_show(props_hb);
+
+  field_te = gtk_entry_new();
+  gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 2, 3, 1, 2);
+  gtk_widget_set_sensitive(field_te, FALSE);
+  gtk_widget_hide(field_te);
 
   fmt_m = gtk_option_menu_new();
   menu  = gtk_menu_new();
@@ -320,15 +331,19 @@ column_list_select_cb(GtkCList *clist,
   g_assert(clp != NULL);
   cfmt   = (fmt_data *) clp->data;
   cur_fmt = get_column_format_from_str(cfmt->fmt);
-  g_assert(cur_fmt != -1);	/* It should always be valid */
+  g_assert(cur_fmt != -1);      /* It should always be valid */
   cur_row = row;
 
   gtk_entry_set_text(GTK_ENTRY(title_te), cfmt->title);
   gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
   gtk_widget_grab_focus(title_te);
 
+  if (cur_fmt == COL_CUSTOM) {
+    gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
+  }
   gtk_widget_set_sensitive(del_bt, TRUE);
   gtk_widget_set_sensitive(title_te, TRUE);
+  gtk_widget_set_sensitive(field_te, TRUE);
   gtk_widget_set_sensitive(fmt_m, TRUE);
   column_set_arrow_button_sensitivity(clp);
 
@@ -346,9 +361,11 @@ column_list_unselect_cb(GtkCList *clist _U_,
 
   cur_row = -1;
   gtk_editable_delete_text(GTK_EDITABLE(title_te), 0, -1);
+  gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
 
   gtk_widget_set_sensitive(del_bt, FALSE);
   gtk_widget_set_sensitive(title_te, FALSE);
+  gtk_widget_set_sensitive(field_te, FALSE);
   gtk_widget_set_sensitive(fmt_m, FALSE);
   gtk_widget_set_sensitive(up_bt, FALSE);
   gtk_widget_set_sensitive(dn_bt, FALSE);
@@ -363,7 +380,6 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
     GtkTreeIter   iter;
     GtkTreePath  *path;
     gchar        *str_path;
-    gchar        *title;
 
     /* if something was selected */
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
@@ -380,10 +396,16 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         g_free(str_path);
         gtk_tree_path_free(path);
 
-        title = g_strdup(cfmt->title);
-	gtk_entry_set_text(GTK_ENTRY(title_te), title);
-	SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
-        g_free(title);
+        gtk_entry_set_text(GTK_ENTRY(title_te), cfmt->title);
+        SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
+
+        if (cur_fmt == COL_CUSTOM) {
+            gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
+            gtk_widget_show(field_te);
+        } else {
+            gtk_widget_hide(field_te);
+        }
+	SIGNAL_CONNECT(field_te, "changed", column_field_changed_cb, column_l);
 
         gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
         gtk_widget_grab_focus(title_te);
@@ -392,6 +414,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
 
         gtk_widget_set_sensitive(del_bt, TRUE);
         gtk_widget_set_sensitive(title_te, TRUE);
+        gtk_widget_set_sensitive(field_te, TRUE);
         gtk_widget_set_sensitive(fmt_m, TRUE);
         column_set_arrow_button_sensitivity(clp);
     }
@@ -399,9 +422,11 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
     {
         cur_row = -1;
         gtk_editable_delete_text(GTK_EDITABLE(title_te), 0, -1);
+        gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
 
         gtk_widget_set_sensitive(del_bt, FALSE);
         gtk_widget_set_sensitive(title_te, FALSE);
+        gtk_widget_set_sensitive(field_te, FALSE);
         gtk_widget_set_sensitive(fmt_m, FALSE);
         gtk_widget_set_sensitive(up_bt, FALSE);
         gtk_widget_set_sensitive(dn_bt, FALSE);
@@ -428,6 +453,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     cfmt           = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title    = g_strdup(title);
     cfmt->fmt      = g_strdup(col_format_to_string(cur_fmt));
+    cfmt->custom_field = g_strdup("");
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
 
 #if GTK_MAJOR_VERSION < 2
@@ -474,6 +500,9 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
         cfmt = (fmt_data *) clp->data;
         g_free(cfmt->title);
         g_free(cfmt->fmt);
+        if (cfmt->custom_field) {
+          g_free (cfmt->custom_field);
+        }
         g_free(cfmt);
         prefs.col_list = g_list_remove_link(prefs.col_list, clp);
 
@@ -486,6 +515,9 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
     cfmt = (fmt_data *) clp->data;
     g_free(cfmt->title);
     g_free(cfmt->fmt);
+    if (cfmt->custom_field) {
+      g_free (cfmt->custom_field);
+    }
     g_free(cfmt);
     prefs.col_list = g_list_remove_link(prefs.col_list, clp);
 
@@ -519,6 +551,34 @@ column_entry_changed_cb(GtkEditable *te, gpointer data) {
     }
     cfile.cinfo.columns_changed = TRUE;
 }
+
+/* The user changed the custom field entry box. */
+static void
+column_field_changed_cb(GtkEditable *te, gpointer data) {
+    fmt_data         *cfmt;
+    GList            *clp;
+    gchar            *field, *fmt;
+    GtkTreeView      *tree = (GtkTreeView *)data;
+    GtkTreeSelection *sel;
+    GtkTreeModel     *model;
+    GtkTreeIter       iter;
+
+    sel = gtk_tree_view_get_selection(tree);
+    if (gtk_tree_selection_get_selected(sel, &model, &iter))
+    {
+        field = gtk_editable_get_chars(te, 0, -1);
+        gtk_tree_model_get(model, &iter, 2, &clp, -1);
+        cfmt  = (fmt_data *) clp->data;
+        fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), field);
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
+	g_free(fmt);
+        if (cfmt->custom_field) {
+          g_free(cfmt->custom_field);
+        }
+        cfmt->custom_field = field;
+    }
+    cfile.cinfo.columns_changed = TRUE;
+}
 #endif
 
 /* The user changed the format menu. */
@@ -526,6 +586,7 @@ static void
 column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
     fmt_data         *cfmt;
     GList            *clp;
+    const gchar      *fmt;
 #if GTK_MAJOR_VERSION >= 2
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
@@ -534,12 +595,19 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
-	cur_fmt = (gint)(long) data;
+        cur_fmt = (gint)(long) data;
         gtk_tree_model_get(model, &iter, 2, &clp, -1);
         cfmt    = (fmt_data *) clp->data;
 
-        gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1,
-                           col_format_desc(cur_fmt), -1);
+        if (cur_fmt == COL_CUSTOM) {
+          gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
+          fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+          gtk_widget_show(field_te);
+        } else {
+          fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
+          gtk_widget_hide(field_te);
+        }
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
         g_free(cfmt->fmt);
         cfmt->fmt = g_strdup(col_format_to_string(cur_fmt));
     }
@@ -550,8 +618,15 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
         clp     = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
         cfmt    = (fmt_data *) clp->data;
 
-        gtk_clist_set_text(GTK_CLIST(column_l), cur_row, 1,
-                           col_format_desc(cur_fmt));
+        if (cur_fmt == COL_CUSTOM) {
+          gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
+          fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
+          gtk_widget_show(field_te);
+        } else {
+          fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
+          gtk_widget_hide(field_te);
+        }
+        gtk_clist_set_text(GTK_CLIST(column_l), cur_row, 1, fmt);
         g_free(cfmt->fmt);
         cfmt->fmt = g_strdup(col_format_to_string(cur_fmt));
     }
@@ -669,7 +744,7 @@ column_prefs_apply(GtkWidget *w _U_)
     /* Redraw the packet list if the columns were changed */
     if(cfile.cinfo.columns_changed) {
         packet_list_recreate();
-	cfile.cinfo.columns_changed = FALSE; /* Reset value */
+        cfile.cinfo.columns_changed = FALSE; /* Reset value */
     }
 }
 

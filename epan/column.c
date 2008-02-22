@@ -647,6 +647,16 @@ get_column_title(gint col) {
   return(cfmt->title);
 }
 
+gchar *
+get_column_custom_field(gint col) {
+  GList    *clp = g_list_nth(prefs.col_list, col);
+  fmt_data *cfmt;
+
+  cfmt = (fmt_data *) clp->data;
+
+  return(cfmt->custom_field);
+}
+
 void
 build_column_format_array(capture_file *cfile, gboolean reset_fences)
 {
@@ -657,6 +667,11 @@ build_column_format_array(capture_file *cfile, gboolean reset_fences)
   for (i = 0; i < cfile->cinfo.num_cols; i++) {
     cfile->cinfo.col_fmt[i] = get_column_format(i);
     cfile->cinfo.col_title[i] = g_strdup(get_column_title(i));
+    if (cfile->cinfo.col_fmt[i] == COL_CUSTOM) {
+      cfile->cinfo.col_custom_field[i] = g_strdup(get_column_custom_field(i));
+    } else {
+      cfile->cinfo.col_custom_field[i] = NULL;
+    }
     cfile->cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
 						     NUM_COL_FMTS);
     get_column_format_matches(cfile->cinfo.fmt_matx[i],
