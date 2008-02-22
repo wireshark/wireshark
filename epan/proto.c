@@ -2649,7 +2649,17 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		}
 	}
 
-	col_custom_set_fstr(hfinfo->abbrev, "%u", integer);
+	if (hfinfo->type == FT_BOOLEAN) {
+		const true_false_string  *tfstring = &tfs_true_false;
+		if (hfinfo->strings) {
+			tfstring = (const struct true_false_string*) hfinfo->strings;
+		}
+		col_custom_set_fstr(hfinfo->abbrev, "%s", value ? tfstring->true_string : tfstring->false_string);
+	} else if (hfinfo->strings) {
+		col_custom_set_fstr(hfinfo->abbrev, "%s", val_to_str(integer, cVALS(hfinfo->strings), "Unknown"));
+	} else {
+		col_custom_set_fstr(hfinfo->abbrev, "%d", integer);
+	}
 	fvalue_set_uinteger(&fi->value, integer);
 }
 
@@ -2815,7 +2825,11 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		}
 	}
 
-	col_custom_set_fstr(hfinfo->abbrev, "%d", integer);
+	if (hfinfo->strings) {
+		col_custom_set_fstr(hfinfo->abbrev, "%s", val_to_str(integer, cVALS(hfinfo->strings), "Unknown"));
+	} else {
+		col_custom_set_fstr(hfinfo->abbrev, "%d", integer);
+	}
 	fvalue_set_sinteger(&fi->value, integer);
 }
 
