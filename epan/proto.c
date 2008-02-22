@@ -1561,7 +1561,16 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_time(field_info *fi, nstime_t *value_ptr)
 {
+	header_field_info	*hfinfo;
+
 	DISSECTOR_ASSERT(value_ptr != NULL);
+	hfinfo = fi->hfinfo;
+
+	if (hfinfo->type == FT_ABSOLUTE_TIME) {
+		col_custom_set_fstr(hfinfo->abbrev, "%s", abs_time_to_str(value_ptr));
+	} else if (hfinfo->type == FT_RELATIVE_TIME) {
+		col_custom_set_fstr(hfinfo->abbrev, "%s", rel_time_to_secs_str(value_ptr));
+	}
 	fvalue_set(&fi->value, value_ptr, FALSE);
 }
 
