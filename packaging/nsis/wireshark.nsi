@@ -1000,6 +1000,7 @@ Delete "$INSTDIR\wimaxasncp\*.*"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.html"
+Delete "$INSTDIR\ws.css"
 Delete "$INSTDIR\COPYING"
 Delete "$INSTDIR\AUTHORS-SHORT"
 ; previous versions installed these files
