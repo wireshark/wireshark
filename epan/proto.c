@@ -2372,7 +2372,6 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 static void
 proto_tree_set_boolean(field_info *fi, guint32 value)
 {
-	col_custom_set_fstr(fi->hfinfo->abbrev, "%u", value);
 	proto_tree_set_uint(fi, value);
 }
 
@@ -2645,7 +2644,8 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 			integer >>= hfinfo->bitshift;
 		}
 	}
-	col_custom_set_fstr(hfinfo->abbrev, "%u", value);
+
+	col_custom_set_fstr(hfinfo->abbrev, "%u", integer);
 	fvalue_set_uinteger(&fi->value, integer);
 }
 
@@ -2811,7 +2811,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		}
 	}
 
-	col_custom_set_fstr(hfinfo->abbrev, "%d", value);
+	col_custom_set_fstr(hfinfo->abbrev, "%d", integer);
 	fvalue_set_sinteger(&fi->value, integer);
 }
 

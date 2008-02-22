@@ -829,23 +829,6 @@ else
 fi
 AC_SUBST(randpkt_bin)
 
-# Enable/disable rawshark
-
-AC_ARG_ENABLE(rawshark,
-  AC_HELP_STRING( [--enable-rawshark],
-                  [build rawshark.  @<:@default=yes@:>@]),
-    rawshark=$enableval,enable_rawshark=yes)
-
-if test "x$enable_rawshark" = "xyes" ; then
-	rawshark_bin="rawshark\$(EXEEXT)"
-	rawshark_man="rawshark.1"
-else
-	rawshark_bin=""
-	rawshark_man=""
-fi
-AC_SUBST(rawshark_bin)
-AC_SUBST(rawshark_man)
-
 
 
 dnl Checks for "gethostbyname()" - and "-lnsl", if we need it to get
@@ -914,6 +897,38 @@ else
 fi
 AC_SUBST(dumpcap_bin)
 AC_SUBST(dumpcap_man)
+
+# Enable/disable rawshark
+
+dnl rawshark check
+AC_MSG_CHECKING(whether to build rawshark)
+
+AC_ARG_ENABLE(rawshark,
+  AC_HELP_STRING( [--enable-rawshark],
+                  [build rawshark.  @<:@default=yes@:>@]),
+    rawshark=$enableval,enable_rawshark=yes)
+
+if test "x$enable_rawshark" = "xyes" ; then
+	if test "x$want_pcap" = "xno" ; then
+		enable_rawshark=no
+		AC_MSG_RESULT(pcap not available - disabling rawshark)
+	else
+		AC_MSG_RESULT(yes)
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+
+if test "x$enable_rawshark" = "xyes" ; then
+	rawshark_bin="rawshark\$(EXEEXT)"
+	rawshark_man="rawshark.1"
+else
+	rawshark_bin=""
+	rawshark_man=""
+fi
+AC_SUBST(rawshark_bin)
+AC_SUBST(rawshark_man)
+
 
 dnl pcap remote check
 AC_MSG_CHECKING(whether to use libpcap remote capturing feature)

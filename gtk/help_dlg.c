@@ -380,6 +380,9 @@ topic_action(topic_action_e action)
     case(LOCALPAGE_MAN_TSHARK):
         browser_open_data_file("tshark.html");
         break;
+    case(LOCALPAGE_MAN_RAWSHARK):
+        browser_open_data_file("rawshark.html");
+        break;
     case(LOCALPAGE_MAN_DUMPCAP):
         browser_open_data_file("dumpcap.html");
         break;

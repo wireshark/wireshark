@@ -103,7 +103,7 @@ idl2wrs: tools/idl2wrs.sh Makefile
 pkgdata_DATA = AUTHORS-SHORT COPYING manuf services wireshark.html \
 	tshark.html wireshark-filter.html capinfos.html editcap.html \
 	idl2wrs.html mergecap.html text2pcap.html dumpcap.html \
-	rawshark.html cfilters colorfilters dfilters smi_modules
+	rawshark.html ws.css cfilters colorfilters dfilters smi_modules
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
@@ -840,43 +840,46 @@ rawshark.1: doc/rawshark.pod
 	(cd doc ; \
 	$(MAKE) ../rawshark.1 )
 
-wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT
+ws.css: docbook/ws.css
+	cp docbook/ws.css .
+
+wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT ws.css
 	(cd doc ; \
 	$(MAKE) ../wireshark.html )
 
-tshark.html: doc/tshark.pod
+tshark.html: doc/tshark.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../tshark.html )
 
-wireshark-filter.html: tshark doc/wireshark-filter.pod.template
+wireshark-filter.html: tshark doc/wireshark-filter.pod.template ws.css
 	(cd doc ; \
 	$(MAKE) ../wireshark-filter.html )
 
-capinfos.html: doc/capinfos.pod
+capinfos.html: doc/capinfos.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../capinfos.html )
 
-editcap.html: doc/editcap.pod
+editcap.html: doc/editcap.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../editcap.html )
 
-idl2wrs.html: doc/idl2wrs.pod
+idl2wrs.html: doc/idl2wrs.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../idl2wrs.html )
 
-mergecap.html: doc/mergecap.pod
+mergecap.html: doc/mergecap.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../mergecap.html )
 
-text2pcap.html: doc/text2pcap.pod
+text2pcap.html: doc/text2pcap.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../text2pcap.html )
 
-dumpcap.html: doc/dumpcap.pod
+dumpcap.html: doc/dumpcap.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../dumpcap.html )
 
-rawshark.html: doc/rawshark.pod
+rawshark.html: doc/rawshark.pod ws.css
 	(cd doc ; \
 	$(MAKE) ../rawshark.html )
 

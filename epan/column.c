@@ -599,6 +599,9 @@ get_column_longest_string(gint format)
     case COL_FREQ_CHAN:
       return "9999 MHz [A 999]";
       break;
+    case COL_CUSTOM:
+      return "0000000000";	/* not the longest, but the longest is too long */
+      break;
     default: /* COL_INFO */
       return "Source port: kerberos-master  Destination port: kerberos-master";
       break;
