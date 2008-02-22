@@ -319,7 +319,7 @@ have_custom_cols(column_info *cinfo)
 {
   /* The same as check_col(), but without the check to see if the column
    * is writable. */
-  if (cinfo->col_first[COL_CUSTOM] >= 0)
+  if (cinfo && cinfo->col_first[COL_CUSTOM] >= 0)
     return TRUE;
   else
     return FALSE;
