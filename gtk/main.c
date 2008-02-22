@@ -3048,8 +3048,9 @@ main(int argc, char *argv[])
   packet_list_set_column_titles();
 
   menu_recent_read_finished();
+#ifdef HAVE_LIBPCAP
   menu_auto_scroll_live_changed(auto_scroll_live);
-
+#endif
 
   switch (user_font_apply()) {
   case FA_SUCCESS:

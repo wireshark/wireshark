@@ -790,11 +790,11 @@ packet_list_check_end(void)
     if (adj->value >= adj->upper - adj->page_size) {
         at_end = TRUE;
     }
-
+#ifdef HAVE_LIBPCAP
     if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
         menu_auto_scroll_live_changed(at_end);
     }
-
+#endif
     last_at_end = at_end;
     return at_end;
 }
