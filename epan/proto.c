@@ -1469,6 +1469,8 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, start_ptr, length);
 	}
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s", bytes_to_str(bytes->data,
+								   length));
 	fvalue_set(&fi->value, bytes, TRUE);
 }
 
@@ -2170,7 +2172,8 @@ static void
 proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value) {
-		col_custom_set_fstr(fi->hfinfo->abbrev, "%s", value);
+		col_custom_set_fstr(fi->hfinfo->abbrev, "%s",
+				    format_text(value, strlen(value)));
 		fvalue_set(&fi->value, (gpointer) value, FALSE);
 	} else {
 		col_custom_set_fstr(fi->hfinfo->abbrev, "[ Null ]");
@@ -2285,6 +2288,7 @@ static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
 	fvalue_set(&fi->value, (gpointer) value, FALSE);
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s", bytes_to_str_punct(value, 6, ':'));
 }
 
 static void
