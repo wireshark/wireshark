@@ -41,7 +41,7 @@ wireshark-tmp.pod: wireshark.pod ../AUTHORS-SHORT-FORMAT
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake AUTHORS-SHORT-FORMAT
 	cd doc
 
-../ws.css: ../docbook/ws.css:
+../ws.css: ../docbook/ws.css
 	copy ..\docbook\ws.css ..
 
 wireshark.1: wireshark.pod ../config.h
