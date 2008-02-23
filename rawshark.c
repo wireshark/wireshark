@@ -303,7 +303,7 @@ raw_pipe_open(const char *pipe_name)
     pncopy = g_strdup(pipe_name);
     if (strstr(pncopy, "\\\\") == pncopy) {
       pos = strchr(pncopy + 3, '\\');
-      if (pos && g_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
+      if (pos && g_ascii_strncasecmp(pos, PIPE_STR, strlen(PIPE_STR)) != 0)
         pos = NULL;
     }
 
