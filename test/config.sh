@@ -79,3 +79,12 @@ if [ "$WS_SYSTEM" != "Windows" ] && which mkfifo &>/dev/null ; then
     TEST_FIFO=1
 fi
 
+# Display our environment
+
+printf "\n ------- Info =-----------------\n"
+printf "Syms :$WS_SYSTEM: :$TRAFFIC_CAPTURE_IFACE: :$SKIP_CAPTURE: :$TEST_FIFO:\n"
+
+ls -l $WIRESHARK $TSHARK $DUMPCAP
+ls -l $(which wireshark) $(which tshark) $(which dumpcap)
+printf " ----------------------------------\n\n"
+

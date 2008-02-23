@@ -322,3 +322,23 @@ test_step_skipped() {
 	$color_reset
 }
 
+test_step_output_print() {
+	wait
+	printf "\n"
+	for f in "$@"; do
+		if [[ -f "$f" ]]; then
+			printf " --> $f\n"
+			cat "$f"
+			printf " <--\n"
+		else
+			printf " --> $f: doesn't exist (or isn't a file)\n"
+		fi
+	done
+}
+
+## Emacs
+## Local Variables:
+## tab-width: 8
+## indent-tabs-mode: t
+## sh-basic-offset: 8
+## End:
