@@ -193,10 +193,11 @@ column_prefs_show() {
   clp = g_list_first(prefs.col_list);
   while (clp) {
     cfmt    = (fmt_data *) clp->data;
-    if (cfmt->custom_field) {
-      fmt = g_strdup_printf("%s (%s)", col_format_desc(get_column_format_from_str(cfmt->fmt)), cfmt->custom_field);
+    cur_fmt = get_column_format_from_str(cfmt->fmt);
+    if (cur_fmt == COL_CUSTOM) {
+      fmt = g_strdup_printf("%s (%s)", col_format_desc(cur_fmt), cfmt->custom_field);
     } else {
-      fmt = g_strdup_printf("%s", col_format_desc(get_column_format_from_str(cfmt->fmt)));
+      fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
     }
 #if GTK_MAJOR_VERSION < 2
     col_ent[0] = cfmt->title;
