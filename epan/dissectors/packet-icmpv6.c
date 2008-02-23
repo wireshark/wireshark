@@ -1433,6 +1433,16 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	codename = "Should always be zero";
 	colcodename = NULL;
 	break;
+	case ICMP6_CERT_PATH_SOL:
+		typename = coltypename = "Certification Path Solicitation";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
+	case ICMP6_CERT_PATH_AD:
+		typename = coltypename = "Certification Path Advertisement";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
     case ICMP6_MLDV2_REPORT:
 	typename = coltypename = "Multicast Listener Report Message v2";
 	codename = "Should always be zero";

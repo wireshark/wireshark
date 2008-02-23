@@ -271,9 +271,10 @@ struct icmp6_hdr {
 
 #define ICMP6_MIP6_DHAAD_REQUEST	144	/* Mobile IPv6 DHAAD */
 #define ICMP6_MIP6_DHAAD_REPLY		145	/* Mobile IPv6 DHAAD */
-#define ICMP6_MIP6_MPS			146	/* Mobile IPv6 MPS */
-#define ICMP6_MIP6_MPA			147	/* Mobile IPv6 MPA */
-
+#define ICMP6_MIP6_MPS				146	/* Mobile IPv6 MPS */
+#define ICMP6_MIP6_MPA				147	/* Mobile IPv6 MPA */
+#define ICMP6_CERT_PATH_SOL			148 /* Certification Path Solicitation Message          [RFC3971] */
+#define ICMP6_CERT_PATH_AD			149 /* Certification Path Advertisement Message         [RFC3971] */
 #define ICMP6_MAXTYPE			153
 
 #define ICMP6_DST_UNREACH_NOROUTE	0	/* no route to destination */
@@ -417,7 +418,7 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 
 #define ND_OPT_CGA					11
 #define ND_OPT_RSA					12
-#define ND_OPT_TIMESTAMP			14
+#define ND_OPT_TIMESTAMP			13
 
 /*
 14      Nonce option                            [RFC3971]
