@@ -911,10 +911,9 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
         *is_pipe = TRUE;
         break;
 
-      default:		/* couldn't stat it */
-        cmdarg_err("Error testing whether capture file is a pipe: %s",
-                strerror(errno));
-        return 2;
+      default:		/* couldn't stat it              */
+        break;		/* ignore: later attempt to open */
+                        /*  will generate a nice msg     */
       }
     }
   }

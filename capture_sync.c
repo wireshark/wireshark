@@ -291,6 +291,8 @@ sync_pipe_start(capture_options *capture_opts) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "We don't know where to find dumpcap.");
         return FALSE;
     }
+    
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[0]: %s", argv[0]);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
     argv = sync_pipe_add_arg(argv, &argc, capture_opts->iface);
@@ -1105,6 +1107,7 @@ pipe_read_block(int pipe, char *indicator, int len, char *msg) {
         return -1;
     }
 
+    /* XXX If message is "2part", the msg probably won't be sent to debug log correctly */
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
           "read %d ok indicator: %c len: %u msg: %s", pipe, *indicator,
           len, msg);
