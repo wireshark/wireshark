@@ -181,16 +181,37 @@ static const value_string names_fmip6_naack_opt_status[] = {
 	{ 0,			NULL }
 };
 
+/* http://www.iana.org/assignments/icmpv6-parameters */
 static const value_string option_vals[] = {
-	{ ND_OPT_SOURCE_LINKADDR,	"Source link-layer address" },
-	{ ND_OPT_TARGET_LINKADDR,	"Target link-layer address" },
-	{ ND_OPT_PREFIX_INFORMATION,	"Prefix information" },
-	{ ND_OPT_REDIRECTED_HEADER,	"Redirected header" },
-	{ ND_OPT_MTU,			"MTU" },
-	{ ND_OPT_ADVINTERVAL,		"Advertisement Interval" },
-	{ ND_OPT_HOMEAGENT_INFO,	"Home Agent Information" },
-	{ ND_OPT_MAP,			"HMIPv6 MAP option" },
-	{ FMIP6_OPT_NEIGHBOR_ADV_ACK,	"Neighbor Advertisement Acknowledgment" },
+	{ ND_OPT_SOURCE_LINKADDR,			"Source link-layer address" },
+	{ ND_OPT_TARGET_LINKADDR,			"Target link-layer address" },
+	{ ND_OPT_PREFIX_INFORMATION,		"Prefix information" },
+	{ ND_OPT_REDIRECTED_HEADER,			"Redirected header" },
+	{ ND_OPT_MTU,						"MTU" },
+	{ ND_OPT_ADVINTERVAL,				"Advertisement Interval" },
+	{ ND_OPT_HOMEAGENT_INFO,			"Home Agent Information" },
+	{ ND_OPT_CGA,						"CGA" },								/* [RFC3971] */
+	{ ND_OPT_RSA,						"RSA Signature" },						/* [RFC3971] */
+	{ ND_OPT_TIMESTAMP,					"Timestamp" },							/* [RFC3971] */ 
+	{ 14,		"Nonce" },														/* [RFC3971] */
+	{ 15,		"Trust Anchor" },												/* [RFC3971] */
+	{ 16,		"Certificate" },												/* [RFC3971] */
+	{ FMIP6_OPT_IP_ADDRESS,				"IP Address Option" },						/* [RFC4068] */  
+	{ FMIP6_OPT_NEW_ROUTER_PREFIX_INFO,	"New Router Prefix Information" },			/* [RFC4068] */
+	{ FMIP6_OPT_LINK_LAYER_ADDRESS,		"Link-layer Address" },						/* [RFC4068] */
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK,		"Neighbor Advertisement Acknowledgment" },	/* [RFC4068] */  
+	{ 21,		"CARD Request" },                     /* [RFC4065] */
+	{ 22,		"CARD Reply" },                       /* [RFC4065] */
+	{ 23,		"MAP" },                              /* [RFC4140] */
+	{ 24,		"Route Information" },                /* [RFC4191] */
+	{ 25,		"Recursive DNS Server" },             /* [RFC5006] */
+	{ 26,		"RA Flags Extension" },               /* [RFC5075] */
+	{ 27,		"Handover Key Request" },             /* [RFC-ietf-mipshop-handover-key-03.txt] */
+	{ 28,		"Handover Key Reply" },               /* [RFC-ietf-mipshop-handover-key-03.txt] */
+	{ ND_OPT_MAP,						"HMIPv6 MAP option" },
+/*29-252  Unassigned */
+	{ 253,		"RFC3692-style Experiment 1" },          /* [RFC4727] */
+	{ 254,		"RFC3692-style Experiment 2" },          /* [RFC4727] */
 	{ 0,			NULL }
 };
 
@@ -357,7 +378,7 @@ again:
 	    "Advertisement Interval: %u",
 	    tvb_get_ntohl(tvb, offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint)));
 	break;
-    case ND_OPT_HOMEAGENT_INFO:
+    case ND_OPT_HOMEAGENT_INFO: /* 8 */
       {
 	struct nd_opt_ha_info pibuf, *pi;
 
@@ -373,6 +394,8 @@ again:
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
 	break;
       }
+	case ND_OPT_TIMESTAMP:
+		break;
     case ND_OPT_MAP:
       {
 	struct nd_opt_map_info mapbuf, *map;

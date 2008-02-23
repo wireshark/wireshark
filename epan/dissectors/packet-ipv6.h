@@ -242,20 +242,20 @@ struct icmp6_hdr {
 #define ICMP6_TIME_EXCEEDED		3	/* time exceeded, code: */
 #define ICMP6_PARAM_PROB		4	/* ip6 header bad */
 
-#define ICMP6_ECHO_REQUEST		128	/* echo service */
-#define ICMP6_ECHO_REPLY		129	/* echo reply */
+#define ICMP6_ECHO_REQUEST			128	/* echo service */
+#define ICMP6_ECHO_REPLY			129	/* echo reply */
 #define ICMP6_MEMBERSHIP_QUERY		130	/* group membership query */
-#define MLD6_LISTENER_QUERY		130 	/* multicast listener query */
+#define MLD6_LISTENER_QUERY			130 	/* multicast listener query */
 #define ICMP6_MEMBERSHIP_REPORT		131	/* group membership report */
 #define MLD6_LISTENER_REPORT		131	/* multicast listener report */
 #define ICMP6_MEMBERSHIP_REDUCTION	132	/* group membership termination */
-#define MLD6_LISTENER_DONE		132	/* multicast listener done */
+#define MLD6_LISTENER_DONE			132	/* multicast listener done */
 
 #define ND_ROUTER_SOLICIT		133	/* router solicitation */
 #define ND_ROUTER_ADVERT		134	/* router advertisment */
 #define ND_NEIGHBOR_SOLICIT		135	/* neighbor solicitation */
 #define ND_NEIGHBOR_ADVERT		136	/* neighbor advertisment */
-#define ND_REDIRECT			137	/* redirect */
+#define ND_REDIRECT				137	/* redirect */
 
 #define ICMP6_ROUTER_RENUMBERING	138	/* router renumbering */
 
@@ -404,15 +404,42 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 	/* followed by option specific data*/
 };
 
+/* http://www.iana.org/assignments/icmpv6-parameters */
 #define ND_OPT_SOURCE_LINKADDR		1
 #define ND_OPT_TARGET_LINKADDR		2
 #define ND_OPT_PREFIX_INFORMATION	3
 #define ND_OPT_REDIRECTED_HEADER	4
-#define ND_OPT_MTU			5
-#define ND_OPT_ADVINTERVAL		7
+#define ND_OPT_MTU					5
+#define ND_OPT_ADVINTERVAL			7
 #define ND_OPT_HOMEAGENT_INFO		8
 #define ND_OPT_SOURCE_ADDRLIST		9
 #define ND_OPT_TARGET_ADDRLIST		10
+
+#define ND_OPT_CGA					11
+#define ND_OPT_RSA					12
+#define ND_OPT_TIMESTAMP			14
+
+/*
+14      Nonce option                            [RFC3971]
+15      Trust Anchor option                     [RFC3971]
+16      Certificate option                      [RFC3971]
+17      IP Address Option                       [RFC4068]  
+18      New Router Prefix Information Option    [RFC4068]
+19      Link-layer Address Option               [RFC4068]
+20      Neighbor Advertisement Acknowledgment   [RFC4068]
+        Option
+21      CARD Request option                     [RFC4065]
+22      CARD Reply option                       [RFC4065]
+23      MAP Option                              [RFC4140]
+24      Route Information Option                [RFC4191]
+25      Recursive DNS Server Option             [RFC5006]
+26      RA Flags Extension Option               [RFC5075]
+27      Handover Key Request Option             [RFC-ietf-mipshop-handover-key-03.txt]
+28      Handover Key Reply Option               [RFC-ietf-mipshop-handover-key-03.txt]
+29-252  Unassigned
+253     RFC3692-style Experiment 1 (*)          [RFC4727]
+254     RFC3692-style Experiment 2 (*)          [RFC4727]
+*/
 
 /* draft-ietf-ipngwg-router-preference, not officially assigned yet */
 #define ND_OPT_ROUTE_INFO		200
