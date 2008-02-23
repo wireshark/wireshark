@@ -36,6 +36,7 @@
 #include "compat_macros.h"
 #include "gui_utils.h"
 #include "packet_list.h"
+#include "filter_dlg.h"
 
 static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
@@ -285,6 +286,7 @@ column_prefs_show() {
   gtk_widget_show(props_hb);
 
   field_te = gtk_entry_new();
+  SIGNAL_CONNECT(field_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_table_attach_defaults(GTK_TABLE(tb), field_te, 2, 3, 1, 2);
   gtk_widget_set_sensitive(field_te, FALSE);
   gtk_widget_hide(field_te);
