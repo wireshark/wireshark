@@ -1735,6 +1735,8 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 static void
 proto_tree_set_ipv4(field_info *fi, guint32 value)
 {
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s",
+			    ip_to_str((guint8 *)&value));
 	fvalue_set_uinteger(&fi->value, value);
 }
 
@@ -1907,6 +1909,8 @@ static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s",
+			    guid_to_str(value_ptr));
 	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
 }
 
@@ -2006,6 +2010,8 @@ proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, value_ptr, length);
 	}
+	col_custom_set_fstr(fi->hfinfo->abbrev, "%s",
+			    oid_resolved_from_encoded(value_ptr, length));
 	fvalue_set(&fi->value, bytes, TRUE);
 }
 
@@ -2298,8 +2304,8 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
-	fvalue_set(&fi->value, (gpointer) value, FALSE);
 	col_custom_set_fstr(fi->hfinfo->abbrev, "%s", bytes_to_str_punct(value, 6, ':'));
+	fvalue_set(&fi->value, (gpointer) value, FALSE);
 }
 
 static void
