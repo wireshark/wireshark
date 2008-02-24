@@ -580,10 +580,10 @@ packet_list_new(e_prefs *prefs)
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
           hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
           if ((hfi != NULL) && (hfi->strings == NULL) && 
-              ((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-              (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
-               (hfi->type == FT_INT64) || (hfi->type == FT_UINT64) ||
-               (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM))) {
+	      ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+	       (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+		(IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
+		 (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
             custom_right_justify = TRUE;
           }
         }
