@@ -419,9 +419,9 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_CGA					11
 #define ND_OPT_RSA					12
 #define ND_OPT_TIMESTAMP			13
+#define ND_OPT_NONCE				14
 
 /*
-14      Nonce option                            [RFC3971]
 15      Trust Anchor option                     [RFC3971]
 16      Certificate option                      [RFC3971]
 17      IP Address Option                       [RFC4068]  

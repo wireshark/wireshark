@@ -88,6 +88,9 @@ static int hf_icmpv6_ra_retrans_timer = -1;
 static int hf_icmpv6_option = -1;
 static int hf_icmpv6_option_type = -1;
 static int hf_icmpv6_option_length = -1;
+static int hf_icmpv6_opt_cga_pad_len = -1;
+static int hf_icmpv6_opt_cga = -1;
+static int hf_icmpv6_opt_rsa_key_hash = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -251,6 +254,9 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     const char *typename;
     static const guint8 nd_redirect_reserved[6] = {0, 0, 0, 0, 0, 0};
     guint8 nd_redirect_res[6];
+	int opt_offset;
+	guint8 padd_length = 0;
+	int par_len;
 
     if (!tree)
 	return;
@@ -281,9 +287,8 @@ again:
     proto_item_append_text(ti, " (%s)", typename);
 
     /* Option type */
-    proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_type, tvb,
-	offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1,
-	opt->nd_opt_type);
+	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb, 
+		offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1, FALSE);
     /* Option length */
     proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
 	offset + offsetof(struct nd_opt_hdr, nd_opt_len), 1,
@@ -394,7 +399,66 @@ again:
 	    pntohs(&pi->nd_opt_ha_info_ha_life));
 	break;
       }
-	case ND_OPT_TIMESTAMP:
+	case ND_OPT_CGA: /* 11 */
+		/* RFC 3971 5.1.  CGA Option */
+		/* Pad Length */
+		opt_offset = offset +2;
+		padd_length = tvb_get_guint8(tvb,opt_offset);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
+		opt_offset++;
+		/* Reserved 8 bits */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
+		opt_offset++;
+		/* CGA Parameters A variable-length field containing the CGA Parameters data
+		 * structure described in Section 4 of 
+		 * "Cryptographically Generated Addresses (CGA)", RFC3972.
+		 */
+		par_len = len-4-padd_length;
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, FALSE);
+		opt_offset = opt_offset + par_len;
+		/* Padding */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
+		break;
+	case ND_OPT_RSA: /* 12 */ 
+		/*5.2.  RSA Signature Option */
+		opt_offset = offset +2;
+		/* Reserved, A 16-bit field reserved for future use. */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Reserved");
+		opt_offset = opt_offset + 2;
+		/* Key Hash 
+		 * A 128-bit field containing the most significant (leftmost) 128
+		 * bits of a SHA-1 [14] hash of the public key used for constructing
+		 * the signature.
+		 */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, FALSE);
+		opt_offset = opt_offset + 16;
+		/* Digital Signature */
+		par_len = len - 20;
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Digital Signature + Padding");
+		/* Padding */
+		/* TODO: Calculate padding length and exlude from the signature */
+		break;
+	case ND_OPT_TIMESTAMP: /* 13 */
+		opt_offset = offset +2;
+		/* Reserved A 48-bit field reserved for future use. */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Reserved");
+		opt_offset = opt_offset + 6;
+		/* Timestamp
+		 * A 64-bit unsigned integer field containing a timestamp.  The value
+		 * indicates the number of seconds since January 1, 1970, 00:00 UTC,
+		 * by using a fixed point format.  In this format, the integer number
+		 * of seconds is contained in the first 48 bits of the field, and the
+		 * remaining 16 bits indicate the number of 1/64K fractions of a
+		 * second.
+		 */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,6,"Timestamp(number of seconds since January 1, 1970, 00:00 UTC)");
+		opt_offset = opt_offset + 6;
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Timestamp(1/64K fractions of a second)");
+		break;
+	case ND_OPT_NONCE:
+		/* 5.3.2.  Nonce Option */
+		opt_offset = offset +2;
+		/* Nonce */
 		break;
     case ND_OPT_MAP:
       {
@@ -1989,7 +2053,17 @@ proto_register_icmpv6(void)
     { &hf_icmpv6_option_length,
       { "Length",           "icmpv6.option.length", FT_UINT8,  BASE_DEC, NULL, 0x0,
       	"Options length (in bytes)", HFILL }},
+	{ &hf_icmpv6_opt_cga_pad_len,
+      { "Pad Length",           "icmpv6.option.cga.pad_length", FT_UINT8,  BASE_DEC, NULL, 0x0,
+      	"Pad Length (in bytes)", HFILL }},
+	{ &hf_icmpv6_opt_cga,
+      { "CGA",           "icmpv6.option.cga", FT_BYTES,  BASE_NONE, NULL, 0x0,
+      	"CGA", HFILL }},
+	{ &hf_icmpv6_opt_rsa_key_hash,
+      { "Key Hash",           "icmpv6.option.rsa.key_hash", FT_BYTES,  BASE_HEX, NULL, 0x0,
+      	"Key Hash", HFILL }},
   };
+
   static gint *ett[] = {
     &ett_icmpv6,
     &ett_icmpv6opt,
