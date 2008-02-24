@@ -62,14 +62,14 @@ struct ip6_hdr {
 #define ip6_hops	ip6_ctlun.ip6_un1.ip6_un1_hlim
 
 /* Offsets of fields within an IPv6 header. */
-#define	IP6H_CTL	0
+#define	IP6H_CTL		0
 #define	IP6H_CTL_FLOW	0
 #define	IP6H_CTL_PLEN	4
 #define	IP6H_CTL_NXT	6
 #define	IP6H_CTL_HLIM	7
 #define	IP6H_CTL_VFC	0
-#define	IP6H_SRC	8
-#define	IP6H_DST	24
+#define	IP6H_SRC		8
+#define	IP6H_DST		24
 
 #define IPV6_FLOWINFO_MASK	0x0fffffff	/* flow info (28 bits) */
 #define IPV6_FLOWLABEL_MASK	0x000fffff	/* flow label (20 bits) */
@@ -100,17 +100,17 @@ struct ip6_dest {
 };
 
 /* Option types and related macros */
-#define IP6OPT_PAD1		0x00	/* 00 0 00000 */
-#define IP6OPT_PADN		0x01	/* 00 0 00001 */
-#define IP6OPT_JUMBO		0xC2	/* 11 0 00010 = 194 */
-#define IP6OPT_JUMBO_LEN	6
-#define IP6OPT_RTALERT		0x05	/* 00 0 00101 */
+#define IP6OPT_PAD1				0x00	/* 00 0 00000 */
+#define IP6OPT_PADN				0x01	/* 00 0 00001 */
+#define IP6OPT_JUMBO			0xC2	/* 11 0 00010 = 194 */
+#define IP6OPT_JUMBO_LEN		6
+#define IP6OPT_RTALERT			0x05	/* 00 0 00101 */
 
-#define IP6OPT_RTALERT_LEN	4
-#define IP6OPT_RTALERT_MLD	0	/* Datagram contains MLD message */
-#define IP6OPT_RTALERT_RSVP	1	/* Datagram contains RSVP message */
+#define IP6OPT_RTALERT_LEN		4
+#define IP6OPT_RTALERT_MLD		0	/* Datagram contains MLD message */
+#define IP6OPT_RTALERT_RSVP		1	/* Datagram contains RSVP message */
 #define IP6OPT_RTALERT_ACTNET	2	/* contains an Active Networks msg */
-#define IP6OPT_MINLEN		2
+#define IP6OPT_MINLEN			2
 
 #define IP6OPT_HOME_ADDRESS	0xC9  /* 11 0 01001 */
 
@@ -151,16 +151,16 @@ struct ip6_frag {
 };
 
 /* SHIM6 control message types */
-#define SHIM6_TYPE_I1 		0x01	/* 0 000 0001 */
-#define SHIM6_TYPE_R1 		0x02	/* 0 000 0010 */
-#define SHIM6_TYPE_I2		0x03	/* 0 000 0011 */
-#define SHIM6_TYPE_R2 		0x04	/* 0 000 0100 */
-#define SHIM6_TYPE_R1BIS	0x05	/* 0 000 0101 */
-#define SHIM6_TYPE_I2BIS	0x06	/* 0 000 0110 */
-#define SHIM6_TYPE_UPD_REQ	0x40	/* 0 100 0000 = 64 */
-#define SHIM6_TYPE_UPD_ACK	0x41	/* 0 100 0001 = 65 */
+#define SHIM6_TYPE_I1 			0x01	/* 0 000 0001 */
+#define SHIM6_TYPE_R1 			0x02	/* 0 000 0010 */
+#define SHIM6_TYPE_I2			0x03	/* 0 000 0011 */
+#define SHIM6_TYPE_R2 			0x04	/* 0 000 0100 */
+#define SHIM6_TYPE_R1BIS		0x05	/* 0 000 0101 */
+#define SHIM6_TYPE_I2BIS		0x06	/* 0 000 0110 */
+#define SHIM6_TYPE_UPD_REQ		0x40	/* 0 100 0000 = 64 */
+#define SHIM6_TYPE_UPD_ACK		0x41	/* 0 100 0001 = 65 */
 #define SHIM6_TYPE_KEEPALIVE	0x42	/* 0 100 0010 = 66 */
-#define SHIM6_TYPE_PROBE 	0x43	/* 0 100 0011 = 67 */
+#define SHIM6_TYPE_PROBE 		0x43	/* 0 100 0011 = 67 */
 
 /* SHIM6 Options */
 #define SHIM6_OPT_RESPVAL       0x01    /* 0 000 0001 */
@@ -172,24 +172,24 @@ struct ip6_frag {
 #define SHIM6_OPT_FII           0x07    /* 0 000 0111 */
 
 /* SHIM6 Bitmasks */
-#define SHIM6_BITMASK_P		0x80	/* 1 000 0000 */
-#define SHIM6_BITMASK_TYPE	0x7F	/* 0 111 1111 */
+#define SHIM6_BITMASK_P			0x80	/* 1 000 0000 */
+#define SHIM6_BITMASK_TYPE		0x7F	/* 0 111 1111 */
 #define SHIM6_BITMASK_PROTOCOL	0x01	/* 0 000 0001 */
 #define SHIM6_BITMASK_SPECIFIC	0xFE	/* 1 111 1110 */
-#define SHIM6_BITMASK_R		0x80	/* 1 000 0000 */
-#define SHIM6_BITMASK_CT	0x7F	/* 0 111 1111 */
+#define SHIM6_BITMASK_R			0x80	/* 1 000 0000 */
+#define SHIM6_BITMASK_CT		0x7F	/* 0 111 1111 */
 #define SHIM6_BITMASK_OPT_TYPE	0xFFFE	/* 1 111 1111    1 111 1110 */
 #define SHIM6_BITMASK_CRITICAL	0x01	/* 0 000 0001 */
 #define SHIM6_BITMASK_PRECVD	0xF0	/* 1 111 0000 */
-#define SHIM6_BITMASK_PSENT	0x0F	/* 0 000 1111 */
-#define SHIM6_BITMASK_STA	0xC0	/* 1 100 0000 */
+#define SHIM6_BITMASK_PSENT		0x0F	/* 0 000 1111 */
+#define SHIM6_BITMASK_STA		0xC0	/* 1 100 0000 */
 
 /* SHIM6 Verification Methods */
-#define SHIM6_VERIF_HBA		0x01	/* 0 000 0001 */
-#define SHIM6_VERIF_CGA		0x02	/* 0 000 0010 */
+#define SHIM6_VERIF_HBA			0x01	/* 0 000 0001 */
+#define SHIM6_VERIF_CGA			0x02	/* 0 000 0010 */
 
 /* SHIM6 Flags */
-#define SHIM6_FLAG_BROKEN	0x01	/* 0 000 0001 */
+#define SHIM6_FLAG_BROKEN		0x01	/* 0 000 0001 */
 #define SHIM6_FLAG_TEMPORARY	0x02	/* 0 000 0010 */
 
 /* SHIM6 REAP States */
@@ -259,15 +259,15 @@ struct icmp6_hdr {
 
 #define ICMP6_ROUTER_RENUMBERING	138	/* router renumbering */
 
-#define ICMP6_WRUREQUEST		139	/* who are you request */
-#define ICMP6_WRUREPLY			140	/* who are you reply */
-#define ICMP6_FQDN_QUERY		139	/* FQDN query */
-#define ICMP6_FQDN_REPLY		140	/* FQDN reply */
-#define ICMP6_NI_QUERY			139	/* node information request */
-#define ICMP6_NI_REPLY			140	/* node information reply */
-#define ICMP6_IND_SOLICIT		141	/* Inverse ND Solicitation */
-#define ICMP6_IND_ADVERT		142	/* Inverse ND advertisement */
-#define ICMP6_MLDV2_REPORT		143	/* MLD v2 report message : draft-vida-mld-v2-08.txt */
+#define ICMP6_WRUREQUEST			139	/* who are you request */
+#define ICMP6_WRUREPLY				140	/* who are you reply */
+#define ICMP6_FQDN_QUERY			139	/* FQDN query */
+#define ICMP6_FQDN_REPLY			140	/* FQDN reply */
+#define ICMP6_NI_QUERY				139	/* node information request */
+#define ICMP6_NI_REPLY				140	/* node information reply */
+#define ICMP6_IND_SOLICIT			141	/* Inverse ND Solicitation */
+#define ICMP6_IND_ADVERT			142	/* Inverse ND advertisement */
+#define ICMP6_MLDV2_REPORT			143	/* MLD v2 report message : draft-vida-mld-v2-08.txt */
 
 #define ICMP6_MIP6_DHAAD_REQUEST	144	/* Mobile IPv6 DHAAD */
 #define ICMP6_MIP6_DHAAD_REPLY		145	/* Mobile IPv6 DHAAD */
@@ -275,21 +275,21 @@ struct icmp6_hdr {
 #define ICMP6_MIP6_MPA				147	/* Mobile IPv6 MPA */
 #define ICMP6_CERT_PATH_SOL			148 /* Certification Path Solicitation Message          [RFC3971] */
 #define ICMP6_CERT_PATH_AD			149 /* Certification Path Advertisement Message         [RFC3971] */
-#define ICMP6_MAXTYPE			153
+#define ICMP6_MAXTYPE				153
 
-#define ICMP6_DST_UNREACH_NOROUTE	0	/* no route to destination */
-#define ICMP6_DST_UNREACH_ADMIN	 	1	/* administratively prohibited */
+#define ICMP6_DST_UNREACH_NOROUTE		0	/* no route to destination */
+#define ICMP6_DST_UNREACH_ADMIN	 		1	/* administratively prohibited */
 #define ICMP6_DST_UNREACH_NOTNEIGHBOR	2	/* not a neighbor(obsolete) */
 #define ICMP6_DST_UNREACH_BEYONDSCOPE	2	/* beyond scope of source address */
-#define ICMP6_DST_UNREACH_ADDR		3	/* address unreachable */
-#define ICMP6_DST_UNREACH_NOPORT	4	/* port unreachable */
+#define ICMP6_DST_UNREACH_ADDR			3	/* address unreachable */
+#define ICMP6_DST_UNREACH_NOPORT		4	/* port unreachable */
 
-#define ICMP6_TIME_EXCEED_TRANSIT 	0	/* ttl==0 in transit */
+#define ICMP6_TIME_EXCEED_TRANSIT 		0	/* ttl==0 in transit */
 #define ICMP6_TIME_EXCEED_REASSEMBLY	1	/* ttl==0 in reass */
 
-#define ICMP6_PARAMPROB_HEADER 	 	0	/* erroneous header field */
-#define ICMP6_PARAMPROB_NEXTHEADER	1	/* unrecognized next header */
-#define ICMP6_PARAMPROB_OPTION		2	/* unrecognized option */
+#define ICMP6_PARAMPROB_HEADER 	 		0	/* erroneous header field */
+#define ICMP6_PARAMPROB_NEXTHEADER		1	/* unrecognized next header */
+#define ICMP6_PARAMPROB_OPTION			2	/* unrecognized option */
 
 #define ICMP6_INFOMSG_MASK		0x80	/* all informational messages */
 
@@ -420,10 +420,10 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_RSA					12
 #define ND_OPT_TIMESTAMP			13
 #define ND_OPT_NONCE				14
+#define ND_OPT_TRUST_ANCHOR			15
+#define ND_OPT_CERTIFICATE			16
 
 /*
-15      Trust Anchor option                     [RFC3971]
-16      Certificate option                      [RFC3971]
 17      IP Address Option                       [RFC4068]  
 18      New Router Prefix Information Option    [RFC4068]
 19      Link-layer Address Option               [RFC4068]

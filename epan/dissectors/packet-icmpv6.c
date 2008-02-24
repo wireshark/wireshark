@@ -91,6 +91,13 @@ static int hf_icmpv6_option_length = -1;
 static int hf_icmpv6_opt_cga_pad_len = -1;
 static int hf_icmpv6_opt_cga = -1;
 static int hf_icmpv6_opt_rsa_key_hash = -1;
+static int hf_icmpv6_opt_name_type = -1;
+static int hf_icmpv6_opt_name_x501 = -1;
+static int hf_icmpv6_opt_name_fqdn = -1;
+static int hf_icmpv6_opt_cert_type = -1;
+static int hf_icmpv6_identifier = -1;
+static int hf_icmpv6_all_comp = -1;
+static int hf_icmpv6_comp = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -196,8 +203,8 @@ static const value_string option_vals[] = {
 	{ ND_OPT_CGA,						"CGA" },								/* [RFC3971] */
 	{ ND_OPT_RSA,						"RSA Signature" },						/* [RFC3971] */
 	{ ND_OPT_TIMESTAMP,					"Timestamp" },							/* [RFC3971] */ 
-	{ 14,		"Nonce" },														/* [RFC3971] */
-	{ 15,		"Trust Anchor" },												/* [RFC3971] */
+	{ ND_OPT_NONCE,						"Nonce" },														/* [RFC3971] */
+	{ ND_OPT_TRUST_ANCHOR,				"Trust Anchor" },												/* [RFC3971] */
 	{ 16,		"Certificate" },												/* [RFC3971] */
 	{ FMIP6_OPT_IP_ADDRESS,				"IP Address Option" },						/* [RFC4068] */  
 	{ FMIP6_OPT_NEW_ROUTER_PREFIX_INFO,	"New Router Prefix Information" },			/* [RFC4068] */
@@ -215,6 +222,17 @@ static const value_string option_vals[] = {
 /*29-252  Unassigned */
 	{ 253,		"RFC3692-style Experiment 1" },          /* [RFC4727] */
 	{ 254,		"RFC3692-style Experiment 2" },          /* [RFC4727] */
+	{ 0,			NULL }
+};
+
+static const value_string icmpv6_option_name_type_vals[] = {
+	{ 1,	"DER Encoded X.501 Name" },
+	{ 2,	"FQDN" },
+	{ 0,			NULL }
+};
+
+static const value_string icmpv6_option_cert_type_vals[] = {
+	{ 1,	"X.509v3 Certificate" },
 	{ 0,			NULL }
 };
 
@@ -257,6 +275,7 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	int opt_offset;
 	guint8 padd_length = 0;
 	int par_len;
+	guint8 name_type = 0;
 
     if (!tree)
 	return;
@@ -459,6 +478,48 @@ again:
 		/* 5.3.2.  Nonce Option */
 		opt_offset = offset +2;
 		/* Nonce */
+		break;
+	case ND_OPT_TRUST_ANCHOR:
+		opt_offset = offset +2;
+		/* Name Type */
+		name_type = tvb_get_guint8(tvb,opt_offset);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_type, tvb, opt_offset, 1, FALSE);
+		opt_offset++;
+		/* Pad Length */
+		padd_length = tvb_get_guint8(tvb,opt_offset);
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga_pad_len, tvb, opt_offset, 1, FALSE);
+		opt_offset++;
+		par_len = len - 4 - padd_length;
+		switch (name_type){
+		case 1:
+			/* DER Encoded X.501 Name */
+			proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
+			break;
+		case 2:
+			/* FQDN */
+			proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_fqdn, tvb, opt_offset, par_len, FALSE);
+			break;
+		default:
+			proto_tree_add_text(icmp6opt_tree, tvb,opt_offset, par_len,"Unknown name type");
+			break;
+		}
+		opt_offset = opt_offset + par_len;
+		/* Padding */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
+		opt_offset = opt_offset + padd_length;
+		break;
+	case ND_OPT_CERTIFICATE:
+		opt_offset = offset +2;
+		/* Cert Type */
+		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cert_type, tvb, opt_offset, 1, FALSE);
+		opt_offset++;
+		/* Reserved */
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
+		opt_offset++;
+		/* Certificate */
+		par_len = len - 4;
+		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Certificate + padding");
+		/* Padding */
 		break;
     case ND_OPT_MAP:
       {
@@ -1935,7 +1996,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* Show all options */
 	    dissect_icmpv6ndopt(tvb, offset + 8, pinfo, icmp6_tree);
 	    break;
-			case ICMP6_EXPERIMENTAL_MOBILITY:
+	case ICMP6_EXPERIMENTAL_MOBILITY:
 		switch (dp->icmp6_data8[0]) {
 			case FMIP6_SUBTYPE_RTSOLPR:
 				{
@@ -2004,6 +2065,30 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 		}
 	    break;
+	case ICMP6_CERT_PATH_AD:
+		/*RFC 3971 6.4.2.  Certification Path Advertisement Message Format */
+		offset = offset +4;
+		proto_tree_add_text(icmp6_tree, tvb, offset, -1,"Certification Path Advertisement Message");
+		
+		/* Identifier A 16-bit unsigned integer field */		
+		proto_tree_add_item(icmp6_tree, hf_icmpv6_identifier, tvb, offset, 2, FALSE);
+		offset = offset + 2;
+		/* All Components  A 16-bit unsigned integer field*/
+		proto_tree_add_item(icmp6_tree, hf_icmpv6_all_comp, tvb, offset, 2, FALSE);
+		offset = offset + 2;
+
+		/* Component A 16-bit unsigned integer field, used to inform the receiver
+		 * which certificate is being sent.
+		 */
+		proto_tree_add_item(icmp6_tree, hf_icmpv6_comp, tvb, offset, 2, FALSE);
+		offset = offset + 2;
+
+		/* Reserved */
+		proto_tree_add_text(icmp6_tree, tvb, offset, 2,"Reserved");
+		offset = offset + 2;
+
+		dissect_icmpv6ndopt(tvb, offset, pinfo, icmp6_tree);
+		break;
 	default:
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	    call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -2062,6 +2147,27 @@ proto_register_icmpv6(void)
 	{ &hf_icmpv6_opt_rsa_key_hash,
       { "Key Hash",           "icmpv6.option.rsa.key_hash", FT_BYTES,  BASE_HEX, NULL, 0x0,
       	"Key Hash", HFILL }},
+	{ &hf_icmpv6_opt_name_type,
+      { "Name Type",           "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_name_type_vals), 0x0,
+      	"Name Type", HFILL }},
+	{ &hf_icmpv6_opt_name_x501,
+      { "DER Encoded X.501 Name",           "icmpv6.option.name_x501", FT_BYTES,  BASE_HEX, NULL, 0x0,
+      	"DER Encoded X.501 Name", HFILL }},
+	{ &hf_icmpv6_opt_name_fqdn,
+      { "FQDN",           "icmpv6.option.name_type.fqdn", FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"FQDN", HFILL }},
+	{ &hf_icmpv6_opt_cert_type,
+      { "Cert Type",           "icmpv6.option.name_type", FT_UINT8,  BASE_DEC, VALS(icmpv6_option_cert_type_vals), 0x0,
+      	"Cert Type", HFILL }},
+	{ &hf_icmpv6_identifier,
+      { "Identifier",           "icmpv6.identifier", FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Identifier", HFILL }},
+	{ &hf_icmpv6_all_comp,
+      { "All Components",           "icmpv6.all_comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"All Components", HFILL }},
+	{ &hf_icmpv6_comp,
+      { "Component",           "icmpv6.comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
+      	"Component", HFILL }},
   };
 
   static gint *ett[] = {
