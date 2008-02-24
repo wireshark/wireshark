@@ -151,6 +151,10 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   double  num1;
   double  num2;
 
+  /* For checking custom column type */
+  header_field_info *hfi;
+  gboolean custom_numeric = FALSE;
+
   int ret;
 
   gint  col_fmt = cfile.cinfo.col_fmt[clist->sort_column];
@@ -201,13 +205,31 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
   case COL_CUMULATIVE_BYTES:
     return COMPARE_NUM(cum_bytes);
 
+  case COL_CUSTOM:
+    hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[clist->sort_column]);
+    if (hfi == NULL) {
+        return COMPARE_FRAME_NUM();
+    } else if ((hfi->strings == NULL) &&
+               (((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
+                 ((hfi->display == BASE_DEC) || (hfi->display == BASE_DEC_HEX) ||
+                  (hfi->display == BASE_OCT))) ||
+                (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
+                (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
+                (hfi->type == FT_RELATIVE_TIME))) {
+      
+      /* Compare numeric column */
+      custom_numeric = TRUE;
+    }
+    /* FALLTHRU */
   default:
     num1 = atof(text1);
     num2 = atof(text2);
     if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
+	(custom_numeric) || 
         ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) ||
-	(col_fmt == COL_RES_SRC_PORT) || (col_fmt == COL_DEF_DST_PORT) ||
-     	(col_fmt == COL_RES_DST_PORT))) || col_fmt == COL_CUSTOM) {
+                                        (col_fmt == COL_RES_SRC_PORT) || 
+                                        (col_fmt == COL_DEF_DST_PORT) ||
+                                        (col_fmt == COL_RES_DST_PORT)))) {
 
       /* Compare numeric column */
 
@@ -223,10 +245,10 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 
       /* Compare text column */
       if (!text2) {
-      	if (text1)
-      	  return 1;
-      	else
-      	  return COMPARE_FRAME_NUM();
+        if (text1)
+          return 1;
+        else
+          return COMPARE_FRAME_NUM();
       }
 
       if (!text1)
@@ -518,6 +540,8 @@ GtkWidget *
 packet_list_new(e_prefs *prefs)
 {
     GtkWidget *pkt_scrollw;
+    header_field_info *hfi;
+    gboolean custom_right_justify;
     int            i;
 
     /* Packet list */
@@ -552,12 +576,25 @@ packet_list_new(e_prefs *prefs)
         eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
         eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
 
+        custom_right_justify = FALSE;
+        if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
+          hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
+          if ((hfi != NULL) && (hfi->strings == NULL) && 
+              ((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
+              (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
+               (hfi->type == FT_INT64) || (hfi->type == FT_UINT64) ||
+               (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM))) {
+            custom_right_justify = TRUE;
+          }
+        }
+
         /* Right-justify some special columns. */
         if (cfile.cinfo.col_fmt[i] == COL_NUMBER ||
             cfile.cinfo.col_fmt[i] == COL_PACKET_LENGTH ||
             cfile.cinfo.col_fmt[i] == COL_CUMULATIVE_BYTES ||
             cfile.cinfo.col_fmt[i] == COL_DCE_CALL ||
-            cfile.cinfo.col_fmt[i] == COL_DCE_CTX)
+            cfile.cinfo.col_fmt[i] == COL_DCE_CTX ||
+            custom_right_justify)
             eth_clist_set_column_justification(ETH_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }
