@@ -96,10 +96,6 @@
 #include "log.h"
 #include "file_util.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "epan/g_ascii_strcasecmp.h"
-#endif
-
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
  * XXX - can we just use pcap_open_offline() to read the pipe?
@@ -110,7 +106,7 @@
 /*#define DEBUG_CHILD_DUMPCAP*/
 
 #ifdef DEBUG_CHILD_DUMPCAP
-FILE *debug_log;   /* for logging debug messages to  */ 
+FILE *debug_log;   /* for logging debug messages to  */
                    /*  a file if DEBUG_CHILD_DUMPCAP */
                    /*  is defined                    */
 #endif
@@ -498,14 +494,14 @@ relinquish_privs_except_capture(void)
     if (started_with_special_privs()) {
         print_caps("Pre drop, pre set");
         if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
-            cmdarg_err("prctl() fail return: %s", strerror(errno)); 
+            cmdarg_err("prctl() fail return: %s", strerror(errno));
         }
 
         cap_set_flag(caps, CAP_PERMITTED,   cl_len, cap_list, CAP_SET);
         cap_set_flag(caps, CAP_INHERITABLE, cl_len, cap_list, CAP_SET);
 
         if (cap_set_proc(caps)) {
-            cmdarg_err("cap_set_proc() fail return: %s", strerror(errno)); 
+            cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
         }
         print_caps("Pre drop, post set");
     }
@@ -515,7 +511,7 @@ relinquish_privs_except_capture(void)
     print_caps("Post drop, pre set");
     cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
     if (cap_set_proc(caps)) {
-        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno)); 
+        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
     }
     print_caps("Post drop, post set");
     cap_free(caps);
@@ -2247,7 +2243,7 @@ main(int argc, char *argv[])
   /* a pipe.                                                           */
 
   for (i=1; i<argc; i++) {
-      if (g_ascii_strcasecmp("-Z", argv[i]) == 0) {
+      if (strcmp("-Z", argv[i]) == 0) {
           capture_child = TRUE;
 #ifdef _WIN32
           /* set output pipe to binary mode, to avoid ugly text conversions */
@@ -2255,15 +2251,15 @@ main(int argc, char *argv[])
 #endif
       }
   }
-          
+
   /* The default_log_handler will use stdout, which makes trouble in   */
   /* capture child mode, as it uses stdout for it's sync_pipe.         */
   /* So: the filtering is done in the console_log_handler and not here.*/
-  /* We set the log handlers right up front to make sure that any log  */ 
+  /* We set the log handlers right up front to make sure that any log  */
   /* messages when running as child will be sent back to the parent    */
   /* with the correct format.                                          */
 
-  log_flags =  
+  log_flags =
                     G_LOG_LEVEL_ERROR|
                     G_LOG_LEVEL_CRITICAL|
                     G_LOG_LEVEL_WARNING|
