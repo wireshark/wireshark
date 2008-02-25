@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkix1explicit.c                                                     */
-/* ../../tools/asn2wrs.py -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn */
+/* ../../tools/asn2wrs.py -b -p pkix1explicit -c pkix1explicit.cnf -s packet-pkix1explicit-template PKIX1EXPLICIT93.asn IPAddrAndASCertExtn.asn */
 
 /* Input file: packet-pkix1explicit-template.c */
 
@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
+#include <epan/oids.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -62,6 +63,8 @@ static int hf_pkix1explicit_object_identifier_id = -1;
 #line 1 "packet-pkix1explicit-hf.c"
 static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
 static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
+static int hf_pkix1explicit_IPAddrBlocks_PDU = -1;  /* IPAddrBlocks */
+static int hf_pkix1explicit_ASIdentifiers_PDU = -1;  /* ASIdentifiers */
 static int hf_pkix1explicit_utcTime = -1;         /* UTCTime */
 static int hf_pkix1explicit_generalTime = -1;     /* GeneralizedTime */
 static int hf_pkix1explicit_Extensions_item = -1;  /* Extension */
@@ -83,9 +86,27 @@ static int hf_pkix1explicit_RDNSequence_item = -1;  /* RelativeDistinguishedName
 static int hf_pkix1explicit_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndValue */
 static int hf_pkix1explicit_type_01 = -1;         /* TeletexString */
 static int hf_pkix1explicit_value_01 = -1;        /* TeletexString */
+static int hf_pkix1explicit_IPAddrBlocks_item = -1;  /* IPAddressFamily */
+static int hf_pkix1explicit_addressFamily = -1;   /* OCTET_STRING_SIZE_2_3 */
+static int hf_pkix1explicit_ipAddressChoice = -1;  /* IPAddressChoice */
+static int hf_pkix1explicit_inherit = -1;         /* NULL */
+static int hf_pkix1explicit_addressesOrRanges = -1;  /* SEQUENCE_OF_IPAddressOrRange */
+static int hf_pkix1explicit_addressesOrRanges_item = -1;  /* IPAddressOrRange */
+static int hf_pkix1explicit_addressPrefix = -1;   /* IPAddress */
+static int hf_pkix1explicit_addressRange = -1;    /* IPAddressRange */
+static int hf_pkix1explicit_min = -1;             /* IPAddress */
+static int hf_pkix1explicit_max = -1;             /* IPAddress */
+static int hf_pkix1explicit_asnum = -1;           /* ASIdentifierChoice */
+static int hf_pkix1explicit_rdi = -1;             /* ASIdentifierChoice */
+static int hf_pkix1explicit_asIdsOrRanges = -1;   /* SEQUENCE_OF_ASIdOrRange */
+static int hf_pkix1explicit_asIdsOrRanges_item = -1;  /* ASIdOrRange */
+static int hf_pkix1explicit_id = -1;              /* ASId */
+static int hf_pkix1explicit_range = -1;           /* ASRange */
+static int hf_pkix1explicit_min_01 = -1;          /* ASId */
+static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 53 "packet-pkix1explicit-template.c"
+#line 54 "packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -102,9 +123,20 @@ static gint ett_pkix1explicit_AttributeTypeAndValue = -1;
 static gint ett_pkix1explicit_RDNSequence = -1;
 static gint ett_pkix1explicit_RelativeDistinguishedName = -1;
 static gint ett_pkix1explicit_TeletexDomainDefinedAttribute = -1;
+static gint ett_pkix1explicit_IPAddrBlocks = -1;
+static gint ett_pkix1explicit_IPAddressFamily = -1;
+static gint ett_pkix1explicit_IPAddressChoice = -1;
+static gint ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange = -1;
+static gint ett_pkix1explicit_IPAddressOrRange = -1;
+static gint ett_pkix1explicit_IPAddressRange = -1;
+static gint ett_pkix1explicit_ASIdentifiers = -1;
+static gint ett_pkix1explicit_ASIdentifierChoice = -1;
+static gint ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange = -1;
+static gint ett_pkix1explicit_ASIdOrRange = -1;
+static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 56 "packet-pkix1explicit-template.c"
+#line 57 "packet-pkix1explicit-template.c"
 
 
 static const char *object_identifier_id;
@@ -174,7 +206,7 @@ const value_string pkix1explicit_Version_vals[] = {
 int
 dissect_pkix1explicit_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -184,7 +216,7 @@ dissect_pkix1explicit_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 int
 dissect_pkix1explicit_CertificateSerialNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -253,7 +285,7 @@ dissect_pkix1explicit_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "pkix1explicit.cnf"
+#line 56 "pkix1explicit.cnf"
   gint8 class;
   gboolean pc, ind;
   gint32 tag;
@@ -303,7 +335,7 @@ dissect_pkix1explicit_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_pkix1explicit_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -365,7 +397,7 @@ dissect_pkix1explicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_pkix1explicit_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "pkix1explicit.cnf"
+#line 44 "pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -405,7 +437,7 @@ dissect_pkix1explicit_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 48 "pkix1explicit.cnf"
+#line 50 "pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -458,7 +490,7 @@ dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "pkix1explicit.cnf"
+#line 38 "pkix1explicit.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
 
@@ -481,7 +513,7 @@ const value_string pkix1explicit_TerminalType_vals[] = {
 int
 dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -512,6 +544,233 @@ dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, t
   return offset;
 }
 
+
+
+static int
+dissect_pkix1explicit_OCTET_STRING_SIZE_2_3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkix1explicit_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkix1explicit_IPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
+                                    NULL, hf_index, -1,
+                                    NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t IPAddressRange_sequence[] = {
+  { &hf_pkix1explicit_min   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
+  { &hf_pkix1explicit_max   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_IPAddressRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IPAddressRange_sequence, hf_index, ett_pkix1explicit_IPAddressRange);
+
+  return offset;
+}
+
+
+static const value_string pkix1explicit_IPAddressOrRange_vals[] = {
+  {   0, "addressPrefix" },
+  {   1, "addressRange" },
+  { 0, NULL }
+};
+
+static const ber_choice_t IPAddressOrRange_choice[] = {
+  {   0, &hf_pkix1explicit_addressPrefix, BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddress },
+  {   1, &hf_pkix1explicit_addressRange, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddressRange },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_IPAddressOrRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 IPAddressOrRange_choice, hf_index, ett_pkix1explicit_IPAddressOrRange,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_IPAddressOrRange_sequence_of[1] = {
+  { &hf_pkix1explicit_addressesOrRanges_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_IPAddressOrRange },
+};
+
+static int
+dissect_pkix1explicit_SEQUENCE_OF_IPAddressOrRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_IPAddressOrRange_sequence_of, hf_index, ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange);
+
+  return offset;
+}
+
+
+static const value_string pkix1explicit_IPAddressChoice_vals[] = {
+  {   0, "inherit" },
+  {   1, "addressesOrRanges" },
+  { 0, NULL }
+};
+
+static const ber_choice_t IPAddressChoice_choice[] = {
+  {   0, &hf_pkix1explicit_inherit, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_NULL },
+  {   1, &hf_pkix1explicit_addressesOrRanges, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_SEQUENCE_OF_IPAddressOrRange },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_IPAddressChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 IPAddressChoice_choice, hf_index, ett_pkix1explicit_IPAddressChoice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t IPAddressFamily_sequence[] = {
+  { &hf_pkix1explicit_addressFamily, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_OCTET_STRING_SIZE_2_3 },
+  { &hf_pkix1explicit_ipAddressChoice, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_IPAddressChoice },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_IPAddressFamily(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   IPAddressFamily_sequence, hf_index, ett_pkix1explicit_IPAddressFamily);
+
+  return offset;
+}
+
+
+static const ber_sequence_t IPAddrBlocks_sequence_of[1] = {
+  { &hf_pkix1explicit_IPAddrBlocks_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_IPAddressFamily },
+};
+
+static int
+dissect_pkix1explicit_IPAddrBlocks(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      IPAddrBlocks_sequence_of, hf_index, ett_pkix1explicit_IPAddrBlocks);
+
+  return offset;
+}
+
+
+
+static int
+dissect_pkix1explicit_ASId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ASRange_sequence[] = {
+  { &hf_pkix1explicit_min_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
+  { &hf_pkix1explicit_max_01, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_ASRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ASRange_sequence, hf_index, ett_pkix1explicit_ASRange);
+
+  return offset;
+}
+
+
+static const value_string pkix1explicit_ASIdOrRange_vals[] = {
+  {   0, "id" },
+  {   1, "range" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ASIdOrRange_choice[] = {
+  {   0, &hf_pkix1explicit_id    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASId },
+  {   1, &hf_pkix1explicit_range , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_ASRange },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_ASIdOrRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ASIdOrRange_choice, hf_index, ett_pkix1explicit_ASIdOrRange,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ASIdOrRange_sequence_of[1] = {
+  { &hf_pkix1explicit_asIdsOrRanges_item, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_ASIdOrRange },
+};
+
+static int
+dissect_pkix1explicit_SEQUENCE_OF_ASIdOrRange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ASIdOrRange_sequence_of, hf_index, ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange);
+
+  return offset;
+}
+
+
+static const value_string pkix1explicit_ASIdentifierChoice_vals[] = {
+  {   0, "inherit" },
+  {   1, "asIdsOrRanges" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ASIdentifierChoice_choice[] = {
+  {   0, &hf_pkix1explicit_inherit, BER_CLASS_UNI, BER_UNI_TAG_NULL, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_NULL },
+  {   1, &hf_pkix1explicit_asIdsOrRanges, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_SEQUENCE_OF_ASIdOrRange },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_ASIdentifierChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ASIdentifierChoice_choice, hf_index, ett_pkix1explicit_ASIdentifierChoice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t ASIdentifiers_sequence[] = {
+  { &hf_pkix1explicit_asnum , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_ASIdentifierChoice },
+  { &hf_pkix1explicit_rdi   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_ASIdentifierChoice },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_pkix1explicit_ASIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ASIdentifiers_sequence, hf_index, ett_pkix1explicit_ASIdentifiers);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static void dissect_DomainParameters_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -524,10 +783,20 @@ static void dissect_DirectoryString_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_pkix1explicit_DirectoryString(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkix1explicit_DirectoryString_PDU);
 }
+static void dissect_IPAddrBlocks_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkix1explicit_IPAddrBlocks(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkix1explicit_IPAddrBlocks_PDU);
+}
+static void dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_pkix1explicit_ASIdentifiers(FALSE, tvb, 0, &asn1_ctx, tree, hf_pkix1explicit_ASIdentifiers_PDU);
+}
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 100 "packet-pkix1explicit-template.c"
+#line 101 "packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -549,6 +818,14 @@ void proto_register_pkix1explicit(void) {
       { "DirectoryString", "pkix1explicit.DirectoryString",
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.DirectoryString", HFILL }},
+    { &hf_pkix1explicit_IPAddrBlocks_PDU,
+      { "IPAddrBlocks", "pkix1explicit.IPAddrBlocks",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.IPAddrBlocks", HFILL }},
+    { &hf_pkix1explicit_ASIdentifiers_PDU,
+      { "ASIdentifiers", "pkix1explicit.ASIdentifiers",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.ASIdentifiers", HFILL }},
     { &hf_pkix1explicit_utcTime,
       { "utcTime", "pkix1explicit.utcTime",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -633,9 +910,81 @@ void proto_register_pkix1explicit(void) {
       { "value", "pkix1explicit.value",
         FT_STRING, BASE_NONE, NULL, 0,
         "pkix1explicit.TeletexString", HFILL }},
+    { &hf_pkix1explicit_IPAddrBlocks_item,
+      { "Item", "pkix1explicit.IPAddrBlocks_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.IPAddressFamily", HFILL }},
+    { &hf_pkix1explicit_addressFamily,
+      { "addressFamily", "pkix1explicit.addressFamily",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "pkix1explicit.OCTET_STRING_SIZE_2_3", HFILL }},
+    { &hf_pkix1explicit_ipAddressChoice,
+      { "ipAddressChoice", "pkix1explicit.ipAddressChoice",
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_IPAddressChoice_vals), 0,
+        "pkix1explicit.IPAddressChoice", HFILL }},
+    { &hf_pkix1explicit_inherit,
+      { "inherit", "pkix1explicit.inherit",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.NULL", HFILL }},
+    { &hf_pkix1explicit_addressesOrRanges,
+      { "addressesOrRanges", "pkix1explicit.addressesOrRanges",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.SEQUENCE_OF_IPAddressOrRange", HFILL }},
+    { &hf_pkix1explicit_addressesOrRanges_item,
+      { "Item", "pkix1explicit.addressesOrRanges_item",
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_IPAddressOrRange_vals), 0,
+        "pkix1explicit.IPAddressOrRange", HFILL }},
+    { &hf_pkix1explicit_addressPrefix,
+      { "addressPrefix", "pkix1explicit.addressPrefix",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "pkix1explicit.IPAddress", HFILL }},
+    { &hf_pkix1explicit_addressRange,
+      { "addressRange", "pkix1explicit.addressRange",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.IPAddressRange", HFILL }},
+    { &hf_pkix1explicit_min,
+      { "min", "pkix1explicit.min",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "pkix1explicit.IPAddress", HFILL }},
+    { &hf_pkix1explicit_max,
+      { "max", "pkix1explicit.max",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "pkix1explicit.IPAddress", HFILL }},
+    { &hf_pkix1explicit_asnum,
+      { "asnum", "pkix1explicit.asnum",
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_ASIdentifierChoice_vals), 0,
+        "pkix1explicit.ASIdentifierChoice", HFILL }},
+    { &hf_pkix1explicit_rdi,
+      { "rdi", "pkix1explicit.rdi",
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_ASIdentifierChoice_vals), 0,
+        "pkix1explicit.ASIdentifierChoice", HFILL }},
+    { &hf_pkix1explicit_asIdsOrRanges,
+      { "asIdsOrRanges", "pkix1explicit.asIdsOrRanges",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.SEQUENCE_OF_ASIdOrRange", HFILL }},
+    { &hf_pkix1explicit_asIdsOrRanges_item,
+      { "Item", "pkix1explicit.asIdsOrRanges_item",
+        FT_UINT32, BASE_DEC, VALS(pkix1explicit_ASIdOrRange_vals), 0,
+        "pkix1explicit.ASIdOrRange", HFILL }},
+    { &hf_pkix1explicit_id,
+      { "id", "pkix1explicit.id",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.ASId", HFILL }},
+    { &hf_pkix1explicit_range,
+      { "range", "pkix1explicit.range",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pkix1explicit.ASRange", HFILL }},
+    { &hf_pkix1explicit_min_01,
+      { "min", "pkix1explicit.min",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.ASId", HFILL }},
+    { &hf_pkix1explicit_max_01,
+      { "max", "pkix1explicit.max",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "pkix1explicit.ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 111 "packet-pkix1explicit-template.c"
+#line 112 "packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
@@ -654,9 +1003,20 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_RDNSequence,
     &ett_pkix1explicit_RelativeDistinguishedName,
     &ett_pkix1explicit_TeletexDomainDefinedAttribute,
+    &ett_pkix1explicit_IPAddrBlocks,
+    &ett_pkix1explicit_IPAddressFamily,
+    &ett_pkix1explicit_IPAddressChoice,
+    &ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange,
+    &ett_pkix1explicit_IPAddressOrRange,
+    &ett_pkix1explicit_IPAddressRange,
+    &ett_pkix1explicit_ASIdentifiers,
+    &ett_pkix1explicit_ASIdentifierChoice,
+    &ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange,
+    &ett_pkix1explicit_ASIdOrRange,
+    &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 116 "packet-pkix1explicit-template.c"
+#line 117 "packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -671,14 +1031,17 @@ void proto_register_pkix1explicit(void) {
 
 /*--- proto_reg_handoff_pkix1explicit -------------------------------------------*/
 void proto_reg_handoff_pkix1explicit(void) {
+	oid_add_from_string("id-pkix","1.3.6.1.5.5.7");
 
 /*--- Included file: packet-pkix1explicit-dis-tab.c ---*/
 #line 1 "packet-pkix1explicit-dis-tab.c"
   register_ber_oid_dissector("1.3.6.1.5.5.7.2.1", dissect_DirectoryString_PDU, proto_pkix1explicit, "id-qt-cps");
   register_ber_oid_dissector("1.2.840.10046.2.1", dissect_DomainParameters_PDU, proto_pkix1explicit, "dhpublicnumber");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.7", dissect_IPAddrBlocks_PDU, proto_pkix1explicit, "id-pe-ipAddrBlocks");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.8", dissect_ASIdentifiers_PDU, proto_pkix1explicit, "id-pe-autonomousSysIds");
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 131 "packet-pkix1explicit-template.c"
+#line 133 "packet-pkix1explicit-template.c"
 }
 

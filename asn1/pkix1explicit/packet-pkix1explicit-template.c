@@ -32,6 +32,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/asn1.h>
+#include <epan/oids.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -127,6 +128,7 @@ void proto_register_pkix1explicit(void) {
 
 /*--- proto_reg_handoff_pkix1explicit -------------------------------------------*/
 void proto_reg_handoff_pkix1explicit(void) {
+	oid_add_from_string("id-pkix","1.3.6.1.5.5.7");
 #include "packet-pkix1explicit-dis-tab.c"
 }
 

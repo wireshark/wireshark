@@ -45,12 +45,18 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include "packet-ipv6.h"
-#include "packet-dns.h"
 #include <epan/in_cksum.h>
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/emem.h>
+#include <epan/asn1.h>
+
+#include "packet-ber.h"
+#include "packet-ipv6.h"
+#include "packet-dns.h"
+#include "packet-x509af.h"
+#include "packet-x509if.h"
+
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -98,6 +104,8 @@ static int hf_icmpv6_opt_cert_type = -1;
 static int hf_icmpv6_identifier = -1;
 static int hf_icmpv6_all_comp = -1;
 static int hf_icmpv6_comp = -1;
+static int hf_icmpv6_x509if_Name = -1;
+static int hf_icmpv6_x509af_Certificate = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -110,6 +118,7 @@ static gint ett_nodeinfo_node6 = -1;
 static gint ett_nodeinfo_nodebitmap = -1;
 static gint ett_nodeinfo_nodedns = -1;
 static gint ett_multicastRR = -1;
+static gint ett_icmpv6opt_name = -1;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -265,8 +274,8 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 static void
 dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree *icmp6opt_tree, *field_tree;
-    proto_item *ti, *tf;
+    proto_tree *icmp6opt_tree, *field_tree, *name_tree;
+    proto_item *ti, *tf, *name_item;
     struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
     const char *typename;
@@ -276,6 +285,9 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	guint8 padd_length = 0;
 	int par_len;
 	guint8 name_type = 0;
+	guint8 cert_type = 0;
+	asn1_ctx_t asn1_ctx;
+
 
     if (!tree)
 	return;
@@ -493,7 +505,10 @@ again:
 		switch (name_type){
 		case 1:
 			/* DER Encoded X.501 Name */
-			proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
+			name_item =proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, FALSE);
+			name_tree = proto_item_add_subtree(name_item, ett_icmpv6opt_name);
+			asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+			dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
 			break;
 		case 2:
 			/* FQDN */
@@ -511,15 +526,24 @@ again:
 	case ND_OPT_CERTIFICATE:
 		opt_offset = offset +2;
 		/* Cert Type */
+		cert_type = tvb_get_guint8(tvb,opt_offset);
 		proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cert_type, tvb, opt_offset, 1, FALSE);
 		opt_offset++;
 		/* Reserved */
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
 		opt_offset++;
 		/* Certificate */
-		par_len = len - 4;
-		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Certificate + padding");
-		/* Padding */
+		
+		if(cert_type == 1){
+			opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
+			par_len = len - (opt_offset - offset);
+			/* Padding */
+			proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Padding");
+		}else{
+			par_len = len - 4;
+			proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Unknown Certificate + padding");
+		}
+		
 		break;
     case ND_OPT_MAP:
       {
@@ -2168,6 +2192,14 @@ proto_register_icmpv6(void)
 	{ &hf_icmpv6_comp,
       { "Component",           "icmpv6.comp", FT_UINT16,  BASE_DEC, NULL, 0x0,
       	"Component", HFILL }},
+    { &hf_icmpv6_x509if_Name,
+      { "Name", "icmpv6.x509_Name", FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
+        "Name", HFILL }},
+    { &hf_icmpv6_x509af_Certificate,
+      { "Certificate", "icmpv6_x509_Certificate", FT_NONE, BASE_NONE, NULL, 0,
+        "Certificate", HFILL }},
+
+
   };
 
   static gint *ett[] = {
@@ -2182,6 +2214,7 @@ proto_register_icmpv6(void)
     &ett_nodeinfo_nodebitmap,
     &ett_nodeinfo_nodedns,
     &ett_multicastRR,
+	&ett_icmpv6opt_name,
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
