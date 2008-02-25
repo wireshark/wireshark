@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#if defined(HAVE_SETRESUID) || defined(HAVE_SETREGUID)
+#define _GNU_SOURCE /* Otherwise [sg]etres[gu]id won't be defined on Linux */
+#endif
+
 #include <glib.h>
 
 #include "privileges.h"
