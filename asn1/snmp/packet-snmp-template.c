@@ -551,7 +551,11 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 								goto indexing_done;
 							}
 							case OID_KEY_TYPE_INTEGER: {
-								proto_tree_add_int(pt_name,k->hfid,tvb,name_offset,name_len,(guint)subids[key_start]);
+								if (IS_FT_INT(k->ft_type)) {
+									proto_tree_add_int(pt_name,k->hfid,tvb,name_offset,name_len,(guint)subids[key_start]);
+								} else { /* if it's not an unsigned int let proto_tree_add_uint throw a warning */
+									proto_tree_add_uint(pt_name,k->hfid,tvb,name_offset,name_len,(guint)subids[key_start]);
+								}
 								key_start++;
 								key_len--;
 								continue; /* k->next */

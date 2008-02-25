@@ -450,7 +450,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       init_EcParserHDR(&ecHdr, tvb, suboffset);
 
       subsize = get_cmd_len(&ecHdr);
-      len = ecHdr.len&0x7fff;
+      len = ecHdr.len&0x07ff;
 
       if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
          (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&

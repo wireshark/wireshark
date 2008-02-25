@@ -523,7 +523,8 @@ CLEANFILES =		\
 DISTCLEANFILES = \
 	AUTHORS-SHORT		\
 	AUTHORS-SHORT-FORMAT	\
-	ps.c
+	ps.c			\
+	ws.css
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\
@@ -610,6 +611,7 @@ EXTRA_DIST = \
 	doc/wireshark-filter.pod.template \
 	doc/wireshark.pod	\
 	docbook/Makefile.auto.am	\
+	docbook/ws.css		\
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
@@ -840,8 +842,8 @@ rawshark.1: doc/rawshark.pod
 	(cd doc ; \
 	$(MAKE) ../rawshark.1 )
 
-ws.css: docbook/ws.css
-	cp docbook/ws.css .
+ws.css: $(srcdir)/docbook/ws.css
+	cp $(srcdir)/docbook/ws.css .
 
 wireshark.html: doc/wireshark.pod AUTHORS-SHORT-FORMAT ws.css
 	(cd doc ; \
