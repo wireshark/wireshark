@@ -340,7 +340,7 @@ const value_string rtp_payload_type_short_vals[] =
        { PT_H263,      "h263" },
        { 0,            NULL },
 };
-
+#if 0
 static const value_string srtp_encryption_alg_vals[] =
 {
 	{ SRTP_ENC_ALG_NULL,	"Null Encryption" },
@@ -355,7 +355,7 @@ static const value_string srtp_auth_alg_vals[] =
 	{ SRTP_AUTH_ALG_HMAC_SHA1,	"HMAC-SHA1" },
 	{ 0, NULL },
 };
-
+#endif
 
 /* initialisation routine */
 static void rtp_fragment_init(void)
@@ -538,12 +538,15 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
-
+#if 0
+#error Currently the srtp_info structure contains no cypher data, see packet-sdp.c adding dummy_srtp_info structure
 		if (p_conv_data->srtp_info->encryption_algorithm==SRTP_ENC_ALG_NULL) {
 			if (rtp_tree)
 				proto_tree_add_text(rtp_tree, newtvb, offset, payload_len, "SRTP Payload with NULL encryption");
 		}
-		else {
+		else
+#endif
+		{
 			if (rtp_tree)
 				proto_tree_add_item(rtp_tree, hf_srtp_encrypted_payload, newtvb, offset, payload_len, FALSE);
 			found_match = TRUE;	/* use this flag to prevent dissection below */
