@@ -54,70 +54,73 @@ typedef struct _column_info {
 /*
  * All of the possible columns in summary listing.
  *
- * NOTE: The SRC and DST entries MUST remain in this order, or else you
- * need to fix the offset #defines before get_column_format!
+ * NOTE1: The entries MUST remain in this order, or else you need to reorder
+ *        the slist[] and dlist[] arrays in column.c to match!
+ *
+ * NOTE2: Please add the COL_XYZ entry in the appropriate spot, such that the
+ *        dlist[] array remains in alphabetical order!
  */
 enum {
-  COL_NUMBER,         /* Packet list item number */
-  COL_CLS_TIME,       /* Command line-specified time (default relative) */
-  COL_REL_TIME,       /* Relative time */
-  COL_ABS_TIME,       /* Absolute time */
-  COL_ABS_DATE_TIME,  /* Absolute date and time */
-  COL_DELTA_TIME,     /* Delta time */
-  COL_DELTA_TIME_DIS, /* Delta time displayed*/
-  COL_REL_CONV_TIME,  /* Relative time to beginning of conversation */
-  COL_DELTA_CONV_TIME,/* Delta time to last frame in conversation */
-  COL_DEF_SRC,        /* Source address */
-  COL_RES_SRC,        /* Resolved source */
-  COL_UNRES_SRC,      /* Unresolved source */
-  COL_DEF_DL_SRC,     /* Data link layer source address */
-  COL_RES_DL_SRC,     /* Resolved DL source */
-  COL_UNRES_DL_SRC,   /* Unresolved DL source */
-  COL_DEF_NET_SRC,    /* Network layer source address */
-  COL_RES_NET_SRC,    /* Resolved net source */
-  COL_UNRES_NET_SRC,  /* Unresolved net source */
-  COL_DEF_DST,        /* Destination address */
-  COL_RES_DST,        /* Resolved dest */
-  COL_UNRES_DST,      /* Unresolved dest */
-  COL_DEF_DL_DST,     /* Data link layer dest address */
-  COL_RES_DL_DST,     /* Resolved DL dest */
-  COL_UNRES_DL_DST,   /* Unresolved DL dest */
-  COL_DEF_NET_DST,    /* Network layer dest address */
-  COL_RES_NET_DST,    /* Resolved net dest */
-  COL_UNRES_NET_DST,  /* Unresolved net dest */
-  COL_DEF_SRC_PORT,   /* Source port */
-  COL_RES_SRC_PORT,   /* Resolved source port */
-  COL_UNRES_SRC_PORT, /* Unresolved source port */
-  COL_DEF_DST_PORT,   /* Destination port */
-  COL_RES_DST_PORT,   /* Resolved dest port */
-  COL_UNRES_DST_PORT, /* Unresolved dest port */
-  COL_PROTOCOL,       /* Protocol */
-  COL_INFO,           /* Description */
-  COL_PACKET_LENGTH,  /* Packet length in bytes */
-  COL_CUMULATIVE_BYTES, /* Cumulative number of bytes */
-  COL_OXID,           /* Fibre Channel OXID */
-  COL_RXID,           /* Fibre Channel RXID */
-  COL_IF_DIR,         /* FW-1 monitor interface/direction */
-  COL_CIRCUIT_ID,     /* Circuit ID */
-  COL_SRCIDX,         /* Src port idx - Cisco MDS-specific */
-  COL_DSTIDX,         /* Dst port idx - Cisco MDS-specific */
-  COL_VSAN,           /* VSAN - Cisco MDS-specific */
-  COL_TX_RATE,        /* IEEE 802.11 - TX rate in Mbps */
-  COL_RSSI,           /* IEEE 802.11 - received signal strength */
-  COL_HPUX_SUBSYS,    /* HP-UX Nettl Subsystem */
-  COL_HPUX_DEVID,     /* HP-UX Nettl Device ID */
-  COL_DCE_CALL,       /* DCE/RPC connection oriented call id OR datagram sequence number */
-  COL_DCE_CTX,        /* DCE/RPC connection oriented context id */
-  COL_8021Q_VLAN_ID,  /* 802.1Q vlan ID */
-  COL_DSCP_VALUE,     /* IP DSCP Value */
-  COL_COS_VALUE,      /* L2 COS Value */
-  COL_TEI,            /* Q.921 TEI */
-  COL_FR_DLCI,        /* Frame Relay DLCI */
-  COL_BSSGP_TLLI,     /* GPRS BSSGP IE TLLI */
-  COL_EXPERT,         /* Expert Info */
-  COL_FREQ_CHAN,      /* IEEE 802.11 (and WiMax?) - Channel */
-  COL_CUSTOM,         /* Custom column (any filter name's contents) */
-  NUM_COL_FMTS        /* Should always be last */
+  COL_8021Q_VLAN_ID,  /* 0) 802.1Q vlan ID */
+  COL_ABS_DATE_TIME,  /* 1) Absolute date and time */
+  COL_ABS_TIME,       /* 2) Absolute time */
+  COL_CIRCUIT_ID,     /* 3) Circuit ID */
+  COL_DSTIDX,         /* 4) Dst port idx - Cisco MDS-specific */
+  COL_SRCIDX,         /* 5) Src port idx - Cisco MDS-specific */
+  COL_VSAN,           /* 6) VSAN - Cisco MDS-specific */
+  COL_CUMULATIVE_BYTES, /* 7) Cumulative number of bytes */
+  COL_CUSTOM,         /* 8) Custom column (any filter name's contents) */
+  COL_DCE_CALL,       /* 9) DCE/RPC connection oriented call id OR datagram sequence number */
+  COL_DCE_CTX,        /* 10) DCE/RPC connection oriented context id */
+  COL_DELTA_TIME,     /* 11) Delta time */
+  COL_DELTA_CONV_TIME,/* 12) Delta time to last frame in conversation */
+  COL_DELTA_TIME_DIS, /* 13) Delta time displayed*/
+  COL_RES_DST,        /* 14) Resolved dest */
+  COL_UNRES_DST,      /* 15) Unresolved dest */
+  COL_RES_DST_PORT,   /* 16) Resolved dest port */
+  COL_UNRES_DST_PORT, /* 17) Unresolved dest port */
+  COL_DEF_DST,        /* 18) Destination address */
+  COL_DEF_DST_PORT,   /* 19) Destination port */
+  COL_EXPERT,         /* 20) Expert Info */
+  COL_IF_DIR,         /* 21) FW-1 monitor interface/direction */
+  COL_OXID,           /* 22) Fibre Channel OXID */
+  COL_RXID,           /* 23) Fibre Channel RXID */
+  COL_FR_DLCI,        /* 24) Frame Relay DLCI */
+  COL_FREQ_CHAN,      /* 25) IEEE 802.11 (and WiMax?) - Channel */
+  COL_BSSGP_TLLI,     /* 26) GPRS BSSGP IE TLLI */
+  COL_HPUX_DEVID,     /* 27) HP-UX Nettl Device ID */
+  COL_HPUX_SUBSYS,    /* 28) HP-UX Nettl Subsystem */
+  COL_DEF_DL_DST,     /* 29) Data link layer dest address */
+  COL_DEF_DL_SRC,     /* 30) Data link layer source address */
+  COL_RES_DL_DST,     /* 31) Resolved DL dest */
+  COL_UNRES_DL_DST,   /* 32) Unresolved DL dest */
+  COL_RES_DL_SRC,     /* 33) Resolved DL source */
+  COL_UNRES_DL_SRC,   /* 34) Unresolved DL source */
+  COL_RSSI,           /* 35) IEEE 802.11 - received signal strength */
+  COL_TX_RATE,        /* 36) IEEE 802.11 - TX rate in Mbps */
+  COL_DSCP_VALUE,     /* 37) IP DSCP Value */
+  COL_INFO,           /* 38) Description */
+  COL_COS_VALUE,      /* 39) L2 COS Value */
+  COL_RES_NET_DST,    /* 40) Resolved net dest */
+  COL_UNRES_NET_DST,  /* 41) Unresolved net dest */
+  COL_RES_NET_SRC,    /* 42) Resolved net source */
+  COL_UNRES_NET_SRC,  /* 43) Unresolved net source */
+  COL_DEF_NET_DST,    /* 44) Network layer dest address */
+  COL_DEF_NET_SRC,    /* 45) Network layer source address */
+  COL_NUMBER,         /* 46) Packet list item number */
+  COL_PACKET_LENGTH,  /* 47) Packet length in bytes */
+  COL_PROTOCOL,       /* 48) Protocol */
+  COL_REL_TIME,       /* 49) Relative time */
+  COL_REL_CONV_TIME,  /* 50) Relative time to beginning of conversation */
+  COL_DEF_SRC,        /* 51) Source address */
+  COL_DEF_SRC_PORT,   /* 52) Source port */
+  COL_RES_SRC,        /* 53) Resolved source */
+  COL_UNRES_SRC,      /* 54) Unresolved source */
+  COL_RES_SRC_PORT,   /* 55) Resolved source port */
+  COL_UNRES_SRC_PORT, /* 56) Unresolved source port */
+  COL_TEI,            /* 57) Q.921 TEI */
+  COL_CLS_TIME,       /* 58) Command line-specified time (default relative) */
+  NUM_COL_FMTS        /* 59) Should always be last */
 };
 
 #ifdef __cplusplus
