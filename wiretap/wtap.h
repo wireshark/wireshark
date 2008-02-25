@@ -196,7 +196,8 @@ extern "C" {
 #define WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR	99
 #define WTAP_ENCAP_SITA				100
 #define WTAP_ENCAP_SCCP				101
-#define WTAP_ENCAP_BLUETOOTH_HCI			102 /*raw packets without a transport layer header e.g. H4*/
+#define WTAP_ENCAP_BLUETOOTH_HCI		102 /*raw packets without a transport layer header e.g. H4*/
+#define WTAP_ENCAP_IPMB				103
 
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()

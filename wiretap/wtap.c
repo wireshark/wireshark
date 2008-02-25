@@ -392,6 +392,15 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_SITA */
 	{ "SITA WAN packets", "sita-wan" },
+
+	/* WTAP_ENCAP_SCCP */
+	{ "SS7 SCCP", "sccp" },
+
+	/* WTAP_ENCAP_BLUETOOTH_HCI */
+	{ "Bluetooth without transport layer", "bluetooth-hci" },
+
+	/* WTAP_ENCAP_IPMB */
+	{ "Intelligent Platform Management Bus", "ipmb" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

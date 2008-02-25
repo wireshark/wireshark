@@ -448,6 +448,7 @@ static const struct {
 	{ 196,	        WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
 	{ 197,	        WTAP_ENCAP_ERF },
+	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
 
