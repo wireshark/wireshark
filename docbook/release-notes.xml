@@ -37,9 +37,21 @@ Wireshark Info
 
         <listitem>
           <para>
+            The SCTP dissector could crash.
+            <!-- Fixed in r24471 -->
+            <!-- (Bugs <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2144">2144</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.5 to 0.99.7</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
             The SNMP dissector could crash.
-            <!-- Fixed in r23962 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2144">2144</ulink>) -->
+            <!-- Fixed in r23962, r24467 -->
+            <!-- (Bugs <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2144">2144</ulink> and <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2277">2277</ulink>) -->
           </para>
           <para>Versions affected: 0.99.6 to 0.99.7</para>
           <para>

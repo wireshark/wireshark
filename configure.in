@@ -98,7 +98,7 @@ AC_ARG_WITH([gnutls],
 		  [use gnutls library @<:@default=yes@:>@]),
   with_gnutls="$withval", with_gnutls="yes")
 if test "x$with_gnutls" = "xyes"; then
-  AM_PATH_LIBGNUTLS(1.0.0,
+  AM_PATH_LIBGNUTLS(1.2.0,
         [
                 echo "gnuTLS found, enabling ssl decryption"
                 AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
