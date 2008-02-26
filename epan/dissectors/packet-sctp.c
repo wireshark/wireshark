@@ -2103,6 +2103,8 @@ frag_free_msgs(sctp_frag_msg *msg)
     g_free(fragment);
   }
 
+  /* msg->messages is se_ allocated, no need to free it */
+
   g_free(msg);
 }
 
@@ -2496,6 +2498,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
   message->reassembled_in = fragment;
   message->len = len;
   message->data = se_alloc(len);
+  message->next = NULL;
 
   /* now copy all fragments */
   if (begin->fragment->tsn > end->fragment->tsn) {
