@@ -65,6 +65,9 @@ extern const char *get_datafile_dir(void);
 /*
  * Construct the path name of a global configuration file, given the
  * file name.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
  */
 extern char *get_datafile_path(const char *filename);
 
@@ -144,6 +147,9 @@ extern int create_persconffile_dir(char **pf_dir_path_return);
  * subdirectory of the user's home directory, and check whether that
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
  */
 extern char *get_persconffile_path(const char *filename, gboolean from_profile,
 				   gboolean for_writing);

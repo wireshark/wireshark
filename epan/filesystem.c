@@ -790,7 +790,7 @@ set_profile_name(const gchar *profilename)
 		g_free (persconfprofile);
 	}
 
-	if (profilename && strlen(profilename) > 0 && 
+	if (profilename && strlen(profilename) > 0 &&
 	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
 		persconfprofile = g_strdup (profilename);
 	} else {
@@ -929,7 +929,7 @@ get_persconffile_dir(const gchar *profilename)
 
 	if (profilename && strlen(profilename) > 0 &&
 	    strcmp(profilename, DEFAULT_PROFILE) != 0) {
-	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (), 
+	  persconffile_profile_dir = g_strdup_printf ("%s%s%s", get_profiles_dir (),
 						      G_DIR_SEPARATOR_S, profilename);
 	} else {
 	  persconffile_profile_dir = g_strdup_printf (get_persconffile_dir_no_profile ());
@@ -958,7 +958,7 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 
 	if ((dir = eth_dir_open(directory, 0, NULL)) != NULL) {
 		while ((file = eth_dir_read_name(dir)) != NULL) {
-			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S, 
+			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
 						    eth_dir_get_name(file));
 			if (test_for_directory(filename) != EISDIR) {
 				ret = eth_remove(filename);
@@ -1223,6 +1223,9 @@ get_home_dir(void)
  * subdirectory of the user's home directory, and check whether that
  * exists; if it does, we return that, so that configuration files
  * from earlier versions can be read.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
  */
 char *
 get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_writing
@@ -1330,6 +1333,9 @@ filesystem_opt(int opt _U_, const char *optarg)
 /*
  * Construct the path name of a global configuration file, given the
  * file name.
+ *
+ * The returned file name was g_malloc()'d so it must be g_free()d when the
+ * caller is done with it.
  */
 char *
 get_datafile_path(const char *filename)
