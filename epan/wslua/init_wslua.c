@@ -274,6 +274,9 @@ int wslua_init(lua_State* LS) {
         lua_load_script(filename);
     }
 
+    g_free(filename);
+    filename = NULL;
+
     /* check if lua is to be disabled */
     lua_pushstring(L,"disable_lua");
     lua_gettable(L, LUA_GLOBALSINDEX);
@@ -300,6 +303,8 @@ int wslua_init(lua_State* LS) {
 
         if (( file_exists(filename))) {
             lua_load_script(filename);
+	    g_free(filename);
+	    filename = NULL;
         }
 
         while((filename = ex_opt_get_next("lua_script"))) {

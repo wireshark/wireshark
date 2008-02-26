@@ -1191,6 +1191,8 @@ static void init_xml_names(void) {
 	    }
 	}
 
+	g_free(dirname);
+
 	for(i=0;i<array_length(default_media_types);i++) {
 		if( ! g_hash_table_lookup(media_types,default_media_types[i]) ) {
 			g_hash_table_insert(media_types,(gpointer)default_media_types[i],&xml_ns);

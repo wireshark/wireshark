@@ -144,6 +144,7 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 	return 0;
 }
 
+/* The returned filename was g_malloc()'d so the caller must free it */
 const char* wslua_get_actual_filename(const char* fname) {
 	static char fname_clean[256];
 	char* f;
@@ -170,6 +171,7 @@ const char* wslua_get_actual_filename(const char* fname) {
 	if ( file_exists(filename) ) {
 		return filename;
 	}
+	g_free(filename);
 	
 	filename = get_datafile_path(fname_clean);
 
@@ -188,8 +190,10 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	if (!filename) WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
 	
 	if (luaL_loadfile(L, filename) == 0) {
+		g_free(filename);
 		return 1;
 	} else {
+		g_free(filename);
 		lua_pushnil(L);
 		lua_insert(L, -2);
 		return 2;
@@ -212,6 +216,7 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	
 	n = lua_gettop(L);
 	if (luaL_loadfile(L, filename) != 0) lua_error(L);
+	g_free(filename);
 	lua_call(L, 0, LUA_MULTRET);
 	return lua_gettop(L) - n;
 }
@@ -256,6 +261,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 
 	dir = g_malloc(sizeof(struct _wslua_dir));
 	dir->dir = OPENDIR_OP(dirname_clean);
+	g_free(dirname_clean);
 	dir->ext = extension ? g_strdup(extension) : NULL;
 #if GLIB_MAJOR_VERSION >= 2
 	dir->dummy = g_malloc(sizeof(GError *));
