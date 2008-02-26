@@ -39,7 +39,6 @@ Wireshark Info
           <para>
             The SCTP dissector could crash.
             <!-- Fixed in r24471 -->
-            <!-- (Bugs <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2144">2144</ulink>) -->
           </para>
           <para>Versions affected: 0.99.5 to 0.99.7</para>
           <para>
@@ -65,7 +64,6 @@ Wireshark Info
             appears to be a bug in the Cairo library on that platform.) Reported
             by Noam Rathaus.
             <!-- Fixed in r24341 -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
           </para>
           <para>Versions affected: 0.6.0 to 0.99.7</para>
           <para>
