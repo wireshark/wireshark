@@ -154,18 +154,24 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
 
 }
 
+/* The returned filename was g_malloc()'d so the caller must free it */
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
+
 	gchar* pers_fname =  get_persconffile_path(uat->filename, TRUE, for_writing);
 
 	if (! for_writing ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
 
 		if ((! file_exists(pers_fname) ) && file_exists(data_fname)) {
+			g_free(pers_fname);
 			return data_fname;
 		}
+
+		g_free(data_fname);
 	}
 
 	if ((! file_exists(pers_fname) ) && (! for_writing ) ) {
+		g_free(pers_fname);
 		return NULL;
 	}
 

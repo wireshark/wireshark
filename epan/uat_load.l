@@ -289,6 +289,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 
 	if (!(yyin = eth_fopen(fname,"r"))) {
 		*err = strerror(errno);
+		g_free(fname);
 		return FALSE;
 	}
 
@@ -299,6 +300,7 @@ gboolean uat_load(uat_t* uat_in, char** err) {
 
 	BEGIN START_OF_LINE;
 	DUMP(fname);
+	g_free(fname);	/* we're done with the file name now */
 
 	yylex();
 	yyrestart(NULL);
