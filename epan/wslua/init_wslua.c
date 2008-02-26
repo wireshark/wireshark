@@ -307,7 +307,7 @@ int wslua_init(lua_State* LS) {
 	    filename = NULL;
         }
 
-        while((filename = ex_opt_get_next("lua_script"))) {
+        while((filename = (gchar *)ex_opt_get_next("lua_script"))) {
             lua_load_script(filename);
         }
     }

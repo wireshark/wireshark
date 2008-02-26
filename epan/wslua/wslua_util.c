@@ -145,7 +145,7 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 }
 
 /* The returned filename was g_malloc()'d so the caller must free it */
-const char* wslua_get_actual_filename(const char* fname) {
+char* wslua_get_actual_filename(const char* fname) {
 	static char fname_clean[256];
 	char* f;
 	char* filename;
