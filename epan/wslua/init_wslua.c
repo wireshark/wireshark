@@ -232,7 +232,7 @@ static int wslua_panic(lua_State* LS) {
 }
 
 int wslua_init(lua_State* LS) {
-    const gchar* filename;
+    gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
 

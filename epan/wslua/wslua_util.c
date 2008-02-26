@@ -183,7 +183,7 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 	in the current directory it will look for it in wireshark's user and system directories */
 #define WSLUA_ARG_loadfile_FILENAME 1 /* name of the file to be loaded */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_loadfile_FILENAME);
-	const char* filename;
+	char* filename;
 	
 	filename = wslua_get_actual_filename(given_fname);
 	
@@ -205,7 +205,7 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 	in the current directory it will look for it in wireshark's user and system directories */
 #define WSLUA_ARG_dofile_FILENAME 1 /* name of the file to be run */
 	const char *given_fname = luaL_checkstring(L, WSLUA_ARG_dofile_FILENAME);
-	const char* filename;
+	char* filename;
 	int n;
 	
 	if (!given_fname) WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
@@ -251,7 +251,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 	const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
 	const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
 	Dir dir;
-	const char* dirname_clean;
+	char* dirname_clean;
 	
 	if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
 
