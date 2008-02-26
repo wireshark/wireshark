@@ -759,8 +759,10 @@ color_filters_write(GSList *cfl)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Could not open\n%s\nfor writing: %s.",
 		    path, strerror(errno));
+		g_free(path);
 		return FALSE;
 	}
+	g_free(path);
 	write_filters_file(cfl, f, FALSE);
 	fclose(f);
 	return TRUE;
