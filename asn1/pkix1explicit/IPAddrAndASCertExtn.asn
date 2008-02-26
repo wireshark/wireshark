@@ -1,0 +1,72 @@
+-- $Id$
+-- RFC 3779         X.509 Extensions for IP Addr and AS ID        June 2004
+--
+   IPAddrAndASCertExtn { iso(1) identified-organization(3) dod(6)
+            internet(1) security(5) mechanisms(5) pkix(7) mod(0)
+            id-mod-ip-addr-and-as-ident(30) }
+       DEFINITIONS EXPLICIT TAGS ::=
+   BEGIN
+        -- Copyright (C) The Internet Society (2004). This    --
+        -- version of this ASN.1 module is part of RFC 3779;  --
+        -- see the RFC itself for full legal notices.         --
+
+   -- EXPORTS ALL --
+
+   IMPORTS
+
+   -- PKIX specific OIDs and arcs --
+       id-pe FROM PKIX1Explicit88 { iso(1) identified-organization(3)
+                  dod(6) internet(1) security(5) mechanisms(5) pkix(7)
+                  id-mod(0) id-pkix1-explicit(18) };
+
+   -- IP Address Delegation Extension OID --
+
+   id-pe-ipAddrBlocks  OBJECT IDENTIFIER ::= { id-pe 7 }
+
+   -- IP Address Delegation Extension Syntax --
+
+   IPAddrBlocks        ::= SEQUENCE OF IPAddressFamily
+
+   IPAddressFamily     ::= SEQUENCE { -- AFI & opt SAFI --
+      addressFamily        OCTET STRING (SIZE (2..3)),
+      ipAddressChoice      IPAddressChoice }
+
+   IPAddressChoice     ::= CHOICE {
+      inherit              NULL, -- inherit from issuer --
+      addressesOrRanges    SEQUENCE OF IPAddressOrRange }
+
+   IPAddressOrRange    ::= CHOICE {
+      addressPrefix        IPAddress,
+      addressRange         IPAddressRange }
+
+   IPAddressRange      ::= SEQUENCE {
+      min                  IPAddress,
+      max                  IPAddress }
+
+   IPAddress           ::= BIT STRING
+
+   -- Autonomous System Identifier Delegation Extension OID --
+
+   id-pe-autonomousSysIds  OBJECT IDENTIFIER ::= { id-pe 8 }
+
+   -- Autonomous System Identifier Delegation Extension Syntax --
+
+   ASIdentifiers       ::= SEQUENCE {
+       asnum               [0] ASIdentifierChoice OPTIONAL,
+       rdi                 [1] ASIdentifierChoice OPTIONAL }
+
+   ASIdentifierChoice  ::= CHOICE {
+      inherit              NULL, -- inherit from issuer --
+      asIdsOrRanges        SEQUENCE OF ASIdOrRange }
+
+   ASIdOrRange         ::= CHOICE {
+       id                  ASId,
+       range               ASRange }
+
+   ASRange             ::= SEQUENCE {
+       min                 ASId,
+       max                 ASId }
+
+   ASId                ::= INTEGER
+
+   END
