@@ -66,10 +66,10 @@ README.win32 for those instructions.
    .rpm to go along with the "libpcap" .rpm.
 
 4. Run './configure' in the Wireshark distribution directory.
-   Running './configure --help' displays a list of options.
+   Running './configure --help' displays a complete list of options.
    The file 'INSTALL.configure' contains general instructions for
-   using 'configure' and 'make'. Wireshark has some non-generic configure 
-   options:
+   using 'configure' and 'make'. Some of the Wireshark non-generic
+   configure options are as follows:
 
     --sysconfdir=DIR
         Wireshark installs a support file (manuf) in ${PREFIX}/etc by
@@ -99,6 +99,10 @@ README.win32 for those instructions.
         By default the capture-file editing program is built.
         Use this switch to avoid building it.
 
+     --disable-capinfos
+        By default the capture-file statistics reporting pogram 
+        is built. Use this switch to avoid building it.
+
     --disable-mergecap
         By default the capture-file merging program is built.
         Use this switch to avoid building it.
@@ -111,13 +115,30 @@ README.win32 for those instructions.
         By default the IDL-to-wireshark-dissector-source-code converter
         is built. Use this switch to avoid building it.
 
-    --enable-dftest
-        By default the display-filter-compiler test program is not built.
-        Use this switch to build it.
+    --disable-dftest
+        By default the display-filter-compiler test program is built.
+        Use this switch to avoid building it.
 
-    --enable-randpkt
+    --disable-randpkt
         By default the program which creates random packet-capture files
-        is not built. Use this switch to build it.
+        is built. Use this switch to avoid building it.
+
+    --disable-dumpcap
+        By default the network traffic capture program is built.
+        Use this switch to avoid building it.
+
+    --disable-rawshark
+        By default the program used to dump and analyze raw libpcap data
+        is built. Use this switch to avoid building it.
+
+    --disable-ipv6
+        If 'configure' finds support for IPv6 name resolution on
+        your system, the packet analyzers will make use of it.
+        To avoid using IPv6 name resolution if you have the support for it,
+        use this switch.
+
+    --enable-setuid-install
+        Use this switch to install dumpcap as setuid.
 
     --without-pcap
         If you choose to build a packet analyzer that can analyze
@@ -144,39 +165,10 @@ README.win32 for those instructions.
         Use this to tell Wireshark where you have zlib installed, if it
         is installed in a non-standard location.
 
-    --disable-ipv6
-        If 'configure' finds support for IPv6 name resolution on
-        your system, the packet analyzers will make use of it.
-        To avoid using IPv6 name resolution if you have the support for it,
-        use this switch.
-
-    --enable-setuid-install
-        Use this switch to install the packet analyzers as setuid.
-        Installing Wireshark and TShark as setuid 'root' is
-        dangerous. Repeat: IT'S DANGEROUS. Don't do it.  (In fact,
-	applications using GTK+ 2.x will refuse to run setuid at
-	all, so Wireshark might not even run setuid.)
-
-    --with-ssl=DIR
-        If your SNMP library needs the SSL library, and your
-        SSL library is installed in a non-standard location,
-        you can specify where your SSL library is with this switch.
-
-    --without-net-snmp
-        If 'configure' finds a supported version of the Net-SNMP library
-        on your system,  the SNMP dissector will be enhanced to use
-        routines from the Net-SNMP library. Use this switch to avoid
-        using the Net-SNMP library even if you have it installed.
-
-    --with-net-snmp=PATH
-        Tell the 'configure' script where your net-snmp-config shell script 
-        that comes with the net-snmp package is located, if not in a standard 
-        location.
-
     --without-plugins
         By default, if your system can support run-time loadable modules,
         the packet analyzers are build with support for plugins.
-        Use this switcht to build packet analyzers without plugin support.
+        Use this switch to build packet analyzers without plugin support.
 
     --with-plugins=DIR
         By default, plugins are installed in
@@ -195,11 +187,10 @@ README.win32 for those instructions.
 
 6. Run 'make'.  Hopefully, you won't run into any problems.
 
-7. Run './wireshark' or './tshark', and make sure things are working.
+7. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are working.
    You must have root privileges in order to capture live data.
 
-8. Run 'make install'.  If you wish to install the man page, run
-   'make install-man'.  If you're running a system that supports
+8. Run 'make install'.  If you're running a system that supports
    the Apt, RPM, or System V Release 4 packaging systems, you can
    run one of
 
