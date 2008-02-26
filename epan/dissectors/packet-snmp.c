@@ -892,8 +892,10 @@ set_label:
 									 oid_info->name,
 									 oid_subid2string(subids,oid_matched));
 		}
+	} else if (oid_string) {
+		repr  = ep_strdup(oid_string);
 	} else {
-		repr  = ep_strdup_printf("%s", oid_string);
+		repr  = ep_strdup("[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");
@@ -2550,7 +2552,7 @@ static void dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-snmp-fn.c ---*/
-#line 1388 "packet-snmp-template.c"
+#line 1390 "packet-snmp-template.c"
 
 
 guint
@@ -3328,7 +3330,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1901 "packet-snmp-template.c"
+#line 1903 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3368,7 +3370,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1917 "packet-snmp-template.c"
+#line 1919 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
