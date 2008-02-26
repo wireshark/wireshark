@@ -1127,6 +1127,7 @@ else
 fi
 
 AM_CONDITIONAL(SETUID_INSTALL, test x$enable_setuid_install = xyes)
+AC_CHECK_FUNCS(setresuid setresgid)
 
 dnl libcap (not libpcap) check
 LIBCAP_LIBS=''

@@ -790,8 +790,10 @@ set_label:
 									 oid_info->name,
 									 oid_subid2string(subids,oid_matched));
 		}
+	} else if (oid_string) {
+		repr  = ep_strdup(oid_string);
 	} else {
-		repr  = ep_strdup_printf("%s", oid_string);
+		repr  = ep_strdup("[Bad OID]");
 	}
 
 	valstr = strstr(label,": ");

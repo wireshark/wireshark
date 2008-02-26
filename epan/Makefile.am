@@ -72,7 +72,8 @@ libwireshark_generated_la_SOURCES = \
 # only C source available for platforms other than Win32
 libwireshark_asmopt_la_SOURCES = \
 	asm_utils.c		\
-	asm_utils.h
+	asm_utils.h		\
+	asm_utils_win32_x86.asm
 
 EXTRA_libwireshark_la_SOURCES =	\
 	g_ascii_strcasecmp.c	\
