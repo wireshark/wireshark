@@ -50,8 +50,8 @@ to access /dev/bpf*. It is disabled by default.
 
 If the "--with-libcap" option is enabled, dumpcap will try to drop any
 setuid privileges it may have while retaining the CAP_NET_ADMIN and
-CAP_NET_RAW capabilities. It is enabled by default, and requires the
-Linux capabilities library.
+CAP_NET_RAW capabilities. It is enabled by default, if the Linux
+capabilities library (on which it depends) is found.
 
 Additionally, warnings are now displayed when Wireshark and TShark are
 run as root.

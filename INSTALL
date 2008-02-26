@@ -21,7 +21,7 @@ README.win32 for those instructions.
 1. If you wish to build Wireshark, make sure you have GTK+ and GLib
    installed. Try running 'pkg-config glib-2.0 --modversion' to see if
    you have GLib 2.x installed and, if that fails, try running
-   'glib-config --version' to see if you have GLib 1.2[.x] installed. 
+   'glib-config --version' to see if you have GLib 1.2[.x] installed.
    Then try running 'pkg-config gtk+-2.0 --modversion' to see if you
    have GTK+ 2.x installed and, if that fails, try running
    'gtk-config --version' to see if you have GTK+ 1.2[.x] installed.
@@ -100,7 +100,7 @@ README.win32 for those instructions.
         Use this switch to avoid building it.
 
      --disable-capinfos
-        By default the capture-file statistics reporting pogram 
+        By default the capture-file statistics reporting pogram
         is built. Use this switch to avoid building it.
 
     --disable-mergecap
@@ -187,8 +187,8 @@ README.win32 for those instructions.
 
 6. Run 'make'.  Hopefully, you won't run into any problems.
 
-7. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are working.
-   You must have root privileges in order to capture live data.
+7. Run './wireshark' or './tshark' or ./dumpcap, and make sure things are
+   working. You must have root privileges in order to capture live data.
 
 8. Run 'make install'.  If you're running a system that supports
    the Apt, RPM, or System V Release 4 packaging systems, you can
