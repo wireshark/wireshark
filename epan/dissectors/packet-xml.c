@@ -128,8 +128,10 @@ static xml_ns_t* root_ns;
 
 static gboolean pref_heuristic_media = FALSE;
 static gboolean pref_heuristic_tcp = FALSE;
+static gboolean pref_heuristic_udp = FALSE;
 static gboolean pref_heuristic_media_save = FALSE;
 static gboolean pref_heuristic_tcp_save = FALSE;
+static gboolean pref_heuristic_udp_save = FALSE;
 static range_t *global_xml_tcp_range = NULL;
 static range_t *xml_tcp_range = NULL;
 
@@ -230,7 +232,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static gboolean dissect_xml_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    if ( (pref_heuristic_media || pref_heuristic_tcp)
+    if ( (pref_heuristic_media || pref_heuristic_tcp || pref_heuristic_udp)
 		  && tvbparse_peek(tvbparse_init(tvb,0,-1,NULL,want_ignore), want_heur)) {
         dissect_xml(tvb, pinfo, tree);
         return TRUE;
@@ -1235,6 +1237,16 @@ static void apply_prefs(void) {
 		}
 	}
 	
+    if (pref_heuristic_udp_save != pref_heuristic_udp ) {
+		if (pref_heuristic_udp) {
+			heur_dissector_add("udp", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_udp_save = TRUE;
+		} else {
+			heur_dissector_delete("udp", dissect_xml_heur, xml_ns.hf_tag);
+			pref_heuristic_udp_save = FALSE;
+		}
+	}
+
 	range_foreach(xml_tcp_range, range_delete_xml_tcp_callback);
 	g_free(xml_tcp_range);
 	xml_tcp_range = range_copy(global_xml_tcp_range);
@@ -1285,6 +1297,9 @@ proto_register_xml(void) {
 	prefs_register_range_preference(xml_module, "tcp.port", "TCP Ports",
 									"TCP Ports range",
 									&global_xml_tcp_range, 65535);
+    prefs_register_bool_preference(xml_module, "heuristic_udp", "Use Heuristics for UDP",
+                                   "Try to recognize XML for unknown UDP ports",
+                                   &pref_heuristic_udp);
 	
     g_array_free(hf_arr,FALSE);
     g_array_free(ett_arr,TRUE);
