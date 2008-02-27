@@ -104,7 +104,7 @@ x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 #
 register.c: $(plugin_src) $(ALL_DISSECTORS_SRC) $(top_srcdir)/tools/make-dissector-reg \
     $(top_srcdir)/tools/make-dissector-reg.py
-	@if test -n $(PYTHON); then \
+	@if test -n "$(PYTHON)"; then \
 		echo Making register.c with python ; \
 		$(PYTHON) $(top_srcdir)/tools/make-dissector-reg.py $(srcdir) \
 		    dissectors $(ALL_DISSECTORS_SRC) ; \
