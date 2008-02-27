@@ -138,7 +138,13 @@ README.win32 for those instructions.
         use this switch.
 
     --enable-setuid-install
-        Use this switch to install dumpcap as setuid.
+        Wireshark and TShark rely on dumpcap for packet capture. Setting this
+        flag installs dumpcap with setuid root permissions, which lets any user
+        on the system capture live traffic. If this is not desired, you can
+        restrict dumpcap's permissions so that only a single user or group can
+        run it.
+
+        Running Wireshark or TShark as root is not recommended.
 
     --without-pcap
         If you choose to build a packet analyzer that can analyze

@@ -46,7 +46,10 @@ interfaces: "--enable-setuid-install" and "--with-libcap". Setting
 "--enable-setuid-install" to "yes" will install dumpcap setuid root.
 This is necessary for non-root users to be able to capture on most
 systems, e.g. on Linux or FreeBSD if the user doesn't have permissions
-to access /dev/bpf*. It is disabled by default.
+to access /dev/bpf*. It is disabled by default. Note that enabling this
+allows packet capture for ALL users on your system. If this is not
+desired, you should restrict dumpcap execution to a specific group or
+user.
 
 If the "--with-libcap" option is enabled, dumpcap will try to drop any
 setuid privileges it may have while retaining the CAP_NET_ADMIN and
