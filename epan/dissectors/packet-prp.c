@@ -38,6 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/prefs.h>
 
 /**********************************************************/
 /* Offsets of fields within a PRP packet.		  */
@@ -81,7 +82,9 @@ static const value_string prp_lan_vals[] = {
 /* Initialize the protocol and registered fields	  */
 /**********************************************************/
 
+void proto_reg_handoff_prp(void);
 static int proto_prp = -1;
+static module_t *prp_module;
 
 /* Initialize supervision frame fields */
 static int hf_prp_supervision_frame_version = -1;
@@ -99,6 +102,18 @@ static int hf_prp_redundancy_control_trailer_size = -1;
 /* Initialize the subtree pointers */
 static gint ett_prp_supervision_frame = -1;
 static gint ett_prp_redundancy_control_trailer = -1;
+
+
+/*  Post dissectors (such as the trailer dissector for this protocol)
+ *  get called for every single frame anyone loads into Wireshark.
+ *  Since this protocol is not of general interest we disable this
+ *  protocol by default.
+ *
+ *  This is done separately from the disabled protocols list mainly so
+ *  we can disable it by default.  XXX Maybe there's a better way.
+ */
+static gboolean prp_enable_dissector = FALSE;
+
 
 /* Code to actually dissect the packets */
 static void
@@ -274,16 +289,11 @@ void proto_register_prp(void)
 	/* Register the protocol name and description */
 	proto_prp = proto_register_protocol("Parallel Redundancy Protocol (IEC62439 Chapter 6)",
 					    "PRP", "prp");
+	prp_module = prefs_register_protocol(proto_prp, proto_reg_handoff_prp);
 
-	/*  Post dissectors (such as the trailer dissector for this protocol)
-	 *  get called for every single frame anyone loads into Wireshark.
-	 *  Since this protocol is not of general interest we disable this
-	 *  protocol by default (really every time Wireshark starts).
-	 *
-	 *  XXX This should be improved to only disable the protocol by
-	 *  default.
-	 */
-  	proto_set_decoding(proto_prp, FALSE);
+	prefs_register_bool_preference(prp_module, "enable", "Enable dissector",
+				       "Enable this dissector (default is false)",
+				       &prp_enable_dissector);
 
 	/* Required function calls to register the header fields and subtree used */
 	proto_register_field_array(proto_prp, hf, array_length(hf));
@@ -293,12 +303,20 @@ void proto_register_prp(void)
 
 void proto_reg_handoff_prp(void)
 {
-	dissector_handle_t prp_supervision_frame_handle;
-	dissector_handle_t prp_redundancy_control_trailer_handle;
+	static int prefs_initialized = FALSE;
 
-	prp_supervision_frame_handle = create_dissector_handle(dissect_prp_supervision_frame, proto_prp);
-	dissector_add("ethertype", ETHERTYPE_PRP, prp_supervision_frame_handle);
+	if (!prefs_initialized) {
+		dissector_handle_t prp_supervision_frame_handle;
+		dissector_handle_t prp_redundancy_control_trailer_handle;
 
-	prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
-	register_postdissector(prp_redundancy_control_trailer_handle);
+		prp_supervision_frame_handle = create_dissector_handle(dissect_prp_supervision_frame, proto_prp);
+		dissector_add("ethertype", ETHERTYPE_PRP, prp_supervision_frame_handle);
+
+		prp_redundancy_control_trailer_handle = create_dissector_handle(dissect_prp_redundancy_control_trailer, proto_prp);
+		register_postdissector(prp_redundancy_control_trailer_handle);
+
+		prefs_initialized = TRUE;
+	}
+
+  	proto_set_decoding(proto_prp, prp_enable_dissector);
 }
