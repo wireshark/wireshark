@@ -741,7 +741,7 @@ gboolean
 color_filters_write(GSList *cfl)
 {
 	gchar *pf_dir_path;
-	const gchar *path;
+	gchar *path;
 	FILE *f;
 
 	/* Create the directory that holds personal configuration files,
