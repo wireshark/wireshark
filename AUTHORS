@@ -2709,6 +2709,14 @@ Loris Degioanni		<loris.degioanni [AT] cacetech.com> {
 	Rawshark
 }
 
+Sven Meier		<msv[AT]zhwin.ch> {
+	PRP (Parallel Redundancy Protocol; IEC62439 Chapter 6) dissection
+}
+
+Holger Pfrommer		<hpfrommer [AT] hilscher.com> {
+	Hilscher analyzer protocols dissection
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
