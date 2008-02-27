@@ -609,6 +609,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ppp.c		\
 	packet-pppoe.c		\
 	packet-pptp.c		\
+	packet-prp.c		\
 	packet-ptp.c		\
 	packet-pvfs2.c		\
 	packet-q2931.c		\

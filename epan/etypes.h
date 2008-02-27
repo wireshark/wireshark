@@ -312,28 +312,28 @@
 
 #ifndef ETHERTYPE_IEC61850_GOOSE
 #define ETHERTYPE_IEC61850_GOOSE	0x88b8  /* IEC 61850 is a global standard for the use in utility communication,*/
-#endif										/* in particular for the information exchange between IED's in a power */
-											/* transmission or distribution substation. */
-											/*  There are three types of application services
-												that use a specific EtherType. GOOSE uses
-												EtherType field 88b8, GSE management services
-												uses EtherType field 88b9. These two protocols
-												are defined in IEC 61850-8-1. SV (Sampled
-												Value Transmission) uses EtherType field
-												88ba; the protocol is defined in IEC 61850-9-1
-												and IEC 61850-9-2. */
+#endif						/* in particular for the information exchange between IED's in a power */
+						/* transmission or distribution substation. */
+						/*  There are three types of application services
+						    that use a specific EtherType. GOOSE uses
+						    EtherType field 88b8, GSE management services
+						    uses EtherType field 88b9. These two protocols
+						    are defined in IEC 61850-8-1. SV (Sampled
+						    Value Transmission) uses EtherType field
+						    88ba; the protocol is defined in IEC 61850-9-1
+						    and IEC 61850-9-2. */
 
 #ifndef ETHERTYPE_IEC61850_GSE
 #define ETHERTYPE_IEC61850_GSE		0x88b9  /* IEC 61850 is a global standard for the use in utility communication,*/
-#endif										/* in particular for the information exchange between IED's in a power */
+#endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_IEC61850_SV
 #define ETHERTYPE_IEC61850_SV		0x88ba	/* IEC 61850 is a global standard for the use in utility communication,*/
-#endif										/* in particular for the information exchange between IED's in a power */
+#endif						/* in particular for the information exchange between IED's in a power */
 
 #ifndef ETHERTYPE_TIPC
 #define ETHERTYPE_TIPC	0x88ca  /* TIPC  (Transparent Inter Process Communication, */
-#endif							/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
+#endif				/* http://tipc.sourceforge.net/) Ericsson Research Canada Inc */
 
 #ifndef ETHERTYPE_RSN_PREAUTH
 #define ETHERTYPE_RSN_PREAUTH	0x88c7  /* 802.11i Pre-Authentication */
@@ -349,11 +349,11 @@
 
 #ifndef ETHERTYPE_3GPP2
 #define ETHERTYPE_3GPP2	        0x88d2  /* This will be used in a revision of the Interoperabi */
-#endif									/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
-										/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
+#endif					/* Specification (IOS) for cdma2000 Access Network Interfaces (document numbers A.S0011-B */
+					/* through A.S0017-B v1.0). This document already uses the Ether type 8881 */
 
 #ifndef ETHERTYPE_LLTD
-#define ETHERTYPE_LLTD			0x88d9  /* Link Layer Topology Discovery (LLTD) */
+#define ETHERTYPE_LLTD		0x88d9  /* Link Layer Topology Discovery (LLTD) */
 #endif
 
 #ifndef ETHERTYPE_MRP
@@ -366,9 +366,13 @@
 
 #ifndef ETHERTYPE_PTP
 #define ETHERTYPE_PTP		0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
-#endif								/* in particular for the information exchange between IED's in a power */
-									/* transmission or distribution substation. */
-									/*  There are three types of application services */
+#endif					/* in particular for the information exchange between IED's in a power */
+					/* transmission or distribution substation. */
+					/*  There are three types of application services */
+
+#ifndef ETHERTYPE_PRP
+#define ETHERTYPE_PRP		0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
+#endif
 
 #ifndef ETHERTYPE_CFM
 #define ETHERTYPE_CFM		0x8902	/* IEEE 802.1ag Connectivity Fault Management */
