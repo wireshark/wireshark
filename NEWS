@@ -15,6 +15,10 @@ What's New
    The following vulnerabilities have been fixed. See the [1]security
    advisory for details and a workaround.
 
+     o The SCTP dissector could crash.
+
+       Versions affected: 0.99.5 to 0.99.7
+
      o The SNMP dissector could crash.
 
        Versions affected: 0.99.6 to 0.99.7
