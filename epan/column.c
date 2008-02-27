@@ -43,7 +43,7 @@
 #include <epan/column.h>
 #include <epan/packet.h>
 
-/* Given a format number (as defined in packet.h), returns its equivalent
+/* Given a format number (as defined in column_info.h), returns its equivalent
    string */
 const gchar *
 col_format_to_string(gint fmt) {
@@ -115,7 +115,7 @@ col_format_to_string(gint fmt) {
   return(slist[fmt]);
 }
 
-/* Given a format number (as defined in packet.h), returns its
+/* Given a format number (as defined in column_info.h), returns its
   description */
 static const gchar *dlist[NUM_COL_FMTS] = {
     "802.1Q VLAN id",                           /* 0) COL_8021Q_VLAN_ID */
