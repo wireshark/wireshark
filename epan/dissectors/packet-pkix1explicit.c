@@ -41,6 +41,7 @@
 #include <epan/conversation.h>
 #include <epan/asn1.h>
 #include <epan/oids.h>
+#include <epan/afn.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -58,6 +59,11 @@
 /* Initialize the protocol and registered fields */
 static int proto_pkix1explicit = -1;
 static int hf_pkix1explicit_object_identifier_id = -1;
+static int hf_pkix1explicit_addressFamily_afn = -1;
+static int hf_pkix1explicit_addressFamily_safi = -1;
+
+static int ett_pkix1explicit_addressFamily = -1;
+
 
 /*--- Included file: packet-pkix1explicit-hf.c ---*/
 #line 1 "packet-pkix1explicit-hf.c"
@@ -87,7 +93,7 @@ static int hf_pkix1explicit_RelativeDistinguishedName_item = -1;  /* AttributeTy
 static int hf_pkix1explicit_type_01 = -1;         /* TeletexString */
 static int hf_pkix1explicit_value_01 = -1;        /* TeletexString */
 static int hf_pkix1explicit_IPAddrBlocks_item = -1;  /* IPAddressFamily */
-static int hf_pkix1explicit_addressFamily = -1;   /* OCTET_STRING_SIZE_2_3 */
+static int hf_pkix1explicit_addressFamily = -1;   /* T_addressFamily */
 static int hf_pkix1explicit_ipAddressChoice = -1;  /* IPAddressChoice */
 static int hf_pkix1explicit_inherit = -1;         /* NULL */
 static int hf_pkix1explicit_addressesOrRanges = -1;  /* SEQUENCE_OF_IPAddressOrRange */
@@ -106,7 +112,7 @@ static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 54 "packet-pkix1explicit-template.c"
+#line 60 "packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -136,7 +142,7 @@ static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 57 "packet-pkix1explicit-template.c"
+#line 63 "packet-pkix1explicit-template.c"
 
 
 static const char *object_identifier_id;
@@ -547,9 +553,24 @@ dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, t
 
 
 static int
-dissect_pkix1explicit_OCTET_STRING_SIZE_2_3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkix1explicit_T_addressFamily(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 68 "pkix1explicit.cnf"
+	tvbuff_t	*parameter_tvb;
+	proto_tree *subtree;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_pkix1explicit_addressFamily);
+	proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_afn, parameter_tvb, 0, 2, FALSE);
+	if(tvb_length(parameter_tvb)>2)
+		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 0, 2, FALSE);
+
+
+
 
   return offset;
 }
@@ -648,7 +669,7 @@ dissect_pkix1explicit_IPAddressChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static const ber_sequence_t IPAddressFamily_sequence[] = {
-  { &hf_pkix1explicit_addressFamily, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_OCTET_STRING_SIZE_2_3 },
+  { &hf_pkix1explicit_addressFamily, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_pkix1explicit_T_addressFamily },
   { &hf_pkix1explicit_ipAddressChoice, BER_CLASS_ANY/*choice*/, -1/*choice*/, BER_FLAGS_NOOWNTAG|BER_FLAGS_NOTCHKTAG, dissect_pkix1explicit_IPAddressChoice },
   { NULL, 0, 0, 0, NULL }
 };
@@ -796,7 +817,7 @@ static void dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 101 "packet-pkix1explicit-template.c"
+#line 107 "packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -807,6 +828,14 @@ void proto_register_pkix1explicit(void) {
     { &hf_pkix1explicit_object_identifier_id, 
       { "Id", "pkix1explicit.id", FT_STRING, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
+
+    { &hf_pkix1explicit_addressFamily_afn, 
+      { "Address family(AFN)", "pkix1explicit.addressfamily", FT_UINT16, BASE_DEC, VALS(afn_vals), 0,
+	"Address family(AFN)", HFILL }},
+
+    { &hf_pkix1explicit_addressFamily_safi, 
+      { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
+	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
 
 /*--- Included file: packet-pkix1explicit-hfarr.c ---*/
 #line 1 "packet-pkix1explicit-hfarr.c"
@@ -917,7 +946,7 @@ void proto_register_pkix1explicit(void) {
     { &hf_pkix1explicit_addressFamily,
       { "addressFamily", "pkix1explicit.addressFamily",
         FT_BYTES, BASE_HEX, NULL, 0,
-        "pkix1explicit.OCTET_STRING_SIZE_2_3", HFILL }},
+        "pkix1explicit.T_addressFamily", HFILL }},
     { &hf_pkix1explicit_ipAddressChoice,
       { "ipAddressChoice", "pkix1explicit.ipAddressChoice",
         FT_UINT32, BASE_DEC, VALS(pkix1explicit_IPAddressChoice_vals), 0,
@@ -984,11 +1013,12 @@ void proto_register_pkix1explicit(void) {
         "pkix1explicit.ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 112 "packet-pkix1explicit-template.c"
+#line 126 "packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
+	  &ett_pkix1explicit_addressFamily,
 
 /*--- Included file: packet-pkix1explicit-ettarr.c ---*/
 #line 1 "packet-pkix1explicit-ettarr.c"
@@ -1016,7 +1046,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 117 "packet-pkix1explicit-template.c"
+#line 132 "packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1042,6 +1072,6 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 133 "packet-pkix1explicit-template.c"
+#line 148 "packet-pkix1explicit-template.c"
 }
 
