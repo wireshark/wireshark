@@ -207,7 +207,7 @@ void proto_register_hilscher(void)
     {
  	proto_hilscher = proto_register_protocol ("Hilscher analyzer dissector",	/* name */
 						  "Hilscher",		/* short name */
-						  "Hilscher");		/* abbrev */
+						  "hilscher");		/* abbrev */
     }
 
     hilscher_module = prefs_register_protocol(proto_hilscher, proto_reg_handoff_hilscher);
