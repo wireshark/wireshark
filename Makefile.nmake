@@ -812,7 +812,8 @@ process_libs:
 clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/adns-1.0-win32-05
     rm -r -f $(WIRESHARK_LIBS)/gettext-0.14.5
-    rm -r -f $(WIRESHARK_LIBS)/gettext-0.17
+    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
+    rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
@@ -822,6 +823,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
+    rm -r -f $(WIRESHARK_LIBS)/nasm-2.00
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
