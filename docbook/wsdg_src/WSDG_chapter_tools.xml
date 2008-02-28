@@ -6,8 +6,8 @@
     <title>Introduction</title>
     <para>This chapter will provide you with information about the
     various tools needed for Wireshark development.</para>
-    <para>None of the tools mentioned in this chapter is needed to
-    run Wireshark, they are only needed to build it.</para>
+    <para>None of the tools mentioned in this chapter are needed to
+    run Wireshark; they are only needed to build it.</para>
     <para>Most of these tools have their roots on UNIX like
     platforms, but Win32 ports are also available. Therefore the
     tools are available in different "flavours":
