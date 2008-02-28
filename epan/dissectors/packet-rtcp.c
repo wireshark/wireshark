@@ -4136,7 +4136,7 @@ proto_register_rtcp(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtcp_rtpfb_fmt_vals),
-				0x15,
+				0x1f,
 				"RTCP Feedback message type (FMT)", HFILL
 			}
 		},
@@ -4148,7 +4148,7 @@ proto_register_rtcp(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtcp_psfb_fmt_vals),
-				0x15,
+				0x1f,
 				"RTCP Feedback message type (FMT)", HFILL
 			}
 		},
