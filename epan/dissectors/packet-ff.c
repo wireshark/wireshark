@@ -16873,7 +16873,7 @@ proto_register_ff(void)
 		&ett_ff_lr_diagnostic_msg_req_b_to_b_status,
 	};
 
-	proto_ff = proto_register_protocol("Foundation Fieldbus", "FF", "ff");
+	proto_ff = proto_register_protocol("FOUNDATION Fieldbus", "FF", "ff");
 	proto_register_field_array(proto_ff, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 

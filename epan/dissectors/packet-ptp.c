@@ -404,7 +404,7 @@ static const value_string ptp_managementMessageKey_vals[] = {
 static const value_string ptp_communicationid_vals[] = {
   {PTP_CLOSED,  "Closed system outside the scope of this standard."},
   {PTP_ETHER,  "IEEE 802.3 (Ethernet)"},
-  {PTP_FFBUS,  "FoundationFieldbus"},
+  {PTP_FFBUS,  "FOUNDATION Fieldbus"},
   {PTP_PROFIBUS,  "PROFIBUS"},
   {PTP_LON,  "LonTalk"},
   {PTP_DNET,  "DeviceNet"},
