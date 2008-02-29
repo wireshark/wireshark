@@ -5441,7 +5441,7 @@ def define_errors():
         errors[0xa802] = "No Access Rights"
 
         errors[0xa900] = "Error Link in Path"
-        errors[0xa901] = "Invalid Data Type Flag (outdated return value - replaced in NSS as 0x89aa error)"
+        errors[0xa901] = "Invalid Path With Junction Present"
 
         errors[0xaa00] = "Invalid Data Type Flag"
 

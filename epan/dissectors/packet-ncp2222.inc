@@ -2763,7 +2763,8 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
 				break;
             case 17:
             case 18:
-			case 19:			/* string */
+            case 19:
+			case 20:			/* string */
 		        uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
                 if (repeat_lookup > 0) {
                     if (strlen(temp_buffer) + strlen(buffer) < 250) {
@@ -2788,7 +2789,8 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
                 {
                     break;
                 }
-            case 21:             /* Bytes */
+            case 21:
+            case 22:             /* Bytes */
                 g_snprintf(buffer, (get_finfo_length(tree_pointer->finfo))*4, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
                 break;
 			default:			/* Dont currently handle. Only need string, integers, and bytes */
