@@ -856,10 +856,22 @@ sync_interface_list_open(gchar **msg) {
     argv = sync_pipe_add_arg(argv, &argc, "-D");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-    /* dumpcap should be running in capture child mode (hidden feature) */
+#if 0
+    /* dumpcap should be running in capture child mode (hidden feature)                   */
+    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
+    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
+    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
+    /*     Note: Using 'dumpcap -D -M -Z' (capture_child mode) changes only the format of */
+    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
+    /*           msgs to stderr in a special type/len/string format which would then      */
+    /*           currently be sent as is to stderr resulting in garbled output.           */
+    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
+    /*     special format error messages to stderr are captured and returned to caller    */
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
+#endif
 #endif
 
     return sync_pipe_run_command(argv, msg);
@@ -896,12 +908,23 @@ sync_linktype_list_open(const gchar *ifname, gchar **msg) {
     argv = sync_pipe_add_arg(argv, &argc, "-L");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-    /* dumpcap should be running in capture child mode (hidden feature) */
+#if 0
+    /* dumpcap should be running in capture child mode (hidden feature)                   */
+    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
+    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
+    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
+    /*     Note: Using 'dumpcap -L -M -Z' (capture_child mode) changes only the format of */
+    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
+    /*           msgs to stderr in a special type/len/string format which would then      */
+    /*           currently be sent as is to stderr resulting in garbled output.           */
+    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
+    /*     special format error messages to stderr are captured and returned to caller    */
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-
+#endif
     return sync_pipe_run_command(argv, msg);
 }
 
@@ -921,7 +944,7 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
         return -1;
     }
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_linktype_list_open");
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_interface_stats_open");
 
     argv = init_pipe_args(&argc);
 
@@ -930,16 +953,27 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
         return CANT_RUN_DUMPCAP;
     }
 
-    /* Ask for the linktype list */
+    /* Ask for the interface statistics */
     argv = sync_pipe_add_arg(argv, &argc, "-S");
     argv = sync_pipe_add_arg(argv, &argc, "-M");
 
-    /* dumpcap should be running in capture child mode (hidden feature) */
+#if 0
+    /* dumpcap should be running in capture child mode (hidden feature)                   */
+    /* XXX: Actually: don't run dumpcap in capture_child_mode.                            */
+    /*     Instead run dumpcap in 'normal' mode so that dumpcap err msgs are sent to      */
+    /*     stderr in normal format and are then sent to whereever our stderr goes.        */
+    /*     Note: Using 'dumpcap -S -M -Z' (capture_child mode) changes only the format of */
+    /*           dumpcap err msgs. That is: dumpcap in capture_child mode outputs err     */
+    /*           msgs to stderr in a special type/len/string format which would then      */
+    /*           currently be sent as is to stderr resulting in garbled output.           */
+    /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
+    /*     special format error messages to stderr are captured and returned to caller    */
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
 #endif
-
+#endif
     return sync_pipe_open_command(argv, read_fd, fork_child, msg);
 }
 
