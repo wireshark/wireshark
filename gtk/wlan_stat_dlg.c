@@ -121,8 +121,8 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	
 	SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
 	ep->stats.channel = si->stats.channel;
-	strncpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
-	strncpy (ep->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
+	g_strlcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+	g_strlcpy (ep->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
 	memset(&ep->type, 0, sizeof (int) * 256);
 	ep->number_of_packets = 0;
 	ep->next = NULL;
@@ -209,10 +209,10 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 		te->stats.channel = si->stats.channel;
 	}
 	if (te->stats.ssid[0] == 0 && si->stats.ssid[0] != 0) {
-		strncpy (te->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+		g_strlcpy (te->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
 	}
 	if (te->stats.protection[0] == 0 && si->stats.protection[0] != 0) {
-		strncpy (te->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
+		g_strlcpy (te->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
 	}
 	te->type[si->type]++;
 	te->number_of_packets++;

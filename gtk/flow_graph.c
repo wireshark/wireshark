@@ -328,8 +328,8 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
   /* copied from packet-tcp */
   const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
   guint i, bpos;
-  guint fpos = 0;
-  gchar flags[64] = "<None>";
+  gboolean flags_found = FALSE;
+  gchar flags[64];
 
   gai = g_malloc(sizeof(graph_analysis_item_t));
   gai->frame_num = pinfo->fd->num;
@@ -344,18 +344,21 @@ static int flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheade
   gai->port_src=pinfo->srcport;
   gai->port_dst=pinfo->destport;
 
+  flags[0] = '\0';
   for (i = 0; i < 8; i++) {
     bpos = 1 << i;
     if (tcph->th_flags & bpos) {
-      if (fpos) {
-        strncpy(&flags[fpos], ", ", 64 - fpos - 1);
-        fpos += 2;
+      if (flags_found) {
+        g_strlcat(flags, ", ", 64);
       }
-      strncpy(&flags[fpos], fstr[i], 64 - fpos - 1);
-      fpos += 3;
+      g_strlcat(flags, fstr[i], 64);
+      flags_found = TRUE;
     }
   }
-  flags[fpos] = '\0';
+  if (flags[0] == '\0') {
+    g_snprintf (flags, 64, "<None>");
+  }
+
   if ((tcph->th_have_seglen)&&(tcph->th_seglen!=0)){
     gai->frame_label = g_strdup_printf("%s - Len: %u",flags, tcph->th_seglen);
   }

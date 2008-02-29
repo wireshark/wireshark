@@ -1166,8 +1166,7 @@ capture_if_details_802_11_bssid_list(GtkWidget *main_vb, struct ndis_bssid_list 
             /* Vendor */
             manuf_name = get_manuf_name_if_known(mac);
             if(manuf_name != NULL) {
-                strncpy(vendor_buff, manuf_name, DETAILS_STR_MAX);
-                vendor_buff[DETAILS_STR_MAX-1] = '\0';
+                g_strlcpy(vendor_buff, manuf_name, DETAILS_STR_MAX);
             } else {
                 vendor_buff[0] = '\0';
             }

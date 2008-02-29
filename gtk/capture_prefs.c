@@ -755,12 +755,14 @@ ifopts_write_new_descr(void)
 		 * create/cat interface description to new string
 		 * (leave space for parens, comma and terminator)
 		 */
-		if (first_if == TRUE)
-			tmp_descr = g_strdup_printf("%s(%s)", ifnm, desc);
-		else
-			tmp_descr = g_strdup_printf(",%s(%s)", ifnm, desc);
-		strncat(new_descr, tmp_descr, MAX_VAL_LEN - strlen(new_descr));
+		if (first_if != TRUE) {
+			g_strlcat (new_descr, ",", MAX_VAL_LEN);
+		}
+
+		tmp_descr = g_strdup_printf("%s(%s)", ifnm, desc);
+		g_strlcat(new_descr, tmp_descr, MAX_VAL_LEN);
 		g_free(tmp_descr);
+
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}
@@ -789,7 +791,6 @@ ifopts_write_new_hide(void)
 	gint	first_if = TRUE;				/* flag to check if first in list */
 	gchar	*ifnm;
 	gchar	*hide;
-	gchar	*tmp_hide;
 	gchar	*new_hide;
 
 	/* new preferences "hidden" interfaces string */
@@ -804,19 +805,16 @@ ifopts_write_new_hide(void)
 		if (strcmp("No", hide) == 0)
 			continue;
 
-        /* get interface name */
+		/* get interface name */
 		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
 
 		/*
 		 * create/cat interface to new string
 		 */
-		if (first_if == TRUE)
-			tmp_hide = g_strdup_printf("%s", ifnm);
-		else
-			tmp_hide = g_strdup_printf(",%s", ifnm);
+		if (first_if != TRUE)
+			g_strlcat (new_hide, ",", MAX_VAL_LEN);
+		g_strlcat (new_hide, ifnm, MAX_VAL_LEN);
 
-		strncat(new_hide, tmp_hide, MAX_VAL_LEN - strlen(new_hide));
-		g_free(tmp_hide);
 		/* set first-in-list flag to false */
 		first_if = FALSE;
 	}

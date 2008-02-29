@@ -456,7 +456,7 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     gchar        *str_path;
 #endif
 
-    cur_fmt        = 0;
+    cur_fmt        = COL_NUMBER;
     cfmt           = (fmt_data *) g_malloc(sizeof(fmt_data));
     cfmt->title    = g_strdup(title);
     cfmt->fmt      = g_strdup(col_format_to_string(cur_fmt));

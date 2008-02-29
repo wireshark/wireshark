@@ -650,7 +650,7 @@ set_app_font_gtk2(const char *fontname)
 	pfont = pango_context_load_font(pc, pfd);
 
 	if (pfont != NULL) {
-	    strncpy(appfontname, fontname, 128);
+	    g_strlcpy(appfontname, fontname, 128);
 	    appfontname[127] = '\0';
 	    g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
 	}

@@ -680,9 +680,9 @@ value_list_sel_cb(GtkTreeSelection *sel, gpointer value_entry_arg)
          * testing for "false".
          */
         if (value != NULL)
-                strncpy(value_string, "1", 2);
+		g_snprintf(value_string, sizeof value_string, "1");
         else
-                strncpy(value_string, "0", 2);
+		g_snprintf(value_string, sizeof value_string, "0");
     } else {
         /*
          * Numeric type; get the value corresponding to the

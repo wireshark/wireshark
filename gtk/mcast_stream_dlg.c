@@ -189,10 +189,10 @@ mcaststream_on_filter                    (GtkButton       *button _U_,
 	if (selected_stream_fwd)
 	{
 		if (selected_stream_fwd->src_addr.type==AT_IPv6){
-			strncpy(ip_version,"v6",3);
+			g_strlcpy(ip_version,"v6",3);
 		}		
 		else{
-			strncpy(ip_version,"",3);
+			ip_version[0] = '\0';
 		}
 		filter_string_fwd = g_strdup_printf(
 			"(ip%s.src==%s && udp.srcport==%u && ip%s.dst==%s && udp.dstport==%u)",
