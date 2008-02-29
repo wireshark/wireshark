@@ -144,9 +144,10 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 	return 0;
 }
 
-/* The returned filename was g_malloc()'d so the caller must free it */
-char* wslua_get_actual_filename(const char* fname) {
-	static char fname_clean[256];
+/* The returned filename is g_malloc()'d so the caller must free it */
+/* except when NULL is returned if file doesn't exist               */
+static char* wslua_get_actual_filename(const char* fname) {
+	char fname_clean[256];
 	char* f;
 	char* filename;
 	
@@ -163,7 +164,7 @@ char* wslua_get_actual_filename(const char* fname) {
 	}
 		
 	if ( file_exists(fname_clean) ) {
-		return fname_clean;
+		return g_strdup(fname_clean);
 	}
 	
 	filename = get_persconffile_path(fname_clean,FALSE,FALSE);
@@ -174,8 +175,12 @@ char* wslua_get_actual_filename(const char* fname) {
 	g_free(filename);
 	
 	filename = get_datafile_path(fname_clean);
+	if ( file_exists(filename) ) {
+		return filename;
+	}
+	g_free(filename);
 
-	return filename;
+	return NULL;
 }
 
 WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
@@ -256,6 +261,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 	if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
 
 	dirname_clean = wslua_get_actual_filename(dirname);
+	if (!dirname_clean) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"directory does not exist");
 	
 	if (!test_for_directory(dirname_clean))  WSLUA_ARG_ERROR(Dir_open, PATHNAME, "must be a directory");
 
