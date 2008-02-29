@@ -1548,7 +1548,7 @@ CPPFLAGS="$CPPFLAGS '-DPLUGIN_DIR=\"\$(plugindir)\"'"
 #
 # The plugin dissectors reside in ./plugins/PROTO/
 #
-PLUGIN_LIBS="-L../../epan -lwireshark $GLIB_LIBS"
+PLUGIN_LIBS="-L../../epan -lwireshark"
 AC_SUBST(PLUGIN_LIBS)
 
 dnl libtool defs
