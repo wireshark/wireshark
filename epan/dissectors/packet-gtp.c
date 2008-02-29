@@ -1576,35 +1576,6 @@ struct _gtp_hdr {
 static	guint8		gtp_version = 0;
 static	const char	*yesno[] = { "no", "yes" };
 
-static void
-col_append_str_gtp(column_info *cinfo, gint el, const gchar *proto_name) {
-
-	int	i;
-	int	max_len;
-	gchar	_tmp[COL_MAX_LEN];
-
-	max_len = COL_MAX_LEN;
-
-	for (i = 0; i < cinfo->num_cols; i++) {
-		if (cinfo->fmt_matx[i][el]) {
-			if (cinfo->col_data[i] != cinfo->col_buf[i]) {
-
-    				strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);
-    				cinfo->col_buf[i][max_len - 1] = '\0';
-      			}
-
-			_tmp[0] = '\0';
-			strncat(_tmp, proto_name, COL_MAX_LEN);
-			strncat(_tmp, " <", COL_MAX_LEN - strlen(_tmp));
-			strncat(_tmp, cinfo->col_buf[i], COL_MAX_LEN - strlen(_tmp));
-			strncat(_tmp, ">", COL_MAX_LEN - strlen(_tmp));
-			cinfo->col_buf[i][0] = '\0';
-			strncat(cinfo->col_buf[i], _tmp, COL_MAX_LEN);
-			cinfo->col_data[i] = cinfo->col_buf[i];
-		}
-	}
-}
-
 static gchar *
 id_to_str(const guint8 *ad) {
 
@@ -6054,8 +6025,10 @@ dissect_gtp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector (ppp_handle, next_tvb, pinfo, tree);
 		}
 
-		if (check_col(pinfo->cinfo, COL_PROTOCOL))
-			col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+			col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+			col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+		}
 	}
 }
 
