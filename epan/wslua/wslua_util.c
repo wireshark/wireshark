@@ -263,7 +263,10 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 	dirname_clean = wslua_get_actual_filename(dirname);
 	if (!dirname_clean) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"directory does not exist");
 	
-	if (!test_for_directory(dirname_clean))  WSLUA_ARG_ERROR(Dir_open, PATHNAME, "must be a directory");
+	if (!test_for_directory(dirname_clean))  {
+		g_free(dirname_clean);
+		WSLUA_ARG_ERROR(Dir_open,PATHNAME, "must be a directory");
+	}
 
 	dir = g_malloc(sizeof(struct _wslua_dir));
 	dir->dir = OPENDIR_OP(dirname_clean);
