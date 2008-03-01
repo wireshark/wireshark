@@ -39,6 +39,7 @@
 #include "sctp_stat.h"
 #include <math.h>
 #include "epan/address.h"
+#include <epan/strutil.h>
 
 #define SCTP_HEARTBEAT_CHUNK_ID          4
 #define SCTP_HEARTBEAT_ACK_CHUNK_ID      5

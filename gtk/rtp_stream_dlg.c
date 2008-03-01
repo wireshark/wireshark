@@ -52,6 +52,7 @@
 #include <string.h>
 #include <locale.h>
 #include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
 #include "rtp_stream.h"
 #include "rtp_analysis.h"

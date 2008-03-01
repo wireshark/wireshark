@@ -55,6 +55,7 @@
 #include <string.h>
 #include <locale.h>
 #include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"

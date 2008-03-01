@@ -49,6 +49,7 @@
 #include "gui_utils.h"
 #include "compat_macros.h"
 #include "help_dlg.h"
+#include <epan/strutil.h>
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50

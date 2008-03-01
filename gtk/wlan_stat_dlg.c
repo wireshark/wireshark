@@ -49,6 +49,7 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "help_dlg.h"
+#include <epan/strutil.h>
 
 #define NUM_COLS 12
 static const gchar *titles[] = {"BSSID", "Channel", "SSID", "Beacons", "Data Packets", "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Percent", "Protection" };

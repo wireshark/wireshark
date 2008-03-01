@@ -42,6 +42,7 @@
 #include "compat_macros.h"
 #include "simple_dialog.h"
 #include "sctp_stat.h"
+#include <epan/strutil.h>
 
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK 4

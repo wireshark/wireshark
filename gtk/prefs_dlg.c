@@ -53,6 +53,7 @@
 #include "help_dlg.h"
 #include "keys.h"
 #include "uat_gui.h"
+#include <epan/strutil.h>
 
 #include <epan/prefs-int.h>
 

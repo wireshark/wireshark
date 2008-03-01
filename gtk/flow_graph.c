@@ -50,6 +50,7 @@
 #include <epan/dissectors/packet-tcp.h>
 
 #include <string.h>
+#include <epan/strutil.h>
 
 #define DISPLAYED 0
 #define ALL 1

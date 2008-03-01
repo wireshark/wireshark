@@ -79,6 +79,7 @@
 #include <math.h>
 #include <string.h>
 #include <locale.h>
+#include <epan/strutil.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

@@ -56,6 +56,7 @@
 #include "filter_dlg.h"
 #include "help_dlg.h"
 #include "pixmap_save.h"
+#include <epan/strutil.h>
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
