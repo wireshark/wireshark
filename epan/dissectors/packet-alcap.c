@@ -1629,6 +1629,7 @@ proto_register_alcap(void)
     { &hf_alcap_pssiae_cas, { "CAS", "alcap.pssiae.cas", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04, "Channel Associated Signalling", HFILL }},
     { &hf_alcap_pssiae_fax, { "Fax", "alcap.pssiae.fax", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02, "Facsimile", HFILL }},
     { &hf_alcap_pssiae_pcm, { "PCM Mode", "alcap.pssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, "", HFILL }},
+    { &hf_alcap_pssiae_max_len, { "Max Len of FM Data", "alcap.pssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_pssiae_oui, { "OUI", "alcap.pssiae.oui", FT_BYTES, BASE_HEX, NULL, 0, "Organizational Unique Identifier", HFILL }},
         
     { &hf_alcap_pssime_frm, { "Frame Mode", "alcap.pssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, "", HFILL }},
@@ -1653,6 +1654,7 @@ proto_register_alcap(void)
     { &hf_alcap_ssiae_cas, { "CAS", "alcap.ssiae.cas", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x04, "Channel Associated Signalling", HFILL }},
     { &hf_alcap_ssiae_fax, { "Fax", "alcap.ssiae.fax", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x02, "Facsimile", HFILL }},
     { &hf_alcap_ssiae_pcm, { "PCM Mode", "alcap.ssiae.pcm", FT_UINT8, BASE_DEC, VALS(alaw_ulaw), 0x01, "", HFILL }},
+    { &hf_alcap_ssiae_max_len, { "Max Len of FM Data", "alcap.ssiae.max_fmdata_len", FT_UINT16, BASE_DEC, NULL, 0, "", HFILL }},
     { &hf_alcap_ssiae_oui, { "OUI", "alcap.ssiae.oui", FT_BYTES, BASE_HEX, NULL, 0, "Organizational Unique Identifier", HFILL }},
         
     { &hf_alcap_ssime_frm, { "Frame Mode", "alcap.ssime.frm", FT_UINT8, BASE_DEC, VALS(enabled_disabled), 0x80, "", HFILL }},
