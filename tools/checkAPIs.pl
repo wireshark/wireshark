@@ -39,7 +39,9 @@ my @prohibitedAPIs=
 	'sprintf',
 	'vsprintf',
 	'strcpy',
+	'strncpy',
 	'strcat',
+	'strncat',
 	'cftime',
 	'ascftime',
 	### non-portable APIs
