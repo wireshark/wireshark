@@ -44,6 +44,7 @@
 #include "main.h"
 #include "compat_macros.h"
 #include "capture.h"
+#include <epan/strutil.h>
 
 #define DEVICE_KEY				"device"
 #define PROM_MODE_KEY			"prom_mode"
