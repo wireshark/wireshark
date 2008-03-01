@@ -687,9 +687,10 @@ build_column_format_array(capture_file *cfile, gboolean reset_fences)
     if(reset_fences)
       cfile->cinfo.col_fence[i] = 0;
 
-    cfile->cinfo.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
-    cfile->cinfo.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
-						     COL_MAX_LEN);
+    cfile->cinfo.col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) *
+							    COL_MAX_LEN);
+    cfile->cinfo.col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
+								COL_MAX_LEN);
   }
 
   for (i = 0; i < cfile->cinfo.num_cols; i++) {

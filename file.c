@@ -78,6 +78,8 @@
 #include <epan/dfilter/dfilter-macro.h>
 #include "file_util.h"
 #include <epan/column-utils.h>
+#include <epan/strutil.h>
+#include <epan/emem.h>
 
 #ifdef HAVE_LIBPCAP
 gboolean auto_scroll_live;
@@ -889,6 +891,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	gboolean refilter)
 {
   gint          row;
+  gint          col;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
 
@@ -1010,6 +1013,20 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
+    /* Setup and copy data into fdata->col_expr.col_expr & .col_expr_val */
+    fdata->col_expr.col_expr =
+	    (gchar **) se_alloc(sizeof(gchar *) * cf->cinfo.num_cols);
+    fdata->col_expr.col_expr_val =
+	    (gchar **) se_alloc(sizeof(gchar *) * cf->cinfo.num_cols);
+
+    for(col = 0; col < cf->cinfo.num_cols; col++) {
+	    fdata->col_expr.col_expr[col] = 
+		    se_strdup(cf->cinfo.col_expr.col_expr[col]);
+	    fdata->col_expr.col_expr_val[col] = 
+		    se_strdup(cf->cinfo.col_expr.col_expr_val[col]);
+
+    }
+    
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
     /* colorize packet: first apply color filters

@@ -492,38 +492,14 @@ get_text_from_packet_list(gpointer data)
     gint	row = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_ROW_KEY));
     gint	column = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_COL_KEY));
     frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
-    epan_dissect_t *edt;
-    gchar      *buf=NULL;
-    int         len;
-    int         err;
-    gchar       *err_info;
 
-    if (fdata != NULL) {
-	if (!wtap_seek_read(cfile.wth, fdata->file_off, &cfile.pseudo_header,
-		       cfile.pd, fdata->cap_len, &err, &err_info)) {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		          cf_read_error_message(err, err_info), cfile.filename);
+    if(strlen(fdata->col_expr.col_expr[column]) != 0 &&
+       strlen(fdata->col_expr.col_expr_val[column]) != 0)
+	    return ep_strdup_printf("%s == %s",
+				    fdata->col_expr.col_expr[column],
+				    fdata->col_expr.col_expr_val[column]);
+    else
 	    return NULL;
-	}
-
-	edt = epan_dissect_new(FALSE, FALSE);
-	epan_dissect_run(edt, &cfile.pseudo_header, cfile.pd, fdata,
-			 &cfile.cinfo);
-	epan_dissect_fill_in_columns(edt);
-
-	if (strlen(cfile.cinfo.col_expr[column]) != 0 &&
-	    strlen(cfile.cinfo.col_expr_val[column]) != 0) {
-	    len = strlen(cfile.cinfo.col_expr[column]) +
-		  strlen(cfile.cinfo.col_expr_val[column]) + 5;
-	    buf = ep_alloc0(len);
-	    g_snprintf(buf, len, "%s == %s", cfile.cinfo.col_expr[column],
-		     cfile.cinfo.col_expr_val[column]);
-    	}
-
-	epan_dissect_free(edt);
-    }
-
-    return buf;
 }
 
 void

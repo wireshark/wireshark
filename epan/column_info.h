@@ -34,6 +34,11 @@ extern "C" {
 #define COL_MAX_LEN 256
 #define COL_MAX_INFO_LEN 4096
 
+typedef struct {
+  gchar      **col_expr;     /* Filter expression */
+  gchar      **col_expr_val; /* Value for filter expression */
+} col_expr_t;
+
 typedef struct _column_info {
   gint          num_cols;    /* Number of columns */
   gint         *col_fmt;     /* Format of column */
@@ -45,8 +50,7 @@ typedef struct _column_info {
   const gchar **col_data;    /* Column data */
   gchar       **col_buf;     /* Buffer into which to copy data for column */
   int         *col_fence;    /* Stuff in column buffer before this index is immutable */
-  gchar      **col_expr;     /* Filter expression */
-  gchar      **col_expr_val; /* Value for filter expression */
+  col_expr_t   col_expr;     /* Column expressions and values */
   gboolean     writable;     /* Are we still writing to the columns? */
   gboolean columns_changed;  /* Have the columns been changed in the prefs? */
 } column_info;

@@ -144,7 +144,7 @@ extern void	col_add_fstr(column_info *cinfo, gint col, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 3, 4);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
-void col_custom_set_fstr(const gchar *field_name, const gchar *format, ...)
+void col_custom_set_fstr(header_field_info *hfinfo, const gchar *format, ...)
     GNUC_FORMAT_CHECK(printf, 2, 3);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
