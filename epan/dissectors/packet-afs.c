@@ -3117,6 +3117,8 @@ proto_register_afs(void)
 /* XXX - is this an IP address? */
 	{ &hf_afs_fs_viceid, { "Vice ID", "afs.fs.viceid",
 		FT_UINT32, BASE_DEC, 0, 0, "Vice ID", HFILL }},
+	{ &hf_afs_fs_ipaddr, { "IP Addr", "afs.fs.ipaddr",
+		FT_IPv4, BASE_HEX, 0, 0, "IP Addr", HFILL }},
 
 	{ &hf_afs_fs_status_mask, { "Mask", "afs.fs.status.mask",
 		FT_UINT32, BASE_HEX, 0, 0, "Mask", HFILL }},
