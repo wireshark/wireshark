@@ -451,7 +451,6 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 {
 	guint32 cmd;
 	char msg[MAX_MSG_SIZE];
-	char *msgIndex;
 	guint32 bitValue;
 	int i;
 
@@ -462,8 +461,7 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 	cmd = tvb_get_ntohl(tvb, offset);
 
 	/* Initialize the message for an empty string */
-	msgIndex = msg;
-	strncpy(msgIndex, "No command specified", MAX_MSG_SIZE);
+	msg[0] = '\0';
 
 	for (i = 0; cmd != 0 && i < 32; i++) {
 
@@ -472,32 +470,25 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 		if (cmd & bitValue) {
 			switch (bitValue) {
 			case FMP_COMMIT_SPECIFIED:
-				strncpy(msgIndex, "COMMIT_SPECIFIED", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("COMMIT_SPECIFIED");
+				g_strlcat(msg, "COMMIT_SPECIFIED", MAX_MSG_SIZE);
 				break;
 			case FMP_RELEASE_SPECIFIED:
-				strncpy(msgIndex, "RELEASE_SPECIFIED", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("RELEASE_SPECIFIED");
+				g_strlcat(msg, "RELEASE_SPECIFIED", MAX_MSG_SIZE);
 				break;
 			case FMP_RELEASE_ALL:
-				strncpy(msgIndex, "RELEASE_ALL", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("RELEASE_ALL");
+				g_strlcat(msg, "RELEASE_ALL", MAX_MSG_SIZE);
 				break;
 			case FMP_CLOSE_FILE:
-				strncpy(msgIndex, "CLOSE_FILE", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("CLOSE_FILE");
+				g_strlcat(msg, "CLOSE_FILE", MAX_MSG_SIZE);
 				break;
 			case FMP_UPDATE_TIME:
-				strncpy(msgIndex, "UPDATE_TIME", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("UPDATE_TIME");
+				g_strlcat(msg, "UPDATE_TIME", MAX_MSG_SIZE);
 				break;
 			case FMP_ACCESS_TIME:
-				strncpy(msgIndex, "ACCESS_TIME", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("ACCESS_TIME");
+				g_strlcat(msg, "ACCESS_TIME", MAX_MSG_SIZE);
 				break;
 			default:
-				strncpy(msgIndex, "UNKNOWN", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen("UNKNOWN");
+				g_strlcat(msg, "UNKNOWN", MAX_MSG_SIZE);
 				break;
 			}
 
@@ -506,12 +497,14 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 	
 			/* add a "bitwise inclusive OR" symbol between cmds */
 			if (cmd) {
-				strncpy(msgIndex, " | ", MAX_MSG_SIZE - strlen(msg));
-				msgIndex += strlen(" | ");
+				g_strlcat(msg, " | ", MAX_MSG_SIZE);
 			}
 		}
 	}
-	msg[MAX_MSG_SIZE-1] = '\0';
+
+	if (strlen(msg) == 0) {
+	  g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
+	}
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Cmd: %s", msg);
 	offset += 4;
