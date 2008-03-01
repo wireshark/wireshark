@@ -1786,7 +1786,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
         request_value->req_nds_flags = 0;
 	request_value->nds_request_verb = 0;
 	request_value->nds_version = 0;
-	strcpy(request_value->object_name, " ");
+	g_strlcpy(request_value->object_name, " ", 256);
         request_value->nds_frag = TRUE;
 
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
@@ -1806,7 +1806,7 @@ ncp_eid_hash_insert(guint32 nw_eid)
         request_eid_key->nw_eid = nw_eid;
 
 	request_eid_value = g_mem_chunk_alloc(ncp_req_eid_hash_values);
-	strcpy(request_eid_value->object_name, " ");
+	g_strlcpy(request_eid_value->object_name, " ", 256);
         request_eid_value->object_class = NULL;
 
         g_hash_table_insert(ncp_req_eid_hash, request_eid_key, request_eid_value);
@@ -2131,7 +2131,7 @@ padd_uni(ptvcursor_t *ptvc, const ptvc_record *rec)
         nw_uni_t        nw_uni;
         guint            offset;
 
-	strcpy(nw_uni.buffer, "");
+	nw_uni.buffer[0] = '\0';
         offset = ptvcursor_current_offset(ptvc);
 
 	item = ptvcursor_add(ptvc, *rec->hf_ptr,
@@ -2591,55 +2591,55 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         for (i = 0 ; i < (values->vlength*8); i++ ) {
                 if (values->vvalue & bvalue)
                 {
-                        strcat(flags_str, sep);
+                        g_strlcat(flags_str, sep, 512);
                         switch(bvalue){
                                 case 0x00000001:
-                                        strcat(flags_str, values->bit1);
+                                        g_strlcat(flags_str, values->bit1, 512);
                                         break;
                                 case 0x00000002:
-                                        strcat(flags_str, values->bit2);
+                                        g_strlcat(flags_str, values->bit2, 512);
                                         break;
                                 case 0x00000004:
-                                        strcat(flags_str, values->bit3);
+                                        g_strlcat(flags_str, values->bit3, 512);
                                         break;
                                 case 0x00000008:
-                                        strcat(flags_str, values->bit4);
+                                        g_strlcat(flags_str, values->bit4, 512);
                                         break;
                                 case 0x00000010:
-                                        strcat(flags_str, values->bit5);
+                                        g_strlcat(flags_str, values->bit5, 512);
                                         break;
                                 case 0x00000020:
-                                        strcat(flags_str, values->bit6);
+                                        g_strlcat(flags_str, values->bit6, 512);
                                         break;
                                 case 0x00000040:
-                                        strcat(flags_str, values->bit7);
+                                        g_strlcat(flags_str, values->bit7, 512);
                                         break;
                                 case 0x00000080:
-                                        strcat(flags_str, values->bit8);
+                                        g_strlcat(flags_str, values->bit8, 512);
                                         break;
                                 case 0x00000100:
-                                        strcat(flags_str, values->bit9);
+                                        g_strlcat(flags_str, values->bit9, 512);
                                         break;
                                 case 0x00000200:
-                                        strcat(flags_str, values->bit10);
+                                        g_strlcat(flags_str, values->bit10, 512);
                                         break;
                                 case 0x00000400:
-                                        strcat(flags_str, values->bit11);
+                                        g_strlcat(flags_str, values->bit11, 512);
                                         break;
                                 case 0x00000800:
-                                        strcat(flags_str, values->bit12);
+                                        g_strlcat(flags_str, values->bit12, 512);
                                         break;
                                 case 0x00001000:
-                                        strcat(flags_str, values->bit13);
+                                        g_strlcat(flags_str, values->bit13, 512);
                                         break;
                                 case 0x00002000:
-                                        strcat(flags_str, values->bit14);
+                                        g_strlcat(flags_str, values->bit14, 512);
                                         break;
                                 case 0x00004000:
-                                        strcat(flags_str, values->bit15);
+                                        g_strlcat(flags_str, values->bit15, 512);
                                         break;
                                 case 0x00008000:
-                                        strcat(flags_str, values->bit16);
+                                        g_strlcat(flags_str, values->bit16, 512);
                                         break;
                                 default:
                                         break;
@@ -2768,15 +2768,15 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
 		        uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
                 if (repeat_lookup > 0) {
                     if (strlen(temp_buffer) + strlen(buffer) < 250) {
-                        strcat(temp_buffer, buffer);
+                        g_strlcat(temp_buffer, buffer, 256);
                         repeat_lookup--;
                         if (repeat_lookup == 0) {
-                            strcpy(buffer, temp_buffer);
+                            g_strlcpy(buffer, temp_buffer, 256);
                             break;
                         }
                         else
                         {
-                            strcat(temp_buffer, "/");
+                            g_strlcat(temp_buffer, "/", 256);
                             break;
                         }
                     }
@@ -3546,7 +3546,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         const char      *vstring="";
         nstime_t        ns;
 
-       	strcpy(mval_buf.buffer, "");
+       	mval_buf.buffer[0] = '\0';
 
         switch (vtype)
         {
@@ -5021,8 +5021,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
 	    gint		    length_remaining;
         nstime_t        ns;
 
-       	strcpy(mval_buf.buffer, "");
-        strcpy(mv_resolve_name_string, "");
+       	mval_buf.buffer[0] = '\0';
+        mv_resolve_name_string[0] = '\0';
+
         /* Is the value passed a string or UINT32? */
         if(values->mvtype != MVTYPE_LIST_PARTITIONS && values->mvtype != MVTYPE_PROCESS_TAGS)
         {
@@ -5715,7 +5716,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         ioffset = print_es_type(estree, tvb, values, value3, ioffset);
                         /* values.vstring is being overwritten. So store the resolve name to a global value */
-                        strcpy(mv_resolve_name_string, values->vstring);
+                        g_strlcpy(mv_resolve_name_string, values->vstring, 128);
                         value4 = tvb_get_letohl(tvb, ioffset);
 		                aitem = proto_tree_add_uint_format(ntree, hf_referral_record, tvb, ioffset, 4,
 		                    value4, "Referral Protocols - %d", value4);
@@ -6768,9 +6769,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset += 4;
                 dissect_nds_iterator(ntree, tvb, pinfo, value4, value5, ioffset, TRUE);
 
-                strcpy(mval_buf.buffer, " (");
-                strcat(mval_buf.buffer, values->vstring);
-                strcat(mval_buf.buffer, ") \0");
+                g_strlcpy(mval_buf.buffer, " (", 1024);
+                g_strlcat(mval_buf.buffer, values->vstring, 1024);
+                g_strlcat(mval_buf.buffer, ") ", 1024);
                 values->vstring = mval_buf.buffer;
                 break;
             default:
@@ -7976,7 +7977,7 @@ dissect_nds_ping_reply(tvbuff_t *tvb, packet_info *pinfo _U_,
 	    int             				i;
         nstime_t                        ns;
 
-	strcpy(reply_buffer.buffer, "");
+	reply_buffer.buffer[0] = '\0';
 
         ping_version = tvb_get_guint8(tvb, 8);
         proto_tree_add_item(ncp_tree, hf_ping_version, tvb, 8, 1, TRUE);
@@ -8300,16 +8301,16 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         guint32                         nds_reply_buffer;
         guint32                         nds_frag;
         const char                      *verb_string;
-	    nds_val				            pvalues[9];
-	    char				            string_buffer[9][1024];
+        nds_val                         pvalues[9];
+        char                            string_buffer[9][1024];
         gboolean                        resolve_eid=FALSE;
         guint32                         global_eid=0;
         gboolean                        add_eid = FALSE;
         char                            global_object_name[256];
-	    ncp_req_eid_hash_value		    *request_eid_value = NULL;
-	    int				                i;
+        ncp_req_eid_hash_value		    *request_eid_value = NULL;
+        int				                i;
 
-	    strcpy(global_object_name, "");
+        global_object_name[0] = '\0';
 
         nds_offset = 8;
 
@@ -8384,7 +8385,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         pvalues[1].vdesc = "Entry ID: 0x%08x";
                                                         add_eid = TRUE;
                                                         resolve_eid = TRUE;
-                                                        strcpy(global_object_name, request_value->object_name);
+                                                        g_strlcpy(global_object_name, request_value->object_name, 256);
                                                         global_eid = pvalues[1].vvalue;
                                                         pvalues[1].vlength = 4;
                                                         pvalues[1].voffset = nds_offset;
@@ -8464,7 +8465,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                         add_eid = TRUE;
                                                         resolve_eid = TRUE;
                                                         global_eid = pvalues[2].vvalue;
-                                                        strcpy(global_object_name, request_value->object_name);
+                                                        g_strlcpy(global_object_name, request_value->object_name, 256);
                                                         pvalues[2].vlength = 4;
                                                         pvalues[2].voffset = nds_offset;
                                                         pvalues[2].hfname = hf_nds_eid;
@@ -8791,7 +8792,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                 pvalues[1].vdesc = "Entry ID: 0x%08x";
                                 add_eid = TRUE;
                                 resolve_eid = TRUE;
-                                strcpy(global_object_name, request_value->object_name);
+                                g_strlcpy(global_object_name, request_value->object_name, 256);
                                 global_eid = pvalues[1].vvalue;
                                 pvalues[1].vlength = 4;
                                 pvalues[1].voffset = nds_offset;
@@ -8890,7 +8891,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                                         request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
                                         if (!request_eid_value) {
                                                 request_eid_value = ncp_eid_hash_insert(global_eid);
-                                                strcpy(request_eid_value->object_name, global_object_name);
+                                                g_strlcpy(request_eid_value->object_name, global_object_name, 256);
                                         }
                                 }
                         }
@@ -8906,7 +8907,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
                         {
                                 request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
                                 if (request_eid_value) {
-                                        strcpy(global_object_name, request_eid_value->object_name);
+                                        g_strlcpy(global_object_name, request_eid_value->object_name, 256);
                                         proto_tree_add_string_format(ncp_tree,
                                             hf_nds_name, tvb, 6, 0,
                                             global_object_name,
@@ -9315,19 +9316,19 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree		*temp_tree = NULL;
 	gboolean		run_req_cond = FALSE;
 	gboolean		run_info_str = FALSE;
-    guint8                  nds_verb = 0;
-    const char              *verb_string = "";
-    guint32                 nds_frag = 0;
-    gboolean                added_arrow;
-    nds_val			        pvalues[9], prot_flags[1];
-	char			        string_buffer[9][1024];
-    guint8                  nds_version = 0;
-    guint32                 foffset = 0;
-    nw_uni_t                req_buffer;
-    char                    global_object_name[256];
-    guint32                 global_eid=0;
-    gboolean                resolve_eid=FALSE;
-    guint32                 global_flags=0, nds_prot_flags=0;
+	guint8                  nds_verb = 0;
+	const char              *verb_string = "";
+	guint32                 nds_frag = 0;
+	gboolean                added_arrow;
+	nds_val	                pvalues[9], prot_flags[1];
+	char                    string_buffer[9][1024];
+	guint8                  nds_version = 0;
+	guint32                 foffset = 0;
+	nw_uni_t                req_buffer;
+	char                    global_object_name[256];
+	guint32                 global_eid=0;
+	gboolean                resolve_eid=FALSE;
+	guint32                 global_flags=0, nds_prot_flags=0;
 	int			            i;
 
 	for (i = 0; i < 9; i++) {
@@ -9343,8 +9344,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 		pvalues[i].vflags = 0;
 	}
 
-        strcpy(req_buffer.buffer, "");
-        strcpy(global_object_name, "");
+        req_buffer.buffer[0] = '\0';
+        global_object_name[0] = '\0';
 
         func = tvb_get_guint8(tvb, 6);
         subfunc = tvb_get_guint8(tvb, 7);
@@ -9449,7 +9450,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset + 4;
                                         get_string(tvb, pvalues[3].voffset, pvalues[3].vlength, req_buffer.buffer);
                                         pvalues[3].vstring = req_buffer.buffer;
-                                        strcpy(global_object_name, req_buffer.buffer);
+                                        g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                         pvalues[3].hfname= hf_nds_name;
                                         foffset = foffset+pvalues[3].vlength;
                                         foffset += align_4(tvb, foffset);
@@ -9922,7 +9923,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[2].voffset, pvalues[2].vlength, req_buffer.buffer);
                                 pvalues[2].vstring = req_buffer.buffer;
-                                strcpy(global_object_name, req_buffer.buffer);
+                                g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                 pvalues[2].hfname= hf_nds_name;
                                 foffset = foffset+pvalues[2].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -10341,7 +10342,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset + 4;
                                         get_string(tvb, pvalues[3].voffset, pvalues[3].vlength, req_buffer.buffer);
                                         pvalues[3].vstring = req_buffer.buffer;
-                                        strcpy(global_object_name, req_buffer.buffer);
+                                        g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                         pvalues[3].hfname= hf_nds_relative_dn;
                                         foffset = foffset+pvalues[3].vlength;
                                         foffset += align_4(tvb, foffset);
@@ -10390,7 +10391,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         foffset = foffset + 4;
                                         get_string(tvb, pvalues[4].voffset, pvalues[4].vlength, req_buffer.buffer);
                                         pvalues[4].vstring = req_buffer.buffer;
-                                        strcpy(global_object_name, req_buffer.buffer);
+                                        g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                         pvalues[4].hfname= hf_nds_relative_dn;
                                         foffset = foffset+pvalues[4].vlength;
                                         foffset += align_4(tvb, foffset);
@@ -10598,7 +10599,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[2].voffset, pvalues[2].vlength, req_buffer.buffer);
                                 pvalues[2].vstring = req_buffer.buffer;
-                                strcpy(global_object_name, req_buffer.buffer);
+                                g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                 pvalues[2].hfname= hf_nds_name;
                                 foffset = foffset+pvalues[2].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -10663,7 +10664,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                strcpy(global_object_name, req_buffer.buffer);
+                                g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                 pvalues[1].hfname= hf_nds_attribute_dn;
                                 break;
                         case 0x0e:
@@ -10747,7 +10748,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                strcpy(global_object_name, req_buffer.buffer);
+                                g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                 pvalues[1].hfname= hf_nds_base_class;
                                 foffset = foffset+pvalues[1].vlength;
                                 foffset += align_4(tvb, foffset);
@@ -10782,7 +10783,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset = foffset + 4;
                                 get_string(tvb, pvalues[1].voffset, pvalues[1].vlength, req_buffer.buffer);
                                 pvalues[1].vstring = req_buffer.buffer;
-                                strcpy(global_object_name, req_buffer.buffer);
+                                g_strlcpy(global_object_name, req_buffer.buffer, 256);
                                 pvalues[1].hfname= hf_nds_base;
                                 break;
                         case 0x12:
@@ -11925,7 +11926,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
 								 * The "vstring" value is set to the input ES type
 								 * by "process_multivalues()".
 								 */
-								strcpy(global_object_name, mv_resolve_name_string);
+								g_strlcpy(global_object_name, mv_resolve_name_string, 256);
 							}
 							if (pvalues[i].mvtype == MVTYPE_ATTR_REQUEST || pvalues[i].mvtype == MVTYPE_PROC_ENTRY_SPECIFIERS || pvalues[i].mvtype == MVTYPE_PROCESS_ITERATOR) {
 								/*
@@ -11967,7 +11968,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         request_eid_value = ncp_eid_hash_lookup(conversation, global_eid);
                                         if(resolve_eid) {
                                                 if (request_eid_value) {
-                                                        strcpy(global_object_name, request_eid_value->object_name);
+                                                        g_strlcpy(global_object_name, request_eid_value->object_name, 256);
                                                         if (check_col(pinfo->cinfo, COL_INFO))
                                                         {
                                                                 col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
@@ -11979,7 +11980,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                         {
                                                 request_value->nds_request_verb = nds_verb;
                                                 request_value->nds_version = nds_version;
-                                                strcpy(request_value->object_name, global_object_name);
+                                                g_strlcpy(request_value->object_name, global_object_name, 256);
                                                 request_value->req_nds_flags = global_flags;
                                                 request_value->req_nds_prot_flags = nds_prot_flags;
                                         }
