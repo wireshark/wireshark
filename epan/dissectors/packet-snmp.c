@@ -3058,6 +3058,7 @@ void proto_register_snmp(void) {
   { &hf_snmp_gauge32_value, { "Value (Gauge32)", "snmp.value.g32", FT_INT64, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_unknown_value, { "Value (Unknown)", "snmp.value.unk", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_counter_value, { "Value (Counter32)", "snmp.value.counter", FT_UINT64, BASE_DEC,  NULL, 0, "", HFILL }},
+  { &hf_snmp_big_counter_value, { "Value (Counter64)", "snmp.value.counter", FT_UINT64, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_nsap_value, { "Value (NSAP)", "snmp.value.nsap", FT_UINT64, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_timeticks_value, { "Value (Timeticks)", "snmp.value.timeticks", FT_UINT64, BASE_DEC,  NULL, 0, "", HFILL }},
   { &hf_snmp_opaque_value, { "Value (Opaque)", "snmp.value.opaque", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
@@ -3330,7 +3331,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1903 "packet-snmp-template.c"
+#line 1904 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3370,7 +3371,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1919 "packet-snmp-template.c"
+#line 1920 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
