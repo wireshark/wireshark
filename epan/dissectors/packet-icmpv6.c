@@ -211,14 +211,14 @@ static const value_string option_vals[] = {
 	{ ND_OPT_HOMEAGENT_INFO,			"Home Agent Information" },
 	{ ND_OPT_CGA,						"CGA" },								/* [RFC3971] */
 	{ ND_OPT_RSA,						"RSA Signature" },						/* [RFC3971] */
-	{ ND_OPT_TIMESTAMP,					"Timestamp" },							/* [RFC3971] */ 
+	{ ND_OPT_TIMESTAMP,					"Timestamp" },							/* [RFC3971] */
 	{ ND_OPT_NONCE,						"Nonce" },														/* [RFC3971] */
 	{ ND_OPT_TRUST_ANCHOR,				"Trust Anchor" },												/* [RFC3971] */
 	{ 16,		"Certificate" },												/* [RFC3971] */
-	{ FMIP6_OPT_IP_ADDRESS,				"IP Address Option" },						/* [RFC4068] */  
+	{ FMIP6_OPT_IP_ADDRESS,				"IP Address Option" },						/* [RFC4068] */
 	{ FMIP6_OPT_NEW_ROUTER_PREFIX_INFO,	"New Router Prefix Information" },			/* [RFC4068] */
 	{ FMIP6_OPT_LINK_LAYER_ADDRESS,		"Link-layer Address" },						/* [RFC4068] */
-	{ FMIP6_OPT_NEIGHBOR_ADV_ACK,		"Neighbor Advertisement Acknowledgment" },	/* [RFC4068] */  
+	{ FMIP6_OPT_NEIGHBOR_ADV_ACK,		"Neighbor Advertisement Acknowledgment" },	/* [RFC4068] */
 	{ 21,		"CARD Request" },                     /* [RFC4065] */
 	{ 22,		"CARD Reply" },                       /* [RFC4065] */
 	{ 23,		"MAP" },                              /* [RFC4140] */
@@ -318,7 +318,7 @@ again:
     proto_item_append_text(ti, " (%s)", typename);
 
     /* Option type */
-	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb, 
+	proto_tree_add_item(icmp6opt_tree, hf_icmpv6_option_type, tvb,
 		offset + offsetof(struct nd_opt_hdr, nd_opt_type), 1, FALSE);
     /* Option length */
     proto_tree_add_uint(icmp6opt_tree, hf_icmpv6_option_length, tvb,
@@ -441,7 +441,7 @@ again:
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
 		opt_offset++;
 		/* CGA Parameters A variable-length field containing the CGA Parameters data
-		 * structure described in Section 4 of 
+		 * structure described in Section 4 of
 		 * "Cryptographically Generated Addresses (CGA)", RFC3972.
 		 */
 		par_len = len-4-padd_length;
@@ -450,13 +450,13 @@ again:
 		/* Padding */
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,padd_length,"Padding");
 		break;
-	case ND_OPT_RSA: /* 12 */ 
+	case ND_OPT_RSA: /* 12 */
 		/*5.2.  RSA Signature Option */
 		opt_offset = offset +2;
 		/* Reserved, A 16-bit field reserved for future use. */
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,2,"Reserved");
 		opt_offset = opt_offset + 2;
-		/* Key Hash 
+		/* Key Hash
 		 * A 128-bit field containing the most significant (leftmost) 128
 		 * bits of a SHA-1 [14] hash of the public key used for constructing
 		 * the signature.
@@ -533,8 +533,9 @@ again:
 		proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,1,"Reserved");
 		opt_offset++;
 		/* Certificate */
-		
+
 		if(cert_type == 1){
+			asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 			opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
 			par_len = len - (opt_offset - offset);
 			/* Padding */
@@ -543,7 +544,7 @@ again:
 			par_len = len - 4;
 			proto_tree_add_text(icmp6opt_tree, tvb,opt_offset,par_len,"Unknown Certificate + padding");
 		}
-		
+
 		break;
     case ND_OPT_MAP:
       {
@@ -2093,8 +2094,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*RFC 3971 6.4.2.  Certification Path Advertisement Message Format */
 		offset = offset +4;
 		proto_tree_add_text(icmp6_tree, tvb, offset, -1,"Certification Path Advertisement Message");
-		
-		/* Identifier A 16-bit unsigned integer field */		
+
+		/* Identifier A 16-bit unsigned integer field */
 		proto_tree_add_item(icmp6_tree, hf_icmpv6_identifier, tvb, offset, 2, FALSE);
 		offset = offset + 2;
 		/* All Components  A 16-bit unsigned integer field*/
