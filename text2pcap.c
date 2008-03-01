@@ -1343,8 +1343,9 @@ int main(int argc, char *argv[])
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
-    fprintf(stderr, "Read %ld potential packets, wrote %ld packets\n",
-            num_packets_read, num_packets_written);
+    fprintf(stderr, "Read %ld potential packet%s, wrote %ld packet%s\n",
+            num_packets_read,    (num_packets_read==1)   ?"":"s",
+            num_packets_written, (num_packets_written==1)?"":"s");
     }
     return 0;
 }
