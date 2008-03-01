@@ -41,6 +41,7 @@
 #include <epan/timestamp.h>
 #include <epan/ipproto.h>
 #include <epan/dissector_filters.h>
+#include <epan/strutil.h>
 
 #include "about_dlg.h"
 #include "capture_dlg.h"
