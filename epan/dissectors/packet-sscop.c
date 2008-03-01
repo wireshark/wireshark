@@ -194,7 +194,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
   reported_length = tvb_reported_length(tvb);	/* frame length */
   sscop_pdu_type = tvb_get_guint8(tvb, SSCOP_PDU_TYPE);
   sscop_info.type = sscop_pdu_type & SSCOP_TYPE_MASK;
-  
+
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSCOP");
   if (check_col(pinfo->cinfo, COL_INFO))
@@ -235,7 +235,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 	sscop_info.payload_len = 0;
     break;
   }
-  
+
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_sscop, tvb,
 					reported_length - pdu_len,
@@ -264,7 +264,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
       break;
 
     case SSCOP_ERAK:
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 3, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
       break;
 
     case SSCOP_SD:
@@ -332,7 +332,7 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
       next_tvb = tvb_new_subset(tvb, 0, reported_length, reported_length);
       if (sscop_info.type == SSCOP_SD)
       {
-		  call_dissector(payload_handle, next_tvb, pinfo, tree);		  
+		  call_dissector(payload_handle, next_tvb, pinfo, tree);
       }
     break;
   }
@@ -343,10 +343,10 @@ static void dissect_sscop(tvbuff_t* tvb, packet_info* pinfo,proto_tree* tree)
 {
     struct _sscop_payload_info  *p_sscop_info;
     dissector_handle_t subdissector;
-	
+
 	/* Look for packet info for subdissector information */
     p_sscop_info = p_get_proto_data(pinfo->fd, proto_sscop);
-    
+
 	if ( p_sscop_info
 		 && ( subdissector = p_sscop_info->subdissector )
 		 && ( subdissector == data_handle
@@ -427,7 +427,7 @@ proto_reg_handoff_sscop(void)
 	  case ALCAP_DISSECTOR: default_handle = alcap_handle; break;
 	  case NBAP_DISSECTOR: default_handle = nbap_handle; break;
 	}
-  
+
 }
 
 void
@@ -443,12 +443,12 @@ proto_register_sscop(void)
 		{ &hf_sscop_stat_s, { "N(S)", "sscop.stat.s", FT_UINT24, BASE_DEC, NULL, 0x0,"", HFILL }},
 		{ &hf_sscop_stat_count, { "Number of NACKed pdus", "sscop.stat.count", FT_UINT32, BASE_DEC, NULL, 0x0,"", HFILL }}
 	};
-	
+
   static gint *ett[] = {
     &ett_sscop,
 	&ett_stat
   };
-	
+
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
