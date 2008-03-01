@@ -50,6 +50,7 @@
 #include <epan/ipproto.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include "packet-ber.h"
 #include "packet-ipv6.h"
@@ -885,7 +886,7 @@ bitrange(tvbuff_t *tvb, int offset, int l, int s)
     for (i = 0; i < l; i++) {
 	if (bitrange0(tvb_get_ntohl(tvb, offset + i * 4), s + i * 4, q, eq - q) == NULL) {
 	    if (q != buf && q + 5 < buf + sizeof(buf))
-		strncpy(q, ",...", 5);
+		g_strlcpy(q, ",...", 5);
 	    return buf;
 	}
     }

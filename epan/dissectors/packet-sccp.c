@@ -51,6 +51,7 @@
 #include <epan/reassemble.h>
 #include <epan/asn1.h>
 #include <epan/uat.h>
+#include <epan/strutil.h>
 #include "packet-mtp3.h"
 #include "packet-tcap.h"
 #include "packet-sccp.h"
@@ -1015,13 +1016,13 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
     even_signal = tvb_get_guint8(tvb, offset) & GT_EVEN_SIGNAL_MASK;
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
-    strncat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
-				 "Unknown"), GT_MAX_SIGNALS - strlen(gt_digits));
+    g_strlcat(gt_digits, val_to_str(odd_signal, sccp_address_signal_values,
+				 "Unknown"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (length - 1) || even_length == TRUE)
-      strncat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
-				   "Unknown"), GT_MAX_SIGNALS - strlen(gt_digits));
+      g_strlcat(gt_digits, val_to_str(even_signal, sccp_address_signal_values,
+				   "Unknown"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;
   }

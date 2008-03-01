@@ -75,6 +75,7 @@
 
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include "log.h"
 
@@ -446,8 +447,7 @@ void srtp_add_address(packet_info *pinfo,
 	/* Free the hash if already exists */
 	rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
 
-	strncpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
-	p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
+	g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE);
 	p_conv_data->frame_number = setup_frame_number;
 	p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
 	p_conv_data->srtp_info = srtp_info;

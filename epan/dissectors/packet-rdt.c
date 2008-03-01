@@ -44,6 +44,7 @@
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include "packet-rdt.h"
 
@@ -285,8 +286,7 @@ void rdt_add_address(packet_info *pinfo,
     }
 
     /* Update the conversation data. */
-    strncpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
-    p_conv_data->method[MAX_RDT_SETUP_METHOD_SIZE] = '\0';
+    g_strlcpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
     p_conv_data->frame_number = pinfo->fd->num;
     p_conv_data->feature_level = rdt_feature_level;
 }

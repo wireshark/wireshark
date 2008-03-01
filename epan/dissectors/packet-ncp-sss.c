@@ -1,4 +1,3 @@
-
 /* packet-ncp-sss.c
  * Routines for Novell SecretStore Services
  * Greg Morris <gmorris@novell.com>
@@ -32,6 +31,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include "prefs.h"
 #include "packet-ncp-int.h"
 #include "packet-ncp-sss.h"
@@ -228,104 +228,104 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     {
         if (flags & bvalue) 
         {
-            strncat(flags_str, sep, 1024 - strlen(flags_str));
+            g_strlcat(flags_str, sep, 1024);
             switch(bvalue)
             {
                 case 0x00000001:
-                        strncat(flags_str, "Enhanced Protection", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
                 case 0x00000002:        
-                        strncat(flags_str, "Create ID", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Create ID", 1024);
                         break;
                 case 0x00000004:        
-                        strncat(flags_str, "Remove Lock", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Remove Lock", 1024);
                         break;
                 case 0x00000008:        
-                        strncat(flags_str, "Repair", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Repair", 1024);
                         break;
                 case 0x00000010:        
-                        strncat(flags_str, "Unicode", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Unicode", 1024);
                         break;
                 case 0x00000020:        
-                        strncat(flags_str, "EP Master Password Used", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "EP Master Password Used", 1024);
                         break;
                 case 0x00000040:        
-                        strncat(flags_str, "EP Password Used", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "EP Password Used", 1024);
                         break;
                 case 0x00000080:        
-                        strncat(flags_str, "Set Tree Name", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Set Tree Name", 1024);
                         break;
                 case 0x00000100:        
-                        strncat(flags_str, "Get Context", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Get Context", 1024);
                         break;
                 case 0x00000200:        
-                        strncat(flags_str, "Destroy Context", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Destroy Context", 1024);
                         break;
                 case 0x00000400:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00000800:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00001000:
-                        strncat(flags_str, "EP Lock", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "EP Lock", 1024);
                         break;
                 case 0x00002000:        
-                        strncat(flags_str, "Not Initialized", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Initialized", 1024);
                         break;
                 case 0x00004000:        
-                        strncat(flags_str, "Enhanced Protection", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
                 case 0x00008000:        
-                        strncat(flags_str, "Store Not Synced", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Store Not Synced", 1024);
                         break;
                 case 0x00010000:        
-                        strncat(flags_str, "Admin Last Modified", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Admin Last Modified", 1024);
                         break;
                 case 0x00020000:        
-                        strncat(flags_str, "EP Password Present", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "EP Password Present", 1024);
                         break;
                 case 0x00040000:        
-                        strncat(flags_str, "EP Master Password Present", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "EP Master Password Present", 1024);
                         break;
                 case 0x00080000:        
-                        strncat(flags_str, "MP Disabled", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "MP Disabled", 1024);
                         break;
                 case 0x00100000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00200000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00400000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00800000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x01000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x02000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x04000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x08000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x10000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x20000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x40000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x80000000:        
-                        strncat(flags_str, "Not Defined", 1024 - strlen(flags_str));
+                        g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 default:
                         break;
@@ -334,7 +334,7 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
         }
             bvalue = bvalue*2;
     }
-    flags_str[1024-1] = '\0';
+
     tinew = proto_tree_add_uint_format(sss_tree, hf_flags, tvb, foffset, 4, flags, "%s 0x%08x", "Flags:", flags);
 	flags_tree = proto_item_add_subtree(tinew, ett_nds);
                                                 

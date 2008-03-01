@@ -43,6 +43,7 @@
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -120,7 +121,7 @@ static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
 static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
 
 /*--- End of included file: packet-ansi_tcap-hf.c ---*/
-#line 60 "packet-ansi_tcap-template.c"
+#line 61 "packet-ansi_tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -163,7 +164,7 @@ static gint ett_ansi_tcap_T_paramSequence = -1;
 static gint ett_ansi_tcap_T_paramSet = -1;
 
 /*--- End of included file: packet-ansi_tcap-ett.c ---*/
-#line 76 "packet-ansi_tcap-template.c"
+#line 77 "packet-ansi_tcap-template.c"
 
 #define MAX_SSN 254
 
@@ -1319,7 +1320,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 320 "packet-ansi_tcap-template.c"
+#line 321 "packet-ansi_tcap-template.c"
 
 
 
@@ -1380,7 +1381,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
 			ber_oid_dissector_table = find_dissector_table("ber.oid");
-			strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 				p_tcap_context->subdissector_handle=subdissector_handle;
 				p_tcap_context->oid_present=TRUE;
@@ -1652,7 +1653,7 @@ proto_register_ansi_tcap(void)
         "ansi_tcap.T_paramSet", HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 444 "packet-ansi_tcap-template.c"
+#line 445 "packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1689,7 +1690,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 454 "packet-ansi_tcap-template.c"
+#line 455 "packet-ansi_tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

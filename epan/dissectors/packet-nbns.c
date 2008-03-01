@@ -39,6 +39,7 @@
 #include "packet-tcp.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 
 static int proto_nbns = -1;
 static int hf_nbns_flags = -1;
@@ -465,10 +466,9 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
 	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
-		strncat(buf, " response", MAX_BUF_SIZE - strlen(buf));
-		strncat(buf, ", ", MAX_BUF_SIZE - strlen(buf));
-		strncat(buf, val_to_str(flags & F_RCODE, rcode_vals,
-		    "Unknown error"), MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, " response", MAX_BUF_SIZE);
+		g_strlcat(buf, ", ", MAX_BUF_SIZE);
+		g_strlcat(buf, val_to_str(flags & F_RCODE, rcode_vals, "Unknown error"), MAX_BUF_SIZE);
 		buf[MAX_BUF_SIZE-1] = '\0';
 		if ((flags & F_RCODE) && check_col(cinfo, COL_INFO))
 			col_append_fstr(cinfo, COL_INFO, ", %s",
@@ -519,11 +519,11 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 	buf=ep_alloc(MAX_BUF_SIZE);
 	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NB_FLAGS_ONT, nb_flags_ont_vals,
 	    "Unknown"));
-	strncat(buf, ", ", MAX_BUF_SIZE - strlen(buf));
+	g_strlcat(buf, ", ", MAX_BUF_SIZE);
 	if (flags & NB_FLAGS_G)
-		strncat(buf, "group", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, "group", MAX_BUF_SIZE);
 	else
-		strncat(buf, "unique", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, "unique", MAX_BUF_SIZE);
 	buf[MAX_BUF_SIZE-1] = '\0';
 	tf = proto_tree_add_text(rr_tree, tvb, offset, 2, "Flags: 0x%x (%s)", flags,
 			buf);
@@ -555,19 +555,19 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 	buf=ep_alloc(MAX_BUF_SIZE);
 	g_snprintf(buf, MAX_BUF_SIZE, "%s", val_to_str(flags & NAME_FLAGS_ONT, name_flags_ont_vals,
 	    "Unknown"));
-	strncat(buf, ", ", MAX_BUF_SIZE - strlen(buf));
+	g_strlcat(buf, ", ", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_G)
-		strncat(buf, "group", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, "group", MAX_BUF_SIZE);
 	else
-		strncat(buf, "unique", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, "unique", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_DRG)
-		strncat(buf, ", being deregistered", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, ", being deregistered", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_CNF)
-		strncat(buf, ", in conflict", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, ", in conflict", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_ACT)
-		strncat(buf, ", active", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, ", active", MAX_BUF_SIZE);
 	if (flags & NAME_FLAGS_PRM)
-		strncat(buf, ", permanent node name", MAX_BUF_SIZE - strlen(buf));
+		g_strlcat(buf, ", permanent node name", MAX_BUF_SIZE);
 	buf[MAX_BUF_SIZE-1] = '\0';
 	tf = proto_tree_add_text(rr_tree, tvb, offset, 2, "Name flags: 0x%x (%s)",
 			flags, buf);
@@ -666,10 +666,9 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
-		strncat(name, " (", MAX_NAME_LEN - strlen(name));
-		strncat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN - strlen(name));
-		strncat(name, ")", MAX_NAME_LEN - strlen(name));
-		name[MAX_NAME_LEN-1] = '\0';
+		g_strlcat(name, " (", MAX_NAME_LEN);
+		g_strlcat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN);
+		g_strlcat(name, ")", MAX_NAME_LEN);
 		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, tvb, offset, name,
 		    name_len, type_name, dns_class_name(class), ttl, data_len);
 		while (data_len > 0) {

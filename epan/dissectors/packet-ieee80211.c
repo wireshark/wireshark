@@ -4132,7 +4132,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
           proto_item_append_text(ti, ": \"%s\"",
                                  format_text(ssid, tag_len));
           if (tag_len < 32) {
-            strncpy(wlan_stats.ssid, ssid, MAX_SSID_LEN);
+            g_strlcpy(wlan_stats.ssid, ssid, MAX_SSID_LEN);
             wlan_stats.ssid[MAX_SSID_LEN-1] = '\0';
           }
         } else {
@@ -6713,13 +6713,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     }
 
     if (algorithm == PROTECTION_ALG_WEP) {
-      strncpy (wlan_stats.protection, "WEP", MAX_PROTECT_LEN);
+      g_strlcpy (wlan_stats.protection, "WEP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_TKIP) {
-      strncpy (wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
+      g_strlcpy (wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_CCMP) {
-      strncpy (wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
+      g_strlcpy (wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
     } else {
-      strncpy (wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
+      g_strlcpy (wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
     }
 
 #ifndef HAVE_AIRPDCAP
@@ -11213,7 +11213,7 @@ void set_airpdcap_keys(void)
 
         /* XXX - This just lops the end if the key off if it's too long.
          *       Should we handle this more gracefully? */
-        strncpy(key.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN);
+        g_strlcpy(key.UserPwd.Passphrase, dk->key->str, AIRPDCAP_WPA_PASSPHRASE_MAX_LEN);
 
         key.UserPwd.SsidLen = 0;
         if(dk->ssid != NULL && dk->ssid->len <= AIRPDCAP_WPA_SSID_MAX_LEN)

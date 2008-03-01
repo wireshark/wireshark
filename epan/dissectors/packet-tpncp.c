@@ -43,6 +43,7 @@
 #include <epan/emem.h>
 #include <epan/filesystem.h>
 #include <epan/dissectors/packet-tcp.h>
+#include <epan/strutil.h>
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -518,8 +519,7 @@ static gint fill_enums_id_vals(FILE *file) {
                 else
                     first_entry = 0;
                 tpncp_enums_name_vals[enum_val] = g_strdup(enum_name);
-                strncpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
-		enum_type[MAX_TPNCP_DB_ENTRY_LEN-1] = '\0';
+                g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
             }
             tpncp_enums_id_vals[enum_val][i].strptr = g_strdup(enum_str);
             tpncp_enums_id_vals[enum_val][i].value = enum_id;
@@ -640,8 +640,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
         current_tpncp_data_field_info->tpncp_data_field_descr = -1;
         hf_entr.p_id = &current_tpncp_data_field_info->tpncp_data_field_descr;
-        strncpy(current_tpncp_data_field_info->tpncp_data_field_name, tpncp_data_field_name, MAX_TPNCP_DATA_FIELD_NAME_LEN);
-	current_tpncp_data_field_info->tpncp_data_field_name[MAX_TPNCP_DATA_FIELD_NAME_LEN-1] = '\0';
+        g_strlcpy(current_tpncp_data_field_info->tpncp_data_field_name, tpncp_data_field_name, MAX_TPNCP_DATA_FIELD_NAME_LEN);
         hf_entr.hfinfo.name = current_tpncp_data_field_info->tpncp_data_field_name;
         hf_entr.hfinfo.abbrev = current_tpncp_data_field_info->tpncp_data_field_name;
         switch (tpncp_data_field_size) {

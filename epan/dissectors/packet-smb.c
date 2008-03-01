@@ -5113,8 +5113,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
-	strncpy(fname, fn, 11);
-	fname[11] = '\0';
+	g_strlcpy(fname, fn, 11+1);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11,
 		fname);
 	COUNT_BYTES_SUBR(fn_len);
@@ -5194,8 +5193,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
-	strncpy(fname, fn, 13);
-	fname[13] = '\0';
+	g_strlcpy(fname, fn, 13+1);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fname);
 	COUNT_BYTES_SUBR(fn_len);

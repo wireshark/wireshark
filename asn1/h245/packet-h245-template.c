@@ -39,6 +39,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -445,7 +446,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
-        strncpy(codec_str, codec_type, 50);
+        g_strlcpy(codec_str, codec_type, 50);
   }
 
 }

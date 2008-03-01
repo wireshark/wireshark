@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tcap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p tcap -c tcap.cnf -s packet-tcap-template tcap.asn */
+/* ../../tools/asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . tcap.asn */
 
 /* Input file: packet-tcap-template.c */
 
@@ -44,6 +44,7 @@
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -198,7 +199,7 @@ static int hf_tcap_T_protocol_versionre_version1 = -1;
 static int hf_tcap_T_protocol_version3_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 64 "packet-tcap-template.c"
+#line 65 "packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -269,7 +270,7 @@ static gint ett_tcap_OperationCode = -1;
 static gint ett_tcap_ErrorCode = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 80 "packet-tcap-template.c"
+#line 81 "packet-tcap-template.c"
 
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -435,7 +436,7 @@ static const value_string tcap_Associate_result_vals[] = {
 static int
 dissect_tcap_Associate_result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -452,7 +453,7 @@ static const value_string tcap_T_dialogue_service_user_vals[] = {
 static int
 dissect_tcap_T_dialogue_service_user(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -469,7 +470,7 @@ static const value_string tcap_T_dialogue_service_provider_vals[] = {
 static int
 dissect_tcap_T_dialogue_service_provider(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -535,7 +536,7 @@ static const value_string tcap_ABRT_source_vals[] = {
 static int
 dissect_tcap_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -724,7 +725,7 @@ static const value_string tcap_Release_request_reason_vals[] = {
 static int
 dissect_tcap_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -766,7 +767,7 @@ static const value_string tcap_Release_response_reason_vals[] = {
 static int
 dissect_tcap_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -885,7 +886,7 @@ dissect_tcap_DialoguePortion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_tcap_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -895,7 +896,7 @@ dissect_tcap_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_tcap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -987,7 +988,7 @@ dissect_tcap_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_tcap_INTEGER_M32768_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1073,7 +1074,7 @@ static const value_string tcap_GeneralProblem_vals[] = {
 static int
 dissect_tcap_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1095,7 +1096,7 @@ static const value_string tcap_InvokeProblem_vals[] = {
 static int
 dissect_tcap_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1112,7 +1113,7 @@ static const value_string tcap_ReturnResultProblem_vals[] = {
 static int
 dissect_tcap_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1131,7 +1132,7 @@ static const value_string tcap_ReturnErrorProblem_vals[] = {
 static int
 dissect_tcap_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1455,7 +1456,7 @@ static const value_string tcap_P_AbortCause_U_vals[] = {
 static int
 dissect_tcap_P_AbortCause_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1863,7 +1864,7 @@ static const value_string tcap_ProblemPDU_vals[] = {
 static int
 dissect_tcap_ProblemPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2080,7 +2081,7 @@ static const value_string tcap_P_Abort_cause_U_vals[] = {
 static int
 dissect_tcap_P_Abort_cause_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2218,7 +2219,7 @@ static void dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 148 "packet-tcap-template.c"
+#line 149 "packet-tcap-template.c"
 
 
 
@@ -2312,7 +2313,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
 			ber_oid_dissector_table = find_dissector_table("ber.oid");
-			strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			p_tcap_context->oid_present=TRUE;
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 				p_tcap_context->subdissector_handle=subdissector_handle;
@@ -2348,7 +2349,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 270 "packet-tcap-template.c"
+#line 271 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -2911,7 +2912,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 332 "packet-tcap-template.c"
+#line 333 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2976,7 +2977,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 342 "packet-tcap-template.c"
+#line 343 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -3203,7 +3204,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 				  /* ACN, changed, Fallback to lower version
 				   * and update the subdissector (purely formal)
 				   */
-				  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+				  g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 				  if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 					  p_tcap_context->subdissector_handle=subdissector_handle;
 					  p_tcap_context->subdissector_present=TRUE;
@@ -3211,7 +3212,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
 			  }
 		  } else {
 			  /* We do not have the OID in the TCAP context, so store it */
-			  strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			  g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			  p_tcap_context->oid_present=TRUE;
 			  /* Try to find a subdissector according to OID */
 			  if ( (subdissector_handle

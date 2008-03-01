@@ -500,14 +500,13 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
             int bit = ls & 1;
             if (bit) {
                 if (print_count != 0) {
-                    strncat(ls_buffer,", ",512-strlen(ls_buffer));
+                    g_strlcat(ls_buffer,", ",512);
                 }
-                strncat(ls_buffer,linestate_bits[idx], 512-strlen(ls_buffer));
+                g_strlcat(ls_buffer,linestate_bits[idx], 512);
                 print_count++;
             }
             ls = ls >> 1;
         }
-	ls_buffer[512-1] = '\0';
         proto_tree_add_text(tree, tvb, offset, 2, print_pattern, source, ls_buffer);
     } else {
         const char *print_pattern = (cmd == TNCOMPORT_SETLINESTATEMASK) ?
@@ -531,14 +530,13 @@ dissect_comport_subopt(packet_info *pinfo _U_, const char *optname, tvbuff_t *tv
             int bit = ms & 1;
             if (bit) {
                 if (print_count != 0) {
-                    strncat(ms_buffer,", ",256-strlen(ms_buffer));
+                    g_strlcat(ms_buffer,", ",256);
                 }
-                strncat(ms_buffer,modemstate_bits[idx],256-strlen(ms_buffer));
+                g_strlcat(ms_buffer,modemstate_bits[idx],256);
                 print_count++;
             }
             ms = ms >> 1;
         }
-	ms_buffer[256-1] = '\0';
         proto_tree_add_text(tree, tvb, offset, 2, print_pattern, source, ms_buffer);
     } else {
         const char *print_pattern = (cmd == TNCOMPORT_SETMODEMSTATEMASK) ?

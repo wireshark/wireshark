@@ -245,7 +245,7 @@ dissect_q932_ros_T_linkedId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_q932_ros_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "q932-ros.cnf"
+#line 69 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -320,7 +320,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_q932_ros_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 91 "q932-ros.cnf"
+#line 87 "q932-ros.cnf"
   gint len;
 
   len = tvb_length_remaining(tvb, offset);
@@ -409,7 +409,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_q932_ros_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 110 "q932-ros.cnf"
+#line 106 "q932-ros.cnf"
 
   gint len;
 
@@ -495,8 +495,7 @@ dissect_q932_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                                 &problem_val);
 
 #line 54 "q932-ros.cnf"
-  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
-  problem_str[64-1] = '\0';
+  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
 
   return offset;
 }
@@ -520,9 +519,8 @@ dissect_q932_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem_val);
 
-#line 57 "q932-ros.cnf"
-  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
-  problem_str[64-1] = '\0';
+#line 56 "q932-ros.cnf"
+  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
 
   return offset;
 }
@@ -541,9 +539,8 @@ dissect_q932_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem_val);
 
-#line 60 "q932-ros.cnf"
-  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
-  problem_str[64-1] = '\0';
+#line 58 "q932-ros.cnf"
+  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
 
   return offset;
 }
@@ -564,9 +561,8 @@ dissect_q932_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &problem_val);
 
-#line 63 "q932-ros.cnf"
-  strncpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
-  problem_str[64-1] = '\0';
+#line 60 "q932-ros.cnf"
+  g_strlcpy(problem_str, val_to_str(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
 
   return offset;
 }

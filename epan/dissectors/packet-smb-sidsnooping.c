@@ -34,6 +34,7 @@
 #include "epan/proto.h"
 #include <epan/tap.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "register.h"
@@ -206,7 +207,7 @@ samr_query_dispinfo(void *dummy _U_, packet_info *pinfo, epan_dissect_t *edt, co
 
 		fi_rid=gp_rids->pdata[num_rids-1];
 		fi_name=gp_names->pdata[num_rids-1];
-		strncpy(sid_name, sid, len);
+		g_strlcpy(sid_name, sid, 256);
 		sid_name[len++]='-';
 		g_snprintf(sid_name+len, 256-len, "%d",fi_rid->value.value.sinteger);
 		add_sid_name_mapping(sid_name, fi_name->value.value.string);

@@ -204,13 +204,12 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       tvb, offset + 1, 2, len);
 		memset(epid_hostname, 0, sizeof(epid_hostname));
 		if (len < sizeof(epid_hostname)) {
-		    strncpy(epid_hostname,tvb_get_ptr(tvb, offset + 3, len),
+		    g_strlcpy(epid_hostname,tvb_get_ptr(tvb, offset + 3, len),
 			    sizeof(epid_hostname));
 		} else {
-		    strncpy(epid_hostname,
+		    g_strlcpy(epid_hostname,
 			    "<string too long>", sizeof(epid_hostname));
 		}
-		epid_hostname[sizeof(epid_hostname)-1] = '\0';
 		proto_tree_add_string(rmi_tree, hf_rmi_epid_hostname,
 				      tvb, offset + 3, strlen(epid_hostname),
 				      epid_hostname);

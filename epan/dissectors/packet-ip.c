@@ -61,6 +61,7 @@
 #include <epan/emem.h>
 #include <epan/nstime.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 static int ip_tap = -1;
 
@@ -572,13 +573,13 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 		while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
 		  cat_str_len += cat_str_len;
 		cat_str_new = ep_alloc(cat_str_len);
-		strncpy(cat_str_new, cat_str, cat_str_len);
+		g_strlcpy(cat_str_new, cat_str, cat_str_len);
 		cat_str_new[cat_str_len - 1] = '\0';
 		cat_str = cat_str_new;
 	      }
 	      if (cat_str[0] != '\0')
-		strncat(cat_str, ",", cat_str_len - 1);
-	      strncat(cat_str, cat_str_tmp, cat_str_len - 1);
+		g_strlcat(cat_str, ",", cat_str_len);
+	      g_strlcat(cat_str, cat_str_tmp, cat_str_len);
 	    }
 	    bit_spot++;
 	    bitmask >>= 1;
@@ -627,8 +628,8 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 	  offset += 2;
 	  cat_str_tmp[USHRT_MAX_STRLEN - 1] = '\0';
 	  if (cat_str[0] != '\0')
-	    strncat(cat_str, ",", USHRT_MAX_STRLEN * 15 - 1);
-	  strncat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15 - 1);
+	    g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 15);
+	  g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);
 	}
 
 	proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,
@@ -676,8 +677,8 @@ dissect_ipopt_cipso(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 	  else
 	    g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
 	  if (cat_str[0] != '\0')
-	    strncat(cat_str, ",", USHRT_MAX_STRLEN * 16 - 1);
-	  strncat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16 - 1);
+	    g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 16);
+	  g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16);
 	}
 
 	proto_tree_add_text(field_tree, tvb, offset - taglen + 4, taglen - 4,

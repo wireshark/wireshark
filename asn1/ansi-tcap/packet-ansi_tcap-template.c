@@ -35,6 +35,7 @@
 #include <epan/oids.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -377,7 +378,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
 			/* Save the application context and the sub dissector */
 			ber_oid_dissector_table = find_dissector_table("ber.oid");
-			strncpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
+			g_strlcpy(p_tcap_context->oid,cur_oid, LENGTH_OID);
 			if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
 				p_tcap_context->subdissector_handle=subdissector_handle;
 				p_tcap_context->oid_present=TRUE;

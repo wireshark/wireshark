@@ -35,6 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 #include "packet-smb-common.h"
 
 /*
@@ -331,7 +332,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
       tvb_memcpy(tvb, (guint8 *)cur, *offsetp, copylen);
       cur[copylen] = '\0';
       if (overflow)
-        strncat(cur, "...",4);
+        g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
       string_len = *len;
       string = cur;
     } else {

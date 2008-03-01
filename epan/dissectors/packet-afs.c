@@ -43,6 +43,7 @@
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include "packet-rx.h"
 #include "packet-afs.h"
@@ -649,13 +650,13 @@ static gint ett_afs_vldb_flags = -1;
 		int acllen; \
 		char tmp[10]; \
 		tmp[0] = 0; \
-		if ( acl & PRSFS_READ ) strncat(tmp, "r", 2);	\
-		if ( acl & PRSFS_LOOKUP ) strncat(tmp, "l", 2);	\
-		if ( acl & PRSFS_INSERT ) strncat(tmp, "i", 2);	\
-		if ( acl & PRSFS_DELETE ) strncat(tmp, "d", 2);	\
-		if ( acl & PRSFS_WRITE ) strncat(tmp, "w", 2);	\
-		if ( acl & PRSFS_LOCK ) strncat(tmp, "k", 2);	\
-		if ( acl & PRSFS_ADMINISTER ) strncat(tmp, "a", 2);  \
+		if ( acl & PRSFS_READ ) g_strlcat(tmp, "r", 10);	\
+		if ( acl & PRSFS_LOOKUP ) g_strlcat(tmp, "l", 10);	\
+		if ( acl & PRSFS_INSERT ) g_strlcat(tmp, "i", 10);	\
+		if ( acl & PRSFS_DELETE ) g_strlcat(tmp, "d", 10);	\
+		if ( acl & PRSFS_WRITE ) g_strlcat(tmp, "w", 10);	\
+		if ( acl & PRSFS_LOCK ) g_strlcat(tmp, "k", 10);	\
+		if ( acl & PRSFS_ADMINISTER ) g_strlcat(tmp, "a", 10);  \
 		ti = proto_tree_add_text(tree, tvb, offset, bytes, \
 			"ACL:  %s %s%s", \
 			who, tmp, positive ? "" : " (negative)"); \

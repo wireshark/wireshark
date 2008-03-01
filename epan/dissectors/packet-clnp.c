@@ -43,6 +43,7 @@
 #include <epan/nlpid.h>
 #include <epan/ipproto.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 /* protocols and fields */
 
@@ -1905,11 +1906,11 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Unknown (0x%02x)");
   flag_string[0] = '\0';
   if (cnf_type & CNF_SEG_OK)
-    strncat(flag_string, "S ", 3);
+    g_strlcat(flag_string, "S ", 7);
   if (cnf_type & CNF_MORE_SEGS)
-    strncat(flag_string, "M ", 3);
+    g_strlcat(flag_string, "M ", 7);
   if (cnf_type & CNF_ERR_OK)
-    strncat(flag_string, "E ", 3);
+    g_strlcat(flag_string, "E ", 7);
   if (tree) {
     ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
 			       cnf_type,

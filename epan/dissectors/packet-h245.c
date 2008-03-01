@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h245.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn */
+/* ../../tools/asn2wrs.py -e -p h245 -c ./h245.cnf -s ./packet-h245-template -D . MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.c */
 
@@ -47,6 +47,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -216,7 +217,7 @@ typedef enum _IndicationMessage_enum {
 } IndicationMessage_enum;
 
 /*--- End of included file: packet-h245-val.h ---*/
-#line 89 "packet-h245-template.c"
+#line 90 "packet-h245-template.c"
 
 static const value_string h245_RequestMessage_short_vals[] = {
 	{ RequestMessage_nonStandard              ,	"NSM" },
@@ -1900,7 +1901,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 373 "packet-h245-template.c"
+#line 374 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2401,7 +2402,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 378 "packet-h245-template.c"
+#line 379 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14355,7 +14356,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 387 "packet-h245-template.c"
+#line 388 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -14417,7 +14418,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
-        strncpy(codec_str, codec_type, 50);
+        g_strlcpy(codec_str, codec_type, 50);
   }
 
 }
@@ -20018,7 +20019,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 465 "packet-h245-template.c"
+#line 466 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20521,7 +20522,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 472 "packet-h245-template.c"
+#line 473 "packet-h245-template.c"
   };
   module_t *h245_module;
 

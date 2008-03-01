@@ -37,7 +37,7 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-
+#include <epan/strutil.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include "prefs.h"
@@ -214,8 +214,7 @@ void msrp_add_address( packet_info *pinfo,
 	 * Update the conversation data.
 	 */
 	p_conv_data->setup_method_set = TRUE;
-	strncpy(p_conv_data->setup_method, setup_method, MAX_MSRP_SETUP_METHOD_SIZE);
-	p_conv_data->setup_method[MAX_MSRP_SETUP_METHOD_SIZE] = '\0';
+	g_strlcpy(p_conv_data->setup_method, setup_method, MAX_MSRP_SETUP_METHOD_SIZE);
 	p_conv_data->setup_frame_number = setup_frame_number;
 }
 

@@ -38,6 +38,7 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/strutil.h>
 #include <etypes.h>
 #include <packet-hci_h4.h>
 #include <addr_resolv.h>
@@ -640,20 +641,19 @@ dissect_bthci_evt_cod(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 		buf[0] = 0;
 
 		proto_item_append_text(item, " (%s - services:", val_to_str(cod1 & 0x1f, bthci_cmd_major_dev_class_vals, "???"));
-		if (cod2 & 0x80) strncat(buf, " Information,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x40) strncat(buf, " Telephony,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x20) strncat(buf, " Audio,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x10) strncat(buf, " Object transfer,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x08) strncat(buf, " Capturing,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x04) strncat(buf, " Rendering,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x02) strncat(buf, " Networking,", sizeof(buf) - strlen(buf));
-		if (cod2 & 0x01) strncat(buf, " Positioning,", sizeof(buf) - strlen(buf));
-		if (cod1 & 0x20) strncat(buf, " Limited discoverable mode,", sizeof(buf) - strlen(buf));
+		if (cod2 & 0x80) g_strlcat(buf, " Information,", sizeof(buf));
+		if (cod2 & 0x40) g_strlcat(buf, " Telephony,", sizeof(buf));
+		if (cod2 & 0x20) g_strlcat(buf, " Audio,", sizeof(buf));
+		if (cod2 & 0x10) g_strlcat(buf, " Object transfer,", sizeof(buf));
+		if (cod2 & 0x08) g_strlcat(buf, " Capturing,", sizeof(buf));
+		if (cod2 & 0x04) g_strlcat(buf, " Rendering,", sizeof(buf));
+		if (cod2 & 0x02) g_strlcat(buf, " Networking,", sizeof(buf));
+		if (cod2 & 0x01) g_strlcat(buf, " Positioning,", sizeof(buf));
+		if (cod1 & 0x20) g_strlcat(buf, " Limited discoverable mode,", sizeof(buf));
 
 		buf[strlen(buf)-1] = 0; /* skip last comma */
 
-		strncat(buf, ")", sizeof(buf) - strlen(buf));
-		buf[128-1] = '\0';
+		g_strlcat(buf, ")", sizeof(buf));
 		proto_item_append_text(item, buf);
 	}
 	else

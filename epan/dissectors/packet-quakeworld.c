@@ -35,6 +35,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/strutil.h>
 
 static int proto_quakeworld = -1;
 
@@ -509,10 +510,9 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			}
 			remaining[0] = 0;
 			for (i=2; i<Cmd_Argc() ; i++) {
-				strncat (remaining, Cmd_Argv(i), MAX_TEXT_SIZE - strlen(remaining));
-				strncat (remaining, " ", MAX_TEXT_SIZE - strlen(remaining));
+				g_strlcat (remaining, Cmd_Argv(i), MAX_TEXT_SIZE+1);
+				g_strlcat (remaining, " ", MAX_TEXT_SIZE+1);
 			}
-			remaining[MAX_TEXT_SIZE] = '\0';
 			if (text_tree) {
 				proto_tree_add_string(argument_tree,
 					hf_quakeworld_connectionless_rcon_command,

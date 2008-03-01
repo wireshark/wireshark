@@ -73,6 +73,7 @@
 #include "packet-per.h"
 #include "packet-tpkt.h"
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #define PORT_T38 6004  
 static guint global_t38_tcp_port = PORT_T38;
@@ -158,7 +159,7 @@ static int hf_t38_fec_data = -1;                  /* T_fec_data */
 static int hf_t38_fec_data_item = -1;             /* OCTET_STRING */
 
 /*--- End of included file: packet-t38-hf.c ---*/
-#line 131 "packet-t38-template.c"
+#line 132 "packet-t38-template.c"
 
 /* T38 setup fields */
 static int hf_t38_setup        = -1;
@@ -190,7 +191,7 @@ static gint ett_t38_T_fec_info = -1;
 static gint ett_t38_T_fec_data = -1;
 
 /*--- End of included file: packet-t38-ett.c ---*/
-#line 149 "packet-t38-template.c"
+#line 150 "packet-t38-template.c"
 static gint ett_t38_setup = -1;
 
 static gint ett_data_fragment = -1;
@@ -316,8 +317,7 @@ void t38_add_address(packet_info *pinfo,
         /*
          * Update the conversation data.
          */
-        strncpy(p_conv_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
-        p_conv_data->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
+        g_strlcpy(p_conv_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
         p_conv_data->setup_frame_number = setup_frame_number;
 		p_conv_data->src_t38_info.reass_ID = 0;
 		p_conv_data->src_t38_info.reass_start_seqnum = -1;
@@ -1059,8 +1059,7 @@ init_t38_info_conv(packet_info *pinfo)
 
 		/* copy the t38 conversation info to the packet t38 conversation */
 		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
-		strncpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
-		p_t38_packet_conv->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
+		g_strlcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));
@@ -1349,7 +1348,7 @@ proto_register_t38(void)
         "t38.OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 695 "packet-t38-template.c"
+#line 694 "packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1404,7 +1403,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 736 "packet-t38-template.c"
+#line 735 "packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

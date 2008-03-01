@@ -66,6 +66,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "g_ascii_strcasecmp.h"
@@ -554,8 +555,7 @@ void srtcp_add_address( packet_info *pinfo,
 	 * Update the conversation data.
 	 */
 	p_conv_data->setup_method_set = TRUE;
-	strncpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
-	p_conv_data->setup_method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
+	g_strlcpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
 	p_conv_data->setup_frame_number = setup_frame_number;
 	p_conv_data->srtcp_info = srtcp_info;
 }
@@ -721,7 +721,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 	    nack_num_frames_lost ++;
 	    if (rtcp_rtpfb_nack_blp) {
 		for (i = 0; i < 16; i ++) {
-		    sprintf(strbuf, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
+		    g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
 		    proto_tree_add_text(
 			bitfield_tree, tvb, offset, 2,
 			decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
@@ -832,7 +832,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	/* Application Name (ASCII) */
 	for( counter = 0; counter < 4; counter++ )
 	    ascii_name[ counter ] = tvb_get_guint8( tvb, offset + counter );
-	/* strncpy( ascii_name, pd + offset, 4 ); */
+	/* g_strlcpy( ascii_name, pd + offset, 4 ); */
 	ascii_name[4] = '\0';
 	proto_tree_add_string( tree, hf_rtcp_name_ascii, tvb, offset, 4,
 	                       ascii_name );

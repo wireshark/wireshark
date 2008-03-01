@@ -591,7 +591,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
 		expert_add_info_format(actx->pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "%s",note);
-		strncpy (label, note, ITEM_LABEL_LENGTH);
+		g_strlcpy (label, note, ITEM_LABEL_LENGTH);
 		goto set_label;
 	}
 

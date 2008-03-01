@@ -65,6 +65,7 @@
 #include "packet-per.h"
 #include "packet-tpkt.h"
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #define PORT_T38 6004  
 static guint global_t38_tcp_port = PORT_T38;
@@ -271,8 +272,7 @@ void t38_add_address(packet_info *pinfo,
         /*
          * Update the conversation data.
          */
-        strncpy(p_conv_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
-        p_conv_data->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
+        g_strlcpy(p_conv_data->setup_method, setup_method, MAX_T38_SETUP_METHOD_SIZE);
         p_conv_data->setup_frame_number = setup_frame_number;
 		p_conv_data->src_t38_info.reass_ID = 0;
 		p_conv_data->src_t38_info.reass_start_seqnum = -1;
@@ -478,8 +478,7 @@ init_t38_info_conv(packet_info *pinfo)
 
 		/* copy the t38 conversation info to the packet t38 conversation */
 		p_t38_packet_conv = se_alloc(sizeof(t38_conv));
-		strncpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
-		p_t38_packet_conv->setup_method[MAX_T38_SETUP_METHOD_SIZE] = '\0';
+		g_strlcpy(p_t38_packet_conv->setup_method, p_t38_conv->setup_method, MAX_T38_SETUP_METHOD_SIZE);
 		p_t38_packet_conv->setup_frame_number = p_t38_conv->setup_frame_number;
 
 		memcpy(&(p_t38_packet_conv->src_t38_info), &(p_t38_conv->src_t38_info), sizeof(t38_conv_info));

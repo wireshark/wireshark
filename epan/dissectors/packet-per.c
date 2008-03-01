@@ -45,6 +45,7 @@ proper helper routines
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/asn1.h>
+#include <epan/strutil.h>
 #include "packet-per.h"
 
 
@@ -335,27 +336,27 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		g_snprintf(str, 256, " ");
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
-			strcat(str,".");
+			g_strlcat(str,".", 256);
 		}
 		/* read the bits for the int */
 		num_bits = 8;
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			if(bit&&(!(bit%8))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				strcat(str, "1");
+				g_strlcat(str, "1", 256);
 			} else {
-				strcat(str, "0");
+				g_strlcat(str, "0", 256);
 			}
 		}
 		if((val&0x80)==0){
@@ -1181,34 +1182,34 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		g_snprintf(str, 256, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
-			strcat(str,".");
+			g_strlcat(str,".", 256);
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				strcat(str, "1");
+				g_strlcat(str, "1", 256);
 			} else {
-				strcat(str, "0");
+				g_strlcat(str, "0", 256);
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
-			strcat(str,".");
+			g_strlcat(str,".", 256);
 		}
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;
@@ -1376,34 +1377,34 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 		g_snprintf(str, 256, "%s: ", hfi->name);
 		for(bit=0;bit<((int)(offset&0x07));bit++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
-			strcat(str,".");
+			g_strlcat(str,".", 256);
 		}
 		/* read the bits for the int */
 		for(i=0;i<num_bits;i++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			if(bit&&(!(bit%8))){
 				length+=1;
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
 			bit++;
 			offset=dissect_per_boolean(tvb, offset, actx, tree, -1, &tmp);
 			val<<=1;
 			if(tmp){
 				val|=1;
-				strcat(str, "1");
+				g_strlcat(str, "1", 256);
 			} else {
-				strcat(str, "0");
+				g_strlcat(str, "0", 256);
 			}
 		}
 		for(;bit%8;bit++){
 			if(bit&&(!(bit%4))){
-				strcat(str, " ");
+				g_strlcat(str, " ", 256);
 			}
-			strcat(str,".");
+			g_strlcat(str,".", 256);
 		}
 		val_start = (offset-num_bits)>>3; val_length = length;
 		val+=min;

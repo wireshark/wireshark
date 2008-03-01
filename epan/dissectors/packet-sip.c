@@ -57,6 +57,7 @@
 #include <epan/packet.h>
 #include <epan/req_resp_hdrs.h>
 #include <epan/emem.h>
+#include <epan/strutil.h>
 
 #include "packet-isup.h"
 #include "packet-sip.h"
@@ -2022,7 +2023,7 @@ separator_found2:
 							return offset - orig_offset;
 						}
 						else {
-							strncpy(cseq_method, value+sub_value_offset, MIN(strlen_to_copy, MAX_CSEQ_METHOD_SIZE));
+							g_strlcpy(cseq_method, value+sub_value_offset, MAX_CSEQ_METHOD_SIZE);
 
 							/* Add CSeq method to the tree */
 							if (cseq_tree)
@@ -2115,10 +2116,7 @@ separator_found2:
 
 					case POS_CALL_ID :
 						/* Store the Call-id */
-						strncpy(call_id, value,
-						        strlen(value)+1 < MAX_CALL_ID_SIZE ?
-						        strlen(value)+1 :
-						        MAX_CALL_ID_SIZE);
+						g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
 						stat_info->tap_call_id = ep_strdup(call_id);
 
 						/* Add 'Call-id' string item to tree */
@@ -2743,10 +2741,8 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/* No packet entry found, consult global hash table */
 
 	/* Prepare the key */
-	strncpy(key.call_id, call_id,
-		(strlen(call_id)+1 <= MAX_CALL_ID_SIZE) ?
-			strlen(call_id)+1 :
-			MAX_CALL_ID_SIZE);
+	g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+
 	/*  We're only using these addresses locally (for the hash lookup) so
 	 *  there is no need to make a (g_malloc'd) copy of them.
 	 */
@@ -2787,8 +2783,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		p_key->source_port = pinfo->srcport;
 
 		p_val->cseq = cseq_number;
-		strncpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE-1);
-		p_val->method[MAX_CSEQ_METHOD_SIZE-1] = '\0';
+		g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
 		p_val->transaction_state = nothing_seen;
 		p_val->frame_number = 0;
 
