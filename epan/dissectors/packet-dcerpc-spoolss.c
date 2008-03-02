@@ -8391,6 +8391,22 @@ proto_register_dcerpc_spoolss(void)
 		  { "Flags", "spoolss.printer.flags", 
 		    FT_UINT32, BASE_HEX, NULL, 0, "Flags", HFILL }},
 
+		{ &hf_printer_priority,
+		  { "Priority", "spoolss.printer.priority", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Priority", HFILL }},
+
+		{ &hf_printer_default_priority,
+		  { "Default Priority", "spoolss.printer.default_priority", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Default Priority", HFILL }},
+
+		{ &hf_printer_averageppm,
+		  { "Average PPM", "spoolss.printer.averageppm", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Average PPM", HFILL }},
+
+		{ &hf_printer_jobs,
+		  { "Jobs", "spoolss.printer.jobs", 
+		    FT_UINT32, BASE_DEC, NULL, 0, "Jobs", HFILL }},
+
                 { &hf_printer_guid,
                   { "GUID", "spoolss.printer.guid", FT_STRING, 
                     BASE_NONE, NULL, 0, "GUID", HFILL }},
