@@ -558,6 +558,10 @@ void proto_register_q1950(void) {
 			{ "bcw (Call waiting tone)", "h248.pkg.bcg.bcw", 
 			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
 		},
+		{ &hf_h248_pkg_bcg_sig_bcr,
+			{ "bcr (Call ringing tone)", "h248.pkg.bcg.bcr", 
+			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
+		},
 		{ &hf_h248_pkg_bcg_sig_bpy,
 			{ "bpy (Pay tone)", "h248.pkg.bcg.bpy", 
 			FT_UINT8, BASE_HEX, NULL, 0, "", HFILL }
