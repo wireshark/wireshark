@@ -37,6 +37,7 @@
 #include "epan/packet_info.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
+#include <epan/strutil.h>
 #include "register.h"
 
 
@@ -667,8 +668,7 @@ iostat_init(const char *optarg, void* userdata _U_)
 				register_io_tap(io, i, tmp);
 			} else {
 				tmp=g_malloc((pos-str)+1);
-				strncpy(tmp,str,(pos-str));
-				tmp[pos-str]=0;
+				g_strlcpy(tmp,str,(pos-str)+1);
 				register_io_tap(io, i, tmp);
 			}
 			str=pos+1;

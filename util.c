@@ -40,6 +40,7 @@
 #include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/ws_strsplit.h>
+#include <epan/strutil.h>
 
 #include "util.h"
 
@@ -78,11 +79,11 @@ get_args_as_string(int argc, char **argv, int optind)
 	argstring[0] = '\0';
 	i = optind;
 	for (;;) {
-		strncat(argstring, argv[i], len - strlen(argstring));
+		g_strlcat(argstring, argv[i], len);
 		i++;
 		if (i == argc)
 			break;
-		strncat(argstring, " ", len - strlen(argstring));
+		g_strlcat(argstring, " ", len);
 	}
 	return argstring;
 }

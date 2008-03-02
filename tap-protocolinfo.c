@@ -40,6 +40,7 @@
 #include "epan/proto.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
+#include <epan/strutil.h>
 #include "register.h"
 
 typedef struct _pci_t {
@@ -117,8 +118,7 @@ protocolinfo_init(const char *optarg, void* userdata _U_)
 	rs->hf_index=hfi->id;
 	if((field-filter)>1){
 		rs->filter=g_malloc(field-filter);
-		strncpy(rs->filter,filter,(field-filter)-1);
-		rs->filter[(field-filter)-1]=0;
+		g_strlcpy(rs->filter,filter,(field-filter));
 	} else {
 		rs->filter=NULL;
 	}
