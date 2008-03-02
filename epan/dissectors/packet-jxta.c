@@ -334,6 +334,10 @@ static hf_register_info hf[] = {
      {"MIME ID", "jxta.message.element.mimeid", FT_UINT16, BASE_DEC, NULL, 0x0,
       "JXTA Message Element MIME ID", HFILL}
      },
+    {&hf_jxta_element2_encodingid,
+     {"Encoding ID", "jxta.message.element.encodingid", FT_UINT16, BASE_DEC, NULL, 0x0,
+      "JXTA Message Element Encoding ID", HFILL}
+     },
     {&hf_jxta_element_type,
      {"Element Type", "jxta.message.element.type", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
       "JXTA Message Element Name", HFILL}
