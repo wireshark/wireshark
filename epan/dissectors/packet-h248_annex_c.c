@@ -445,7 +445,7 @@ static const value_string h248_pkg_annexc_nicrx_values[] = {
 };
 
 
-static const value_string h248_pkg_annexc_flowconttx_values[] _U_ = {
+static const value_string h248_pkg_annexc_flowconttx_values[] = {
 	{0,"Not Required"},
 	{1,"Required"},
     {0,NULL}
@@ -1009,6 +1009,10 @@ void proto_register_h248_annex_c(void) {
 		{ "Encrypttype", "h248.pkg.annexc.encrypt_type",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			"Encryption Type", HFILL }},
+		{ &hf_h248_pkg_annexc_encrypt_key,
+		{ "Encrypt Key", "h248.pkg.annexc.encrypt_key",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			"Encryption Key", HFILL }},
 		{ &hf_h248_pkg_annexc_gain,
 		{ "Gain", "h248.pkg.annexc.gain",
 			FT_UINT32, BASE_DEC, NULL, 0,
@@ -1289,6 +1293,10 @@ void proto_register_h248_annex_c(void) {
 		{ "nicrx", "h248.pkg.annexc.nicrx",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_nicrx_values), 0xc0,
 			"Intermediare Rate", HFILL }},
+		{ &hf_h248_pkg_annexc_flowconttx,
+		{ "flowconttx", "h248.pkg.annexc.flowconttx",
+			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_flowconttx_values), 0xc0,
+			"Flow Control on Transmission", HFILL }},
 		{ &hf_h248_pkg_annexc_flowcontrx,
 		{ "flowcontrx", "h248.pkg.annexc.flowcontrx",
 			FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_flowcontrx_values), 0xc0,
@@ -1355,6 +1363,10 @@ void proto_register_h248_annex_c(void) {
 		{ "Dialed Number", "h248.pkg.annexc.dialedn",
 			FT_BYTES, BASE_HEX, NULL, 0,
 			"Dialed Number", HFILL }},
+		{ &hf_h248_pkg_annexc_dialingn,
+		{ "Dialing Number", "h248.pkg.annexc.dialingn",
+			FT_BYTES, BASE_HEX, NULL, 0,
+			"Dialing Number", HFILL }},
 		{ &hf_h248_pkg_annexc_echoci,
 		{ "ECHOCI", "h248.pkg.annexc.echoci",
 			FT_BYTES, BASE_HEX, NULL, 0,
@@ -1397,6 +1409,10 @@ void proto_register_h248_annex_c(void) {
 		{ "sdp_s", "h248.pkg.annexc.sdp_s",
 			FT_STRING, BASE_HEX, NULL, 0,
 			"SDP S", HFILL }},
+		{ &hf_h248_pkg_annexc_sdp_i,
+		{ "sdp_i", "h248.pkg.annexc.sdp_i",
+			FT_STRING, BASE_HEX, NULL, 0,
+			"SDP I", HFILL }},
 		{ &hf_h248_pkg_annexc_sdp_u,
 		{ "sdp_u", "h248.pkg.annexc.sdp_u",
 			FT_STRING, BASE_HEX, NULL, 0,
