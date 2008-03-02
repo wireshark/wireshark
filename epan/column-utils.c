@@ -675,8 +675,8 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
     cinfo->col_buf[col][0] = '\0';
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time",COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 
 static void
@@ -719,8 +719,8 @@ col_set_rel_time(frame_data *fd, column_info *cinfo, int col)
 		  g_assert_not_reached();
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time_relative");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time_relative", COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 
 static void
@@ -763,8 +763,8 @@ col_set_delta_time(frame_data *fd, column_info *cinfo, int col)
 		  g_assert_not_reached();
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time_delta");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time_delta",COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 
 static void
@@ -807,8 +807,9 @@ col_set_delta_time_dis(frame_data *fd, column_info *cinfo, int col)
 		  g_assert_not_reached();
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time_delta_displayed");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time_delta_displayed",
+	    COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 
 /* To do: Add check_col checks to the col_add* routines */
@@ -885,8 +886,8 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
     cinfo->col_buf[col][0] = '\0';
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time",COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 
 static void
@@ -930,8 +931,8 @@ col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
 		  g_assert_not_reached();
   }
   cinfo->col_data[col] = cinfo->col_buf[col];
-  strcpy(cinfo->col_expr.col_expr[col],"frame.time_delta");
-  strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+  g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time_delta",COL_MAX_LEN);
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
 /* Set the format of the variable time format.
    XXX - this is called from "file.c" when the user changes the time
@@ -1019,8 +1020,9 @@ col_set_time(column_info *cinfo, gint el, nstime_t *ts, char *fieldname)
 	  g_assert_not_reached();
       }
       cinfo->col_data[col] = cinfo->col_buf[col];
-      strcpy(cinfo->col_expr.col_expr[col],fieldname);
-      strcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col]);
+      g_strlcpy(cinfo->col_expr.col_expr[col],fieldname,COL_MAX_LEN);
+      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],
+		COL_MAX_LEN);
     }
   }
 }
@@ -1048,49 +1050,51 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 
   case AT_ETHER:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "eth.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "eth.src",COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "eth.dst");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "eth.dst",COL_MAX_LEN);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ether_to_str(addr->data), COL_MAX_LEN);
     break;
 
   case AT_IPv4:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ip.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ip.src", COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ip.dst");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ip.dst",COL_MAX_LEN);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ip_to_str(addr->data), COL_MAX_LEN);
     break;
 
   case AT_IPv6:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.src", COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.dst");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.dst", COL_MAX_LEN);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
     break;
 
   case AT_ATALK:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.src", COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.dst");
-    strcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col]);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.dst", COL_MAX_LEN);
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col], COL_MAX_LEN);
     break;
 
   case AT_ARCNET:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "arcnet.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "arcnet.src",
+	 COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "arcnet.dst");
-    strcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col]);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "arcnet.dst", 
+	COL_MAX_LEN);
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], pinfo->cinfo->col_buf[col], COL_MAX_LEN);
     break;
 
   case AT_URI:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "uri.src");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "uri.src", COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "uri.dst");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "uri.dst", COL_MAX_LEN);
     address_to_str_buf(addr, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
@@ -1125,9 +1129,11 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     else
       g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "tcp.srcport");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "tcp.srcport",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "tcp.dstport");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "tcp.dstport",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1138,18 +1144,22 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     else
       g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "udp.srcport");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "udp.srcport",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "udp.dstport");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "udp.dstport",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
   case PT_DDP:
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.src_socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.src_socket",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.dst_socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ddp.dst_socket",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", port);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
@@ -1159,9 +1169,11 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     /* XXX - resolve IPX socket numbers */
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ipx.src.socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipx.src.socket",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "ipx.dst.socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipx.dst.socket",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1170,9 +1182,11 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     /* XXX - resolve IDP socket numbers */
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "idp.src.socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "idp.src.socket",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "idp.dst.socket");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "idp.dst.socket",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1181,9 +1195,11 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     /* XXX - resolve USB endpoint numbers */
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%08x", port);
     if (is_src)
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "usb.src.endpoint");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "usb.src.endpoint",
+	COL_MAX_LEN);
     else
-      strcpy(pinfo->cinfo->col_expr.col_expr[col], "usb.dst.endpoint");
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "usb.dst.endpoint",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "0x%08x", port);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1243,7 +1259,7 @@ col_set_circuit_id(packet_info *pinfo, int col)
 
   case CT_DLCI:
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    strcpy(pinfo->cinfo->col_expr.col_expr[col], "fr.dlci");
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "fr.dlci", COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1251,7 +1267,8 @@ col_set_circuit_id(packet_info *pinfo, int col)
   case CT_ISDN:
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%s",
 	     val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
-    strcpy(pinfo->cinfo->col_expr.col_expr[col], "isdn.channel");
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "isdn.channel",
+	COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1262,7 +1279,7 @@ col_set_circuit_id(packet_info *pinfo, int col)
 
   case CT_ISUP:
     g_snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
-    strcpy(pinfo->cinfo->col_expr.col_expr[col], "isup.cic");
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "isup.cic", COL_MAX_LEN);
     g_snprintf(pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     pinfo->cinfo->col_expr.col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
@@ -1285,8 +1302,9 @@ col_fill_in(packet_info *pinfo)
     case COL_NUMBER:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->num);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      strcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.number");
-      strcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i]);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.number",
+	COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i], COL_MAX_LEN);
       break;
 
     case COL_CLS_TIME:
@@ -1396,8 +1414,9 @@ col_fill_in(packet_info *pinfo)
     case COL_PACKET_LENGTH:
       g_snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "%u", pinfo->fd->pkt_len);
       pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-      strcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.pkt_len");
-      strcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i]);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr[i], "frame.pkt_len",
+	COL_MAX_LEN);
+      g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[i], pinfo->cinfo->col_buf[i], COL_MAX_LEN);
       break;
 
     case COL_CUMULATIVE_BYTES:
