@@ -59,7 +59,6 @@ ProtocolIE-Field/value ie_field_value
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
 
-#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode

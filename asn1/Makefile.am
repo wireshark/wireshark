@@ -60,6 +60,7 @@ SUBDIRS = \
 	ns-cert-exts	\
 	ocsp		\
 	p7		\
+	pcap		\
 	pkcs1		\
 	pkcs12		\
 	pkinit		\

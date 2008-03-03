@@ -94,6 +94,7 @@ per: \
 	nbap	\
 	mpeg-audio	\
 	mpeg-pes	\
+	pcap	\
 	ranap	\
 	rnsap	\
 	rrc		\
@@ -211,6 +212,9 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd p7
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+	cd pcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 	cd pkcs1
@@ -513,6 +517,11 @@ ocsp::
 
 p7::
 	cd p7
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
+	cd ..
+
+pcap::
+	cd pcap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake copy_files
 	cd ..
 

@@ -119,6 +119,7 @@ ASN_DISSECTOR_SRC = \
 	packet-ns_cert_exts.c \
 	packet-ocsp.c \
 	packet-p7.c \
+	packet-pcap.c \
 	packet-pkcs12.c \
 	packet-pkcs1.c \
 	packet-pkinit.c \
