@@ -4520,6 +4520,7 @@ fReadAccessSpecification (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
+	proto_item *tt;
 
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
@@ -4536,6 +4537,8 @@ fReadAccessSpecification (tvbuff_t *tvb, proto_tree *subtree, guint offset)
 			break;
 		case 1:	/* listOfPropertyReferences */
 			if (tag_is_opening(tag_info)) {
+				tt = proto_tree_add_text(subtree, tvb, offset, 1, "listOfPropertyReferences");
+				subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 				offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fBACnetPropertyReference (tvb, subtree, offset, 1);
 				break;
@@ -4565,7 +4568,7 @@ fReadAccessResult (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		if (tag_is_closing(tag_info)) {
 			offset += fTagHeaderTree (tvb, subtree, offset,
 				&tag_no, &tag_info, &lvt);
-			if (tag_no == 4 || tag_no == 5) subtree = tree; /* Value and error have extra subtree */
+			if ((tag_no == 4 || tag_no == 5) && (subtree != tree)) subtree = subtree->parent; /* Value and error have extra subtree */
 			continue;
 		}
 
