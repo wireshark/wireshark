@@ -27,7 +27,7 @@ Wireshark Info
   </section>
 
   <section id="WhatsNew"><title>What's New</title>
-    <section><title>Bug Fixes</title>
+    <section id="BugFixes"><title>Bug Fixes</title>
     <para>
 
       The following vulnerabilities have been fixed.  See the
@@ -67,7 +67,7 @@ Wireshark Info
 
     </section>
 
-    <section><title>New and Updated Features</title>
+    <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
       The following features are new (or have been significantly updated)
       since the last release:
@@ -85,18 +85,18 @@ Wireshark Info
     </para>
     </section>
 
-    <section><title>New Protocol Support</title>
+    <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
     </para>
     </section>
 
-    <section><title>Updated Protocol Support</title> <para>
+    <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
     </para>
     </section>
 
-    <section><title>New and Updated Capture File Support</title>
+    <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
     </para>
@@ -111,7 +111,7 @@ Wireshark Info
       page</ulink> on the main web site.
     </para>
 
-    <section><title>Vendor-supplied Packages</title>
+    <section id="VendorPackages"><title>Vendor-supplied Packages</title>
       <para>
 	Most Linux and Unix vendors supply their own Wireshark packages.
 	You can usually install or upgrade Wireshark using the package management
