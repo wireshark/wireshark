@@ -1615,6 +1615,7 @@ AC_OUTPUT(
   asn1/ns-cert-exts/Makefile
   asn1/ocsp/Makefile
   asn1/p7/Makefile
+  asn1/pcap/Makefile
   asn1/pkcs1/Makefile
   asn1/pkcs12/Makefile
   asn1/pkinit/Makefile
