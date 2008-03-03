@@ -295,11 +295,14 @@ XDayOf/fifth				fifth_dayof
 #.FN_PARS SyntaxBMPString VAL_PTR = &wide_tvb
 
 #.FN_HDR SyntaxBMPString
-	tvbuff_t	*wide_tvb;
+	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 #.END
 	
 #.FN_FTR SyntaxBMPString
+	if (! wide_tvb) {
+		return offset;
+	}
 	string = tvb_get_ephemeral_faked_unicode (wide_tvb, 0, tvb_length(wide_tvb) / 2, FALSE);
 	proto_item_append_text(actx->created_item, " %s", string);	
 

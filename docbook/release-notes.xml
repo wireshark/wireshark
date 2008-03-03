@@ -37,11 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            Wireshark could crash at any moment.
-            <!-- Fixed in r????? -->
-            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=???">???</ulink>) -->
+            The X.509sat dissector could crash.
+            <!-- Fixed in r24543 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2329">2329</ulink>) -->
           </para>
-          <para>Versions affected: 0.2.0 to 0.99.7</para>
+          <para>Versions affected: 0.99.5 to 0.99.8</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
           </para>
