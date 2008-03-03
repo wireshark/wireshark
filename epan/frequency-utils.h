@@ -54,6 +54,7 @@ ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
 gchar*
 ieee80211_mhz_to_str(guint freq);
 
+/* Should this be "(freq < 4920)", or something else? */
 #define FREQ_IS_BG(freq) (freq <= 2484)
 
 /*

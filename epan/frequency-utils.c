@@ -39,11 +39,12 @@ typedef struct freq_cvt_s {
 
 #define FREQ_STEP 5     /* MHz. This seems to be consistent, thankfully */
 
+/* From "802.11 Wireless Networks: The Definitive Guide", 2nd Ed. by Matthew Gast */
 static freq_cvt_t freq_cvt[] = {
-    { 2412, 2472,   1, TRUE },
-    { 2484, 2484,  14, TRUE },
-    { 5000, 5995,   0, FALSE },
-    { 4920, 4995, 240, FALSE }
+    { 2412, 2472,   1, TRUE },   /* Table 12-1, p 257 */
+    { 2484, 2484,  14, TRUE },   /* Table 12-1, p 257 */
+    { 5000, 5995,   0, FALSE },  /* Table 13-1, p 289 */
+    { 4920, 4995, 240, FALSE }   /* Table 13-1, p 289 */
 };
 
 #define NUM_FREQ_CVT (sizeof(freq_cvt) / sizeof(freq_cvt_t))
