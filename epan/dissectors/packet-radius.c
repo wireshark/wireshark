@@ -535,7 +535,7 @@ static void add_avp_to_tree(proto_tree* avp_tree, proto_item* avp_item, packet_i
     if (dictionary_entry->tagged) {
         guint tag;
 
-        if (avp_length < 3) {
+        if (avp_length == 0) {
             pi = proto_tree_add_text(avp_tree, tvb, offset,
                                 0, "AVP too short for tag");
             PROTO_ITEM_SET_GENERATED(pi);
