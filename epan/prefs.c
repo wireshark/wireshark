@@ -323,7 +323,7 @@ prefs_register_protocol_subtree(const char *subtree, int id, void (*apply_cb)(vo
 
 	  }
 
-	  g_free(csubtree);
+	  /* g_free(csubtree); */
 
 	}
 
