@@ -2402,12 +2402,14 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 	module->prefs_changed = TRUE;
 	g_free(*pref->varp.range);
 	*pref->varp.range = newrange;
+      } else {
+	g_free (newrange);
       }
       break;
     }
 
-	case PREF_STATIC_TEXT:
-	case PREF_UAT:
+    case PREF_STATIC_TEXT:
+    case PREF_UAT:
     {
       break;
     }
