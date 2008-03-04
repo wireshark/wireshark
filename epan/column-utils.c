@@ -1071,6 +1071,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
       g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.src", COL_MAX_LEN);
     else
       g_strlcpy(pinfo->cinfo->col_expr.col_expr[col], "ipv6.dst", COL_MAX_LEN);
+    memcpy(&ipv6_addr.bytes, addr->data, sizeof ipv6_addr.bytes);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ip6_to_str(&ipv6_addr), COL_MAX_LEN);
     break;
 
