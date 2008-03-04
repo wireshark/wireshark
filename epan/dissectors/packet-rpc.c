@@ -2055,8 +2055,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						flavor = FLAVOR_AUTHGSSAPI_MSG;
 						gss_proc = proc;
 						procname = (char *)
-						    match_strval(gss_proc,
-						    rpc_authgssapi_proc);
+						    val_to_str(gss_proc,
+						    rpc_authgssapi_proc, "Unknown (%d)");
 					} else {
 						flavor = FLAVOR_AUTHGSSAPI;
 					}
@@ -2627,7 +2627,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			col_clear(pinfo->cinfo, COL_INFO);
 			col_append_fstr(pinfo->cinfo, COL_INFO,
 			    "%s %s XID 0x%x",
-			    match_strval(gss_proc, rpc_authgssapi_proc),
+			    val_to_str(gss_proc, rpc_authgssapi_proc, "Unknown (%d)"),
 			    msg_type_name, xid);
 		}
 

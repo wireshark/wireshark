@@ -216,7 +216,7 @@ static void dissect_roofnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Clear out stuff in the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message Type: %s",
-	val_to_str(roofnet_msg_type, roofnet_pt_vals, "Unknown"));
+	val_to_str(roofnet_msg_type, roofnet_pt_vals, "Unknown (%d)"));
   }
 
   if (tree) {

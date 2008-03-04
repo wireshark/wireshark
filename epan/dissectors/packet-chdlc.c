@@ -139,7 +139,7 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
   if (chdlctype == CHDLCTYPE_OSI &&
     !( padbyte == NLPID_ISO8473_CLNP || /* older Juniper SW does not send a padbyte */
        padbyte == NLPID_ISO9542_ESIS ||
-       padbyte == NLPID_ISO10589_ISIS)) {      
+       padbyte == NLPID_ISO10589_ISIS)) {
     /* There is a Padding Byte for CLNS protocols over Cisco HDLC */
     proto_tree_add_text(fh_tree, tvb, offset_after_chdlctype, 1, "CLNS Padding: 0x%02x",
         padbyte);
@@ -298,10 +298,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_REQUEST:
   case SLARP_REPLY:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      address = tvb_get_ipv4(tvb, 4);
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
-        match_strval(code, slarp_ptype_vals),
-        get_hostname(address),
+	address = tvb_get_ipv4(tvb, 4);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
+		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+		     get_hostname(address),
         ip_to_str(tvb_get_ptr(tvb, 8, 4)));
     }
     if (tree) {
@@ -316,10 +316,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     mysequence = tvb_get_ntohl(tvb, 4);
     yoursequence = tvb_get_ntohl(tvb, 8);
     if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO,
-        "%s, outgoing sequence %u, returned sequence %u",
-	match_strval(code, slarp_ptype_vals),
-        mysequence, yoursequence);
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+		     "%s, outgoing sequence %u, returned sequence %u",
+		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
+		     mysequence, yoursequence);
     }
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);

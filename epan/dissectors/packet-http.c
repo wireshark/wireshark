@@ -442,7 +442,7 @@ static int http_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_, epan_d
 
 		tick_stat_node(st, resp_str, st_node_responses, FALSE);
 
-		g_snprintf(str, sizeof(str),"%u %s",i,match_strval(i,vals_status_code));
+		g_snprintf(str, sizeof(str),"%u %s",i,val_to_str(i,vals_status_code, "Unknown (%d)"));
 		tick_stat_node(st, str, resp_grp, FALSE);
 	} else if (v->request_method) {
 		stats_tree_tick_pivot(st,st_node_requests,v->request_method);
@@ -1489,11 +1489,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 		if(tree) {
 			item = proto_tree_add_item(tree, proto_http, tvb, 0, -1, FALSE);
 			proxy_tree = proto_item_add_subtree(item, ett_http);
-	
+
 			item = proto_tree_add_string(proxy_tree, hf_http_proxy_connect_host,
 		    	    tvb, 0, 0, strings[0]);
 			PROTO_ITEM_SET_GENERATED(item);
-	
+
 			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
 			    tvb, 0, 0, strtol(strings[1], NULL, 10) );
 			PROTO_ITEM_SET_GENERATED(item);
@@ -1507,7 +1507,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			call_dissector(data_handle, tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
-			if ( !ptr && value_is_in_range(http_tcp_range, pinfo->destport) ) 
+			if ( !ptr && value_is_in_range(http_tcp_range, pinfo->destport) )
 				ptr = &pinfo->destport;
 			else
 				ptr = &pinfo->srcport;
@@ -2047,7 +2047,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (len == -1)
 				break;
 			offset += len;
-	
+
 			/*
 			 * OK, we've set the Protocol and Info columns for the
 			 * first HTTP message; make the columns non-writable,

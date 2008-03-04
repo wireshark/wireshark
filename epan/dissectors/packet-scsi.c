@@ -2042,8 +2042,8 @@ dissect_scsi_cmddt (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_item (cmdt_tree, hf_scsi_inq_devtype, tvb, offset,
                              1, 0);
         proto_tree_add_text (cmdt_tree, tvb, offset+1, 1, "Support: %s",
-                             match_strval (tvb_get_guint8 (tvb, offset+1) & 0x7,
-                                           scsi_cmdt_supp_val));
+                             val_to_str (tvb_get_guint8 (tvb, offset+1) & 0x7,
+                                           scsi_cmdt_supp_val, "Unknown (%d)"));
         proto_tree_add_text (cmdt_tree, tvb, offset+2, 1, "Version: %s",
                              val_to_str (tvb_get_guint8 (tvb, offset+2),
                                          scsi_verdesc_val,
@@ -2142,7 +2142,7 @@ dissect_spc_inq_bqueflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     guint8 flags;
     proto_item *item=NULL;
     proto_tree *tree=NULL;
-    
+
     if(parent_tree){
         item=proto_tree_add_item(parent_tree, hf_scsi_inq_bqueflags, tvb, offset, 1, 0);
         tree = proto_item_add_subtree (item, ett_scsi_inq_bqueflags);
@@ -4279,7 +4279,7 @@ dissect_scsi_rsp (tvbuff_t *tvb, packet_info *pinfo,
 
 
     if(itl){
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(itlq->scsi_opcode!=0xffff){
@@ -4683,7 +4683,7 @@ dissect_scsi_cdb (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     PROTO_ITEM_SET_GENERATED(ti);
 
     if(itl){
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         PROTO_ITEM_SET_GENERATED(ti);
     }
 
@@ -4785,7 +4785,7 @@ dissect_scsi_payload (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     PROTO_ITEM_SET_GENERATED(ti);
 
     if(itl){
-        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
+        ti=proto_tree_add_uint_format(scsi_tree, hf_scsi_inq_devtype, tvb, 0, 0, itl->cmdset&SCSI_CMDSET_MASK, "Command Set:%s (0x%02x) %s", val_to_str(itl->cmdset&SCSI_CMDSET_MASK, scsi_devtype_val, "Unknown (%d)"), itl->cmdset&SCSI_CMDSET_MASK,itl->cmdset&SCSI_CMDSET_DEFAULT?"(Using default commandset)":"");
         PROTO_ITEM_SET_GENERATED(ti);
 
         if(itlq && itlq->scsi_opcode!=0xffff){

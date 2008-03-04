@@ -449,7 +449,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        proto_tree_add_text(single_avp_tree, tvb, offset, avp_data_length,
                                                                "Value: %d (%s)",
                                                                tvb_get_ntohl(tvb, offset),
-                                                               val_to_str(tvb_get_ntohs(tvb, offset), avp_code_names, "Unknown"));
+                                                               val_to_str(tvb_get_ntohs(tvb, offset), avp_code_names, "Unknown (%d)"));
                                        break;
                                }
                                case PANA_EAP: {
@@ -517,8 +517,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        if (check_col(pinfo->cinfo, COL_INFO)) {
                col_clear(pinfo->cinfo, COL_INFO);
                col_add_fstr(pinfo->cinfo, COL_INFO, "Type %s-%s",
-               val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
-               match_strval(flags & PANA_FLAG_R, msg_subtype_names));
+			    val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
+			    val_to_str(flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"));
        }
 
        /* Make the protocol tree */
@@ -627,7 +627,8 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        proto_tree_add_uint_format_value(pana_tree, hf_pana_msg_type, tvb,
                            offset, 2, msg_type, "%s-%s (%d)",
                            val_to_str(msg_type, msg_type_names, "Unknown (%d)"),
-                          match_strval(flags & PANA_FLAG_R, msg_subtype_names), msg_type);
+			   val_to_str(flags & PANA_FLAG_R, msg_subtype_names, "Unknown (%d)"),
+			   msg_type);
        offset += 2;
 
        /* Session ID */

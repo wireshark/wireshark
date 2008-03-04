@@ -36,7 +36,7 @@
 
 static int proto_cimd = -1;
 /* Initialize the subtree pointers */
-static gint ett_cimd = -1;           
+static gint ett_cimd = -1;
 
 /* Initialize the protocol and registered fields */
 static int hf_cimd_opcode_indicator = -1;
@@ -54,7 +54,7 @@ static int hf_cimd_dcs_indication_type = -1;
 
 static const value_string vals_hdr_OC[] = {
     /* operation codes array */
-    {CIMD_Login, "Login"},                                           
+    {CIMD_Login, "Login"},
     {CIMD_LoginResp, "Login Resp"},
     {CIMD_Logout, "Logout"},
     {CIMD_LogoutResp, "Logout Resp"},
@@ -276,14 +276,14 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
 {
   /* Set up structures needed to add the param subtree and manage it */
   proto_item *param_item = NULL;
-  proto_tree *param_tree = NULL;  
+  proto_tree *param_tree = NULL;
 
   gchar* payloadText;
   gchar* tmpBuffer = (gchar*)ep_alloc(1024);
   gchar* tmpBuffer1 = (gchar*)ep_alloc(1024);
   int loop,i,poz, bufPoz = 0, bufPoz1 = 0, size, size1, resch;
   gint g_offset, g_size;
-  gchar token[4];  
+  gchar token[4];
   gchar ch;
   const char* mapping[128] = {
     "_Oa","_L-", "", "_Y-", "_e`", "_e'", "_u`", "_i`", "_o`","_C,", /*10*/
@@ -483,14 +483,14 @@ static void dissect_cimd_ud(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint s
     case 0x7A: resch = 0x007A; break;
     case 0x7B: resch = 0x00E4; break;
     case 0x7C: resch = 0x00F6; break;
-    case 0x7D: resch = 0x00F1; break;      
-    case 0x7F: resch = 0x00E0; break;                         
+    case 0x7D: resch = 0x00F1; break;
+    case 0x7F: resch = 0x00E0; break;
     default:resch = ch;break;
     }
     tmpBuffer1[bufPoz1++] = (gchar)resch;
   }
 
-  tmpBuffer1[bufPoz1] = '\0';                          
+  tmpBuffer1[bufPoz1] = '\0';
   proto_tree_add_string(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, g_offset, g_size, tmpBuffer1);
 }
 
@@ -529,7 +529,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
   other_decode_bitfield_value(bigbuf, dcs, (dcs_cg <= 0x07 ? 0xC0 : 0xF0), 8);
   proto_tree_add_uint_format(param_tree, hf_cimd_dcs_coding_group_indicator, tvb, offset, 1,
     dcs_cg, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_coding_group_indicator)->name,
-    match_strval(dcs_cg, cimd_dcs_coding_groups), dcs_cg
+    val_to_str(dcs_cg, cimd_dcs_coding_groups, "Unknown (%d)"), dcs_cg
   );
 
   if (dcs_cg <= 0x07)
@@ -538,21 +538,21 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
     other_decode_bitfield_value(bigbuf, dcs, 0x20, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_compressed_indicator, tvb, offset, 1,
       dcs_cf, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_compressed_indicator)->name,
-      match_strval(dcs_cf, cimd_dcs_compressed), dcs_cf
+      val_to_str(dcs_cf, cimd_dcs_compressed, "Unknown (%d)"), dcs_cf
     );
 
     dcs_mcm = (dcs & 0x10) >> 4;
     other_decode_bitfield_value(bigbuf, dcs, 0x10, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_message_class_meaning_indicator, tvb, offset, 1,
       dcs_mcm, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_message_class_meaning_indicator)->name,
-      match_strval(dcs_mcm, cimd_dcs_message_class_meaning), dcs_mcm
+      val_to_str(dcs_mcm, cimd_dcs_message_class_meaning, "Unknown (%d)"), dcs_mcm
     );
 
     dcs_chs = (dcs & 0x0C) >> 2;
     other_decode_bitfield_value(bigbuf, dcs, 0x0C, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_character_set_indicator, tvb, offset, 1,
       dcs_chs, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_character_set_indicator)->name,
-      match_strval(dcs_chs, cimd_dcs_character_set), dcs_chs
+      val_to_str(dcs_chs, cimd_dcs_character_set, "Unknown (%d)"), dcs_chs
     );
 
     if (dcs_mcm)
@@ -561,7 +561,7 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
       other_decode_bitfield_value(bigbuf, dcs, 0x03, 8);
       proto_tree_add_uint_format(param_tree, hf_cimd_dcs_message_class_indicator, tvb, offset, 1,
         dcs_mc, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_message_class_indicator)->name,
-        match_strval(dcs_mc, cimd_dcs_message_class), dcs_mc
+        val_to_str(dcs_mc, cimd_dcs_message_class, "Unknown (%d)"), dcs_mc
       );
     }
   }
@@ -571,14 +571,14 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
     other_decode_bitfield_value(bigbuf, dcs, 0x04, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_indication_sense, tvb, offset, 1,
       dcs_is, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_indication_sense)->name,
-      match_strval(dcs_is, cimd_dcs_indication_sense), dcs_is
-    );    
+      val_to_str(dcs_is, cimd_dcs_indication_sense, "Unknown (%d)"), dcs_is
+    );
 
     dcs_it = (dcs & 0x03);
     other_decode_bitfield_value(bigbuf, dcs, 0x03, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_indication_type, tvb, offset, 1,
       dcs_it, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_indication_type)->name,
-      match_strval(dcs_it, cimd_dcs_indication_type), dcs_it
+      val_to_str(dcs_it, cimd_dcs_indication_type, "Unknown (%d)"), dcs_it
     );
   }
   else if (dcs_cg == 0x0F)
@@ -587,14 +587,14 @@ static void dissect_cimd_dcs(tvbuff_t *tvb, proto_tree *tree, gint pindex, gint 
     other_decode_bitfield_value(bigbuf, dcs, 0x04, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_character_set_indicator, tvb, offset, 1,
       dcs_chs, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_character_set_indicator)->name,
-      match_strval(dcs_chs, cimd_dcs_character_set), dcs_chs
+      val_to_str(dcs_chs, cimd_dcs_character_set, "Unknown (%d)"), dcs_chs
     );
 
     dcs_mc = (dcs & 0x03);
     other_decode_bitfield_value(bigbuf, dcs, 0x03, 8);
     proto_tree_add_uint_format(param_tree, hf_cimd_dcs_message_class_indicator, tvb, offset, 1,
       dcs_mc, "%s = %s: %s (%d)", bigbuf, proto_registrar_get_nth(hf_cimd_dcs_message_class_indicator)->name,
-      match_strval(dcs_mc, cimd_dcs_message_class), dcs_mc
+      val_to_str(dcs_mc, cimd_dcs_message_class, "Unknown (%d)"), dcs_mc
     );
   }
 }
@@ -626,7 +626,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
       break;
 
     PC = decimal_int_value(tvb, offset + 1, CIMD_PC_LENGTH);
-    match_strval_idx(PC, cimd_vals_PC, &index);    
+    match_strval_idx(PC, cimd_vals_PC, &index);
     if (index != -1 && tree)
     {
       (vals_hdr_PC[index].diss)(tvb, cimd_tree, index, offset, endOffset);
@@ -652,7 +652,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint offset = 0;
   /*gint endOffset = 0;*/
   gboolean checksumIsValid = TRUE;
-  guint8 last1, last2, last3;  
+  guint8 last1, last2, last3;
 
   etxp = tvb_find_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH, -1, CIMD_ETX);
   if (etxp == -1) return;
@@ -665,7 +665,7 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   last3 = tvb_get_guint8(tvb, etxp - 3);
 
   if (last1 == CIMD_DELIM) {
-    /* valid packet, CC is missing */ 
+    /* valid packet, CC is missing */
   } else if (last1 != CIMD_DELIM && last2 != CIMD_DELIM && last3 == CIMD_DELIM) {
     /* looks valid, it would be nice to check that last1 and last2 are HEXA */
     /* CC is present */
@@ -688,9 +688,9 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     col_set_str(pinfo->cinfo, COL_INFO, "");
     if (checksumIsValid)
-      col_append_str(pinfo->cinfo, COL_INFO, match_strval(OC, vals_hdr_OC));
+      col_append_str(pinfo->cinfo, COL_INFO, val_to_str(OC, vals_hdr_OC, "Unknown (%d)"));
     else
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%s - %s", match_strval(OC, vals_hdr_OC), "invalid checksum");
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%s - %s", val_to_str(OC, vals_hdr_OC, "Unknown (%d)"), "invalid checksum");
   }
 
   dissect_cimd_operation(tvb, tree, etxp, checksum, last1, OC, PN);
@@ -729,7 +729,7 @@ dissect_cimd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return FALSE;
 
   if (tvb_get_guint8(tvb, CIMD_OC_OFFSET + CIMD_OC_LENGTH) != CIMD_COLON)
-  return FALSE; 
+  return FALSE;
 
   if (tvb_get_guint8(tvb, CIMD_PN_OFFSET + CIMD_PN_LENGTH) != CIMD_DELIM)
   return FALSE;
@@ -856,7 +856,7 @@ proto_register_cimd(void)
   };
 
   /* Register the protocol name and description */
-  proto_cimd = proto_register_protocol("Computer Interface to Message Distribution", "CIMD", "cimd");  
+  proto_cimd = proto_register_protocol("Computer Interface to Message Distribution", "CIMD", "cimd");
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_cimd, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));

@@ -1713,7 +1713,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
 		     val_to_str(OT,  vals_hdr_OT,  "unknown operation"),
-		     match_strval(O_R, vals_hdr_O_R));
+		     val_to_str(O_R, vals_hdr_O_R, "Unknown (%d)"));
 	if (result == UCP_SHORTENED)
 	    col_append_str(pinfo->cinfo, COL_INFO, " [short packet]");
 	else if (result == UCP_INV_CHK)

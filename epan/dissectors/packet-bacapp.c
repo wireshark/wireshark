@@ -863,7 +863,7 @@ BACnetPropertyIdentifier [] = {
 	{204,"time-synchronization-recipients"},
 	{205,"trigger"},
 	{206,"UTC-time-synchronization-recipients"},
-        /* enumerations 207-211 are used in Addendum d to 
+        /* enumerations 207-211 are used in Addendum d to
            ANSI/ASHRAE 135-2004 */
 	{207,"node-subtype"},
 	{208,"node-type"},
@@ -1498,8 +1498,8 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 	{
 		if (tag_is_closing(tag) || tag_is_opening(tag))
 			ti = proto_tree_add_text(tree, tvb, offset, tag_len,
-				"%s: %u", match_strval(
-					tag & 0x07, BACnetTagNames),
+				"%s: %u", val_to_str(
+					tag & 0x07, BACnetTagNames, "Unknown (%d)"),
 				*tag_no);
 		else if (tag_is_context_specific(tag)) {
 			ti = proto_tree_add_text(tree, tvb, offset, tag_len,
@@ -1953,7 +1953,7 @@ static guint fTimeStamp (tvbuff_t *tvb, proto_tree *tree,
 			return offset;
 		}
 	}
-	
+
 	return offset;
 }
 
@@ -3131,7 +3131,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			case 0: /* "command-value: " */
 				/* from BACnet Table 13-3,
 					Standard Object Property Values Returned in Notifications */
-				propertyIdentifier = 85; /* PRESENT_VALUE */ 
+				propertyIdentifier = 85; /* PRESENT_VALUE */
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 				offset = fAbstractSyntaxNType (tvb, subtree, offset);
 				offset += fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -3734,9 +3734,9 @@ fGetEnrollmentSummaryAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		offset = fApplicationTypes (tvb, tree, offset, "Object Identifier: ");
-		offset = fApplicationTypesEnumeratedSplit (tvb, tree, offset, 
+		offset = fApplicationTypesEnumeratedSplit (tvb, tree, offset,
 			"event Type: ", BACnetEventType, 64);
-		offset = fApplicationTypesEnumerated (tvb, tree, offset, 
+		offset = fApplicationTypesEnumerated (tvb, tree, offset,
 			"event State: ", BACnetEventState);
 		offset = fApplicationTypes (tvb, tree, offset, "Priority: ");
 		offset = fApplicationTypes (tvb, tree, offset, "Notification Class: ");
@@ -3764,7 +3764,7 @@ flistOfEventSummaries (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint32 lvt;
 	proto_tree* subtree = tree;
 	proto_item* ti = 0;
-	
+
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -4425,7 +4425,7 @@ fSelectionCriteria (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		if (tag_is_closing(tag_info)) {  /* stop when we hit outer closing tag */
 			continue;
 		}
-		
+
 		switch (fTagNo(tvb,offset)) {
 		case 0:	/* propertyIdentifier */
 			offset = fPropertyIdentifier (tvb, tree, offset);
@@ -4772,7 +4772,7 @@ static guint fAccessMethod(tvbuff_t *tvb, proto_tree *tree, guint offset)
 				offset += fTagHeaderTree (tvb, subtree, offset,	&tag_no, &tag_info, &lvt);
 			}
 		}
-	}	
+	}
 	return offset;
 }
 

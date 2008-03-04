@@ -224,9 +224,9 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     flags_str[0]='\0';
     sep="";
     flags = tvb_get_ntohl(tvb, foffset);
-    for (i = 0 ; i < 256; i++) 
+    for (i = 0 ; i < 256; i++)
     {
-        if (flags & bvalue) 
+        if (flags & bvalue)
         {
             g_strlcat(flags_str, sep, 1024);
             switch(bvalue)
@@ -234,102 +234,102 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
                 case 0x00000001:
                         g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
-                case 0x00000002:        
+                case 0x00000002:
                         g_strlcat(flags_str, "Create ID", 1024);
                         break;
-                case 0x00000004:        
+                case 0x00000004:
                         g_strlcat(flags_str, "Remove Lock", 1024);
                         break;
-                case 0x00000008:        
+                case 0x00000008:
                         g_strlcat(flags_str, "Repair", 1024);
                         break;
-                case 0x00000010:        
+                case 0x00000010:
                         g_strlcat(flags_str, "Unicode", 1024);
                         break;
-                case 0x00000020:        
+                case 0x00000020:
                         g_strlcat(flags_str, "EP Master Password Used", 1024);
                         break;
-                case 0x00000040:        
+                case 0x00000040:
                         g_strlcat(flags_str, "EP Password Used", 1024);
                         break;
-                case 0x00000080:        
+                case 0x00000080:
                         g_strlcat(flags_str, "Set Tree Name", 1024);
                         break;
-                case 0x00000100:        
+                case 0x00000100:
                         g_strlcat(flags_str, "Get Context", 1024);
                         break;
-                case 0x00000200:        
+                case 0x00000200:
                         g_strlcat(flags_str, "Destroy Context", 1024);
                         break;
-                case 0x00000400:        
+                case 0x00000400:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x00000800:        
+                case 0x00000800:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00001000:
                         g_strlcat(flags_str, "EP Lock", 1024);
                         break;
-                case 0x00002000:        
+                case 0x00002000:
                         g_strlcat(flags_str, "Not Initialized", 1024);
                         break;
-                case 0x00004000:        
+                case 0x00004000:
                         g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
-                case 0x00008000:        
+                case 0x00008000:
                         g_strlcat(flags_str, "Store Not Synced", 1024);
                         break;
-                case 0x00010000:        
+                case 0x00010000:
                         g_strlcat(flags_str, "Admin Last Modified", 1024);
                         break;
-                case 0x00020000:        
+                case 0x00020000:
                         g_strlcat(flags_str, "EP Password Present", 1024);
                         break;
-                case 0x00040000:        
+                case 0x00040000:
                         g_strlcat(flags_str, "EP Master Password Present", 1024);
                         break;
-                case 0x00080000:        
+                case 0x00080000:
                         g_strlcat(flags_str, "MP Disabled", 1024);
                         break;
-                case 0x00100000:        
+                case 0x00100000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x00200000:        
+                case 0x00200000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x00400000:        
+                case 0x00400000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x00800000:        
+                case 0x00800000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x01000000:        
+                case 0x01000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x02000000:        
+                case 0x02000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x04000000:        
+                case 0x04000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x08000000:        
+                case 0x08000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x10000000:        
+                case 0x10000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x20000000:        
+                case 0x20000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x40000000:        
+                case 0x40000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
-                case 0x80000000:        
+                case 0x80000000:
                         g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 default:
                         break;
-            }                
+            }
             sep = ", ";
         }
             bvalue = bvalue*2;
@@ -337,12 +337,12 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
 
     tinew = proto_tree_add_uint_format(sss_tree, hf_flags, tvb, foffset, 4, flags, "%s 0x%08x", "Flags:", flags);
 	flags_tree = proto_item_add_subtree(tinew, ett_nds);
-                                                
+
     bvalue = 0x00000001;
-    
-    for (i = 0 ; i < 256; i++ ) 
+
+    for (i = 0 ; i < 256; i++ )
     {
-        if (flags & bvalue) 
+        if (flags & bvalue)
         {
             switch(bvalue)
             {
@@ -458,10 +458,10 @@ find_delimiter(tvbuff_t *tvb, int foffset)
     int length = 0;
     guint16 c_char;
 
-    for (i=0; i < 256; i++) 
+    for (i=0; i < 256; i++)
     {
         c_char = tvb_get_guint8(tvb, foffset);
-        if (c_char == 0x2a || tvb_length_remaining(tvb, foffset)==0) 
+        if (c_char == 0x2a || tvb_length_remaining(tvb, foffset)==0)
         {
             break;
         }
@@ -480,8 +480,8 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
         guint32 i;
         guint16 c_char;
         guint32 length_remaining = 0;
-        
-        if (length==0) 
+
+        if (length==0)
         {
             if (little) {
                 str_length = tvb_get_letohl(tvb, foffset);
@@ -516,7 +516,7 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
                 if (c_char<0x20 || c_char>0x7e)
                 {
                         if (c_char != 0x00)
-                        { 
+                        {
                                 c_char = 0x2e;
                                 buffer[i] = c_char & 0xff;
                         }
@@ -532,16 +532,16 @@ sss_string(tvbuff_t* tvb, int hfinfo, proto_tree *sss_tree, int offset, gboolean
                 }
                 foffset++;
                 length_remaining--;
-                
+
                 if(length_remaining==1)
                 {
                 	i++;
                 	break;
-                }        
+                }
         }
         buffer[i] = '\0';
-        
-        if (length==0) 
+
+        if (length==0)
         {
             if (little) {
                 str_length = tvb_get_letohl(tvb, offset);
@@ -569,8 +569,8 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
     guint32             foffset= 0;
     proto_tree          *atree;
     proto_item          *aitem;
-    
-    
+
+
     if (tvb_length_remaining(tvb, foffset)<4) {
         return;
     }
@@ -579,15 +579,15 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
     foffset += 1;
     subfunc = tvb_get_guint8(tvb, foffset);
     foffset += 1;
-    
+
 	/* Fill in the INFO column. */
 	if (check_col(pinfo->cinfo, COL_INFO)) {
        col_set_str(pinfo->cinfo, COL_PROTOCOL, "NSSS");
-       col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", match_strval(subfunc, sss_func_enum));
+       col_add_fstr(pinfo->cinfo, COL_INFO, "C SecretStore - %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
     }
     switch (subfunc) {
     case 1:
-        aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Packet Type: %s", match_strval(subfunc, sss_func_enum));
+        aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
         atree = proto_item_add_subtree(aitem, ett_sss);
         proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, TRUE);
         foffset += 4;
@@ -606,7 +606,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             foffset += 12; /* Blank Context */
             subverb = tvb_get_letohl(tvb, foffset);
             if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", match_strval(subverb, sss_verb_enum));
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
             }
             aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, TRUE);
             atree = proto_item_add_subtree(aitem, ett_sss);
@@ -692,7 +692,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             if (request_value) {
                 request_value->req_nds_flags=255;
             }
-            if (tvb_length_remaining(tvb, foffset) > 8) 
+            if (tvb_length_remaining(tvb, foffset) > 8)
             {
                 foffset += 4;
                 proto_tree_add_item(ncp_tree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), TRUE);
@@ -718,10 +718,10 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     guint32             number_of_items=0;
     gint32              length_of_string=0;
     guint32             i = 0;
-    
+
     proto_tree          *atree;
     proto_item          *aitem;
-    
+
     foffset = 8;
     if (request_value) {
         subverb = request_value->req_nds_flags;
@@ -733,7 +733,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     if (tvb_length_remaining(tvb, foffset)<4) {
         return;
     }
-    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Function: %s", match_strval(subfunc, sss_func_enum));
+    aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Function: %s", val_to_str(subfunc, sss_func_enum, "val_to_str"));
     atree = proto_item_add_subtree(aitem, ett_sss);
     switch (subfunc) {
     case 1:
@@ -753,16 +753,16 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
         proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
         foffset += 4;
         msg_length -= 4;
-        if ((tvb_get_letohl(tvb, foffset-4)==0xffffffff) && (msg_length > 4)) 
+        if ((tvb_get_letohl(tvb, foffset-4)==0xffffffff) && (msg_length > 4))
         {
             foffset += 4;
             return_code = tvb_get_letohl(tvb, foffset);
-            if ( match_strval(return_code, sss_errors_enum) != NULL ) 
+            if ( match_strval(return_code, sss_errors_enum) != NULL )
             {
                 expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, TRUE);
                 expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "SSS Error: %s", match_strval(return_code, sss_errors_enum));
                 if (check_col(pinfo->cinfo, COL_INFO)) {
-                   col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", match_strval(return_code, sss_errors_enum));
+                   col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));
                 }
                 foffset+=4;
             }
@@ -771,20 +771,20 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                 proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
                 if (tvb_length_remaining(tvb, foffset) > 8) {
                     foffset += 4;
-                    if (subverb == 6) 
+                    if (subverb == 6)
                     {
                         foffset += 4;
                         number_of_items = tvb_get_letohl(tvb, foffset);
                         foffset += 8;
-                        for (i=0; i<number_of_items; i++) 
+                        for (i=0; i<number_of_items; i++)
                         {
                             length_of_string = find_delimiter(tvb, foffset);
-                            if (length_of_string > tvb_length_remaining(tvb, foffset)) 
+                            if (length_of_string > tvb_length_remaining(tvb, foffset))
                             {
                                 return;
                             }
                             foffset = sss_string(tvb, hf_secret, atree, foffset, TRUE, length_of_string);
-                            if (tvb_length_remaining(tvb, foffset) < 8) 
+                            if (tvb_length_remaining(tvb, foffset) < 8)
                             {
                                 return;
                             }
@@ -865,7 +865,7 @@ proto_register_sss(void)
         { &hf_return_code,
 		{ "Return Code",		"sss.return_code", FT_UINT32, BASE_HEX, VALS(sss_errors_enum), 0x0,
 			"Return Code", HFILL }},
-       
+
         { &hf_enc_cred,
         { "Encrypted Credential",    "sss.enc_cred",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
@@ -875,7 +875,7 @@ proto_register_sss(void)
         { "Encrypted Data",    "sss.enc_data",
           FT_BYTES,    BASE_NONE,   NULL,   0x0,
           "Encrypted Data", HFILL }},
-    
+
         { &hfbit1,
         { "Enhanced Protection", "ncp.sss_bit1", FT_BOOLEAN, 32, NULL, 0x00000001, "", HFILL }},
 
@@ -923,62 +923,62 @@ proto_register_sss(void)
 
         { &hfbit16,
         { "Not Defined", "ncp.sss_bit16", FT_BOOLEAN, 32, NULL, 0x00008000, "", HFILL }},
-    
+
         { &hfbit17,
         { "EP Lock", "ncp.sss_bit17", FT_BOOLEAN, 32, NULL, 0x00010000, "", HFILL }},
-    
+
         { &hfbit18,
         { "Not Initialized", "ncp.sss_bit18", FT_BOOLEAN, 32, NULL, 0x00020000, "", HFILL }},
-    
+
         { &hfbit19,
         { "Enhanced Protection", "ncp.sss_bit19", FT_BOOLEAN, 32, NULL, 0x00040000, "", HFILL }},
-    
+
         { &hfbit20,
         { "Store Not Synced", "ncp.sss_bit20", FT_BOOLEAN, 32, NULL, 0x00080000, "", HFILL }},
-    
+
         { &hfbit21,
         { "Admin Last Modified", "ncp.sss_bit21", FT_BOOLEAN, 32, NULL, 0x00100000, "", HFILL }},
-    
+
         { &hfbit22,
         { "EP Password Present", "ncp.sss_bit22", FT_BOOLEAN, 32, NULL, 0x00200000, "", HFILL }},
-    
+
         { &hfbit23,
         { "EP Master Password Present", "ncp.sss_bit23", FT_BOOLEAN, 32, NULL, 0x00400000, "", HFILL }},
-    
+
         { &hfbit24,
         { "MP Disabled", "ncp.sss_bit24", FT_BOOLEAN, 32, NULL, 0x00800000, "", HFILL }},
-    
+
         { &hfbit25,
         { "Not Defined", "ncp.sss_bit25", FT_BOOLEAN, 32, NULL, 0x01000000, "", HFILL }},
-    
+
         { &hfbit26,
         { "Not Defined", "ncp.sss_bit26", FT_BOOLEAN, 32, NULL, 0x02000000, "", HFILL }},
-    
+
         { &hfbit27,
         { "Not Defined", "ncp.sss_bit27", FT_BOOLEAN, 32, NULL, 0x04000000, "", HFILL }},
-    
+
         { &hfbit28,
         { "Not Defined", "ncp.sss_bit28", FT_BOOLEAN, 32, NULL, 0x08000000, "", HFILL }},
-    
+
         { &hfbit29,
         { "Not Defined", "ncp.sss_bit29", FT_BOOLEAN, 32, NULL, 0x10000000, "", HFILL }},
-    
+
         { &hfbit30,
         { "Not Defined", "ncp.sss_bit30", FT_BOOLEAN, 32, NULL, 0x20000000, "", HFILL }},
-    
+
         { &hfbit31,
         { "Not Defined", "ncp.sss_bit31", FT_BOOLEAN, 32, NULL, 0x40000000, "", HFILL }},
-    
+
         { &hfbit32,
         { "Not Defined", "ncp.sss_bit32", FT_BOOLEAN, 32, NULL, 0x80000000, "", HFILL }},
-    
+
     };
 
 	static gint *ett[] = {
 		&ett_sss,
 	};
 	/*module_t *sss_module;*/
-	
+
 	proto_sss = proto_register_protocol("Novell SecretStore Services", "SSS", "sss");
 	proto_register_field_array(proto_sss, hf_sss, array_length(hf_sss));
 	proto_register_subtree_array(ett, array_length(ett));

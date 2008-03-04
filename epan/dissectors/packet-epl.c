@@ -644,7 +644,7 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
     if (svid != EPL_SOA_NOSERVICE && check_col(pinfo->cinfo, COL_INFO))
     {
 	col_append_fstr(pinfo->cinfo, COL_INFO, "tgt = %3d   %s",
-			target, match_strval(svid, soa_svid_vals));
+			target, val_to_str(svid, soa_svid_vals, "Unknown (%d)"));
     }
 
     if (epl_tree)
@@ -677,7 +677,7 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ",
-                        match_strval(svid, asnd_svid_vals));
+                        val_to_str(svid, asnd_svid_vals, "Unknown (%d)"));
     }
 
     switch (svid)
@@ -728,8 +728,8 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, 
-                        match_strval(rcid, asnd_cid_vals));
+        col_append_str(pinfo->cinfo, COL_INFO,
+                        val_to_str(rcid, asnd_cid_vals, "Unknown (%d)"));
     }
 
     return offset;
@@ -772,8 +772,8 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_str(pinfo->cinfo, COL_INFO, 
-                        match_strval(epl_asnd_nmtcommand_cid, asnd_cid_vals));
+        col_append_str(pinfo->cinfo, COL_INFO,
+                        val_to_str(epl_asnd_nmtcommand_cid, asnd_cid_vals, "Unknown (%d)"));
     }
 
     return offset;
@@ -853,10 +853,10 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
         additional = tvb_get_letohs(tvb, offset+2);
         proto_tree_add_string_format(epl_tree, hf_epl_asnd_identresponse_dt, tvb, offset,
-            4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X", 
+            4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X",
             profile, val_to_str(profile, epl_device_profiles, "Unkown Profile"), additional);
-            
-        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, TRUE);    
+
+        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, TRUE);
         offset += 4;
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vid, tvb, offset, 4, TRUE);
@@ -941,7 +941,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     nmt_state = tvb_get_guint8(tvb, offset);
     if (check_col(pinfo->cinfo, COL_INFO))
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", match_strval(nmt_state, epl_nmt_cs_vals));
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s   ", val_to_str(nmt_state, epl_nmt_cs_vals, "Unknown (%d)"));
     }
 
     if (epl_tree)
@@ -1214,7 +1214,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
         else if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Requ. %s",
-                            match_strval(segmented, epl_sdo_asnd_cmd_segmentation));
+                            val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
         }
 
         if (epl_tree)
@@ -1290,7 +1290,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
         if (check_col(pinfo->cinfo, COL_INFO))
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "Resp. %s",
-                            match_strval(segmented, epl_sdo_asnd_cmd_segmentation));
+                            val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
         }
 
         if (epl_tree)
@@ -1512,7 +1512,7 @@ static hf_register_info hf[] = {
 
     prefs_register_bool_preference(epl_module, "show_soc_flags", "Show flags of SoC frame in Info column",
         "If you are capturing in networks with multiplexed or slow nodes, this can be useful", &show_soc_flags);
-    
+
     /* tap-registration */
     /*  epl_tap = register_tap("epl");*/
 }

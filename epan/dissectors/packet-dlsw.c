@@ -317,9 +317,9 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Explorer message: yes",
 				"Explorer message: no"));
      proto_tree_add_text (dlsw_header_tree,tvb, 22,1,"Circuit priority = %s",
-      match_strval((tvb_get_guint8(tvb,22)&7),dlsw_pri_vals)) ;
+			  val_to_str((tvb_get_guint8(tvb,22)&7),dlsw_pri_vals, "Unknown (%d)")) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 23,1,"Old message type = %s (0x%02x)",
-     val_to_str(tvb_get_guint8(tvb,23) , dlsw_type_vals, "Unknown Type"),
+			  val_to_str(tvb_get_guint8(tvb,23) , dlsw_type_vals, "Unknown Type"),
      tvb_get_guint8(tvb,23));
      proto_tree_add_text (dlsw_header_tree,tvb, 24,6,"Target MAC Address  = %s",tvb_bytes_to_str(tvb,24,6)) ;
      proto_tree_add_text (dlsw_header_tree,tvb, 30,6,"Origin MAC Address  = %s",tvb_bytes_to_str(tvb,30,6)) ;
