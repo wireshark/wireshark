@@ -9105,7 +9105,7 @@ proto_register_cigi(void)
         },
 
         /* CIGI3_2 Line of Sight Extended Response */
-        { &hf_cigi3_line_of_sight_extended_response,
+        { &hf_cigi3_2_line_of_sight_extended_response,
             { "Line of Sight Extended Response", "cigi.3_2_los_ext_response",
                 FT_STRINGZ, BASE_NONE, NULL, 0x0,
                 "Line of Sight Extended Response Packet", HFILL }
