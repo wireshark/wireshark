@@ -2923,6 +2923,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			strm->next_in = next;
 			strm->avail_in = comprlen;
 
+			inflateEnd(strm);
 			memset(strmbuf, '\0', bufsiz);
 			strm->next_out = strmbuf;
 			strm->avail_out = bufsiz;
