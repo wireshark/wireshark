@@ -79,6 +79,10 @@
 #include <CoreServices/CoreServices.h>
 #endif
 
+#ifdef HAVE_LIBCAP
+# include <sys/capability.h>
+#endif
+
 #ifdef SVNVERSION
 	const char *wireshark_svnversion = " (" SVNVERSION ")";
 #else
@@ -153,6 +157,17 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #else /* HAVE_LIBZ */
 	g_string_append(str, "without libz");
 #endif /* HAVE_LIBZ */
+
+        /* LIBCAP */
+	g_string_append(str, ",\n");
+#ifdef HAVE_LIBCAP
+	g_string_append(str, "with POSIX capabilities");
+#ifdef _LINUX_CAPABILITY_VERSION
+	g_string_append(str, " (Linux)");
+#endif /* _LINUX_CAPABILITY_VERSION */
+#else /* HAVE_LIBCAP */
+	g_string_append(str, "without POSIX capabilities");
+#endif /* HAVE_LIBCAP */
 
 	/* Additional application-dependent information */
 	if (additional_info)
@@ -424,7 +439,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			Gestalt(gestaltSystemVersionMajor, &macosx_major_ver);
 			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
 			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
-			
+
 			g_string_sprintfa(str, " (MacOS %ld.%ld.%ld)",
 					  macosx_major_ver,
 					  macosx_minor_ver,
