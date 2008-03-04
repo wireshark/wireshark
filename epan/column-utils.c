@@ -322,8 +322,10 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
        i <= cinfo->col_last[COL_CUSTOM]; i++) {
     if (cinfo->fmt_matx[i][COL_CUSTOM] &&
 	strlen(cinfo->col_custom_field[i]) > 0) {
-      if(dfilter_compile(cinfo->col_custom_field[i], &dfilter_code))
+      if(dfilter_compile(cinfo->col_custom_field[i], &dfilter_code)) {
         epan_dissect_prime_dfilter(edt, dfilter_code);
+        dfilter_free(dfilter_code);
+      }
     }
   }
 }
