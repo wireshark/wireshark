@@ -142,6 +142,7 @@ write_recent(void)
     g_free(rf_path);
     return FALSE;
   }
+  g_free(rf_path);
 
   fputs("# Recent settings file for Wireshark " VERSION ".\n"
     "#\n"
