@@ -144,7 +144,7 @@ typedef struct _AIRPDCAP_SEC_ASSOCIATION {
 
 typedef struct _AIRPDCAP_CONTEXT {
 	AIRPDCAP_SEC_ASSOCIATION sa[AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR];
-	size_t sa_nr;
+	INT sa_index;
 	AIRPDCAP_KEY_ITEM keys[AIRPDCAP_MAX_KEYS_NR];
 	size_t keys_nr;
 
@@ -153,7 +153,6 @@ typedef struct _AIRPDCAP_CONTEXT {
 
 	INT index;
 	INT first_free_index;
-	INT last_stored_index;
 } AIRPDCAP_CONTEXT, *PAIRPDCAP_CONTEXT;
 
 /************************************************************************/

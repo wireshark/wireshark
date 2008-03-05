@@ -239,8 +239,6 @@ static void AirPDcapRsnaPrfX(
     UCHAR *ptk)
     ;
 
-static void AirPDcapCleanKeys(PAIRPDCAP_CONTEXT ctx);
-
 #ifdef	__cplusplus
 }
 #endif
@@ -454,8 +452,8 @@ INT AirPDcapSetKeys(
         return 0;
     }
 
-    /* clean keys collection before setting new ones	*/
-    AirPDcapCleanKeys(ctx);
+    /* clean key and SA collections before setting new ones	*/
+    AirPDcapInitContext(ctx);
 
     /* check and insert keys	*/
     for (i=0, success=0; i<(INT)keys_nr; i++) {
@@ -484,25 +482,6 @@ INT AirPDcapSetKeys(
     return success;
 }
 
-static void
-AirPDcapCleanKeys(
-    PAIRPDCAP_CONTEXT ctx)
-{
-    AIRPDCAP_DEBUG_TRACE_START("AirPDcapCleanKeys");
-
-    if (ctx==NULL) {
-        AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapCleanKeys", "NULL context", AIRPDCAP_DEBUG_LEVEL_5);
-        AIRPDCAP_DEBUG_TRACE_END("AirPDcapCleanKeys");
-        return;
-    }
-
-    memset(ctx->keys, 0, sizeof(AIRPDCAP_KEY_ITEM) * AIRPDCAP_MAX_KEYS_NR);
-
-    ctx->keys_nr=0;
-
-    AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapCleanKeys", "Keys collection cleaned!", AIRPDCAP_DEBUG_LEVEL_5);
-    AIRPDCAP_DEBUG_TRACE_END("AirPDcapCleanKeys");
-}
 
 INT AirPDcapGetKeys(
     const PAIRPDCAP_CONTEXT ctx,
@@ -564,14 +543,14 @@ INT AirPDcapInitContext(
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
-    AirPDcapCleanKeys(ctx);
+    memset(ctx->keys, 0, sizeof(AIRPDCAP_KEY_ITEM) * AIRPDCAP_MAX_KEYS_NR);
+    ctx->keys_nr=0;
+    memset(ctx->sa, 0, AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR * sizeof(AIRPDCAP_SEC_ASSOCIATION));
 
     ctx->first_free_index=0;
     ctx->index=-1;
-    ctx->last_stored_index=-1;
+    ctx->sa_index=-1;
     ctx->pkt_ssid_len = 0;
-
-    memset(ctx->sa, 0, AIRPDCAP_MAX_SEC_ASSOCIATIONS_NR * sizeof(AIRPDCAP_SEC_ASSOCIATION));
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapInitContext", "Context initialized!", AIRPDCAP_DEBUG_LEVEL_5);
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapInitContext");
@@ -589,11 +568,9 @@ INT AirPDcapDestroyContext(
         return AIRPDCAP_RET_UNSUCCESS;
     }
 
-    AirPDcapCleanKeys(ctx);
-
     ctx->first_free_index=0;
     ctx->index=-1;
-    ctx->last_stored_index=-1;
+    ctx->sa_index=-1;
 
     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapDestroyContext", "Context destroyed!", AIRPDCAP_DEBUG_LEVEL_5);
     AIRPDCAP_DEBUG_TRACE_END("AirPDcapDestroyContext");
@@ -1107,10 +1084,10 @@ AirPDcapGetSa(
 {
     INT index;
 
-    if (ctx->last_stored_index!=-1) {
+    if (ctx->sa_index!=-1) {
         /* at least one association was stored														*/
-        /* search for the association from last_stored_index to 0 (most recent added)	*/
-        for (index=ctx->last_stored_index; index>=0; index--) {
+        /* search for the association from sa_index to 0 (most recent added)	*/
+        for (index=ctx->sa_index; index>=0; index--) {
             if (ctx->sa[index].used) {
                 if (memcmp(id, &(ctx->sa[index].saId), sizeof(AIRPDCAP_SEC_ASSOCIATION_ID))==0) {
                     ctx->index=index;
@@ -1161,9 +1138,9 @@ AirPDcapStoreSa(
     /* increment by 1 the first_free_index (heuristic)	*/
     ctx->first_free_index++;
 
-    /* set the last_stored_index if the added index is greater the the last_stored_index	*/
-    if (ctx->index > ctx->last_stored_index)
-        ctx->last_stored_index=ctx->index;
+    /* set the sa_index if the added index is greater the the sa_index	*/
+    if (ctx->index > ctx->sa_index)
+        ctx->sa_index=ctx->index;
 
     return ctx->index;
 }
