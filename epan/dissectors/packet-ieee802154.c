@@ -95,7 +95,7 @@ void proto_register_ieee802154      (void);
 static void dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *);
-static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  /* TODO: Implement Me. */
+/*static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  TODO: Implement Me. */
 static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tree *, guint);
 static void dissect_ieee802154_beacon       (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_cmd          (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
@@ -177,8 +177,6 @@ static gint ett_ieee802154_bcn_pending = -1;
 
 /*  Dissector handles */
 static dissector_handle_t       data_handle;
-static dissector_handle_t       ieee802154_bcn_handle;
-static dissector_handle_t       ieee802154_cmd_handle;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 
 /* Name Strings */
@@ -484,8 +482,8 @@ static void
 dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint options)
 {
     tvbuff_t            *payload_tvb;
-    proto_tree          *ieee802154_tree = NULL;
-    proto_item          *proto_root = NULL;
+    proto_tree          *volatile ieee802154_tree = NULL;
+    proto_item          *volatile proto_root = NULL;
     proto_item          *ti;
 
     guint               offset = 0;
