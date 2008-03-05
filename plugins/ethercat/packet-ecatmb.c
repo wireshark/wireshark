@@ -1399,7 +1399,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 void proto_register_ecat_mailbox(void)
 {
-   static const true_false_string flags_set_truth[] =
+   static const true_false_string flags_set_truth =
    {
       "Set",
       "Not set"
