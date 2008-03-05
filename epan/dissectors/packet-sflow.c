@@ -32,7 +32,6 @@
  *   make routines more consistent as to whether they return
  *     'offset' or bytes consumed ('len')
  *   implement sampled_ipv4 and sampled_ipv6 packet data types
- *   implement extended_gateway
  *   implement extended_user
  *   implement extended_url
  *   implement non-generic counters sampling
@@ -74,7 +73,6 @@ static range_t *global_sflow_ports = NULL;
 static range_t *sflow_ports = NULL;
 static gboolean global_dissect_samp_headers = TRUE;
 static gboolean global_analyze_samp_ip_headers = FALSE;
-
 
 
 #define ADDRESS_IPV4 1
@@ -165,6 +163,16 @@ static const value_string sflow_extended_data_types[] = {
 	{ SFLOW_EXTENDED_GATEWAY, "Extended gateway information" },
 	{ SFLOW_EXTENDED_USER, "Extended user information" },	
 	{ SFLOW_EXTENDED_URL, "Extended URL information" },	
+	{ 0, NULL }
+};
+
+
+#define SFLOW_AS_SET 1
+#define SFLOW_AS_SEQUENCE 2
+
+static const value_string sflow_as_types[] = {
+	{ SFLOW_AS_SET, "AS Set" },
+	{ SFLOW_AS_SEQUENCE, "AS Sequence" },
 	{ 0, NULL }
 };
 
@@ -303,6 +311,18 @@ static int hf_sflow_nexthop_v4 = -1;   /* nexthop address */
 static int hf_sflow_nexthop_v6 = -1;   /* nexthop address */
 static int hf_sflow_nexthop_src_mask = -1;
 static int hf_sflow_nexthop_dst_mask = -1;
+
+/* extended gateway (all versions) */
+static int hf_sflow_as = -1;
+static int hf_sflow_src_as = -1;
+static int hf_sflow_src_peer_as = -1;
+static int hf_sflow_dst_as_entries = -1; /* aka length */
+static int hf_sflow_dst_as = -1;
+/* extended gateway (>= version 4) */
+static int hf_sflow_community_entries = -1;
+static int hf_sflow_community = -1;
+static int hf_sflow_localpref = -1;
+
 static int hf_sflow_ifindex = -1;
 static int hf_sflow_iftype = -1;
 static int hf_sflow_ifspeed = -1;
@@ -327,6 +347,9 @@ static int hf_sflow_ifpromisc = -1;
 static gint ett_sflow = -1;
 static gint ett_sflow_sample = -1;
 static gint ett_sflow_extended_data = -1;
+static gint ett_sflow_gw_as_dst = -1;
+static gint ett_sflow_gw_as_dst_seg = -1;
+static gint ett_sflow_gw_community = -1;
 static gint ett_sflow_sampled_header = -1;
 
 /* dissectors for other protocols */
@@ -414,7 +437,7 @@ dissect_sflow_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 	*/
 	save_in_error_pkt = pinfo->in_error_pkt;
 	if (!global_analyze_samp_ip_headers) {
-	  pinfo->in_error_pkt = TRUE;
+		pinfo->in_error_pkt = TRUE;
 	}
 
 	col_set_writable(pinfo->cinfo, FALSE);
@@ -542,6 +565,107 @@ dissect_sflow_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	return len;
 }
 
+
+/* extended router data, after the packet data */
+static gint
+dissect_sflow_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+	gint32 	len = 0;
+	gint32 	i, j, comm_len, dst_len, dst_seg_len;
+	guint32 path_type;
+	gint32  kludge;
+
+	guint32 version = tvb_get_ntohl(tvb, 0); /* HACK */
+	proto_item *ti;
+	proto_tree *sflow_dst_as_tree;
+	proto_tree *sflow_comm_tree;
+	proto_tree *sflow_dst_as_seg_tree;
+
+	proto_tree_add_item(tree, hf_sflow_as, tvb, offset + len,
+							4, FALSE);
+	len += 4;
+
+	proto_tree_add_item(tree, hf_sflow_src_as, tvb, offset + len,
+							4, FALSE);
+	len += 4;
+
+	proto_tree_add_item(tree, hf_sflow_src_peer_as, tvb, offset + len,
+							4, FALSE);
+	len += 4;
+
+	dst_len = tvb_get_ntohl(tvb, offset+len);
+	ti = proto_tree_add_uint(tree, hf_sflow_dst_as_entries, tvb, offset + len, 4, dst_len);
+	sflow_dst_as_tree = proto_item_add_subtree(ti, ett_sflow_gw_as_dst);
+	len += 4;
+
+	for (i = 0; i < dst_len; i++) {
+		if( version < 4 ) {
+			/* Version 2 AS paths are different than versions >= 4 as
+			   follows:
+
+			   There is no type encoded in the packet.  
+
+			   The destination ASs are encoded as an array of integers
+			   rather as an array of arrays of integers.  I just
+			   pretended they were encoded as an array of arrays with
+			   an implicit length of 1 to not have to do two
+			   completely separate blocks for the different versions.
+
+			   Having a subtree for "arrays" guaranteed to have only a
+			   single element proved cumbersome to navigate so I moved
+			   the creation of the subtree to only happen for versions
+			   >= 4.
+			 */
+			dst_seg_len = 1;
+			path_type = 0;
+			kludge = 0;
+			sflow_dst_as_seg_tree = sflow_dst_as_tree;
+		} else {
+			path_type = tvb_get_ntohl(tvb, offset+len);
+			len += 4;
+			dst_seg_len = tvb_get_ntohl(tvb, offset+len);
+			len += 4;
+			kludge = 8;
+			ti = proto_tree_add_text(tree, tvb, offset+len-kludge, kludge,
+									 "%s, (%d entries)",
+									 val_to_str(path_type, 
+												sflow_as_types,
+												"Unknown AS type"),
+									 dst_seg_len);
+			sflow_dst_as_seg_tree = proto_item_add_subtree(ti, ett_sflow_gw_as_dst_seg);
+		}
+
+		for (j = 0; j < dst_seg_len; j++) {
+			proto_tree_add_item(sflow_dst_as_seg_tree, 
+								hf_sflow_dst_as, tvb, offset + len,
+								4, FALSE);
+			len += 4;
+		}
+	}
+
+		
+	if( version >= 4 ) {
+		comm_len = tvb_get_ntohl(tvb, offset+len);
+
+		ti = proto_tree_add_uint(tree, hf_sflow_community_entries, tvb, offset + len, 4, comm_len);
+		sflow_comm_tree = proto_item_add_subtree(ti, ett_sflow_gw_community);
+		len += 4;
+		for (i = 0; i < comm_len; i++) {
+			proto_tree_add_item(sflow_comm_tree, 
+								hf_sflow_dst_as, tvb, offset + len,
+								4, FALSE);
+			len += 4;
+		}
+		
+		proto_tree_add_item(tree, hf_sflow_localpref, tvb, offset + len,
+							4, FALSE);
+		len += 4;
+
+	}
+
+	return len;
+}
+
 /* dissect a flow sample */
 static gint
 dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
@@ -631,6 +755,8 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 													offset);
 			break;
 		case SFLOW_EXTENDED_GATEWAY:
+			offset += dissect_sflow_extended_gateway(tvb, extended_data_tree,
+													offset);
 			break;
 		case SFLOW_EXTENDED_USER:
 			break;
@@ -915,14 +1041,14 @@ static void
 sflow_delete_callback(guint32 port)
 {
     if ( port ) {
-	dissector_delete("udp.port", port, sflow_handle);
+		dissector_delete("udp.port", port, sflow_handle);
     }
 }
 static void
 sflow_add_callback(guint32 port)
 {
     if ( port ) {
-	dissector_add("udp.port", port, sflow_handle);
+		dissector_add("udp.port", port, sflow_handle);
     }
 }
 
@@ -931,8 +1057,8 @@ static void
 sflow_reinit(void)
 {
 	if (sflow_ports) {
-	  range_foreach(sflow_ports, sflow_delete_callback);
-	  g_free(sflow_ports);
+		range_foreach(sflow_ports, sflow_delete_callback);
+		g_free(sflow_ports);
 	}
 
 	sflow_ports = range_copy(global_sflow_ports);
@@ -955,92 +1081,92 @@ proto_register_sflow(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_sflow_version,
-			{ "datagram version", "sflow.version",
+		  { "datagram version", "sflow.version",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"sFlow datagram version", HFILL }
 		},
 		{ &hf_sflow_agent_address_v4,
-			{ "agent address", "sflow.agent",
+		  { "agent address", "sflow.agent",
 			FT_IPv4, BASE_NONE, NULL, 0x0,          
 			"sFlow Agent IP address", HFILL }
 		},
 		{ &hf_sflow_agent_address_v6,
-			{ "agent address", "sflow.agent.v6",
+		  { "agent address", "sflow.agent.v6",
 			FT_IPv6, BASE_NONE, NULL, 0x0,          
 			"sFlow Agent IPv6 address", HFILL }
 		},
 		{ &hf_sflow_sub_agent_id,
-			{ "Sub-agent ID", "sflow.sub_agent_id",
+		  { "Sub-agent ID", "sflow.sub_agent_id",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"sFlow sub-agent ID", HFILL }
 		},
 		{ &hf_sflow_seqnum,
-			{ "Sequence number", "sflow.sequence_number",
+		  { "Sequence number", "sflow.sequence_number",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"sFlow datagram sequence number", HFILL }
 		},
 		{ &hf_sflow_sysuptime,
-			{ "SysUptime", "sflow.sysuptime",
+		  { "SysUptime", "sflow.sysuptime",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"System Uptime", HFILL }
 		},
 		{ &hf_sflow_numsamples,
-			{ "NumSamples", "sflow.numsamples",
+		  { "NumSamples", "sflow.numsamples",
 			FT_UINT32, BASE_DEC, NULL, 0x0,          
 			"Number of samples in sFlow datagram", HFILL }
 		},
 		{ &hf_sflow_sampletype,
-			{ "sFlow sample type", "sflow.sampletype",
+		  { "sFlow sample type", "sflow.sampletype",
 			FT_UINT32, BASE_DEC, VALS(sflow_sampletype), 0x0,          
 			"Type of sFlow sample", HFILL }
 		},
 		{ &hf_sflow_header_protocol,
-			{ "Header protocol", "sflow.header_protocol",
+		  { "Header protocol", "sflow.header_protocol",
 			FT_UINT32, BASE_DEC, VALS(sflow_header_protocol), 0x0,          
 			"Protocol of sampled header", HFILL }
 		},
 		{ &hf_sflow_header,
-			{ "Header of sampled packet", "sflow.header",
+		  { "Header of sampled packet", "sflow.header",
 			FT_BYTES, BASE_HEX, NULL, 0x0,          
 			"Data from sampled header", HFILL }
 		},
 		{ &hf_sflow_packet_information_type,
-			{ "Sample type", "sflow.packet_information_type",
+		  { "Sample type", "sflow.packet_information_type",
 			FT_UINT32, BASE_DEC, VALS(sflow_packet_information_type), 0x0,
 			"Type of sampled information", HFILL }
 		},
 		{ &hf_sflow_extended_information_type,
-			{ "Extended information type", "sflow.extended_information_type",
+		  { "Extended information type", "sflow.extended_information_type",
 			FT_UINT32, BASE_DEC, VALS(sflow_extended_data_types), 0x0,
 			"Type of extended information", HFILL }
 		},
 		{ &hf_sflow_vlan_in,
-			{ "Incoming 802.1Q VLAN", "sflow.vlan.in",
+		  { "Incoming 802.1Q VLAN", "sflow.vlan.in",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Incoming VLAN ID", HFILL }
 		},
 		{ &hf_sflow_vlan_out,
-			{ "Outgoing 802.1Q VLAN", "sflow.vlan.out",
+		  { "Outgoing 802.1Q VLAN", "sflow.vlan.out",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Outgoing VLAN ID", HFILL }
 		},
 		{ &hf_sflow_pri_in,
-			{ "Incoming 802.1p priority", "sflow.pri.in",
+		  { "Incoming 802.1p priority", "sflow.pri.in",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Incoming 802.1p priority", HFILL }
 		},
 		{ &hf_sflow_pri_out,
-			{ "Outgoing 802.1p priority", "sflow.pri.out",
+		  { "Outgoing 802.1p priority", "sflow.pri.out",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Outgoing 802.1p priority", HFILL }
 		},
 		{ &hf_sflow_nexthop_v4,
-			{ "Next hop", "sflow.nexthop",
+		  { "Next hop", "sflow.nexthop",
 			FT_IPv4, BASE_DEC, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
 		{ &hf_sflow_nexthop_v6,
-			{ "Next hop", "sflow.nexthop",
+		  { "Next hop", "sflow.nexthop",
 			FT_IPv6, BASE_HEX, NULL, 0x0,
 			"Next hop address", HFILL }
 		},
@@ -1059,6 +1185,48 @@ proto_register_sflow(void)
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Interface Index", HFILL }
 		},
+		{ &hf_sflow_as,
+		  { "AS Router", "sflow.as",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Autonomous System of Router", HFILL }
+		},
+		{ &hf_sflow_src_as,
+		  { "AS Source", "sflow.srcAS",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Autonomous System of Source", HFILL }
+		},
+		{ &hf_sflow_src_peer_as,
+		  { "AS Peer", "sflow.peerAS",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Autonomous System of Peer", HFILL }
+		},
+		{ &hf_sflow_dst_as_entries,
+		  { "AS Destinations", "sflow.dstASentries",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Autonomous System destinations", HFILL }
+		},
+		{ &hf_sflow_dst_as,
+		  { "AS Destination", "sflow.dstAS",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Autonomous System destination", HFILL }
+		},
+		/* Needed for sFlow >= 4.  If I had a capture to test... */
+		{ &hf_sflow_community_entries,
+		  { "Gateway Communities", "sflow.communityEntries",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Gateway Communities", HFILL }
+		},
+		{ &hf_sflow_community,
+		  { "Gateway Community", "sflow.community",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Gateway Communities", HFILL }
+		},
+		{ &hf_sflow_localpref,
+ 		  { "localpref", "sflow.localpref",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			"Local preferences of AS route", HFILL }
+		},
+		/**/
 		{ &hf_sflow_iftype,
 		  { "Interface Type", "sflow.iftype",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -1156,6 +1324,9 @@ proto_register_sflow(void)
 		&ett_sflow,
 		&ett_sflow_sample,
 		&ett_sflow_extended_data,
+		&ett_sflow_gw_as_dst,
+		&ett_sflow_gw_as_dst_seg,
+		&ett_sflow_gw_community,
 		&ett_sflow_sampled_header,
 	};
 
@@ -1276,3 +1447,10 @@ proto_reg_handoff_sflow(void)
 	}
 
 }
+
+
+/* Local Variables: ***/
+/* mode:C ***/
+/* c-basic-offset:4 ***/
+/* tab-width:4 ***/
+/* End: ***/
