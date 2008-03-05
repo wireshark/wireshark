@@ -303,6 +303,7 @@ extern void prefs_register_uint_preference(module_t *module, const char *name,
 
 /*
  * Register a preference with an Boolean value.
+ * Note that the name must be in lowercase letters only (underscore allowed).
  */
 extern void prefs_register_bool_preference(module_t *module, const char *name,
     const char *title, const char *description, gboolean *var);
