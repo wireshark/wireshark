@@ -159,7 +159,7 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 #endif /* HAVE_LIBZ */
 
         /* LIBCAP */
-	g_string_append(str, ",\n");
+	g_string_append(str, ", ");
 #ifdef HAVE_LIBCAP
 	g_string_append(str, "with POSIX capabilities");
 #ifdef _LINUX_CAPABILITY_VERSION
