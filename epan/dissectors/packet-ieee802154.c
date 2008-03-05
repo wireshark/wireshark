@@ -182,7 +182,7 @@ static dissector_handle_t       ieee802154_cmd_handle;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 
 /* Name Strings */
-const value_string ieee802154_frame_types[] = {
+static const value_string ieee802154_frame_types[] = {
     { IEEE802154_FCF_BEACON,    "Beacon" },
     { IEEE802154_FCF_DATA,      "Data" },
     { IEEE802154_FCF_ACK,       "Ack" },
@@ -190,14 +190,14 @@ const value_string ieee802154_frame_types[] = {
     { 0, NULL }
 };
 
-const value_string ieee802154_addr_modes[] = {
+static const value_string ieee802154_addr_modes[] = {
     { IEEE802154_FCF_ADDR_NONE,     "None" },
     { IEEE802154_FCF_ADDR_SHORT,    "Short/16-bit" },
     { IEEE802154_FCF_ADDR_EXT,      "Long/64-bit" },
-    { NULL, 0 }
+    { 0, NULL }
 };
 
-const value_string ieee802154_cmd_names[] = {
+static const value_string ieee802154_cmd_names[] = {
     { IEEE802154_CMD_ASRQ,      "Association Request" },
     { IEEE802154_CMD_ASRSP,     "Association Response" },
     { IEEE802154_CMD_DISAS,     "Disassociation Notification" },
@@ -207,7 +207,7 @@ const value_string ieee802154_cmd_names[] = {
     { IEEE802154_CMD_BCN_RQ,    "Beacon Request" },
     { IEEE802154_CMD_COORD_REAL,"Coordinator Realignment" },
     { IEEE802154_CMD_GTS_REQ,   "GTS Request" },
-    { NULL, 0 }
+    { 0, NULL }
 };
 
 /* CRC definitions. IEEE 802.15.4 CRCs vary from CCITT by using an initial value of
