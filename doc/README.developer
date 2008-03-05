@@ -2193,7 +2193,7 @@ filter is then possible:
 proto_tree_add_protocol_format()
 --------------------------------
 proto_tree_add_protocol_format is used to add the top-level item for the
-protocol when the dissector routines wants complete control over how the
+protocol when the dissector routine wants complete control over how the
 field and value will be represented on the GUI tree.  The ID value for
 the protocol is passed in as the "id" argument; the rest of the
 arguments are a "printf"-style format and any arguments for that format.
@@ -2330,7 +2330,7 @@ proto_tree_add_guid_format()
 proto_tree_add_oid_format()
 ----------------------------
 These routines are used to add items to the protocol tree when the
-dissector routines wants complete control over how the field and value
+dissector routine wants complete control over how the field and value
 will be represented on the GUI tree.  The argument giving the value is
 the same as the corresponding proto_tree_add_XXX() function; the rest of
 the arguments are a "printf"-style format and any arguments for that
@@ -2356,7 +2356,7 @@ proto_tree_add_oid_format_value()
 ------------------------------------
 
 These routines are used to add items to the protocol tree when the
-dissector routines wants complete control over how the value will be
+dissector routine wants complete control over how the value will be
 represented on the GUI tree.  The argument giving the value is the same
 as the corresponding proto_tree_add_XXX() function; the rest of the
 arguments are a "printf"-style format and any arguments for that format.
