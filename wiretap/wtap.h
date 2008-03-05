@@ -188,16 +188,17 @@ extern "C" {
 #define WTAP_ENCAP_JUNIPER_VP			91
 #define WTAP_ENCAP_USB				92
 #define WTAP_ENCAP_IEEE802_16_MAC_CPS		93
-#define WTAP_ENCAP_NETTL_RAW_TELNET		94
-#define WTAP_ENCAP_USB_LINUX			95
-#define WTAP_ENCAP_MPEG				96
-#define WTAP_ENCAP_PPI				97
-#define WTAP_ENCAP_ERF				98
+#define WTAP_ENCAP_NETTL_RAW_TELNET			94
+#define WTAP_ENCAP_USB_LINUX				95
+#define WTAP_ENCAP_MPEG						96
+#define WTAP_ENCAP_PPI						97
+#define WTAP_ENCAP_ERF						98
 #define WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR	99
-#define WTAP_ENCAP_SITA				100
-#define WTAP_ENCAP_SCCP				101
-#define WTAP_ENCAP_BLUETOOTH_HCI		102 /*raw packets without a transport layer header e.g. H4*/
-#define WTAP_ENCAP_IPMB				103
+#define WTAP_ENCAP_SITA						100
+#define WTAP_ENCAP_SCCP						101
+#define WTAP_ENCAP_BLUETOOTH_HCI			102 /*raw packets without a transport layer header e.g. H4*/
+#define WTAP_ENCAP_IPMB						103
+#define WTAP_ENCAP_IEEE802_15_4				104
 
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()

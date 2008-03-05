@@ -400,7 +400,10 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Bluetooth without transport layer", "bluetooth-hci" },
 
 	/* WTAP_ENCAP_IPMB */
-	{ "Intelligent Platform Management Bus", "ipmb" }
+	{ "Intelligent Platform Management Bus", "ipmb" },
+
+	/* WTAP_ENCAP_IEEE802_15_4 */
+	{ "IEEE 802.15.4 Wireless PAN", "wpan" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);

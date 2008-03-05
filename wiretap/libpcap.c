@@ -444,6 +444,8 @@ static const struct {
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
         /* Per-Packet Information header */
         { 192,          WTAP_ENCAP_PPI },
+	/* IEEE 802.15.4 Wireless PAN */
+	{ 195,		WTAP_ENCAP_IEEE802_15_4 },
 	/* SITA File Encapsulation */
 	{ 196,	        WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
