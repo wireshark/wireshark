@@ -46,25 +46,26 @@
 #include "packet-ethercat-datagram.h"
 #include "packet-ecatmb.h"
 
-
 void proto_reg_handoff_ecat(void);
 
+static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ecat_mailbox_handle;
 
-/* Define the ethercat proto */
+/* Define the EtherCAT proto */
 static int proto_ecat_datagram = -1;
 
-/* Define the tree for ethercat */
+/* Define the tree for EtherCAT */
 static int ett_ecat = -1;
-static int ett_ecat_summary = -1;
-static int ett_ecat_sub;
 static int ett_ecat_header = -1;
-static int ett_ecat_fmmu = -1;
 static int ett_ecat_syncman = -1;
 static int ett_ecat_syncflag = -1;
+static int ett_ecat_fmmu = -1;
 static int ett_ecat_fmmu_type = -1;
 static int ett_ecat_fmmu_active = -1;
 static int ett_ecat_dc = -1;
+static int ett_ecat_length = -1;
+static int ett_ecat_padding = -1;
+static int ett_ecat_datagram_subtree = -1;
 
 static int hf_ecat_sub;
 static int hf_ecat_sub_data[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
@@ -128,28 +129,74 @@ static int hf_ecat_dc_diff_cd = -1;
 static int hf_ecat_dc_diff_ba = -1;
 static int hf_ecat_dc_diff_ca = -1;
 
+static int hf_ecat_length_len = -1;
+static int hf_ecat_length_r = -1;
+static int hf_ecat_length_c = -1;
+static int hf_ecat_length_m = -1;
 
-static const value_string EcCmd[] =
+static int hf_ecat_padding = -1;
+
+static const value_string EcCmdShort[] =
 {
-   {   0, "NOP", },
-   {   1, "APRD", },
-   {   2, "APWR", },
-   {   3, "APRW", },
-   {   4, "FPRD", },
-   {   5, "FPWR", },
-   {   6, "FPRW", },
-   {   7, "BRD", },
-   {   8, "BWR", },
-   {   9, "BRW", },
-   {   10, "LRD", },
-   {   11, "LWR", },
-   {   12, "LRW", },
-   {   13, "ARMW", },
-   {   14, "FRMW", },
-   {   255, "EXT", },
+   {   0, "NOP" },
+   {   1, "APRD" },
+   {   2, "APWR" },
+   {   3, "APRW" },
+   {   4, "FPRD" },
+   {   5, "FPWR" },
+   {   6, "FPRW" },
+   {   7, "BRD" },
+   {   8, "BWR" },
+   {   9, "BRW" },
+   {   10, "LRD" },
+   {   11, "LWR" },
+   {   12, "LRW" },
+   {   13, "ARMW" },
+   {   14, "FRMW" },
+   {   255, "EXT" },
    {   0, NULL }
 };
 
+static const value_string EcCmdLong[] =
+{
+   {   0, "No operation" },
+   {   1, "Auto increment read" },
+   {   2, "Auto increment write" },
+   {   3, "Auto increment read write" },
+   {   4, "Configured address read" },
+   {   5, "Configured address write" },
+   {   6, "Configured address read write" },
+   {   7, "Broadcast read" },
+   {   8, "Broadcast write" },
+   {   9, "Broadcast read write" },
+   {   10, "Logical memory read" },
+   {   11, "Logical memory write" },
+   {   12, "Logical memory read write" },
+   {   13, "Auto increment read multiple write" },
+   {   14, "Configured read multiple write" },
+   {   255, "EXT" },
+   {   0, NULL }
+};
+
+static const value_string ecat_subframe_reserved_vals[] =
+{
+   { 0, "Valid"},
+   { 0, NULL}
+};
+
+static const value_string ecat_subframe_circulating_vals[] =
+{
+   { 0, "Frame is not circulating" },
+   { 1, "Frame has circulated once" },
+   { 0, NULL }
+};
+
+static const value_string ecat_subframe_more_vals[] =
+{
+   { 0, "Last EtherCAT datagram"},
+   { 1, "More EtherCAT datagrams will follow"},
+   { 0, NULL}
+};
 
 static const true_false_string tfs_ecat_fmmu_typeread =
 {
@@ -226,9 +273,9 @@ static const true_false_string tfs_ecat_syncman_flag16 =
    "SyncMan enabled", "SyncMan disabled",
 };
 
-static const char* convertEcCmdToText(int cmd)
+static const char* convertEcCmdToText(int cmd, const value_string ec_cmd[])
 {
-   return val_to_str(cmd, EcCmd, "<UNKNOWN: %d>");
+   return val_to_str(cmd, ec_cmd, "<UNKNOWN: %d>");
 }
 
 #define ENDOF(p) ((p)+1) /* pointer to end of *p*/
@@ -326,30 +373,30 @@ static void EcSummaryFormater(guint32 datalength, tvbuff_t *tvb, gint offset, ch
    {
       guint16 len = ecFirst.len&0x07ff;
       guint16 cnt = get_wc(&ecFirst, tvb, offset);
-      g_snprintf ( szText, nMax, "'%s', Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
-         convertEcCmdToText(ecFirst.cmd), len, ecFirst.anAddrUnion.a.adp, ecFirst.anAddrUnion.a.ado, cnt );
+      g_snprintf ( szText, nMax, "'%s': Len: %d, Adp 0x%x, Ado 0x%x, Wc %d ",
+         convertEcCmdToText(ecFirst.cmd, EcCmdShort), len, ecFirst.anAddrUnion.a.adp, ecFirst.anAddrUnion.a.ado, cnt );
    }
    else if ( nSub == 2 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d ",
-         nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1]);
+      g_snprintf ( szText, nMax, "%d Cmds, '%s': len %d, '%s': len %d ",
+         nSub, convertEcCmdToText(nCmds[0], EcCmdShort), nLens[0], convertEcCmdToText(nCmds[1], EcCmdShort), nLens[1]);
    }
    else if ( nSub == 3 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', Len %d, '%s', Len %d, '%s', Len %d",
-         nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1], convertEcCmdToText(nCmds[2]), nLens[2]);
+      g_snprintf ( szText, nMax, "%d Cmds, '%s': len %d, '%s': len %d, '%s': len %d",
+         nSub, convertEcCmdToText(nCmds[0], EcCmdShort), nLens[0], convertEcCmdToText(nCmds[1], EcCmdShort), nLens[1], convertEcCmdToText(nCmds[2], EcCmdShort), nLens[2]);
    }
    else if ( nSub == 4 )
    {
-      g_snprintf ( szText, nMax, "%d Cmds, '%s', L %d, '%s', L %d, '%s', L %d, '%s', L %d",
-         nSub, convertEcCmdToText(nCmds[0]), nLens[0], convertEcCmdToText(nCmds[1]), nLens[1], convertEcCmdToText(nCmds[2]), nLens[2], convertEcCmdToText(nCmds[3]), nLens[3]);
+      g_snprintf ( szText, nMax, "%d Cmds, '%s': len %d, '%s': len %d, '%s': len %d, '%s': len %d",
+         nSub, convertEcCmdToText(nCmds[0], EcCmdShort), nLens[0], convertEcCmdToText(nCmds[1], EcCmdShort), nLens[1], convertEcCmdToText(nCmds[2], EcCmdShort), nLens[2], convertEcCmdToText(nCmds[3], EcCmdShort), nLens[3]);
    }
    else
       g_snprintf ( szText, nMax, "%d Cmds, SumLen %d, '%s'... ",
-         nSub, nLen, convertEcCmdToText(ecFirst.cmd));
+         nSub, nLen, convertEcCmdToText(ecFirst.cmd, EcCmdShort));
 }
 
-static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
+static void EcSubFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
 {
    EcParserHDR ecParser;
    guint16 len, cnt;
@@ -372,26 +419,21 @@ static void EcSubFormater(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
    case EC_CMD_TYPE_BRW:
    case EC_CMD_TYPE_ARMW:
    case EC_CMD_TYPE_FRMW:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d",
-         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.a.adp, ecParser.anAddrUnion.a.ado, cnt);
+      g_snprintf ( szText, nMax, "EtherCAT datagram: Cmd: '%s' (%d), Len: %d, Adp 0x%x, Ado 0x%x, Cnt %d",
+         convertEcCmdToText(ecParser.cmd, EcCmdShort), ecParser.cmd, len, ecParser.anAddrUnion.a.adp, ecParser.anAddrUnion.a.ado, cnt);
       break;
    case EC_CMD_TYPE_LRD:
    case EC_CMD_TYPE_LWR:
    case EC_CMD_TYPE_LRW:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d",
-         convertEcCmdToText(ecParser.cmd), ecParser.cmd, len, ecParser.anAddrUnion.addr, cnt);
+      g_snprintf ( szText, nMax, "EtherCAT datagram: Cmd: '%s' (%d), Len: %d, Addr 0x%x, Cnt %d",
+         convertEcCmdToText(ecParser.cmd, EcCmdShort), ecParser.cmd, len, ecParser.anAddrUnion.addr, cnt);
       break;
    case EC_CMD_TYPE_EXT:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: 'EXT' (%d), Len: %d",  ecParser.cmd, len);
+      g_snprintf ( szText, nMax, "EtherCAT datagram: Cmd: 'EXT' (%d), Len: %d",  ecParser.cmd, len);
       break;
    default:
-      g_snprintf ( szText, nMax, "Sub Frame: Cmd: 'Unknown' (%d), Len: %d",  ecParser.cmd, len);
+      g_snprintf ( szText, nMax, "EtherCAT datagram: Cmd: 'Unknown' (%d), Len: %d",  ecParser.cmd, len);
    }
-}
-
-static void EcLenFormater(guint16 len, char *szText, gint nMax)
-{
-   g_snprintf( szText, nMax, "(0x%x) - %s - %s", len&0x07ff, len&0x4000 ? "Roundtrip" : "No Roundtrip", len&0x8000 ? "More Follows...":"Last Sub Command" );
 }
 
 /* Ethercat Datagram */
@@ -399,14 +441,17 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
    tvbuff_t *next_tvb;
    proto_item *ti, *aitem;
-   proto_tree *ecat_tree = NULL;
-   gint offset = 0;
+   proto_tree *ecat_datagrams_tree = NULL;
+   guint offset = 0;
    char szText[200];
    int nMax = sizeof(szText)-1;
    guint b;
 
-   guint32 ecLength=0;
+   guint ecLength=0;
    guint subCount = 0;
+   const guint datagram_length = tvb_length_remaining(tvb, offset);
+   guint datagram_padding_bytes = 0;
+   EcParserHDR ecHdr;
 
    if (check_col(pinfo->cinfo, COL_PROTOCOL))
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECAT");
@@ -414,14 +459,26 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    if (check_col(pinfo->cinfo, COL_INFO))
       col_clear(pinfo->cinfo, COL_INFO);
 
-   while ( TRUE )
+   /* If the data portion of an EtherCAT datagram is less than 44 bytes, then
+      it must have been padded with an additional n number of bytes to reach a
+      total Ethernet frame length of 64 bytes (Ethernet header + Ethernet Data +
+      FCS). Hence at least 44 bytes data shall always be available in any
+      EtherCAT datagram. */
+   tvb_ensure_bytes_exist(tvb, offset, 44);
+
+   /* Count the length of the individual EtherCAT datagrams (sub datagrams)
+      that are part of this EtherCAT frame. Stop counting when the current
+      sub datagram header tells that there are no more sub datagrams or when
+      there is no more data available in the PDU. */
+   do
    {
-      EcParserHDR ecHdr;
       init_EcParserHDR(&ecHdr, tvb, ecLength);
-      ecLength+=get_cmd_len(&ecHdr);
-      if ( (ecHdr.len&0x8000) == 0 )
-         break;
-   }
+      ecLength += get_cmd_len(&ecHdr);
+   } while ((ecLength < datagram_length) &&
+            (ecHdr.len & 0x8000));
+
+   /* Calculate the amount of padding data available in the PDU */
+   datagram_padding_bytes = datagram_length - ecLength;
 
    EcSummaryFormater(ecLength, tvb, offset, szText, nMax);
    if (check_col(pinfo->cinfo, COL_INFO))
@@ -429,35 +486,37 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
    if( tree )
    {
+      /* Create the EtherCAT datagram(s) subtree */
       ti = proto_tree_add_item(tree, proto_ecat_datagram, tvb, 0, -1, TRUE);
-      ecat_tree = proto_item_add_subtree(ti, ett_ecat);
+      ecat_datagrams_tree = proto_item_add_subtree(ti, ett_ecat);
 
-      proto_item_append_text(ti,": %s",szText);
+      proto_item_append_text(ti,": %s", szText);
    }
 
-   while ( TRUE )
+   /* Dissect all sub frames of this EtherCAT PDU */
+   do
    {
-      proto_tree  *ecat_sub_tree = 0, *ecat_header_tree, *ecat_fmmu_tree, *ecat_fmmu_active_tree,
-         *ecat_fmmu_type_tree, *ecat_syncman_tree, *ecat_syncflag_tree, *ecat_dc_tree;
+      proto_tree *ecat_datagram_tree = NULL, *ecat_header_tree = NULL, *ecat_fmmu_tree = NULL,
+                 *ecat_fmmu_active_tree = NULL, *ecat_fmmu_type_tree = NULL, *ecat_syncman_tree = NULL,
+                 *ecat_syncflag_tree = NULL, *ecat_dc_tree = NULL;
 
       gint bMBox = FALSE;
       guint32 subsize;
       guint32 suboffset;
       guint32 len;
+      ETHERCAT_MBOX_HEADER mbox;
 
-      EcParserHDR ecHdr;
       suboffset = offset;
       init_EcParserHDR(&ecHdr, tvb, suboffset);
 
       subsize = get_cmd_len(&ecHdr);
-      len = ecHdr.len&0x07ff;
+      len = ecHdr.len & 0x07ff;
 
       if ( len >= sizeof(ETHERCAT_MBOX_HEADER_LEN) &&
-         (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&
-         ecHdr.anAddrUnion.a.ado>=0x1000
+           (ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd==EC_CMD_TYPE_FPRD || ecHdr.cmd==EC_CMD_TYPE_APWR || ecHdr.cmd==EC_CMD_TYPE_APRD) &&
+           ecHdr.anAddrUnion.a.ado>=0x1000
          )
       {
-         ETHERCAT_MBOX_HEADER mbox;
          init_mbx_header(&mbox, tvb, suboffset+EcParserHDR_Len);
 
          switch ( mbox.aControlUnion.v.Type )
@@ -477,15 +536,15 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
       if( tree )
       {
-         aitem = proto_tree_add_item(ecat_tree, hf_ecat_sub, tvb, suboffset, subsize, TRUE);
-         EcSubFormater(tvb, suboffset, szText, nMax);
-         proto_item_set_text(aitem,szText);
+         /* Create the sub tree for the current datagram */
+         EcSubFormatter(tvb, suboffset, szText, nMax);
+         aitem = proto_tree_add_text(ecat_datagrams_tree, tvb, suboffset, subsize, szText);
+         ecat_datagram_tree = proto_item_add_subtree(aitem, ett_ecat_datagram_subtree);
 
-         ecat_sub_tree = proto_item_add_subtree(aitem, ett_ecat_sub);
-         aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_header, tvb, suboffset, EcParserHDR_Len, TRUE);
-         proto_item_set_text(aitem, "Header");
-
+         /* Create a subtree placeholder for the Header */
+         aitem = proto_tree_add_text(ecat_datagram_tree, tvb, offset, EcParserHDR_Len, "Header");
          ecat_header_tree = proto_item_add_subtree(aitem, ett_ecat_header);
+
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
          if( subCount < 10 )
             aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_cmd[subCount], tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
@@ -520,11 +579,23 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             suboffset+= sizeof(ecHdr.anAddrUnion.a.ado);
          }
 
-         aitem = proto_tree_add_uint(ecat_header_tree, hf_ecat_len, tvb, suboffset, sizeof(ecHdr.len), ecHdr.len&0x07FF);
-         EcLenFormater(ecHdr.len, szText, nMax);
-         proto_item_append_text(aitem,szText);
+         {
+            proto_tree *length_sub_tree;
 
-         suboffset+= sizeof(ecHdr.len);
+            /* Add information about the length field (11 bit length, 3 bits
+               reserved, 1 bit circulating frame and 1 bit more in a sub tree */
+            aitem = proto_tree_add_text(ecat_header_tree, tvb, suboffset, sizeof(ecHdr.len),
+                                        "Length     : %d (0x%x) - %s - %s",
+                                        len, len, ecHdr.len & 0x4000 ? "Roundtrip" : "No Roundtrip", ecHdr.len & 0x8000 ? "More Follows..." : "Last Sub Command");
+            length_sub_tree = proto_item_add_subtree(aitem, ett_ecat_length);
+
+            proto_tree_add_item(length_sub_tree, hf_ecat_length_len, tvb, suboffset, sizeof(ecHdr.len), TRUE);
+            proto_tree_add_item(length_sub_tree, hf_ecat_length_r, tvb, suboffset, sizeof(ecHdr.len), TRUE);
+            proto_tree_add_item(length_sub_tree, hf_ecat_length_c, tvb, suboffset, sizeof(ecHdr.len), TRUE);
+            proto_tree_add_item(length_sub_tree, hf_ecat_length_m, tvb, suboffset, sizeof(ecHdr.len), TRUE);
+
+            suboffset+= sizeof(ecHdr.len);
+         }
 
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_int, tvb, suboffset, sizeof(ecHdr.intr), TRUE);
          suboffset+= sizeof(ecHdr.intr);
@@ -538,11 +609,11 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       {
          if( tree )
          {
-            /* FMMU */
+            /* Fieldbus Memory Management Units (FMMU) */
             for ( b=0; b < MIN(16, len/16); b++ )
             {
-               aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_fmmu, tvb, suboffset, 16, TRUE);
-               proto_item_set_text(aitem, "FMMU");
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_fmmu, tvb, suboffset, 16, TRUE);
+               proto_item_set_text(aitem, "Fieldbus Memory Management Units (FMMU)");
 
                ecat_fmmu_tree = proto_item_add_subtree(aitem, ett_ecat_fmmu);
 
@@ -573,9 +644,9 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             if ( len > 0x100 )
             {
                len -= 0x100;
-               for ( b=0; b < MIN(32, len/8); b++ )
+               for (b = 0; b < MIN(32, len / 8); b++)
                {
-                  aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
+                  aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
                   proto_item_set_text(aitem, "SyncManager");
                   ecat_syncman_tree = proto_item_add_subtree(aitem, ett_ecat_syncman);
 
@@ -607,10 +678,10 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       {
          if( tree )
          {
-            /* SyncMan*/
-            for ( b=0; b < MIN(32, len/8); b++ )
+            /* SyncManager */
+            for (b = 0; b < MIN(32, len / 8); b++)
             {
-               aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
                proto_item_set_text(aitem, "SyncManager");
                ecat_syncman_tree = proto_item_add_subtree(aitem, ett_ecat_syncman);
 
@@ -644,110 +715,128 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             guint32 pDC[4];
             init_dc_measure(pDC, tvb, suboffset);
 
-            aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
-            ecat_dc_tree = proto_item_add_subtree(aitem, ett_ecat_dc);
+            /* Allow sub dissectors to have a chance with this data */
+            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
+            {
+               /* No sub dissector did recognize this data, dissect it as data only */
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
+               ecat_dc_tree = proto_item_add_subtree(aitem, ett_ecat_dc);
+            }
+            else
+            {
+               /* A sub dissector handled the data, allow the rest of the
+                  to add data to the correct place in the tree hierarchy. */
+               ecat_dc_tree = ecat_datagram_tree;
+            }
 
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_sub_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
 
             if ( pDC[3] != 0 )
             {
-               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_da, tvb, suboffset, 4, pDC[3]-pDC[0]);
+               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_da, tvb, suboffset, 4, pDC[3] - pDC[0]);
                if( subCount < 10 )
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_da[subCount], tvb, suboffset, 4, pDC[3]-pDC[0]);
+                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_da[subCount], tvb, suboffset, 4, pDC[3] - pDC[0]);
 
                if ( pDC[1] != 0 )
                {
-                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_bd, tvb, suboffset, 4, pDC[1]-pDC[3]);
+                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_bd, tvb, suboffset, 4, pDC[1] - pDC[3]);
                   if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_bd[subCount], tvb, suboffset, 4, pDC[1]-pDC[3]);
+                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_bd[subCount], tvb, suboffset, 4, pDC[1] - pDC[3]);
                }
                else if ( pDC[2] != 0 )
                {
-                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cd, tvb, suboffset, 4, pDC[2]-pDC[3]);
+                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cd, tvb, suboffset, 4, pDC[2] - pDC[3]);
                   if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cd[subCount], tvb, suboffset, 4, pDC[2]-pDC[3]);
+                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cd[subCount], tvb, suboffset, 4, pDC[2] - pDC[3]);
                }
             }
             if ( pDC[1] != 0 )
             {
-               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ba, tvb, suboffset, 4, pDC[1]-pDC[0]);
+               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ba, tvb, suboffset, 4, pDC[1] - pDC[0]);
                if( subCount < 10 )
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ba[subCount], tvb, suboffset, 4, pDC[1]-pDC[0]);
+                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ba[subCount], tvb, suboffset, 4, pDC[1] - pDC[0]);
                if ( pDC[2] != 0 )
                {
-                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cb, tvb, suboffset, 4, pDC[2]-pDC[1]);
+                  proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cb, tvb, suboffset, 4, pDC[2] - pDC[1]);
                   if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cb[subCount], tvb, suboffset, 4, pDC[2]-pDC[1]);
+                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cb[subCount], tvb, suboffset, 4, pDC[2] - pDC[1]);
                }
             }
             else if ( pDC[2] != 0 )
             {
-               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ca, tvb, suboffset, 4, pDC[2]-pDC[0]);
+               proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ca, tvb, suboffset, 4, pDC[2] - pDC[0]);
                if( subCount < 10 )
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ca[subCount], tvb, suboffset, 4, pDC[2]-pDC[0]);
+                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ca[subCount], tvb, suboffset, 4, pDC[2] - pDC[0]);
             }
          }
       }
       else if ( bMBox )
       {
-         next_tvb = tvb_new_subset(tvb, suboffset, -1, -1);
-         call_dissector( ecat_mailbox_handle, next_tvb, pinfo, ecat_sub_tree);
+         const guint MBoxLength = mbox.Length + 6 /* MBOX header length */;
+
+         next_tvb = tvb_new_subset(tvb, suboffset, MBoxLength, MBoxLength);
+         call_dissector(ecat_mailbox_handle, next_tvb, pinfo, ecat_datagram_tree);
 
          if( tree )
          {
-            aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_data, tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+            const guint startOfData = offset + EcParserHDR_Len + MBoxLength;
+            const guint dataLength = ((ecHdr.len & 0x7ff) - startOfData) + EcParserHDR_Len;
+
+            /* Allow sub dissectors to have a chance with this data */
+            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
+            {
+               /* No sub dissector did recognize this data, dissect it as data only */
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, TRUE);
+            }
+
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_sub_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
          }
       }
       else
       {
          if( tree )
          {
-            aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
-            switch ( len )
+            /* Allow sub dissectors to have a chance with this data */
+            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
             {
-            case 1:
-               g_snprintf ( szText, nMax, "(0x%x)", tvb_get_guint8(tvb, suboffset));
-               proto_item_append_text(aitem, szText);
-               break;
-            case 2:
-               g_snprintf ( szText, nMax, "(0x%x)", tvb_get_letohs(tvb, suboffset));
-               proto_item_append_text(aitem, szText);
-               break;
-            case 4:
-               g_snprintf ( szText, nMax, "(0x%x)",  tvb_get_letohl(tvb, suboffset));
-               proto_item_append_text(aitem, szText);
-               break;
+               /* No sub dissector did recognize this data, dissect it as data only */
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
             }
+
             if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_sub_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
          }
       }
 
       if( tree )
       {
-         aitem = proto_tree_add_item(ecat_sub_tree, hf_ecat_cnt, tvb, offset + EcParserHDR_Len + len , 2, TRUE);
+         aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_cnt, tvb, offset + EcParserHDR_Len + len , 2, TRUE);
          if( subCount < 10 )
-            aitem = proto_tree_add_item_hidden(ecat_sub_tree, hf_ecat_sub_cnt[subCount], tvb, offset + EcParserHDR_Len + len , 2, TRUE);
+            aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_cnt[subCount], tvb, offset + EcParserHDR_Len + len , 2, TRUE);
       }
-
-      if ( (ecHdr.len&0x8000) == 0 )
-         break;
 
       offset+=subsize;
       subCount++;
+   } while((offset < datagram_length) &&
+           (ecHdr.len & 0x8000));
+
+   /* Add information that states which portion of the PDU that is pad bytes.
+      These are added just to get an Ethernet frame size of at least 64 bytes,
+      which is required by the protocol specification */
+   if(datagram_padding_bytes > 0)
+   {
+      proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
    }
 }
-
 
 void proto_register_ecat(void)
 {
    static hf_register_info hf[] =
    {
       { &hf_ecat_sub,
-      { "Sub Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
+      { "EtherCAT Frame", "ecat.sub", FT_BYTES, BASE_NONE, NULL, 0x0,
       "", HFILL }
       },
       { &hf_ecat_header,
@@ -800,7 +889,7 @@ void proto_register_ecat(void)
       },
       { &hf_ecat_cnt,
       { "Working Cnt", "ecat.cnt",
-      FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }
+      FT_UINT16, BASE_DEC, NULL, 0x0, "The working counter is increased once for each addressed device if at least one byte/bit of the data was successfully read and/or written by that device, it is increased once for every operation made by that device - read/write/read and write", HFILL }
       },
       { &hf_ecat_sub_cnt[0],
       { "Working Cnt", "ecat.sub1.cnt",
@@ -844,47 +933,47 @@ void proto_register_ecat(void)
       },
       { &hf_ecat_cmd,
       { "Command    ", "ecat.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[0],
       { "Command    ", "ecat.sub1.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[1],
       { "Command    ", "ecat.sub2.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[2],
       { "Command    ", "ecat.sub3.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[3],
       { "Command    ", "ecat.sub4.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[4],
       { "Command    ", "ecat.sub5.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[5],
       { "Command    ", "ecat.sub6.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[6],
       { "Command    ", "ecat.sub7.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[7],
       { "Command    ", "ecat.sub8.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[8],
       { "Command    ", "ecat.sub9.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_sub_cmd[9],
       { "Command    ", "ecat.sub10.cmd",
-      FT_UINT8, BASE_HEX, VALS(EcCmd), 0x0, "", HFILL }
+      FT_UINT8, BASE_HEX, VALS(EcCmdLong), 0x0, "", HFILL }
       },
       { &hf_ecat_idx,
       { "Index      ", "ecat.idx",
@@ -1530,27 +1619,51 @@ void proto_register_ecat(void)
       { &hf_ecat_sub_dc_diff_ca[9],
       { "DC C-A", "ecat.sub10.dc.dif.ca",
       FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }
+      },
+      { &hf_ecat_length_len,
+      { "Length", "ecat.subframe.length",
+      FT_UINT16, BASE_DEC, NULL, 0x07ff, "", HFILL}
+      },
+      { &hf_ecat_length_r,
+      { "Reserved", "ecat.subframe.reserved",
+      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_reserved_vals), 0x3800, "", HFILL}
+      },
+      { &hf_ecat_length_c,
+      { "Round trip", "ecat.subframe.circulating",
+      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_circulating_vals), 0x4000, "", HFILL}
+      },
+      { &hf_ecat_length_m,
+      { "Last indicator", "ecat.subframe.more",
+      FT_UINT16, BASE_DEC, VALS(&ecat_subframe_more_vals), 0x8000, "", HFILL}
+      },
+      { &hf_ecat_padding,
+      { "Pad bytes", "ecat.subframe.pad_bytes",
+      FT_BYTES, BASE_DEC, NULL, 0x0, "", HFILL}
       }
    };
 
    static gint *ett[] =
    {
       &ett_ecat,
-      &ett_ecat_summary,
-      &ett_ecat_sub,
       &ett_ecat_header,
       &ett_ecat_syncman,
       &ett_ecat_syncflag,
       &ett_ecat_fmmu,
       &ett_ecat_fmmu_type,
       &ett_ecat_fmmu_active,
-      &ett_ecat_dc
+      &ett_ecat_dc,
+      &ett_ecat_length,
+      &ett_ecat_padding,
+      &ett_ecat_datagram_subtree
    };
 
-   proto_ecat_datagram = proto_register_protocol("EtherCAT datagram",
-      "ECAT","ecat");
-   proto_register_field_array(proto_ecat_datagram,hf,array_length(hf));
-   proto_register_subtree_array(ett,array_length(ett));
+   proto_ecat_datagram = proto_register_protocol("EtherCAT datagram(s)",
+      "ECAT", "ecat");
+   proto_register_field_array(proto_ecat_datagram, hf, array_length(hf));
+   proto_register_subtree_array(ett, array_length(ett));
+
+   /* Sub dissector code */
+   register_heur_dissector_list("ecat.data", &heur_subdissector_list);
 }
 
 /* The registration hand-off routing */
@@ -1561,7 +1674,7 @@ void proto_reg_handoff_ecat(void)
    /* Register this dissector as a sub dissector to EtherCAT frame based on
       ether type. */
    ecat_handle = create_dissector_handle(dissect_ecat_datagram, proto_ecat_datagram);
-   dissector_add("ecatf.type", 1, ecat_handle);
+   dissector_add("ecatf.type", 1 /* EtherCAT type */, ecat_handle);
 
    ecat_mailbox_handle = find_dissector("ecat_mailbox");
 }

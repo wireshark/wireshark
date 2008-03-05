@@ -480,6 +480,7 @@ h245_set_h223_set_mc_handle
 have_custom_cols
 have_tap_listeners
 heur_dissector_add
+heur_dissector_delete
 hex_str_to_bytes
 hf_frame_arrival_time           DATA
 hf_frame_capture_len            DATA

@@ -18,4 +18,5 @@
 /*#define VERSION "0.0.10"  */
 /*#define VERSION "0.0.11"  * support of AoE protocol */
 /*#define VERSION "0.0.12"  * port to Wireshark */
-#define VERSION "0.1.0"    /* First version integrated into the Wireshark sources*/
+/*#define VERSION "0.1.0"   * First version integrated into the Wireshark sources*/
+#define VERSION "0.1.1"    /* Added the ability for sub dissectors to decode the data section of EtherCAT using heuristics */

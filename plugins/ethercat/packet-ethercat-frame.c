@@ -57,17 +57,24 @@ static dissector_handle_t ethercat_frame_data_handle;
 /* Define the tree for the EtherCAT frame */
 static int ett_ethercat_frame = -1;
 static int hf_ethercat_frame_length = -1;
+static int hf_ethercat_frame_reserved = -1;
 static int hf_ethercat_frame_type = -1;
 
 static const value_string EthercatFrameTypes[] =
 {
-   { 1, "ECAT", },
+   { 1, "EtherCAT command", },
    { 2, "ADS", },
    { 3, "RAW-IO", },
    { 4, "NV", },
    { 0,  NULL }
 };
 
+static const value_string ethercat_frame_reserved_vals[] =
+{
+   { 0, "Valid"},
+   { 1, "Invalid (must be zero for conformance with the protocol specification)"},
+   { 0, NULL}
+};
 
 /* Ethercat Frame */
 static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -94,16 +101,17 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       ethercat_frame_tree = proto_item_add_subtree(ti, ett_ethercat_frame);
 
       proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_length, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_reserved, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
       proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_type, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
    }
    hdr.hdr = tvb_get_letohs(tvb, offset);
    offset = EtherCATFrameParserHDR_Len;
 
-   /* The Ethercat frame header has now been processed, allow sub dissectors to
+   /* The EtherCAT frame header has now been processed, allow sub dissectors to
       handle the rest of the PDU. */
    next_tvb = tvb_new_subset (tvb, offset, -1, -1);
 
-   if (!dissector_try_port (ethercat_frame_dissector_table, hdr.v.protocol,
+   if (!dissector_try_port(ethercat_frame_dissector_table, hdr.v.protocol,
        next_tvb, pinfo, tree))
    {
       if (check_col (pinfo->cinfo, COL_PROTOCOL))
@@ -125,6 +133,13 @@ void proto_register_ethercat_frame(void)
       FT_UINT16, BASE_HEX, NULL, 0x07FF,
       "", HFILL }
       },
+
+      { &hf_ethercat_frame_reserved,
+      { "Reserved", "ecatf.reserved",
+      FT_UINT16, BASE_HEX, VALS(&ethercat_frame_reserved_vals), 0x0800,
+      "", HFILL}
+      },
+
       { &hf_ethercat_frame_type,
       { "Type", "ecatf.type",
       FT_UINT16, BASE_HEX, VALS(EthercatFrameTypes), 0xF000,
@@ -137,10 +152,10 @@ void proto_register_ethercat_frame(void)
       &ett_ethercat_frame
    };
 
-   proto_ethercat_frame = proto_register_protocol("EtherCAT frame",
+   proto_ethercat_frame = proto_register_protocol("EtherCAT frame header",
       "ETHERCAT","ethercat");
    proto_register_field_array(proto_ethercat_frame,hf,array_length(hf));
-   proto_register_subtree_array(ett,array_length(ett));
+   proto_register_subtree_array(ett, array_length(ett));
 
    register_dissector("ecatf", dissect_ethercat_frame, proto_ethercat_frame);
 
@@ -157,5 +172,6 @@ void proto_reg_handoff_ethercat_frame(void)
    ethercat_frame_handle = create_dissector_handle(dissect_ethercat_frame, proto_ethercat_frame);
    dissector_add("ethertype", ETHERTYPE_ECATF, ethercat_frame_handle);
    dissector_add("udp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
+   dissector_add("tcp.port", ETHERTYPE_ECATF, ethercat_frame_handle);
    ethercat_frame_data_handle = find_dissector("data");
 }
