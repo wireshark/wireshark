@@ -289,9 +289,12 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 
 	do {
 		for (t = types; t->type ; t++ ) {
-			const char* name = smiRenderType(sT, SMI_RENDER_NAME);
+			char* name = smiRenderType(sT, SMI_RENDER_NAME);
 			if (name && t->name && g_str_equal(name, t->name )) {
 				return t->type;
+			}
+			if (name) {
+				free (name);
 			}
 		}
 	} while(( sT  = smiGetParentType(sT) ));
@@ -367,6 +370,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				SmiType* elType = smiGetNodeType(elNode);
 				oid_key_t* k;
 				guint non_implicit_size = 0;
+				char *oid1, *oid2;
 
 				if (elType) {
 					non_implicit_size = get_non_implicit_size(elType);
@@ -376,9 +380,12 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 
 				k = g_malloc(sizeof(oid_key_t));
 
-				k->name = g_strdup_printf("%s.%s",
-										  smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED),
-										  smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME));
+				oid1 = smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED);
+				oid2 = smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME);
+				k->name = g_strdup_printf("%s.%s", oid1, oid2);
+				free (oid1);
+				free (oid2);
+						  
 				k->hfid = -2;
 				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
 				k->display = typedata ? typedata->display : BASE_NONE;
@@ -450,16 +457,6 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 #define IS_ENUMABLE(ft) ( (ft == FT_UINT8) || (ft == FT_UINT16) || (ft == FT_UINT24) || (ft == FT_UINT32) \
 						   || (ft == FT_INT8) || (ft == FT_INT16) || (ft == FT_INT24) || (ft == FT_INT32) \
 						   || (ft == FT_UINT64) || (ft == FT_INT64) )
-
-#ifdef WIN32
-#define PATH_SEPARATOR ";"
-#define DEFAULT_PATH_FMT "%s;%s"
-#define DEFAULT_PATH_ARGS get_datafile_path("snmp\\mibs"), get_persconffile_path("snmp\\mibs", FALSE, FALSE)
-#else
-#define PATH_SEPARATOR ":"
-#define DEFAULT_PATH_FMT  "%s"
-#define DEFAULT_PATH_ARGS smiGetPath()
-#endif
 
 void register_mibs(void) {
 	SmiModule *smiModule;
@@ -568,13 +565,14 @@ void register_mibs(void) {
 			const oid_value_type_t* typedata =  get_typedata(smiType);
 			oid_key_t* key;
 			oid_kind_t kind = smikind(smiNode,&key);
-			oid_info_t* oid_data = add_oid(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_QUALIFIED),
-										   kind,
-										   typedata,
-										   key,
-										   smiNode->oidlen,
-										   smiNode->oid);
-
+			char *oid = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_QUALIFIED);
+			oid_info_t* oid_data = add_oid(oid,
+						       kind,
+						       typedata,
+						       key,
+						       smiNode->oidlen,
+						       smiNode->oid);
+			free (oid);
 
 			D(4,("\t\tNode: kind=%d oid=%s name=%s ",
 				 oid_data->kind, oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name ));
@@ -588,7 +586,7 @@ void register_mibs(void) {
 					typedata->display,
 					NULL,
 					0,
-					g_strdup(smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
+					smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL),
 					HFILL }};
 
 				oid_data->value_hfid = -1;
@@ -998,8 +996,8 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 
 	if (left) {
 		return ep_strdup_printf("%s.%s",
-								oid->name ? oid->name : oid_subid2string(subids,matched),
-								oid_subid2string(&(subids[matched]),left));
+					oid->name ? oid->name : oid_subid2string(subids,matched),
+					oid_subid2string(&(subids[matched]),left));
 	} else {
 		return oid->name ? oid->name : oid_subid2string(subids,matched);
 	}
@@ -1032,10 +1030,25 @@ extern gchar *
 oid_get_default_mib_path(void) {
 	GString* path_str;
 	gchar *path_ret;
+	char *path;
 	guint i;
 
 	path_str = g_string_new("");
-	g_string_sprintfa(path_str, DEFAULT_PATH_FMT,  DEFAULT_PATH_ARGS);
+#ifdef WIN32
+#define PATH_SEPARATOR ";"
+	path = get_datafile_path("snmp\\mibs");
+	g_string_sprintfa(path_str, "%s;", path);
+	g_free (path);
+
+	path = get_persconffile_path("snmp\\mibs", FALSE, FALSE);
+	g_string_sprintfa(path_str, "%s", path);
+	g_free (path);
+#else
+#define PATH_SEPARATOR ":"
+	path = smiGetPath();
+	g_string_sprintfa(path_str, "%s", path);
+	free (path);
+#endif
 
 	for(i=0;i<num_smi_paths;i++) {
 		if (!( smi_paths[i].name && *smi_paths[i].name))
