@@ -436,11 +436,11 @@ test_tapa_discover(tvbuff_t *tvb)
 	length = tvb_get_ntohs(tvb, 2);
 	req_type = tvb_get_guint8(tvb, 4);
 
-	if (type < TAPA_TYPE_REQUEST	||
-	    type > TAPA_TYPE_REPLY_NEW	||
-	    unknown > 8			||
-	    length < 12			||
-	    length > 1472		||
+	if (type < TAPA_TYPE_REQUEST		||
+	    type > TAPA_TYPE_REPLY_NEW		||
+	    (unknown > 8 && unknown != 0x30)	||
+	    length < 12				||
+	    length > 1472			||
 	    (type == TAPA_TYPE_REQUEST && (req_type < TAPA_REQUEST_SERIAL || req_type > TAPA_REQUEST_MODEL))) {
 		return FALSE;
 	}
