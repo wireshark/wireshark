@@ -2996,8 +2996,10 @@ main(int argc, char *argv[])
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
   gtk_rc_parse(rc_file);
+  g_free(rc_file);
   rc_file = get_persconffile_path(RC_FILE, FALSE, FALSE);
   gtk_rc_parse(rc_file);
+  g_free(rc_file);
 
   font_init();
 
@@ -3196,7 +3198,6 @@ main(int argc, char *argv[])
   u3_deregister_pid();
 
   epan_cleanup();
-  g_free(rc_file);
 
 #ifdef	HAVE_AIRPDCAP
 	/*	Davide Schiera (2006-11-18): destroy AirPDcap context							*/
