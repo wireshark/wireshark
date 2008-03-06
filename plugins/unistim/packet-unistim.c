@@ -47,7 +47,9 @@
 #include "broadcast.h"
 #include "uftp.h"
 
-static int global_unistim_port = 5000;
+/* Don't set this to 5000 until this dissector is made a heuristic one!
+   It collides (at least) with tapa. */
+static int global_unistim_port = 0;
 
 static unistim_info_t *uinfo;
 static int unistim_tap = -1;
