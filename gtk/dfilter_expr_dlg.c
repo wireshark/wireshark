@@ -35,7 +35,7 @@
  *		1) could improve the widget
  *		2) keep a copy in memory after the first time.
  * user can pop multiple tree dialogs by pressing the "Tree" button multiple
- *	time.  not a good thing.
+ *  times.  not a good thing.
  * Sort the protocols and children
  */
 
@@ -268,7 +268,7 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	    ftype_can_gt(ftype) || (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)));
 
 	add_relation_list(relation_list, "<",
-        ftype_can_lt(ftype) || (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)));
+	    ftype_can_lt(ftype) || (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)));
 	add_relation_list(relation_list, ">=",
 	    ftype_can_ge(ftype) || (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)));
 	add_relation_list(relation_list, "<=",
@@ -565,18 +565,18 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	 *
 	 * so we hide the value entry.
 	 */
-    show_value_list = is_comparison;
+	show_value_list = is_comparison;
 	if (is_comparison) {
 		/*
 		 * If we're showing the entry; show the label as well.
 		 */
 		show_value_label = TRUE;
-    }
+	}
 
 	switch (hfinfo->type) {
 
 	case FT_BOOLEAN:
-        show_value_list = is_comparison;
+		show_value_list = is_comparison;
 		if (is_comparison) {
 			/*
 			 * If we're showing the value list; show the label as well.
@@ -598,7 +598,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 			 * We have a list of values to show.
 			 */
 
-            show_value_list = is_comparison;
+			show_value_list = is_comparison;
 			if (is_comparison) {
 				/*
 				 * We're showing the entry; show the label
@@ -611,7 +611,7 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 			 * There is no list of names for values, so don't
 			 * show it.
 			 */
-            show_value_list = FALSE;
+			show_value_list = FALSE;
 		}
 		break;
 
@@ -619,23 +619,23 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 		/*
 		 * There is no list of names for values; hide the list.
 		 */
-        show_value_list = FALSE;
+		show_value_list = FALSE;
 		break;
 	}
 
-    gtk_widget_set_sensitive(value_label,               show_value_label);
-    gtk_widget_set_sensitive(value_entry,               show_value_label);
+	gtk_widget_set_sensitive(value_label,               show_value_label);
+	gtk_widget_set_sensitive(value_entry,               show_value_label);
 
-    gtk_widget_set_sensitive(value_list_label,          show_value_list);
-    gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
+	gtk_widget_set_sensitive(value_list_label,          show_value_list);
+	gtk_widget_set_sensitive(value_list_scrolled_win,   show_value_list);
 
 	/*
 	 * Is this a comparison, and are ranges supported by this type?
 	 * If both are true, show the range stuff, otherwise hide it.
 	 */
-    show_range = (is_comparison && ftype_can_slice(hfinfo->type));
-    gtk_widget_set_sensitive(range_label, show_range);
-    gtk_widget_set_sensitive(range_entry, show_range);
+	show_range = (is_comparison && ftype_can_slice(hfinfo->type));
+	gtk_widget_set_sensitive(range_label, show_range);
+	gtk_widget_set_sensitive(range_entry, show_range);
 }
 
 #if GTK_MAJOR_VERSION < 2
@@ -801,7 +801,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         range_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(range_entry)));
         /*
          * XXX - strip this even for strings?
-         * Doing so for strings mean you can't match a string that has
+         * Doing so for strings means you can't match a string that has
          * leading or trailing whitespace, but you can't see trailing
          * whitespace in a text field, so it's not clear that it's
          * a good idea to allow that.
@@ -901,12 +901,12 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
          * specified, must be valid for FT_BYTES.
          */
     	if (strcmp(item_str, "contains") == 0) {
-		fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
-					    dfilter_report_bad_value);
+            fvalue = fvalue_from_unparsed(ftype, stripped_value_str, TRUE,
+                                          dfilter_report_bad_value);
 	}
 	else {
-		fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
-					    dfilter_report_bad_value);
+            fvalue = fvalue_from_unparsed(ftype, stripped_value_str, FALSE,
+                                          dfilter_report_bad_value);
 	}
         if (fvalue == NULL) {
             /*
@@ -1089,7 +1089,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 #endif
 
     window = dlg_window_new("Wireshark: Filter Expression");
-	gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
+    gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -1114,7 +1114,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                                    GTK_SHADOW_IN);
 #endif
     gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, TRUE, TRUE, 0);
-	WIDGET_SET_SIZE(tree_scrolled_win, 300, -1);
+    WIDGET_SET_SIZE(tree_scrolled_win, 300, -1);
 
 
 #if GTK_MAJOR_VERSION < 2
@@ -1143,7 +1143,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * haven't even had time to set the item's row data nonwithstanding*.
      *
      * We'll put the widget into GTK_SELECTION_SINGLE mode in the
-     * hopes that it's *STOP DOING THAT*.
+     * hopes that it *STOPS DOING THAT*.
      */
     gtk_clist_set_selection_mode(GTK_CLIST(field_tree),
                                  GTK_SELECTION_SINGLE);
@@ -1413,22 +1413,22 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	gtk_tree_store_set(store, &iter, 0, name, 1, hfinfo, -1);
 
 	for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-	     hfinfo = proto_get_next_protocol_field(&cookie2)) {
+             hfinfo = proto_get_next_protocol_field(&cookie2)) {
 
-		if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
-			continue;
+            if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+                continue;
 
-		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-			g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
-			    hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
-		} else {
-			g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
-			    hfinfo->name);
-		}
-		str[TAG_STRING_LEN]=0;
-		strp=str;
-		gtk_tree_store_append(store, &child_iter, &iter);
-		gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
+            if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
+                g_snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
+                           hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
+            } else {
+                g_snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
+                           hfinfo->name);
+            }
+            str[TAG_STRING_LEN]='\0';
+            strp=str;
+            gtk_tree_store_append(store, &child_iter, &iter);
+            gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
 	}
     }
     g_object_unref(G_OBJECT(store));
@@ -1445,7 +1445,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     /* button box */
     list_bb = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-	gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(main_vb), list_bb, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (list_bb), 0);
 
     ok_bt = OBJECT_GET_DATA(list_bb, GTK_STOCK_OK);
