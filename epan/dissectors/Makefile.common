@@ -630,6 +630,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-rdm.c		\
 	packet-rdt.c		\
 	packet-redback.c 	\
+	packet-redbackli.c 	\
 	packet-retix-bpdu.c 	\
 	packet-rgmp.c		\
 	packet-rip.c		\
