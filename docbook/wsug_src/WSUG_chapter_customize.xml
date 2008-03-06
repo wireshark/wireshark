@@ -997,16 +997,6 @@ standard libpcap format.
 	      </listitem>
 	      <listitem>
 		<para>
-		  SMI Modules (smi_modules)
-		</para>
-	      </listitem>
-	      <listitem>
-		<para>
-		  SMI Paths (smi_paths)
-		</para>
-	      </listitem>
-	      <listitem>
-		<para>
 		  SNMP Users (snmp_users)
 		</para>
 	      </listitem>

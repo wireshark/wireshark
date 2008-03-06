@@ -173,6 +173,7 @@ void proto_register_user_encap(void)
 	encaps_uat = uat_new("User DLTs Table",
 						 sizeof(user_encap_t),
 						 "user_dlts",
+						 TRUE,
 						 (void**) &encaps,
 						 &num_encaps,
 						 UAT_CAT_FFMT,

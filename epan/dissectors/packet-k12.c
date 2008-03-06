@@ -452,6 +452,7 @@ proto_register_k12(void)
   k12_uat = uat_new("K12 Protocols",
 		    sizeof(k12_handles_t),
 		    "k12_protos",
+		    TRUE,
 		    (void**) &k12_handles,
 		    &nk12_handles,
 		    UAT_CAT_FFMT,

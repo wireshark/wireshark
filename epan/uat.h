@@ -223,6 +223,7 @@ typedef struct _uat_field_t {
 uat_t* uat_new(const char* name,
 			   size_t size,
 			   const char* filename,
+			   gboolean from_profile,
 			   void** data_ptr,
 			   guint* num_items,
 			   const char* category,

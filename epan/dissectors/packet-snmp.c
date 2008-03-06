@@ -3387,6 +3387,7 @@ void proto_register_snmp(void) {
   assocs_uat = uat_new("SNMP Users",
 					   sizeof(snmp_ue_assoc_t),
 					   "snmp_users",
+					   TRUE,
 					   (void**)&ueas,
 					   &num_ueas,
 					   UAT_CAT_CRYPTO,

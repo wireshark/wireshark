@@ -56,6 +56,7 @@ void uat_init(void) {
 uat_t* uat_new(const char* name,
 			   size_t size,
 			   const char* filename,
+			   gboolean from_profile,
 			   void** data_ptr,
 			   guint* numitems_ptr,
 			   const char* category,
@@ -77,6 +78,7 @@ uat_t* uat_new(const char* name,
 	uat->name = g_strdup(name);
 	uat->record_size = size;
 	uat->filename = g_strdup(filename);
+	uat->from_profile = from_profile;
 	uat->user_ptr = data_ptr;
 	uat->nrows_p = numitems_ptr;
 	uat->copy_cb = copy_cb;
@@ -157,7 +159,7 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
 /* The returned filename was g_malloc()'d so the caller must free it */
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
 
-	gchar* pers_fname =  get_persconffile_path(uat->filename, TRUE, for_writing);
+	gchar* pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, for_writing);
 
 	if (! for_writing ) {
 		gchar* data_fname = get_datafile_path(uat->filename);
@@ -322,8 +324,11 @@ void uat_unload_all(void) {
 
 	for (i=0; i < all_uats->len; i++) {
 		uat_t* u = g_ptr_array_index(all_uats,i);
-		uat_clear(u);
-		u->loaded = FALSE;
+        /* Do not unload if not in profile */
+        if (u->from_profile) {
+            uat_clear(u);
+            u->loaded = FALSE;
+        }
 	}
 }
 

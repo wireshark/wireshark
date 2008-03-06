@@ -3190,6 +3190,7 @@ proto_register_sccp(void)
   uat_t* users_uat = uat_new("SCCP Users Table",
 	sizeof(sccp_user_t),
 	"sccp_users",
+	TRUE,
 	(void**) &sccp_users,
 	&num_sccp_users,
 	UAT_CAT_PORTS,

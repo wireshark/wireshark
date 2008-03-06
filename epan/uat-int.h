@@ -49,6 +49,7 @@ struct _uat_t {
 	const char* name;	
 	size_t record_size;
 	const char* filename;
+	gboolean from_profile;
 	const char* help;
 	const char* category;
 	void** user_ptr;
