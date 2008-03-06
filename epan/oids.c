@@ -291,6 +291,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		for (t = types; t->type ; t++ ) {
 			char* name = smiRenderType(sT, SMI_RENDER_NAME);
 			if (name && t->name && g_str_equal(name, t->name )) {
+				free (name);
 				return t->type;
 			}
 			if (name) {
