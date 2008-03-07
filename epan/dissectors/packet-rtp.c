@@ -478,23 +478,29 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (! global_rtp_heur)
 		return FALSE;
 
+	/* Was it sent between 2 even-numbered ports? */
+	if ((pinfo->srcport % 2) || (pinfo->destport % 2)) {
+		return FALSE;
+	}
+
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet1 );
 
 	if (version == 0) {
 		switch (global_rtp_version0_type) {
-		case RTP0_STUN:
-			call_dissector(stun_handle, tvb, pinfo, tree);
-			return TRUE;
+			case RTP0_STUN:
+				call_dissector(stun_handle, tvb, pinfo, tree);
+				return TRUE;
 
-		case RTP0_T38:
-			call_dissector(t38_handle, tvb, pinfo, tree);
-			return TRUE;
+			case RTP0_T38:
+				call_dissector(t38_handle, tvb, pinfo, tree);
+				return TRUE;
 
-		case RTP0_INVALID:
-		default:
-			return FALSE; /* Unknown or unsupported version */
+			case RTP0_INVALID:
+
+			default:
+				return FALSE; /* Unknown or unsupported version */
 		}
 	} else if (version != 2) {
 		/* Unknown or unsupported version */
@@ -504,12 +510,12 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* Get the fields in the second octet */
 	octet2 = tvb_get_guint8( tvb, offset + 1 );
 	payload_type = RTP_PAYLOAD_TYPE( octet2 );
-	/*      if (payload_type == PT_PCMU ||
-	 *		     payload_type == PT_PCMA)
-	 *	     payload_type == PT_G729)
-	 *	 */
-	if (payload_type <= PT_H263) {
- 		dissect_rtp( tvb, pinfo, tree );
+
+	/* Check for a sensible payload type
+	   (recognised static and preferred dynamic ranges) */
+	if ((payload_type <= PT_H263) ||
+	    (payload_type >= 96 && payload_type <= 127)) {
+		dissect_rtp( tvb, pinfo, tree );
 		return TRUE;
 	}
 	else {
