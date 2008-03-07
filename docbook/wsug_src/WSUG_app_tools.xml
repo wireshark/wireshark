@@ -997,14 +997,30 @@ where &lt;input-filename&gt; specifies input filename (use - for standard input)
 	</listitem>
 	<listitem>
 	  <para>
-	    Copy the resulting C code to your Wireshark src directory,
-	    edit the two make files to include the packet-test-idl.c
+	    Copy the resulting C code to subdirectory epan/dissectors/ inside your
+	    Wireshark source directory.
+	    <programlisting>cp packet-test-idl.c /dir/where/wireshark/lives/epan/dissectors/</programlisting>
+	    The new dissector has to be added to Makefile.common in the same
+	    directory. Look for the declaration CLEAN_DISSECTOR_SRC and add
+	    the new dissector there. For example,
 	    <programlisting>
-cp packet-test-idl.c /dir/where/wireshark/lives/
-edit Makefile.am
-edit Makefile.nmake
-	    </programlisting>
+CLEAN_DISSECTOR_SRC = \
+        packet-2dparityfec.c    \
+        packet-3com-njack.c     \
+        ...
+            </programlisting>
+            becomes
+	    <programlisting>
+CLEAN_DISSECTOR_SRC = \
+        packet-test-idl.c       \
+        packet-2dparityfec.c    \
+        packet-3com-njack.c     \
+        ...
+            </programlisting>
 	  </para>
+          <para>
+          For the next steps, go up to the top of your Wireshark source directory.
+          </para>
 	</listitem>
 	<listitem>
 	  <para>Run configure
