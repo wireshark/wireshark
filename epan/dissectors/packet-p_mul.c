@@ -31,6 +31,7 @@
 
 /*
  * TODO:
+ * - Obtain dedicated UDP port numbers
  * - SEQ/ACK analysis for Announce/Request/Reject/Release PDU
  */
 
@@ -53,17 +54,20 @@
 #define PFNAME "p_mul"
 
 /* Recommended UDP Port Numbers */
-#define DEFAULT_P_MUL_PORT_RANGE "2751,2752,2753,2754"
+#define DEFAULT_P_MUL_PORT_RANGE ""
 
 /* PDU Types */
-#define Data_PDU             0x00
-#define Ack_PDU              0x01
-#define Address_PDU          0x02
-#define Discard_Message_PDU  0x03
-#define Announce_PDU         0x04
-#define Request_PDU          0x05
-#define Reject_PDU           0x06
-#define Release_PDU          0x07
+#define Data_PDU               0x00
+#define Ack_PDU                0x01
+#define Address_PDU            0x02
+#define Discard_Message_PDU    0x03
+#define Announce_PDU           0x04
+#define Request_PDU            0x05
+#define Reject_PDU             0x06
+#define Release_PDU            0x07
+#define FEC_Address_PDU        0x08
+#define Extra_Address_PDU      0x12
+#define Extra_FEC_Address_PDU  0x18
 
 /* Type of content to decode from Data_PDU */
 #define DECODE_NONE      0
@@ -92,6 +96,9 @@ static int hf_message_id = -1;
 static int hf_expiry_time = -1;
 static int hf_mc_group = -1;
 static int hf_ann_mc_group = -1;
+static int hf_fec_len = -1;
+static int hf_fec_id = -1;
+static int hf_fec_parameters = -1;
 static int hf_count_of_dest = -1;
 static int hf_length_of_res = -1;
 static int hf_ack_count = -1;
@@ -99,6 +106,7 @@ static int hf_ack_entry = -1;
 static int hf_ack_length = -1;
 static int hf_miss_seq_no = -1;
 static int hf_tot_miss_seq_no = -1;
+static int hf_timestamp_option = -1;
 static int hf_dest_entry = -1;
 static int hf_dest_id = -1;
 static int hf_msg_seq_no = -1;
@@ -200,15 +208,18 @@ static const fragment_items p_mul_frag_items = {
 };
 
 static const value_string pdu_vals[] = {
-  { Data_PDU,             "Data PDU"            },
-  { Ack_PDU,              "Ack PDU"             },
-  { Address_PDU,          "Address PDU"         },
-  { Discard_Message_PDU,  "Discard Message PDU" },
-  { Announce_PDU,         "Announce PDU"        },
-  { Request_PDU,          "Request PDU"         },
-  { Reject_PDU,           "Reject PDU"          },
-  { Release_PDU,          "Release PDU"         },
-  { 0,                    NULL                  }
+  { Data_PDU,              "Data PDU"              },
+  { Ack_PDU,               "Ack PDU"               },
+  { Address_PDU,           "Address PDU"           },
+  { Discard_Message_PDU,   "Discard Message PDU"   },
+  { Announce_PDU,          "Announce PDU"          },
+  { Request_PDU,           "Request PDU"           },
+  { Reject_PDU,            "Reject PDU"            },
+  { Release_PDU,           "Release PDU"           },
+  { FEC_Address_PDU,       "FEC Address PDU"       },
+  { Extra_Address_PDU,     "Extra Address PDU"     },
+  { Extra_FEC_Address_PDU, "Extra FEC Address PDU" },
+  { 0,                     NULL                    }
 };
 
 static enum_val_t decode_options[] = {
@@ -605,7 +616,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   guint32     message_id = 0, no_pdus = 0, seq_no = 0;
   guint16     no_dest = 0, count = 0, len = 0, data_len = 0;
   guint16     checksum1, checksum2, pdu_length = 0;
-  guint8      pdu_type = 0, *value = NULL, map = 0;
+  guint8      pdu_type = 0, *value = NULL, map = 0, fec_len;
   gint        i, tot_no_missing = 0, no_missing = 0, offset = 0;
   nstime_t    ts;
 
@@ -633,6 +644,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   case Ack_PDU:
   case Address_PDU:
   case Discard_Message_PDU:
+  case Extra_Address_PDU:
+  case FEC_Address_PDU:
+  case Extra_FEC_Address_PDU:
     /* Priority */
     proto_tree_add_item (p_mul_tree, hf_priority, tvb, offset, 1, FALSE);
     break;
@@ -658,6 +672,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   case Address_PDU:
   case Announce_PDU:
+  case Extra_Address_PDU:
+  case FEC_Address_PDU:
+  case Extra_FEC_Address_PDU:
     map = tvb_get_guint8 (tvb, offset);
     proto_tree_add_item (field_tree, hf_map_first, tvb, offset, 1, FALSE);
     proto_tree_add_item (field_tree, hf_map_last, tvb, offset, 1, FALSE);
@@ -680,6 +697,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
   switch (pdu_type) {
 
   case Address_PDU:
+  case Extra_Address_PDU:
+  case FEC_Address_PDU:
+  case Extra_FEC_Address_PDU:
     /* Total Number of PDUs */
     no_pdus = tvb_get_ntohs (tvb, offset);
     seq_no = 0;
@@ -767,7 +787,9 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_item_append_text (ti, ", MSID: %u", message_id);
   }
 
-  if (pdu_type == Address_PDU || pdu_type == Announce_PDU) {
+  if (pdu_type == Address_PDU || pdu_type == Announce_PDU ||
+      pdu_type == Extra_Address_PDU || pdu_type == FEC_Address_PDU ||
+      pdu_type == Extra_FEC_Address_PDU) {
     /* Expiry Time */
     ts.secs = tvb_get_ntohl (tvb, offset);
     ts.nsecs = 0;
@@ -775,9 +797,31 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 4;
   }
 
+  if (pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
+    /* FEC Parameters Length */
+    fec_len = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_item (p_mul_tree, hf_fec_len, tvb, offset, 1, FALSE);
+    offset += 1;
+    
+    /* FEC ID */
+    proto_tree_add_item (p_mul_tree, hf_fec_id, tvb, offset, 1, FALSE);
+    offset += 1;
+    
+    if (fec_len > 0) {
+      /* FEC Parameters */
+      proto_tree_add_none_format (p_mul_tree, hf_fec_parameters, tvb, offset,
+                                  fec_len, "FEC Parameters (%d byte%s)",
+                                  fec_len, plurality (fec_len, "", "s"));
+      offset += fec_len;
+    }
+  }
+
   switch (pdu_type) {
 
   case Address_PDU:
+  case Extra_Address_PDU:
+  case FEC_Address_PDU:
+  case Extra_FEC_Address_PDU:
     /* Count of Destination Entries */
     no_dest = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2, FALSE);
@@ -875,6 +919,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
         tot_no_missing += no_missing;
       }
     }
+
+    if (tvb_length_remaining (tvb, offset) >= 8) {
+      /* Timestamp Option */
+      proto_tree_add_item (p_mul_tree, hf_timestamp_option, tvb, offset, 8, FALSE);
+      offset += 8;
+    }
     
     if (tot_no_missing) {
       proto_item_append_text (ti, ", Missing seq numbers: %u", tot_no_missing);
@@ -934,7 +984,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
       }
     }
     col_append_str (pinfo->cinfo, COL_INFO, get_type (pdu_type));
-    if (pdu_type == Address_PDU) {
+    if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
+        pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", No PDUs: %u", no_pdus);
     } else if (pdu_type == Data_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Seq no: %u", seq_no);
@@ -942,7 +993,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (pdu_type != Ack_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", MSID: %u", message_id);
     }
-    if (pdu_type == Address_PDU) {
+    if (pdu_type == Address_PDU || pdu_type == Extra_Address_PDU ||
+        pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
       col_append_fstr (pinfo->cinfo, COL_INFO, ", Count of Dest: %u", no_dest);
     } else if (pdu_type == Ack_PDU) {
       if (tot_no_missing) {
@@ -1074,6 +1126,15 @@ void proto_register_p_mul (void)
     { &hf_ann_mc_group,
       { "Announced Multicast Group", "p_mul.ann_mc_group", FT_UINT32, BASE_DEC,
         NULL, 0x0, "Announced Multicast Group", HFILL } },
+    { &hf_fec_len,
+      { "FEC Parameter Length", "p_mul.fec.length", FT_UINT8, BASE_DEC,
+        NULL, 0x0, "Forward Error Correction Parameter Length", HFILL } },
+    { &hf_fec_id,
+      { "FEC ID", "p_mul.fec.id", FT_UINT8, BASE_HEX,
+        NULL, 0x0, "Forward Error Correction ID", HFILL } },
+    { &hf_fec_parameters,
+      { "FEC Parameters", "p_mul.fec.parameters", FT_NONE, BASE_NONE,
+        NULL, 0x0, "Forward Error Correction Parameters", HFILL } },
     { &hf_count_of_dest,
       { "Count of Destination Entries", "p_mul.dest_count", FT_UINT16,BASE_DEC,
         NULL, 0x0, "Count of Destination Entries", HFILL } },
@@ -1096,6 +1157,9 @@ void proto_register_p_mul (void)
       { "Total Number of Missing Data PDU Sequence Numbers", 
         "p_mul.no_missing_seq_no", FT_UINT16, BASE_DEC, NULL, 0x0, 
         "Total Number of Missing Data PDU Sequence Numbers", HFILL } },
+    { &hf_timestamp_option,
+      { "Timestamp Option", "p_mul.timestamp", FT_UINT64, BASE_DEC,
+        NULL, 0x0, "Timestamp Option (in units of 100ms)", HFILL } },
     { &hf_dest_entry,
       { "Destination Entry", "p_mul.dest_entry", FT_NONE, BASE_NONE,
         NULL, 0x0, "Destination Entry", HFILL } },
