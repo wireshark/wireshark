@@ -627,7 +627,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		if (is_request_or_reply) {
 		    line = tvb_get_ptr(tvb, offset, first_linelen);
-			col_add_str(pinfo->cinfo, COL_INFO, format_text(line, first_linelen));
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(line, first_linelen));
 		}
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation or non-HTTP traffic");
@@ -2050,10 +2050,11 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/*
 			 * OK, we've set the Protocol and Info columns for the
-			 * first HTTP message; make the columns non-writable,
-			 * so that we don't change it for subsequent HTTP messages.
+			 * first HTTP message; set a fence so that subsequent
+			 * HTTP messages don't overwrite the Info column.
 			 */
-			col_set_writable(pinfo->cinfo, FALSE);
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_set_fence(pinfo->cinfo, COL_INFO);
 		}
 	}
 }
