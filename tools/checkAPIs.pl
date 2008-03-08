@@ -175,6 +175,11 @@ while ($_ = $ARGV[0])
 		$errorCount++;
 	}
 
+	if (! ($fileContents =~ m{\$Id.*\$}))
+	{
+		print "Warning: ".$filename." does not have an SVN Id tag.\n";
+	}
+
 	# Remove all the C-comments and strings
 	$fileContents =~ s {$commentAndStringRegex} []g;
 
