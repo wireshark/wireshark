@@ -215,4 +215,13 @@ in the same tree :
 
 
 3.3 se_tree_insert_string / se_tree_lookup_string
-to be added...
+void emem_tree_insert_string(emem_tree_t* h, const gchar* k, void* v, guint32 flags);
+void* emem_tree_lookup_string(emem_tree_t* h, const gchar* k, guint32 flags);
+These functions are essentially wrappers for se_tree_insert32_array and
+se_tree_lookup32_array, tailered to text strings. They extend the text string
+into an array key and use that to key the se_tree_insert32_array and
+se_tree_lookup32_array functions.
+In order to support text string in a case insensitive way add the
+EMEM_TREE_STRING_NOCASE flag. This will uppercase all string data before using
+it as key data.
+

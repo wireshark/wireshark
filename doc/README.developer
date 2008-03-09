@@ -1462,17 +1462,14 @@ information about the its data type is needed. It helps to look at
 the header_field_info struct to see what information is expected:
 
 struct header_field_info {
-	char				*name;
-	char				*abbrev;
+	const char			*name;
+	const char			*abbrev;
 	enum ftenum			type;
 	int				display;
-	void				*strings;
-	guint				bitmask;
-	char				*blurb;
-
-	int				id;	  /* calculated */
-	int				parent;
-	int				bitshift; /* calculated */
+	const void			*strings;
+	guint32				bitmask;
+	const char			*blurb;
+	.....
 };
 
 name
@@ -1695,12 +1692,15 @@ If the field is a bitfield, then the bitmask is the mask which will
 leave only the bits needed to make the field when ANDed with a value.
 The proto_tree routines will calculate 'bitshift' automatically
 from 'bitmask', by finding the rightmost set bit in the bitmask.
+This shift is applied before applying string mapping functions or 
+filtering.
 If the field is not a bitfield, then bitmask should be set to 0.
 
 blurb
 -----
-This is a string giving a proper description of the field.
-It should be at least one grammatically complete sentence.
+This is a string giving a proper description of the field.  It should be
+at least one grammatically complete sentence, or NULL in which case the
+name field is used.
 It is meant to provide a more detailed description of the field than the
 name alone provides. This information will be used in the man page, and
 in a future GUI display-filter creation tool. We might also add tooltips
@@ -2631,9 +2631,10 @@ compile).
   - Edit the diff file - remove any changes unrelated to your new dissector,
     e.g. changes in config.nmake
 
-  - Send a note with the attached diff file requesting its inclusion to
-    <mailto:wireshark-dev[AT]wireshark.org>. You can also use this procedure for
-    providing patches to your dissector or any other part of Wireshark.
+  - Submit a bug report to the Wireshark bug database, found at
+    <http://bugs.wireshark.org>, qualified as an enhancement and attach your
+    diff file there. Set the review request flag to '?' so it will pop up in
+    the patch review list.
 
   - Create a Wiki page on the protocol at <http://wiki.wireshark.org>.
     A template is provided so it is easy to setup in a consistent style.

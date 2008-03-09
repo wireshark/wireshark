@@ -1607,15 +1607,35 @@ slashes or backslashes will automatically be added.
 
 =item File Open Preview timeout
 
+This items allows the user to define how much time is spend reading the
+capture file to present preview data in the File Open dialog.
+
 =item Open Recent maximum list entries
+
+The File menu supports a recent file list. This items allows the user to
+specify how many files are kept track of in this list.
 
 =item Ask for unsaved capture files
 
+When closing a capture file or Wireshark itself if the file isn't saved yet
+the user is presented the option to save the file when this item is set.
+
 =item Wrap during find
+
+This items determines the behaviour when reaching the beginning or the end
+of a capture file. When set the search wraps around and continues, otherwise
+it stops.
 
 =item Settings dialogs show a save button
 
+This item determines if the various dialogs sport an explicit Save button
+or that save is implicit in Ok / Apply.
+
 =item Web browser command
+
+This entry specifies the command line to launch a web browser. It is used
+to access online content, like the Wiki and user guide. Use '%s' to place
+the request URL in the command line.
 
 =back
 
