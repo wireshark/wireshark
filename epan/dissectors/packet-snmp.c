@@ -3243,7 +3243,7 @@ void proto_register_snmp(void) {
         "snmp.OBJECT_IDENTIFIER", HFILL }},
     { &hf_snmp_agent_addr,
       { "agent-addr", "snmp.agent_addr",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_IPv4, BASE_NONE, NULL, 0,
         "snmp.NetworkAddress", HFILL }},
     { &hf_snmp_generic_trap,
       { "generic-trap", "snmp.generic_trap",
