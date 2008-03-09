@@ -372,7 +372,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	proto_tree *pt, *pt_varbind, *pt_name, *pt_value;
 	char label[ITEM_LABEL_LENGTH];
 	char* repr = NULL;
-	char* info_oid = NULL;
+	const char* info_oid = NULL;
 	char* valstr;
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
