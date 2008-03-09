@@ -22,28 +22,39 @@ BulkPDU/request-id bulkPDU_request-id
 	VAL_PTR = &pdu_type 
 
 #.FN_BODY PDUs
-gint pdu_type;
+gint pdu_type=-1;
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO))
+    col_clear(actx->pinfo->cinfo, COL_INFO);
 
 %(DEFAULT_BODY)s
   if( (pdu_type!=-1) && snmp_PDUs_vals[pdu_type].strptr ){
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_add_str(actx->pinfo->cinfo, COL_INFO, snmp_PDUs_vals[pdu_type].strptr);
+		col_prepend_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", snmp_PDUs_vals[pdu_type].strptr);
   }
 
 #.END
 
 
+#.FN_PARS EnterpriseOID
 
+	VAL_PTR = &param_tvb 
 
+#.FN_BODY EnterpriseOID
+  tvbuff_t* param_tvb = NULL;
+  const gchar* name;
+  gint len;
 
+%(DEFAULT_BODY)s
+  if (display_oid && param_tvb) {
+    len = tvb_length_remaining (param_tvb, 0);
+    name = oid_resolved_from_encoded(tvb_get_ptr(param_tvb, 0, len), len);
+    if (name && check_col(actx->pinfo->cinfo, COL_INFO)) {
+      col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %%s", name);
+    }
+  }
 
-
-
-
-
-
-
-
+#.END
 
 #.FN_PARS HeaderData/msgSecurityModel
 
@@ -67,7 +78,7 @@ gint pdu_type;
 	}
 
 #.FN_BODY SnmpEngineID
-	tvbuff_t* param_tvb;
+	tvbuff_t* param_tvb = NULL;
 
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &param_tvb);

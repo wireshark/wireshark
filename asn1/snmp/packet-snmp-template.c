@@ -372,6 +372,7 @@ extern int dissect_snmp_VarBind(gboolean implicit_tag _U_,
 	proto_tree *pt, *pt_varbind, *pt_name, *pt_value;
 	char label[ITEM_LABEL_LENGTH];
 	char* repr = NULL;
+	char* info_oid = NULL;
 	char* valstr;
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
@@ -785,13 +786,17 @@ set_label:
 									 oid_info->name,
 									 oid_subid2string(&(subids[oid_matched]),oid_left),
 									 oid_subid2string(subids,oid_matched+oid_left));
+			info_oid = ep_strdup_printf("%s.%s", oid_info->name,
+						    oid_subid2string(&(subids[oid_matched]),oid_left));
 		} else {
 			repr  = ep_strdup_printf("%s (%s)",
 									 oid_info->name,
 									 oid_subid2string(subids,oid_matched));
+			info_oid = oid_info->name;
 		}
 	} else if (oid_string) {
 		repr  = ep_strdup(oid_string);
+		info_oid = oid_string;
 	} else {
 		repr  = ep_strdup("[Bad OID]");
 	}
@@ -800,6 +805,10 @@ set_label:
 	valstr = valstr ? valstr+2 : label;
 
 	proto_item_set_text(pi_varbind,"%s: %s",repr,valstr);
+
+	if (display_oid && info_oid && check_col(actx->pinfo->cinfo, COL_INFO)) {
+	  col_append_fstr (actx->pinfo->cinfo, COL_INFO, " %s", info_oid);
+	}
 
 	switch (format_error) {
 		case BER_WRONG_LENGTH: {

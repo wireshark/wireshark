@@ -58,6 +58,7 @@ RFC1157-SNMP DEFINITIONS ::= BEGIN
 --IpAddress ::= [APPLICATION 0] IMPLICIT OCTET STRING (SIZE (4))
 
 NotificationName ::= OBJECT IDENTIFIER
+EnterpriseOID ::= OBJECT IDENTIFIER
 NetworkAddress ::= [APPLICATION 0] IMPLICIT OCTET STRING (SIZE (4))
 TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
 Integer32 ::= INTEGER (-2147483648..2147483647)
@@ -229,7 +230,7 @@ BulkPDU ::= SEQUENCE { -- MUST be identical in structure to PDU
 
 -- end v2
 Trap-PDU ::= [4] IMPLICIT SEQUENCE {
-	enterprise OBJECT IDENTIFIER, -- type of object generating trap, see sysObjectID in [5]
+	enterprise EnterpriseOID, -- type of object generating trap, see sysObjectID in [5]
 	agent-addr NetworkAddress, -- address of object generating trap
 	generic-trap INTEGER { -- generic trap type
 		coldStart(0),
