@@ -3193,18 +3193,40 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
 		replen = 0;
+
+		/* put in the hf name */
 		ret = g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
-		    "%s: ", fi->hfinfo->name);
+				 "%s: ", fi->hfinfo->name);
 		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
 			/* That's all we can put in the representation. */
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
 			return;
 		}
 		replen = ret;
+
+		/* Put in the value of the string */
 		ret = g_vsnprintf(fi->rep->representation + replen,
-		    ITEM_LABEL_LENGTH - replen, format, ap);
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH - replen))
+				  ITEM_LABEL_LENGTH - replen, format, ap);
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH - replen)) {
+			/* Uh oh, we don't have enough room.  Tell the user
+			 * that the field is truncated.
+			 */
+			char *oldrep;
+
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+
+			/*  Argh, we cannot reuse 'ap' here.  So make a copy
+			 *  of what we formatted for (re)use below.
+			 */
+			oldrep = g_strdup(fi->rep->representation);
+
+			ret = g_snprintf(fi->rep->representation,
+					 ITEM_LABEL_LENGTH,
+					 "[truncated] %s",
+					 oldrep);
+			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+			g_free(oldrep);
+		}
 	}
 }
 
@@ -3219,9 +3241,26 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 
 	if (!PROTO_ITEM_IS_HIDDEN(pi)) {
 		ITEM_LABEL_NEW(fi->rep);
-		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH, format, ap);
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		ret = g_vsnprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+				  format, ap);
+		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
+			/* Uh oh, we don't have enough room.  Tell the user
+			 * that the field is truncated.
+			 */
+			char *oldrep;
+
 			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+
+			/*  Argh, we cannot reuse 'ap' here.  So make a copy
+			 *  of what we formatted for (re)use below.
+			 */
+			oldrep = g_strdup(fi->rep->representation);
+
+			g_snprintf(fi->rep->representation, ITEM_LABEL_LENGTH,
+				   "[truncated] %s", oldrep);
+			fi->rep->representation[ITEM_LABEL_LENGTH - 1] = '\0';
+			g_free(oldrep);
+		}
 	}
 }
 
@@ -4067,8 +4106,16 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
 					"%s: %s", hfinfo->name,
 					 bytes_to_str(bytes, fvalue_length(&fi->value)));
-				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+				if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH)) {
+					/* Uh oh, we don't have enough room.  Tell the
+					 *  user that the field is truncated.
+					 */
+					ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+							 "%s [truncated]: %s",
+							 hfinfo->name,
+							 bytes_to_str(bytes, fvalue_length(&fi->value)));
 					label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+				}
 			}
 			else {
 				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -4230,15 +4277,19 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	        case FT_EBCDIC:
 		case FT_UINT_STRING:
 			bytes = fvalue_get(&fi->value);
-	    if(strlen(bytes) > ITEM_LABEL_LENGTH) {
-			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				    "%s [truncated]: %s", hfinfo->name,
-				    format_text(bytes, strlen(bytes)));
-            } else {
-			    ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
-				    "%s: %s", hfinfo->name,
-				    format_text(bytes, strlen(bytes)));
-            }
+			if(strlen(bytes) > ITEM_LABEL_LENGTH) {
+				/* Uh oh, we don't have enough room.  Tell the
+				 *  user that the field is truncated.
+				 */
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+						 "%s [truncated]: %s",
+						 hfinfo->name,
+						 format_text(bytes, strlen(bytes)));
+			} else {
+				ret = g_snprintf(label_str, ITEM_LABEL_LENGTH,
+						 "%s: %s", hfinfo->name,
+						 format_text(bytes, strlen(bytes)));
+			}
 			if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
 				label_str[ITEM_LABEL_LENGTH - 1] = '\0';
 			break;
