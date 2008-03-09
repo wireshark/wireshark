@@ -200,7 +200,7 @@ static int hf_snmp_endOfMibView = -1;
 static int hf_snmp_unSpecified = -1;
 
 static int hf_snmp_integer32_value = -1;
-static int hf_snmp_octestring_value = -1;
+static int hf_snmp_octetstring_value = -1;
 static int hf_snmp_oid_value = -1;
 static int hf_snmp_null_value = -1;
 static int hf_snmp_ipv4_value = -1;
@@ -819,7 +819,7 @@ indexing_done:
 				hfid = hf_snmp_integer32_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OCTETSTRING<<4):
-				hfid = hf_snmp_octestring_value;
+				hfid = hf_snmp_octetstring_value;
 				break;
 			case BER_CLASS_UNI|(BER_UNI_TAG_OID<<4):
 				max_len = -1; min_len = 1;
@@ -3048,7 +3048,7 @@ void proto_register_snmp(void) {
   { &hf_snmp_unSpecified, { "unSpecified", "snmp.unSpecified", FT_NONE, BASE_DEC,  NULL, 0, "", HFILL }},
 
   { &hf_snmp_integer32_value, { "Value (Integer32)", "snmp.value.int", FT_INT64, BASE_DEC,  NULL, 0, "", HFILL }},
-  { &hf_snmp_octestring_value, { "Value (OctetString)", "snmp.value.octets", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
+  { &hf_snmp_octetstring_value, { "Value (OctetString)", "snmp.value.octets", FT_BYTES, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_oid_value, { "Value (OID)", "snmp.value.oid", FT_OID, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_null_value, { "Value (Null)", "snmp.value.null", FT_NONE, BASE_NONE,  NULL, 0, "", HFILL }},
   { &hf_snmp_ipv4_value, { "Value (IpAddress)", "snmp.value.ipv4", FT_IPv4, BASE_NONE,  NULL, 0, "", HFILL }},
