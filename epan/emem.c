@@ -164,9 +164,10 @@ emem_canary(guint8 *canary) {
 	size_t sz;
 	/* Try /dev/urandom */
 	if ((fp = eth_fopen("/dev/urandom", "r")) != NULL) {
-	  sz = fread(canary, 1, EMEM_CANARY_DATA_SIZE, fp);
+		setbuf(fp, NULL);
+		sz = fread(canary, 1, EMEM_CANARY_DATA_SIZE, fp);
 		fclose(fp);
-		if (sz == EMEM_CANARY_SIZE) {
+		if (sz == EMEM_CANARY_DATA_SIZE) {
 			return;
 		}
 	}
