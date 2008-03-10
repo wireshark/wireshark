@@ -5584,8 +5584,8 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 		 */
 		format = "%s == %u";
 	} else {
-		/* Pick the proper format string */
-		switch(hfinfo->display) {
+		/* Pick the proper format string, ignoring BASE_RANGE_STRING flag */
+		switch(hfinfo->display & ~BASE_RANGE_STRING) {
 			case BASE_DEC:
 			case BASE_DEC_HEX:
 			case BASE_OCT: /* I'm lazy */
