@@ -62,8 +62,8 @@ typedef struct _packet_info {
   port_type ptype;		/* type of the following two port numbers */
   guint32 srcport;		/* source port */
   guint32 destport;		/* destination port */
-  guint32 match_port;
-  const char *match_string;	/* Subdissectors with string dissector tables use this */
+  guint32 match_port;           /* matched port for calling subdissector from table */
+  const char *match_string;	/* matched string for calling subdissector from table */
   guint16 can_desegment;	/* >0 if this segment could be desegmented.
 				   A dissector that can offer this API (e.g.
 				   TCP) sets can_desegment=2, then
@@ -118,8 +118,8 @@ typedef struct _packet_info {
   guint32 bytes_until_next_pdu;
 
 
-  int     iplen;
-  int     iphdrlen;
+  int     iplen;                /* total length of IP packet */
+  int     iphdrlen;             /* length of IP header */
   int	  p2p_dir;              /* Packet was captured as an 
                                        outbound (P2P_DIR_SENT) 
                                        inbound (P2P_DIR_RECV) 
