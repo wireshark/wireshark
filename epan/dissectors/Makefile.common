@@ -77,6 +77,7 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-wkssvc.h	\
 	packet-dcerpc-wzcsvc.h
 
+# the dissector sources (without any helpers)
 ASN_DISSECTOR_SRC = \
 	packet-acp133.c \
 	packet-acse.c \
@@ -774,6 +775,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-x11.c		\
 	packet-x25.c		\
 	packet-x29.c		\
+	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xml.c		\
 	packet-xot.c		\
@@ -786,8 +788,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ypxfr.c		\
 	packet-zebra.c 
 
-
-# the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
 	packet-bacapp.c		\
 	packet-k12.c 		\
