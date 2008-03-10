@@ -891,7 +891,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	gboolean refilter)
 {
   gint          row;
-  gint          col;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
 
