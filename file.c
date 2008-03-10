@@ -1013,19 +1013,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-    /* Setup and copy data into fdata->col_expr.col_expr & .col_expr_val */
-    fdata->col_expr.col_expr =
-	    (gchar **) se_alloc(sizeof(gchar *) * cf->cinfo.num_cols);
-    fdata->col_expr.col_expr_val =
-	    (gchar **) se_alloc(sizeof(gchar *) * cf->cinfo.num_cols);
-
-    for(col = 0; col < cf->cinfo.num_cols; col++) {
-	    fdata->col_expr.col_expr[col] = 
-		    se_strdup(cf->cinfo.col_expr.col_expr[col]);
-	    fdata->col_expr.col_expr_val[col] = 
-		    se_strdup(cf->cinfo.col_expr.col_expr_val[col]);
-
-    }
+    fdata->col_expr.col_expr = cf->cinfo.col_expr.col_expr;
+    fdata->col_expr.col_expr_val = cf->cinfo.col_expr.col_expr_val;
     
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
