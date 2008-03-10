@@ -60,7 +60,7 @@
 			<enum name="BROADCAST" code="1"/>
 		</avp>
 
-		<avp name="MBMS-2G-3G-Indicator AVP" code="907" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MBMS-2G-3G-Indicator" code="907" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="2G" code="0"/>
 			<enum name="3G" code="1"/>
