@@ -85,7 +85,8 @@ typedef enum {
     _T("PostScript (*.ps)\0")			        _T("*.ps\0")	\
     _T("CSV (Comma Separated Values summary (*.csv)\0")	_T("*.csv\0")	\
     _T("PSML (XML packet summary) (*.psml)\0") 		_T("*.psml\0")	\
-    _T("PDML (XML packet detail) (*.pdml)\0")  		_T("*.pdml\0")
+    _T("PDML (XML packet detail) (*.pdml)\0")  		_T("*.pdml\0")	\
+    _T("C Arrays (*.c)\0")				_T("*.c\0")
 
 #define FILE_TYPES_RAW \
     _T("Raw data (*.bin, *.dat, *.raw)\0")	_T("*.bin;*.dat;*.raw\0")	\
