@@ -1619,7 +1619,7 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			print_args.format = PR_FMT_TEXT;
 		    else
 			print_args.format = PR_FMT_PS;
-		    if (index == 3 || index == 4 || index == 5)
+		    if (index == 3 || index == 4 || index == 5 || index == 6)
 			pkt_fmt_enable = FALSE;
 		    else
 			pkt_fmt_enable = TRUE;
