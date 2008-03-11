@@ -919,7 +919,7 @@ AirPDcapRsna4WHandshake(
 
                 if (ret_value) {
                     AIRPDCAP_DEBUG_PRINT_LINE("AirPDcapRsna4WHandshake", "handshake step failed", AIRPDCAP_DEBUG_LEVEL_3);
-                    return ret_value;
+                    return AIRPDCAP_RET_NO_VALID_HANDSHAKE;
                 }
 
                 sa->handshake=2;
