@@ -221,6 +221,13 @@ extern void export_pdml_cmd_cb(GtkWidget *widget, gpointer data);
  */
 extern void export_csv_cmd_cb(GtkWidget *widget, gpointer data);
 
+/** User requested "Export as C Arrays" by menu.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void export_carrays_cmd_cb(GtkWidget *widget, gpointer data);
+
 /** User requested "Expand Tree" by menu.
  *
  * @param widget parent widget (unused)

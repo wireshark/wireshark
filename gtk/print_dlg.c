@@ -67,7 +67,8 @@ typedef enum {
   output_action_export_ps,      /* export to postscript */
   output_action_export_psml,    /* export to packet summary markup language */
   output_action_export_pdml,    /* export to packet data markup language */
-  output_action_export_csv      /* export to csv file */
+  output_action_export_csv,     /* export to csv file */
+  output_action_export_carrays  /* export to C array file */
 } output_action_e;
 
 
@@ -95,6 +96,7 @@ static void print_destroy_cb(GtkWidget *win, gpointer user_data);
 #define PRINT_PDML_RB_KEY         "printer_pdml_radio_button"
 #define PRINT_PSML_RB_KEY         "printer_psml_radio_button"
 #define PRINT_CSV_RB_KEY          "printer_csv_radio_button"
+#define PRINT_CARRAYS_RB_KEY      "printer_carrays_radio_button"
 #define PRINT_DEST_CB_KEY         "printer_destination_check_button"
 
 #define PRINT_SUMMARY_CB_KEY      "printer_summary_check_button"
@@ -411,6 +413,54 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   SIGNAL_CONNECT(export_csv_win, "destroy", print_destroy_cb, &export_csv_win);
 }
 
+/*
+ * Keep a static pointer to the current "Export carrays" window, if any, so that if
+ * somebody tries to do "File:Export to carrays" while there's already a "Export carrays" window
+ * up, we just pop up the existing one, rather than creating a new one.
+ */
+static GtkWidget *export_carrays_win = NULL;
+
+static print_args_t export_carrays_args;
+
+static gboolean export_carrays_prefs_init = FALSE;
+
+void
+export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
+{
+  print_args_t *args = &export_carrays_args;
+
+#if GTK_MAJOR_VERSION >= 2 && _WIN32
+  win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_carrays);
+  return;
+#endif
+
+  if (export_carrays_win != NULL) {
+    /* There's already a "Export carrays" dialog box; reactivate it. */
+    reactivate_window(export_carrays_win);
+    return;
+  }
+
+  /* get settings from preferences (and other initial values) only once */
+  if(export_carrays_prefs_init == FALSE) {
+      export_carrays_prefs_init = TRUE;
+      args->format              = PR_FMT_TEXT;
+      args->to_file             = TRUE;
+      args->file                = g_strdup("");
+      args->cmd                 = g_strdup("");
+      args->print_summary       = FALSE;
+      args->print_dissections   = print_dissections_none;
+      args->print_hex           = FALSE;
+      args->print_formfeed      = FALSE;
+  }
+
+  /* init the printing range */
+  packet_range_init(&args->range);
+
+  export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File", 
+					 output_action_export_carrays, args);
+  SIGNAL_CONNECT(export_carrays_win, "destroy", print_destroy_cb, &export_carrays_win);
+}
+
 static void
 print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 {
@@ -432,7 +482,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   GtkWidget     *main_vb;
 
   GtkWidget     *printer_fr, *printer_vb, *export_format_lb;
-  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb;
+  GtkWidget     *text_rb, *ps_rb, *pdml_rb, *psml_rb, *csv_rb, *carrays_rb;
   GtkWidget     *printer_tb, *dest_cb;
 #ifndef _WIN32
   GtkWidget     *cmd_lb, *cmd_te;
@@ -534,6 +584,16 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
       "One row for each packet, with its timestamp and size.", NULL);
   gtk_box_pack_start(GTK_BOX(printer_vb), csv_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(csv_rb); */
+
+  carrays_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "C Arrays", accel_group);
+  if (action == output_action_export_carrays)
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(carrays_rb), TRUE);
+  gtk_tooltips_set_tip (tooltips, carrays_rb,
+      "Print output in C Arrays format, "
+      "a text file suitable for use in C/C++ programs. "
+      "One char[] for each packet.", NULL);
+  gtk_box_pack_start(GTK_BOX(printer_vb), carrays_rb, FALSE, FALSE, 0);
+  /* gtk_widget_show(carrays_rb); */
 
   /* printer table */
 #ifndef _WIN32
@@ -741,6 +801,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   OBJECT_SET_DATA(ok_bt, PRINT_PDML_RB_KEY, pdml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_PSML_RB_KEY, psml_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_CSV_RB_KEY, csv_rb);
+  OBJECT_SET_DATA(ok_bt, PRINT_CARRAYS_RB_KEY, carrays_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_DEST_CB_KEY, dest_cb);
 #ifndef _WIN32
   OBJECT_SET_DATA(ok_bt, PRINT_CMD_TE_KEY, cmd_te);
@@ -869,6 +930,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gchar             *dirname;
   gboolean          export_as_pdml = FALSE, export_as_psml = FALSE;
   gboolean          export_as_csv = FALSE;
+  gboolean          export_as_carrays = FALSE;
 #ifdef _WIN32
   gboolean          win_printer = FALSE;
   int               tmp_fd;
@@ -946,6 +1008,9 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_CSV_RB_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
     export_as_csv = TRUE;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_CARRAYS_RB_KEY);
+  if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button)))
+    export_as_carrays = TRUE;
 
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUMMARY_CB_KEY);
   args->print_summary = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (button));
@@ -985,6 +1050,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     status = cf_write_psml_packets(&cfile, args);
   else if (export_as_csv)
     status = cf_write_csv_packets(&cfile, args);
+  else if (export_as_carrays)
+    status = cf_write_carrays_packets(&cfile, args);
   else {
     switch (args->format) {
 

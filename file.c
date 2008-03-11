@@ -2399,6 +2399,65 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
   return CF_PRINT_OK;
 }
 
+static gboolean
+write_carrays_packet(capture_file *cf _U_, frame_data *fdata,
+		     union wtap_pseudo_header *pseudo_header _U_, 
+		     const guint8 *pd, void *argsp)
+{
+  FILE *fh = argsp;
+
+  proto_tree_write_carrays(pd, fdata->cap_len, fdata->num, fh);
+  return !ferror(fh);
+}
+
+cf_print_status_t
+cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
+{
+  FILE        *fh;
+  psp_return_t ret;
+
+  fh = eth_fopen(print_args->file, "w");
+
+  if (fh == NULL)
+    return CF_PRINT_OPEN_ERROR; /* attempt to open destination failed */
+
+  write_carrays_preamble(fh);
+
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  ret = process_specified_packets(cf, &print_args->range, 
+				  "Writing C Arrays",
+				  "selected packets", TRUE,
+                                  write_carrays_packet, fh);
+  switch (ret) {
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing. */
+    break;
+  case PSP_FAILED:
+    /* Error while printing. */
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  write_carrays_finale(fh);
+
+  if (ferror(fh)) {
+    fclose(fh);
+    return CF_PRINT_WRITE_ERROR;
+  }
+
+  fclose(fh);
+  return CF_PRINT_OK;
+}
+
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
    value of that format. */

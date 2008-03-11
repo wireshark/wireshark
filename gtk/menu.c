@@ -468,6 +468,8 @@ static GtkItemFactoryEntry menu_items[] =
                              0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as \"_CSV\" (Comma Separated Values packet summary) file...",
                              NULL, export_csv_cmd_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/File/Export/as \"C _Arrays\" (packet bytes) file...", NULL, export_carrays_cmd_cb,
+                             0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/Export/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/Export/as XML - \"P_SML\" (packet summary) file...", NULL, export_psml_cmd_cb,
                              0, NULL, NULL),

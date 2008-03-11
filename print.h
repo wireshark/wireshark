@@ -137,6 +137,10 @@ extern void write_csv_preamble(FILE *fh);
 extern void proto_tree_write_csv(epan_dissect_t *edt, FILE *fh);
 extern void write_csv_finale(FILE *fh);
 
+extern void write_carrays_preamble(FILE *fh);
+extern void proto_tree_write_carrays(const guint8 *pd, guint32 len, guint32 num, FILE *fh);
+extern void write_carrays_finale(FILE *fh);
+
 extern void write_fields_preamble(output_fields_t* fields, FILE *fh);
 extern void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE *fh);
 extern void write_fields_finale(output_fields_t* fields, FILE *fh);

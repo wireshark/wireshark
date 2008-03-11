@@ -505,8 +505,11 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 		}
 		status = cf_print_packets(&cfile, &print_args);
 		break;
-            case export_type_csv:     /* CSV */
+            case export_type_csv:       /* CSV */
                 status = cf_write_csv_packets(&cfile, &print_args);
+                break;
+            case export_type_carrays:   /* C Arrays */
+                status = cf_write_carrays_packets(&cfile, &print_args);
                 break;
 	    case export_type_psml:	/* PSML */
 		status = cf_write_psml_packets(&cfile, &print_args);

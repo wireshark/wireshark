@@ -628,6 +628,45 @@ write_csv_finale(FILE *fh _U_)
 
 }
 
+void
+write_carrays_preamble(FILE *fh _U_)
+{
+
+}
+
+void
+proto_tree_write_carrays(const guint8 *pd, guint32 len, guint32 num, FILE *fh)
+{
+        guint32 i = 0;
+
+	if (!len)
+		return;
+
+	fprintf(fh, "char pkt%u[] = {\n", num);
+
+        for (i = 0; i < len; i++) {
+
+		fprintf(fh, "0x%02x", *(pd + i));
+
+		if (i == (len - 1)) {
+			fprintf(fh, " };\n\n");
+			break;
+		}
+
+		if (!((i + 1) % 8)) {
+			fprintf(fh, ", \n");
+		} else {
+			fprintf(fh, ", ");
+		}
+	}
+}
+
+void
+write_carrays_finale(FILE *fh _U_)
+{
+
+}
+
 /*
  * Find the data source for a specified field, and return a pointer
  * to the data in it. Returns NULL if the data is out of bounds.
