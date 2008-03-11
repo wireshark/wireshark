@@ -445,7 +445,9 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
                                                       "text", PROTOCOL_COLUMN,
                                                       NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     gtk_tree_view_column_set_expand(column, TRUE);
+#endif
     gtk_tree_view_append_column(tree_view, column);
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("% Packets", renderer,
