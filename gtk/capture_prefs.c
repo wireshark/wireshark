@@ -583,7 +583,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 							/* add row to CList */
 							row = gtk_clist_append(GTK_CLIST(clist), text);
 							gtk_clist_set_selectable(GTK_CLIST(clist), row,
-									FALSE);
+									TRUE);
 							ifopts_options_free(text);
 							break;
 						}
@@ -619,7 +619,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 
 			/* add row to CList */
 			row = gtk_clist_append(GTK_CLIST(clist), text);
-			gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
+			gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
 			ifopts_options_free(text);
 		}
 
@@ -646,7 +646,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
-		gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
+		gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
 		ifopts_options_free(text);
 	}
 	/*
@@ -667,7 +667,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
-		gtk_clist_set_selectable(GTK_CLIST(clist), row, FALSE);
+		gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
 		ifopts_options_free(text);
 	}
 }
