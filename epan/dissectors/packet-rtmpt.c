@@ -309,8 +309,8 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 					switch (iObjType) {
 						case RTMPT_TYPE_NUMBER:  
-							proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_number, tvb, offset + 0, 2, FALSE);
-							offset += 2;
+							proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_number, tvb, offset + 0, 8, FALSE);
+							offset += 8;
 							break;
 						case RTMPT_TYPE_BOOLEAN: 
 							proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_boolean, tvb, offset + 0, 1, FALSE);
@@ -350,9 +350,9 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								iObjType = tvb_get_guint8(tvb, offset + 0);
 								switch (iObjType) {
 									case RTMPT_TYPE_NUMBER:  
-										proto_tree_add_item(rtmpt_tree_prop, hf_rtmpt_amf_number, tvb, offset + 1, 2, FALSE);
-										offset += 3;
-										iPropertyLength += 3;
+										proto_tree_add_item(rtmpt_tree_prop, hf_rtmpt_amf_number, tvb, offset + 1, 8, FALSE);
+										offset += 9;
+										iPropertyLength += 9;
 										break;
 									case RTMPT_TYPE_BOOLEAN: 
 										proto_tree_add_item(rtmpt_tree_prop, hf_rtmpt_amf_boolean, tvb, offset + 1, 1, FALSE);
@@ -475,7 +475,7 @@ proto_register_rtmpt(void)
       { "AMF type", "rtmpt.amf.type", FT_UINT8, BASE_DEC, VALS(rtmpt_type_vals), 0x0, "RTMPT AMF type", HFILL }},
 
    { &hf_rtmpt_amf_number,
-      { "AMF number", "rtmpt.amf.number", FT_UINT16, BASE_DEC, NULL, 0x0, "RTMPT AMF number", HFILL }},
+      { "AMF number", "rtmpt.amf.number", FT_DOUBLE, BASE_DEC, NULL, 0x0, "RTMPT AMF number", HFILL }},
 
    { &hf_rtmpt_amf_boolean,
       { "AMF boolean", "rtmpt.amf.boolean", FT_BOOLEAN, BASE_DEC, NULL, 0x0, "RTMPT AMF boolean", HFILL }},
