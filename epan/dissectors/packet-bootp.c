@@ -2583,7 +2583,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	unsigned long flow_val = 0;
 	int off = PKT_MDC_TLV_OFF + voff;
 	int subopt_off, max_len;
-	uint tlv_len, i, mib_val;
+	guint tlv_len, i, mib_val;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	char bit_fld[64];
 	proto_item *ti, *mib_ti;
@@ -2778,7 +2778,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	unsigned long raw_val;
 	int off = DOCS_CM_TLV_OFF + voff;
-	uint tlv_len, i;
+	guint tlv_len, i;
 	guint8 asc_val[4] = "  ";
 	proto_item *ti;
 
