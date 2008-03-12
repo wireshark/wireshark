@@ -295,6 +295,8 @@ follow_read_ssl_stream(follow_info_t *follow_info,
 {
     int			iplen;
     guint32		global_client_pos = 0, global_server_pos = 0;
+    guint32		server_packet_count = 0;
+    guint32		client_packet_count = 0;
     guint32		*global_pos;
     gboolean		skip;
     GList* cur;
@@ -323,7 +325,8 @@ follow_read_ssl_stream(follow_info_t *follow_info,
             gchar *buffer = g_memdup(rec->data.data, nchars);
             
 	    frs_return = follow_show(follow_info, print_line, buffer, nchars,
-				     rec->is_server, arg, global_pos);
+				     rec->is_server, arg, global_pos,
+				     &server_packet_count, &client_packet_count);
 	    g_free(buffer);
 	    if(frs_return == FRS_PRINT_ERROR)
 		    return frs_return;

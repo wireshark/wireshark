@@ -335,6 +335,8 @@ follow_read_tcp_stream(follow_info_t *follow_info,
     guint16		client_port = 0;
     gboolean		is_server;
     guint32		global_client_pos = 0, global_server_pos = 0;
+    guint32		server_packet_count = 0;
+    guint32		client_packet_count = 0;
     guint32		*global_pos;
     gboolean		skip;
     char                buffer[FLT_BUF_SIZE+1]; /* +1 to fix ws bug 1043 */
@@ -393,8 +395,9 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 
 	    if (!skip) {
 		    frs_return = follow_show(follow_info, print_line, buffer,
-					     nchars, is_server, arg,
-					     global_pos);
+					     nchars, is_server, arg, global_pos, 
+					     &server_packet_count,
+					     &client_packet_count);
 		    if(frs_return == FRS_PRINT_ERROR) {
 			    fclose(data_out_file);
 			    data_out_file = NULL;

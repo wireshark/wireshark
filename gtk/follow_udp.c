@@ -241,6 +241,8 @@ follow_read_udp_stream(follow_info_t *follow_info,
 {
 	int iplen;
 	guint32 global_client_pos = 0, global_server_pos = 0;
+	guint32 server_packet_count = 0;
+	guint32 client_packet_count = 0;
 	guint32	*global_pos;
 	gboolean skip;
 	GList* cur;
@@ -274,7 +276,9 @@ follow_read_udp_stream(follow_info_t *follow_info,
 						 buffer,
 						 follow_record->data->len,
 						 follow_record->is_server, arg,
-						 global_pos);
+						 global_pos, 
+						 &server_packet_count,
+						 &client_packet_count);
 			g_free(buffer);
 			if(frs_return == FRS_PRINT_ERROR)
 				return frs_return;

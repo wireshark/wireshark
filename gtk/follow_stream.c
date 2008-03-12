@@ -1000,10 +1000,9 @@ frs_return_t
 follow_show(follow_info_t *follow_info, 
 	    gboolean (*print_line)(char *, size_t, gboolean, void *),
 	    char *buffer, size_t nchars, gboolean is_server, void *arg,
-	    guint32 *global_pos)
+	    guint32 *global_pos, guint32 *server_packet_count,
+	    guint32 *client_packet_count)
 {
-	guint32 server_packet_count = 0;
-	guint32 client_packet_count = 0;
 	gchar initbuf[256];
 	guint32 current_pos;
 	static const gchar hexchars[16] = "0123456789abcdef";
@@ -1084,7 +1083,7 @@ follow_show(follow_info_t *follow_info,
                 current_pos = 0;
                 g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n", 
 			   is_server ? 1 : 0, 
-			   is_server ? server_packet_count++ : client_packet_count++);
+			   is_server ? (*server_packet_count)++ : (*client_packet_count)++);
                 if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
 			return FRS_PRINT_ERROR;
 
