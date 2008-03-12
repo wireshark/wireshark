@@ -180,7 +180,7 @@ static const value_string civic_address_type_values[] = {
 };
 
 
-gboolean novell_string = FALSE;
+static gboolean novell_string = FALSE;
 
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_BOOTPC  68
@@ -651,7 +651,7 @@ bootp_get_opt_ftype(unsigned int index)
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
     gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
-    const guint8 **vendor_class_id_p)
+    const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
 	const char		*text;
 	enum field_type		ftype;
@@ -672,7 +672,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	int			o52voff, o52eoff;
 	gboolean		o52at_end;
 	gboolean		skip_opaque = FALSE;
-	int			s_option;
+	guint8			s_option;
 	int			ava_vid;
 
 
@@ -730,7 +730,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		if (!first_pass) {
 			if (bp_tree != NULL) {
 				proto_tree_add_text(bp_tree, tvb, voff, 1,
-				    "End Option");
+				    "End Option%s", *overload_p?" (overload)":"");
 			}
 		}
 		*at_end = TRUE;
@@ -768,6 +768,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	 * tree; we just check for some options we have to look at
 	 * in order to properly process the packet:
 	 *
+	 *	52 (Overload) - we need this to properly dissect the
+	 *	   file and sname fields
+	 *
 	 *	53 (DHCP message type) - if this is present, this is DHCP
 	 *
 	 *	60 (Vendor class identifier) - we need this in order to
@@ -780,6 +783,10 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	if (first_pass) {
 		if (tvb_bytes_exist(tvb, voff+2, consumed-2)) {
 			switch (code) {
+
+			case 52:
+				*overload_p = tvb_get_guint8(tvb, voff+2);
+				break;
 
 			case 53:
 				*dhcp_type_p =
@@ -976,41 +983,37 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		/* Just in case we find an option 52 in sname or file */
 		if (voff > VENDOR_INFO_OFFSET && byte >= 1 && byte <= 3) {
-			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			if (byte == 1 || byte == 3) {	/* 'file' */
-				vti = proto_tree_add_text (v_tree, tvb,
+			if (byte & OPT_OVERLOAD_FILE) {
+				proto_tree_add_text (bp_tree, tvb,
 					FILE_NAME_OFFSET, FILE_NAME_LEN,
 					"Boot file name option overload");
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				o52voff = FILE_NAME_OFFSET;
 				o52eoff = FILE_NAME_OFFSET + FILE_NAME_LEN;
 				o52at_end = FALSE;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, v_tree, o52voff,
+					o52voff += bootp_option(tvb, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
-						dhcp_type_p, vendor_class_id_p);
+						dhcp_type_p, vendor_class_id_p,
+						overload_p);
 				}
 			}
-			if (byte == 2 || byte == 3) {	/* 'sname' */
-				vti = proto_tree_add_text (v_tree, tvb,
+			if (byte & OPT_OVERLOAD_SNAME) {
+				proto_tree_add_text (bp_tree, tvb,
 					SERVER_NAME_OFFSET, SERVER_NAME_LEN,
 					"Server host name option overload");
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				o52voff = SERVER_NAME_OFFSET;
 				o52eoff = SERVER_NAME_OFFSET + SERVER_NAME_LEN;
 				o52at_end = FALSE;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, v_tree, o52voff,
+					o52voff += bootp_option(tvb, bp_tree, o52voff,
 						o52eoff, FALSE, &o52at_end,
-						dhcp_type_p, vendor_class_id_p);
+						dhcp_type_p, vendor_class_id_p,
+						overload_p);
 				}
 			}
+			/* The final end option is not in overload */
+			*overload_p = 0;
 		}
-
-/*		protocol = tvb_get_guint8(tvb, optoff);
-		proto_tree_add_text(v_tree, tvb, optoff, 1, "Protocol: %s (%u)",
-				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
-				    protocol); */
 		break;
 
 	case 53:	/* DHCP Message Type */
@@ -1356,7 +1359,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 					continue;
 				}
 
-				if ((optleft >= s_option) && (s_option > 0))
+				if (optleft >= s_option)
 				{
 					proto_tree_add_text(v_tree, tvb, optoff, s_option,
 						"CAType %d [%s] (l=%d): \"%s\"", catype,
@@ -2579,7 +2582,8 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	guint16 raw_val;
 	unsigned long flow_val = 0;
 	int off = PKT_MDC_TLV_OFF + voff;
-	int tlv_len, i, subopt_off, max_len, mib_val;
+	int subopt_off, max_len;
+	uint tlv_len, i, mib_val;
 	guint8 asc_val[3] = "  ", flow_val_str[5];
 	char bit_fld[64];
 	proto_item *ti, *mib_ti;
@@ -2774,7 +2778,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 {
 	unsigned long raw_val;
 	int off = DOCS_CM_TLV_OFF + voff;
-	int tlv_len, i;
+	uint tlv_len, i;
 	guint8 asc_val[4] = "  ";
 	proto_item *ti;
 
@@ -3312,6 +3316,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const guint8	*vendor_class_id = NULL;
 	guint16		flags, secs;
 	int		offset_delta;
+	guint8		overload = 0; /* DHCP option overload */
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
@@ -3352,107 +3357,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
-		bp_tree = proto_item_add_subtree(ti, ett_bootp);
-
-		proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
-					   0, 1,
-					   op);
-		proto_tree_add_uint_format_value(bp_tree, hf_bootp_hw_type, tvb,
-						 1, 1,
-						 htype,
-						 "%s",
-						 arphrdtype_to_str(htype,
-							     "Unknown (0x%02x)"));
-		proto_tree_add_uint(bp_tree, hf_bootp_hw_len, tvb,
-				    2, 1, hlen);
-		proto_tree_add_item(bp_tree, hf_bootp_hops, tvb,
-				    3, 1, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_id, tvb,
-				    4, 4, FALSE);
-		/*
-		 * Windows (98, XP and Vista tested) sends the "secs" value on
-		 * the wire formatted as little-endian. See if the LE value
-		 * makes sense.
-		 */
-		secs = tvb_get_letohs(tvb, 8);
-		if (secs > 0 && secs <= 0xff) {
-			proto_tree_add_uint_format(bp_tree, hf_bootp_secs, tvb,
-				    8, 2, secs, "Seconds elapsed: %u (little endian bug?)", secs);
-		} else {
-			proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
-				    8, 2, FALSE);
-		}
-		flags = tvb_get_ntohs(tvb, 10);
-		fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
-				    10, 2, flags);
-		proto_item_append_text(fi, " (%s)",
-		    (flags & BOOTP_BC) ? "Broadcast" : "Unicast");
-    		flag_tree = proto_item_add_subtree(fi, ett_bootp_flags);
-		proto_tree_add_boolean(flag_tree, hf_bootp_flags_broadcast, tvb,
-				    10, 2, flags);
-		proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
-				    10, 2, flags);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb,
-				    12, 4, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb,
-				    16, 4, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_server, tvb,
-				    20, 4, FALSE);
-		proto_tree_add_item(bp_tree, hf_bootp_ip_relay, tvb,
-				    24, 4, FALSE);
-
-		if (hlen > 0 && hlen <= 16) {
-			haddr = tvb_get_ptr(tvb, 28, hlen);
-			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
-			    && hlen == 6)
-				proto_tree_add_ether(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, haddr);
-			else
-				/* The chaddr element is 16 bytes in length,
-				   although only the first hlen bytes are used */
-				proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb,
-						   28, 16,
-						   haddr,
-						   "%s",
-						   arphrdaddr_to_str(haddr,
-								     hlen,
-								     htype));
-		}
-		else {
-			proto_tree_add_text(bp_tree,  tvb,
-						   28, 16, "Client address not given");
-		}
-
-		/* The server host name is optional */
-		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
-			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
-						   SERVER_NAME_OFFSET,
-						   SERVER_NAME_LEN, FALSE);
-		}
-		else {
-			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
-						   SERVER_NAME_OFFSET,
-						   SERVER_NAME_LEN,
-						   (const gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
-						   "Server host name not given");
-		}
-
-		/* Boot file */
-		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
-			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
-						   FILE_NAME_OFFSET,
-						   FILE_NAME_LEN, FALSE);
-		}
-		else {
-			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
-						   FILE_NAME_OFFSET,
-						   FILE_NAME_LEN,
-						   (const gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
-						   "Boot file name not given");
-		}
-	}
-
 	voff = VENDOR_INFO_OFFSET;
 
 	/* rfc2132 says it SHOULD exist, not that it MUST exist */
@@ -3465,8 +3369,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "(OK)");
 			}
 			voff += 4;
-		}
-		else {
+		} else {
 			if (tree) {
 				proto_tree_add_text(bp_tree,  tvb,
 					voff, 64, "Bootp vendor specific options");
@@ -3485,7 +3388,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	at_end = FALSE;
 	while (tmpvoff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, 0, tmpvoff, eoff, TRUE, &at_end,
-		    &dhcp_type, &vendor_class_id);
+		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
 		}
@@ -3522,10 +3425,119 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * OK, now build the protocol tree.
 	 */
+
+	ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, FALSE);
+	bp_tree = proto_item_add_subtree(ti, ett_bootp);
+
+	proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
+				   0, 1,
+				   op);
+	proto_tree_add_uint_format_value(bp_tree, hf_bootp_hw_type, tvb,
+					 1, 1,
+					 htype,
+					 "%s",
+					 arphrdtype_to_str(htype,
+						     "Unknown (0x%02x)"));
+	proto_tree_add_uint(bp_tree, hf_bootp_hw_len, tvb,
+			    2, 1, hlen);
+	proto_tree_add_item(bp_tree, hf_bootp_hops, tvb,
+			    3, 1, FALSE);
+	proto_tree_add_item(bp_tree, hf_bootp_id, tvb,
+			    4, 4, FALSE);
+	/*
+	 * Windows (98, XP and Vista tested) sends the "secs" value on
+	 * the wire formatted as little-endian. See if the LE value
+	 * makes sense.
+	 */
+	secs = tvb_get_letohs(tvb, 8);
+	if (secs > 0 && secs <= 0xff) {
+		proto_tree_add_uint_format(bp_tree, hf_bootp_secs, tvb,
+			    8, 2, secs, "Seconds elapsed: %u (little endian bug?)", secs);
+	} else {
+		proto_tree_add_item(bp_tree, hf_bootp_secs, tvb,
+			    8, 2, FALSE);
+	}
+	flags = tvb_get_ntohs(tvb, 10);
+	fi = proto_tree_add_uint(bp_tree, hf_bootp_flags, tvb,
+			    10, 2, flags);
+	proto_item_append_text(fi, " (%s)",
+	    (flags & BOOTP_BC) ? "Broadcast" : "Unicast");
+	flag_tree = proto_item_add_subtree(fi, ett_bootp_flags);
+	proto_tree_add_boolean(flag_tree, hf_bootp_flags_broadcast, tvb,
+			    10, 2, flags);
+	proto_tree_add_uint(flag_tree, hf_bootp_flags_reserved, tvb,
+			    10, 2, flags);
+	proto_tree_add_item(bp_tree, hf_bootp_ip_client, tvb,
+			    12, 4, FALSE);
+	proto_tree_add_item(bp_tree, hf_bootp_ip_your, tvb,
+			    16, 4, FALSE);
+	proto_tree_add_item(bp_tree, hf_bootp_ip_server, tvb,
+			    20, 4, FALSE);
+	proto_tree_add_item(bp_tree, hf_bootp_ip_relay, tvb,
+			    24, 4, FALSE);
+
+	if (hlen > 0 && hlen <= 16) {
+		haddr = tvb_get_ptr(tvb, 28, hlen);
+		if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
+		    && hlen == 6)
+			proto_tree_add_ether(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, haddr);
+		else
+			/* The chaddr element is 16 bytes in length,
+			   although only the first hlen bytes are used */
+			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb,
+					   28, 16,
+					   haddr,
+					   "%s",
+					   arphrdaddr_to_str(haddr,
+							     hlen,
+							     htype));
+	} else {
+		proto_tree_add_text(bp_tree,  tvb,
+					   28, 16, "Client address not given");
+	}
+
+	/* The server host name is optional */
+	if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
+		if (overload & OPT_OVERLOAD_SNAME) {
+			proto_tree_add_text (bp_tree, tvb,
+				SERVER_NAME_OFFSET, SERVER_NAME_LEN,
+				"Server name option overloaded by DHCP");
+		} else {
+			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
+					   SERVER_NAME_OFFSET,
+					   SERVER_NAME_LEN, FALSE);
+		}
+	} else {
+		proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
+					   SERVER_NAME_OFFSET,
+					   SERVER_NAME_LEN,
+					   (const gchar*)tvb_get_ptr(tvb, SERVER_NAME_OFFSET, 1),
+					   "Server host name not given");
+	}
+
+	/* Boot file */
+	if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
+		if (overload & OPT_OVERLOAD_FILE) {
+			proto_tree_add_text (bp_tree, tvb,
+				FILE_NAME_OFFSET, FILE_NAME_LEN,
+				"Boot file name option overloaded by DHCP");
+		} else {
+			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
+					   FILE_NAME_OFFSET,
+					   FILE_NAME_LEN, FALSE);
+		}
+	} else {
+		proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
+					   FILE_NAME_OFFSET,
+					   FILE_NAME_LEN,
+					   (const gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
+					   "Boot file name not given");
+	}
+
 	at_end = FALSE;
 	while (voff < eoff && !at_end) {
 		offset_delta = bootp_option(tvb, bp_tree, voff, eoff, FALSE, &at_end,
-		    &dhcp_type, &vendor_class_id);
+		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
 		}
