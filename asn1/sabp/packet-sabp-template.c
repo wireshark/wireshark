@@ -168,6 +168,11 @@ proto_reg_handoff_sabp(void)
 
 
 #include "packet-sabp-dis-tab.c"
+
+  sabp_handle = find_dissector("sabp");
+  dissector_add("tcp.port", 3452, sabp_handle);
+  dissector_add("udp.port", 3452, sabp_handle);
+  dissector_add_handle("tcp.port", sabp_handle);
 }
 
 

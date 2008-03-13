@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-sabp.c                                                              */
-/* ../../tools/asn2wrs.py -p sabp -c sabp.cnf -s packet-sabp-template SABP-CommonDataTypes.asn SABP-Constants.asn SABP-Containers.asn SABP-IEs.asn SABP-PDU-Contents.asn SABP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p sabp -c ./sabp.cnf -s ./packet-sabp-template -D . SABP-CommonDataTypes.asn SABP-Constants.asn SABP-Containers.asn SABP-IEs.asn SABP-PDU-Contents.asn SABP-PDU-Descriptions.asn */
 
 /* Input file: packet-sabp-template.c */
 
@@ -292,7 +292,7 @@ static const value_string sabp_ProcedureCode_vals[] = {
 static int
 dissect_sabp_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, &ProcedureCode, FALSE);
+                                                            0U, 255U, &ProcedureCode, FALSE);
 
 #line 51 "sabp.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -308,7 +308,7 @@ dissect_sabp_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_sabp_ProtocolExtensionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &ProtocolExtensionID, FALSE);
+                                                            0U, 65535U, &ProtocolExtensionID, FALSE);
 
   return offset;
 }
@@ -340,7 +340,7 @@ static const value_string sabp_ProtocolIE_ID_vals[] = {
 static int
 dissect_sabp_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &ProtocolIE_ID, FALSE);
+                                                            0U, 65535U, &ProtocolIE_ID, FALSE);
 
 #line 38 "sabp.cnf"
   if (tree) {
@@ -451,7 +451,7 @@ dissect_sabp_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_sabp_Available_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 20480U, NULL, FALSE);
+                                                            0U, 20480U, NULL, FALSE);
 
   return offset;
 }
@@ -511,7 +511,7 @@ static const value_string sabp_Cause_vals[] = {
 static int
 dissect_sabp_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -521,7 +521,7 @@ dissect_sabp_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_sabp_RepetitionNumber0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -580,7 +580,7 @@ dissect_sabp_Criticality_Diagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_sabp_RepetitionNumber1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 256U, NULL, FALSE);
+                                                            1U, 256U, NULL, FALSE);
 
   return offset;
 }
@@ -725,7 +725,7 @@ dissect_sabp_New_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_sabp_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -787,7 +787,7 @@ static const value_string sabp_Number_of_Broadcasts_Requested_vals[] = {
 static int
 dissect_sabp_Number_of_Broadcasts_Requested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -852,7 +852,7 @@ dissect_sabp_Recovery_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_sabp_Repetition_Period(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 4096U, NULL, FALSE);
+                                                            1U, 4096U, NULL, FALSE);
 
   return offset;
 }
@@ -2035,6 +2035,11 @@ proto_reg_handoff_sabp(void)
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
 #line 171 "packet-sabp-template.c"
+
+  sabp_handle = find_dissector("sabp");
+  dissector_add("tcp.port", 3452, sabp_handle);
+  dissector_add("udp.port", 3452, sabp_handle);
+  dissector_add_handle("tcp.port", sabp_handle);
 }
 
 
