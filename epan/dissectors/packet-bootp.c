@@ -2879,7 +2879,6 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 						break;
 				}
 			}
-fprintf(stderr,"tlv_len: %u\n", tlv_len);
 			off += (tlv_len * 2) + 4;
 		}
 	}
