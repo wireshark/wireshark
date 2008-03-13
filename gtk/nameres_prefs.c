@@ -135,7 +135,7 @@ nameres_prefs_show(void)
 	/* Max concurrent requests */
 	table_row++;
 	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
-	resolv_concurrency_te = create_preference_entry(main_tb, table_row, 
+	resolv_concurrency_te = create_preference_entry(main_tb, table_row,
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
 	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
@@ -146,7 +146,10 @@ nameres_prefs_show(void)
 	if (smi_paths_uat) {
 		table_row++;
 		sp_resolv_cb = create_preference_uat(main_tb, table_row,
-		    "SMI paths", "SMI paths to MIBS", smi_paths_uat);
+		    "SMI (MIB and PIB) paths",
+                    "Search paths for SMI (MIB and PIB) modules. You must\n"
+                    "restart Wireshark for these changes to take effect.",
+                    smi_paths_uat);
 		OBJECT_SET_DATA(main_vb, SP_RESOLVE_KEY, sp_resolv_cb);
 	}
 
@@ -155,7 +158,10 @@ nameres_prefs_show(void)
 	if (smi_modules_uat) {
 		table_row++;
 		sm_resolv_cb = create_preference_uat(main_tb, table_row,
-		    "SMI modules", "SMI list of modules", smi_modules_uat);
+		    "SMI (MIB and PIB) modules",
+                    "List of enabled SMI (MIB and PIB) modules. You must\n"
+                    "restart Wireshark for these changes to take effect.",
+                    smi_modules_uat);
 		OBJECT_SET_DATA(main_vb, SM_RESOLVE_KEY, sm_resolv_cb);
 	}
 #endif
@@ -182,7 +188,7 @@ nameres_prefs_fetch(GtkWidget *w)
 	t_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, T_RESOLVE_KEY);
 #ifdef HAVE_GNU_ADNS
 	c_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, C_RESOLVE_KEY);
-	
+
 	resolv_concurrency_te = (GtkWidget *)OBJECT_GET_DATA(w, RESOLVE_CONCURRENCY_KEY);
 #endif /* HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI

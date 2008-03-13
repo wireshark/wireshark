@@ -2422,6 +2422,10 @@ void proto_register_cops(void)
                                  "Decode the COPS messages using PacketCable clients. (Select port 2126)",
                                  &cops_packetcable);
 
+  prefs_register_static_text_preference(cops_module, "info_pibs",
+      "PIB settings can be changed in the Name Resolution preferences",
+      "PIB settings can be changed in the Name Resolution preferences");
+
   prefs_register_obsolete_preference(cops_module, "typefrommib");
 }
 

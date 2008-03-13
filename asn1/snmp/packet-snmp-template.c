@@ -1987,6 +1987,10 @@ void proto_register_snmp(void) {
 								assocs_uat);
 
 
+  prefs_register_static_text_preference(snmp_module, "info_mibs",
+      "MIB settings can be changed in the Name Resolution preferences",
+      "MIB settings can be changed in the Name Resolution preferences");
+
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
 
 	register_init_routine(renew_ue_cache);

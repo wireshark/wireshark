@@ -10972,12 +10972,12 @@ proto_register_ieee80211 (void)
       "wpa-pwd:MyPassword[:MyAP] (WPA + plaintext password [+ SSID]),\n"
       "wpa-psk:0102030405...6061626364 (WPA + 256-bit key).  "
       "Invalid keys will be ignored.",
-      "This is just a static text");
+      "Valid key formats");
 #else
   prefs_register_static_text_preference(wlan_module, "info_decryption_key",
       "Key examples: 01:02:03:04:05 (40/64-bit WEP),\n"
       "010203040506070809101111213 (104/128-bit WEP)",
-      "This is just a static text");
+      "Valid key formats");
 #endif
 
   for (i = 0; i < MAX_ENCRYPTION_KEYS; i++) {

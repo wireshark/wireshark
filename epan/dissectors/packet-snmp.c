@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3468,6 +3468,10 @@ void proto_register_snmp(void) {
 								"Table of engine-user associations used for authentication and decryption",
 								assocs_uat);
 
+
+  prefs_register_static_text_preference(snmp_module, "info_mibs",
+      "MIB settings can be changed in the Name Resolution preferences",
+      "MIB settings can be changed in the Name Resolution preferences");
 
 	value_sub_dissectors_table = register_dissector_table("snmp.variable_oid","SNMP Variable OID", FT_STRING, BASE_NONE);
 
