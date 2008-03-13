@@ -454,7 +454,7 @@ proto_register_rtmpt(void)
 {
   static hf_register_info hf[] = {
    { &hf_rtmpt_header_objid,
-      { "ObjectID", "rtmpt.header.objid", FT_UINT8, BASE_DEC, NULL, 0x0, "RTMPT Header object ID", HFILL }},
+      { "ObjectID", "rtmpt.header.objid", FT_UINT8, BASE_DEC, NULL, 0x3F, "RTMPT Header object ID", HFILL }},
 
    { &hf_rtmpt_header_timestamp,
       { "Timestamp", "rtmpt.header.timestamp", FT_UINT24, BASE_DEC, NULL, 0x0, "RTMPT Header timestamp", HFILL }},
