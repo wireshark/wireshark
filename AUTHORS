@@ -2723,6 +2723,10 @@ Holger Pfrommer		<hpfrommer [AT] hilscher.com> {
 	Hilscher analyzer protocols dissection
 }
 
+Hariharan Ananthakrishnan <hariharan.a [AT] gmail.com> {
+	ISIS LSP-ID and hostname enhancements
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

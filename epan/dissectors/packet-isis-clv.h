@@ -100,7 +100,7 @@ extern void isis_dissect_ip_int_clv(tvbuff_t *tvb, proto_tree *tree,
 extern void isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree,
         int offset, int length, int tree_id);
 extern void isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree,
-        int offset, int length);
+        int offset, int length, int tree_id);
 extern void isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree,
         int offset, int length);
 extern void isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree,

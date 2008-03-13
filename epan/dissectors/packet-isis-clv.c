@@ -231,6 +231,7 @@ isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
  *      proto_tree * : protocol display tree to fill out.  May be NULL
  *      int : offset into packet data where we are.
  *      int : length of clv we are decoding
+ *      int : tree id to use for proto tree.
  *
  * Output:
  *      void, but we will add to proto tree if !NULL.
@@ -239,7 +240,7 @@ isis_dissect_ip_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 
 void
 isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
-	int length)
+	int length, int tree_id)
 {
         if ( !tree ) return;            /* nothing to do! */
 
@@ -247,9 +248,10 @@ isis_dissect_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
                 proto_tree_add_text ( tree, tvb, offset, length,
                         "Hostname: --none--" );
         } else {
-                proto_tree_add_text ( tree, tvb, offset, length,
-                        "Hostname: %.*s", length,
-                        tvb_get_ptr(tvb, offset, length) );
+		const char* value = tvb_get_ptr(tvb, offset, length);
+                proto_tree_add_string_format ( tree, tree_id,
+			tvb, offset, length,
+                        value, "Hostname: %.*s", length, value);
         }
 }
 

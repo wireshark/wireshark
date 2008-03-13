@@ -46,6 +46,8 @@
 static int hf_isis_lsp_pdu_length = -1;
 static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
+static int hf_isis_lsp_lsp_id = -1;
+static int hf_isis_lsp_hostname = -1;
 static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_checksum_bad = -1;
 static int hf_isis_lsp_checksum_good = -1;
@@ -943,7 +945,8 @@ static void
 dissect_lsp_hostname_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-        isis_dissect_hostname_clv(tvb, tree, offset, length);
+        isis_dissect_hostname_clv(tvb, tree, offset, length, 
+		hf_isis_lsp_hostname);
 }
 
 
@@ -1801,9 +1804,11 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset_checksum = offset;
 
 	if (tree) {
-		proto_tree_add_text(lsp_tree, tvb, offset, id_length + 2,
-                                    "LSP-ID: %s",
-                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );                
+	        char* value = print_system_id( tvb_get_ptr(tvb, offset, id_length+2), 
+				    id_length+2);
+		proto_tree_add_string_format(lsp_tree, hf_isis_lsp_lsp_id, 
+			tvb, offset, id_length + 2,
+                        value, "LSP-ID: %s", value);
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1929,6 +1934,14 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_remaining_life,
 		{ "Remaining lifetime",	"isis.lsp.remaining_life", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_lsp_lsp_id,
+		{ "LSP-ID", "isis.lsp.lsp_id", FT_STRING,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_lsp_hostname,
+		{ "Hostname", "isis.lsp.hostname", FT_STRING,
+		  BASE_NONE, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_sequence_number,
 		{ "Sequence number",           "isis.lsp.sequence_number",
