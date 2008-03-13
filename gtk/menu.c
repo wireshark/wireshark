@@ -1439,6 +1439,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
+	    g_free(entry);
         }
     } else {
         /*
@@ -1459,6 +1460,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             set_menu_sensitivity(main_menu_factory, node_data->name,
                 FALSE);    /* no children yet */
             added++;
+	    g_free(entry);
         }
 
         for (child = node_data->children; child != NULL; child =
