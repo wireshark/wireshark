@@ -54,7 +54,6 @@
 #define UDP_PORT_TPNCP_HOST BASE_TPNCP_PORT
 
 #define BASE_TPNCP_DATA_LEN 256
-#define MAX_TPNCP_DATA_FIELD_NAME_LEN BASE_TPNCP_DATA_LEN
 #define MAX_TPNCP_DAT_FILE_PATH_LEN BASE_TPNCP_DATA_LEN
 #define MAX_TPNCP_DB_ENTRY_LEN BASE_TPNCP_DATA_LEN
 #define MAX_TPNCP_HEADER_LEN BASE_TPNCP_DATA_LEN
@@ -68,7 +67,7 @@
 /* The linked list for storing information about specific data fields. */
 typedef struct tpncp_data_field_info
 {
-    gchar tpncp_data_field_name[MAX_TPNCP_DATA_FIELD_NAME_LEN];
+    gchar *tpncp_data_field_name;
     gint tpncp_data_field_descr;
     gint tpncp_data_field_sign;
     gint tpncp_data_field_size;
@@ -640,7 +639,7 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
         }
         current_tpncp_data_field_info->tpncp_data_field_descr = -1;
         hf_entr.p_id = &current_tpncp_data_field_info->tpncp_data_field_descr;
-        g_strlcpy(current_tpncp_data_field_info->tpncp_data_field_name, tpncp_data_field_name, MAX_TPNCP_DATA_FIELD_NAME_LEN);
+	current_tpncp_data_field_info->tpncp_data_field_name = g_strdup(tpncp_data_field_name);
         hf_entr.hfinfo.name = current_tpncp_data_field_info->tpncp_data_field_name;
         hf_entr.hfinfo.abbrev = current_tpncp_data_field_info->tpncp_data_field_name;
         switch (tpncp_data_field_size) {
