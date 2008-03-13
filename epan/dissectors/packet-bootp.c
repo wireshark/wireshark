@@ -1329,7 +1329,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		break;
 
 	case 99: /* civic location (RFC 4776) */
-		
+
 		optleft = optlen;
 		if (optleft >= 3)
 		{
@@ -2590,7 +2590,7 @@ dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len
 	proto_tree *subtree, *subtree2;
 
 	tvb_memcpy (tvb, asc_val, off, 2);
-	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+	if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
 		proto_tree_add_text(v_tree, tvb, off, len - off,
 			"Bogus length: %s", asc_val);
 		return;
@@ -2798,7 +2798,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 
 			/* Length */
 			tvb_memcpy(tvb, asc_val, off + 2, 2);
-			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len < 1) {
+			if (sscanf((gchar*)asc_val, "%x", &tlv_len) != 1 || tlv_len > 0xff) {
 				proto_tree_add_text(v_tree, tvb, off, len - off,
 							"[Bogus length: %s]", asc_val);
 				return;
@@ -2879,6 +2879,7 @@ dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb, int voff, int len)
 						break;
 				}
 			}
+fprintf(stderr,"tlv_len: %u\n", tlv_len);
 			off += (tlv_len * 2) + 4;
 		}
 	}
