@@ -41,13 +41,16 @@
 
 /* The information in this module (DSI) comes from:
 
-  AFP 2.1 & 2.2.pdf contained in AppleShare_IP_6.3_SDK
-  available from http://www.apple.com
+  AFP 2.1 & 2.2 documentation, in PDF form, at
+
+http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
 
   The netatalk source code by Wesley Craig & Adrian Sun
 
   The Data Stream Interface description from
   http://developer.apple.com/documentation/Networking/Conceptual/AFPClient/AFPClient-6.html
+
+(no longer available, apparently)
 
  * What a Data Stream Interface packet looks like:
  * 0                               32
