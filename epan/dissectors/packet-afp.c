@@ -47,17 +47,21 @@
 
 /* The information in this module (AFP) comes from:
 
-  AFP 2.1 & 2.2.pdf contained in AppleShare_IP_6.3_SDK
-  available from http://www.apple.com
+  AFP 2.1 & 2.2 documentation, in PDF form, at
+
+http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
 
   AFP3.0.pdf from http://www.apple.com (still available?)
-  AFP3.1.pdf from
+
+  AFP 3.1 programming guide, in PDF form, at
 
    http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
 
-  AFP 3.1 in HTML from
-
+  and in HTML form, at
+  
 http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
+
+  AFP 3.1 specification, in HTML form, at
 
 http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/index.html
 
