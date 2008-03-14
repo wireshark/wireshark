@@ -30,3 +30,6 @@ PLUGIN_NAME = infiniband
 DISSECTOR_SRC = \
 	packet-infiniband.c
 
+DISSECTOR_INCLUDES = \
+	packet-infiniband.h
+
