@@ -1912,9 +1912,8 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_osd_option(tvb, offset, tree);
 		offset++;
 
-		/* getset attributes byte / sort order */
+		/* getset attributes byte */
 		dissect_osd_getsetattrib(tvb, offset, tree, cdata);
-		dissect_osd_sortorder(tvb, offset, tree);
 		offset++;
 
 		/* timestamps control */
