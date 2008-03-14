@@ -1820,8 +1820,7 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     /* for each field, we have to reset the renderer attributes */
     g_object_set (cell, "foreground-set", FALSE, NULL);
 
-    g_object_set (cell, "background", "white", NULL);
-    g_object_set (cell, "background-set", TRUE, NULL);
+    g_object_set (cell, "background-set", FALSE, NULL);
 
     g_object_set (cell, "underline", PANGO_UNDERLINE_NONE, NULL);
     g_object_set (cell, "underline-set", FALSE, NULL);
