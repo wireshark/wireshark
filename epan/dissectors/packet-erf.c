@@ -143,6 +143,11 @@ static gint ett_erf_eth = -1;
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
 
+// Possible there will be more in the future
+#define ERF_INFINIBAND 1
+gint erf_infiniband_default = ERF_INFINIBAND;
+static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
+
 typedef enum { 
   ERF_HDLC_CHDLC = 1,
   ERF_HDLC_PPP = 2,
@@ -267,6 +272,7 @@ static const value_string erf_type_vals[] = {
   { ERF_TYPE_COLOR_MC_HDLC_POS,"COLOR_MC_HDLC_POS"},
   { ERF_TYPE_AAL2,"AAL2"},
   { ERF_TYPE_PAD,"PAD"},
+  { ERF_TYPE_INFINIBAND, "INFINIBAND"},
   {0, NULL}
 };
 /* Copy of atm_guess_traffic_type from atm.c in /wiretap */
@@ -608,6 +614,10 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
 
   switch(erf_type) {
 
+  case ERF_TYPE_INFINIBAND:
+    //if(data_handle) // no infiniband header but there might be later on
+    //	call_dissector(data_handle, tvb, pinfo, tree);
+    break;
   case ERF_TYPE_LEGACY:
   case ERF_TYPE_IP_COUNTER:
   case ERF_TYPE_TCP_FLOW_COUNTER:
@@ -756,6 +766,8 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
 static void
 dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  guint8 erf_type = 0;
+  dissector_handle_t infiniband_dissector = NULL;
   proto_item *erf_item = NULL;
   proto_tree *erf_tree = NULL;
 
@@ -768,6 +780,17 @@ dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   };
   
   dissect_erf_header(tvb, pinfo, erf_tree, tree);
+
+  if (pinfo->pseudo_header) 
+  {
+    erf_type = pinfo->pseudo_header->erf.phdr.type;
+  }
+  if(erf_type == ERF_TYPE_INFINIBAND)
+  {
+	  infiniband_dissector = find_dissector("infiniband");
+	  call_dissector(infiniband_dissector, tvb, pinfo, erf_tree);
+  }
+
 }
 
 void
@@ -933,6 +956,10 @@ proto_reg_handoff_erf(void)
 
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
+	
+  /* Create ERF_INFINIBAND dissectors */
+  erf_infiniband_dissector[ERF_INFINIBAND] = find_dissector("infiniband");
+
 
   /* Create ERF_HDLC dissectors table */
   erf_hdlc_dissector[ERF_HDLC_CHDLC] = find_dissector("chdlc");

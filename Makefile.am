@@ -246,6 +246,7 @@ plugin_ldadd = \
 	-dlopen plugins/giop/cosnaming.la \
 	-dlopen plugins/giop/coseventcomm.la \
 	-dlopen plugins/gryphon/gryphon.la \
+	-dlopen plugins/infiniband/infiniband.la \
 	-dlopen plugins/irda/irda.la \
 	-dlopen plugins/lwres/lwres.la \
 	-dlopen plugins/m2m/m2m.la \

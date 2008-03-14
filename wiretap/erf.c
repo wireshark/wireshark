@@ -159,7 +159,7 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_AAL2 */
-    if (header.type > ERF_TYPE_AAL2 ) {
+	if (header.type > ERF_TYPE_INFINIBAND) {
       return 0;
     }
 
@@ -347,7 +347,14 @@ static int erf_read_header(
   pseudo_header->erf.phdr.wlen = g_ntohs(erf_header->wlen);
 
   switch (erf_header->type) {
-
+  
+  case ERF_TYPE_INFINIBAND:
+	if (phdr != NULL) 
+	{
+      phdr->len =  g_htons(erf_header->wlen);
+      phdr->caplen = g_htons(erf_header->wlen); 
+    }  
+    break;
   case ERF_TYPE_HDLC_POS:
   case ERF_TYPE_COLOR_HDLC_POS:
   case ERF_TYPE_DSM_COLOR_HDLC_POS:

@@ -1,7 +1,3 @@
-# Makefile.am
-# Automake file for Wireshark
-#
-# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
@@ -21,43 +17,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-SUBDIRS = \
-	agentx \
-	artnet \
-	asn1 \
-	ciscosm \
-	docsis \
-	enttec \
-	ethercat \
-	giop \
-	gryphon \
-	irda \
-	infiniband \
-	lwres \
-	m2m \
-	mate \
-	opcua \
-	opsi \
-	pcli \
-	profinet \
-	rlm \
-	rtnet \
-	rudp \
-	sbus \
-	stats_tree \
-	unistim \
-	v5ua \
-	wimax \
-	wimaxasncp
+# the name of the plugin
+PLUGIN_NAME = infiniband
 
-
-plugindir = @plugindir@
-
-
-EXTRA_DIST = \
-	Makefile.nmake
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
+# the dissector sources (without any helpers)
+DISSECTOR_SRC = \
+	packet-infiniband.c
 

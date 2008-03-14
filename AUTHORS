@@ -2732,6 +2732,10 @@ Hannes Kälber <hannes.kaelber--wireshark [AT] x2e.de> {
 	Automotive DLTs
 }
 
+Stephen Donnelly <stephen [AT] endace.com> {
+	Infiniband support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

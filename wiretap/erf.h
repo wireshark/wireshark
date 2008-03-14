@@ -58,6 +58,7 @@
 #define ERF_TYPE_DSM_COLOR_ETH      16
 #define ERF_TYPE_COLOR_MC_HDLC_POS  17
 #define ERF_TYPE_AAL2               18
+#define ERF_TYPE_INFINIBAND         21
 
 #define ERF_TYPE_PAD                48
 
