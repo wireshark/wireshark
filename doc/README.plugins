@@ -76,9 +76,23 @@ No modifications are needed here.
 
 3. Changes to existing Wireshark files
 
-You will also need to change the plugins/Makefile.am, the
-plugins/Makefile.nmake, the toplevel Makefile.am file, and the
-toplevel configure.in file.
+You will also need to change the following files:
+	configure.in
+	epan/Makefile.am
+	Makefile.am
+	Makefile.nmake
+	packaging/nsis/Makefile.nmake
+	packaging/nsis/wireshark.nsi
+	plugins/Makefile.am
+	plugins/Makefile.nmake
+
+You might also want to search your Wireshark development directory for
+occurrences of an existing plugin name, in case this document is out of
+date with the current directory structure. For example,
+
+	grep -rl gryphon .
+
+could be used from a shell prompt.
 
 3.1  Changes to plugins/Makefile.am
 
@@ -125,7 +139,7 @@ plugin_ldadd = \
 	-dlopen plugins/xxx/xxx.la      \
 	-dlopen plugins/wimax/wimax.la
 
-3.5  Changes to top level configure.in
+3.5  Changes to the top level configure.in
 
 You need to add your plugins Makefile to the AC_OUTPUT rule in the
 configure.in
@@ -149,7 +163,19 @@ AC_OUTPUT(
   tools/lemon/Makefile
   ,)
 
-3.6  Changes to the installers
+3.6  Changes to epan/Makefile.am
+
+Add the relative path of your plugin to plugin_src:
+
+plugin_src = \
+        ../plugins/artnet/packet-artnet.c \
+        ../plugins/asn1/packet-asn1.c \
+            ...
+        ../plugins/xxx/packet-xxx.c \
+            ...
+
+
+3.7  Changes to the installers
 
 If you want to include your plugin in an installer you have to add lines
 in the NSIS installer Makefile.nmake and wireshark.nsi files, and the U3
@@ -167,14 +193,8 @@ For the NSIS installer:
 	to the list of "File" statements in the "Dissector Plugins"
 	section in packaging/nsis/wireshark.nsi.
 
-For the U3 installer:
-
-	Add
-
-		$(COPY) $(TOPDIR)\plugins\xxx\xxx.dll $(DEVICE)\plugins\$(VERSION) $(COPY_FLAGS)
-
-	to the list of commands for the "distribution" target in
-	packaging/u3/win32/makefile.nmake.
+The U3 and PortableApps installers build their manifests, including plugins,
+from packaging/nsis/wireshark.nsi via the packagaging/ws-manifest.pl script.
 
 4. Development and plugins on Unix
 
