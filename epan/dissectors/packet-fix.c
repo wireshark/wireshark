@@ -863,8 +863,8 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     GString *label = NULL;
     GString *summary_label = NULL;
 
-    /* get at least the fix version: 8=FIX.x.x */
-    if (tvb_strneql(tvb, 0, "8=FIX.", 6) != 0) {
+    /* get at least the fix version: 8=FIX.x.x or 8=FIXT.x.x */
+    if (tvb_strneql(tvb, 0, "8=FIX", 5) != 0) {
         /* not a fix packet */
         return FALSE;
     }
