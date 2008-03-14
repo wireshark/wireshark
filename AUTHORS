@@ -2062,9 +2062,10 @@ Joshua Craig Douglas    <jdouglas [AT] enterasys.com> {
 	Enterasys Discovery Protocol (EDP) (ISMP subprotocol)
 }
 
-Dick Gooris             <gooris [AT] lucent.com> {
+Dick Gooris             <gooris [AT] alcatel-lucent.com> {
 	Added packet range selections in the save(as) dialog
 	PacketCable support in the COPS dissector
+	Xcsl dissector
 }
 
 Michael Shuldman        <michaels [AT] inet.no> {
