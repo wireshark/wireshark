@@ -31,8 +31,8 @@ SUBDIRS = \
 	ethercat \
 	giop \
 	gryphon \
-	irda \
 	infiniband \
+	irda \
 	lwres \
 	m2m \
 	mate \

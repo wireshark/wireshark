@@ -80,6 +80,7 @@ PLUGINS= \
 	../../plugins/giop/parlay.dll \
 	../../plugins/giop/tango.dll \
 	../../plugins/gryphon/gryphon.dll \
+	../../plugins/infiniband/infiniband.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
 	../../plugins/m2m/m2m.dll \

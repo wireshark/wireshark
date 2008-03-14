@@ -962,6 +962,7 @@ install-common-files:
 	xcopy ".\plugins\giop\parlay.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\giop\tango.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\gryphon\gryphon.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\infiniband\infiniband.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\irda\irda.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\lwres\lwres.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\m2m\m2m.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
