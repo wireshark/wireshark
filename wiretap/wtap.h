@@ -199,7 +199,11 @@ extern "C" {
 #define WTAP_ENCAP_BLUETOOTH_HCI			102 /*raw packets without a transport layer header e.g. H4*/
 #define WTAP_ENCAP_IPMB						103
 #define WTAP_ENCAP_IEEE802_15_4				104
-
+#define WTAP_ENCAP_X2E_XORAYA			105
+#define WTAP_ENCAP_FLEXRAY			106
+#define WTAP_ENCAP_LIN				107
+#define WTAP_ENCAP_MOST				108
+#define WTAP_ENCAP_CAN20B			109
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
 
@@ -258,6 +262,7 @@ extern "C" {
 #define WTAP_FILE_COMMVIEW					49
 #define WTAP_FILE_PCAPNG					50
 #define WTAP_FILE_BTSNOOP					51
+#define WTAP_FILE_X2E_XORAYA					52
 
 #define WTAP_NUM_FILE_TYPES			wtap_get_num_file_types()
 

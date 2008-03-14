@@ -2727,6 +2727,10 @@ Hariharan Ananthakrishnan <hariharan.a [AT] gmail.com> {
 	ISIS LSP-ID and hostname enhancements
 }
 
+Hannes Kälber <hannes.kaelber--wireshark [AT] x2e.de> {
+	Automotive DLTs
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

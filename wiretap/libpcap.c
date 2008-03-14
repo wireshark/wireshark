@@ -442,6 +442,8 @@ static const struct {
 	{ 188,		WTAP_ENCAP_IEEE802_16_MAC_CPS },
 	/* USB packets with Linux-specified header */
 	{ 189, 		WTAP_ENCAP_USB_LINUX },
+	/* CAN 2.0b frame */
+	{ 190, 		WTAP_ENCAP_CAN20B },
         /* Per-Packet Information header */
         { 192,          WTAP_ENCAP_PPI },
 	/* IEEE 802.15.4 Wireless PAN */
@@ -453,6 +455,12 @@ static const struct {
 	{ 199,		WTAP_ENCAP_IPMB },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
 	{ 201, 		WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR },
+	/* FlexRay frame */
+	{ 210, 		WTAP_ENCAP_FLEXRAY },
+	/* MOST frame */
+	{ 211, 		WTAP_ENCAP_MOST },
+	/* LIN frame */
+	{ 212, 		WTAP_ENCAP_LIN },
 
 	/*
 	 * To repeat:
