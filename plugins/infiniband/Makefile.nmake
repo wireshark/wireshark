@@ -1,7 +1,7 @@
 # Makefile.nmake
 # nmake file for Wireshark plugin
 #
-# $Id: Makefile.nmake 21963 2007-05-27 18:56:39Z guy $
+# $Id$
 #
 
 include ..\..\config.nmake

@@ -1,6 +1,8 @@
 /* packet-infiniband.h
  * Routines for Infiniband/ERF Dissection
  *
+ * $Id$
+ *
  * Copyright 2008 Endace Technology Limited
  *
  * This program is free software; you can redistribute it and/or
