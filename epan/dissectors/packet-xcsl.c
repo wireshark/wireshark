@@ -280,14 +280,16 @@ static gboolean dissect_xcsl_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_t
    gint offset = 0;
    guint8 *protocol;
 
-   protocol = tvb_get_ephemeral_string(tvb, offset, 5);
+   if (tvb_length_remaining (tvb, offset) >= 5) {
+     protocol = tvb_get_ephemeral_string(tvb, offset, 5);
 
-   if (strncmp(protocol,"xcsl",4) == 0 && (protocol[4] == ';' || protocol[4] == '-')) {
+     if (strncmp(protocol,"xcsl",4) == 0 && (protocol[4] == ';' || protocol[4] == '-')) {
 
        /* Disssect it as being an xcsl message */
        dissect_xcsl_tcp(tvb, pinfo, tree);
 
        return TRUE;
+     }
    }
 
    return FALSE;
