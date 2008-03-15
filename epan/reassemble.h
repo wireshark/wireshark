@@ -134,6 +134,14 @@ extern fragment_data *fragment_add_multiple_ok(tvbuff_t *tvb, int offset,
     packet_info *pinfo, guint32 id, GHashTable *fragment_table,
     guint32 frag_offset, guint32 frag_data_len, gboolean more_frags);
 
+/*
+ * This routine extends fragment_add to use a "reassembled_table".
+ *
+ * If, after processing this fragment, we have all the fragments, they
+ * remove that from the fragment hash table if necessary and add it
+ * to the table of reassembled fragments, and return a pointer to the
+ * head of the fragment list.
+ */
 extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
     packet_info *pinfo, guint32 id, GHashTable *fragment_table,
     GHashTable *reassembled_table, guint32 frag_offset,
