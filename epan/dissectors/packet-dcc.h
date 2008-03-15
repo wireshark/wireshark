@@ -1,5 +1,5 @@
 /* packet-dcc.c
- * Protocol defs for Distributed Checksum Clearinghouse Protocol
+ * Protocol defs for Distributed Checksum Clearinghouse protocol
  * DCC Home: http://www.rhyolite.com/anti-spam/dcc/
  *
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>

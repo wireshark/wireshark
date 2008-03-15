@@ -267,7 +267,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-daap.c		\
 	packet-data.c		\
 	packet-daytime.c 	\
-	packet-dccp.c		\
+	packet-dcc.c		\
 	packet-dcerpc-bossvr.c		\
 	packet-dcerpc-browser.c		\
 	packet-dcerpc-cds_clerkserver.c	\
@@ -838,7 +838,7 @@ DISSECTOR_INCLUDES =	\
 	packet-crmf.h	\
 	packet-dap.h	\
 	packet-data.h	\
-	packet-dccp.h	\
+	packet-dcc.h	\
 	packet-dcp.h	\
 	packet-dcerpc-browser.h	\
 	packet-dcerpc-budb.h	\

@@ -1,4 +1,4 @@
-/* packet-dccp.c
+/* packet-dcc.c
  * Routines for Distributed Checksum Clearinghouse packet dissection
  * DCC Home: http://www.rhyolite.com/anti-spam/dcc/
  *
@@ -37,57 +37,57 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <packet-dccp.h>
+#include <packet-dcc.h>
 
-static int proto_dccp = -1;
-static int hf_dccp_len = -1;
-static int hf_dccp_pkt_vers = -1;
-static int hf_dccp_op = -1;
-static int hf_dccp_clientid = -1;
-static int hf_dccp_opnums_host = -1;
-static int hf_dccp_opnums_pid = -1;
-static int hf_dccp_opnums_report = -1;
-static int hf_dccp_opnums_retrans = -1;
+static int proto_dcc = -1;
+static int hf_dcc_len = -1;
+static int hf_dcc_pkt_vers = -1;
+static int hf_dcc_op = -1;
+static int hf_dcc_clientid = -1;
+static int hf_dcc_opnums_host = -1;
+static int hf_dcc_opnums_pid = -1;
+static int hf_dcc_opnums_report = -1;
+static int hf_dcc_opnums_retrans = -1;
 
-static int hf_dccp_signature = -1;
-static int hf_dccp_max_pkt_vers = -1;
-static int hf_dccp_qdelay_ms = -1;
-static int hf_dccp_brand = -1;
+static int hf_dcc_signature = -1;
+static int hf_dcc_max_pkt_vers = -1;
+static int hf_dcc_qdelay_ms = -1;
+static int hf_dcc_brand = -1;
 
-static int hf_dccp_ck_type = -1;
-static int hf_dccp_ck_len = -1;
-static int hf_dccp_ck_sum = -1;
+static int hf_dcc_ck_type = -1;
+static int hf_dcc_ck_len = -1;
+static int hf_dcc_ck_sum = -1;
 
-static int hf_dccp_date = -1;
+static int hf_dcc_date = -1;
 
-static int hf_dccp_target = -1;
+static int hf_dcc_target = -1;
 
-static int hf_dccp_adminop = -1;
-static int hf_dccp_adminval = -1;
-static int hf_dccp_floodop = -1;
-static int hf_dccp_trace = -1;
-static int hf_dccp_trace_admin = -1;
-static int hf_dccp_trace_anon = -1;
-static int hf_dccp_trace_client = -1;
-static int hf_dccp_trace_rlim = -1;
-static int hf_dccp_trace_query = -1;
-static int hf_dccp_trace_ridc = -1;
-static int hf_dccp_trace_flood = -1;
+static int hf_dcc_adminop = -1;
+static int hf_dcc_adminval = -1;
+static int hf_dcc_floodop = -1;
+static int hf_dcc_trace = -1;
+static int hf_dcc_trace_admin = -1;
+static int hf_dcc_trace_anon = -1;
+static int hf_dcc_trace_client = -1;
+static int hf_dcc_trace_rlim = -1;
+static int hf_dcc_trace_query = -1;
+static int hf_dcc_trace_ridc = -1;
+static int hf_dcc_trace_flood = -1;
 
-static gint ett_dccp = -1;
-static gint ett_dccp_opnums = -1;
-static gint ett_dccp_op = -1;
-static gint ett_dccp_ck = -1;
-static gint ett_dccp_trace = -1;
+static gint ett_dcc = -1;
+static gint ett_dcc_opnums = -1;
+static gint ett_dcc_op = -1;
+static gint ett_dcc_ck = -1;
+static gint ett_dcc_trace = -1;
 
 /* Utility macros */
 #define D_SIGNATURE() \
-	proto_tree_add_item(dccp_optree, hf_dccp_signature, tvb, \
+	proto_tree_add_item(dcc_optree, hf_dcc_signature, tvb, \
 		offset, sizeof(DCC_SIGNATURE), FALSE); \
 	offset += sizeof(DCC_SIGNATURE);
 
 #define D_LABEL(label,len) \
-	proto_tree_add_text(dccp_optree, tvb, offset, len, label); \
+	proto_tree_add_text(dcc_optree, tvb, offset, len, label); \
 	offset += len;
 
 #define D_TEXT(label, endpad) { \
@@ -98,7 +98,7 @@ static gint ett_dccp_trace = -1;
 		linelen = tvb_find_line_end(tvb, offset, left, &next_offset, \
 		    FALSE); \
 		line = tvb_get_ptr(tvb, offset, linelen); \
-		proto_tree_add_text(dccp_optree, tvb, offset, \
+		proto_tree_add_text(dcc_optree, tvb, offset, \
 			next_offset - offset, "%s: %s", \
 			label, tvb_format_text(tvb, offset, next_offset - offset)); \
 		offset = next_offset; \
@@ -107,40 +107,40 @@ static gint ett_dccp_trace = -1;
 
 
 #define D_TARGET() \
-	proto_tree_add_item_hidden(dccp_tree, hf_dccp_target, tvb, \
+	proto_tree_add_item_hidden(dcc_tree, hf_dcc_target, tvb, \
 		offset, sizeof(DCC_TGTS), FALSE); \
-	proto_tree_add_text(dccp_optree, tvb, offset, sizeof(DCC_TGTS), \
-		val_to_str(tvb_get_ntohl(tvb,offset), dccp_target_vals, "Targets (%u)")); \
+	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), \
+		val_to_str(tvb_get_ntohl(tvb,offset), dcc_target_vals, "Targets (%u)")); \
 	offset += sizeof(DCC_TGTS); \
 
 #define D_DATE() { \
 	nstime_t ts; \
 	ts.nsecs = 0; \
 	ts.secs = tvb_get_ntohl(tvb,offset); \
-	proto_tree_add_time(dccp_optree, hf_dccp_date, tvb, offset, 4, &ts); \
+	proto_tree_add_time(dcc_optree, hf_dcc_date, tvb, offset, 4, &ts); \
 	offset += 4; \
 }
 
 
 #define D_CHECKSUM() { \
 	proto_tree *cktree, *ti; \
-	ti = proto_tree_add_text(dccp_optree, tvb, offset, sizeof(DCC_CK), \
+	ti = proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_CK), \
 		"Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
-		dccp_cktype_vals, \
+		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
-	cktree = proto_item_add_subtree(ti, ett_dccp_ck); \
-	proto_tree_add_item(cktree, hf_dccp_ck_type, tvb, offset, 1, FALSE); \
+	cktree = proto_item_add_subtree(ti, ett_dcc_ck); \
+	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, FALSE); \
 	offset += 1; \
-	proto_tree_add_item(cktree, hf_dccp_ck_len, tvb, offset, 1, FALSE); \
+	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, FALSE); \
 	offset += 1; \
-	proto_tree_add_item(cktree, hf_dccp_ck_sum, tvb, offset, \
+	proto_tree_add_item(cktree, hf_dcc_ck_sum, tvb, offset, \
 		sizeof(DCC_SUM), FALSE); \
 	offset += sizeof(DCC_SUM); \
 }
 
 
 /* Lookup string tables */
-static const value_string dccp_op_vals[] = {
+static const value_string dcc_op_vals[] = {
 	{DCC_OP_INVALID, "Invalid Op"},
 	{DCC_OP_NOP, 	"No-Op"},
 	{DCC_OP_REPORT, "Report and Query"},
@@ -153,7 +153,7 @@ static const value_string dccp_op_vals[] = {
 	{0, NULL}
 };
 
-static const value_string dccp_cktype_vals[] = {
+static const value_string dcc_cktype_vals[] = {
 	{DCC_CK_INVALID, "Invalid/Deleted from DB when seen"},
 	{DCC_CK_IP, 	"MD5 of binary source IPv6 address"},
 	{DCC_CK_ENV_FROM, "MD5 of envelope Mail From value"},
@@ -171,7 +171,7 @@ static const value_string dccp_cktype_vals[] = {
 	{0, NULL},
 };
 
-static const value_string dccp_adminop_vals[] = {
+static const value_string dcc_adminop_vals[] = {
 	{DCC_AOP_OK, "Never sent"},
 	{DCC_AOP_STOP, "Stop Gracefully"},
 	{DCC_AOP_NEW_IDS, "Load keys and client IDs"},
@@ -186,7 +186,7 @@ static const value_string dccp_adminop_vals[] = {
 	{0, NULL},
 };
 
-static const value_string dccp_target_vals[] = {
+static const value_string dcc_target_vals[] = {
 	{DCC_TGTS_TOO_MANY, "Targets (>= 16777200)"},
 	{DCC_TGTS_OK, "Certified not spam"},
 	{DCC_TGTS_OK2, "Half certified not spam"},
@@ -195,7 +195,7 @@ static const value_string dccp_target_vals[] = {
 	{0, NULL},
 };
 
-static const value_string dccp_floodop_vals[] = {
+static const value_string dcc_floodop_vals[] = {
 	{DCC_AOP_FLOD_CHECK, "Check"},
 	{DCC_AOP_FLOD_SHUTDOWN, "Shutdown"},
 	{DCC_AOP_FLOD_HALT, "Halt"},
@@ -208,10 +208,10 @@ static const value_string dccp_floodop_vals[] = {
 };
 
 static gboolean
-dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree      *dccp_tree, *dccp_optree, *dccp_opnumtree, *ti;
-	proto_tree *dccp_tracetree;
+	proto_tree      *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
+	proto_tree *dcc_tracetree;
 	int offset = 0;
 	int client_is_le = 0;
 	int op = 0;
@@ -229,7 +229,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCCP");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DCC");
 
 	offset = 0;
 	is_response = pinfo->srcport == DCC_PORT;
@@ -239,39 +239,39 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"%s: %s",
 			is_response ? "Response" : "Request",
 			val_to_str(tvb_get_guint8(tvb, offset+3),
-				 dccp_op_vals, "Unknown Op: %u")
+				 dcc_op_vals, "Unknown Op: %u")
 		);
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_dccp, tvb, offset, -1,
+		ti = proto_tree_add_item(tree, proto_dcc, tvb, offset, -1,
 			FALSE);
-		dccp_tree = proto_item_add_subtree(ti, ett_dccp);
+		dcc_tree = proto_item_add_subtree(ti, ett_dcc);
 
-		proto_tree_add_item(dccp_tree, hf_dccp_len, tvb,
+		proto_tree_add_item(dcc_tree, hf_dcc_len, tvb,
 			offset, 2, FALSE);
 
 		if ( tvb_length(tvb) < tvb_get_ntohs(tvb, offset)) {
 			/* Doesn't have number of bytes that header claims. */
-			proto_tree_add_text(dccp_tree, tvb, offset, 2, "Error - packet is shorter than header claims!");
+			proto_tree_add_text(dcc_tree, tvb, offset, 2, "Error - packet is shorter than header claims!");
 		}
 		offset += 2;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_pkt_vers, tvb,
+		proto_tree_add_item(dcc_tree, hf_dcc_pkt_vers, tvb,
 			offset, 1, FALSE);
 		offset += 1;
 
 		op = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(dccp_tree, hf_dccp_op, tvb,
+		proto_tree_add_item(dcc_tree, hf_dcc_op, tvb,
 			offset, 1, FALSE);
 		offset += 1;
 
-		proto_tree_add_item(dccp_tree, hf_dccp_clientid, tvb,
+		proto_tree_add_item(dcc_tree, hf_dcc_clientid, tvb,
 			offset, 4, FALSE);
 		offset += 4;
 
-		ti = proto_tree_add_text(dccp_tree, tvb, offset, -1, "Operation Numbers (Opaque to Server)");
-		dccp_opnumtree = proto_item_add_subtree(ti, ett_dccp_opnums);
+		ti = proto_tree_add_text(dcc_tree, tvb, offset, -1, "Operation Numbers (Opaque to Server)");
+		dcc_opnumtree = proto_item_add_subtree(ti, ett_dcc_opnums);
 
 		/* Note - these are indeterminate - they are sortof considered opaque to the client */
 		/* Make some attempt to figure out if this data is little endian, not guaranteed to be
@@ -284,25 +284,25 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 (tvb_get_guint8(tvb, offset+8) | tvb_get_guint8(tvb, offset+9)) &&
 						 (tvb_get_guint8(tvb, offset+12) | tvb_get_guint8(tvb, offset+13)) );
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_host, tvb,
+		proto_tree_add_item(dcc_opnumtree, hf_dcc_opnums_host, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_pid, tvb,
+		proto_tree_add_item(dcc_opnumtree, hf_dcc_opnums_pid, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_report, tvb,
+		proto_tree_add_item(dcc_opnumtree, hf_dcc_opnums_report, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		proto_tree_add_item(dccp_opnumtree, hf_dccp_opnums_retrans, tvb,
+		proto_tree_add_item(dcc_opnumtree, hf_dcc_opnums_retrans, tvb,
 			offset, 4, client_is_le);
 		offset += 4;
 
-		ti = proto_tree_add_text(dccp_tree, tvb, offset, -1, "Operation: %s",
-			val_to_str(op, dccp_op_vals, "Unknown Op: %u"));
-		dccp_optree = proto_item_add_subtree(ti, ett_dccp_op);
+		ti = proto_tree_add_text(dcc_tree, tvb, offset, -1, "Operation: %s",
+			val_to_str(op, dcc_op_vals, "Unknown Op: %u"));
+		dcc_optree = proto_item_add_subtree(ti, ett_dcc_op);
 
 		switch(op) {
 			case DCC_OP_NOP:
@@ -353,40 +353,40 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					D_DATE();
 
 					aop = tvb_get_guint8(tvb, offset+4);
-					proto_tree_add_item(dccp_optree, hf_dccp_adminop, tvb, offset+4,
+					proto_tree_add_item(dcc_optree, hf_dcc_adminop, tvb, offset+4,
 						1, FALSE);
 					if (check_col(pinfo->cinfo, COL_INFO)) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 							val_to_str(tvb_get_guint8(tvb,offset+4),
-							dccp_adminop_vals, "Unknown (%u)"));
+							dcc_adminop_vals, "Unknown (%u)"));
 					}
 
 					if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )
 					{
-						ti = proto_tree_add_item(dccp_optree, hf_dccp_trace, tvb, offset,
+						ti = proto_tree_add_item(dcc_optree, hf_dcc_trace, tvb, offset,
 							4, FALSE);
-						dccp_tracetree = proto_item_add_subtree(ti, ett_dccp_trace);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_admin, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_anon, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_client, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_rlim, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_query, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_ridc, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dccp_tracetree, hf_dccp_trace_flood, tvb, offset, 4, FALSE);
+						dcc_tracetree = proto_item_add_subtree(ti, ett_dcc_trace);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_admin, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_anon, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_client, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_rlim, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_query, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_ridc, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_flood, tvb, offset, 4, FALSE);
 					}
 					else if ( aop == DCC_AOP_FLOD )
 					{
-						proto_tree_add_item(dccp_optree, hf_dccp_floodop,
+						proto_tree_add_item(dcc_optree, hf_dcc_floodop,
 							tvb, offset, 4, FALSE);
 						if (check_col(pinfo->cinfo, COL_INFO)) {
 							col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 								val_to_str(tvb_get_ntohl(tvb,offset),
-								dccp_floodop_vals, "Unknown (%u)"));
+								dcc_floodop_vals, "Unknown (%u)"));
 						}
 					}
 					else
 					{
-						proto_tree_add_item(dccp_optree, hf_dccp_adminval,
+						proto_tree_add_item(dcc_optree, hf_dcc_adminval,
 							tvb, offset, 4, FALSE);
 					}
 					offset += 4;
@@ -398,17 +398,17 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case DCC_OP_OK:
-				proto_tree_add_item(dccp_optree, hf_dccp_max_pkt_vers, tvb,
+				proto_tree_add_item(dcc_optree, hf_dcc_max_pkt_vers, tvb,
 					offset, 1, FALSE);
 				offset += 1;
 
 				D_LABEL("Unused", 1);
 
-				proto_tree_add_item(dccp_optree, hf_dccp_qdelay_ms, tvb,
+				proto_tree_add_item(dcc_optree, hf_dcc_qdelay_ms, tvb,
 					offset, 2, FALSE);
 				offset += 2;
 
-				proto_tree_add_item(dccp_optree, hf_dccp_brand, tvb,
+				proto_tree_add_item(dcc_optree, hf_dcc_brand, tvb,
 					offset, sizeof(DCC_BRAND), FALSE);
 				offset += sizeof(DCC_BRAND);
 
@@ -425,140 +425,140 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 void
-proto_register_dccp(void)
+proto_register_dcc(void)
 {
 	static hf_register_info hf[] = {
-			{ &hf_dccp_len, {
-				"Packet Length", "dccp.len", FT_UINT16, BASE_DEC,
+			{ &hf_dcc_len, {
+				"Packet Length", "dcc.len", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet Length", HFILL }},
 
-			{ &hf_dccp_pkt_vers, {
-				"Packet Version", "dccp.pkt_vers", FT_UINT16, BASE_DEC,
+			{ &hf_dcc_pkt_vers, {
+				"Packet Version", "dcc.pkt_vers", FT_UINT16, BASE_DEC,
 				NULL, 0, "Packet Version", HFILL }},
 
-			{ &hf_dccp_op, {
-				"Operation Type", "dccp.op", FT_UINT8, BASE_DEC,
-				VALS(dccp_op_vals), 0, "Operation Type", HFILL }},
+			{ &hf_dcc_op, {
+				"Operation Type", "dcc.op", FT_UINT8, BASE_DEC,
+				VALS(dcc_op_vals), 0, "Operation Type", HFILL }},
 
-			{ &hf_dccp_clientid, {
-				"Client ID", "dccp.clientid", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_clientid, {
+				"Client ID", "dcc.clientid", FT_UINT32, BASE_DEC,
 				NULL, 0, "Client ID", HFILL }},
 
-			{ &hf_dccp_opnums_host, {
-				"Host", "dccp.opnums.host", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_opnums_host, {
+				"Host", "dcc.opnums.host", FT_UINT32, BASE_DEC,
 				NULL, 0, "Host", HFILL }},
 
-			{ &hf_dccp_opnums_pid, {
-				"Process ID", "dccp.opnums.pid", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_opnums_pid, {
+				"Process ID", "dcc.opnums.pid", FT_UINT32, BASE_DEC,
 				NULL, 0, "Process ID", HFILL }},
 
-			{ &hf_dccp_opnums_report, {
-				"Report", "dccp.opnums.report", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_opnums_report, {
+				"Report", "dcc.opnums.report", FT_UINT32, BASE_DEC,
 				NULL, 0, "Report", HFILL }},
 
-			{ &hf_dccp_opnums_retrans, {
-				"Retransmission", "dccp.opnums.retrans", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_opnums_retrans, {
+				"Retransmission", "dcc.opnums.retrans", FT_UINT32, BASE_DEC,
 				NULL, 0, "Retransmission", HFILL }},
 
-			{ &hf_dccp_signature, {
-				"Signature", "dccp.signature", FT_BYTES, BASE_HEX,
+			{ &hf_dcc_signature, {
+				"Signature", "dcc.signature", FT_BYTES, BASE_HEX,
 				NULL, 0, "Signature", HFILL }},
 
-			{ &hf_dccp_max_pkt_vers, {
-				"Maximum Packet Version", "dccp.max_pkt_vers", FT_UINT8, BASE_DEC,
+			{ &hf_dcc_max_pkt_vers, {
+				"Maximum Packet Version", "dcc.max_pkt_vers", FT_UINT8, BASE_DEC,
 				NULL, 0, "Maximum Packet Version", HFILL }},
 
-			{ &hf_dccp_qdelay_ms, {
-				"Client Delay", "dccp.qdelay_ms", FT_UINT16, BASE_DEC,
+			{ &hf_dcc_qdelay_ms, {
+				"Client Delay", "dcc.qdelay_ms", FT_UINT16, BASE_DEC,
 				NULL, 0, "Client Delay", HFILL }},
 
-			{ &hf_dccp_brand, {
-				"Server Brand", "dccp.brand", FT_STRING, BASE_DEC,
+			{ &hf_dcc_brand, {
+				"Server Brand", "dcc.brand", FT_STRING, BASE_DEC,
 				NULL, 0, "Server Brand", HFILL }},
 
-			{ &hf_dccp_ck_type, {
-				"Type", "dccp.checksum.type", FT_UINT8, BASE_DEC,
-				VALS(dccp_cktype_vals), 0, "Checksum Type", HFILL }},
+			{ &hf_dcc_ck_type, {
+				"Type", "dcc.checksum.type", FT_UINT8, BASE_DEC,
+				VALS(dcc_cktype_vals), 0, "Checksum Type", HFILL }},
 
-			{ &hf_dccp_ck_len, {
-				"Length", "dccp.checksum.length", FT_UINT8, BASE_DEC,
+			{ &hf_dcc_ck_len, {
+				"Length", "dcc.checksum.length", FT_UINT8, BASE_DEC,
 				NULL, 0, "Checksum Length", HFILL }},
 
-			{ &hf_dccp_ck_sum, {
-				"Sum", "dccp.checksum.sum", FT_BYTES, BASE_HEX,
+			{ &hf_dcc_ck_sum, {
+				"Sum", "dcc.checksum.sum", FT_BYTES, BASE_HEX,
 				NULL, 0, "Checksum", HFILL }},
 
-			{ &hf_dccp_target, {
-				"Target", "dccp.target", FT_UINT32, BASE_HEX,
+			{ &hf_dcc_target, {
+				"Target", "dcc.target", FT_UINT32, BASE_HEX,
 				NULL, 0, "Target", HFILL }},
 
-			{ &hf_dccp_date, {
-				"Date", "dccp.date", FT_ABSOLUTE_TIME, BASE_DEC,
+			{ &hf_dcc_date, {
+				"Date", "dcc.date", FT_ABSOLUTE_TIME, BASE_DEC,
 				NULL, 0, "Date", HFILL }},
 
-			{ &hf_dccp_adminop, {
-				"Admin Op", "dccp.adminop", FT_UINT8, BASE_DEC,
-				VALS(dccp_adminop_vals), 0, "Admin Op", HFILL }},
+			{ &hf_dcc_adminop, {
+				"Admin Op", "dcc.adminop", FT_UINT8, BASE_DEC,
+				VALS(dcc_adminop_vals), 0, "Admin Op", HFILL }},
 
-			{ &hf_dccp_adminval, {
-				"Admin Value", "dccp.adminval", FT_UINT32, BASE_DEC,
+			{ &hf_dcc_adminval, {
+				"Admin Value", "dcc.adminval", FT_UINT32, BASE_DEC,
 				NULL, 0, "Admin Value", HFILL }},
 
-			{ &hf_dccp_trace, {
-				"Trace Bits", "dccp.trace", FT_UINT32, BASE_HEX,
+			{ &hf_dcc_trace, {
+				"Trace Bits", "dcc.trace", FT_UINT32, BASE_HEX,
 				NULL, 0, "Trace Bits", HFILL }},
 
-			{ &hf_dccp_trace_admin, {
-				"Admin Requests", "dccp.trace.admin", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_admin, {
+				"Admin Requests", "dcc.trace.admin", FT_BOOLEAN, 32,
 				NULL, 0x00000001, "Admin Requests", HFILL }},
 
-			{ &hf_dccp_trace_anon, {
-				"Anonymous Requests", "dccp.trace.anon", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_anon, {
+				"Anonymous Requests", "dcc.trace.anon", FT_BOOLEAN, 32,
 				NULL, 0x00000002, "Anonymous Requests", HFILL }},
 
-			{ &hf_dccp_trace_client, {
-				"Authenticated Client Requests", "dccp.trace.client", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_client, {
+				"Authenticated Client Requests", "dcc.trace.client", FT_BOOLEAN, 32,
 				NULL, 0x00000004, "Authenticated Client Requests", HFILL }},
 
-			{ &hf_dccp_trace_rlim, {
-				"Rate-Limited Requests", "dccp.trace.rlim", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_rlim, {
+				"Rate-Limited Requests", "dcc.trace.rlim", FT_BOOLEAN, 32,
 				NULL, 0x00000008, "Rate-Limited Requests", HFILL }},
 
-			{ &hf_dccp_trace_query, {
-				"Queries and Reports", "dccp.trace.query", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_query, {
+				"Queries and Reports", "dcc.trace.query", FT_BOOLEAN, 32,
 				NULL, 0x00000010, "Queries and Reports", HFILL }},
 
-			{ &hf_dccp_trace_ridc, {
-				"RID Cache Messages", "dccp.trace.ridc", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_ridc, {
+				"RID Cache Messages", "dcc.trace.ridc", FT_BOOLEAN, 32,
 				NULL, 0x00000020, "RID Cache Messages", HFILL }},
 
-			{ &hf_dccp_trace_flood, {
-				"Input/Output Flooding", "dccp.trace.flood", FT_BOOLEAN, 32,
+			{ &hf_dcc_trace_flood, {
+				"Input/Output Flooding", "dcc.trace.flood", FT_BOOLEAN, 32,
 				NULL, 0x00000040, "Input/Output Flooding", HFILL }},
 
-			{ &hf_dccp_floodop, {
-				"Flood Control Operation", "dccp.floodop", FT_UINT32, BASE_DEC,
-				VALS(dccp_floodop_vals), 0, "Flood Control Operation", HFILL }},
+			{ &hf_dcc_floodop, {
+				"Flood Control Operation", "dcc.floodop", FT_UINT32, BASE_DEC,
+				VALS(dcc_floodop_vals), 0, "Flood Control Operation", HFILL }},
 
         };
 	static gint *ett[] = {
-		&ett_dccp,
-		&ett_dccp_op,
-		&ett_dccp_ck,
-		&ett_dccp_opnums,
-		&ett_dccp_trace,
+		&ett_dcc,
+		&ett_dcc_op,
+		&ett_dcc_ck,
+		&ett_dcc_opnums,
+		&ett_dcc_trace,
 	};
 
-	proto_dccp = proto_register_protocol("Distributed Checksum Clearinghouse Protocol",
-	    "DCCP", "dccp");
+	proto_dcc = proto_register_protocol("Distributed Checksum Clearinghouse protocol",
+	    "DCC", "dcc");
 
-	proto_register_field_array(proto_dccp, hf, array_length(hf));
+	proto_register_field_array(proto_dcc, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_dccp(void)
+proto_reg_handoff_dcc(void)
 {
-	heur_dissector_add("udp", dissect_dccp, proto_dccp);
+	heur_dissector_add("udp", dissect_dcc, proto_dcc);
 }
