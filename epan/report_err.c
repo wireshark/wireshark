@@ -59,7 +59,7 @@ report_failure(const char *msg_format, ...)
  * Report an error when trying to open or create a file.
  * "err" is assumed to be an error code from Wiretap; positive values are
  * UNIX-style errnos, so this can be used for open failures not from
- * Wiretap as long as the failue code is just an errno.
+ * Wiretap as long as the failure code is just an errno.
  */
 void
 report_open_failure(const char *filename, int err,
