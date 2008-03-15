@@ -1,0 +1,504 @@
+#
+# GTK theme to be used on Mac OS X, to mimic the appearance of Tiger
+#
+# $Id$
+# 
+# Heavily based on Clearlooks-Quicksilver
+# Scrollbars from OSX-theme by Lauri Taimila (lauri@taimila.com)
+# 
+# (c) 2007 JiHO <jo.irisson@gmail.com>. 
+# GNU General Public License http://www.gnu.org/copyleft/gpl.html
+#
+
+style "clearlooks-default"
+{
+	GtkButton		::default_border	 = { 0, 0, 0, 0 }
+	GtkRange			::trough_border	 = 0
+	GtkPaned			::handle_size		 = 6
+	GtkRange			::slider_width		 = 15
+	GtkRange			::stepper_size		 = 15
+	GtkScrollbar	::min_slider_length = 30
+	GtkCheckButton	::indicator_size	 = 12
+	GtkMenuBar		::internal-padding	 = 0
+	GtkTreeView		::expander_size	 = 14
+	GtkExpander		::expander_size	 = 16
+
+	xthickness = 1
+	ythickness = 1
+
+	fg[NORMAL]			= "#000000" # black
+	fg[PRELIGHT]		= "#000000" # black
+	fg[SELECTED]		= "#ffffff" # white 
+	fg[ACTIVE]			= "#000000" # black
+	fg[INSENSITIVE]	= {0.6, 0.6, 0.6} # dark gray
+
+	bg[NORMAL]			= {0.95, 0.95, 0.95} # very light gray
+	bg[PRELIGHT]		= "#ffffff" # white
+	bg[SELECTED]		= "#4a76cd"	# menu color
+	bg[INSENSITIVE]	= {0.9, 0.9, 0.9} # light gray
+	bg[ACTIVE]			= {0.85, 0.85, 0.85} # gray
+
+	base[NORMAL]		= "#ffffff" # white 
+	base[PRELIGHT]		= "#4a76cd" # menu color
+	base[ACTIVE]		= {0.6, 0.6, 0.6} # dark gray
+	base[SELECTED]		= {0.709800,0.835300,1.000000} # highlight color
+	base[INSENSITIVE] = {0.9, 0.9, 0.9} # light gray
+
+	text[NORMAL]		= "#000000" # black
+	text[PRELIGHT]		= "#000000" # black
+	text[ACTIVE]		= "#ffffff" # white
+	text[SELECTED]		= "#ffffff" # white
+	text[INSENSITIVE]	= {0.6, 0.6, 0.6} # dark gray
+
+	engine "clearlooks" 
+	{
+	menubarstyle		= 1		# 0 = flat, 1 = sunken, 2 = flat gradient
+	menuitemstyle		= 0		# 0 = flat, 1 = 3d-ish (gradient), 2 = 3d-ish (button)
+	listviewitemstyle	= 0		# 0 = flat, 1 = 3d-ish (gradient)
+	progressbarstyle	= 0		# 0 = candy bar, 1 = flat
+	}
+}
+
+style "clearlooks-wide" = "clearlooks-default"
+{
+	xthickness = 2
+	ythickness = 2
+}
+
+style "clearlooks-button" = "clearlooks-default"
+{
+	xthickness = 3
+	ythickness = 3
+
+	bg[NORMAL] = "#f0f1f2" # a hint of blue...
+}
+
+style "clearlooks-notebook" = "clearlooks-wide"
+{
+	bg[NORMAL] = {0.93, 0.93, 0.93}
+	bg[INSENSITIVE] = {0.93, 0.93, 0.93}
+}
+
+style "clearlooks-tasklist" = "clearlooks-default"
+{
+	xthickness = 5
+	ythickness = 3
+}
+
+style "clearlooks-menu" = "clearlooks-default"
+{
+	xthickness = 2
+	ythickness = 1
+	bg[NORMAL] = "#ffffff"
+}
+
+style "clearlooks-menu-item" = "clearlooks-default"
+{
+	xthickness = 2
+	ythickness = 3
+	fg[PRELIGHT] = "#ffffff"
+	text[PRELIGHT] = "#ffffff"
+}
+
+style "clearlooks-menu-itembar" = "clearlooks-default"
+{
+	xthickness = 3
+	ythickness = 3
+}
+
+style "clearlooks-tree" = "clearlooks-default"
+{
+	xthickness = 2
+	ythickness = 2
+}
+
+style "clearlooks-frame-title" = "clearlooks-default"
+{
+	fg[NORMAL] = "#404040"
+}
+
+style "clearlooks-tooltips" = "clearlooks-default"
+{
+	xthickness = 4
+	ythickness = 4
+	bg[NORMAL] = { 1.0,1.0,0.75 }
+}
+
+style "clearlooks-progressbar" = "clearlooks-default"
+{
+	xthickness = 1
+	ythickness = 1
+
+	fg[PRELIGHT]	= "#ffffff"
+}
+
+style "clearlooks-combo" = "clearlooks-default"
+{
+	xthickness = 2
+	ythickness = 3
+}
+
+# Added pixmaps for scollbars
+style "scrollbar" = "default"
+{
+	# The values I set here have to do with the relative size of three graphic elements
+	# I have used: the slider, the arrow box, and the trough. They all have the same width
+	# of 15 pixels, but gtk wants to put in some spacing between them. It seems like it
+	# places the sliders inside the trough with a default 1 pixel border on either side of the slider,
+	# so that the trough has its width stretched by an additional two pixels(?). Setting the
+	# trough border makes the arrow box sit on top of the trough squarely, by making sure that
+	# the trough stays the same width as the arrowbox(?). I could be totally wrong here.
+	GtkRange::trough_border = 0
+	GtkRange::slider_width = 15
+
+	# This sets the size of the steppers (arrow buttons on the end of the scrollbar). 
+	# The image I am using is 15x15 pixels, and if I dont set this a one pixel line 
+	# gets cut off of the top of the "up" stepper.
+	GtkRange::stepper_size = 15
+
+	# Set a minimum length for the slider. Since I set the border on the slider 
+	# image to 15 pixels on either end of the slider I want the min length to be 
+	# at least 30 pixels to avoid an ugly slider when gtk wants to make it smaller 
+	# than 30 pixels.
+	GtkScrollbar::min_slider_length = 30
+
+	engine "pixmap" 
+	{
+		# Horizontal slider background
+		image 
+		{
+			function		= BOX
+			recolorable		= TRUE
+			detail			= "trough"
+			file			= "Scrollbars/trough-scrollbar-horiz.png"
+			border			= { 30, 30, 0, 0 }
+			stretch			= TRUE
+			orientation		= HORIZONTAL
+		}
+		
+		# Vertical slider background
+		image 
+		{
+			function		= BOX
+			recolorable		= TRUE
+			detail			= "trough"
+			file			= "Scrollbars/trough-scrollbar-vert.png"
+			border			= { 0, 0, 30, 30 }
+			stretch			= TRUE
+			orientation		= VERTICAL
+		}
+
+		# Normal horizontal slider
+		image 
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= NORMAL
+			file			= "Scrollbars_1/slider-horiz.png"
+			border			= { 15, 15, 6, 6 }
+			stretch			= TRUE
+			orientation		= HORIZONTAL
+		}
+		
+		# Horizontal slider (active)
+		image 
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= ACTIVE
+			file			= "Scrollbars_1/slider-horiz-prelight.png"
+			border			= { 15, 15, 6, 6 }
+			stretch			= TRUE
+			orientation		= HORIZONTAL
+		}
+
+		# Horizontal slider (mouse over)
+		image 
+		{
+			function		= SLIDER 
+			recolorable		= TRUE
+			state			= PRELIGHT
+			file			= "Scrollbars_1/slider-horiz-prelight.png"
+			border			= { 15, 15, 6, 6 }
+			stretch			= TRUE
+			orientation		= HORIZONTAL
+		}
+		
+		# Horizontal slider (Insesitive)
+		image 
+		{
+			function		= SLIDER 
+			recolorable		= TRUE
+			state			= INSENSITIVE
+			file			= "Scrollbars_1/slider-horiz.png"
+			border			= { 15, 15, 6, 6 }
+			stretch			= TRUE
+			orientation		= HORIZONTAL
+		}
+
+		# Normal vertical slider
+		image 
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= NORMAL
+			file			= "Scrollbars_1/slider-vert.png"
+			border			= { 6, 6, 15, 15 }
+			stretch			= TRUE
+			orientation		= VERTICAL
+		}
+		
+		# Vertical slider (Active)
+		image 
+		{
+			function		= SLIDER
+			recolorable		= TRUE
+			state			= ACTIVE
+			file			= "Scrollbars_1/slider-vert.png"
+			border			= { 6, 6, 15, 15 }
+			stretch			= TRUE
+			orientation		= VERTICAL
+		}
+
+		# Vertical slider (mouse over)
+		image 
+		{
+			function		= SLIDER 
+			recolorable		= TRUE
+			state			= PRELIGHT
+			file			= "Scrollbars_1/slider-vert-prelight.png"
+			border			= { 6, 6, 15, 15 }
+			stretch			= TRUE
+			orientation		= VERTICAL
+		}
+		
+		# Vertical slider (Insesitive)
+		image 
+		{
+			function		= SLIDER 
+			recolorable		= TRUE
+			state			= INSENSITIVE
+			file			= "Scrollbars_1/slider-vert-prelight.png"
+			border			= { 6, 6, 15, 15 }
+			stretch			= TRUE
+			orientation		= VERTICAL
+		}
+
+################################################################################
+# SCROLLBAR STEPPERS
+################################################################################
+
+	# Up
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= NORMAL
+		file				= "Scrollbars/stepper-up.png"
+		#border			= { 12, 2, 2, 9 }
+		stretch			= TRUE
+		arrow_direction = UP
+	}
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= PRELIGHT
+		file				= "Scrollbars/stepper-up.png"
+		#border			= { 12, 2, 2, 9 }
+		stretch			= TRUE
+		arrow_direction = UP
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= ACTIVE
+		file				= "Scrollbars/stepper-up.png"
+		#border			= { 12, 2, 2, 9 }
+		stretch			= TRUE
+		arrow_direction = UP
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= INSENSITIVE
+		file				= "Scrollbars/stepper-up.png"
+		#border			= { 12, 2, 2, 9 }
+		stretch			= TRUE
+		arrow_direction = UP
+	}
+
+ ######### DOWN ############
+
+
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= NORMAL
+		file				= "Scrollbars/stepper-down.png"
+		#border			= { 12, 2, 10, 2 }
+		stretch			= TRUE
+		arrow_direction = DOWN
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= PRELIGHT
+		file				= "Scrollbars/stepper-down.png"
+		#border			= { 12, 2, 10, 2 }
+		stretch			= TRUE
+		arrow_direction = DOWN
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= ACTIVE
+		file				= "Scrollbars/stepper-down.png"
+		#border			= { 12, 2, 10, 2 }
+		stretch			= TRUE
+		arrow_direction = DOWN
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= INSENSITIVE
+		file				= "Scrollbars/stepper-down.png"
+		#border			= { 12, 2, 10, 2 }
+		stretch			= TRUE
+		arrow_direction = DOWN
+	}
+
+############ RIGHT ################
+
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= NORMAL
+		file				= "Scrollbars/stepper-right.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = RIGHT
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= PRELIGHT
+		file				= "Scrollbars/stepper-right.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = RIGHT
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= ACTIVE
+		file				= "Scrollbars/stepper-right.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = RIGHT
+	}
+ image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= INSENSITIVE
+		file				= "Scrollbars/stepper-right.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = RIGHT
+	}
+
+############### LEFT ###################
+
+
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= NORMAL
+		file				= "Scrollbars/stepper-left.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = LEFT
+	}
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= PRELIGHT
+		file				= "Scrollbars/stepper-left.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = LEFT
+	}
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= ACTIVE
+		file				= "Scrollbars/stepper-left.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = LEFT
+	}
+	image 
+	{
+		function			= STEPPER
+		recolorable		= TRUE
+		state				= INSENSITIVE
+		file				= "Scrollbars/stepper-left.png"
+		#border			= { 2, 9, 2, 13 }
+		stretch			= TRUE
+		arrow_direction = LEFT
+	}
+	}
+}
+
+# widget styles
+class "GtkWidget" style "clearlooks-default"
+class "GtkButton" style "clearlooks-button"
+class "GtkCombo"	style "clearlooks-button"
+class "GtkRange"	style "clearlooks-wide"
+class "GtkFrame"	style "clearlooks-wide"
+class "GtkMenu"		style "clearlooks-menu"
+class "GtkEntry"	style "clearlooks-button"
+class "GtkMenuItem"		 style "clearlooks-menu-item"
+class "GtkStatusbar"	 style "clearlooks-wide"
+class "GtkNotebook"		 style "clearlooks-notebook"
+class "GtkProgressBar" style "clearlooks-progressbar"
+class "GtkScrollbar"	 style "scrollbar"
+
+widget_class "*MenuItem.*" style "clearlooks-menu-item"
+
+# combobox stuff
+widget_class "*.GtkComboBox.GtkButton" style "clearlooks-combo"
+widget_class "*.GtkCombo.GtkButton"		 style "clearlooks-combo"
+
+# tooltips stuff
+widget_class "*.tooltips.*.GtkToggleButton" style "clearlooks-tasklist"
+widget "gtk-tooltips" style "clearlooks-tooltips"
+
+# treeview stuff
+widget_class "*.GtkTreeView.GtkButton" style "clearlooks-tree"
+widget_class "*.GtkCTree.GtkButton" style "clearlooks-tree"
+widget_class "*.GtkList.GtkButton" style "clearlooks-tree"
+widget_class "*.GtkCList.GtkButton" style "clearlooks-tree"
+widget_class "*.GtkFrame.GtkLabel" style "clearlooks-frame-title"
+
+# notebook stuff
+widget_class "*.GtkNotebook.*.GtkEventBox" style "clearlooks-notebook"
+widget_class "*.GtkNotebook.*.GtkViewport" style "clearlooks-notebook"
+
+gtk-font-name="Lucida Grande 12"
+gtk-icon-theme-name = "gnome"
+gtk-icon-sizes = "gtk-menu=16,16:gtk-dialog=48,48:gtk-dnd=32,32:gtk-button=20,20:gtk-large-toolbar=24,24:gtk-small-toolbar=16,16:wireshark-decoration=12,12"
+

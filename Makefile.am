@@ -893,13 +893,15 @@ rawshark.html: doc/rawshark.pod ws.css
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
+# Used by svr4-package and osx-package
 # We load top_stagedir with an explicit path so that libtool doesn't freak.
-top_stagedir=`cd $(top_srcdir) && pwd`/packaging/svr4.stage
-stagedir=$(top_stagedir)/$(PACKAGE).stage
+top_stagedir=`cd $(top_srcdir) && pwd`/packaging/staging
+stagedir=$(top_stagedir)/$(PACKAGE).inst
+
 host_cpu=@host_cpu@
 host_os=@host_os@
 
-svr4-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
+svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 	@if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install; \
@@ -946,7 +948,25 @@ srpm-package: dist
 	fi
 
 debian-package: debian/rules
-	dpkg-buildpackage -rfakeroot -us -uc
+	@if test x$(HAVE_DPKG_BUILDPAKCAGE) = xyes ; then \
+		dpkg-buildpackage -rfakeroot -us -uc ; \
+	else \
+		echo "Error: Debian packaging tools not found." ; \
+		echo "Package build abandoned." ; \
+	fi
+
+# XXX - This assumes we're building from the source directory.
+osx-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
+	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
+		rm -rf $(stagedir) ; \
+		$(MAKE) DESTDIR=$(stagedir) install; \
+		cd $(srcdir)/packaging/macosx ;  \
+		./osx-app.sh -bp ../staging/$(PACKAGE).inst/$(bindir) ; \
+		./osx-dmg.sh ; \
+	else \
+		echo "Error: OS X packaging tools not found." ; \
+		echo "Package build abandoned." ; \
+	fi
 
 clean-local:
 	rm -rf $(top_stagedir)

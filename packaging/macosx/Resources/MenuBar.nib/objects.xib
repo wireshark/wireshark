@@ -1,0 +1,74 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- $Id$ -->
+<object class="NSIBObjectData">
+  <string name="targetFramework">IBCarbonFramework</string>
+  <object name="rootObject" class="NSCustomObject" id="1">
+    <string name="customClass">NSApplication</string>
+  </object>
+  <array count="4" name="allObjects">
+    <object class="IBCarbonMenu" id="187">
+      <string name="title">MenuBar</string>
+      <array count="1" name="items">
+        <object class="IBCarbonMenuItem" id="195">
+          <string name="title">ScriptExec</string>
+          <object name="submenu" class="IBCarbonMenu" id="193">
+            <string name="title">ScriptExec</string>
+            <string name="name">_NSAppleMenu</string>
+          </object>
+        </object>
+      </array>
+      <string name="name">_NSMainMenu</string>
+    </object>
+    <reference idRef="193"/>
+    <reference idRef="195"/>
+    <object class="IBCarbonMenuItem" id="204">
+      <string name="title">Window</string>
+      <object name="submenu" class="IBCarbonMenu">
+        <string name="title">Window</string>
+        <array count="5" name="items">
+          <object class="IBCarbonMenuItem">
+            <boolean name="dynamic">TRUE</boolean>
+            <string name="title">Minimize Window</string>
+            <string name="keyEquivalent">m</string>
+            <ostype name="command">mini</ostype>
+          </object>
+          <object class="IBCarbonMenuItem">
+            <boolean name="dynamic">TRUE</boolean>
+            <string name="title">Minimize All Windows</string>
+            <string name="keyEquivalent">m</string>
+            <int name="keyEquivalentModifier">1572864</int>
+            <ostype name="command">mini</ostype>
+          </object>
+          <object class="IBCarbonMenuItem">
+            <boolean name="separator">TRUE</boolean>
+          </object>
+          <object class="IBCarbonMenuItem">
+            <boolean name="dynamic">TRUE</boolean>
+            <string name="title">Bring All to Front</string>
+            <ostype name="command">frnt</ostype>
+          </object>
+          <object class="IBCarbonMenuItem">
+            <boolean name="dynamic">TRUE</boolean>
+            <string name="title">Bring in Front</string>
+            <int name="keyEquivalentModifier">1572864</int>
+            <ostype name="command">frnt</ostype>
+          </object>
+        </array>
+        <string name="name">_NSWindowsMenu</string>
+      </object>
+    </object>
+  </array>
+  <array count="4" name="allParents">
+    <reference idRef="1"/>
+    <reference idRef="195"/>
+    <reference idRef="187"/>
+    <reference idRef="187"/>
+  </array>
+  <dictionary count="2" name="nameTable">
+    <string>File&apos;s Owner</string>
+    <reference idRef="1"/>
+    <string>MenuBar</string>
+    <reference idRef="187"/>
+  </dictionary>
+  <unsigned_int name="nextObjectID">206</unsigned_int>
+</object>

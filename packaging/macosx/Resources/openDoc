@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# $Id$
+#
+# Author: Aaron Voisine <aaron@voisine.org>
+# Inkscape Modifications: Michael Wybrow <mjwybrow@users.sourceforge.net>
+
+CWD="`dirname \"$0\"`"
+
+# System version: 3 for Panther, 4 for Tiger, 5 for Leopard
+export VERSION=`/usr/bin/sw_vers | grep ProductVersion | cut -f2 -d'.'`
+
+if [[ $VERSION -le 4 ]]; then
+        export "DISPLAY=`cat /tmp/display.$UID`"
+fi
+
+BASE="`echo "$0" | sed -e 's/\/[A-Za-z]*.app\/Contents\/Resources\/openDoc/\//'`"
+cd "$BASE"
+exec "$CWD/bin/wireshark" "$@"
+

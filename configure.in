@@ -166,6 +166,8 @@ AM_CONDITIONAL(HAVE_HHC, test x$HAVE_HHC = xyes)
 # Check for packaging utilities
 # For now, we check to see if the various packaging utilites are in our
 # path.  I'm too lazy to write code to go hunt for them.  -  Gerald
+
+# SVR4/Solaris
 AC_CHECK_PROG(HAVE_PKGPROTO, pkgproto, "yes", "no")
 AC_CHECK_PROG(HAVE_PKGMK, pkgmk, "yes", "no")
 AC_CHECK_PROG(HAVE_PKGTRANS, pkgtrans, "yes", "no")
@@ -178,8 +180,25 @@ else
 fi
 AC_SUBST(HAVE_SVR4_PACKAGING)
 
+# RPM
 AC_WIRESHARK_RPM_CHECK
 AC_SUBST(HAVE_RPM)
+
+# Debian
+AC_CHECK_PROG(HAVE_DPKG_BUILDPACKAGE, dpkg-buildpackage, "yes", "no")
+
+# Mac OS X
+AC_CHECK_PROG(HAVE_XCODEBUILD, xcodebuild, "yes", "no")
+AC_CHECK_PROG(HAVE_HDIUTIL, hdiutil, "yes", "no")
+AC_CHECK_PROG(HAVE_BLESS, bless, "yes", "no")
+
+if test x$HAVE_XCODEBUILD = xyes -a x$HAVE_HDIUTIL = xyes \
+     -a x$HAVE_BLESS = xyes ; then
+  HAVE_OSX_PACKAGING=yes
+else
+  HAVE_OSX_PACKAGING=no
+fi
+AC_SUBST(HAVE_OSX_PACKAGING)
 
 #
 # Try to add some additional gcc checks to CFLAGS
@@ -1668,6 +1687,7 @@ AC_OUTPUT(
   gtk/doxygen.cfg
   help/Makefile
   packaging/Makefile
+  packaging/macosx/Info.plist
   packaging/nsis/Makefile
   packaging/rpm/Makefile
   packaging/rpm/SPECS/Makefile

@@ -224,7 +224,8 @@ test_for_fifo(const char *path)
 static char *progfile_dir;
 
 /*
- * TRUE if we're running from the build directory.
+ * TRUE if we're running from the build directory and we aren't running
+ * with special privileges.
  */
 static gboolean running_in_build_directory_flag = FALSE;
 
@@ -611,10 +612,19 @@ get_datafile_dir(void)
 		datafile_dir = progfile_dir;
 	} else {
 		/*
-		 * Return the directory specified when the build
-		 * was configured.
+		 * Return the directory specified when the build was
+		 * configured, prepending the run path prefix if it exists.
 		 */
-		datafile_dir = DATAFILE_DIR;
+		if (getenv("WIRESHARK_DATA_DIR") && !started_with_special_privs()) {
+			/*
+			 * The user specified a different directory for data files
+			 * and we aren't running with special privileges.
+			 * XXX - We might be able to dispense with the priv check
+			 */
+			datafile_dir = g_strdup(getenv("WIRESHARK_DATA_DIR"));
+		} else {
+			datafile_dir = DATAFILE_DIR;
+		}
 	}
 
 #endif
@@ -687,8 +697,17 @@ init_plugin_dir(void)
 		 * (the datafile directory is the build directory).
 		 */
 		plugin_dir = g_strdup_printf("%s/plugins", get_datafile_dir());
-	} else
-		plugin_dir = PLUGIN_DIR;
+	} else {
+		if (getenv("WIRESHARK_PLUGIN_DIR") && !started_with_special_privs()) {
+			/*
+			 * The user specified a different directory for plugins
+			 * and we aren't running with special privileges.
+			 */
+			plugin_dir = g_strdup(getenv("WIRESHARK_PLUGIN_DIR"));
+		} else {
+			plugin_dir = PLUGIN_DIR;
+		}
+	}
 #endif
 }
 #endif /* HAVE_PLUGINS */
@@ -703,7 +722,7 @@ get_plugin_dir(void)
 	if (!plugin_dir) init_plugin_dir();
 	return plugin_dir;
 #else
-        return NULL;
+	return NULL;
 #endif
 }
 
@@ -1002,20 +1021,20 @@ int
 rename_persconffile_profile(const char *fromname, const char *toname,
 			    char **pf_from_dir_path_return, char **pf_to_dir_path_return)
 {
-  char *from_dir = g_strdup (get_persconffile_dir(fromname));
-  char *to_dir = g_strdup (get_persconffile_dir(toname));
-  int ret = 0;
+	char *from_dir = g_strdup (get_persconffile_dir(fromname));
+	char *to_dir = g_strdup (get_persconffile_dir(toname));
+	int ret = 0;
 
-  ret = eth_rename (from_dir, to_dir);
-  if (ret != 0) {
-    *pf_from_dir_path_return = g_strdup (from_dir);
-    *pf_to_dir_path_return = g_strdup (to_dir);
-  }
+	ret = eth_rename (from_dir, to_dir);
+	if (ret != 0) {
+		*pf_from_dir_path_return = g_strdup (from_dir);
+		*pf_to_dir_path_return = g_strdup (to_dir);
+	}
 
-  g_free (from_dir);
-  g_free (to_dir);
+	g_free (from_dir);
+	g_free (to_dir);
 
-  return ret;
+	return ret;
 }
 
 /*
@@ -1117,8 +1136,8 @@ extern char *
 get_persdatafile_dir(void)
 {
 #ifdef _WIN32
-    char *u3devicedocumentpath;
-    TCHAR tszPath[MAX_PATH];
+	char *u3devicedocumentpath;
+	TCHAR tszPath[MAX_PATH];
 	char *szPath;
 	BOOL bRet;
 
@@ -1135,14 +1154,14 @@ get_persdatafile_dir(void)
 	if (u3devicedocumentpath != NULL) {
 
 	  /* the "My Captures" sub-directory is created (if it doesn't exist)
-	     by u3util.exe when the U3 Wireshark is first run */
+		 by u3util.exe when the U3 Wireshark is first run */
 
 	  szPath = g_strdup_printf("%s%s", u3devicedocumentpath, U3_MY_CAPTURES);
 
 	  persdatafile_dir = szPath;
 	  return szPath;
 
-        } else {
+		} else {
 	/* Hint: SHGetFolderPath is not available on MSVC 6 - without Platform SDK */
 	bRet = SHGetSpecialFolderPath(NULL, tszPath, CSIDL_PERSONAL, FALSE);
 	if(bRet == TRUE) {
@@ -1152,7 +1171,7 @@ get_persdatafile_dir(void)
 	} else {
 		return "";
 	}
- }
+}
 #else
   return "";
 #endif
@@ -1279,55 +1298,55 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 int
 filesystem_opt(int opt _U_, const char *optarg)
 {
-  gchar *p, *colonp;
+	gchar *p, *colonp;
 
-  colonp = strchr(optarg, ':');
-  if (colonp == NULL) {
-    return 1;
-  }
+	colonp = strchr(optarg, ':');
+	if (colonp == NULL) {
+		return 1;
+	}
 
-  p = colonp;
-  *p++ = '\0';
+	p = colonp;
+	*p++ = '\0';
 
-  /*
-   * Skip over any white space (there probably won't be any, but
-   * as we allow it in the preferences file, we might as well
-   * allow it here).
-   */
-  while (isspace((guchar)*p))
-    p++;
-  if (*p == '\0') {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return 1;
-  }
+	/*
+	* Skip over any white space (there probably won't be any, but
+	* as we allow it in the preferences file, we might as well
+	* allow it here).
+	*/
+	while (isspace((guchar)*p))
+	p++;
+	if (*p == '\0') {
+		/*
+		 * Put the colon back, so if our caller uses, in an
+		 * error message, the string they passed us, the message
+		 * looks correct.
+		 */
+		*colonp = ':';
+		return 1;
+	}
 
-  /* directory should be existing */
-  /* XXX - is this a requirement? */
-  if(test_for_directory(p) != EISDIR) {
-    /*
-     * Put the colon back, so if our caller uses, in an
-     * error message, the string they passed us, the message
-     * looks correct.
-     */
-    *colonp = ':';
-    return 1;
-  }
+	/* directory should be existing */
+	/* XXX - is this a requirement? */
+	if(test_for_directory(p) != EISDIR) {
+		/*
+		 * Put the colon back, so if our caller uses, in an
+		 * error message, the string they passed us, the message
+		 * looks correct.
+		 */
+		*colonp = ':';
+		return 1;
+	}
 
-  if (strcmp(optarg,"persconf") == 0) {
-    persconffile_dir = p;
-  } else if (strcmp(optarg,"persdata") == 0) {
-    persdatafile_dir = p;
-  /* XXX - might need to add the temp file path */
-  } else {
-    return 1;
-  }
-  *colonp = ':'; /* put the colon back */
-  return 0;
+	if (strcmp(optarg,"persconf") == 0) {
+		persconffile_dir = p;
+	} else if (strcmp(optarg,"persdata") == 0) {
+		persdatafile_dir = p;
+		/* XXX - might need to add the temp file path */
+	} else {
+		return 1;
+	}
+	*colonp = ':'; /* put the colon back */
+	return 0;
 }
 
 /*
@@ -1342,7 +1361,7 @@ get_datafile_path(const char *filename)
 {
 
 	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
-	    filename);
+		filename);
 }
 
 /* Delete a file */
@@ -1358,7 +1377,6 @@ deletefile(const char *path)
  */
 char *get_tempfile_path(const char *filename)
 {
-
 	return g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", g_get_tmp_dir(), filename);
 }
 
@@ -1453,31 +1471,29 @@ file_write_error_message(int err)
 gboolean
 file_exists(const char *fname)
 {
-  struct stat   file_stat;
-
+	struct stat   file_stat;
 
 #ifdef _WIN32
-  /*
-   * This is a bit tricky on win32. The st_ino field is documented as:
-   * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
-   * but it *is* set to zero if stat() returns without an error,
-   * so this is working, but maybe not quite the way expected. ULFL
-   */
-   file_stat.st_ino = 1;   /* this will make things work if an error occured */
-   eth_stat(fname, &file_stat);
-   if (file_stat.st_ino == 0) {
-       return TRUE;
-   } else {
-       return FALSE;
-   }
+	/*
+	 * This is a bit tricky on win32. The st_ino field is documented as:
+	 * "The inode, and therefore st_ino, has no meaning in the FAT, ..."
+	 * but it *is* set to zero if stat() returns without an error,
+	 * so this is working, but maybe not quite the way expected. ULFL
+	 */
+	file_stat.st_ino = 1;   /* this will make things work if an error occured */
+	eth_stat(fname, &file_stat);
+	if (file_stat.st_ino == 0) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 #else
-   if (eth_stat(fname, &file_stat) != 0 && errno == ENOENT) {
-       return FALSE;
-   } else {
-       return TRUE;
-   }
+	if (eth_stat(fname, &file_stat) != 0 && errno == ENOENT) {
+		return FALSE;
+	} else {
+		return TRUE;
+	}
 #endif
-
 }
 
 /*
@@ -1490,49 +1506,62 @@ file_exists(const char *fname)
 gboolean
 files_identical(const char *fname1, const char *fname2)
 {
-    /* Two different implementations, because:
-     *
-     * - _fullpath is not available on UN*X, so we can't get full
-     *   paths and compare them (which wouldn't work with hard links
-     *   in any case);
-     *
-     * - st_ino isn't filled in with a meaningful value on Windows.
-     */
+	/* Two different implementations, because:
+	 *
+	 * - _fullpath is not available on UN*X, so we can't get full
+	 *   paths and compare them (which wouldn't work with hard links
+	 *   in any case);
+	 *
+	 * - st_ino isn't filled in with a meaningful value on Windows.
+	 */
 #ifdef _WIN32
-    char full1[MAX_PATH], full2[MAX_PATH];
+	char full1[MAX_PATH], full2[MAX_PATH];
 
-    /*
-     * Get the absolute full paths of the file and compare them.
-     * That won't work if you have hard links, but those aren't
-     * much used on Windows, even though NTFS supports them.
-     *
-     * XXX - will _fullpath work with UNC?
-     */
-    if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
-        return FALSE;
-    }
+	/*
+	 * Get the absolute full paths of the file and compare them.
+	 * That won't work if you have hard links, but those aren't
+	 * much used on Windows, even though NTFS supports them.
+	 *
+	 * XXX - will _fullpath work with UNC?
+	 */
+	if( _fullpath( full1, fname1, MAX_PATH ) == NULL ) {
+		return FALSE;
+	}
 
-    if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
-        return FALSE;
-    }
+	if( _fullpath( full2, fname2, MAX_PATH ) == NULL ) {
+		return FALSE;
+	}
 
-    if(strcmp(full1, full2) == 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+	if(strcmp(full1, full2) == 0) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
 #else
-  struct stat   filestat1, filestat2;
+	struct stat   filestat1, filestat2;
 
-   /*
-    * Compare st_dev and st_ino.
-    */
-   if (eth_stat(fname1, &filestat1) == -1)
-       return FALSE;	/* can't get info about the first file */
-   if (eth_stat(fname2, &filestat2) == -1)
-       return FALSE;	/* can't get info about the second file */
-   return (filestat1.st_dev == filestat2.st_dev &&
-           filestat1.st_ino == filestat2.st_ino);
+	/*
+	 * Compare st_dev and st_ino.
+	 */
+	if (eth_stat(fname1, &filestat1) == -1)
+		return FALSE;	/* can't get info about the first file */
+	if (eth_stat(fname2, &filestat2) == -1)
+		return FALSE;	/* can't get info about the second file */
+	return (filestat1.st_dev == filestat2.st_dev &&
+		filestat1.st_ino == filestat2.st_ino);
 #endif
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: tabs
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=4 noexpandtab
+ * :indentSize=4:tabSize=4:noTabs=false:
+ */
 
