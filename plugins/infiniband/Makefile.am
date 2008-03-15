@@ -36,7 +36,8 @@ plugin_LTLIBRARIES = infiniband.la
 infiniband_la_SOURCES = \
 	plugin.c \
 	moduleinfo.h \
-	$(DISSECTOR_SRC)
+	$(DISSECTOR_SRC) \
+	$(DISSECTOR_INCLUDES)
 infiniband_la_LDFLAGS = -module -avoid-version
 infiniband_la_LIBADD = @PLUGIN_LIBS@
 
