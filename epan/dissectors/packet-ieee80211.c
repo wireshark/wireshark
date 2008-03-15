@@ -9168,19 +9168,19 @@ proto_register_ieee80211 (void)
     /*** Begin: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
     {&ff_max_tx_pwr,
      {"Maximum Transmit Power", "wlan_mgt.fixed.maxtxpwr",
-      FT_INT8, BASE_HEX, 0, 0, "Maximum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, "Maximum Transmit Power", HFILL }},
     /*** End: Maximum Transmit Power Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_tx_pwr_used,
      {"Transmit Power Used", "wlan_mgt.fixed.txpwr",
-      FT_INT8, BASE_HEX, 0, 0, "Transmit Power Used", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, "Transmit Power Used", HFILL }},
     /*** End: Transmit Power Used Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Transmit Power Used Fixed Field - Dustin Johnson ***/
     {&ff_transceiver_noise_floor,
      {"Transceiver Noise Floor", "wlan_mgt.fixed.tnoisefloor",
-      FT_INT8, BASE_HEX, 0, 0, "Transceiver Noise Floor", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, "Transceiver Noise Floor", HFILL }},
     /*** End: Transceiver Noise Floor Fixed Field - Dustin Johnson ***/
 
     /*** Begin: Channel Width Fixed Field - Dustin Johnson ***/
@@ -10162,11 +10162,11 @@ proto_register_ieee80211 (void)
     /*** Begin: Power Capability Tag - Dustin Johnson ***/
     {&hf_tag_power_capability_min,
      {"Minimum Transmit Power", "wlan_mgt.powercap.min",
-      FT_INT8, BASE_HEX, NULL, 0, "Minimum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Minimum Transmit Power", HFILL }},
 
     {&hf_tag_power_capability_max,
      {"Maximum Transmit Power", "wlan_mgt.powercap.max",
-      FT_INT8, BASE_HEX, NULL, 0, "Maximum Transmit Power", HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0, "Maximum Transmit Power", HFILL }},
     /*** End: Power Capability Tag - Dustin Johnson ***/
 
     /*** Begin: Supported Channels Tag - Dustin Johnson ***/
@@ -10254,7 +10254,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_threshold_offset_signed,
      {"Threshold/Offset", "wlan_mgt.measure.req.threshold",
-      FT_INT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
+      FT_UINT8, BASE_HEX, 0, 0, "Threshold/Offset", HFILL }},
 
     {&hf_tag_measure_request_report_mac,
      {"MAC on wich to gather data", "wlan_mgt.measure.req.reportmac",
@@ -10262,7 +10262,7 @@ proto_register_ieee80211 (void)
 
     {&hf_tag_measure_request_group_id,
      {"Group ID", "wlan_mgt.measure.req.groupid",
-      FT_INT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, "Group ID", HFILL }},
+      FT_UINT8, BASE_HEX, VALS(&hf_tag_measure_request_group_id_flags), 0, "Group ID", HFILL }},
     /*** End: Measurement Request Tag  - Dustin Johnson***/
 
     /*** Start: Measurement Report Tag  - Dustin Johnson***/

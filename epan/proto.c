@@ -3932,14 +3932,31 @@ static void tmp_fld_check_assert(header_field_info *hfinfo) {
 
 	switch (hfinfo->type) {
 
-	case FT_UINT8:
-	case FT_UINT16:
-	case FT_UINT24:
-	case FT_UINT32:
 	case FT_INT8:
 	case FT_INT16:
 	case FT_INT24:
 	case FT_INT32:
+	case FT_INT64:
+		/*  Hexadecimal and octal are, in printf() and everywhere else,
+		 *  unsigned so don't allow dissectors to register a signed
+		 *  field to be displayed unsigned.  (Else how would we
+		 *  display values negative values?)
+		 *
+		 *  If you want to take out this check, be sure to fix
+		 *  hfinfo_numeric_format() so that it does not assert out
+		 *  when trying to construct a hexadecimal representation of
+		 *  FT_INT*.
+		 */
+		DISSECTOR_ASSERT(hfinfo->display != BASE_HEX &&
+				 hfinfo->display != BASE_HEX_DEC &&
+				 hfinfo->display != BASE_DEC_HEX &&
+				 hfinfo->display != BASE_OCT);
+		/* FALL THROUGH */
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+	case FT_UINT64:
 		/* Require integral types (other than frame number, which is
 		   always displayed in decimal) to have a number base */
 		DISSECTOR_ASSERT(hfinfo->display != BASE_NONE);

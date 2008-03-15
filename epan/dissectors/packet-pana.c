@@ -857,7 +857,7 @@ proto_register_pana(void)
                },
                { &hf_pana_avp_data_int64,
                        { "Value", "pana.avp.data.int64",
-                       FT_INT64, BASE_HEX, NULL, 0x0,
+                       FT_INT64, BASE_DEC, NULL, 0x0,
                        NULL, HFILL }
                },
                { &hf_pana_avp_data_uint32,
@@ -867,7 +867,7 @@ proto_register_pana(void)
                },
                { &hf_pana_avp_data_int32,
                        { "Value", "pana.avp.data.int32",
-                       FT_INT32, BASE_HEX, NULL, 0x0,
+                       FT_INT32, BASE_DEC, NULL, 0x0,
                        NULL, HFILL }
                },
                { &hf_pana_avp_data_bytes,

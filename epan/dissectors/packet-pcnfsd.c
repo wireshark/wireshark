@@ -402,7 +402,7 @@ proto_register_pcnfsd(void)
 			"Home Directory", "pcnfsd.homedir", FT_STRING, BASE_DEC,
 			NULL, 0, "Home Directory", HFILL }},
 		{ &hf_pcnfsd_def_umask, {
-                        "def_umask", "pcnfsd.def_umask", FT_INT32, BASE_OCT,
+                        "def_umask", "pcnfsd.def_umask", FT_UINT32, BASE_OCT,
                         NULL, 0, "def_umask", HFILL }},
 		{ &hf_pcnfsd_username, {
 			"User name", "pcnfsd.username", FT_STRING, BASE_DEC,

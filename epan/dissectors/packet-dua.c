@@ -324,7 +324,7 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
   }
 
   call_dissector(data_handle, protocol_data_tvb, pinfo, tree);
-  
+
   proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
 }
 
@@ -716,7 +716,7 @@ proto_register_dua(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_int_interface_id,      { "Integer interface identifier", "dua.int_interface_identifier",  FT_INT32,   BASE_HEX,  NULL,                           0x0,               "", HFILL } },
+    { &hf_int_interface_id,      { "Integer interface identifier", "dua.int_interface_identifier",  FT_UINT32,   BASE_HEX,  NULL,                           0x0,               "", HFILL } },
     { &hf_text_interface_id,     { "Text interface identifier",    "dua.text_interface_identifier", FT_STRING,  BASE_NONE, NULL,                           0x0,               "", HFILL } },
     { &hf_info_string,           { "Info string",                  "dua.info_string",               FT_STRING,  BASE_NONE, NULL,                           0x0,               "", HFILL } },
     { &hf_dlci_reserved,         { "Reserved",                     "dua.dlci_reserved",             FT_UINT16,  BASE_DEC,  NULL,                           RESERVED_BIT_MASK, "", HFILL } },

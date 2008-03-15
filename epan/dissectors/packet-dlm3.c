@@ -29,9 +29,9 @@
    Actual implementation for the protocol is in linux kernel.
    See files under linux/fs/dlm/ */
 
-/* 
- * #defines are mostly copied from 
- * *.[ch] files in linux/fs/dlm/ and linux/include/linux/dlm.h 
+/*
+ * #defines are mostly copied from
+ * *.[ch] files in linux/fs/dlm/ and linux/include/linux/dlm.h
  *
  * dlm_internal.h:
  * -----------------------------------------------------------------------
@@ -139,7 +139,7 @@
 
 
 /* see asm-generic/errno-base.h about LINUX_*  */
-#define LINUX_EAGAIN            11 
+#define LINUX_EAGAIN            11
 #define LINUX_ENOMEM            12
 #define LINUX_INVAL             22
 
@@ -214,7 +214,7 @@ static int hf_dlm3_m_parent_remid = -1;
   static int hf_dlm3_##NAME##_altpr       = -1; \
   static int hf_dlm3_##NAME##_altcw       = -1; \
   static int hf_dlm3_##NAME##_forceunlock = -1; \
-  static int hf_dlm3_##NAME##_timeout     = -1    
+  static int hf_dlm3_##NAME##_timeout     = -1
 DLM3_DEFINE_HF_EXFLAGS(m_exflags);
 
 /* bit fields for dlm_message::sbflags */
@@ -306,7 +306,7 @@ static gint ett_dlm3_rl_name     = -1;
 static guint dlm3_tcp_port  = TCP_PORT_DLM3;
 static guint dlm3_sctp_port = SCTP_PORT_DLM3;
 
-/* 
+/*
  * Value strings
  */
 static const value_string dlm3_cmd[] = {
@@ -454,10 +454,10 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(tree,
                       hf_dlm3_m_type, tvb, offset, 4, m_type);
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, 
+    col_append_fstr(pinfo->cinfo, COL_INFO,
                     ": %s",
-                    val_to_str(m_type, 
-                               dlm3_msg, 
+                    val_to_str(m_type,
+                               dlm3_msg,
                                "Unknown"));
 
   offset += 4;
@@ -487,17 +487,17 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                       hf_dlm3_m_parent_remid, tvb, offset, 4, TRUE);
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_exflags, ett_dlm3_m_exflags,
                          m_exflags_fields, TRUE);
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_sbflags, ett_dlm3_sbflags,
                          m_sbflags_fields, TRUE);
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_flags, ett_dlm3_m_flags,
                          m_flags_fields, TRUE);
 
@@ -527,7 +527,7 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_asts, ett_dlm3_m_asts,
                          m_asts_fields, TRUE);
   offset += 4;
@@ -537,10 +537,10 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   offset += 4;
   if ((length - offset) > 0) {
     sub_item = proto_tree_add_item(tree,
-                                   hf_dlm3_m_extra, 
-                                   tvb, 
-                                   offset, 
-                                   -1, 
+                                   hf_dlm3_m_extra,
+                                   tvb,
+                                   offset,
+                                   -1,
                                    TRUE);
   }
 }
@@ -548,7 +548,7 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 static void
-dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree, 
+dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
                        guint length, int offset)
 {
   proto_item *sub_item;
@@ -558,7 +558,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   guint32     exflags;
 
 
-  if ((length - offset) < ( 4 * 8 + 4 + 1 * 4 + 2 * 2 
+  if ((length - offset) < ( 4 * 8 + 4 + 1 * 4 + 2 * 2
                             + DLM3_RESNAME_MAXLEN ))
     return;
 
@@ -583,23 +583,23 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
                       hf_dlm3_rl_parent_remid, tvb, offset, 4, TRUE);
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_exflags, ett_dlm3_rl_exflags,
                          rl_exflags_fields, TRUE);
   exflags = tvb_get_letohl(tvb, offset);
 
 
   offset += 4;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_flags, ett_dlm3_rl_flags,
                          rl_flags_fields, TRUE);
 
   offset += 4;
-  proto_tree_add_item(tree, 
+  proto_tree_add_item(tree,
                       hf_dlm3_rl_lvbseq, tvb, offset, 4, TRUE);
 
   offset += 4;
-  proto_tree_add_item(tree, 
+  proto_tree_add_item(tree,
                       hf_dlm3_rl_result, tvb, offset, 4, TRUE);
 
   offset += 4;
@@ -615,7 +615,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
                       hf_dlm3_rl_status, tvb, offset, 1, TRUE);
 
   offset += 1;
-  proto_tree_add_bitmask(tree, tvb, offset, 
+  proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_asts, ett_dlm3_rl_asts,
                          rl_asts_fields, TRUE);
 
@@ -631,10 +631,10 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
 
   offset += 2;
   sub_item = proto_tree_add_item(tree,
-                                 hf_dlm3_rl_name, tvb, offset, 
+                                 hf_dlm3_rl_name, tvb, offset,
                                  DLM3_RESNAME_MAXLEN, TRUE);
 
-  sub_tree = proto_item_add_subtree(sub_item, 
+  sub_tree = proto_item_add_subtree(sub_item,
                                     ett_dlm3_rl_name);
   sub_offset = offset;
   proto_tree_add_item(sub_tree,
@@ -649,14 +649,14 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   offset += DLM3_RESNAME_MAXLEN;
   if (((length - offset) > 0) && (exflags & DLM3_LKF_VALBLK))
     proto_tree_add_item(tree,
-                        hf_dlm3_rl_lvb, tvb, offset, 
-                        -1, 
+                        hf_dlm3_rl_lvb, tvb, offset,
+                        -1,
                         TRUE);
 }
 
 
 static void
-dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree, 
+dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
                          guint length, int offset)
 {
   if ((length - offset) < ( 4 + 4 + 8 ))
@@ -693,10 +693,10 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_uint(tree,
                       hf_dlm3_rc_type, tvb, offset, 4, rc_type);
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, 
+    col_append_fstr(pinfo->cinfo, COL_INFO,
                     ": %s",
-                    val_to_str(rc_type, 
-                               dlm3_rcom, 
+                    val_to_str(rc_type,
+                               dlm3_rcom,
                                "Unknown"));
 
   offset += 4;
@@ -723,19 +723,19 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Decode rc_buf */
   sub_item = proto_tree_add_item(tree,
-                                 hf_dlm3_rc_buf, 
-                                 tvb, 
-                                 offset, 
-                                 -1, 
+                                 hf_dlm3_rc_buf,
+                                 tvb,
+                                 offset,
+                                 -1,
                                  TRUE);
 
   offset += 0;
   if (rc_type == DLM3_RCOM_LOCK) {
-    sub_tree = proto_item_add_subtree(sub_item, 
+    sub_tree = proto_item_add_subtree(sub_item,
                                       ett_dlm3_rcom_lock);
     dissect_dlm3_rcom_lock(tvb, sub_tree, length, offset);
   } else if (rc_type == DLM3_RCOM_STATUS_REPLY) {
-    sub_tree = proto_item_add_subtree(sub_item, 
+    sub_tree = proto_item_add_subtree(sub_item,
                                       ett_dlm3_rcom_config);
     dissect_dlm3_rcom_config(tvb, sub_tree, length, offset);
   }
@@ -769,7 +769,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if ((h_cmd != DLM3_MSG) && (h_cmd != DLM3_RCOM))
     return 0;
 
-  if ((h_cmd == DLM3_MSG) && (length < ((4 + 4 + 4 + 2 + 1 + 1) 
+  if ((h_cmd == DLM3_MSG) && (length < ((4 + 4 + 4 + 2 + 1 + 1)
                                         + (4 * 12 + 4 * 6))))
     return 0;
   else if ((h_cmd == DLM3_RCOM) && (length < 4 + 4 + 8 + 8 + 8))
@@ -783,13 +783,13 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   if (check_col(pinfo->cinfo, COL_INFO))
     col_clear(pinfo->cinfo, COL_INFO);
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, 
+    col_set_str(pinfo->cinfo, COL_INFO,
                 "DLM3");
 
   if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO, 
-                val_to_str(h_cmd, 
-                           dlm3_cmd, 
+    col_set_str(pinfo->cinfo, COL_INFO,
+                val_to_str(h_cmd,
+                           dlm3_cmd,
                            "packet-dlm3.c internal bug"));
 
   if (parent_tree) {
@@ -800,14 +800,14 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     tree = proto_item_add_subtree(item, ett_dlm3);
 
     sub_item = proto_tree_add_uint(tree,
-                                   hf_dlm3_h_version, tvb, offset, 4, 
+                                   hf_dlm3_h_version, tvb, offset, 4,
                                    h_version);
     sub_tree = proto_item_add_subtree(sub_item, ett_dlm3_version);
     proto_tree_add_uint(sub_tree,
-                        hf_dlm3_h_major_version, tvb, offset + 0, 2, 
+                        hf_dlm3_h_major_version, tvb, offset + 0, 2,
                         (h_version & 0xFFFF0000) >> 16);
     proto_tree_add_uint(sub_tree,
-                        hf_dlm3_h_minor_version, tvb, offset + 2, 2, 
+                        hf_dlm3_h_minor_version, tvb, offset + 2, 2,
                         (h_version & 0x0000FFFF));
 
 
@@ -964,7 +964,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 #define DLM3_REGISTER_HF_ASTS(NAME,SIZE)         \
 { &hf_dlm3_##NAME##_asts,                        \
   { "Asynchronous Traps", "dlm3." #NAME ".asts", \
-    FT_INT##SIZE, BASE_HEX, NULL, 0x0,           \
+    FT_UINT##SIZE, BASE_HEX, NULL, 0x0,           \
     NULL, HFILL}},                               \
 { &hf_dlm3_##NAME##_asts_comp,                   \
   { "Completion", "dlm3." #NAME ".asts.comp",    \
@@ -1041,15 +1041,15 @@ proto_register_dlm3(void)
         NULL, HFILL}},
     { &hf_dlm3_m_sbflags_demoted,
       { "Demoted for deadlock resolution", "dlm3.m.sbflags.demoted",
-        FT_BOOLEAN, 32, NULL, DLM3_SBF_DEMOTED, 
+        FT_BOOLEAN, 32, NULL, DLM3_SBF_DEMOTED,
         NULL, HFILL}},
     { &hf_dlm3_m_sbflags_valnotvalid,
       { "Lock Value Block Is Invalid", "dlm3.m.sbflags.valnotvalid",
-        FT_BOOLEAN, 32, NULL, DLM3_SBF_VALNOTVALID, 
+        FT_BOOLEAN, 32, NULL, DLM3_SBF_VALNOTVALID,
         NULL, HFILL}},
     { &hf_dlm3_m_sbflags_altmode,
       { "Try to Grant in Alternative Mode", "dlm3.m.sbflags.altmode",
-        FT_BOOLEAN, 32, NULL, DLM3_SBF_ALTMODE, 
+        FT_BOOLEAN, 32, NULL, DLM3_SBF_ALTMODE,
         NULL, HFILL}},
 
     /* dlm_message::flags */
@@ -1132,7 +1132,7 @@ proto_register_dlm3(void)
 
     { &hf_dlm3_rf_unused,
       { "Unsed area", "dlm3.rf.lsflags.unused",
-        FT_UINT64, BASE_HEX, NULL, 0x0, 
+        FT_UINT64, BASE_HEX, NULL, 0x0,
         NULL, HFILL}},
 
     /* rcom_lock */
