@@ -51,7 +51,6 @@ extern "C" {
  */
 #define NO_ADDR_B 0x01
 #define NO_PORT_B 0x02
-#define NO_PORT_B_FORCE 0x04
 
 #include "packet.h"		/* for conversation dissector type */
 
