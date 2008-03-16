@@ -216,6 +216,8 @@ static dissector_handle_t data_handle;
 
 /* Preferences */
 static gboolean payload_is_qllc_sna = FALSE;
+static gboolean call_request_nodata_is_cotp = FALSE;
+static gboolean payload_check_data = FALSE;
 static gboolean reassemble_x25 = TRUE;
 
 /* Reassembly of X.25 */
@@ -1860,8 +1862,9 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  /* if there's no user data in the CALL REQUEST/
 	     INCOMING CALL packet, it's COTP; */
 
-	  x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
-
+           if (call_request_nodata_is_cotp){
+              x25_hash_add_proto_start(vc, pinfo->fd->num, ositp_handle);
+           }
 	}
 	break;
     case X25_CALL_ACCEPTED:
@@ -2345,6 +2348,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return;
     }
 
+    if (payload_check_data){
     /* If the Call Req. has not been captured, let's look at the first
        two bytes of the payload to see if this looks like COTP. */
     if (tvb_get_guint8(tvb, localoffset) == tvb_length(next_tvb)-1) {
@@ -2377,6 +2381,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	call_dissector(clnp_handle, next_tvb, pinfo, tree);
 	pinfo->private_data = saved_private_data;
 	return;
+    }
     }
 
     /* Try the heuristic dissectors. */
@@ -2557,6 +2562,14 @@ proto_register_x25(void)
             "Default to QLLC/SNA",
             "If CALL REQUEST not seen or didn't specify protocol, dissect as QLLC/SNA",
             &payload_is_qllc_sna);
+    prefs_register_bool_preference(x25_module, "call_request_nodata_is_cotp",
+            "Assume COTP for Call Request without data",
+            "If CALL REQUEST has no data, assume the protocol handled is COTP",
+            &call_request_nodata_is_cotp);
+    prefs_register_bool_preference(x25_module, "payload_check_data",
+            "Check data for COTP/IP/CLNP",
+            "If CALL REQUEST not seen or didn't specify protocol, check user data before checking heuristic dissectors",
+            &payload_check_data);
     prefs_register_bool_preference(x25_module, "reassemble",
 				   "Reassemble fragmented X.25 packets",
 				   "Reassemble fragmented X.25 packets",
