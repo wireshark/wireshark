@@ -1,4 +1,4 @@
-/* packet-dcp.h
+/* packet-dccp.h
  * Definitions for Datagram Congestion Control Protocol, "DCCP" dissection:
  * it should be conformance to draft-ietf-dccp-spec-11.txt
  *
@@ -29,11 +29,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __PACKET_DCP_H__
-#define __PACKET_DCP_H__
+#ifndef __PACKET_DCCP_H__
+#define __PACKET_DCCP_H__
 
 /* DCCP structs and definitions */
-typedef struct _e_dcphdr {
+typedef struct _e_dccphdr {
         guint16   sport;
 	guint16   dport;
         guint8    data_offset;
@@ -57,6 +57,6 @@ typedef struct _e_dcphdr {
 	
 	address   ip_src;
 	address   ip_dst;
-} e_dcphdr;
+} e_dccphdr;
 
-#endif /* __PACKET_DCP_H__ */
+#endif /* __PACKET_DCCP_H__ */

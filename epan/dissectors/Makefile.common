@@ -268,6 +268,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-data.c		\
 	packet-daytime.c 	\
 	packet-dcc.c		\
+	packet-dccp.c		\
 	packet-dcerpc-bossvr.c		\
 	packet-dcerpc-browser.c		\
 	packet-dcerpc-cds_clerkserver.c	\
@@ -334,7 +335,6 @@ CLEAN_DISSECTOR_SRC = \
 	packet-dcom-remact.c 	\
 	packet-dcom-remunkn.c 	\
 	packet-dcom-sysact.c 	\
-	packet-dcp.c		\
 	packet-dcp-etsi.c	\
 	packet-ddtp.c		\
 	packet-dec-bpdu.c	\
