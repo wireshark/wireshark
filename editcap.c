@@ -297,7 +297,8 @@ is_duplicate(guint8* fd, guint32 len) {
   return FALSE;
 }
 
-static void usage(void)
+static void
+usage(void)
 {
   fprintf(stderr, "Editcap %s"
 #ifdef SVNVERSION
@@ -342,7 +343,8 @@ static void usage(void)
   fprintf(stderr, "\n");
 }
 
-static void list_capture_types(void) {
+static void
+list_capture_types(void) {
     int i;
 
     fprintf(stderr, "editcap: The available capture file types for \"F\":\n");
@@ -353,7 +355,8 @@ static void list_capture_types(void) {
     }
 }
 
-static void list_encap_types(void) {
+static void
+list_encap_types(void) {
     int i;
     const char *string;
 
@@ -374,8 +377,8 @@ failure_message(const char *msg_format, va_list ap)
 	fprintf(stderr, "\n");
 }
 
-int main(int argc, char *argv[])
-
+int
+main(int argc, char *argv[])
 {
   wtap *wth;
   int i, j, err;
@@ -400,7 +403,14 @@ int main(int argc, char *argv[])
   gboolean check_ts;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
+#endif
 
+  /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
+
+#ifdef HAVE_PLUGINS
   /* Register wiretap plugins */
   if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
     g_warning("capinfos: init_progfile_dir(): %s", init_progfile_dir_error);

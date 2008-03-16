@@ -151,6 +151,7 @@ npf_sys_is_running() {
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;
+static gboolean get_credential_info_called = FALSE;
 
 /*
  * Called when the program starts, to save whatever credential information
@@ -164,6 +165,8 @@ get_credential_info(void)
 	euid = geteuid();
 	rgid = getgid();
 	egid = getegid();
+
+	get_credential_info_called = TRUE;
 }
 
 /*
@@ -173,6 +176,7 @@ get_credential_info(void)
 gboolean
 started_with_special_privs(void)
 {
+	g_assert(get_credential_info_called);
 #ifdef HAVE_ISSETUGID
 	return issetugid();
 #else

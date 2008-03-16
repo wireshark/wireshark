@@ -212,7 +212,8 @@ process_cap_file(wtap *wth, const char *filename)
   return 0;
 }
 
-static void usage(gboolean is_error)
+static void
+usage(gboolean is_error)
 {
   FILE *output;
 
@@ -271,7 +272,8 @@ failure_message(const char *msg_format, va_list ap)
 }
 
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
   wtap *wth;
   int err;
@@ -282,7 +284,14 @@ int main(int argc, char *argv[])
   int status = 0;
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
+#endif
 
+  /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
+
+#ifdef HAVE_PLUGINS
   /* Register wiretap plugins */
 
     if ((init_progfile_dir_error = init_progfile_dir(argv[0]))) {
