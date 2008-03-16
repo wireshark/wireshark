@@ -370,12 +370,15 @@ list_encap_types(void) {
     }
 }
 
+/*
+ *  Don't report failures to load plugins because most (non-wiretap) plugins
+ *  *should* fail to load (because we're not linked against libwireshark and
+ *  dissector plugins need libwireshark).
+ */
 static void
-failure_message(const char *msg_format, va_list ap)
+failure_message(const char *msg_format _U_, va_list ap _U_)
 {
-	fprintf(stderr, "editcap: ");
-	vfprintf(stderr, msg_format, ap);
-	fprintf(stderr, "\n");
+	return;
 }
 
 int

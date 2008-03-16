@@ -384,34 +384,12 @@ mergecap_LDADD = \
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
-	epan/libwireshark.la		\
-	@INET_PTON_LO@			\
-	@SSL_LIBS@			\
-	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
-	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
-	@FRAMEWORKS@			\
-	@LIBICONV@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@GLIB_LIBS@
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
-	epan/libwireshark.la		\
-	@INET_PTON_LO@			\
-	@SSL_LIBS@			\
-	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
-	@GLIB_LIBS@ -lm			\
-	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@ @KRB5_LIBS@	\
-	@FRAMEWORKS@			\
-	@LIBICONV@			\
-	@LIBGCRYPT_LIBS@		\
-	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@GLIB_LIBS@
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
