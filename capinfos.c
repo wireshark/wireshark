@@ -49,6 +49,7 @@
 #include <epan/plugins.h>
 #include <epan/report_err.h>
 #include "wtap.h"
+#include <epan/privileges.h>
 
 #ifdef NEED_GETOPT_H
 #include "getopt.h"

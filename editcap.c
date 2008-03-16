@@ -58,6 +58,7 @@
 #include "epan/plugins.h"
 #include "epan/report_err.h"
 #include "epan/filesystem.h"
+#include <epan/privileges.h>
 
 #include "svnversion.h"
 
