@@ -1307,7 +1307,7 @@ static const value_string volume_types[] = {
 };
 
 struct afs_request_key {
-  guint32 conversation, callnumber;
+  guint32 conversation, epoch, cid, callnumber;
   guint16 service;
 };
 
@@ -1373,7 +1373,8 @@ afs_equal(gconstpointer v, gconstpointer w)
   const struct afs_request_key *v2 = (const struct afs_request_key *)w;
 
   if (v1 -> conversation == v2 -> conversation &&
-      v1 -> service == v2 -> service &&
+      v1 -> epoch == v2 -> epoch &&
+      v1 -> cid == v2 -> cid &&
       v1 -> callnumber == v2 -> callnumber ) {
 
     return 1;
@@ -1388,7 +1389,7 @@ afs_hash (gconstpointer v)
 	const struct afs_request_key *key = (const struct afs_request_key *)v;
 	guint val;
 
-	val = key -> conversation + key -> service + key -> callnumber;
+	val = key -> conversation + key -> epoch + key -> cid + key -> callnumber;
 
 	return val;
 }
@@ -1461,6 +1462,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	request_key.conversation = conversation->index;
 	request_key.service = rxinfo->serviceid;
+	request_key.epoch = rxinfo->epoch;
+	request_key.cid = rxinfo->cid;
 	request_key.callnumber = rxinfo->callnumber;
 
 	request_val = (struct afs_request_val *) g_hash_table_lookup(
@@ -1650,7 +1653,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Add the subtree for this particular service */
 			afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 
-			
+
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
 				proto_tree_add_boolean_hidden(afs_tree, typenode, tvb, offset, 0, 1);
@@ -3526,9 +3529,9 @@ proto_register_afs(void)
 		FT_UINT32, BASE_HEX, 0, 0, "Is Clone", HFILL }},
 	{ &hf_afs_reqframe, { "Request Frame", "afs.reqframe",
 		FT_FRAMENUM, BASE_NONE, NULL, 0, "Request Frame", HFILL }},
-	{ &hf_afs_repframe, { "Reply Frame", "afs.repframe", 
+	{ &hf_afs_repframe, { "Reply Frame", "afs.repframe",
 		FT_FRAMENUM, BASE_NONE,	NULL, 0, "Reply Frame", HFILL }},
-	{ &hf_afs_time, { "Time from request", "afs.time", 
+	{ &hf_afs_time, { "Time from request", "afs.time",
 		FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for AFS calls", HFILL }},
 	};
 	static gint *ett[] = {

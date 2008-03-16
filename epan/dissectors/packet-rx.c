@@ -489,10 +489,12 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
 			offset, 4, &ts);
+		rxinfo.epoch = ts.secs;
 		offset += 4;
 	}
 
 	/* cid : 4 bytes */
+	rxinfo.cid = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, FALSE);
 	offset += 4;
 

@@ -32,6 +32,8 @@ struct rxinfo {
 	guint8	type;
 	guint8	flags;
 	guint16	serviceid;
+	guint32	epoch;
+	guint32	cid;
 	guint32	callnumber;
 	guint32	seq;
 };
