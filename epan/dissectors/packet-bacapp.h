@@ -1965,6 +1965,20 @@ static guint
 fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 /**
+ * BACnet Application PDUs chapter 21
+ * BACnetPropertyArrayIndex::= ENUMERATED {
+ * 	 @see bacapp_property_array_index
+ * }
+ * @param tvb
+ * @param tree
+ * @param offset
+ * @param tt returnvalue of this item
+ * @return modified offset
+ */
+static guint
+fPropertyArrayIndex (tvbuff_t *tvb, proto_tree *tree, guint offset);
+
+/**
  * listOfEventSummaries ::= SEQUENCE OF SEQUENCE {
  * 	objectIdentifier	[0] BACnetObjectIdentifier,
  *  eventState  [1] BACnetEventState,

@@ -1031,8 +1031,10 @@ weekofmonth [] = {
 	{0,NULL }
 };
 
+/* note: notification class object recipient-list uses
+   different day-of-week enum */
 static const value_string
-days [] = {
+day_of_week [] = {
 	{1,"Monday" },
 	{2,"Tuesday" },
 	{3,"Wednesday" },
@@ -1316,6 +1318,7 @@ static gint ett_bacapp_value = -1;
 
 static dissector_handle_t data_handle;
 static gint32 propertyIdentifier = -1;
+static gint32 propertyArrayIndex = -1;
 static guint32 object_type = 4096;
 
 static guint8 bacapp_flags = 0;
@@ -1604,7 +1607,7 @@ fUnsignedTag (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 	guint64 val = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-    guint tag_len;
+	guint tag_len;
 	proto_item *ti;
 	proto_tree *subtree;
 
@@ -1788,7 +1791,7 @@ fWeekNDay (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len, "%s %s, %s",
                         val_to_str(month, months, "month (%d) not found"),
                         val_to_str(weekOfMonth, weekofmonth, "week of month (%d) not found"),
-                        val_to_str(dayOfWeek, days, "day of week (%d) not found"));
+                        val_to_str(dayOfWeek, day_of_week, "day of week (%d) not found"));
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree(tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 
@@ -1824,7 +1827,7 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 				months,
 				"month (%d) not found"),
 			day, year, val_to_str(weekday,
-				days,
+				day_of_week,
 				"(%d) not found"));
 	}
 	else
@@ -1832,7 +1835,7 @@ fDate (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
 			"%s%s %d, any year, (Day of Week = %s)",
 			label, val_to_str(month, months, "month (%d) not found"),
-			day, val_to_str(weekday, days, "(%d) not found"));
+			day, val_to_str(weekday, day_of_week, "(%d) not found"));
 	}
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
@@ -1989,12 +1992,24 @@ fClientCOV (tvbuff_t *tvb, proto_tree *tree, guint offset)
     return offset;
 }
 
+static const value_string
+BACnetDaysOfWeek [] = {
+	{0,"Monday" },
+	{1,"Tuesday" },
+	{2,"Wednesday" },
+	{3,"Thursday" },
+	{4,"Friday" },
+	{5,"Saturday" },
+	{6,"Sunday" },
+	{0,NULL }
+};
+
 static guint
 fDestination (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	if (tvb_length_remaining(tvb, offset) > 0) {
 		offset = fApplicationTypesEnumerated(tvb,tree,offset,
-			"valid Days: ", days);
+			"valid Days: ", BACnetDaysOfWeek);
 		offset = fTime (tvb,tree,offset,"from time: ");
 		offset = fTime (tvb,tree,offset,"to time: ");
 		offset = fRecipient (tvb,tree,offset);
@@ -2154,6 +2169,8 @@ fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
+	/* set the optional global properties to indicate not-used */
+	propertyArrayIndex = -1;
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -2175,7 +2192,7 @@ fActionCommand (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyIdentifier (tvb, subtree, offset);
 			break;
 		case 3: /* propertyArrayIndex */
-			offset = fUnsignedTag (tvb,subtree,offset,"Property Array Index: ");
+			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 4: /* propertyValue */
 			if (tag_is_opening(tag_info)) {
@@ -2242,6 +2259,28 @@ fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
+fPropertyArrayIndex (tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	guint tag_len;
+	proto_item *ti;
+	proto_tree *subtree;
+
+	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	if (fUnsigned32 (tvb, offset + tag_len, lvt, (guint32 *)&propertyArrayIndex))
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"property Array Index (Unsigned) %u", propertyArrayIndex);
+	else
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"property Array Index - %u octets (Unsigned)", lvt);
+	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+
+	return offset+tag_len+lvt;
+}
+
+static guint
 fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *label)
 {
 	guint8 tag_no, tag_info, character_set;
@@ -2252,7 +2291,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 	guint8 bf_arr[512], *out = &bf_arr[0];
 	proto_item *ti;
 	proto_tree *subtree;
-    guint start = offset;
+	guint start = offset;
 
 	if (tvb_length_remaining(tvb, offset) > 0) {
 
@@ -2571,8 +2610,14 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fApplicationTypesEnumerated (tvb, tree, offset, ar,
 				BACnetEngineeringUnits);
 			break;
-		case 87:	/* priority-array */
-			offset = fPriorityArray (tvb, tree, offset);
+		case 87:	/* priority-array -- accessed as a BACnetARRAY */
+			if (propertyArrayIndex == 0) {
+				/* BACnetARRAY index 0 refers to the length
+				of the array, not the elements of the array */
+				offset = fApplicationTypes (tvb, tree, offset, ar);
+			} else {
+				offset = fPriorityArray (tvb, tree, offset);
+			}
 			break;
 		case 38:	/* exception-schedule */
 			if (object_type < 128)
@@ -2580,10 +2625,16 @@ fAbstractSyntaxNType (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				offset = fSpecialEvent (tvb,tree,offset);
 			}
 			break;
-		case 123:	/* weekly-schedule */
+		case 123:	/* weekly-schedule -- accessed as a BACnetARRAY */
 			if (object_type < 128)
 			{
-				offset = fWeeklySchedule (tvb,tree,offset);
+				if (propertyArrayIndex == 0) {
+					/* BACnetARRAY index 0 refers to the length
+					of the array, not the elements of the array */
+					offset = fApplicationTypes (tvb, tree, offset, ar);
+				} else {
+					offset = fWeeklySchedule (tvb,tree,offset);
+				}
 			}
 			break;
 		case 159: /* member-of */
@@ -2792,17 +2843,27 @@ fWeeklySchedule (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint lastoffset = 0;
 	guint8 tag_no, tag_info;
 	guint32 lvt;
-	guint i=1;
+	guint i = 1; /* day of week array index */
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
+	if (propertyArrayIndex > 0) {
+		/* BACnetARRAY index 0 refers to the length
+		of the array, not the elements of the array.
+		BACnetARRAY index -1 is our internal flag that
+		the optional index was not used.
+		BACnetARRAY refers to this as all elements of the array.
+		If the optional index is specified for a BACnetARRAY,
+		then that specific array element is referenced. */
+		i = propertyArrayIndex;
+	}
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
 		if (tag_is_closing(tag_info)) {
 			return offset; /* outer encoding will print out closing tag */
 		}
-		tt = proto_tree_add_text(tree, tvb, offset, 0, val_to_str(i++, days, "day of week (%d) not found"));
+		tt = proto_tree_add_text(tree, tvb, offset, 0, val_to_str(i++, day_of_week, "day of week (%d) not found"));
 		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
 		offset = fDailySchedule (tvb,subtree,offset);
 	}
@@ -4066,6 +4127,8 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
     proto_item *tt;
 
+	/* set the optional global properties to indicate not-used */
+	propertyArrayIndex = -1;
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -4083,7 +4146,7 @@ fReadPropertyAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyIdentifier (tvb, subtree, offset);
 			break;
 		case 2: /* propertyArrayIndex */
-			offset = fSignedTag (tvb, subtree, offset, "property Array Index: ");
+			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 3:	/* propertyValue */
 			if (tag_is_opening(tag_info)) {
@@ -4111,6 +4174,8 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
     proto_item *tt;
 
+	/* set the optional global properties to indicate not-used */
+	propertyArrayIndex = -1;
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -4129,7 +4194,7 @@ fWritePropertyRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyIdentifier (tvb, subtree, offset);
 			break;
 		case 2: /* propertyArrayIndex */
-			offset = fSignedTag (tvb, subtree, offset, "property Array Index: ");
+			offset = fPropertyArrayIndex (tvb, subtree, offset);
 			break;
 		case 3:	/* propertyValue */
 			if (tag_is_opening(tag_info)) {
@@ -4202,6 +4267,8 @@ fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoff
 	guint8 tag_no, tag_info;
 	guint32 lvt;
 
+	/* set the optional global properties to indicate not-used */
+	propertyArrayIndex = -1;
 	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {  /* exit loop if nothing happens inside */
 		lastoffset = offset;
 		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
@@ -4213,7 +4280,7 @@ fPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset, guint8 tagoff
 			offset = fPropertyIdentifier (tvb, tree, offset);
 			break;
 		case 1:	/* propertyArrayIndex */
-			offset = fUnsignedTag (tvb, tree, offset, "property Array Index: ");
+			offset = fPropertyArrayIndex (tvb, tree, offset);
 			if (list != 0) break; /* Continue decoding if this may be a list */
 		default:
 			lastoffset = offset; /* Set loop end condition */
@@ -4327,21 +4394,36 @@ fDeviceObjectPropertyReference (tvbuff_t *tvb, proto_tree *tree, guint offset)
 static guint
 fPriorityArray (tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-	char i, ar[256];
+	char i = 1, ar[256];
+	guint lastoffset = 0;
 
-	if (offset >= tvb_reported_length(tvb))
-		return offset;
-
-	for (i = 1; i <= 16; i++) {
+	if (propertyArrayIndex > 0) {
+		/* BACnetARRAY index 0 refers to the length
+		of the array, not the elements of the array.
+		BACnetARRAY index -1 is our internal flag that
+		the optional index was not used.
+		BACnetARRAY refers to this as all elements of the array.
+		If the optional index is specified for a BACnetARRAY,
+		then that specific array element is referenced. */
+		i = propertyArrayIndex;
+	}
+	while ((tvb_length_remaining(tvb, offset) > 0)&&(offset>lastoffset)) {
+		/* exit loop if nothing happens inside */
+		lastoffset = offset;
 		g_snprintf (ar, sizeof(ar), "%s[%d]: ",
 			val_to_split_str(87 , 512,
 				BACnetPropertyIdentifier,
 				ASHRAE_Reserved_Fmt,
 				Vendor_Proprietary_Fmt),
-			i);
+			i++);
 		/* DMR Should be fAbstractNSyntax, but that's where we came from! */
 		offset = fApplicationTypes(tvb, tree, offset, ar);
+		/* there are only 16 priority array elements */
+		if (i > 16) {
+			break;
+		}
 	}
+	
 	return offset;
 }
 
@@ -4431,7 +4513,7 @@ fSelectionCriteria (tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fPropertyIdentifier (tvb, tree, offset);
 			break;
 		case 1:	/* propertyArrayIndex */
-			offset = fUnsignedTag (tvb, tree, offset, "property Array Index: ");
+			offset = fPropertyArrayIndex (tvb, tree, offset);
 			break;
 		case 2: /* relationSpecifier */
 			offset = fEnumeratedTag (tvb, tree, offset,
@@ -4711,6 +4793,8 @@ fReadRangeAck (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	proto_tree *subtree = tree;
 	proto_item *tt;
 
+	/* set the optional global properties to indicate not-used */
+	propertyArrayIndex = -1;
 	/* objectIdentifier, propertyIdentifier, and
 	   OPTIONAL propertyArrayIndex */
 	offset = fBACnetObjectPropertyReference(tvb, subtree, offset);
