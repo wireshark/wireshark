@@ -460,6 +460,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	struct rxinfo rxinfo;
 	guint8 type;
+	nstime_t ts;
 	guint32 seq, callnumber;
 	guint16 serviceid;
 
@@ -482,16 +483,11 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tree = proto_item_add_subtree(item, ett_rx);
 
 	/* epoch : 4 bytes */
-	{
-		nstime_t ts;
-		ts.secs = tvb_get_ntohl(tvb, offset);
-		ts.nsecs = 0;
-
-		proto_tree_add_time(tree, hf_rx_epoch, tvb,
-			offset, 4, &ts);
-		rxinfo.epoch = (guint32) ts.secs;
-		offset += 4;
-	}
+	rxinfo.epoch = tvb_get_ntohl(tvb, offset);
+	ts.secs = rxinfo.epoch;
+	ts.nsecs = 0;
+	proto_tree_add_time(tree, hf_rx_epoch, tvb, offset, 4, &ts);
+	offset += 4;
 
 	/* cid : 4 bytes */
 	rxinfo.cid = tvb_get_ntohl(tvb, offset);
