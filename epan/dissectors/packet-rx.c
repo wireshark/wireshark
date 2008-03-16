@@ -489,7 +489,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		proto_tree_add_time(tree, hf_rx_epoch, tvb,
 			offset, 4, &ts);
-		rxinfo.epoch = ts.secs;
+		rxinfo.epoch = (guint32) ts.secs;
 		offset += 4;
 	}
 
