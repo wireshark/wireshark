@@ -2143,6 +2143,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
          * moved to "smpp-gsm-sms" and then moved to "gsm-sms-ud".
          * However, SMPP now has its own preferences, so we just map
          * "smpp-gsm-sms" to "gsm-sms-ud", and then handle SMPP below.
+         *
+         * We also renamed "dcp" to "dccp".
          */
         if (module == NULL) {
           if (strcmp(pref_name, "Diameter") == 0)
@@ -2154,6 +2156,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
             module = prefs_find_module("gtp");
           else if (strcmp(pref_name, "smpp-gsm-sms") == 0)
             module = prefs_find_module("gsm-sms-ud");
+          else if (strcmp(pref_name, "dcp") == 0)
+            module = prefs_find_module("dccp");
         }
         *dotp = '.';		/* put the preference string back */
         dotp++;			/* skip past separator to preference name */
