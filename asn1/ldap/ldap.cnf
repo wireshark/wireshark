@@ -1,10 +1,10 @@
 # ldap.cnf
 # LDAP conformation file
-# Copyright 2005 Anders Broman 
+# Copyright 2005 Anders Broman
 # $Id$
 
 
-#.PDU 
+#.PDU
 LDAPMessage
 
 #.TYPE_RENAME
@@ -50,7 +50,7 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 #.FN_PARS LDAPOID VAL_PTR = &parameter_tvb
 
 #.FN_FTR LDAPOID
-	
+
 	object_identifier_id = NULL;
 
 	if (!parameter_tvb)
@@ -63,14 +63,14 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 		proto_item_append_text(actx->created_item, " (%s)", name);
 
 		if((hf_index == hf_ldap_requestName) || (hf_index == hf_ldap_responseName)) {
-			ldap_do_protocolop(actx->pinfo);		
+			ldap_do_protocolop(actx->pinfo);
 
 			if(check_col(actx->pinfo->cinfo, COL_INFO))
 			      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%s ", name);
 		}
 	}
 
-	if(((hf_index == hf_ldap_responseName) || (hf_index == hf_ldap_requestName)) && 
+	if(((hf_index == hf_ldap_responseName) || (hf_index == hf_ldap_requestName)) &&
 	    !strcmp(object_identifier_id, "1.3.6.1.4.1.1466.20037")) {
 
 		/* we have agreed start_tls */
@@ -79,7 +79,7 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 		ldap_info = (ldap_conv_info_t *)actx->pinfo->private_data;
 
 		if(ldap_info) {
-			if(hf_index == hf_ldap_responseName) 
+			if(hf_index == hf_ldap_responseName)
 				/* TLS in the next frame */
 				ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
 			else
@@ -91,7 +91,7 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 #.FN_BODY MessageID VAL_PTR = &MessageID
 
   %(DEFAULT_BODY)s
-  
+
   ldm_tree = tree;
 
 #.FN_PARS ProtocolOp VAL_PTR = &ProtocolOp
@@ -115,34 +115,34 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
   if(lcrp){
     tap_queue_packet(ldap_tap, actx->pinfo, lcrp);
   }
-  
+
   /* XXX: the count will not work if the results span multiple TCP packets */
 
   if(ldap_info && tree) { /* only count once - on tree pass */
     switch(ProtocolOp) {
-  
+
     case LDAP_RES_SEARCH_ENTRY:
   	ldap_info->num_results++;
 
-  	proto_item_append_text(tree, " [%d result%s]", 
+  	proto_item_append_text(tree, " [%d result%s]",
   		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
 
   	break;
 
     case LDAP_RES_SEARCH_RESULT:
-  
+
     	if (check_col(actx->pinfo->cinfo, COL_INFO))
-          col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [%d result%s]", 
+          col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [%d result%s]",
   	    	        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
-  		        
-  	proto_item_append_text(tree, " [%d result%s]", 
+
+  	proto_item_append_text(tree, " [%d result%s]",
   		        ldap_info->num_results, ldap_info->num_results == 1 ? "" : "s");
-  		        
+
   	ldap_info->num_results = 0;
     	break;
      default:
    	break;
-    } 
+    }
   }
 
   if(ldap_info && (ProtocolOp == LDAP_RES_EXTENDED)) {
@@ -150,7 +150,7 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 
 	if(ldap_info->start_tls_pending && !ldap_info->start_tls_frame) {
 		/* XXX: some directories do not correctly return the responseName in the extendedResponse so we don't know start_tls has been negotiated */
-		
+
 		if(check_col(actx->pinfo->cinfo, COL_INFO))
 		      col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[LDAP_START_TLS_OID responseName missing] ");
 		ldap_info->start_tls_frame = (actx->pinfo->fd->num) + 1;
@@ -158,12 +158,12 @@ CancelRequestValue		B "1.3.6.1.1.8"		    "cancelRequstOID"
 
 	ldap_info->start_tls_pending = FALSE;
   }
-  
+
 #.FN_BODY Simple
 ldap_conv_info_t *ldap_info;
 
 %(DEFAULT_BODY)s
-	
+
 	ldap_info = actx->pinfo->private_data;
 	ldap_info->auth_type = LDAP_AUTH_SIMPLE;
 
@@ -296,7 +296,7 @@ ldap_conv_info_t *ldap_info;
 	 * which might not be wrapped in GSS-SPNEGO but be a raw
 	 * NTLMSSP blob
 	 */
-	if ( (tvb_length(parameter_tvb)>=7) 
+	if ( (tvb_length(parameter_tvb)>=7)
 	&&   (!tvb_memeql(parameter_tvb, 0, "NTLMSSP", 7))){
 	  call_dissector(ntlmssp_handle, parameter_tvb, actx->pinfo, tree);
 	  break;
@@ -322,11 +322,11 @@ ldap_conv_info_t *ldap_info;
   tvbuff_t	*parameter_tvb = NULL;
   char          *ldapstring = NULL;
   gchar		*sc = NULL; /* semi-colon pointer */
- 
+
   %(DEFAULT_BODY)s
 
   if (parameter_tvb || (hf_index == hf_ldap_baseObject)) {
-  
+
      ldap_do_protocolop(actx->pinfo);
 
      if(parameter_tvb)
@@ -337,27 +337,27 @@ ldap_conv_info_t *ldap_info;
 	if(!ldapstring || !*ldapstring)
 	  ldapstring = "<ROOT>";
 
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
+	if(check_col(actx->pinfo->cinfo, COL_INFO))
 	  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);
 
   	if(ldm_tree)
-  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring);
 
 
 	if(!parameter_tvb) {
 
-	  proto_item_append_text(actx->created_item, " (%%s)", ldapstring); 
+	  proto_item_append_text(actx->created_item, " (%%s)", ldapstring);
 	}
 
      } else if ((hf_index == hf_ldap_errorMessage) && ldapstring && *ldapstring) { /* only show message if not success */
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
-          col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s) ", ldapstring);     
+	if(check_col(actx->pinfo->cinfo, COL_INFO))
+          col_append_fstr(actx->pinfo->cinfo, COL_INFO, "(%%s) ", ldapstring);
 
         if(ldm_tree)
-  	  proto_item_append_text(ldm_tree, " (%%s)", ldapstring); 
+  	  proto_item_append_text(ldm_tree, " (%%s)", ldapstring);
 
-     } else if ((hf_index == hf_ldap_objectName) || 
-		(hf_index == hf_ldap_name) || 
+     } else if ((hf_index == hf_ldap_objectName) ||
+		(hf_index == hf_ldap_name) ||
 	        (hf_index == hf_ldap_entry) ||
 		(hf_index == hf_ldap_object) ||
 		(hf_index == hf_ldap_delRequest) ) {
@@ -365,11 +365,11 @@ ldap_conv_info_t *ldap_info;
 	if(!ldapstring || !*ldapstring)
 	  ldapstring = "<ROOT>";
 
-	if(check_col(actx->pinfo->cinfo, COL_INFO)) 
-          col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);     
+	if(check_col(actx->pinfo->cinfo, COL_INFO))
+          col_append_fstr(actx->pinfo->cinfo, COL_INFO, "\"%%s\" ", ldapstring);
 
         if(ldm_tree)
-  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring); 
+  	  proto_item_append_text(ldm_tree, " \"%%s\"", ldapstring);
      } else if (hf_index == hf_ldap_attributeDesc){
 	/* remember the attribute description */
 	attributedesc_string=ldapstring;
@@ -406,7 +406,7 @@ ldap_conv_info_t *ldap_info;
 	}
 
      }
-     
+
   }
 
 #.FN_BODY SearchRequest/_untag/scope VAL_PTR = &scope
@@ -421,10 +421,10 @@ ldap_conv_info_t *ldap_info;
   valstr = val_to_str(scope, ldap_T_scope_vals, "Unknown scope(%%u)");
 
   if (check_col(actx->pinfo->cinfo, COL_INFO))
-    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);    
-    
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
+
   if(ldm_tree)
-    proto_item_append_text(ldm_tree, " %%s", valstr); 
+    proto_item_append_text(ldm_tree, " %%s", valstr);
 
 #.FN_BODY LDAPResult/resultCode VAL_PTR = &result
 
@@ -440,7 +440,7 @@ ldap_conv_info_t *ldap_info;
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
   if(ldm_tree)
-    proto_item_append_text(ldm_tree, " %%s", valstr); 
+    proto_item_append_text(ldm_tree, " %%s", valstr);
 
 
 #.FN_BODY BindResponse/_untag/resultCode  VAL_PTR = &result
@@ -457,9 +457,9 @@ ldap_conv_info_t *ldap_info;
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
 
   if(ldm_tree)
-    proto_item_append_text(ldm_tree, " %%s", valstr); 
+    proto_item_append_text(ldm_tree, " %%s", valstr);
 
-  
+
 #.FN_BODY AttributeValue
 
   tvbuff_t	*next_tvb;
@@ -473,44 +473,44 @@ ldap_conv_info_t *ldap_info;
   /* if we have an attribute type that isn't binary see if there is a better dissector */
   if(!attr_type || !dissector_try_string(ldap_name_dissector_table, attr_type, next_tvb, actx->pinfo, tree)) {
 	offset = old_offset;
-	
-	/* do the default thing */
-	%(DEFAULT_BODY)s	
 
-  } 
+	/* do the default thing */
+	%(DEFAULT_BODY)s
+
+  }
 
   len = tvb_length_remaining(next_tvb, 0);
-  
-  for(i = 0; i < len; i++) 
+
+  for(i = 0; i < len; i++)
     if(!g_ascii_isprint(tvb_get_guint8(next_tvb, i)))
       break;
-  
+
   if(i == len) {
     string = tvb_get_ephemeral_string(next_tvb, 0, tvb_length_remaining(next_tvb, 0));
- 
-     
+
+
     proto_item_set_text(actx->created_item, "%%s", string);
 
   }
-  
+
 #.FN_BODY AuthenticationChoice VAL_PTR = &branch
   gint branch = -1;
   gint auth = -1;
   const gchar *valstr;
-  
+
   %(DEFAULT_BODY)s
-  
+
   ldap_do_protocolop(actx->pinfo);
-  
+
   if((branch > -1) && (branch < (gint)(sizeof AuthenticationChoice_choice/sizeof AuthenticationChoice_choice[0])))
     auth = AuthenticationChoice_choice[branch].value;
 
   valstr = val_to_str(auth, ldap_AuthenticationChoice_vals, "Unknown auth(%%u)");
-  
+
   /* If auth is NTLM (10 or 11) don't add to column as the NTLM dissection will do this */
   if (check_col(actx->pinfo->cinfo, COL_INFO) && (auth !=  10) && (auth != 11))
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s ", valstr);
-  
+
   if(ldm_tree)
     proto_item_append_text(ldm_tree, " %%s", valstr);
 
@@ -521,7 +521,7 @@ ldap_conv_info_t *ldap_info;
 
  %(DEFAULT_BODY)s
 
- ldap_do_protocolop(actx->pinfo);  
+ ldap_do_protocolop(actx->pinfo);
 
 
 
@@ -535,19 +535,35 @@ ldap_conv_info_t *ldap_info;
 	and_filter_string=NULL;
 
 #.FN_FTR Filter/equalityMatch
-	Filter_string=ep_strdup_printf("(%s=%s)",attributedesc_string,ldapvalue_string);
+	Filter_string=ep_strdup_printf("(%s=%s)",
+				       attributedesc_string ?
+				       attributedesc_string : "(null)",
+				       ldapvalue_string ?
+				       ldapvalue_string : "(null)");
 
 
 #.FN_FTR Filter/greaterOrEqual
-	Filter_string=ep_strdup_printf("(%s>=%s)",attributedesc_string,ldapvalue_string);
+	Filter_string=ep_strdup_printf("(%s>=%s)",
+				       attributedesc_string ?
+				       attributedesc_string : "(null)",
+				       ldapvalue_string ?
+				       ldapvalue_string : "(null)");
 
 
 #.FN_FTR Filter/lessOrEqual
-	Filter_string=ep_strdup_printf("(%s<=%s)",attributedesc_string,ldapvalue_string);
+	Filter_string=ep_strdup_printf("(%s<=%s)",
+				       attributedesc_string ?
+				       attributedesc_string : "(null)",
+				       ldapvalue_string ?
+				       ldapvalue_string : "(null)");
 
 
 #.FN_FTR Filter/approxMatch
-	Filter_string=ep_strdup_printf("(%s~=%s)",attributedesc_string,ldapvalue_string);
+	Filter_string=ep_strdup_printf("(%s~=%s)",
+				       attributedesc_string ?
+				       attributedesc_string : "(null)",
+				       ldapvalue_string ?
+				       ldapvalue_string : "(null)");
 
 #.FN_FTR Filter/and/_item
 	if(and_filter_string){
@@ -566,7 +582,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "and: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_and);
 		tree = tr;
-	} 
+	}
 
 %(DEFAULT_BODY)s
 
@@ -594,7 +610,7 @@ ldap_conv_info_t *ldap_info;
 		it=proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "or: ");
 		tr=proto_item_add_subtree(it, ett_ldap_T_or);
 		tree = tr;
-	} 
+	}
 %(DEFAULT_BODY)s
 	if(or_filter_string) {
 		proto_item_append_text(it, "%%s", or_filter_string);
@@ -608,7 +624,7 @@ ldap_conv_info_t *ldap_info;
 #.FN_FTR Filter/not
 	Filter_string=ep_strdup_printf("(!%s)",Filter_string);
 
-#.FN_BODY MatchingRuleAssertion/dnAttributes 
+#.FN_BODY MatchingRuleAssertion/dnAttributes
 	gboolean val;
 
 offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
@@ -712,9 +728,9 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 	gboolean pc, ind;
 	gint32 tag;
 	guint32 len;
-	
+
 	if((object_identifier_id != NULL) && oid_has_dissector(object_identifier_id)) {
-		/* remove the OCTET STRING encoding */		
+		/* remove the OCTET STRING encoding */
 		offset=dissect_ber_identifier(actx->pinfo, NULL, tvb, offset, &class, &pc, &tag);
 		offset=dissect_ber_length(actx->pinfo, NULL, tvb, offset, &len, &ind);
 
@@ -738,14 +754,14 @@ offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &v
 
  %(DEFAULT_BODY)s
 
- ldap_do_protocolop(actx->pinfo);  
+ ldap_do_protocolop(actx->pinfo);
 
 
 #.FN_BODY AbandonRequest
 
  %(DEFAULT_BODY)s
 
- ldap_do_protocolop(actx->pinfo);  
+ ldap_do_protocolop(actx->pinfo);
 
 
 #.NO_EMIT
