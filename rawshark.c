@@ -399,12 +399,14 @@ set_link_type(const char *lt_arg) {
     if (dhandle) {
       encap = WTAP_ENCAP_USER0;
       pref_str = g_string_new("uat:user_dlts:");
-	  /* This must match the format used in the user_dlts file */
-	  g_string_sprintfa(pref_str,
-		"\"User 0 (DLT=147)\",\"%s\",\"0\",\"\",\"0\",\"\"", spec_ptr);
+      /* This must match the format used in the user_dlts file */
+      g_string_sprintfa(pref_str,
+			"\"User 0 (DLT=147)\",\"%s\",\"0\",\"\",\"0\",\"\"",
+			spec_ptr);
       if (prefs_set_pref(pref_str->str) != PREFS_SET_OK) {
-		return FALSE;
-	  }
+	g_string_free(pref_str, TRUE);
+	return FALSE;
+      }
       g_string_free(pref_str, TRUE);
       return TRUE;
     }
@@ -442,6 +444,11 @@ main(int argc, char *argv[])
   #define OPTSTRING_INIT "d:F:hlnN:o:r:R:S:t:v"
 
   static const char    optstring[] = OPTSTRING_INIT;
+
+  /*
+   * Get credential information for later use.
+   */
+  get_credential_info();
 
   /*
    * Clear the filters arrays
