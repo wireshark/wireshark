@@ -1410,6 +1410,11 @@ main(int argc, char *argv[])
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     cfile.cinfo.col_fmt[i] = get_column_format(i);
     cfile.cinfo.col_title[i] = g_strdup(get_column_title(i));
+    if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
+      cfile.cinfo.col_custom_field[i] = g_strdup(get_column_custom_field(i));
+    } else {
+      cfile.cinfo.col_custom_field[i] = NULL;
+    }
     cfile.cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
       NUM_COL_FMTS);
     get_column_format_matches(cfile.cinfo.fmt_matx[i], cfile.cinfo.col_fmt[i]);
@@ -2422,7 +2427,7 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
     }
 
     passed = TRUE;
-    if (cf->rfcode || verbose || num_tap_filters!=0)
+    if (cf->rfcode || verbose || num_tap_filters!=0 || have_custom_cols(&cf->cinfo))
       create_proto_tree = TRUE;
     else
       create_proto_tree = FALSE;
@@ -2436,6 +2441,8 @@ process_packet(capture_file *cf, gint64 offset, const struct wtap_pkthdr *whdr,
        filter. */
     if (cf->rfcode)
       epan_dissect_prime_dfilter(edt, cf->rfcode);
+
+    col_custom_prime_edt(edt, &cf->cinfo);
 
     tap_queue_init(edt);
 
