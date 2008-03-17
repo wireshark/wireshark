@@ -416,30 +416,7 @@ conversation_match_no_addr2_or_port2(gconstpointer v, gconstpointer w)
 void
 conversation_init(void)
 {
-	conversation_key *key;
-
-	/*
-	 * Free the addresses associated with the conversation keys.
-	 */
-	for (key = conversation_keys; key != NULL; key = key->next) {
-		/*
-		 * Grr.  I guess the theory here is that freeing
-		 * something sure as heck modifies it, so you
-		 * want to ban attempts to free it, but, alas,
-		 * if we make the "data" field of an "address"
-		 * structure not a "const", the compiler whines if
-		 * we try to make it point into the data for a packet,
-		 * as that's a "const" array (and should be, as dissectors
-		 * shouldn't trash it).
-		 *
-		 * So we cast the complaint into oblivion, and rely on
-		 * the fact that these addresses are known to have had
-		 * their data mallocated, i.e. they don't point into,
-		 * say, the middle of the data for a packet.
-		 */
-		g_free((gpointer)key->addr1.data);
-		g_free((gpointer)key->addr2.data);
-	}
+	/* The conversation keys are se_ allocated so they are already gone */
 	conversation_keys = NULL;
 	if (conversation_hashtable_exact != NULL)
 		g_hash_table_destroy(conversation_hashtable_exact);
@@ -525,8 +502,8 @@ conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type 
 	new_key = se_alloc(sizeof(struct conversation_key));
 	new_key->next = conversation_keys;
 	conversation_keys = new_key;
-	COPY_ADDRESS(&new_key->addr1, addr1);
-	COPY_ADDRESS(&new_key->addr2, addr2);
+	SE_COPY_ADDRESS(&new_key->addr1, addr1);
+	SE_COPY_ADDRESS(&new_key->addr2, addr2);
 	new_key->ptype = ptype;
 	new_key->port1 = port1;
 	new_key->port2 = port2;
@@ -605,7 +582,7 @@ conversation_set_addr2(conversation_t *conv, address *addr)
 {
    DISSECTOR_ASSERT(!(conv->options & CONVERSATION_TEMPLATE) &&
             "Use the conversation_create_from_template function when the CONVERSATION_TEMPLATE bit is set in the options mask");
-   
+
 	/*
 	 * If the address 2 value is not wildcarded, don't set it.
 	 */
@@ -620,7 +597,7 @@ conversation_set_addr2(conversation_t *conv, address *addr)
 		    conv->key_ptr);
 	}
 	conv->options &= ~NO_ADDR2;
-	COPY_ADDRESS(&conv->key_ptr->addr2, addr);
+	SE_COPY_ADDRESS(&conv->key_ptr->addr2, addr);
 	if (conv->options & NO_PORT2) {
 		g_hash_table_insert(conversation_hashtable_no_port2,
 		    conv->key_ptr, conv);
@@ -974,7 +951,7 @@ find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type
       conversation =
       conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
       frame_num, addr_b, addr_a, ptype, port_a, port_b);
-   else 
+   else
       conversation =
       conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
       frame_num, addr_b, addr_a, ptype, port_b, port_a);
@@ -1088,7 +1065,7 @@ conversation_set_dissector(conversation_t *conversation, dissector_handle_t hand
  *
  * This helper uses call_dissector_only which will NOT call the default
  * "data" dissector if the packet was rejected.
- * Our caller is responsible to call the data dissector explicitely in case 
+ * Our caller is responsible to call the data dissector explicitely in case
  * this function returns FALSE.
  */
 gboolean
