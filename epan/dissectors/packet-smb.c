@@ -15941,6 +15941,7 @@ free_hash_tables(gpointer ctarg, gpointer user_data _U_)
 		g_hash_table_destroy(ct->matched);
 	if (ct->tid_service)
 		g_hash_table_destroy(ct->tid_service);
+	g_free(ct);
 }
 
 static void
@@ -15949,9 +15950,7 @@ smb_init_protocol(void)
 	/*
 	 * Free the hash tables attached to the conversation table
 	 * structures, and then free the list of conversation table
-	 * data structures (which doesn't free the data structures
-	 * themselves; that's done by destroying the chunk from
-	 * which they were allocated).
+	 * data structures.
 	 */
 	if (conv_tables) {
 		g_slist_foreach(conv_tables, free_hash_tables, NULL);
@@ -16287,9 +16286,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	si->ct=conversation_get_proto_data(conversation, proto_smb);
 	if(!si->ct){
 		/* No, not yet. create it and attach it to the conversation */
-		si->ct = se_alloc(sizeof(conv_tables_t));
+		si->ct = g_malloc(sizeof(conv_tables_t));
 
-			conv_tables = g_slist_prepend(conv_tables, si->ct);
+		conv_tables = g_slist_prepend(conv_tables, si->ct);
 		si->ct->matched= g_hash_table_new(smb_saved_info_hash_matched,
 			smb_saved_info_equal_matched);
 		si->ct->unmatched= g_hash_table_new(smb_saved_info_hash_unmatched,
@@ -19049,15 +19048,15 @@ proto_register_smb(void)
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb_posix_ace_perm_read,
-          {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8, 
+          {"READ", "smb.posix_acl.ace_perms.read", FT_BOOLEAN, 8,
 		NULL, 0x04, "", HFILL}},
 
 	{ &hf_smb_posix_ace_perm_write,
-          {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8, 
+          {"WRITE", "smb.posix_acl.ace_perms.write", FT_BOOLEAN, 8,
 		NULL, 0x02, "", HFILL}},
 
 	{ &hf_smb_posix_ace_perm_execute,
-          {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8, 
+          {"EXECUTE", "smb.posix_acl.ace_perms.execute", FT_BOOLEAN, 8,
 		NULL, 0x01, "", HFILL}},
 
 	{ &hf_smb_posix_ace_perm_owner_uid,
