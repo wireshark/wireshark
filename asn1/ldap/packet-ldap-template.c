@@ -692,7 +692,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    ldap_info = se_alloc(sizeof(ldap_conv_info_t));
+    ldap_info = g_malloc(sizeof(ldap_conv_info_t));
     ldap_info->auth_type = 0;
     ldap_info->auth_mech = 0;
     ldap_info->first_auth_frame = 0;
@@ -1477,7 +1477,9 @@ ldap_reinit(void)
   ldap_conv_info_t *ldap_info;
 
   /* Free up state attached to the ldap_info structures */
-  for (ldap_info = ldap_info_items; ldap_info != NULL; ldap_info = ldap_info->next) {
+  for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
+    ldap_conv_info_t *last;
+
     if (ldap_info->auth_mech != NULL) {
       g_free(ldap_info->auth_mech);
       ldap_info->auth_mech=NULL;
@@ -1486,6 +1488,10 @@ ldap_reinit(void)
     ldap_info->matched=NULL;
     g_hash_table_destroy(ldap_info->unmatched);
     ldap_info->unmatched=NULL;
+
+    last = ldap_info;
+    ldap_info = ldap_info->next;
+    g_free(ldap_info);
   }
 
   ldap_info_items = NULL;

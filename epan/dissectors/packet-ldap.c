@@ -3238,7 +3238,7 @@ dissect_ldap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
     /* No.  Attach that information to the conversation, and add
      * it to the list of information structures.
      */
-    ldap_info = se_alloc(sizeof(ldap_conv_info_t));
+    ldap_info = g_malloc(sizeof(ldap_conv_info_t));
     ldap_info->auth_type = 0;
     ldap_info->auth_mech = 0;
     ldap_info->first_auth_frame = 0;
@@ -4023,7 +4023,9 @@ ldap_reinit(void)
   ldap_conv_info_t *ldap_info;
 
   /* Free up state attached to the ldap_info structures */
-  for (ldap_info = ldap_info_items; ldap_info != NULL; ldap_info = ldap_info->next) {
+  for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
+    ldap_conv_info_t *last;
+
     if (ldap_info->auth_mech != NULL) {
       g_free(ldap_info->auth_mech);
       ldap_info->auth_mech=NULL;
@@ -4032,6 +4034,10 @@ ldap_reinit(void)
     ldap_info->matched=NULL;
     g_hash_table_destroy(ldap_info->unmatched);
     ldap_info->unmatched=NULL;
+
+    last = ldap_info;
+    ldap_info = ldap_info->next;
+    g_free(ldap_info);
   }
 
   ldap_info_items = NULL;
@@ -4710,7 +4716,7 @@ void proto_register_ldap(void) {
         "ldap.MessageID", HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 1683 "packet-ldap-template.c"
+#line 1689 "packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -4771,7 +4777,7 @@ void proto_register_ldap(void) {
     &ett_ldap_CancelRequestValue,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 1694 "packet-ldap-template.c"
+#line 1700 "packet-ldap-template.c"
   };
 
     module_t *ldap_module;
@@ -4894,7 +4900,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 1805 "packet-ldap-template.c"
+#line 1811 "packet-ldap-template.c"
 	
 
 }
