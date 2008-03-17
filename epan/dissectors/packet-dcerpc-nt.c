@@ -670,10 +670,10 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 			if (strcmp(pol->name, name) != 0)
 				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
 #endif
-			g_free(pol->name);
+			/* pol->name is se_allocated, don't free it now */
 		}
 
-		pol->name = g_strdup(name);
+		pol->name = se_strdup(name);
 
 		return;
 	}
@@ -688,9 +688,9 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
 	pol->last_frame = 0;
 	pol->type = 0;
 	if (name)
-		pol->name = g_strdup(name);
+		pol->name = se_strdup(name);
 	else
-		pol->name = g_strdup("<UNKNOWN>");
+		pol->name = se_strdup("<UNKNOWN>");
 
 	add_pol_handle(policy_hnd, pinfo->fd->num, pol, value);
 }
@@ -703,7 +703,7 @@ void dcerpc_store_polhnd_name(e_ctx_hnd *policy_hnd, packet_info *pinfo,
  * close operations?
  */
 
-gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd, 
+gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
 			      char **name, guint32 *type,
 			      guint32 *open_frame, guint32 *close_frame,
 			      guint32 cur_frame)
@@ -724,7 +724,7 @@ gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
 
 	if (close_frame)
 		*close_frame = 0;
-	
+
 	/* Look up existing value */
 	pol = find_pol_handle(policy_hnd, cur_frame, &value);
 
@@ -745,24 +745,6 @@ gboolean dcerpc_fetch_polhnd_data(e_ctx_hnd *policy_hnd,
 	return pol != NULL;
 }
 
-/* Iterator to free a policy handle key/value pair, and all
-   the policy handle values to which the hash table value
-   points */
-
-static void free_pol_keyvalue(gpointer key _U_, gpointer value_arg,
-    gpointer user_data _U_)
-{
-	pol_hash_value *value = (pol_hash_value *)value_arg;
-	pol_value *pol;
-
-	/* Free user data */
-
-	for (pol = value->list; pol != NULL; pol = pol->next) {
-		g_free(pol->name);
-		pol->name = NULL;
-	}
-}
-
 /* Initialise policy handle hash */
 
 static void init_pol_hash(void)
@@ -770,7 +752,9 @@ static void init_pol_hash(void)
 	/* Initialise hash table */
 
 	if (pol_hash) {
-		g_hash_table_foreach(pol_hash, free_pol_keyvalue, NULL);
+		/*  Everything in the table is se_ allocated so there's no
+		 *  need to go through and free it all.
+		 */
 		g_hash_table_destroy(pol_hash);
 	}
 
@@ -899,7 +883,7 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	dcerpc_smb_store_pol_pkts(&hnd, pinfo, is_open, is_close);
 
 	/* Insert open/close/name information if known */
-	if (dcerpc_fetch_polhnd_data(&hnd, &name, NULL, &open_frame, 
+	if (dcerpc_fetch_polhnd_data(&hnd, &name, NULL, &open_frame,
 			&close_frame, pinfo->fd->num)) {
 
 		if (open_frame) {
