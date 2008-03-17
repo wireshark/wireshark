@@ -386,7 +386,7 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				k->name = g_strdup_printf("%s.%s", oid1, oid2);
 				free (oid1);
 				free (oid2);
-						  
+
 				k->hfid = -2;
 				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
 				k->display = typedata ? typedata->display : BASE_NONE;
@@ -1025,12 +1025,12 @@ extern void oid_both_from_string(const gchar *oid_str, char** resolved_p, char**
 	*numeric_p = (void*)oid_subid2string(subids,subids_len);
 }
 
-#ifdef HAVE_LIBSMI
 /**
  * Fetch the default OID path.
  */
 extern gchar *
 oid_get_default_mib_path(void) {
+#ifdef HAVE_LIBSMI
 	GString* path_str;
 	gchar *path_ret;
 	char *path;
@@ -1063,8 +1063,10 @@ oid_get_default_mib_path(void) {
 	path_ret = path_str->str;
 	g_string_free(path_str, FALSE);
 	return path_ret;
-}
+#else /* HAVE_LIBSMI */
+        return g_strdup("");
 #endif
+}
 
 #ifdef DEBUG_OIDS
 char* oid_test_a2b(guint32 num_subids, guint32* subids) {
