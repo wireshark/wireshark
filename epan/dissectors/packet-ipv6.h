@@ -433,7 +433,9 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 22      CARD Reply option                       [RFC4065]
 23      MAP Option                              [RFC4140]
 24      Route Information Option                [RFC4191]
-25      Recursive DNS Server Option             [RFC5006]
+*/
+#define ND_OPT_RECURSIVE_DNS_SERVER	25	/* Recursive DNS Server Option             [RFC5006] */
+/*
 26      RA Flags Extension Option               [RFC5075]
 27      Handover Key Request Option             [RFC-ietf-mipshop-handover-key-03.txt]
 28      Handover Key Reply Option               [RFC-ietf-mipshop-handover-key-03.txt]

@@ -107,6 +107,7 @@ static int hf_icmpv6_all_comp = -1;
 static int hf_icmpv6_comp = -1;
 static int hf_icmpv6_x509if_Name = -1;
 static int hf_icmpv6_x509af_Certificate = -1;
+static int hf_icmpv6_recursive_dns_serv = -1;
 
 static gint ett_icmpv6 = -1;
 static gint ett_icmpv6opt = -1;
@@ -224,7 +225,7 @@ static const value_string option_vals[] = {
 	{ 22,		"CARD Reply" },                       /* [RFC4065] */
 	{ 23,		"MAP" },                              /* [RFC4140] */
 	{ 24,		"Route Information" },                /* [RFC4191] */
-	{ 25,		"Recursive DNS Server" },             /* [RFC5006] */
+	{ ND_OPT_RECURSIVE_DNS_SERVER,		"Recursive DNS Server" },             /* [RFC5006] */
 	{ 26,		"RA Flags Extension" },               /* [RFC5075] */
 	{ 27,		"Handover Key Request" },             /* [RFC-ietf-mipshop-handover-key-03.txt] */
 	{ 28,		"Handover Key Reply" },               /* [RFC-ietf-mipshop-handover-key-03.txt] */
@@ -288,7 +289,9 @@ dissect_icmpv6ndopt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	guint8 name_type = 0;
 	guint8 cert_type = 0;
 	asn1_ctx_t asn1_ctx;
-
+	guint32 lifetime;
+	guint32 no_of_pars;
+	guint32 i;
 
     if (!tree)
 	return;
@@ -658,35 +661,64 @@ again:
       }
 
     case FMIP6_OPT_NEIGHBOR_ADV_ACK:
-      {
-	struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
-	struct e_in6_addr in6;
+		{
+			struct fmip6_opt_neighbor_advertisement_ack fmip6_opt_neighbor_advertisement_ack, *opt_naack;
+			struct e_in6_addr in6;
 
-	opt_naack = &fmip6_opt_neighbor_advertisement_ack;
-	tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
+			opt_naack = &fmip6_opt_neighbor_advertisement_ack;
+			tvb_memcpy(tvb, (guint8 *)opt_naack, offset, sizeof *opt_naack);
 
-	proto_tree_add_text(icmp6opt_tree, tvb,
-			offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
-			1, "Option-Code: %u",
-			opt_naack->fmip6_opt_optcode);
+			proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_optcode),
+				1, "Option-Code: %u",
+				opt_naack->fmip6_opt_optcode);
 
-	proto_tree_add_text(icmp6opt_tree, tvb,
-			offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
-			1, "Status: %s",
-			val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
+			proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + offsetof(struct fmip6_opt_neighbor_advertisement_ack, fmip6_opt_status),
+				1, "Status: %s",
+				val_to_str(opt_naack->fmip6_opt_status, names_fmip6_naack_opt_status, "Unknown"));
 
-	if (opt_naack->fmip6_opt_len == 3)
-	{
-		tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
-		proto_tree_add_text(icmp6opt_tree, tvb,
-			offset + sizeof(*opt_naack),
-			16, "New Care-of Address: %s",
-			ip6_to_str(&in6));
-	}
+			if (opt_naack->fmip6_opt_len == 3){
+				tvb_memcpy(tvb, (guint8 *)&in6, offset + sizeof(*opt_naack), 16);
+				proto_tree_add_text(icmp6opt_tree, tvb,
+				offset + sizeof(*opt_naack),
+				16, "New Care-of Address: %s",
+				ip6_to_str(&in6));
+			}
 
-	break;
-      }
-    }
+		break;
+		}
+		case ND_OPT_RECURSIVE_DNS_SERVER:
+
+			opt_offset = offset + 2;
+			proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,2 ,"Reserved");
+			opt_offset = opt_offset + 2;
+			/* A value of all one bits (0xffffffff) represents infinity.  A value of
+			 * zero means that the RDNSS address MUST no longer be used.
+			 */
+			lifetime = tvb_get_ntohl(tvb, opt_offset);
+			if (lifetime == 0xffffffff){
+				proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: infinity");
+			}else{ 
+				if(lifetime==0){
+					proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: RDNSS address MUST no longer be used");
+				}else{
+					proto_tree_add_text(icmp6opt_tree, tvb, opt_offset ,4 ,"Lifetime: %u", lifetime);
+				}
+			}
+			opt_offset = opt_offset+4;
+			/* Addresses of IPv6 Recursive DNS Servers */
+			no_of_pars = opt->nd_opt_len - 1;
+			no_of_pars = no_of_pars >> 2;
+
+			for (i = 0; i <= no_of_pars; i++) {			
+				proto_tree_add_item(icmp6opt_tree, hf_icmpv6_recursive_dns_serv, tvb, opt_offset, 16, FALSE);
+				opt_offset = opt_offset+16;
+			}
+
+
+			break;
+		}
 
     offset += (opt->nd_opt_len << 3);
 
@@ -2200,7 +2232,10 @@ proto_register_icmpv6(void)
     { &hf_icmpv6_x509af_Certificate,
       { "Certificate", "icmpv6_x509_Certificate", FT_NONE, BASE_NONE, NULL, 0,
         "Certificate", HFILL }},
-
+    { &hf_icmpv6_recursive_dns_serv,
+      { "Recursive DNS Servers", "icmpv6.recursive_dns_serv",
+       FT_IPv6, BASE_HEX, NULL, 0x0,
+       "Recursive DNS Servers", HFILL }},
 
   };
 
