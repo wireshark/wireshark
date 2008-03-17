@@ -421,6 +421,7 @@ get_CDR_ushort
 get_CDR_wchar
 get_CDR_wstring
 get_column_char_width
+get_column_custom_field
 get_column_format
 get_column_format_from_str
 get_column_format_matches
