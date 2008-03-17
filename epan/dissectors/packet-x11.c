@@ -128,7 +128,7 @@ typedef struct _x11_conv_data {
       GHashTable *seqtable;	/* hashtable of sequencenumber <-> opcode. */
       GHashTable *valtable;/* hashtable of sequencenumber <-> &opcode_vals */
       /* major opcodes including extensions (NULL terminated) */
-      value_string opcode_vals[MAX_OPCODES+1]; 
+      value_string opcode_vals[MAX_OPCODES+1];
       int	sequencenumber;	/* sequencenumber of current packet.	   */
       guint32	iconn_frame;	/* frame # of initial connection request   */
       guint32	iconn_reply;	/* frame # of initial connection reply     */
@@ -578,119 +578,119 @@ static const value_string visibility_state_vals[] = {
 };
 
 /* Requestcodes.  From <X11/Xproto.h>. */
-#define X_CreateWindow                  1              
-#define X_ChangeWindowAttributes        2        
-#define X_GetWindowAttributes           3     
+#define X_CreateWindow                  1
+#define X_ChangeWindowAttributes        2
+#define X_GetWindowAttributes           3
 #define X_DestroyWindow                 4
-#define X_DestroySubwindows             5   
+#define X_DestroySubwindows             5
 #define X_ChangeSaveSet                 6
 #define X_ReparentWindow                7
 #define X_MapWindow                     8
 #define X_MapSubwindows                 9
 #define X_UnmapWindow                  10
-#define X_UnmapSubwindows              11  
-#define X_ConfigureWindow              12  
-#define X_CirculateWindow              13  
+#define X_UnmapSubwindows              11
+#define X_ConfigureWindow              12
+#define X_CirculateWindow              13
 #define X_GetGeometry                  14
 #define X_QueryTree                    15
 #define X_InternAtom                   16
 #define X_GetAtomName                  17
-#define X_ChangeProperty               18 
-#define X_DeleteProperty               19 
+#define X_ChangeProperty               18
+#define X_DeleteProperty               19
 #define X_GetProperty                  20
-#define X_ListProperties               21 
-#define X_SetSelectionOwner            22    
-#define X_GetSelectionOwner            23    
-#define X_ConvertSelection             24   
+#define X_ListProperties               21
+#define X_SetSelectionOwner            22
+#define X_GetSelectionOwner            23
+#define X_ConvertSelection             24
 #define X_SendEvent                    25
 #define X_GrabPointer                  26
 #define X_UngrabPointer                27
 #define X_GrabButton                   28
 #define X_UngrabButton                 29
-#define X_ChangeActivePointerGrab      30          
+#define X_ChangeActivePointerGrab      30
 #define X_GrabKeyboard                 31
-#define X_UngrabKeyboard               32 
+#define X_UngrabKeyboard               32
 #define X_GrabKey                      33
 #define X_UngrabKey                    34
-#define X_AllowEvents                  35       
-#define X_GrabServer                   36      
-#define X_UngrabServer                 37        
-#define X_QueryPointer                 38        
-#define X_GetMotionEvents              39           
-#define X_TranslateCoords              40                
-#define X_WarpPointer                  41       
-#define X_SetInputFocus                42         
-#define X_GetInputFocus                43         
-#define X_QueryKeymap                  44       
-#define X_OpenFont                     45    
-#define X_CloseFont                    46     
+#define X_AllowEvents                  35
+#define X_GrabServer                   36
+#define X_UngrabServer                 37
+#define X_QueryPointer                 38
+#define X_GetMotionEvents              39
+#define X_TranslateCoords              40
+#define X_WarpPointer                  41
+#define X_SetInputFocus                42
+#define X_GetInputFocus                43
+#define X_QueryKeymap                  44
+#define X_OpenFont                     45
+#define X_CloseFont                    46
 #define X_QueryFont                    47
-#define X_QueryTextExtents             48     
-#define X_ListFonts                    49  
-#define X_ListFontsWithInfo            50 
-#define X_SetFontPath                  51 
-#define X_GetFontPath                  52 
-#define X_CreatePixmap                 53        
-#define X_FreePixmap                   54      
-#define X_CreateGC                     55    
-#define X_ChangeGC                     56    
-#define X_CopyGC                       57  
-#define X_SetDashes                    58     
-#define X_SetClipRectangles            59             
-#define X_FreeGC                       60  
-#define X_ClearArea                    61             
-#define X_CopyArea                     62    
-#define X_CopyPlane                    63     
-#define X_PolyPoint                    64     
-#define X_PolyLine                     65    
-#define X_PolySegment                  66       
-#define X_PolyRectangle                67         
-#define X_PolyArc                      68   
-#define X_FillPoly                     69    
-#define X_PolyFillRectangle            70             
-#define X_PolyFillArc                  71       
-#define X_PutImage                     72    
-#define X_GetImage                     73 
-#define X_PolyText8                    74     
-#define X_PolyText16                   75      
-#define X_ImageText8                   76      
-#define X_ImageText16                  77       
-#define X_CreateColormap               78          
-#define X_FreeColormap                 79        
-#define X_CopyColormapAndFree          80               
-#define X_InstallColormap              81           
-#define X_UninstallColormap            82             
-#define X_ListInstalledColormaps       83                  
-#define X_AllocColor                   84      
-#define X_AllocNamedColor              85           
-#define X_AllocColorCells              86           
-#define X_AllocColorPlanes             87            
-#define X_FreeColors                   88      
-#define X_StoreColors                  89       
-#define X_StoreNamedColor              90           
-#define X_QueryColors                  91       
-#define X_LookupColor                  92       
-#define X_CreateCursor                 93        
-#define X_CreateGlyphCursor            94             
-#define X_FreeCursor                   95      
-#define X_RecolorCursor                96         
-#define X_QueryBestSize                97         
-#define X_QueryExtension               98          
-#define X_ListExtensions               99          
+#define X_QueryTextExtents             48
+#define X_ListFonts                    49
+#define X_ListFontsWithInfo            50
+#define X_SetFontPath                  51
+#define X_GetFontPath                  52
+#define X_CreatePixmap                 53
+#define X_FreePixmap                   54
+#define X_CreateGC                     55
+#define X_ChangeGC                     56
+#define X_CopyGC                       57
+#define X_SetDashes                    58
+#define X_SetClipRectangles            59
+#define X_FreeGC                       60
+#define X_ClearArea                    61
+#define X_CopyArea                     62
+#define X_CopyPlane                    63
+#define X_PolyPoint                    64
+#define X_PolyLine                     65
+#define X_PolySegment                  66
+#define X_PolyRectangle                67
+#define X_PolyArc                      68
+#define X_FillPoly                     69
+#define X_PolyFillRectangle            70
+#define X_PolyFillArc                  71
+#define X_PutImage                     72
+#define X_GetImage                     73
+#define X_PolyText8                    74
+#define X_PolyText16                   75
+#define X_ImageText8                   76
+#define X_ImageText16                  77
+#define X_CreateColormap               78
+#define X_FreeColormap                 79
+#define X_CopyColormapAndFree          80
+#define X_InstallColormap              81
+#define X_UninstallColormap            82
+#define X_ListInstalledColormaps       83
+#define X_AllocColor                   84
+#define X_AllocNamedColor              85
+#define X_AllocColorCells              86
+#define X_AllocColorPlanes             87
+#define X_FreeColors                   88
+#define X_StoreColors                  89
+#define X_StoreNamedColor              90
+#define X_QueryColors                  91
+#define X_LookupColor                  92
+#define X_CreateCursor                 93
+#define X_CreateGlyphCursor            94
+#define X_FreeCursor                   95
+#define X_RecolorCursor                96
+#define X_QueryBestSize                97
+#define X_QueryExtension               98
+#define X_ListExtensions               99
 #define X_ChangeKeyboardMapping        100
 #define X_GetKeyboardMapping           101
-#define X_ChangeKeyboardControl        102                
-#define X_GetKeyboardControl           103             
+#define X_ChangeKeyboardControl        102
+#define X_GetKeyboardControl           103
 #define X_Bell                         104
 #define X_ChangePointerControl         105
 #define X_GetPointerControl            106
-#define X_SetScreenSaver               107          
-#define X_GetScreenSaver               108          
-#define X_ChangeHosts                  109       
-#define X_ListHosts                    110     
-#define X_SetAccessControl             111               
+#define X_SetScreenSaver               107
+#define X_GetScreenSaver               108
+#define X_ChangeHosts                  109
+#define X_ListHosts                    110
+#define X_SetAccessControl             111
 #define X_SetCloseDownMode             112
-#define X_KillClient                   113 
+#define X_KillClient                   113
 #define X_RotateProperties             114
 #define X_ForceScreenSaver             115
 #define X_SetPointerMapping            116
@@ -913,9 +913,9 @@ static const value_string eventcode_vals[] = {
 #define BadDrawable	   	9	/* parameter not a Pixmap or Window */
 #define BadAccess	  	10	/* depending on context:
 					 - key/button already grabbed
-					 - attempt to free an illegal 
-					   cmap entry 
-					- attempt to store into a read-only 
+					 - attempt to free an illegal
+					   cmap entry
+					- attempt to store into a read-only
 					   color map entry.
  					- attempt to modify the access control
 					   list from other than the local host.
@@ -1188,7 +1188,7 @@ static const value_string zero_is_none_vals[] = {
 	(int)seqno,                                                     \
 	val_to_str(opcode, state->opcode_vals, "<Unknown opcode %d>"));	\
 	*offsetp += sizeof(seqno);                                      \
-} while (0) 
+} while (0)
 
 #define REPLYCONTENTS_COMMON() do { 					\
 	REPLY(reply);							\
@@ -1236,7 +1236,7 @@ static const value_string zero_is_none_vals[] = {
 	ENDTRY;								\
 									\
 	sep = ",";							\
-} while (0)	
+} while (0)
 
 static void
 dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1601,7 +1601,7 @@ XConvertCase(register int sym, int *lower, int *upper)
 
 static const char *
 keycode2keysymString(int *keycodemap[256], int first_keycode,
-		     int keysyms_per_keycode, 
+		     int keysyms_per_keycode,
 		     int *modifiermap[array_length(modifiers)],
 		     int keycodes_per_modifier,
 		     guint32 keycode, guint32 bitmask)
@@ -1642,8 +1642,8 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 
 	/*
 	 * If we have not seen the modifiermap we don't know what the
-	 * keycode translates to, but we do know it's one of the keys 
-	 * in syms (give or take a case-conversion), so we could in 
+	 * keycode translates to, but we do know it's one of the keys
+	 * in syms (give or take a case-conversion), so we could in
 	 * theory list them all.
 	 */
 	if (modifiermap[array_length(modifiers) - 1] == NULL) /* all or none */
@@ -1673,11 +1673,11 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 			break;
 		}
 
-#if 0 
-	/* 
+#if 0
+	/*
 	 * This is (how I understand) the X11v4R6 protocol description given
 	 * in A. Nye's book.  It is quite different from the
-	 * code in _XTranslateKey() in the file 
+	 * code in _XTranslateKey() in the file
 	 * "$XConsortium: KeyBind.c /main/55 1996/02/02 14:08:55 kaleb $"
 	 * as shipped with XFree, and doesn't work correctly, nor do I see
 	 * how it could (e.g. the case of lower/uppercase-letters).
@@ -1707,7 +1707,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		else
 			return keysymString(syms[groupmod + 0]);
 
-	else if ((bitmask & ShiftMask) 
+	else if ((bitmask & ShiftMask)
 	    && ((bitmask & LockMask) && lockmod_is_capslock))
 		if (islower(syms[groupmod + 1]))
 /*			return toupper(keysymString(syms[groupmod + 1])); */
@@ -1715,7 +1715,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		else
 			return keysymString(syms[groupmod + 1]);
 
-	else if ((bitmask & ShiftMask) 
+	else if ((bitmask & ShiftMask)
 	    ||  ((bitmask & LockMask) && lockmod_is_shiftlock))
 			return keysymString(syms[groupmod + 1]);
 #else /* _XTranslateKey() based code. */
@@ -1728,7 +1728,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		syms += 2;
 		keysyms_per_keycode -= 2;
 	}
-	
+
 	if (numlockmod >= 0 && (bitmask & modifiermask[numlockmod])
 	    && keysyms_per_keycode > 1
 	    && ((syms[1] >= 0xff80 && syms[1] <= 0xffbd)
@@ -1772,7 +1772,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 			XConvertCase(syms[0], &lsym, &usym);
 		keysym = usym;
 	}
-	
+
 	if (keysym == XK_VoidSymbol)
 		keysym = NoSymbol;
 
@@ -1874,7 +1874,7 @@ static void listOfKeysyms(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 		  keycodemap[keycode][i] = v;
 		  *offsetp += 4;
 	    }
-	
+
 	    for (i = 1; i < keysyms_per_keycode; ++i)
 		if (keycodemap[keycode][i] != NoSymbol)
 			break;
@@ -2465,9 +2465,15 @@ static void x11_init_protocol(void)
 {
       x11_conv_data_t *state;
 
-      for (state = x11_conv_data_list; state != NULL; state = state->next) {
+      for (state = x11_conv_data_list; state != NULL; ) {
+	    x11_conv_data_t *last;
+
 	    g_hash_table_destroy(state->seqtable);
 	    g_hash_table_destroy(state->valtable);
+
+	    last = state;
+	    state = state->next;
+	    g_free(last);
       }
       x11_conv_data_list = NULL;
 }
@@ -2964,10 +2970,10 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 
       if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
-			  val_to_str(opcode, state->opcode_vals, 
+			  val_to_str(opcode, state->opcode_vals,
 				     "<Unknown opcode %d>"));
 
-      proto_item_append_text(ti, ", Request, opcode: %d (%s)", 
+      proto_item_append_text(ti, ", Request, opcode: %d (%s)",
 			     opcode, val_to_str(opcode, state->opcode_vals,
 						"<Unknown opcode %d>"));
 
@@ -2990,13 +2996,13 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 			if (state->opcode_vals[i].strptr == NULL) {
 				state->opcode_vals[i].strptr = name;
 				g_hash_table_insert(state->valtable,
-						    GINT_TO_POINTER(state->sequencenumber), 
+						    GINT_TO_POINTER(state->sequencenumber),
 						    (int *)&state->opcode_vals[i]);
 				break;
 			} else if (strcmp(state->opcode_vals[i].strptr,
 					  name) == 0) {
 				g_hash_table_insert(state->valtable,
-						    GINT_TO_POINTER(state->sequencenumber), 
+						    GINT_TO_POINTER(state->sequencenumber),
 						    (int *)&state->opcode_vals[i]);
 				break;
 			}
@@ -3048,18 +3054,18 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	     	 * Those requests expect a reply.
 	     	 */
 		g_hash_table_insert(state->seqtable,
-				    GINT_TO_POINTER(state->sequencenumber), 
+				    GINT_TO_POINTER(state->sequencenumber),
 				    GINT_TO_POINTER(opcode));
 
 	    	break;
 
       default:
-		/* 
+		/*
 		 * With Extension, we don't know, so assume there could be one
 		 */
 		if (opcode >= X_FirstExtension && opcode <= X_LastExtension) {
 			g_hash_table_insert(state->seqtable,
-					    GINT_TO_POINTER(state->sequencenumber), 
+					    GINT_TO_POINTER(state->sequencenumber),
 					    GINT_TO_POINTER(opcode));
 		}
 
@@ -3070,7 +3076,7 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       }
 
       if (tree == NULL)
-     	 return; 
+     	 return;
 
       switch(opcode) {
 
@@ -4343,8 +4349,8 @@ x11_stateinit(conversation_t *conversation)
 	static x11_conv_data_t stateinit;
 	int i = 0;
 
-	state = se_alloc(sizeof (x11_conv_data_t));
-	*state = stateinit; 
+	state = g_malloc(sizeof (x11_conv_data_t));
+	*state = stateinit;
 	state->next = x11_conv_data_list;
 	x11_conv_data_list = state;
 
@@ -4359,7 +4365,7 @@ x11_stateinit(conversation_t *conversation)
 	  state->opcode_vals[i].value = 0;
 	  state->opcode_vals[i].strptr = NULL;
 	  i++;
-	}	
+	}
 
 	state->seqtable = g_hash_table_new(g_direct_hash, g_direct_equal);
 	state->valtable = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -4455,7 +4461,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 *	- event (some event occured)
 		 */
 		if (g_hash_table_lookup(state->seqtable,
-		    GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN 
+		    GINT_TO_POINTER(state->sequencenumber)) == (int *)INITIAL_CONN
 		    || (state->iconn_reply == pinfo->fd->num)) {
 			/*
 			 * Either the connection is in the "initial
@@ -4467,8 +4473,8 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			plen = 8 + VALUE16(tvb, offset + 6) * 4;
 
 			HANDLE_REPLY(plen, length_remaining,
-			    "Initial connection reply", 
-			    dissect_x11_initial_reply); 
+			    "Initial connection reply",
+			    dissect_x11_initial_reply);
 		} else {
 			/*
 			 * This isn't an initial connection reply
@@ -4484,7 +4490,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case 0:
 				plen = 32;
 				HANDLE_REPLY(plen, length_remaining,
-				    "Error", dissect_x11_error); 
+				    "Error", dissect_x11_error);
 				break;
 
 			case 1:
@@ -4492,7 +4498,7 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				plen = 32 + VALUE32(tvb, offset + 4) * 4;
 
 				HANDLE_REPLY(plen, length_remaining,
-				    "Reply", dissect_x11_reply); 
+				    "Reply", dissect_x11_reply);
 				break;
 
 		       	default:
@@ -4520,7 +4526,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	value_string *vals_p;
 	proto_item *ti;
 	proto_tree *t;
-	
+
 	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
 	t = proto_item_add_subtree(ti, ett_x11);
 
@@ -4533,7 +4539,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 *
 	 *	2) we don't see the initial connection request and the
 	 *         resynchronization of sequence number fails and thus
-	 *	   don't have the right sequence numbers 
+	 *	   don't have the right sequence numbers
 	 *
 	 *	3) we don't have all the packets in the capture and
 	 *	   get out of sequence.
@@ -4553,7 +4559,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*
 		 * We don't see the initial connection request and no
 		 * resynchronization has been performed yet (first reply),
-		 * set the current sequence number to the one of the 
+		 * set the current sequence number to the one of the
 		 * current reply (this is only performed once).
 		 */
 		state->sequencenumber = sequence_number;
@@ -4562,18 +4568,18 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (opcode == UNKNOWN_OPCODE) {
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, 
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 					"%s to unknown request", sep);
 		proto_item_append_text(ti, ", Reply to unknown request");
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 					sep,
-					val_to_str(opcode, state->opcode_vals, 
+					val_to_str(opcode, state->opcode_vals,
 						   "<Unknown opcode %d>"));
 
-		proto_item_append_text(ti, ", Reply, opcode: %d (%s)", 
-				       opcode, val_to_str(opcode, 
+		proto_item_append_text(ti, ", Reply, opcode: %d (%s)",
+				       opcode, val_to_str(opcode,
 							  state->opcode_vals,
 							  "<Unknown opcode %d>"));
 	}
@@ -4584,9 +4590,9 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        		 * Replies that need special processing outside tree
 		 */
 
-		case X_QueryExtension:	  
+		case X_QueryExtension:
 
-			/* 
+			/*
 			 * if extension is present and request is known:
 			 * store opcode of extension in value_string of
 			 * opcodes
@@ -4611,7 +4617,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
   	if (tree == NULL)
-  	 	return; 
+  	 	return;
 
 	switch (opcode) {
       		/*
@@ -4620,7 +4626,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case X_GetWindowAttributes:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_GetGeometry:
 			REPLY(reply);
@@ -4638,7 +4644,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case X_QueryTree:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_InternAtom:
 			REPLY(reply);
@@ -4651,7 +4657,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case X_GetAtomName:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_GetProperty:
 			REPLY(reply);
@@ -4705,11 +4711,11 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			INT16(win_y);
 			SETofKEYBUTMASK(mask);
 			UNUSED(6);
-			break; 
+			break;
 
 		case X_GetMotionEvents:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_TranslateCoords:
 			REPLY(reply);
@@ -4720,8 +4726,8 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			INT16(dst_x);
 			INT16(dst_y);
 			UNUSED(16);
-			break; 
-			
+			break;
+
 		case X_GetInputFocus:
 			REPLY(reply);
 			ENUM8(revert_to);
@@ -4799,10 +4805,10 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			CARD8(first_error);
 			UNUSED(20);
 			break;
-		  
+
 		case X_ListExtensions:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_GetKeyboardMapping:
 			state->first_keycode =
@@ -4814,16 +4820,16 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			length = REPLYLENGTH(replylength);
 			UNUSED(24);
 			LISTofKEYSYM(keysyms, state->keycodemap,
-				     state->request.GetKeyboardMapping.first_keycode, 
+				     state->request.GetKeyboardMapping.first_keycode,
 					 /* XXX - length / state->keysyms_per_keycode can raise a division by zero,
 					  * don't know if this is the *right* way to fix it ... */
 					 state->keysyms_per_keycode ? length / state->keysyms_per_keycode : 0,
 				     state->keysyms_per_keycode);
-			break; 
+			break;
 
 		case X_GetKeyboardControl:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_GetPointerControl:
 			REPLY(reply);
@@ -4853,7 +4859,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case X_GetPointerMapping:
 		case X_SetModifierMapping:
 			REPLYCONTENTS_COMMON();
-			break; 
+			break;
 
 		case X_GetModifierMapping:
 			REPLY(reply);
@@ -4864,7 +4870,7 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			UNUSED(24);
 			LISTofKEYCODE(state->modifiermap, keycodes,
 				      state->keycodes_per_modifier);
-			break; 
+			break;
 
 		default:
 			REPLYCONTENTS_COMMON();
@@ -4917,19 +4923,19 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			  	"<Unknown eventcode %u>"));
 
 	proto_tree_add_uint_format(t, hf_x11_eventcode, tvb, offset, 1,
-				   eventcode, 
+				   eventcode,
 				   "eventcode: %d (%s)",
-				   eventcode, 
+				   eventcode,
 				   val_to_str(eventcode, eventcode_vals,
 				   "<Unknown eventcode %u>"));
 	++offset;
 
-	proto_item_append_text(ti, ", Event, eventcode: %d (%s)", 
+	proto_item_append_text(ti, ", Event, eventcode: %d (%s)",
 			      eventcode, val_to_str(eventcode, eventcode_vals,
 			      "<Unknown eventcode %u>"));
 
   	if (tree == NULL)
-  	 	return; 
+  	 	return;
 
 	switch (eventcode) {
 		case KeyPress:
@@ -5211,7 +5217,7 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 	}
 
-      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0) 
+      	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
 	    UNDECODED(left);
 
 	return;
@@ -5239,19 +5245,19 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	  	sep, val_to_str(errorcode, errorcode_vals, "<Unknown errorcode %u>"));
 
 	proto_tree_add_uint_format(t, hf_x11_errorcode, tvb, offset, 1,
-				   errorcode, 
+				   errorcode,
 				   "errorcode: %d (%s)",
-				   errorcode, 
+				   errorcode,
 				   val_to_str(errorcode, errorcode_vals,
 				   "<Unknown errocode %u>"));
 	++offset;
 
-        proto_item_append_text(ti, ", Error, errorcode: %d (%s)", 
+        proto_item_append_text(ti, ", Error, errorcode: %d (%s)",
                               errorcode, val_to_str(errorcode, errorcode_vals,
                               "<Unknown errorcode %u>"));
 
   	if (tree == NULL)
-  	 	return; 
+  	 	return;
 
 	CARD16(error_sequencenumber);
 
@@ -5271,7 +5277,7 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    UNDECODED(left);
 }
 
-			
+
 
 /************************************************************************
  ***                                                                  ***
