@@ -37,8 +37,8 @@ byte_array_equal
 bytes_to_str
 bytes_to_str_punct
 bytestring_to_str
-call_dissector
 call_ber_oid_callback
+call_dissector
 camel_opr_code_strings          DATA
 camelSRTtype_naming             DATA
 capture_ap1394
@@ -179,6 +179,8 @@ dissect_dcom_that
 dissect_dcom_this
 dissect_dcom_VARIANT
 dissect_dcom_VARTYPE
+dissect_gsm_map_IMSI
+dissect_gsm_map_ISDN_AddressString
 dissect_h245_H223Capability
 dissect_IDispatch_GetIDsOfNames_resp
 dissect_IDispatch_GetTypeInfo_resp
@@ -226,10 +228,10 @@ dissect_per_sequence_of
 dissect_per_sequence
 dissect_per_set_of
 dissect_per_VisibleString
-dissect_q932_PartyNumber
-dissect_q932_PartySubaddress
+dissect_q932_PartyNumber              
+dissect_q932_PartySubaddress        
 dissect_q932_PresentedNumberUnscreened
-dissect_q932_PresentedNumberScreened
+dissect_q932_PresentedNumberScreened  
 dissect_qsig_na_Name
 dissect_rpc_array
 dissect_rpc_bool
@@ -602,7 +604,7 @@ proto_find_finfo
 proto_frame                     DATA
 proto_get_finfo_ptr_array
 proto_get_first_protocol_field
-proto_get_first_protocol
+proto_get_first_protocol 
 proto_get_id
 proto_get_id_by_filter_name
 proto_get_next_protocol
@@ -708,7 +710,7 @@ proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
 protocols_module                DATA
-q850_cause_code_vals           DATA
+q850_cause_code_vals           DATA		
 q931_cause_code_vals           DATA
 q931_message_type_vals         DATA
 range_convert_range
