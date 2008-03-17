@@ -60,7 +60,7 @@
    when I try to build Wireshark from SVN or a SVN snapshot?
 
    4.3 Why does the linker fail with a number of "Output line too long."
-   messages followed by linker errors when I try to buil Wireshark?
+   messages followed by linker errors when I try to build Wireshark?
 
    4.4 When I try to build Wireshark on Solaris, why does the link fail
    complaining that plugin_list is undefined?

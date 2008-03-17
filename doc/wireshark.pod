@@ -745,7 +745,7 @@ which to save it.
 
 =item File:File Set:List Files
 
-Show a dialog box that list all files of the file set matching the currently
+Show a dialog box that lists all files of the file set matching the currently
 loaded file. A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
 e.g.: Filename_00001_20050604101530.pcap.
