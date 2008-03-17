@@ -1107,12 +1107,18 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 				 hf_smpp_privacy_indicator, offset);
 		break;
 	    case  0x0202:	/* source_subaddress	*/
-		smpp_handle_string(sub_tree, tvb,
-				   hf_smpp_source_subaddress, offset);
+		if (length) {
+		    proto_tree_add_item(sub_tree, hf_smpp_source_subaddress, 
+				    tvb, *offset, length, FALSE);
+                    (*offset) += length;
+		}
 		break;
 	    case  0x0203:	/* dest_subaddress	*/
-		smpp_handle_string(sub_tree, tvb,
-				   hf_smpp_dest_subaddress, offset);
+		if (length) {
+		    proto_tree_add_item(sub_tree, hf_smpp_dest_subaddress, 
+				    tvb, *offset, length, FALSE);
+                    (*offset) += length;
+		}
 		break;
 	    case  0x0204:	/* user_message_reference	*/
 		smpp_handle_int2(sub_tree, tvb,
@@ -2462,14 +2468,14 @@ proto_register_smpp(void)
 	},
     {   &hf_smpp_source_subaddress,
 	    {   "Source Subaddress", "smpp.source_subaddress",
-		FT_STRING, BASE_NONE, NULL, 0x00,
+		FT_BYTES, BASE_HEX, NULL, 0x00,
 		"Source Subaddress",
 		HFILL
 	    }
 	},
     {   &hf_smpp_dest_subaddress,
 	    {   "Destination Subaddress", "smpp.dest_subaddress",
-		FT_STRING, BASE_NONE, NULL, 0x00,
+		FT_BYTES, BASE_HEX, NULL, 0x00,
 		"Destination Subaddress",
 		HFILL
 	    }
