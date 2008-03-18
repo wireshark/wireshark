@@ -7,8 +7,8 @@
 # in order to provide backward compatibility with older trees (e.g. a
 # previous release or an older SVN checkout).
 # Save previous tag.
-#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-01-29/packages/"
-DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-02-16/packages/"
+#DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-02-16/packages/"
+DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/tags/2008-03-17/packages/"
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
 #DOWNLOAD_PREFIX="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"
@@ -59,10 +59,10 @@ case "$1" in
 	DEST_PATH=`cygpath --dos "$2"`
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
-	if [ ! -e $DEST_PATH/$PACKAGE ] ; then 
+	if [ ! -e $DEST_PATH/$PACKAGE ] ; then
 	    err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'nmake -f ... setup' required ?"
 	fi
-        ;;  
+        ;;
 --download)
 	if [ -z "$2" -o -z "$3" -o -z "$4" ] ; then
 		usage
@@ -101,7 +101,7 @@ case "$1" in
 	echo "Verifying that the DLLs and EXEs in $DEST_SUBDIR are executable."
         # XX: Note that find will check *all* dlls/exes in DEST_SUBDIR and below
         #     which may be more than those just unzipped depending upon DEST_SUBDIR.
-        #     This may cause extra repeated checks but will do no harm. 
+        #     This may cause extra repeated checks but will do no harm.
 	for i in `/usr/bin/find . \( -name '*\.dll' -o -name '*\.exe' \)` ; do
 		if [ ! -x "$i" ] ; then
 			echo "Changing file permissions (add executable bit) to:"
