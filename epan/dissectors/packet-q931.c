@@ -71,6 +71,7 @@ static int hf_q931_coding_standard			= -1;
 static int hf_q931_information_transfer_capability	= -1;
 static int hf_q931_transfer_mode			= -1;
 static int hf_q931_information_transfer_rate		= -1;
+static int hf_q931_layer_ident				= -1;
 static int hf_q931_uil1					= -1;
 static int hf_q931_call_ref_len 			= -1;
 static int hf_q931_call_ref_flag 			= -1;
@@ -207,8 +208,8 @@ static const true_false_string tfs_call_ref_flag = {
 };
 
 static const true_false_string tfs_interface_type = {
-    "Primary rate interface",
-    "Basic rate interface"
+	"Primary rate interface",
+	"Basic rate interface"
 };
 
 static const true_false_string tfs_channel_exclusive = {
@@ -262,9 +263,8 @@ static const true_false_string tfs_channel_map = {
 /*	next octet. The bit value "1" indicates that this octet is the last octet		*/
 
 static const true_false_string q931_extension_ind_value = {
-  "last octet",
-  "information continues through the next octet",
-
+	"last octet",
+	"information continues through the next octet"
 };
 
 
@@ -695,6 +695,13 @@ dissect_q931_protocol_discriminator(tvbuff_t *tvb, int offset, proto_tree *tree)
 	}
 }
 
+static const value_string q931_bearer_capability_layer_ident_vals[] = {
+	{ 0x01, "Layer 1 identifier" },
+	{ 0x02, "Layer 2 identifier" },
+	{ 0x03, "Layer 3 identifier" },
+	{ 0x00, NULL }
+}; 
+
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
@@ -769,6 +776,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		 * Layer 1 information.
 		 */
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_layer_ident, tvb, offset, 1, octet);
 		proto_tree_add_uint(tree, hf_q931_uil1, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
@@ -894,6 +902,8 @@ l1_done:
 		/*
 		 * Layer 2 information.
 		 */
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_layer_ident, tvb, offset, 1, octet);
 		uil2_protocol = octet & 0x1F;
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "User information layer 2 protocol: %s",
@@ -943,6 +953,8 @@ l2_done:
 		/*
 		 * Layer 3 information.
 		 */
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_layer_ident, tvb, offset, 1, octet);
 		uil3_protocol = octet & 0x1F;
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    "User information layer 3 protocol: %s",
@@ -2979,13 +2991,13 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					}
 					break;
 
-                                case CS6 | Q931_IE_DISPLAY:
-                                        if (q931_tree != NULL) {
-                                                dissect_q931_ia5_ie(tvb, offset + 2,
-                                                        info_element_len, ie_tree,
-                                                        "Avaya Display");
-                                        }
-                                        break;
+				case CS6 | Q931_IE_DISPLAY:
+					if (q931_tree != NULL) {
+						dissect_q931_ia5_ie(tvb, offset + 2,
+							info_element_len, ie_tree,
+							"Avaya Display");
+					}
+					break;
 
 				default:
 					if (q931_tree != NULL) {
@@ -3164,6 +3176,10 @@ proto_register_q931(void)
 		  { "Information transfer rate", "q931.information_transfer_rate", FT_UINT8, BASE_HEX,
 			 VALS(q931_information_transfer_rate_vals), 0x1f,"", HFILL }},
 
+		{ &hf_q931_layer_ident,
+		  { "Layer identification", "q931.layer_ident", FT_UINT8, BASE_HEX,
+			 VALS(q931_bearer_capability_layer_ident_vals), 0x60, "", HFILL }},
+
 		{ &hf_q931_uil1,
 		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
 			 VALS(q931_uil1_vals), 0x1f,"", HFILL }},
@@ -3225,7 +3241,7 @@ proto_register_q931(void)
 		    "Identifies the ISDN interface type", HFILL }},
 
 		/* 0x10 is spare */
-                
+
 		{ &hf_q931_channel_exclusive,
 		  { "Indicated channel is exclusive", "q931.channel.exclusive", FT_BOOLEAN, 8, &tfs_channel_exclusive, 0x08,
 		    "True if only the indicated channel is acceptable", HFILL }},
@@ -3245,7 +3261,7 @@ proto_register_q931(void)
 		{ &hf_q931_channel_map,
 		  { "Number/map", "q931.channel.map", FT_BOOLEAN, 8, &tfs_channel_map, 0x10,
 		    "True if channel is indicates by channel map rather than number", HFILL }},
-                
+
 		{ &hf_q931_channel_element_type,
 		  { "Element type", "q931.channel.element_type", FT_UINT8, BASE_HEX, q931_element_type_vals, 0xF,
 		    "Type of element in the channel number/slot map octets", HFILL }},
@@ -3253,7 +3269,7 @@ proto_register_q931(void)
 		{ &hf_q931_channel_number,
 		  { "Channel number", "q931.channel.number", FT_UINT8, BASE_DEC, NULL, 0x7F,
 		    "Channel number", HFILL }},
-               
+
     /* desegmentation fields */
 		{ &hf_q931_segment_overlap,
 		  { "Segment overlap", "q931.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -3308,9 +3324,9 @@ proto_register_q931(void)
 	register_dissector("q931.ie", dissect_q931_ie_cs0, proto_q931);
 	register_dissector("q931.ie.cs7", dissect_q931_ie_cs7, proto_q931);
 
- 	/* subdissector code */	
- 	codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX);
- 	ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", FT_UINT16, BASE_HEX);
+	/* subdissector code */
+	codeset_dissector_table = register_dissector_table("q931.codeset", "Q.931 Codeset", FT_UINT8, BASE_HEX);
+	ie_dissector_table = register_dissector_table("q931.ie", "Q.931 IE", FT_UINT16, BASE_HEX);
 
 	q931_module = prefs_register_protocol(proto_q931, NULL);
 	prefs_register_bool_preference(q931_module, "desegment_h323_messages",
@@ -3322,8 +3338,8 @@ proto_register_q931(void)
 	    "Reassemble segmented Q.931 messages",
 	    "Reassemble segmented Q.931 messages (Q.931 - Annex H)",
 	    &q931_reassembly);
-       /* Register for tapping */
-       q931_tap = register_tap("q931");
+	/* Register for tapping */
+	q931_tap = register_tap("q931");
 }
 
 void
