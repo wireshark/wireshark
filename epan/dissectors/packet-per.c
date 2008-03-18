@@ -123,21 +123,26 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
   guint32 boffset = offset >> 3;
   unsigned int i, shift0, shift1;
   guint8 octet0, octet1, *buf;
+  guint32 actual_length;
+
+  actual_length = tvb_length_remaining(tvb,offset);
+  if (length <= actual_length)
+	  actual_length = length;
 
   if (offset & 0x07) {  /* unaligned */
     shift1 = offset & 0x07;
     shift0 = 8 - shift1;
-    buf = ep_alloc(length);
+    buf = ep_alloc(actual_length);
     octet0 = tvb_get_guint8(tvb, boffset);
-    for (i=0; i<length; i++) {
+    for (i=0; i<actual_length; i++) {
       octet1 = octet0;
       octet0 = tvb_get_guint8(tvb, boffset + i + 1);
       buf[i] = (octet1 << shift1) | (octet0 >> shift0);
     }
-    sub_tvb = tvb_new_real_data(buf, length, length);
+    sub_tvb = tvb_new_real_data(buf, actual_length, length);
     tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
   } else {  /* aligned */
-    sub_tvb = tvb_new_subset(tvb, boffset, length, length);
+    sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
   }
   return sub_tvb;
 }
@@ -205,9 +210,6 @@ static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, gu
 
 
 /* 10 Encoding procedures -------------------------------------------------- */
-
-static guint32
-dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length);
 
 /* 10.2 Open type fields --------------------------------------------------- */
 static guint32 
@@ -305,7 +307,7 @@ dissect_per_open_type_pdu_new(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, p
 			field in the manner described above in Note 2.
 
  */
-static guint32
+guint32
 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length)
 {
 	guint8 byte;
