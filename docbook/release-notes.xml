@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.8">
+  <!ENTITY WiresharkCurrentVersion "1.0.0">
 
 ]>
 
@@ -31,7 +31,7 @@ Wireshark Info
     <para>
 
       The following vulnerabilities have been fixed.  See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2007-02.html">security advisory</ulink> for details and a workaround.
+      <ulink url="http://www.wireshark.org/security/wnpa-sec-2008-02.html">security advisory</ulink> for details and a workaround.
 
       <itemizedlist>
 
@@ -60,6 +60,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The LDAP dissector could crash on Windows and possibly other platforms.
+            <!-- Fixed in 24660 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2331">2331</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.2 to 0.99.8</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-????">CVE-2007-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -71,7 +83,11 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-            Wireshark could crash without warning.
+            Several SNMP-related bugs have been fixed.
+        </para></listitem>
+
+        <listitem><para>
+            Several memory-related bugs have been fixed.
         </para></listitem>
 
       </itemizedlist>
@@ -89,7 +105,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            Packet loss magically fixes itself.
+            The "About" box now displays version 1.0.
           </para>
         </listitem>
 
@@ -101,16 +117,71 @@ Wireshark Info
     <section id="NewProtocols"><title>New Protocol Support</title>
     <para>
 
+IEEE 802.15.4,
+Infiniband,
+Parallel Redundancy Protocol,
+RedBack Lawful Intercept,
+Xcsl
+
     </para>
     </section>
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
+
+AFS,
+ALCAP,
+ATM,
+BACapp,
+CIGI,
+DCC (renamed from DCCP),
+DCCP (renamed from DCP),
+DCERPC SPOOLSS,
+DCERPC NT,
+DHCP,
+DirectPlay,
+EtherCAT,
+FIX,
+GIOP,
+GTP,
+H.248,
+HTTP,
+ICMPv6,
+ICQ,
+IPv6,
+ISIS,
+JXTA,
+NCP,
+P_Mul,
+PCAP,
+PKIX1Explicit,
+PTP,
+RADIUS,
+Roofnet,
+RTCP,
+RTMPT,
+RTP,
+RX,
+SABP,
+SCSI OSD,
+sFlow,
+SMPP,
+SNMP,
+SSCOP,
+TAPA,
+TIPC,
+TPNCP,
+UNISTIM,
+X.25,
+X.509sat,
+XML
 
     </para>
     </section>
 
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
+
+Hilscher Analyzer,
 
     </para>
     </section>

@@ -44,7 +44,7 @@
 #include "packet-x509if.h"
 #include "packet-x509ce.h"
 
-#define PNAME  "PKIX1Explitit"
+#define PNAME  "PKIX1Explicit"
 #define PSNAME "PKIX1EXPLICIT"
 #define PFNAME "pkix1explicit"
 
@@ -111,15 +111,15 @@ void proto_register_pkix1explicit(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_pkix1explicit_object_identifier_id, 
+    { &hf_pkix1explicit_object_identifier_id,
       { "Id", "pkix1explicit.id", FT_STRING, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
 
-    { &hf_pkix1explicit_addressFamily_afn, 
+    { &hf_pkix1explicit_addressFamily_afn,
       { "Address family(AFN)", "pkix1explicit.addressfamily", FT_UINT16, BASE_DEC, VALS(afn_vals), 0,
 	"Address family(AFN)", HFILL }},
 
-    { &hf_pkix1explicit_addressFamily_safi, 
+    { &hf_pkix1explicit_addressFamily_safi,
       { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
 	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
 #include "packet-pkix1explicit-hfarr.c"

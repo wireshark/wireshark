@@ -9,9 +9,9 @@
 
 # The current Wireshark version
 # It's highly recommended to leave MAJOR/MINOR/MICRO unchanged
-VERSION_MAJOR=0
-VERSION_MINOR=99
-VERSION_MICRO=9
+VERSION_MAJOR=1
+VERSION_MINOR=0
+VERSION_MICRO=0
 VERSION_BUILD=0
 # It's recommended to change VERSION_EXTRA for your own custom builds
 # e.g. "-SVN-12345"
@@ -30,7 +30,7 @@ WTAP_VERSION_MICRO=1
 # Base directory, where your libraries reside, which are needed to 
 # compile the sources. This setting is used only inside this file.
 #
-WIRESHARK_LIBS=C:\wireshark-win32-libs
+WIRESHARK_LIBS=C:\wireshark-libs-1.0
 
 # 
 # Base directory, where your programs reside. 
