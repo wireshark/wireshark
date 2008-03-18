@@ -262,7 +262,7 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	port1 = get_tcp_port(stats.port[1]);
 
 	/* Host 0 --> Host 1 */
-	if(sc.src_port == strtol(port0, NULL, 10)) {
+	if(sc.src_port == stats.port[0]) {
 		server_to_client_string =
 			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
 					hostname0, port0,
@@ -277,18 +277,17 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	}
 
 	/* Host 1 --> Host 0 */
-	if(sc.src_port == strtol(port0, NULL, 10)) {
+	if(sc.src_port == stats.port[1]) {
 		client_to_server_string =
 			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname1, port1,
 					hostname0, port0,
+					hostname1, port1,
 					stats.bytes_written[1]);
-
 	} else {
 		client_to_server_string =
 			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-					hostname0, port0,
 					hostname1, port1,
+					hostname0, port0,
 					stats.bytes_written[1]);
 	}
 
