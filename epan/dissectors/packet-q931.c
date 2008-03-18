@@ -333,6 +333,11 @@ static const true_false_string q931_extension_ind_value = {
 #define	Q931_IE_OPERATOR_SYSTEM_ACCESS	0x1D
 
 /*
+ * Codeset 5 ETSI ETS 300 192
+ */
+#define	Q931_IE_PARTY_CATEGORY		0x32
+
+/*
  * Codeset 6 (Network-specific) Belgium.
  */
 /* 0x1A is Charging Advice, as with Codeset 5 */
@@ -420,6 +425,7 @@ static const value_string q931_info_element_vals4[] = {
 static const value_string q931_info_element_vals5[] = {
 	{ Q931_IE_CHARGING_ADVICE,		"Charging advice" },
 	{ Q931_IE_OPERATOR_SYSTEM_ACCESS,	"Operator system access" },
+	{ Q931_IE_PARTY_CATEGORY,		"Party category"},
 	{ 0,					NULL }
 };
 /* Codeset 6 */
@@ -427,7 +433,7 @@ static const value_string q931_info_element_vals6[] = {
 	{ Q931_IE_REDIRECTING_NUMBER,		"Redirecting number" },
 	{ Q931_IE_REDIRECTING_SUBADDR,		"Redirecting subaddress" },
 	{ Q931_IE_CALL_APPEARANCE,		"Call appearance" },
-        { Q931_IE_DISPLAY,			"Avaya Display" }, /* if Avaya codeset to send display = 6 */
+	{ Q931_IE_DISPLAY,			"Avaya Display" }, /* if Avaya codeset to send display = 6 */
 	{ 0,					NULL }
 };
 /* Codeset 7 */
@@ -2364,6 +2370,35 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
 	}
 }
 
+static const value_string q931_party_category_vals[] = {
+	{ 0x00,	"Unknown" },
+	{ 0x01,	"Extension" },
+	{ 0x02,	"Operator" },
+	{ 0x03,	"Emergency extension" },
+	{ 0,	NULL }
+};
+
+static void
+dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
+    proto_tree *tree)
+{
+	guint8 octet;
+
+	if (len == 0)
+		return;
+
+	octet = tvb_get_guint8(tvb, offset);
+	proto_tree_add_text(tree, tvb, offset, 1,
+	    "Party category: %s",
+	    val_to_str(octet&0x07, q931_party_category_vals,
+	    "Unknown (0x%02x)"));
+	offset += 1;
+	len -= 1;
+
+	if (len == 0)
+		return;
+}
+
 /*
  * Dissect information elements consisting of ASCII^H^H^H^H^HIA5 text.
  */
@@ -2986,6 +3021,14 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				case CS0 | Q931_IE_USER_USER:
 					if (q931_tree != NULL) {
 						dissect_q931_user_user_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+					}
+					break;
+
+				case CS5 | Q931_IE_PARTY_CATEGORY:
+					if (q931_tree != NULL) {
+						dissect_q931_party_category_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
 					}
