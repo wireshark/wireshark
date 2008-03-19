@@ -261,7 +261,7 @@ then
 	fi
 
 	# Create app bundle
-	./osx-app.sh $STRIP -b $INSTALLPREFIX/bin/wireshark -p ./Info.plist $PYTHON_MODULES
+	./osx-app.sh $STRIP -bp $INSTALLPREFIX/bin/ -p ./Info.plist $PYTHON_MODULES
 	status=$?
 	if [[ $status -ne 0 ]]; then
 		echo -e "\nApplication bundle creation failed"
