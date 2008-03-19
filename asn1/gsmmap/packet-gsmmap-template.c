@@ -767,7 +767,7 @@ static const value_string gsm_map_cbs_coding_grp15_class_vals[] = {
 
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7 */
-static void
+guint8
 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 octet;
@@ -889,6 +889,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	}
 
+	return sms_encoding;
 }
 
 #include "packet-gsm_map-fn.c"

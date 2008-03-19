@@ -35,6 +35,14 @@ typedef struct _gsm_map_tap_rec_t {
     guint16		size;
 } gsm_map_tap_rec_t;
 
+
+#define SMS_ENCODING_NOT_SET	0
+#define SMS_ENCODING_7BIT		1
+#define SMS_ENCODING_8BIT		2
+#define SMS_ENCODING_UCS2		3
+#define SMS_ENCODING_7BIT_LANG	4
+#define SMS_ENCODING_UCS2_LANG	5
+
 WS_VAR_IMPORT const value_string gsm_map_opr_code_strings[];
 char* unpack_digits(tvbuff_t *tvb, int offset);
 
@@ -44,6 +52,10 @@ extern const value_string ssCode_vals[];
 extern const value_string gsm_map_PDP_Type_Organisation_vals[];
 extern const value_string gsm_map_ietf_defined_pdp_vals[];
 extern const value_string gsm_map_etsi_defined_pdp_vals[];
+
+guint8 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree);
+
 #include "packet-gsm_map-exp.h"
+
 
 #endif  /* PACKET_GSM_MAP_H */
