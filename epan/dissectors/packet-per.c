@@ -125,7 +125,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
   guint8 octet0, octet1, *buf;
   guint32 actual_length;
 
-  actual_length = tvb_length_remaining(tvb,offset);
+  actual_length = tvb_length_remaining(tvb,boffset);
   if (length <= actual_length)
 	  actual_length = length;
 
