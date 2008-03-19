@@ -328,43 +328,44 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 {
 	gint *key;
 	GHashTable *rtp_dyn_payload = NULL;
+	struct srtp_info *dummy_srtp_info = NULL;
 
 	if (!upcoming_channel) return;
 
+	/* T.38 */
 	if (!strcmp(upcoming_channel->data_type_str, "t38fax")) {
 		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && t38_handle) {
 			t38_add_address(pinfo, &upcoming_channel->media_addr.addr, 
 							upcoming_channel->media_addr.port, 0, 
 							"H245", pinfo->fd->num);
 		}
-	} else {
-		if (upcoming_channel->rfc2198 > 0) {
+		return;
+	}
+
+	/* (S)RTP, (S)RTCP */
+	if (upcoming_channel->rfc2198 > 0) {
 #if GLIB_MAJOR_VERSION < 2
-			rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
 #else
-			rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 #endif
-			key = g_malloc(sizeof(gint));
-			*key = upcoming_channel->rfc2198;
-			g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
-		}
-		if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
-			if (upcoming_channel->srtp_flag) {
-				struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
-				srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
-								upcoming_channel->media_addr.port, 0, 
-								"H245", pinfo->fd->num, rtp_dyn_payload, dummy_srtp_info);
-			} else {
-				rtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
-								upcoming_channel->media_addr.port, 0, 
-								"H245", pinfo->fd->num, rtp_dyn_payload);
-			}
-		}
-		if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
-			rtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
-							upcoming_channel->media_control_addr.port, 0, 
-							"H245", pinfo->fd->num);
-		}
+		key = g_malloc(sizeof(gint));
+		*key = upcoming_channel->rfc2198;
+		g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
+	}
+
+	if (upcoming_channel->srtp_flag) {
+		struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+	}
+	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
+		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
+						upcoming_channel->media_addr.port, 0, 
+						"H245", pinfo->fd->num, rtp_dyn_payload, dummy_srtp_info);
+	}
+	if (upcoming_channel->media_control_addr.addr.type!=AT_NONE && upcoming_channel->media_control_addr.port!=0 && rtcp_handle) {
+		srtcp_add_address(pinfo, &upcoming_channel->media_control_addr.addr, 
+						upcoming_channel->media_control_addr.port, 0, 
+						"H245", pinfo->fd->num, dummy_srtp_info);
 	}
 }
 
