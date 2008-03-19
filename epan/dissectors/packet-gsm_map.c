@@ -2562,7 +2562,7 @@ static const value_string gsm_map_cbs_coding_grp15_class_vals[] = {
 
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7 */
-static void
+guint8
 dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	guint8 octet;
@@ -2684,6 +2684,7 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	}
 
+	return sms_encoding;
 }
 
 
@@ -15588,7 +15589,7 @@ dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(gboolean implicit_tag _U_, tv
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 895 "packet-gsmmap-template.c"
+#line 896 "packet-gsmmap-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -15800,7 +15801,7 @@ const value_string gsm_map_opr_code_strings[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 906 "packet-gsmmap-template.c"
+#line 907 "packet-gsmmap-template.c"
   { 0, NULL }
 };
 static const value_string gsm_map_err_code_string_vals[] = {
@@ -16005,7 +16006,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 	{ 109, "lcs_PeriodicLocationCancellation" },
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 910 "packet-gsmmap-template.c"
+#line 911 "packet-gsmmap-template.c"
     { 0, NULL }
 };
 static const true_false_string gsm_map_extension_value = {
@@ -16309,6 +16310,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
     /* reserved noteSubscriberPresent (48) */
     /* reserved alertServiceCentreWithoutResult (49)  
+	 * ETS 300 599: December 2000 (GSM 09.02 version 4.19.1)
 	 * -- alertServiceCentreWithoutResult must not be used in
 	 * -- version greater 1
 	 */
@@ -22480,7 +22482,7 @@ void proto_register_gsm_map(void) {
         "gsm_map_lcs.LCS_QoS", HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2642 "packet-gsmmap-template.c"
+#line 2644 "packet-gsmmap-template.c"
   };
 
   /* List of subtrees */
@@ -23066,7 +23068,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2668 "packet-gsmmap-template.c"
+#line 2670 "packet-gsmmap-template.c"
   };
 
   /* Register protocol */
@@ -23142,7 +23144,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 2686 "packet-gsmmap-template.c"
+#line 2688 "packet-gsmmap-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
