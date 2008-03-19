@@ -1907,6 +1907,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
 		}
 		offset+=min_len;
+		if (value_tvb)
+			*value_tvb = out_tvb;
 		return offset;
 	}
 
@@ -1926,6 +1928,8 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			proto_item_append_text(actx->created_item, " [bit length %u]",max_len);
 		}
 		offset+=min_len;
+		if (value_tvb)
+			*value_tvb = out_tvb;
 		return offset;
 	}
 
