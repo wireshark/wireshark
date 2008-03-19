@@ -646,6 +646,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* iterate through the records in this tvbuff */
     while (tvb_reported_length_remaining(tvb, offset) != 0)
     {
+        ssl_debug_printf("  record: offset = %d, reported_length_remaining = %d\n", offset, tvb_reported_length_remaining(tvb, offset));
         /* on second and subsequent records per frame
          * add a delimiter on info column
          */
@@ -739,8 +740,10 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Desegmentation return check */
-        if (need_desegmentation)
+        if (need_desegmentation) {
+          ssl_debug_printf("  need_desegmentation: offset = %d, reported_length_remaining = %d\n", offset, tvb_reported_length_remaining(tvb, offset));
           return;
+        }
         /* set up for next record in frame, if any */
         first_record_in_frame = FALSE;
     }
