@@ -37,21 +37,26 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/emem.h>
 
+#include "packet-tcp.h"
 #include "packet-per.h"
+#include "packet-e212.h"
+#include "packet-gsm_map.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
 #pragma warning(disable:4146)
 #endif
 
-#define PNAME  "UTRAN Iub interface SABP signalling"
+#define PNAME  "UTRAN IuBC interface SABP signaling"
 #define PSNAME "SABP"
 #define PFNAME "sabp"
 
 #include "packet-sabp-val.h"
 
 static dissector_handle_t sabp_handle = NULL;
+static dissector_handle_t sabp_tcp_handle = NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
@@ -60,6 +65,8 @@ static int proto_sabp = -1;
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
+static int ett_sabp_e212 = -1;
+static int ett_sabp_cbs_data_coding = -1;;
 
 #include "packet-sabp-ett.c"
 
@@ -67,6 +74,10 @@ static int ett_sabp = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+static guint8 sms_encoding;
+
+/* desegmentation of sabp over TCP */
+static gboolean gbl_sabp_desegment = TRUE;
 
 /* Dissector tables */
 static dissector_table_t sabp_ies_dissector_table;
@@ -108,6 +119,26 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
   return (dissector_try_port(sabp_proc_uout_dissector_table, ProcedureCode, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
+static guint
+get_sabp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+	guint32 type_length;
+	int bit_offset;
+	asn1_ctx_t asn1_ctx;
+	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+
+	/* Length should be in the 3:d octet */
+	offset = offset + 3;
+
+	bit_offset = offset<<3;
+	/* Get the length of the sabp packet. offset in bits  */
+	offset = dissect_per_length_determinant(tvb, bit_offset, &asn1_ctx, NULL, -1, &type_length);
+
+	/* return the remaining length of the PDU */
+	return type_length+5;
+}
+
+
 static void
 dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -125,6 +156,14 @@ dissect_sabp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_SABP_PDU_PDU(tvb, pinfo, sabp_tree);
 }
 
+/* Note a little bit of a hack assumes length max takes two bytes and that lenghth start at byte 4 */
+static void
+dissect_sabp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	tcp_dissect_pdus(tvb, pinfo, tree, gbl_sabp_desegment, 5,
+					 get_sabp_pdu_len, dissect_sabp);
+}
+
 /*--- proto_register_sbap -------------------------------------------*/
 void proto_register_sabp(void) {
 
@@ -137,6 +176,8 @@ void proto_register_sabp(void) {
   /* List of subtrees */
   static gint *ett[] = {
 		  &ett_sabp,
+		  &ett_sabp_e212,
+		  &ett_sabp_cbs_data_coding,
 #include "packet-sabp-ettarr.c"
   };
 
@@ -149,7 +190,9 @@ void proto_register_sabp(void) {
  
   /* Register dissector */
   register_dissector("sabp", dissect_sabp, proto_sabp);
+  register_dissector("sabp.tcp", dissect_sabp_tcp, proto_sabp);
   sabp_handle = find_dissector("sabp");
+  sabp_tcp_handle = find_dissector("sabp.tcp");
 
   /* Register dissector tables */
   sabp_ies_dissector_table = register_dissector_table("sabp.ies", "SABP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
@@ -170,9 +213,9 @@ proto_reg_handoff_sabp(void)
 #include "packet-sabp-dis-tab.c"
 
   sabp_handle = find_dissector("sabp");
-  dissector_add("tcp.port", 3452, sabp_handle);
+  dissector_add("tcp.port", 3452, sabp_tcp_handle);
   dissector_add("udp.port", 3452, sabp_handle);
-  dissector_add_handle("tcp.port", sabp_handle);
+  dissector_add_handle("tcp.port", sabp_tcp_handle);
 }
 
 

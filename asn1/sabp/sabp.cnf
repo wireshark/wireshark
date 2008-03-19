@@ -138,4 +138,31 @@ Restart                                N sabp.proc.imsg id-Restart-Indication
 Failure                                N sabp.proc.imsg id-Failure-Indication
 Error-Indication                       N sabp.proc.imsg id-Error-Indication
 
-#.END
+# following construction is not supported by asn2wrs
+# PLMNidentity ::= TBCD-STRING (SIZE (3))
+# TBCD-STRING ::= OCTET STRING
+
+#.FN_BODY PLMNidentity  VAL_PTR = 
+  tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, &parameter_tvb);
+
+	 if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_e212);
+	dissect_e212_mcc_mnc(parameter_tvb, subtree, 0);
+
+#.FN_BODY Data-Coding-Scheme VAL_PTR = &parameter_tvb
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_cbs_data_coding);
+	sms_encoding = dissect_cbs_data_coding_scheme(parameter_tvb, actx->pinfo, subtree);
+
+

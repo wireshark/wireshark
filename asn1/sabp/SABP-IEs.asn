@@ -239,7 +239,7 @@ Serial-Number				::= BIT STRING (SIZE (16))
 
 
 Service-Area-Identifier	::= SEQUENCE {
-	pLMNidentity				OCTET STRING (SIZE (3))
+	pLMNidentity				PLMNidentity
 					-- Digits 0 to 9, two digits per octet.          --
 					-- Each octet encoded 0000 to 1001.              --
 					-- 1111 used as filler                           --
@@ -254,6 +254,9 @@ Service-Area-Identifier	::= SEQUENCE {
 	sac				OCTET STRING (SIZE (2))
 }
 
+PLMNidentity ::= TBCD-STRING (SIZE (3))
+
+TBCD-STRING ::= OCTET STRING
 -- **TODO** The IE type for these parameters is not known as yet
 Service-Areas-List ::= SEQUENCE (SIZE (1..maxnoofSAI)) OF Service-Area-Identifier 
 
