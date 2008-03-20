@@ -1050,8 +1050,8 @@ install-common-deps2:
 !IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
-	# This should be moved back to install-common-deps if we ever drop
-	# GTK+1 support.
+# This should be moved back to install-common-deps if we ever drop
+# GTK+1 support.
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL2_DIR) /d
 !ENDIF
 
