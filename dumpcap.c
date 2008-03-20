@@ -508,12 +508,15 @@ relinquish_privs_except_capture(void)
 
     relinquish_special_privs_perm();
 
-    print_caps("Post drop, pre set");
-    cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
-    if (cap_set_proc(caps)) {
-        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+    if (started_with_special_privs()) {
+        print_caps("Post drop, pre set");
+        cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
+        if (cap_set_proc(caps)) {
+            cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+        }
+        print_caps("Post drop, post set");
     }
-    print_caps("Post drop, post set");
+
     cap_free(caps);
 }
 #endif /* HAVE_LIBCAP */
