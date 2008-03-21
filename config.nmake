@@ -141,7 +141,7 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 #PANGO_INST_VERSION=1.16
 # GTK 2.12 is the mainline since Wireshark 0.99.7
 GTK2_INST_VERSION=2.12
-PANGO_INST_VERSION=1.18
+PANGO_INST_VERSION=1.20
 
 #
 # If you have GTK-Wimp, set this to the pathname of the directory in
@@ -652,7 +652,9 @@ GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ERROR ? Unknown or invalid GTK2_INST_VERSION
 !ENDIF
 
-!IF "$(PANGO_INST_VERSION)" == "1.18"
+!IF "$(PANGO_INST_VERSION)" == "1.20"
+PANGO_LIB_DIR=1.5.0
+!ELSEIF "$(PANGO_INST_VERSION)" == "1.18"
 PANGO_LIB_DIR=1.5.0
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
 PANGO_LIB_DIR=1.5.0
