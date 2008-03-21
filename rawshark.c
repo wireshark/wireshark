@@ -1039,12 +1039,16 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
     cf->elapsed_time = fdata->rel_ts;
   }
 
+  /* If we don't have the time stamp of the previous displayed packet,
+     it's because this is the first packet that's being displayed.  Save the time
+     stamp of this packet as the time stamp of the previous displayed
+     packet. */
+  if (nstime_is_unset(&prev_dis_ts))
+    prev_dis_ts = fdata->abs_ts;
+
   /* Get the time elapsed between the previous displayed packet and
      this packet. */
-  if (nstime_is_unset(&prev_dis_ts))
-    nstime_set_zero(&fdata->del_dis_ts);
-  else
-    nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
+  nstime_delta(&fdata->del_dis_ts, &fdata->abs_ts, &prev_dis_ts);
 
   /* Get the time elapsed between the previous captured packet and
      this packet. */
