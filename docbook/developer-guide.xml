@@ -45,7 +45,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.7">
+  <!ENTITY WiresharkCurrentVersion "1.0.0">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download/">
   <!ENTITY WiresharkAuthorsPage "http://anonsvn.wireshark.org/wireshark/trunk/AUTHORS">
@@ -89,8 +89,6 @@ FILE SECTION
 
   <!ENTITY AppGPL SYSTEM    "GPL_appendix.xml">
 
-<!-- These refer to graphics files and figures contained in the document -->
-  <!-- 1st Chapter -->
 ]>
 
 <book>
@@ -126,9 +124,6 @@ to change the sources (e.g. adding a new dissector).
 <part id="PartDevelopment" label="II">
 <title>Wireshark Development (incomplete)</title>
 <partintro>
-<!--<para>
-This is the second of two parts:
-</para>-->
 <para>
 Part I. Wireshark Build Environment
 </para>
