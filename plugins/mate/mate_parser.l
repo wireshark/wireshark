@@ -54,7 +54,11 @@
 #include "mate_parser_lex.h"
 	
 	void MateParser(void*,int, gchar*, mate_config* matecfg);
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
+	void *MateParserAlloc(void *(*)(gsize));
+#else
 	void *MateParserAlloc(void *(*)(gulong));
+#endif
 	void MateParserFree( void*, void(*)(void*) );
 	void MateParseTrace(FILE*,char*);
 	
