@@ -55,15 +55,15 @@ help()
 echo -e "
 Create a custom dmg file to distribute Wireshark
 
-\033[1mUSAGE\033[0m
+USAGE
 	$0 [-s] -p /path/to/Wireshark.app
 
-\033[1mOPTIONS\033[0m
-	\033[1m-h,--help\033[0m
+OPTIONS
+	-h,--help
 		display this help message
-	\033[1m-s\033[0m
+	-s
 		set a new apperance (do not actually creates a bundle)
-	\033[1m-p,--package\033[0m
+	-p,--package
 		set the path to the Wireshark.app that should be copie
 		in the dmg
 "
@@ -99,7 +99,7 @@ if [ ! -e "$utilities" ]; then
 	echo "Cannot find utilities: $utilities"
 	exit 1
 fi
-echo -e "\n\033[1mCREATE WIRESHARK DISK IMAGE\033[0m\n"
+echo -e "\nCREATE WIRESHARK DISK IMAGE\n"
 
 # Get the architecture
 case `uname -p` in
@@ -127,7 +127,7 @@ img_name="$volume_name $version $architecture.dmg"
 rm -rf "$tmp_dir"
 mkdir "$tmp_dir"
 
-echo -e "\033[1mCopying files to temp directory\033[0m"
+echo -e "Copying files to temp directory"
 # Wireshark itself
 # Copy Wireshark.app
 cp -rf "$package" "$tmp_dir"/
@@ -153,7 +153,7 @@ if [ ${set_ds_store} = "false" ]; then
 fi
 
 # Create a new RW image from the temp directory.
-echo -e "\033[1mCreating a temporary disk image\033[0m"
+echo -e "Creating a temporary disk image"
 rm -f "$rw_name"
 /usr/bin/hdiutil create -srcfolder "$tmp_dir" -volname "$volume_name" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW "$rw_name"
 
@@ -203,7 +203,7 @@ fi
 hdiutil detach "$DEV_NAME"
 
 # Create the offical release image by compressing the RW one.
-echo -e "\033[1mCompressing the final disk image\033[0m"
+echo -e "Compressing the final disk image"
 
 # TODO make this a command line option
 if [ -e "$img_name" ]; then

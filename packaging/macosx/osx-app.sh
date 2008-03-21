@@ -67,26 +67,26 @@ help()
 echo -e "
 Create an app bundle for OS X
 
-\033[1mUSAGE\033[0m
+USAGE
 	$0 [-s] [-l /path/to/libraries] -bp /path/to/wireshark/binaries -p /path/to/Info.plist
 
-\033[1mOPTIONS\033[0m
-	\033[1m-h,--help\033[0m
+OPTIONS
+	-h,--help
 		display this help message
-	\033[1m-s\033[0m
+	-s
 		strip the libraries and executables from debugging symbols
-	\033[1m-l,--libraries\033[0m
+	-l,--libraries
 		specify the path to the librairies Wireshark depends on
 		(typically /sw or /opt/local)
-	\033[1m-bp,--binary-path\033[0m
+	-bp,--binary-path
 		specify the path to the Wireshark binaries. By default it
 		is in $binary_path
-	\033[1m-p,--plist\033[0m
+	-p,--plist
 		specify the path to Info.plist. Info.plist can be found
 		in the base directory of the source code once configure
 		has been run
 
-\033[1mEXAMPLE\033[0m
+EXAMPLE
 	$0 -s -l /opt/local -bp ../../Build/bin -p Info.plist
 "
 }
@@ -118,7 +118,7 @@ do
 	shift 1
 done
 
-echo -e "\n\033[1mCREATE WIRESHARK APP BUNDLE\033[0m\n"
+echo -e "\nCREATE WIRESHARK APP BUNDLE\n"
 
 # Safety tests
 if [ ! -e "$LIBPREFIX" ]; then
@@ -197,7 +197,7 @@ mkdir -p "$startup_dir"
 	unset CC
 
 	cd "$resdir/ScriptExec"
-	echo -e "\033[1mBuilding launcher...\033[0m\n"
+	echo -e "Building launcher...\n"
 	xcodebuild $XCODEFLAGS clean build
 )
 cp "$resdir/$SCRIPTEXECDIR/ScriptExec" "$pkgexec/Wireshark"
@@ -205,7 +205,7 @@ cp "$resdir/$SCRIPTEXECDIR/ScriptExec" "$pkgexec/Wireshark"
 
 # Copy all files into the bundle
 #----------------------------------------------------------
-echo -e "\n\033[1mFilling app bundle and utility directory...\033[0m\n"
+echo -e "\nFilling app bundle and utility directory...\n"
 
 # Wireshark executables
 for binary in $binary_list ; do
@@ -300,7 +300,7 @@ lib_dep_search_list="
 	$pkgbin/*-bin
 	"
 while $endl; do
-	echo -e "\033[1mLooking for dependencies.\033[0m Round" $a
+	echo -e "Looking for dependencies. Round" $a
 	libs="`otool -L $lib_dep_search_list 2>/dev/null | fgrep compatibility | cut -d\( -f1 | grep $LIBPREFIX | sort | uniq`"
 	cp -f $libs "$pkglib"
 	let "a+=1"
@@ -321,7 +321,7 @@ done
 # Strip libraries and executables if requested
 #----------------------------------------------------------
 if [ "$strip" = "true" ]; then
-	echo -e "\n\033[1mStripping debugging symbols...\033[0m\n"
+	echo -e "\nStripping debugging symbols...\n"
 	chmod +w "$pkglib"/*.dylib
 	strip -x "$pkglib"/*.dylib
 	strip -ur "$binpath"

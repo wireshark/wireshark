@@ -42,42 +42,42 @@ help()
 echo -e "
 Compilation script for Wireshark on Mac OS X.
 
-\033[1mUSAGE\033[0m
+USAGE
   $0 [options] action[s]
 
-\033[1mACTIONS & OPTIONS\033[0m
-  \033[1mh,help\033[0m
+ACTIONS & OPTIONS
+  h,help
     display this help message
-  \033[1mu,up,update\033[0m
+  u,up,update
     update an existing checkout from svn (run svn up)
-  \033[1ma,auto,autogen\033[0m
+  a,auto,autogen
     prepare configure script (run autogen.sh). This is only necessary
     for a fresh svn checkout or after make distclean.
-  \033[1mc,conf,configure\033[0m
+  c,conf,configure
     configure the build (run configure). Edit your configuration
     options in $0
-    \033[1m-p,--prefix\033[0m	specify install prefix (configure step only)
-  \033[1mb,build\033[0m
+    -p,--prefix	specify install prefix (configure step only)
+  b,build
     build Wireshark (run make)
-  \033[1mi,install\033[0m
+  i,install
     install the build products locally, inside the source
     directory (run make install)
-  \033[1mp,pack,package\033[0m
+  p,pack,package
     package Wireshark in a double clickable .app bundle
-    \033[1m-s,--strip\033[0m	remove debugging information in Wireshark package
-    \033[1m-py,--with-python\033[0m	specify python modules path for inclusion into the app bundle
-  \033[1md,dist,distrib\033[0m
+    -s,--strip	remove debugging information in Wireshark package
+    -py,--with-python	specify python modules path for inclusion into the app bundle
+  d,dist,distrib
     store Wireshark.app in a disk image (dmg) for distribution
-  \033[1mput,upload\033[0m
+  put,upload
     upload the dmg and the associate info file on Modevia server
-  \033[1mall\033[0m
+  all
     do everything (update, configure, build, install, package, distribute)
 
-\033[1mEXAMPLES\033[0m
-  \033[1m$0 conf build install\033[0m
+EXAMPLES
+  $0 conf build install
     configure, build and install a dowloaded version of Wireshark in the default
     directory, keeping debugging information.
-  \033[1m$0 u a c b -p ~ i -s -py ~/site-packages/ p d\033[0m
+  $0 u a c b -p ~ i -s -py ~/site-packages/ p d
     update an svn checkout, prepare configure script, configure,
     build and install Wireshark in the user home directory (~).
     Then package Wireshark without debugging information,
