@@ -128,7 +128,7 @@ which will be defined as the appropriate types for 64-bit signed and
 unsigned integers.
 
 When printing or displaying the values of 64-bit integral data types,
-don't assume use "%lld", "%llu", "%llx", or "%llo" - not all platforms
+don't use "%lld", "%llu", "%llx", or "%llo" - not all platforms
 support "%ll" for printing 64-bit integral data types.  Instead, for
 GLib routines, and routines that use them, such as all the routines in
 Wireshark that take format arguments, use G_GINT64_MODIFIER, for example:
@@ -466,7 +466,7 @@ as usual in your code.
 1.1.3 Robustness.
 
 Wireshark is not guaranteed to read only network traces that contain correctly-
-formed packets. Wireshark is commonly used is to track down networking
+formed packets. Wireshark is commonly used to track down networking
 problems, and the problems might be due to a buggy protocol implementation
 sending out bad packets.
 
@@ -1022,7 +1022,7 @@ This is only needed if the dissector doesn't use self-registration to
 register itself with the lower level dissector, or if the protocol dissector
 wants/needs to expose code to other subdissectors.
 
-The dissector must declared as exactly as follows in the file
+The dissector must be declared exactly as follows in the file
 packet-PROTOABBREV.h:
 
 int
@@ -1036,9 +1036,9 @@ NOTE: See the file /epan/tvbuff.h for more details.
 The "tvb" argument to a dissector points to a buffer containing the raw
 data to be analyzed by the dissector; for example, for a protocol
 running atop UDP, it contains the UDP payload (but not the UDP header,
-or any protocol headers above it).  A tvbuffer is a opaque data
+or any protocol headers above it).  A tvbuffer is an opaque data
 structure, the internal data structures are hidden and the data must be
-access via the tvbuffer accessors.
+accessed via the tvbuffer accessors.
 
 The accessors are:
 
@@ -1116,7 +1116,7 @@ guint8 *tvb_get_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 guint8 *tvb_get_ephemeral_stringz(tvbuff_t *tvb, gint offset, gint *lengthp);
 
 Returns a null-terminated buffer, allocated with "g_malloc()",
-containing data from the specified tvbuff, starting with at the
+containing data from the specified tvbuff, starting at the
 specified offset, and containing all characters from the tvbuff up to
 and including a terminating null character in the tvbuff.  "*lengthp"
 will be set to the length of the string, including the terminating null.
@@ -1172,7 +1172,7 @@ guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
 The reason that tvb_get_ptr() might have to allocate a copy of its data
 only occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers.
-If the user request a pointer to a range of bytes that spans the member
+If the user requests a pointer to a range of bytes that spans the member
 tvbuffs that make up the TVBUFF_COMPOSITE, the data will have to be
 copied to another memory region to assure that all the bytes are
 contiguous.
