@@ -1432,7 +1432,11 @@ sync_pipe_stop(capture_options *capture_opts)
   if (capture_opts->fork_child != -1) {
 #ifndef _WIN32
     /* send the SIGUSR1 signal to close the capture child gracefully. */
-    kill(capture_opts->fork_child, SIGUSR1);
+    int sts = kill(capture_opts->fork_child, SIGUSR1);
+    if (sts != 0) {
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+              "Sending SIGUSR1 to child failed: %s\n", strerror(errno));
+    }
 #else
 #define STOP_SLEEP_TIME 500 /* ms */
 #define STOP_CHECK_TIME 50
@@ -1466,9 +1470,13 @@ sync_pipe_stop(capture_options *capture_opts)
 void
 sync_pipe_kill(int fork_child)
 {
-  if (fork_child != -1) {
+    if (fork_child != -1) {
 #ifndef _WIN32
-      kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+        int sts = kill(fork_child, SIGTERM);	/* SIGTERM so it can clean up if necessary */
+        if (sts != 0) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_WARNING,
+                  "Sending SIGTERM to child failed: %s\n", strerror(errno));
+        }
 #else
       /* Remark: This is not the preferred method of closing a process!
        * the clean way would be getting the process id of the child process,
@@ -1488,9 +1496,9 @@ sync_pipe_kill(int fork_child)
        * us, as we might not be running in a console.
        * And this also will require to have the process id.
        */
-      TerminateProcess((HANDLE) (fork_child), 0);
+        TerminateProcess((HANDLE) (fork_child), 0);
 #endif
-  }
+    }
 }
 
 #endif /* HAVE_LIBPCAP */
