@@ -802,6 +802,8 @@ sid_name_table                  DATA
 smb2_cmd_vals                    DATA
 smb_cmd_vals                    DATA
 sminmpec_values                 DATA
+srtcp_add_address
+srtp_add_address
 ssl_dissector_add
 ssl_dissector_delete
 ssl_set_master_secret
