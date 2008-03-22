@@ -1929,7 +1929,7 @@ print_packet(capture_file *cf, frame_data *fdata,
      the dissection or the hex data.
      XXX - do we need it if we're just printing the hex data? */
   proto_tree_needed =
-      args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex;
+      args->print_args->print_dissections != print_dissections_none || args->print_args->print_hex || have_custom_cols(&cf->cinfo);
   edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
 
   /* Fill in the column information if we're printing the summary
