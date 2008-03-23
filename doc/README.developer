@@ -1172,7 +1172,7 @@ guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
 
 The reason that tvb_get_ptr() might have to allocate a copy of its data
 only occurs with TVBUFF_COMPOSITES, data that spans multiple tvbuffers.
-If the user requests a pointer to a range of bytes that spans the member
+If the user requests a pointer to a range of bytes that span the member
 tvbuffs that make up the TVBUFF_COMPOSITE, the data will have to be
 copied to another memory region to assure that all the bytes are
 contiguous.
@@ -1346,7 +1346,7 @@ fence does not already exist.
 
 1.5.9 The col_set_time function.
 
-The 'col_set_time' function takes a nstime value as it's third argument.
+The 'col_set_time' function takes an nstime value as its third argument.
 This nstime value is a relative value and will be added as such to the
 column. The fourth argument is the filtername holding this value. This
 way, rightclicking on the column makes it possible to build a filter
@@ -1458,7 +1458,7 @@ Here is how the frame "protocol" is registered.
                 /* abbrev */          "frame" );
 
 A header field is also registered with its name and abbreviation, but
-information about the its data type is needed. It helps to look at
+information about its data type is needed. It helps to look at
 the header_field_info struct to see what information is expected:
 
 struct header_field_info {
@@ -1571,7 +1571,7 @@ to represent the number.
 display
 -------
 The display field has a couple of overloaded uses. This is unfortunate,
-but since we're C as an application programming language, this sometimes
+but since we're using C as an application programming language, this sometimes
 makes for cleaner programs. Right now I still think that overloading
 this variable was okay.
 
@@ -1587,7 +1587,7 @@ are:
 
 BASE_DEC, BASE_HEX, and BASE_OCT are decimal, hexadecimal, and octal,
 respectively. BASE_DEC_HEX and BASE_HEX_DEC display value in two bases
-(the 1st representation followed by the 2nd in parenthesis)
+(the 1st representation followed by the 2nd in parenthesis).
 
 For FT_BOOLEAN fields that are also bitfields, 'display' is used to tell
 the proto_tree how wide the parent bitfield is.  With integers this is
@@ -2141,7 +2141,7 @@ won't be seen unless the user opens the subtree--but they can be found if the
 user wants.
 
 NOTE, too, that all of the proto_tree_add_*_hidden() APIs are deprecated:
-instead of using them, use add the item using proto_tree_add_item() and then
+instead of using them, add the item using proto_tree_add_item() and then
 make it hidden using PROTO_ITEM_SET_HIDDEN().
 
 One use for hidden fields (which would be better implemented using visible
@@ -2411,11 +2411,11 @@ after the "type" and "value" fields have been extracted and dissected.
 <label> would be a label giving what information about the subtree is
 available without dissecting any of the data in the subtree.
 
-Note that an exception might thrown when trying to extract the values of
+Note that an exception might be thrown when trying to extract the values of
 the items used to set the label, if not all the bytes of the item are
 available.  Thus, one should create the item with text that is as
 meaningful as possible, and set it or append additional information to
-it as the values needed to supply that information is extracted.
+it as the values needed to supply that information are extracted.
 
 proto_tree_add_text_valist()
 ----------------------------
@@ -2656,7 +2656,7 @@ it is wise to check the relevant header and source files for additional details.
 
 2.2 Following "conversations".
 
-In wireshark a conversation is defined as a series of data packet between two
+In wireshark a conversation is defined as a series of data packets between two
 address:port combinations.  A conversation is not sensitive to the direction of
 the packet.  The same conversation will be returned for a packet bound from
 ServerA:1000 to ClientA:2000 and the packet from ClientA:2000 to ServerA:1000.
@@ -2668,7 +2668,7 @@ conversation_get_proto_data, and conversation_delete_proto_data.
 
 2.2.1 The conversation_init function.
 
-This is an internal routine for the conversation code.  As such the you
+This is an internal routine for the conversation code.  As such you
 will not have to call this routine.  Just be aware that this routine is
 called at the start of each capture and before the packets are filtered
 with a display filter.  The routine will destroy all stored
@@ -2839,7 +2839,7 @@ typically in the proto_register_XXXX portion of a dissector.
 
 2.2.7 Using timestamps relative to the conversation
 
-There is a framework to calculate timestams relative to the start of the
+There is a framework to calculate timestamps relative to the start of the
 conversation. First of all the timestamp of the first packet that has been
 seen in the conversation must be kept in the protocol data to be able
 to calculate the timestamp of the current packet relative to the start
@@ -2870,11 +2870,11 @@ COL_DELTA_CONV_TIME,/* Delta time to last frame in conversation */
 
 Last but not least, there MUST be a preference in each dissector that
 uses conversation timestamps that makes it possible to enable and
-dissable the calculation of conversation timestamps. The main argument
+disable the calculation of conversation timestamps. The main argument
 for this is that a higher level conversation is able to overwrite
 the values of lowel level conversations in these two columns. Being
 able to actively select which protocols may overwrite the conversation
-timestamp columns give the user the power to control these columns.
+timestamp columns gives the user the power to control these columns.
 (A second reason is that conversation timestamps use the per packet
 data structure which uses additional memory, which should be avoided
 if these timestamps are not needed)
@@ -2980,7 +2980,7 @@ my_proto = proto_register_protocol("My Protocol", "My Protocol", "my_proto");
 Sometimes a dissector has determined that a new conversation is needed that
 starts at a specific frame number, when a capture session encompasses multiple
 conversation that reuse the same src/dest ip/port pairs. You can use the
-compare the conversation->setup_frame returned by find_conversation with
+conversation->setup_frame returned by find_conversation with
 pinfo->fd->num to determine whether or not there already exists a conversation
 that starts at the specific frame number.
 
@@ -3071,7 +3071,7 @@ the dissection routine.
 Before we create these conversations or assign a dissector to them we should
 first check that the conversation does not already exist and if it exists
 whether it is registered to our protocol or not.
-We should do this because is uncommon but it does happen that multiple
+We should do this because it is uncommon but it does happen that multiple
 different protocols can use the same socketpair during different stages of
 an application cycle. By keeping track of the frame number a conversation
 was started in wireshark can still tell these different protocols apart.
@@ -3166,7 +3166,7 @@ the same socketpair.
 		(See packet-tftp.c and packet-snmp.c for examples of this)
 
 There are two support routines that will allow the second port and/or
-address to be set latter.
+address to be set later.
 
 conversation_set_port2( conversation_t *conv, guint32 port);
 conversation_set_addr2( conversation_t *conv, address addr);
@@ -3174,7 +3174,7 @@ conversation_set_addr2( conversation_t *conv, address addr);
 These routines will change the second address or port for the
 conversation.  So, the server port conversation will be converted into a
 more complete conversation definition.  Don't use these routines if you
-want create a conversation between the server and client and retain the
+want to create a conversation between the server and client and retain the
 server port definition, you must create a new conversation.
 
 
