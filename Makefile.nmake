@@ -683,6 +683,8 @@ process_libs:
 		gtk+ gtk+-1.3.0-20030717.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk+ gtk+-dev-1.3.0-20030115.zip
+	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
+		glib-gtk1-hack gtk2.12/glib-2.14.5.zip
 !ENDIF
 !IFDEF ICONV_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -815,6 +817,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
     rm -r -f $(WIRESHARK_LIBS)/glib
+    rm -r -f $(WIRESHARK_LIBS)/glib-gtk1-hack
     rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
@@ -1040,19 +1043,22 @@ install-common-deps1:
 !IFDEF GTK1_DIR
 	set INSTALL_DIR=$(INSTALL1_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
+	xcopy $(GLIB_GTK1_HACK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL1_DIR) /d
 !ENDIF
 
 install-common-deps2:
 !IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
+# This should be moved back to install-common-deps if we ever drop
+# GTK+1 support.
+	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL2_DIR) /d
 !ENDIF
 
 install-common-deps:
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
-	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 !IFDEF ICONV_DIR
 	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d

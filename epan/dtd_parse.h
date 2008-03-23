@@ -27,7 +27,11 @@
 */
 
 extern void DtdParse(void*,int,dtd_token_data_t*,dtd_build_data_t*);
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
+extern void *DtdParseAlloc(void *(*)(gsize));
+#else
 extern void *DtdParseAlloc(void *(*)(gulong));
+#endif
 extern void DtdParseFree( void*, void(*)(void*) );
 extern void DtdParseTrace(FILE *TraceFILE, char *zTracePrompt);	
 extern int Dtd_Parse_lex(void);

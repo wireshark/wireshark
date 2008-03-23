@@ -62,11 +62,11 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
 	if (follow_info->client_port == 0) {
 		follow_info->client_port = pinfo->srcport;
-		memcpy(follow_info->client_ip, pinfo->src.data, pinfo->src.len);
+		COPY_ADDRESS(&follow_info->client_ip, &pinfo->src);
 	}
 
-	if (memcmp(follow_info->client_ip, pinfo->src.data, pinfo->src.len) ==
-	    0 && follow_info->client_port == pinfo->srcport)
+	if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) &&
+	    follow_info->client_port == pinfo->srcport)
 		follow_record->is_server = FALSE;
 	else 
 		follow_record->is_server = TRUE;
@@ -193,19 +193,31 @@ follow_udp_stream_cb(GtkWidget *w, gpointer data _U_)
 	/* Both Stream Directions */
 	both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
     
-	/* Host 0 --> Host 1 */
-	server_to_client_string =
-		g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-				hostname0, port0,
-				hostname1, port1,
-				follow_info->bytes_written[0]);
-
-	/* Host 1 --> Host 0 */
-	client_to_server_string =
-		g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
-				hostname1, port1,
-				hostname0, port0,
-				follow_info->bytes_written[1]);
+	if(follow_info->client_port == stats.port[0]) {
+		server_to_client_string =
+			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+					hostname0, port0,
+					hostname1, port1,
+					follow_info->bytes_written[0]);
+		
+		client_to_server_string =
+			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+					hostname1, port1,
+					hostname0, port0,
+					follow_info->bytes_written[1]);
+	} else {
+		server_to_client_string =
+			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+					hostname1, port1,
+					hostname0, port0,
+					follow_info->bytes_written[0]);
+		
+		client_to_server_string =
+			g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
+					hostname0, port0,
+					hostname1, port1,
+					follow_info->bytes_written[1]);
+	}
 
 	follow_stream("Follow UDP Stream", follow_info, both_directions_string,
 		      server_to_client_string, client_to_server_string);
@@ -260,8 +272,7 @@ follow_read_udp_stream(follow_info_t *follow_info,
 			if(follow_info->show_stream == FROM_SERVER) {
 				skip = TRUE;
 			}
-		}
-		else {
+		} else {
 			global_pos = &global_server_pos;
 			if (follow_info->show_stream == FROM_CLIENT) {
 				skip = TRUE;

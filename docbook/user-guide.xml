@@ -80,16 +80,16 @@ DOCUMENT SECTION
 
   <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
   %SvnVersionFile;
-<!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
+  <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "0.99.7">
+  <!ENTITY WiresharkCurrentVersion "1.0.0">
   <!ENTITY WiresharkWebSite "http://www.wireshark.org">
-  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/#usersguide">
+  <!ENTITY WiresharkUsersGuidePage "&WiresharkWebSite;/docs/">
   <!ENTITY WiresharkDownloadPage "&WiresharkWebSite;/download.html">
-  <!ENTITY WiresharkBinariesPage "&WiresharkWebSite;/download.html#releases">
+  <!ENTITY WiresharkBinariesPage "&WiresharkWebSite;/download.html">
   <!ENTITY WiresharkAuthorsPage "&WiresharkWebSite;/about.html">
   <!ENTITY WiresharkProtocolsPage "&WiresharkWebSite;/docs/dfref/">
   <!ENTITY WiresharkFAQPage "&WiresharkWebSite;/faq.html">
@@ -98,7 +98,6 @@ Wireshark Info
   <!ENTITY WiresharkMediaPage "&WiresharkWikiPage;/CaptureSetup/NetworkMedia">
   <!ENTITY WiresharkWikiCaptureFiltersPage "&WiresharkWikiPage;/CaptureFilters">
   <!ENTITY WiresharkWikiDisplayFiltersPage "&WiresharkWikiPage;/DisplayFilters">
-  <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
   <!ENTITY WiresharkWikiColoringRulesPage "&WiresharkWikiPage;/ColoringRules">
   <!ENTITY WiresharkWikiPreferencesPage "&WiresharkWikiPage;/Preferences">
 
@@ -264,8 +263,7 @@ FILE SECTION
   <!ENTITY WiresharkExportPSDialog SYSTEM "./wsug_graphics/ws-export-ps.png" NDATA PNG>
   <!ENTITY WiresharkExportPSMLDialog SYSTEM "./wsug_graphics/ws-export-psml.png" NDATA PNG>
   <!ENTITY WiresharkExportPDMLDialog SYSTEM "./wsug_graphics/ws-export-pdml.png" NDATA PNG>
-  <!ENTITY WiresharkExportSelectedDialog SYSTEM
-  "./wsug_graphics/ws-export-selected.png" NDATA PNG>
+  <!ENTITY WiresharkExportSelectedDialog SYSTEM "./wsug_graphics/ws-export-selected.png" NDATA PNG>
   <!ENTITY WiresharkExportObjectsDialog SYSTEM "./wsug_graphics/ws-export-objects.png" NDATA PNG>
   <!ENTITY WiresharkPrint SYSTEM "./wsug_graphics/ws-print.png" NDATA PNG>
   <!ENTITY WiresharkPacketRangeFrame SYSTEM "./wsug_graphics/ws-packet-range.png" NDATA PNG>

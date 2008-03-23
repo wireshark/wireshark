@@ -57,7 +57,12 @@ typedef struct {
 } dfwork_t;
 
 /* Constructor/Destructor prototypes for Lemon Parser */
+#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
+void *DfilterAlloc(void* (*)(gsize));
+#else
 void *DfilterAlloc(void* (*)(gulong));
+#endif
+
 void DfilterFree(void*, void (*)(void *));
 void Dfilter(void*, int, stnode_t*, dfwork_t*);
 

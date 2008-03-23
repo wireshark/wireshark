@@ -1,6 +1,6 @@
 # $Id$
 
-# Some more informations about the settings in this file, can be found 
+# Some more informations about the settings in this file, can be found
 # in the file README.win32 and the Developer's Guide (available online).
 
 
@@ -26,14 +26,14 @@ WTAP_VERSION_MICRO=1
 
 ##### Directories #####
 
-# 
-# Base directory, where your libraries reside, which are needed to 
+#
+# Base directory, where your libraries reside, which are needed to
 # compile the sources. This setting is used only inside this file.
 #
 WIRESHARK_LIBS=C:\wireshark-libs-1.0
 
-# 
-# Base directory, where your programs reside. 
+#
+# Base directory, where your programs reside.
 # This setting is used only inside this file.
 #
 PROGRAM_FILES=C:/Program Files
@@ -113,16 +113,17 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.00\nasm.exe
 #
 GLIB_VERSION=2.0
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
+GLIB_GTK1_HACK_DIR=$(WIRESHARK_LIBS)\glib-gtk1-hack
 
 #
 # Mandatory: GTK (& related) settings
 #
 # It's possible, to build both GTK version 1 and 2 at the same time,
 # or only one of the versions. GTK version 2 is recommended.
-# 
-# If you want building with GTK+ 1.3, set GTK1_DIR to the pathname of the 
-# "gtk+" directory; if you want building with GTK+ 2.x, set GTK2_DIR to 
-# the pathname of the directory in which the "include" and "lib" directories 
+#
+# If you want building with GTK+ 1.3, set GTK1_DIR to the pathname of the
+# "gtk+" directory; if you want building with GTK+ 2.x, set GTK2_DIR to
+# the pathname of the directory in which the "include" and "lib" directories
 # reside.
 #
 GTK1_DIR=$(WIRESHARK_LIBS)\gtk+
@@ -131,7 +132,7 @@ GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
 #
 # Mandatory for GTK >= 2: Version numbers of gtk2 and pango.
 #
-# (MAJOR + MINOR Version number but without MICRO version number) 
+# (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
 # GTK 2.10 is the old mainline since Wireshark 0.99.5
@@ -157,10 +158,10 @@ GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
 #
 # Optional: WinPcap developer's pack to capture network traffic.
 #
-# If you have the WinPcap developer's pack (at least version 3.0), 
+# If you have the WinPcap developer's pack (at least version 3.0),
 # set this to the directory in which the WinPcap developer's pack resides.
 #
-# If you don't have the WPdpack, comment this line out, so that 
+# If you don't have the WPdpack, comment this line out, so that
 # PCAP_DIR isn't defined.
 #
 PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
@@ -172,10 +173,10 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 #PCAP_REMOTE=1
 
 #
-# Optional: The ZLib enables unzipping of gzip compressed capture files 
+# Optional: The ZLib enables unzipping of gzip compressed capture files
 # "on the fly".
 #
-# If you have Zlib, set this to directory in which the Zlib headers 
+# If you have Zlib, set this to directory in which the Zlib headers
 # and .lib file are stored.
 #
 # If you don't have Zlib, comment this line out, so that ZLIB_DIR isn't
@@ -184,10 +185,10 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 
 #
-# Optional: the ADNS library enables asynchronous (nonblocking) DNS 
+# Optional: the ADNS library enables asynchronous (nonblocking) DNS
 # name resolvings.
 #
-# If you have GNU ADNS, set this to the directory in which the GNU ADNS 
+# If you have GNU ADNS, set this to the directory in which the GNU ADNS
 # .lib file is stored.
 #
 # If you don't have GNU ADNS, comment this line out, so that ADNS_DIR
@@ -196,10 +197,10 @@ ZLIB_DIR=$(WIRESHARK_LIBS)\zlib123
 ADNS_DIR=$(WIRESHARK_LIBS)\adns-1.0-win32-05
 
 #
-# Optional: the PCRE (Perl Compatible Regular Expressions) library 
+# Optional: the PCRE (Perl Compatible Regular Expressions) library
 # enables regular expressions for display filters.
 #
-# If you have the PCRE library, set this to the directory in which 
+# If you have the PCRE library, set this to the directory in which
 # the GNUWIN32 pcre-lib package is stored.
 #
 # If you don't have PCRE, comment this line out, so that PCRE_DIR
@@ -210,7 +211,7 @@ PCRE_DIR=$(WIRESHARK_LIBS)\pcre-7.0
 #
 # Optional: the GNUTLS library enables ssl decryption.
 #
-# If you have the GNUTLS library, set this to the directory where 
+# If you have the GNUTLS library, set this to the directory where
 # the lib and include files are stored.
 #
 # If you don't have GNUTLS, comment this line out, so that GNUTLS_DIR
@@ -222,7 +223,7 @@ GNUTLS_DIR=$(WIRESHARK_LIBS)\gnutls-1.6.1-1
 #
 # Optional: the KFW library enables kerberos/sasl/dcerpc decryption.
 #
-# If you have the kerberos for windows (mit) library, set this to the 
+# If you have the kerberos for windows (mit) library, set this to the
 # directory where the kfw package is stored.
 #
 # If you don't have KFW, comment this line out, so that KFW_DIR
@@ -233,7 +234,7 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 #
 # Optional: the Nettle library enables ??? decryption.
 #
-# If you have the Nettle encryption library, set this to the 
+# If you have the Nettle encryption library, set this to the
 # directory in which the nettle package is stored.
 #
 # If you don't have Nettle, comment this line out, so that NETTLE_DIR
@@ -244,7 +245,7 @@ KFW_DIR=$(WIRESHARK_LIBS)\kfw-2.5
 #
 # Optional: the LUA library enables scripting support.
 #
-# If you have the LUA library, set this to the directory in which 
+# If you have the LUA library, set this to the directory in which
 # the LUA package is stored.
 #
 # If you don't have LUA, comment this line out, so that LUA_DIR
@@ -255,10 +256,10 @@ LUA_DIR=$(WIRESHARK_LIBS)\lua5.1
 #
 # Optional: the PORTAUDIO library enables audio output for RTP streams.
 #
-# If you have the PORTAUDIO library (used for rtp_player), set this to 
+# If you have the PORTAUDIO library (used for rtp_player), set this to
 # the directory in which the PORTAUDIO library is stored.
 #
-# If you don't have PORTAUDIO, comment this line out, so that 
+# If you don't have PORTAUDIO, comment this line out, so that
 # PORTAUDIO_DIR isn't defined.
 #
 #PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v18_1
@@ -266,7 +267,7 @@ PORTAUDIO_DIR=$(WIRESHARK_LIBS)\portaudio_v19
 
 #
 # Version number of PortAudio
-# 
+#
 #PORTAUDIO_VERSION=18
 PORTAUDIO_VERSION=19
 
@@ -287,19 +288,19 @@ PORTAUDIO_VERSION=19
 #GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-0.14.5
 GETTEXT_DIR=$(WIRESHARK_LIBS)\gettext-runtime-0.17-1
 #
-# Optional: AirPcap developer's pack to capture wireless network traffic 
+# Optional: AirPcap developer's pack to capture wireless network traffic
 # incl. 802.11 management frames.
 #
-# If you have the AirPcap developer's pack, set this to the directory 
+# If you have the AirPcap developer's pack, set this to the directory
 # in which the AirPcap developer's pack resides.
 #
-# If you don't have the AirPcap developer's pack, comment this line out, 
+# If you don't have the AirPcap developer's pack, comment this line out,
 # so that AIRPCAP_DIR isn't defined.
 #
 AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
 
 #
-# Optional: LIBSMI, System Management Interface 
+# Optional: LIBSMI, System Management Interface
 #
 # Used for oid-name resolution for SNMP and other protocols
 #
@@ -318,7 +319,7 @@ CYGWIN_PATH=c:\cygwin\bin
 SH_PROG=bash
 
 # bash versions after 3.1.6 need the 'igncr' shell option to be able to
-#  process scripts in windows 'native format' (dos crlf format). 
+#  process scripts in windows 'native format' (dos crlf format).
 # The following !IF results in the option being used only if it is available
 #  since using it on bash version 3.1.6 (or earlier) is not required and
 #  will cause an error message.
@@ -332,7 +333,7 @@ SH=$(SH_PROG) $(SH_FLAGS)
 # command for perl (cygwin's perl package recommended)
 PERL=perl
 
-# command for pod2man and pod2html 
+# command for pod2man and pod2html
 # (part of the perl package, usually leave these unchanged)
 POD2MAN=$(SH) pod2man
 POD2HTML=$(SH) pod2html
@@ -387,7 +388,7 @@ MAKENSIS="$(PROGRAM_FILES)\nsis\makensis.exe"
 # For MSVC_VARIANT == MSVC6 you will have to download and install the html help workshop from:
 #
 # http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html
-# /hwMicrosoftHTMLHelpDownloads.asp 
+# /hwMicrosoftHTMLHelpDownloads.asp
 #
 # Then point HHC_DIR to the html help dir (where hhc.exe resides).
 #
@@ -404,7 +405,7 @@ HHC_DIR=$(PROGRAM_FILES)/HTML Help Workshop
 # UPX can be downloaded from:
 #   http://upx.sourceforge.net/
 #
-# If you don't have UPX, or don't want to pack exes and dlls,  
+# If you don't have UPX, or don't want to pack exes and dlls,
 # comment this line out, so that UPX isn't defined.
 #
 
@@ -447,8 +448,8 @@ LOCAL_CFLAGS=/Zi /W3 /MD /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE 
 # /PROFILE generate map file(s) for profiling
 # /DEFAULTLIB:xxx use xxx as the standard C library
 # /NODEFAULTLIB:xxx don't use xxx as the standard C library
-# 
-LOCAL_LDFLAGS=/DEBUG 
+#
+LOCAL_LDFLAGS=/DEBUG
 
 PLUGIN_LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
@@ -478,11 +479,11 @@ INSTALL2_DIR=wireshark-gtk2
 
 ##### C-Runtime Redistributable #####
 #
-# The C-Runtime since Version 7 must be shipped together with 
+# The C-Runtime since Version 7 must be shipped together with
 # the program installer, to avoid missing msvcr*.dll files on
 # the target machine.
 #
-# The location of these files differ on the various compiler 
+# The location of these files differ on the various compiler
 # packages, the following will use the default paths depending
 # on the package version.
 #
@@ -526,17 +527,17 @@ MSVCR_DLL=$(PROGRAM_FILES)\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.V
 
 
 ##### Advanced: Docbook/XML documentation generation #####
-# If you want to generate the Docbook/XML based docs (User's and Developer's 
-# Guide, ...), you'll need some additional tools / libraries compared to the 
-# rest of the build process. 
+# If you want to generate the Docbook/XML based docs (User's and Developer's
+# Guide, ...), you'll need some additional tools / libraries compared to the
+# rest of the build process.
 #
 # FOR DETAILED INSTRUCTIONS TO GENERATE THE DOCS, SEE: docbook\readme.txt.
 #
-# If you don't call the Makefile.nmake in the docbook dir to generate the 
+# If you don't call the Makefile.nmake in the docbook dir to generate the
 # docs, the following settings in this section will have no effect.
 
 # formatting objects processor executable
-# Comment this out if you don't have fop installed or you don't want the docs 
+# Comment this out if you don't have fop installed or you don't want the docs
 # in PDF format.
 !IFNDEF FOP
 FOP=fop-0.20.5\fop.bat
@@ -546,7 +547,7 @@ FOP=fop-0.20.5\fop.bat
 FOP_OPTS=-Xmx256m
 
 # html help compiler
-# Comment this out if you don't have hhc.exe or you don't want the docs in 
+# Comment this out if you don't have hhc.exe or you don't want the docs in
 # .chm format.
 #
 # Beware: hhc.exe is NOT part of the MSVC packages in HHC_DIR mentioned above,
@@ -582,12 +583,12 @@ XMLLINT="xmllint"
 ##############################################################################
 
 #
-# The RC_VERSION should be comma-separated, not dot-separated, 
+# The RC_VERSION should be comma-separated, not dot-separated,
 # as per Graham Bloice's message in
 #
 #	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
 #
-# "The RC_VERSION variable in config.nmake should be comma separated. 
+# "The RC_VERSION variable in config.nmake should be comma separated.
 # This allows the resources to be built correctly and the version
 # number to be correctly displayed in the explorer properties dialog
 # for the executables, and XP's tooltip, rather than 0.0.0.0."
@@ -835,7 +836,7 @@ SMI_CONFIG=
 
 !IFDEF ENABLE_LIBWIRESHARK
 LIBWIRESHARK_CONFIG=^#define HAVE_LIBWIRESHARKDLL 1
-# Link plugins with the import library of libwireshark.dll 
+# Link plugins with the import library of libwireshark.dll
 LINK_PLUGINS_WITH_LIBWIRESHARK=USE
 !ELSE
 LIBWIRESHARK_CONFIG=

@@ -303,7 +303,6 @@ File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
 File "..\..\epan\libwireshark.dll"
 !endif
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
-File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${ICONV_DIR}\bin\iconv.dll"
@@ -684,6 +683,7 @@ SectionIn 2 RO
 !endif
 SetOutPath $INSTDIR
 File "..\..\wireshark.exe"
+File "${GLIB_GTK1_HACK_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GTK1_DIR}\lib\libgtk-0.dll"
 File "${GTK1_DIR}\lib\libgdk-0.dll"
 SectionEnd
@@ -697,6 +697,8 @@ SectionIn 1 RO
 !endif
 SetOutPath $INSTDIR
 File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
+; libgmodule should be moved back to the Required section if we ever drop GTK1
+File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"

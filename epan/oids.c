@@ -180,6 +180,28 @@ extern void oid_add_from_encoded(const char* name, const guint8 *oid, gint oid_l
 }
 
 #ifdef HAVE_LIBSMI
+/* de-allocate storage mallocated by libsmi                            */
+/*                                                                     */
+/* XXX: On Windows we can use free() only if the Windows libsmi.dll    */
+/*      being used is linked with the same CRTL as wireshark.          */
+/*      As a temporary hack we'll assume on Windows that the Wireshark */
+/*      build of libsmi.dll was done with VC6/msvcrt.dll (as is        */
+/*      currently the case).  If wireshark is being built with         */
+/*      vc6 (which is also currently the case for the standard         */
+/*      wireshark release). we can use free().                         */
+/*      If vc6 is not being used here, then we'll just have to live    */
+/*      with a memory leak for now.                                    */
+/*      Note: A permanent fix would probably be for libsmi to include  */
+/*       its' existing smiFree function as part of the libsmi API so   */
+/*       wireshark can call it to free storage mallocated by libsmi.   */
+
+static void smi_free(void *ptr) {
+#if !defined _WIN32 || (_MSC_VER == 1200)
+	free(ptr);
+#endif
+}
+
+
 typedef struct smi_module_t {
 	char* name;
 } smi_module_t;
@@ -291,16 +313,12 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		for (t = types; t->type ; t++ ) {
 			char* name = smiRenderType(sT, SMI_RENDER_NAME);
 			if (name && t->name && g_str_equal(name, t->name )) {
-#ifndef WIN32
-				free (name);
-#endif
+				smi_free(name);
 				return t->type;
 			}
-#ifndef WIN32
 			if (name) {
-				free (name);
+				smi_free (name);
 			}
-#endif
 		}
 	} while(( sT  = smiGetParentType(sT) ));
 
@@ -388,10 +406,8 @@ static inline oid_kind_t smikind(SmiNode* sN, oid_key_t** key_p) {
 				oid1 = smiRenderOID(sN->oidlen, sN->oid, SMI_RENDER_QUALIFIED);
 				oid2 = smiRenderOID(elNode->oidlen, elNode->oid, SMI_RENDER_NAME);
 				k->name = g_strdup_printf("%s.%s", oid1, oid2);
-#ifndef WIN32
-				free (oid1);
-				free (oid2);
-#endif
+				smi_free (oid1);
+				smi_free (oid2);
 
 				k->hfid = -2;
 				k->ft_type = typedata ? typedata->ft_type : FT_BYTES;
@@ -581,9 +597,7 @@ void register_mibs(void) {
 						       key,
 						       smiNode->oidlen,
 						       smiNode->oid);
-#ifndef WIN32
-			free (oid);
-#endif
+			smi_free (oid);
 
 			D(4,("\t\tNode: kind=%d oid=%s name=%s ",
 				 oid_data->kind, oid_subid2string(smiNode->oid, smiNode->oidlen), oid_data->name ));
@@ -597,7 +611,7 @@ void register_mibs(void) {
 					typedata->display,
 					NULL,
 					0,
-#ifndef WIN32
+#if !defined _WIN32 || (_MSC_VER == 1200)
 					smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL),
 #else
 					g_strdup (smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL)),
@@ -619,7 +633,7 @@ void register_mibs(void) {
 					hf.hfinfo.strings = VALS(vals->data);
 					g_array_free(vals,FALSE);
 				}
-#if 0 /* packet-snmp does not hanldle bits yet */
+#if 0 /* packet-snmp does not handle bits yet */
 			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
 				guint n = 0;
 				oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
@@ -1049,7 +1063,7 @@ oid_get_default_mib_path(void) {
 	guint i;
 
 	path_str = g_string_new("");
-#ifdef WIN32
+#ifdef _WIN32
 #define PATH_SEPARATOR ";"
 	path = get_datafile_path("snmp\\mibs");
 	g_string_sprintfa(path_str, "%s;", path);

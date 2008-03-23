@@ -86,7 +86,7 @@ typedef struct {
         GList           *payload;
         guint           bytes_written[2];
         guint           client_port;
-        char            client_ip[MAX_IPADDR_LEN];
+        address         client_ip;
 } follow_info_t;
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
