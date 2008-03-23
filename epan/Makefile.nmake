@@ -301,6 +301,6 @@ uat_load.obj : uat_load.c
 LEMON=..\tools\lemon
 
 dtd_grammar.h: dtd_grammar.c
-dtd_grammar.c: dtd_grammar.lemon $(LEMON)\lemon.exe
+dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
 	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
 

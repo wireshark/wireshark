@@ -168,7 +168,7 @@ LEMON=../tools/lemon
 
 dtd_grammar.h: dtd_grammar.c
 
-dtd_grammar.c: dtd_grammar.lemon $(LEMON)/lemon$(EXEEXT)
+dtd_grammar.c: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd_grammar.lemon
 
 tvbtest.o exntest.o: exceptions.h
