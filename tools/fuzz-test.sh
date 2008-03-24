@@ -21,6 +21,9 @@ BASE_NAME=fuzz-`$DATE +%Y-%m-%d`-$$
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
 TMP_DIR=/tmp
+if [ "$OSTYPE" == "cygwin" ] ; then
+        TMP_DIR=`cygpath --windows "$TMP_DIR"`
+fi
 TMP_FILE=$BASE_NAME.pcap
 ERR_FILE=$BASE_NAME.err
 
@@ -76,6 +79,9 @@ fi
 # Make sure we have a valid test set
 FOUND=0
 for CF in "$@" ; do
+    if [ "$OSTYPE" == "cygwin" ] ; then
+        CF=`cygpath --windows "$CF"`
+    fi
     "$CAPINFOS" "$CF" > /dev/null 2>&1 && FOUND=1
     if [ $FOUND -eq 1 ] ; then break ; fi
 done
@@ -110,6 +116,9 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         RUN=$(( $RUN + 1 ))
         if [ $(( $RUN % 50 )) -eq 0 ] ; then
             echo "    [Pass $PASS]"
+        fi
+        if [ "$OSTYPE" == "cygwin" ] ; then
+            CF=`cygpath --windows "$CF"`
         fi
 	echo -n "    $CF: "
 
