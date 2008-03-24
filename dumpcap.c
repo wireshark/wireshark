@@ -489,7 +489,7 @@ print_caps(char *pfx _U_) {
 static void
 relinquish_privs_except_capture(void)
 {
-    /* If 'started_with_special_privs' (ie: suid) then enable for 
+    /* If 'started_with_special_privs' (ie: suid) then enable for
      *  ourself the  NET_ADMIN and NET_RAW capabilities and then
      *  drop our suid privileges.
      *
@@ -2401,7 +2401,7 @@ main(int argc, char *argv[])
   /*        This behaviour will apparently be changed in the kernel    */
   /*        to allow the kill (signal) in this case.                   */
   /*        See the following for details:                             */
-  /*           http://www.mail-archive.com/  [wrapped]                 */ 
+  /*           http://www.mail-archive.com/  [wrapped]                 */
   /*             linux-security-module@vger.kernel.org/msg02913.html   */
   /*                                                                   */
   /*        It is therefore conceivable that if dumpcap somehow hangs  */
@@ -2419,7 +2419,7 @@ main(int argc, char *argv[])
   /*         drop all capabilities (NET_RAW and NET_ADMIN)             */
   /*                                                                   */
   /* ToDo: -S (stats) should drop privileges/capabilities when no      */
-  /*       onger required (similar to capture).                        */
+  /*       longer required (similar to capture).                        */
   /*                                                                   */
   /* ----------------------------------------------------------------- */
 
