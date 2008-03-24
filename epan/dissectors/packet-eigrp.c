@@ -309,7 +309,7 @@ static void dissect_eigrp_nms (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
 	guint8 ip_addr[4],length;
-	int addr_len;
+	int addr_len,offset;
 
 	tvb_memcpy(tvb,ip_addr,0,4);
 	proto_tree_add_text (tree,tvb,0,4, "Next Hop    = %s",ip_to_str(ip_addr));
@@ -320,24 +320,27 @@ static void dissect_eigrp_ip_int (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,16,1,"Reliability = %u",tvb_get_guint8(tvb,16));
 	proto_tree_add_text (tree,tvb,17,1,"Load        = %u",tvb_get_guint8(tvb,17));
 	proto_tree_add_text (tree,tvb,18,2,"Reserved ");
-	length=tvb_get_guint8(tvb,20);
-	/* XXX - the EIGRP page whose URL appears at the top says this
-	   field is 24 bits; what if the prefix length is > 24? */
-	addr_len=ipv4_addr_and_mask (tvb,21,ip_addr,length);
-	if (addr_len < 0) {
-	    proto_tree_add_text (tree,tvb,20,1,"Prefix length = %u (invalid, must be <= 32)",length);
-	    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
-	} else {
-	    proto_tree_add_text (tree,tvb,20,1,"Prefix Length = %u",length);
-	    proto_tree_add_text (tree,tvb,21,addr_len,"Destination = %s",ip_to_str(ip_addr));
-	    proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+
+	for (offset = 20; tvb_length_remaining(tvb, offset) > 0; offset += (1+addr_len))
+	{
+		length=tvb_get_guint8(tvb,offset);
+		addr_len=ipv4_addr_and_mask (tvb,offset+1,ip_addr,length);
+		if (addr_len < 0) {
+		    proto_tree_add_text (tree,tvb,offset,1,"Prefix length = %u (invalid, must be <= 32)",length);
+		    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
+		    addr_len = 4; /* assure we can exit the loop */
+		} else {
+		    proto_tree_add_text (tree,tvb,offset,1,"Prefix Length = %u",length);
+		    proto_tree_add_text (tree,tvb,offset+1,addr_len,"Destination = %s",ip_to_str(ip_addr));
+		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==20?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+		}
 	}
 }
 
 static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *ti)
 {
 	guint8 ip_addr[4],length;
-	int addr_len;
+	int addr_len,offset;
 
 	tvb_memcpy(tvb,ip_addr,0,4);
 	proto_tree_add_text (tree,tvb,0,4,"Next Hop = %s",ip_to_str(ip_addr));
@@ -357,17 +360,20 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 	proto_tree_add_text (tree,tvb,36,1,"Reliability = %u",tvb_get_guint8(tvb,36));
 	proto_tree_add_text (tree,tvb,37,1,"Load = %u",tvb_get_guint8(tvb,37));
 	proto_tree_add_text (tree,tvb,38,2,"Reserved ");
-	length=tvb_get_guint8(tvb,40);
-	/* XXX - the EIGRP page whose URL appears at the top says this
-	   field is 24 bits; what if the prefix length is > 24? */
-	addr_len=ipv4_addr_and_mask (tvb,41,ip_addr,length);
-	if (addr_len < 0) {
-	    proto_tree_add_text (tree,tvb,40,1,"Prefix length = %u (invalid, must be <= 32)",length);
-	    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
-	} else {
-	    proto_tree_add_text (tree,tvb,40,1,"Prefix Length = %u",length);
-	    proto_tree_add_text (tree,tvb,41,addr_len,"Destination = %s",ip_to_str(ip_addr));
-	    proto_item_append_text (ti,"  =   %s/%u%s",ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+
+	for (offset = 40; tvb_length_remaining(tvb, offset) > 0; offset += (1+addr_len))
+	{
+		length=tvb_get_guint8(tvb,offset);
+		addr_len=ipv4_addr_and_mask (tvb,offset+1,ip_addr,length);
+		if (addr_len < 0) {
+		    proto_tree_add_text (tree,tvb,offset,1,"Prefix length = %u (invalid, must be <= 32)",length);
+		    proto_item_append_text (ti,"  [Invalid prefix length %u > 32]",length);
+		    addr_len = 4; /* assure we can exit the loop */
+		} else {
+		    proto_tree_add_text (tree,tvb,offset,1,"Prefix Length = %u",length);
+		    proto_tree_add_text (tree,tvb,offset+1,addr_len,"Destination = %s",ip_to_str(ip_addr));
+		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==40?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+		}
 	}
 }
 
