@@ -2365,10 +2365,10 @@ main(int argc, char *argv[])
   /*        capabilities; Drop all other capabilities;                 */
   /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
   /*        else: after  pcap_open_live() in capture_loop_open_input() */
-  /*         drop all capabilities (NET_RAW and NET_ADMIN)             */
+  /*         drop all capabilities (NET_RAW and NET_ADMIN);            */
   /*         (Note: this means that the process, although logged in    */
   /*          as root, does not have various permissions such as the   */
-  /*          ability to bypass file access permissions.               */
+  /*          ability to bypass file access permissions).              */
   /*      XXX: Should we just leave capabilities alone in this case    */
   /*          so that user gets expected effect that root can do       */
   /*          anything ??                                              */
@@ -2377,17 +2377,17 @@ main(int argc, char *argv[])
   /*    Action:                                                        */
   /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
   /*        else: after  pcap_open_live() in capture_loop_open_input() */
-  /*         drop same (euid=ruid). (ie: keep suid until after         */
-  /*         pcap_open_live                                            */
+  /*         drop suid root (set euid=ruid).(ie: keep suid until after */
+  /*         pcap_open_live).                                          */
   /*                                                                   */
   /* 5. Running as suid root (euid=0, ruid=n); Using libcap.           */
   /*    Action:                                                        */
   /*      - Near start of program: Enable NET_RAW and NET_ADMIN        */
   /*        capabilities; Drop all other capabilities;                 */
-  /*        Drop suid privileges (euid=ruid).                          */
+  /*        Drop suid privileges (euid=ruid);                          */
   /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
   /*        else: after  pcap_open_live() in capture_loop_open_input() */
-  /*         drop all capabilities (NET_RAW and NET_ADMIN)             */
+  /*         drop all capabilities (NET_RAW and NET_ADMIN).            */
   /*                                                                   */
   /*      XXX: For some Linux versions/distros with capabilities       */
   /*        a 'normal' process with any capabilities cannot be         */
