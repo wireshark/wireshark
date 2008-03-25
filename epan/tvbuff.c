@@ -1584,17 +1584,16 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 
 }
 
-/* Get 9 - 16 bits */
 /* Bit offset mask for number of bits = 32 - 64 */
 static const guint64 bit_mask64[] = {
-    G_GINT64_CONSTANT(0xffffffffffffffU),
-    G_GINT64_CONSTANT(0x7fffffffffffffU),
-    G_GINT64_CONSTANT(0x3fffffffffffffU),
-    G_GINT64_CONSTANT(0x1fffffffffffffU),
-    G_GINT64_CONSTANT(0x0fffffffffffffU),
-    G_GINT64_CONSTANT(0x07ffffffffffffU),
-    G_GINT64_CONSTANT(0x03ffffffffffffU),
-    G_GINT64_CONSTANT(0x01ffffffffffffU)
+    G_GINT64_CONSTANT(0xffffffffffffffffU),
+    G_GINT64_CONSTANT(0x7fffffffffffffffU),
+    G_GINT64_CONSTANT(0x3fffffffffffffffU),
+    G_GINT64_CONSTANT(0x1fffffffffffffffU),
+    G_GINT64_CONSTANT(0x0fffffffffffffffU),
+    G_GINT64_CONSTANT(0x07ffffffffffffffU),
+    G_GINT64_CONSTANT(0x03ffffffffffffffU),
+    G_GINT64_CONSTANT(0x01ffffffffffffffU)
 };
 
 guint32
