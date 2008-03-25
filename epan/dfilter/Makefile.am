@@ -105,6 +105,6 @@ scanner_lex.h : scanner.c
 LEMON=../../tools/lemon
 
 grammar.h : grammar.c 
-grammar.c : grammar.lemon $(LEMON)/lemon$(EXEEXT)
+grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon
 	$(LEMON)/lemon$(EXEEXT) t=$(srcdir)/$(LEMON)/lempar.c $(srcdir)/grammar.lemon || \
 		(rm -f grammar.c grammar.h ; false)

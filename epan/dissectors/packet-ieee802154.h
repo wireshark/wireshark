@@ -141,14 +141,14 @@ typedef struct {
     /* Addressing Info. */
     guint16     dst_pan;
     union {
-        guint16 dst_addr16;
-        guint64 dst_addr64;
-    };
+        guint16 addr16;
+        guint64 addr64;
+    } dst;
     guint16     src_pan;
     union {
-        guint16 src_addr16;
-        guint64 src_addr64;
-    };
+        guint16 addr16;
+        guint64 addr64;
+    } src;
 } ieee802154_packet;
 
 

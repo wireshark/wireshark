@@ -558,15 +558,15 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         gchar   *dst_addr = ep_alloc(32);
 
         /* Get the address. */
-        packet->dst_addr16 = tvb_get_letohs(tvb, offset);
+        packet->dst.addr16 = tvb_get_letohs(tvb, offset);
 
         /* Display the destination address. */
-        if(packet->dst_addr16==IEEE802154_BCAST_ADDR) g_snprintf(dst_addr, 32, "Broadcast");
-        else g_snprintf(dst_addr, 32, "0x%04x", packet->dst_addr16);
+        if(packet->dst.addr16==IEEE802154_BCAST_ADDR) g_snprintf(dst_addr, 32, "Broadcast");
+        else g_snprintf(dst_addr, 32, "0x%04x", packet->dst.addr16);
         SET_ADDRESS(&pinfo->dl_dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
         SET_ADDRESS(&pinfo->dst, AT_STRINGZ, strlen(dst_addr)+1, dst_addr);
         if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_addr16, tvb, offset, sizeof(guint16), packet->dst_addr16);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst_addr16, tvb, offset, sizeof(guint16), packet->dst.addr16);
             proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -580,14 +580,14 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         gchar    *dst, *dst_oui;
 
         /* Get the address */
-        packet->dst_addr64 = tvb_get_letoh64(tvb, offset);
+        packet->dst.addr64 = tvb_get_letoh64(tvb, offset);
 
         /* print the address strings. */
-        dst = print_eui64(packet->dst_addr64);
-        dst_oui = print_eui64_oui(packet->dst_addr64);
+        dst = print_eui64(packet->dst.addr64);
+        dst_oui = print_eui64_oui(packet->dst.addr64);
 
         /* Copy and convert the address to network byte order. */
-        *(guint64 *)(addr) = pntoh64(&(packet->dst_addr64));
+        *(guint64 *)(addr) = pntoh64(&(packet->dst.addr64));
 
         /* Display the destination address. */
         /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
@@ -597,7 +597,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dl_dst, AT_EUI64, sizeof(guint64), addr);
         SET_ADDRESS(&pinfo->dst, AT_EUI64, sizeof(guint64), addr);
         if (tree) {
-            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_dst_addr64, tvb, offset, sizeof(guint64), packet->dst_addr64, "%s (%s)", dst_oui, dst);
+            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_dst_addr64, tvb, offset, sizeof(guint64), packet->dst.addr64, "%s (%s)", dst_oui, dst);
             proto_item_append_text(proto_root, ", Dst: %s", dst_oui);
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -635,17 +635,17 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         gchar   *src_addr = ep_alloc(32);
 
         /* Get the address. */
-        packet->src_addr16 = tvb_get_letohs(tvb, offset);
+        packet->src.addr16 = tvb_get_letohs(tvb, offset);
 
         /* Update the Address fields. */
-        if(packet->src_addr16==IEEE802154_BCAST_ADDR) g_snprintf(src_addr, 32, "Broadcast");
-        else g_snprintf(src_addr, 32, "0x%04x", packet->src_addr16);
+        if(packet->src.addr16==IEEE802154_BCAST_ADDR) g_snprintf(src_addr, 32, "Broadcast");
+        else g_snprintf(src_addr, 32, "0x%04x", packet->src.addr16);
         SET_ADDRESS(&pinfo->dl_src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
         SET_ADDRESS(&pinfo->src, AT_STRINGZ, strlen(src_addr)+1, src_addr);
 
         /* Add the addressing info to the tree. */
         if (tree) {
-            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src_addr16, tvb, offset, sizeof(guint16), packet->src_addr16);
+            proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src_addr16, tvb, offset, sizeof(guint16), packet->src.addr16);
             proto_item_append_text(proto_root, ", Src: %s", src_addr);
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -659,14 +659,14 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         gchar   *src, *src_oui;
 
         /* Get the address. */
-        packet->src_addr64 = tvb_get_letoh64(tvb, offset);
+        packet->src.addr64 = tvb_get_letoh64(tvb, offset);
 
         /* Print the address strings. */
-        src = print_eui64(packet->src_addr64);
-        src_oui = print_eui64_oui(packet->src_addr64);
+        src = print_eui64(packet->src.addr64);
+        src_oui = print_eui64_oui(packet->src.addr64);
 
         /* Copy and convert the address to network byte order. */
-        *(guint64 *)(addr) = pntoh64(&(packet->src_addr64));
+        *(guint64 *)(addr) = pntoh64(&(packet->src.addr64));
 
         /* Display the source address. */
         /* NOTE: OUI resolution doesn't happen when displaying EUI64 addresses
@@ -676,7 +676,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dl_src, AT_EUI64, sizeof(guint64), addr);
         SET_ADDRESS(&pinfo->src, AT_EUI64, sizeof(guint64), addr);
         if (tree) {
-            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_src_addr64, tvb, offset, sizeof(guint64), packet->src_addr64, "%s (%s)", src_oui, src);
+            proto_tree_add_uint64_format_value(ieee802154_tree, hf_ieee802154_src_addr64, tvb, offset, sizeof(guint64), packet->src.addr64, "%s (%s)", src_oui, src);
             proto_item_append_text(proto_root, ", Src: %s", src_oui);
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1093,7 +1093,7 @@ dissect_ieee802154_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
             /* Check that the addressing is correct for this command type. */
             CMD_ADDR_CHECK((packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT)
                         && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT)
-                        && (packet->dst_addr16 == IEEE802154_BCAST_ADDR)
+                        && (packet->dst.addr16 == IEEE802154_BCAST_ADDR)
                         && (packet->src_pan == IEEE802154_BCAST_PAN)
                         && (packet->dst_pan == IEEE802154_BCAST_PAN));
 
@@ -1104,7 +1104,7 @@ dissect_ieee802154_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
             /* Check that the addressing is correct for this command type. */
             CMD_ADDR_CHECK((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT)
                         && (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE)
-                        && (packet->dst_addr16 == IEEE802154_BCAST_ADDR)
+                        && (packet->dst.addr16 == IEEE802154_BCAST_ADDR)
                         && (packet->dst_pan == IEEE802154_BCAST_PAN));
 
             /* Beacon Request contains no payload. */
@@ -1118,7 +1118,7 @@ dissect_ieee802154_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
 
             if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
                 /* If directed to a 16-bit address, check that it is being broadcast. */
-                CMD_ADDR_CHECK(packet->dst_addr16 == IEEE802154_BCAST_ADDR);
+                CMD_ADDR_CHECK(packet->dst.addr16 == IEEE802154_BCAST_ADDR);
             }
 
             dissect_ieee802154_cmd_realign(tvb, pinfo, cmd_tree, packet, &offset);
@@ -1128,8 +1128,8 @@ dissect_ieee802154_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee
             /* Check that the addressing is correct for this command type. */
             CMD_ADDR_CHECK((packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT)
                         && (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE)
-                        && (packet->src_addr16 != IEEE802154_BCAST_ADDR)
-                        && (packet->src_addr16 != IEEE802154_NO_ADDR16));
+                        && (packet->src.addr16 != IEEE802154_BCAST_ADDR)
+                        && (packet->src.addr16 != IEEE802154_NO_ADDR16));
 
             dissect_ieee802154_cmd_gtsrq(tvb, pinfo, cmd_tree, packet, &offset);
             break;
