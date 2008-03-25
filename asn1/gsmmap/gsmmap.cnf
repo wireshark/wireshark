@@ -61,6 +61,7 @@ Ext2-QoS-Subscribed
 ExtensionContainer
 GeographicalInformation
 GetPasswordArg
+GlobalCellId
 GPRSChargingID
 GPRSMSClass
 GSMMAPLocalErrorcode
@@ -508,7 +509,7 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
                 return offset; 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_RadioResourceInformation); 
-	be_chan_type(tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
+	be_chan_type(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0);
 
 #.FN_BODY RANAP-ServiceHandover VAL_PTR = &parameter_tvb
     tvbuff_t        *parameter_tvb;
@@ -586,6 +587,29 @@ if (!actx->value_ptr)
 		break;
 }
 
+#.FN_BODY GlobalCellId VAL_PTR = &parameter_tvb 
+    tvbuff_t	*parameter_tvb; 
+	proto_tree	*subtree;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset; 
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GlobalCellId); 
+	be_cell_id_aux(parameter_tvb, subtree, 0, tvb_length_remaining(tvb,0), NULL, 0, 0);
+
+#.FN_BODY Ext-GeographicalInformation VAL_PTR = &parameter_tvb 
+    tvbuff_t	*parameter_tvb; 
+	proto_tree	*subtree;
+
+%(DEFAULT_BODY)s 
+
+	if (!parameter_tvb) 
+                return offset; 
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeographicalInformation);
+	dissect_geographical_description(parameter_tvb, actx->pinfo, subtree); 
 
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR

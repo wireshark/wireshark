@@ -178,6 +178,8 @@ static gint ett_gsm_map_MSNetworkCapability =-1;
 static gint ett_gsm_map_MSRadioAccessCapability = -1;
 static gint ett_gsm_map_externalsignalinfo = -1;
 static gint ett_gsm_map_cbs_data_coding = -1;
+static gint ett_gsm_map_GlobalCellId = -1;
+static gint ett_gsm_map_GeographicalInformation = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -543,6 +545,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			offset++;
 			/* Confidence */
 			proto_tree_add_item(tree, hf_gsm_map_geo_loc_confidence, tvb, offset, 1, FALSE);
+			offset++;
 		}else if(type_of_shape==8){
 			/* Ellipsoid Point with Altitude */
 			/*D: Direction of Altitude */
@@ -589,7 +592,6 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			proto_tree_add_item(tree, hf_gsm_map_geo_loc_confidence, tvb, offset, 1, FALSE);
 		}else if(type_of_shape==10){
 			/* Ellipsoid Arc */
-			offset++;
 			/* Inner radius */
 			proto_tree_add_item(tree, hf_gsm_map_geo_loc_inner_radius, tvb, offset, 2, FALSE);
 			offset= offset +2;
@@ -2665,6 +2667,8 @@ void proto_register_gsm_map(void) {
 	&ett_gsm_map_MSRadioAccessCapability,
 	&ett_gsm_map_externalsignalinfo,
 	&ett_gsm_map_cbs_data_coding,
+	&ett_gsm_map_GlobalCellId,
+	&ett_gsm_map_GeographicalInformation,
 
 #include "packet-gsm_map-ettarr.c"
   };
