@@ -734,7 +734,6 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	GtkTooltips	*tooltips;
 	follow_stats_t stats;
 
-	/* XXX -
 	follow_info->show_type = SHOW_RAW;
 
 	streamwindow = dlg_window_new(title);
