@@ -714,6 +714,7 @@ remember_follow_info(follow_info_t *follow_info)
 	follow_infos = g_list_append(follow_infos, follow_info);
 }
 
+#define IS_SHOW_TYPE(x) (follow_info->show_type == x ? 1 : 0)
 /* Remove a "follow_info_t" structure from the list. */
 void
 forget_follow_info(follow_info_t *follow_info)
@@ -733,16 +734,19 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	GtkTooltips	*tooltips;
 	follow_stats_t stats;
 
+	/* XXX -
+	follow_info->show_type = SHOW_RAW;
+
 	streamwindow = dlg_window_new(title);
 
 	/* needed in follow_filter_out_stream(), is there a better way? */
 	follow_info->streamwindow = streamwindow;
-	
+
 	gtk_widget_set_name(streamwindow, title);
 	gtk_window_set_default_size(GTK_WINDOW(streamwindow),
 				    DEF_WIDTH, DEF_HEIGHT);
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
-	
+
 	/* setup the container */
 	tooltips = gtk_tooltips_new ();
 
@@ -757,7 +761,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	}
 	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
 	gtk_widget_show(stream_fr);
-    
+
 	stream_vb = gtk_vbox_new(FALSE, 6);
 	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 6);
 	gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
@@ -804,7 +808,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
         SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
         gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
         gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-	
+
 	/* Stream to show */
 	follow_stats(&stats);
 
@@ -843,19 +847,20 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	/* ASCII radio button */
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"ASCII\" format", NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), TRUE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
+		IS_SHOW_TYPE(SHOW_ASCII));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
                        follow_info);
 	follow_info->ascii_bt = radio_bt;
-	follow_info->show_type = SHOW_ASCII;
 
 	/* EBCDIC radio button */
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "EBCDIC");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"EBCDIC\" format", NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
+		IS_SHOW_TYPE(SHOW_EBCDIC));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
                        follow_info);
@@ -866,7 +871,8 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Hex Dump");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
+		IS_SHOW_TYPE(SHOW_HEXDUMP));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
                        follow_info);
@@ -877,7 +883,8 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "C Arrays");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
+		IS_SHOW_TYPE(SHOW_CARRAY));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
                        follow_info);
@@ -888,7 +895,8 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Raw");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format", NULL);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
+		IS_SHOW_TYPE(SHOW_RAW));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
 	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
                        follow_info);
@@ -957,14 +965,14 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
 
 	switch(follow_info->follow_type) {
-	
+
 	case FOLLOW_TCP :
 		i = eth_unlink(follow_info->data_out_filename);
 		if(i != 0) {
-			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);        
+			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);
 		}
 		break;
-		
+
 	case FOLLOW_UDP :
 		for(cur = follow_info->payload; cur; cur = g_list_next(cur))
 			if(cur->data) {
@@ -998,7 +1006,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 }
 
 frs_return_t
-follow_show(follow_info_t *follow_info, 
+follow_show(follow_info_t *follow_info,
 	    gboolean (*print_line)(char *, size_t, gboolean, void *),
 	    char *buffer, size_t nchars, gboolean is_server, void *arg,
 	    guint32 *global_pos, guint32 *server_packet_count,
@@ -1024,7 +1032,7 @@ follow_show(follow_info_t *follow_info,
                 if (!(*print_line) (buffer, nchars, is_server, arg))
 			return FRS_PRINT_ERROR;
                 break;
-    
+
 	case SHOW_RAW:
                 /* Don't translate, no matter what the native arch
                  * is.
@@ -1032,14 +1040,14 @@ follow_show(follow_info_t *follow_info,
                 if (!(*print_line) (buffer, nchars, is_server, arg))
 			return FRS_PRINT_ERROR;
                 break;
-    
+
 	case SHOW_HEXDUMP:
                 current_pos = 0;
                 while (current_pos < nchars) {
 			gchar hexbuf[256];
 			int i;
 			gchar *cur = hexbuf, *ascii_start;
-    
+
 			/* is_server indentation : put 78 spaces at the
 			 * beginning of the string */
 			if (is_server && follow_info->show_stream == BOTH_HOSTS) {
@@ -1059,9 +1067,9 @@ follow_show(follow_info_t *follow_info,
 					*cur++ = ' ';
 			}
 			/* Fill it up if column isn't complete */
-			while (cur < ascii_start)  
+			while (cur < ascii_start)
 				*cur++ = ' ';
-    
+
 			/* Now dump bytes as text */
 			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
 				*cur++ =
@@ -1079,11 +1087,11 @@ follow_show(follow_info_t *follow_info,
 				return FRS_PRINT_ERROR;
                 }
                 break;
-    
+
 	case SHOW_CARRAY:
                 current_pos = 0;
-                g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n", 
-			   is_server ? 1 : 0, 
+                g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
+			   is_server ? 1 : 0,
 			   is_server ? (*server_packet_count)++ : (*client_packet_count)++);
                 if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
 			return FRS_PRINT_ERROR;
@@ -1091,7 +1099,7 @@ follow_show(follow_info_t *follow_info,
                 while (current_pos < nchars) {
 			gchar hexbuf[256];
 			int i, cur;
-    
+
 			cur = 0;
 			for (i = 0; i < 8 && current_pos + i < nchars; i++) {
 				/* Prepend entries with "0x" */
@@ -1101,20 +1109,20 @@ follow_show(follow_info_t *follow_info,
 					hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
 				hexbuf[cur++] =
 					hexchars[buffer[current_pos + i] & 0x0f];
-    
+
 				/* Delimit array entries with a comma */
 				if (current_pos + i + 1 < nchars)
 					hexbuf[cur++] = ',';
-    
+
 				hexbuf[cur++] = ' ';
 			}
-    
+
 			/* Terminate the array if we are at the end */
 			if (current_pos + i == nchars) {
 				hexbuf[cur++] = '}';
 				hexbuf[cur++] = ';';
 			}
-    
+
 			current_pos += i;
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
