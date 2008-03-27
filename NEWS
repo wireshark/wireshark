@@ -12,7 +12,7 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the [1]security
+   The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
      o The X.509sat dissector could crash.
@@ -40,7 +40,9 @@ What's New
    The following features are new (or have been significantly
    updated) since the last release:
 
-     o The "About" box now displays version 1.0.
+     o The "About" box finally displays version 1.0.
+
+     o This release includes an experimental Mac OS X packge.
 
   New Protocol Support
 
@@ -58,19 +60,19 @@ What's New
 
   New and Updated Capture File Support
 
-   Hilscher Analyzer,
+   Hilscher Analyzer
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [2]download page on the main web site.
+   the download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [3]download page on the Wireshark web
+   packages can be found on the download page on the Wireshark web
    site.
 
 File Locations
@@ -82,29 +84,43 @@ File Locations
 
 Known Problems
 
-   The Filter button is nonfunctional in the file dialogs under
-   Windows. ([4]Bug 942)
+   Wireshark may appear offscreen on multi-monitor Windows systems.
+   (Bug 553)
+
+   Wireshark might make your system disassociate from a wireless
+   network on OS X. (Bug 1315)
+
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
+
+   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
+
+   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
+
+   The BER dissector might infinitely loop. (Bug 1516)
+
+   Wireshark can't dynamically update the packet list. This means
+   that host name resolutions above a certain response time threshold
+   won't show up in the packet list. (Bug 1605)
+
+   Capture filters aren't applied when capturing from named pipes.
+   (Bug 1814)
+
+   Wireshark might freeze when reading from a pipe. (Bug 2082)
+
+   Capturing from named pipes might be delayed on Windows. (Bug 2200)
+
+   Filtering tshark captures with display filters (-R) no longer
+   works. (Bug 2234)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [5]the web site.
+   mailing lists can be found on the web site.
 
    Commercial support, training, and development services are
-   available from [6]CACE Technologies.
+   available from CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [7]Wireshark web site.
-
-References
-
-   Visible links
-   1. http://www.wireshark.org/security/wnpa-sec-2008-02.html
-   2. http://www.wireshark.org/download.html
-   3. http://www.wireshark.org/download.html#otherplat
-   4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942
-   5. http://www.wireshark.org/lists/
-   6. http://www.cacetech.com/
-   7. http://www.wireshark.org/faq.html
+   A complete FAQ is available on the Wireshark web site.
