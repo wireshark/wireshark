@@ -72,6 +72,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The SCCP dissector could crash while using the "decode as" feature.
+            <!-- Fixed in 24740 -->
+            <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2392">2392</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.6 to 0.99.8</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
