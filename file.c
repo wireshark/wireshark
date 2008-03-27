@@ -982,14 +982,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This frame either passed the display filter list or is marked as
        a time reference frame.  All time reference frames are displayed
        even if they dont pass the display filter */
-    /* if this was a TIME REF frame we should reset the cul bytes field */
     if(edt->pi.fd->flags.ref_time){
+      /* if this was a TIME REF frame we should reset the cul bytes field */
       cum_bytes = fdata->pkt_len;
-      fdata->cum_bytes  = cum_bytes;
+      fdata->cum_bytes =  cum_bytes;
+    } else {
+      /* increase cum_bytes with this packets length */
+      cum_bytes += fdata->pkt_len;
     }
-
-    /* increase cum_bytes with this packets length */
-    cum_bytes += fdata->pkt_len;
 
     epan_dissect_fill_in_columns(edt);
 

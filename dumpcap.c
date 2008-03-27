@@ -102,8 +102,8 @@
  */
 #include "wiretap/libpcap.h"
 
-/*#define DEBUG_DUMPCAP*/
-/*#define DEBUG_CHILD_DUMPCAP*/
+/**#define DEBUG_DUMPCAP**/
+/**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef DEBUG_CHILD_DUMPCAP
 FILE *debug_log;   /* for logging debug messages to  */
@@ -466,14 +466,20 @@ static void exit_main(int status)
 /*
  * If we were linked with libcap (not libpcap), make sure we have
  * CAP_NET_ADMIN and CAP_NET_RAW, then relinquish our permissions.
+ * (See comment in main() for details)
  */
 
 static void
 #if 0 /* Set to enable capability debugging */
+/* see 'man cap_to_text()' for explanation of output                         */
+/* '='   means 'all= '  ie: no capabilities                                  */
+/* '=ip' means 'all=ip' ie: all capabilities are permissible and inheritable */
+/* ....                                                                      */
 print_caps(char *pfx) {
     cap_t caps = cap_get_proc();
-    fprintf(stderr, "%s: EUID: %d  Capabilities: %s\n", pfx,
-            geteuid(), cap_to_text(caps, NULL));
+    g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
+          "%s: EUID: %d  Capabilities: %s", pfx,
+          geteuid(), cap_to_text(caps, NULL));
     cap_free(caps);
 #else
 print_caps(char *pfx _U_) {
@@ -483,16 +489,23 @@ print_caps(char *pfx _U_) {
 static void
 relinquish_privs_except_capture(void)
 {
-    /* CAP_NET_ADMIN: Promiscuous mode and a truckload of other
+    /* If 'started_with_special_privs' (ie: suid) then enable for
+     *  ourself the  NET_ADMIN and NET_RAW capabilities and then
+     *  drop our suid privileges.
+     *
+     * CAP_NET_ADMIN: Promiscuous mode and a truckload of other
      *                stuff we don't need (and shouldn't have).
      * CAP_NET_RAW:   Packet capture (raw sockets).
      */
-    cap_value_t cap_list[2] = { CAP_NET_ADMIN, CAP_NET_RAW };
-    cap_t caps = cap_init();
-    int cl_len = sizeof(cap_list) / sizeof(cap_value_t);
 
     if (started_with_special_privs()) {
+        cap_value_t cap_list[2] = { CAP_NET_ADMIN, CAP_NET_RAW };
+        int cl_len = sizeof(cap_list) / sizeof(cap_value_t);
+
+        cap_t caps = cap_init();    /* all capabilities initialized to off */
+
         print_caps("Pre drop, pre set");
+
         if (prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0) == -1) {
             cmdarg_err("prctl() fail return: %s", strerror(errno));
         }
@@ -504,21 +517,35 @@ relinquish_privs_except_capture(void)
             cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
         }
         print_caps("Pre drop, post set");
-    }
 
-    relinquish_special_privs_perm();
+        relinquish_special_privs_perm();
 
-    if (started_with_special_privs()) {
         print_caps("Post drop, pre set");
         cap_set_flag(caps, CAP_EFFECTIVE,   cl_len, cap_list, CAP_SET);
         if (cap_set_proc(caps)) {
             cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
         }
         print_caps("Post drop, post set");
-    }
 
+        cap_free(caps);
+    }
+}
+
+
+static void
+relinquish_all_capabilities()
+{
+    /* Drop any and all capabilities this process may have.            */
+    /* Allowed whether or not process has any privileges.              */
+    cap_t caps = cap_init();    /* all capabilities initialized to off */
+    print_caps("Pre-clear");
+    if (cap_set_proc(caps)) {
+        cmdarg_err("cap_set_proc() fail return: %s", strerror(errno));
+    }
+    print_caps("Post-clear");
     cap_free(caps);
 }
+
 #endif /* HAVE_LIBCAP */
 
 /* Take care of byte order in the libpcap headers read from pipes.
@@ -1083,8 +1110,15 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 		       open_err_str);
 #endif
 
+/* If not using libcap: we now can now set euid/egid to ruid/rgid         */
+/*  to remove any suid privileges.                                        */
+/* If using libcap: we can now remove NET_RAW and NET_ADMIN capabilities  */
+/*  (euid/egid have already previously been set to ruid/rgid.             */
+/* (See comment in main() for details)                                    */
 #ifndef HAVE_LIBCAP
   relinquish_special_privs_perm();
+#else
+  relinquish_all_capabilities();
 #endif
 
   if (ld->pcap_h != NULL) {
@@ -2252,13 +2286,13 @@ main(int argc, char *argv[])
   /* (eg: during initialization) will be formatted properly.           */
 
   for (i=1; i<argc; i++) {
-      if (strcmp("-Z", argv[i]) == 0) {
-          capture_child = TRUE;
+    if (strcmp("-Z", argv[i]) == 0) {
+      capture_child = TRUE;
 #ifdef _WIN32
-          /* set output pipe to binary mode, to avoid ugly text conversions */
-	  _setmode(2, O_BINARY);
+      /* set output pipe to binary mode, to avoid ugly text conversions */
+      _setmode(2, O_BINARY);
 #endif
-      }
+    }
   }
 
   /* The default_log_handler will use stdout, which makes trouble in   */
@@ -2316,8 +2350,85 @@ main(int argc, char *argv[])
     sigaction(SIGHUP, &action, NULL);
 #endif  /* _WIN32 */
 
+  /* ----------------------------------------------------------------- */
+  /* Privilege and capability handling                                 */
+  /* Cases:                                                            */
+  /* 1. Running not as root or suid root; no special capabilities.     */
+  /*    Action: none                                                   */
+  /*                                                                   */
+  /* 2. Running logged in as root (euid=0; ruid=0); Not using libcap.  */
+  /*    Action: none                                                   */
+  /*                                                                   */
+  /* 3. Running logged in as root (euid=0; ruid=0). Using libcap.      */
+  /*    Action:                                                        */
+  /*      - Near start of program: Enable NET_RAW and NET_ADMIN        */
+  /*        capabilities; Drop all other capabilities;                 */
+  /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
+  /*        else: after  pcap_open_live() in capture_loop_open_input() */
+  /*         drop all capabilities (NET_RAW and NET_ADMIN);            */
+  /*         (Note: this means that the process, although logged in    */
+  /*          as root, does not have various permissions such as the   */
+  /*          ability to bypass file access permissions).              */
+  /*      XXX: Should we just leave capabilities alone in this case    */
+  /*          so that user gets expected effect that root can do       */
+  /*          anything ??                                              */
+  /*                                                                   */
+  /* 4. Running as suid root (euid=0, ruid=n); Not using libcap.       */
+  /*    Action:                                                        */
+  /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
+  /*        else: after  pcap_open_live() in capture_loop_open_input() */
+  /*         drop suid root (set euid=ruid).(ie: keep suid until after */
+  /*         pcap_open_live).                                          */
+  /*                                                                   */
+  /* 5. Running as suid root (euid=0, ruid=n); Using libcap.           */
+  /*    Action:                                                        */
+  /*      - Near start of program: Enable NET_RAW and NET_ADMIN        */
+  /*        capabilities; Drop all other capabilities;                 */
+  /*        Drop suid privileges (euid=ruid);                          */
+  /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
+  /*        else: after  pcap_open_live() in capture_loop_open_input() */
+  /*         drop all capabilities (NET_RAW and NET_ADMIN).            */
+  /*                                                                   */
+  /*      XXX: For some Linux versions/distros with capabilities       */
+  /*        a 'normal' process with any capabilities cannot be         */
+  /*        'killed' (signaled) from another (same uid) non-privileged */
+  /*        process.                                                   */
+  /*        For example: If (non-suid) Wireshark forks a               */
+  /*        child suid dumpcap which acts as described here (case 5),  */
+  /*        Wireshark will be unable to kill (signal) the child        */
+  /*        dumpcap process until the capabilities have been dropped   */
+  /*        (after pcap_open_live()).                                  */
+  /*        This behaviour will apparently be changed in the kernel    */
+  /*        to allow the kill (signal) in this case.                   */
+  /*        See the following for details:                             */
+  /*           http://www.mail-archive.com/  [wrapped]                 */
+  /*             linux-security-module@vger.kernel.org/msg02913.html   */
+  /*                                                                   */
+  /*        It is therefore conceivable that if dumpcap somehow hangs  */
+  /*        in pcap_open_live or before that wireshark will not        */
+  /*        be able to stop dumpcap using a signal (USR1, TERM, etc).  */
+  /*        In this case, exiting wireshark will kill the child        */
+  /*        dumpcap process.                                           */
+  /*                                                                   */
+  /* 6. Not root or suid root; Running with NET_RAW & NET_ADMIN        */
+  /*     capabilities; Using libcap.  Note: capset cmd (which see)     */
+  /*     used to assign capabilities to file.                          */
+  /*    Action:                                                        */
+  /*      - If not -w  (ie: doing -S or -D, etc) run to completion;    */
+  /*        else: after  pcap_open_live() in capture_loop_open_input() */
+  /*         drop all capabilities (NET_RAW and NET_ADMIN)             */
+  /*                                                                   */
+  /* ToDo: -S (stats) should drop privileges/capabilities when no      */
+  /*       longer required (similar to capture).                        */
+  /*                                                                   */
+  /* ----------------------------------------------------------------- */
+
   get_credential_info();
+
 #ifdef HAVE_LIBCAP
+  /* If 'started with special privileges' (and using libcap)  */
+  /*   Set to keep only NET_RAW and NET_ADMIN capabilities;   */
+  /*   Set euid/egid = ruid/rgid to remove suid privileges    */
   relinquish_privs_except_capture();
 #endif
 
@@ -2380,34 +2491,33 @@ main(int argc, char *argv[])
 #endif /* _WIN32 */
         status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
-            exit_main(status);
+          exit_main(status);
         }
         break;
       /*** hidden option: Wireshark child mode (using binary output messages) ***/
       case 'Z':
-          capture_child = TRUE;
+        capture_child = TRUE;
 #ifdef _WIN32
-          /* set output pipe to binary mode, to avoid ugly text conversions */
-	  _setmode(2, O_BINARY);
-          /*
-           * optarg = the control ID, aka the PPID, currently used for the
-           * signal pipe name.
-           */
-          if (strcmp(optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
-              sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT,
-                  optarg);
-              sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
-                  GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+        /* set output pipe to binary mode, to avoid ugly text conversions */
+	_setmode(2, O_BINARY);
+        /*
+         * optarg = the control ID, aka the PPID, currently used for the
+         * signal pipe name.
+         */
+        if (strcmp(optarg, SIGNAL_PIPE_CTRL_ID_NONE) != 0) {
+          sig_pipe_name = g_strdup_printf(SIGNAL_PIPE_FORMAT, optarg);
+          sig_pipe_handle = CreateFile(utf_8to16(sig_pipe_name),
+              GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 
-              if (sig_pipe_handle == INVALID_HANDLE_VALUE) {
-                  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
-                      "Signal pipe: Unable to open %s.  Dead parent?",
-                      sig_pipe_name);
-                  exit_main(1);
-              }
+          if (sig_pipe_handle == INVALID_HANDLE_VALUE) {
+            g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
+                  "Signal pipe: Unable to open %s.  Dead parent?",
+                  sig_pipe_name);
+            exit_main(1);
           }
+        }
 #endif
-          break;
+        break;
 
       /*** all non capture option specific ***/
       case 'D':        /* Print a list of capture devices and exit */
@@ -2435,8 +2545,8 @@ main(int argc, char *argv[])
   argc -= optind;
   argv += optind;
   if (argc >= 1) {
-      /* user specified file name as regular command-line argument */
-      /* XXX - use it as the capture file name (or something else)? */
+    /* user specified file name as regular command-line argument */
+    /* XXX - use it as the capture file name (or something else)? */
     argc--;
     argv++;
   }
@@ -2487,7 +2597,7 @@ main(int argc, char *argv[])
   }
 
   if (capture_opts_trim_iface(capture_opts, NULL) == FALSE) {
-	cmdarg_err("No capture interfaces available (maybe lack of privileges?).");
+    /* cmdarg_err() already called .... */
     exit_main(1);
   }
 
@@ -2512,11 +2622,11 @@ main(int argc, char *argv[])
   /* Now start the capture. */
 
   if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
-      /* capture ok */
-      exit_main(0);
+    /* capture ok */
+    exit_main(0);
   } else {
-      /* capture failed */
-      exit_main(1);
+    /* capture failed */
+    exit_main(1);
   }
 }
 
@@ -2582,15 +2692,15 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 #if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
   if( !(log_level & G_LOG_LEVEL_MASK & ~(G_LOG_LEVEL_DEBUG|G_LOG_LEVEL_INFO))) {
 #ifdef DEBUG_DUMPCAP
-      fprintf(stderr, "%s", msg);
-      fflush(stderr);
+    fprintf(stderr, "%s", msg);
+    fflush(stderr);
 #endif
 #ifdef DEBUG_CHILD_DUMPCAP
-      fprintf(debug_log, "%s", msg);
-      fflush(debug_log);
+    fprintf(debug_log, "%s", msg);
+    fflush(debug_log);
 #endif
-      g_free(msg);
-      return;
+    g_free(msg);
+    return;
   }
 #endif
 

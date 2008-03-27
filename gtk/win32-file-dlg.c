@@ -148,11 +148,11 @@ win32_open_file (HWND h_wnd) {
 	 * Unfortunately all these are compiler constants, while the underlying is a
 	 * problem based is a length check of the runtime version used.
 	 *
-	 * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc 
+	 * Instead of using OPENFILENAME_SIZE_VERSION_400, just malloc
 	 * the OPENFILENAME size plus 12 bytes.
 	 * These 12 bytes are the difference between the two versions of this struct.
 	 *
-	 * Interestingly this fixes a bug, so the places bar e.g. "My Documents" 
+	 * Interestingly this fixes a bug, so the places bar e.g. "My Documents"
 	 * is displayed - which wasn't the case with the former implementation.
 	 *
 	 * XXX - It's unclear if this length+12 works on all supported platforms,
@@ -1066,7 +1066,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 			g_resolv_flags |= RESOLV_TRANSPORT;
 		    break;
 		case CDN_SELCHANGE:
-		    /* This _almost_ works correctly.  We need to handle directory
+		    /* This _almost_ works correctly. We need to handle directory
 		       selections, etc. */
 		    parent = GetParent(of_hwnd);
 		    CommDlg_OpenSave_GetSpec(parent, sel_name, MAX_PATH);
@@ -1082,12 +1082,18 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	case WM_COMMAND:
 	    cur_ctrl = (HWND) l_param;
 	    switch(w_param) {
-		case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
-		    filter_tb_syntax_check(cur_ctrl, NULL);
-		    break;
-                case EWFD_FILTER_BTN:
-                    /* XXX - Integrate with the filter dialog? */
+                case (EN_UPDATE << 16) | EWFD_FILTER_EDIT:
+                    filter_tb_syntax_check(cur_ctrl, NULL);
                     break;
+                    /*
+                     * If we ever figure out a way to integrate the Windows
+                     * and GTK+ event loops (or make a native filter dialog),
+                     * we can re-enable the "Filter" button.
+                     */
+                    /*
+                case EWFD_FILTER_BTN:
+                    break;
+                     */
 		default:
 		    break;
 	    }

@@ -435,7 +435,7 @@ file_open_cmd(GtkWidget *w)
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
-
+  GtkTooltips *tooltips = gtk_tooltips_new();
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
   static construct_args_t args = {
@@ -511,12 +511,15 @@ file_open_cmd(GtkWidget *w)
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
+  gtk_tooltips_set_tip(tooltips, filter_bt,
+    "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
 
   filter_te = gtk_entry_new();
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
+  gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   OBJECT_SET_DATA(file_open_w, E_RFILTER_TE_KEY, filter_te);
@@ -687,7 +690,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */	
+     * message, simply close the dialog (this is the best we can do here). */
     if (file_open_w)
       window_destroy(file_open_w);
 #endif
@@ -872,12 +875,15 @@ file_merge_cmd(GtkWidget *w)
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
+  gtk_tooltips_set_tip(tooltips, filter_bt,
+    "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
 
   filter_te = gtk_entry_new();
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
+  gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
   OBJECT_SET_DATA(file_merge_w, E_RFILTER_TE_KEY, filter_te);
@@ -1091,7 +1097,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
-     * message, simply close the dialog (this is the best we can do here). */	
+     * message, simply close the dialog (this is the best we can do here). */
     if (file_open_w)
       window_destroy(file_open_w);
 #endif
@@ -1232,7 +1238,7 @@ set_file_type_list(GtkWidget *option_menu)
 	  gtk_option_menu_set_history(GTK_OPTION_MENU(option_menu), item_to_select);
 	  select_file_type_cb(NULL, GINT_TO_POINTER(filetype));
   } else {
-	  
+
 	  /*
 	   * Manually call the signal handler to activate the first menu item
 	   * since gtk_option_menu_set_history() doesn't do it for us. The first two

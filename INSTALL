@@ -142,9 +142,23 @@ README.win32 for those instructions.
         flag installs dumpcap with setuid root permissions, which lets any user
         on the system capture live traffic. If this is not desired, you can
         restrict dumpcap's permissions so that only a single user or group can
-        run it.
+        run it. This can be used in conjunction with --with-libcap described
+        below.
 
         Running Wireshark or TShark as root is not recommended.
+
+    --without-libcap
+        By default, if 'configure' finds libcap (the POSIX capabilities
+        library) dumpcap will be built so that if it is installed setuid
+        root, it will attempt to retain CAP_NET_RAW and CAP_NET_ADMIN
+        before dropping root privileges. Use this option to disable this
+        behavior.
+
+    --with-libcap=DIR
+        Use this option to tell 'configure' where libcap is installed,
+        if it is installed in a non-standard location. Note that libcap
+        (the POSIX capabilities library, sans "p") and libpcap (the
+        packet capture library, avec "p") are two very different things.
 
     --without-pcap
         If you choose to build a packet analyzer that can analyze

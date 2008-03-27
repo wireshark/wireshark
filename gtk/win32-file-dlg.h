@@ -92,7 +92,8 @@ void print_update_dynamic(HWND dlg_hwnd, print_args_t *args);
 void file_set_save_marked_sensitive();
 
 /* Open dialog defines */
-#define EWFD_FILTER_BTN    1000
+/* #define EWFD_FILTER_BTN    1000 */
+#define EWFD_FILTER_LBL    1000
 #define EWFD_FILTER_EDIT   1001
 
 #define EWFD_MAC_NR_CB     1002
