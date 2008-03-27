@@ -1151,7 +1151,7 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint length,
 	case GT_NP_LAND_MOBILE:
 		digits_tree = proto_item_add_subtree(digits_item,
 						     ett_sccp_digits);
-		dissect_e212_mcc_mnc(signals_tvb, digits_tree, 0); 
+		dissect_e212_mcc_mnc(signals_tvb, digits_tree, 0);
 	break;
 	default:
 	break;
@@ -1967,6 +1967,7 @@ static sccp_msg_info_t* new_ud_msg(packet_info* pinfo, guint32 msg_type _U_) {
 	m->data.ud.called_gt = NULL;
 	m->data.ud.called_ssn = 0;
 
+	register_frame_end_routine(reset_sccp_assoc);
 	return m;
 }
 
@@ -3262,7 +3263,7 @@ proto_reg_handoff_sccp(void)
 
   sccp_handle = find_dissector("sccp");
 
-  dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);     
+  dissector_add("wtap_encap", WTAP_ENCAP_SCCP, sccp_handle);
   dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
   dissector_add_string("tali.opcode", "sccp", sccp_handle);
 
