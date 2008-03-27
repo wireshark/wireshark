@@ -155,10 +155,72 @@ Wireshark Info
   <section id="KnownProblems"><title>Known Problems</title>
 
     <para>
-      The <guibutton>Filter</guibutton> button is nonfunctional in the
-      file dialogs under Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=942">Bug
-      942</ulink>)
+      Wireshark may appear offscreen on multi-monitor Windows systems.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+      553</ulink>)
+    </para>
+
+    <para>
+      Wireshark might make your system disassociate from a wireless network
+      on OS X.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
+      1315</ulink>)
+    </para>
+
+    <para>
+      Dumpcap might not quit if Wireshark or TShark crashes.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
+      1419</ulink>)
+    </para>
+
+    <para>
+      Wireshark is unable to decrypt WPA group keys.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
+      1420</ulink>)
+    </para>
+
+    <para>
+      Wireshark is unable to decrypt WPA group keys.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
+      1420</ulink>)
+    </para>
+
+    <para>
+      The BER dissector might infinitely loop.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
+      1516</ulink>)
+    </para>
+
+    <para>
+      Wireshark can't dynamically update the packet list. This means that host
+      name resolutions above a certain response time threshold won't show up in
+      the packet list.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
+      1605</ulink>)
+    </para>
+
+    <para>
+      Capture filters aren't applied when capturing from named pipes.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
+      1814</ulink>)
+    </para>
+
+    <para>
+      Wireshark might freeze when reading from a pipe.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082">Bug
+      2082</ulink>)
+    </para>
+
+    <para>
+      Capturing from named pipes might be delayed on Windows.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200">Bug
+      2200</ulink>)
+    </para>
+
+    <para>
+      Filtering tshark captures with display filters (-R) no longer works.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
+      2234</ulink>)
     </para>
 
   </section>
