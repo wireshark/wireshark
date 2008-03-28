@@ -1902,6 +1902,9 @@ Note: The AVP codes from 900 to 999 are reserved for TS 29.061
 		</avp>
 		<avp name="Metering-Method" code="1007" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
+			<enum name="DURATION" code="0" /> 
+			<enum name="VOLUME" code="1" />							
+			<enum name="DURATION_VOLUME" code="1" />			
 		</avp>
 		<avp name="Offline" code="1008" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
