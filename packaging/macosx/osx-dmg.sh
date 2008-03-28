@@ -136,7 +136,7 @@ ln -sf /Applications "$tmp_dir"/
 # Copy the utilites
 cp -rf "$utilities" "$tmp_dir"/
 # Copy the readme
-cp -rf "Read me first.rtf" "$tmp_dir"/
+cp -rf  Read_me_first.rtf "$tmp_dir"/"Read me first.rtf"
 
 # Copy a background image inside a hidden directory so the image file itself won't be shown.
 mkdir "$tmp_dir/.background"
