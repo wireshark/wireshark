@@ -16,7 +16,7 @@ EXTRA_DIST = \
 	osx-app.sh	\
 	osx-build.sh	\
 	osx-dmg.sh	\
-	Read me first.rtf	\
+	Read_me_first.rtf	\
 	Resources/bin/getdisplay.sh	\
 	Resources/bin/wireshark	\
 	Resources/etc/fonts/fonts.conf	\
