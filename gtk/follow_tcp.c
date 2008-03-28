@@ -71,14 +71,6 @@
 
 #include "follow_stream.h"
 
-/* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
- * earlier).  It defines the new wrap behavior (unknown in earlier versions)
- * as the old (slightly buggy) wrap behavior.
- */
-#ifndef GTK_WRAP_WORD_CHAR
-#define GTK_WRAP_WORD_CHAR GTK_WRAP_WORD
-#endif
-
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT FILE *data_out_file;
 

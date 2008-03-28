@@ -191,14 +191,8 @@ selected(int recno)
 static gboolean
 check_timestamp(wtap *wth)
 {
-  static int i = 0;
   struct wtap_pkthdr* pkthdr = wtap_phdr(wth);
 
-  if (!((i++)%250))
-    printf("== %d starttime=%lu stoptime=%lu ts=%lu\n",i,
-           (unsigned long)starttime,
-           (unsigned long)stoptime,
-           (unsigned long)pkthdr->ts.secs);
   return ( pkthdr->ts.secs >= starttime ) && ( pkthdr->ts.secs <= stoptime );
 }
 
@@ -546,7 +540,6 @@ main(int argc, char *argv[])
       starttm.tm_isdst = -1;
 
       starttime = mktime(&starttm);
-      printf("=START=> given='%s' stoptime=%lu\n",optarg,(unsigned long)starttime);
       break;
     }
 
@@ -563,7 +556,6 @@ main(int argc, char *argv[])
       check_startstop = TRUE;
       stoptm.tm_isdst = -1;
       stoptime = mktime(&stoptm);
-      printf("=STOP=> given='%s' stoptime=%lu\n",optarg,(unsigned long)stoptime);
       break;
     }
     }
@@ -590,14 +582,12 @@ main(int argc, char *argv[])
     stoptm.tm_mon = 11;
 
     stoptime = mktime(&stoptm);
-    printf("=STOP=NEVER=> stoptime=%lu\n",(unsigned long)stoptime);
   }
 
   if (starttime > stoptime) {
     fprintf(stderr, "editcap: start time is after the stop time\n");
     exit(1);
   }
-  printf("==> stoptime=%lu stoptime=%lu\n",(unsigned long)starttime,(unsigned long)stoptime);
 
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
