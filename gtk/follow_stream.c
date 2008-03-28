@@ -58,6 +58,14 @@
 #include <unistd.h>
 #endif
 
+/* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
+ * earlier).  It defines the new wrap behavior (unknown in earlier versions)
+ * as the old (slightly buggy) wrap behavior.
+ */
+#ifndef GTK_WRAP_WORD_CHAR
+#define GTK_WRAP_WORD_CHAR GTK_WRAP_WORD
+#endif
+
 /* static variable declarations to speed up the performance
  * of follow_load_text and follow_add_to_gtk_text
  */
@@ -780,6 +788,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 #else
 	text = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
+	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD_CHAR);
 #endif
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
