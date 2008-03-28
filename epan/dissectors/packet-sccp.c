@@ -57,6 +57,7 @@
 #include "packet-sccp.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-frame.h"
 #include "tap.h"
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
