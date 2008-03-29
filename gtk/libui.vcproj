@@ -794,10 +794,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\follow_dlg.h"
-				>
-			</File>
-			<File
 				RelativePath=".\follow_stream.h"
 				>
 			</File>
