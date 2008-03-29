@@ -1688,7 +1688,6 @@ AC_OUTPUT(
   help/Makefile
   packaging/Makefile
   packaging/macosx/Info.plist
-  packaging/macosx/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile
   packaging/rpm/SPECS/Makefile

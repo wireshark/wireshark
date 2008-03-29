@@ -1,4 +1,4 @@
-SUBDIRS = rpm svr4 macosx nsis
+SUBDIRS = rpm svr4 nsis
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
