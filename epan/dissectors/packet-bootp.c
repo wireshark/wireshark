@@ -3302,9 +3302,9 @@ static const value_string op_vals[] = {
 static void
 dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree	*bp_tree = NULL;
+	proto_tree	*bp_tree;
 	proto_item	*ti;
-	proto_tree	*flag_tree = NULL;
+	proto_tree	*flag_tree;
 	proto_item	*fi;
 	guint8		op;
 	guint8		htype, hlen;
@@ -3360,24 +3360,12 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	voff = VENDOR_INFO_OFFSET;
 
 	/* rfc2132 says it SHOULD exist, not that it MUST exist */
-	if (tvb_bytes_exist(tvb, voff, 4)) {
-		if (tvb_get_ntohl(tvb, voff) == 0x63825363) {
-			if (tree) {
-				ip_addr = tvb_get_ipv4(tvb, voff);
-				proto_tree_add_ipv4_format_value(bp_tree, hf_bootp_cookie, tvb,
-				    voff, 4, ip_addr,
-				    "(OK)");
-			}
-			voff += 4;
-		} else {
-			if (tree) {
-				proto_tree_add_text(bp_tree,  tvb,
-					voff, 64, "Bootp vendor specific options");
-			}
-			voff += 64;
-		}
+	if (tvb_bytes_exist(tvb, voff, 4) &&
+	    (tvb_get_ntohl(tvb, voff) == 0x63825363)) {
+		voff += 4;
+	} else {
+		voff += 64;
 	}
-
 	eoff = tvb_reported_length(tvb);
 
 	/*
@@ -3409,9 +3397,6 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
 			    dhcp_type, tvb_get_ntohl(tvb, 4));
-		if (tree)
-			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
-			    tvb, 0, 0, 1);
 		tap_queue_packet( bootp_dhcp_tap, pinfo, dhcp_type);
 	}
 
@@ -3532,6 +3517,21 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   FILE_NAME_LEN,
 					   (const gchar*)tvb_get_ptr(tvb, FILE_NAME_OFFSET, 1),
 					   "Boot file name not given");
+	}
+
+	voff = VENDOR_INFO_OFFSET;
+	if (dhcp_type != NULL)
+		proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp, tvb, 0, 0, 1);
+	if (tvb_bytes_exist(tvb, voff, 4) &&
+	    (tvb_get_ntohl(tvb, voff) == 0x63825363)) {
+		ip_addr = tvb_get_ipv4(tvb, voff);
+		proto_tree_add_ipv4_format_value(bp_tree, hf_bootp_cookie, tvb,
+			voff, 4, ip_addr, "(OK)");
+		voff += 4;
+	} else {
+		proto_tree_add_text(bp_tree,  tvb,
+			voff, 64, "Bootp vendor specific options");
+		voff += 64;
 	}
 
 	at_end = FALSE;
