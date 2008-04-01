@@ -240,6 +240,7 @@ static gint ett_sctp_tsn_retransmitted = -1;
 static dissector_handle_t data_handle;
 
 static gboolean enable_tsn_analysis = FALSE;
+static gboolean enable_ulp_dissection = TRUE;
 
 #define SCTP_DATA_CHUNK_ID               0
 #define SCTP_INIT_CHUNK_ID               1
@@ -356,7 +357,7 @@ static gboolean show_port_numbers          = TRUE;
 static gboolean show_chunk_types           = TRUE;
 */
 static gboolean show_always_control_chunks = TRUE;
-static gint sctp_checksum                  = SCTP_CHECKSUM_CRC32C;
+static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
 
 static gboolean use_reassembly             = FALSE;
 
@@ -1961,51 +1962,52 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 {
   guint32 low_port, high_port;
 
-  if (try_heuristic_first) {
-    /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
-       return TRUE;
+  if (enable_ulp_dissection) {
+    if (try_heuristic_first) {
+      /* do lookup with the heuristic subdissector table */
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
+         return TRUE;
+    }
+  
+    /* Do lookups with the subdissector table.
+  
+       When trying port numbers, we try the port number with the lower value
+       first, followed by the port number with the higher value.  This means
+       that, for packets where a dissector is registered for *both* port
+       numbers, and where there's no match on the PPI:
+  
+    1) we pick the same dissector for traffic going in both directions;
+  
+    2) we prefer the port number that's more likely to be the right
+       one (as that prefers well-known ports to reserved ports);
+  
+       although there is, of course, no guarantee that any such strategy
+       will always pick the right port number.
+  
+       XXX - we ignore port numbers of 0, as some dissectors use a port
+       number of 0 to disable the port. */
+    if (dissector_try_port(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
+      return TRUE;
+    if (pinfo->srcport > pinfo->destport) {
+      low_port = pinfo->destport;
+      high_port = pinfo->srcport;
+    } else {
+      low_port = pinfo->srcport;
+      high_port = pinfo->destport;
+    }
+    if (low_port != 0 &&
+        dissector_try_port(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
+      return TRUE;
+    if (high_port != 0 &&
+        dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
+      return TRUE;
+  
+    if (!try_heuristic_first) {
+      /* do lookup with the heuristic subdissector table */
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
+         return TRUE;
+    }
   }
-
-  /* Do lookups with the subdissector table.
-
-     When trying port numbers, we try the port number with the lower value
-     first, followed by the port number with the higher value.  This means
-     that, for packets where a dissector is registered for *both* port
-     numbers, and where there's no match on the PPI:
-
-  1) we pick the same dissector for traffic going in both directions;
-
-  2) we prefer the port number that's more likely to be the right
-     one (as that prefers well-known ports to reserved ports);
-
-     although there is, of course, no guarantee that any such strategy
-     will always pick the right port number.
-
-     XXX - we ignore port numbers of 0, as some dissectors use a port
-     number of 0 to disable the port. */
-  if (dissector_try_port(sctp_ppi_dissector_table, ppi, payload_tvb, pinfo, tree))
-    return TRUE;
-  if (pinfo->srcport > pinfo->destport) {
-    low_port = pinfo->destport;
-    high_port = pinfo->srcport;
-  } else {
-    low_port = pinfo->srcport;
-    high_port = pinfo->destport;
-  }
-  if (low_port != 0 &&
-      dissector_try_port(sctp_port_dissector_table, low_port, payload_tvb, pinfo, tree))
-    return TRUE;
-  if (high_port != 0 &&
-      dissector_try_port(sctp_port_dissector_table, high_port, payload_tvb, pinfo, tree))
-    return TRUE;
-
-  if (!try_heuristic_first) {
-    /* do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree))
-       return TRUE;
-  }
-
   /* Oh, well, we don't know this; dissect it as data. */
   call_dissector(data_handle, payload_tvb, pinfo, tree);
   return TRUE;
@@ -3909,6 +3911,10 @@ proto_register_sctp(void)
                          "Enable TSN analysis",
                          "Match TSNs and their SACKs",
                          &enable_tsn_analysis);
+  prefs_register_bool_preference(sctp_module, "ulp_dissection",
+                         "Dissect upper layer protocols",
+                         "Dissect upper layer protocols",
+                         &enable_ulp_dissection);
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sctp, hf, array_length(hf));
