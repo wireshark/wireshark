@@ -100,7 +100,7 @@ radius_attr_dissector_t radius_ifid;
 extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_id, radius_avp_dissector_t dissector);
 
 /* from radius_dict.l */
-radius_dictionary_t* radius_load_dictionary (gchar* directory, const gchar* filename, gchar** err_str);
+gboolean radius_load_dictionary (radius_dictionary_t* dict, gchar* directory, const gchar* filename, gchar** err_str);
 
 /* Item of request list */
 typedef struct _radius_call_t

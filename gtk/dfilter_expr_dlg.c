@@ -1088,6 +1088,8 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     GtkTreeSelection  *l_sel;
 #endif
 
+	proto_initialize_all_prefixes();
+	
     window = dlg_window_new("Wireshark: Filter Expression");
     gtk_window_set_default_size(GTK_WINDOW(window), 500, 400);
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);

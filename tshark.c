@@ -862,6 +862,8 @@ main(int argc, char *argv[])
      If none of our build or other processes uses "-G" with no arguments,
      we can just process it with the other arguments. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
+	  proto_initialize_all_prefixes();
+	  
     if (argc == 2)
       proto_registrar_dump_fields(1);
     else {

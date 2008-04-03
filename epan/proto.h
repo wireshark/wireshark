@@ -1399,6 +1399,21 @@ proto_item_fill_label(field_info *fi, gchar *label_str);
 extern int
 proto_register_protocol(const char *name, const char *short_name, const char *filter_name);
 
+/** This is the type of function can be registered to get called whenever
+    a given field was not found but a its prefix is matched
+	it can be used to procrastinate the hf array registration
+   @param match  what's being matched */
+typedef void (*prefix_initializer_t)(const char* match);
+
+/** Register a new prefix for delayed initialization of field arrays
+@param prefix the prefix for the new protocol
+@param initializer function that will initialize the field array for the given prefix */
+extern void
+proto_register_prefix(const char *prefix,  prefix_initializer_t initializer);
+
+/** Initialize every remaining uninitialized prefix. */
+extern void proto_initialize_all_prefixes(void);
+
 /** Register a header_field array.
  @param parent the protocol handle from proto_register_protocol()
  @param hf the hf_register_info array

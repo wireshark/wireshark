@@ -645,12 +645,105 @@ proto_registrar_get_nth(guint hfindex)
 	return hfinfo;
 }
 
+
+/*  Prefix initialization
+ *    this allows for a dissector to register a display filter name prefix
+ *    so that it can delay the initialization of the hf array as long as
+ *    possible.
+ */
+
+/* compute a hash for the part before the dot of a display filter */
+static guint prefix_hash (gconstpointer key) {
+	/* end the string at the dot and compute its hash */
+	gchar* copy = ep_strdup(key);
+	gchar* c = copy;
+
+	for (;*c ;c++) {
+		if (*c == '.') {
+			*c = 0;
+			break;
+		}
+	}
+	
+	return g_str_hash(copy);
+}
+
+/* are both strings equal up to the end or the dot? */
+static gboolean prefix_equal (gconstpointer ap,gconstpointer bp) {
+	const gchar* a = ap;
+	const gchar* b = bp;
+	
+	do {
+		gchar ac = *a++;
+		gchar bc = *b++;
+		
+		if ((ac == '.' || ac == '\0') && (bc == '.' || bc == '\0')) return TRUE;
+		
+		if ( (ac == '.' || ac == '\0') && ! (bc == '.' || bc == '\0') ) return FALSE;
+		if ( (bc == '.' || bc == '\0') && ! (ac == '.' || ac == '\0') ) return FALSE;
+		
+		if (ac != bc) return FALSE;
+	} while(1);
+	
+	return FALSE;
+}
+
+
+/* indexed by prefix, contains initializators */
+static GHashTable* prefixes = NULL;
+
+
+/* Register a new prefix for "delayed" initialization of field arrays */
+void
+proto_register_prefix(const char *prefix, prefix_initializer_t pi ) {
+	if (! prefixes ) {
+		prefixes = g_hash_table_new(prefix_hash,prefix_equal);
+	}
+	
+	g_hash_table_insert(prefixes,(gpointer)prefix,pi);
+}
+
+/* helper to call all prefix initializers */
+static gboolean initialize_prefix(gpointer k, gpointer v, gpointer u _U_) {
+	((prefix_initializer_t)v)(k);
+	return TRUE;
+}
+
+/** Initialize every remaining uninitialized prefix. */
+void proto_initialize_all_prefixes(void) {
+	g_hash_table_foreach_remove(prefixes, initialize_prefix, NULL);
+}
+
 /* Finds a record in the hf_info_records array by name.
+ * If it fails to find it in the already registered fields,
+ * it tries to find and call an initializator in the prefixes
+ * table and if so it looks again.
  */
 header_field_info*
 proto_registrar_get_byname(const char *field_name)
 {
+	header_field_info* hfinfo;
+	prefix_initializer_t pi;
+	
 	DISSECTOR_ASSERT(field_name != NULL);
+
+#if GLIB_MAJOR_VERSION < 2
+	hfinfo = g_tree_lookup(gpa_name_tree, discard_const(field_name));
+#else
+	hfinfo = g_tree_lookup(gpa_name_tree, field_name);
+#endif
+	
+	if (hfinfo) return hfinfo;
+	
+	if  (!prefixes) return NULL;
+	
+	if(( pi = g_hash_table_lookup(prefixes,field_name) )) {
+		pi(field_name);
+		g_hash_table_remove(prefixes,field_name);
+	} else {
+		return NULL;
+	}
+	
 #if GLIB_MAJOR_VERSION < 2
 	return g_tree_lookup(gpa_name_tree, discard_const(field_name));
 #else

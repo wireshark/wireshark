@@ -370,9 +370,10 @@ static void destroy_dict(radius_dictionary_t* d) {
 	g_free(d);
 }
 
-radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, gchar** err_str) {
+gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar* filename, gchar** err_str) {
 	int i;
 
+	dict = d;
 	directory = dir;
 
 	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
@@ -387,14 +388,8 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 		g_free(fullpaths[include_stack_ptr]);
 		*err_str = error->str;
 		g_string_free(error,FALSE);
-		return NULL;
+		return FALSE;
 	}
-
-	dict = g_malloc(sizeof(radius_dictionary_t));
-	dict->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-	dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 
 	value_strings = g_hash_table_new(g_str_hash,g_str_equal);
 
@@ -417,10 +412,10 @@ radius_dictionary_t* radius_load_dictionary (gchar* dir, const gchar* filename, 
 		 *err_str = error->str;
 		g_string_free(error,FALSE);
 		destroy_dict(dict);
-		return NULL;
+		return FALSE;
 	} else {
 		*err_str = NULL;
 		g_string_free(error,TRUE);
-		return dict;
+		return TRUE;
 	}
 }

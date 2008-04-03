@@ -911,6 +911,8 @@ is_radius(tvbuff_t *tvb)
 	return TRUE;
 }
 
+static void register_radius_fields(const char*);
+
 static int
 dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -921,7 +923,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint avplength;
 	e_radiushdr rh;
 	radius_info_t *rad_info;
-
+	
 
 	conversation_t* conversation;
 	radius_call_info_key radius_call_key;
@@ -929,11 +931,13 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	radius_call_t *radius_call = NULL;
 	nstime_t delta;
 	static address null_address = { AT_NONE, 0, NULL };
+	
 
 	/* does this look like radius ? */
 	if(!is_radius(tvb)){
 		return 0;
 	}
+	
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
@@ -968,8 +972,11 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 	}
 
+
 	if (tree)
 	{
+		if(!radius_vendors) register_radius_fields(NULL);
+
 		ti = proto_tree_add_item(tree,proto_radius, tvb, 0, rh.rh_pktlength, FALSE);
 
 		radius_tree = proto_item_add_subtree(ti, ett_radius);
@@ -1424,164 +1431,135 @@ radius_init_protocol(void)
 	                                             G_ALLOC_ONLY);
 }
 
-void
-proto_register_radius(void)
-{
-	hf_register_info base_hf[] = {
-
-	{ &hf_radius_req,
-    { "Request", "radius.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if RADIUS request", HFILL }},
-
-	{ &hf_radius_rsp,
-	{ "Response", "radius.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-		"TRUE if RADIUS response", HFILL }},
-
-	{ &hf_radius_req_frame,
-	{ "Request Frame", "radius.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "Request Frame", HFILL }},
-
-	{ &hf_radius_rsp_frame,
-	{ "Response Frame", "radius.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
-            "Response Frame", HFILL }},
-
-	{ &hf_radius_time,
-	{ "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
-			"Timedelta between Request and Response", HFILL }},
-
-	{ &hf_radius_code,
-	{ "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_id,
-	{ "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_authenticator,
-	{ "Authenticator",	"radius.authenticator", FT_BYTES, BASE_HEX, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_length,
-	{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
-
-	{ &(no_dictionary_entry.hf),
-	{ "Unknown-Attribute","radius.Unknown_Attribute", FT_BYTES, BASE_HEX, NULL, 0x0,
-		"", HFILL }},
-
-	{ &(no_dictionary_entry.hf_len),
-	{ "Unknown-Attribute Length","radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_framed_ip_address,
-	{ "Framed-IP-Address","radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_login_ip_host,
-	{ "Login-IP-Host","radius.Login-IP-Host", FT_IPv4, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_framed_ipx_network,
-	{ "Framed-IPX-Network","radius.Framed-IPX-Network", FT_IPXNET, BASE_NONE, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_cosine_vpi,
-	{ "Cosine-VPI","radius.Cosine-Vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_cosine_vci,
-	{ "Cosine-VCI","radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
-		"", HFILL }},
-
-	{ &hf_radius_dup,
-	{ "Duplicate Message", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Duplicate Message", HFILL }},
-
-	{ &hf_radius_req_dup,
-	{ "Duplicate Request", "radius.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Duplicate Request", HFILL }},
-
-	{ &hf_radius_rsp_dup,
-	{ "Duplicate Response", "radius.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
-		"Duplicate Response", HFILL }},
-
-	};
-
-	gint *base_ett[] = {
-		&ett_radius,
-		&ett_radius_avp,
-		&ett_eap,
-		&(no_dictionary_entry.ett),
-        &(no_vendor.ett),
-	};
-
-	module_t *radius_module;
-	hfett_t ri;
-	char* dir = NULL;
-	gchar* dict_err_str = NULL;
-
-	ri.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
-	ri.ett = g_array_new(FALSE,TRUE,sizeof(gint *));
-	ri.vend_vs = g_array_new(TRUE,TRUE,sizeof(value_string));
-
-	g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
-	g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
-
-	dir = get_persconffile_path("radius", FALSE, FALSE);
-
-	if (test_for_directory(dir) != EISDIR) {
-		/* Although dir isn't a directory it may still use memory */
-		g_free(dir);
-
-		dir = get_datafile_path("radius");
-
-		if (test_for_directory(dir) != EISDIR) {
-			g_free(dir);
-			dir = NULL;
-		}
-	}
-
+static void register_radius_fields(const char* unused _U_) {
+	 hf_register_info base_hf[] = {
+		 { &hf_radius_req,
+		 { "Request", "radius.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			 "TRUE if RADIUS request", HFILL }},
+		 { &hf_radius_rsp,
+		 { "Response", "radius.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			 "TRUE if RADIUS response", HFILL }},
+		 { &hf_radius_req_frame,
+		 { "Request Frame", "radius.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+			 "Request Frame", HFILL }},
+		 { &hf_radius_rsp_frame,
+		 { "Response Frame", "radius.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+			 "Response Frame", HFILL }},
+		 { &hf_radius_time,
+		 { "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+			 "Timedelta between Request and Response", HFILL }},
+		 { &hf_radius_code,
+		 { "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
+			 "", HFILL }},
+		 { &hf_radius_id,
+		 { "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_authenticator,
+		 { "Authenticator",	"radius.authenticator", FT_BYTES, BASE_HEX, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_length,
+		 { "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+			 "", HFILL }},
+		 { &(no_dictionary_entry.hf),
+		 { "Unknown-Attribute","radius.Unknown_Attribute", FT_BYTES, BASE_HEX, NULL, 0x0,
+			 "", HFILL }},
+		 { &(no_dictionary_entry.hf_len),
+		 { "Unknown-Attribute Length","radius.Unknown_Attribute.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_framed_ip_address,
+		 { "Framed-IP-Address","radius.Framed-IP-Address", FT_IPv4, BASE_NONE, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_login_ip_host,
+		 { "Login-IP-Host","radius.Login-IP-Host", FT_IPv4, BASE_NONE, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_framed_ipx_network,
+		 { "Framed-IPX-Network","radius.Framed-IPX-Network", FT_IPXNET, BASE_NONE, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_cosine_vpi,
+		 { "Cosine-VPI","radius.Cosine-Vpi", FT_UINT16, BASE_DEC, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_cosine_vci,
+		 { "Cosine-VCI","radius.Cosine-Vci", FT_UINT16, BASE_DEC, NULL, 0x0,
+			 "", HFILL }},
+		 { &hf_radius_dup,
+		 { "Duplicate Message", "radius.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			 "Duplicate Message", HFILL }},
+		 { &hf_radius_req_dup,
+		 { "Duplicate Request", "radius.req.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			 "Duplicate Request", HFILL }},
+		 { &hf_radius_rsp_dup,
+		 { "Duplicate Response", "radius.rsp.dup", FT_UINT32, BASE_DEC, NULL, 0x0,
+			 "Duplicate Response", HFILL }}
+	 };
+	 
+	 gint *base_ett[] = {
+		 &ett_radius,
+		 &ett_radius_avp,
+		 &ett_eap,
+		 &(no_dictionary_entry.ett),
+		 &(no_vendor.ett),
+	 };
+	 
+	 hfett_t ri;
+	 char* dir = NULL;
+	 gchar* dict_err_str = NULL;
+	 
+	 ri.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
+	 ri.ett = g_array_new(FALSE,TRUE,sizeof(gint *));
+	 ri.vend_vs = g_array_new(TRUE,TRUE,sizeof(value_string));
+	 
+	 g_array_append_vals(ri.hf, base_hf, array_length(base_hf));
+	 g_array_append_vals(ri.ett, base_ett, array_length(base_ett));
+	 
+	 dir = get_persconffile_path("radius", FALSE, FALSE);
+	 
+	 if (test_for_directory(dir) != EISDIR) {
+		 /* Although dir isn't a directory it may still use memory */
+		 g_free(dir);
+		 
+		 dir = get_datafile_path("radius");
+		 
+		 if (test_for_directory(dir) != EISDIR) {
+			 g_free(dir);
+			 dir = NULL;
+		 }
+	 }
+	 
 	if (dir) {
-		dict = radius_load_dictionary(dir,"dictionary",&dict_err_str);
-	} else {
-		dict = NULL;
-		dict_err_str = g_strdup("Could not find the radius directory");
+		 radius_load_dictionary(dict,dir,"dictionary",&dict_err_str);
+
+		 if (dict_err_str) {
+				g_warning("radius: %s",dict_err_str);
+				g_free(dict_err_str);
+		 }
+		 
+		 g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
+		 g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
 	}
 
 	g_free(dir);
 
-	if (dict_err_str) {
-		g_warning("radius: %s",dict_err_str);
-		g_free(dict_err_str);
-	}
-
-	if (dict) {
-		g_hash_table_foreach(dict->attrs_by_id,register_attrs,&ri);
-		g_hash_table_foreach(dict->vendors_by_id,register_vendors,&ri);
-	} else {
-		/* XXX: TODO load a default dictionary */
-		dict = g_malloc(sizeof(radius_dictionary_t));
-
-		dict->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-		dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-		dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-		dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
-	}
-
 	radius_vendors = (value_string*)g_array_data(ri.vend_vs);
-
-	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
-	new_register_dissector("radius", dissect_radius, proto_radius);
 
 	proto_register_field_array(proto_radius,(hf_register_info*)g_array_data(ri.hf),ri.hf->len);
 	proto_register_subtree_array((gint**)g_array_data(ri.ett), ri.ett->len);
-
-	register_init_routine(&radius_init_protocol);
 
 	g_array_free(ri.hf,FALSE);
 	g_array_free(ri.ett,FALSE);
 	g_array_free(ri.vend_vs,FALSE);
 
+	no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+}
+
+
+void
+proto_register_radius(void)
+{
+	module_t *radius_module;
+
+	proto_radius = proto_register_protocol("Radius Protocol", "RADIUS", "radius");
+	new_register_dissector("radius", dissect_radius, proto_radius);
+	register_init_routine(&radius_init_protocol);
 	radius_module = prefs_register_protocol(proto_radius,reinit_radius);
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
                                      "Shared secret used to decode User Passwords",
@@ -1591,10 +1569,14 @@ proto_register_radius(void)
                                      &show_length);
     prefs_register_uint_preference(radius_module, "alternate_port","Alternate Port",
                                    "An alternate UDP port to decode as RADIUS", 10, &alt_port_pref);
-
-    no_vendor.attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
-
 	radius_tap = register_tap("radius");
+	proto_register_prefix("radius",register_radius_fields);
+	
+	dict = g_malloc(sizeof(radius_dictionary_t));
+	dict->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+	dict->attrs_by_name = g_hash_table_new(g_str_hash,g_str_equal);
+	dict->vendors_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
+	dict->vendors_by_name = g_hash_table_new(g_str_hash,g_str_equal);
 }
 
 void
@@ -1609,10 +1591,10 @@ proto_reg_handoff_radius(void)
 	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, radius_handle);
 	dissector_add("udp.port", UDP_PORT_RADACCT, radius_handle);
 	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, radius_handle);
-
+	
 	radius_register_avp_dissector(0,8,dissect_framed_ip_address);
 	radius_register_avp_dissector(0,14,dissect_login_ip_host);
 	radius_register_avp_dissector(0,23,dissect_framed_ipx_network);
-	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);
+	radius_register_avp_dissector(VENDOR_COSINE,5,dissect_cosine_vpvc);	
 
 }
