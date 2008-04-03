@@ -689,7 +689,7 @@ static gboolean prefix_equal (gconstpointer ap,gconstpointer bp) {
 }
 
 
-/* indexed by prefix, contains initializators */
+/* indexed by prefix, contains initializers */
 static GHashTable* prefixes = NULL;
 
 
@@ -716,7 +716,7 @@ void proto_initialize_all_prefixes(void) {
 
 /* Finds a record in the hf_info_records array by name.
  * If it fails to find it in the already registered fields,
- * it tries to find and call an initializator in the prefixes
+ * it tries to find and call an initializer in the prefixes
  * table and if so it looks again.
  */
 header_field_info*
