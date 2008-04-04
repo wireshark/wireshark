@@ -630,6 +630,7 @@ proto_item_set_len
 proto_item_set_text
 proto_malformed
 proto_register_field_array
+proto_register_prefix
 proto_register_protocol
 proto_register_subtree_array
 proto_registrar_dump_protocols
