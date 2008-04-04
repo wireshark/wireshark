@@ -1268,6 +1268,9 @@ proto_register_rtsp(void)
 	proto_register_field_array(proto_rtsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	/* Make this dissector findable by name */
+	register_dissector("rtsp", dissect_rtsp, proto_rtsp);
+
 	/* Register our configuration options, particularly our ports */
 
 	rtsp_module = prefs_register_protocol(proto_rtsp, proto_reg_handoff_rtsp);
