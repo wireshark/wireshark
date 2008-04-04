@@ -11,23 +11,10 @@ include ../../config.nmake
 
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
-!IFDEF GTK1_ONLY
-# define installer name and undefine GTK2_DIR to get a separate
-# installer for Wireshark GTK1 version
-DEST=wireshark-gtk1
-!IFDEF GTK2_DIR
-!UNDEF GTK2_DIR
-!ENDIF
-!ENDIF
-
-
 !IFDEF GTK2_ONLY
 # define installer name and undefine GTK1_DIR to get a separate
 # installer for Wireshark GTK2 version
 DEST=wireshark-gtk2
-!IFDEF GTK1_DIR
-!UNDEF GTK1_DIR
-!ENDIF
 !ENDIF
 
 !IFNDEF DEST
@@ -36,9 +23,6 @@ DEST=wireshark
 !ENDIF
 
 EXE=../../tshark.exe ../../editcap.exe \
-!IFDEF GTK1_DIR
-	../../wireshark.exe \
-!ENDIF
 !IFDEF GTK2_DIR
 	../../wireshark-gtk2.exe \
 !ENDIF
@@ -128,9 +112,6 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 !IF "$(ENABLE_LIBWIRESHARK)" != ""
 	/DENABLE_LIBWIRESHARK=$(ENABLE_LIBWIRESHARK) \
 !ENDIF
-!IFDEF GTK1_DIR
-	/DGTK1_DIR=$(GTK1_DIR) \
-!ENDIF
 !IFDEF GTK2_DIR
 	/DGTK2_DIR=$(GTK2_DIR) \
 	/DGTK2_LIB_DIR=$(GTK2_LIB_DIR) \
@@ -156,7 +137,6 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 	/DGTK_WIMP_RCSRC_DIR=$(GTK_WIMP_RCSRC_DIR) \
 !ENDIF
 	/DGLIB_DIR=$(GLIB_DIR) \
-	/DGLIB_GTK1_HACK_DIR=$(GLIB_GTK1_HACK_DIR) \
 !IFDEF ICONV_DIR
 	/DICONV_DIR=$(ICONV_DIR) \
 !ENDIF
@@ -191,14 +171,12 @@ $(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nm
 
 clean:
 	rm -f wireshark-setup-$(VERSION).exe
-	rm -f wireshark-gtk1-setup-$(VERSION).exe
 	rm -f wireshark-gtk2-setup-$(VERSION).exe
 	rm -f NEWS.txt
 	rm -f user-guide.chm
 
 distclean: clean
 	rm -f wireshark-setup-*.exe
-	rm -f wireshark-gtk1-setup-*.exe
 	rm -f wireshark-gtk2-setup-*.exe
 
 maintainer-clean: distclean

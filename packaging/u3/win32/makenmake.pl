@@ -58,14 +58,7 @@ while($line = <>) {
 		    print "!ENDIF\n";
 		}
 		$define = $1;
-		print "!IF DEFINED($define)";
-
-		if($define eq "GTK1_DIR") {
-		    # only include this if GTK2_DIR is not defined
-		    print "& !DEFINED(GTK2_DIR)";
-		}
-
-		print "\n";
+		print "!IF DEFINED($define)\n";
 	    }
 	} else {
 	    

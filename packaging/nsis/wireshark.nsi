@@ -11,11 +11,6 @@
 ; So if you get an error here, please update to at least NSIS 2.07!
 SetCompressor /SOLID lzma
 
-!ifdef GTK1_DIR & GTK2_DIR
-InstType "Wireshark (GTK2 user interface)"
-InstType "Wireshark (legacy GTK1 user interface)"
-!endif
-
 InstType "un.Default (keep Personal Settings and WinPcap)"
 InstType "un.All (remove all)"
 
@@ -290,9 +285,6 @@ Section "-Required"
 ;
 ; Install for every user
 ;
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2 RO
-!endif
 SetShellVarContext all
 
 
@@ -304,6 +296,7 @@ File "..\..\epan\libwireshark.dll"
 !endif
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
+File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 !ifdef ICONV_DIR
 File "${ICONV_DIR}\bin\iconv.dll"
 !endif
@@ -675,30 +668,11 @@ SectionEnd ; "Required"
 
 SectionGroup "!Wireshark" SecWiresharkGroup
 
-!ifdef GTK1_DIR
-Section "Wireshark GTK1" SecWiresharkGTK1
-;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 2 RO
-!endif
-SetOutPath $INSTDIR
-File "..\..\wireshark.exe"
-File "${GLIB_GTK1_HACK_DIR}\bin\libgmodule-2.0-0.dll"
-File "${GTK1_DIR}\lib\libgtk-0.dll"
-File "${GTK1_DIR}\lib\libgdk-0.dll"
-SectionEnd
-!endif
-
 !ifdef GTK2_DIR
 Section "Wireshark GTK2" SecWiresharkGTK2
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 RO
-!endif
 SetOutPath $INSTDIR
 File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
-; libgmodule should be moved back to the Required section if we ever drop GTK1
-File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
@@ -749,9 +723,6 @@ SectionGroupEnd	; "Wireshark"
 
 Section "TShark" SecTShark
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\tshark.exe"
 File "..\..\doc\tshark.html"
@@ -759,9 +730,6 @@ SectionEnd
 
 Section "Rawshark" SecRawshark
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\rawshark.exe"
 File "..\..\doc\rawshark.html"
@@ -771,9 +739,6 @@ SectionGroup "Plugins / Extensions" SecPluginsGroup
 
 Section "Dissector Plugins" SecPlugins
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\agentx\agentx.dll"
 File "..\..\plugins\artnet\artnet.dll"
@@ -806,9 +771,6 @@ SectionEnd
 
 Section "Tree Statistics Plugin" SecStatsTree
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\stats_tree\stats_tree.dll"
 SectionEnd
@@ -823,9 +785,6 @@ SectionEnd
 !ifdef NET_SNMP_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR\snmp\mibs
 File "${NET_SNMP_DIR}\mibs\*.txt"
 SectionEnd
@@ -834,9 +793,6 @@ SectionEnd
 !ifdef SMI_DIR
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR\snmp\mibs
 File "${SMI_DIR}\mibs\*"
 SectionEnd
@@ -849,9 +805,6 @@ SectionGroup "Tools" SecToolsGroup
 
 Section "Editcap" SecEditcap
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\editcap.exe"
 File "..\..\doc\editcap.html"
@@ -859,9 +812,6 @@ SectionEnd
 
 Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\text2pcap.exe"
 File "..\..\doc\text2pcap.html"
@@ -869,9 +819,6 @@ SectionEnd
 
 Section "Mergecap" SecMergecap
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\mergecap.exe"
 File "..\..\doc\mergecap.html"
@@ -879,9 +826,6 @@ SectionEnd
 
 Section "Capinfos" SecCapinfos
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "..\..\capinfos.exe"
 File "..\..\doc\capinfos.html"
@@ -892,9 +836,6 @@ SectionGroupEnd	; "Tools"
 !ifdef HHC_DIR
 Section "User's Guide" SecUsersGuide
 ;-------------------------------------------
-!ifdef GTK1_DIR & GTK2_DIR
-SectionIn 1 2
-!endif
 SetOutPath $INSTDIR
 File "user-guide.chm"
 SectionEnd
@@ -979,7 +920,6 @@ DeleteRegKey HKCR "${WIRESHARK_ASSOC}\Shell\open\command"
 DeleteRegKey HKCR "${WIRESHARK_ASSOC}\DefaultIcon"
 !insertmacro UpdateIcons
 
-; regardless if we currently installed GTK1 or 2, try to uninstall GTK2 files too
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
 Delete "$INSTDIR\etc\pango\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\engines\*.*"
@@ -1126,9 +1066,6 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
-!ifdef GTK1_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK1} "${PROGRAM_NAME} using the classical GTK1 user interface."
-!endif
 !ifdef GTK2_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
 !ifdef GTK_WIMP_DIR
@@ -1168,38 +1105,10 @@ SectionEnd
 ; ============================================================================
 ; Callback functions
 ; ============================================================================
-!ifdef GTK1_DIR & GTK2_DIR
-;Disable GTK-Wimp for GTK1
-
-Function .onSelChange
-	Push $0
-	SectionGetFlags ${SecWiresharkGTK1} $0
-	IntOp  $0 $0 & 1
-	IntCmp $0 1 onSelChange.disableGTK2Sections
-	;enable GTK2Sections
-	!insertmacro EnableSection ${SecGTKWimp}
-	Goto onSelChange.end
-onSelChange.disableGTK2Sections:
-	!insertmacro DisableSection ${SecGTKWimp}
-	Goto onSelChange.end
-onSelChange.end:
-	Pop $0
-FunctionEnd
-
-!else
-!ifdef GTK1_DIR | GTK2_DIR
+!ifdef GTK2_DIR
 ; Disable FileExtension if Wireshark isn't selected
 Function .onSelChange
 	Push $0
-!ifdef GTK1_DIR
-	SectionGetFlags ${SecWiresharkGTK1} $0
-	IntOp  $0 $0 & 1
-	IntCmp $0 0 onSelChange.unselect
-	SectionGetFlags ${SecFileExtensions} $0
-	IntOp  $0 $0 & 16
-	IntCmp $0 16 onSelChange.unreadonly
-	Goto onSelChange.end
-!else
 	SectionGetFlags ${SecWiresharkGTK2} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
@@ -1207,7 +1116,6 @@ Function .onSelChange
 	IntOp  $0 $0 & 16
 	IntCmp $0 16 onSelChange.unreadonly
 	Goto onSelChange.end
-!endif
 onSelChange.unselect:
 	SectionGetFlags ${SecFileExtensions} $0
 	IntOp $0 $0 & 0xFFFFFFFE
@@ -1222,7 +1130,6 @@ onSelChange.unreadonly:
 onSelChange.end:
 	Pop $0
 FunctionEnd
-!endif
 !endif
 
 
