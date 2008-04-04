@@ -1,6 +1,6 @@
 /* main_welcome.c
  *
- * $Id: main_welcome.c 24577 2008-03-06 18:26:09Z stig $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

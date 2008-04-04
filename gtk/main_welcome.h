@@ -1,7 +1,7 @@
 /* main_welcome.h
  * Welcome "page"
  *
- * $Id: main_welcome.h 24604 2008-03-11 18:23:16Z stig $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
