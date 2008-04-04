@@ -34,7 +34,7 @@ fi
 # Initialize our variables
 prepdir=`dirname $0`
 prototype="$prepdir/Prototype"
-stagedir=$srcdir/${pkg}.stage
+stagedir=$srcdir/${pkg}.inst
 
 # Create the Prototype file
 cat > $prototype <<Fin
