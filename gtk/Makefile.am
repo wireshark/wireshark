@@ -127,19 +127,10 @@ noinst_HEADERS = \
 	voip_calls_dlg.h \
 	webbrowser.h
 
-if USE_GTK2
 libui_a_SOURCES = \
 	$(WIRESHARK_GTK_SRC) \
 	$(noinst_HEADERS) \
 	$(WIRESHARK_TAP_SRC)
-else
-libui_a_SOURCES = \
-	ethclist.c	\
-	ethclist.h	\
-	$(WIRESHARK_GTK_SRC) \
-	$(noinst_HEADERS) \
-	$(WIRESHARK_TAP_SRC)
-endif
 
 libui_a_DEPENDENCIES = 
 
@@ -148,8 +139,6 @@ EXTRA_DIST = \
 	airpcap_gui_utils.c \
 	capture_if_details_dlg.c	\
 	doxygen.cfg.in \
-	ethclist.c	\
-	ethclist.h	\
 	Makefile.common \
 	Makefile.nmake \
 	print_mswin.c  \

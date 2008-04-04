@@ -74,7 +74,6 @@
 #include "register.h"
 #include "../menu.h"
 #include "packet_list.h"
-#include "ethclist.h"
 #include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
