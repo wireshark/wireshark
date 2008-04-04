@@ -1833,9 +1833,8 @@ static guint dissect_wimaxasncp_backend(
         proto_tree_add_ether(
             tree, hf_wimaxasncp_msid,
             tvb, offset, 6, p);
-
-        pmsid = ether_to_str(p);
     }
+    pmsid = ether_to_str(p);
 
     offset += 6;
 
@@ -1952,6 +1951,9 @@ static guint dissect_wimaxasncp_backend(
 
 /* ========================================================================= */
 
+static void register_wimaxasncp_fields(const char*);
+
+
 static int
 dissect_wimaxasncp(
     tvbuff_t *tvb,
@@ -2023,6 +2025,13 @@ dissect_wimaxasncp(
      */
 
     offset = 0;
+
+    /* Register protocol fields, etc if haven't done yet. */
+    if (wimaxasncp_dict == NULL)
+    {
+        register_wimaxasncp_fields(NULL);
+    }
+
 
     if (tree)
     {
@@ -2657,21 +2666,15 @@ static void add_tlv_reg_info(
 }
 
 /* ========================================================================= */
-/* Register the protocol with Wireshark */
-
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
-void
-proto_register_wimaxasncp(void)
+/* Register the protocol fields and subtrees with Wireshark */
+static void
+register_wimaxasncp_fields(const char* unused _U_)
 {
-    module_t *wimaxasncp_module;
     gboolean debug_parser;
     gboolean dump_dict;
     gchar *dir;
     gchar* dict_error;
- 
+
     /* ------------------------------------------------------------------------
      * List of header fields
      * ------------------------------------------------------------------------
@@ -3150,28 +3153,6 @@ proto_register_wimaxasncp(void)
     /* add an entry for unknown TLVs */
     add_tlv_reg_info(&wimaxasncp_tlv_not_found);
 
-    /* ------------------------------------------------------------------------
-     * complete registration
-     * ------------------------------------------------------------------------
-     */
-
-        /* Register the protocol name and description */
-    proto_wimaxasncp = proto_register_protocol(
-            "WiMAX ASN Control Plane Protocol",
-            "WiMAX ASN CP",
-            "wimaxasncp");
-
-        /* Required function calls to register the header fields and subtrees
-         * used */
-    proto_register_field_array(
-        proto_wimaxasncp,
-        (hf_register_info*)wimaxasncp_build_dict.hf->data, 
-        wimaxasncp_build_dict.hf->len);
-
-    proto_register_subtree_array(
-        (gint**)wimaxasncp_build_dict.ett->data,
-        wimaxasncp_build_dict.ett->len);
-
     /* The following debug will only be printed if the debug_enabled variable
      * is set programmatically.  Setting the value via preferences will not
      * work as it will be set too late to affect this code path.
@@ -3222,6 +3203,45 @@ proto_register_wimaxasncp(void)
         }
     }
 
+        /* Required function calls to register the header fields and subtrees
+         * used */
+    proto_register_field_array(
+        proto_wimaxasncp,
+        (hf_register_info*)wimaxasncp_build_dict.hf->data, 
+        wimaxasncp_build_dict.hf->len);
+
+    proto_register_subtree_array(
+        (gint**)wimaxasncp_build_dict.ett->data,
+        wimaxasncp_build_dict.ett->len);
+}
+
+
+
+
+/* ========================================================================= */
+/* Register the protocol with Wireshark */
+
+/* this format is require because a script is used to build the C function
+   that calls all the protocol registration.
+*/
+
+void
+proto_register_wimaxasncp(void)
+{
+    module_t *wimaxasncp_module;
+
+    /* ------------------------------------------------------------------------
+     * complete registration
+     * ------------------------------------------------------------------------
+     */
+
+        /* Register the protocol name and description */
+    proto_wimaxasncp = proto_register_protocol(
+            "WiMAX ASN Control Plane Protocol",
+            "WiMAX ASN CP",
+            "wimaxasncp");
+
+
         /* Register this dissector by name */
     new_register_dissector("wimaxasncp", dissect_wimaxasncp, proto_wimaxasncp);
 
@@ -3254,6 +3274,7 @@ proto_register_wimaxasncp(void)
         "Set UDP port for WiMAX ASN Control Plane Protocol",
         10, &global_wimaxasncp_udp_port);
 
+    proto_register_prefix("wimaxasncp", register_wimaxasncp_fields);
 }
 
 /* ========================================================================= */
@@ -3287,7 +3308,7 @@ proto_reg_handoff_wimaxasncp(void)
              proto_wimaxasncp);
 
 
-         inited = TRUE;
+        inited = TRUE;
     }
 
     if (currentPort != -1)
@@ -3303,3 +3324,4 @@ proto_reg_handoff_wimaxasncp(void)
     /* Find the EAP dissector */
     eap_handle = find_dissector("eap");
 }
+
