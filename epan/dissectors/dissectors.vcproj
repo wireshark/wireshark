@@ -75,6 +75,14 @@
 				RelativePath=".\packet-dmp.c"
 				>
 			</File>
+			<File
+				RelativePath=".\packet-tcp.c"
+				>
+			</File>
+			<File
+				RelativePath=".\packet-udp.c"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
