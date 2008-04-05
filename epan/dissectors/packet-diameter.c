@@ -754,6 +754,8 @@ check_diameter(tvbuff_t *tvb)
 	return TRUE;
 }
 
+/************************************************/
+/* Main dissection function                     */
 static int
 dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1032,8 +1034,8 @@ static gboolean strcase_equal(gconstpointer ka, gconstpointer kb) {
 	return g_ascii_strcasecmp(a,b) == 0;
 }
 
-extern int dictionary_load(void);
-extern int dictionary_load(void) {
+static int dictionary_load(void)
+{
 	ddict_t* d;
 	ddict_application_t* p;
 	ddict_vendor_t* v;
@@ -1050,12 +1052,10 @@ extern int dictionary_load(void) {
 	diam_vnd_t* vnd;
 	GArray* vnd_shrt_arr = g_array_new(TRUE,TRUE,sizeof(value_string));
 
-
 	build_dict.hf = g_array_new(FALSE,TRUE,sizeof(hf_register_info));
 	build_dict.ett = g_array_new(FALSE,TRUE,sizeof(gint*));
 	build_dict.types = g_hash_table_new(strcase_hash,strcase_equal);
 	build_dict.avps = g_hash_table_new(strcase_hash,strcase_equal);
-
 
 	dictionary.vnds = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_vnds");
 	dictionary.avps = pe_tree_create(EMEM_TREE_TYPE_RED_BLACK,"diameter_avps");
@@ -1266,7 +1266,7 @@ void
 proto_register_diameter(void)
 {
 	module_t *diameter_module;
-	int to_load_dict_before_hf = dictionary_load();
+
 	hf_register_info hf_base[] = {
 	{ &hf_diameter_version,
 		  { "Version", "diameter.version", FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -1370,12 +1370,12 @@ proto_register_diameter(void)
 		&(unknown_avp.ett)
 	};
 
+	dictionary_load();
 
 	g_array_append_vals(build_dict.hf, hf_base, array_length(hf_base));
 	g_array_append_vals(build_dict.ett, ett_base, array_length(ett_base));
 
 	proto_diameter = proto_register_protocol ("Diameter Protocol", "DIAMETER", "diameter");
-
 
 	proto_register_field_array(proto_diameter, (hf_register_info*)build_dict.hf->data, build_dict.hf->len);
 	proto_register_subtree_array((gint**)build_dict.ett->data, build_dict.ett->len);
@@ -1385,7 +1385,7 @@ proto_register_diameter(void)
 
 	/* Allow dissector to find be found by name. */
 	new_register_dissector("diameter", dissect_diameter, proto_diameter);
-	
+
 	/* Register dissector table(s) to do sub dissection of AVP:s ( OctetStrings) */ 
 	diameter_dissector_table = register_dissector_table("diameter.base", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
 	diameter_3gpp_avp_dissector_table = register_dissector_table("diameter.3gpp", "DIAMETER_3GPP_AVPS", FT_UINT32, BASE_DEC);
@@ -1394,16 +1394,14 @@ proto_register_diameter(void)
 	range_convert_str(&global_diameter_tcp_port_range, DEFAULT_DIAMETER_PORT_RANGE, MAX_UDP_PORT);
 	diameter_tcp_port_range = range_empty();
 
-	/* Register a configuration option for port */
+	/* Register configuration options for ports */
 	diameter_module = prefs_register_protocol(proto_diameter,
 											  proto_reg_handoff_diameter);
-
 
 	prefs_register_range_preference(diameter_module, "tcp.ports", "Diameter TCP ports",
 				  "TCP ports to be decoded as Diameter (default: "
 				  DEFAULT_DIAMETER_PORT_RANGE ")",
 				  &global_diameter_tcp_port_range, MAX_UDP_PORT);
-
 
 	prefs_register_uint_preference(diameter_module, "sctp.port",
 								   "Diameter SCTP Port",
@@ -1413,7 +1411,7 @@ proto_register_diameter(void)
 
 	/* Desegmentation */
 	prefs_register_bool_preference(diameter_module, "desegment",
-                                   "Reassemble Diameter messages\nspanning multiple TCP segments",
+								   "Reassemble Diameter messages\nspanning multiple TCP segments",
 								   "Whether the Diameter dissector should reassemble messages spanning multiple TCP segments."
 								   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 								   &gbl_diameter_desegment);
@@ -1429,6 +1427,5 @@ proto_register_diameter(void)
 	prefs_register_obsolete_preference(diameter_module, "allow_zero_as_app_id");
 	prefs_register_obsolete_preference(diameter_module, "suppress_console_output");
 
-	to_load_dict_before_hf=0;
 } /* proto_register_diameter */
 
