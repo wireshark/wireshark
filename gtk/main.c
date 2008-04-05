@@ -169,6 +169,11 @@
 #include "../image/wsiconcap48.xpm"
 #endif
 #endif
+#include "../image/expert_error.xpm"
+#include "../image/expert_warn.xpm"
+#include "../image/expert_note.xpm"
+#include "../image/expert_chat.xpm"
+#include "../image/expert_none.xpm"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
@@ -234,6 +239,11 @@ static GtkWidget    *info_bar;
 static GtkWidget    *packets_bar = NULL;
 static GtkWidget    *profile_bar = NULL;
 static GtkWidget    *welcome_pane;
+static GtkWidget    *expert_info_error;
+static GtkWidget    *expert_info_warn;
+static GtkWidget    *expert_info_note;
+static GtkWidget    *expert_info_chat;
+static GtkWidget    *expert_info_none;
 static guint        main_ctx, file_ctx, help_ctx, filter_ctx;
 static guint        status_levels[NUM_STATUS_LEVELS];
 static guint        packets_ctx;
@@ -1540,15 +1550,29 @@ set_display_filename(capture_file *cf)
   }
 
   /* statusbar */
-#if 0
-  /* XXX - don't show the highest expert level unless the TCP checksum offloading is "solved" */
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu [Expert: %s]",
-    (cf->filename) ? cf->filename : "", size_str,
-    (long)cf->elapsed_time.secs/3600,
-    (long)cf->elapsed_time.secs%3600/60,
-    (long)cf->elapsed_time.secs%60,
-    val_to_str(expert_get_highest_severity(), expert_severity_vals, "Unknown (%u)"));
-#endif
+  gtk_widget_hide(expert_info_error);
+  gtk_widget_hide(expert_info_warn);
+  gtk_widget_hide(expert_info_note);
+  gtk_widget_hide(expert_info_chat);
+  gtk_widget_hide(expert_info_none);
+  switch(expert_get_highest_severity()) {
+      case(PI_ERROR):
+        gtk_widget_show(expert_info_error);
+        break;
+      case(PI_WARN):
+        gtk_widget_show(expert_info_warn);
+        break;
+      case(PI_NOTE):
+        gtk_widget_show(expert_info_note);
+        break;
+      case(PI_CHAT):
+        gtk_widget_show(expert_info_chat);
+        break;
+      default:
+        gtk_widget_show(expert_info_none);
+        break;
+  }
+
   status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
     (cf->filename) ? cf->filename : "", size_str,
     (long)cf->elapsed_time.secs/3600,
@@ -3483,6 +3507,11 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
     gtk_widget_ref(stat_hbox);
+    gtk_widget_ref(expert_info_error);
+    gtk_widget_ref(expert_info_warn);
+    gtk_widget_ref(expert_info_note);
+    gtk_widget_ref(expert_info_chat);
+    gtk_widget_ref(expert_info_none);
     gtk_widget_ref(info_bar);
     gtk_widget_ref(packets_bar);
     gtk_widget_ref(profile_bar);
@@ -3597,6 +3626,11 @@ void main_widgets_rearrange(void) {
 #endif
 
     /* statusbar */
+    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_error, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_warn, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_note, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_chat, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_none, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane_left, TRUE, TRUE, 0);
     gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
@@ -4421,6 +4455,20 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
+
+    /* expert status icons */
+    expert_info_error = xpm_to_widget_from_parent(top_level, expert_error_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_info_error, "Error is the highest expert info level", NULL);
+    expert_info_warn = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_info_warn, "Warning is the highest expert info level", NULL);
+    expert_info_note = xpm_to_widget_from_parent(top_level, expert_note_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_info_note, "Note is the highest expert info level", NULL);
+    expert_info_chat = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_info_chat, "Chat is the highest expert info level", NULL);
+    expert_info_none = xpm_to_widget_from_parent(top_level, expert_none_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_info_none, "No expert info", NULL);
+    gtk_widget_show(expert_info_none);
+
 
     /* info (main) statusbar */
     info_bar = info_bar_new();
