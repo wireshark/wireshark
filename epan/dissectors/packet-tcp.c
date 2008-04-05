@@ -1109,7 +1109,7 @@ tcp_sequence_number_analysis_print_window(packet_info * pinfo,
 					  "This is a tcp window update"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
-    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_CHAT,
 					  "Window update");
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Update] ");
