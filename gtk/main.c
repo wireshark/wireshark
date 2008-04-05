@@ -111,14 +111,8 @@
 #include "capture-wpcap.h"
 #include "capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
-#if GTK_MAJOR_VERSION >= 2
 #include <commctrl.h>
-#endif /* GTK_MAJOR_VERSION >= 2 */
 #endif /* _WIN32 */
-
-#if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
-#include "ethclist.h"
-#endif
 
 /* GTK related */
 #include "statusbar.h"
@@ -158,7 +152,6 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
-#if GTK_MAJOR_VERSION >= 2
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
 #include "../image/wsicon32.xpm"
@@ -167,7 +160,6 @@
 #include "../image/wsiconcap16.xpm"
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
-#endif
 #endif
 #include "../image/expert_error.xpm"
 #include "../image/expert_warn.xpm"
@@ -783,14 +775,8 @@ find_prev_mark_cb(GtkWidget *w _U_, gpointer data _U_, int action _U_)
     find_previous_next_frame_with_filter("frame.marked == TRUE", TRUE);
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
-                        gpointer user_data _U_)
-#else
 static void
 tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
-#endif
 {
     field_info   *finfo;
     gchar        *help_str = NULL;
@@ -801,12 +787,9 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     GtkWidget    *byte_view;
     const guint8 *byte_data;
     gint          finfo_length;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel *model;
     GtkTreeIter   iter;
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     /* if nothing is selected */
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
     {
@@ -828,10 +811,6 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         return;
     }
     gtk_tree_model_get(model, &iter, 1, &finfo, -1);
-#else
-    g_assert(node);
-    finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-#endif
     if (!finfo) return;
 
     set_notebook_page(byte_nb_ptr, finfo->ds_tvb);
@@ -894,32 +873,6 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
                      byte_len);
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
-                          gpointer user_data _U_)
-{
-	GtkWidget	*byte_view;
-	const guint8	*data;
-	guint		len;
-
-	/*
-	 * Which byte view is displaying the current protocol tree
-	 * row's data?
-	 */
-	byte_view = get_notebook_bv_ptr(byte_nb_ptr);
-	if (byte_view == NULL)
-		return;	/* none */
-
-	data = get_byte_view_data_and_length(byte_view, &len);
-	if (data == NULL)
-		return;	/* none */
-
-	cf_unselect_field(&cfile);
-	packet_hex_print(byte_view, data, cfile.current_frame, NULL, len);
-}
-#endif
-
 void collapse_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if (cfile.edt->tree)
     collapse_all_tree(cfile.edt->tree, tree_view);
@@ -931,26 +884,14 @@ void expand_all_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void expand_tree_cb(GtkWidget *widget _U_, gpointer data _U_) {
-#if GTK_MAJOR_VERSION < 2
-  GtkCTreeNode *node;
-#else
   GtkTreePath  *path;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-  node = gtk_ctree_find_by_row_data(GTK_CTREE(tree_view), NULL, cfile.finfo_selected);
-  if(node) {
-    /* the mouse position is at an entry, expand that one */
-  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), node);
-  }
-#else
   path = tree_find_by_field_info(GTK_TREE_VIEW(tree_view), cfile.finfo_selected);
   if(path) {
     /* the mouse position is at an entry, expand that one */
   gtk_tree_view_expand_row(GTK_TREE_VIEW(tree_view), path, TRUE);
   gtk_tree_path_free(path);
   }
-#endif
 }
 
 void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
@@ -1191,9 +1132,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   gpointer dialog;
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_present(GTK_WINDOW(top_level));
-#endif
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
                 PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
@@ -1263,7 +1202,6 @@ main_save_window_geometry(GtkWidget *widget)
         recent.gui_geometry_main_height = geom.height;
     }
 
-#if GTK_MAJOR_VERSION >= 2
     if(prefs.gui_geometry_save_maximized) {
         recent.gui_geometry_main_maximized = geom.maximized;
     }
@@ -1272,7 +1210,6 @@ main_save_window_geometry(GtkWidget *widget)
     recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_second_pane));
     recent.gui_geometry_status_pane_left    = gtk_paned_get_position(GTK_PANED(status_pane_left));
     recent.gui_geometry_status_pane_right   = gtk_paned_get_position(GTK_PANED(status_pane_right));
-#endif
 }
 
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -1464,7 +1401,7 @@ cmdarg_err_cont(const char *fmt, ...)
   va_end(ap);
 }
 
-#if defined(_WIN32) || GTK_MAJOR_VERSION < 2 || ! defined USE_THREADS
+#if defined(_WIN32) || ! defined USE_THREADS
 /*
    Once every 3 seconds we get a callback here which we use to update
    the tap extensions. Since Gtk1 is single threaded we dont have to
@@ -1511,14 +1448,14 @@ update_thread(gpointer data _U_)
 void
 protect_thread_critical_region(void)
 {
-#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
+#if !defined(_WIN32) && defined USE_THREADS
     g_static_mutex_lock(&update_thread_mutex);
 #endif
 }
 void
 unprotect_thread_critical_region(void)
 {
-#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined USE_THREADS
+#if !defined(_WIN32) && defined USE_THREADS
     g_static_mutex_unlock(&update_thread_mutex);
 #endif
 }
@@ -1617,11 +1554,7 @@ main_cf_cb_file_closing(capture_file *cf)
                                   "%sClosing file!%s\n\nPlease wait ...",
                                   simple_dialog_primary_start(),
                                   simple_dialog_primary_end());
-#if GTK_MAJOR_VERSION >= 2
         gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
-#else
-        gtk_window_set_position(GTK_WINDOW(close_dlg), GTK_WIN_POS_CENTER);
-#endif
     }
 
     /* Destroy all windows, which refer to the
@@ -1695,7 +1628,6 @@ main_cf_cb_file_read_finished(capture_file *cf)
     set_menus_for_captured_packets(TRUE);
 }
 
-#if GTK_MAJOR_VERSION >= 2
 GList *icon_list_create(
     const char **icon16_xpm,
     const char **icon32_xpm,
@@ -1735,16 +1667,13 @@ GList *icon_list_create(
 
   return icon_list;
 }
-#endif
 
 #ifdef HAVE_LIBPCAP
 static void
 main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 {
     gchar *title;
-#if GTK_MAJOR_VERSION >= 2
     static GList *icon_list = NULL;
-#endif
 
 
     if(capture_opts->iface) {
@@ -1756,12 +1685,10 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
     set_main_window_name(title);
     g_free(title);
 
-#if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsiconcap16_xpm, wsiconcap32_xpm, wsiconcap48_xpm, NULL);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
-#endif
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1877,9 +1804,7 @@ GtkWidget * stop_dlg = NULL;
 static void
 main_cf_cb_live_capture_update_finished(capture_file *cf)
 {
-#if GTK_MAJOR_VERSION >= 2
     static GList *icon_list = NULL;
-#endif
 
     if(stop_dlg != NULL) {
         simple_dialog_close(stop_dlg);
@@ -1902,12 +1827,10 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
 
-#if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
-#endif
 
     if(capture_opts->quit_after_cap) {
         /* command line asked us to quit after the capture */
@@ -1959,9 +1882,7 @@ main_cf_cb_live_capture_fixed_continue(capture_file *cf)
 static void
 main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 {
-#if GTK_MAJOR_VERSION >= 2
     static GList *icon_list = NULL;
-#endif
 
     if(stop_dlg != NULL) {
         simple_dialog_close(stop_dlg);
@@ -1984,12 +1905,10 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     /* (just in case we have trouble opening the capture file). */
     set_main_window_name("The Wireshark Network Analyzer");
 
-#if GTK_MAJOR_VERSION >= 2
     if(icon_list == NULL) {
         icon_list = icon_list_create(wsicon16_xpm, wsicon32_xpm, wsicon48_xpm, wsicon64_xpm);
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
-#endif
 
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
@@ -2014,11 +1933,7 @@ main_cf_cb_live_capture_stopping(capture_file *cf _U_)
      * this was disabled here. */
     stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...",
 		simple_dialog_primary_start(), simple_dialog_primary_end());
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
-#else
-    gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER);
-#endif
 #endif
 }
 
@@ -2038,13 +1953,8 @@ main_cf_cb_packet_selected(gpointer data)
     /* The user is searching for a string in the data or a hex value,
      * highlight the field that is found in the tree and hex displays. */
     if((cfile.string || cfile.hex) && cfile.search_pos != 0) {
-#if GTK_MAJOR_VERSION < 2
-        highlight_field(cf->edt->tvb, cfile.search_pos,
-                        (GtkCTree *)tree_view, cf->edt->tree);
-#else
         highlight_field(cf->edt->tvb, cfile.search_pos,
                         (GtkTreeView *)tree_view, cf->edt->tree);
-#endif
         cfile.search_pos = 0; /* Reset the position */
     }
 
@@ -2583,11 +2493,6 @@ main(int argc, char *argv[])
 
   cf_callback_add(main_cf_callback, NULL);
 
-#if GTK_MAJOR_VERSION < 2 && GTK_MINOR_VERSION < 3
-  /* initialize our GTK eth_clist_type */
-  init_eth_clist_type();
-#endif
-
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
 
@@ -2672,7 +2577,7 @@ main(int argc, char *argv[])
   prefs_register_modules();
 
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
-#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2 && defined(G_THREADS_ENABLED) && defined USE_THREADS
+#if !defined(_WIN32) && defined(G_THREADS_ENABLED) && defined USE_THREADS
   {
       GThread *ut;
       g_thread_init(NULL);
@@ -3266,7 +3171,6 @@ WinMain (struct HINSTANCE__ *hInstance,
 	 char               *lpszCmdLine,
 	 int                 nCmdShow)
 {
-#if GTK_MAJOR_VERSION >= 2
   INITCOMMONCONTROLSEX comm_ctrl;
 
   /* Initialize our controls. Required for native Windows file dialogs. */
@@ -3281,7 +3185,6 @@ WinMain (struct HINSTANCE__ *hInstance,
 
   /* RichEd20.DLL is needed for filter entries. */
   LoadLibrary(_T("riched20.dll"));
-#endif /* GTK_MAJOR_VERSION >= 2 */
 
   has_console = FALSE;
   return main (__argc, __argv);
@@ -3422,9 +3325,7 @@ static GtkWidget *info_bar_new(void)
     file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
     filter_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "filter");
-#if GTK_MAJOR_VERSION >= 2
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
-#endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
 
     for (i = 0; i < NUM_STATUS_LEVELS; i++) {
@@ -3440,9 +3341,7 @@ static GtkWidget *packets_bar_new(void)
     packets_bar = gtk_statusbar_new();
     packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
     packets_bar_update();
-#if GTK_MAJOR_VERSION >= 2
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
-#endif
 
     return packets_bar;
 }
@@ -3761,7 +3660,6 @@ main_widgets_show_or_hide(void)
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 /* called, when the window state changes (minimized, maximized, ...) */
 static int
 window_state_event_cb (GtkWidget *widget _U_,
@@ -3779,7 +3677,6 @@ window_state_event_cb (GtkWidget *widget _U_,
     }
     return FALSE;
 }
-#endif
 
 
 #ifdef HAVE_AIRPCAP
@@ -3950,7 +3847,6 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 }
 #endif /* HAVE_AIRPCAP */
 
-#if GTK_MAJOR_VERSION >= 2
 #define NO_SHIFT_MOD_MASK (GDK_MODIFIER_MASK & ~(GDK_SHIFT_MASK|GDK_LOCK_MASK))
 static int
 top_level_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_data _U_)
@@ -3979,7 +3875,6 @@ top_level_key_pressed_cb(GtkCTree *ctree _U_, GdkEventKey *event, gpointer user_
     }
     return FALSE;
 }
-#endif
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
@@ -3997,9 +3892,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 #ifdef HAVE_AIRPCAP
     GtkWidget     *key_management_bt = NULL,
-#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
     		  *advanced_bt = NULL,
-#endif
     		  *channel_lb = NULL,
     		  *channel_cm = NULL,
     		  *channel_offset_lb = NULL,
@@ -4044,22 +3937,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     airpcap_tooltips = gtk_tooltips_new();
 #endif
 
-#ifdef _WIN32
-#if GTK_MAJOR_VERSION < 2
-    /* has to be done, after top_level window is created */
-    app_font_gtk1_init(top_level);
-#endif
-#endif
-
     gtk_widget_set_name(top_level, "main window");
     SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
                    NULL);
-#if GTK_MAJOR_VERSION >= 2
     SIGNAL_CONNECT(GTK_OBJECT(top_level), "window_state_event",
                          G_CALLBACK (window_state_event_cb), NULL);
     SIGNAL_CONNECT(GTK_OBJECT(top_level), "key-press-event",
                          G_CALLBACK (top_level_key_pressed_cb), NULL );
-#endif
 
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
@@ -4088,14 +3972,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 
-#if GTK_MAJOR_VERSION < 2
-    SIGNAL_CONNECT(tree_view, "tree-select-row", tree_view_select_row_cb, NULL);
-    SIGNAL_CONNECT(tree_view, "tree-unselect-row", tree_view_unselect_row_cb,
-                   NULL);
-#else
     SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
                    "changed", tree_view_selection_changed_cb, NULL);
-#endif
     SIGNAL_CONNECT(tree_view, "button_press_event", popup_menu_handler,
                    OBJECT_GET_DATA(popup_menu_object, PM_TREE_VIEW_KEY));
     gtk_widget_show(tree_view);
@@ -4121,14 +3999,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 #ifdef HAVE_AIRPCAP
     /* airpcap toolbar */
-#if GTK_MAJOR_VERSION < 2
-    airpcap_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
-                               GTK_TOOLBAR_BOTH);
-#else
     airpcap_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-#endif /* GTK_MAJOR_VERSION */
     gtk_widget_show(airpcap_tb);
 
     /* Interface Label */
@@ -4296,7 +4169,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
-#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
     /* Advanced button */
     advanced_bt = gtk_button_new_with_label("Wireless Settings...");
     OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
@@ -4307,7 +4179,6 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
 
     gtk_widget_show(advanced_bt);
-#endif /* GTK_MAJOR_VERSION */
 
     /* Key Management button */
     key_management_bt = gtk_button_new_with_label("Decryption Keys...");
@@ -4337,14 +4208,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif
 
     /* filter toolbar */
-#if GTK_MAJOR_VERSION < 2
-    filter_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
-                               GTK_TOOLBAR_BOTH);
-#else
     filter_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(filter_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-#endif /* GTK_MAJOR_VERSION */
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
