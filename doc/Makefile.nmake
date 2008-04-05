@@ -199,6 +199,7 @@ clean:
 	rm -f dumpcap.html dumpcap.1
 	rm -f rawshark.html rawshark.1
 	rm -f pod2htm*
+	rm -f ws.css
 
 distclean: clean
 
