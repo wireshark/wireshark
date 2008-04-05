@@ -27,6 +27,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+ /* TODO:
+   - if !tree (no filters or colour rules), op doesn't appear in info column...
+ */
+
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -2026,15 +2031,14 @@ dissect_wimaxasncp(
 
     offset = 0;
 
-    /* Register protocol fields, etc if haven't done yet. */
-    if (wimaxasncp_dict == NULL)
-    {
-        register_wimaxasncp_fields(NULL);
-    }
-
-
     if (tree)
     {
+        /* Register protocol fields, etc if haven't done yet. */
+        if (wimaxasncp_dict == NULL)
+        {
+            register_wimaxasncp_fields(NULL);
+        }
+
         packet_item = proto_tree_add_item(
             tree, proto_wimaxasncp,
             tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_length(tvb)), FALSE);
@@ -2211,10 +2215,10 @@ dissect_wimaxasncp(
         /* Add expert item if not matched */
         if (strcmp(message_name, unknown) == 0)
         {
-                expert_add_info_format(pinfo, item,
-                                       PI_UNDECODED, PI_WARN,
-                                       "Unknown message op (%u)",
-                                       0x1f & ui8);
+            expert_add_info_format(pinfo, item,
+                                   PI_UNDECODED, PI_WARN,
+                                   "Unknown message op (%u)",
+                                   0x1f & ui8);
         }
 
         if (check_col(pinfo->cinfo, COL_INFO))
