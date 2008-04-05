@@ -46,7 +46,7 @@
 				ReBuildCommandLine=""
 				CleanCommandLine=""
 				Output="libui.exe"
-				PreprocessorDefinitions="WIN32;NDEBUG"
+				PreprocessorDefinitions="WIN32;NDEBUG;HAVE_LIBPCAP"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
