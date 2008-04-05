@@ -58,48 +58,6 @@
 
 #define N_PROGBAR_UPDATES 100
 
-
-/*
- * XXX - gross hack.
- * This lets us use GtkCList in GTK+ 1.3[.x] and later, and EthCList on
- * GTK+ 1.2[.x], at least until we either use GTK+ 2.x's native widgets
- * or make EthCList work on 1.3[.x] and 2.x.
- */
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
-#define EthCList				GtkCList
-#define EthCListRow				GtkCListRow
-#define eth_clist_append			gtk_clist_append
-#define eth_clist_clear				gtk_clist_clear
-#define eth_clist_column_titles_show		gtk_clist_column_titles_show
-#define eth_clist_find_row_from_data		gtk_clist_find_row_from_data
-#define eth_clist_freeze			gtk_clist_freeze
-#define eth_clist_get_row_data			gtk_clist_get_row_data
-#define eth_clist_get_text			gtk_clist_get_text
-#define eth_clist_get_selection_info		gtk_clist_get_selection_info
-#define eth_clist_get_vadjustment		gtk_clist_get_vadjustment
-#define eth_clist_moveto			gtk_clist_moveto
-#define eth_clist_new				gtk_clist_new
-#define eth_clist_row_is_visible		gtk_clist_row_is_visible
-#define eth_clist_select_row			gtk_clist_select_row
-#define eth_clist_set_background		gtk_clist_set_background
-#define eth_clist_set_column_auto_resize	gtk_clist_set_column_auto_resize
-#define eth_clist_set_column_justification	gtk_clist_set_column_justification
-#define eth_clist_set_column_resizeable		gtk_clist_set_column_resizeable
-#define eth_clist_set_column_width		gtk_clist_set_column_width
-#define eth_clist_set_column_widget		gtk_clist_set_column_widget
-#define eth_clist_set_compare_func		gtk_clist_set_compare_func
-#define eth_clist_set_foreground		gtk_clist_set_foreground
-#define eth_clist_set_row_data			gtk_clist_set_row_data
-#define eth_clist_set_selection_mode		gtk_clist_set_selection_mode
-#define eth_clist_set_sort_column		gtk_clist_set_sort_column
-#define eth_clist_set_text			gtk_clist_set_text
-#define eth_clist_sort				gtk_clist_sort
-#define eth_clist_thaw				gtk_clist_thaw
-#define ETH_CLIST				GTK_CLIST
-#else
-#include "ethclist.h"
-#endif
-
 typedef struct column_arrows {
   GtkWidget *table;
   GtkWidget *ascend_pm;
@@ -109,7 +67,7 @@ typedef struct column_arrows {
 GtkWidget *packet_list;
 static gboolean last_at_end = FALSE;
 
-/* EthClist compare routine, overrides default to allow numeric comparison */
+/* GtkClist compare routine, overrides default to allow numeric comparison */
 
 #define COMPARE_FRAME_NUM()	((fdata1->num < fdata2->num) ? -1 : \
 				 (fdata1->num > fdata2->num) ? 1 : \
@@ -133,11 +91,11 @@ static gboolean last_at_end = FALSE;
 		 (fdata1->ts.nsecs > fdata2->ts.nsecs) ? 1 : \
 		 COMPARE_FRAME_NUM())
 static gint
-packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
+packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 {
   /* Get row data structures */
-  const EthCListRow *row1 = (const EthCListRow *)ptr1;
-  const EthCListRow *row2 = (const EthCListRow *)ptr2;
+  const GtkCListRow *row1 = (const GtkCListRow *)ptr1;
+  const GtkCListRow *row2 = (const GtkCListRow *)ptr2;
 
   /* Get the frame data structures for the rows */
   const frame_data *fdata1 = row1->data;
@@ -265,12 +223,12 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 
 /* What to do when a column is clicked */
 static void
-packet_list_click_column_cb(EthCList *clist, gint column, gpointer data)
+packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
   column_arrows *col_arrows = (column_arrows *) data;
   int i;
 
-  eth_clist_freeze(clist);
+  gtk_clist_freeze(clist);
 
   for (i = 0; i < cfile.cinfo.num_cols; i++) {
     gtk_widget_hide(col_arrows[i].ascend_pm);
@@ -289,11 +247,11 @@ packet_list_click_column_cb(EthCList *clist, gint column, gpointer data)
   else {
     clist->sort_type = GTK_SORT_ASCENDING;
     gtk_widget_show(col_arrows[column].ascend_pm);
-    eth_clist_set_sort_column(clist, column);
+    gtk_clist_set_sort_column(clist, column);
   }
-  eth_clist_thaw(clist);
+  gtk_clist_thaw(clist);
 
-  eth_clist_sort(clist);
+  gtk_clist_sort(clist);
 }
 
 /* What to do when a list item is selected/unselected */
@@ -332,8 +290,8 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
     cf_mark_frame(&cfile, frame);
     color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
-    eth_clist_set_foreground(ETH_CLIST(packet_list), row, &fg);
-    eth_clist_set_background(ETH_CLIST(packet_list), row, &bg);
+    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
   } else {
     color_filter_t *cfilter = frame->color_filter;
 
@@ -342,11 +300,11 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
     if (cfilter) { /* The packet matches a color filter */
       color_t_to_gdkcolor(&fg, &cfilter->fg_color);
       color_t_to_gdkcolor(&bg, &cfilter->bg_color);
-      eth_clist_set_foreground(ETH_CLIST(packet_list), row, &fg);
-      eth_clist_set_background(ETH_CLIST(packet_list), row, &bg);
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
     } else { /* No color filter match */
-      eth_clist_set_foreground(ETH_CLIST(packet_list), row, NULL);
-      eth_clist_set_background(ETH_CLIST(packet_list), row, NULL);
+      gtk_clist_set_foreground(GTK_CLIST(packet_list), row, NULL);
+      gtk_clist_set_background(GTK_CLIST(packet_list), row, NULL);
     }
   }
 }
@@ -362,7 +320,7 @@ void packet_list_mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
     /* XXX hum, should better have a "cfile->current_row" here ... */
     set_frame_mark(!cfile.current_frame->flags.marked,
 		   cfile.current_frame,
-		   eth_clist_find_row_from_data(ETH_CLIST(packet_list),
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
 						cfile.current_frame));
     mark_frames_ready();
   }
@@ -375,7 +333,7 @@ static void mark_all_frames(gboolean set) {
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,
-		   eth_clist_find_row_from_data(ETH_CLIST(packet_list), fdata));
+		   gtk_clist_find_row_from_data(GTK_CLIST(packet_list), fdata));
   }
   mark_frames_ready();
 }
@@ -390,7 +348,7 @@ void packet_list_update_marked_frames(void) {
     if (fdata->flags.marked)
       set_frame_mark(TRUE,
 		     fdata,
-		     eth_clist_find_row_from_data(ETH_CLIST(packet_list),
+		     gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
 						  fdata));
   }
   mark_frames_ready();
@@ -408,31 +366,11 @@ gboolean
 packet_list_get_event_row_column(GtkWidget *w, GdkEventButton *event_button,
 				 gint *row, gint *column)
 {
-    return eth_clist_get_selection_info(ETH_CLIST(w),
+    return gtk_clist_get_selection_info(GTK_CLIST(w),
                                  (gint) event_button->x, (gint) event_button->y,
                                   row, column);
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
-{
-    GdkEventButton *event_button = (GdkEventButton *)event;
-    gint row, column;
-
-    if (w == NULL || event == NULL)
-        return;
-
-    if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
-        event_button->window == ETH_CLIST(w)->clist_window &&
-        packet_list_get_event_row_column(w, event_button, &row, &column)) {
-        frame_data *fdata = (frame_data *) eth_clist_get_row_data(ETH_CLIST(w),
-                                                                  row);
-        set_frame_mark(!fdata->flags.marked, fdata, row);
-        mark_frames_ready();
-    }
-}
-#else
 static gint
 packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
 {
@@ -443,10 +381,10 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
         return FALSE;
 
     if (event->type == GDK_BUTTON_PRESS && event_button->button == 2 &&
-        event_button->window == ETH_CLIST(w)->clist_window &&
-        eth_clist_get_selection_info(ETH_CLIST(w), (gint) event_button->x,
+        event_button->window == GTK_CLIST(w)->clist_window &&
+        gtk_clist_get_selection_info(GTK_CLIST(w), (gint) event_button->x,
                                      (gint) event_button->y, &row, &column)) {
-        frame_data *fdata = (frame_data *)eth_clist_get_row_data(ETH_CLIST(w),
+        frame_data *fdata = (frame_data *)gtk_clist_get_row_data(GTK_CLIST(w),
                                                                  row);
         set_frame_mark(!fdata->flags.marked, fdata, row);
         mark_frames_ready();
@@ -454,7 +392,6 @@ packet_list_button_pressed_cb(GtkWidget *w, GdkEvent *event, gpointer data _U_)
     }
     return FALSE;
 }
-#endif
 
 /* Set the selection mode of the packet list window. */
 void
@@ -491,7 +428,7 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 		cf_unselect_field(&cfile);
 
         mode = new_mode;
-        eth_clist_set_selection_mode(ETH_CLIST(packet_list), mode);
+        gtk_clist_set_selection_mode(GTK_CLIST(packet_list), mode);
 }
 
 /* Set the font of the packet list window. */
@@ -500,16 +437,6 @@ packet_list_set_font(FONT_TYPE *font)
 {
 	int i;
 	gint col_width;
-#if GTK_MAJOR_VERSION < 2
-	GtkStyle *style;
-
-	style = gtk_style_new();
-	gdk_font_unref(style->font);
-	style->font = font;
-	gdk_font_ref(font);
-
-	gtk_widget_set_style(packet_list, style);
-#else
         PangoLayout *layout;
 
 	/* Manually set the font so it can be used right away in the
@@ -518,20 +445,15 @@ packet_list_set_font(FONT_TYPE *font)
 	packet_list->style->font_desc = pango_font_description_copy(font);
 
         gtk_widget_modify_font(packet_list, font);
-#endif
 
 	/* Compute default column sizes. */
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
-#if GTK_MAJOR_VERSION < 2
-		col_width = gdk_string_width(font,
-			get_column_width_string(get_column_format(i), i));
-#else
                 layout = gtk_widget_create_pango_layout(packet_list,
 		    get_column_width_string(get_column_format(i), i));
                 pango_layout_get_pixel_size(layout, &col_width, NULL);
                 g_object_unref(G_OBJECT(layout));
-#endif
-		eth_clist_set_column_width(ETH_CLIST(packet_list), i,
+
+		gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
 			col_width);
 	}
 }
@@ -554,14 +476,12 @@ packet_list_new(e_prefs *prefs)
      * we show that scrollbar always. */
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(pkt_scrollw),
                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-#if GTK_MAJOR_VERSION >= 2
-    /* the eth_clist will have it's own GTK_SHADOW_IN, so don't use a shadow
+    /* the gtk_clist will have it's own GTK_SHADOW_IN, so don't use a shadow
      * for both widgets */
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(pkt_scrollw),
                                     GTK_SHADOW_NONE);
-#endif
 
-    packet_list = eth_clist_new(cfile.cinfo.num_cols);
+    packet_list = gtk_clist_new(cfile.cinfo.num_cols);
     /* Column titles are filled in below */
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
@@ -573,8 +493,8 @@ packet_list_new(e_prefs *prefs)
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
         /* For performance reasons, columns do not automatically resize,
            but are resizeable by the user. */
-        eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, FALSE);
-        eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
+        gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, FALSE);
+        gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
 
         custom_right_justify = FALSE;
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
@@ -595,14 +515,14 @@ packet_list_new(e_prefs *prefs)
             cfile.cinfo.col_fmt[i] == COL_DCE_CALL ||
             cfile.cinfo.col_fmt[i] == COL_DCE_CTX ||
             custom_right_justify)
-            eth_clist_set_column_justification(ETH_CLIST(packet_list), i,
+            gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }
     SIGNAL_CONNECT(packet_list, "button_press_event", popup_menu_handler,
                    OBJECT_GET_DATA(popup_menu_object, PM_PACKET_LIST_KEY));
     SIGNAL_CONNECT(packet_list, "button_press_event",
                    packet_list_button_pressed_cb, NULL);
-    eth_clist_set_compare_func(ETH_CLIST(packet_list), packet_list_compare);
+    gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
     gtk_widget_show(packet_list);
 
     return pkt_scrollw;
@@ -666,11 +586,11 @@ packet_list_set_column_titles(void)
         gtk_table_attach(GTK_TABLE(col_arrows[i].table),
                          col_arrows[i].descend_pm,
                          1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-        eth_clist_set_column_widget(ETH_CLIST(packet_list), i,
+        gtk_clist_set_column_widget(GTK_CLIST(packet_list), i,
                                     col_arrows[i].table);
         gtk_widget_show(col_arrows[i].table);
     }
-    eth_clist_column_titles_show(ETH_CLIST(packet_list));
+    gtk_clist_column_titles_show(GTK_CLIST(packet_list));
     SIGNAL_CONNECT(packet_list, "click-column", packet_list_click_column_cb,
                    col_arrows);
 }
@@ -680,14 +600,14 @@ packet_list_clear(void)
 {
     packet_history_clear();
 
-    eth_clist_clear(ETH_CLIST(packet_list));
+    gtk_clist_clear(GTK_CLIST(packet_list));
     gtk_widget_queue_draw(packet_list);
 }
 
 void
 packet_list_freeze(void)
 {
-    eth_clist_freeze(ETH_CLIST(packet_list));
+    gtk_clist_freeze(GTK_CLIST(packet_list));
 }
 
 static void
@@ -748,11 +668,11 @@ packet_list_resize_columns(void) {
       }
 
       /* auto resize the current column */
-      eth_clist_set_column_auto_resize(ETH_CLIST(packet_list), i, TRUE);
+      gtk_clist_set_column_auto_resize(GTK_CLIST(packet_list), i, TRUE);
 
       /* the current column should be resizeable by the user again */
       /* (will turn off auto resize again) */
-      eth_clist_set_column_resizeable(ETH_CLIST(packet_list), i, TRUE);
+      gtk_clist_set_column_resizeable(GTK_CLIST(packet_list), i, TRUE);
     }
 
     /* We're done resizing the columns; destroy the progress bar if it
@@ -769,7 +689,7 @@ void packet_list_resize_columns_cb(GtkWidget *widget _U_, gpointer data _U_)
 void
 packet_list_thaw(void)
 {
-    eth_clist_thaw(ETH_CLIST(packet_list));
+    gtk_clist_thaw(GTK_CLIST(packet_list));
     packets_bar_update();
     /*packet_list_resize_columns();*/
 }
@@ -783,16 +703,12 @@ packet_list_select_row(gint row)
 static void
 packet_list_next_prev(gboolean next)
 {
-#if GTK_MAJOR_VERSION >= 2
     GtkWidget *focus = gtk_window_get_focus(GTK_WINDOW(top_level));
-#endif
     SIGNAL_EMIT_BY_NAME(SIGNAL_EMIT_OBJECT(packet_list), "scroll_vertical",
         next ? GTK_SCROLL_STEP_FORWARD : GTK_SCROLL_STEP_BACKWARD, 0.0);
-#if GTK_MAJOR_VERSION >= 2
     /* Set the focus back where it was */
     if (focus)
         gtk_window_set_focus(GTK_WINDOW(top_level), focus);
-#endif
 }
 
 void
@@ -810,8 +726,8 @@ packet_list_prev(void)
 void
 packet_list_moveto_end(void)
 {
-    eth_clist_moveto(ETH_CLIST(packet_list),
-                     ETH_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
+    gtk_clist_moveto(GTK_CLIST(packet_list),
+                     GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 }
 
 gboolean
@@ -821,7 +737,7 @@ packet_list_check_end(void)
     GtkAdjustment *adj;
 
     g_return_val_if_fail (packet_list != NULL, FALSE);
-    adj = eth_clist_get_vadjustment(ETH_CLIST(packet_list));
+    adj = gtk_clist_get_vadjustment(GTK_CLIST(packet_list));
     g_return_val_if_fail (adj != NULL, FALSE);
 
     if (adj->value >= adj->upper - adj->page_size) {
@@ -841,8 +757,8 @@ packet_list_append(const gchar *text[], gpointer data)
 {
     gint row;
 
-    row = eth_clist_append(ETH_CLIST(packet_list), (gchar **) text);
-    eth_clist_set_row_data(ETH_CLIST(packet_list), row, data);
+    row = gtk_clist_append(GTK_CLIST(packet_list), (gchar **) text);
+    gtk_clist_set_row_data(GTK_CLIST(packet_list), row, data);
     return row;
 }
 
@@ -854,25 +770,25 @@ packet_list_set_colors(gint row, color_t *fg, color_t *bg)
     if (fg)
     {
         color_t_to_gdkcolor(&gdkfg, fg);
-        eth_clist_set_foreground(ETH_CLIST(packet_list), row, &gdkfg);
+        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &gdkfg);
     }
     if (bg)
     {
         color_t_to_gdkcolor(&gdkbg, bg);
-        eth_clist_set_background(ETH_CLIST(packet_list), row, &gdkbg);
+        gtk_clist_set_background(GTK_CLIST(packet_list), row, &gdkbg);
     }
 }
 
 gint
 packet_list_find_row_from_data(gpointer data)
 {
-    return eth_clist_find_row_from_data(ETH_CLIST(packet_list), data);
+    return gtk_clist_find_row_from_data(GTK_CLIST(packet_list), data);
 }
 
 void
 packet_list_set_text(gint row, gint column, const gchar *text)
 {
-    eth_clist_set_text(ETH_CLIST(packet_list), row, column, text);
+    gtk_clist_set_text(GTK_CLIST(packet_list), row, column, text);
 }
 
 /* Set the column widths of those columns that show the time in
@@ -881,27 +797,19 @@ void
 packet_list_set_cls_time_width(gint column)
 {
     gint      width;
-#if GTK_MAJOR_VERSION < 2
-    GtkStyle *pl_style;
-
-    pl_style = gtk_widget_get_style(packet_list);
-    width = gdk_string_width(pl_style->font,
-                             get_column_longest_string(COL_CLS_TIME));
-#else
     PangoLayout  *layout;
 
     layout = gtk_widget_create_pango_layout(packet_list,
                  get_column_longest_string(COL_CLS_TIME));
     pango_layout_get_pixel_size(layout, &width, NULL);
     g_object_unref(G_OBJECT(layout));
-#endif
-    eth_clist_set_column_width(ETH_CLIST(packet_list), column, width);
+    gtk_clist_set_column_width(GTK_CLIST(packet_list), column, width);
 }
 
 gpointer
 packet_list_get_row_data(gint row)
 {
-    return eth_clist_get_row_data(ETH_CLIST(packet_list), row);
+    return gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
 }
 
 
@@ -909,10 +817,10 @@ packet_list_get_row_data(gint row)
 static gint
 packet_list_first_full_visible_row(gint row) {
 
-	g_assert(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+	g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL);
 
-	while(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+	while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL) {
 		row--;
 	}
@@ -924,10 +832,10 @@ packet_list_first_full_visible_row(gint row) {
 static gint
 packet_list_last_full_visible_row(gint row) {
 
-	g_assert(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+	g_assert(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL);
 
-	while(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+	while(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL) {
 		row++;
 	}
@@ -945,28 +853,28 @@ packet_list_set_selected_row(gint row)
 	gboolean full_visible;
 
 
-	full_visible = eth_clist_row_is_visible(ETH_CLIST(packet_list), row) ==
+	full_visible = gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) ==
         GTK_VISIBILITY_FULL;
 
-    /* XXX - why is there no "eth_clist_set_focus_row()", so that we
+    /* XXX - why is there no "gtk_clist_set_focus_row()", so that we
      * can make the row for the frame we found the focus row?
      *
      * See http://www.gnome.org/mailing-lists/archives/gtk-list/2000-January/0038.shtml
      */
-    ETH_CLIST(packet_list)->focus_row = row;
+    GTK_CLIST(packet_list)->focus_row = row;
 
-    eth_clist_select_row(ETH_CLIST(packet_list), row, -1);
+    gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
 
     if (!full_visible) {
 
-        eth_clist_freeze(ETH_CLIST(packet_list));
+        gtk_clist_freeze(GTK_CLIST(packet_list));
 
-        eth_clist_moveto(ETH_CLIST(packet_list), row, -1, 0.0, 0.0);
+        gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.0, 0.0);
 
 		/* even after move still invisible (happens with empty list) -> give up */
-		if(eth_clist_row_is_visible(ETH_CLIST(packet_list), row) !=
+		if(gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) !=
 			GTK_VISIBILITY_FULL) {
-			eth_clist_thaw(ETH_CLIST(packet_list));
+			gtk_clist_thaw(GTK_CLIST(packet_list));
 			return;
 		}
 
@@ -982,9 +890,9 @@ packet_list_set_selected_row(gint row)
 		visible_rows = packet_list_last_full_visible_row(row) - packet_list_first_full_visible_row(row);
 		first_row = row - visible_rows / 3;
 
-		eth_clist_moveto(ETH_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
+		gtk_clist_moveto(GTK_CLIST(packet_list), first_row >= 0 ? first_row : 0, -1, 0.0, 0.0);
 
-		eth_clist_thaw(ETH_CLIST(packet_list));
+		gtk_clist_thaw(GTK_CLIST(packet_list));
 	}
 }
 
@@ -992,7 +900,7 @@ packet_list_set_selected_row(gint row)
 gint
 packet_list_get_sort_column(void)
 {
-    return ETH_CLIST(packet_list)->sort_column;
+    return GTK_CLIST(packet_list)->sort_column;
 }
 
 void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type)
@@ -1010,7 +918,7 @@ void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summ
 
     if (cfile.current_frame) {
         /* XXX hum, should better have a "cfile->current_row" here ... */
-        row = eth_clist_find_row_from_data(ETH_CLIST(packet_list),
+        row = gtk_clist_find_row_from_data(GTK_CLIST(packet_list),
 			        cfile.current_frame);
         for(col = 0; col < cfile.cinfo.num_cols; ++col) {
             if(col != 0) {
@@ -1020,7 +928,7 @@ void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summ
 					g_string_append_c(text, '\t');
 				}
             }
-            if(0 != eth_clist_get_text(ETH_CLIST(packet_list),row,col,&celltext)) {
+            if(0 != gtk_clist_get_text(GTK_CLIST(packet_list),row,col,&celltext)) {
                 g_string_append(text,celltext);
             }
         }
@@ -1038,9 +946,9 @@ packet_list_set_sort_column(void)
 {
     packet_list_freeze();
 
-    eth_clist_set_sort_column(ETH_CLIST(packet_list), packet_list_get_sort_column());
+    gtk_clist_set_sort_column(GTK_CLIST(packet_list), packet_list_get_sort_column());
 
-    eth_clist_sort(ETH_CLIST(packet_list));
+    gtk_clist_sort(GTK_CLIST(packet_list));
 
     packet_list_thaw();
 }

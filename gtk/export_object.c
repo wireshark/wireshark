@@ -31,8 +31,6 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-/* This feature has not been ported to GTK1 and uses some functions only
- * only available in GTK 2.4 and above. */
 #if GTK_CHECK_VERSION(2,4,0)
 
 #include <alert_box.h>

@@ -31,8 +31,6 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-/* This feature is not available in GTK1 and includes some functions that
- * are only available in GTK 2.6+ */
 #if GTK_CHECK_VERSION(2,6,0)
 
 #include "pixmap_save.h"
