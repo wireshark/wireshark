@@ -72,9 +72,7 @@
 #include "simple_dialog.h"
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 #include "rtp_player.h"
-#endif /* GTK_MAJOR_VERSION >= 2 */
 #endif /* HAVE_LIBPORTAUDIO */
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
@@ -144,10 +142,8 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 	GList* list;
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 	/* reset the RTP player */
 	reset_rtp_player();
-#endif
 #endif
 
 	/* free the data items first */
@@ -508,10 +504,8 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void con
 	}
 
 	/* add this RTP for future listening using the RTP Player*/
-#if GTK_MAJOR_VERSION >= 2
 #ifdef HAVE_LIBPORTAUDIO
 	add_rtp_packet(pi, pinfo);
-#endif
 #endif
 	
 	/* check wether we already have a RTP stream with this setup frame and ssrc in the list */

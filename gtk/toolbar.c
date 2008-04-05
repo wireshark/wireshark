@@ -66,39 +66,6 @@
 #include "color_filters.h"
 #include "menu.h"
 
-/* Most of the icons used here are coming (or are derived) from GTK2 stock icons.
- * They were converted using "The Gimp" with standard conversion from png to xpm.
- * All stock icons can be (currently) found at: 
- * "ftp://ftp.gtk.org/pub/gtk/v2.0/gtk+-2.0.6.tar.bz2"
- * in the directory "gtk+-2.0.6\gtk\stock-icons" */
-
-/* The base for the new capture icons were GNOME system tools: Connection-Ethernet.png 
- * see http://cvs.gnome.org/viewcvs/gnome-system-tools/pixmaps/ and it's 16x16 counterpart, 
- * which are released under the GPL (or LGPL?). These icons were 
- * merged together with some icons of the tremendous ximian icon collection (>1200!)
- * for  OpenOffice? (LGPL'ed), which can be found at:
- * http://www.novell.com/coolsolutions/feature/1637.html
- */
-
-#if GTK_MAJOR_VERSION < 2
-#include "../image/toolbar/stock_save_as_24.xpm"
-#include "../image/toolbar/stock_close_24.xpm"
-#include "../image/toolbar/stock_refresh_24.xpm"
-#include "../image/toolbar/stock_print_24.xpm"
-#include "../image/toolbar/stock_search_24.xpm"
-#include "../image/toolbar/stock_left_arrow_24.xpm"
-#include "../image/toolbar/stock_right_arrow_24.xpm"
-#include "../image/toolbar/stock_jump_to_24.xpm"
-#include "../image/toolbar/stock_top_24.xpm"
-#include "../image/toolbar/stock_bottom_24.xpm"
-#include "../image/toolbar/stock_zoom_in_24.xpm"
-#include "../image/toolbar/stock_zoom_out_24.xpm"
-#include "../image/toolbar/stock_zoom_1_24.xpm"
-#include "../image/toolbar/stock_colorselector_24.xpm"
-#include "../image/toolbar/stock_help_24.xpm"
-#include "../image/toolbar/stock_preferences_24.xpm"
-#endif /* GTK_MAJOR_VERSION */
-
 /* these icons are derived from the original stock icons */
 #ifdef HAVE_LIBPCAP
 #include "../image/toolbar/capture_interfaces_24.xpm"
@@ -107,28 +74,19 @@
 #include "../image/toolbar/capture_stop_24.xpm"
 #include "../image/toolbar/capture_restart_24.xpm"
 #include "../image/toolbar/capture_filter_24.xpm"
-#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/capture_details_24.xpm"
-#endif
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/display_filter_24.xpm"
 /* these icons are standard stock icons, but used for Wireshark specific stock icon labels */
-#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_add_24.xpm"
-#endif
 #include "../image/toolbar/stock_open_24.xpm"
-#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_ok_20.xpm"
-#endif
 #include "../image/toolbar/stock_save_24.xpm"
-#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/stock_properties_24.xpm"
 #include "../image/wsicon16.xpm"
-#endif
 #include "../image/toolbar/colorize_24.xpm"
 #include "../image/toolbar/autoscroll_24.xpm"
 #include "../image/toolbar/resize_columns_24.xpm"
-#if GTK_MAJOR_VERSION >= 2
 #include "../image/toolbar/time_24.xpm"
 #include "../image/toolbar/internet_24.xpm"
 #include "../image/toolbar/web_support_24.xpm"
@@ -153,7 +111,6 @@
 #include "../image/toolbar/icon_color_8.xpm"
 #include "../image/toolbar/icon_color_9.xpm"
 #include "../image/toolbar/icon_color_0.xpm"
-#endif
 
 
 /* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
@@ -185,7 +142,6 @@ static BUTTON_TYPE *save_as_button;
 #define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
 #define SAVE_AS_BUTTON_TOOLTIP_TEXT "Save this capture file as..."
 
-#if GTK_MAJOR_VERSION >= 2
 typedef struct stock_pixmap_tag{
     const char *    name;
     const char **   xpm_data;
@@ -208,7 +164,6 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER,        WIRESHARK_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       WIRESHARK_STOCK_LABEL_CAPTURE_DETAILS,       0, 0, NULL },
-#endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        WIRESHARK_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                WIRESHARK_STOCK_LABEL_BROWSE,                0, 0, NULL },
@@ -340,16 +295,6 @@ toolbar_redraw_all(void)
 
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
-
-#if GTK_MAJOR_VERSION < 2
-    /* In GTK+ 1.2[.x], the toolbar takes the maximum vertical size it ever
-     * had, even if you change the style in such a way as to reduce its
-     * height, unless we queue a resize (which resizes ALL elements in the
-     * top-level container).
-     *
-     * In GTK+ 2.x, this isn't necessary - it does the right thing. */
-    gtk_container_queue_resize(GTK_CONTAINER(top_level));
-#endif /* GTK_MAJOR_VERSION */
 }
 
 /* Enable or disable toolbar items based on whether you have a capture file
@@ -516,14 +461,6 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 
 
-#if GTK_MAJOR_VERSION < 2
-#define toolbar_item(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
-    iconw = gtk_pixmap_new(icon, mask); \
-    new_item = gtk_toolbar_append_item(GTK_TOOLBAR (toolbar), \
-        stock, tooltip_text, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
-    }
-#else /* GTK_MAJOR_VERSION < 2 */
 #if GTK_CHECK_VERSION(2,4,0)
 #define toolbar_item(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
     new_item = gtk_tool_button_new_from_stock(stock); \
@@ -540,20 +477,11 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
         stock, tooltip_text, "Private", G_CALLBACK(callback), user_data, -1);\
     }
 #endif /* GTK_CHECK_VERSION(2,4,0) */
-#endif /* GTK_MAJOR_VERSION */
 
-
-#if GTK_MAJOR_VERSION < 2
-#define toolbar_icon(new_icon, window, xpm) { \
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
-    new_icon = gtk_pixmap_new(icon, mask); \
-    }
-#else
 #define toolbar_icon(new_icon, window, xpm) { \
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
     new_icon = gtk_image_new_from_pixmap(icon, mask); \
     }
-#endif
 
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -639,10 +567,8 @@ toolbar_new(void)
 
     tooltips = gtk_tooltips_new();
     
-#if GTK_MAJOR_VERSION >= 2
     /* create application specific stock icons */
     wireshark_stock_icons();
-#endif
 
     /* this function should be only called once! */
     g_assert(!toolbar_init);
@@ -654,17 +580,9 @@ toolbar_new(void)
 
     /* toolbar will be horizontal, with both icons and text (as default here) */
     /* (this will usually be overwritten by the preferences setting) */
-#if GTK_MAJOR_VERSION < 2
-    main_tb = gtk_toolbar_new(GTK_ORIENTATION_HORIZONTAL,
-                               GTK_TOOLBAR_BOTH);
-    gtk_toolbar_set_space_size(GTK_TOOLBAR(main_tb), 3);
-    /* the "space lines" in GTK1 looks ugly, so don't use them */
-    /* gtk_toolbar_set_space_style(GTK_TOOLBAR(main_tb), GTK_TOOLBAR_SPACE_LINE); */
-#else
     main_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(main_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-#endif /* GTK_MAJOR_VERSION */
 
     OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
 

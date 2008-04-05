@@ -69,10 +69,8 @@
 #include <epan/dissectors/packet-h248.h>
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 #include "rtp_analysis.h"
 #include "rtp_player.h"
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 
 
@@ -88,9 +86,7 @@ static GtkWidget *status_label = NULL;
 static GtkWidget *bt_filter = NULL;
 static GtkWidget *bt_graph = NULL;
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 static GtkWidget *bt_player = NULL;
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 
 static voip_calls_info_t* selected_call_fwd = NULL;  /* current selection */
@@ -262,9 +258,7 @@ voip_calls_on_unselect                  (GtkButton       *button _U_,
 	gtk_widget_set_sensitive(bt_filter, FALSE);
 	gtk_widget_set_sensitive(bt_graph, FALSE);
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 	gtk_widget_set_sensitive(bt_player, FALSE);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 }
 
@@ -444,7 +438,6 @@ on_graph_bt_clicked                    (GtkButton       *button _U_,
 }
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 /****************************************************************************/
 static void
 on_player_bt_clicked                    (GtkButton       *button _U_,
@@ -452,7 +445,6 @@ on_player_bt_clicked                    (GtkButton       *button _U_,
 {
 	rtp_player_init(voip_calls_get_info());
 }
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 
 /****************************************************************************/
@@ -500,17 +492,13 @@ voip_calls_on_select_row(GtkCList *clist,
 		gtk_widget_set_sensitive(bt_filter, TRUE);
 		gtk_widget_set_sensitive(bt_graph, TRUE);
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 		gtk_widget_set_sensitive(bt_player, TRUE);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 	} else {
 		gtk_widget_set_sensitive(bt_filter, FALSE);
 		gtk_widget_set_sensitive(bt_graph, FALSE);
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 		gtk_widget_set_sensitive(bt_player, FALSE);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 	}
 
@@ -561,17 +549,13 @@ voip_calls_on_unselect_row(GtkCList *clist,
 		gtk_widget_set_sensitive(bt_filter, TRUE);
 		gtk_widget_set_sensitive(bt_graph, TRUE);
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 		gtk_widget_set_sensitive(bt_player, TRUE);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 	} else {
 		gtk_widget_set_sensitive(bt_filter, FALSE);
 		gtk_widget_set_sensitive(bt_graph, FALSE);
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 		gtk_widget_set_sensitive(bt_player, FALSE);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 	}
 
@@ -791,13 +775,11 @@ static void voip_calls_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, bt_graph, "Show a flow graph of the selected calls.", NULL);
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
 	bt_player = gtk_button_new_with_label("Player");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_player);
 	gtk_widget_show(bt_player);
 	SIGNAL_CONNECT(bt_player, "clicked", on_player_bt_clicked, NULL);
 	gtk_tooltips_set_tip (tooltips, bt_player, "Launch the RTP player to listen the selected calls.", NULL);
-#endif
 #endif /* HAVE_LIBPORTAUDIO */
 
 	bt_select_all = gtk_button_new_with_label("Select All");
