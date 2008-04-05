@@ -1751,34 +1751,30 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
 
     statusbar_pop_file_msg();
 
-#if 0
-    /* XXX - don't show the highest expert level unless the TCP checksum offloading is "solved" */
-    if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB [Expert: %s]",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024/1024,
-				      val_to_str(expert_get_highest_severity(),
-						 expert_severity_vals,
-						 "Unknown (%u)"));
-    } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB [Expert: %s]",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024,
-				      val_to_str(expert_get_highest_severity(),
-						 expert_severity_vals,
-						 "Unknown (%u)"));
-    } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes [Expert: %s]",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen,
-				      val_to_str(expert_get_highest_severity(),
-						 expert_severity_vals,
-						 "Unknown (%u)"));
+    /* expert info */
+    gtk_widget_hide(expert_info_error);
+    gtk_widget_hide(expert_info_warn);
+    gtk_widget_hide(expert_info_note);
+    gtk_widget_hide(expert_info_chat);
+    gtk_widget_hide(expert_info_none);
+    switch(expert_get_highest_severity()) {
+        case(PI_ERROR):
+        gtk_widget_show(expert_info_error);
+        break;
+        case(PI_WARN):
+        gtk_widget_show(expert_info_warn);
+        break;
+        case(PI_NOTE):
+        gtk_widget_show(expert_info_note);
+        break;
+        case(PI_CHAT):
+        gtk_widget_show(expert_info_chat);
+        break;
+        default:
+        gtk_widget_show(expert_info_none);
+        break;
     }
-#endif
+
     if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
 				      get_iface_description(capture_opts),
