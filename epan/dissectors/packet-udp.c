@@ -72,13 +72,13 @@ static gint ett_udp_checksum = -1;
 static gboolean udp_summary_in_tree = TRUE;
 
 /* Check UDP checksums */
-static gboolean udp_check_checksum = TRUE;
+static gboolean udp_check_checksum = FALSE;
 
 /* Ignore an invalid checksum coverage field for UDPLite */
 static gboolean udplite_ignore_checksum_coverage = TRUE;
 
 /* Check UDPLite checksums */
-static gboolean udplite_check_checksum = TRUE;
+static gboolean udplite_check_checksum = FALSE;
 
 static dissector_table_t udp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;

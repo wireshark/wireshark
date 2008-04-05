@@ -64,7 +64,7 @@ static gboolean tcp_summary_in_tree = TRUE;
  * packet to the capture program but a checksummed packet got put onto
  * the wire.
  */
-static gboolean tcp_check_checksum = TRUE;
+static gboolean tcp_check_checksum = FALSE;
 
 extern FILE* data_out_file;
 
