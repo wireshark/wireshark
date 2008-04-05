@@ -133,7 +133,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
 	$(GLIB_LIBS)
 
-EXECUTABLES=wireshark.exe wireshark-gtk2.exe tshark.exe rawshark.exe \
+EXECUTABLES=wireshark.exe tshark.exe rawshark.exe \
 	capinfos.exe editcap.exe mergecap.exe text2pcap.exe randpkt.exe dumpcap.exe
 
 RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
@@ -149,18 +149,6 @@ packaging: all
 	cd packaging
 	cd nsis
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
-	cd ..
-	cd ..
-
-separate_packaging: all
-	cd packaging
-	cd nsis
-!IFDEF GTK1_DIR
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake GTK1_ONLY="USE"
-!ENDIF
-!IFDEF GTK2_DIR
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake GTK2_ONLY="USE"
-!ENDIF
 	cd ..
 	cd ..
 
@@ -183,19 +171,7 @@ packaging_papps: all
 	cd ..
 
 # use (info-)zip from cygwin to pack things
-packaging_zip1: all
-!IFDEF MSVCR_DLL
-	xcopy "$(MSVCR_DLL)" $(INSTALL1_DIR)
-!ENDIF
-!IFDEF VCREDIST_EXE
-	@echo Including vcredist_x86.exe -- your recipient may need to run it!
-	xcopy "$(VCREDIST_EXE)" $(INSTALL1_DIR)
-!ENDIF
-	rm -f wireshark-gtk1.zip
-	zip -r -9 wireshark-gtk1.zip $(INSTALL1_DIR)/
-
-# use (info-)zip from cygwin to pack things
-packaging_zip2: all
+packaging_zip: all
 !IFDEF MSVCR_DLL
 	xcopy "$(MSVCR_DLL)" $(INSTALL2_DIR)
 !ENDIF
@@ -203,40 +179,21 @@ packaging_zip2: all
 	@echo Including vcredist_x86.exe -- your recipient may need to run it!
 	xcopy "$(VCREDIST_EXE)" $(INSTALL2_DIR)
 !ENDIF
-	rm -f wireshark-gtk2.zip
-	zip -r -9 wireshark-gtk2.zip $(INSTALL2_DIR)/
-
-packaging_zip: packaging_zip1 packaging_zip2
+	rm -f wireshark.zip
+	zip -r -9 wireshark.zip $(INSTALL2_DIR)/
 
 
 $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-!IFNDEF GTK1_DIR
-wireshark.exe	:
-!ELSE
 wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK1_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
-!ENDIF
-!ENDIF
-
-!IFNDEF GTK2_DIR
-wireshark-gtk2.exe	:
-!ELSE
-wireshark-gtk2.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk2 image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk2.tmp\libui.lib plugins
-	@echo Linking $@
-	$(LINK) @<<
-		/OUT:wireshark-gtk2.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk2.tmp\libui.lib $(wireshark_OBJECTS) image\wireshark.res
-<<
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
-	mt.exe -nologo -manifest "wireshark-gtk2.exe.manifest" -outputresource:wireshark-gtk2.exe;1
-!ENDIF
 !ENDIF
 
 tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
@@ -400,10 +357,7 @@ tshark-tap-register.c: $(TSHARK_TAP_SRC) make-tapreg-dotc
 text2pcap-scanner.c : text2pcap-scanner.l
 	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
-clean_gtk2.tmp:
-	rm -rf gtk2.tmp
-
-clean-local: clean_gtk2.tmp clean-deps
+clean-local: clean-deps
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
  		$(EXTRA_OBJECTS) $(EXECUTABLES) *.pdb *.exe.manifest \
 		capinfos.obj editcap.obj mergecap.obj text2pcap.obj \
@@ -560,18 +514,6 @@ codecs::
 
 gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk
-	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK1_CFLAGS)" GTK_LIBS="$(GTK1_LIBS)" libui.lib
-	cd ..
-
-# copy all required files to gtk2.tmp (but only when newer than existing) and compile in that dir
-gtk2:: help config.h svnversion.h AUTHORS-SHORT
-	if not exist gtk2.tmp mkdir gtk2.tmp
-	cd gtk
-	set copycmd=/y
-	xcopy Makefile.* ..\gtk2.tmp /d
-	xcopy *.c        ..\gtk2.tmp /d
-	xcopy *.h        ..\gtk2.tmp /d
-	cd ..\gtk2.tmp
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
 	cd ..
 
@@ -677,14 +619,6 @@ process_libs:
 		glib gtk2.10/glib-dev-2.12.13.zip
 !ELSE
 !ERROR ? Unknown or invalid GTK2_INST_VERSION
-!ENDIF
-!IFDEF GTK1_DIR
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk+ gtk+-1.3.0-20030717.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk+ gtk+-dev-1.3.0-20030115.zip
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib-gtk1-hack gtk2.12/glib-2.14.5.zip
 !ENDIF
 !IFDEF ICONV_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -817,7 +751,6 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
     rm -r -f $(WIRESHARK_LIBS)/glib
-    rm -r -f $(WIRESHARK_LIBS)/glib-gtk1-hack
     rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
@@ -843,11 +776,8 @@ clean_setup:
 ################################################################################
 
 
-# generate and install Wireshark GTK1 in INSTALL1_DIR
-debug-gtk1: wireshark.exe install-files1
-
 # generate and install Wireshark GTK2 in INSTALL2_DIR
-debug-gtk2: wireshark-gtk2.exe install-files2
+debug-gtk: wireshark.exe install-files2
 
 # generate and install Wireshark GTK2 in INSTALL2_DIR
 debug-tshark: tshark.exe
@@ -866,27 +796,17 @@ debug-dumpcap: dumpcap.exe
 
 
 # "install-deps" will copy all files needed to run Wwireshark/Tshark
-# to the INSTALL1_DIR/INSTALL2_DIR, so you can run/debug Wireshark/Tshark from there.
+# to the INSTALL2_DIR, so you can run/debug Wireshark/Tshark from there.
 
-install-deps: install-deps1 install-deps2 install-files1 install-files2
-
-# install Wireshark GTK1 and other generated files
-install-files1:
-!IFDEF GTK1_DIR
-	set copycmd=/y
-	set INSTALL_DIR=$(INSTALL1_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
-	xcopy wireshark.exe $(INSTALL1_DIR) /d
-	if exist wireshark.pdb xcopy wireshark.pdb $(INSTALL1_DIR) /d
-!ENDIF
+install-deps: install-deps2 install-files2
 
 # install Wireshark GTK2 and other generated files
 install-files2:
 !IFDEF GTK2_DIR
 	set INSTALL_DIR=$(INSTALL2_DIR)
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
-	copy wireshark-gtk2.exe $(INSTALL2_DIR)\wireshark.exe
-	if exist wireshark-gtk2.pdb copy wireshark-gtk2.pdb $(INSTALL2_DIR)\wireshark.pdb
+	copy wireshark.exe $(INSTALL2_DIR)\wireshark.exe
+	if exist wireshark.pdb copy wireshark.pdb $(INSTALL2_DIR)\wireshark.pdb
 	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
 !ENDIF
 
@@ -985,13 +905,6 @@ install-common-files:
 	xcopy ".\plugins\wimaxasncp\wimaxasncp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
 
-install-deps1: install-common-deps1
-!IFDEF GTK1_DIR
-	set copycmd=/y
-	xcopy $(GTK1_DIR)\lib\libgtk-0.dll $(INSTALL1_DIR) /d
-	xcopy $(GTK1_DIR)\lib\libgdk-0.dll $(INSTALL1_DIR) /d
-!ENDIF
-
 install-deps2: install-common-deps2
 !IFDEF GTK2_DIR
 	set copycmd=/y
@@ -1037,13 +950,6 @@ install-deps2: install-common-deps2
 	if not exist $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR)
 	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) /d
 !ENDIF
-!ENDIF
-
-install-common-deps1:
-!IFDEF GTK1_DIR
-	set INSTALL_DIR=$(INSTALL1_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
-	xcopy $(GLIB_GTK1_HACK_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL1_DIR) /d
 !ENDIF
 
 install-common-deps2:
@@ -1096,19 +1002,9 @@ install-common-deps:
 	xcopy "$(SMI_DIR)\mibs\*" $(INSTALL_DIR)\snmp\mibs /d
 !ENDIF
 
-clean-deps1:
-	rm -rf $(INSTALL1_DIR)
-	cd plugins
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
-	cd ..
-
-clean-deps2:
+clean-deps:
 	rm -rf $(INSTALL2_DIR)
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
-
-clean-deps: clean-deps1 clean-deps2
-
-
 

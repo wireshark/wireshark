@@ -30,7 +30,7 @@ InstType "un.All (remove all)"
 Name "${PROGRAM_NAME} ${VERSION}"
 
 ; The file to write
-OutFile "${DEST}-setup-${VERSION}.exe"
+OutFile "wireshark-setup-${VERSION}.exe"
 
 ; Icon of installer and uninstaller
 Icon "..\..\image\wireshark.ico"

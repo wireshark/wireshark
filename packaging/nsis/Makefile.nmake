@@ -11,16 +11,6 @@ include ../../config.nmake
 
 UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
-!IFDEF GTK2_ONLY
-# define installer name and undefine GTK1_DIR to get a separate
-# installer for Wireshark GTK2 version
-DEST=wireshark-gtk2
-!ENDIF
-
-!IFNDEF DEST
-# define installer name for combined GTK1 and GTK2 installer package
-DEST=wireshark
-!ENDIF
 
 EXE=../../tshark.exe ../../editcap.exe \
 !IFDEF GTK2_DIR
@@ -89,7 +79,7 @@ NSI=wireshark.nsi \
 
 DELIVERABLES=$(EXE) $(DLL) $(DOC) $(DOC_dos) $(GPL) $(HELP) $(PLUGINS)
 
-all: NEWS.txt $(DEST)-setup-$(VERSION).exe
+all: NEWS.txt wireshark-setup-$(VERSION).exe
 
 NEWS.txt: ../../NEWS
 	$(UNIX2DOS) < ../../NEWS > NEWS.txt
@@ -99,9 +89,8 @@ user-guide.chm::
 	if exist ..\..\docbook\user-guide.chm xcopy ..\..\docbook\user-guide.chm . /Y /D
 	if exist $(WIRESHARK_LIBS)\user-guide\user-guide.chm xcopy $(WIRESHARK_LIBS)\user-guide\user-guide.chm . /Y /D
 
-$(DEST)-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
+wireshark-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.nmake
 	$(MAKENSIS) \
-	/DDEST=$(DEST) \
 	/DMSVC_VARIANT=$(MSVC_VARIANT) \
 !IFDEF MSVCR_DLL
 	/DMSVCR_DLL="$(MSVCR_DLL)" \
