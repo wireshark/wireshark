@@ -3888,7 +3888,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                   *filter_bt, *filter_cm, *filter_te,
                   *filter_add_expr_bt,
                   *filter_apply,
-                  *filter_reset;
+                  *filter_reset,
+                  *expert_image;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
 
@@ -3903,8 +3904,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     		  *channel_offset_lb = NULL,
     		  *channel_offset_cb = NULL,
     		  *wrong_crc_lb = NULL,
-    		  *wrong_crc_cm = NULL,
-    		  *expert_image = NULL;
+    		  *wrong_crc_cm = NULL;
 
     GtkWidget     *enable_decryption_lb;
     GtkWidget     *enable_decryption_cb;
