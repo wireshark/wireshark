@@ -672,7 +672,7 @@ SectionGroup "!Wireshark" SecWiresharkGroup
 Section "Wireshark GTK2" SecWiresharkGTK2
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File /oname=wireshark.exe "..\..\wireshark-gtk2.exe"
+File /oname=wireshark.exe "..\..\wireshark.exe"
 File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
 File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
