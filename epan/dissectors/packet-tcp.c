@@ -1140,7 +1140,7 @@ tcp_sequence_number_analysis_print_window(packet_info * pinfo,
 					  "completely full"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
-    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_ERROR,
 					  "Window is full");
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP Window Full] ");
@@ -1248,7 +1248,7 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 					  "This is a TCP zero-window-probe"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
-    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_ERROR,
 					  "Zero window probe");
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
@@ -1262,7 +1262,7 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 					  "This is a ZeroWindow segment"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
-    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_ERROR,
 					  "Zero window");
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
@@ -1276,7 +1276,7 @@ tcp_sequence_number_analysis_print_zero_window(packet_info * pinfo,
 					  "This is an ACK to a TCP zero-window-probe"
 					  );
     PROTO_ITEM_SET_GENERATED(flags_item);
-    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_NOTE,
+    expert_add_info_format(pinfo, flags_item, PI_SEQUENCE, PI_ERROR,
 					  "Zero window probe ACK");
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
