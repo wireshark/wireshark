@@ -292,7 +292,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\follow_ssl.c"
+				>
+			</File>
+			<File
 				RelativePath=".\follow_stream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\follow_tcp.c"
+				>
+			</File>
+			<File
+				RelativePath=".\follow_udp.c"
 				>
 			</File>
 			<File
@@ -384,6 +396,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hostlist_sctp.c"
+				>
+			</File>
+			<File
 				RelativePath=".\hostlist_table.c"
 				>
 			</File>
@@ -425,6 +441,10 @@
 			</File>
 			<File
 				RelativePath=".\main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\main_welcome.c"
 				>
 			</File>
 			<File
@@ -500,6 +520,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\profile_dlg.c"
+				>
+			</File>
+			<File
 				RelativePath=".\progress_dlg.c"
 				>
 			</File>
@@ -541,6 +565,10 @@
 			</File>
 			<File
 				RelativePath=".\rtp_player.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rtp_player_prefs.c"
 				>
 			</File>
 			<File
@@ -676,6 +704,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\wlan_stat_dlg.c"
+				>
+			</File>
+			<File
 				RelativePath=".\wsp_stat.c"
 				>
 			</File>
@@ -794,7 +826,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\follow_ssl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\follow_stream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\follow_tcp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\follow_udp.h"
 				>
 			</File>
 			<File
@@ -866,6 +910,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_welcome.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mcast_stream.h"
 				>
 			</File>
@@ -918,6 +966,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\profile_dlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\proto_dlg.h"
 				>
 			</File>
@@ -943,6 +995,10 @@
 			</File>
 			<File
 				RelativePath=".\rtp_player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\rtp_player_prefs.h"
 				>
 			</File>
 			<File
@@ -1020,6 +1076,26 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 		</Filter>
+		<File
+			RelativePath=".\doxygen.cfg.in"
+			>
+		</File>
+		<File
+			RelativePath=".\Makefile.am"
+			>
+		</File>
+		<File
+			RelativePath=".\Makefile.common"
+			>
+		</File>
+		<File
+			RelativePath=".\Makefile.nmake"
+			>
+		</File>
+		<File
+			RelativePath=".\STATUS.gtk2"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
