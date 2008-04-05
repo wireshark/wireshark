@@ -71,9 +71,7 @@
  */
 static GdkColor server_fg, server_bg;
 static GdkColor client_fg, client_bg;
-#if GTK_MAJOR_VERSION >= 2
 static GtkTextTag *server_tag, *client_tag;
-#endif
 
 static void follow_destroy_cb(GtkWidget *w, gpointer data _U_);
 
@@ -106,12 +104,9 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 		       void *arg)
 {
 	GtkWidget *text = arg;
-#if GTK_MAJOR_VERSION >= 2
 	GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
 	GtkTextIter    iter;
-#endif
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 	/* While our isprint() hack is in place, we
 	 * have to use convert some chars to '.' in order
 	 * to be able to see the data we *should* see
@@ -126,17 +121,7 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 			buffer[i] = '.';
 		}
 	}
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-	if (is_server) {
-		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(),
-				&server_fg, &server_bg, buffer, nchars);
-	} else {
-		gtk_text_insert(GTK_TEXT(text), user_font_get_regular(),
-				&client_fg, &client_bg, buffer, nchars);
-	}
-#else
 	gtk_text_buffer_get_end_iter(buf, &iter);
 	if (is_server) {
 		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
@@ -145,7 +130,6 @@ follow_add_to_gtk_text(char *buffer, size_t nchars, gboolean is_server,
 		gtk_text_buffer_insert_with_tags(buf, &iter, buffer, nchars,
 						 client_tag, NULL);
 	}
-#endif
 	return TRUE;
 }
 
@@ -226,13 +210,9 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 void
 follow_load_text(follow_info_t *follow_info)
 {
-#if GTK_MAJOR_VERSION < 2
-	int bytes_already;
-#else
 	GtkTextBuffer *buf;
 
 	buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(follow_info->text));
-#endif
 
 	/* prepare colors one time for repeated use by follow_add_to_gtk_text */
 	color_t_to_gdkcolor(&server_fg, &prefs.st_server_fg);
@@ -240,18 +220,6 @@ follow_load_text(follow_info_t *follow_info)
 	color_t_to_gdkcolor(&client_fg, &prefs.st_client_fg);
 	color_t_to_gdkcolor(&client_bg, &prefs.st_client_bg);
 
-	/* Delete any info already in text box */
-#if GTK_MAJOR_VERSION < 2
-	bytes_already = gtk_text_get_length(GTK_TEXT(follow_info->text));
-	if (bytes_already > 0) {
-		gtk_text_set_point(GTK_TEXT(follow_info->text), 0);
-		gtk_text_forward_delete(GTK_TEXT(follow_info->text),
-					bytes_already);
-	}
-
-	/* stop the updates while we fill the text box */
-	gtk_text_freeze(GTK_TEXT(follow_info->text));
-#else
 	/* prepare tags one time for repeated use by follow_add_to_gtk_text */
 	server_tag = gtk_text_buffer_create_tag(buf, NULL, "foreground-gdk",
 						&server_fg, "background-gdk",
@@ -262,13 +230,11 @@ follow_load_text(follow_info_t *follow_info)
 						&client_bg, "font-desc",
 						user_font_get_regular(), NULL);
 
+	/* Delete any info already in text box */
 	gtk_text_buffer_set_text(buf, "", -1);
-#endif
+
 	follow_read_stream(follow_info, follow_add_to_gtk_text,
 			   follow_info->text);
-#if GTK_MAJOR_VERSION < 2
-	gtk_text_thaw(GTK_TEXT(follow_info->text));
-#endif
 }
 
 void
@@ -563,7 +529,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb,
 		       follow_info);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
 	if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
 		{
 			follow_save_as_ok_cb(new_win, new_win);
@@ -599,7 +565,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	print_stream_t	*stream = NULL;
 	gchar		*dirname;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
 	to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
 	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -775,21 +741,15 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	/* create a scrolled window for the text */
 	txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
 					    GTK_SHADOW_IN);
-#endif
 	gtk_box_pack_start(GTK_BOX(stream_vb), txt_scrollw, TRUE, TRUE, 0);
 
 	/* create a text box */
-#if GTK_MAJOR_VERSION < 2
-	text = gtk_text_new(NULL, NULL);
-	gtk_text_set_editable(GTK_TEXT(text), FALSE);
-#else
 	text = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
 	gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(text), GTK_WRAP_WORD_CHAR);
-#endif
+
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
 	follow_info->text = text;
 
