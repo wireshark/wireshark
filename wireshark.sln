@@ -9,9 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "docbook", "docbook\docbook.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "packaging", "packaging.vcproj", "{F23ECB11-E88E-4BAC-986D-E82A0DE3A2B4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wireshark-gtk1", "wireshark-gtk1.vcproj", "{684AC70D-E5DC-4E42-B70A-DF512A43335C}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wireshark-gtk2", "wireshark-gtk2.vcproj", "{8509897C-1CE1-477D-9FF5-49D7D466F4C9}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wireshark", "wireshark.vcproj", "{684AC70D-E5DC-4E42-B70A-DF512A43335C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libwiretap", "wiretap\libwiretap.vcproj", "{CD04EABB-BA03-446F-9A63-A00C08138E91}"
 EndProject
@@ -93,18 +91,6 @@ Global
 		{684AC70D-E5DC-4E42-B70A-DF512A43335C}.zip_gtk1|Win32.Build.0 = Debug|Win32
 		{684AC70D-E5DC-4E42-B70A-DF512A43335C}.zip_gtk2|Win32.ActiveCfg = Debug|Win32
 		{684AC70D-E5DC-4E42-B70A-DF512A43335C}.zip_gtk2|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.Debug|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.Debug|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.PortableApps|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.PortableApps|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.Release|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.Release|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.wsdg|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.wsdg|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.zip_gtk1|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.zip_gtk1|Win32.Build.0 = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.zip_gtk2|Win32.ActiveCfg = Debug|Win32
-		{8509897C-1CE1-477D-9FF5-49D7D466F4C9}.zip_gtk2|Win32.Build.0 = Debug|Win32
 		{CD04EABB-BA03-446F-9A63-A00C08138E91}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CD04EABB-BA03-446F-9A63-A00C08138E91}.PortableApps|Win32.ActiveCfg = Release|Win32
 		{CD04EABB-BA03-446F-9A63-A00C08138E91}.PortableApps|Win32.Build.0 = Release|Win32

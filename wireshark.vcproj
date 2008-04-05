@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="wireshark-gtk1"
+	Name="wireshark"
 	ProjectGUID="{684AC70D-E5DC-4E42-B70A-DF512A43335C}"
 	RootNamespace="wireshark"
 	Keyword="MakeFileProj"
@@ -23,10 +23,10 @@
 			>
 			<Tool
 				Name="VCNMakeTool"
-				BuildCommandLine="nmake -f Makefile.nmake debug-gtk1"
+				BuildCommandLine="nmake -f Makefile.nmake debug"
 				ReBuildCommandLine=""
 				CleanCommandLine="nmake -f Makefile.nmake distclean"
-				Output="wireshark-gtk1\wireshark.exe"
+				Output="wireshark-gtk2\wireshark.exe"
 				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_CONFIG_H"
 				IncludeSearchPath=""
 				ForcedIncludes=""
