@@ -152,6 +152,7 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
+#include "expert_comp_dlg.h"
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
 #include "../image/wsicon32.xpm"
@@ -1477,16 +1478,7 @@ set_display_filename(capture_file *cf)
     add_menu_recent_capture_file(cf->filename);
   }
 
-  /* convert file size */
-  if (cf->f_datalen/1024/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", cf->f_datalen/1024/1024);
-  } else if (cf->f_datalen/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", cf->f_datalen/1024);
-  } else {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", cf->f_datalen);
-  }
-
-  /* statusbar */
+  /* expert info indicator */
   gtk_widget_hide(expert_info_error);
   gtk_widget_hide(expert_info_warn);
   gtk_widget_hide(expert_info_note);
@@ -1508,6 +1500,16 @@ set_display_filename(capture_file *cf)
       default:
         gtk_widget_show(expert_info_none);
         break;
+  }
+
+  /* statusbar */
+  /* convert file size */
+  if (cf->f_datalen/1024/1024 > 10) {
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", cf->f_datalen/1024/1024);
+  } else if (cf->f_datalen/1024 > 10) {
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", cf->f_datalen/1024);
+  } else {
+    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", cf->f_datalen);
   }
 
   status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
@@ -1566,6 +1568,13 @@ main_cf_cb_file_closing(capture_file *cf)
        XXX - should be "clear *ALL* file-related status bar messages;
        will there ever be more than one on the stack? */
     statusbar_pop_file_msg();
+
+    /* reset expert info indicator */
+    gtk_widget_hide(expert_info_error);
+    gtk_widget_hide(expert_info_warn);
+    gtk_widget_hide(expert_info_note);
+    gtk_widget_hide(expert_info_chat);
+    gtk_widget_show(expert_info_none);
 
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
@@ -1751,7 +1760,7 @@ main_cf_cb_live_capture_update_continue(capture_file *cf)
 
     statusbar_pop_file_msg();
 
-    /* expert info */
+    /* expert info indicator */
     gtk_widget_hide(expert_info_error);
     gtk_widget_hide(expert_info_warn);
     gtk_widget_hide(expert_info_note);
@@ -3894,7 +3903,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     		  *channel_offset_lb = NULL,
     		  *channel_offset_cb = NULL,
     		  *wrong_crc_lb = NULL,
-    		  *wrong_crc_cm = NULL;
+    		  *wrong_crc_cm = NULL,
+    		  *expert_image = NULL;
 
     GtkWidget     *enable_decryption_lb;
     GtkWidget     *enable_decryption_cb;
@@ -4318,17 +4328,41 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
     OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
 
-    /* expert status icons */
-    expert_info_error = xpm_to_widget_from_parent(top_level, expert_error_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_info_error, "Error is the highest expert info level", NULL);
-    expert_info_warn = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_info_warn, "Warning is the highest expert info level", NULL);
-    expert_info_note = xpm_to_widget_from_parent(top_level, expert_note_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_info_note, "Note is the highest expert info level", NULL);
-    expert_info_chat = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_info_chat, "Chat is the highest expert info level", NULL);
-    expert_info_none = xpm_to_widget_from_parent(top_level, expert_none_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_info_none, "No expert info", NULL);
+    /* expert info indicator */
+    expert_image = xpm_to_widget_from_parent(top_level, expert_error_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_image, "ERROR is the highest expert info level", NULL);
+    gtk_widget_show(expert_image);
+    expert_info_error = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
+    SIGNAL_CONNECT(expert_info_error, "button_press_event", expert_comp_dlg_cb, NULL);
+
+    expert_image = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
+    gtk_widget_show(expert_image);
+    expert_info_warn = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
+    SIGNAL_CONNECT(expert_info_warn, "button_press_event", expert_comp_dlg_cb, NULL);
+
+    expert_image = xpm_to_widget_from_parent(top_level, expert_note_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
+    gtk_widget_show(expert_image);
+    expert_info_note = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
+    SIGNAL_CONNECT(expert_info_note, "button_press_event", expert_comp_dlg_cb, NULL);
+
+    expert_image = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
+    gtk_widget_show(expert_image);
+    expert_info_chat = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
+    SIGNAL_CONNECT(expert_info_chat, "button_press_event", expert_comp_dlg_cb, NULL);
+
+    expert_image = xpm_to_widget_from_parent(top_level, expert_none_xpm);
+    gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
+    gtk_widget_show(expert_image);
+    expert_info_none = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
+    SIGNAL_CONNECT(expert_info_none, "button_press_event", expert_comp_dlg_cb, NULL);
     gtk_widget_show(expert_info_none);
 
 

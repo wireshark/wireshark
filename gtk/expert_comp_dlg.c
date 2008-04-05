@@ -45,6 +45,7 @@
 #include "gui_stat_menu.h"
 #include <epan/stat_cmd_args.h>
 #include "help_dlg.h"
+#include "expert_comp_dlg.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _expert_comp_dlg_t {
@@ -315,7 +316,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     cf_redissect_packets(&cfile);
 }
 
-static void 
+void 
 expert_comp_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     expert_comp_init("", NULL);
