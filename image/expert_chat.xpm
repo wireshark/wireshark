@@ -1,5 +1,5 @@
 /* XPM */
-static char * expert_chat_xpm[] = {
+static const char * expert_chat_xpm[] = {
 "10 10 43 1",
 " 	c None",
 ".	c #383838",
