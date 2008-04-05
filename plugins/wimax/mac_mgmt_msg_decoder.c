@@ -237,6 +237,10 @@ void proto_register_mac_mgmt_msg(void)
 		proto_register_subtree_array(ett, array_length(ett));
 	}
 
+	/* Register dissector by name */
+	register_dissector("wmx_mac_mgmt_msg_decoder", dissect_mac_mgmt_msg_decoder,
+	                   proto_mac_mgmt_msg_decoder);
+
 	proto_register_mac_mgmt_msg_dcd();
 	proto_register_mac_mgmt_msg_ucd();
 	proto_register_mac_mgmt_msg_dlmap();
