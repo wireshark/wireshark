@@ -141,13 +141,6 @@ remove_tap_listener_flow_graph(void)
 static void
 flow_graph_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
 {
-#if GTK_MAJOR_VERSION < 2
-	/* Destroy the graph analysis window when we're destroyed.  This is
-	 * handled under GTK2 with a call to gtk_window_set_destroy_with_parent
-	 * in graph_analysis.c */
-	window_destroy(graph_analysis_data->dlg.window);
-#endif
-
 	/* remove_tap_listeners */
 	remove_tap_listener_flow_graph();
 
@@ -488,9 +481,6 @@ static void flow_graph_dlg_create (void)
 	GtkWidget *top_label = NULL;
 #endif
 	GtkWidget *flow_type_fr, *range_fr, *range_tb, *flow_type_tb, *node_addr_fr, *node_addr_tb;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
 
 
 	GtkTooltips *tooltips = gtk_tooltips_new();
@@ -502,14 +492,6 @@ static void flow_graph_dlg_create (void)
 	main_vb = gtk_vbox_new (FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(flow_graph_dlg_w), main_vb);
 	gtk_container_set_border_width (GTK_CONTAINER (main_vb), 12);
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(main_vb), accel_group);
-#endif
 
 #if 0
 	top_label = gtk_label_new ("Choose packets to include in the graph");

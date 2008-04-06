@@ -169,14 +169,6 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     
     gtk_container_add(GTK_CONTAINER(main_vb), txt_scrollw);
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-                                   GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-    tw->txt = gtk_text_new(NULL, NULL);
-    gtk_text_set_editable(GTK_TEXT(tw->txt), FALSE);
-    gtk_text_set_word_wrap(GTK_TEXT(tw->txt), TRUE);
-    gtk_text_set_line_wrap(GTK_TEXT(tw->txt), TRUE);
-#else
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                         GTK_SHADOW_IN);
 
@@ -189,7 +181,6 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     
     gtk_text_view_set_left_margin(GTK_TEXT_VIEW(tw->txt), 4);
     gtk_text_view_set_right_margin(GTK_TEXT_VIEW(tw->txt), 4);
-#endif
 
 	hbox = gtk_hbox_new(FALSE, 0);
     gtk_widget_show(hbox);
@@ -213,12 +204,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     gtk_widget_grab_default(tw->bt_close);
 
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_resize(GTK_WINDOW(tw->win),400,300);
-#else
-    gtk_window_set_default_size(GTK_WINDOW(tw->win), 400, 300);
-    gtk_widget_set_usize(tw->win, 400, 300);
-#endif
     gtk_widget_show_all(tw->win);
     
     return tw;
@@ -227,21 +213,6 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 
 static void text_window_clear(funnel_text_window_t*  tw)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkText *txt;
-
-    if (! tw->win) return; 
-    
-    txt = GTK_TEXT(tw->txt);
-    
-    gtk_text_set_point(txt, 0);
-    /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
-http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
-http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
-        for more information */
-    gtk_adjustment_set_value(txt->vadj, 0.0);
-    gtk_text_forward_delete(txt, gtk_text_get_length(txt));
-#else
     GtkTextBuffer *buf;
 
     if (! tw->win) return; 
@@ -249,7 +220,6 @@ http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.sht
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tw->txt));
     
     gtk_text_buffer_set_text(buf, "", 0);
-#endif
 }
 
 
@@ -257,10 +227,8 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
 {
     GtkWidget *txt;
     int nchars = strlen(str);
-#if GTK_MAJOR_VERSION >= 2
     GtkTextBuffer *buf;
     GtkTextIter    iter;
-#endif
  
     if (! tw->win) return; 
 
@@ -268,10 +236,6 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
     nchars = strlen(str);
     
     
-#if GTK_MAJOR_VERSION < 2
-	gtk_text_set_point(GTK_TEXT(txt),gtk_text_get_length(GTK_TEXT(txt)));
-    gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, str, nchars);
-#else
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     
     gtk_text_buffer_get_end_iter(buf, &iter);
@@ -281,7 +245,6 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
         printf("Invalid utf8 encoding: %s\n", str);
     
     gtk_text_buffer_insert(buf, &iter, str, nchars);
-#endif
 }
 
 
@@ -290,26 +253,16 @@ static void text_window_set_text(funnel_text_window_t*  tw, const gchar* text)
     
     if (! tw->win) return; 
     
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_freeze(GTK_TEXT(tw->txt));
-#endif
-
     text_window_clear(tw);
     text_window_append(tw, text);
-
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(tw->txt));
-#endif
 }
 
 
 static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) {
     GtkWidget *txt;
     int nchars = strlen(str);
-#if GTK_MAJOR_VERSION >= 2
     GtkTextBuffer *buf;
     GtkTextIter    iter;
-#endif
 	
     if (! tw->win) return; 
 	
@@ -317,10 +270,6 @@ static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) 
     nchars = strlen(str);
     
     
-#if GTK_MAJOR_VERSION < 2
-	gtk_text_set_point(GTK_TEXT(txt),0);
-    gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, str, nchars);
-#else
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     
     gtk_text_buffer_get_start_iter(buf, &iter);
@@ -330,31 +279,23 @@ static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) 
         printf("Invalid utf8 encoding: %s\n", str);
     
     gtk_text_buffer_insert(buf, &iter, str, nchars);
-#endif
 }
 
 static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
     GtkWidget *txt;
-#if GTK_MAJOR_VERSION >= 2
     GtkTextBuffer *buf;
     GtkTextIter    start;
     GtkTextIter    end;
-#endif
 	
     if (! tw->win) return ""; 
 
 	txt = tw->txt;
 
-#if GTK_MAJOR_VERSION < 2
-	/* to do */
-	return "";
-#else
     buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
 	gtk_text_buffer_get_start_iter(buf, &start);
 	gtk_text_buffer_get_end_iter(buf, &end);
     
 	return gtk_text_buffer_get_text(buf, &start, &end, FALSE);
-#endif
 }
 
 
@@ -390,12 +331,8 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
 }
 
 static void text_window_set_editable(funnel_text_window_t*  tw, gboolean editable){
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_set_editable(GTK_TEXT(tw->txt), editable);
-#else 	
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(tw->txt), editable);
 	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(tw->txt), editable);
-#endif
 }
 
 static gboolean text_window_button_cb(GtkWidget *bt _U_, gpointer user_data)
@@ -482,12 +419,7 @@ static void funnel_new_dialog(const gchar* title,
 
     dd->win = win;
     
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_resize(GTK_WINDOW(win),400,10*(i+2));
-#else
-    gtk_window_set_default_size(GTK_WINDOW(win), 400, 10*(i+2));
-    gtk_widget_set_usize(win, 400, 10*(i+2));
-#endif
     
     main_vb = gtk_vbox_new(TRUE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
