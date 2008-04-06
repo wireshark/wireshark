@@ -669,15 +669,8 @@ EXTRA_DIST = \
 	image/toolbar/stock_ok_20.xpm	\
 	image/toolbar/stock_open_24.xpm	\
 	image/toolbar/stock_properties_24.xpm	\
-	image/toolbar/stock_right_arrow_24.xpm	\
 	image/toolbar/stock_save_24.xpm	\
-	image/toolbar/stock_save_as_24.xpm	\
-	image/toolbar/stock_search_24.xpm	\
 	image/toolbar/stock_stop_24.xpm	\
-	image/toolbar/stock_top_24.xpm	\
-	image/toolbar/stock_zoom_1_24.xpm	\
-	image/toolbar/stock_zoom_in_24.xpm	\
-	image/toolbar/stock_zoom_out_24.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
