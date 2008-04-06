@@ -295,7 +295,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 #if 0
 /* as the dialog layout will look very ugly when using the file chooser preview mechanism,
    simply use the same layout as in GTK1 */
-/* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+/* GTK_CHECK_VERSION(2,4,0) */
 static void
 update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 {
@@ -325,7 +325,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
     wtap       *wth;
 
     /* get the filename */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));
 #else
     cf_name = gtk_file_selection_get_filename(GTK_FILE_SELECTION(file_sel));
@@ -339,7 +339,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
     gtk_widget_set_sensitive(prev, have_preview);
 
     /* make the open/save/... dialog button sensitive */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     gtk_dialog_set_response_sensitive(file_sel, GTK_RESPONSE_ACCEPT, have_preview);
 #else
     gtk_widget_set_sensitive(GTK_FILE_SELECTION(file_sel)->ok_button, have_preview);
@@ -450,7 +450,7 @@ file_open_cmd(GtkWidget *w)
 
   file_open_w = file_selection_new("Wireshark: Open Capture File",
                                    FILE_SELECTION_OPEN);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
@@ -510,7 +510,7 @@ file_open_cmd(GtkWidget *w)
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_open_w, E_RFILTER_TE_KEY, filter_te);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
@@ -522,7 +522,7 @@ file_open_cmd(GtkWidget *w)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_open_w,
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 #else
@@ -536,7 +536,7 @@ file_open_cmd(GtkWidget *w)
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_open_w, E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
@@ -548,7 +548,7 @@ file_open_cmd(GtkWidget *w)
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_open_w, E_FILE_T_RESOLVE_KEY, t_resolv_cb);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
@@ -564,7 +564,7 @@ file_open_cmd(GtkWidget *w)
   gtk_widget_show_all(prev);
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_open_w), "selection-changed",
       file_open_entry_changed, file_open_w);
   file_open_entry_changed(file_open_w, file_open_w);
@@ -576,7 +576,7 @@ file_open_cmd(GtkWidget *w)
     file_open_ok_cb(file_open_w, file_open_w);
   }
   else window_destroy(file_open_w);
-#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#else /* GTK_CHECK_VERSION(2,4,0) */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed",
       file_open_entry_changed, file_open_w);
 
@@ -596,7 +596,7 @@ file_open_cmd(GtkWidget *w)
 
   gtk_widget_show(file_open_w);
   window_present(file_open_w);
-#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* _WIN32 */
 }
 
@@ -643,7 +643,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
   dfilter_t   *rfcode = NULL;
   int          err;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -676,7 +676,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
     g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -788,7 +788,7 @@ file_merge_cmd(GtkWidget *w)
 
   file_merge_w = file_selection_new("Wireshark: Merge with Capture File",
                                    FILE_SELECTION_OPEN);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
   WIDGET_SET_SIZE(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
@@ -863,7 +863,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_merge_w, E_RFILTER_TE_KEY, filter_te);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
@@ -875,7 +875,7 @@ file_merge_cmd(GtkWidget *w)
       "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file,"
       " the packet timestamps will be ignored.", NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_merge_w,
                   E_MERGE_PREPEND_KEY, prepend_rb);
 #else
@@ -891,7 +891,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chrono_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_merge_w, E_MERGE_CHRONO_KEY, chrono_rb);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
@@ -906,7 +906,7 @@ file_merge_cmd(GtkWidget *w)
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
   gtk_widget_show(append_rb);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   OBJECT_SET_DATA(file_merge_w, E_MERGE_APPEND_KEY, append_rb);
 #else
   OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
@@ -922,7 +922,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show_all(prev);
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_merge_w), "selection-changed",
       file_open_entry_changed, file_merge_w);
   file_open_entry_changed(file_merge_w, file_merge_w);
@@ -934,7 +934,7 @@ file_merge_cmd(GtkWidget *w)
     file_merge_ok_cb(file_merge_w, file_merge_w);
   }
   else window_destroy(file_merge_w);
-#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#else /* GTK_CHECK_VERSION(2,4,0) */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed",
       file_open_entry_changed, file_merge_w);
 
@@ -954,7 +954,7 @@ file_merge_cmd(GtkWidget *w)
 
   gtk_widget_show(file_merge_w);
   window_present(file_merge_w);
-#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* _WIN32 */
 }
 
@@ -1000,7 +1000,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   char        *in_filenames[2];
   char        *tmpname;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -1072,7 +1072,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
     if (rfcode != NULL)
       dfilter_free(rfcode);
     g_free(tmpname);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -1345,13 +1345,13 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT) {
     file_save_as_ok_cb(file_save_as_w, file_save_as_w);
   } else {
     window_destroy(file_save_as_w);
   }
-#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
@@ -1364,7 +1364,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   gtk_widget_show(file_save_as_w);
   window_present(file_save_as_w);
-#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* _WIN32 */
 }
 
@@ -1384,7 +1384,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   GtkWidget *compressed_cb;
 
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -1404,7 +1404,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
     g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -1465,7 +1465,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
 {
     gchar	*cf_name;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(data)));
 #else
     cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(data)));
@@ -1478,7 +1478,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
         file_save_as_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
         /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
          * as this will prevent the user from closing the now existing error
          * message, simply close the dialog (this is the best we can do here). */
@@ -1500,7 +1500,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   gchar	*cf_name;
   gpointer  dialog;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -1523,7 +1523,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
     g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -1548,7 +1548,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
       "Please choose a different filename.",
       simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
     g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -1621,7 +1621,7 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
   /* decide what file to open (from dfilter code) */
   path = get_datafile_path("colorfilters");
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   gtk_file_chooser_select_filename(GTK_FILE_CHOOSER(fs_widget), path);
 #else
   file_selection_set_current_folder(fs_widget, path);
@@ -1664,14 +1664,14 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 
   SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
 
   if (gtk_dialog_run(GTK_DIALOG(file_color_import_w)) == GTK_RESPONSE_ACCEPT)
   {
       file_color_import_ok_cb(file_color_import_w, color_filters);
   }
   else window_destroy(file_color_import_w);
-#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
@@ -1685,7 +1685,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 
   gtk_widget_show(file_color_import_w);
   window_present(file_color_import_w);
-#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* _WIN32 */
 }
 
@@ -1694,7 +1694,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
   gchar     *cf_name, *s;
   GtkWidget *fs = gtk_widget_get_toplevel(w);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -1718,7 +1718,7 @@ file_color_import_ok_cb(GtkWidget *w, gpointer color_filters) {
        dismiss the alert box popped up for the open error,
        try again. */
     g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
      * as this will prevent the user from closing the now existing error
      * message, simply close the dialog (this is the best we can do here). */
@@ -1824,13 +1824,13 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
   SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
   {
       file_color_export_ok_cb(file_color_export_w, filter_list);
   }
   else window_destroy(file_color_export_w);
-#else /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_export_ok_cb function and pass along a
      pointer to the file selection box widget */
   SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
@@ -1846,7 +1846,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
   gtk_widget_show(file_color_export_w);
   window_present(file_color_export_w);
-#endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
+#endif /* GTK_CHECK_VERSION(2,4,0) */
 #endif /* _WIN32 */
 }
 
@@ -1856,7 +1856,7 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
   gchar	*dirname;
   GtkWidget *fs = gtk_widget_get_toplevel(w);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   cf_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
@@ -1882,7 +1882,7 @@ file_color_export_ok_cb(GtkWidget *w, gpointer filter_list) {
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
        g_free(cf_name);
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
       /* XXX - as we cannot start a new event loop (using gtk_dialog_run()),
        * as this will prevent the user from closing the now existing error
        * message, simply close the dialog (this is the best we can do here). */
