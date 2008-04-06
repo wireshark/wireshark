@@ -664,19 +664,11 @@ EXTRA_DIST = \
 	image/toolbar/internet_24.xpm	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/stock_add_24.xpm	\
-	image/toolbar/stock_bottom_24.xpm	\
 	image/toolbar/stock_clear_24.xpm	\
 	image/toolbar/stock_close_24.xpm	\
-	image/toolbar/stock_colorselector_24.xpm	\
-	image/toolbar/stock_help_24.xpm	\
-	image/toolbar/stock_jump_to_24.xpm	\
-	image/toolbar/stock_left_arrow_24.xpm	\
 	image/toolbar/stock_ok_20.xpm	\
 	image/toolbar/stock_open_24.xpm	\
-	image/toolbar/stock_preferences_24.xpm	\
-	image/toolbar/stock_print_24.xpm	\
 	image/toolbar/stock_properties_24.xpm	\
-	image/toolbar/stock_refresh_24.xpm	\
 	image/toolbar/stock_right_arrow_24.xpm	\
 	image/toolbar/stock_save_24.xpm	\
 	image/toolbar/stock_save_as_24.xpm	\
