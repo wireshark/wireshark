@@ -173,12 +173,6 @@ typedef struct _io_stat_t {
 	int count_type;
 } io_stat_t;	
 
-#if GTK_MAJOR_VERSION < 2
-GtkRcStyle *rc_style;
-GdkColormap *colormap;
-#endif
-
-
 
 static void init_io_stat_window(io_stat_t *io);
 static gint filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio);
@@ -616,11 +610,7 @@ io_stat_draw(io_stat_t *io)
 	gint32 current_interval;
 	guint32 top_y_border;
 	guint32 bottom_y_border;
-#if GTK_MAJOR_VERSION < 2
-	GdkFont *font;
-#else
         PangoLayout  *layout;
-#endif
 	int label_width, label_height;
 	guint32 draw_width, draw_height;
 	char label_string[45];
@@ -630,10 +620,6 @@ io_stat_draw(io_stat_t *io)
 	guint32 max_value;		/* max value of seen data */
 	guint32 max_y;			/* max value of the Y scale */
 	gboolean draw_y_as_time;
-
-#if GTK_MAJOR_VERSION <2
-	font = io->draw_area->style->font;
-#endif
 
 	if(!io->needs_redraw){
 		return;
@@ -764,13 +750,10 @@ io_stat_draw(io_stat_t *io)
 	} else {
 		g_snprintf(label_string, 15, "%d", max_y);
 	}
-#if GTK_MAJOR_VERSION < 2
-        label_width=gdk_string_width(font, label_string);
-        label_height=gdk_string_height(font, label_string);
-#else
+
         layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
-#endif
+
 	io->left_x_border=10;
 	io->right_x_border=label_width+20;
 	top_y_border=10;
@@ -789,19 +772,11 @@ io_stat_draw(io_stat_t *io)
 	 */
 	if (num_time_intervals == NUM_IO_ITEMS) {
 		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
-#if GTK_MAJOR_VERSION < 2
-		gdk_draw_string(io->pixmap,
-				font,
-				io->draw_area->style->black_gc, 5,
-				io->pixmap_height-bottom_y_border-draw_height+label_height/2,
-				label_string);
-#else
 		pango_layout_set_text(layout, label_string, -1);
 		gdk_draw_layout(io->pixmap,
 				io->draw_area->style->black_gc, 5, 
 				io->pixmap_height-bottom_y_border-draw_height-label_height/2,
 				layout);
-#endif
 	}
 
 	/* 
@@ -878,15 +853,6 @@ io_stat_draw(io_stat_t *io)
 				}
 			}
 
-#if GTK_MAJOR_VERSION < 2
-	                lwidth=gdk_string_width(font, label_string);
-	                gdk_draw_string(io->pixmap,
-        	                        font,
-	                                io->draw_area->style->black_gc,
-	                                io->pixmap_width-io->right_x_border+15+label_width-lwidth,
-        	                        ypos+label_height/2,
-                	                label_string);
-#else
 	                pango_layout_set_text(layout, label_string, -1);
 	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(io->pixmap,
@@ -894,7 +860,6 @@ io_stat_draw(io_stat_t *io)
                         	        io->pixmap_width-io->right_x_border+15+label_width-lwidth,
                                 	ypos-label_height/2,
 	                                layout);
-#endif
 		}
 	}
 
@@ -953,12 +918,9 @@ io_stat_draw(io_stat_t *io)
 		if(xlen==10){
 			int lwidth, x_pos;
 			print_interval_string (label_string, 15, current_interval, io, TRUE);
-#if GTK_MAJOR_VERSION < 2
-			lwidth=gdk_string_width(font, label_string);
-#else
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-#endif
+
 			if ((x-1-io->pixels_per_tick/2-lwidth/2) < 5) {
 				x_pos=5;
 			} else if ((x-1-io->pixels_per_tick/2+lwidth/2) > (io->pixmap_width-5)) {
@@ -966,27 +928,16 @@ io_stat_draw(io_stat_t *io)
 			} else {
 				x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
 			}
-#if GTK_MAJOR_VERSION < 2
-                        gdk_draw_string(io->pixmap,
-                                        font,
-                                        io->draw_area->style->black_gc,
-                                        x_pos,
-                                        io->pixmap_height-bottom_y_border+15+label_height,
-                                        label_string);
-#else
+
                         gdk_draw_layout(io->pixmap,
                                         io->draw_area->style->black_gc,
                                         x_pos,
                                         io->pixmap_height-bottom_y_border+15,
                                         layout);
-#endif
 		}
 
 	}
-#if GTK_MAJOR_VERSION >= 2
         g_object_unref(G_OBJECT(layout));
-#endif
-
 
 
 	/* 
@@ -1369,17 +1320,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	/* set up the colors and the GC structs for this pixmap */
 	for(i=0;i<MAX_GRAPHS;i++){
 		io->graphs[i].gc=gdk_gc_new(io->pixmap);
-#if GTK_MAJOR_VERSION < 2
-		colormap = gtk_widget_get_colormap (widget);
-		if (!gdk_color_alloc (colormap, &io->graphs[i].color)){
-			g_warning ("Couldn't allocate color");
-		}
-
-		gdk_gc_set_foreground(io->graphs[i].gc, &io->graphs[i].color);
-#else
 		gdk_gc_set_rgb_fg_color(io->graphs[i].gc, &io->graphs[i].color);
-#endif
-		
 	}
 
 	io_stat_redraw(io);
@@ -1686,15 +1627,6 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	GtkWidget *frame;
 	GtkWidget *vbox;
 	GtkWidget *view_cb;
-#if GTK_MAJOR_VERSION < 2
-	GtkAccelGroup *accel_group;
-
-	/* Accelerator group for the accelerators (or, as they're called in
-	   Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-	   Ctrl+<key> is an accelerator). */
-	accel_group = gtk_accel_group_new();
-	gtk_window_add_accel_group(GTK_WINDOW(io->window), accel_group);
-#endif
 
 	frame_vbox=gtk_vbox_new(FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(box), frame_vbox, FALSE, FALSE, 0);
@@ -1994,28 +1926,11 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-#if GTK_MAJOR_VERSION < 2
-	/* setting the color of the display button doesn't work */
-	rc_style = gtk_rc_style_new ();
-	rc_style->fg[GTK_STATE_NORMAL] = gio->color;
-	rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG;
-	rc_style->fg[GTK_STATE_ACTIVE] = gio->color;
-	rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_FG;
-	rc_style->fg[GTK_STATE_PRELIGHT] = gio->color;
-	rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_FG;
-	rc_style->fg[GTK_STATE_SELECTED] = gio->color;
-	rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_FG;
-	rc_style->fg[GTK_STATE_INSENSITIVE] = gio->color;
-	rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_FG;
-	gtk_widget_modify_style (label, rc_style);
-	gtk_rc_style_unref (rc_style);
-#else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color); 
-#endif
 /*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
 
 
@@ -2100,7 +2015,6 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 static void
 copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 {
@@ -2135,7 +2049,6 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 	gtk_clipboard_set_text(cb, CSV_str->str, -1);       /* Copy the CSV data into the clipboard */
 	g_string_free(CSV_str, TRUE);                       /* Free the memory */
 } 
-#endif
 
 
 static void 
@@ -2146,9 +2059,7 @@ init_io_stat_window(io_stat_t *io)
 	GtkWidget *bbox;
 	GtkWidget *close_bt, *help_bt;
 	GtkTooltips *tooltips = gtk_tooltips_new();
-#if GTK_MAJOR_VERSION >= 2
 	GtkWidget *copy_bt;
-#endif
 #if GTK_CHECK_VERSION(2,6,0)
 	GtkWidget *save_bt;
 #endif
@@ -2177,21 +2088,16 @@ init_io_stat_window(io_stat_t *io)
 #if GTK_CHECK_VERSION(2,6,0)
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
 					  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-#elif GTK_MAJOR_VERSION >= 2
-
+#else
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, 
 					  GTK_STOCK_HELP, NULL);
-#else
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 #endif
 	} else {
 #if GTK_CHECK_VERSION(2,6,0)
 		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, 
 					  GTK_STOCK_COPY, NULL);
-#elif GTK_MAJOR_VERSION >= 2
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
 #else
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
 #endif
 	}
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
@@ -2209,12 +2115,10 @@ init_io_stat_window(io_stat_t *io)
 	OBJECT_SET_DATA(io->window, "save_bt", save_bt);
 #endif
 
-#if GTK_MAJOR_VERSION >= 2
 	copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
 	SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, io);
-#endif
 
 	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
 		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
