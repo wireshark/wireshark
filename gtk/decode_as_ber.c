@@ -61,33 +61,16 @@ decode_ber(GtkWidget *notebook_pg)
 {
     GtkWidget *list;
     gchar              *syntax;
-#if GTK_MAJOR_VERSION < 2
-    gint               row;
-#else
     GtkTreeSelection  *selection;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
-#endif
 
     syntax = NULL;
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
 
     if (requested_action == E_DECODE_NO)
-#if GTK_MAJOR_VERSION < 2
-	gtk_clist_unselect_all(GTK_CLIST(list));
-#else
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    if (!GTK_CLIST(list)->selection)
-    {
-	syntax = NULL;
-    } else {
-	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
-	gtk_clist_get_text(GTK_CLIST(list), row, E_LIST_S_PROTO_NAME, &syntax);
-    }
-#else
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
     {
@@ -95,18 +78,14 @@ decode_ber(GtkWidget *notebook_pg)
     } else {
       gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &syntax, -1);
     }
-#endif
 
     if ((syntax != NULL && strcmp(syntax, "(default)") == 0) ) {
       ber_decode_as(NULL);
     } else {
       ber_decode_as(syntax);
     }
-#if GTK_MAJOR_VERSION >= 2
     if (syntax != NULL)
 	g_free(syntax);
-#endif
-
 }
 
 

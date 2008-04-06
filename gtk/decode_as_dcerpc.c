@@ -245,25 +245,10 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
 {
     dcerpc_uuid_key     *key;
     gchar              *abbrev;
-#if GTK_MAJOR_VERSION < 2
-    gint               row;
-#else
     GtkTreeSelection  *selection;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    if (!GTK_CLIST(list)->selection)
-    {
-	abbrev = NULL;
-	key = NULL;
-    } else {
-	row = GPOINTER_TO_INT(GTK_CLIST(list)->selection->data);
-	key = gtk_clist_get_row_data(GTK_CLIST(list), row);
-	gtk_clist_get_text(GTK_CLIST(list), row, E_LIST_S_PROTO_NAME, &abbrev);
-    }
-#else
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
     {
@@ -273,7 +258,6 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
         gtk_tree_model_get(model, &iter, E_LIST_S_PROTO_NAME, &abbrev,
                            E_LIST_S_TABLE+1, &key, -1);
     }
-#endif
 
     if (key == NULL || (abbrev != NULL && strcmp(abbrev, "(default)") == 0) ) {
         decode_dcerpc_binding_reset(table_name, binding);
@@ -283,10 +267,8 @@ decode_change_one_dcerpc_binding(const gchar *table_name, decode_dcerpc_bind_val
 			binding->ver = key->ver;
 			decode_dcerpc_binding_change(table_name, binding);
     }
-#if GTK_MAJOR_VERSION >= 2
     if (abbrev != NULL)
 	g_free(abbrev);
-#endif
 }
 
 
@@ -314,11 +296,7 @@ decode_dcerpc(GtkWidget *notebook_pg)
 
     list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
-#if GTK_MAJOR_VERSION < 2
-	gtk_clist_unselect_all(GTK_CLIST(list));
-#else
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-#endif
 
     binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
 
