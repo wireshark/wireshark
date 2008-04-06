@@ -811,11 +811,7 @@ capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
                                                    "Null authentication");
     gtk_box_pack_start(GTK_BOX(auth_vb), auth_null_rb, TRUE, TRUE, 0);
 
-#if GTK_MAJOR_VERSION >= 2
     auth_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(auth_null_rb));
-#else
-    auth_group = gtk_radio_button_group(GTK_RADIO_BUTTON(auth_null_rb));
-#endif
     auth_passwd_rb = gtk_radio_button_new_with_label(auth_group,
                                             "Password authentication");
     gtk_box_pack_start(GTK_BOX(auth_vb), auth_passwd_rb, TRUE, TRUE, 0);
@@ -919,10 +915,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
                 *bbox, *ok_bt, *cancel_bt,
                 *help_bt;
-#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
 #ifdef HAVE_AIRPCAP
   GtkWidget     *advanced_hb, *advanced_bt;
-#endif
 #endif
 #ifdef HAVE_PCAP_REMOTE
   GtkWidget     *iftype_om, *nocap_rpcap_cb, *datatx_udp_cb;
@@ -933,9 +927,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *samp_count_adj, *samp_timer_adj;
   GSList        *samp_group;
 #endif
-#endif
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
 #endif
   GtkTooltips   *tooltips;
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
@@ -1017,14 +1008,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_free(cap_title);
 
   tooltips = gtk_tooltips_new();
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(cap_open_w), accel_group);
-#endif
 
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
@@ -1254,7 +1237,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
 
   /* advanced row */
-#if GTK_MAJOR_VERSION >= 2 /* For some reason this button's action crashes under GTK 1. */
 #ifdef HAVE_AIRPCAP
   advanced_hb = gtk_hbox_new(FALSE,5);
   gtk_box_pack_start(GTK_BOX(capture_vb), advanced_hb, FALSE, FALSE, 0);
@@ -1262,13 +1244,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   advanced_bt = gtk_button_new_with_label("Wireless Settings");
 
   /* set the text */
-  #if GTK_MAJOR_VERSION >= 2
   /* XXX - find a way to set the GtkButton label in GTK 2.x */
   gtk_button_set_label(GTK_BUTTON(advanced_bt), "Wireless Settings");
-  #else
-  /* Set the GtkButton label in GTK 1.x */
-  gtk_label_set_text(GTK_LABEL(GTK_BIN(advanced_bt)->child), "Wireless Settings");
-  #endif
 
   /* Both the callback and the data are global */
   SIGNAL_CONNECT(advanced_bt,"clicked",options_airpcap_advanced_cb,airpcap_tb);
@@ -1287,7 +1264,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(linktype_hb),advanced_bt,FALSE,FALSE,0);
   gtk_widget_show(advanced_bt);
   gtk_widget_show(advanced_hb);
-#endif
 #endif
 
   /* Capture file-related options frame */
@@ -1543,11 +1519,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_none_rb, 0, 1, 0, 1);
 
   /* "Sampling by counter" row */
-#if GTK_MAJOR_VERSION >= 2
   samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_none_rb));
-#else
-  samp_group = gtk_radio_button_group(GTK_RADIO_BUTTON(samp_none_rb));
-#endif
   samp_count_rb = gtk_radio_button_new_with_label(samp_group, "1 of");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
                      (capture_opts->sampling_method == CAPTURE_SAMP_BY_COUNT));
@@ -1567,11 +1539,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), sampling_lb, 2, 3, 1, 2);
 
   /* "Sampling by timer" row */
-#if GTK_MAJOR_VERSION >= 2
   samp_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(samp_count_rb));
-#else
-  samp_group = gtk_radio_button_group(GTK_RADIO_BUTTON(samp_count_rb));
-#endif
   samp_timer_rb = gtk_radio_button_new_with_label(samp_group, "1 every");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
                      (capture_opts->sampling_method == CAPTURE_SAMP_BY_TIMER));
@@ -1893,9 +1861,7 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   if (old_linktype != new_linktype) {
     OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
     capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
-#if GTK_MAJOR_VERSION >= 2
     linktype_history=MAX(gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om)), 0);
-#endif
 
   }
  }

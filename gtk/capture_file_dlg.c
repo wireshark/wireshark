@@ -65,7 +65,7 @@
 #include <unistd.h>
 #endif
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "win32-file-dlg.h"
@@ -427,14 +427,11 @@ static GtkWidget *file_open_w;
 static void
 file_open_cmd(GtkWidget *w)
 {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_open_file(GDK_WINDOW_HWND(top_level->window));
-#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
   GtkTooltips *tooltips = gtk_tooltips_new();
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -459,14 +456,6 @@ file_open_cmd(GtkWidget *w)
   WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
 #else
   gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(file_open_w), accel_group);
 #endif
 
   switch (prefs.gui_fileopen_style) {
@@ -608,7 +597,7 @@ file_open_cmd(GtkWidget *w)
   gtk_widget_show(file_open_w);
   window_present(file_open_w);
 #endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
-#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#endif /* _WIN32 */
 }
 
 static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -770,17 +759,14 @@ static GtkWidget *file_merge_w;
 static void
 file_merge_cmd(GtkWidget *w)
 {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_merge_file(GDK_WINDOW_HWND(top_level->window));
   packet_list_freeze();
   packet_list_thaw();
-#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *ft_hb, *ft_lb, *filter_hbox,
 		*filter_bt, *filter_te, *prepend_rb, *chrono_rb,
 		*append_rb, *prev;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
   GtkTooltips *tooltips = gtk_tooltips_new();
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -808,14 +794,6 @@ file_merge_cmd(GtkWidget *w)
   WIDGET_SET_SIZE(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
 #else
   gtk_window_set_default_size(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(file_merge_w), accel_group);
 #endif
 
   switch (prefs.gui_fileopen_style) {
@@ -977,7 +955,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(file_merge_w);
   window_present(file_merge_w);
 #endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
-#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#endif /* _WIN32 */
 }
 
 static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -1288,15 +1266,11 @@ gpointer            action_after_save_data_g;
 void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
-#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *range_fr, *compressed_cb;
   GtkTooltips   *tooltips;
-
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
 
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
@@ -1322,11 +1296,6 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   action_after_save_g       = action_after_save;
   action_after_save_data_g  = action_after_save_data;
 
-#if GTK_MAJOR_VERSION < 2
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(file_save_as_w), accel_group);
-#endif
-
   /* Container for each row of widgets */
 
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -1340,11 +1309,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_widget_show(range_fr);
 
   /* range table */
-  range_tb = range_new(&range
-#if GTK_MAJOR_VERSION < 2
-  , accel_group
-#endif
-  );
+  range_tb = range_new(&range);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 
@@ -1400,7 +1365,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   gtk_widget_show(file_save_as_w);
   window_present(file_save_as_w);
 #endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
-#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#endif /* _WIN32 */
 }
 
 void
@@ -1668,13 +1633,10 @@ color_global_cb(GtkWidget *widget _U_, gpointer data)
 void
 file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_import_color_file(GDK_WINDOW_HWND(top_level->window), color_filters);
-#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#else /* _WIN32 */
   GtkWidget	*main_vb, *cfglobal_but;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -1687,14 +1649,6 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 
   file_color_import_w = file_selection_new("Wireshark: Import Color Filters",
                                            FILE_SELECTION_OPEN);
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(file_color_import_w), accel_group);
-#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -1732,7 +1686,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
   gtk_widget_show(file_color_import_w);
   window_present(file_color_import_w);
 #endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
-#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#endif /* _WIN32 */
 }
 
 static void
@@ -1832,9 +1786,9 @@ color_toggle_selected_cb(GtkWidget *widget, gpointer data _U_)
 void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_color_file(GDK_WINDOW_HWND(top_level->window), filter_list);
-#else /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#else /* _WIN32 */
   GtkWidget *main_vb, *cfglobal_but;
 
   if (file_color_export_w != NULL) {
@@ -1893,7 +1847,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   gtk_widget_show(file_color_export_w);
   window_present(file_color_export_w);
 #endif /* (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2 */
-#endif /* GTK_MAJOR_VERSION >= 2 && _WIN32 */
+#endif /* _WIN32 */
 }
 
 static void
