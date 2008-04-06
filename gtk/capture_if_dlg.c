@@ -329,16 +329,9 @@ combo_channel_new(void)
 
       gtk_combo_set_popdown_strings( GTK_COMBO(channel_cb), popdown) ;
       g_list_free(popdown);
-	  #if GTK_MAJOR_VERSION < 2
-	  gtk_widget_set_usize( GTK_WIDGET(channel_cb),
-                                  45,
-                                  10 );
-	  #else
 	  gtk_widget_set_size_request( GTK_WIDGET(channel_cb),
                                   45,
                                   10 );
-      #endif
-
 
 	  return channel_cb;
 }
@@ -375,9 +368,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   GtkWidget     *if_tb;
   GtkWidget     *if_lb;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
   GtkTooltips   *tooltips;
   int           err;
   gchar         *err_str;
@@ -455,14 +445,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_if_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Capture Interfaces");
 
   tooltips = gtk_tooltips_new();
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(cap_if_w), accel_group);
-#endif
 
   main_sw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(main_sw), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);

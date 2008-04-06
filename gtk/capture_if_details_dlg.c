@@ -48,9 +48,7 @@
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
-#if GTK_MAJOR_VERSION >= 2
 #include "gtkvumeter.h"
-#endif
 
 /* packet32.h requires sockaddr_storage 
  * wether sockaddr_storage is defined or not depends on the Platform SDK 
@@ -808,7 +806,6 @@ supported_query_oid(LPADAPTER adapter, guint32 oid)
 /* info functions, get and display various NDIS driver values */
 
 
-#if GTK_MAJOR_VERSION >= 2
 
     GtkWidget *meter;
     GtkWidget *val_lb;
@@ -874,7 +871,6 @@ add_meter_to_table(GtkWidget *list, guint *row, gchar *title,
 
     return meter;
 }
-#endif
 
 
 
@@ -975,7 +971,6 @@ rates_details(unsigned char *values, int length) {
 
 
 
-#if GTK_MAJOR_VERSION >= 2
 static GList *
 rates_vu_list(unsigned char *values, int length, int *max)
 {
@@ -1097,7 +1092,6 @@ rates_vu_list(unsigned char *values, int length, int *max)
 
     return Rates;
 }
-#endif
 
 
 /* debugging only */
@@ -1406,7 +1400,6 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* RSSI */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &rssi)) {
-#if GTK_MAJOR_VERSION >= 2
         int i;
         GList * scale_items = NULL;
         GList * current;
@@ -1461,10 +1454,6 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
             current = g_list_next(current);
         }
         g_list_free(scale_items);
-#else
-        g_snprintf(string_buff, DETAILS_STR_MAX, "%ld dBm (typical -10 through -100)", rssi);
-        add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", string_buff);
-#endif
         entries++;
     } else {
         add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", "-");
@@ -1478,7 +1467,6 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         entries++;
     }
 
-#if GTK_MAJOR_VERSION >= 2
     /* if we can get the link speed, show Supported Rates in level meter format */
     if (length != 0 && wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
         int max;
@@ -1513,7 +1501,6 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         }
         g_list_free(rates_list);
     }
-#endif
 
     /* Supported Rates in String format */
     Rates = rates_details(values, length);
