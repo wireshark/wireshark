@@ -24,17 +24,7 @@
  */
 
 /*
- * This file implements a "main" toolbar for Wireshark (suitable for gtk1 and
- * gtk2).
- *
- * As it is desirable to have the same toolbar implementation for gtk1 and gtk2 
- * in Wireshark, only those library calls available in the gtk1 libraries 
- * are used inside this file.
- *
- * Hint: gtk2 in comparison to gtk1 has a better way to handle with "common"
- * icons; gtk2 calls this kind of icons "stock-icons"
- * (stock-icons including: icons for "open", "save", "print", ...).
- * The gtk2 version of this code uses them.
+ * This file implements the "main" toolbar for Wireshark.
  */
 
 #ifdef HAVE_CONFIG_H
