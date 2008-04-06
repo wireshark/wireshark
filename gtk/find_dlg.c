@@ -116,9 +116,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
                 *bbox, *ok_bt, *cancel_bt, *help_bt;
   GtkTooltips   *tooltips;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
   GList *glist = NULL;
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
@@ -138,14 +135,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   find_frame_w = dlg_window_new("Wireshark: Find Packet");
 
   tooltips = gtk_tooltips_new ();
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
-#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);

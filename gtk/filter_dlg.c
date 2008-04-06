@@ -83,11 +83,7 @@ filter_dlg_cancel_cb(GtkWidget *cancel_bt, gpointer data);
 
 static gint filter_sel_list_button_cb(GtkWidget *, GdkEventButton *,
                                       gpointer);
-#if GTK_MAJOR_VERSION < 2
-static void filter_sel_list_cb(GtkWidget *, gpointer);
-#else
 static void filter_sel_list_cb(GtkTreeSelection *, gpointer);
-#endif
 static void filter_new_bt_clicked_cb(GtkWidget *, gpointer);
 static void filter_del_bt_clicked_cb(GtkWidget *, gpointer);
 static void filter_name_te_changed_cb(GtkWidget *, gpointer);
@@ -293,21 +289,11 @@ get_filter_dialog_list(filter_list_type_t list_type)
 }
 
 
-#if GTK_MAJOR_VERSION < 2
-static GtkWidget *
-#else
 static GtkTreeIter *
-#endif
 fill_list(GtkWidget  *main_w, filter_list_type_t list_type, const gchar *filter_te_str)
 {
     GList      *fl_entry;
     filter_def *filt;
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget  *nl_item,
-               *nl_lb,
-               *l_select = NULL;
-    GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
-#else
     GtkTreeView       *filter_l;
     GtkListStore      *store;
     GtkTreeIter       iter;
@@ -315,44 +301,23 @@ fill_list(GtkWidget  *main_w, filter_list_type_t list_type, const gchar *filter_
 
     filter_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY));
     store = GTK_LIST_STORE(gtk_tree_view_get_model(filter_l));
-#endif
 
     /* fill in data */
     fl_entry = get_filter_list_first(list_type);
     while (fl_entry != NULL) {
         filt    = (filter_def *) fl_entry->data;
-#if GTK_MAJOR_VERSION < 2
-        nl_lb   = gtk_label_new(filt->name);
-        nl_item = gtk_list_item_new();
-
-        SIGNAL_CONNECT(nl_item, "button_press_event", filter_sel_list_button_cb,
-                       filter_l);
-
-        gtk_misc_set_alignment (GTK_MISC (nl_lb), 0.0, 0.5);
-        gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
-        gtk_widget_show(nl_lb);
-        gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
-        gtk_widget_show(nl_item);
-        OBJECT_SET_DATA(nl_item, E_FILT_LBL_KEY, nl_lb);
-        OBJECT_SET_DATA(nl_item, E_FILT_LIST_ITEM_MODEL_KEY, fl_entry);
-#else
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter, 0, filt->name,
                            1, fl_entry, -1);
-#endif
 
         if (filter_te_str && filt->strval) {
             if (strcmp(filter_te_str, filt->strval) == 0) {
-#if GTK_MAJOR_VERSION < 2
-                l_select = nl_item;
-#else
                 /*
                  * XXX - We're assuming that we can just copy a GtkTreeIter
                  * and use it later without any crashes.  This may not be a
                  * valid assumption.
                  */
                 l_select = g_memdup(&iter, sizeof(iter));
-#endif
             }
         }
 
@@ -365,15 +330,9 @@ fill_list(GtkWidget  *main_w, filter_list_type_t list_type, const gchar *filter_
 static void
 clear_list(GtkWidget *main_w) {
     GtkWidget    *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(filter_l));
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_list_clear_items(GTK_LIST(filter_l), 0, -1);
-#else
     gtk_list_store_clear(GTK_LIST_STORE(model));
-#endif
 }
 #endif /* 0 */
 
@@ -414,15 +373,11 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     filter_list_type_t *filter_list_type_p;
     GList       **filter_dialogs;
     const gchar *filter_te_str = NULL;
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget   *l_select = NULL;
-#else
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
     GtkTreeSelection  *sel;
     GtkTreeIter       *l_select;
-#endif
 
     /* Get a pointer to a static variable holding the type of filter on
        which we're working, so we can pass that pointer to callback
@@ -485,9 +440,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
     SIGNAL_CONNECT(new_bt, "clicked", filter_new_bt_clicked_cb, filter_list_type_p);
-#if GTK_MAJOR_VERSION < 2
-    WIDGET_SET_SIZE(new_bt, 50, 20);
-#endif
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, new_bt,
@@ -497,9 +449,6 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_widget_set_sensitive(del_bt, FALSE);
     SIGNAL_CONNECT(del_bt, "clicked", filter_del_bt_clicked_cb, filter_list_type_p);
     OBJECT_SET_DATA(main_w, E_FILT_DEL_BT_KEY, del_bt);
-#if GTK_MAJOR_VERSION < 2
-    WIDGET_SET_SIZE(del_bt, 50, 20);
-#endif
     gtk_widget_show(del_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, del_bt, ("Delete the selected filter"), NULL);
@@ -509,21 +458,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_widget_show(filter_fr);
 
     filter_sc = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(filter_sc),
                                    GTK_SHADOW_IN);
-#endif
 
     gtk_container_set_border_width  (GTK_CONTAINER (filter_sc), 5);
     gtk_container_add(GTK_CONTAINER(filter_fr), filter_sc);
     gtk_widget_show(filter_sc);
 
-#if GTK_MAJOR_VERSION < 2
-    filter_l = gtk_list_new();
-    gtk_list_set_selection_mode(GTK_LIST(filter_l), GTK_SELECTION_SINGLE);
-    SIGNAL_CONNECT(filter_l, "selection_changed", filter_sel_list_cb,
-                   filter_vb);
-#else
     store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
     filter_l = tree_view_new(GTK_TREE_MODEL(store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(filter_l), FALSE);
@@ -537,14 +478,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     SIGNAL_CONNECT(sel, "changed", filter_sel_list_cb, filter_vb);
     SIGNAL_CONNECT(filter_l, "button_press_event", filter_sel_list_button_cb,
                    NULL);
-#endif
     OBJECT_SET_DATA(main_w, E_FILT_FILTER_L_KEY, filter_l);
-#if GTK_MAJOR_VERSION < 2
-    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(filter_sc),
-                                          filter_l);
-#else
     gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
-#endif
     gtk_widget_show(filter_l);
 
     OBJECT_SET_DATA(filter_l, E_FILT_DBLFUNC_KEY, filter_dlg_dclick);
@@ -557,9 +492,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* fill in data */
     l_select = fill_list(main_w, list_type, filter_te_str);
 
-#if GTK_MAJOR_VERSION >= 2
     g_object_unref(G_OBJECT(store));
-#endif
 
 
     props_fr = gtk_frame_new("Properties");
@@ -678,12 +611,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     /* DO SELECTION THINGS *AFTER* SHOWING THE DIALOG! */
     /* otherwise the updatings can get confused */
     if (l_select) {
-#if GTK_MAJOR_VERSION < 2
-        gtk_list_select_child(GTK_LIST(filter_l), l_select);
-#else
         gtk_tree_selection_select_iter(sel, l_select);
         g_free(l_select);
-#endif
     } else if (filter_te_str && filter_te_str[0]) {
         gtk_entry_set_text(GTK_ENTRY(name_te), "New filter");
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
@@ -728,38 +657,22 @@ filter_dlg_dclick(GtkWidget *filter_l, gpointer main_w_arg, gpointer activate)
         OBJECT_GET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY);
     GList      *flp;
     filter_def *filt;
-#if GTK_MAJOR_VERSION < 2
-    GList      *sl;
-    GtkObject  *l_item;
-#else
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
-#endif
 
     if (parent_filter_te != NULL) {
         /*
          * We have a text entry widget associated with this dialog
          * box; is one of the filters in the list selected?
          */
-#if GTK_MAJOR_VERSION < 2
-        sl = GTK_LIST(filter_l)->selection;
-        if (sl != NULL) {
-#else
         if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
-#endif
             /*
              * Yes.  Is there a filter definition for that filter?
              */
-#if GTK_MAJOR_VERSION < 2
-            l_item = GTK_OBJECT(sl->data);
-            flp = (GList *)OBJECT_GET_DATA(l_item,
-                                               E_FILT_LIST_ITEM_MODEL_KEY);
-#else
             gtk_tree_model_get(model, &iter, 1, &flp, -1);
-#endif
             if (flp) {
                 /*
                  * Yes - put it in the text entry widget.
@@ -1023,26 +936,14 @@ filter_dlg_destroy_cb(GtkWidget *win, gpointer data)
 	forget_filter_dialog(win, list_type);
 }
 
-#if GTK_MAJOR_VERSION < 2
-static gint
-filter_sel_list_button_cb(GtkWidget *widget, GdkEventButton *event,
-                          gpointer func_data)
-#else
 static gint
 filter_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
                           gpointer data _U_)
-#endif
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget *list = func_data;
-#endif
     void (* func)(GtkWidget *, gpointer, gpointer);
     gpointer func_arg;
     gpointer func_activate;
 
-#if GTK_MAJOR_VERSION < 2
-    if (!GTK_IS_LIST_ITEM(widget)) return FALSE;
-#endif
     if (event->type == GDK_2BUTTON_PRESS) {
         func = OBJECT_GET_DATA(list, E_FILT_DBLFUNC_KEY);
         func_arg = OBJECT_GET_DATA(list, E_FILT_DBLARG_KEY);
@@ -1055,24 +956,13 @@ filter_sel_list_button_cb(GtkWidget *list, GdkEventButton *event,
     return FALSE;
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-filter_sel_list_cb(GtkWidget *l, gpointer data _U_)
-#else
 static void
 filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
-#endif
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget    *main_w = gtk_widget_get_toplevel(l);
-    GList        *sl;
-    GtkObject    *l_item;
-#else
     GtkWidget    *filter_l = GTK_WIDGET(gtk_tree_selection_get_tree_view(sel));
     GtkWidget    *main_w = gtk_widget_get_toplevel(filter_l);
     GtkTreeModel *model;
     GtkTreeIter   iter;
-#endif
     GtkWidget    *name_te = OBJECT_GET_DATA(main_w, E_FILT_NAME_TE_KEY);
     GtkWidget    *filter_te = OBJECT_GET_DATA(main_w, E_FILT_FILTER_TE_KEY);
     GtkWidget    *chg_bt = OBJECT_GET_DATA(main_w, E_FILT_CHG_BT_KEY);
@@ -1083,19 +973,8 @@ filter_sel_list_cb(GtkTreeSelection *sel, gpointer data _U_)
     GList        *flp;
     gint          sensitivity = FALSE;
 
-#if GTK_MAJOR_VERSION < 2
-    if (l)
-        sl = GTK_LIST(l)->selection;
-    else
-        sl = NULL;
-
-    if (sl) {  /* Something was selected */
-        l_item = GTK_OBJECT(sl->data);
-        flp    = (GList *) OBJECT_GET_DATA(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-#else
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         gtk_tree_model_get(model, &iter, 1, &flp, -1);
-#endif
         if (flp) {
             filt   = (filter_def *) flp->data;
             name   = g_strdup(filt->name);
@@ -1157,33 +1036,12 @@ static void
 new_filter_cb(gpointer data, gpointer user_data)
 {
     GtkWidget    *main_w = data;
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget    *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
-    GtkWidget    *nl_lb, *nl_item;
-#else
     GtkTreeView  *filter_l;
     GtkListStore *store;
     GtkTreeIter   iter;
-#endif
     new_filter_cb_args_t *args = user_data;
     filter_def *nfilt = args->nflp->data;
 
-#if GTK_MAJOR_VERSION < 2
-    nl_lb        = gtk_label_new(nfilt->name);
-    nl_item      = gtk_list_item_new();
-    gtk_misc_set_alignment(GTK_MISC(nl_lb), 0.0, 0.5);
-    gtk_container_add(GTK_CONTAINER(nl_item), nl_lb);
-    gtk_widget_show(nl_lb);
-    gtk_container_add(GTK_CONTAINER(filter_l), nl_item);
-    gtk_widget_show(nl_item);
-    OBJECT_SET_DATA(nl_item, E_FILT_LBL_KEY, nl_lb);
-    OBJECT_SET_DATA(GTK_OBJECT(nl_item), E_FILT_LIST_ITEM_MODEL_KEY,
-                        args->nflp);
-    if (filter_l == args->active_filter_l) {
-        /* Select the item. */
-        gtk_list_select_child(GTK_LIST(filter_l), nl_item);
-    }
-#else
     filter_l = GTK_TREE_VIEW(OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY));
     store = GTK_LIST_STORE(gtk_tree_view_get_model(filter_l));
     gtk_list_store_append(store, &iter);
@@ -1193,7 +1051,6 @@ new_filter_cb(gpointer data, gpointer user_data)
         gtk_tree_selection_select_iter(gtk_tree_view_get_selection(filter_l),
                                        &iter);
     }
-#endif
 }
 
 static void
@@ -1232,43 +1089,23 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
 
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-chg_list_item_cb(GtkWidget *nl_item, gpointer data)
-#else
 static gboolean
 chg_list_item_cb(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
                  gpointer data)
-#endif
 {
     GList      *flp = data;
     filter_def *filt = flp->data;
-#if GTK_MAJOR_VERSION < 2
-    GtkLabel   *nl_lb =
-        GTK_LABEL(OBJECT_GET_DATA(nl_item, E_FILT_LBL_KEY));
-    GList      *nl_model =
-        OBJECT_GET_DATA(nl_item, E_FILT_LIST_ITEM_MODEL_KEY);
-#else
     GList      *nl_model;
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_tree_model_get(model, iter, 1, &nl_model, -1);
-#endif
     /* Is this the item corresponding to the filter list item in question? */
     if (flp == nl_model) {
         /* Yes - change the label to correspond to the new name for the
          * filter. */
-#if GTK_MAJOR_VERSION < 2
-        gtk_label_set(nl_lb, filt->name);
-#else
         gtk_list_store_set(GTK_LIST_STORE(model), iter, 0, filt->name, -1);
         return TRUE;
-#endif
     }
-#if GTK_MAJOR_VERSION >= 2
     return FALSE;
-#endif
 }
 
 static void
@@ -1277,12 +1114,8 @@ chg_filter_cb(gpointer data, gpointer user_data)
     GtkWidget  *main_w = data;
     GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_container_foreach(GTK_CONTAINER(filter_l), chg_list_item_cb, user_data);
-#else
     gtk_tree_model_foreach(gtk_tree_view_get_model(GTK_TREE_VIEW(filter_l)),
                            chg_list_item_cb, user_data);
-#endif
 }
 
 static void
@@ -1298,21 +1131,11 @@ filter_name_te_changed_cb(GtkWidget *w, gpointer data)
     const gchar         *name = "";
     const gchar         *strval = "";
 
-#if GTK_MAJOR_VERSION < 2
-    GList      *sl;
-    GtkObject  *l_item;
-    GtkLabel   *nl_lb;
-#else
     GtkTreeSelection  *sel;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    sl     = GTK_LIST(filter_l)->selection;
-#else
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
-#endif
     name   = gtk_entry_get_text(GTK_ENTRY(name_te));
     strval = gtk_entry_get_text(GTK_ENTRY(filter_te));
 
@@ -1322,18 +1145,9 @@ filter_name_te_changed_cb(GtkWidget *w, gpointer data)
     }
 
     /* if something was selected */
-#if GTK_MAJOR_VERSION < 2
-    if (sl) {
-        l_item = GTK_OBJECT(sl->data);
-        fl_entry = (GList *) OBJECT_GET_DATA(l_item,
-                                                 E_FILT_LIST_ITEM_MODEL_KEY);
-        nl_lb = (GtkLabel *) OBJECT_GET_DATA(l_item, E_FILT_LBL_KEY);
-        if (fl_entry != NULL && nl_lb != NULL) {
-#else
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
         gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
         if (fl_entry != NULL) {
-#endif
             filt = (filter_def *) fl_entry->data;
 
             if (strlen(name) > 0 && strlen(strval) > 0 && filt) {
@@ -1356,20 +1170,12 @@ delete_filter_cb(gpointer data, gpointer user_data)
 {
     GtkWidget    *main_w = data;
     GtkWidget    *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
-#if GTK_MAJOR_VERSION < 2
-    gint          pos = *(gint *)user_data;
-#else
     gchar        *pos = (gchar *)user_data;
     GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(filter_l));
     GtkTreeIter   iter;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_list_clear_items(GTK_LIST(filter_l), pos, pos + 1);
-#else
     gtk_tree_model_get_iter_from_string(model, &iter, pos);
     gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-#endif
 }
 
 static void
@@ -1379,26 +1185,12 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
     GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
     filter_list_type_t list_type = *(filter_list_type_t *)data;
     GList      *fl_entry;
-#if GTK_MAJOR_VERSION < 2
-    GList      *sl;
-    GtkObject  *l_item;
-    gint        pos;
-#else
     gchar             *pos;
     GtkTreeSelection  *sel;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
     GtkTreePath       *path;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    sl = GTK_LIST(filter_l)->selection;
-    if (sl) {  /* Something was selected */
-        l_item = GTK_OBJECT(sl->data);
-        pos    = gtk_list_child_position(GTK_LIST(filter_l),
-                                         GTK_WIDGET(l_item));
-        fl_entry = (GList *) OBJECT_GET_DATA(l_item, E_FILT_LIST_ITEM_MODEL_KEY);
-#else
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
     /* If something was selected */
     if (gtk_tree_selection_get_selected(sel, &model, &iter)) {
@@ -1406,23 +1198,15 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
         path = gtk_tree_model_get_path(model, &iter);
         pos = gtk_tree_path_to_string(path);
         gtk_tree_path_free(path);
-#endif
         if (fl_entry != NULL) {
             /* Remove the entry from the filter list. */
             remove_from_filter_list(list_type, fl_entry);
 
             /* Update all the filter list widgets, not just the one in
                the dialog box in which we clicked on "Delete". */
-#if GTK_MAJOR_VERSION < 2
-            g_list_foreach(get_filter_dialog_list(list_type), delete_filter_cb,
-                           &pos);
-#else
             g_list_foreach(get_filter_dialog_list(list_type), delete_filter_cb, pos);
-#endif
         }
-#if GTK_MAJOR_VERSION >= 2
         g_free(pos);
-#endif
     }
 }
 
@@ -1435,7 +1219,6 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	filter_te = OBJECT_GET_DATA(main_w, E_FILT_FILTER_TE_KEY);
 	dfilter_w = dfilter_expr_dlg_new(filter_te);
 
-#if GTK_MAJOR_VERSION >= 2
 	/* If we're opening a series of modal dialogs (such as when going
 	 * through file->open, make the latest dialog modal also so that it
 	 * takes over "control" from the other modal dialogs.  Also set
@@ -1448,7 +1231,6 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 		gtk_window_set_transient_for(GTK_WINDOW(dfilter_w),
 					     GTK_WINDOW(main_w));
 	}
-#endif
 }
 
 static void

@@ -270,20 +270,13 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 
     /* create a scrolled window for the text */
     txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                         GTK_SHADOW_IN);
-#endif
     gtk_box_pack_start(GTK_BOX(vbox), txt_scrollw, TRUE, TRUE, 0);
 
     /* create a text box */
-#if GTK_MAJOR_VERSION < 2
-    text = gtk_text_new(NULL, NULL);
-    gtk_text_set_editable(GTK_TEXT(text), FALSE);
-#else
     text = gtk_text_view_new();
     gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
-#endif
     gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
     rule_info->text = text;
 
@@ -482,11 +475,7 @@ set_rule_text(rule_info_t *rule_info) {
     guint32 port = 0;
     syntax_func rt_func = NULL;
 
-#if GTK_MAJOR_VERSION < 2
-    gint txtlen;
-#else
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
-#endif
 
     if (prod < NUM_PRODS) {
         g_string_sprintf(rtxt, "%s %s\n", products[prod].comment_pfx, products[prod].name);
@@ -530,17 +519,7 @@ set_rule_text(rule_info_t *rule_info) {
         g_string_sprintfa(rtxt, "ERROR: Unable to create rule");
     }
 
-#if GTK_MAJOR_VERSION < 2
-    txtlen = gtk_text_get_length(GTK_TEXT(rule_info->text));
-    if (txtlen > 0) {
-        gtk_text_set_point(GTK_TEXT(rule_info->text), 0);
-        gtk_text_forward_delete(GTK_TEXT(rule_info->text), txtlen);
-    }
-    gtk_text_insert(GTK_TEXT(rule_info->text), user_font_get_regular(),
-        NULL, NULL, rtxt->str, rtxt->len);
-#else
     gtk_text_buffer_set_text(buf, rtxt->str, rtxt->len);
-#endif
 
     g_string_free(rtxt, TRUE);
 }
@@ -692,22 +671,15 @@ firewall_copy_cmd_cb(GtkWidget *w _U_, gpointer data)
 {
     rule_info_t	*rule_info = data;
 
-#if GTK_MAJOR_VERSION >= 2
     GtkTextIter start, end;
     GtkTextBuffer *buf;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_editable_select_region(GTK_EDITABLE(rule_info->text), 0, -1);
-    gtk_editable_copy_clipboard(GTK_EDITABLE(rule_info->text));
-#else
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
     gtk_text_buffer_get_start_iter(buf, &start);
     gtk_text_buffer_get_end_iter(buf, &end);
     gtk_text_buffer_move_mark_by_name(buf, "insert", &start);
     gtk_text_buffer_move_mark_by_name(buf, "selection_bound", &end);
     gtk_text_buffer_copy_clipboard(buf, gtk_clipboard_get(GDK_SELECTION_CLIPBOARD));
-#endif
 }
 
 /*
@@ -771,10 +743,8 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     FILE 	*fh;
     gchar	*dirname;
 
-#if GTK_MAJOR_VERSION >= 2
     GtkTextIter start, end;
     GtkTextBuffer *buf;
-#endif
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -801,20 +771,13 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
         return;
     }
 
-#if GTK_MAJOR_VERSION < 2
-    rule = gtk_editable_get_chars(GTK_EDITABLE(rule_info->text), 0, -1);
-#else
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
     gtk_text_buffer_get_start_iter(buf, &start);
     gtk_text_buffer_get_end_iter(buf, &end);
     rule = gtk_text_buffer_get_text(buf, &start, &end, FALSE);
-#endif
 
     fputs(rule, fh);
     fclose(fh);
-#if GTK_MAJOR_VERSION < 2 /* XXX - Does this apply for gtk_text_buffer_get_text () as well? */
-    g_free(rule);
-#endif
 
     gtk_widget_hide(GTK_WIDGET(fs));
     window_destroy(GTK_WIDGET(fs));

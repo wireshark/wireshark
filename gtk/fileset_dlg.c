@@ -285,9 +285,6 @@ void
 fileset_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb, *bbox, *close_bt, *help_bt;
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
 
 
   if (fs_w != NULL) {
@@ -299,14 +296,6 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   fs_w = window_new(GTK_WINDOW_TOPLEVEL, "");
 
   tooltips = gtk_tooltips_new();
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(fs_w), accel_group);
-#endif
 
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
