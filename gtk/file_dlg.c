@@ -129,9 +129,7 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
   char *u3devicedocumentpath;
 #endif
   win = gtk_file_selection_new(title);
-#if GTK_MAJOR_VERSION >= 2
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
-#endif
   gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
 
   /* XXX - why are we doing this?  We don't do it with the GtkFileChooser,

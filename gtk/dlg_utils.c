@@ -222,7 +222,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
 /* GTK+ 1.3 and later - on Win32, we use 1.3[.x] or 2.x, not 1.2[.x] */
-#if !defined(_WIN32) && GTK_MAJOR_VERSION >= 2
+#if !defined(_WIN32)
     /* beware: sequence of buttons are important! */
 
     /* XXX: this can be implemented more elegant of course, but it works as it should */
@@ -379,11 +379,7 @@ dlg_window_new(const gchar *title)
 {
   GtkWidget *win;
 
-#if GTK_MAJOR_VERSION < 2
-  win = window_new(GTK_WINDOW_DIALOG, title);
-#else
   win = window_new(GTK_WINDOW_TOPLEVEL, title);
-#endif
 
   /*
    * XXX - if we're running in the capture child process, we can't easily
@@ -429,74 +425,3 @@ dlg_activate (GtkWidget *widget _U_, gpointer ok_button)
   gtk_widget_activate(GTK_WIDGET(ok_button));
 }
 
-#if GTK_MAJOR_VERSION < 2
-/* Sigh.  GTK+ appears not to acknowledge that it should be possible
-   to attach mnemonics to anything other than menu items; provide
-   routines to create radio and check buttons with labels that
-   include mnemonics.  */
-typedef struct {
-	GtkWidget *button;
-	GtkAccelGroup *accel_group;
-} fix_label_args_t;
-
-static void
-dlg_fix_label_callback(GtkWidget *label_widget, gpointer data)
-{
-  fix_label_args_t *args = data;
-  gchar *label;
-  guint accel_key;
-
-  gtk_label_get(GTK_LABEL(label_widget), &label);
-  accel_key = gtk_label_parse_uline(GTK_LABEL(label_widget), label);
-  if (accel_key != GDK_VoidSymbol) {
-    /* Yes, we have a mnemonic. */
-    gtk_widget_add_accelerator(args->button, "clicked", args->accel_group,
-				accel_key, 0, GTK_ACCEL_LOCKED);
-    gtk_widget_add_accelerator(args->button, "clicked", args->accel_group,
-				accel_key, GDK_MOD1_MASK, GTK_ACCEL_LOCKED);
-  }
-}
-
-static void
-dlg_fix_button_label(GtkWidget *button, GtkAccelGroup *accel_group)
-{
-  fix_label_args_t args;
-
-  args.button = button;
-  args.accel_group = accel_group;
-  gtk_container_foreach(GTK_CONTAINER(button), dlg_fix_label_callback, &args);
-}
-
-GtkWidget *
-dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
-		const gchar *label, GtkAccelGroup *accel_group)
-{
-  GtkWidget *radio_button;
-
-  radio_button = gtk_radio_button_new_with_label (group, label);
-  dlg_fix_button_label(radio_button, accel_group);
-  return radio_button;
-}
-
-GtkWidget *
-dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
-			GtkAccelGroup *accel_group)
-{
-  GtkWidget *check_button;
-
-  check_button = gtk_check_button_new_with_label (label);
-  dlg_fix_button_label(check_button, accel_group);
-  return check_button;
-}
-
-GtkWidget *
-dlg_toggle_button_new_with_label_with_mnemonic(const gchar *label,
-			GtkAccelGroup *accel_group)
-{
-  GtkWidget *toggle_button;
-
-  toggle_button = gtk_toggle_button_new_with_label (label);
-  dlg_fix_button_label(toggle_button, accel_group);
-  return toggle_button;
-}
-#endif

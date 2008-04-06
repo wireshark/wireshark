@@ -127,19 +127,6 @@ error_packet(void *pss, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const v
 }
 
 
-#if (GTK_MAJOR_VERSION < 2)
-static void
-error_draw(void *pss)
-{
-    expert_comp_dlg_t *ss=(expert_comp_dlg_t *)pss;
-
-    draw_error_table_data(&ss->error_table);
-    draw_error_table_data(&ss->warn_table);
-    draw_error_table_data(&ss->note_table);
-    draw_error_table_data(&ss->chat_table);
-}
-#endif
-
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);
 static void
@@ -267,11 +254,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     /* Register the tap listener */
 
-#if (GTK_MAJOR_VERSION < 2)
-    error_string=register_tap_listener("expert", ss, filter, error_reset, error_packet, error_draw);
-#else
     error_string=register_tap_listener("expert", ss, filter, error_reset, error_packet, NULL);
-#endif
     if(error_string){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
         g_string_free(error_string, TRUE);
