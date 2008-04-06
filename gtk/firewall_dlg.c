@@ -709,7 +709,7 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 
     SIGNAL_CONNECT(new_win, "destroy", firewall_save_as_destroy_cb, rule_info);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
     {
         firewall_save_as_ok_cb(new_win, new_win);
@@ -746,7 +746,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     GtkTextIter start, end;
     GtkTextBuffer *buf;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
 #else
     to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
