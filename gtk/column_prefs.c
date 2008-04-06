@@ -41,26 +41,17 @@
 static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
 
-#if GTK_MAJOR_VERSION < 2
-static void   column_list_select_cb(GtkCList *clist, gint row, gint column,
-                                    GdkEvent *event, gpointer user_data);
-static void   column_list_unselect_cb(GtkCList *clist, gint row, gint column,
-                                      GdkEvent *event, gpointer user_data);
-#else
 static void   column_list_select_cb(GtkTreeSelection *, gpointer);
 static void   column_entry_changed_cb(GtkEditable *, gpointer);
 static void   column_field_changed_cb(GtkEditable *, gpointer);
-#endif
 static void   column_list_new_cb(GtkWidget *, gpointer);
 static void   column_menu_changed_cb(GtkWidget *, gpointer);
 static void   column_list_delete_cb(GtkWidget *, gpointer);
 static void   column_arrow_cb(GtkWidget *, gpointer);
 void          column_set_arrow_button_sensitivity(GList *);
 
-#if GTK_MAJOR_VERSION >= 2
 #define E_COL_NAME_KEY "column_name"
 #define E_COL_LBL_KEY  "column_label"
-#endif
 #define E_COL_CM_KEY   "in_col_cancel_mode"
 
 /* Create and display the column selection widgets. */
@@ -78,10 +69,6 @@ column_prefs_show() {
   gint               i;
   gchar             *fmt;
   const gchar       *column_titles[] = {"Title", "Format"};
-#if GTK_MAJOR_VERSION < 2
-  const gchar       *col_ent[2];
-  gint               row;
-#else
   GtkListStore      *store;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
@@ -89,7 +76,6 @@ column_prefs_show() {
   GtkTreeIter        iter;
   GtkTreeIter        first_iter;
   gint               first_row = TRUE;
-#endif
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -116,17 +102,11 @@ column_prefs_show() {
   new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
   SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
   gtk_box_pack_start (GTK_BOX (edit_vb), new_bt, FALSE, FALSE, 5);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(new_bt, 50, 20);
-#endif
   gtk_widget_show(new_bt);
 
   del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
   SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(del_bt, 50, 20);
-#endif
   gtk_box_pack_start (GTK_BOX (edit_vb), del_bt, FALSE, FALSE, 5);
   gtk_widget_show(del_bt);
 
@@ -146,27 +126,11 @@ column_prefs_show() {
   gtk_box_pack_start (GTK_BOX (list_vb), list_lb, FALSE, FALSE, 0);
 
   list_sc = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(list_sc), 
                                    GTK_SHADOW_IN);
-#endif
   gtk_container_add(GTK_CONTAINER(list_vb), list_sc);
   gtk_widget_show(list_sc);
 
-#if GTK_MAJOR_VERSION < 2
-  column_l = gtk_clist_new_with_titles(2, (gchar **) column_titles);
-  /* XXX - make this match the packet list prefs? */
-  gtk_clist_set_selection_mode(GTK_CLIST(column_l), GTK_SELECTION_SINGLE);
-  gtk_clist_column_titles_passive(GTK_CLIST(column_l));
-  gtk_clist_column_titles_show(GTK_CLIST(column_l));
-  gtk_clist_set_column_auto_resize(GTK_CLIST(column_l), 0, TRUE);
-  gtk_clist_set_column_auto_resize(GTK_CLIST(column_l), 1, TRUE);
-
-  SIGNAL_CONNECT(column_l, "select-row", column_list_select_cb, NULL);
-  SIGNAL_CONNECT(column_l, "unselect-row", column_list_unselect_cb, NULL);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(list_sc),
-                                        column_l);
-#else
   store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
   column_l = tree_view_new(GTK_TREE_MODEL(store));
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(column_l), TRUE);
@@ -187,7 +151,6 @@ column_prefs_show() {
 
   SIGNAL_CONNECT(sel, "changed", column_list_select_cb, NULL);
   gtk_container_add(GTK_CONTAINER(list_sc), column_l);
-#endif
   gtk_widget_show(column_l);
 
   clp = g_list_first(prefs.col_list);
@@ -199,25 +162,16 @@ column_prefs_show() {
     } else {
       fmt = g_strdup_printf("%s", col_format_desc(cur_fmt));
     }
-#if GTK_MAJOR_VERSION < 2
-    col_ent[0] = cfmt->title;
-    col_ent[1] = fmt;
-    row = gtk_clist_append(GTK_CLIST(column_l), (gchar **) col_ent);
-    gtk_clist_set_row_data(GTK_CLIST(column_l), row, clp);
-#else
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter, 0, cfmt->title, 1, fmt, 2, clp, -1);
     if (first_row) {
         first_iter = iter;
         first_row = FALSE;
     }
-#endif
     clp = clp->next;
     g_free (fmt);
   }
-#if GTK_MAJOR_VERSION >= 2
   g_object_unref(G_OBJECT(store));
-#endif
   
 
   /* order frame */
@@ -234,9 +188,6 @@ column_prefs_show() {
   gtk_widget_set_sensitive(up_bt, FALSE);
   SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(up_bt, 50, 20);
-#endif
   gtk_widget_show(up_bt);
 
   order_lb = gtk_label_new (("Move\nselected\ncolumn\nup or down"));
@@ -247,9 +198,6 @@ column_prefs_show() {
   gtk_widget_set_sensitive(dn_bt, FALSE);
   SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(dn_bt, 50, 20);
-#endif
   gtk_widget_show(dn_bt);
 
 
@@ -308,11 +256,7 @@ column_prefs_show() {
   gtk_widget_show(fmt_m);
 
   /* select the first row */
-#if GTK_MAJOR_VERSION < 2
-  gtk_clist_select_row(GTK_CLIST(column_l), 0, 0);
-#else
   gtk_tree_selection_select_iter(sel, &first_iter);
-#endif
 
   return(main_vb);
 }
@@ -320,64 +264,6 @@ column_prefs_show() {
 /* For each selection, set the entry and option menu widgets to match
    the currently selected item.  Set the up/down button sensitivity.
    Draw focus to the entry widget. */
-#if GTK_MAJOR_VERSION < 2
-static void
-column_list_select_cb(GtkCList *clist,
-                   gint      row,
-                   gint      column _U_,
-                   GdkEvent *event _U_,
-                   gpointer  user_data _U_) {
-  fmt_data   *cfmt;
-  GList      *clp;
-
-  clp = gtk_clist_get_row_data(clist, row);
-  g_assert(clp != NULL);
-  cfmt   = (fmt_data *) clp->data;
-  cur_fmt = get_column_format_from_str(cfmt->fmt);
-  g_assert(cur_fmt != -1);      /* It should always be valid */
-  cur_row = row;
-
-  gtk_entry_set_text(GTK_ENTRY(title_te), cfmt->title);
-  gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
-  gtk_widget_grab_focus(title_te);
-
-  if (cur_fmt == COL_CUSTOM) {
-    gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
-    gtk_widget_show(field_te);
-  } else {
-    gtk_widget_hide(field_te);
-  }
-
-  gtk_widget_set_sensitive(del_bt, TRUE);
-  gtk_widget_set_sensitive(title_te, TRUE);
-  gtk_widget_set_sensitive(field_te, TRUE);
-  gtk_widget_set_sensitive(fmt_m, TRUE);
-  column_set_arrow_button_sensitivity(clp);
-
-  /* do this *after* set_sensitive(fmt_m), to have the correct "sensitive" effect */
-  gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
-}
-
-/* A row was deselected.  Clear the text entry box and disable various widgets. */
-static void
-column_list_unselect_cb(GtkCList *clist _U_,
-                   gint      row _U_,
-                   gint      column _U_,
-                   GdkEvent *event _U_,
-                   gpointer  user_data _U_) {
-
-  cur_row = -1;
-  gtk_editable_delete_text(GTK_EDITABLE(title_te), 0, -1);
-  gtk_editable_delete_text(GTK_EDITABLE(field_te), 0, -1);
-
-  gtk_widget_set_sensitive(del_bt, FALSE);
-  gtk_widget_set_sensitive(title_te, FALSE);
-  gtk_widget_set_sensitive(field_te, FALSE);
-  gtk_widget_set_sensitive(fmt_m, FALSE);
-  gtk_widget_set_sensitive(up_bt, FALSE);
-  gtk_widget_set_sensitive(dn_bt, FALSE);
-}
-#else
 static void
 column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
 {
@@ -439,7 +325,6 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_widget_set_sensitive(dn_bt, FALSE);
     }
 }
-#endif
 
 /* To do: add input checking to each of these callbacks */
 
@@ -447,14 +332,10 @@ static void
 column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     fmt_data     *cfmt;
     const gchar  *title = "New Column";
-#if GTK_MAJOR_VERSION < 2
-    const gchar  *col_ent[2];
-#else
     GtkTreeModel *model;
     GtkTreeIter   iter;
     GtkTreePath  *path;
     gchar        *str_path;
-#endif
 
     cur_fmt        = COL_NUMBER;
     cfmt           = (fmt_data *) g_malloc(sizeof(fmt_data));
@@ -463,15 +344,6 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
     cfmt->custom_field = NULL;
     prefs.col_list = g_list_append(prefs.col_list, cfmt);
 
-#if GTK_MAJOR_VERSION < 2
-    col_ent[0] = title;
-    col_ent[1] = col_format_desc(cur_fmt);
-    cur_row = gtk_clist_append(GTK_CLIST(column_l), (gchar **) col_ent);
-    gtk_clist_set_row_data(GTK_CLIST(column_l), cur_row,
-                           g_list_last(prefs.col_list));
-
-    gtk_clist_select_row(GTK_CLIST(column_l), cur_row, 0);
-#else
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(column_l));
     gtk_list_store_append(GTK_LIST_STORE(model), &iter);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, title, 1,
@@ -486,7 +358,6 @@ column_list_new_cb(GtkWidget *w _U_, gpointer data _U_) {
 
     gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l)),
                                    &iter);
-#endif
     cfile.cinfo.columns_changed = TRUE;
 }
 
@@ -494,7 +365,6 @@ static void
 column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
     GList            *clp;
     fmt_data         *cfmt;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
@@ -503,11 +373,6 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
         gtk_tree_model_get(model, &iter, 2, &clp, -1);
-#else
-    if (cur_row >= 0)
-    {
-        clp = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
-#endif
 
         cfmt = (fmt_data *) clp->data;
         g_free(cfmt->title);
@@ -518,16 +383,11 @@ column_list_delete_cb(GtkWidget *w _U_, gpointer data _U_) {
         g_free(cfmt);
         prefs.col_list = g_list_remove_link(prefs.col_list, clp);
 
-#if GTK_MAJOR_VERSION >= 2
         gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-#else
-        gtk_clist_remove(GTK_CLIST(column_l), cur_row);
-#endif
     }
     cfile.cinfo.columns_changed = TRUE;
 }
 
-#if GTK_MAJOR_VERSION >= 2
 /* The user changed the column title entry box. */
 static void
 column_entry_changed_cb(GtkEditable *te, gpointer data) {
@@ -580,7 +440,6 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
     }
     cfile.cinfo.columns_changed = TRUE;
 }
-#endif
 
 /* The user changed the format menu. */
 static void
@@ -588,7 +447,6 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
     fmt_data         *cfmt;
     GList            *clp;
     const gchar      *fmt;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
     GtkTreeIter       iter;
@@ -599,13 +457,6 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
         cur_fmt = (gint)(long) data;
         gtk_tree_model_get(model, &iter, 2, &clp, -1);
         cfmt    = (fmt_data *) clp->data;
-#else
-
-    if (cur_row >= 0) {
-        cur_fmt = (gint)(long) data;
-        clp     = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
-        cfmt    = (fmt_data *) clp->data;
-#endif
 
         if (cur_fmt == COL_CUSTOM) {
           if (cfmt->custom_field == NULL) {
@@ -619,11 +470,7 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
           gtk_widget_hide(field_te);
         }
 
-#if GTK_MAJOR_VERSION >= 2
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, 1, fmt, -1);
-#else
-        gtk_clist_set_text(GTK_CLIST(column_l), cur_row, 1, fmt);
-#endif
         g_free(cfmt->fmt);
         cfmt->fmt = g_strdup(col_format_to_string(cur_fmt));
     }
@@ -633,31 +480,6 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
 static void
 column_arrow_cb(GtkWidget *w, gpointer data _U_) {
     fmt_data         *cfmt;
-#if GTK_MAJOR_VERSION < 2
-    GList            *clp;
-    gint              inc = 1;
-
-    g_assert(cur_row >= 0);
-
-    if (w == up_bt)
-        inc = -1;
-
-    /* This would end up appending to the list.  We shouldn't have to check for
-       appending past the end of the list. */
-    g_assert((cur_row + inc) >= 0);
-
-    clp = gtk_clist_get_row_data(GTK_CLIST(column_l), cur_row);
-    cfmt = (fmt_data *) clp->data;
-    prefs.col_list = g_list_remove(prefs.col_list, cfmt);
-    prefs.col_list = g_list_insert(prefs.col_list, cfmt, cur_row + inc);
-
-    gtk_clist_row_move(GTK_CLIST(column_l), cur_row, cur_row + inc);
-    clp = g_list_find(prefs.col_list, cfmt);
-    cur_row += inc;
-    gtk_clist_set_row_data(GTK_CLIST(column_l), cur_row, clp);
-
-    column_set_arrow_button_sensitivity(clp);
-#else
     GList            *clp1, *clp2;
     GtkTreeSelection *sel;
     GtkTreeModel     *model;
@@ -713,7 +535,6 @@ column_arrow_cb(GtkWidget *w, gpointer data _U_) {
         g_free(title2);
         g_free(format2);
     }
-#endif
     cfile.cinfo.columns_changed = TRUE;
 }
 
