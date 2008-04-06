@@ -494,21 +494,13 @@ on_blink_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data )
     if (airpcap_if_selected != NULL)
         if (!(airpcap_if_selected->blinking))
         {
-#if GTK_MAJOR_VERSION >= 2
             gtk_button_set_label(GTK_BUTTON(blink_bt),"Stop Blinking");
-#else
-            gtk_label_set_text(GTK_LABEL(GTK_BIN(blink_bt)->child),"Stop Blinking");
-#endif
             airpcap_if_selected->tag = gtk_timeout_add(500, (GtkFunction)update_blink,airpcap_if_selected);
             airpcap_if_selected->blinking = TRUE;
         }
         else
         {
-#if GTK_MAJOR_VERSION >= 2
             gtk_button_set_label(GTK_BUTTON(blink_bt),"  Blink Led  ");
-#else
-            gtk_label_set_text(GTK_LABEL(GTK_BIN(blink_bt)->child),"  Blink Led  ");
-#endif
             gtk_timeout_remove(airpcap_if_selected->tag);
             airpcap_if_selected->blinking = FALSE;
             /* Switch on the led!  */
@@ -1249,11 +1241,7 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     add_key_window = window_new (GTK_WINDOW_TOPLEVEL, "Add Decryption Key");
     gtk_widget_set_name (add_key_window, "add_key_window");
     gtk_container_set_border_width (GTK_CONTAINER (add_key_window), 5);
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_set_resizable (GTK_WINDOW (add_key_window), FALSE);
-#else
-    gtk_window_set_policy(GTK_WINDOW(add_key_window), FALSE, FALSE, TRUE);
-#endif
 
     main_v_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (main_v_box, "main_v_box");
@@ -1269,11 +1257,7 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     gtk_widget_set_name (add_frame_al, "add_frame_al");
     gtk_widget_show (add_frame_al);
     gtk_container_add (GTK_CONTAINER (add_frame), add_frame_al);
-#if GTK_MAJOR_VERSION >= 2
     gtk_alignment_set_padding (GTK_ALIGNMENT (add_frame_al), 0, 0, 12, 0);
-#else
-    gtk_alignment_set (GTK_ALIGNMENT (add_frame_al), 0, 0, 12, 0);
-#endif
 
     add_tb = gtk_table_new (2, 3, FALSE);
     gtk_widget_set_name (add_tb, "add_tb");
@@ -1287,11 +1271,7 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     gtk_table_attach (GTK_TABLE (add_tb), add_type_cm, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_set_size_request (add_type_cm, 83, -1);
-#else
-    gtk_widget_set_usize (add_type_cm, 83, -1);
-#endif
     add_type_cm_items = g_list_append (add_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
 
     /* XXX - DEcomment only when WPA and WPA_BIN will be ready */
@@ -1314,11 +1294,7 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     gtk_widget_show (add_key_te);
     gtk_table_attach (GTK_TABLE (add_tb), add_key_te, 1, 2, 1, 2,
                       (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_set_size_request (add_key_te, 178, -1);
-#else
-    gtk_widget_set_usize (add_key_te, 178, -1);
-#endif
 
     add_ssid_te = gtk_entry_new ();
     gtk_widget_set_name (add_ssid_te, "add_ssid_te");
@@ -1361,21 +1337,13 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
                                GTK_BUTTONBOX_END);
 
-#if GTK_MAJOR_VERISON >= 2
     ok_bt = gtk_button_new_with_mnemonic ("OK");
-#else
-    ok_bt = gtk_button_new_with_label ("OK");
-#endif
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERISON >= 2
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-#else
-    cancel_bt = gtk_button_new_with_label ("Cancel");
-#endif
     gtk_widget_set_name (cancel_bt, "cancel_bt");
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
@@ -1384,12 +1352,8 @@ on_add_new_key_bt_clicked(GtkWidget *button, gpointer data _U_)
     add_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
     gtk_widget_set_name (add_frame_lb, "add_frame_lb");
     gtk_widget_show (add_frame_lb);
-#if GTK_MAJOR_VERSION >= 2
     gtk_frame_set_label_widget (GTK_FRAME (add_frame), add_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (add_frame_lb), TRUE);
-#else
-    gtk_frame_set_label (GTK_FRAME (add_frame), "Modify Selected Key");
-#endif
 
     /* Add callbacks */
     SIGNAL_CONNECT(ok_bt, "clicked", on_add_key_ok_bt_clicked, add_key_window );
@@ -1558,11 +1522,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         edit_key_window = window_new (GTK_WINDOW_TOPLEVEL, "Edit Decryption Key");
         gtk_widget_set_name (edit_key_window, "edit_key_window");
         gtk_container_set_border_width (GTK_CONTAINER (edit_key_window), 5);
-#if GTK_MAJOR_VERSION >= 2
         gtk_window_set_resizable (GTK_WINDOW (edit_key_window), FALSE);
-#else
-        gtk_window_set_policy(GTK_WINDOW(edit_key_window), FALSE, FALSE, TRUE);
-#endif
 
         main_v_box = gtk_vbox_new (FALSE, 0);
         gtk_widget_set_name (main_v_box, "main_v_box");
@@ -1578,11 +1538,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         gtk_widget_set_name (edit_frame_al, "edit_frame_al");
         gtk_widget_show (edit_frame_al);
         gtk_container_add (GTK_CONTAINER (edit_frame), edit_frame_al);
-#if GTK_MAJOR_VERSION >= 2
         gtk_alignment_set_padding (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
-#else
-        gtk_alignment_set (GTK_ALIGNMENT (edit_frame_al), 0, 0, 12, 0);
-#endif
 
         edit_tb = gtk_table_new (2, 3, FALSE);
         gtk_widget_set_name (edit_tb, "edit_tb");
@@ -1596,11 +1552,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         gtk_table_attach (GTK_TABLE (edit_tb), edit_type_cm, 0, 1, 1, 2,
                           (GtkAttachOptions) (GTK_FILL),
                           (GtkAttachOptions) (0), 0, 0);
-#if GTK_MAJOR_VERSION >= 2
         gtk_widget_set_size_request (edit_type_cm, 83, -1);
-#else
-        gtk_widget_set_usize (edit_type_cm, 83, -1);
-#endif
         edit_type_cm_items = g_list_append (edit_type_cm_items, (gpointer) AIRPCAP_WEP_KEY_STRING);
         /* XXX - Decomment only when WPA and WPA_BIN support will be ready!!! */
 #ifdef HAVE_AIRPDCAP
@@ -1625,11 +1577,7 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         gtk_widget_show (edit_key_te);
         gtk_table_attach (GTK_TABLE (edit_tb), edit_key_te, 1, 2, 1, 2,
                           (GtkAttachOptions) (0), (GtkAttachOptions) (0), 0, 0);
-#if GTK_MAJOR_VERSION >= 2
         gtk_widget_set_size_request (edit_key_te, 178, -1);
-#else
-        gtk_widget_set_usize (edit_key_te, 178, -1);
-#endif
 
         edit_ssid_te = gtk_entry_new ();
         gtk_widget_set_name (edit_ssid_te, "edit_ssid_te");
@@ -1685,21 +1633,13 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
                                    GTK_BUTTONBOX_END);
 
-#if GTK_MAJOR_VERISON >= 2
         ok_bt = gtk_button_new_with_mnemonic ("OK");
-#else
-        ok_bt = gtk_button_new_with_label ("OK");
-#endif
         gtk_widget_set_name (ok_bt, "ok_bt");
         gtk_widget_show (ok_bt);
         gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
         GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERISON >= 2
         cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-#else
-        cancel_bt = gtk_button_new_with_label ("Cancel");
-#endif
         gtk_widget_set_name (cancel_bt, "cancel_bt");
         gtk_widget_show (cancel_bt);
         gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
@@ -1708,12 +1648,8 @@ on_edit_key_bt_clicked(GtkWidget *button, gpointer data _U_)
         edit_frame_lb = gtk_label_new ("<b>Modify Selected Key</b>");
         gtk_widget_set_name (edit_frame_lb, "edit_frame_lb");
         gtk_widget_show (edit_frame_lb);
-#if GTK_MAJOR_VERSION >= 2
         gtk_frame_set_label_widget (GTK_FRAME (edit_frame), edit_frame_lb);
         gtk_label_set_use_markup (GTK_LABEL (edit_frame_lb), TRUE);
-#else
-        gtk_frame_set_label (GTK_FRAME (edit_frame), "Modify Selected Key");
-#endif
 
         /* Add callbacks */
         SIGNAL_CONNECT(ok_bt, "clicked", on_edit_key_ok_bt_clicked, edit_key_window );
@@ -2037,12 +1973,8 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_window_set_position (GTK_WINDOW (airpcap_advanced_w),
                              GTK_WIN_POS_CENTER);
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_set_resizable (GTK_WINDOW (airpcap_advanced_w), FALSE);
     gtk_window_set_type_hint (GTK_WINDOW (airpcap_advanced_w), GDK_WINDOW_TYPE_HINT_DIALOG);
-#else
-    gtk_window_set_policy(GTK_WINDOW(airpcap_advanced_w), FALSE, FALSE, TRUE);
-#endif
 
     main_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (main_box, "main_box");
@@ -2065,11 +1997,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_widget_set_name (interface_al, "interface_al");
     gtk_widget_show (interface_al);
     gtk_container_add (GTK_CONTAINER (interface_fr), interface_al);
-#if GTK_MAJOR_VERSION >= 2
     gtk_alignment_set_padding (GTK_ALIGNMENT (interface_al), 5, 5, 0, 0);
-#else
-    gtk_alignment_set (GTK_ALIGNMENT (interface_al), 5, 5, 0, 0);
-#endif
 
     interface_sub_h_box = gtk_hbox_new (FALSE, 0);
     gtk_widget_set_name (interface_sub_h_box, "interface_sub_h_box");
@@ -2096,19 +2024,11 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     /* If it is NOT the 'Any' Interface */
     if (!airpcap_if_is_any(airpcap_if_selected))
     {
-#if GTK_MAJOR_VERSION >= 2
         blink_bt = gtk_button_new_with_mnemonic ("Blink Led");
-#else
-        blink_bt = gtk_button_new_with_label("Blink Led");
-#endif
     }
     else /* It is the any interface, so it doesn't make sense to have 'Blink' button... */
     {
-#if GTK_MAJOR_VERSION >= 2
         blink_bt = gtk_button_new_with_mnemonic ("What's This?");
-#else
-        blink_bt = gtk_button_new_with_label("What's This?");
-#endif
     }
     gtk_widget_set_name (blink_bt, "blink_bt");
     gtk_widget_show (blink_bt);
@@ -2117,12 +2037,8 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     interface_frame_lb = gtk_label_new ("<b>Interface</b>");
     gtk_widget_set_name (interface_frame_lb, "interface_frame_lb");
     gtk_widget_show (interface_frame_lb);
-#if GTK_MAJOR_VERSION >= 2
     gtk_frame_set_label_widget (GTK_FRAME (interface_fr), interface_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (interface_frame_lb), TRUE);
-#else
-    gtk_frame_set_label(GTK_FRAME(interface_fr),"Interface");
-#endif
 
     basic_parameters_fr = gtk_frame_new (NULL);
     gtk_widget_set_name (basic_parameters_fr, "basic_parameters_fr");
@@ -2134,11 +2050,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_widget_set_name (basic_parameters_al, "basic_parameters_al");
     gtk_widget_show (basic_parameters_al);
     gtk_container_add (GTK_CONTAINER (basic_parameters_fr),basic_parameters_al);
-#if GTK_MAJOR_VERSION >= 2
     gtk_alignment_set_padding (GTK_ALIGNMENT (basic_parameters_al), 10, 10, 0, 0);
-#else
-    gtk_alignment_set (GTK_ALIGNMENT (basic_parameters_al), 10, 10, 0, 0);
-#endif
 
     basic_parameters_tb = gtk_table_new (2, 3, FALSE);
     gtk_widget_set_name (basic_parameters_tb, "basic_parameters_tb");
@@ -2298,11 +2210,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_widget_show (fcs_filter_cm);
     gtk_box_pack_start (GTK_BOX (basic_parameters_fcs_h_box), fcs_filter_cm,
                         FALSE, FALSE, 0);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_set_size_request (fcs_filter_cm, 112, -1);
-#else
-    gtk_widget_set_usize (fcs_filter_cm, 112, -1);
-#endif
     fcs_filter_cm_items =
         g_list_append (fcs_filter_cm_items, (gpointer) "All Frames");
     fcs_filter_cm_items =
@@ -2328,12 +2236,8 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
                          "basic_parameters_frame_lb");
     gtk_widget_show (basic_parameters_frame_lb);
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_frame_set_label_widget (GTK_FRAME (basic_parameters_fr),basic_parameters_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (basic_parameters_frame_lb), TRUE);
-#else
-    gtk_frame_set_label(GTK_FRAME (basic_parameters_fr),"Basic Parameters");
-#endif
 
     low_buttons_h_box = gtk_hbox_new (FALSE, 0);
     gtk_widget_set_name (low_buttons_h_box, "low_buttons_h_box");
@@ -2346,11 +2250,7 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
-#if GTK_MAJOR_VERSION >= 2
     reset_configuration_bt = gtk_button_new_with_mnemonic ("Reset Configuration");
-#else
-    reset_configuration_bt = gtk_button_new_with_label ("Reset Configuration");
-#endif
     gtk_widget_set_name (reset_configuration_bt, "reset_configuration_bt");
     /* gtk_widget_show (reset_configuration_bt); */
     gtk_container_add (GTK_CONTAINER (low_buttons_h_box),
@@ -2648,12 +2548,8 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     gtk_window_set_position (GTK_WINDOW (key_management_w),
                              GTK_WIN_POS_CENTER);
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_set_resizable (GTK_WINDOW (key_management_w), FALSE);
     gtk_window_set_type_hint (GTK_WINDOW (key_management_w), GDK_WINDOW_TYPE_HINT_DIALOG);
-#else
-    gtk_window_set_policy(GTK_WINDOW(key_management_w), FALSE, FALSE, TRUE);
-#endif
 
     main_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (main_box, "main_box");
@@ -2672,11 +2568,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     gtk_container_add (GTK_CONTAINER (keys_fr), keys_al);
     gtk_container_set_border_width (GTK_CONTAINER (keys_al), 5);
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_alignment_set_padding (GTK_ALIGNMENT (keys_al), 0, 0, 12, 0);
-#else
-    gtk_alignment_set (GTK_ALIGNMENT (keys_al), 0, 0, 12, 0);
-#endif
 
     keys_h_sub_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (keys_h_sub_box, "keys_h_sub_box");
@@ -2704,11 +2596,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     gtk_table_attach (GTK_TABLE (enable_decryption_tb), enable_decryption_cb, 0,
                       1, 0, 1, (GtkAttachOptions) (0), (GtkAttachOptions) (0),
                       0, 0);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_set_size_request (enable_decryption_cb, 83, -1);
-#else
-    gtk_widget_set_usize (enable_decryption_cb, 83, -1);
-#endif
     update_decryption_mode_list(enable_decryption_cb);
 
     enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
@@ -2814,12 +2702,8 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     gtk_widget_set_name (keys_frame_lb, "keys_frame_lb");
     gtk_widget_show (keys_frame_lb);
 
-#if GTK_MAJOR_VERSION >= 2
     gtk_frame_set_label_widget (GTK_FRAME (keys_fr), keys_frame_lb);
     gtk_label_set_use_markup (GTK_LABEL (keys_frame_lb), TRUE);
-#else
-    gtk_frame_set_label (GTK_FRAME (keys_fr), "Decryption Keys");
-#endif
 
     low_buttons_h_box = gtk_hbox_new (FALSE, 0);
     gtk_widget_set_name (low_buttons_h_box, "low_buttons_h_box");
@@ -2832,11 +2716,7 @@ display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
     gtk_box_pack_start (GTK_BOX (low_buttons_h_box), left_h_button_box, FALSE,
                         FALSE, 0);
 
-#if GTK_MAJOR_VERSION >= 2
     reset_configuration_bt = gtk_button_new_with_mnemonic ("Reset Configuration");
-#else
-    reset_configuration_bt = gtk_button_new_with_label ("Reset Configuration");
-#endif
     gtk_widget_set_name (reset_configuration_bt, "reset_configuration_bt");
     /* gtk_widget_show (reset_configuration_bt); */
     gtk_container_add (GTK_CONTAINER (left_h_button_box),
@@ -3013,23 +2893,15 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data)
 
     keys_check_w = window_new (GTK_WINDOW_TOPLEVEL, "Decryption Key Warning");
     gtk_widget_set_name (keys_check_w, "keys_check_w");
-#if GTK_MAJOR_VERSION >= 2
     gtk_window_set_resizable (GTK_WINDOW (keys_check_w), FALSE);
-#else
-    gtk_window_set_policy(GTK_WINDOW(keys_check_w), FALSE, FALSE, TRUE);
-#endif
 
     main_v_box = gtk_vbox_new (FALSE, 0);
     gtk_widget_set_name (main_v_box, "main_v_box");
     gtk_widget_show (main_v_box);
     gtk_container_add (GTK_CONTAINER (keys_check_w), main_v_box);
 
-#if GTK_MAJOR_VERSION >= 2
     warning_lb = gtk_label_new("<b>WARNING!</b> Decryption keys specified in Wireshark's preferences file differ from those specified for the AirPcap adapter(s). You can choose to:");
     gtk_label_set_use_markup (GTK_LABEL (warning_lb), TRUE);
-#else
-    warning_lb = gtk_label_new("WARNING! Decryption keys specified in Wireshark's preferences file differ from those specified for the AirPcap adapter(s). You can choose to:");
-#endif
     gtk_widget_set_name (warning_lb, "warning_lb");
     gtk_widget_show (warning_lb);
     gtk_box_pack_start (GTK_BOX (main_v_box), warning_lb, FALSE, FALSE, 0);
@@ -3043,73 +2915,41 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data)
     gtk_container_set_border_width (GTK_CONTAINER (radio_tb), 5);
     gtk_table_set_col_spacings (GTK_TABLE (radio_tb), 8);
 
-#if GTK_MAJOR_VERSION >= 2
     keep_rb = gtk_radio_button_new_with_mnemonic (NULL, "Keep");
-#else
-    keep_rb = gtk_radio_button_new_with_label (NULL, "Keep");
-#endif
     gtk_widget_set_name (keep_rb, "keep_rb");
     gtk_widget_show (keep_rb);
     gtk_table_attach (GTK_TABLE (radio_tb), keep_rb, 0, 1, 0, 1,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (keep_rb), radio_bt_group);
-#if GTK_MAJOR_VERSION >= 2
     radio_bt_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (keep_rb));
-#else
-    radio_bt_group = gtk_radio_button_group (GTK_RADIO_BUTTON (keep_rb));
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     merge_rb = gtk_radio_button_new_with_mnemonic (NULL, "Merge");
-#else
-    merge_rb = gtk_radio_button_new_with_label (NULL, "Merge");
-#endif
     gtk_widget_set_name (merge_rb, "merge_rb");
     gtk_widget_show (merge_rb);
     gtk_table_attach (GTK_TABLE (radio_tb), merge_rb, 0, 1, 1, 2,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (merge_rb), radio_bt_group);
-#if GTK_MAJOR_VERSION >= 2
     radio_bt_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (merge_rb));
-#else
-    radio_bt_group = gtk_radio_button_group (GTK_RADIO_BUTTON (merge_rb));
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     import_rb = gtk_radio_button_new_with_mnemonic (NULL, "Import");
-#else
-    import_rb = gtk_radio_button_new_with_label (NULL, "Import");
-#endif
     gtk_widget_set_name (import_rb, "import_rb");
     gtk_widget_show (import_rb);
     gtk_table_attach (GTK_TABLE (radio_tb), import_rb, 0, 1, 2, 3,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (import_rb), radio_bt_group);
-#if GTK_MAJOR_VERSION >= 2
     radio_bt_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (import_rb));
-#else
-    radio_bt_group = gtk_radio_button_group (GTK_RADIO_BUTTON (import_rb));
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     ignore_rb = gtk_radio_button_new_with_mnemonic (NULL, "Ignore");
-#else
-    ignore_rb = gtk_radio_button_new_with_label (NULL, "Ignore");
-#endif
     gtk_widget_set_name (ignore_rb, "ignore_rb");
     gtk_widget_show (ignore_rb);
     gtk_table_attach (GTK_TABLE (radio_tb), ignore_rb, 0, 1, 3, 4,
                       (GtkAttachOptions) (GTK_FILL),
                       (GtkAttachOptions) (0), 0, 0);
     gtk_radio_button_set_group (GTK_RADIO_BUTTON (ignore_rb), radio_bt_group);
-#if GTK_MAJOR_VERSION >= 2
     radio_bt_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (ignore_rb));
-#else
-    radio_bt_group = gtk_radio_button_group (GTK_RADIO_BUTTON (ignore_rb));
-#endif
 
     keep_lb =
         gtk_label_new
@@ -3158,21 +2998,13 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data)
     gtk_button_box_set_layout (GTK_BUTTON_BOX (low_h_button_box),
                                GTK_BUTTONBOX_SPREAD);
 
-#if GTK_MAJOR_VERSION >= 2
     ok_bt = gtk_button_new_with_mnemonic ("OK");
-#else
-    ok_bt = gtk_button_new_with_label ("OK");
-#endif
     gtk_widget_set_name (ok_bt, "ok_bt");
     gtk_widget_show (ok_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), ok_bt);
     GTK_WIDGET_SET_FLAGS (ok_bt, GTK_CAN_DEFAULT);
 
-#if GTK_MAJOR_VERSION >= 2
     cancel_bt = gtk_button_new_with_mnemonic ("Cancel");
-#else
-    cancel_bt = gtk_button_new_with_label ("Cancel");
-#endif
     gtk_widget_set_name (cancel_bt, "cancel_bt");
     gtk_widget_show (cancel_bt);
     gtk_container_add (GTK_CONTAINER (low_h_button_box), cancel_bt);
