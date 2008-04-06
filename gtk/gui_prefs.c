@@ -84,29 +84,11 @@ static const enum_val_t selection_mode_vals[] = {
 	{ NULL,    NULL,      0 }
 };
 
-#if GTK_MAJOR_VERSION < 2
-static const enum_val_t line_style_vals[] = {
-	{ "NONE",   "None",   0 },
-	{ "SOLID",  "Solid",  1 },
-	{ "DOTTED", "Dotted", 2 },
-	{ "TABBED", "Tabbed", 3 },
-	{ NULL,     NULL,     0 }
-};
-
-static const enum_val_t expander_style_vals[] = {
-	{ "NONE",     "None",     0 },
-	{ "SQUARE",   "Square",   1 },
-	{ "TRIANGLE", "Triangle", 2 },
-	{ "CIRCULAR", "Circular", 3 },
-	{ NULL,       NULL,       0 }
-};
-#else
 static const enum_val_t altern_colors_vals[] _U_ = {
 	{ "FALSE", "No",  FALSE },
 	{ "TRUE",  "Yes", TRUE },
 	{ NULL,    NULL,  0 }
 };
-#endif
 
 static const enum_val_t filter_toolbar_placement_vals[] _U_ = {
 	{ "FALSE", "Below the main toolbar", FALSE },
@@ -161,11 +143,7 @@ static char recent_files_count_max_str[128] = "";
 /* Used to contain the string from the Open File preview timeout pref item */
 static char open_file_preview_str[128] = "";
 
-#if GTK_MAJOR_VERSION < 2
-#define GUI_TABLE_ROWS 5
-#else
 #define GUI_TABLE_ROWS 4
-#endif
 
 GtkWidget*
 gui_prefs_show(void)

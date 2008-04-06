@@ -145,18 +145,8 @@ window_new(GtkWindowType type, const gchar *title)
   /* a lot of people dislike GTK_WIN_POS_MOUSE */
 
   /* set the initial position (must be done, before show is called!) */
-#if GTK_MAJOR_VERSION >= 2
 /*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);*/
-#else
-/*  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);*/
-#endif
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_NONE);
-
-#if GTK_MAJOR_VERSION < 2
-  /* allow window to be shrinked by user, as gtk_widget_set_usize() will set minimum size and */
-  /* the user never could shrink the window again */
-  gtk_window_set_policy(GTK_WINDOW(win), TRUE, TRUE, FALSE);
-#endif
 
   return win;
 }
@@ -189,16 +179,6 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
 }
 
 
-#if GTK_MAJOR_VERSION < 2
-/* We can't set the decorations until the window is realized. */
-static void
-window_notitle_realize_cb (GtkWidget *win, gpointer data _U_)
-{
-  gdk_window_set_decorations(win->window, 0);
-}
-#endif
-
-
 /* Create a new window for a splash screen; it's a main window, with no title,
    positioned in the center of the screen. */
 GtkWidget *
@@ -207,11 +187,7 @@ splash_window_new(void)
   GtkWidget *win;
 
   win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_window_set_decorated(GTK_WINDOW(win), FALSE);
-#else
-  SIGNAL_CONNECT(win, "realize", window_notitle_realize_cb, NULL);
-#endif
 
   /* set the initial position (must be done, before show is called!) */
   gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
@@ -227,10 +203,8 @@ window_present(GtkWidget *win)
   window_geometry_t geom;
   const gchar *name;
 
-#if GTK_MAJOR_VERSION >= 2
   /* present this window */
   gtk_window_present(GTK_WINDOW(win));
-#endif
 
   /* do we have a previously saved size and position of this window? */
   name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
@@ -314,9 +288,7 @@ void
 window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
 	gint desk_x, desk_y;
-#if GTK_MAJOR_VERSION >= 2
     GdkWindowState state;
-#endif
 
 	/* Try to grab our geometry.
 
@@ -352,10 +324,8 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
         &geom->width,
         &geom->height);
 
-#if GTK_MAJOR_VERSION >= 2
     state = gdk_window_get_state(widget->window);
     geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
-#endif
 }
 
 
@@ -366,32 +336,18 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
     /* as we now have the geometry from the recent file, set it */
     /* if the window was minimized, x and y are -32000 (at least on Win32) */
     if (geom->set_pos && geom->x != -32000 && geom->y != -32000) {
-#if GTK_MAJOR_VERSION >= 2
         gtk_window_move(GTK_WINDOW(widget),
                         geom->x,
                         geom->y);
-#else
-        gtk_widget_set_uposition(widget,
-                                 geom->x,
-                                 geom->y);
-#endif
     }
 
     if (geom->set_size) {
-#if GTK_MAJOR_VERSION >= 2
         gtk_window_resize(GTK_WINDOW(widget),
-#else
-        gtk_window_set_default_size(GTK_WINDOW(widget),
-                                geom->width,
-                                geom->height);
-        gtk_widget_set_usize(widget,
-#endif
         /*WIDGET_SET_SIZE(widget,*/
                                 geom->width,
                                 geom->height);
     }
 
-#if GTK_MAJOR_VERSION >= 2
     if(geom->set_maximized) {
         if (geom->maximized) {
             gdk_window_maximize(widget->window);
@@ -399,7 +355,6 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
             gdk_window_unmaximize(widget->window);
         }
     }
-#endif
 }
 
 
@@ -554,14 +509,6 @@ window_destroy(GtkWidget *win)
 /* convert an xpm to a GtkWidget, using the window settings from it's parent */
 /* (be sure that the parent window is already being displayed) */
 GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
-#if GTK_MAJOR_VERSION < 2
-    GdkPixmap *icon;
-    GdkBitmap * mask;
-
-
-    icon = gdk_pixmap_create_from_xpm_d(parent->window, &mask, &parent->style->white, (char **) xpm);
-    return gtk_pixmap_new(icon, mask);
-#else
     GdkPixbuf * pixbuf;
     GdkPixmap * pixmap;
     GdkBitmap * bitmap;
@@ -571,7 +518,6 @@ GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
     gdk_pixbuf_render_pixmap_and_mask_for_colormap (pixbuf, gtk_widget_get_colormap(parent), &pixmap, &bitmap, 128);
 
     return gtk_image_new_from_pixmap (pixmap, bitmap);
-#endif
 }
 
 
@@ -894,41 +840,18 @@ static GList *trees;
 static void setup_tree(GtkWidget *tree);
 static void forget_tree(GtkWidget *tree, gpointer data);
 static void set_tree_styles(GtkWidget *tree);
-#if GTK_MAJOR_VERSION >= 2
 static int tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_);
-#endif
 
 /* Create a Tree, give it the right styles, and remember it. */
-#if GTK_MAJOR_VERSION < 2
-GtkWidget *
-ctree_new(gint columns, gint tree_column)
-#else
 GtkWidget *
 tree_view_new(GtkTreeModel *model)
-#endif
 {
   GtkWidget *tree;
 
-#if GTK_MAJOR_VERSION < 2
-  tree = gtk_ctree_new(columns, tree_column);
-#else
   tree = gtk_tree_view_new_with_model(model);
-#endif
   setup_tree(tree);
   return tree;
 }
-
-#if GTK_MAJOR_VERSION < 2
-GtkWidget *
-ctree_new_with_titles(gint columns, gint tree_column, const gchar *titles[])
-{
-  GtkWidget *tree;
-
-  tree = gtk_ctree_new_with_titles(columns, tree_column, (gchar **) titles);
-  setup_tree(tree);
-  return tree;
-}
-#endif
 
 /* Set a Tree's styles and add it to the list of Trees. */
 static void
@@ -941,9 +864,7 @@ setup_tree(GtkWidget *tree)
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
   SIGNAL_CONNECT(tree, "destroy", forget_tree, NULL);
-#if GTK_MAJOR_VERSION >= 2
   SIGNAL_CONNECT(tree, "key-press-event", tree_view_key_pressed_cb, NULL );
-#endif
 }
 
 /* Remove a Tree from the list of Trees. */
@@ -957,19 +878,9 @@ forget_tree(GtkWidget *tree, gpointer data _U_)
 static void
 set_tree_styles(GtkWidget *tree)
 {
-#if GTK_MAJOR_VERSION < 2
-  g_assert(prefs.gui_ptree_line_style >= GTK_CTREE_LINES_NONE &&
-	   prefs.gui_ptree_line_style <= GTK_CTREE_LINES_TABBED);
-  gtk_ctree_set_line_style(GTK_CTREE(tree), prefs.gui_ptree_line_style);
-  g_assert(prefs.gui_ptree_expander_style >= GTK_CTREE_EXPANDER_NONE &&
-	   prefs.gui_ptree_expander_style <= GTK_CTREE_EXPANDER_CIRCULAR);
-  gtk_ctree_set_expander_style(GTK_CTREE(tree),
-      prefs.gui_ptree_expander_style);
-#else
   g_assert(prefs.gui_altern_colors >= 0 && prefs.gui_altern_colors <= 1);
   gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree),
                                prefs.gui_altern_colors);
-#endif
 }
 
 static void
@@ -987,23 +898,6 @@ set_tree_styles_all(void)
 
 
 
-
-#if GTK_MAJOR_VERSION < 2
-/* convert variable argument list of values to array of strings (GTK2 -> GTK1) */
-static void
-simple_list_convert(gchar **ent, va_list ap)
-{
-    int i;
-    char *s;
-
-    while( (i = va_arg(ap, int)) != -1 ) {
-        s = va_arg(ap, char *);
-        ent[i] = s;
-    }
-}
-#endif
-
-
 /* append a row to the simple list */
 /* use it like: simple_list_append(list, 0, "first", 1, "second", -1) */
 void
@@ -1011,22 +905,13 @@ simple_list_append(GtkWidget *list, ...)
 {
     va_list ap;
 
-#if GTK_MAJOR_VERSION < 2
-    gchar      *ent[10];               /* new entry added in clist */
-#else
     GtkTreeIter iter;
     GtkListStore *store;
-#endif
 
     va_start(ap, list);
-#if GTK_MAJOR_VERSION < 2
-    simple_list_convert(ent, ap);
-    gtk_clist_append(GTK_CLIST(list), ent);
-#else
     store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(list)));
     gtk_list_store_append(store, &iter);
     gtk_list_store_set_valist(store, &iter, ap);
-#endif
     va_end(ap);
 }
 
@@ -1034,26 +919,12 @@ simple_list_append(GtkWidget *list, ...)
 GtkWidget *
 simple_list_new(gint cols, const gchar **titles) {
     GtkWidget *plugins_list;
-#if GTK_MAJOR_VERSION >= 2
     int i;
     GtkListStore *store;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
-#endif
 
 
-#if GTK_MAJOR_VERSION < 2
-    plugins_list = gtk_clist_new_with_titles(cols, (gchar **) titles);
-    gtk_clist_set_selection_mode(GTK_CLIST(plugins_list), GTK_SELECTION_SINGLE);
-    gtk_clist_column_titles_passive(GTK_CLIST(plugins_list));
-    if(titles) {
-        gtk_clist_column_titles_show(GTK_CLIST(plugins_list));
-    } else {
-        gtk_clist_column_titles_hide(GTK_CLIST(plugins_list));
-    }
-    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 0, TRUE);
-    gtk_clist_set_column_auto_resize(GTK_CLIST(plugins_list), 1, TRUE);
-#else
     g_assert(cols <= 10);
     store = gtk_list_store_new(cols,
         G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
@@ -1068,7 +939,6 @@ simple_list_new(gint cols, const gchar **titles) {
         gtk_tree_view_column_set_sort_column_id(column, i);
         gtk_tree_view_append_column(GTK_TREE_VIEW(plugins_list), column);
     }
-#endif
 
     return plugins_list;
 }
@@ -1076,23 +946,10 @@ simple_list_new(gint cols, const gchar **titles) {
 void
 copy_to_clipboard(GString *str)
 {
-#if (GTK_MAJOR_VERSION >= 2)
         GtkClipboard    *cb;
 
       	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);     /* Get the default clipboard */
 	gtk_clipboard_set_text(cb, str->str, -1);            /* Copy the byte data into the clipboard */
-#else
-        GtkWidget *window;
-        GtkWidget *text;
-
-        window = window_new (GTK_WINDOW_TOPLEVEL,"");
-        text = gtk_text_new (NULL, NULL);                 /* Create the GtkText widget */
-        gtk_container_add (GTK_CONTAINER (window), text); /* Avoid a GTK assertion */
-        gtk_widget_realize (text);   /* Realizing a widget creates a window for it, ready for us to insert some text */
-        gtk_text_insert (GTK_TEXT (text), NULL, NULL, NULL, str->str, -1);
-        gtk_editable_select_region((GtkEditable *)text, 0, -1); /* Select ALL text */
-        gtk_editable_copy_clipboard((GtkEditable *)text); /* Copy the byte data into the clipboard */
-#endif
 }
 
 
@@ -1101,7 +958,6 @@ typedef struct _copy_binary_t {
     int len;
 } copy_binary_t;
 
-#if GTK_MAJOR_VERSION >= 2
 static
 copy_binary_t* create_copy_binary_t(const guint8* data, int len)
 {
@@ -1164,7 +1020,6 @@ void copy_binary_to_clipboard(const guint8* data_p, int len)
         destroy_copy_binary_t(copy_data);
     }
 }
-#endif /* GTK_MAJOR_VERSION >= 2 */
 
 /*
  * Create a new window title string with user-defined title preference.
@@ -1185,7 +1040,6 @@ create_user_window_title(const gchar *caption)
 }
 
 /* XXX move toggle_tree over from proto_draw.c to handle GTK+ 1 */
-#if GTK_MAJOR_VERSION >= 2
 static int
 tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data _U_)
 {
@@ -1251,6 +1105,5 @@ tree_view_key_pressed_cb(GtkWidget *tree, GdkEventKey *event, gpointer user_data
 
     return FALSE;
 }
-#endif
 
 

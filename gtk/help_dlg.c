@@ -80,7 +80,6 @@ static GSList *help_text_pages = NULL;
 
 gboolean topic_available(topic_action_e action) {
 
-#if (GLIB_MAJOR_VERSION >= 2)
     if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
         /* XXX - add the page HELP_CAPTURE_INTERFACES_DETAILS_DIALOG and remove this if */
         /* page currently not existing in user's guide */
@@ -88,32 +87,9 @@ gboolean topic_available(topic_action_e action) {
     }
     /* online: we have almost all possible pages available */
     return TRUE;
-#else
-    /* offline: we have only some pages available */
-    switch(action) {
-    case(HELP_CONTENT):
-        return TRUE;
-        break;
-    case(HELP_GETTING_STARTED):
-        return TRUE;
-        break;
-    case(HELP_CAPTURE_OPTIONS_DIALOG):
-        return TRUE;
-        break;
-    case(HELP_CAPTURE_FILTERS_DIALOG):
-        return TRUE;
-        break;
-    case(HELP_DISPLAY_FILTERS_DIALOG):
-        return TRUE;
-        break;
-    default:
-        return FALSE;
-    }
-#endif
 }
 
 
-#if (GLIB_MAJOR_VERSION >= 2)
 /*
  * Open the help dialog and show a specific HTML help page.
  */
@@ -151,180 +127,7 @@ void help_topic_html(const gchar *topic) {
 
     g_string_free(url, TRUE /* free_segment */);
 }
-#endif
 
-
-#if (GLIB_MAJOR_VERSION < 2)
-/*
- * Helper function to show a simple help text page.
- */
-static GtkWidget * help_page(const char *topic, const char *filename)
-{
-  GtkWidget *text_page;
-  char *relative_path, *absolute_path;
-  help_page_t *page;
-
-  relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
-  absolute_path = get_datafile_path(relative_path);
-  text_page = text_page_new(absolute_path);
-  g_free(relative_path);
-  gtk_widget_show(text_page);
-
-  page = g_malloc(sizeof (help_page_t));
-  page->topic = g_strdup(topic);
-  page->pathname = absolute_path;
-  page->page = text_page;
-  help_text_pages = g_slist_append(help_text_pages, page);
-
-  return text_page;
-}
-
-
-/*
- * Help dialog is closed now.
- */
-static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
-{
-  GSList *help_page_ent;
-  help_page_t *page;
-
-  /* Free up the list of help pages. */
-  for (help_page_ent = help_text_pages; help_page_ent != NULL;
-       help_page_ent = g_slist_next(help_page_ent)) {
-    page = (help_page_t *)help_page_ent->data;
-    g_free(page->topic);
-    g_free(page->pathname);
-    g_free(page);
-  }
-  g_slist_free(help_text_pages);
-  help_text_pages = NULL;
-
-  /* Note that we no longer have a Help window. */
-  help_w = NULL;
-}
-
-
-/*
- * Create and show help dialog.
- */
-static
-void help_dialog(void)
-{
-  GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *topic_vb;
-  char line[4096+1];	/* XXX - size? */
-  char *p;
-  char *filename;
-  char *help_toc_file_path;
-  FILE *help_toc_file;
-
-  if (help_w != NULL) {
-    /* There's already a "Help" dialog box; reactivate it. */
-    reactivate_window(help_w);
-    return;
-  }
-
-  help_toc_file_path = get_datafile_path(HELP_DIR G_DIR_SEPARATOR_S "toc");
-  help_toc_file = eth_fopen(help_toc_file_path, "r");
-  if (help_toc_file == NULL) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
-                  help_toc_file_path, strerror(errno));
-    g_free(help_toc_file_path);
-    return;
-  }
-
-  help_w = window_new_with_geom(GTK_WINDOW_TOPLEVEL, "Wireshark: Help", "help");
-  gtk_window_set_default_size(GTK_WINDOW(help_w), DEF_WIDTH, DEF_HEIGHT);
-  gtk_container_border_width(GTK_CONTAINER(help_w), 2);
-
-  /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
-  gtk_container_add(GTK_CONTAINER(help_w), main_vb);
-
-  /* help topics container */
-  help_nb = gtk_notebook_new();
-  gtk_container_add(GTK_CONTAINER(main_vb), help_nb);
-  OBJECT_SET_DATA(help_w, NOTEBOOK_KEY, help_nb);
-
-  /* help topics */
-  while (fgets(line, sizeof line, help_toc_file) != NULL) {
-    /* Strip off line ending. */
-    p = strpbrk(line, "\r\n");
-    if (p == NULL)
-      break;		/* last line has no line ending */
-    *p = '\0';
-    /* {Topic title}:{filename of help file} */
-    p = strchr(line, ':');
-    if (p != NULL) {
-      *p++ = '\0';
-      filename = p;
-
-      /*
-       * "line" refers to the topic now, and "filename" refers to the
-       * file name.
-       */
-      topic_vb = help_page(line, filename);
-      label = gtk_label_new(line);
-      gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), topic_vb, label);
-    }
-  }
-  if(ferror(help_toc_file)) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",
-                  help_toc_file_path, strerror(errno));
-  }
-  fclose(help_toc_file);
-
-
-  /* Button row */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
-  gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
-
-  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  window_set_cancel_button(help_w, close_bt, window_cancel_button_cb);
-
-  SIGNAL_CONNECT(help_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(help_w, "destroy", help_destroy_cb, NULL);
-
-  gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(help_w));
-
-  gtk_widget_show_all(help_w);
-  window_present(help_w);
-} /* help_dialog */
-
-
-/*
- * Open the help dialog and show a specific GTK help page.
- */
-static void help_topic_gtk(const gchar *topic) {
-    gchar       *page_topic;
-    GtkWidget   *help_nb;
-    GSList      *help_page_ent;
-    gint        page_num = 0;
-    help_page_t *page;
-
-
-    /* show help dialog, if not already opened */
-    help_dialog();
-
-    help_nb = OBJECT_GET_DATA(help_w, NOTEBOOK_KEY);
-
-    /* find page to display */
-    for (help_page_ent = help_text_pages; help_page_ent != NULL;
-         help_page_ent = g_slist_next(help_page_ent))
-    {
-        page = (help_page_t *)help_page_ent->data;
-        page_topic = page->topic;
-        if (strcmp (page_topic, topic) == 0) {
-            /* topic page found, switch to notebook page */
-            gtk_notebook_set_page(GTK_NOTEBOOK(help_nb), page_num);
-            return;
-        }
-        page_num++;
-    }
-
-    /* topic page not found, default (first page) will be shown */
-}
-#endif	/* GLIB_MAJOR_VERSION < 2 */
 
 
 /**
@@ -396,7 +199,6 @@ topic_action(topic_action_e action)
         browser_open_data_file("text2pcap.html");
         break;
 
-#if (GLIB_MAJOR_VERSION >= 2)
     /* local help pages (User's Guide) */
     case(HELP_CONTENT):
         help_topic_html( "index.html");
@@ -496,24 +298,6 @@ topic_action(topic_action_e action)
     case(HELP_SAVE_WIN32_DIALOG):
         help_topic_html("ChIOSaveSection.html");
         break;
-#else
-    /* only some help pages are available for offline reading */
-    case(HELP_CONTENT):
-        help_topic_gtk("Overview");
-        break;
-    case(HELP_GETTING_STARTED):
-        help_topic_gtk("Getting Started");
-        break;
-    case(HELP_CAPTURE_OPTIONS_DIALOG):
-        help_topic_gtk("Capturing");
-        break;
-    case(HELP_CAPTURE_FILTERS_DIALOG):
-        help_topic_gtk("Capture Filters");
-        break;
-    case(HELP_DISPLAY_FILTERS_DIALOG):
-        help_topic_gtk("Display Filters");
-        break;
-#endif /* GLIB_MAJOR_VERSION */
 
     default:
         g_assert_not_reached();

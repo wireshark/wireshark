@@ -17,8 +17,6 @@
 #include <gtk/gtk.h>
 #include "gtkvumeter.h"
 
-#if GTK_MAJOR_VERSION >= 2
-
 
 #define MIN_DYNAMIC_SIDE    40
 
@@ -1282,4 +1280,3 @@ void gtk_vumeter_get_brightness (GtkVUMeter *vumeter, gint *foreground, gint *ba
     }
 }
 
-#endif
