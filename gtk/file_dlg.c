@@ -42,7 +42,7 @@
 static gchar *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
+#if GTK_CHECK_VERSION(2,4,0)
 static void file_selection_browse_ok_cb(GtkWidget *w, gpointer data);
 #endif
 static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te);
@@ -52,7 +52,7 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 
 /* Create a file selection dialog box window that belongs to Wireshark's
    main window. */
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
 GtkWidget *
 file_selection_new(const gchar *title, file_selection_action_t action)
 {
@@ -157,7 +157,7 @@ file_selection_new(const gchar *title, file_selection_action_t action _U_)
 gboolean
 file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 {
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
     gboolean ret;
     int filename_len = strlen(filename);
     gchar *new_filename;
@@ -192,7 +192,7 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 void
 file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 {
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(fs), extra);
 #else
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(fs)->action_area), extra,
@@ -213,7 +213,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs;
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   gchar     *f_name;
 #endif
 
@@ -241,7 +241,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
 		 file_te);
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
   {
       f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -264,7 +264,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 }
 
 
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4) || GTK_MAJOR_VERSION < 2
+#if GTK_CHECK_VERSION(2,4,0)
 static void
 file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
 {
