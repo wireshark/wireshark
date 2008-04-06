@@ -44,20 +44,11 @@
 
 #include "color_edit_dlg.h"
 
-#if GTK_MAJOR_VERSION >= 2
 #define BUTTON_SIZE_X -1
 #define BUTTON_SIZE_Y -1
-#else
-#define BUTTON_SIZE_X 50
-#define BUTTON_SIZE_Y 20
-#endif
 
 
-#if GTK_MAJOR_VERSION < 2
-static void edit_color_filter_destroy_cb(GtkObject *object, gpointer user_data);
-#else
 static void edit_color_filter_destroy_cb(GObject *object, gpointer user_data);
-#endif
 static void edit_color_filter_fg_cb(GtkButton *button, gpointer user_data);
 static void edit_color_filter_bg_cb(GtkButton *button, gpointer user_data);
 /*
@@ -128,20 +119,14 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     GtkWidget *edit_color_filter_ok;
     GtkWidget *edit_color_filter_cancel;
 
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel     *model;
     GtkTreeIter       iter;
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
 
     gtk_tree_model_iter_nth_child(model, &iter, NULL, row_selected);
     gtk_tree_model_get(model, &iter, 5, &colorf, -1);
 
-#else
-    colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters), row_selected);
-#endif
     if (colorf->edit_dialog != NULL) {
         /* There's already an edit box open for this filter; reactivate it. */
         reactivate_window(colorf->edit_dialog);
@@ -180,11 +165,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     style = gtk_style_copy(gtk_widget_get_style(filt_name_entry));
     color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
-#if GTK_MAJOR_VERSION < 2
-    color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
-#else
     color_t_to_gdkcolor(&style->text[GTK_STATE_NORMAL], &colorf->fg_color);
-#endif
     gtk_widget_set_style(filt_name_entry, style);
 
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
@@ -294,13 +275,8 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 /* Called when the dialog box is being destroyed; destroy any color
    selection dialogs opened from this dialog, and null out the pointer
    to this dialog. */
-#if GTK_MAJOR_VERSION < 2
-static void
-edit_color_filter_destroy_cb(GtkObject *object, gpointer user_data _U_)
-#else
 static void
 edit_color_filter_destroy_cb(GObject *object, gpointer user_data _U_)
-#endif
 {
   color_filter_t *colorf;
   GtkWidget *color_sel;
@@ -392,11 +368,9 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     color_filter_t *colorf;
     dfilter_t      *compiled_filter;
     GtkWidget      *color_filters;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel   *model;
     GtkTreeIter     iter;
     gchar           fg_str[14], bg_str[14];
-#endif
 
     dialog = (GtkWidget *)user_data;
 
@@ -435,18 +409,6 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	colorf->disabled = filter_disabled;
         gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
         gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);
-#if GTK_MAJOR_VERSION < 2
-
-	/* XXX Using light-gray on white for disabled coloring-rules is a
-	 * workaround to using strikethrough as I don't know how to set
-	 * text to strikethrough in GTK1. This needs to be changed to
-	 * keep the GTK1 and GTK2 version simular
-	 */
-	gtk_clist_set_foreground(GTK_CLIST(color_filters), row_selected,
-				filter_disabled ? &LTGREY : &new_fg_color);
-	gtk_clist_set_background(GTK_CLIST(color_filters), row_selected,
-				filter_disabled ? &WHITE : &new_bg_color);
-#else
         g_snprintf(fg_str, 14, "#%04X%04X%04X",
                 new_fg_color.red, new_fg_color.green, new_fg_color.blue);
         g_snprintf(bg_str, 14, "#%04X%04X%04X",
@@ -456,17 +418,9 @@ edit_color_filter_ok_cb                (GtkButton       *button,
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, filter_name,
                            1, filter_text, 2, fg_str, 3, bg_str,
 			   4, filter_disabled, -1);
-#endif
         if(colorf->c_colorfilter != NULL)
             dfilter_free(colorf->c_colorfilter);
         colorf->c_colorfilter = compiled_filter;
-#if GTK_MAJOR_VERSION < 2
-        /* gtk_clist_set_text frees old text (if any) and allocates new space */
-        gtk_clist_set_text(GTK_CLIST(color_filters), row_selected, 0,
-                           filter_name);
-        gtk_clist_set_text(GTK_CLIST(color_filters), row_selected, 1,
-                           filter_text);
-#endif
 
         /* Destroy the dialog box. */
         window_destroy(dialog);
@@ -487,9 +441,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   gchar *title;
   GtkWidget *color_sel_win;
   color_t   *color;
-#if GTK_MAJOR_VERSION >= 2
   GdkColor   gcolor;
-#endif
   GtkWidget *color_sel_ok;
   GtkWidget *color_sel_cancel;
   GtkWidget *color_sel_help;
@@ -509,22 +461,10 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   gtk_container_set_border_width (GTK_CONTAINER (color_sel_win), 10);
 
   if (color != NULL) {
-#if GTK_MAJOR_VERSION < 2
-    gdouble cols[3];
-
-    cols[0] = (gdouble)color->red / 65536.0;
-    cols[1] = (gdouble)color->green / 65536.0;
-    cols[2] = (gdouble)color->blue / 65536.0;
-
-    gtk_color_selection_set_color(
-		    GTK_COLOR_SELECTION(
-			    GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), cols);
-#else
     color_t_to_gdkcolor(&gcolor, color);
     gtk_color_selection_set_current_color(
 		    GTK_COLOR_SELECTION(
 			    GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), &gcolor);
-#endif
   }
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
@@ -585,9 +525,6 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
                                         gpointer         user_data)
 {
   GdkColor new_color; /* Color from color selection dialog */
-#if GTK_MAJOR_VERSION < 2
-  gdouble new_colors[4];  /* red, green, blue, "opacity" */
-#endif
   GtkWidget *color_dialog;
   GtkStyle  *style;
   GtkWidget *parent;
@@ -596,17 +533,8 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 
   color_dialog = (GtkWidget *)user_data;
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_color_selection_get_color(GTK_COLOR_SELECTION(
-   GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), new_colors);
-
-  new_color.red   = (guint16)(new_colors[0]*65535.0);
-  new_color.green = (guint16)(new_colors[1]*65535.0);
-  new_color.blue  = (guint16)(new_colors[2]*65535.0);
-#else
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(
    GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), &new_color);
-#endif
 
   if ( ! get_color(&new_color) ){
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
