@@ -164,6 +164,7 @@ static void wireshark_stock_icons(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER,        WIRESHARK_STOCK_LABEL_CAPTURE_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_CAPTURE_FILTER_ENTRY,  0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       WIRESHARK_STOCK_LABEL_CAPTURE_DETAILS,       0, 0, NULL },
+#endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        WIRESHARK_STOCK_LABEL_DISPLAY_FILTER,        0, 0, NULL },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  WIRESHARK_STOCK_LABEL_DISPLAY_FILTER_ENTRY,  0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                WIRESHARK_STOCK_LABEL_BROWSE,                0, 0, NULL },
@@ -280,7 +281,6 @@ static void wireshark_stock_icons(void) {
     /* Drop our reference to the factory, GTK will hold a reference.*/
     g_object_unref (G_OBJECT (factory));
 }
-#endif
 
 
 /*
