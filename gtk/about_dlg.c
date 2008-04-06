@@ -42,9 +42,7 @@
 #include "compat_macros.h"
 #include "globals.h"
 #include "log.h"
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 #include "text_page.h"
-#endif
 
 #include "../image/wssplash.xpm"
 #include "gtkglobals.h"
@@ -68,20 +66,16 @@ static void
 about_wireshark(GtkWidget *parent, GtkWidget *main_vb)
 {
   GtkWidget   *msg_label, *icon;
-#if GTK_MAJOR_VERSION >= 2
   gchar       *message;
-#endif
   const char  *title = "Network Protocol Analyzer";
 
   icon = xpm_to_widget_from_parent(parent, wssplash_xpm);
   gtk_container_add(GTK_CONTAINER(main_vb), icon);
 
   msg_label = gtk_label_new(title);
-#if GTK_MAJOR_VERSION >= 2
   message = g_strdup_printf("<span size=\"x-large\" weight=\"bold\">%s</span>", title);
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   g_free(message);
-#endif
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
 }
 
@@ -137,9 +131,6 @@ splash_new(const char *message)
     gtk_box_pack_start(GTK_BOX(main_vb), percentage_hb, TRUE, TRUE, 3);
 
     prog_bar = gtk_progress_bar_new();
-#if GTK_MAJOR_VERSION < 2
-    gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
-#endif
     gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, TRUE, TRUE, 3);
     OBJECT_SET_DATA(win, "progress_bar", prog_bar);
 
@@ -255,11 +246,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
 
     /* update progress bar */
     prog_bar = OBJECT_GET_DATA(win, "progress_bar");
-#if GTK_MAJOR_VERSION < 2
-    gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), percentage);
-#else
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
-#endif
 
     percentage_lb = OBJECT_GET_DATA(win, "percentage_label");
     g_snprintf(tmp, sizeof(tmp), "%lu%%", ul_percentage);
@@ -311,15 +298,12 @@ about_wireshark_page_new(void)
   msg_label = gtk_label_new(message);
   g_free(message);
   gtk_label_set_justify(GTK_LABEL(msg_label), GTK_JUSTIFY_FILL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
-#endif
   gtk_container_add(GTK_CONTAINER(main_vb), msg_label);
 
   return main_vb;
 }
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 static GtkWidget *
 about_authors_page_new(void)
 {
@@ -331,7 +315,6 @@ about_authors_page_new(void)
 
   return page;
 }
-#endif
 
 static void
 about_folders_row(GtkWidget *table, const char *label, const char *dir, const char *tip)
@@ -350,10 +333,8 @@ about_folders_page_new(void)
   GtkWidget *scrolledwindow;
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
                                    GTK_SHADOW_IN);
-#endif
 
   /* Container for our data */
   table = simple_list_new(3, titles);
@@ -416,7 +397,6 @@ about_folders_page_new(void)
   return scrolledwindow;
 }
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 static GtkWidget *
 about_license_page_new(void)
 {
@@ -428,7 +408,6 @@ about_license_page_new(void)
 
   return page;
 }
-#endif
 
 void
 about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
@@ -440,9 +419,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   GtkWidget   *plugins_page;
 #endif
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   GtkWidget   *authors_page, *license_page;
-#endif
 
   if (about_wireshark_w != NULL) {
     /* There's already an "About Wireshark" dialog box; reactivate it. */
@@ -459,11 +436,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   about_wireshark_w = dlg_window_new("About Wireshark");
   /* set the initial position (must be done, before show is called!) */
   /* default position is not appropriate for the about dialog */
-#if GTK_MAJOR_VERSION >= 2
   gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER_ON_PARENT);
-#else
-  gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER);
-#endif
   /* setting the size is dangerous here, as making it too short will
    * clip content on GTK1, so simply use the natural size */
   /*gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);*/
@@ -480,11 +453,9 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   page_lb = gtk_label_new("Wireshark");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), about_page, page_lb);
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   authors_page = about_authors_page_new();
   page_lb = gtk_label_new("Authors");
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), authors_page, page_lb);
-#endif
 
   folders_page = about_folders_page_new();
   page_lb = gtk_label_new("Folders");
@@ -496,13 +467,11 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), plugins_page, page_lb);
 #endif
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
   license_page = about_license_page_new();
   page_lb = gtk_label_new("License");
   /* set a minmum width to avoid a lot of line breaks at the wrong places */
   WIDGET_SET_SIZE(license_page, 600, -1);
   gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), license_page, page_lb);
-#endif
 
   /* Button row */
   bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
