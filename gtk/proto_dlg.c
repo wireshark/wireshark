@@ -51,25 +51,14 @@ static void proto_save_cb(GtkWidget *, gpointer);
 static void proto_cancel_cb(GtkWidget *, gpointer);
 static void proto_destroy_cb(GtkWidget *, gpointer);
 
-#if GTK_MAJOR_VERSION < 2
-static void show_proto_selection(GtkCList *proto_list);
-#else
 static void show_proto_selection(GtkListStore *proto_store);
-#endif
 static gboolean set_proto_selection(GtkWidget *);
 static gboolean revert_proto_selection(void);
 
 static void toggle_all_cb(GtkWidget *button, gpointer parent_w);
 static void enable_all_cb(GtkWidget *button, gpointer parent_w);
 static void disable_all_cb(GtkWidget *button, gpointer parent_w);
-#if GTK_MAJOR_VERSION < 2
-static void proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
-                                 GdkEventButton *ev, gpointer gp);
-static gboolean proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev,
-                                   gpointer gp);
-#else
 static void status_toggled(GtkCellRendererToggle *, gchar *, gpointer);
-#endif
 
 static GtkWidget *proto_w = NULL;
 
@@ -82,11 +71,7 @@ typedef struct protocol_data {
   int  	      hfinfo_index;
   gboolean    enabled;
   gboolean    was_enabled;
-#if GTK_MAJOR_VERSION < 2
-  gint        row;
-#else
   GtkTreeIter iter;
-#endif
 } protocol_data_t;
 
 #define DISABLED "Disabled"
@@ -99,13 +84,9 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget *main_vb, *bbox, *proto_list, *label, *proto_sw, *proto_frame,
             *proto_vb, *button, *ok_bt, *apply_bt, *save_bt, *cancel_bt, *help_bt;
   const gchar *titles[] = { "Status", "Protocol", "Description" };
-#if GTK_MAJOR_VERSION < 2
-  gint width;
-#else
   GtkListStore *proto_store;
   GtkCellRenderer *proto_rend;
   GtkTreeViewColumn *proto_col;
-#endif
 
 
   if (proto_w != NULL) {
@@ -137,28 +118,11 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(proto_vb);
 
   proto_sw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(proto_sw), 
                                    GTK_SHADOW_IN);
-#endif
   gtk_box_pack_start(GTK_BOX(proto_vb), proto_sw, TRUE, TRUE, 0);
   gtk_widget_show(proto_sw);
 
-#if GTK_MAJOR_VERSION < 2
-  proto_list = gtk_clist_new_with_titles(3, (gchar **) titles);
-  gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
-  gtk_clist_set_selection_mode(GTK_CLIST(proto_list), GTK_SELECTION_BROWSE);
-  gtk_clist_column_titles_passive(GTK_CLIST(proto_list));
-  gtk_clist_column_titles_show(GTK_CLIST(proto_list));
-  gtk_clist_set_column_auto_resize(GTK_CLIST(proto_list), 0, FALSE);
-  gtk_clist_set_column_auto_resize(GTK_CLIST(proto_list), 1, TRUE);
-  gtk_clist_set_column_auto_resize(GTK_CLIST(proto_list), 2, TRUE);
-  width = gdk_string_width(proto_list->style->font, DISABLED);
-  gtk_clist_set_column_width(GTK_CLIST(proto_list), 0, width);
-  SIGNAL_CONNECT(proto_list, "select-row", proto_list_select_cb, NULL);
-  SIGNAL_CONNECT(proto_list, "key-press-event", proto_list_keypress_cb, NULL);
-  show_proto_selection(GTK_CLIST(proto_list));
-#else
   proto_store = gtk_list_store_new(4, G_TYPE_BOOLEAN, G_TYPE_STRING,
                                    G_TYPE_STRING, G_TYPE_POINTER);
   show_proto_selection(proto_store);
@@ -186,7 +150,6 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_tree_view_set_search_column(GTK_TREE_VIEW(proto_list), 1); /* col 1 in the *model* */
   g_object_unref(G_OBJECT(proto_store));
-#endif
   gtk_widget_show(proto_list);
 
   label = gtk_label_new("Disabling a protocol prevents higher "
@@ -263,34 +226,6 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   window_present(proto_w);
 } /* proto_cb */
 
-#if GTK_MAJOR_VERSION < 2
-static void
-proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
-                     GdkEventButton *ev _U_, gpointer gp _U_) {
-  protocol_data_t *p = gtk_clist_get_row_data(proto_list, row);
-
-  if (row < 0 || col < 0)
-    return;
-
-  if (p->enabled)
-    p->enabled = FALSE;
-  else
-    p->enabled = TRUE;
-
-  gtk_clist_set_text(proto_list, row, 0, STATUS_TXT(p->enabled) );
-} /* proto_list_select_cb */
-
-static gboolean
-proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev, gpointer gp _U_) {
-  GtkCList *proto_list = GTK_CLIST(pl);
-
-  if (ev->keyval == GDK_space) {
-    proto_list_select_cb(proto_list, proto_list->focus_row, 0, NULL, gp);
-  }
-  return TRUE;
-}
-
-#else
 static void
 status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
 {
@@ -311,7 +246,6 @@ status_toggled(GtkCellRendererToggle *cell _U_, gchar *path_str, gpointer data)
 
   gtk_tree_path_free(path);
 } /* status toggled */
-#endif
 
 /* XXX - We need callbacks for Gtk2 */
 
@@ -321,11 +255,7 @@ static void
 toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 {
   GSList *entry;
-#if GTK_MAJOR_VERSION < 2
-  GtkCList *proto_list = GTK_CLIST(pl);
-#else
   GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pl)));
-#endif
 
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
@@ -335,11 +265,7 @@ toggle_all_cb(GtkWidget *button _U_, gpointer pl)
     else
       p->enabled = TRUE;
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(p->enabled) );
-#else
     gtk_list_store_set(s, &p->iter, 0, p->enabled, -1);
-#endif
   }
 }
 
@@ -347,30 +273,15 @@ toggle_all_cb(GtkWidget *button _U_, gpointer pl)
 static void
 set_active_all(GtkWidget *w, gboolean new_state)
 {
-
-#if GTK_MAJOR_VERSION < 2
-  GtkCList *proto_list = GTK_CLIST(w);
-#else
   GtkListStore *s = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(w)));
-#endif
   GSList *entry;
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_clist_freeze(proto_list);
-#endif
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     protocol_data_t *p = entry->data;
 
     p->enabled = new_state;
-#if GTK_MAJOR_VERSION < 2
-    gtk_clist_set_text(proto_list, p->row, 0, STATUS_TXT(new_state) );
-#else
     gtk_list_store_set(s, &p->iter, 0, new_state, -1);
-#endif
   }
-#if GTK_MAJOR_VERSION < 2
-  gtk_clist_thaw(proto_list);
-#endif
 }
 
 /* Enable All */
@@ -579,17 +490,10 @@ create_protocol_list(void)
 }
 
 static void
-#if GTK_MAJOR_VERSION < 2
-show_proto_selection(GtkCList *proto_list)
-#else
 show_proto_selection(GtkListStore *proto_store)
-#endif
 {
   GSList *entry;
   protocol_data_t *p;
-#if GTK_MAJOR_VERSION < 2
-  const gchar *proto_text[3];
-#endif
 
   if (protocol_list == NULL)
     create_protocol_list();
@@ -597,18 +501,6 @@ show_proto_selection(GtkListStore *proto_store)
   for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
     p = entry->data;
 
-#if GTK_MAJOR_VERSION < 2
-    /* XXX - The preferred way to do this would be to have a check box
-     * in the first column.  GtkClists don't let us put arbitrary widgets
-     * in a cell, so we use the word "Disabled" instead.  We should be
-     * able to use check boxes in Gtk2, however.
-     */        
-    proto_text[0] = STATUS_TXT (p->enabled);
-    proto_text[1] = p->abbrev;
-    proto_text[2] = p->name;
-    p->row = gtk_clist_append(proto_list, (gchar **) proto_text);
-    gtk_clist_set_row_data(proto_list, p->row, p);
-#else
     gtk_list_store_append(proto_store, &p->iter);
     gtk_list_store_set(proto_store, &p->iter,
                        0, p->enabled,
@@ -616,7 +508,6 @@ show_proto_selection(GtkListStore *proto_store)
                        2, p->name,
                        3, p,
                       -1);
-#endif
   }
 
 } /* show_proto_selection */

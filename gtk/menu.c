@@ -87,9 +87,7 @@
 #include "u3.h"
 #include "macros_dlg.h"
 
-#if GTK_MAJOR_VERSION >= 2
 #include "export_object.h"
-#endif
 
 #ifdef NEED_G_ASCII_STRCASECMP_H
 #include "../epan/g_ascii_strcasecmp.h"
@@ -457,7 +455,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/File/File Set/Previous File", NULL, fileset_previous_cb, 0, WIRESHARK_STOCK_FILE_SET_PREVIOUS),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/File/_Export", NULL, NULL, 0, "<Branch>", NULL),
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
     ITEM_FACTORY_ENTRY("/File/Export/File...", NULL, export_text_cmd_cb,
                          0, NULL, NULL),
 #else
@@ -523,9 +521,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/Find Next Reference", NULL, reftime_frame_cb, REFTIME_FIND_NEXT, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/Find Previous Reference", NULL, reftime_frame_cb, REFTIME_FIND_PREV, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-#if GTK_MAJOR_VERSION >= 2
     ITEM_FACTORY_ENTRY("/Edit/_Configuration Profiles...", "<shift><control>A", profile_dialog_cb, 0, NULL, NULL),
-#endif
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
@@ -723,7 +719,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Contents", "F1", topic_menu_cb, HELP_CONTENT, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/_Supported Protocols", NULL, supported_cb, 0, NULL, NULL),
-#if (GLIB_MAJOR_VERSION >= 2)
     ITEM_FACTORY_ENTRY("/Help/Manual Pages", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Wireshark", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Manual Pages/Wireshark Filter", NULL, topic_menu_cb, LOCALPAGE_MAN_WIRESHARK_FILTER, NULL, NULL),
@@ -741,7 +736,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Help/Wireshark Online/FAQ's", NULL, topic_menu_cb, ONLINEPAGE_FAQ, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Wireshark Online/Downloads", NULL, topic_menu_cb, ONLINEPAGE_DOWNLOAD, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Help/Wireshark Online/Example Files", NULL, topic_menu_cb, ONLINEPAGE_SAMPLE_FILES, NULL, NULL),
-#endif
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_About Wireshark", NULL, about_wireshark_cb,
                        0, WIRESHARK_STOCK_ABOUT)
@@ -953,9 +947,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Printable Text Only)", NULL, copy_hex_cb, CD_TEXTONLY, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Hex Stream)", NULL, copy_hex_cb, CD_HEX, NULL, NULL),
-#if GTK_MAJOR_VERSION >= 2
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY, NULL, NULL),
-#endif
 
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
@@ -1038,9 +1030,7 @@ static GtkItemFactoryEntry tree_view_menu_items[] =
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Printable Text Only)", NULL, copy_hex_cb, CD_TEXTONLY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Copy/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Hex Stream)", NULL, copy_hex_cb, CD_HEX | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-#if GTK_MAJOR_VERSION >= 2
     ITEM_FACTORY_ENTRY("/Copy/Bytes (Binary Stream)", NULL, copy_hex_cb, CD_BINARY | CD_FLAGS_SELECTEDONLY, NULL, NULL),
-#endif
 
     ITEM_FACTORY_ENTRY("/Export Selected Packet Bytes...", NULL, savehex_cb,
                        0, NULL, NULL),
@@ -1401,7 +1391,6 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry = g_malloc0(sizeof (GtkItemFactoryEntry));
             entry->path = node_data->name;
             entry->callback = node_data->callback;
-#if GTK_MAJOR_VERSION >= 2
             switch(group) {
             case(REGISTER_STAT_GROUP_NONE):
                 break;
@@ -1434,7 +1423,6 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             default:
                 g_assert_not_reached();
             }
-#endif
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
@@ -1798,11 +1786,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	gtk_widget_show (menu_item);
 
 	/* add new "clear list" item at last position */
-#if GTK_MAJOR_VERSION < 2
-	menu_item = gtk_menu_item_new_with_label("<Clear File List>");
-#else
         menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
-#endif
 	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
 	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate",
 		clear_menu_recent_capture_file_cmd_cb, (GtkObject *) menu_item);
@@ -2377,7 +2361,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
             return TRUE;
         }
     }
-#if GTK_MAJOR_VERSION >= 2
     /* GDK_2BUTTON_PRESS is a doubleclick -> expand/collapse tree row */
     /* GTK version 1 seems to be doing this automatically */
     if (widget == tree_view && event->type == GDK_2BUTTON_PRESS) {
@@ -2396,7 +2379,6 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
             gtk_tree_path_free(path);
         }
     }
-#endif
     return FALSE;
 }
 

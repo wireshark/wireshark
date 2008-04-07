@@ -602,15 +602,9 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   /* the following are only used if GTK2 is used (as GTK1 cannot read these geometry values) */
   /* or if set through command line */
-#if GTK_MAJOR_VERSION >= 2
   recent.has_gui_geometry_main_upper_pane = TRUE;
   recent.has_gui_geometry_main_lower_pane = TRUE;
   recent.has_gui_geometry_status_pane = TRUE;
-#else
-  recent.has_gui_geometry_main_upper_pane = FALSE;
-  recent.has_gui_geometry_main_lower_pane = FALSE;
-  recent.has_gui_geometry_status_pane = FALSE;
-#endif
 
   recent.privs_warn_if_elevated = TRUE;
   recent.privs_warn_if_no_npf = TRUE;

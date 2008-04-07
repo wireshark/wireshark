@@ -197,11 +197,6 @@ typedef enum {
 	TAP_RTP_NO_DATA
 } error_type_t;
 
-#if GTK_MAJOR_VERSION < 2
-GtkRcStyle *rc_style;
-GdkColormap *colormap;
-#endif
-
 typedef struct _tap_rtp_save_info_t {
 	FILE *fp;
 	guint32 count;
@@ -965,11 +960,7 @@ static void dialog_graph_draw(user_data_t* user_data)
         guint32 right_x_border;
         guint32 top_y_border;
         guint32 bottom_y_border;
-#if GTK_MAJOR_VERSION < 2
-        GdkFont *font;
-#else
         PangoLayout  *layout;
-#endif
         int label_width, label_height;
         guint32 draw_width, draw_height;
         char label_string[15];
@@ -979,9 +970,6 @@ static void dialog_graph_draw(user_data_t* user_data)
         guint32 max_value;              /* max value of seen data */
         guint32 max_y;                  /* max value of the Y scale */
 
-#if GTK_MAJOR_VERSION <2
-        font = user_data->dlg.dialog_graph.draw_area->style->font;
-#endif
         if(!user_data->dlg.dialog_graph.needs_redraw){
                 return;
         }
@@ -1058,13 +1046,8 @@ static void dialog_graph_draw(user_data_t* user_data)
          * top y scale label will be the widest one
          */
          print_time_scale_string(label_string, 15, max_y);
-#if GTK_MAJOR_VERSION < 2
-        label_width=gdk_string_width(font, label_string);
-        label_height=gdk_string_height(font, label_string);
-#else
         layout = gtk_widget_create_pango_layout(user_data->dlg.dialog_graph.draw_area, label_string);
         pango_layout_get_pixel_size(layout, &label_width, &label_height);
-#endif
         left_x_border=10;
         right_x_border=label_width+20;
         top_y_border=10;
@@ -1104,15 +1087,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                 /* draw the labels */
                 if(i==0){
                         print_time_scale_string(label_string, 15, (max_y*i/10));
-#if GTK_MAJOR_VERSION < 2
-                        lwidth=gdk_string_width(font, label_string);
-                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                                        font,
-                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                                        label_string);
-#else
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1120,19 +1094,9 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
                                         layout);
-#endif
                 }
                 if(i==5){
                         print_time_scale_string(label_string, 15, (max_y*i/10));
-#if GTK_MAJOR_VERSION < 2
-                        lwidth=gdk_string_width(font, label_string);
-                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                                        font,
-                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                                        label_string);
-#else
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1140,19 +1104,9 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
                                         layout);
-#endif
                 }
                 if(i==10){
                         print_time_scale_string(label_string, 15, (max_y*i/10));
-#if GTK_MAJOR_VERSION < 2
-                        lwidth=gdk_string_width(font, label_string);
-                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                                        font,
-                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-                                        label_string);
-#else
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1160,7 +1114,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
                                         layout);
-#endif
                 }
         }
 
@@ -1236,15 +1189,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                         } else {
                                 g_snprintf(label_string, 15, "%d.%3ds", current_interval/1000,current_interval%1000);
                         }
-#if GTK_MAJOR_VERSION < 2
-                        lwidth=gdk_string_width(font, label_string);
-                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                                        font,
-                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                                        x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
-                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20+label_height,
-                                        label_string);
-#else
                         pango_layout_set_text(layout, label_string, -1);
                         pango_layout_get_pixel_size(layout, &lwidth, NULL);
                         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1252,7 +1196,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20,
                                         layout);
-#endif
                 }
 
         }
@@ -1267,15 +1210,6 @@ static void dialog_graph_draw(user_data_t* user_data)
          */
 	/* Draw the labels Fwd and Rev */
 	g_strlcpy(label_string,"<-Fwd",15);
-#if GTK_MAJOR_VERSION < 2
-	lwidth=gdk_string_width(font, label_string);
-	gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-		font,
-		user_data->dlg.dialog_graph.draw_area->style->black_gc,
-		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
-		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+label_height,
-		label_string);
-#else
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1283,17 +1217,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
 		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
 		layout);
-#endif
         g_strlcpy(label_string,"<-Rev",15);
-#if GTK_MAJOR_VERSION < 2
-        lwidth=gdk_string_width(font, label_string);
-        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                font,
-                user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
-                user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9+label_height,
-                label_string);
-#else
         pango_layout_set_text(layout, label_string, -1);
         pango_layout_get_pixel_size(layout, &lwidth, NULL);
         gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1301,7 +1225,6 @@ static void dialog_graph_draw(user_data_t* user_data)
                 user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
                 user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9,
                 layout);
-#endif
 
 	/* Draw the marks */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
@@ -1326,15 +1249,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 					g_strlcpy(label_string,"m",15);
 				}
 
-#if GTK_MAJOR_VERSION < 2
-                                lwidth=gdk_string_width(font, label_string);
-                                gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
-                                        font,
-                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
-                                        x_pos-1-lwidth/2,
-                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2)+label_height,
-                                        label_string);
-#else
                            	pango_layout_set_text(layout, label_string, -1);
                                 pango_layout_get_pixel_size(layout, &lwidth, NULL);
                                 gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
@@ -1342,17 +1256,13 @@ static void dialog_graph_draw(user_data_t* user_data)
                                         x_pos-1-lwidth/2,
                                         user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2),
                                         layout);
-#endif
                         }
 
                         prev_x_pos=x_pos;
                 }
         }
 
-#if GTK_MAJOR_VERSION >= 2
         g_object_unref(G_OBJECT(layout));
-#endif
-
 
         /*
          * Loop over all graphs and draw them
@@ -1494,16 +1404,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
         /* set up the colors and the GC structs for this pixmap */
 	for(i=0;i<MAX_GRAPHS;i++){
 		user_data->dlg.dialog_graph.graph[i].gc=gdk_gc_new(user_data->dlg.dialog_graph.pixmap);
-#if GTK_MAJOR_VERSION < 2
-                colormap = gtk_widget_get_colormap (widget);
-                if (!gdk_color_alloc (colormap, &user_data->dlg.dialog_graph.graph[i].color)){
-                        g_warning ("Couldn't allocate color");
-                }
-
-                gdk_gc_set_foreground(user_data->dlg.dialog_graph.graph[i].gc, &user_data->dlg.dialog_graph.graph[i].color);
-#else
                 gdk_gc_set_rgb_fg_color(user_data->dlg.dialog_graph.graph[i].gc, &user_data->dlg.dialog_graph.graph[i].color);
-#endif
 	}
 
 	dialog_graph_redraw(user_data);
@@ -1605,28 +1506,11 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
         gtk_widget_show(label);
         gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-#if GTK_MAJOR_VERSION < 2
-    /* setting the color of the display button doesn't work */
-        rc_style = gtk_rc_style_new ();
-        rc_style->fg[GTK_STATE_NORMAL] = dgg->color;
-        rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG;
-        rc_style->fg[GTK_STATE_ACTIVE] = dgg->color;
-        rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_FG;
-        rc_style->fg[GTK_STATE_PRELIGHT] = dgg->color;
-        rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_FG;
-        rc_style->fg[GTK_STATE_SELECTED] = dgg->color;
-        rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_FG;
-        rc_style->fg[GTK_STATE_INSENSITIVE] = dgg->color;
-        rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_FG;
-        gtk_widget_modify_style (label, rc_style);
-        gtk_rc_style_unref (rc_style);
-#else
         gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
         gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);
         gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &dgg->color);
         gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &dgg->color);
         gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &dgg->color);
-#endif
 
         return;
 }

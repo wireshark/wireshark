@@ -58,7 +58,6 @@
 #ifdef HAVE_LIBPORTAUDIO
 /* TODO: The RTP Player it is only supported for GTK >=2 */
 #include <gtk/gtk.h>
-#if GTK_MAJOR_VERSION >= 2
 
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
@@ -1996,6 +1995,4 @@ rtp_player_init(voip_calls_tapinfo_t *voip_calls_tap)
 	
 }
 
-#endif /* GTK_MAJOR_VERSION >= 2 */
- 
 #endif /* HAVE_LIBPORTAUDIO */

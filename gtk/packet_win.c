@@ -84,17 +84,9 @@ struct PacketWinData {
 /* List of all the packet-detail windows popped up. */
 static GList *detail_windows;
 
-#if GTK_MAJOR_VERSION < 2
-static void new_tree_view_select_row_cb(GtkCTree *ctree, GList *node,
-                                        gint column, gpointer user_data);
-
-static void new_tree_view_unselect_row_cb( GtkCTree *ctree, GList *node,
-                                           gint column, gpointer user_data);
-#else
 static void new_tree_view_selection_changed_cb(GtkTreeSelection *sel,
                                                gpointer user_data);
 
-#endif
 
 static void destroy_new_window(GtkObject *object, gpointer user_data);
 
@@ -169,16 +161,8 @@ void new_window_cb(GtkWidget *w _U_)
   detail_windows = g_list_append(detail_windows, DataPtr);
 
   /* load callback handlers */
-#if GTK_MAJOR_VERSION < 2
-  SIGNAL_CONNECT(tree_view, "tree-select-row", new_tree_view_select_row_cb,
-                 DataPtr);
-
-  SIGNAL_CONNECT(tree_view, "tree-unselect-row", new_tree_view_unselect_row_cb,
-                 DataPtr);
-#else
   SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
                  "changed", new_tree_view_selection_changed_cb, DataPtr);
-#endif
 
   SIGNAL_CONNECT(main_w, "destroy", destroy_new_window, DataPtr);
 
@@ -201,60 +185,6 @@ destroy_new_window(GtkObject *object _U_, gpointer user_data)
   g_free(DataPtr);
 }
 
-#if GTK_MAJOR_VERSION < 2
-/* called when a tree row is selected in the popup packet window */
-static void
-new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column _U_,
-                            gpointer user_data)
-{
-	field_info *finfo;
-	GtkWidget *byte_view;
-	const guint8 *data;
-	guint len;
-
-	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
-
-	g_assert(node);
-	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
-	if (!finfo) return;
-
-	set_notebook_page(DataPtr->bv_nb_ptr, finfo->ds_tvb);
-	byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
-	if ( !byte_view)	/* exit if no hex window to write in */
-		return;
-
-	data = get_byte_view_data_and_length(byte_view, &len);
-	if (data == NULL) {
-                data = DataPtr->pd;
-                len =  DataPtr->frame->cap_len;
-        }
-
-	DataPtr->finfo_selected = finfo;
-	packet_hex_print(byte_view, data, DataPtr->frame, finfo, len);
-}
-
-/* called when a tree row is unselected in the popup packet window */
-static void
-new_tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_,
-                              gint column _U_, gpointer user_data)
-{
-	GtkWidget* byte_view;
-	const guint8* data;
-	guint len;
-
-	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
-
-	DataPtr->finfo_selected = NULL;
-
-	byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
-	if ( !byte_view)	/* exit if no hex window to write in */
-		return;
-
-	data = get_byte_view_data_and_length(byte_view, &len);
-	g_assert(data != NULL);
-	packet_hex_reprint(byte_view);
-}
-#else
 /* called when a tree row is (un)selected in the popup packet window */
 static void
 new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
@@ -301,7 +231,6 @@ new_tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data)
         packet_hex_reprint(byte_view);
     }
 }
-#endif
 
 /* Functions called from elsewhere to act on all popup packet windows. */
 

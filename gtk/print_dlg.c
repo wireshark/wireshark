@@ -54,7 +54,7 @@
 #include "tempfile.h"
 #include "util.h"
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "win32-file-dlg.h"
@@ -188,7 +188,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_text_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_text);
   return;
 #endif
@@ -237,7 +237,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_ps_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_ps);
   return;
 #endif
@@ -286,7 +286,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_psml_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_psml);
   return;
 #endif
@@ -335,7 +335,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_pdml_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_pdml);
   return;
 #endif
@@ -382,7 +382,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_csv_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_csv);
   return;
 #endif
@@ -429,7 +429,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
   print_args_t *args = &export_carrays_args;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
   win32_export_file(GDK_WINDOW_HWND(top_level->window), export_type_carrays);
   return;
 #endif
@@ -474,10 +474,6 @@ print_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 static GtkWidget *
 open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 {
-#if GTK_MAJOR_VERSION < 2
-  GtkAccelGroup *accel_group;
-#endif
-
   GtkWidget     *main_win;
   GtkWidget     *main_vb;
 
@@ -512,14 +508,6 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
   /* Enable tooltips */
   tooltips = gtk_tooltips_new();
-
-#if GTK_MAJOR_VERSION < 2
-  /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-  accel_group = gtk_accel_group_new();
-  gtk_window_add_accel_group(GTK_WINDOW(main_win), accel_group);
-#endif
 
   /* Vertical enclosing container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -677,11 +665,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(packet_hb), range_fr, FALSE, FALSE, 0);
   gtk_widget_show(range_fr);
 
-  range_tb = range_new(&args->range
-#if GTK_MAJOR_VERSION < 2
-  , accel_group
-#endif
-  );
+  range_tb = range_new(&args->range);
   gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
   gtk_widget_show(range_tb);
 
@@ -829,7 +813,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
       SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PRINT_DIALOG);
     }
   } else {
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
     if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
       help_bt  = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
       SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_FILE_WIN32_DIALOG);

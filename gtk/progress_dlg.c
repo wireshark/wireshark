@@ -177,9 +177,6 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gtk_box_pack_start(GTK_BOX(dynamic_vb), percentage_hb, FALSE, TRUE, 3);
 
     prog_bar = gtk_progress_bar_new();
-#if GTK_MAJOR_VERSION < 2
-    gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
-#endif
     gtk_box_pack_start(GTK_BOX(percentage_hb), prog_bar, FALSE, TRUE, 3);
 
     percentage_lb = gtk_label_new("  0%");
@@ -392,11 +389,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 
 	/* update progress bar */
 	prog_bar = OBJECT_GET_DATA(dlg_w, PROG_BAR_KEY);
-#if GTK_MAJOR_VERSION < 2
-	gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), percentage);
-#else
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
-#endif
 
 	/*
 	 * Flush out the update and process any input events.

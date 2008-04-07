@@ -89,10 +89,8 @@ about_plugins_page_new(void)
 
     
     scrolledwindow = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow), 
                                    GTK_SHADOW_IN);
-#endif
 
     plugins_list = simple_list_new(3 , titles);
     plugins_scan(plugins_list);

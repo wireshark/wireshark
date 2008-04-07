@@ -246,52 +246,25 @@ layout_defaults_cb (GtkWidget * w _U_, gpointer data _U_)
 }
 
 #define SCROLLBAR_PLACEMENT_KEY         "scrollbar_placement"
-#if GTK_MAJOR_VERSION < 2
-#define PTREE_LINE_STYLE_KEY            "ptree_line_style"
-#define PTREE_EXPANDER_STYLE_KEY        "ptree_expander_style"
-#else
 #define ALTERN_COLORS_KEY               "altern_colors"
-#endif
 #define HEX_DUMP_HIGHLIGHT_STYLE_KEY	"hex_dump_highlight_style"
 #define FILTER_TOOLBAR_PLACEMENT_KEY    "filter_toolbar_show_in_statusbar"
 #define GUI_TOOLBAR_STYLE_KEY           "toolbar_style"
 #define GUI_WINDOW_TITLE_KEY            "window_title"
 
 
-#if GTK_MAJOR_VERSION < 2
-#define GUI_TABLE_ROWS 6
-#else
 #define GUI_TABLE_ROWS 5
-#endif
 
 static const enum_val_t scrollbar_placement_vals[] = {
     { "FALSE", "Left", FALSE },
     { "TRUE",  "Right", TRUE },
     { NULL,    NULL,    0 }
 };
-#if GTK_MAJOR_VERSION < 2
-static const enum_val_t line_style_vals[] = {
-    { "NONE",   "None",   0 },
-    { "SOLID",  "Solid",  1 },
-    { "DOTTED", "Dotted", 2 },
-    { "TABBED", "Tabbed", 3 },
-    { NULL,     NULL,     0 }
-};
-
-static const enum_val_t expander_style_vals[] = {
-    { "NONE",     "None",     0 },
-    { "SQUARE",   "Square",   1 },
-    { "TRIANGLE", "Triangle", 2 },
-    { "CIRCULAR", "Circular", 3 },
-    { NULL,       NULL,       0 }
-};
-#else
 static const enum_val_t altern_colors_vals[] = {
     { "FALSE", "No",  FALSE },
     { "TRUE",  "Yes", TRUE },
     { NULL,    NULL,  0 }
 };
-#endif
 static const enum_val_t highlight_style_vals[] = {
     { "FALSE", "Bold",     FALSE },
     { "TRUE",  "Inverse",  TRUE },
@@ -312,21 +285,13 @@ static const enum_val_t toolbar_style_vals[] = {
 GtkWidget*
 layout_prefs_show(void)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkAccelGroup *accel_group;
-#endif
-
     GtkWidget	*main_vb, *button_hb, *type_tb;
     GtkWidget	*pane_fr, *pane_vb;
     GtkWidget	*radio_hb, *radio_vb;
     GtkWidget	*default_vb, *default_bt;
     GtkWidget   *main_tb, *hbox;
     GtkWidget	*scrollbar_om;
-#if GTK_MAJOR_VERSION < 2
-    GtkWidget *expander_style_om, *line_style_om;
-#else
     GtkWidget *altern_colors_om;
-#endif
     GtkWidget *highlight_style_om;
     GtkWidget *toolbar_style_om;
     GtkWidget *filter_toolbar_placement_om;
@@ -346,14 +311,6 @@ layout_prefs_show(void)
     /* main vertical box */
     main_vb = gtk_vbox_new(FALSE, 7);
     gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
-
-#if GTK_MAJOR_VERSION < 2
-    /* Accelerator group for the accelerators (or, as they're called in
-     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
-     Ctrl+<key> is an accelerator). */
-    accel_group = gtk_accel_group_new();
-    /*gtk_window_add_accel_group(GTK_WINDOW(main_win), accel_group);*/
-#endif
 
     /* pane frame */
     pane_fr = gtk_frame_new("Panes");
@@ -435,27 +392,6 @@ layout_prefs_show(void)
         "will be displayed in the panes.", NULL);
     OBJECT_SET_DATA(main_vb, SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
 
-#if GTK_MAJOR_VERSION < 2
-    /* Tree line style */
-    line_style_om = create_preference_option_menu(main_tb, pos++,
-        "Tree line style:", NULL, line_style_vals,
-        prefs.gui_ptree_line_style);
-    gtk_tooltips_set_tip(tooltips, line_style_om, 
-        "Select the style in which trees "
-        "will be displayed in the packet "
-        "detail pane.", NULL);
-    OBJECT_SET_DATA(main_vb, PTREE_LINE_STYLE_KEY, line_style_om);
-
-    /* Tree expander style */
-    expander_style_om = create_preference_option_menu(main_tb, pos++,
-        "Tree expander style:", NULL, expander_style_vals,
-        prefs.gui_ptree_expander_style);
-    gtk_tooltips_set_tip(tooltips, expander_style_om, 
-        "Select the style in which the "
-        "expander will be displayed in "
-        "the panes displayed.", NULL);
-    OBJECT_SET_DATA(main_vb, PTREE_EXPANDER_STYLE_KEY, expander_style_om);
-#else
     /* Alternating row colors in list and tree views */
     altern_colors_om = create_preference_option_menu(main_tb, pos++,
         "Alternating row colors in lists and trees:", NULL,
@@ -464,7 +400,6 @@ layout_prefs_show(void)
         "Select whether or not the rows of "
         "lists and trees have alternating color.", NULL);
     OBJECT_SET_DATA(main_vb, ALTERN_COLORS_KEY, altern_colors_om);
-#endif
 
     /* Hex Dump highlight style */
     highlight_style_om = create_preference_option_menu(main_tb, pos++,
@@ -531,15 +466,8 @@ layout_prefs_fetch(GtkWidget *w)
         OBJECT_GET_DATA(w, SCROLLBAR_PLACEMENT_KEY),
         scrollbar_placement_vals);
 
-#if GTK_MAJOR_VERSION < 2
-    prefs.gui_ptree_line_style = fetch_enum_value(
-        OBJECT_GET_DATA(w, PTREE_LINE_STYLE_KEY), line_style_vals);
-    prefs.gui_ptree_expander_style = fetch_enum_value(
-        OBJECT_GET_DATA(w, PTREE_EXPANDER_STYLE_KEY), expander_style_vals);
-#else
     prefs.gui_altern_colors = fetch_enum_value(
         OBJECT_GET_DATA(w, ALTERN_COLORS_KEY), altern_colors_vals);
-#endif
     prefs.filter_toolbar_show_in_statusbar = fetch_enum_value(
         OBJECT_GET_DATA(w, FILTER_TOOLBAR_PLACEMENT_KEY), filter_toolbar_placement_vals);
     prefs.gui_hex_dump_highlight_style = fetch_enum_value(

@@ -44,31 +44,25 @@ welcome_item(const gchar *stock_item, const gchar * label, const gchar * message
 			 GtkSignalFunc callback, void *callback_data)
 {
     GtkWidget *w, *item_hb;
-#if GTK_MAJOR_VERSION >= 2
     gchar *formatted_message;
     GtkTooltips *tooltips;
 
     tooltips = gtk_tooltips_new();
-#endif
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
     w = BUTTON_NEW_FROM_STOCK(stock_item);
     WIDGET_SET_SIZE(w, 80, 40);
-#if GTK_MAJOR_VERSION >= 2
     gtk_button_set_label(GTK_BUTTON(w), label);
     gtk_tooltips_set_tip(tooltips, w, tooltip, NULL);
-#endif
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 0);
     SIGNAL_CONNECT(w, "clicked", callback, callback_data);
 
     w = gtk_label_new(message);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
-#if GTK_MAJOR_VERSION >= 2
     formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", message);
     gtk_label_set_markup(GTK_LABEL(w), formatted_message);
     g_free(formatted_message);
-#endif
 
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 10);
 
@@ -100,9 +94,7 @@ welcome_header_new(void)
     get_color(&bg);
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_vb);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &bg);
-#endif
 
     item_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
@@ -111,15 +103,9 @@ welcome_header_new(void)
     /*icon = xpm_to_widget_from_parent(top_level, wsicon64_xpm);*/
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
-#if GTK_MAJOR_VERSION < 2
-    message = "The World's Most Popular Network Protocol Analyzer";
-#else
     message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
-#endif
     w = gtk_label_new(message);
-#if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message);
-#endif
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
@@ -134,17 +120,13 @@ welcome_topic_header_new(const char *header)
     GtkWidget *w;
     GdkColor bg;
     GtkWidget *eb;
-#if GTK_MAJOR_VERSION >= 2
     gchar *formatted_message;
-#endif
 
 
     w = gtk_label_new(header);
-#if GTK_MAJOR_VERSION >= 2
     formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", header);
     gtk_label_set_markup(GTK_LABEL(w), formatted_message);
     g_free(formatted_message);
-#endif
 
     /* topic header background color */
     bg.pixel = 0;
@@ -156,9 +138,7 @@ welcome_topic_header_new(const char *header)
     get_color(&bg);
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &bg);
-#endif
 
     return eb;
 }
@@ -192,16 +172,13 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     get_color(&bg);
     topic_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(topic_eb), topic_vb);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &bg);
-#endif
     *to_fill = layout_vb;
 
     return topic_eb;
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 static gboolean
 welcome_link_enter_cb(GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
 {
@@ -209,9 +186,7 @@ welcome_link_enter_cb(GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpoint
     GtkWidget *w = user_data;
 
     message = g_strdup_printf("<span foreground='blue' underline='single'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
-#if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message);
-#endif
     g_free(message);
 
     return FALSE;
@@ -224,14 +199,11 @@ welcome_link_leave_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer user_
     GtkWidget *w = user_data;
 
     message = g_strdup_printf("<span foreground='blue'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
-#if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message);
-#endif
     g_free(message);
 
     return FALSE;
 }
-#endif
 
 
 static gboolean
@@ -249,26 +221,18 @@ welcome_link_new(const gchar *text, GtkWidget **label /*, void *callback, void *
     GtkWidget *w;
     GtkWidget *eb;
 
-#if GTK_MAJOR_VERSION < 2
-    message = g_strdup(text);
-#else
     message = g_strdup_printf("<span foreground='blue'>%s</span>", text);
-#endif
     w = gtk_label_new(message);
     *label = w;
-#if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message);
-#endif
     g_free(message);
 
 	/* event box */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
 
-#if GTK_MAJOR_VERSION >= 2
     SIGNAL_CONNECT(eb, "enter-notify-event", welcome_link_enter_cb, w);
     SIGNAL_CONNECT(eb, "leave-notify-event", welcome_link_leave_cb, w);
-#endif
     SIGNAL_CONNECT(eb, "button-press-event", welcome_link_press_cb, w);
 
     /* XXX - memleak */
@@ -316,25 +280,19 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg, gboolean active)
 
     w = welcome_link_new("START", &label);
     gtk_tooltips_set_tip(tooltips, w, "Immediately start a capture on this interface", NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
 
     w = welcome_link_new("OPTIONS", &label);
     gtk_tooltips_set_tip(tooltips, w, "Show the capture options of this interface", NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
 
     w = welcome_link_new("DETAILS", &label);
     gtk_tooltips_set_tip(tooltips, w, "Show detailed information about this interface", NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(interface_hb), w, FALSE, FALSE, 0);
 
@@ -345,17 +303,13 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg, gboolean active)
         g_string_truncate(message, 35);
         g_string_append  (message, " ...");
     }
-#if GTK_MAJOR_VERSION >= 2
     /* if this is the "active" interface, display it bold */
     if(active) {
         g_string_prepend(message, "<span weight=\"bold\">");
         g_string_append (message, "</span>");
 	}
-#endif
     w = gtk_label_new(message->str);
-#if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message->str);
-#endif
     g_string_free(message, TRUE);
 
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
@@ -482,25 +436,19 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
     w = welcome_link_new("C:\\Testfiles\\hello.pcap", &label);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
     w = welcome_filename_link_new("C:\\Testfiles\\hello2.pcap", &label);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
     w = welcome_filename_link_new(
 		"C:\\Testfiles\\to avoid screen garbage\\Unfortunately this is a very long filename which had to be truncated.pcap",
 		&label);
-#if GTK_MAJOR_VERSION >= 2
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_bg);
-#endif
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
@@ -516,7 +464,6 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Online", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-#if (GLIB_MAJOR_VERSION >= 2)
     item_hb = welcome_item(WIRESHARK_STOCK_WEB_SUPPORT,
         "Help",
         "Show the User's Guide",
@@ -530,7 +477,6 @@ welcome_new(void)
 		"Visit www.wireshark.org, the project's home page",
         GTK_SIGNAL_FUNC(topic_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-#endif
 
     /* topic updates */
     topic_vb = welcome_topic_new("Updates", &topic_to_fill);

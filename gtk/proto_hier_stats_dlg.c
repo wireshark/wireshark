@@ -45,9 +45,6 @@
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
-#if GTK_MAJOR_VERSION < 2
-#define NUM_STAT_COLUMNS 8
-#else
 enum {
     PROTOCOL_COLUMN,
     PRCT_PKTS_COLUMN,
@@ -60,16 +57,10 @@ enum {
     FILTER_NAME,
     NUM_STAT_COLUMNS /* must be the last */
 };
-#endif
 
 typedef struct {
-#if GTK_MAJOR_VERSION < 2
-	GtkCTree     *tree;
-	GtkCTreeNode *parent;
-#else
         GtkTreeView  *tree_view;
 	GtkTreeIter  *iter;
-#endif
 	ph_stats_t   *ps;
 } draw_info_t;
 
@@ -77,8 +68,6 @@ static GtkWidget *tree;
 
 #define PCT(x,y) (100.0 * (float)(x) / (float)(y))
 #define BANDWITDH(bytes,secs) ((bytes) * 8.0 / ((secs) * 1000.0 * 1000.0))
-
-#if GTK_MAJOR_VERSION >= 2
 
 /* Filter actions */
 #define ACTION_MATCH		0
@@ -238,7 +227,6 @@ static GtkItemFactoryEntry proto_hier_list_menu_items[] =
 		proto_hier_select_filter_cb, CALLBACK_COLORIZE(ACTYPE_SELECTED), NULL, NULL),
 
 };
-#endif
 
 static void
 fill_in_tree_node(GNode *node, gpointer data)
@@ -250,16 +238,10 @@ fill_in_tree_node(GNode *node, gpointer data)
     draw_info_t     child_di;
     double          seconds;
     gchar           *text[NUM_STAT_COLUMNS];
-#if GTK_MAJOR_VERSION < 2
-    GtkCTree        *tree = di->tree;
-    GtkCTreeNode    *parent = di->parent;
-    GtkCTreeNode    *new_node;
-#else
     GtkTreeView     *tree_view = di->tree_view;
     GtkTreeIter     *iter = di->iter;
     GtkTreeStore    *store;
     GtkTreeIter      new_iter;
-#endif
 
     if (g_node_n_children(node) > 0) {
         is_leaf = FALSE;
@@ -290,11 +272,6 @@ fill_in_tree_node(GNode *node, gpointer data)
 	text[7] = "n.c.";
     }
 
-#if GTK_MAJOR_VERSION < 2
-    new_node = gtk_ctree_insert_node(tree, parent, NULL, text,
-                                     7, NULL, NULL, NULL, NULL,
-                                     is_leaf, TRUE);
-#else
     store = GTK_TREE_STORE(gtk_tree_view_get_model(tree_view));
     gtk_tree_store_append(store, &new_iter, iter);
     gtk_tree_store_set(store, &new_iter,
@@ -308,7 +285,6 @@ fill_in_tree_node(GNode *node, gpointer data)
 		       END_BANDWIDTH_COLUMN, text[7],
 		       FILTER_NAME, stats->hfinfo->abbrev,
                        -1);
-#endif
 
     g_free(text[1]);
     g_free(text[2]);
@@ -318,13 +294,8 @@ fill_in_tree_node(GNode *node, gpointer data)
     g_free(text[6]);
     if (seconds > 0.0) g_free(text[7]);
 
-#if GTK_MAJOR_VERSION < 2
-    child_di.tree = tree;
-    child_di.parent = new_node;
-#else
     child_di.tree_view = tree_view;
     child_di.iter = &new_iter;
-#endif
     child_di.ps = ps;
 
     g_node_children_foreach(node, G_TRAVERSE_ALL,
@@ -336,20 +307,14 @@ fill_in_tree(GtkWidget *tree, ph_stats_t *ps)
 {
 	draw_info_t	di;
 
-#if GTK_MAJOR_VERSION < 2
-	di.tree = GTK_CTREE(tree);
-	di.parent = NULL;
-#else
         di.tree_view = GTK_TREE_VIEW(tree);
 	di.iter = NULL;
-#endif
 	di.ps = ps;
 
 	g_node_children_foreach(ps->stats_tree, G_TRAVERSE_ALL,
                                 fill_in_tree_node, &di);
 }
 
-#if GTK_MAJOR_VERSION >= 2
 static GtkWidget *popup_menu_object;
 
 static gint
@@ -376,7 +341,6 @@ proto_hier_create_popup_menu(void)
     popup_menu_object = gtk_item_factory_get_widget (item_factory, "<main>");
     SIGNAL_CONNECT(tree, "button_press_event", proto_hier_show_popup_menu_cb, NULL);
 }
-#endif
 
 #define MAX_DLG_HEIGHT 450
 #define DEF_DLG_WIDTH  700
@@ -384,53 +348,17 @@ static void
 create_tree(GtkWidget *container, ph_stats_t *ps)
 {
     GtkWidget	*sw;
-#if GTK_MAJOR_VERSION < 2
-    int		i, height;
-    const gchar		*column_titles[NUM_STAT_COLUMNS] = {
-        "Protocol",
-        "% Packets",
-        "Packets",
-        "Bytes",
-	"Mbit/s",
-        "End Packets",
-        "End Bytes",
-	"End Mbit/s"
-    };
-#else
     GtkTreeView       *tree_view;
     GtkTreeStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *column;
-#endif
 
     /* Scrolled Window */
     sw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(sw), 
                                    GTK_SHADOW_IN);
-#endif
     gtk_container_add(GTK_CONTAINER(container), sw);
 
-#if GTK_MAJOR_VERSION < 2
-    tree = ctree_new_with_titles(NUM_STAT_COLUMNS, 0, column_titles);
-
-    /* XXX - get 'pos' to set vertical scroll-bar placement. */
-
-    /* The title bars do nothing. */
-    gtk_clist_column_titles_passive(GTK_CLIST(tree));
-
-    /* Auto Resize all columns */
-    for (i = 0; i < NUM_STAT_COLUMNS; i++) {
-        gtk_clist_set_column_auto_resize(GTK_CLIST(tree), i, TRUE);
-    }
-
-
-    /* Right justify numeric columns */
-    for (i = 1; i < NUM_STAT_COLUMNS; i++) {
-        gtk_clist_set_column_justification(GTK_CLIST(tree), i,
-                                           GTK_JUSTIFY_RIGHT);
-    }
-#else
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, 
@@ -500,23 +428,14 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
-#endif
 
     /* Fill in the data. */
     fill_in_tree(tree, ps);
 
-#if GTK_MAJOR_VERSION < 2
-    height = GTK_CLIST(tree)->rows * (GTK_CLIST(tree)->row_height + 5);
-    height = MIN(height, MAX_DLG_HEIGHT);
-    WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, height);
-#else
     WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
     gtk_tree_view_expand_all(tree_view);
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
     proto_hier_create_popup_menu ();
-#endif
 
     gtk_container_add(GTK_CONTAINER(sw), tree);
 }

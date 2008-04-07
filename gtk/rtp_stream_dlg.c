@@ -432,7 +432,6 @@ rtpstream_on_filter                    (GtkButton       *button _U_,
 
 
 /****************************************************************************/
-#if (GTK_MAJOR_VERSION >= 2)
 static void
 rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 {
@@ -464,7 +463,6 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 	gtk_clipboard_set_text(cb, CSV_str->str, CSV_str->len);
 	g_string_free(CSV_str, TRUE);
 }
-#endif
 
 /****************************************************************************/
 static void
@@ -664,9 +662,7 @@ static void rtpstream_dlg_create (void)
     GtkWidget *bt_filter;
     GtkWidget *bt_analyze;
     GtkWidget *bt_close;
-#if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *bt_copy;
-#endif           
     GtkTooltips *tooltips = gtk_tooltips_new();
 
     column_arrows *col_arrows;
@@ -782,14 +778,12 @@ static void rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream(s)", NULL);
 
-#if (GTK_MAJOR_VERSION >= 2)
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
     bt_copy = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
     gtk_tooltips_set_tip(tooltips, bt_copy, 
         "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
-#endif                 
 
     bt_analyze = gtk_button_new_with_label ("Analyze");
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
@@ -809,9 +803,7 @@ static void rtpstream_dlg_create (void)
     SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
     SIGNAL_CONNECT(bt_mark, "clicked", rtpstream_on_mark, NULL);
     SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
-#if (GTK_MAJOR_VERSION >= 2)
     SIGNAL_CONNECT(bt_copy, "clicked", rtpstream_on_copy_as_csv, NULL);
-#endif
     SIGNAL_CONNECT(bt_analyze, "clicked", rtpstream_on_analyse, NULL);
 
     window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);

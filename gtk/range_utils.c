@@ -377,11 +377,8 @@ range_entry_in_event(GtkWidget *widget _U_, GdkEventFocus *event _U_, gpointer u
 
 
 /* create a new range "widget" */
-GtkWidget *range_new(packet_range_t *range
-#if GTK_MAJOR_VERSION < 2
-, GtkAccelGroup *accel_group
-#endif
-) {
+GtkWidget *range_new(packet_range_t *range)
+{
   GtkWidget     *range_tb;
   GtkWidget     *captured_bt;
   GtkWidget     *displayed_bt;

@@ -75,7 +75,7 @@
 #include "file_util.h"
 #include "webbrowser.h"
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
 #include "win32-file-dlg.h"
@@ -94,10 +94,6 @@
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
 
-
-#if GTK_MAJOR_VERSION < 2
-GtkStyle *item_style = NULL;
-#endif
 
 /* gtk_tree_view_expand_to_path doesn't exist in gtk+ v2.0 so we must include it
  * when building with this version (taken from gtk+ v2.2.4) */
@@ -229,7 +225,6 @@ redraw_hex_dump_all(void)
 
   redraw_hex_dump_packet_wins();
 
-#if GTK_MAJOR_VERSION >= 2
   /* XXX - this is a hack, to workaround a bug in GTK2.x!
      when changing the font size, even refilling of the corresponding
      gtk_text_buffer doesn't seem to trigger an update.
@@ -237,27 +232,17 @@ redraw_hex_dump_all(void)
      existing notebook tabs and "restart" the whole byte view again. */
   if (cfile.current_frame != NULL)
     cf_goto_frame(&cfile, cfile.current_frame->num);
-#endif
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
-#else
 static void
 expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
             GtkTreePath *path _U_, gpointer user_data _U_)
-#endif
 {
     field_info	 *finfo;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel *model;
 
     model = gtk_tree_view_get_model(tree_view);
     gtk_tree_model_get(model, iter, 1, &finfo, -1);
-#else
-    finfo = gtk_ctree_node_get_row_data( ctree, node);
-#endif
     g_assert(finfo);
 
     /*
@@ -271,24 +256,15 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     }
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
-#else
 static void
 collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
             GtkTreePath *path _U_, gpointer user_data _U_)
-#endif
 {
     field_info	 *finfo;
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeModel *model;
 
     model = gtk_tree_view_get_model(tree_view);
     gtk_tree_model_get(model, iter, 1, &finfo, -1);
-#else
-    finfo = gtk_ctree_node_get_row_data( ctree, node);
-#endif
     g_assert(finfo);
 
     /*
@@ -301,16 +277,6 @@ collapse_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
         tree_is_expanded[finfo->tree_type] = FALSE;
     }
 }
-
-#if GTK_MAJOR_VERSION < 2
-static void
-toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
-{
-	if (event->keyval != GDK_Return)
-		return;
-	gtk_ctree_toggle_expansion(ctree, GTK_CTREE_NODE(ctree->clist.selection->data));
-}
-#endif
 
 #define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
 #define BYTES_PER_LINE	16	/* max byte values in a line */
@@ -339,7 +305,6 @@ byte_num(int offset, int start_point)
 	return (offset - start_point) / 3;
 }
 
-#if GTK_MAJOR_VERSION >= 2
 struct field_lookup_info {
     field_info  *fi;
     GtkTreeIter  iter;
@@ -373,8 +338,6 @@ GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo) 
   return gtk_tree_model_get_path(model, &fli.iter);
 }
 
-#endif
-
 /* If the user selected a certain byte in the byte view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and:
  *
@@ -384,16 +347,10 @@ gboolean
 byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
     proto_tree   *tree;
-#if GTK_MAJOR_VERSION < 2
-    GtkCTree     *ctree;
-    /*GtkCTreeNode *node, *parent;*/
-    GtkText      *bv = GTK_TEXT(widget);
-#else
     GtkTreeView  *tree_view;
     GtkTextView  *bv = GTK_TEXT_VIEW(widget);
     gint          x, y;
     GtkTextIter   iter;
-#endif
     int           row, column;
     int           byte;
     tvbuff_t     *tvb;
@@ -487,22 +444,9 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
          */
         return FALSE;
     }
-#if GTK_MAJOR_VERSION < 2
-    ctree = GTK_CTREE(OBJECT_GET_DATA(widget, E_BYTE_VIEW_TREE_VIEW_PTR));
-#else
     tree_view = GTK_TREE_VIEW(OBJECT_GET_DATA(widget,
                                               E_BYTE_VIEW_TREE_VIEW_PTR));
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    /* Given the mouse (x,y) and the current GtkText (h,v)
-     * adjustments, and the size of the font, figure out
-     * which text column/row the user selected. This could be off
-     * if the bold version of the font is bigger than the
-     * regular version of the font. */
-    column = (int) ((bv->hadj->value + event->x) / user_font_get_regular_width());
-    row = (int) ((bv->vadj->value + event->y) / user_font_get_regular_height());
-#else
     /* get the row/column selected */
     gtk_text_view_window_to_buffer_coords(bv,
                          gtk_text_view_get_window_type(bv, event->window),
@@ -510,7 +454,6 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     gtk_text_view_get_iter_at_location(bv, &iter, x, y);
     row = gtk_text_iter_get_line(&iter);
     column = gtk_text_iter_get_line_offset(&iter);
-#endif
 
     /* Given the column and row, determine which byte offset
      * the user clicked on. */
@@ -545,32 +488,18 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     /* Get the data source tvbuff */
     tvb = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TVBUFF_KEY);
 
-#if GTK_MAJOR_VERSION < 2
-    return highlight_field(tvb, byte, ctree, tree);
-#else
     return highlight_field(tvb, byte, tree_view, tree);
-#endif
 }
 
 /* This highlights the field in the proto tree that is at position byte */
-#if GTK_MAJOR_VERSION < 2
-gboolean
-highlight_field(tvbuff_t *tvb, gint byte, GtkCTree *ctree,
-		proto_tree *tree)
-#else
 gboolean
 highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
 		proto_tree *tree)
-#endif
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkCTreeNode *node, *parent;
-#else
     GtkTreeModel *model;
     GtkTreePath  *first_path, *path;
     GtkTreeIter   parent;
     struct field_lookup_info fli;
-#endif
     field_info	 *finfo;
 
     /* Find the finfo that corresponds to our byte. */
@@ -580,30 +509,6 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
         return FALSE;
     }
 
-#if GTK_MAJOR_VERSION < 2
-    node = gtk_ctree_find_by_row_data(ctree, NULL, finfo);
-    g_assert(node);
-
-    /* Expand and select our field's row */
-    gtk_ctree_expand(ctree, node);
-    gtk_ctree_select(ctree, node);
-    expand_tree(ctree, node, NULL);
-
-    /* ... and its parents */
-    parent = GTK_CTREE_ROW(node)->parent;
-    while (parent) {
-        gtk_ctree_expand(ctree, parent);
-        expand_tree(ctree, parent, NULL);
-        parent = GTK_CTREE_ROW(parent)->parent;
-    }
-
-    /* And position the window so the selection is visible.
-     * Position the selection in the middle of the viewable
-     * pane. */
-    gtk_ctree_node_moveto(ctree, node, 0, .5, 0);
-
-    return FALSE;
-#else
     model = gtk_tree_view_get_model(tree_view);
     fli.fi = finfo;
     gtk_tree_model_foreach(model, lookup_finfo, &fli);
@@ -634,7 +539,6 @@ highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
     gtk_tree_path_free(first_path);
 
     return TRUE;
-#endif
 }
 
 /* Calls functions for different mouse-button presses. */
@@ -709,37 +613,19 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
   GtkWidget *byte_view, *byte_scrollw, *label;
-#if GTK_MAJOR_VERSION >= 2
   GtkTextBuffer *buf;
   GtkStyle      *style;
-#endif
 
   /* Byte view.  Create a scrolled window for the text. */
   byte_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION < 2
-  /* The horizontal scrollbar of the scroll-window doesn't seem
-   * to affect the GtkText widget at all, even when line wrapping
-   * is turned off in the GtkText widget and there is indeed more
-   * horizontal data. */
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(byte_scrollw),
-			/* Horizontal */GTK_POLICY_NEVER,
-			/* Vertical*/	GTK_POLICY_ALWAYS);
-#else
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(byte_scrollw),
                                    GTK_SHADOW_IN);
-#endif
   /* Add scrolled pane to tabbed window */
   label = gtk_label_new(name);
   gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
 
   gtk_widget_show(byte_scrollw);
 
-#if GTK_MAJOR_VERSION < 2
-  byte_view = gtk_text_new(NULL, NULL);
-  gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
-  gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
-#else
   byte_view = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
@@ -752,7 +638,6 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                              "background-gdk", &style->base[GTK_STATE_SELECTED],
                              NULL);
   gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
-#endif
   OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
@@ -961,12 +846,10 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         /* This could be done incrementally, but it is easier to mingle with the code for CD_ALLINFO */
         copy_hex_all_info(copy_buffer, data_p, len, FALSE);
         break;
-#if (GTK_MAJOR_VERSION >= 2)
     case(CD_BINARY):
         /* Completely different logic to text copies - leave copy buffer alone */
         copy_binary_to_clipboard(data_p,len);
         break;
-#endif
     default:
         /* Incrementally write to text buffer in various formats */
 	    while (len > 0){
@@ -1068,7 +951,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
         GtkWidget   *bv;
 	GtkWidget   *dlg_lb;
 
-#if GTK_MAJOR_VERSION >= 2 && _WIN32
+#if _WIN32
 	win32_export_raw_file(GDK_WINDOW_HWND(top_level->window));
 	return;
 #endif
@@ -1165,17 +1048,11 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   guchar         c = '\0';
   unsigned int   use_digits;
   gboolean       reverse, newreverse;
-#if GTK_MAJOR_VERSION < 2
-  GdkFont       *cur_font, *new_font;
-  GdkColor      *fg, *bg;
-  GtkText       *bv_text = GTK_TEXT(bv);
-#else
   GtkTextView   *bv_text_view = GTK_TEXT_VIEW(bv);
   GtkTextBuffer *buf = gtk_text_view_get_buffer(bv_text_view);
   GtkTextIter    iter;
   const char    *revstyle;
   GtkTextMark   *mark = NULL;
-#endif
 
   progdlg_t  *progbar = NULL;
   float       progbar_val;
@@ -1185,24 +1062,10 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
   int         progbar_nextstep;
   int         progbar_quantum;
 
-#if GTK_MAJOR_VERSION < 2
-  /* Freeze the text for faster display */
-  gtk_text_freeze(bv_text);
-
-  /* Clear out the text */
-  gtk_text_set_point(bv_text, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
-     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
-     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
-     for more information */
-  gtk_adjustment_set_value(bv_text->vadj, 0.0);
-  gtk_text_forward_delete(bv_text, gtk_text_get_length(bv_text));
-#else
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
   g_object_ref(buf);  
   gtk_text_view_set_buffer( bv_text_view, NULL);
-#endif
 
   /*
    * How many of the leading digits of the offset will we supply?
@@ -1287,173 +1150,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     line[cur++] = ' ';
 
     /* Display with inverse video ? */
-#if GTK_MAJOR_VERSION < 2
-    if (prefs.gui_hex_dump_highlight_style) {
-      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, cur);
-      /* Do we start in reverse? */
-      reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-      fg = reverse ? &WHITE : &BLACK;
-      bg = reverse ? &BLACK : &WHITE;
-      j   = i;
-      k   = i + BYTE_VIEW_WIDTH;
-      cur = 0;
-      /* Print the hex bit */
-      while (i < k) {
-	if (i < len) {
-	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-	  line[cur++] = hexchars[pd[i] & 0x0f];
-	} else {
-	  line[cur++] = ' '; line[cur++] = ' ';
-	}
-	i++;
-	newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-	/* Have we gone from reverse to plain? */
-	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-	  fg = &BLACK;
-	  bg = &WHITE;
-	  cur = 0;
-	}
-	/* Inter byte space if not at end of line */
-	if (i < k) {
-	  line[cur++] = ' ';
-	  /* insert a space every BYTE_VIEW_SEP bytes */
-	  if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-	    line[cur++] = ' ';
-	  }
-	}
-	/* Have we gone from plain to reversed? */
-	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-	  fg = &WHITE;
-	  bg = &BLACK;
-	  cur = 0;
-	}
-	reverse = newreverse;
-      }
-      /* Print remaining part of line */
-      gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-      cur = 0;
-      /* Print some space at the end of the line */
-      line[cur++] = ' '; line[cur++] = ' '; line[cur++] = ' ';
-      gtk_text_insert(bv_text, user_font_get_regular(), &BLACK, &WHITE, line, cur);
-      cur = 0;
-
-      /* Print the ASCII bit */
-      i = j;
-      /* Do we start in reverse? */
-      reverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-      fg = reverse ? &WHITE : &BLACK;
-      bg = reverse ? &BLACK : &WHITE;
-      while (i < k) {
-	if (i < len) {
-	  if (encoding == CHAR_ASCII) {
-	    c = pd[i];
-	  }
-	  else if (encoding == CHAR_EBCDIC) {
-	    c = EBCDIC_to_ASCII1(pd[i]);
-	  }
-	  else {
-		  g_assert_not_reached();
-	  }
-	  line[cur++] = isprint(c) ? c : '.';
-	} else {
-	  line[cur++] = ' ';
-	}
-	i++;
-	newreverse = (i >= bstart && i < bend) || (i >= astart && i < aend);
-	/* Have we gone from reverse to plain? */
-	if (reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-	  fg = &BLACK;
-	  bg = &WHITE;
-	  cur = 0;
-	}
-	if (i < k) {
-	  /* insert a space every BYTE_VIEW_SEP bytes */
-	  if( ( i % BYTE_VIEW_SEP ) == 0 ) {
-	    line[cur++] = ' ';
-	  }
-	}
-	/* Have we gone from plain to reversed? */
-	if (!reverse && (reverse != newreverse)) {
-	  gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-	  fg = &WHITE;
-	  bg = &BLACK;
-	  cur = 0;
-	}
-	reverse = newreverse;
-      }
-      /* Print remaining part of line */
-      line[cur++] = '\n';
-      gtk_text_insert(bv_text, user_font_get_regular(), fg, bg, line, cur);
-      cur = 0;
-    }
-    else {
-      gtk_text_insert(bv_text, user_font_get_regular(), NULL, NULL, line, cur);
-      /* Do we start in bold? */
-      cur_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
-      j   = i;
-      k   = i + BYTE_VIEW_WIDTH;
-      cur = 0;
-      /* Print the hex bit */
-      while (i < k) {
-	if (i < len) {
-	  line[cur++] = hexchars[(pd[i] & 0xf0) >> 4];
-	  line[cur++] = hexchars[pd[i] & 0x0f];
-	} else {
-	  line[cur++] = ' '; line[cur++] = ' ';
-	}
-	line[cur++] = ' ';
-	i++;
-	/* insert a space every BYTE_VIEW_SEP bytes */
-	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
-	/* Did we cross a bold/plain boundary? */
-	new_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
-	if (cur_font != new_font) {
-	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
-	  cur_font = new_font;
-	  cur = 0;
-	}
-      }
-      line[cur++] = ' ';
-      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
-
-      cur = 0;
-      i = j;
-      /* Print the ASCII bit */
-      cur_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
-      while (i < k) {
-	if (i < len) {
-	  if (encoding == CHAR_ASCII) {
-	    c = pd[i];
-	  }
-	  else if (encoding == CHAR_EBCDIC) {
-	    c = EBCDIC_to_ASCII1(pd[i]);
-	  }
-	  else {
-		  g_assert_not_reached();
-	  }
-	  line[cur++] = isprint(c) ? c : '.';
-	} else {
-	  line[cur++] = ' ';
-	}
-	i++;
-	/* insert a space every BYTE_VIEW_SEP bytes */
-	if( ( i % BYTE_VIEW_SEP ) == 0 ) line[cur++] = ' ';
-	/* Did we cross a bold/plain boundary? */
-	new_font = ((i >= bstart && i < bend) || (i >= astart && i < aend)) ? user_font_get_bold() : user_font_get_regular();
-	if (cur_font != new_font) {
-	  gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
-	  cur_font = new_font;
-	  cur = 0;
-	}
-      }
-      line[cur++] = '\n';
-      gtk_text_insert(bv_text, cur_font, NULL, NULL, line, cur);
-      cur = 0;
-    }
-#else
     if (prefs.gui_hex_dump_highlight_style)
       revstyle = "reverse";
     else
@@ -1571,7 +1267,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                                              "plain", NULL);
         cur = 0;
     }
-#endif
   }
 
   /* We're done printing the packets; destroy the progress bar if
@@ -1580,19 +1275,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     destroy_progress_dlg(progbar);
 
   /* scroll text into position */
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(bv_text); /* must thaw before adjusting scroll bars */
-  if ( bstart > 0 ) {
-    int linenum;
-    float scrollval;
-
-    linenum = bstart / BYTE_VIEW_WIDTH;
-    scrollval = MIN(linenum * user_font_get_regular_height(),
-		    bv_text->vadj->upper - bv_text->vadj->page_size);
-
-    gtk_adjustment_set_value(bv_text->vadj, scrollval);
-  }
-#else
   if (cur) {
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                              "plain", NULL);
@@ -1604,7 +1286,6 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     gtk_text_buffer_delete_mark(buf, mark);
   }
   g_object_unref(buf);  
-#endif
 }
 
 void
@@ -1693,29 +1374,17 @@ forget_ptree_widget(GtkWidget *ptreew, gpointer data _U_)
 static void
 set_ptree_sel_browse(GtkWidget *tree, gboolean val)
 {
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeSelection *selection;
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree));
-#endif
     /* Yeah, GTK uses "browse" in the case where we do not, but oh well.
        I think "browse" in Wireshark makes more sense than "SINGLE" in
        GTK+ */
     if (val) {
-#if GTK_MAJOR_VERSION < 2
-        gtk_clist_set_selection_mode(GTK_CLIST(tree),
-                                     GTK_SELECTION_SINGLE);
-#else
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-#endif
     }
     else {
-#if GTK_MAJOR_VERSION < 2
-        gtk_clist_set_selection_mode(GTK_CLIST(tree),
-                                     GTK_SELECTION_BROWSE);
-#else
         gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
-#endif
     }
 }
 
@@ -1732,40 +1401,17 @@ set_ptree_sel_browse_all(gboolean val)
 	g_list_foreach(ptree_widgets, set_ptree_sel_browse_cb, &val);
 }
 
-#if GTK_MAJOR_VERSION < 2
-static void
-set_ptree_style_cb(gpointer data, gpointer user_data)
-{
-	gtk_widget_set_style((GtkWidget *)data, (GtkStyle *)user_data);
-}
-#else
 static void
 set_ptree_font_cb(gpointer data, gpointer user_data)
 {
 	gtk_widget_modify_font((GtkWidget *)data,
                                (PangoFontDescription *)user_data);
 }
-#endif
 
 void
 set_ptree_font_all(FONT_TYPE *font)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkStyle *style;
-
-    style = gtk_style_new();
-    gdk_font_unref(style->font);
-    style->font = font;
-    gdk_font_ref(font);
-
-    g_list_foreach(ptree_widgets, set_ptree_style_cb, style);
-
-    /* Now nuke the old style and replace it with the new one. */
-    gtk_style_unref(item_style);
-    item_style = style;
-#else
     g_list_foreach(ptree_widgets, set_ptree_font_cb, font);
-#endif
 }
 
 
@@ -1790,7 +1436,6 @@ void proto_draw_colors_init(void)
 }
 
 
-#if GTK_MAJOR_VERSION >= 2
 static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
                                              GtkCellRenderer *cell,
                                              GtkTreeModel *tree_model,
@@ -1881,35 +1526,21 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 		}
 	}
 }
-#endif
 
 GtkWidget *
 main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 {
   GtkWidget *tv_scrollw, *tree_view;
-#if GTK_MAJOR_VERSION >= 2
   GtkTreeStore *store;
   GtkCellRenderer *renderer;
   GtkTreeViewColumn *column;
   gint col_offset;
-#endif
 
   /* Tree view */
   tv_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tv_scrollw),
                                    GTK_SHADOW_IN);
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-  tree_view = ctree_new(1, 0);
-  SIGNAL_CONNECT(tree_view, "key-press-event", toggle_tree, NULL );
-  SIGNAL_CONNECT(tree_view, "tree-expand", expand_tree, NULL );
-  SIGNAL_CONNECT(tree_view, "tree-collapse", collapse_tree, NULL );
-  /* I need this next line to make the widget work correctly with hidden
-   * column titles and GTK_SELECTION_BROWSE */
-  gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
-#else
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);
   tree_view = tree_view_new(GTK_TREE_MODEL(store));
   g_object_unref(G_OBJECT(store));
@@ -1931,20 +1562,9 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
   SIGNAL_CONNECT(tree_view, "row-expanded", expand_tree, NULL);
   SIGNAL_CONNECT(tree_view, "row-collapsed", collapse_tree, NULL);
-#endif
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
-#if GTK_MAJOR_VERSION < 2
-  if(item_style == NULL) {
-      item_style = gtk_style_new();
-      gdk_font_unref(item_style->font);
-      item_style->font = user_font_get_regular();
-  }
-
-  gtk_widget_set_style(tree_view, item_style);
-#else
   gtk_widget_modify_font(tree_view, user_font_get_regular());
-#endif
   remember_ptree_widget(tree_view);
 
   *tree_view_p = tree_view;
@@ -1952,50 +1572,28 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
   return tv_scrollw;
 }
 
-#if GTK_MAJOR_VERSION < 2
-void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view)
-#else
 void expand_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
-#endif
 {
   int i;
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = TRUE;
   }
-#if GTK_MAJOR_VERSION < 2
-  proto_tree_draw(protocol_tree, tree_view);
-  gtk_ctree_expand_recursive(GTK_CTREE(tree_view), NULL);
-#else
   gtk_tree_view_expand_all(GTK_TREE_VIEW(tree_view));
-#endif
 }
 
-#if GTK_MAJOR_VERSION < 2
-void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view)
-#else
 void collapse_all_tree(proto_tree *protocol_tree _U_, GtkWidget *tree_view)
-#endif
 {
   int i;
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = FALSE;
   }
-#if GTK_MAJOR_VERSION < 2
-  proto_tree_draw(protocol_tree, tree_view);
-#else
   gtk_tree_view_collapse_all(GTK_TREE_VIEW(tree_view));
-#endif
 }
 
 
 struct proto_tree_draw_info {
-#if GTK_MAJOR_VERSION < 2
-    GtkCTree     *ctree;
-    GtkCTreeNode *ctree_node;
-#else
     GtkTreeView  *tree_view;
     GtkTreeIter	 *iter;
-#endif
 };
 
 void
@@ -2027,37 +1625,6 @@ tree_view_follow_link(field_info   *fi)
 gboolean
 tree_view_select(GtkWidget *widget, GdkEventButton *event)
 {
-#if GTK_MAJOR_VERSION < 2
-        GtkCTree     *ctree;
-        GtkCTreeNode *node;
-        gint         row;
-        gint         column;
-        field_info   *fi;
-
-
-        if(gtk_clist_get_selection_info(GTK_CLIST(widget),
-            (gint) (((GdkEventButton *)event)->x),
-            (gint) (((GdkEventButton *)event)->y),
-            &row, &column))
-        {
-            ctree = GTK_CTREE(widget);
-
-            node = gtk_ctree_node_nth(ctree, row);
-            g_assert(node);
-
-            /* if that's a doubleclick, try to follow the link */
-            if(event->type == GDK_2BUTTON_PRESS) {
-                fi = gtk_ctree_node_get_row_data(ctree, node);
-                tree_view_follow_link(fi);
-            }
-            else if (((GdkEventButton *)event)->button != 1) {
-                /* if button == 1 gtk_ctree_select is already (or will be) called by the widget */
-                gtk_ctree_select(ctree, node);
-            }
-        } else {
-            return FALSE;
-        }
-#else
         GtkTreeSelection    *sel;
         GtkTreePath         *path;
 
@@ -2086,7 +1653,6 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
         } else {
             return FALSE;
         }
-#endif
     return TRUE;
 }
 
@@ -2094,39 +1660,22 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
 void
 proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 {
-#if GTK_MAJOR_VERSION >= 2
     GtkTreeStore *store;
-#endif
     struct proto_tree_draw_info	info;
 
-#if GTK_MAJOR_VERSION < 2
-    info.ctree = GTK_CTREE(tree_view);
-    info.ctree_node = NULL;
-
-    gtk_clist_freeze(GTK_CLIST(tree_view));
-#else
     info.tree_view = GTK_TREE_VIEW(tree_view);
     info.iter = NULL;
 
     store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view)));
-#endif
 
     /*
      * Clear out any crud left over in the display of the protocol
      * tree, by removing all nodes from the tree.
      * This is how it's done in testgtk.c in GTK+.
      */
-#if GTK_MAJOR_VERSION < 2
-    gtk_clist_clear(GTK_CLIST(tree_view));
-#else
     gtk_tree_store_clear(store);
-#endif
 
     proto_tree_children_foreach(protocol_tree, proto_tree_draw_node, &info);
-
-#if GTK_MAJOR_VERSION < 2
-    gtk_clist_thaw(GTK_CLIST(tree_view));
-#endif
 }
 
 
@@ -2141,13 +1690,9 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     gchar         label_str[ITEM_LABEL_LENGTH];
     gchar        *label_ptr;
     gboolean      is_leaf, is_expanded;
-#if GTK_MAJOR_VERSION < 2
-    GtkCTreeNode *parent;
-#else
     GtkTreeStore *store;
     GtkTreeIter   iter;
     GtkTreePath  *path;
-#endif
 
     if (PROTO_ITEM_IS_HIDDEN(node))
         return;
@@ -2180,32 +1725,18 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         label_ptr = g_strdup_printf("[%s]", label_ptr);
     }
 
-#if GTK_MAJOR_VERSION < 2
-    info.ctree = parent_info->ctree;
-    parent = gtk_ctree_insert_node ( info.ctree, parent_info->ctree_node, NULL,
-                                     &label_ptr, 5, NULL, NULL, NULL, NULL,
-                                     is_leaf, is_expanded );
-
-    gtk_ctree_node_set_row_data( GTK_CTREE(info.ctree), parent, fi );
-#else
     info.tree_view = parent_info->tree_view;
     store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(info.tree_view)));
     gtk_tree_store_append(store, &iter, parent_info->iter);
     gtk_tree_store_set(store, &iter, 0, label_ptr, 1, fi, -1);
-#endif
 
     if(PROTO_ITEM_IS_GENERATED(node)) {
         g_free(label_ptr);
     }
 
     if (!is_leaf) {
-#if GTK_MAJOR_VERSION < 2
-        info.ctree_node = parent;
-#else
         info.iter = &iter;
-#endif
         proto_tree_children_foreach(node, proto_tree_draw_node, &info);
-#if GTK_MAJOR_VERSION >= 2
         path = gtk_tree_model_get_path(GTK_TREE_MODEL(store), &iter);
         if (is_expanded)
 /* #if GTK_MINOR_VERSION >= 2 */
@@ -2216,7 +1747,6 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         else
             gtk_tree_view_collapse_row(info.tree_view, path);
         gtk_tree_path_free(path);
-#endif
     }
 }
 
@@ -2236,10 +1766,6 @@ clear_tree_and_hex_views(void)
 
   /* Clear the protocol tree by removing all nodes in the ctree.
      This is how it's done in testgtk.c in GTK+ */
-#if GTK_MAJOR_VERSION < 2
-  gtk_clist_clear(GTK_CLIST(tree_view));
-#else
   gtk_tree_store_clear(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view))));
-#endif
 }
 

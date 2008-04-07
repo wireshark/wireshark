@@ -78,12 +78,7 @@ static void     prefs_main_save_cb(GtkWidget *, gpointer);
 static void     prefs_main_cancel_cb(GtkWidget *, gpointer);
 static gboolean prefs_main_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
-#if GTK_MAJOR_VERSION < 2
-static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
-                                     gpointer);
-#else
 static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
-#endif
 
 
 #define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
@@ -123,11 +118,7 @@ struct ct_struct {
   GtkWidget    *main_vb;
   GtkWidget    *notebook;
   GtkWidget    *tree;
-#if GTK_MAJOR_VERSION < 2
-  GtkCTreeNode *node;
-#else
   GtkTreeIter  iter;
-#endif
   GtkTooltips  *tooltips;
   gint         page;
   gboolean     is_protocol;
@@ -276,13 +267,8 @@ module_prefs_show(module_t *module, gpointer user_data)
   struct ct_struct child_cts;
   GtkWidget        *main_vb, *main_tb, *frame, *main_sw;
   gchar            label_str[MAX_TREE_NODE_NAME_LEN];
-#if GTK_MAJOR_VERSION < 2
-  gchar            *label_ptr = label_str;
-  GtkCTreeNode     *ct_node;
-#else
   GtkTreeStore     *model;
   GtkTreeIter      iter;
-#endif
 
   /*
    * Is this module a subtree, with modules underneath it?
@@ -307,17 +293,11 @@ module_prefs_show(module_t *module, gpointer user_data)
    * Add this module to the tree.
    */
   g_strlcpy(label_str, module->title, MAX_TREE_NODE_NAME_LEN);
-#if GTK_MAJOR_VERSION < 2
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts->tree), cts->node, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, !prefs_module_has_submodules(module),
-  		FALSE);
-#else
   model = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cts->tree)));
   if (prefs_module_has_submodules(module) && !cts->iter.stamp)
     gtk_tree_store_append(model, &iter, NULL);
   else 
     gtk_tree_store_append(model, &iter, &cts->iter);
-#endif
 
   /*
    * Is this a subtree?
@@ -327,22 +307,13 @@ module_prefs_show(module_t *module, gpointer user_data)
      * Yes.
      */
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
-  		GINT_TO_POINTER(-1));
-#else
     gtk_tree_store_set(model, &iter, 0, label_str, 1, -1, -1);
-#endif
 
     /*
      * Walk the subtree and attach stuff to it.
      */
     child_cts = *cts;
-#if GTK_MAJOR_VERSION < 2
-    child_cts.node = ct_node;
-#else
     child_cts.iter = iter;
-#endif
     if (module == protocols_module)
       child_cts.is_protocol = TRUE;
     prefs_modules_foreach_submodules(module, module_prefs_show, &child_cts);
@@ -388,14 +359,8 @@ module_prefs_show(module_t *module, gpointer user_data)
     gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
 
     /* Attach the page to the tree item */
-#if GTK_MAJOR_VERSION < 2
-    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
-  		GINT_TO_POINTER(cts->page));
-    OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, ct_node);
-#else
     gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
     OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
-#endif
 
   cts->page++;
 
@@ -404,13 +369,7 @@ module_prefs_show(module_t *module, gpointer user_data)
   } else {
     /* show the blank page */
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_ctree_node_set_row_data(GTK_CTREE(cts->tree), ct_node,
-  		GINT_TO_POINTER(blank_page));
-#else
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, blank_page, -1);
-#endif
-    
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, blank_page, -1);  
 
   }
 
@@ -418,36 +377,19 @@ module_prefs_show(module_t *module, gpointer user_data)
 }
 
 
-#if GTK_MAJOR_VERSION < 2
-#define prefs_tree_iter GtkCTreeNode *
-#else
 #define prefs_tree_iter GtkTreeIter
-#endif
 
 /* add a page to the tree */
 static prefs_tree_iter
 prefs_tree_page_add(const gchar *title, gint page_nr,
                     gpointer store, prefs_tree_iter *parent_iter,
                     gboolean has_child
-#if GTK_MAJOR_VERSION >= 2
-                    _U_
-#endif
-                    )
+                    _U_)
 {
-#if GTK_MAJOR_VERSION < 2
-  const gchar       *label_ptr = title;
-#endif
   prefs_tree_iter   iter;
 
-#if GTK_MAJOR_VERSION < 2
-  iter = gtk_ctree_insert_node(GTK_CTREE(store), parent_iter ? *parent_iter : NULL, NULL,
-  		(gchar **) &label_ptr, 5, NULL, NULL, NULL, NULL, !has_child, TRUE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(store), iter,
-  		GINT_TO_POINTER(page_nr));
-#else
   gtk_tree_store_append(store, &iter, parent_iter);
   gtk_tree_store_set(store, &iter, 0, title, 1, page_nr, -1);
-#endif
   return iter;
 }
 
@@ -478,16 +420,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   GtkWidget         *gui_font_pg;
   gchar             label_str[MAX_TREE_NODE_NAME_LEN];
   struct ct_struct  cts;
-#if GTK_MAJOR_VERSION < 2
-  gpointer          store = NULL;
-  static gchar *fixedwidths[] = { "c", "m", NULL };
-#else
   GtkTreeStore      *store;
   GtkTreeSelection  *selection;
   GtkCellRenderer   *renderer;
   GtkTreeViewColumn *column;
   gint              col_offset;
-#endif
   prefs_tree_iter   gui_iter;
 
 
@@ -524,10 +461,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* scrolled window on the left for the categories tree */
   ct_sb = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(ct_sb),
                                    GTK_SHADOW_IN);
-#endif
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ct_sb),
   	GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
@@ -535,14 +470,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   OBJECT_SET_DATA(prefs_w, E_PREFSW_SCROLLW_KEY, ct_sb);
 
   /* categories tree */
-#if GTK_MAJOR_VERSION < 2
-  cts.tree = ctree_new(1, 0);
-  store = cts.tree;
-  cts.node = NULL;
-  gtk_clist_set_column_auto_resize(GTK_CLIST(cts.tree), 0, TRUE);
-  SIGNAL_CONNECT(cts.tree, "tree-select-row", prefs_tree_select_cb, NULL);
-  OBJECT_SET_DATA(prefs_w, E_PREFSW_TREE_KEY, cts.tree);
-#else
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
   cts.tree = tree_view_new(GTK_TREE_MODEL(store));
   cts.iter.stamp = 0; /* mark this as the toplevel */
@@ -559,7 +486,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
   SIGNAL_CONNECT(selection, "changed", prefs_tree_select_cb, NULL);
-#endif
   gtk_container_add(GTK_CONTAINER(ct_sb), cts.tree);
   gtk_widget_show(cts.tree);
 
@@ -622,20 +548,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_font_selection_set_font_name(
 	    GTK_FONT_SELECTION(gui_font_pg), prefs.PREFS_GUI_FONT_NAME);
 
-#if GTK_MAJOR_VERSION < 2
-  /* Set its filter to show only fixed_width fonts. */
-  gtk_font_selection_set_filter(
-	    GTK_FONT_SELECTION(gui_font_pg),
-	    GTK_FONT_FILTER_BASE, /* user can't change the filter */
-	    GTK_FONT_ALL,	  /* bitmap or scalable are fine */
-	    NULL,		  /* all foundries are OK */
-	    NULL,		  /* all weights are OK (XXX - normal only?) */
-	    NULL,		  /* all slants are OK (XXX - Roman only?) */
-	    NULL,		  /* all setwidths are OK */
-	    fixedwidths,	  /* ONLY fixed-width fonts */
-	    NULL);	/* all charsets are OK (XXX - ISO 8859/1 only?) */
-#endif
-
   /* GUI Colors prefs */
   g_strlcpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, stream_prefs_show(), E_GUI_COLORS_PAGE_KEY);
@@ -643,13 +555,9 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.page++;
 
   /* select the main GUI page as the default page and expand it's children */
-#if GTK_MAJOR_VERSION < 2
-  gtk_ctree_select(GTK_CTREE(cts.tree), gui_iter);
-#else
   gtk_tree_selection_select_iter(selection, &gui_iter);
   /* (expand will only take effect, when at least one child exists) */
   gtk_tree_view_expand_all(GTK_TREE_VIEW(cts.tree));
-#endif
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -679,13 +587,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   cts.page++;
 
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
   /* RTP player prefs */
   g_strlcpy(label_str, "RTP Player", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, rtp_player_prefs_show(), E_RTP_PLAYER_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
-#endif
 #endif
 
   /* Registered prefs */
@@ -736,9 +642,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   window_present(prefs_w);
 
-#if GTK_MAJOR_VERSION >= 2
   g_object_unref(G_OBJECT(store));
-#endif
 }
 
 static void
@@ -1361,9 +1265,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   printer_prefs_fetch(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_fetch(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
   rtp_player_prefs_fetch(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
-#endif
 #endif
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
@@ -1401,9 +1303,7 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
   printer_prefs_apply(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
   rtp_player_prefs_apply(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
-#endif
 #endif
 
   /* show/hide the Save button - depending on setting */
@@ -1420,7 +1320,6 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 static void
 prefs_main_destroy_all(GtkWidget *dlg)
 {
-#if GTK_MAJOR_VERSION >= 2
   int page_num;
   GtkWidget *frame;
 
@@ -1430,7 +1329,6 @@ prefs_main_destroy_all(GtkWidget *dlg)
 		   if(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY))
                gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
 	   }
-#endif
 
   gui_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
   layout_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
@@ -1450,9 +1348,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
   printer_prefs_destroy(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
   nameres_prefs_destroy(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-#if GTK_MAJOR_VERSION >= 2
   rtp_player_prefs_destroy(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
-#endif
 #endif
 
   /* Free up the saved preferences (both for "prefs" and for registered
@@ -1734,7 +1630,6 @@ module_search_properties(module_t *module, gpointer user_data)
   return 0;
 }
 
-#if GTK_MAJOR_VERSION >= 2
 static void
 tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 {
@@ -1751,7 +1646,6 @@ tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 
   gtk_tree_path_free(path);
 }
-#endif 
 
 /* select a node in the tree view */
 /* XXX - this is almost 100% copied from byte_view_select() in proto_draw.c,
@@ -1759,36 +1653,11 @@ tree_expand_row(GtkTreeModel *model, GtkTreeView *tree_view, GtkTreeIter *iter)
 void
 tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
 {
-#if GTK_MAJOR_VERSION < 2
-    GtkCTree     *ctree = GTK_CTREE(tree);
-    GtkCTreeNode *node = (GtkCTreeNode *) iter;
-    GtkCTreeNode *parent;
-#else
     GtkTreeIter  local_iter = *iter;
     GtkTreeView  *tree_view = GTK_TREE_VIEW(tree);
     GtkTreeModel *model;
     GtkTreePath  *first_path;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-    /* Expand and select our field's row */
-    gtk_ctree_expand(ctree, node);
-    gtk_ctree_select(ctree, node);
-    /*expand_tree(ctree, node, NULL);*/
-
-    /* ... and its parents */
-    parent = GTK_CTREE_ROW(node)->parent;
-    while (parent) {
-        gtk_ctree_expand(ctree, parent);
-        /*expand_tree(ctree, parent, NULL);*/
-        parent = GTK_CTREE_ROW(parent)->parent;
-    }
-
-    /* And position the window so the selection is visible.
-     * Position the selection in the middle of the viewable
-     * pane. */
-    gtk_ctree_node_moveto(ctree, node, 0, .5, 0);
-#else
     model = gtk_tree_view_get_model(tree_view);
 
     /* Expand our field's row */
@@ -1807,7 +1676,6 @@ tree_select_node(GtkWidget *tree, prefs_tree_iter *iter)
     gtk_tree_view_scroll_to_cell(tree_view, first_path, NULL, TRUE, 0.5, 0.0);
 
     gtk_tree_path_free(first_path);
-#endif
 }
 
 
@@ -1879,32 +1747,17 @@ properties_cb(GtkWidget *w, gpointer dummy)
 
 /* Prefs tree selection callback.  The node data has been loaded with
    the proper notebook page to load. */
-#if GTK_MAJOR_VERSION < 2
-static void
-prefs_tree_select_cb(GtkCTree *ct, GtkCTreeNode *node, gint col _U_,
-                     gpointer dummy _U_)
-#else
 static void
 prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
-#endif
 {
   gint page;
-#if GTK_MAJOR_VERSION >= 2
   GtkTreeModel *model;
   GtkTreeIter   iter;
-#endif
 
-#if GTK_MAJOR_VERSION < 2
-  page = GPOINTER_TO_INT(gtk_ctree_node_get_row_data(ct, node));
-
-  if (page >= 0)
-    gtk_notebook_set_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page);
-#else
   if (gtk_tree_selection_get_selected(sel, &model, &iter))
   {
     gtk_tree_model_get(model, &iter, 1, &page, -1);
     if (page >= 0)
       gtk_notebook_set_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page);
   }
-#endif
 }

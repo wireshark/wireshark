@@ -45,8 +45,6 @@
 #include "help_dlg.h"
 #include <epan/prefs.h>
 
-#if GTK_MAJOR_VERSION >= 2
-
 #define E_PROF_PROFILE_L_KEY        "profile_profile_l"
 #define E_PROF_COPY_BT_KEY          "profile_copy_bt"
 #define E_PROF_DEL_BT_KEY           "profile_del_bt"
@@ -841,15 +839,12 @@ profile_dialog_new(void)
   return main_w;
 }
 
-#endif
-
 
 /* Create a profile dialog for editing display profiles; this is to be used
    as a callback for menu items, toolbars, etc.. */
 void
 profile_dialog_cb(GtkWidget *w _U_)
 {
-#if GTK_MAJOR_VERSION >= 2
   /* Has a profiles dialog box already been opened */
   if (global_profile_w != NULL) {
     /* Yes.  Just reactivate it. */
@@ -857,6 +852,5 @@ profile_dialog_cb(GtkWidget *w _U_)
   } else {
     global_profile_w = profile_dialog_new ();
   }
-#endif
 }
 
