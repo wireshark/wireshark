@@ -110,15 +110,9 @@ extern gboolean byte_view_select(GtkWidget *widget, GdkEventButton *event);
  * @param tree the current tree
  * @return TRUE if highlighting was successful
  */
-#if GTK_MAJOR_VERSION < 2
-gboolean
-highlight_field(tvbuff_t *tvb, gint byte, GtkCTree *ctree,
-		proto_tree *tree);
-#else
 gboolean
 highlight_field(tvbuff_t *tvb, gint byte, GtkTreeView *tree_view,
 		proto_tree *tree);
-#endif
 
 /** Callback for "Export Selected Packet Bytes" operation.
  *
@@ -170,13 +164,6 @@ extern void packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
  */
 extern void packet_hex_reprint(GtkWidget *bv);
 
-#if GTK_MAJOR_VERSION < 2
-/** Set a new font for all protocol trees.
- *
- * @param font the new font
- */
-extern void set_ptree_font_all(GdkFont *font);
-#else
 /** Set a new font for all protocol trees.
  *
  * @param font the new font
@@ -190,7 +177,6 @@ extern void set_ptree_font_all(PangoFontDescription *font);
  * @return the path to the field
  */
 extern GtkTreePath *tree_find_by_field_info(GtkTreeView *tree_view, field_info *finfo);
-#endif
 
 /** Create a new tree view (packet details).
  *

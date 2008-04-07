@@ -36,11 +36,7 @@
 typedef struct _error_procedure_t {
 	char    *entries[4];       /**< column entries */
     char    *fvalue_value;     /**< filter value */
-#if (GTK_MAJOR_VERSION < 2)
-	guint32 packet_num;        /**< first packet number */
-#else
     GtkTreeIter      iter;
-#endif
     guint16 count;             /**< number of expert items encountered
                                     for this entry */
 } error_procedure_t;
@@ -48,12 +44,8 @@ typedef struct _error_procedure_t {
 /** Statistics table */
 typedef struct _error_equiv_table {
 	GtkWidget *scrolled_window;         /**< window widget */
-#if (GTK_MAJOR_VERSION < 2)
-    GtkCList *table;                    /**< table widget */
-#else
     GtkTreeSelection *select;           /**< item selected */
     GtkTreeView      *tree_view;        /**< Tree view */
-#endif
 	GtkWidget *menu;                    /**< context menu */
 	guint16 num_procs;                  /**< number of elements on procedures array */
 	error_procedure_t *procedures;      /**< the procedures array */
@@ -62,7 +54,6 @@ typedef struct _error_equiv_table {
 typedef struct _expert_tapdata_s {
 	GtkWidget	*win;
 	GtkWidget	*scrolled_window;
-	GtkCList	*table;
 	GtkWidget	*label;
 	GList		*all_events;
 	GList		*new_events;

@@ -230,30 +230,11 @@ extern GtkWidget *scrolled_window_new(GtkAdjustment *hadjustment,
    preference. */
 extern void set_scrollbar_placement_all(void);
 
-#if GTK_MAJOR_VERSION < 2
-/** Create a GtkCTree, give it the right styles, and remember it.
- *
- * @param columns the number of columns
- * @param tree_column which column has the tree graphic
- * @return the newly created GtkCTree
- */
-extern GtkWidget *ctree_new(gint columns, gint tree_column);
-/** Create a GtkCTree, give it the right styles, and remember it.
- *
- * @param columns the number of columns
- * @param tree_column which column has the tree graphic
- * @param titles the titles of all columns
- * @return the newly created GtkCTree
- */
-extern GtkWidget *ctree_new_with_titles(gint columns, gint tree_column,
-				 const gchar *titles[]);
-#else
 /** Create a GtkTreeView, give it the right styles, and remember it.
  *
  * @param model the model (the data) of this tree view
  */
 extern GtkWidget *tree_view_new(GtkTreeModel *model);
-#endif
 
 /** Create a simple list widget.
  *
@@ -297,7 +278,6 @@ extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm
  */
 extern void copy_to_clipboard(GString *str);
 
-#if (GTK_MAJOR_VERSION >= 2)
 /** Copy an array of bytes to the clipboard.
  * Copies as mime-type application/octet_stream in GTK 2.
  *
@@ -305,7 +285,6 @@ extern void copy_to_clipboard(GString *str);
  * @param len Number of bytes in the data to be copied.
  */
 extern void copy_binary_to_clipboard(const guint8* data_p, int len);
-#endif
 
 /** Create a new window title that includes user-defined preference string.
  *

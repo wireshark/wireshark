@@ -54,16 +54,6 @@ typedef enum {
  */
 extern fa_ret_t user_font_apply(void);
 
-#ifdef _WIN32 
-#if GTK_MAJOR_VERSION < 2
-/** Init the application font (GTK1 only). 
- *
- * @param top_level_w the top level window
- */
-extern void app_font_gtk1_init(GtkWidget *top_level_w);
-#endif
-#endif
-
 /** Test, if the given font name is available.
  *
  * @param font_name the font to test
@@ -82,19 +72,5 @@ extern FONT_TYPE *user_font_get_regular(void);
  * @return the bold user font
  */
 extern FONT_TYPE *user_font_get_bold(void);
-
-#if GTK_MAJOR_VERSION < 2
-/** Get the regular user font height.
- *
- * @return the regular user font height
- */
-extern guint user_font_get_regular_height(void);
-
-/** Get the regular user font width.
- *
- * @return the regular user font width
- */
-extern guint user_font_get_regular_width(void);
-#endif
 
 #endif

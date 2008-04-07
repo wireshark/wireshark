@@ -18,8 +18,6 @@
 
 #include <gtk/gtk.h>
 
-#if GTK_MAJOR_VERSION >= 2
-
 G_BEGIN_DECLS
 
 #define GTK_TYPE_VUMETER                (gtk_vumeter_get_type ())
@@ -146,7 +144,5 @@ void gtk_vumeter_set_brightness (GtkVUMeter *vumeter, gint foreground, gint back
 void gtk_vumeter_get_brightness (GtkVUMeter *vumeter, gint *foreground, gint *background);
 
 G_END_DECLS
-
-#endif /* GTK_MAJOR_VERSION >= 2 */
 
 #endif /* __GTKVUMETER_H__ */

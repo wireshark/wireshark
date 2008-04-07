@@ -26,7 +26,6 @@
 #ifndef __ISPRINT_H__
 #define __ISPRINT_H__
 
-#if GTK_MAJOR_VERSION >= 2 || GTK_MINOR_VERSION >= 3
 /**
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
@@ -37,6 +36,5 @@
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
-#endif
 
 #endif

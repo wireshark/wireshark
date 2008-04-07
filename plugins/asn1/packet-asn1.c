@@ -3518,9 +3518,7 @@ build_pdu_tree(const char *pduname)
 
 #ifdef DISSECTOR_WITH_GUI
 /* This cannot work in tshark.... don't include for now */
-#if GTK_MAJOR_VERSION >= 2
-#define SHOWPDU	/* this needs GTK2 */
-#endif
+#define SHOWPDU
 #endif /* DISSECTOR_WITH_GUI */
 #ifdef SHOWPDU
 

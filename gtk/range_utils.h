@@ -39,25 +39,12 @@
  */
 extern gboolean range_check_validity(packet_range_t *range);
 
-#if GTK_MAJOR_VERSION < 2
-/** Create a new range widget.
- *
- * @param range the range to set
- * @param accel_group accelerator group (GTK1 only)
- * @return the new range widget
- */
-#else
 /** Create a new range widget.
  *
  * @param range the range to set
  * @return the new range widget
  */
-#endif
-extern GtkWidget *range_new(packet_range_t *range
-#if GTK_MAJOR_VERSION < 2
-, GtkAccelGroup *accel_group
-#endif
-);
+extern GtkWidget *range_new(packet_range_t *range);
 
 /* Update all "dynamic" range things.
  *
