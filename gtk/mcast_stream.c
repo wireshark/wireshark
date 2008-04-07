@@ -55,7 +55,7 @@
 #endif
 
 #include <string.h>
-#include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
 gint32 trigger=50; /* limit for triggering the burst alarm (in packets per second) */
 gint32 bufferalarm = 10000; /* limit for triggernig the buffer alarm (in bytes) */
@@ -167,7 +167,8 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 
 	/* first we ignore non multicast packets; we filter out only those ethernet packets
 	 * which start with the 01:00:5E multicast address */
-	if (strncmp("01:00:5e", g_strdup(get_addr_name(&(pinfo->dl_dst))), 8) != 0)
+	if ((pinfo->dl_dst.type != AT_ETHER) ||
+	    (strncmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0))
 		return 0;
 
 	/* check wether we already have a stream with these parameters in the list */
