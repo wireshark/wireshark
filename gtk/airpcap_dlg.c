@@ -2168,11 +2168,8 @@ display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
     gtk_widget_set_name (capture_type_en, "capture_type_en");
     gtk_widget_show (capture_type_en);
 
-#if GTK_VERSION >= 2
-    fcs_ck = gtk_check_button_new_with_mnemonic ("Include 802.11 FCS in Frames");
-#else
     fcs_ck = gtk_check_button_new_with_label ("Include 802.11 FCS in Frames");
-#endif
+
     gtk_widget_set_name (fcs_ck, "fcs_ck");
 
     /* Fcs Presence check box */

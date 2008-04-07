@@ -65,16 +65,6 @@
 #define MUST_LAUNCH_BROWSER_OURSELVES
 #endif
 
-/*
- * XXX - we use GLib 2.x routines to launch the browser ourselves, so we
- * can't do it if we're using GLib 1.2[.x].
- */
-#ifdef MUST_LAUNCH_BROWSER_OURSELVES
-#if (GLIB_MAJOR_VERSION < 2)
-#undef MUST_LAUNCH_BROWSER_OURSELVES	/* *can't* launch browser ourselves */
-#endif /* (GLIB_MAJOR_VERSION < 2) */
-#endif /* MUST_LAUNCH_BROWSER_OURSELVES */
-
 #ifdef MUST_LAUNCH_BROWSER_OURSELVES
 static gchar*   strreplace       (const gchar      *string,
                                   const gchar      *delimiter,
@@ -201,18 +191,6 @@ browser_open_url (const gchar *url)
   g_strfreev (argv);
 
   return retval;
-
-#else
-  /* GLIB version 1.x doesn't support the functions used above,
-     so simply do nothing for now, to be able to compile.
-     XXX - has to be improved */
-  simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
-      PRIMARY_TEXT_START "Web browser access not implemented." PRIMARY_TEXT_END
-      "\n\nThis Wireshark version (using the GLib 1.x toolkit) can't access web browsers. "
-      "\n\nYou may try to open the following URL in your web browser: \n\n"
-      "%s",
-      url);
-  return FALSE;
 #endif
 }
 

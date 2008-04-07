@@ -363,7 +363,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 /* this is called, when a dialog was closed */
 static void dlg_destroy_cb(GtkWidget *dialog _U_, gpointer data	_U_)
 {
-#if GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION < 4
+#if !GTK_CHECK_VERSION(2,4,0)
     if(top_level) {
         /* bring main window back to front (workaround for a bug in win32 GTK2.x)
            XXX - do this only on Windows? */

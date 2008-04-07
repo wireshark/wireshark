@@ -1253,7 +1253,6 @@ draw_ct_table_data_cb(void *arg)
     draw_ct_table_data(arg);
 }
 
-#if (GTK_MAJOR_VERSION >= 2)
 static void
 copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
 {
@@ -1292,7 +1291,6 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
    gtk_clipboard_set_text(cb, CSV_str->str, -1);         /* Copy the CSV data into the clipboard */
    g_string_free(CSV_str, TRUE);                         /* Free the memory */
 }
-#endif
 
 
 static gboolean
@@ -1409,10 +1407,8 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
     gboolean ret;
-#if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
     GtkTooltips *tooltips = gtk_tooltips_new();
-#endif
 
     conversations=g_malloc(sizeof(conversations_table));
 
@@ -1437,31 +1433,22 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-#if (GTK_MAJOR_VERSION >= 2)
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
     }
-#else
-    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    }
-#endif
+
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(conversations->win, close_bt, window_cancel_button_cb);
 
-#if (GTK_MAJOR_VERSION >= 2)
     copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, conversations);
     SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
-#endif
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
@@ -1487,7 +1474,6 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
 
 
-#if (GTK_MAJOR_VERSION >= 2)
 static void
 ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
 {
@@ -1500,7 +1486,6 @@ ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpoin
         OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
     }
 }
-#endif
 
 static void
 ct_win_destroy_notebook_cb(GtkWindow *win _U_, gpointer data)
@@ -1638,9 +1623,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     GSList  *current_table;
     register_ct_t *registered;
     GtkTooltips *tooltips = gtk_tooltips_new();
-#if (GTK_MAJOR_VERSION >= 2)
     GtkWidget *copy_bt;
-#endif
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ct_tables) + 1));
 
@@ -1696,25 +1679,17 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     /* Button row. */
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*copy_bt = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-#if (GTK_MAJOR_VERSION >= 2)
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
     } else {
         bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
     }
-#else
-    if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    }
-#endif
+
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
-#if (GTK_MAJOR_VERSION >= 2)
     copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
@@ -1722,7 +1697,6 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
 
     SIGNAL_CONNECT(nb, "switch-page", ct_nb_switch_page_cb, copy_bt);
-#endif
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
         help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
