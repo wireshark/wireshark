@@ -365,6 +365,9 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
    * use ep_alloc ?
    */
   static unsigned char bigbuf[1024];
+  gchar *utf8_text = NULL;
+  GIConv cd;	
+  GError *l_conv_error = NULL;
 
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
@@ -388,7 +391,22 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	break;
     case SMS_ENCODING_UCS2:
     case SMS_ENCODING_UCS2_LANG:
-	gsmmap_add_ucs2_ussd_string(tvb, tree, length);
+	if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
+	{
+	    utf8_text = g_convert_with_iconv(tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
+	    if(!l_conv_error)
+		proto_tree_add_text(tree, tvb, 0, length, "USSD String: %%s", utf8_text);
+	    else
+		proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_convert_with_iconv FAILED");
+
+	    if(utf8_text)
+		g_free(utf8_text);
+
+	    g_iconv_close(cd);				
+	}
+	else
+	    proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_iconv_open FAILED contact wireshark");
+
 	break;
     default:
 	break;	

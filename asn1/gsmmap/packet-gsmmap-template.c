@@ -238,31 +238,8 @@ const value_string gsm_map_etsi_defined_pdp_vals[] = {
   { 0, NULL }
 };
 
-static void
-gsmmap_add_ucs2_ussd_string(tvbuff_t *tvb, proto_tree *tree, int length)
-{
-    gchar *utf8_text = NULL;
-    GIConv cd;	
-    GError *l_conv_error = NULL;
-
-    if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
-    {
-	utf8_text = g_convert_with_iconv(tvb->real_data, length, cd, NULL, NULL, &l_conv_error);
-	if(!l_conv_error)
-	    proto_tree_add_text(tree, tvb, 0, length, "USSD String: %%s", utf8_text);
-	else
-	    proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_convert_with_iconv FAILED");
-
-	if(utf8_text)
-	    g_free(utf8_text);
-
-	g_iconv_close(cd);				
-    }
-    else
-	proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_iconv_open FAILED contact wireshark");
-}
-
-char * unpack_digits(tvbuff_t *tvb, int offset){
+char *
+unpack_digits(tvbuff_t *tvb, int offset) {
 
 	int length;
 	guint8 octet;
