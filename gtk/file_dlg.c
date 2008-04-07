@@ -42,7 +42,7 @@
 static gchar *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if !GTK_CHECK_VERSION(2,4,0)
 static void file_selection_browse_ok_cb(GtkWidget *w, gpointer data);
 #endif
 static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te);
@@ -264,7 +264,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 }
 
 
-#if GTK_CHECK_VERSION(2,4,0)
+#if !GTK_CHECK_VERSION(2,4,0)
 static void
 file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
 {
