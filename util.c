@@ -167,7 +167,10 @@ const gchar *get_conn_cfilter(void) {
 			"and tcp port %s)", tokens[1], host_ip_af(tokens[0]), tokens[0], tokens[2]);
 		return filter_str->str;
 	} else if ((env = getenv("REMOTEHOST")) != NULL) {
-		if (g_ascii_strcasecmp(env, "localhost") == 0 || strcmp(env, "127.0.0.1") == 0) {
+		/* FreeBSD 7.0 sets REMOTEHOST to an empty string */
+		if (g_ascii_strcasecmp(env, "localhost") == 0 ||
+		    strcmp(env, "127.0.0.1") == 0 ||
+		    strcmp(env, "") == 0) {
 			return "";
 		}
 		g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
