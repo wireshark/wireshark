@@ -1274,6 +1274,298 @@ BACnetReadRangeOptions[] = {
 	{ 0, NULL }
 };
 
+static const value_string
+BACnetVendorIdentifiers [] = {
+	{ 0, "ASHRAE" },
+	{ 1, "NIST" },
+	{ 2, "The Trane Company" },
+	{ 3, "McQuay International" },
+	{ 4, "PolarSoft" },
+	{ 5, "Johnson Controls, Inc." },
+	{ 6, "American Auto-Matrix" },
+	{ 7, "Siemens Building Technologies, Ltd., Landis & Staefa Division Europe" },
+	{ 8, "Delta Controls" },
+	{ 9, "Siemens Building Technologies, Inc." },
+	{ 10, "Tour Andover Controls Corporation" },
+	{ 11, "TAC" },
+	{ 12, "Orion Analysis Corporation" },
+	{ 13, "Teletrol Systems Inc." },
+	{ 14, "Cimetrics Technology" },
+	{ 15, "Cornell University" },
+	{ 16, "United Technologies Carrier" },
+	{ 17, "Honeywell Inc." },
+	{ 18, "Alerton / Honeywell" },
+	{ 19, "TAC AB" },
+	{ 20, "Hewlett-Packard Company" },
+	{ 21, "Dorsette’s Inc." },
+	{ 22, "Cerberus AG" },
+	{ 23, "York Controls Group" },
+	{ 24, "Automated Logic Corporation" },
+	{ 25, "CSI Control Systems International" },
+	{ 26, "Phoenix Controls Corporation" },
+	{ 27, "Innovex Technologies, Inc." },
+	{ 28, "KMC Controls, Inc." },
+	{ 29, "Xn Technologies, Inc." },
+	{ 30, "Hyundai Information Technology Co., Ltd." },
+	{ 31, "Tokimec Inc." },
+	{ 32, "Simplex" },
+	{ 33, "North Communications Limited" },
+	{ 34, "Notifier" },
+	{ 35, "Reliable Controls Corporation" },
+	{ 36, "Tridium Inc." },
+	{ 37, "Sierra Monitor Corp." },
+	{ 38, "Silicon Energy" },
+	{ 39, "Kieback & Peter GmbH & Co KG" },
+	{ 40, "Anacon Systems, Inc." },
+	{ 41, "Systems Controls & Instruments, LLC" },
+	{ 42, "Lithonia Lighting" },
+	{ 43, "Micropower Manufacturing" },
+	{ 44, "Matrix Controls" },
+	{ 45, "METALAIRE" },
+	{ 46, "ESS Engineering" },
+	{ 47, "Sphere Systems Pty Ltd." },
+	{ 48, "Walker Technologies Corporation" },
+	{ 49, "H I Solutions, Inc." },
+	{ 50, "MBS GmbH" },
+	{ 51, "SAMSON AG" },
+	{ 52, "Badger Meter Inc." },
+	{ 53, "DAIKIN Industries Ltd." },
+	{ 54, "NARA Controls Inc." },
+	{ 55, "Mammoth Inc." },
+	{ 56, "Liebert Corporation" },
+	{ 57, "SEMCO Incorporated" },
+	{ 58, "Air Monitor Corporation" },
+	{ 59, "TRIATEK, Inc." },
+	{ 60, "NexLight" },
+	{ 61, "Multistack" },
+	{ 62, "TSI Incorporated" },
+	{ 63, "Weather-Rite, Inc." },
+	{ 64, "Dunham-Bush" },
+	{ 65, "Reliance Electric" },
+	{ 66, "LCS Inc." },
+	{ 67, "Regulator Australia PTY Ltd." },
+	{ 68, "Touch-Plate Lighting Controls" },
+	{ 69, "Amann GmbH" },
+	{ 70, "RLE Technologies" },
+	{ 71, "Cardkey Systems" },
+	{ 72, "SECOM Co., Ltd." },
+	{ 73, "ABB Gebäudetechnik AG Bereich NetServ" },
+	{ 74, "KNX Association cvba" },
+	{ 75, "Institute of Electrical Installation Engineers of Japan (IEIEJ)" },
+	{ 76, "Nohmi Bosai, Ltd." },
+	{ 77, "Carel S.p.A." },
+	{ 78, "AirSense Technology, Inc." },
+	{ 79, "Hochiki Corporation" },
+	{ 80, "Fr. Sauter AG" },
+	{ 81, "Matsushita Electric Works, Ltd." },
+	{ 82, "Mitsubishi Electric Corporation, Inazawa Works" },
+	{ 83, "Mitsubishi Heavy Industries, Ltd." },
+	{ 84, "ITT Bell & Gossett" },
+	{ 85, "Yamatake Building Systems Co., Ltd." },
+	{ 86, "The Watt Stopper, Inc." },
+	{ 87, "Aichi Tokei Denki Co., Ltd." },
+	{ 88, "Activation Technologies, LLC" },
+	{ 89, "Saia-Burgess Controls, Ltd." },
+	{ 90, "Hitachi, Ltd." },
+	{ 91, "Novar Corp./Trend Control Systems Ltd." },
+	{ 92, "Mitsubishi Electric Lighting Corporation" },
+	{ 93, "Argus Control Systems, Ltd." },
+	{ 94, "Kyuki Corporation" },
+	{ 95, "Richards-Zeta Building Intelligence, Inc." },
+	{ 96, "Scientech R&D, Inc." },
+	{ 97, "VCI Controls, Inc." },
+	{ 98, "Toshiba Corporation" },
+	{ 99, "Mitsubishi Electric Corporation Air Conditioning & Refrigeration Systems Works" },
+	{ 100, "Custom Mechanical Equipment, LLC" },
+	{ 101, "ClimateMaster" },
+	{ 102, "ICP Panel-Tec, Inc." },
+	{ 103, "D-Tek Controls" },
+	{ 104, "NEC Engineering, Ltd." },
+	{ 105, "PRIVA BV" },
+	{ 106, "Meidensha Corporation" },
+	{ 107, "JCI Systems Integration Services" },
+	{ 108, "Freedom Corporation" },
+	{ 109, "Neuberger Gebäudeautomation GmbH" },
+	{ 110, "Sitronix" },
+	{ 111, "Leviton Manufacturing" },
+	{ 112, "Fujitsu Limited" },
+	{ 113, "Emerson Network Power" },
+	{ 114, "S. A. Armstrong, Ltd." },
+	{ 115, "Visonet AG" },
+	{ 116, "M&M Systems, Inc." },
+	{ 117, "Custom Software Engineering" },
+	{ 118, "Nittan Company, Limited" },
+	{ 119, "Elutions Inc. (Wizcon Systems SAS)" },
+	{ 120, "Pacom Systems Pty., Ltd." },
+	{ 121, "Unico, Inc." },
+	{ 122, "Ebtron, Inc." },
+	{ 123, "Scada Engine" },
+	{ 124, "AC Technology Corporation" },
+	{ 125, "Eagle Technology" },
+	{ 126, "Data Aire, Inc." },
+	{ 127, "ABB, Inc." },
+	{ 128, "Transbit Sp. z o. o." },
+	{ 129, "Toshiba Carrier Corporation" },
+	{ 130, "Shenzhen Junzhi Hi-Tech Co., Ltd." },
+	{ 131, "Tokai Soft" },
+	{ 132, "Lumisys" },
+	{ 133, "Veris Industries" },
+	{ 134, "Centaurus Prime" },
+	{ 135, "Sand Network Systems" },
+	{ 136, "Regulvar, Inc." },
+	{ 137, "Fastek International, Ltd." },
+	{ 138, "PowerCold Comfort Air Solutions, Inc." },
+	{ 139, "I Controls" },
+	{ 140, "Viconics Electronics, Inc." },
+	{ 141, "Yaskawa Electric America, Inc." },
+	{ 142, "Plueth Regelsysteme" },
+	{ 143, "Digitale Mess- und Steuersysteme AG" },
+	{ 144, "Fujitsu General Limited" },
+	{ 145, "Project Engineering S.r.l." },
+	{ 146, "Sanyo Electric Co., Ltd." },
+	{ 147, "Integrated Information Systems, Inc." },
+	{ 148, "Temco Controls, Ltd." },
+	{ 149, "Airtek Technologies, Inc." },
+	{ 150, "Advantech Corporation" },
+	{ 151, "Titan Products, Ltd." },
+	{ 152, "Regel Partners" },
+	{ 153, "National Environmental Product" },
+	{ 154, "Unitec Corporation" },
+	{ 155, "Kanden Engineering Company" },
+	{ 156, "Messner Gebäudetechnik GmbH" },
+	{ 157, "Integrated.CH" },
+	{ 158, "EH Price Limited" },
+	{ 159, "SE-Elektronic GmbH" },
+	{ 160, "Rockwell Automation" },
+	{ 161, "Enflex Corp." },
+	{ 162, "ASI Controls" },
+	{ 163, "SysMik GmbH Dresden" },
+	{ 164, "HSC Regelungstechnik GmbH" },
+	{ 165, "Smart Temp Australia Pty. Ltd." },
+	{ 166, "PCI Lighting Control Systems" },
+	{ 167, "Duksan Mecasys Co., Ltd." },
+	{ 168, "Fuji IT Co., Ltd." },
+	{ 169, "Vacon Plc" },
+	{ 170, "Leader Controls" },
+	{ 171, "Cylon Controls, Ltd." },
+	{ 172, "Compas" },
+	{ 173, "Mitsubishi Electric Building Techno-Service Co., Ltd." },
+	{ 174, "Building Control Integrators" },
+	{ 175, "ITG Worldwide (M) Sdn Bhd" },
+	{ 176, "Lutron Electronics Co., Inc." },
+	{ 177, "Cooper-Atkins Corporation" },
+	{ 178, "LOYTEC Electronics GmbH" },
+	{ 179, "ProLon" },
+	{ 180, "Mega Controls Limited" },
+	{ 181, "Micro Control Systems, Inc." },
+	{ 182, "Kiyon, Inc." },
+	{ 183, "Dust Networks" },
+	{ 184, "Advanced Building Automation Systems" },
+	{ 185, "Hermos AG" },
+	{ 186, "CEZIM" },
+	{ 187, "Softing" },
+	{ 188, "Lynxspring" },
+	{ 189, "Schneider Toshiba Inverter Europe" },
+	{ 190, "Danfoss Drives A/S" },
+	{ 191, "Eaton Corporation" },
+	{ 192, "Matyca S.A." },
+	{ 193, "Botech AB" },
+	{ 194, "Noveo, Inc." },
+	{ 195, "AMEV" },
+	{ 196, "Yokogawa Electric Corporation" },
+	{ 197, "GFR Gesellschaft für Regelungstechnik" },
+	{ 198, "Exact Logic" },
+	{ 199, "Mass Electronics Pty Ltd dba Innotech Control Systems Australia" },
+	{ 200, "Kandenko Co., Ltd." },
+	{ 201, "DTF, Daten-Technik Fries" },
+	{ 202, "Klimasoft, Ltd." },
+	{ 203, "Toshiba Schneider Inverter Corporation" },
+	{ 204, "Control Applications, Ltd." },
+	{ 205, "KDT Systems Co., Ltd." },
+	{ 206, "Onicon Incorporated" },
+	{ 207, "Automation Displays, Inc." },
+	{ 208, "Control Solutions, Inc." },
+	{ 209, "Remsdaq Limited" },
+	{ 210, "NTT Facilities, Inc." },
+	{ 211, "VIPA GmbH" },
+	{ 212, "TSC21 Association of Japan" },
+	{ 213, "BBP Energie Ltee" },
+	{ 214, "HRW Limited" },
+	{ 215, "Lighting Control & Design, Inc." },
+	{ 216, "Mercy Electronic and Electrical Industries" },
+	{ 217, "Samsung SDS Co., Ltd" },
+	{ 218, "Impact Facility Solutions, Inc." },
+	{ 219, "Aircuity" },
+	{ 220, "Control Techniques, Ltd." },
+	{ 221, "Evolve Control Systems, LLC" },
+	{ 222, "WAGO Kontakttechnik GmbH & Co. KG" },
+	{ 223, "Cerus Industrial" },
+	{ 224, "Chloride Power Protection Company" },
+	{ 225, "Computrols, Inc." },
+	{ 226, "Phoenix Contact GmbH & Co. KG" },
+	{ 227, "Grundfos Management A/S" },
+	{ 228, "Ridder Drive Systems" },
+	{ 229, "Soft Device SDN BHD" },
+	{ 230, "Integrated Control Technology Limited" },
+	{ 231, "AIRxpert Systems, Inc." },
+	{ 232, "Microtrol Limited" },
+	{ 233, "Red Lion Controls" },
+	{ 234, "Digital Electronics Corporation" },
+	{ 235, "Ennovatis GmbH" },
+	{ 236, "Serotonin Software Technologies, Inc." },
+	{ 237, "LS Industrial Systems Co., Ltd." },
+	{ 238, "Square D Company" },
+	{ 239, "S Squared Innovations, Inc." },
+	{ 240, "Aricent Ltd." },
+	{ 241, "EtherMetrics, LLC" },
+	{ 242, "Industrial Control Communications, Inc." },
+	{ 243, "Paragon Controls, Inc." },
+	{ 244, "A. O. Smith Corporation" },
+	{ 245, "Contemporary Control Systems, Inc." },
+	{ 246, "Intesis Software SL" },
+	{ 247, "Ingenieurgesellschaft N. Hartleb mbH" },
+	{ 248, "Heat-Timer Corporation" },
+	{ 249, "Ingrasys Technology, Inc." },
+	{ 250, "Costerm Building Automation" },
+	{ 251, "Wilo AG" },
+	{ 252, "Embedia Technologies Corp." },
+	{ 253, "Technilog" },
+	{ 254, "HR Controls Ltd. & Co. KG" },
+	{ 255, "Lennox International, Inc." },
+	{ 256, "RK-Tec Rauchklappen-Steuerungssysteme GmbH & Co. KG" },
+	{ 257, "Thermomax, Ltd." },
+	{ 258, "ELCON Electronic Control, Ltd." },
+	{ 259, "Larmia Control AB" },
+	{ 260, "BACnet Stack at SourceForge" },
+	{ 261, "G4S Security Services A/S" },
+	{ 262, "Sitek S.p.A." },
+	{ 263, "Cristal Controles" },
+	{ 264, "Regin AB" },
+	{ 265, "Dimension Software, Inc. " },
+	{ 266, "SynapSense Corporation" },
+	{ 267, "Beijing Nantree Electronic Co., Ltd." },
+	{ 268, "Camus Hydronics Ltd." },
+	{ 269, "Kawasaki Heavy Industries, Ltd. " },
+	{ 270, "Critical Environment Technologies" },
+	{ 271, "ILSHIN IBS Co., Ltd." },
+	{ 272, "ELESTA Energy Control AG" },
+	{ 273, "KROPMAN Installatietechniek" },
+	{ 274, "Baldor Electric Company" },
+	{ 275, "INGA mbH" },
+	{ 276, "GE Consumer & Industrial" },
+	{ 277, "Functional Devices, Inc." },
+	{ 278, "ESAC" },
+	{ 279, "M-System Co., Ltd." },
+	{ 280, "Yokota Co., Ltd." },
+	{ 281, "Hitranse Technology Co., LTD" },
+	{ 282, "Federspiel Controls" },
+	{ 283, "Kele, Inc." },
+	{ 284, "Opera Electronics, Inc." },
+	{ 285, "Gentec" },
+	{ 286, "Embedded Science Labs, LLC" },
+	{ 0, NULL }
+};
+
 static int proto_bacapp = -1;
 static int hf_bacapp_type = -1;
 static int hf_bacapp_pduflags = -1;
@@ -1306,8 +1598,9 @@ static int hf_bacapp_tag_value32 = -1;
 static int hf_bacapp_tag_ProcessId = -1;
 static int hf_bacapp_tag_initiatingObjectType = -1;
 static int hf_bacapp_vpart = -1;
-
 static int hf_bacapp_uservice = -1;
+static int hf_BACnetPropertyIdentifier = -1;
+static int hf_BACnetVendorIdentifier = -1;
 
 
 static gint ett_bacapp = -1;
@@ -2239,21 +2532,25 @@ fPropertyIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
 	guint tag_len;
 	proto_item *ti;
 	proto_tree *subtree;
+	const gchar *label = "Property Identifier";
 
 	propertyIdentifier = 0; /* global Variable */
 	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	if (fUnsigned32 (tvb, offset+tag_len, lvt, (guint32 *)&propertyIdentifier))
+	if (fUnsigned32 (tvb, offset+tag_len, lvt, (guint32 *)&propertyIdentifier)) {
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-			"property Identifier: %s",
+			"%s: %s (%u)", label,
 			val_to_split_str(propertyIdentifier, 512,
 				BACnetPropertyIdentifier,
 				ASHRAE_Reserved_Fmt,
-				Vendor_Proprietary_Fmt));
-	else
+				Vendor_Proprietary_Fmt), propertyIdentifier);
+	} else {
 		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
-		"Property Identifier - %u octets", lvt);
+		"%s - %u octets", label, lvt);
+	}
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	proto_tree_add_item(subtree, hf_BACnetPropertyIdentifier, tvb,
+		offset+tag_len, lvt, FALSE);
 
 	return offset+tag_len+lvt;
 }
@@ -2899,6 +3196,33 @@ fDateRange  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 }
 
 static guint
+fVendorIdentifier (tvbuff_t *tvb, proto_tree *tree, guint offset)
+{
+	guint32 val = 0;
+	guint8 tag_no, tag_info;
+	guint32 lvt;
+	guint tag_len;
+	proto_item *ti;
+	proto_tree *subtree;
+	const gchar *label = "Vendor ID";
+
+	tag_len = fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+	if (fUnsigned32 (tvb, offset + tag_len, lvt, &val))
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"%s: %s (%u)", label,
+			val_to_str(val,BACnetVendorIdentifiers,"Unknown Vendor"), val);
+	else
+		ti = proto_tree_add_text(tree, tvb, offset, lvt+tag_len,
+			"%s - %u octets (Unsigned)", label, lvt);
+	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
+	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+	proto_tree_add_item(subtree, hf_BACnetVendorIdentifier, tvb,
+		offset+tag_len, lvt, FALSE);
+
+	return offset+tag_len+lvt;
+}
+
+static guint
 fConfirmedTextMessageRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
 	guint lastoffset = 0;
@@ -2969,7 +3293,7 @@ fConfirmedPrivateTransferRequest(tvbuff_t *tvb, proto_tree *tree, guint offset)
 		switch (tag_no) {
 
 		case 0: /* vendorID */
-			offset = fUnsignedTag (tvb, subtree, offset, "vendor ID: ");
+			offset = fVendorIdentifier (tvb, subtree, offset);
 			break;
 		case 1: /* serviceNumber */
 			offset = fUnsignedTag (tvb, subtree, offset, "service Number: ");
@@ -5093,7 +5417,7 @@ fIAmRequest  (tvbuff_t *tvb, proto_tree *tree, guint offset)
 		"Segmentation Supported: ", BACnetSegmentation);
 
 	/* vendor ID */
-	return fUnsignedTag (tvb, tree, offset, "Vendor ID: ");
+	return fVendorIdentifier (tvb, tree, offset);
 }
 
 static guint
@@ -5343,7 +5667,7 @@ fConfirmedPrivateTransferError(tvbuff_t *tvb, proto_tree *tree, guint offset)
 			offset = fContextTaggedError(tvb,tree,offset);
 			break;
 		case 1:	/* vendorID */
-			offset = fUnsignedTag (tvb,tree,offset,"vendor ID: ");
+			offset = fVendorIdentifier (tvb, tree, offset);
 			break;
 		case 2:	/* serviceNumber */
 			offset = fUnsignedTag (tvb,tree,offset,"service Number: ");
@@ -5722,6 +6046,14 @@ proto_register_bacapp(void)
 		{ &hf_bacapp_instanceNumber,
 			{ "Instance Number",           "bacapp.instance_number",
 			FT_UINT32, BASE_DEC, NULL, 0x003fffff, "Instance Number", HFILL }
+		},
+		{ &hf_BACnetPropertyIdentifier,
+			{ "Property Identifier", "bacapp.property_identifier",
+			FT_UINT32, BASE_DEC, VALS(BACnetPropertyIdentifier), 0, "Property Identifier", HFILL }
+		},
+		{ &hf_BACnetVendorIdentifier,
+			{ "Vendor Identifier", "bacapp.vendor_identifier",
+			FT_UINT16, BASE_DEC, VALS(BACnetVendorIdentifiers), 0, "Vendor Identifier", HFILL }
 		},
 		{ &hf_bacapp_invoke_id,
 			{ "Invoke ID",           "bacapp.invoke_id",
