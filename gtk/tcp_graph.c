@@ -545,22 +545,15 @@ static void create_text_widget (struct graph *g)
 	gtk_widget_show (box);
 
 	txt_scrollw = scrolled_window_new (NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
-#endif
 	gtk_box_pack_start (GTK_BOX (box), txt_scrollw, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (txt_scrollw),
 					GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
 	gtk_widget_show (txt_scrollw);
 
-#if GTK_MAJOR_VERSION < 2
-	g->text = gtk_text_new(NULL, NULL);
-	gtk_text_set_editable(GTK_TEXT(g->text), FALSE);
-#else
 	g->text = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(g->text), FALSE);
-#endif
 	gtk_container_add (GTK_CONTAINER (txt_scrollw), g->text);
 	gtk_widget_show (g->text);
 	gtk_widget_show (streamwindow);
@@ -572,10 +565,8 @@ static void display_text (struct graph *g)
 	double first_time, prev_time;
 	unsigned int isn_this=0, isn_opposite=0, seq_this_prev, seq_opposite_prev;
 	GdkColor color, *c;
-#if GTK_MAJOR_VERSION >= 2
         GtkTextBuffer *buf;
         GtkTextIter    iter;
-#endif
 
 	debug(DBS_FENTRY) puts ("display_text()");
 	if (!gdk_color_parse ("SlateGray", &color)) {
@@ -585,9 +576,6 @@ static void display_text (struct graph *g)
 		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
 		    "Could not parse color SlateGray.");
 	}
-#if GTK_MAJOR_VERSION < 2
-	gtk_text_freeze (GTK_TEXT (g->text));
-#endif
 	g_snprintf ((char * )line, 256, "%10s%15s%15s%15s%15s%15s%15s%10s\n",
 					"pkt num", "time", "delta first", "delta prev",
 					"seqno", "delta first", "delta prev", "data (B)");
@@ -631,17 +619,9 @@ static void display_text (struct graph *g)
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
 						ptr->th_seglen);
-#if GTK_MAJOR_VERSION < 2
-		gtk_text_insert(GTK_TEXT(g->text), g->font, c, NULL,
-                                (const char * )line, -1);
-#else
                 gtk_text_buffer_insert(buf, &iter, (const char *)line, -1);
-#endif
 		prev_time = time;
 	}
-#if GTK_MAJOR_VERSION < 2
-	gtk_text_thaw (GTK_TEXT (g->text));
-#endif
 }
 #endif
 
@@ -740,12 +720,7 @@ static void create_drawing_area (struct graph *g)
 	g->wp.height = GTK_WIDGET (g->drawing_area)->allocation.height -
 						g->wp.y - g->x_axis->s.height;
 
-#if GTK_MAJOR_VERSION < 2
-	g->font = g->drawing_area->style->font;
-	gdk_font_ref (g->font);
-#else
         g->font = g->drawing_area->style->font_desc;
-#endif
 
 	colormap = gdk_window_get_colormap (g->drawing_area->window);
 	if (!xor_gc) {
@@ -984,11 +959,7 @@ static void callback_close (GtkWidget *widget _U_, gpointer data)
 static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 {
 	GtkWidget *toplevel, *vbox, *text, *scroll, *bbox, *close_bt;
-#if GTK_MAJOR_VERSION < 2
-	struct graph *g = (struct graph * )data;
-#else
         GtkTextBuffer *buf;
-#endif
 
 	toplevel = dlg_window_new ("Help for TCP graphing");
 	gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
@@ -998,23 +969,13 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_container_add (GTK_CONTAINER (toplevel), vbox);
 
 	scroll = scrolled_window_new (NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll),
                                    GTK_SHADOW_IN);
-#endif
 	gtk_box_pack_start (GTK_BOX (vbox), scroll, TRUE, TRUE, 0);
-#if GTK_MAJOR_VERSION < 2
-	text = gtk_text_new (NULL, NULL);
-	gtk_text_set_editable (GTK_TEXT (text), FALSE);
-	gtk_text_set_line_wrap (GTK_TEXT (text), FALSE);
-	gtk_text_set_word_wrap (GTK_TEXT (text), FALSE);
-	gtk_text_insert (GTK_TEXT (text), g->font, NULL, NULL, helptext, -1);
-#else
         text = gtk_text_view_new();
 	gtk_text_view_set_editable(GTK_TEXT_VIEW(text), FALSE);
         buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text));
 	gtk_text_buffer_set_text(buf, helptext, -1);
-#endif
 	gtk_container_add (GTK_CONTAINER (scroll), text);
 
 	/* Button row. */
@@ -1703,9 +1664,6 @@ static void graph_destroy (struct graph *g)
 	/* window_destroy (g->text); */
 	gdk_gc_unref (g->fg_gc);
 	gdk_gc_unref (g->bg_gc);
-#if GTK_MAJOR_VERSION < 2
-	gdk_font_unref (g->font);
-#endif
 	gdk_pixmap_unref (g->pixmap[0]);
 	gdk_pixmap_unref (g->pixmap[1]);
 	g_free (g->x_axis);
@@ -2014,13 +1972,6 @@ static void graph_title_pixmap_draw (struct graph *g)
                            g->x_axis->p.width, g->wp.y);
 	for (i=0; g->title[i]; i++) {
 		gint w, h;
-#if GTK_MAJOR_VERSION < 2
-		w = gdk_string_width(g->font, g->title[i]);
-		h = gdk_string_height(g->font, g->title[i]);
-		gdk_draw_string(g->title_pixmap, g->font, g->fg_gc,
-                                g->wp.width/2 - w/2, 20+h + i*(h+3),
-                                g->title[i]);
-#else
                 PangoLayout *layout;
                 layout = gtk_widget_create_pango_layout(g->drawing_area,
                                                         g->title[i]);
@@ -2028,7 +1979,6 @@ static void graph_title_pixmap_draw (struct graph *g)
                 gdk_draw_layout(g->title_pixmap, g->fg_gc,
                                 g->wp.width/2 - w/2, 20 + i*(h+3), layout);
                 g_object_unref(G_OBJECT(layout));
-#endif
 	}
 }
 
@@ -2200,9 +2150,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	double major_tick;
 	int not_disp, rdigits, offset, imin, imax;
 	double bottom, top, j, fl, corr;
-#if GTK_MAJOR_VERSION >= 2
         PangoLayout *layout;
-#endif
 
 	debug(DBS_FENTRY) puts ("v_axis_pixmap_draw()");
 	bottom = (g->geom.height - (g->wp.height + g->wp.y + (-g->geom.y))) /
@@ -2250,18 +2198,11 @@ static void v_axis_pixmap_draw (struct axis *axis)
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc,
                                axis->s.width - 15, y, axis->s.width - 1, y);
 		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
-#if GTK_MAJOR_VERSION < 2
-		w = gdk_string_width(g->font, desc);
-		h = gdk_string_height(g->font, desc);
-		gdk_draw_string(axis->pixmap[not_disp], g->font, g->fg_gc,
-                                axis->s.width-15-4-w, y + h/2, desc);
-#else
                 layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
                 pango_layout_get_pixel_size(layout, &w, &h);
                 gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
                                 axis->s.width-14-4-w, y - h/2, layout);
                 g_object_unref(G_OBJECT(layout));
-#endif
 	}
 	/* minor ticks */
 	if (axis->minor) {
@@ -2281,13 +2222,6 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	}
 	for (i=0; axis->label[i]; i++) {
 		gint w, h;
-#if GTK_MAJOR_VERSION < 2
-		w = gdk_string_width (g->font, axis->label[i]);
-		h = gdk_string_height (g->font, axis->label[i]);
-		gdk_draw_string(axis->pixmap[not_disp], g->font, g->fg_gc,
-                                (axis->p.width - w)/2 ,
-                                TITLEBAR_HEIGHT-15 - i*(h+3), axis->label[i]);
-#else
                 layout = gtk_widget_create_pango_layout(g->drawing_area,
                                                         axis->label[i]);
                 pango_layout_get_pixel_size(layout, &w, &h);
@@ -2296,7 +2230,6 @@ static void v_axis_pixmap_draw (struct axis *axis)
                                 TITLEBAR_HEIGHT-10 - i*(h+3) - h,
                                 layout);
                 g_object_unref(G_OBJECT(layout));
-#endif
 	}
 }
 
@@ -2307,9 +2240,7 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	double major_tick, minor_tick;
 	int not_disp, rdigits, offset, imin, imax;
 	double left, right, j, fl, corr;
-#if GTK_MAJOR_VERSION >= 2
         PangoLayout *layout;
-#endif
 
 	debug(DBS_FENTRY) puts ("h_axis_pixmap_draw()");
 	left = (g->wp.x-g->geom.x) /
@@ -2353,18 +2284,11 @@ static void h_axis_pixmap_draw (struct axis *axis)
 			continue;
 		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, x, 0, x, 15);
 		g_snprintf (desc, 32, "%.*f", rdigits, i*axis->major + fl);
-#if GTK_MAJOR_VERSION < 2
-		w = gdk_string_width (g->font, desc);
-		h = gdk_string_height (g->font, desc);
-		gdk_draw_string (axis->pixmap[not_disp], g->font, g->fg_gc,
-                                 x - w/2, 15+h+4, desc);
-#else
                 layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
                 pango_layout_get_pixel_size(layout, &w, &h);
                 gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
                                 x - w/2, 15+4, layout);
                 g_object_unref(G_OBJECT(layout));
-#endif
 	}
 	if (axis->minor > 0) {
 		/* minor ticks */
@@ -2379,13 +2303,6 @@ static void h_axis_pixmap_draw (struct axis *axis)
 	}
 	for (i=0; axis->label[i]; i++) {
 		gint w, h;
-#if GTK_MAJOR_VERSION < 2
-		w = gdk_string_width (g->font, axis->label[i]);
-		h = gdk_string_height (g->font, axis->label[i]);
-		gdk_draw_string(axis->pixmap[not_disp], g->font, g->fg_gc,
-                                axis->s.width - w - 50, 15+2*h+15 + i*(h+3),
-                                axis->label[i]);
-#else
                 layout = gtk_widget_create_pango_layout(g->drawing_area,
                                                         axis->label[i]);
                 pango_layout_get_pixel_size(layout, &w, &h);
@@ -2393,7 +2310,6 @@ static void h_axis_pixmap_draw (struct axis *axis)
                                 axis->s.width - w - 50, 15+h+15 + i*(h+3),
                                 layout);
                 g_object_unref(G_OBJECT(layout));
-#endif
 	}
 }
 
@@ -2523,9 +2439,7 @@ static int get_label_dim (struct axis *axis, int dir, double label)
 	double y;
 	char str[32];
 	int rdigits, dim;
-#if GTK_MAJOR_VERSION >= 2
         PangoLayout *layout;
-#endif
 
 	 /* First, let's compute how many digits to the right of radix
 	 * we need to print */
@@ -2539,24 +2453,16 @@ static int get_label_dim (struct axis *axis, int dir, double label)
 	g_snprintf (str, 32, "%.*f", rdigits, label);
 	switch (dir) {
 	case AXIS_HORIZONTAL:
-#if GTK_MAJOR_VERSION < 2
-		dim = gdk_string_width(axis->g->font, str);
-#else
                 layout = gtk_widget_create_pango_layout(axis->g->drawing_area,
                                                         str);
                 pango_layout_get_pixel_size(layout, &dim, NULL);
                 g_object_unref(G_OBJECT(layout));
-#endif
 		break;
 	case AXIS_VERTICAL:
-#if GTK_MAJOR_VERSION < 2
-		dim = gdk_string_height(axis->g->font, str);
-#else
                 layout = gtk_widget_create_pango_layout(axis->g->drawing_area,
                                                         str);
                 pango_layout_get_pixel_size(layout, NULL, &dim);
                 g_object_unref(G_OBJECT(layout));
-#endif
 		break;
 	default:
 		puts ("initialize axis: an axis must be either horizontal or vertical");

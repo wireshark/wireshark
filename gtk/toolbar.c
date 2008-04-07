@@ -431,13 +431,6 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
 /* helper function: add a separator to the toolbar */
 static void toolbar_append_separator(GtkWidget *toolbar) {
-#if GTK_MAJOR_VERSION < 2
-    /* the usage of a gtk_separator doesn't seem to work for a toolbar.
-     * (at least in the win32 port of gtk 1.3)
-     * So simply add a few spaces */
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
-#else /* GTK_MAJOR_VERSION < 2 */
 #if GTK_CHECK_VERSION(2,4,0)
     GtkToolItem *tool_item = gtk_separator_tool_item_new();
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);
@@ -446,7 +439,6 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     /* GTK 2 uses (as it should be) a seperator when adding this space */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
 #endif /* GTK_CHECK_VERSION(2,4,0) */
-#endif /* GTK_MAJOR_VERSION */
 }
 
 

@@ -43,11 +43,7 @@
 #include "../tap_dfilter_dlg.h"
 
 struct _st_node_pres {
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter*	iter;
-#else
-	GtkCTreeNode*	node;
-#endif
 };
 
 struct _tree_cfg_pres {
@@ -57,13 +53,8 @@ struct _tree_cfg_pres {
 struct _tree_pres {
 	GString*	text;
 	GtkWidget*	win;
-
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeStore*   store;
 	GtkWidget*	tree;
-#else
-	GtkWidget*	ctree;
-#endif
 };
 
 /* the columns of the tree pane */
@@ -82,22 +73,10 @@ enum _stat_tree_columns {
  * node: the node
  */
 static void setup_gtk_node_pr(stat_node* node) {
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter* parent =  NULL;
-#else
-	GtkCTreeNode* parent = NULL;
-	static gchar *text[] = {
-		NULL,
-		"",
-		"",
-		""
-	};
-#endif
-	
 
 	node->pr = g_malloc(sizeof(st_node_pres));
 
-#if GTK_MAJOR_VERSION >= 2
 	if (node->st->pr->store) {
 		node->pr->iter = g_malloc0(sizeof(GtkTreeIter));
 
@@ -107,22 +86,6 @@ static void setup_gtk_node_pr(stat_node* node) {
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
-#else
-	if (node->st->pr->ctree) {
-		if ( node->parent && node->parent->pr ) {
-			parent = node->parent->pr->node;
-		}
-
-		text[0] = node->name;
-		node->pr->node = gtk_ctree_insert_node(GTK_CTREE(node->st->pr->ctree),
-		    parent, NULL, text, 0, NULL, NULL, NULL, NULL, FALSE, FALSE);
-		if (!parent) {
-			/* Force the children of the root node to be expanded. */
-			gtk_ctree_expand(GTK_CTREE(node->st->pr->ctree),
-			    node->pr->node);
-		}
-	}
-#endif
 }
 
 
@@ -135,7 +98,6 @@ static void draw_gtk_node(stat_node* node) {
 	stats_tree_get_strs_from_node(node, value, rate,
 				      percent);
 	
-#if GTK_MAJOR_VERSION >= 2
 	if (node->st->pr->store && node->pr->iter) {
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
@@ -143,16 +105,6 @@ static void draw_gtk_node(stat_node* node) {
 						   PERCENT_COLUMN, percent,
 						   -1);
 	}
-#else
-	if (node->st->pr->ctree) {
-		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
-					node->pr->node, RATE_COLUMN, rate);
-		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
-					node->pr->node, COUNT_COLUMN, value);
-		gtk_ctree_node_set_text(GTK_CTREE(node->st->pr->ctree),
-					node->pr->node, PERCENT_COLUMN, percent);
-	}
-#endif
 	
 	if (node->children) {
 		for (child = node->children; child; child = child->next )
@@ -167,14 +119,12 @@ static void draw_gtk_tree( void *psp  ) {
 	for (child = st->root.children; child; child = child->next ) {
 		draw_gtk_node(child);
 
-#if GTK_MAJOR_VERSION >= 2
 		if (child->pr->iter && st->pr->store) {
 			gtk_tree_view_expand_row(GTK_TREE_VIEW(st->pr->tree),
 								 gtk_tree_model_get_path(GTK_TREE_MODEL(st->pr->store),
 														 child->pr->iter),
 								 FALSE);
 		}
-#endif
 	}
 
 }
@@ -189,10 +139,8 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	remove_tap_listener(st);
 	unprotect_thread_critical_region();
 	
-#if GTK_MAJOR_VERSION >= 2
 	if (st->root.pr)
 		st->root.pr->iter = NULL;
-#endif
 	
 	st->cfg->in_use = FALSE;
 	stats_tree_free(st);
@@ -205,18 +153,10 @@ static void clear_node_pr(stat_node* n) {
 		clear_node_pr(c);
 	}
 	
-#if GTK_MAJOR_VERSION >= 2
 	if (n->pr->iter) {
 		gtk_tree_store_remove(n->st->pr->store, n->pr->iter);
 		n->pr->iter = NULL;
 	}
-#else
-	if (n->pr->node) {
-		gtk_ctree_remove_node(GTK_CTREE(n->st->pr->ctree),n->pr->node);
-		n->pr->node = NULL;
-	}
-#endif
-
 }
 
 static void reset_tap(void* p) {
@@ -241,18 +181,8 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	GtkWidget *scr_win;
 	guint init_strlen;
 	GtkWidget *main_vb, *bbox, *bt_close;
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
-#else
-	static char *titles[] = {
-		"Topic / Item",
-		"Count",
-		"Rate",
-		"Percent",
-	};
-	int i;
-#endif
 	
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
@@ -313,8 +243,6 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 
 	scr_win = scrolled_window_new(NULL, NULL);
 
-#if GTK_MAJOR_VERSION >= 2
-	
 	st->pr->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 									G_TYPE_STRING, G_TYPE_STRING);
 	
@@ -356,20 +284,6 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	gtk_tree_view_column_set_resizable(column,TRUE);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW (st->pr->tree), column);
-#else
-
-	st->pr->ctree = gtk_ctree_new_with_titles (N_COLUMNS, 0, titles);
-	for (i = 0; i < N_COLUMNS; i++) {
-		/*
-		 * XXX - unfortunately, GtkCTree columns can't be
-		 * both auto-resizing and resizeable.
-		 */
-		gtk_clist_set_column_auto_resize(GTK_CLIST(st->pr->ctree), i,
-		    TRUE);
-	}
-	
-	gtk_container_add( GTK_CONTAINER(scr_win), st->pr->ctree);
-#endif
 
 	gtk_container_add( GTK_CONTAINER(main_vb), scr_win);
 	

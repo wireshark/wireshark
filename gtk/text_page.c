@@ -56,20 +56,10 @@ GtkWidget * text_page_new(const char *absolute_path)
   page_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                    GTK_SHADOW_IN);
-#endif
   gtk_box_pack_start(GTK_BOX(page_vb), txt_scrollw, TRUE, TRUE, 0);
 
-#if GTK_MAJOR_VERSION < 2
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-  txt = gtk_text_new(NULL, NULL);
-  gtk_text_set_editable(GTK_TEXT(txt), FALSE);
-  gtk_text_set_word_wrap(GTK_TEXT(txt), TRUE);
-  gtk_text_set_line_wrap(GTK_TEXT(txt), TRUE);
-#else
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   txt = gtk_text_view_new();
@@ -82,7 +72,6 @@ GtkWidget * text_page_new(const char *absolute_path)
    * there is no such thing for top and bottom :-( */
   /* gtk_text_view_set_left_margin(GTK_TEXT_VIEW(txt), 3); */
   /* gtk_text_view_set_right_margin(GTK_TEXT_VIEW(txt), 3); */
-#endif
 
   OBJECT_SET_DATA(page_vb, TEXT_KEY, txt);
 
@@ -102,9 +91,6 @@ static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
 {
     GtkWidget *txt = OBJECT_GET_DATA(page, TEXT_KEY);
 
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(txt), user_font_get_regular(), NULL, NULL, buffer, nchars);
-#else
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     GtkTextIter    iter;
 
@@ -113,7 +99,6 @@ static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
     if (!g_utf8_validate(buffer, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
-#endif
 }
 
 
@@ -124,11 +109,6 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
 {
   FILE *text_file;
   char line[4096+1];	/* XXX - size? */
-
-#if GTK_MAJOR_VERSION < 2
-  GtkText *txt = GTK_TEXT(OBJECT_GET_DATA(page, TEXT_KEY));
-  gtk_text_freeze(txt);
-#endif
 
   text_file = eth_fopen(absolute_path, "r");
   if (text_file != NULL) {
@@ -144,9 +124,6 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
                     absolute_path, strerror(errno));
   }
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(txt);
-#endif
 }
 
 
@@ -155,21 +132,9 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
  */
 static void text_page_clear(GtkWidget *page)
 {
-#if GTK_MAJOR_VERSION < 2
-  GtkText *txt = GTK_TEXT(OBJECT_GET_DATA(page, TEXT_KEY));
-
-  gtk_text_set_point(txt, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
-     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
-     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
-     for more information */
-  gtk_adjustment_set_value(txt->vadj, 0.0);
-  gtk_text_forward_delete(txt, gtk_text_get_length(txt));
-#else
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(OBJECT_GET_DATA(page, TEXT_KEY)));
 
   gtk_text_buffer_set_text(buf, "", 0);
-#endif
 }
 
 
@@ -178,16 +143,6 @@ static void text_page_clear(GtkWidget *page)
  */
 void text_page_redraw(GtkWidget *page, const char *absolute_path)
 {
-#if GTK_MAJOR_VERSION < 2
-  GtkWidget *txt = OBJECT_GET_DATA(page, TEXT_KEY);
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_freeze(GTK_TEXT(txt));
-#endif
   text_page_clear(page);
   text_page_set_text(page, absolute_path);
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(GTK_TEXT(txt));
-#endif
 }

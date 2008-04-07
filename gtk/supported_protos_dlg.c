@@ -80,11 +80,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   GtkWidget *main_vb, *bbox, *supported_nb, *ok_bt, *label, *txt_scrollw,
     *proto_vb,
-#if GTK_MAJOR_VERSION < 2
-    *dfilter_tb, *dfilter_vsb;
-#else
     *dfilter_vb;
-#endif
 
   if (supported_w != NULL) {
     /* There's already a "Supported" dialog box; reactivate it. */
@@ -114,27 +110,13 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                    GTK_SHADOW_IN);
-#endif
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
-#if GTK_MAJOR_VERSION < 2
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_ALWAYS,
-				 GTK_POLICY_ALWAYS);
-  proto_text = gtk_text_new(NULL, NULL);
-  gtk_text_set_editable(GTK_TEXT(proto_text), FALSE);
-  gtk_text_set_line_wrap(GTK_TEXT(proto_text), FALSE);
-  set_supported_text(proto_text, PROTOCOL_SUPPORTED);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
-					proto_text);
-#else
   proto_text = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(proto_text), FALSE);
   set_supported_text(proto_text, PROTOCOL_SUPPORTED);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), proto_text);
-#endif
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(proto_text);
   gtk_widget_show(proto_vb);
@@ -142,53 +124,12 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_notebook_append_page(GTK_NOTEBOOK(supported_nb), proto_vb, label);
 
   /* display filter fields */
-#if GTK_MAJOR_VERSION < 2
-  /* X windows have a maximum size of 32767.  Since the height can easily
-     exceed this, we have to jump through some hoops to have a functional
-     vertical scroll bar. */
-
-  dfilter_tb = gtk_table_new(2, 2, FALSE);
-  gtk_table_set_col_spacing (GTK_TABLE (dfilter_tb), 0, 3);
-  gtk_table_set_row_spacing (GTK_TABLE (dfilter_tb), 0, 3);
-  gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);
-
-  txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
-                                   GTK_SHADOW_IN);
-#endif
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_ALWAYS,
-				 GTK_POLICY_NEVER);
-  dfilter_text = gtk_text_new(NULL, NULL);
-  dfilter_vsb = gtk_vscrollbar_new(GTK_TEXT(dfilter_text)->vadj);
-  if (prefs.gui_scrollbar_on_right) {
-    gtk_table_attach (GTK_TABLE (dfilter_tb), txt_scrollw, 0, 1, 0, 1,
-                            GTK_EXPAND | GTK_SHRINK | GTK_FILL,
-                            GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
-    gtk_table_attach (GTK_TABLE (dfilter_tb), dfilter_vsb, 1, 2, 0, 1,
-                            GTK_FILL, GTK_SHRINK | GTK_FILL, 0, 0);
-  } else {
-    gtk_table_attach (GTK_TABLE (dfilter_tb), txt_scrollw, 1, 2, 0, 1,
-                            GTK_EXPAND | GTK_SHRINK | GTK_FILL,
-                            GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
-    gtk_table_attach (GTK_TABLE (dfilter_tb), dfilter_vsb, 0, 1, 0, 1,
-                            GTK_FILL, GTK_SHRINK | GTK_FILL, 0, 0);
-  }
-  gtk_text_set_editable(GTK_TEXT(dfilter_text), FALSE);
-  gtk_text_set_line_wrap(GTK_TEXT(dfilter_text), FALSE);
-  set_supported_text(dfilter_text, DFILTER_SUPPORTED);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(txt_scrollw),
-					dfilter_text);
-#else
   dfilter_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(dfilter_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
                                    GTK_SHADOW_IN);
-#endif
   gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   dfilter_text = gtk_text_view_new();
   if (prefs.gui_scrollbar_on_right) {
@@ -202,21 +143,11 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_text_view_set_editable(GTK_TEXT_VIEW(dfilter_text), FALSE);
   set_supported_text(dfilter_text, DFILTER_SUPPORTED);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), dfilter_text);
-#endif
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(dfilter_text);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_show(dfilter_tb);
-  gtk_widget_show(dfilter_vsb);
-#else
   gtk_widget_show(dfilter_vb);
-#endif
   label = gtk_label_new("Display Filter Fields");
-#if GTK_MAJOR_VERSION < 2
-  gtk_notebook_append_page(GTK_NOTEBOOK(supported_nb), dfilter_tb, label);
-#else
   gtk_notebook_append_page(GTK_NOTEBOOK(supported_nb), dfilter_vb, label);
-#endif
 
   /* XXX add other panels here ... */
 
@@ -247,9 +178,6 @@ static void supported_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 
 static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 {
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(w), user_font_get_regular(), NULL, NULL, buffer, nchars);
-#else
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
     GtkTextIter    iter;
 
@@ -258,7 +186,6 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
     if (!g_utf8_validate(buffer, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", buffer);
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);
-#endif
 }
 
 
@@ -270,10 +197,6 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
   char buffer[BUFF_LEN];
   header_field_info *hfinfo;
   int i, len, maxlen = 0, maxlen2 = 0, maxlen4 = 0;
-#if GTK_MAJOR_VERSION < 2
-  int maxlen3 = 0, nb_lines = 0;
-  int width, height;
-#endif
   const char *type_name;
   void *cookie, *cookie2;
   protocol_t *protocol;
@@ -290,10 +213,6 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
    * not have any horizontal scrollbar (line wrapping enabled).
    */
 
-
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_freeze(GTK_TEXT(w));
-#endif
 
   switch(type) {
 
@@ -317,13 +236,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
     maxlen = namel + short_namel + filter_namel;
 
     len = g_snprintf(buffer, BUFF_LEN, proto_supported, count);
-#if GTK_MAJOR_VERSION < 2
-    maxlen2 = len;
-    width = gdk_string_width(user_font_get_regular(), buffer);
-    insert_text(w, buffer, maxlen2);
-#else
     insert_text(w, buffer, len);
-#endif
 
     /* ok, display the correctly aligned strings */
     for (i = proto_get_first_protocol(&cookie); i != -1;
@@ -338,23 +251,9 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 			   -short_namel,  short_name,
 			   -namel,	  name,
 			   -filter_namel, filter_name);
-#if GTK_MAJOR_VERSION < 2
-	    if (len > maxlen2) {
-		    maxlen2 = len;
-		    if ((len = gdk_string_width(user_font_get_regular(), buffer)) > width)
-			    width = len;
-	    }
 	    insert_text(w, buffer, strlen(buffer));
-	    nb_lines++;
-#else
-	    insert_text(w, buffer, strlen(buffer));
-#endif
     }
 
-#if GTK_MAJOR_VERSION < 2
-    height = (3 + nb_lines) * user_font_get_regular_height();
-    WIDGET_SET_SIZE(w, 20 + width, 20 + height);
-#endif
     break;
 
   case DFILTER_SUPPORTED  :
@@ -382,13 +281,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    }
     }
 
-#if GTK_MAJOR_VERSION < 2
-    maxlen3 = strlen(dfilter_supported);
-    width = gdk_string_width(user_font_get_regular(), dfilter_supported);
-    insert_text(w, dfilter_supported, maxlen3);
-#else
     insert_text(w, dfilter_supported, strlen(dfilter_supported));
-#endif
 
     fcount = 0;
     for (i = proto_get_first_protocol(&cookie); i != -1;
@@ -431,54 +324,25 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 					     -maxlen2, hfinfo->name,
 					     type_name);
 		    }
-#if GTK_MAJOR_VERSION < 2
-		    if (len > maxlen3) {
-			    maxlen3 = len;
-			    if ((len = gdk_string_width(user_font_get_regular(), buffer)) > width)
-				    width = len;
-		    }
 		    insert_text(w, buffer, strlen(buffer));
-		    nb_lines ++;
-#else
-		    insert_text(w, buffer, strlen(buffer));
-#endif
 	    }
     }
     len = g_snprintf(buffer, BUFF_LEN, "\n-- Total %d fields\n", fcount);
     insert_text(w, buffer, len);
 
-#if GTK_MAJOR_VERSION < 2
-    height = (5 + nb_lines) * user_font_get_regular_height();
-    WIDGET_SET_SIZE(w, 20 + width, 20 + height);
-#endif
     break;
   default :
     g_assert_not_reached();
     break;
   } /* switch(type) */
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(GTK_TEXT(w));
-#endif
 } /* set_supported_text */
 
 
 static void clear_supported_text(GtkWidget *w)
 {
-#if GTK_MAJOR_VERSION < 2
-  GtkText *txt = GTK_TEXT(w);
-
-  gtk_text_set_point(txt, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
-     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
-     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
-     for more information */
-  gtk_adjustment_set_value(txt->vadj, 0.0);
-  gtk_text_forward_delete(txt, gtk_text_get_length(txt));
-#else
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
 
   gtk_text_buffer_set_text(buf, "", 0);
-#endif
 }
 
 
@@ -486,20 +350,9 @@ static void clear_supported_text(GtkWidget *w)
 void supported_redraw(void)
 {
   if (supported_w != NULL) {
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_freeze(GTK_TEXT(proto_text));
-#endif
     clear_supported_text(proto_text);
     set_supported_text(proto_text, PROTOCOL_SUPPORTED);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(proto_text));
-
-    gtk_text_freeze(GTK_TEXT(dfilter_text));
-#endif
     clear_supported_text(dfilter_text);
     set_supported_text(dfilter_text, DFILTER_SUPPORTED);
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_thaw(GTK_TEXT(dfilter_text));
-#endif
   }
 }

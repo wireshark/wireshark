@@ -169,11 +169,9 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   /* message */
   msg_label = gtk_label_new(message);
 
-#if GTK_MAJOR_VERSION >= 2
   gtk_label_set_markup(GTK_LABEL(msg_label), message);
   gtk_label_set_selectable(GTK_LABEL(msg_label), TRUE);
-#endif
-#if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 9) || GTK_MAJOR_VERSION > 2
+#if GTK_CHECK_VERSION(2,9,0)
   g_object_set(gtk_widget_get_settings(msg_label),
     "gtk-label-select-on-focus", FALSE, NULL);
 #endif
@@ -312,22 +310,15 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
   gchar             *message;
   queued_message_t *queued_message;
   GtkWidget        *win;
-#if GTK_MAJOR_VERSION >= 2
   GdkWindowState state = 0;
-#endif
 
   /* Format the message. */
   vmessage = g_strdup_vprintf(msg_format, ap);
 
-#if GTK_MAJOR_VERSION >= 2
   /* convert character encoding from locale to UTF8 (using iconv) */
   message = g_locale_to_utf8(vmessage, -1, NULL, NULL, NULL);
   g_free(vmessage);
-#else
-  message = vmessage;
-#endif
 
-#if GTK_MAJOR_VERSION >= 2
   if (top_level != NULL) {
     state = gdk_window_get_state(top_level->window);
   }
@@ -336,12 +327,7 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
      dialog. If showing up a dialog, while main window is iconified, program
      will become unresponsive! */
   if (top_level == NULL || state & GDK_WINDOW_STATE_ICONIFIED) {
-#else
 
-  /* If we don't yet have a main window, queue up the message for later
-     display. */
-  if (top_level == NULL) {
-#endif
     queued_message = g_malloc(sizeof (queued_message_t));
     queued_message->type = type;
     queued_message->btn_mask = btn_mask;
@@ -402,10 +388,8 @@ void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpoi
 void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
     GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
 
-#if GTK_MAJOR_VERSION >= 2
     /* XXX - find a way to set the GtkButton label in GTK 1.x */
     gtk_button_set_label(GTK_BUTTON(ask_cb), text);
-#endif
     gtk_widget_show(ask_cb);
 }
 
@@ -431,11 +415,7 @@ simple_dialog_format_message(const char *msg)
     char *str;
 
     if (msg) {
-#if GTK_MAJOR_VERSION < 2
-	str = g_strdup(msg);
-#else
 	str = xml_escape(msg);
-#endif
     } else {
 	str = NULL;
     }

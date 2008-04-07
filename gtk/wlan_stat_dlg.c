@@ -364,7 +364,6 @@ wlan_existing_toggle_dest(GtkWidget *widget, gpointer data)
 	wlanstat_draw(hs);
 }
 
-#if (GTK_MAJOR_VERSION >= 2)
 static void
 wlan_copy_as_csv(GtkWindow *win _U_, gpointer data)
 {
@@ -398,7 +397,6 @@ wlan_copy_as_csv(GtkWindow *win _U_, gpointer data)
 	gtk_clipboard_set_text(cb, CSV_str->str, -1);
 	g_string_free(CSV_str, TRUE);
 }
-#endif
 
 void protect_thread_critical_region (void);
 void unprotect_thread_critical_region (void);
@@ -434,9 +432,7 @@ wlanstat_dlg_create (void)
 	GtkWidget *close_bt;
 	GtkWidget *help_bt;
 	GtkTooltips *tooltips = gtk_tooltips_new();
-#if GTK_MAJOR_VERSION >= 2
 	GtkWidget *copy_bt;
-#endif
 	column_arrows *col_arrows;
 	GtkWidget *column_lb;
 	char title[256];
@@ -534,31 +530,21 @@ wlanstat_dlg_create (void)
 	SIGNAL_CONNECT(existing_cb, "toggled", wlan_existing_toggle_dest, hs);
 
 	/* Button row. */
-#if GTK_MAJOR_VERSION >= 2
 	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
 		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 	} else {
 		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
 	}
-#else
-	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
-		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-	} else {
-		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, NULL);
-	}
-#endif
 
 	gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA (bbox, GTK_STOCK_CLOSE);
 	window_set_cancel_button (wlanstat_dlg_w, close_bt, window_cancel_button_cb);
 
-#if (GTK_MAJOR_VERSION >= 2)
 	copy_bt = OBJECT_GET_DATA (bbox, GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	SIGNAL_CONNECT(copy_bt, "clicked", wlan_copy_as_csv, hs->table);
-#endif                 
 
 	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
 		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
