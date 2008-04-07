@@ -125,7 +125,7 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	gint width;
 
 	red_gc = gdk_gc_new(u_data->io->draw_area->window);
-		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
+	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 
 	green_gc = gdk_gc_new(u_data->io->draw_area->window);
 	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
@@ -266,7 +266,6 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	char label_string[15];
 	gfloat dis;
 	gboolean write_label = FALSE;
-
 	PangoLayout  *layout;
 
 	if (u_data->io->x1_tmp_sec == 0 && u_data->io->x1_tmp_usec == 0)
@@ -433,14 +432,14 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			{
 				length = 10;
 
-					memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
-					pango_layout_set_text(layout, label_string, -1);
-					pango_layout_get_pixel_size(layout, &lwidth, NULL);
-					gdk_draw_layout(u_data->io->pixmap,
-					                u_data->io->draw_area->style->black_gc,
-					                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval - lwidth / 2),
-					                u_data->io->pixmap_height - BOTTOM_BORDER + 10,
-					                layout);
+				memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+				pango_layout_set_text(layout, label_string, -1);
+				pango_layout_get_pixel_size(layout, &lwidth, NULL);
+				gdk_draw_layout(u_data->io->pixmap,
+				                u_data->io->draw_area->style->black_gc,
+				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval - lwidth / 2),
+				                u_data->io->pixmap_height - BOTTOM_BORDER + 10,
+				                layout);
 			}
 			gdk_draw_line(u_data->io->pixmap,
 			              u_data->io->draw_area->style->black_gc,
@@ -475,14 +474,13 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			              u_data->io->pixmap_height - BOTTOM_BORDER + 10);
 
 			g_snprintf(label_string, 15, "%d", sec);
-				memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
-				pango_layout_set_text(layout, label_string, -1);
-				pango_layout_get_pixel_size(layout, &lwidth, NULL);
-
-				gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
-				                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval-10),
-				                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
-				                layout);
+			memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+			pango_layout_set_text(layout, label_string, -1);
+			pango_layout_get_pixel_size(layout, &lwidth, NULL);
+			gdk_draw_layout(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
+			                (guint32)(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval-10),
+			                u_data->io->pixmap_height - BOTTOM_BORDER + 20,
+			                layout);
 			write_label = FALSE;
 		}
 	}
@@ -864,12 +862,11 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 	GdkGC *text_color;
 	GList *tsnlist=NULL;
 	tsn_t *tsn, *tmptsn;
-		PangoLayout  *layout;
-
-		g_snprintf(label_string, 15, "%d", 0);
-		memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
-		layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
-		pango_layout_get_pixel_size(layout, &label_width, &label_height);
+	PangoLayout  *layout;
+	g_snprintf(label_string, 15, "%d", 0);
+	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
+	layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
+	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 
 	if (event->y > u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset)
 		event->y = u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset;
@@ -883,9 +880,9 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		u_data->io->rect_y_min = (guint32) floor(MIN(u_data->io->y_old,event->y));
 		u_data->io->rect_y_max = (guint32) ceil(MAX(u_data->io->y_old,event->y));
 		gdk_draw_rectangle(u_data->io->pixmap,u_data->io->draw_area->style->black_gc,
- 		                   FALSE,
- 		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
- 		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
+		                   FALSE,
+		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
+		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
 				   u_data->io->rect_y_max - u_data->io->rect_y_min);
 		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
@@ -1015,9 +1012,9 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
 			gdk_draw_layout(u_data->io->pixmap,text_color,
-							(gint)(position),
-							(gint)(event->y-10),
-							layout);
+			                (gint)(position),
+			                (gint)(event->y-10),
+			                layout);
 			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
 
 			if(!ios){
