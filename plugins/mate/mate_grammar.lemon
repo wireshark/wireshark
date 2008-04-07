@@ -28,7 +28,6 @@
 
 #include "mate.h"
 #include "mate_grammar.h"
-#include <epan/ws_strsplit.h>
 #include <wiretap/file_util.h>
 
 #define DUMMY void*

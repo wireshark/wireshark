@@ -682,12 +682,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 							} else {
 								parameters = NULL;
 							}
-#if GLIB_MAJOR_VERSION < 2
-							content_type_str = g_strdup(value_str);
-							g_strdown(content_type_str);
-#else
+
 							content_type_str = g_ascii_strdown(value_str, -1);
-#endif
+
 							/* Show content-type in root 'part' label */
 							proto_item_append_text(ti, " (%s)", content_type_str);
 							
@@ -707,12 +704,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 							if (cr_offset > 0) {
 								value_str[cr_offset] = '\0';
 							}
-#if GLIB_MAJOR_VERSION < 2
-							content_encoding_str = g_strdup(value_str);
-							g_strdown(content_encoding_str);
-#else
+
 							content_encoding_str = g_ascii_strdown(value_str, -1);
-#endif
 						}
 						break;
 				        case POS_CONTENT_DISPOSITION:

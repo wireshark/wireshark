@@ -145,13 +145,8 @@ static intptr_t pagesize;
 void
 emem_canary(guint8 *canary) {
 	int i;
-#if GLIB_MAJOR_VERSION >= 2
 	static GRand   *rand_state = NULL;
-#endif
 
-
-	/* First, use GLib's random function if we have it */
-#if GLIB_MAJOR_VERSION >= 2
 	if (rand_state == NULL) {
 		rand_state = g_rand_new();
 	}
@@ -159,26 +154,6 @@ emem_canary(guint8 *canary) {
 		canary[i] = (guint8) g_rand_int(rand_state);
 	}
 	return;
-#else
-	FILE *fp;
-	size_t sz;
-	/* Try /dev/urandom */
-	if ((fp = eth_fopen("/dev/urandom", "r")) != NULL) {
-		setbuf(fp, NULL);
-		sz = fread(canary, 1, EMEM_CANARY_DATA_SIZE, fp);
-		fclose(fp);
-		if (sz == EMEM_CANARY_DATA_SIZE) {
-			return;
-		}
-	}
-
-	/* Our last resort */
-	srandom(time(NULL) | getpid());
-	for (i = 0; i < EMEM_CANARY_DATA_SIZE; i ++) {
-		canary[i] = (guint8) random();
-	}
-	return;
-#endif /* GLIB_MAJOR_VERSION >= 2 */
 }
 
 #if !defined(SE_DEBUG_FREE)

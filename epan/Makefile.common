@@ -95,7 +95,6 @@ LIBWIRESHARK_SRC = 		\
 	uat.c			\
 	unicode-utils.c		\
 	value_string.c		\
-	ws_strsplit.c 		\
 	xdlc.c			\
 	xmlstub.c
 
@@ -235,7 +234,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	uat-int.h		\
 	unicode-utils.h		\
 	value_string.h		\
-	ws_strsplit.h 		\
 	x264_prt_id.h		\
 	xdlc.h			\
 	xmlstub.h

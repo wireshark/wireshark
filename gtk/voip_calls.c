@@ -66,7 +66,6 @@
 #include <plugins/unistim/packet-unistim.h>
 #include <epan/conversation.h>
 #include <epan/rtp_pt.h>
-#include <epan/ws_strsplit.h>
 
 #include "alert_box.h"
 #include "simple_dialog.h"

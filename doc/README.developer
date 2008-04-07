@@ -456,13 +456,6 @@ automatically free()d when the dissection of the current packet ends so you
 don't have to worry about free()ing them explicitly in order to not leak memory.
 Please read README.malloc.
 
-When using g_strsplit() from glib, place an #include <epan/ws_strsplit.h> at
-the top of your file.  This file will leave in place g_strsplit() when using
-GTK/GLib v2 and replace it with GLib v2 code when compiling for GTK/GLib 1.
-This is necessary because the GLib v1 version of g_strsplit is known to be
-buggy.  In either case, you will still use the g_strsplit() function name
-as usual in your code.
-
 1.1.3 Robustness.
 
 Wireshark is not guaranteed to read only network traces that contain correctly-

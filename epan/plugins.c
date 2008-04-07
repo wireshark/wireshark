@@ -135,10 +135,6 @@ plugins_scan_dir(const char *dirname)
     ETH_DIR       *dir;             /* scanned directory */
     ETH_DIRENT    *file;            /* current file */
     const char    *name;
-#if GLIB_MAJOR_VERSION < 2
-    gchar         *hack_path;       /* pathname used to construct lt_lib_ext */
-    gchar         *lt_lib_ext;      /* extension for loadable modules */
-#endif
     gchar          filename[FILENAME_LEN];   /* current file name */
     GModule       *handle;          /* handle returned by dlopen */
     gchar         *version;
@@ -152,28 +148,6 @@ plugins_scan_dir(const char *dirname)
     gchar         *dot;
     int            cr;
 
-#if GLIB_MAJOR_VERSION < 2
-    /*
-     * We find the extension used on this platform for loadable modules
-     * by the sneaky hack of calling "g_module_build_path" to build
-     * the pathname for a module with an empty directory name and
-     * empty module name, and then search for the last "." and use
-     * everything from the last "." on.
-     */
-    hack_path = g_module_build_path("", "");
-    lt_lib_ext = strrchr(hack_path, '.');
-    if (lt_lib_ext == NULL)
-    {
-	/*
-	 * Does this mean there *is* no extension?  Assume so.
-	 *
-	 * XXX - the code below assumes that all loadable modules have
-	 * an extension....
-	 */
-	lt_lib_ext = "";
-    }
-#endif
-
     if ((dir = eth_dir_open(dirname, 0, NULL)) != NULL)
     {
 
@@ -181,18 +155,6 @@ plugins_scan_dir(const char *dirname)
 	{
 	    name = eth_dir_get_name(file);
 
-#if GLIB_MAJOR_VERSION < 2
-	    /* don't try to open "." and ".." */
-	    if (!(strcmp(name, "..") &&
-		  strcmp(name, ".")))
-		continue;
-
-            /* skip anything but files with lt_lib_ext */
-            dot = strrchr(name, '.');
-            if (dot == NULL || strcmp(dot, lt_lib_ext) != 0)
-	        continue;
-
-#else /* GLIB 2 */
 	    /*
 	     * GLib 2.x defines G_MODULE_SUFFIX as the extension used on
 	     * this platform for loadable modules.
@@ -202,7 +164,6 @@ plugins_scan_dir(const char *dirname)
             if (dot == NULL || strcmp(dot+1, G_MODULE_SUFFIX) != 0)
 	        continue;
 
-#endif
 	    g_snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, name);
 	    if ((handle = g_module_open(filename, 0)) == NULL)
@@ -362,9 +323,6 @@ plugins_scan_dir(const char *dirname)
 	}
 	eth_dir_close(dir);
 	}
-#if GLIB_MAJOR_VERSION < 2
-    g_free(hack_path);
-#endif
 }
 
 /* get the personal plugin dir */

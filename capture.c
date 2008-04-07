@@ -75,7 +75,6 @@
 
 #include <epan/packet.h>
 #include <epan/dfilter/dfilter.h>
-#include <epan/ws_strsplit.h>
 #include "file.h"
 #include "capture.h"
 #include "capture_sync.h"

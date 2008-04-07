@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h245.c                                                              */
-/* ../../tools/asn2wrs.py -e -p h245 -c h245.cnf -s packet-h245-template MULTIMEDIA-SYSTEM-CONTROL.asn */
+/* ../../tools/asn2wrs.py -e -p h245 -c ./h245.cnf -s ./packet-h245-template -D . MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.c */
 
@@ -475,11 +475,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel->rfc2198 > 0) {
-#if GLIB_MAJOR_VERSION < 2
-		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
-#else
 		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
-#endif
 		key = g_malloc(sizeof(gint));
 		*key = upcoming_channel->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));
@@ -1902,7 +1898,7 @@ static int hf_h245_encrypted = -1;                /* OCTET_STRING */
 static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
 
 /*--- End of included file: packet-h245-hf.c ---*/
-#line 375 "packet-h245-template.c"
+#line 371 "packet-h245-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_h245 = -1;
@@ -2403,7 +2399,7 @@ static gint ett_h245_FlowControlIndication = -1;
 static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
 
 /*--- End of included file: packet-h245-ett.c ---*/
-#line 380 "packet-h245-template.c"
+#line 376 "packet-h245-template.c"
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -14357,7 +14353,7 @@ static void dissect_OpenLogicalChannel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-h245-fn.c ---*/
-#line 389 "packet-h245-template.c"
+#line 385 "packet-h245-template.c"
 
 static void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -20020,7 +20016,7 @@ void proto_register_h245(void) {
         "h245.EncryptedAlphanumeric", HFILL }},
 
 /*--- End of included file: packet-h245-hfarr.c ---*/
-#line 467 "packet-h245-template.c"
+#line 463 "packet-h245-template.c"
   };
 
   /* List of subtrees */
@@ -20523,7 +20519,7 @@ void proto_register_h245(void) {
     &ett_h245_MobileMultilinkReconfigurationIndication,
 
 /*--- End of included file: packet-h245-ettarr.c ---*/
-#line 474 "packet-h245-template.c"
+#line 470 "packet-h245-template.c"
   };
   module_t *h245_module;
 

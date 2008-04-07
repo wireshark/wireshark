@@ -53,9 +53,6 @@
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
-#if GLIB_MAJOR_VERSION < 2
-#include <dirent.h>
-#endif
 
 #include "declare_wslua.h"
 
@@ -161,28 +158,17 @@ struct _wslua_tap {
     int init_ref;
 };
 
-#if GLIB_MAJOR_VERSION < 2
-#  define DIRECTORY_T DIR
-#  define FILE_T struct dirent
-#  define OPENDIR_OP(name) opendir(name)
-#  define DIRGETNEXT_OP(dir) readdir(dir)
-#  define GETFNAME_OP(file) (gchar *)file->d_name
-#  define CLOSEDIR_OP(dir) closedir(dir)
-#else /* GLIB 2 */
 #  define DIRECTORY_T GDir
 #  define FILE_T gchar
 #  define OPENDIR_OP(name) g_dir_open(name, 0, dir->dummy)
 #  define DIRGETNEXT_OP(dir) g_dir_read_name(dir)
 #  define GETFNAME_OP(file) (file);
 #  define CLOSEDIR_OP(dir) g_dir_close(dir)
-#endif
 
 struct _wslua_dir {
 	DIRECTORY_T* dir;
 	char* ext;
-#if GLIB_MAJOR_VERSION >= 2
 	GError** dummy;
-#endif
 
 };
 

@@ -41,7 +41,6 @@
 #include <epan/strutil.h>
 #include "packet-sscop.h"
 #include "packet-umts_fp.h"
-#include <epan/ws_strsplit.h>
 
 typedef struct _k12_hdls_t {
 	char* match;

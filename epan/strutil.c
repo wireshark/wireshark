@@ -146,7 +146,6 @@ get_token_len(const guchar *linep, const guchar *lineend,
 
 #define	INITIAL_FMTBUF_SIZE	128
 
-#if GLIB_MAJOR_VERSION >= 2
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
@@ -161,7 +160,6 @@ get_token_len(const guchar *linep, const guchar *lineend,
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
-#endif
 
 /*
  * Given a string, generate a string from it that shows non-printable
@@ -774,9 +772,6 @@ xml_escape(const gchar *unescaped)
 	GString *buffer = g_string_sized_new(128);
 	const gchar *p;
 	gchar c;
-#if GLIB_MAJOR_VERSION < 2
-	gchar *ret;
-#endif
 
 	p = unescaped;
 	while ( (c = *p++) ) {
@@ -801,19 +796,10 @@ xml_escape(const gchar *unescaped)
 				break;
 		}
 	}
-#if GLIB_MAJOR_VERSION >= 2
 	/* Return the string value contained within the GString
 	 * after getting rid of the GString structure.
 	 * This is the way to do this, see the GLib reference. */
 	return g_string_free(buffer, FALSE);
-#else
-	/* But it's not the way to do it in GLib 1.2[.x], as
-	 * 1.2[.x]'s "g_string_free()" doesn't return anything.
-	 * This is the way to do this in GLib 1.2[.x]. */
-	ret = buffer->str;
-	g_string_free(buffer, FALSE);
-	return ret;
-#endif
 }
 
 
@@ -955,86 +941,6 @@ convert_string_case(const char *string, gboolean case_insensitive)
     out_string = g_strdup(string);
   return out_string;
 }
-
-/* g_strlcat(), g_strlcpy don't exist in GLib 1.2[.x] */
-#if GLIB_MAJOR_VERSION < 2
-gsize
-g_strlcat(gchar *dest, const gchar *src, gsize dest_size)
-{
-  gchar *d = dest;
-  const gchar *s = src;
-  gsize bytes_left = dest_size;
-  gsize dlength;  /* Logically, MIN (strlen (d), dest_size) */
-  
-  /* Find the end of dst and adjust bytes left but don't go past end */
-  while (*d != 0 && bytes_left-- != 0)
-    d++;
-  dlength = d - dest;
-  bytes_left = dest_size - dlength;
-  
-  if (bytes_left == 0)
-    return dlength + strlen (s);
-  
-  while (*s != 0)
-    {
-      if (bytes_left != 1)
-        {
-          *d++ = *s;
-          bytes_left--;
-        }
-      s++;
-    }
-  *d = 0;
-  
-  return dlength + (s - src);  /* count does not include NUL */
-}
-
-/* --------------------------------- */
-gsize 
-g_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
-{
-  gchar *d = dest;
-  const gchar *s = src;
-  gsize n = dest_size;
-  
-  /* Copy as many bytes as will fit */
-  if (n != 0 && --n != 0)
-    do
-      {
-        gchar c = *s++;
-        
-        *d++ = c;
-        if (c == 0)
-          break;
-      }
-    while (--n != 0);
-  
-  /* If not enough room in dest, add NUL and traverse rest of src */
-  if (n == 0)
-    {
-      if (dest_size != 0)
-        *d = 0;
-      while (*s++)
-        ;
-    }
-  
-  return s - src - 1;  /* count does not include NUL */
-}
-#endif
-
-/* g_byte_array_sized_new() doesnt exist in glib-1.2 */
-#if GLIB_MAJOR_VERSION < 2
-GByteArray *
-g_byte_array_sized_new(guint reserved_size)
-{
-	GByteArray *gba;
-
-	gba = g_byte_array_new();
-	g_byte_array_set_size(gba, reserved_size);
-	
-	return gba;
-}
-#endif
 
 char *
 epan_strcasestr(const char *haystack, const char *needle)

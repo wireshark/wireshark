@@ -27,7 +27,7 @@
 */
 
 extern void DtdParse(void*,int,dtd_token_data_t*,dtd_build_data_t*);
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
+#if GLIB_CHECK_VERSION(2,16,0)
 extern void *DtdParseAlloc(void *(*)(gsize));
 #else
 extern void *DtdParseAlloc(void *(*)(gulong));

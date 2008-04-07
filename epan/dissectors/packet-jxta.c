@@ -49,7 +49,6 @@
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
-#include <epan/ws_strsplit.h>
 
 #include "packet-jxta.h"
 
@@ -2263,15 +2262,11 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         pinfo->match_string = ep_strdup(mediatype);
 
         /* force to lower case */
-#if GLIB_MAJOR_VERSION < 2
-        g_strdown(mediatype);
-#else
         {
             gchar *mediatype_lowercase = g_ascii_strdown(mediatype, -1);
             mediatype = ep_strdup(mediatype_lowercase);
             g_free(mediatype_lowercase);
         }
-#endif
 
         if (0 == strcmp("application/x-jxta-tls-block", mediatype)) {
             /* If we recognize it as a TLS packet then we shuffle it off to ssl dissector. */

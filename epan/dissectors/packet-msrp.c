@@ -687,12 +687,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 										     parameter_offset, content_type_parameter_str_len);
 							}
 							media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
-#if GLIB_MAJOR_VERSION < 2
-							media_type_str_lower_case = g_strdup(media_type_str);
-							g_strdown(media_type_str_lower_case);
-#else
 							media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
-#endif
 							break;
 
 						default:

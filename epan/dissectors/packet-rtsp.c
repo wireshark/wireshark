@@ -900,12 +900,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 				media_type_str = tvb_get_ephemeral_string(tvb, offset,
 							                             value_len);
-#if GLIB_MAJOR_VERSION < 2
-				media_type_str_lower_case = ep_strdup(media_type_str);
-				g_strdown(media_type_str_lower_case);
-#else
+
 				media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
-#endif
 
 			} else if (HDR_MATCHES(rtsp_content_length))
 			{

@@ -241,7 +241,6 @@ const value_string gsm_map_etsi_defined_pdp_vals[] = {
 static void
 gsmmap_add_ucs2_ussd_string(tvbuff_t *tvb, proto_tree *tree, int length)
 {
-#if GLIB_MAJOR_VERSION > 2
     gchar *utf8_text = NULL;
     GIConv cd;	
     GError *l_conv_error = NULL;
@@ -261,9 +260,6 @@ gsmmap_add_ucs2_ussd_string(tvbuff_t *tvb, proto_tree *tree, int length)
     }
     else
 	proto_tree_add_text(tree, tvb, 0, length, "USSD String: g_iconv_open FAILED contact wireshark");
-#else
-    proto_tree_add_text(tree, tvb, 0, length, "UCS2 conversion not supported with Glib < 2");
-#endif
 }
 
 char * unpack_digits(tvbuff_t *tvb, int offset){

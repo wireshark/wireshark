@@ -28,7 +28,6 @@
 #include "mate.h"
 #include "mate_util.h"
 #include <wiretap/file_util.h>
-#include <epan/ws_strsplit.h>
 
 /***************************************************************************
 *  dbg_print

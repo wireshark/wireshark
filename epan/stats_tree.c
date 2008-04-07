@@ -29,7 +29,6 @@
 
 #include <glib.h>
 #include <epan/stats_tree_priv.h>
-#include <epan/ws_strsplit.h>
 #include <string.h>
 
 #include "stats_tree.h"

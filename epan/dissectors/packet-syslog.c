@@ -40,7 +40,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <epan/ws_strsplit.h>
 
 #define UDP_PORT_SYSLOG 514
 

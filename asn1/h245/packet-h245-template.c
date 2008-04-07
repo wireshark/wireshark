@@ -344,11 +344,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel->rfc2198 > 0) {
-#if GLIB_MAJOR_VERSION < 2
-		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
-#else
 		rtp_dyn_payload = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
-#endif
 		key = g_malloc(sizeof(gint));
 		*key = upcoming_channel->rfc2198;
 		g_hash_table_insert(rtp_dyn_payload, key, g_strdup("red"));

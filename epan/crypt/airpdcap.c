@@ -43,7 +43,6 @@
 #include <epan/tvbuff.h>
 #include <epan/crc32.h>
 #include <epan/strutil.h>
-#include <epan/ws_strsplit.h>
 #include <epan/emem.h>
 #include <epan/pint.h>
 

@@ -1100,21 +1100,12 @@ next_attribute:
         g_free(root_name);
 }
 
-#if GLIB_MAJOR_VERSION < 2
-#  define DIRECTORY_T DIR
-#  define FILE_T struct dirent
-#  define OPENDIR_OP(name) opendir(name)
-#  define DIRGETNEXT_OP(dir) readdir(dir)
-#  define GETFNAME_OP(file) (gchar *)file->d_name
-#  define CLOSEDIR_OP(dir) closedir(dir)
-#else /* GLIB 2 */
 #  define DIRECTORY_T GDir
 #  define FILE_T gchar
 #  define OPENDIR_OP(name) g_dir_open(name, 0, dummy)
 #  define DIRGETNEXT_OP(dir) g_dir_read_name(dir)
 #  define GETFNAME_OP(file) (file);
 #  define CLOSEDIR_OP(dir) g_dir_close(dir)
-#endif
 
 static void init_xml_names(void) {
 	xml_ns_t* xmlpi_xml_ns;
@@ -1124,10 +1115,8 @@ static void init_xml_names(void) {
 	const gchar* filename;
 	gchar* dirname;
 
-#if GLIB_MAJOR_VERSION >= 2
 	GError** dummy = g_malloc(sizeof(GError *));
 	*dummy = NULL;
-#endif
 
 	xmpli_names = g_hash_table_new(g_str_hash,g_str_equal);
 	media_types = g_hash_table_new(g_str_hash,g_str_equal);
@@ -1201,9 +1190,7 @@ static void init_xml_names(void) {
 
 	g_hash_table_foreach(xmpli_names,add_xmlpi_namespace,"xml.xmlpi");
 
-#if GLIB_MAJOR_VERSION >= 2
 	g_free(dummy);
-#endif
 }
 
 static void range_delete_xml_tcp_callback(guint32 port) {

@@ -363,20 +363,6 @@ prefs_register_protocol_obsolete(int id)
 	return module;
 }
 
-#if GLIB_MAJOR_VERSION < 2
-static void *discard_const(const void *const_ptr)
-{
-	union {
-		const void *const_ptr;
-		void *ptr;
-	} stupid_const;
-
-	stupid_const.const_ptr = const_ptr;
-
-	return stupid_const.ptr;
-}
-#endif
-
 module_t *
 prefs_find_module(const char *name)
 {
@@ -606,13 +592,9 @@ find_preference(module_t *module, const char *name)
 {
 	GList *list_entry;
 
-#if GLIB_MAJOR_VERSION < 2
-	list_entry = g_list_find_custom(module->prefs, discard_const(name),
-	    preference_match);
-#else
 	list_entry = g_list_find_custom(module->prefs, name,
 	    preference_match);
-#endif
+
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
 	return (struct preference *) list_entry->data;

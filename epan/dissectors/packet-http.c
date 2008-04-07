@@ -44,7 +44,6 @@
 #include <epan/base64.h>
 #include <epan/emem.h>
 #include <epan/stats_tree.h>
-#include <epan/ws_strsplit.h>
 
 #include <epan/req_resp_hdrs.h>
 #include "packet-http.h"

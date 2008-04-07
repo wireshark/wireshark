@@ -843,11 +843,9 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	return TRUE;
 }
 
-#if (GLIB_MAJOR_VERSION >= 2)
 static void uat_help_cb(GtkWidget* w _U_, gpointer u) {
 	help_topic_html(ep_strdup_printf("%s.html",((uat_t*)u)->help));
 }
-#endif
 
 static GtkWidget* uat_window(void* u) {
 	uat_t* uat = u;
@@ -927,18 +925,15 @@ static GtkWidget* uat_window(void* u) {
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
 #endif
 
-#if (GLIB_MAJOR_VERSION >= 2)
 	if(uat->help) {
 		GtkWidget* help_btn;
 		rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 		help_btn = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_btn, "clicked", uat_help_cb, uat);
 	} else {
-#endif
+
 		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-#if (GLIB_MAJOR_VERSION >= 2)
 	}	
-#endif
 
 	move_hbox = gtk_vbutton_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);

@@ -252,7 +252,7 @@ const char *ParseTokenName(int tokenType){
 ** A pointer to a parser.  This pointer is used in subsequent calls
 ** to Parse and ParseFree.
 */
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
+#if GLIB_CHECK_VERSION(2,16,0)
 void *ParseAlloc(void *(*mallocProc)(gsize)){
   yyParser *pParser;
   pParser = (yyParser*)(*mallocProc)( (gsize)sizeof(yyParser) );

@@ -2178,12 +2178,9 @@ separator_found2:
 							                             content_type_parameter_str_len);
 						}
 						media_type_str = tvb_get_ephemeral_string(tvb, value_offset, content_type_len);
-#if GLIB_MAJOR_VERSION < 2
-						media_type_str_lower_case = ep_strdup(media_type_str);
-						g_strdown(media_type_str_lower_case);
-#else
+
 						media_type_str_lower_case = g_ascii_strdown(media_type_str, -1);
-#endif
+
 						/* Debug code
 						proto_tree_add_text(hdr_tree, tvb, value_offset,content_type_len,"media_type_str=%s",media_type_str);
 						*/

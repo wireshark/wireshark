@@ -44,7 +44,7 @@ extern "C" {
  *  must tweak a given filename from UTF8 to UTF16 as we use NT Unicode (Win9x
  *  - now unsupported - used locale based encoding here).
  */
-#if defined _WIN32 && (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 6))
+#if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
 #include <stdio.h>
 
 extern int eth_stdio_open (const gchar *filename, int flags, int mode);
@@ -65,7 +65,7 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 #define eth_fopen	eth_stdio_fopen
 #define eth_freopen	eth_stdio_freopen
 
-#else	/* _WIN32 && GLIB_MAJOR_VERSION */
+#else	/* _WIN32 && GLIB_CHECK_VERSION */
 
 /* GLib 2.4 or below, using "old school" functions */
 #ifdef _WIN32
@@ -85,7 +85,7 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 #define eth_fopen	fopen
 #define eth_freopen	freopen
 
-#endif	/* _WIN32 && GLIB_MAJOR_VERSION */
+#endif	/* _WIN32 && GLIB_CHECK_VERSION */
 
 
 /* some common file function differences between UNIX and WIN32 */
@@ -106,7 +106,6 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 #endif /* _WIN32 */
 
 /* directory handling */
-#if GLIB_MAJOR_VERSION >= 2
 #define ETH_DIR				GDir
 #define ETH_DIRENT			const char
 #define eth_dir_open			g_dir_open
@@ -114,15 +113,6 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 #define eth_dir_get_name(dirent)	dirent
 #define eth_dir_rewind			g_dir_rewind
 #define eth_dir_close			g_dir_close
-#else
-#define ETH_DIR				DIR
-#define ETH_DIRENT			struct dirent
-#define eth_dir_open(name,flags,error)	opendir(name)
-#define eth_dir_read_name		readdir
-#define eth_dir_get_name(dirent)	(gchar *)(dirent)->d_name
-#define eth_dir_rewind			rewinddir
-#define eth_dir_close			closedir
-#endif /* GLIB_MAJOR_VERSION */
 
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */

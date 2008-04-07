@@ -35,7 +35,6 @@
 #include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
-#include <epan/ws_strsplit.h>
 
 #include <epan/prefs.h>
 #include "webbrowser.h"

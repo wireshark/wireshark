@@ -25,7 +25,6 @@
 */
 
 #include "mate.h"
-#include <epan/ws_strsplit.h>
 
 /* the current mate_config */
 static mate_config* matecfg = NULL;

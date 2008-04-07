@@ -26,7 +26,6 @@
 #ifndef __ISPRINT_H__
 #define __ISPRINT_H__
 
-#if GLIB_MAJOR_VERSION >= 2
 /*
  * XXX - "isprint()" can return "true" for non-ASCII characters, but
  * those don't work with GTK+ 1.3 or later, as they take UTF-8 strings
@@ -34,13 +33,8 @@
  * characters in all output (both GUI displays and text printouts)
  * in those versions of GTK+, we work around the problem by escaping
  * all characters that aren't printable ASCII.
- *
- * We don't know what version of GTK+ we're using, as dissectors don't
- * use any GTK+ stuff; we use GLib as a proxy for that, with GLib 2.x
- * implying GTK+ 1.3 or later (we don't support GLib 1.3[.x]).
  */
 #undef isprint
 #define isprint(c) (c >= 0x20 && c < 0x7f)
-#endif
 
 #endif

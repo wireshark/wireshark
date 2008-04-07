@@ -30,7 +30,6 @@
 #include <epan/funnel.h>
 #include <stdio.h>
 #include <epan/stat_cmd_args.h>
-#include <epan/ws_strsplit.h>
 
 
 struct _funnel_text_window_t {
