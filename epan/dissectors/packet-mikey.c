@@ -8,17 +8,17 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -27,11 +27,11 @@
  * http://www.ietf.org/rfc/rfc3830.txt?number=3830
  */
 
-/* 
+/*
  * TODO
  * tvbuff offset in 32-bit variable.
- * Support CHASH and ERR payloads
- * support key data salt and kv data
+ * Support CHASH
+ * Decode Mikey-PK and Mikey-RSA-R with NULL encryption
  */
 
 
@@ -64,7 +64,7 @@
 
 #include "packet-mikey.h"
 
-#define PORT_MIKEY 2269 
+#define PORT_MIKEY 2269
 static guint global_mikey_tcp_port = PORT_MIKEY;
 static guint mikey_tcp_port;
 
@@ -81,7 +81,7 @@ static const value_string on_off_vals[] = {
 enum data_type_t {
 	MIKEY_TYPE_PSK_INIT = 0,
 	MIKEY_TYPE_PSK_RESP,
-	MIKEY_TYPE_PK_INIT, 
+	MIKEY_TYPE_PK_INIT,
 	MIKEY_TYPE_PK_RESP,
 	MIKEY_TYPE_DH_INIT,
 	MIKEY_TYPE_DH_RESP,
@@ -150,8 +150,8 @@ enum payload_t {
 #define PL_SP_TEXT "Security Policy (SP)"
 #define PL_RAND_TEXT "RAND"
 #define PL_ERR_TEXT "Error (ERR)"
-#define PL_KEY_DATA_TEXT "Key data"
-#define PL_GENERAL_EXT_TEXT "General Ext."
+#define PL_KEY_DATA_TEXT "Key data (KEY)"
+#define PL_GENERAL_EXT_TEXT "General Extension (EXT)"
 
 static const value_string payload_vals[] = {
 	{ PL_HDR, PL_HDR_TEXT },
@@ -409,9 +409,53 @@ static const value_string kd_vals[] = {
 	{ 0, NULL }
 };
 
+enum err_t {
+	ERR_AUTH_FAILURE = 0,
+	ERR_INVALID_TS,
+	ERR_INVALID_PRF,
+	ERR_INVALID_MAC,
+	ERR_INVALID_EA,
+	ERR_INVALID_HA,
+	ERR_INVALID_DH,
+	ERR_INVALID_ID,
+	ERR_INVALID_CERT,
+	ERR_INVALID_SP,
+	ERR_INVALID_SPPAR,
+	ERR_INVALID_DT,
+	ERR_UNKNOWN
+};
+
+static const value_string err_vals[] = {
+	{ ERR_AUTH_FAILURE, "Authentication failure" },
+	{ ERR_INVALID_TS,   "Invalid timestamp" },
+	{ ERR_INVALID_PRF,  "PRF function not supported" },
+	{ ERR_INVALID_MAC,  "MAC algorithm not supported" },
+	{ ERR_INVALID_EA,   "Encryption algorithm not supported" },
+	{ ERR_INVALID_HA,   "Hash function not supported" },
+	{ ERR_INVALID_DH,   "DH group not supported" },
+	{ ERR_INVALID_ID,   "ID not supported" },
+	{ ERR_INVALID_CERT, "Certificate not supported" },
+	{ ERR_INVALID_SP,   "SP type not supported" },
+	{ ERR_INVALID_SPPAR,"SP parameters not supported" },
+	{ ERR_INVALID_DT,   "Data type not supported" },
+	{ ERR_UNKNOWN,      "Unspecified error" },
+	{ 0, NULL }
+};
+
+enum genext_t {
+	GEN_EXT_VENDOR_ID = 0,
+	GEN_EXT_SDP_ID
+};
+
+static const value_string genext_type_vals[] = {
+	{ GEN_EXT_VENDOR_ID, "Vendor-ID" },
+	{ GEN_EXT_SDP_ID, "SDP-IDs" },
+	{ 0, NULL }
+};
+
 enum {
-        /* HDR */
-        POS_HDR_VERSION=0,
+	/* HDR */
+	POS_HDR_VERSION=0,
 	POS_HDR_DATA_TYPE,
 	POS_HDR_V,
 	POS_HDR_PRF_FUNC,
@@ -423,74 +467,92 @@ enum {
 	POS_ID_SRTP_SSRC,
 	POS_ID_SRTP_ROC,
 
-        /* KEMAC */
+	/* KEMAC */
 	POS_KEMAC_ENCR_ALG,
 	POS_KEMAC_ENCR_DATA_LEN,
 	POS_KEMAC_ENCR_DATA,
 	POS_KEMAC_MAC_ALG,
 	POS_KEMAC_MAC,
 
-        /* PKE */
+	/* PKE */
 	POS_PKE_C,
 	POS_PKE_DATA_LEN,
 	POS_PKE_DATA,
 
-        /* DH */
+	/* DH */
 	POS_DH_GROUP,
 	POS_DH_VALUE,
 	POS_DH_RESERV,
 	POS_DH_KV,
 
-        /* SIGN */
+	/* SIGN */
 	POS_SIGNATURE_LEN,
 	POS_SIGNATURE,
 	POS_SIGN_S_TYPE,
 
-        /* T */
+	/* T */
 	POS_TS_TYPE,
 	POS_TS_NTP,
 
-        /* ID */
+	/* ID */
 	POS_ID_TYPE,
 	POS_ID_LEN,
 	POS_ID,
 
-        /* CERT */
+	/* CERT */
 	POS_CERT_TYPE,
 	POS_CERT_LEN,
 	POS_CERTIFICATE,
 
-        /* V */
+	/* V */
 	POS_V_AUTH_ALG,
 	POS_V_DATA,
 
-        /* SP */
+	/* SP */
 	POS_SP_NO,
 	POS_SP_TYPE,
 	POS_SP_PARAM_LEN,
 /* 	POS_SP_PARAM, */
 
-        /* SP param */
+	/* SP param */
 	POS_SP_PARAM_F,
 	POS_SP_PARAM_F_TYPE,
 	POS_SP_PARAM_F_LEN,
 	POS_SP_PARAM_F_VALUE,
 
-        /* RAND */
+	/* RAND */
 	POS_RAND_LEN,
 	POS_RAND,
+
+	/* Error */
+	POS_ERR_NO,
+	POS_ERR_RESERVED,
 
 	/* Key data */
 	POS_KEY_DATA_TYPE,
 	POS_KEY_DATA_KV,
 	POS_KEY_DATA_LEN,
 	POS_KEY_DATA,
+	POS_KEY_SALT_LEN,
+	POS_KEY_SALT,
+	POS_KEY_KV_FROM_LEN,
+	POS_KEY_KV_FROM,
+	POS_KEY_KV_TO_LEN,
+	POS_KEY_KV_TO,
+	POS_KEY_KV_SPI_LEN,
+	POS_KEY_KV_SPI,
 
-        /* MIKEY */
+	/* General Ext. */
+	POS_GENERAL_EXT_TYPE,
+	POS_GENERAL_EXT_LEN,
+	POS_GENERAL_EXT_DATA,
+	POS_GENERAL_EXT_VALUE,
+
+	/* MIKEY */
 	POS_PAYLOAD_STR,
 	POS_NEXT_PAYLOAD,
 
-        /* Unused */
+	/* Unused */
 /* 	POS_PAYLOAD, */
 
 	MAX_POS
@@ -523,6 +585,7 @@ static gint ett_mikey = -1;
 static gint ett_mikey_payload = -1;
 static gint ett_mikey_sp_param = -1;
 static gint ett_mikey_hdr_id = -1;
+static gint ett_mikey_enc_data = -1;
 
 
 static const struct mikey_dissector_entry *
@@ -603,7 +666,7 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint8 ncs;
 	int i;
 	proto_item* parent;
-	
+
 
 	tvb_ensure_bytes_exist(tvb, offset, 10);
 	mikey->type = tvb_get_guint8(tvb, offset+1);
@@ -612,7 +675,7 @@ dissect_payload_hdr(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_HDR_VERSION],
-				    tvb, offset+0, 1, FALSE);
+					tvb, offset+0, 1, FALSE);
 
 		proto_tree_add_item(tree, hf_mikey[POS_HDR_DATA_TYPE], tvb, offset+1, 1, FALSE);
 		parent = proto_tree_get_parent(tree);
@@ -654,8 +717,9 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	guint16 encr_length;
 	guint16 mac_length;
 	guint8 mac_alg;
+	proto_item *key_data_item;
+	proto_tree *key_data_tree;
 	tvbuff_t *sub_tvb = NULL;
-	enum payload_t sub_payload = PL_LAST;
 
 	tvb_ensure_bytes_exist(tvb, offset+0, 4);
 	encr_alg = tvb_get_guint8(tvb, offset+1);
@@ -666,7 +730,18 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_ALG], tvb, 1, 1, FALSE);
 		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA_LEN], tvb, 2, 2, FALSE);
-		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA], tvb, 4, encr_length, FALSE);
+		/* TODO: Add key decode for MIKEY_TYPE_PK_INIT and MIKEY_TYPE_RSA_R_RESP with NULL encryption */
+		if (encr_alg == ENCR_NULL && mikey->type == MIKEY_TYPE_PSK_INIT && encr_length > 0) {
+			/* We can decode easily the Key Data if NULL encryption is used */
+			key_data_item = proto_tree_add_item(tree, hf_mikey_pl[PL_KEY_DATA], tvb, 4, encr_length, FALSE);
+			key_data_tree = proto_item_add_subtree(key_data_item, ett_mikey_enc_data);
+
+			sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length);
+			dissect_payload(PL_KEY_DATA, mikey, sub_tvb, pinfo, key_data_tree);
+		} else {
+			/* If Key Data is encrypted, show only the encr_data */
+			proto_tree_add_item(tree, hf_mikey[POS_KEMAC_ENCR_DATA], tvb, 4, encr_length, FALSE);
+		}
 		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC_ALG], tvb, 4+encr_length, 1, FALSE);
 	}
 
@@ -685,35 +760,6 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 	tvb_ensure_bytes_exist(tvb, offset+4+encr_length+1, mac_length);
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_KEMAC_MAC], tvb, 4+encr_length+1, mac_length, FALSE);
-	}
-
-#if 0
-	/* TODO */
-	fprintf(stderr, "mikey type %d\n", mikey->type);
-	sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length);
-/* 	add_new_data_source(pinfo, sub_tvb, "Key data sub-payload"); */
-
-	switch (mikey->type) {
-	case MIKEY_TYPE_PSK_INIT:{
-		fprintf(stderr, "Dissect PSK key data %d\n", encr_length);
-		sub_payload = PL_KEY_DATA;
-		break;
-	}
-	case MIKEY_TYPE_PK_INIT:
-	case MIKEY_TYPE_RSA_R_RESP:{
-/* 		tvbuff_t *sub_tvb; */
-		fprintf(stderr, "Dissect PK/RSA-R key data %d\n", encr_length);
-/* 		sub_tvb = tvb_new_subset(tvb, offset+4, encr_length, encr_length); */
-
-/* 		dissect_payload_keydata(mikey, sub_tvb, pinfo, tree); */
-		sub_payload = PL_KEY_DATA;
-		break;
-	}
-	}
-#endif
-
-	if (sub_payload != PL_LAST) {
-		dissect_payload(sub_payload, mikey, sub_tvb, pinfo, tree);
 	}
 
 	return 4+encr_length+1+mac_length;
@@ -757,14 +803,14 @@ dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 	switch (dh_group) {
 	case DH_OAKLEY_5:
-	    dh_length = 1536/8;
-	    break;
+		dh_length = 1536/8;
+		break;
 	case DH_OAKLEY_1:
-	    dh_length = 768/8;
-	    break;
+		dh_length = 768/8;
+		break;
 	case DH_OAKLEY_2:
-	    dh_length = 1024/8;
-	    break;
+		dh_length = 1024/8;
+		break;
 	default:
 		return -1;
 	}
@@ -780,7 +826,7 @@ dissect_payload_dh(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	}
 
 	if (kv != 0) {
-	    return -1;
+		return -1;
 	}
 
 	return 2+dh_length+1;
@@ -838,7 +884,7 @@ dissect_payload_t(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 		len = 10;
 		break;
-        }
+	}
 	case T_COUNTER:
 		len = 6;
 		break;
@@ -1025,7 +1071,6 @@ dissect_payload_sp(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	return 5 + length;
 }
 
-
 static int
 dissect_payload_rand(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -1047,25 +1092,133 @@ dissect_payload_rand(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, 
 	return 2 + length;
 }
 
-/* TODO support salt and kv data */
+static int
+dissect_payload_err(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item *parent = NULL;
+	guint8 err_no;
+
+	tvb_ensure_bytes_exist(tvb, 0, 4);
+	err_no = tvb_get_guint8(tvb, 1);
+
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_ERR_NO], tvb, 1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_ERR_RESERVED], tvb, 2, 2, FALSE);
+	}
+	parent = proto_tree_get_parent(tree);
+	proto_item_append_text(parent, ": %s", val_to_str(err_no, err_vals, "Unknown"));
+
+	return 4;
+}
+
 static int
 dissect_payload_keydata(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
+	guint16 offset;
 	guint16 data_len;
+	guint16 salt_len;
+	guint16 kv_from_len;
+	guint16 kv_to_len;
+	guint16 kv_spi_len;
+	guint8 key_type;
+	guint8 kv_type;
+	proto_item *parent = NULL;
 
+	offset = 0;
 	tvb_ensure_bytes_exist(tvb, 0, 4);
+	key_type = tvb_get_guint8(tvb, 1) >> 4;
+	kv_type  = tvb_get_guint8(tvb, 1) & 0x0f;
 	data_len = tvb_get_ntohs(tvb, 2);
 
-	fprintf(stderr, "Data len %d\n", data_len);
 	tvb_ensure_bytes_exist(tvb, 4, data_len);
+	offset += 4;
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_TYPE], tvb, 1, 1, FALSE);
 		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_KV], tvb, 1, 1, FALSE);
 		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA_LEN], tvb, 2, 2, FALSE);
 		proto_tree_add_item(tree, hf_mikey[POS_KEY_DATA], tvb, 4, data_len, FALSE);
+
+		parent = proto_tree_get_parent(tree);
+		proto_item_append_text(parent, " Type: %s", val_to_str(key_type, kd_vals, "Unknown"));
+		offset += data_len;
+
+		/* Dissect SALT key */
+		if (key_type == KD_TGK_SALT || key_type == KD_TEK_SALT) {
+			tvb_ensure_bytes_exist(tvb, offset, 2);
+			salt_len = tvb_get_ntohs(tvb, offset);
+			if (salt_len>0) {
+				tvb_ensure_bytes_exist(tvb, offset+2, salt_len);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT_LEN], tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_SALT], tvb, offset+2, salt_len, FALSE);
+			}
+			offset += 2+salt_len;
+		}
+
+		/* Dissect Key Validity */
+		if (kv_type == KV_INTERVAL) {
+			tvb_ensure_bytes_exist(tvb, offset, 1);
+			kv_from_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM_LEN], tvb, offset, 1, FALSE);
+			if (kv_from_len > 0) {
+				tvb_ensure_bytes_exist(tvb, offset+1, kv_from_len);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_FROM], tvb, offset+1, kv_from_len, FALSE);
+			}
+			offset += 1+kv_from_len;
+
+			tvb_ensure_bytes_exist(tvb, offset, 1);
+			kv_to_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO_LEN], tvb, offset, 1, FALSE);
+			if (kv_to_len > 0) {
+				tvb_ensure_bytes_exist(tvb, offset+1, kv_to_len);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_TO], tvb, offset+1, kv_to_len, FALSE);
+			}
+			offset += 1+kv_to_len;
+		} else if (kv_type == KV_SPI) {
+			tvb_ensure_bytes_exist(tvb, offset, 1);
+			kv_spi_len = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI_LEN], tvb, offset, 1, FALSE);
+			if (kv_spi_len > 0) {
+				tvb_ensure_bytes_exist(tvb, offset+1, kv_spi_len);
+				proto_tree_add_item(tree, hf_mikey[POS_KEY_KV_SPI], tvb, offset+1, kv_spi_len, FALSE);
+			}
+			offset += 1+kv_spi_len;
+		}
 	}
-	return 4+data_len;
+	return offset;
+}
+
+static int
+dissect_payload_general_ext(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item *parent = NULL;
+	int offset = 0;
+	guint8 type;
+	guint16 data_len;
+
+	tvb_ensure_bytes_exist(tvb, offset+0, 4);
+	type = tvb_get_guint8(tvb, offset+1);
+	data_len = tvb_get_ntohs(tvb, offset+2);
+
+	if (tree) {
+		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_TYPE], tvb, 1, 1, FALSE);
+		proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_LEN], tvb, 2, 2, FALSE);
+	}
+
+	tvb_ensure_bytes_exist(tvb, offset+3, data_len);
+
+	if (tree) {
+
+		parent = proto_tree_get_parent(tree);
+		if (type==1) {
+			/* For SDP-IDs, show a string instead of raw bytes */
+			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_VALUE], tvb, 4, data_len, FALSE);
+		} else {
+			proto_tree_add_item(tree, hf_mikey[POS_GENERAL_EXT_DATA], tvb, 4, data_len, FALSE);
+		}
+		proto_item_append_text(parent, " Type: %s", val_to_str(type, genext_type_vals, "Unknown"));
+	}
+	return 4 + data_len;
 }
 
 static const struct mikey_dissector_entry payload_map[] = {
@@ -1080,7 +1233,9 @@ static const struct mikey_dissector_entry payload_map[] = {
 	{ PL_V, dissect_payload_v },
 	{ PL_SP, dissect_payload_sp },
 	{ PL_RAND, dissect_payload_rand },
+	{ PL_ERR, dissect_payload_err },
 	{ PL_KEY_DATA, dissect_payload_keydata },
+	{ PL_GENERAL_EXT, dissect_payload_general_ext },
 	{ 0, NULL }
 };
 
@@ -1248,11 +1403,11 @@ proto_register_mikey(void)
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_KEY_DATA],
-		  { PL_KEY_DATA_TEXT, "mikey.key_data",
+		  { PL_KEY_DATA_TEXT, "mikey.key",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey_pl[PL_GENERAL_EXT],
-		  { PL_GENERAL_EXT_TEXT, "mikey.general_ext",
+		  { PL_GENERAL_EXT_TEXT, "mikey.ext",
 		    FT_NONE, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
@@ -1314,11 +1469,11 @@ proto_register_mikey(void)
 		    FT_UINT8, BASE_DEC, VALS(encr_alg_vals), 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_ENCR_DATA_LEN],
-		  { "Encr data len", "mikey.kemac.encr_data_len",
+		  { "Key data len", "mikey.kemac.key_data_len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_ENCR_DATA],
-		  { "Encr data", "mikey.kemac.encr_data",
+		  { "Key data", "mikey.kemac.key_data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEMAC_MAC_ALG],
@@ -1525,22 +1680,82 @@ proto_register_mikey(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
+		/* Error payload (ERR) */
+		{ &hf_mikey[POS_ERR_NO],
+		  { "Error no.", "mikey.err.no",
+		    FT_UINT8, BASE_DEC, VALS(err_vals), 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_ERR_RESERVED],
+		  { "Reserved", "mikey.err.reserved",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		/* Key data sub-payload */
 		{ &hf_mikey[POS_KEY_DATA_TYPE],
-		  { "Type", "mikey.key_data.type",
+		  { "Type", "mikey.key.type",
 		    FT_UINT8, BASE_DEC, VALS(kd_vals), 0xf0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA_KV],
-		  { "KV", "mikey.key_data.kv",
+		  { "KV", "mikey.key.kv",
 		    FT_UINT8, BASE_DEC, VALS(kv_vals), 0x0f,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA_LEN],
-		  { "Key data len", "mikey.key_data.len",
+		  { "Key len", "mikey.key.data.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 		{ &hf_mikey[POS_KEY_DATA],
-		  { "Key data", "mikey.key_data",
+		  { "Key", "mikey.key.data",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_SALT_LEN],
+		  { "Salt key len", "mikey.key.salt.len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_SALT],
+		  { "Salt key", "mikey.key.salt",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_FROM_LEN],
+		  { "Valid from len", "mikey.key.kv.from.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_FROM],
+		  { "Valid from", "mikey.key.kv.from",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_TO_LEN],
+		  { "Valid to len", "mikey.key.kv.to.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_TO],
+		  { "Valid to", "mikey.key.kv.to",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_SPI_LEN],
+		  { "Valid SPI len", "mikey.key.kv.spi.len",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_KEY_KV_SPI],
+		  { "Valid SPI", "mikey.key.kv.spi",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		/* General Extension payload (GENERAL_EXT) */
+		{ &hf_mikey[POS_GENERAL_EXT_TYPE],
+		  { "Extension type", "mikey.ext.type",
+		    FT_UINT8, BASE_DEC, VALS(genext_type_vals), 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_GENERAL_EXT_LEN],
+		  { "Length", "mikey.ext.len",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_GENERAL_EXT_DATA],
+		  { "Data", "mikey.ext.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+		{ &hf_mikey[POS_GENERAL_EXT_VALUE],
+		  { "Value", "mikey.ext.value",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 /*
@@ -1561,14 +1776,15 @@ proto_register_mikey(void)
 		&ett_mikey,
 		&ett_mikey_payload,
 		&ett_mikey_sp_param,
-		&ett_mikey_hdr_id
+		&ett_mikey_hdr_id,
+		&ett_mikey_enc_data
 	};
 
 	module_t *mikey_module;
 
 	/* Register the protocol name and description */
 	proto_mikey = proto_register_protocol("Multimedia Internet KEYing",
-	    "MIKEY", "mikey");
+		"MIKEY", "mikey");
 	new_register_dissector("mikey", dissect_mikey, proto_mikey);
 
 	/* Required function calls to register the header fields and subtrees used */
@@ -1596,12 +1812,12 @@ proto_reg_handoff_mikey(void)
 	static dissector_handle_t mikey_handle;
 
 	if (!inited) {
-	    mikey_handle = new_create_dissector_handle(dissect_mikey, proto_mikey);
-	    inited = TRUE;
+		mikey_handle = new_create_dissector_handle(dissect_mikey, proto_mikey);
+		inited = TRUE;
 	} else {
-	    dissector_delete_string("key_mgmt", "mikey", mikey_handle);
-	    dissector_delete("udp.port", mikey_udp_port, mikey_handle);
-	    dissector_delete("tcp.port", mikey_tcp_port, mikey_handle);
+		dissector_delete_string("key_mgmt", "mikey", mikey_handle);
+		dissector_delete("udp.port", mikey_udp_port, mikey_handle);
+		dissector_delete("tcp.port", mikey_tcp_port, mikey_handle);
 	}
 
 	dissector_add_string("key_mgmt", "mikey", mikey_handle);
