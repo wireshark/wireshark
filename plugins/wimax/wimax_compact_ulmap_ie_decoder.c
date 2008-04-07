@@ -724,7 +724,7 @@ static hf_register_info hf_cdma_allocation[] =
 	},
 	{	/* display the BW Request Mandatory */
 		&hf_cdma_allocation_bw_req,
-		{"BW Request Mandatory", "wmx.cdma_allocation.bw_req", FT_UINT8, BASE_DEC, TFS(&tfs_yes_no_ie), CDMA_ALLOCATION_BW_REQUEST_MANDATORY_MASK, "", HFILL}
+		{"BW Request Mandatory", "wmx.cdma_allocation.bw_req", FT_BOOLEAN, 8, TFS(&tfs_yes_no_ie), CDMA_ALLOCATION_BW_REQUEST_MANDATORY_MASK, "", HFILL}
 	},
 	{	/* display the Duration */
 		&hf_cdma_allocation_duration_1,
@@ -756,7 +756,7 @@ static hf_register_info hf_cdma_allocation[] =
 	},
 	{	/* display the BW Request Mandatory */
 		&hf_cdma_allocation_bw_req_1,
-		{"BW Request Mandatory", "wmx.cdma_allocation.bw_req", FT_UINT32, BASE_DEC, TFS(&tfs_yes_no_ie), CDMA_ALLOCATION_BW_REQUEST_MANDATORY_MASK_1, "", HFILL}
+		{"BW Request Mandatory", "wmx.cdma_allocation.bw_req", FT_BOOLEAN, 32, TFS(&tfs_yes_no_ie), CDMA_ALLOCATION_BW_REQUEST_MANDATORY_MASK_1, "", HFILL}
 	}
 };
 

@@ -310,11 +310,10 @@ static gint hf_sbc_max_security_associations = -1;
 
 static gint hf_sbc_invalid_tlv = -1;
 
-static const value_string vals_sbc_bw_alloc_support_duplex[] =
+static const true_false_string tfs_sbc_bw_alloc_support_duplex =
 {
-    {0, "Half-Duplex"},
-    {1, "Full-Duplex"},
-    {0,  NULL}
+    "Full-Duplex",
+    "Half-Duplex"
 };
 
 static const value_string vals_sbc_mac_pdu_fsn[] =
@@ -523,12 +522,13 @@ static const true_false_string tfs_supported =
     "not supported"
 };
 
-static const value_string vals_yes_no_str[] =
+#ifdef _WIN32
+static const true_false_string tfs_yes_no =
 {
-    {0, "No"},
-    {1, "Yes"},
-    {0,  NULL}
+    "yes",
+    "no"
 };
+#endif
 
 static const value_string vals_sounding_rsp_time_cap_codings[] =
 {
@@ -566,35 +566,35 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_167_association_type_support_bit0,
 		{
 			"Scanning Without Association: association not supported", "wmx.sbc.association_type_support.bit0",
-			FT_BOOLEAN, 8,  VALS(vals_yes_no_str), 0x1, "", HFILL
+			FT_BOOLEAN, 8,  TFS(&tfs_yes_no), 0x1, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit1,
 		{
 			"Association Level 0: scanning or association without coordination", "wmx.sbc.association_type_support.bit1",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x2, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x2, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit2,
 		{
 			"Association Level 1: association with coordination", "wmx.sbc.association_type_support.bit2",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x4, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit3,
 		{
 			"Association Level 2: network assisted association", "wmx.sbc.association_type_support.bit3",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x8, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x8, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit4,
 		{
 			"Desired Association Support", "wmx.sbc.association_type_support.bit4",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x10, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, "", HFILL
 		}
 	},
 	{
@@ -636,7 +636,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_bw_alloc_support_duplex,
 		{
 			"Duplex", "wmx.sbc.bw_alloc_support.duplex",
-			FT_BOOLEAN, 8, VALS(vals_sbc_bw_alloc_support_duplex), 0x2, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_sbc_bw_alloc_support_duplex), 0x2, "", HFILL
 		}
 	},
 	{
@@ -692,7 +692,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_27_extension_capability_bit0,
 		{
 			"Supported Extended Subheader Format", "wmx.sbc.extension_capability.bit0",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x1, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x1, "", HFILL
 		}
 	},
 	{
@@ -909,7 +909,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst,
 		{
 			"Whether The Maximum Number Of UL HARQ Bursts Per Frame (i.e. Bits# 2-0) Includes The One Non-HARQ Burst", "wmx.sbc.max_num_bst_per_frm_capability_harq.max_num_ul_harq_per_frm_include_one_non_harq_bst",
-			FT_BOOLEAN, 8, VALS(vals_yes_no_str), 0x8, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x8, "", HFILL
 		}
 	},
 	{	/* 11.7.8.8 */
@@ -1540,7 +1540,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_174_sounding_rsp_time_capability,
 		{
 			"Sounding Response Time Capability", "wmx.sbc.ofdma_ms_csit_capability.sounding_response_time_capability",
-			FT_BOOLEAN, 16, VALS(vals_sounding_rsp_time_cap_codings), 0x0038, "", HFILL
+			FT_UINT16, BASE_HEX, VALS(vals_sounding_rsp_time_cap_codings), 0x0038, "", HFILL
 		}
 	},
 	{
@@ -1716,7 +1716,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone,
 		{
 			"SDMA Pilot Patterns Support For AMC Zone", "wmx.sbc.sdma_pilot_capability.sdma_pilot_pattern_support_for_amc_zone",
-			FT_BOOLEAN, 8, VALS(vals_sbc_sdma_str), 0x03, "", HFILL
+			FT_UINT8, BASE_HEX, VALS(vals_sbc_sdma_str), 0x03, "", HFILL
 		}
 	},
 	{	/* 11.8.3.7.2 - type 151 */
