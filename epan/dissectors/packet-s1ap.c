@@ -74,14 +74,12 @@
 #define maxnoofTAI                     256
 #define maxNrOfErrors                  256
 #define maxnoofBPLMNs                  6
-#define maxnoofNRIs                    512
 #define maxnoofPLMNsPerMME             32
 #define maxnoofTAIs                    256
 #define maxnoofEPLMNs                  15
 #define maxnoofEPLMNsPlusOne           16
 #define maxnoofForbLACs                256
 #define maxnoofForbTAIs                256
-#define id_SAEBearerFailedToModifyList 32
 
 typedef enum _ProcedureCode_enum {
   id_HandoverPreparation =   0,
@@ -102,7 +100,14 @@ typedef enum _ProcedureCode_enum {
   id_ErrorIndication =  15,
   id_NASNonDeliveryIndication =  16,
   id_S1Setup   =  17,
-  id_UEContextReleaseRequest =  18
+  id_UEContextReleaseRequest =  18,
+  id_DownlinkS1cdma2000tunneling =  19,
+  id_UplinkS1cdma2000tunneling =  20,
+  id_UEContextModification =  21,
+  id_UECapabilityInfoIndication =  22,
+  id_UEContextRelease =  23,
+  id_eNBStatusTransfer =  24,
+  id_MMEStatusTransfer =  25
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -138,8 +143,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_SAEBearerFailedToSetupListBearerSURes =  29,
   id_SAEBearerToBeModifiedListBearerModReq =  30,
   id_SAEBearerModifyListBearerModRes =  31,
+  id_SAEBearerFailedToModifyList =  32,
   id_SAEBearerToBeReleasedList =  33,
-  id_SAEBearerReleaseListBearerRelComp =  33,
   id_SAEBearerFailedToReleaseList =  34,
   id_SAEBearerItem =  35,
   id_SAEBearerToBeModifiedItemBearerModReq =  36,
@@ -148,7 +153,7 @@ typedef enum _ProtocolIE_ID_enum {
   id_SAEBearerSetupItemBearerSURes =  39,
   id_Security_Information =  40,
   id_HandoverRestrictionList =  41,
-  id_s_TMSI    =  43,
+  id_UEPagingID =  43,
   id_pagingDRX =  44,
   id_pagingCause =  45,
   id_TAIdList  =  46,
@@ -164,16 +169,29 @@ typedef enum _ProtocolIE_ID_enum {
   id_UTRANtoLTEHOInformationReq =  56,
   id_UTRANtoLTEHOInformationRes =  57,
   id_CriticalityDiagnostics =  58,
-  id_ENB_ID    =  59,
+  id_ENB_Global_ID =  59,
   id_eNBname   =  60,
   id_MMEname   =  61,
-  id_NRIs      =  62,
   id_ServedPLMNs =  63,
   id_SupportedTAIs =  64,
   id_TimeToWait =  65,
   id_aggregateMaximumBitrate =  66,
   id_TAId      =  67,
-  id_ServingPLMN =  68
+  id_ServingPLMN =  68,
+  id_SAEBearerReleaseListBearerRelComp =  69,
+  id_cdma2000PDU =  70,
+  id_cdma2000RATType =  71,
+  id_cdma2000SectorID =  72,
+  id_SecurityInfo =  73,
+  id_UERadioCapability =  74,
+  id_GUMMEI_ID =  75,
+  id_Bearers_SubjectToStatusTransferENB_List =  76,
+  id_Bearers_SubjectToStatusTransferENB_Item =  77,
+  id_SAEBearerInformationListItem =  78,
+  id_Direct_Forwarding_Path_Availability =  79,
+  id_UEIdentityIndexValue =  80,
+  id_Bearers_SubjectToStatusTransferMME_List =  80,
+  id_Bearers_SubjectToStatusTransferMME_Item =  81
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
@@ -189,30 +207,35 @@ static int proto_s1ap = -1;
 #line 1 "packet-s1ap-hf.c"
 static int hf_s1ap_AggregateMaximumBitrate_PDU = -1;  /* AggregateMaximumBitrate */
 static int hf_s1ap_Cause_PDU = -1;                /* Cause */
+static int hf_s1ap_Cdma2000PDU_PDU = -1;          /* Cdma2000PDU */
+static int hf_s1ap_Cdma2000RATType_PDU = -1;      /* Cdma2000RATType */
+static int hf_s1ap_Cdma2000SectorID_PDU = -1;     /* Cdma2000SectorID */
 static int hf_s1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
+static int hf_s1ap_Direct_Forwarding_Path_Availability_PDU = -1;  /* Direct_Forwarding_Path_Availability */
 static int hf_s1ap_ENB_UE_S1AP_ID_PDU = -1;       /* ENB_UE_S1AP_ID */
-static int hf_s1ap_ENB_ID_PDU = -1;               /* ENB_ID */
 static int hf_s1ap_ENBname_PDU = -1;              /* ENBname */
+static int hf_s1ap_GUMMEI_PDU = -1;               /* GUMMEI */
 static int hf_s1ap_HandoverRestrictionList_PDU = -1;  /* HandoverRestrictionList */
 static int hf_s1ap_HandoverType_PDU = -1;         /* HandoverType */
 static int hf_s1ap_MMEname_PDU = -1;              /* MMEname */
 static int hf_s1ap_MME_UE_S1AP_ID_PDU = -1;       /* MME_UE_S1AP_ID */
 static int hf_s1ap_NAS_PDU_PDU = -1;              /* NAS_PDU */
-static int hf_s1ap_NRIs_PDU = -1;                 /* NRIs */
 static int hf_s1ap_PagingDRX_PDU = -1;            /* PagingDRX */
 static int hf_s1ap_PagingCause_PDU = -1;          /* PagingCause */
 static int hf_s1ap_PLMNidentity_PDU = -1;         /* PLMNidentity */
 static int hf_s1ap_SAEBearerList_PDU = -1;        /* SAEBearerList */
 static int hf_s1ap_SAEBearerItem_PDU = -1;        /* SAEBearerItem */
+static int hf_s1ap_SecurityInfo_PDU = -1;         /* SecurityInfo */
 static int hf_s1ap_SecurityInformation_PDU = -1;  /* SecurityInformation */
 static int hf_s1ap_SourceID_PDU = -1;             /* SourceID */
 static int hf_s1ap_ServedPLMNs_PDU = -1;          /* ServedPLMNs */
 static int hf_s1ap_SupportedTAIs_PDU = -1;        /* SupportedTAIs */
-static int hf_s1ap_S_TMSI_PDU = -1;               /* S_TMSI */
 static int hf_s1ap_TAId_PDU = -1;                 /* TAId */
 static int hf_s1ap_TargetID_PDU = -1;             /* TargetID */
 static int hf_s1ap_TimeToWait_PDU = -1;           /* TimeToWait */
 static int hf_s1ap_TraceActivation_PDU = -1;      /* TraceActivation */
+static int hf_s1ap_UEIdentityIndexValue_PDU = -1;  /* UEIdentityIndexValue */
+static int hf_s1ap_UERadioCapability_PDU = -1;    /* UERadioCapability */
 static int hf_s1ap_HandoverRequired_PDU = -1;     /* HandoverRequired */
 static int hf_s1ap_Intra_LTEHOInformationReq_PDU = -1;  /* Intra_LTEHOInformationReq */
 static int hf_s1ap_LTEtoUTRANHOInformationReq_PDU = -1;  /* LTEtoUTRANHOInformationReq */
@@ -275,6 +298,11 @@ static int hf_s1ap_InitialContextSetupFailure_PDU = -1;  /* InitialContextSetupF
 static int hf_s1ap_Paging_PDU = -1;               /* Paging */
 static int hf_s1ap_TAIdList_PDU = -1;             /* TAIdList */
 static int hf_s1ap_TAIdItem_PDU = -1;             /* TAIdItem */
+static int hf_s1ap_UEContextReleaseCommand_PDU = -1;  /* UEContextReleaseCommand */
+static int hf_s1ap_UEContextReleaseComplete_PDU = -1;  /* UEContextReleaseComplete */
+static int hf_s1ap_UEContextModificationRequest_PDU = -1;  /* UEContextModificationRequest */
+static int hf_s1ap_UEContextModificationResponse_PDU = -1;  /* UEContextModificationResponse */
+static int hf_s1ap_UEContextModificationFailure_PDU = -1;  /* UEContextModificationFailure */
 static int hf_s1ap_DownlinkNASTransport_PDU = -1;  /* DownlinkNASTransport */
 static int hf_s1ap_InitialUEMessage_PDU = -1;     /* InitialUEMessage */
 static int hf_s1ap_UplinkNASTransport_PDU = -1;   /* UplinkNASTransport */
@@ -285,6 +313,15 @@ static int hf_s1ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
 static int hf_s1ap_S1SetupRequest_PDU = -1;       /* S1SetupRequest */
 static int hf_s1ap_S1SetupResponse_PDU = -1;      /* S1SetupResponse */
 static int hf_s1ap_S1SetupFailure_PDU = -1;       /* S1SetupFailure */
+static int hf_s1ap_DownlinkS1cdma2000tunneling_PDU = -1;  /* DownlinkS1cdma2000tunneling */
+static int hf_s1ap_UplinkS1cdma2000tunneling_PDU = -1;  /* UplinkS1cdma2000tunneling */
+static int hf_s1ap_UECapabilityInfoIndication_PDU = -1;  /* UECapabilityInfoIndication */
+static int hf_s1ap_ENBStatusTransfer_PDU = -1;    /* ENBStatusTransfer */
+static int hf_s1ap_Bearers_SubjectToStatusTransferENB_List_PDU = -1;  /* Bearers_SubjectToStatusTransferENB_List */
+static int hf_s1ap_Bearers_SubjectToStatusTransferENB_Item_PDU = -1;  /* Bearers_SubjectToStatusTransferENB_Item */
+static int hf_s1ap_MMEStatusTransfer_PDU = -1;    /* MMEStatusTransfer */
+static int hf_s1ap_Bearers_SubjectToStatusTransferMME_List_PDU = -1;  /* Bearers_SubjectToStatusTransferMME_List */
+static int hf_s1ap_Bearers_SubjectToStatusTransferMME_Item_PDU = -1;  /* Bearers_SubjectToStatusTransferMME_Item */
 static int hf_s1ap_S1AP_PDU_PDU = -1;             /* S1AP_PDU */
 static int hf_s1ap_local = -1;                    /* INTEGER_0_65535 */
 static int hf_s1ap_global = -1;                   /* OBJECT_IDENTIFIER */
@@ -312,6 +349,7 @@ static int hf_s1ap_aggregateMaximumBitRateUL = -1;  /* SAE_Bearer_BitRate */
 static int hf_s1ap_BPLMNs_item = -1;              /* PLMNidentity */
 static int hf_s1ap_radioNetwork = -1;             /* CauseRadioNetwork */
 static int hf_s1ap_transport = -1;                /* CauseTransport */
+static int hf_s1ap_nas = -1;                      /* CauseNas */
 static int hf_s1ap_protocol = -1;                 /* CauseProtocol */
 static int hf_s1ap_misc = -1;                     /* CauseMisc */
 static int hf_s1ap_pLMNidentity = -1;             /* PLMNidentity */
@@ -321,7 +359,7 @@ static int hf_s1ap_procedureCode = -1;            /* ProcedureCode */
 static int hf_s1ap_triggeringMessage = -1;        /* TriggeringMessage */
 static int hf_s1ap_procedureCriticality = -1;     /* Criticality */
 static int hf_s1ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_s1ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_s1ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_Item */
 static int hf_s1ap_iECriticality = -1;            /* Criticality */
 static int hf_s1ap_iE_ID = -1;                    /* ProtocolIE_ID */
 static int hf_s1ap_typeOfError = -1;              /* TypeOfError */
@@ -333,6 +371,8 @@ static int hf_s1ap_ForbiddenTAIs_item = -1;       /* TAI */
 static int hf_s1ap_ForbiddenLAs_item = -1;        /* ForbiddenLAs_Item */
 static int hf_s1ap_forbiddenLACs = -1;            /* ForbiddenLACs */
 static int hf_s1ap_ForbiddenLACs_item = -1;       /* LAC */
+static int hf_s1ap_mME_Group_ID = -1;             /* MME_Group_ID */
+static int hf_s1ap_mMME_Code = -1;                /* MME_Code */
 static int hf_s1ap_equivalentPLMNs = -1;          /* EPLMNs */
 static int hf_s1ap_forbiddenTAs = -1;             /* ForbiddenTAs */
 static int hf_s1ap_forbiddenLAs = -1;             /* ForbiddenLAs */
@@ -340,9 +380,10 @@ static int hf_s1ap_forbiddenInterRATs = -1;       /* ForbiddenInterRATs */
 static int hf_s1ap_InterfacesToTraceList_item = -1;  /* InterfacesToTraceItem */
 static int hf_s1ap_interfaceType = -1;            /* InterfaceType */
 static int hf_s1ap_traceDepth = -1;               /* TraceDepth */
-static int hf_s1ap_NRIs_item = -1;                /* NRI */
-static int hf_s1ap_SAEBearerList_item = -1;       /* ProtocolIE_SingleContainer */
+static int hf_s1ap_SAEBearerInformationList_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_sAE_Bearer_ID = -1;            /* SAE_Bearer_ID */
+static int hf_s1ap_dL_Forwarding = -1;            /* DL_Forwarding */
+static int hf_s1ap_SAEBearerList_item = -1;       /* ProtocolIE_SingleContainer */
 static int hf_s1ap_cause = -1;                    /* Cause */
 static int hf_s1ap_label = -1;                    /* Label */
 static int hf_s1ap_allocationRetentionPriority = -1;  /* AllocationRetentionPriority */
@@ -353,14 +394,19 @@ static int hf_s1ap_sAE_Bearer_MaximumBitrateDL = -1;  /* SAE_Bearer_BitRate */
 static int hf_s1ap_sAE_Bearer_MaximumBitrateUL = -1;  /* SAE_Bearer_BitRate */
 static int hf_s1ap_sAE_Bearer_GuaranteedBitrateDL = -1;  /* SAE_Bearer_BitRate */
 static int hf_s1ap_sAE_Bearer_GuaranteedBitrateUL = -1;  /* SAE_Bearer_BitRate */
-static int hf_s1ap_sAE_non_GBR_Bearer_Type = -1;  /* T_sAE_non_GBR_Bearer_Type */
-static int hf_s1ap_securityPlaceHolder = -1;      /* T_securityPlaceHolder */
+static int hf_s1ap_sAE_non_GBR_Bearer_Type = -1;  /* SAE_non_GBR_Bearer_Type */
+static int hf_s1ap_securityKey = -1;              /* SecurityKey */
+static int hf_s1ap_securityPlaceHolder = -1;      /* SecurityPlaceHolder */
 static int hf_s1ap_sourceeNB_ID = -1;             /* SourceeNB_ID */
-static int hf_s1ap_eNB_ID = -1;                   /* ENB_ID */
+static int hf_s1ap_eNB_Global_ID = -1;            /* ENB_Global_ID */
+static int hf_s1ap_rRC_Container = -1;            /* RRC_Container */
+static int hf_s1ap_sAEBearerInformationList = -1;  /* SAEBearerInformationList */
 static int hf_s1ap_ServedPLMNs_item = -1;         /* PLMNidentity */
 static int hf_s1ap_SupportedTAIs_item = -1;       /* SupportedTAs_Item */
 static int hf_s1ap_tAI = -1;                      /* TAId */
 static int hf_s1ap_broadcastPLMNs = -1;           /* BPLMNs */
+static int hf_s1ap_mMEC = -1;                     /* MME_Code */
+static int hf_s1ap_m_TMSI = -1;                   /* M_TMSI */
 static int hf_s1ap_targeteNB_ID = -1;             /* TargeteNB_ID */
 static int hf_s1ap_targetRNC_ID = -1;             /* TargetRNC_ID */
 static int hf_s1ap_cGI = -1;                      /* CGI */
@@ -369,19 +415,22 @@ static int hf_s1ap_rAC = -1;                      /* RAC */
 static int hf_s1ap_rNC_ID = -1;                   /* RNC_ID */
 static int hf_s1ap_traceReference = -1;           /* TraceReference */
 static int hf_s1ap_interfacesToTraceList = -1;    /* InterfacesToTraceList */
+static int hf_s1ap_s_TMSI = -1;                   /* S_TMSI */
+static int hf_s1ap_iMSI = -1;                     /* IMSI */
 static int hf_s1ap_protocolIEs = -1;              /* ProtocolIE_Container */
 static int hf_s1ap_sourceeNodeB_ToTargeteNodeB_TransparentContainer = -1;  /* SourceeNodeB_ToTargeteNodeB_TransparentContainer */
 static int hf_s1ap_sourceRNC_ToTargetRNC_TransparentContainer = -1;  /* SourceRNC_ToTargetRNC_TransparentContainer */
 static int hf_s1ap_sourceBSS_ToTargetBSS_TransparentContainer = -1;  /* SourceBSS_ToTargetBSS_TransparentContainer */
-static int hf_s1ap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_s1ap_gTP_TEID = -1;                 /* GTP_TEID */
+static int hf_s1ap_dL_transportLayerAddress = -1;  /* TransportLayerAddress */
+static int hf_s1ap_dL_gTP_TEID = -1;              /* GTP_TEID */
 static int hf_s1ap_targeteNodeB_ToSourceeNodeB_TransparentContainer = -1;  /* TargeteNodeB_ToSourceeNodeB_TransparentContainer */
 static int hf_s1ap_targetRNC_ToSourceRNC_TransparentContainer = -1;  /* TargetRNC_ToSourceRNC_TransparentContainer */
 static int hf_s1ap_targetBSS_ToSourceBSS_TransparentContainer = -1;  /* TargetBSS_ToSourceBSS_TransparentContainer */
+static int hf_s1ap_transportLayerAddress = -1;    /* TransportLayerAddress */
+static int hf_s1ap_gTP_TEID = -1;                 /* GTP_TEID */
 static int hf_s1ap_sAE_BearerlevelQosParameters = -1;  /* SAE_BearerLevelQoSParameters */
 static int hf_s1ap_SAEBearerToBeSetupListBearerSUReq_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_sAE_BearerlevelQoSParameters = -1;  /* SAE_BearerLevelQoSParameters */
-static int hf_s1ap_userDataType = -1;             /* UserDataType */
 static int hf_s1ap_SAEBearerSetupListBearerSURes_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_SAEBearerToBeModifiedListBearerModReq_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_sAE_BearerLevelQoSParameters = -1;  /* SAE_BearerLevelQoSParameters */
@@ -391,6 +440,10 @@ static int hf_s1ap_SAEBearerToBeSetupListCtxtSUReq_item = -1;  /* ProtocolIE_Sin
 static int hf_s1ap_SAEBearerSetupListCtxtSURes_item = -1;  /* ProtocolIE_SingleContainer */
 static int hf_s1ap_TAIdList_item = -1;            /* ProtocolIE_SingleContainer */
 static int hf_s1ap_tAId = -1;                     /* TAId */
+static int hf_s1ap_lIS_HFN = -1;                  /* PDCP_SN */
+static int hf_s1ap_lIS = -1;                      /* PDCP_SN */
+static int hf_s1ap_dL_PDCP_HFN_NextToAssign = -1;  /* PDCP_SN */
+static int hf_s1ap_dL_PDCP_SN_NextToAssign = -1;  /* PDCP_SN */
 static int hf_s1ap_initiatingMessage = -1;        /* InitiatingMessage */
 static int hf_s1ap_successfulOutcome = -1;        /* SuccessfulOutcome */
 static int hf_s1ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
@@ -425,7 +478,7 @@ static gint ett_s1ap_Cause = -1;
 static gint ett_s1ap_CGI = -1;
 static gint ett_s1ap_CriticalityDiagnostics = -1;
 static gint ett_s1ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_s1ap_CriticalityDiagnostics_IE_List_item = -1;
+static gint ett_s1ap_CriticalityDiagnostics_IE_Item = -1;
 static gint ett_s1ap_EPLMNs = -1;
 static gint ett_s1ap_ForbiddenTAs = -1;
 static gint ett_s1ap_ForbiddenTAs_Item = -1;
@@ -433,27 +486,33 @@ static gint ett_s1ap_ForbiddenTAIs = -1;
 static gint ett_s1ap_ForbiddenLAs = -1;
 static gint ett_s1ap_ForbiddenLAs_Item = -1;
 static gint ett_s1ap_ForbiddenLACs = -1;
+static gint ett_s1ap_GUMMEI = -1;
 static gint ett_s1ap_HandoverRestrictionList = -1;
 static gint ett_s1ap_InterfacesToTraceList = -1;
 static gint ett_s1ap_InterfacesToTraceItem = -1;
 static gint ett_s1ap_LAI = -1;
-static gint ett_s1ap_NRIs = -1;
+static gint ett_s1ap_SAEBearerInformationList = -1;
+static gint ett_s1ap_SAEBearerInformationListItem = -1;
 static gint ett_s1ap_SAEBearerList = -1;
 static gint ett_s1ap_SAEBearerItem = -1;
 static gint ett_s1ap_SAE_BearerLevelQoSParameters = -1;
 static gint ett_s1ap_SAE_Bearer_Type = -1;
 static gint ett_s1ap_SAE_GBR_Bearer = -1;
 static gint ett_s1ap_SAE_non_GBR_Bearer = -1;
+static gint ett_s1ap_SecurityInfo = -1;
 static gint ett_s1ap_SecurityInformation = -1;
 static gint ett_s1ap_SourceID = -1;
 static gint ett_s1ap_SourceeNB_ID = -1;
+static gint ett_s1ap_SourceeNodeB_ToTargeteNodeB_TransparentContainer = -1;
 static gint ett_s1ap_ServedPLMNs = -1;
 static gint ett_s1ap_SupportedTAIs = -1;
 static gint ett_s1ap_SupportedTAs_Item = -1;
+static gint ett_s1ap_S_TMSI = -1;
 static gint ett_s1ap_TargetID = -1;
 static gint ett_s1ap_TargeteNB_ID = -1;
 static gint ett_s1ap_TargetRNC_ID = -1;
 static gint ett_s1ap_TraceActivation = -1;
+static gint ett_s1ap_UEPagingID = -1;
 static gint ett_s1ap_HandoverRequired = -1;
 static gint ett_s1ap_Intra_LTEHOInformationReq = -1;
 static gint ett_s1ap_LTEtoUTRANHOInformationReq = -1;
@@ -510,6 +569,11 @@ static gint ett_s1ap_InitialContextSetupFailure = -1;
 static gint ett_s1ap_Paging = -1;
 static gint ett_s1ap_TAIdList = -1;
 static gint ett_s1ap_TAIdItem = -1;
+static gint ett_s1ap_UEContextReleaseCommand = -1;
+static gint ett_s1ap_UEContextReleaseComplete = -1;
+static gint ett_s1ap_UEContextModificationRequest = -1;
+static gint ett_s1ap_UEContextModificationResponse = -1;
+static gint ett_s1ap_UEContextModificationFailure = -1;
 static gint ett_s1ap_DownlinkNASTransport = -1;
 static gint ett_s1ap_InitialUEMessage = -1;
 static gint ett_s1ap_UplinkNASTransport = -1;
@@ -520,6 +584,13 @@ static gint ett_s1ap_ErrorIndication = -1;
 static gint ett_s1ap_S1SetupRequest = -1;
 static gint ett_s1ap_S1SetupResponse = -1;
 static gint ett_s1ap_S1SetupFailure = -1;
+static gint ett_s1ap_DownlinkS1cdma2000tunneling = -1;
+static gint ett_s1ap_UplinkS1cdma2000tunneling = -1;
+static gint ett_s1ap_UECapabilityInfoIndication = -1;
+static gint ett_s1ap_ENBStatusTransfer = -1;
+static gint ett_s1ap_Bearers_SubjectToStatusTransferENB_Item = -1;
+static gint ett_s1ap_MMEStatusTransfer = -1;
+static gint ett_s1ap_Bearers_SubjectToStatusTransferMME_Item = -1;
 static gint ett_s1ap_S1AP_PDU = -1;
 static gint ett_s1ap_InitiatingMessage = -1;
 static gint ett_s1ap_SuccessfulOutcome = -1;
@@ -594,7 +665,7 @@ dissect_s1ap_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_s1ap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -651,6 +722,13 @@ static const value_string s1ap_ProcedureCode_vals[] = {
   { id_NASNonDeliveryIndication, "id-NASNonDeliveryIndication" },
   { id_S1Setup, "id-S1Setup" },
   { id_UEContextReleaseRequest, "id-UEContextReleaseRequest" },
+  { id_DownlinkS1cdma2000tunneling, "id-DownlinkS1cdma2000tunneling" },
+  { id_UplinkS1cdma2000tunneling, "id-UplinkS1cdma2000tunneling" },
+  { id_UEContextModification, "id-UEContextModification" },
+  { id_UECapabilityInfoIndication, "id-UECapabilityInfoIndication" },
+  { id_UEContextRelease, "id-UEContextRelease" },
+  { id_eNBStatusTransfer, "id-eNBStatusTransfer" },
+  { id_MMEStatusTransfer, "id-MMEStatusTransfer" },
   { 0, NULL }
 };
 
@@ -658,7 +736,7 @@ static const value_string s1ap_ProcedureCode_vals[] = {
 static int
 dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, &ProcedureCode, FALSE);
+                                                            0U, 255U, &ProcedureCode, FALSE);
 
 #line 59 "s1ap.cnf"
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
@@ -674,7 +752,7 @@ dissect_s1ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_s1ap_ProtocolExtensionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &ProtocolExtensionID, FALSE);
+                                                            0U, 65535U, &ProtocolExtensionID, FALSE);
 
   return offset;
 }
@@ -713,8 +791,8 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_SAEBearerFailedToSetupListBearerSURes, "id-SAEBearerFailedToSetupListBearerSURes" },
   { id_SAEBearerToBeModifiedListBearerModReq, "id-SAEBearerToBeModifiedListBearerModReq" },
   { id_SAEBearerModifyListBearerModRes, "id-SAEBearerModifyListBearerModRes" },
+  { id_SAEBearerFailedToModifyList, "id-SAEBearerFailedToModifyList" },
   { id_SAEBearerToBeReleasedList, "id-SAEBearerToBeReleasedList" },
-  { id_SAEBearerReleaseListBearerRelComp, "id-SAEBearerReleaseListBearerRelComp" },
   { id_SAEBearerFailedToReleaseList, "id-SAEBearerFailedToReleaseList" },
   { id_SAEBearerItem, "id-SAEBearerItem" },
   { id_SAEBearerToBeModifiedItemBearerModReq, "id-SAEBearerToBeModifiedItemBearerModReq" },
@@ -723,7 +801,7 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_SAEBearerSetupItemBearerSURes, "id-SAEBearerSetupItemBearerSURes" },
   { id_Security_Information, "id-Security-Information" },
   { id_HandoverRestrictionList, "id-HandoverRestrictionList" },
-  { id_s_TMSI, "id-s-TMSI" },
+  { id_UEPagingID, "id-UEPagingID" },
   { id_pagingDRX, "id-pagingDRX" },
   { id_pagingCause, "id-pagingCause" },
   { id_TAIdList, "id-TAIdList" },
@@ -739,16 +817,29 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
   { id_UTRANtoLTEHOInformationReq, "id-UTRANtoLTEHOInformationReq" },
   { id_UTRANtoLTEHOInformationRes, "id-UTRANtoLTEHOInformationRes" },
   { id_CriticalityDiagnostics, "id-CriticalityDiagnostics" },
-  { id_ENB_ID, "id-ENB-ID" },
+  { id_ENB_Global_ID, "id-ENB-Global-ID" },
   { id_eNBname, "id-eNBname" },
   { id_MMEname, "id-MMEname" },
-  { id_NRIs, "id-NRIs" },
   { id_ServedPLMNs, "id-ServedPLMNs" },
   { id_SupportedTAIs, "id-SupportedTAIs" },
   { id_TimeToWait, "id-TimeToWait" },
   { id_aggregateMaximumBitrate, "id-aggregateMaximumBitrate" },
   { id_TAId, "id-TAId" },
   { id_ServingPLMN, "id-ServingPLMN" },
+  { id_SAEBearerReleaseListBearerRelComp, "id-SAEBearerReleaseListBearerRelComp" },
+  { id_cdma2000PDU, "id-cdma2000PDU" },
+  { id_cdma2000RATType, "id-cdma2000RATType" },
+  { id_cdma2000SectorID, "id-cdma2000SectorID" },
+  { id_SecurityInfo, "id-SecurityInfo" },
+  { id_UERadioCapability, "id-UERadioCapability" },
+  { id_GUMMEI_ID, "id-GUMMEI-ID" },
+  { id_Bearers_SubjectToStatusTransferENB_List, "id-Bearers-SubjectToStatusTransferENB-List" },
+  { id_Bearers_SubjectToStatusTransferENB_Item, "id-Bearers-SubjectToStatusTransferENB-Item" },
+  { id_SAEBearerInformationListItem, "id-SAEBearerInformationListItem" },
+  { id_Direct_Forwarding_Path_Availability, "id-Direct-Forwarding-Path-Availability" },
+  { id_UEIdentityIndexValue, "id-UEIdentityIndexValue" },
+  { id_Bearers_SubjectToStatusTransferMME_List, "id-Bearers-SubjectToStatusTransferMME-List" },
+  { id_Bearers_SubjectToStatusTransferMME_Item, "id-Bearers-SubjectToStatusTransferMME-Item" },
   { 0, NULL }
 };
 
@@ -756,7 +847,7 @@ static const value_string s1ap_ProtocolIE_ID_vals[] = {
 static int
 dissect_s1ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &ProtocolIE_ID, FALSE);
+                                                            0U, 65535U, &ProtocolIE_ID, FALSE);
 
 #line 43 "s1ap.cnf"
   if (tree) {
@@ -1008,7 +1099,7 @@ dissect_s1ap_PrivateIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_s1ap_PriorityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 15U, NULL, FALSE);
+                                                            0U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -1033,7 +1124,7 @@ dissect_s1ap_AllocationRetentionPriority(tvbuff_t *tvb _U_, int offset _U_, asn1
 static int
 dissect_s1ap_SAE_Bearer_BitRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 10000000U, NULL, FALSE);
+                                                            0U, 10000000U, NULL, FALSE);
 
   return offset;
 }
@@ -1059,7 +1150,7 @@ dissect_s1ap_AggregateMaximumBitrate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_s1ap_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       3, 3, FALSE, NULL);
 
   return offset;
 }
@@ -1101,6 +1192,9 @@ static const value_string s1ap_CauseRadioNetwork_vals[] = {
   {   0, "unspecified" },
   {   1, "handover-triggered" },
   {   2, "tx2relocoverall-expiry" },
+  {   3, "successful-handover" },
+  {   4, "release-due-to-eutran-generated-reason" },
+  {   5, "handover-cancelled" },
   { 0, NULL }
 };
 
@@ -1108,7 +1202,7 @@ static const value_string s1ap_CauseRadioNetwork_vals[] = {
 static int
 dissect_s1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     6, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1125,6 +1219,24 @@ static int
 dissect_s1ap_CauseTransport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_CauseNas_vals[] = {
+  {   0, "normal-release" },
+  {   1, "authentication-failure" },
+  {   2, "detach" },
+  {   3, "unspecified" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1173,16 +1285,18 @@ dissect_s1ap_CauseMisc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static const value_string s1ap_Cause_vals[] = {
   {   0, "radioNetwork" },
   {   1, "transport" },
-  {   2, "protocol" },
-  {   3, "misc" },
+  {   2, "nas" },
+  {   3, "protocol" },
+  {   4, "misc" },
   { 0, NULL }
 };
 
 static const per_choice_t Cause_choice[] = {
   {   0, &hf_s1ap_radioNetwork   , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseRadioNetwork },
   {   1, &hf_s1ap_transport      , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseTransport },
-  {   2, &hf_s1ap_protocol       , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseProtocol },
-  {   3, &hf_s1ap_misc           , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseMisc },
+  {   2, &hf_s1ap_nas            , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseNas },
+  {   3, &hf_s1ap_protocol       , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseProtocol },
+  {   4, &hf_s1ap_misc           , ASN1_EXTENSION_ROOT    , dissect_s1ap_CauseMisc },
   { 0, NULL, 0, NULL }
 };
 
@@ -1191,6 +1305,42 @@ dissect_s1ap_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_s1ap_Cause, Cause_choice,
                                  NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_Cdma2000PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_Cdma2000RATType_vals[] = {
+  {   0, "hRPD" },
+  {   1, "onexRTT" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_Cdma2000RATType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_Cdma2000SectorID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -1248,7 +1398,7 @@ dissect_s1ap_TypeOfError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
+static const per_sequence_t CriticalityDiagnostics_IE_Item_sequence[] = {
   { &hf_s1ap_iECriticality  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_Criticality },
   { &hf_s1ap_iE_ID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_ID },
   { &hf_s1ap_typeOfError    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_TypeOfError },
@@ -1257,16 +1407,16 @@ static const per_sequence_t CriticalityDiagnostics_IE_List_item_sequence[] = {
 };
 
 static int
-dissect_s1ap_CriticalityDiagnostics_IE_List_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_s1ap_CriticalityDiagnostics_IE_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_s1ap_CriticalityDiagnostics_IE_List_item, CriticalityDiagnostics_IE_List_item_sequence);
+                                   ett_s1ap_CriticalityDiagnostics_IE_Item, CriticalityDiagnostics_IE_Item_sequence);
 
   return offset;
 }
 
 
 static const per_sequence_t CriticalityDiagnostics_IE_List_sequence_of[1] = {
-  { &hf_s1ap_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_CriticalityDiagnostics_IE_List_item },
+  { &hf_s1ap_CriticalityDiagnostics_IE_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_CriticalityDiagnostics_IE_Item },
 };
 
 static int
@@ -1297,11 +1447,31 @@ dissect_s1ap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const value_string s1ap_DL_Forwarding_vals[] = {
+  {   0, "dL-Forwarding-proposed" },
+  { 0, NULL }
+};
+
 
 static int
-dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_s1ap_TBCD_STRING,
-                                                "TBCD_STRING", 3, 3, FALSE);
+dissect_s1ap_DL_Forwarding(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_Direct_Forwarding_Path_Availability_vals[] = {
+  {   0, "directPathAvailable" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_s1ap_Direct_Forwarding_Path_Availability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1309,9 +1479,18 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 static int
-dissect_s1ap_ENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_s1ap_TBCD_STRING(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_ENB_Global_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -1345,7 +1524,7 @@ dissect_s1ap_EPLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 static int
 dissect_s1ap_ExtendedRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              4096U, 65535U, NULL, FALSE);
+                                                            4096U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -1474,6 +1653,43 @@ dissect_s1ap_GTP_TEID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+
+static int
+dissect_s1ap_MME_Group_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       2, 2, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_MME_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GUMMEI_sequence[] = {
+  { &hf_s1ap_pLMN_Identity  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PLMNidentity },
+  { &hf_s1ap_mME_Group_ID   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_MME_Group_ID },
+  { &hf_s1ap_mMME_Code      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_MME_Code },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_GUMMEI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_GUMMEI, GUMMEI_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t HandoverRestrictionList_sequence[] = {
   { &hf_s1ap_equivalentPLMNs, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_EPLMNs },
   { &hf_s1ap_forbiddenTAs   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ForbiddenTAs },
@@ -1511,6 +1727,16 @@ dissect_s1ap_HandoverType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_s1ap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
 static const value_string s1ap_InterfaceType_vals[] = {
   {   0, "s1" },
   {   1, "x2" },
@@ -1532,6 +1758,9 @@ static const value_string s1ap_TraceDepth_vals[] = {
   {   0, "minimum" },
   {   1, "medium" },
   {   2, "maximum" },
+  {   3, "vendorMinimum" },
+  {   4, "vendorMedium" },
+  {   5, "vendorMaximum" },
   { 0, NULL }
 };
 
@@ -1539,7 +1768,7 @@ static const value_string s1ap_TraceDepth_vals[] = {
 static int
 dissect_s1ap_TraceDepth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     6, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1579,7 +1808,7 @@ dissect_s1ap_InterfacesToTraceList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_s1ap_Label(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 256U, NULL, FALSE);
+                                                            1U, 256U, NULL, FALSE);
 
   return offset;
 }
@@ -1614,8 +1843,17 @@ dissect_s1ap_MMEname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_s1ap_MME_UE_S1AP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_s1ap_TBCD_STRING,
-                                                "TBCD_STRING", 3, 3, FALSE);
+  offset = dissect_s1ap_TBCD_STRING(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_M_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
 
   return offset;
 }
@@ -1633,33 +1871,9 @@ dissect_s1ap_NAS_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static int
-dissect_s1ap_NRI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t NRIs_sequence_of[1] = {
-  { &hf_s1ap_NRIs_item      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_NRI },
-};
-
-static int
-dissect_s1ap_NRIs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_s1ap_NRIs, NRIs_sequence_of,
-                                                  1, maxnoofNRIs);
-
-  return offset;
-}
-
-
-
-static int
 dissect_s1ap_PagingDRX(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 4095U, NULL, FALSE);
+                                                            0U, 4095U, NULL, FALSE);
 
   return offset;
 }
@@ -1687,6 +1901,15 @@ dissect_s1ap_PagingCause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static int
+dissect_s1ap_PDCP_SN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_s1ap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 1, FALSE, NULL);
@@ -1699,7 +1922,17 @@ dissect_s1ap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_
 static int
 dissect_s1ap_RNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 4095U, NULL, FALSE);
+                                                            0U, 4095U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_RRC_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -1710,6 +1943,36 @@ static int
 dissect_s1ap_SAE_Bearer_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SAEBearerInformationList_sequence_of[1] = {
+  { &hf_s1ap_SAEBearerInformationList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_SingleContainer },
+};
+
+static int
+dissect_s1ap_SAEBearerInformationList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_s1ap_SAEBearerInformationList, SAEBearerInformationList_sequence_of,
+                                                  1, maxNrOfSAEBs);
+
+  return offset;
+}
+
+
+static const per_sequence_t SAEBearerInformationListItem_sequence[] = {
+  { &hf_s1ap_sAE_Bearer_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_Bearer_ID },
+  { &hf_s1ap_dL_Forwarding  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_DL_Forwarding },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_SAEBearerInformationListItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_SAEBearerInformationListItem, SAEBearerInformationListItem_sequence);
 
   return offset;
 }
@@ -1763,14 +2026,14 @@ dissect_s1ap_SAE_GBR_Bearer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
-static const value_string s1ap_T_sAE_non_GBR_Bearer_Type_vals[] = {
+static const value_string s1ap_SAE_non_GBR_Bearer_Type_vals[] = {
   {   0, "non-GBR-Bearer" },
   { 0, NULL }
 };
 
 
 static int
-dissect_s1ap_T_sAE_non_GBR_Bearer_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_s1ap_SAE_non_GBR_Bearer_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
 
@@ -1779,7 +2042,7 @@ dissect_s1ap_T_sAE_non_GBR_Bearer_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t SAE_non_GBR_Bearer_sequence[] = {
-  { &hf_s1ap_sAE_non_GBR_Bearer_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_T_sAE_non_GBR_Bearer_Type },
+  { &hf_s1ap_sAE_non_GBR_Bearer_Type, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_non_GBR_Bearer_Type },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -1832,24 +2095,49 @@ dissect_s1ap_SAE_BearerLevelQoSParameters(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const value_string s1ap_T_securityPlaceHolder_vals[] = {
+
+static int
+dissect_s1ap_SecurityKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     128, 128, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SecurityInfo_sequence[] = {
+  { &hf_s1ap_securityKey    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SecurityKey },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_SecurityInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_SecurityInfo, SecurityInfo_sequence);
+
+  return offset;
+}
+
+
+static const value_string s1ap_SecurityPlaceHolder_vals[] = {
   {   0, "whatever" },
   { 0, NULL }
 };
 
 
 static int
-dissect_s1ap_T_securityPlaceHolder(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_s1ap_SecurityPlaceHolder(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
+                                     1, NULL, TRUE, 0, NULL);
 
   return offset;
 }
 
 
 static const per_sequence_t SecurityInformation_sequence[] = {
-  { &hf_s1ap_securityPlaceHolder, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_T_securityPlaceHolder },
-  { &hf_s1ap_iE_Extensions  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { &hf_s1ap_securityPlaceHolder, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SecurityPlaceHolder },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
 
@@ -1874,7 +2162,7 @@ dissect_s1ap_SourceBSS_ToTargetBSS_TransparentContainer(tvbuff_t *tvb _U_, int o
 
 static const per_sequence_t SourceeNB_ID_sequence[] = {
   { &hf_s1ap_pLMNidentity   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_PLMNidentity },
-  { &hf_s1ap_eNB_ID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ENB_ID },
+  { &hf_s1ap_eNB_Global_ID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ENB_Global_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -1901,11 +2189,17 @@ dissect_s1ap_SourceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+static const per_sequence_t SourceeNodeB_ToTargeteNodeB_TransparentContainer_sequence[] = {
+  { &hf_s1ap_rRC_Container  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_RRC_Container },
+  { &hf_s1ap_sAEBearerInformationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_SAEBearerInformationList },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
 
 static int
 dissect_s1ap_SourceeNodeB_ToTargeteNodeB_TransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_SourceeNodeB_ToTargeteNodeB_TransparentContainer, SourceeNodeB_ToTargeteNodeB_TransparentContainer_sequence);
 
   return offset;
 }
@@ -1974,11 +2268,16 @@ dissect_s1ap_SupportedTAIs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const per_sequence_t S_TMSI_sequence[] = {
+  { &hf_s1ap_mMEC           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_MME_Code },
+  { &hf_s1ap_m_TMSI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_M_TMSI },
+  { NULL, 0, 0, NULL }
+};
 
 static int
 dissect_s1ap_S_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_S_TMSI, S_TMSI_sequence);
 
   return offset;
 }
@@ -1986,7 +2285,7 @@ dissect_s1ap_S_TMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static const per_sequence_t TargeteNB_ID_sequence[] = {
   { &hf_s1ap_pLMNidentity   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_PLMNidentity },
-  { &hf_s1ap_eNB_ID         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ENB_ID },
+  { &hf_s1ap_eNB_Global_ID  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_s1ap_ENB_Global_ID },
   { NULL, 0, 0, NULL }
 };
 
@@ -2117,8 +2416,41 @@ dissect_s1ap_TraceActivation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_s1ap_UserDataType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, NULL);
+dissect_s1ap_UEIdentityIndexValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string s1ap_UEPagingID_vals[] = {
+  {   0, "s-TMSI" },
+  {   1, "iMSI" },
+  { 0, NULL }
+};
+
+static const per_choice_t UEPagingID_choice[] = {
+  {   0, &hf_s1ap_s_TMSI         , ASN1_EXTENSION_ROOT    , dissect_s1ap_S_TMSI },
+  {   1, &hf_s1ap_iMSI           , ASN1_EXTENSION_ROOT    , dissect_s1ap_IMSI },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEPagingID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_s1ap_UEPagingID, UEPagingID_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -2235,8 +2567,8 @@ dissect_s1ap_SAEBearerSubjecttoDataForwardingList(tvbuff_t *tvb _U_, int offset 
 
 static const per_sequence_t SAEBearerDataForwardingItem_sequence[] = {
   { &hf_s1ap_sAE_Bearer_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_Bearer_ID },
-  { &hf_s1ap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_TransportLayerAddress },
-  { &hf_s1ap_gTP_TEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GTP_TEID },
+  { &hf_s1ap_dL_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_TransportLayerAddress },
+  { &hf_s1ap_dL_gTP_TEID    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GTP_TEID },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -2431,6 +2763,8 @@ static const per_sequence_t SAEBearerAdmittedItem_sequence[] = {
   { &hf_s1ap_sAE_Bearer_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_Bearer_ID },
   { &hf_s1ap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_TransportLayerAddress },
   { &hf_s1ap_gTP_TEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GTP_TEID },
+  { &hf_s1ap_dL_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_TransportLayerAddress },
+  { &hf_s1ap_dL_gTP_TEID    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_GTP_TEID },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -2656,7 +2990,6 @@ static const per_sequence_t SAEBearerToBeSetupItemBearerSUReq_sequence[] = {
   { &hf_s1ap_sAE_BearerlevelQoSParameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_BearerLevelQoSParameters },
   { &hf_s1ap_transportLayerAddress, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_TransportLayerAddress },
   { &hf_s1ap_gTP_TEID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_GTP_TEID },
-  { &hf_s1ap_userDataType   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_UserDataType },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -3035,6 +3368,76 @@ dissect_s1ap_TAIdItem(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+static const per_sequence_t UEContextReleaseCommand_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEContextReleaseCommand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UEContextReleaseCommand, UEContextReleaseCommand_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UEContextReleaseComplete_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEContextReleaseComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UEContextReleaseComplete, UEContextReleaseComplete_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UEContextModificationRequest_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEContextModificationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UEContextModificationRequest, UEContextModificationRequest_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UEContextModificationResponse_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEContextModificationResponse(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UEContextModificationResponse, UEContextModificationResponse_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UEContextModificationFailure_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UEContextModificationFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UEContextModificationFailure, UEContextModificationFailure_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t DownlinkNASTransport_sequence[] = {
   { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
   { NULL, 0, 0, NULL }
@@ -3175,6 +3578,132 @@ dissect_s1ap_S1SetupFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const per_sequence_t DownlinkS1cdma2000tunneling_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_DownlinkS1cdma2000tunneling(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_DownlinkS1cdma2000tunneling, DownlinkS1cdma2000tunneling_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UplinkS1cdma2000tunneling_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UplinkS1cdma2000tunneling(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UplinkS1cdma2000tunneling, UplinkS1cdma2000tunneling_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UECapabilityInfoIndication_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_UECapabilityInfoIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_UECapabilityInfoIndication, UECapabilityInfoIndication_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ENBStatusTransfer_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_ENBStatusTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_ENBStatusTransfer, ENBStatusTransfer_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_Bearers_SubjectToStatusTransferENB_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_s1ap_SAEB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t Bearers_SubjectToStatusTransferENB_Item_sequence[] = {
+  { &hf_s1ap_sAE_Bearer_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_Bearer_ID },
+  { &hf_s1ap_lIS_HFN        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_lIS            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_dL_PDCP_HFN_NextToAssign, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_dL_PDCP_SN_NextToAssign, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_Bearers_SubjectToStatusTransferENB_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_Bearers_SubjectToStatusTransferENB_Item, Bearers_SubjectToStatusTransferENB_Item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MMEStatusTransfer_sequence[] = {
+  { &hf_s1ap_protocolIEs    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_ProtocolIE_Container },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_MMEStatusTransfer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_MMEStatusTransfer, MMEStatusTransfer_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_s1ap_Bearers_SubjectToStatusTransferMME_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_s1ap_SAEB_IE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const per_sequence_t Bearers_SubjectToStatusTransferMME_Item_sequence[] = {
+  { &hf_s1ap_sAE_Bearer_ID  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_SAE_Bearer_ID },
+  { &hf_s1ap_lIS_HFN        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_lIS            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_dL_PDCP_HFN_NextToAssign, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_dL_PDCP_SN_NextToAssign, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_PDCP_SN },
+  { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_s1ap_Bearers_SubjectToStatusTransferMME_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_s1ap_Bearers_SubjectToStatusTransferMME_Item, Bearers_SubjectToStatusTransferMME_Item_sequence);
+
+  return offset;
+}
+
+
 
 static int
 dissect_s1ap_InitiatingMessage_value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -3291,11 +3820,43 @@ static int dissect_Cause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Cdma2000PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Cdma2000PDU(tvb, offset, &asn1_ctx, tree, hf_s1ap_Cdma2000PDU_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Cdma2000RATType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Cdma2000RATType(tvb, offset, &asn1_ctx, tree, hf_s1ap_Cdma2000RATType_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Cdma2000SectorID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Cdma2000SectorID(tvb, offset, &asn1_ctx, tree, hf_s1ap_Cdma2000SectorID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CriticalityDiagnostics_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_s1ap_CriticalityDiagnostics(tvb, offset, &asn1_ctx, tree, hf_s1ap_CriticalityDiagnostics_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Direct_Forwarding_Path_Availability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Direct_Forwarding_Path_Availability(tvb, offset, &asn1_ctx, tree, hf_s1ap_Direct_Forwarding_Path_Availability_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -3307,19 +3868,19 @@ static int dissect_ENB_UE_S1AP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_ENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_s1ap_ENB_ID(tvb, offset, &asn1_ctx, tree, hf_s1ap_ENB_ID_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_ENBname_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_s1ap_ENBname(tvb, offset, &asn1_ctx, tree, hf_s1ap_ENBname_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GUMMEI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_GUMMEI(tvb, offset, &asn1_ctx, tree, hf_s1ap_GUMMEI_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -3363,14 +3924,6 @@ static int dissect_NAS_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_NRIs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_s1ap_NRIs(tvb, offset, &asn1_ctx, tree, hf_s1ap_NRIs_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_PagingDRX_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3411,6 +3964,14 @@ static int dissect_SAEBearerItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SecurityInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_SecurityInfo(tvb, offset, &asn1_ctx, tree, hf_s1ap_SecurityInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SecurityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3443,14 +4004,6 @@ static int dissect_SupportedTAIs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_S_TMSI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_s1ap_S_TMSI(tvb, offset, &asn1_ctx, tree, hf_s1ap_S_TMSI_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_TAId_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -3480,6 +4033,22 @@ static int dissect_TraceActivation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_s1ap_TraceActivation(tvb, offset, &asn1_ctx, tree, hf_s1ap_TraceActivation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEIdentityIndexValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEIdentityIndexValue(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEIdentityIndexValue_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UERadioCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UERadioCapability(tvb, offset, &asn1_ctx, tree, hf_s1ap_UERadioCapability_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -3979,6 +4548,46 @@ static int dissect_TAIdItem_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UEContextReleaseCommand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEContextReleaseCommand(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEContextReleaseCommand_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextReleaseComplete_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEContextReleaseComplete(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEContextReleaseComplete_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextModificationRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEContextModificationRequest(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEContextModificationRequest_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextModificationResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEContextModificationResponse(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEContextModificationResponse_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UEContextModificationFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UEContextModificationFailure(tvb, offset, &asn1_ctx, tree, hf_s1ap_UEContextModificationFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_DownlinkNASTransport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -4056,6 +4665,78 @@ static int dissect_S1SetupFailure_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_s1ap_S1SetupFailure(tvb, offset, &asn1_ctx, tree, hf_s1ap_S1SetupFailure_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_DownlinkS1cdma2000tunneling_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_DownlinkS1cdma2000tunneling(tvb, offset, &asn1_ctx, tree, hf_s1ap_DownlinkS1cdma2000tunneling_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UplinkS1cdma2000tunneling_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UplinkS1cdma2000tunneling(tvb, offset, &asn1_ctx, tree, hf_s1ap_UplinkS1cdma2000tunneling_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UECapabilityInfoIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_UECapabilityInfoIndication(tvb, offset, &asn1_ctx, tree, hf_s1ap_UECapabilityInfoIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ENBStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_ENBStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_s1ap_ENBStatusTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Bearers_SubjectToStatusTransferENB_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToStatusTransferENB_List(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToStatusTransferENB_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Bearers_SubjectToStatusTransferENB_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToStatusTransferENB_Item(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToStatusTransferENB_Item_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MMEStatusTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_MMEStatusTransfer(tvb, offset, &asn1_ctx, tree, hf_s1ap_MMEStatusTransfer_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Bearers_SubjectToStatusTransferMME_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToStatusTransferMME_List(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToStatusTransferMME_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Bearers_SubjectToStatusTransferMME_Item_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_Bearers_SubjectToStatusTransferMME_Item(tvb, offset, &asn1_ctx, tree, hf_s1ap_Bearers_SubjectToStatusTransferMME_Item_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -4147,22 +4828,38 @@ void proto_register_s1ap(void) {
       { "Cause", "s1ap.Cause",
         FT_UINT32, BASE_DEC, VALS(s1ap_Cause_vals), 0,
         "s1ap.Cause", HFILL }},
+    { &hf_s1ap_Cdma2000PDU_PDU,
+      { "Cdma2000PDU", "s1ap.Cdma2000PDU",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.Cdma2000PDU", HFILL }},
+    { &hf_s1ap_Cdma2000RATType_PDU,
+      { "Cdma2000RATType", "s1ap.Cdma2000RATType",
+        FT_UINT32, BASE_DEC, VALS(s1ap_Cdma2000RATType_vals), 0,
+        "s1ap.Cdma2000RATType", HFILL }},
+    { &hf_s1ap_Cdma2000SectorID_PDU,
+      { "Cdma2000SectorID", "s1ap.Cdma2000SectorID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.Cdma2000SectorID", HFILL }},
     { &hf_s1ap_CriticalityDiagnostics_PDU,
       { "CriticalityDiagnostics", "s1ap.CriticalityDiagnostics",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.CriticalityDiagnostics", HFILL }},
+    { &hf_s1ap_Direct_Forwarding_Path_Availability_PDU,
+      { "Direct-Forwarding-Path-Availability", "s1ap.Direct_Forwarding_Path_Availability",
+        FT_UINT32, BASE_DEC, VALS(s1ap_Direct_Forwarding_Path_Availability_vals), 0,
+        "s1ap.Direct_Forwarding_Path_Availability", HFILL }},
     { &hf_s1ap_ENB_UE_S1AP_ID_PDU,
       { "ENB-UE-S1AP-ID", "s1ap.ENB_UE_S1AP_ID",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.ENB_UE_S1AP_ID", HFILL }},
-    { &hf_s1ap_ENB_ID_PDU,
-      { "ENB-ID", "s1ap.ENB_ID",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "s1ap.ENB_ID", HFILL }},
     { &hf_s1ap_ENBname_PDU,
       { "ENBname", "s1ap.ENBname",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.ENBname", HFILL }},
+    { &hf_s1ap_GUMMEI_PDU,
+      { "GUMMEI", "s1ap.GUMMEI",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.GUMMEI", HFILL }},
     { &hf_s1ap_HandoverRestrictionList_PDU,
       { "HandoverRestrictionList", "s1ap.HandoverRestrictionList",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4183,10 +4880,6 @@ void proto_register_s1ap(void) {
       { "NAS-PDU", "s1ap.NAS_PDU",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.NAS_PDU", HFILL }},
-    { &hf_s1ap_NRIs_PDU,
-      { "NRIs", "s1ap.NRIs",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "s1ap.NRIs", HFILL }},
     { &hf_s1ap_PagingDRX_PDU,
       { "PagingDRX", "s1ap.PagingDRX",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4207,6 +4900,10 @@ void proto_register_s1ap(void) {
       { "SAEBearerItem", "s1ap.SAEBearerItem",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.SAEBearerItem", HFILL }},
+    { &hf_s1ap_SecurityInfo_PDU,
+      { "SecurityInfo", "s1ap.SecurityInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.SecurityInfo", HFILL }},
     { &hf_s1ap_SecurityInformation_PDU,
       { "SecurityInformation", "s1ap.SecurityInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4223,10 +4920,6 @@ void proto_register_s1ap(void) {
       { "SupportedTAIs", "s1ap.SupportedTAIs",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.SupportedTAIs", HFILL }},
-    { &hf_s1ap_S_TMSI_PDU,
-      { "S-TMSI", "s1ap.S_TMSI",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "s1ap.S_TMSI", HFILL }},
     { &hf_s1ap_TAId_PDU,
       { "TAId", "s1ap.TAId",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4243,6 +4936,14 @@ void proto_register_s1ap(void) {
       { "TraceActivation", "s1ap.TraceActivation",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.TraceActivation", HFILL }},
+    { &hf_s1ap_UEIdentityIndexValue_PDU,
+      { "UEIdentityIndexValue", "s1ap.UEIdentityIndexValue",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.UEIdentityIndexValue", HFILL }},
+    { &hf_s1ap_UERadioCapability_PDU,
+      { "UERadioCapability", "s1ap.UERadioCapability",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.UERadioCapability", HFILL }},
     { &hf_s1ap_HandoverRequired_PDU,
       { "HandoverRequired", "s1ap.HandoverRequired",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4491,6 +5192,26 @@ void proto_register_s1ap(void) {
       { "TAIdItem", "s1ap.TAIdItem",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.TAIdItem", HFILL }},
+    { &hf_s1ap_UEContextReleaseCommand_PDU,
+      { "UEContextReleaseCommand", "s1ap.UEContextReleaseCommand",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UEContextReleaseCommand", HFILL }},
+    { &hf_s1ap_UEContextReleaseComplete_PDU,
+      { "UEContextReleaseComplete", "s1ap.UEContextReleaseComplete",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UEContextReleaseComplete", HFILL }},
+    { &hf_s1ap_UEContextModificationRequest_PDU,
+      { "UEContextModificationRequest", "s1ap.UEContextModificationRequest",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UEContextModificationRequest", HFILL }},
+    { &hf_s1ap_UEContextModificationResponse_PDU,
+      { "UEContextModificationResponse", "s1ap.UEContextModificationResponse",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UEContextModificationResponse", HFILL }},
+    { &hf_s1ap_UEContextModificationFailure_PDU,
+      { "UEContextModificationFailure", "s1ap.UEContextModificationFailure",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UEContextModificationFailure", HFILL }},
     { &hf_s1ap_DownlinkNASTransport_PDU,
       { "DownlinkNASTransport", "s1ap.DownlinkNASTransport",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4531,6 +5252,42 @@ void proto_register_s1ap(void) {
       { "S1SetupFailure", "s1ap.S1SetupFailure",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.S1SetupFailure", HFILL }},
+    { &hf_s1ap_DownlinkS1cdma2000tunneling_PDU,
+      { "DownlinkS1cdma2000tunneling", "s1ap.DownlinkS1cdma2000tunneling",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.DownlinkS1cdma2000tunneling", HFILL }},
+    { &hf_s1ap_UplinkS1cdma2000tunneling_PDU,
+      { "UplinkS1cdma2000tunneling", "s1ap.UplinkS1cdma2000tunneling",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UplinkS1cdma2000tunneling", HFILL }},
+    { &hf_s1ap_UECapabilityInfoIndication_PDU,
+      { "UECapabilityInfoIndication", "s1ap.UECapabilityInfoIndication",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.UECapabilityInfoIndication", HFILL }},
+    { &hf_s1ap_ENBStatusTransfer_PDU,
+      { "ENBStatusTransfer", "s1ap.ENBStatusTransfer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.ENBStatusTransfer", HFILL }},
+    { &hf_s1ap_Bearers_SubjectToStatusTransferENB_List_PDU,
+      { "Bearers-SubjectToStatusTransferENB-List", "s1ap.Bearers_SubjectToStatusTransferENB_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "s1ap.Bearers_SubjectToStatusTransferENB_List", HFILL }},
+    { &hf_s1ap_Bearers_SubjectToStatusTransferENB_Item_PDU,
+      { "Bearers-SubjectToStatusTransferENB-Item", "s1ap.Bearers_SubjectToStatusTransferENB_Item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.Bearers_SubjectToStatusTransferENB_Item", HFILL }},
+    { &hf_s1ap_MMEStatusTransfer_PDU,
+      { "MMEStatusTransfer", "s1ap.MMEStatusTransfer",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.MMEStatusTransfer", HFILL }},
+    { &hf_s1ap_Bearers_SubjectToStatusTransferMME_List_PDU,
+      { "Bearers-SubjectToStatusTransferMME-List", "s1ap.Bearers_SubjectToStatusTransferMME_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "s1ap.Bearers_SubjectToStatusTransferMME_List", HFILL }},
+    { &hf_s1ap_Bearers_SubjectToStatusTransferMME_Item_PDU,
+      { "Bearers-SubjectToStatusTransferMME-Item", "s1ap.Bearers_SubjectToStatusTransferMME_Item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.Bearers_SubjectToStatusTransferMME_Item", HFILL }},
     { &hf_s1ap_S1AP_PDU_PDU,
       { "S1AP-PDU", "s1ap.S1AP_PDU",
         FT_UINT32, BASE_DEC, VALS(s1ap_S1AP_PDU_vals), 0,
@@ -4639,6 +5396,10 @@ void proto_register_s1ap(void) {
       { "transport", "s1ap.transport",
         FT_UINT32, BASE_DEC, VALS(s1ap_CauseTransport_vals), 0,
         "s1ap.CauseTransport", HFILL }},
+    { &hf_s1ap_nas,
+      { "nas", "s1ap.nas",
+        FT_UINT32, BASE_DEC, VALS(s1ap_CauseNas_vals), 0,
+        "s1ap.CauseNas", HFILL }},
     { &hf_s1ap_protocol,
       { "protocol", "s1ap.protocol",
         FT_UINT32, BASE_DEC, VALS(s1ap_CauseProtocol_vals), 0,
@@ -4678,7 +5439,7 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_CriticalityDiagnostics_IE_List_item,
       { "Item", "s1ap.CriticalityDiagnostics_IE_List_item",
         FT_NONE, BASE_NONE, NULL, 0,
-        "s1ap.CriticalityDiagnostics_IE_List_item", HFILL }},
+        "s1ap.CriticalityDiagnostics_IE_Item", HFILL }},
     { &hf_s1ap_iECriticality,
       { "iECriticality", "s1ap.iECriticality",
         FT_UINT32, BASE_DEC, VALS(s1ap_Criticality_vals), 0,
@@ -4723,6 +5484,14 @@ void proto_register_s1ap(void) {
       { "Item", "s1ap.ForbiddenLACs_item",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.LAC", HFILL }},
+    { &hf_s1ap_mME_Group_ID,
+      { "mME-Group-ID", "s1ap.mME_Group_ID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.MME_Group_ID", HFILL }},
+    { &hf_s1ap_mMME_Code,
+      { "mMME-Code", "s1ap.mMME_Code",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.MME_Code", HFILL }},
     { &hf_s1ap_equivalentPLMNs,
       { "equivalentPLMNs", "s1ap.equivalentPLMNs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4751,18 +5520,22 @@ void proto_register_s1ap(void) {
       { "traceDepth", "s1ap.traceDepth",
         FT_UINT32, BASE_DEC, VALS(s1ap_TraceDepth_vals), 0,
         "s1ap.TraceDepth", HFILL }},
-    { &hf_s1ap_NRIs_item,
-      { "Item", "s1ap.NRIs_item",
-        FT_BYTES, BASE_HEX, NULL, 0,
-        "s1ap.NRI", HFILL }},
-    { &hf_s1ap_SAEBearerList_item,
-      { "Item", "s1ap.SAEBearerList_item",
+    { &hf_s1ap_SAEBearerInformationList_item,
+      { "Item", "s1ap.SAEBearerInformationList_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.ProtocolIE_SingleContainer", HFILL }},
     { &hf_s1ap_sAE_Bearer_ID,
       { "sAE-Bearer-ID", "s1ap.sAE_Bearer_ID",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.SAE_Bearer_ID", HFILL }},
+    { &hf_s1ap_dL_Forwarding,
+      { "dL-Forwarding", "s1ap.dL_Forwarding",
+        FT_UINT32, BASE_DEC, VALS(s1ap_DL_Forwarding_vals), 0,
+        "s1ap.DL_Forwarding", HFILL }},
+    { &hf_s1ap_SAEBearerList_item,
+      { "Item", "s1ap.SAEBearerList_item",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.ProtocolIE_SingleContainer", HFILL }},
     { &hf_s1ap_cause,
       { "cause", "s1ap.cause",
         FT_UINT32, BASE_DEC, VALS(s1ap_Cause_vals), 0,
@@ -4805,20 +5578,32 @@ void proto_register_s1ap(void) {
         "s1ap.SAE_Bearer_BitRate", HFILL }},
     { &hf_s1ap_sAE_non_GBR_Bearer_Type,
       { "sAE-non-GBR-Bearer-Type", "s1ap.sAE_non_GBR_Bearer_Type",
-        FT_UINT32, BASE_DEC, VALS(s1ap_T_sAE_non_GBR_Bearer_Type_vals), 0,
-        "s1ap.T_sAE_non_GBR_Bearer_Type", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(s1ap_SAE_non_GBR_Bearer_Type_vals), 0,
+        "s1ap.SAE_non_GBR_Bearer_Type", HFILL }},
+    { &hf_s1ap_securityKey,
+      { "securityKey", "s1ap.securityKey",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.SecurityKey", HFILL }},
     { &hf_s1ap_securityPlaceHolder,
       { "securityPlaceHolder", "s1ap.securityPlaceHolder",
-        FT_UINT32, BASE_DEC, VALS(s1ap_T_securityPlaceHolder_vals), 0,
-        "s1ap.T_securityPlaceHolder", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(s1ap_SecurityPlaceHolder_vals), 0,
+        "s1ap.SecurityPlaceHolder", HFILL }},
     { &hf_s1ap_sourceeNB_ID,
       { "sourceeNB-ID", "s1ap.sourceeNB_ID",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.SourceeNB_ID", HFILL }},
-    { &hf_s1ap_eNB_ID,
-      { "eNB-ID", "s1ap.eNB_ID",
+    { &hf_s1ap_eNB_Global_ID,
+      { "eNB-Global-ID", "s1ap.eNB_Global_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "s1ap.ENB_ID", HFILL }},
+        "s1ap.ENB_Global_ID", HFILL }},
+    { &hf_s1ap_rRC_Container,
+      { "rRC-Container", "s1ap.rRC_Container",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.RRC_Container", HFILL }},
+    { &hf_s1ap_sAEBearerInformationList,
+      { "sAEBearerInformationList", "s1ap.sAEBearerInformationList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "s1ap.SAEBearerInformationList", HFILL }},
     { &hf_s1ap_ServedPLMNs_item,
       { "Item", "s1ap.ServedPLMNs_item",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -4835,6 +5620,14 @@ void proto_register_s1ap(void) {
       { "broadcastPLMNs", "s1ap.broadcastPLMNs",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.BPLMNs", HFILL }},
+    { &hf_s1ap_mMEC,
+      { "mMEC", "s1ap.mMEC",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.MME_Code", HFILL }},
+    { &hf_s1ap_m_TMSI,
+      { "m-TMSI", "s1ap.m_TMSI",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.M_TMSI", HFILL }},
     { &hf_s1ap_targeteNB_ID,
       { "targeteNB-ID", "s1ap.targeteNB_ID",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4867,13 +5660,21 @@ void proto_register_s1ap(void) {
       { "interfacesToTraceList", "s1ap.interfacesToTraceList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.InterfacesToTraceList", HFILL }},
+    { &hf_s1ap_s_TMSI,
+      { "s-TMSI", "s1ap.s_TMSI",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "s1ap.S_TMSI", HFILL }},
+    { &hf_s1ap_iMSI,
+      { "iMSI", "s1ap.iMSI",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.IMSI", HFILL }},
     { &hf_s1ap_protocolIEs,
       { "protocolIEs", "s1ap.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.ProtocolIE_Container", HFILL }},
     { &hf_s1ap_sourceeNodeB_ToTargeteNodeB_TransparentContainer,
       { "sourceeNodeB-ToTargeteNodeB-TransparentContainer", "s1ap.sourceeNodeB_ToTargeteNodeB_TransparentContainer",
-        FT_BYTES, BASE_HEX, NULL, 0,
+        FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.SourceeNodeB_ToTargeteNodeB_TransparentContainer", HFILL }},
     { &hf_s1ap_sourceRNC_ToTargetRNC_TransparentContainer,
       { "sourceRNC-ToTargetRNC-TransparentContainer", "s1ap.sourceRNC_ToTargetRNC_TransparentContainer",
@@ -4883,12 +5684,12 @@ void proto_register_s1ap(void) {
       { "sourceBSS-ToTargetBSS-TransparentContainer", "s1ap.sourceBSS_ToTargetBSS_TransparentContainer",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.SourceBSS_ToTargetBSS_TransparentContainer", HFILL }},
-    { &hf_s1ap_transportLayerAddress,
-      { "transportLayerAddress", "s1ap.transportLayerAddress",
+    { &hf_s1ap_dL_transportLayerAddress,
+      { "dL-transportLayerAddress", "s1ap.dL_transportLayerAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.TransportLayerAddress", HFILL }},
-    { &hf_s1ap_gTP_TEID,
-      { "gTP-TEID", "s1ap.gTP_TEID",
+    { &hf_s1ap_dL_gTP_TEID,
+      { "dL-gTP-TEID", "s1ap.dL_gTP_TEID",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.GTP_TEID", HFILL }},
     { &hf_s1ap_targeteNodeB_ToSourceeNodeB_TransparentContainer,
@@ -4903,6 +5704,14 @@ void proto_register_s1ap(void) {
       { "targetBSS-ToSourceBSS-TransparentContainer", "s1ap.targetBSS_ToSourceBSS_TransparentContainer",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.TargetBSS_ToSourceBSS_TransparentContainer", HFILL }},
+    { &hf_s1ap_transportLayerAddress,
+      { "transportLayerAddress", "s1ap.transportLayerAddress",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.TransportLayerAddress", HFILL }},
+    { &hf_s1ap_gTP_TEID,
+      { "gTP-TEID", "s1ap.gTP_TEID",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "s1ap.GTP_TEID", HFILL }},
     { &hf_s1ap_sAE_BearerlevelQosParameters,
       { "sAE-BearerlevelQosParameters", "s1ap.sAE_BearerlevelQosParameters",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4915,10 +5724,6 @@ void proto_register_s1ap(void) {
       { "sAE-BearerlevelQoSParameters", "s1ap.sAE_BearerlevelQoSParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         "s1ap.SAE_BearerLevelQoSParameters", HFILL }},
-    { &hf_s1ap_userDataType,
-      { "userDataType", "s1ap.userDataType",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "s1ap.UserDataType", HFILL }},
     { &hf_s1ap_SAEBearerSetupListBearerSURes_item,
       { "Item", "s1ap.SAEBearerSetupListBearerSURes_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4955,6 +5760,22 @@ void proto_register_s1ap(void) {
       { "tAId", "s1ap.tAId",
         FT_BYTES, BASE_HEX, NULL, 0,
         "s1ap.TAId", HFILL }},
+    { &hf_s1ap_lIS_HFN,
+      { "lIS-HFN", "s1ap.lIS_HFN",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "s1ap.PDCP_SN", HFILL }},
+    { &hf_s1ap_lIS,
+      { "lIS", "s1ap.lIS",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "s1ap.PDCP_SN", HFILL }},
+    { &hf_s1ap_dL_PDCP_HFN_NextToAssign,
+      { "dL-PDCP-HFN-NextToAssign", "s1ap.dL_PDCP_HFN_NextToAssign",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "s1ap.PDCP_SN", HFILL }},
+    { &hf_s1ap_dL_PDCP_SN_NextToAssign,
+      { "dL-PDCP-SN-NextToAssign", "s1ap.dL_PDCP_SN_NextToAssign",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "s1ap.PDCP_SN", HFILL }},
     { &hf_s1ap_initiatingMessage,
       { "initiatingMessage", "s1ap.initiatingMessage",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5008,7 +5829,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_CGI,
     &ett_s1ap_CriticalityDiagnostics,
     &ett_s1ap_CriticalityDiagnostics_IE_List,
-    &ett_s1ap_CriticalityDiagnostics_IE_List_item,
+    &ett_s1ap_CriticalityDiagnostics_IE_Item,
     &ett_s1ap_EPLMNs,
     &ett_s1ap_ForbiddenTAs,
     &ett_s1ap_ForbiddenTAs_Item,
@@ -5016,27 +5837,33 @@ void proto_register_s1ap(void) {
     &ett_s1ap_ForbiddenLAs,
     &ett_s1ap_ForbiddenLAs_Item,
     &ett_s1ap_ForbiddenLACs,
+    &ett_s1ap_GUMMEI,
     &ett_s1ap_HandoverRestrictionList,
     &ett_s1ap_InterfacesToTraceList,
     &ett_s1ap_InterfacesToTraceItem,
     &ett_s1ap_LAI,
-    &ett_s1ap_NRIs,
+    &ett_s1ap_SAEBearerInformationList,
+    &ett_s1ap_SAEBearerInformationListItem,
     &ett_s1ap_SAEBearerList,
     &ett_s1ap_SAEBearerItem,
     &ett_s1ap_SAE_BearerLevelQoSParameters,
     &ett_s1ap_SAE_Bearer_Type,
     &ett_s1ap_SAE_GBR_Bearer,
     &ett_s1ap_SAE_non_GBR_Bearer,
+    &ett_s1ap_SecurityInfo,
     &ett_s1ap_SecurityInformation,
     &ett_s1ap_SourceID,
     &ett_s1ap_SourceeNB_ID,
+    &ett_s1ap_SourceeNodeB_ToTargeteNodeB_TransparentContainer,
     &ett_s1ap_ServedPLMNs,
     &ett_s1ap_SupportedTAIs,
     &ett_s1ap_SupportedTAs_Item,
+    &ett_s1ap_S_TMSI,
     &ett_s1ap_TargetID,
     &ett_s1ap_TargeteNB_ID,
     &ett_s1ap_TargetRNC_ID,
     &ett_s1ap_TraceActivation,
+    &ett_s1ap_UEPagingID,
     &ett_s1ap_HandoverRequired,
     &ett_s1ap_Intra_LTEHOInformationReq,
     &ett_s1ap_LTEtoUTRANHOInformationReq,
@@ -5093,6 +5920,11 @@ void proto_register_s1ap(void) {
     &ett_s1ap_Paging,
     &ett_s1ap_TAIdList,
     &ett_s1ap_TAIdItem,
+    &ett_s1ap_UEContextReleaseCommand,
+    &ett_s1ap_UEContextReleaseComplete,
+    &ett_s1ap_UEContextModificationRequest,
+    &ett_s1ap_UEContextModificationResponse,
+    &ett_s1ap_UEContextModificationFailure,
     &ett_s1ap_DownlinkNASTransport,
     &ett_s1ap_InitialUEMessage,
     &ett_s1ap_UplinkNASTransport,
@@ -5103,6 +5935,13 @@ void proto_register_s1ap(void) {
     &ett_s1ap_S1SetupRequest,
     &ett_s1ap_S1SetupResponse,
     &ett_s1ap_S1SetupFailure,
+    &ett_s1ap_DownlinkS1cdma2000tunneling,
+    &ett_s1ap_UplinkS1cdma2000tunneling,
+    &ett_s1ap_UECapabilityInfoIndication,
+    &ett_s1ap_ENBStatusTransfer,
+    &ett_s1ap_Bearers_SubjectToStatusTransferENB_Item,
+    &ett_s1ap_MMEStatusTransfer,
+    &ett_s1ap_Bearers_SubjectToStatusTransferMME_Item,
     &ett_s1ap_S1AP_PDU,
     &ett_s1ap_InitiatingMessage,
     &ett_s1ap_SuccessfulOutcome,
@@ -5181,7 +6020,6 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.ies", id_SAEBearerModifyListBearerModRes, new_create_dissector_handle(dissect_SAEBearerModifyListBearerModRes_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SAEBearerFailedToModifyList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SAEBearerToBeReleasedList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerReleaseListBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseListBearerRelComp_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SAEBearerFailedToReleaseList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SAEBearerItem, new_create_dissector_handle(dissect_SAEBearerItem_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SAEBearerToBeModifiedItemBearerModReq, new_create_dissector_handle(dissect_SAEBearerToBeModifiedItemBearerModReq_PDU, proto_s1ap));
@@ -5189,7 +6027,6 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.ies", id_SAEBearerSetupItemBearerSURes, new_create_dissector_handle(dissect_SAEBearerSetupItemBearerSURes_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_Security_Information, new_create_dissector_handle(dissect_SecurityInformation_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_HandoverRestrictionList, new_create_dissector_handle(dissect_HandoverRestrictionList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_s_TMSI, new_create_dissector_handle(dissect_S_TMSI_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_pagingDRX, new_create_dissector_handle(dissect_PagingDRX_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_pagingCause, new_create_dissector_handle(dissect_PagingCause_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_TAIdList, new_create_dissector_handle(dissect_TAIdList_PDU, proto_s1ap));
@@ -5205,16 +6042,27 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationReq, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationReq_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationRes, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationRes_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_ENB_ID, new_create_dissector_handle(dissect_ENB_ID_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_eNBname, new_create_dissector_handle(dissect_ENBname_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_MMEname, new_create_dissector_handle(dissect_MMEname_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_NRIs, new_create_dissector_handle(dissect_NRIs_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_ServedPLMNs, new_create_dissector_handle(dissect_ServedPLMNs_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_SupportedTAIs, new_create_dissector_handle(dissect_SupportedTAIs_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_TimeToWait, new_create_dissector_handle(dissect_TimeToWait_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_aggregateMaximumBitrate, new_create_dissector_handle(dissect_AggregateMaximumBitrate_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_TAId, new_create_dissector_handle(dissect_TAId_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_ServingPLMN, new_create_dissector_handle(dissect_PLMNidentity_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerReleaseListBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseListBearerRelComp_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000PDU, new_create_dissector_handle(dissect_Cdma2000PDU_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000RATType, new_create_dissector_handle(dissect_Cdma2000RATType_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000SectorID, new_create_dissector_handle(dissect_Cdma2000SectorID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SecurityInfo, new_create_dissector_handle(dissect_SecurityInfo_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UERadioCapability, new_create_dissector_handle(dissect_UERadioCapability_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_GUMMEI_ID, new_create_dissector_handle(dissect_GUMMEI_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransferENB_List, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransferENB_List_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransferENB_Item, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransferENB_Item_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Direct_Forwarding_Path_Availability, new_create_dissector_handle(dissect_Direct_Forwarding_Path_Availability_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UEIdentityIndexValue, new_create_dissector_handle(dissect_UEIdentityIndexValue_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransferMME_List, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransferMME_List_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransferMME_Item, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransferMME_Item_PDU, proto_s1ap));
   dissector_add("s1ap.proc.imsg", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
   dissector_add("s1ap.proc.sout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
   dissector_add("s1ap.proc.uout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
@@ -5249,6 +6097,16 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.proc.imsg", id_S1Setup, new_create_dissector_handle(dissect_S1SetupRequest_PDU, proto_s1ap));
   dissector_add("s1ap.proc.sout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupResponse_PDU, proto_s1ap));
   dissector_add("s1ap.proc.uout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_DownlinkS1cdma2000tunneling, new_create_dissector_handle(dissect_DownlinkS1cdma2000tunneling_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UplinkS1cdma2000tunneling, new_create_dissector_handle(dissect_UplinkS1cdma2000tunneling_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UECapabilityInfoIndication, new_create_dissector_handle(dissect_UECapabilityInfoIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseCommand_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseComplete_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_eNBStatusTransfer, new_create_dissector_handle(dissect_ENBStatusTransfer_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_MMEStatusTransfer, new_create_dissector_handle(dissect_MMEStatusTransfer_PDU, proto_s1ap));
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/

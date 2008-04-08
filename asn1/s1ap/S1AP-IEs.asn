@@ -15,13 +15,13 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+	id-SAEBearerInformationListItem,
 	id-SAEBearerItem,
 	maxNrOfSAEBs,
 	maxNrOfInterfaces,
 	
 	maxNrOfErrors,
 	maxnoofBPLMNs,
-	maxnoofNRIs,
 	maxnoofPLMNsPerMME,
 	maxnoofTAIs,
 	maxnoofEPLMNs,
@@ -77,6 +77,7 @@ BPLMNs ::= SEQUENCE (SIZE(1.. maxnoofBPLMNs)) OF PLMNidentity
 Cause ::= CHOICE {
 	radioNetwork		CauseRadioNetwork,
 	transport			CauseTransport,
+	nas					CauseNas,
 	protocol			CauseProtocol,
 	misc				CauseMisc,
 	...
@@ -106,6 +107,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	unspecified,
 	handover-triggered,
 	tx2relocoverall-expiry,
+	successful-handover,
+	release-due-to-eutran-generated-reason,
+	handover-cancelled,	
 	...
 
 }
@@ -116,6 +120,24 @@ CauseTransport ::= ENUMERATED {
 	...
 }
 
+CauseNas ::= ENUMERATED {
+	normal-release,
+	authentication-failure,
+	detach,
+	unspecified,
+	...
+}
+
+
+Cdma2000PDU	::= OCTET STRING
+
+Cdma2000RATType ::= ENUMERATED {
+	hRPD,
+	onexRTT,
+	...
+}
+
+Cdma2000SectorID ::= OCTET STRING
 
 CGI ::= SEQUENCE {
 	pLMNidentity				PLMNidentity,
@@ -139,25 +161,37 @@ CriticalityDiagnostics-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
-	SEQUENCE {
-		iECriticality			Criticality,
-		iE-ID					ProtocolIE-ID,
-		typeOfError 			TypeOfError				OPTIONAL,
-		iE-Extensions			ProtocolExtensionContainer {{CriticalityDiagnostics-IE-List-ExtIEs}} OPTIONAL,
-		...
-	}
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF CriticalityDiagnostics-IE-Item
 
-CriticalityDiagnostics-IE-List-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+CriticalityDiagnostics-IE-Item ::= 	SEQUENCE {
+	iECriticality			Criticality,
+	iE-ID					ProtocolIE-ID,
+	typeOfError 			TypeOfError				OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer {{CriticalityDiagnostics-IE-Item-ExtIEs}} OPTIONAL,
+	...
+}
+
+CriticalityDiagnostics-IE-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 
 -- D
+
+DL-Forwarding ::= ENUMERATED {
+	dL-Forwarding-proposed,
+	...
+}
+
+Direct-Forwarding-Path-Availability ::= ENUMERATED {
+	directPathAvailable,
+	...
+}
+
 -- E
 
-ENB-UE-S1AP-ID				::= TBCD-STRING (SIZE (3))
-ENB-ID							::= INTEGER (0..65535)
+ENB-UE-S1AP-ID				::= TBCD-STRING 
+ENB-Global-ID							::= INTEGER (0..65535)
 
 ENBname ::= OCTET STRING
 
@@ -196,6 +230,17 @@ ForbiddenLACs ::= SEQUENCE (SIZE(1..maxnoofForbLACs)) OF LAC
 
 GTP-TEID					::= OCTET STRING (SIZE (4))
 
+GUMMEI			::= SEQUENCE {
+	pLMN-Identity		PLMNidentity,
+	mME-Group-ID		MME-Group-ID,
+	mMME-Code			MME-Code,
+	iE-Extensions					ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
+	...
+}
+
+GUMMEI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 -- H
 
@@ -222,6 +267,8 @@ HandoverType ::= ENUMERATED {
 }
 
 -- I
+
+IMSI	::=	OCTET STRING (SIZE (3..8))
 
 InterfacesToTraceList ::= SEQUENCE (SIZE (1..maxNrOfInterfaces)) OF InterfacesToTraceItem
 
@@ -265,15 +312,18 @@ LAI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 MMEname ::= OCTET STRING
 
-MME-UE-S1AP-ID				::= TBCD-STRING (SIZE (3))
+MME-Group-ID	::= OCTET STRING (SIZE (2))
+
+MME-Code		::= OCTET STRING (SIZE (1))
+
+MME-UE-S1AP-ID				::= TBCD-STRING 
+M-TMSI			::= OCTET STRING (SIZE (4))
+
 
 -- N
 
 NAS-PDU ::=  OCTET STRING
 
-NRIs ::= SEQUENCE (SIZE(1..maxnoofNRIs)) OF NRI
-
-NRI ::= OCTET STRING
 
 -- O
 -- P
@@ -289,7 +339,9 @@ PagingCause ::= ENUMERATED {
 	..., 
 	terminating-high-priority-signalling
 }
-PLMNidentity 				::= TBCD-STRING (SIZE (3))
+PDCP-SN ::= INTEGER  -- FFS
+
+PLMNidentity 				::= TBCD-STRING 
 
 PriorityLevel				::= INTEGER (0..15)
 
@@ -302,9 +354,29 @@ RAC					::= OCTET STRING (SIZE (1))
 
 RNC-ID					::= INTEGER (0..4095)
 
+RRC-Container	::= OCTET STRING
+
 -- S
 
 SAE-Bearer-ID		::= OCTET STRING
+
+SAEBearerInformationList	::= SEQUENCE (SIZE (1.. maxNrOfSAEBs)) OF ProtocolIE-SingleContainer { { SAEBearerInformationListIEs } }
+
+SAEBearerInformationListIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-SAEBearerInformationListItem			CRITICALITY ignore	TYPE SAEBearerInformationListItem			PRESENCE mandatory	},
+	...
+}
+
+SAEBearerInformationListItem ::= SEQUENCE {
+	sAE-Bearer-ID					SAE-Bearer-ID,
+	dL-Forwarding					DL-Forwarding,
+	iE-Extensions					ProtocolExtensionContainer { {SAEBearerInformationListItem-ExtIEs} }			OPTIONAL,
+	...
+}
+
+SAEBearerInformationListItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SAEBearerList ::= SEQUENCE (SIZE(0.. maxNrOfSAEBs)) OF ProtocolIE-SingleContainer { {SAEBearerItemIEs} }
 
@@ -360,8 +432,13 @@ SAE-GBR-Bearer-Parameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 
 SAE-non-GBR-Bearer ::= SEQUENCE {
-	sAE-non-GBR-Bearer-Type			ENUMERATED {non-GBR-Bearer,...},
+	sAE-non-GBR-Bearer-Type			SAE-non-GBR-Bearer-Type,
 	iE-Extensions						ProtocolExtensionContainer { {SAE-non-GBR-Bearer-Parameters-ExtIEs} } OPTIONAL,
+	...
+}
+
+SAE-non-GBR-Bearer-Type	::= ENUMERATED {
+	non-GBR-Bearer,
 	...
 }
 
@@ -369,11 +446,28 @@ SAE-non-GBR-Bearer-Parameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SecurityInfo ::= SEQUENCE {
+	securityKey		SecurityKey,
+	iE-Extensions			ProtocolExtensionContainer { { SecurityInfo-ExtIEs} } OPTIONAL,
+	...
+}
+
+SecurityKey	::= BIT STRING (SIZE(128))
+
+
+SecurityInfo-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SecurityInformation ::= SEQUENCE {
-	securityPlaceHolder		ENUMERATED {whatever},
-	iE-Extensions			ProtocolExtensionContainer { { SecurityInformation-ExtIEs} } OPTIONAL
+	securityPlaceHolder		SecurityPlaceHolder,
+	iE-Extensions			ProtocolExtensionContainer { { SecurityInformation-ExtIEs} } OPTIONAL,
+	...
+}
 
+SecurityPlaceHolder	::= ENUMERATED {
+	whatever,
+	...
 }
 
 SecurityInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
@@ -389,10 +483,20 @@ SourceID ::= SEQUENCE {
 
 SourceeNB-ID ::= SEQUENCE {
 	pLMNidentity				PLMNidentity,
-	eNB-ID				ENB-ID
+	eNB-Global-ID				ENB-Global-ID -- FFS
 }
 
-SourceeNodeB-ToTargeteNodeB-TransparentContainer		::= OCTET STRING
+SourceeNodeB-ToTargeteNodeB-TransparentContainer		::= SEQUENCE {
+	rRC-Container					RRC-Container,
+	sAEBearerInformationList		SAEBearerInformationList		OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {SourceeNodeB-ToTargeteNodeB-TransparentContainer-ExtIEs} } OPTIONAL,
+	...
+}
+
+SourceeNodeB-ToTargeteNodeB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 SourceRNC-ToTargetRNC-TransparentContainer		::= OCTET STRING
 
@@ -407,7 +511,11 @@ SupportedTAs-Item ::=	SEQUENCE  {
 	...
 }
 
-S-TMSI ::= OCTET STRING
+S-TMSI ::= SEQUENCE {
+	mMEC	MME-Code,
+	m-TMSI	M-TMSI,
+	...
+}
 
 
 -- T
@@ -416,7 +524,7 @@ TAI ::= OCTET STRING
 
 TAId ::= OCTET STRING
 
-TBCD-STRING 				::= OCTET STRING
+TBCD-STRING ::= OCTET STRING (SIZE (3))
 
 TargetID ::= CHOICE {
 	targeteNB-ID			TargeteNB-ID,
@@ -427,7 +535,7 @@ TargetID ::= CHOICE {
 
 TargeteNB-ID ::= SEQUENCE {
 	pLMNidentity				PLMNidentity,
-	eNB-ID				ENB-ID
+	eNB-Global-ID				ENB-Global-ID -- FFS
 }
 
 TargetRNC-ID ::= SEQUENCE {
@@ -459,6 +567,9 @@ TraceDepth ::= ENUMERATED {
 	minimum,
 	medium,
 	maximum,
+	vendorMinimum,
+	vendorMedium,
+	vendorMaximum,
 	...
 }
 
@@ -472,8 +583,16 @@ TypeOfError ::= ENUMERATED {
 
 -- U
 
-UserDataType ::= INTEGER
--- Editors note: FFS (ENUMERATED?)
+UEIdentityIndexValue	::=	OCTET STRING
+
+UEPagingID ::= CHOICE {
+	s-TMSI		S-TMSI,
+	iMSI		IMSI,
+	...
+	}
+
+UERadioCapability ::= OCTET STRING
+
 
 -- V
 -- W
@@ -482,5 +601,3 @@ UserDataType ::= INTEGER
 -- Z
 
 END
-
-

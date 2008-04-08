@@ -58,7 +58,17 @@ FROM S1AP-CommonDataTypes
 	S1SetupRequest,
 	S1SetupResponse,
 	S1SetupFailure,
-	UEContextReleaseRequest
+	UEContextReleaseRequest,
+	UplinkS1cdma2000tunneling,
+	DownlinkS1cdma2000tunneling,
+	UEContextModificationRequest,
+	UEContextModificationResponse,
+	UEContextModificationFailure,
+	UECapabilityInfoIndication,
+	UEContextReleaseCommand,
+	UEContextReleaseComplete,
+	ENBStatusTransfer,
+	MMEStatusTransfer
 
 FROM S1AP-PDU-Contents
 	
@@ -80,7 +90,14 @@ FROM S1AP-PDU-Contents
 	id-ErrorIndication,
 	id-NASNonDeliveryIndication,
 	id-S1Setup,
-	id-UEContextReleaseRequest
+	id-UEContextReleaseRequest,
+	id-UplinkS1cdma2000tunneling,
+	id-DownlinkS1cdma2000tunneling,
+	id-UEContextModification,
+	id-UECapabilityInfoIndication,
+	id-UEContextRelease,
+	id-eNBStatusTransfer,
+	id-MMEStatusTransfer
 FROM S1AP-Constants;
 
 
@@ -159,7 +176,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	initialContextSetup				|
 	handoverCancel					|
 	reset							|
-	s1Setup,
+	s1Setup							|
+	uEContextModification			|
+	uEContextRelease				,
 	...
 }
 
@@ -172,7 +191,12 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uplinkNASTransport				|
 	errorIndication					|
 	nASNonDeliveryIndication		|
-	uEContextReleaseRequest			,
+	uEContextReleaseRequest			|
+	downlinkS1cdma2000tunneling		|
+	uplinkS1cdma2000tunneling		|
+	uECapabilityInfoIndication		|
+	eNBStatusTransfer				|
+	mMEStatusTransfer				,
 	...
 }
 
@@ -201,7 +225,7 @@ handoverResourceAllocation S1AP-ELEMENTARY-PROCEDURE ::= {
 handoverNotification S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	HandoverNotify
 	PROCEDURE CODE			id-HandoverNotification
-	CRITICALITY		reject
+	CRITICALITY		ignore
 }
 
 pathSwitchRequest S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -308,6 +332,52 @@ s1Setup S1AP-ELEMENTARY-PROCEDURE ::= {
 	UNSUCCESSFUL OUTCOME 	S1SetupFailure
 	PROCEDURE CODE			id-S1Setup
 	CRITICALITY				reject
+}
+
+downlinkS1cdma2000tunneling S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DownlinkS1cdma2000tunneling
+	PROCEDURE CODE			id-DownlinkS1cdma2000tunneling
+	CRITICALITY				ignore
+}
+
+uplinkS1cdma2000tunneling S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UplinkS1cdma2000tunneling
+	PROCEDURE CODE			id-UplinkS1cdma2000tunneling
+	CRITICALITY				ignore
+}
+
+uEContextModification S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextModificationRequest
+	SUCCESSFUL OUTCOME		UEContextModificationResponse
+	UNSUCCESSFUL OUTCOME 	UEContextModificationFailure
+
+	PROCEDURE CODE		id-UEContextModification
+	CRITICALITY		reject
+}
+
+uECapabilityInfoIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UECapabilityInfoIndication
+	PROCEDURE CODE			id-UECapabilityInfoIndication
+	CRITICALITY				ignore
+}
+
+uEContextRelease S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UEContextReleaseCommand
+	SUCCESSFUL OUTCOME		UEContextReleaseComplete
+	PROCEDURE CODE			id-UEContextRelease
+	CRITICALITY				reject
+}
+
+eNBStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBStatusTransfer
+	PROCEDURE CODE			id-eNBStatusTransfer
+	CRITICALITY				ignore
+}
+
+mMEStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MMEStatusTransfer
+	PROCEDURE CODE			id-MMEStatusTransfer
+	CRITICALITY				ignore
 }
 
 END

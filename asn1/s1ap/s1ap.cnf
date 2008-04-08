@@ -153,6 +153,13 @@ id-ErrorIndication					ProcedureCode
 id-NASNonDeliveryIndication			ProcedureCode
 id-S1Setup							ProcedureCode
 id-UEContextReleaseRequest			ProcedureCode
+id-DownlinkS1cdma2000tunneling		ProcedureCode
+id-UplinkS1cdma2000tunneling		ProcedureCode
+id-UEContextModification			ProcedureCode
+id-UECapabilityInfoIndication		ProcedureCode
+id-UEContextRelease					ProcedureCode
+id-eNBStatusTransfer				ProcedureCode
+id-MMEStatusTransfer				ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
@@ -189,7 +196,6 @@ id-SAEBearerToBeModifiedListBearerModReq			ProtocolIE-ID
 id-SAEBearerModifyListBearerModRes					ProtocolIE-ID
 #id-SAEBearerFailedToModifyList						ProtocolIE-ID
 id-SAEBearerToBeReleasedList						ProtocolIE-ID
-id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
 id-SAEBearerFailedToReleaseList						ProtocolIE-ID
 id-SAEBearerItem									ProtocolIE-ID
 id-SAEBearerToBeModifiedItemBearerModReq			ProtocolIE-ID
@@ -198,7 +204,6 @@ id-SAEBearerReleaseItem								ProtocolIE-ID
 id-SAEBearerSetupItemBearerSURes					ProtocolIE-ID
 id-Security-Information								ProtocolIE-ID
 id-HandoverRestrictionList							ProtocolIE-ID
-id-s-TMSI 											ProtocolIE-ID
 id-pagingDRX 										ProtocolIE-ID
 id-pagingCause										ProtocolIE-ID
 id-TAIdList											ProtocolIE-ID
@@ -214,16 +219,29 @@ id-GERANtoLTEHOInformationRes						ProtocolIE-ID
 id-UTRANtoLTEHOInformationReq						ProtocolIE-ID
 id-UTRANtoLTEHOInformationRes						ProtocolIE-ID
 id-CriticalityDiagnostics 							ProtocolIE-ID
-id-ENB-ID											ProtocolIE-ID
 id-eNBname											ProtocolIE-ID
 id-MMEname											ProtocolIE-ID
-id-NRIs												ProtocolIE-ID
 id-ServedPLMNs										ProtocolIE-ID
 id-SupportedTAIs									ProtocolIE-ID
 id-TimeToWait										ProtocolIE-ID
 id-aggregateMaximumBitrate							ProtocolIE-ID
 id-TAId												ProtocolIE-ID
 id-ServingPLMN										ProtocolIE-ID
+id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
+id-cdma2000PDU										ProtocolIE-ID
+id-cdma2000RATType									ProtocolIE-ID
+id-cdma2000SectorID									ProtocolIE-ID
+id-SecurityInfo										ProtocolIE-ID
+id-UERadioCapability								ProtocolIE-ID
+id-GUMMEI-ID										ProtocolIE-ID
+id-Bearers-SubjectToStatusTransferENB-List			ProtocolIE-ID
+id-Bearers-SubjectToStatusTransferENB-Item			ProtocolIE-ID
+id-SAEBearerInformationListItem						ProtocolIE-ID
+id-Direct-Forwarding-Path-Availability				ProtocolIE-ID
+id-UEIdentityIndexValue								ProtocolIE-ID
+id-Bearers-SubjectToStatusTransferMME-List			ProtocolIE-ID
+id-Bearers-SubjectToStatusTransferMME-Item			ProtocolIE-ID
+
 #.END
 
 #.REGISTER_NEW
@@ -263,7 +281,6 @@ SAEBearerToBeModifiedListBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedListBea
 SAEBearerModifyListBearerModRes			N s1ap.ies id-SAEBearerModifyListBearerModRes
 SAEBearerList							N s1ap.ies id-SAEBearerFailedToModifyList
 SAEBearerList							N s1ap.ies id-SAEBearerToBeReleasedList
-SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp
 SAEBearerList							N s1ap.ies id-SAEBearerFailedToReleaseList
 SAEBearerItem							N s1ap.ies id-SAEBearerItem
 SAEBearerToBeModifiedItemBearerModReq	N s1ap.ies id-SAEBearerToBeModifiedItemBearerModReq
@@ -272,7 +289,6 @@ SAEBearerModifyItemBearerModRes			N s1ap.ies id-SAEBearerModifyItemBearerModRes
 SAEBearerSetupItemBearerSURes			N s1ap.ies id-SAEBearerSetupItemBearerSURes
 SecurityInformation						N s1ap.ies id-Security-Information
 HandoverRestrictionList					N s1ap.ies id-HandoverRestrictionList
-S-TMSI									N s1ap.ies id-s-TMSI
 PagingDRX								N s1ap.ies id-pagingDRX
 PagingCause								N s1ap.ies id-pagingCause
 TAIdList								N s1ap.ies id-TAIdList
@@ -288,16 +304,28 @@ GERANtoLTEHOInformationRes				N s1ap.ies id-GERANtoLTEHOInformationRes
 UTRANtoLTEHOInformationReq				N s1ap.ies id-UTRANtoLTEHOInformationReq
 UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
 CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
-ENB-ID									N s1ap.ies id-ENB-ID
 ENBname									N s1ap.ies id-eNBname
 MMEname									N s1ap.ies id-MMEname
-NRIs									N s1ap.ies id-NRIs
 ServedPLMNs								N s1ap.ies id-ServedPLMNs
 SupportedTAIs							N s1ap.ies id-SupportedTAIs
 TimeToWait								N s1ap.ies id-TimeToWait
 AggregateMaximumBitrate					N s1ap.ies id-aggregateMaximumBitrate
 TAId									N s1ap.ies id-TAId
 PLMNidentity							N s1ap.ies id-ServingPLMN
+SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp				
+Cdma2000PDU								N s1ap.ies id-cdma2000PDU										
+Cdma2000RATType							N s1ap.ies id-cdma2000RATType									
+Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID									
+SecurityInfo							N s1ap.ies id-SecurityInfo										
+UERadioCapability						N s1ap.ies id-UERadioCapability								
+GUMMEI									N s1ap.ies id-GUMMEI-ID										
+Bearers-SubjectToStatusTransferENB-List	N s1ap.ies id-Bearers-SubjectToStatusTransferENB-List			
+Bearers-SubjectToStatusTransferENB-Item	N s1ap.ies id-Bearers-SubjectToStatusTransferENB-Item			
+#N s1ap.ies id-SAEBearerInformationListItem						
+Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability				
+UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
+Bearers-SubjectToStatusTransferMME-List	N s1ap.ies id-Bearers-SubjectToStatusTransferMME-List			
+Bearers-SubjectToStatusTransferMME-Item	N s1ap.ies id-Bearers-SubjectToStatusTransferMME-Item			
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -360,4 +388,21 @@ ErrorIndication							N s1ap.proc.imsg id-ErrorIndication
 S1SetupRequest							N s1ap.proc.imsg id-S1Setup
 S1SetupResponse							N s1ap.proc.sout id-S1Setup
 S1SetupFailure							N s1ap.proc.uout id-S1Setup
+
+DownlinkS1cdma2000tunneling				N s1ap.proc.imsg id-DownlinkS1cdma2000tunneling
+
+UplinkS1cdma2000tunneling				N s1ap.proc.imsg id-UplinkS1cdma2000tunneling
+
+UEContextModificationRequest			N s1ap.proc.imsg id-UEContextModification 
+UEContextModificationResponse			N s1ap.proc.sout id-UEContextModification
+UEContextModificationFailure			N s1ap.proc.uout id-UEContextModification
+
+UECapabilityInfoIndication				N s1ap.proc.imsg id-UECapabilityInfoIndication
+
+UEContextReleaseCommand					N s1ap.proc.imsg id-UEContextRelease
+UEContextReleaseComplete				N s1ap.proc.sout id-UEContextRelease
+
+ENBStatusTransfer						N s1ap.proc.imsg id-eNBStatusTransfer
+
+MMEStatusTransfer						N s1ap.proc.imsg id-MMEStatusTransfer
 #.END
