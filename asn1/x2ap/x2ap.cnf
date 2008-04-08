@@ -111,8 +111,8 @@ id-CriticalityDiagnostics													ProtocolIE-ID
 id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID
 id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID
 id-ServedCells																ProtocolIE-ID
-id-ENB-ID																	ProtocolIE-ID
 id-TimeToWait																ProtocolIE-ID
+id-GUMMEI-ID																ProtocolIE-ID
 
 
 #.REGISTER_NEW
@@ -139,8 +139,8 @@ CriticalityDiagnostics						N x2ap.ies id-CriticalityDiagnostics
 Bearers-SubjectToStatusTransfer-List		N x2ap.ies id-Bearers-SubjectToStatusTransfer-List
 Bearers-SubjectToStatusTransfer-Item		N x2ap.ies id-Bearers-SubjectToStatusTransfer-Item
 ServedCells									N x2ap.ies id-ServedCells
-ENB-ID										N x2ap.ies id-ENB-ID
 TimeToWait									N x2ap.ies id-TimeToWait
+GUMMEI										N x2ap.ies id-GUMMEI-ID
 
 
 #X2AP-PROTOCOL-EXTENSION
@@ -160,7 +160,8 @@ HandoverCancel						S x2ap.proc.imsg "id-handoverCancel"
 
 ErrorIndication						S x2ap.proc.imsg "id-errorIndication"
 
-ResetResponse						S x2ap.proc.imsg "id-reset"
+ResetRequest						S x2ap.proc.imsg "id-reset"
+ResetResponse						S x2ap.proc.sout "id-reset"
 
 X2SetupRequest						S x2ap.proc.imsg "id-x2Setup"
 X2SetupResponse						S x2ap.proc.sout "id-x2Setup"

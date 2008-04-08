@@ -26,15 +26,18 @@ IMPORTS
 	Bearer-ID,
 	Cause,
 	CGI,
+	COUNTvalue,
 	CriticalityDiagnostics,
 	DL-Forwarding,
-	ENB-ID,
+	ENB-Global-ID,
+	GUMMEI,
 	HandoverRestrictionList,
 	InterferenceOverloadIndication,
 	PDCP-SN,
 	PLMN-Identity,
 	UE-S1AP-ID,
 	RB-type,
+	ReceiveStatusofULPDCPSDUs,
 	RRC-Context,
 	SAE-BearerLevel-QoS-Parameters,
 	ServedCells,
@@ -72,7 +75,8 @@ FROM X2AP-Containers
 	id-CellInformation,
 	id-CellInformation-Item,
 	id-CriticalityDiagnostics,
-	id-ENB-ID,
+	id-ENB-Global-ID,
+	id-GUMMEI-ID,
 	id-UE-ContextInformation,
 	id-Bearers-ToBeSetup-Item,
 	id-New-eNB-UE-X2AP-ID,
@@ -103,9 +107,11 @@ HandoverRequest ::= SEQUENCE {
 
 HandoverRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-Old-eNB-UE-X2AP-ID				CRITICALITY reject	TYPE UE-X2AP-ID 				PRESENCE mandatory } |
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause 						PRESENCE mandatory } |
 	{ ID id-TargetCell-ID					CRITICALITY reject	TYPE CGI 						PRESENCE mandatory } |
+	{ ID id-GUMMEI-ID						CRITICALITY reject	TYPE GUMMEI  					PRESENCE mandatory } |
 	{ ID id-UE-ContextInformation			CRITICALITY reject	TYPE UE-ContextInformation 		PRESENCE mandatory } |
-	{ ID id-UE-HistoryInformation			CRITICALITY reject	TYPE UE-HistoryInformation 		PRESENCE optional } |
+	{ ID id-UE-HistoryInformation			CRITICALITY ignore	TYPE UE-HistoryInformation 		PRESENCE optional } |
 	{ ID id-TraceActivation					CRITICALITY ignore	TYPE TraceActivation 			PRESENCE optional } ,
 	...
 }
@@ -164,7 +170,7 @@ HandoverRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-New-eNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID							PRESENCE mandatory} |
 	{ ID id-Bearers-Admitted-List						CRITICALITY ignore	TYPE Bearers-Admitted-List			PRESENCE optional	} |
 	{ ID id-Bearers-NotAdmitted-List					CRITICALITY ignore	TYPE Bearers-NotAdmitted-List		PRESENCE optional	} |
-	{ ID id-TargeteNBtoSource-eNBTransparentContainer	CRITICALITY ignore	TYPE TargeteNBtoSource-eNBTransparentContainer			PRESENCE },
+	{ ID id-TargeteNBtoSource-eNBTransparentContainer	CRITICALITY ignore	TYPE TargeteNBtoSource-eNBTransparentContainer			PRESENCE mandatory },
 	...
 }
 
@@ -247,9 +253,10 @@ Bearers-SubjectToStatusTransfer-ItemIEs X2AP-PROTOCOL-IES ::= {
 
 Bearers-SubjectToStatusTransfer-Item ::= SEQUENCE {
 	bearer-ID								Bearer-ID,
-	pDCP-SNofULSDUsNotToBeRetransmitted-List	PDCP-SNofULSDUsNotToBeRetransmitted-List	OPTIONAL,
-	uL-PDCP-SN-NextInSequenceExpected					PDCP-SN,
-	dL-PDCP-SN-NextToAssign					PDCP-SN,
+	
+	receiveStatusofULPDCPSDUs				ReceiveStatusofULPDCPSDUs			OPTIONAL,
+	uL-COUNTvalue					COUNTvalue,
+	dL-COUNTvalue					COUNTvalue,
 	iE-Extensions							ProtocolExtensionContainer { {Bearers-SubjectToStatusTransfer-ItemExtIEs} } OPTIONAL,
 	...
 }
@@ -258,7 +265,6 @@ Bearers-SubjectToStatusTransfer-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-PDCP-SNofULSDUsNotToBeRetransmitted-List ::= SEQUENCE (SIZE (1..maxnoofPDCP-SN)) OF PDCP-SN
 
 
 
@@ -360,7 +366,7 @@ X2SetupRequest ::= SEQUENCE {
 }
 
 X2SetupRequest-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-ENB-ID				CRITICALITY reject	TYPE ENB-ID				PRESENCE mandatory} |
+	{ ID id-ENB-Global-ID				CRITICALITY reject	TYPE ENB-Global-ID				PRESENCE mandatory} |
 	{ ID id-ServedCells			CRITICALITY reject	TYPE ServedCells		PRESENCE mandatory} ,
 	...
 }
@@ -379,7 +385,7 @@ X2SetupResponse ::= SEQUENCE {
 }
 
 X2SetupResponse-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-ENB-ID				CRITICALITY reject	TYPE ENB-ID				PRESENCE mandatory} |
+	{ ID id-ENB-Global-ID				CRITICALITY reject	TYPE ENB-Global-ID				PRESENCE mandatory} |
 	{ ID id-ServedCells			CRITICALITY reject	TYPE ServedCells		PRESENCE mandatory} ,
 	...
 }

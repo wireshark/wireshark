@@ -49,6 +49,9 @@ AggregateMaximumBitRate ::= SEQUENCE {
 	...
 }
 
+AllocationAndRetentionPriority ::= OCTET STRING
+
+
 -- B
 
 Bearer-ID ::= BIT STRING (SIZE (8))  -- To be checked, FFS
@@ -87,6 +90,10 @@ CauseProtocol ::= ENUMERATED {
 }
 
 CauseRadioNetwork ::= ENUMERATED {
+	normal-ho,
+	emergency-ho,
+	load-balancing,
+	overload,
 	unspecified,
 	...
 
@@ -132,6 +139,12 @@ CriticalityDiagnostics ::= SEQUENCE {
 	...
 }
 
+COUNTvalue ::= SEQUENCE {
+	pDCP-SN			PDCP-SN,
+	hFN				HFN,
+	...
+}
+
 CriticalityDiagnostics-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
@@ -162,7 +175,7 @@ DL-Forwarding ::= ENUMERATED {
 
 -- E
 
-ENB-ID							::= INTEGER (0..65535)  -- Value to be checked FFS
+ENB-Global-ID		::= INTEGER (0..65535)  -- Value to be checked FFS
 
 EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMN-Identity
 
@@ -171,8 +184,8 @@ EPLMNs ::= SEQUENCE (SIZE(1..maxnoofEPLMNs)) OF PLMN-Identity
 
 ForbiddenInterRATs ::= ENUMERATED {
 	all,
-	gsm,
-	wcdma,
+	geran,
+	utran,
 	...
 }
 
@@ -213,6 +226,20 @@ GTPtunnelEndpoint-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 GTP-TEI					::= OCTET STRING (SIZE (4))
 
+GUMMEI			::= SEQUENCE {
+	pLMN-Identity		PLMN-Identity,
+	mME-Group-ID		MME-Group-ID,
+	mMME-Code			MME-Code,
+	iE-Extensions					ProtocolExtensionContainer { {GUMMEI-ExtIEs} } OPTIONAL,
+	...
+}
+
+GUMMEI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+
 -- H
 
 HandoverRestrictionList ::= SEQUENCE {
@@ -227,6 +254,9 @@ HandoverRestrictionList ::= SEQUENCE {
 HandoverRestrictionList-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+HFN ::= INTEGER (0..1048575)
+
 
 
 -- I
@@ -255,6 +285,8 @@ InterferenceOverloadIndication ::= OCTET STRING  -- FFS
 -- K
 -- L
 
+Label ::= INTEGER (1..256)
+
 LAC					::= OCTET STRING (SIZE (2)) --(EXCEPT ('0000'H|'FFFE'H))
 
 LastVisitedCell-Item ::= SEQUENCE {
@@ -271,13 +303,18 @@ LastVisitedCell-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 
 -- M
+
+MME-Group-ID	::= OCTET STRING (SIZE (2))
+
+MME-Code		::= OCTET STRING (SIZE (1))
+
 -- N
 
 
 -- O
 -- P
 
-PDCP-SN ::= INTEGER  -- FFS
+PDCP-SN ::= INTEGER (0..4095)  
 
 PhyCID ::= OCTET STRING
 
@@ -290,6 +327,8 @@ PLMN-Identity ::= OCTET STRING (SIZE(3))
 RB-type ::= INTEGER
 -- Editors note: FFS To be replaced by other QCI definition, ENUMERATED??
 
+ReceiveStatusofULPDCPSDUs ::= BIT STRING (SIZE(256)) 
+
 RRC-Context ::= OCTET STRING
 
 -- S
@@ -297,8 +336,8 @@ RRC-Context ::= OCTET STRING
 SAE-Bearer-BitRate ::= INTEGER (0..210000000000)
 
 SAE-BearerLevel-QoS-Parameters ::= SEQUENCE {
-	label				INTEGER (1..256),
-	allocationAndRetentionPriority	OCTET STRING,  --FFS
+	label				Label,
+	allocationAndRetentionPriority	AllocationAndRetentionPriority,  --FFS
 	sAE-BearerType			SAE-BearerType,
 	...
 }
@@ -319,18 +358,23 @@ SAE-GBR-Bearer ::= SEQUENCE {
 	...
 }
 
-SAE-GBR-Bearer-Parameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+SAE-GBR-Bearer-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
 
 SAE-Non-GBR-Bearer ::= SEQUENCE {
-	sAE-non-GBR-Bearer-Type			ENUMERATED {non-GBR-Bearer,...},
+	sAE-non-GBR-Bearer-Type			SAE-Non-GBR-Bearer-Type,
 	iE-Extensions						ProtocolExtensionContainer { {SAE-non-GBR-Bearer-Parameters-ExtIEs} } OPTIONAL,
 	...
 }
 
-SAE-non-GBR-Bearer-Parameters-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+SAE-non-GBR-Bearer-Parameters-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SAE-Non-GBR-Bearer-Type ::= ENUMERATED {
+	non-GBR-Bearer,
 	...
 }
 
@@ -381,6 +425,9 @@ TraceDepth 		::= ENUMERATED {
 	minimum,
 	medium,
 	maximum,
+	vendorMinimum,
+	vendorMedium,
+	vendorMaximum,
 	...
 }
 

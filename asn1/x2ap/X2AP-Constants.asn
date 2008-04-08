@@ -85,8 +85,9 @@ id-CriticalityDiagnostics													ProtocolIE-ID ::= 17
 id-Bearers-SubjectToStatusTransfer-List										ProtocolIE-ID ::= 18
 id-Bearers-SubjectToStatusTransfer-Item										ProtocolIE-ID ::= 19
 id-ServedCells																ProtocolIE-ID ::= 20
-id-ENB-ID																	ProtocolIE-ID ::= 21
+id-ENB-Global-ID															ProtocolIE-ID ::= 21
 id-TimeToWait																ProtocolIE-ID ::= 22
+id-GUMMEI-ID																ProtocolIE-ID ::= 23
 
 
 END
