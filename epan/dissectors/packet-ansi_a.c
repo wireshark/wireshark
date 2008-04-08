@@ -3,6 +3,8 @@
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
+ * Copyright 2008, Michael Lum <michael.lum [AT] utstar.com>
+ * In association with UTStarcom Inc.
  *
  * Title		3GPP2			Other
  *
@@ -669,6 +671,9 @@ static int hf_ansi_a_anchor_pp_ip_addr = -1;
 static int hf_ansi_a_a2p_bearer_ipv4_addr = -1;
 static int hf_ansi_a_a2p_bearer_ipv6_addr = -1;
 static int hf_ansi_a_a2p_bearer_udp_port = -1;
+static int hf_ansi_a_so = -1;
+static int hf_ansi_a_cause_1 = -1;	/* 1 octet cause */
+static int hf_ansi_a_cause_2 = -1;	/* 2 octet cause */
 
 
 /* Initialize the subtree pointers */
@@ -686,6 +691,8 @@ static gint ett_bearer_list = -1;
 static gint ett_re_list = -1;
 static gint ett_so_list = -1;
 static gint ett_adds_user_part = -1;
+static gint ett_scr = -1;
+static gint ett_srvc_con_rec = -1;
 
 /*
  * Variables to allow for proper deletion of dissector registration when
@@ -710,10 +717,13 @@ typedef struct dgt_set_t
 }
 dgt_set_t;
 
+/*
+ * As per A.S0001 Called Party BCD Number
+ */
 static dgt_set_t Dgt_tbcd = {
     {
   /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-     '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#'
+     '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c'
     }
 };
 
@@ -770,6 +780,110 @@ my_dgt_tbcd_unpack(
 
     return(cnt);
 }
+
+const gchar *
+ansi_a_so_int_to_str(
+    gint32	so)
+{
+    const gchar *str = NULL;
+
+    switch (so)
+    {
+    case 1: str = "Basic Variable Rate Voice Service (8 kbps)"; break;
+    case 2: str = "Mobile Station Loopback (8 kbps)"; break;
+    case 3: str = "(EVRC) Enhanced Variable Rate Voice Service (8 kbps)"; break;
+    case 4: str = "Asynchronous Data Service (9.6 kbps)"; break;
+    case 5: str = "Group 3 Facsimile (9.6 kbps)"; break;
+    case 6: str = "Short Message Services (Rate Set 1)"; break;
+    case 7: str = "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)"; break;
+    case 8: str = "Packet Data Service: CDPD Protocol Stack (9.6 kbps)"; break;
+    case 9: str = "Mobile Station Loopback (13 kbps)"; break;
+    case 10: str = "STU-III Transparent Service"; break;
+    case 11: str = "STU-III Non-Transparent Service"; break;
+    case 12: str = "Asynchronous Data Service (14.4 or 9.6 kbps)"; break;
+    case 13: str = "Group 3 Facsimile (14.4 or 9.6 kbps)"; break;
+    case 14: str = "Short Message Services (Rate Set 2)"; break;
+    case 15: str = "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)"; break;
+    case 16: str = "Packet Data Service: CDPD Protocol Stack (14.4 kbps)"; break;
+    case 17: str = "High Rate Voice Service (13 kbps)"; break;
+    case 32768: str = "QCELP (13 kbps)"; break;
+    case 32798: /* 0x801e */ str = "Qualcomm Loopback"; break;
+    case 32799: /* 0x801f */ str = "Qualcomm Markov 8 kbps Loopback"; break;
+    case 32800: /* 0x8020 */ str = "Qualcomm Packet Data"; break;
+    case 32801:	/* 0x8021 */ str = "Qualcomm Async Data"; break;
+    case 18: str = "Over-the-Air Parameter Administration (Rate Set 1)"; break;
+    case 19: str = "Over-the-Air Parameter Administration (Rate Set 2)"; break;
+    case 20: str = "Group 3 Analog Facsimile (Rate Set 1)"; break;
+    case 21: str = "Group 3 Analog Facsimile (Rate Set 2)"; break;
+    case 22: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)"; break;
+    case 23: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)"; break;
+    case 24: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)"; break;
+    case 25: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)"; break;
+    case 26: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)"; break;
+    case 27: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)"; break;
+    case 28: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)"; break;
+    case 29: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)"; break;
+    case 30: str = "Supplemental Channel Loopback Test for Rate Set 1"; break;
+    case 31: str = "Supplemental Channel Loopback Test for Rate Set 2"; break;
+    case 32: str = "Test Data Service Option (TDSO)"; break;
+    case 33: str = "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack"; break;
+    case 34: str = "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack"; break;
+    case 35: str = "Location Services (PDS), Rate Set 1 (9.6 kbps)"; break;
+    case 36: str = "Location Services (PDS), Rate Set 2 (14.4 kbps)"; break;
+    case 37: str = "ISDN Interworking Service (64 kbps)"; break;
+    case 38: str = "GSM Voice"; break;
+    case 39: str = "GSM Circuit Data"; break;
+    case 40: str = "GSM Packet Data"; break;
+    case 41: str = "GSM Short Message Service"; break;
+    case 42: str = "None Reserved for MC-MAP standard service options"; break;
+    case 54: str = "Markov Service Option (MSO)"; break;
+    case 55: str = "Loopback Service Option (LSO)"; break;
+    case 56: str = "Selectable Mode Vocoder"; break;
+    case 57: str = "32 kbps Circuit Video Conferencing"; break;
+    case 58: str = "64 kbps Circuit Video Conferencing"; break;
+    case 59: str = "HRPD Accounting Records Identifier"; break;
+    case 60: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal"; break;
+    case 61: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression"; break;
+    case 62: str = "- 4099 None Reserved for standard service options"; break;
+    case 68: str = "(EVRC-B NB) Enhanced Variable Rate Voice Service"; break;
+    case 70: str = "(EVRC-B WB) Enhanced Variable Rate Voice Service"; break;
+    case 4100: str = "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)"; break;
+    case 4101: str = "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)"; break;
+    case 4102: str = "Reserved for standard service option"; break;
+    case 4103: str = "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
+    case 4104: str = "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
+    default:
+	if ((so >= 4105) && (so <= 32767)) { str = "Reserved for standard service options"; }
+	else if ((so >= 32769) && (so <= 32771)) { str = "Proprietary QUALCOMM Incorporated"; }
+	else if ((so >= 32772) && (so <= 32775)) { str = "Proprietary OKI Telecom"; }
+	else if ((so >= 32776) && (so <= 32779)) { str = "Proprietary Lucent Technologies"; }
+	else if ((so >= 32780) && (so <=32783)) { str = "Nokia"; }
+	else if ((so >= 32784) && (so <=32787)) { str = "NORTEL NETWORKS"; }
+	else if ((so >= 32788) && (so <=32791)) { str = "Sony Electronics Inc."; }
+	else if ((so >= 32792) && (so <=32795)) { str = "Motorola"; }
+	else if ((so >= 32796) && (so <=32799)) { str = "QUALCOMM Incorporated"; }
+	else if ((so >= 32800) && (so <=32803)) { str = "QUALCOMM Incorporated"; }
+	else if ((so >= 32804) && (so <=32807)) { str = "QUALCOMM Incorporated"; }
+	else if ((so >= 32808) && (so <=32811)) { str = "QUALCOMM Incorporated"; }
+	else if ((so >= 32812) && (so <=32815)) { str = "Lucent Technologies"; }
+	else if ((so >= 32816) && (so <=32819)) { str = "Denso International"; }
+	else if ((so >= 32820) && (so <=32823)) { str = "Motorola"; }
+	else if ((so >= 32824) && (so <=32827)) { str = "Denso International"; }
+	else if ((so >= 32828) && (so <=32831)) { str = "Denso International"; }
+	else if ((so >= 32832) && (so <=32835)) { str = "Denso International"; }
+	else if ((so >= 32836) && (so <=32839)) { str = "NEC America"; }
+	else if ((so >= 32840) && (so <=32843)) { str = "Samsung Electronics"; }
+	else if ((so >= 32844) && (so <=32847)) { str = "Texas Instruments Incorporated"; }
+	else if ((so >= 32848) && (so <=32851)) { str = "Toshiba Corporation"; }
+	else if ((so >= 32852) && (so <=32855)) { str = "LG Electronics Inc."; }
+	else if ((so >= 32856) && (so <=32859)) { str = "VIA Telecom Inc."; }
+	else { str = "Reserved"; }
+	break;
+    }
+
+    return(str);
+}
+
 
 /* ELEMENT FUNCTIONS */
 
@@ -2275,7 +2389,11 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 
 	    curr_offset++;
 
-	    proto_tree_add_text(tree, tvb, curr_offset, 1,
+	    value = tvb_get_guint8(tvb, curr_offset);
+
+	    proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
+		curr_offset, 1,
+		((oct & 0x7f) << 8) | value,
 		"Cause Value");
 
 	    curr_offset++;
@@ -2287,8 +2405,10 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	    value = tvb_get_guint8(tvb, curr_offset + 1);
 
 	    other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	    proto_tree_add_text(tree,
-		tvb, curr_offset, 1,
+
+	    proto_tree_add_uint_format(tree, hf_ansi_a_cause_2, tvb,
+		curr_offset, 1,
+		((oct & 0x7f) << 8) | value,
 		"%s :  Cause (MSB): %u",
 		a_bigbuf,
 		((oct & 0x7f) << 8) | value);
@@ -2409,8 +2529,8 @@ elem_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *ad
 	}
 
 	other_decode_bitfield_value(a_bigbuf, oct, 0x7f, 8);
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
+	proto_tree_add_uint_format(tree, hf_ansi_a_cause_1, tvb,
+	    curr_offset, 1, oct,
 	    "%s :  Cause: (%u) %s",
 	    a_bigbuf,
 	    oct & 0x7f,
@@ -2470,10 +2590,8 @@ elem_cell_id_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gch
 
 	value = tvb_get_ntoh24(tvb, curr_offset);
 
-	proto_tree_add_uint_hidden(tree, hf_ansi_a_cell_mscid, tvb,
-	    curr_offset, 3, value);
-
-	proto_tree_add_text(tree, tvb, curr_offset, 3,
+	proto_tree_add_uint_format(tree, hf_ansi_a_cell_mscid, tvb,
+	    curr_offset, 3, value,
 	    "Market ID %u  Switch Number %u",
 	    market_id, switch_num);
 
@@ -3586,9 +3704,9 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
-	(gchar*)poctets,
+	(gchar *) poctets,
 	"Digits: %s",
-	(gchar*)format_text(poctets, len - (curr_offset - offset)));
+	(gchar *) format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -4864,7 +4982,6 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 {
     guint16	value;
     guint32	curr_offset;
-    const gchar	*str;
 
     len = len;
     curr_offset = offset;
@@ -4889,107 +5006,13 @@ elem_so(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	"%s :  Base Service Option Number",
 	a_bigbuf);
 
-    switch (value)
-    {
-    case 1: str = "Basic Variable Rate Voice Service (8 kbps)"; break;
-    case 2: str = "Mobile Station Loopback (8 kbps)"; break;
-    case 3: str = "(EVRC) Enhanced Variable Rate Voice Service (8 kbps)"; break;
-    case 4: str = "Asynchronous Data Service (9.6 kbps)"; break;
-    case 5: str = "Group 3 Facsimile (9.6 kbps)"; break;
-    case 6: str = "Short Message Services (Rate Set 1)"; break;
-    case 7: str = "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)"; break;
-    case 8: str = "Packet Data Service: CDPD Protocol Stack (9.6 kbps)"; break;
-    case 9: str = "Mobile Station Loopback (13 kbps)"; break;
-    case 10: str = "STU-III Transparent Service"; break;
-    case 11: str = "STU-III Non-Transparent Service"; break;
-    case 12: str = "Asynchronous Data Service (14.4 or 9.6 kbps)"; break;
-    case 13: str = "Group 3 Facsimile (14.4 or 9.6 kbps)"; break;
-    case 14: str = "Short Message Services (Rate Set 2)"; break;
-    case 15: str = "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)"; break;
-    case 16: str = "Packet Data Service: CDPD Protocol Stack (14.4 kbps)"; break;
-    case 17: str = "High Rate Voice Service (13 kbps)"; break;
-    case 32768: str = "QCELP (13 kbps)"; break;
-    case 32798: /* 0x801e */ str = "Qualcomm Loopback"; break;
-    case 32799: /* 0x801f */ str = "Qualcomm Markov 8 kbps Loopback"; break;
-    case 32800: /* 0x8020 */ str = "Qualcomm Packet Data"; break;
-    case 32801:	/* 0x8021 */ str = "Qualcomm Async Data"; break;
-    case 18: str = "Over-the-Air Parameter Administration (Rate Set 1)"; break;
-    case 19: str = "Over-the-Air Parameter Administration (Rate Set 2)"; break;
-    case 20: str = "Group 3 Analog Facsimile (Rate Set 1)"; break;
-    case 21: str = "Group 3 Analog Facsimile (Rate Set 2)"; break;
-    case 22: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)"; break;
-    case 23: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)"; break;
-    case 24: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)"; break;
-    case 25: str = "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)"; break;
-    case 26: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)"; break;
-    case 27: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)"; break;
-    case 28: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)"; break;
-    case 29: str = "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)"; break;
-    case 30: str = "Supplemental Channel Loopback Test for Rate Set 1"; break;
-    case 31: str = "Supplemental Channel Loopback Test for Rate Set 2"; break;
-    case 32: str = "Test Data Service Option (TDSO)"; break;
-    case 33: str = "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack"; break;
-    case 34: str = "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack"; break;
-    case 35: str = "Location Services (PDS), Rate Set 1 (9.6 kbps)"; break;
-    case 36: str = "Location Services (PDS), Rate Set 2 (14.4 kbps)"; break;
-    case 37: str = "ISDN Interworking Service (64 kbps)"; break;
-    case 38: str = "GSM Voice"; break;
-    case 39: str = "GSM Circuit Data"; break;
-    case 40: str = "GSM Packet Data"; break;
-    case 41: str = "GSM Short Message Service"; break;
-    case 42: str = "None Reserved for MC-MAP standard service options"; break;
-    case 54: str = "Markov Service Option (MSO)"; break;
-    case 55: str = "Loopback Service Option (LSO)"; break;
-    case 56: str = "Selectable Mode Vocoder"; break;
-    case 57: str = "32 kbps Circuit Video Conferencing"; break;
-    case 58: str = "64 kbps Circuit Video Conferencing"; break;
-    case 59: str = "HRPD Accounting Records Identifier"; break;
-    case 60: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal"; break;
-    case 61: str = "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression"; break;
-    case 62: str = "- 4099 None Reserved for standard service options"; break;
-    case 68: str = "(EVRC-B NB) Enhanced Variable Rate Voice Service"; break;
-    case 70: str = "(EVRC-B WB) Enhanced Variable Rate Voice Service"; break;
-    case 4100: str = "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)"; break;
-    case 4101: str = "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)"; break;
-    case 4102: str = "Reserved for standard service option"; break;
-    case 4103: str = "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
-    case 4104: str = "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)"; break;
-    default:
-	if ((value >= 4105) && (value <= 32767)) { str = "Reserved for standard service options"; }
-	else if ((value >= 32769) && (value <= 32771)) { str = "Proprietary QUALCOMM Incorporated"; }
-	else if ((value >= 32772) && (value <= 32775)) { str = "Proprietary OKI Telecom"; }
-	else if ((value >= 32776) && (value <= 32779)) { str = "Proprietary Lucent Technologies"; }
-	else if ((value >= 32780) && (value <=32783)) { str = "Nokia"; }
-	else if ((value >= 32784) && (value <=32787)) { str = "NORTEL NETWORKS"; }
-	else if ((value >= 32788) && (value <=32791)) { str = "Sony Electronics Inc."; }
-	else if ((value >= 32792) && (value <=32795)) { str = "Motorola"; }
-	else if ((value >= 32796) && (value <=32799)) { str = "QUALCOMM Incorporated"; }
-	else if ((value >= 32800) && (value <=32803)) { str = "QUALCOMM Incorporated"; }
-	else if ((value >= 32804) && (value <=32807)) { str = "QUALCOMM Incorporated"; }
-	else if ((value >= 32808) && (value <=32811)) { str = "QUALCOMM Incorporated"; }
-	else if ((value >= 32812) && (value <=32815)) { str = "Lucent Technologies"; }
-	else if ((value >= 32816) && (value <=32819)) { str = "Denso International"; }
-	else if ((value >= 32820) && (value <=32823)) { str = "Motorola"; }
-	else if ((value >= 32824) && (value <=32827)) { str = "Denso International"; }
-	else if ((value >= 32828) && (value <=32831)) { str = "Denso International"; }
-	else if ((value >= 32832) && (value <=32835)) { str = "Denso International"; }
-	else if ((value >= 32836) && (value <=32839)) { str = "NEC America"; }
-	else if ((value >= 32840) && (value <=32843)) { str = "Samsung Electronics"; }
-	else if ((value >= 32844) && (value <=32847)) { str = "Texas Instruments Incorporated"; }
-	else if ((value >= 32848) && (value <=32851)) { str = "Toshiba Corporation"; }
-	else if ((value >= 32852) && (value <=32855)) { str = "LG Electronics Inc."; }
-	else if ((value >= 32856) && (value <=32859)) { str = "VIA Telecom Inc."; }
-	else { str = "Reserved"; }
-	break;
-    }
-
     g_snprintf(add_string, string_len, " - (%u) (0x%04x)", value, value);
 
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 2,
+    proto_tree_add_uint_format(tree, hf_ansi_a_so, tvb,
+	curr_offset, 2, value,
 	"%s %s",
 	&add_string[3],
-	str);
+	ansi_a_so_int_to_str(value));
 
     curr_offset += 2;
 
@@ -5373,8 +5396,14 @@ elem_amps_hho_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 static guint8
 elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint8	oct;
-    guint32	curr_offset;
+    guint8	oct, num_con_rec, i;
+    guint8	bit_mask, bit_offset;
+    guint32	curr_offset, saved_offset;
+    guint32	value;
+    guint	is2000_portion_len;
+    proto_tree	*scr_subtree, *subtree;
+    proto_item	*item = NULL;
+    const gchar *str = NULL;
 
     curr_offset = offset;
 
@@ -5393,13 +5422,336 @@ elem_is2000_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gcha
 
     curr_offset++;
 
-    NO_MORE_DATA_CHECK(len);
+    is2000_portion_len = len - (curr_offset - offset);
 
-    proto_tree_add_text(tree, tvb, curr_offset,
-	len - (curr_offset - offset),
-	"IS-2000 Service Configuration Record Content");
+    /*
+     * the following decode was modified from the packet-ansi_map.c version
+     */
 
-    curr_offset += len - (curr_offset - offset);
+    SHORT_DATA_CHECK(is2000_portion_len, 7);
+
+    saved_offset = curr_offset;
+
+    item =
+	proto_tree_add_text(tree, tvb, curr_offset,
+	    is2000_portion_len,
+	    "IS-2000 Service Configuration Record Content");
+
+    scr_subtree =
+	proto_item_add_subtree(item, ett_scr);
+
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 2,
+	"FOR_MUX_OPTION:  Forward Traffic Channel multiplex option");
+
+    curr_offset += 2;
+
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 2,
+	"REV_MUX_OPTION:  Reverse Traffic Channel multiplex option");
+
+    curr_offset += 2;
+
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 1,
+	"FOR_RATES:  Transmission rates of the Forward Fundamental Channel");
+
+    curr_offset += 1;
+
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 1,
+	"REV_RATES:  Transmission rates of the Reverse Fundamental Channel");
+
+    curr_offset += 1;
+
+    num_con_rec = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 1,
+	"NUM_CON_REC:  Number of service option connection records, %u",
+	num_con_rec);
+
+    curr_offset += 1;
+
+    for (i=1; i <= num_con_rec; i++)
+    {
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	item =
+	    proto_tree_add_text(scr_subtree, tvb,
+		curr_offset, oct /* oct already includes the length octet itself */,
+		"Service option connection record - %u",
+		i);
+
+	subtree =
+	    proto_item_add_subtree(item, ett_srvc_con_rec);
+
+	curr_offset += 1;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "CON_REF:  Service option connection reference, %u",
+	    oct);
+
+	curr_offset += 1;
+
+	value = tvb_get_ntohs(tvb, curr_offset);
+
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 2,
+	    "SERVICE_OPTION:  %s",
+	    ansi_a_so_int_to_str(value));
+
+	curr_offset += 2;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	switch ((oct & 0xf0) >> 4)
+	{
+	case 0x00: str = "The service option connection does not use Forward Traffic Channel traffic."; break;
+	case 0x01: str = "The service option connection uses primary traffic on the Forward Traffic Channel."; break;
+	case 0x02: str = "The service option connection uses secondary traffic on the Forward Traffic Channel."; break;
+	default: str = "Reserved"; break;
+	}
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  FOR_TRAFFIC:  Forward Traffic Channel traffic type, %s",
+	    a_bigbuf,
+	    str);
+
+	switch (oct & 0x0f)
+	{
+	case 0x00: str = "The service option connection does not use Reverse Traffic Channel traffic."; break;
+	case 0x01: str = "The service option connection uses primary traffic on the Reverse Traffic Channel."; break;
+	case 0x02: str = "The service option connection uses secondary traffic on the Reverse Traffic Channel."; break;
+	default: str = "Reserved"; break;
+	}
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x0f, 8);
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  REV_TRAFFIC:  Reverse Traffic Channel traffic type, %s",
+	    a_bigbuf,
+	    str);
+
+	curr_offset += 1;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  UI_ENCRYPT_MODE:  Encryption mode indicator for user information privacy",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x1c, 8);
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  SR_ID:  Service reference identifier",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x02, 8);
+	proto_tree_add_text(subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  RLP_INFO_INCL:  RLP information included indicator",
+	    a_bigbuf);
+
+	if (oct & 0x02)
+	{
+	    value = (oct & 0x01) << 3;
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+
+	    curr_offset += 1;
+
+	    oct = tvb_get_guint8(tvb, curr_offset);
+
+	    value |= (oct & 0xe0) >> 5;
+
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset - 1, 1,
+		"%s :  RLP_BLOB_LEN (MSB), %u",
+		a_bigbuf,
+		value);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset, 1,
+		"%s :  RLP_BLOB_LEN (LSB)",
+		a_bigbuf);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset, 1,
+		"%s :  RLP_BLOB (MSB)",
+		a_bigbuf);
+
+	    curr_offset += 1;
+
+	    if (value > 1)
+	    {
+		proto_tree_add_text(subtree, tvb,
+		    curr_offset, value - 1,
+		    "RLP_BLOB");
+
+		curr_offset += value - 1;
+	    }
+
+	    oct = tvb_get_guint8(tvb, curr_offset);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0xe0, 8);
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset, 1,
+		"%s :  RLP_BLOB (LSB)",
+		a_bigbuf);
+
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x1f, 8);
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+	}
+	else
+	{
+	    other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	    proto_tree_add_text(subtree, tvb,
+		curr_offset, 1,
+		"%s :  Reserved",
+		a_bigbuf);
+	}
+
+	curr_offset += 1;
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 1,
+	"%s :  FCH_CC_INCL:  Channel configuration for the Fundamental Channel included indicator",
+	a_bigbuf);
+
+    if (oct & 0x80)
+    {
+	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  FCH_FRAME_SIZE:  Fundamental Channel frame size supported indicator",
+	    a_bigbuf);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x3e, 8);
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  FOR_FCH_RC:  Forward Fundamental Channel Radio Configuration, %u",
+	    a_bigbuf,
+	    (oct & 0x3e) >> 1);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	value = (oct & 0x01) << 4;
+
+	curr_offset += 1;
+
+	oct = tvb_get_guint8(tvb, curr_offset);
+
+	value |= (oct & 0xf0) >> 4;
+
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset - 1, 1,
+	    "%s :  REV_FCH_RC:  Reverse Fundamental Channel Radio Configuration (MSB), %u",
+	    a_bigbuf,
+	    value);
+
+	other_decode_bitfield_value(a_bigbuf, oct, 0xf0, 8);
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  REV_FCH_RC:  (LSB)",
+	    a_bigbuf);
+
+	bit_mask = 0x08;
+	bit_offset = 3;
+    }
+    else
+    {
+	bit_mask = 0x40;
+	bit_offset = 6;
+    }
+
+    other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+    proto_tree_add_text(scr_subtree, tvb,
+	curr_offset, 1,
+	"%s :  DCCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+	a_bigbuf);
+
+    if (oct & bit_mask)
+    {
+	/* can't be bothered to do the rest of the decode */
+
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+	    "DCCH + ? + Reserved");
+
+	curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+    }
+    else
+    {
+	bit_mask >>= 1;
+	bit_offset--;
+
+	other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+	proto_tree_add_text(scr_subtree, tvb,
+	    curr_offset, 1,
+	    "%s :  FOR_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+	    a_bigbuf);
+
+	if (oct & bit_mask)
+	{
+	    /* can't be bothered to do the rest of the decode */
+
+	    proto_tree_add_text(scr_subtree, tvb,
+		curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+		"FOR_SCH + ? + Reserved");
+
+	    curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+	}
+	else
+	{
+	    bit_mask >>= 1;
+	    bit_offset--;
+
+	    other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+	    proto_tree_add_text(scr_subtree, tvb,
+		curr_offset, 1,
+		"%s :  REV_SCH_CC_INCL:  Channel configuration for the Dedicated Control Channel included indicator",
+		a_bigbuf);
+
+	    if (oct & bit_mask)
+	    {
+		/* can't be bothered to do the rest of the decode */
+
+		proto_tree_add_text(scr_subtree, tvb,
+		    curr_offset, (is2000_portion_len - (curr_offset - saved_offset)),
+		    "REV_SCH + ? + Reserved");
+
+		curr_offset += (is2000_portion_len - (curr_offset - saved_offset));
+	    }
+	    else
+	    {
+		bit_mask = (0xff << (8 - bit_offset));
+		bit_mask >>= (8 - bit_offset);
+
+		other_decode_bitfield_value(a_bigbuf, oct, bit_mask, 8);
+		proto_tree_add_text(scr_subtree, tvb,
+		    curr_offset, 1,
+		    "%s :  Reserved",
+		    a_bigbuf);
+
+		curr_offset += 1;
+	    }
+	}
+    }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -5413,21 +5765,10 @@ static guint8
 elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint8	oct;
-    guint8	oct_len;
     guint32	curr_offset;
+    guint	is2000_portion_len;
 
     curr_offset = offset;
-
-    oct_len = tvb_get_guint8(tvb, curr_offset);
-
-    proto_tree_add_text(tree,
-	tvb, curr_offset, 1,
-	"Bit-Exact Length Octet Count: %u",
-	oct_len);
-
-    curr_offset++;
-
-    NO_MORE_DATA_CHECK(len);
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
@@ -5444,17 +5785,26 @@ elem_is2000_nn_scr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
 
     curr_offset++;
 
+    is2000_portion_len = len - (curr_offset - offset);
+
+#ifndef MLUM
+
     NO_MORE_DATA_CHECK(len);
 
-    if (oct_len > 0)
+    if (is2000_portion_len > 0)
     {
-	SHORT_DATA_CHECK(len - (curr_offset - offset), oct_len);
+	SHORT_DATA_CHECK(len - (curr_offset - offset), is2000_portion_len);
 
-	proto_tree_add_text(tree, tvb, curr_offset, oct_len,
+	proto_tree_add_text(tree, tvb, curr_offset, is2000_portion_len,
 	    "IS-2000 Non-Negotiable Service Configuration Record Content");
 
-	curr_offset += oct_len;
+	curr_offset += is2000_portion_len;
     }
+
+#else
+
+
+#endif
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
 
@@ -6902,9 +7252,9 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint 
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num,
 	tvb, curr_offset, len - (curr_offset - offset),
-	(gchar*)poctets,
+	(gchar *) poctets,
 	"Digits: %s",
-	(gchar*)format_text(poctets, len - (curr_offset - offset)));
+	(gchar *) format_text(poctets, len - (curr_offset - offset)));
 
     curr_offset += len - (curr_offset - offset);
 
@@ -7618,6 +7968,8 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
 	case 7: str = "telephone-event"; break;
 	case 8: str = "EVRCB"; break;
 	case 9: str = "EVRCB0"; break;
+	case 10: str = "EVRCWB"; break;
+	case 11: str = "EVRCWB0"; break;
 	default:
 	    str = "Reserved";
 	    break;
@@ -8063,9 +8415,10 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     curr_offset = offset;
     consumed = 0;
 
-    if ( 0 < idx || idx > ANSI_A_E_NONE) {
-      /* Unknown index, skip the element */
-      return tvb_length_remaining(tvb, offset) ;
+    if (idx < 0 || idx > ANSI_A_E_NONE)
+    {
+        /* Unknown index, skip the element */
+        return tvb_length_remaining(tvb, offset) ;
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8145,9 +8498,10 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     curr_offset = offset;
     consumed = 0;
 
-    if ( 0 < idx || idx > ANSI_A_E_NONE) {
-      /* Unknown index, skip the element */
-      return tvb_length_remaining(tvb, offset) ;
+    if (idx < 0 || idx > ANSI_A_E_NONE)
+    {
+        /* Unknown index, skip the element */
+        return tvb_length_remaining(tvb, offset) ;
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8218,9 +8572,10 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
     curr_offset = offset;
     consumed = 0;
 
-    if ( 0 < idx || idx > ANSI_A_E_NONE) {
-      /* Unknown index, skip the element */
-      return tvb_length_remaining(tvb, offset) ;
+    if (idx < 0 || idx > ANSI_A_E_NONE)
+    {
+        /* Unknown index, skip the element */
+        return tvb_length_remaining(tvb, offset) ;
     }
 
     oct = tvb_get_guint8(tvb, curr_offset);
@@ -8254,10 +8609,11 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
 
     curr_offset = offset;
     consumed = 0;
-    
-    if ( 0 < idx || idx > ANSI_A_E_NONE) {
-      /* Unknown index, skip the element */
-      return tvb_length_remaining(tvb, offset) ;
+
+    if (idx < 0 || idx > ANSI_A_E_NONE)
+    {
+        /* Unknown index, skip the element */
+        return tvb_length_remaining(tvb, offset) ;
     }
     
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -8322,9 +8678,10 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     curr_offset = offset;
     consumed = 0;
 
-    if ( 0 < idx || idx > ANSI_A_E_NONE) {
-      /* Unknown index, skip the element */
-      return tvb_length_remaining(tvb, offset) ;
+    if (idx < 0 || idx > ANSI_A_E_NONE)
+    {
+        /* Unknown index, skip the element */
+        return tvb_length_remaining(tvb, offset) ;
     }
 
     dec_idx = ansi_a_elem_1_strings[idx].dec_index;
@@ -10931,56 +11288,60 @@ static void (*dtap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, g
 
 /* Utillity function to dissect CDMA200 A1 elements in ANSI MAP messages */
 void
-dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, guint32 offset, guint len){
+dissect_cdma2000_a1_elements(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, guint32 offset, guint len)
+{
     guint32	curr_offset;
     guint32	consumed;
     guint	curr_len;
 
     curr_offset = offset;
     curr_len = len;
-	/* 0x22 IS-95 Channel Identity */
-	ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
-	/* 0x09 IS-2000 Channel Identity */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
-	/* 0x0f IS-2000 Non-Negotiable Service */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
-	/* 0x62 IS-95/IS-2000 Cause Value */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
-	/* 0x10 Extended Handoff Direction Parameters */
-	ELEM_OPT_TLV(ANSI_A_E_EXT_HO_DIR_PARAMS, "");
-	/* 0x16 Hard Handoff Parameters */
-	ELEM_OPT_TLV(ANSI_A_E_HHO_PARAMS, "");
-	/* 0x11 IS-2000 Mobile Capabilities */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
-	/* 0x0e IS-2000 Service Configuration Record */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
-	/* 0x14 PDSN IP Address */
+
+    /* 0x22 IS-95 Channel Identity */
+    ELEM_OPT_TLV(ANSI_A_E_IS95_CHAN_ID, "");
+    /* 0x09 IS-2000 Channel Identity */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID, "");
+    /* 0x0f IS-2000 Non-Negotiable Service */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_NN_SCR, "");
+    /* 0x62 IS-95/IS-2000 Cause Value */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CAUSE, "");
+    /* 0x10 Extended Handoff Direction Parameters */
+    ELEM_OPT_TLV(ANSI_A_E_EXT_HO_DIR_PARAMS, "");
+    /* 0x16 Hard Handoff Parameters */
+    ELEM_OPT_TLV(ANSI_A_E_HHO_PARAMS, "");
+    /* 0x11 IS-2000 Mobile Capabilities */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_MOB_CAP, "");
+    /* 0x0e IS-2000 Service Configuration Record */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_SCR, "");
+
+    /* 0x14 PDSN IP Address */
     switch (a_variant)
     {
     case A_VARIANT_IOS401:
-		ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
-		break;
+        ELEM_OPT_TLV(ANSI_A_E_PDSN_IP_ADDR, "");
+        break;
     case A_VARIANT_IOS501:
-		ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
-		break;
+        ELEM_OPT_TLV(ANSI_A_E_S_PDSN_ADDR, "");
+        break;
     }
-	/* 0x18 Protocol Type */
-	ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
-	ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
-	/* 0x2a Service Option List */
-	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
-	/* Source RNC to Target RNC Transparent Container */
-	ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
-	/* 0x3a Target RNC to source RNC Transparent Container */
-	ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
-	/* Slot Cycle Index */
-	ELEM_OPT_TLV(ANSI_A_E_SCI, ""); /* XXX TV used elswhere?? */
-	ELEM_OPT_TLV(ANSI_A_E_ACC_NET_ID, "");/* XXX TV used elswhere?? */
-	ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
-	/* 0x2a Service Option List ( XX in Response this is mentioned last
-	 * need to repete it here?
-	 */
-	ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+
+    /* 0x18 Protocol Type */
+    ELEM_OPT_TLV(ANSI_A_E_PTYPE, "");
+    ELEM_OPT_TLV(ANSI_A_E_QOS_PARAMS, "");
+    /* 0x2a Service Option List */
+    ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
+    /* Source RNC to Target RNC Transparent Container */
+    ELEM_OPT_TLV(ANSI_A_E_SRNC_TRNC_TC, "");
+    /* 0x3a Target RNC to source RNC Transparent Container */
+    ELEM_OPT_TLV(ANSI_A_E_TRNC_SRNC_TC, "");
+    /* Slot Cycle Index */
+    ELEM_OPT_TLV(ANSI_A_E_SCI, ""); /* XXX TV used elswhere?? */
+    ELEM_OPT_TLV(ANSI_A_E_ACC_NET_ID, "");/* XXX TV used elswhere?? */
+    ELEM_OPT_TLV(ANSI_A_E_IS2000_CHAN_ID_3X, "");
+    /* 0x2a Service Option List ( XX in Response this is mentioned last
+     * need to repeat it here?
+     */
+    ELEM_OPT_TLV(ANSI_A_E_SO_LIST, "");
 }
 
 /* GENERIC MAP DISSECTOR FUNCTIONS */
@@ -11411,6 +11772,21 @@ proto_register_ansi_a(void)
 	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
+	{ &hf_ansi_a_so,
+	    { "Service Option",	"ansi_a_bsmap.so",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_a_cause_1,
+	    { "Cause",	"ansi_a_bsmap.cause_1",
+	    FT_UINT8, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
+	{ &hf_ansi_a_cause_2,
+	    { "Cause",	"ansi_a_bsmap.cause_2",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    "", HFILL }
+	},
     };
 
     static enum_val_t a_variant_options[] = {
@@ -11429,7 +11805,7 @@ proto_register_ansi_a(void)
 #define	MAX_NUM_DTAP_MSG	MAX(ANSI_A_IOS401_DTAP_NUM_MSG, ANSI_A_IOS501_DTAP_NUM_MSG)
 #define	MAX_NUM_BSMAP_MSG	MAX(ANSI_A_IOS401_BSMAP_NUM_MSG, ANSI_A_IOS501_BSMAP_NUM_MSG)
 #define	MAX_NUM_ELEM_1		MAX(MAX_IOS401_NUM_ELEM_1, MAX_IOS501_NUM_ELEM_1)
-#define	NUM_INDIVIDUAL_ELEMS	14
+#define	NUM_INDIVIDUAL_ELEMS	16
     gint **ett;
     gint ett_len = (NUM_INDIVIDUAL_ELEMS+MAX_NUM_DTAP_MSG+MAX_NUM_BSMAP_MSG+MAX_NUM_ELEM_1+NUM_FWD_MS_INFO_REC+NUM_REV_MS_INFO_REC) * sizeof(gint *);
 
@@ -11462,6 +11838,8 @@ proto_register_ansi_a(void)
     ett[11] = &ett_so_list;
     ett[12] = &ett_scm;
     ett[13] = &ett_adds_user_part;
+    ett[14] = &ett_scr;
+    ett[15] = &ett_srvc_con_rec;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
