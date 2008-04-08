@@ -8415,7 +8415,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint 
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx > ANSI_A_E_NONE)
+    if ((unsigned)idx > ANSI_A_E_NONE)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8498,7 +8498,7 @@ elem_tv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const g
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx > ANSI_A_E_NONE)
+    if ((unsigned)idx > ANSI_A_E_NONE)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8572,7 +8572,7 @@ elem_t(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, const gc
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx > ANSI_A_E_NONE)
+    if ((unsigned)idx > ANSI_A_E_NONE)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8610,7 +8610,7 @@ elem_lv(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset, guint l
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx > ANSI_A_E_NONE)
+    if ((unsigned)idx > ANSI_A_E_NONE)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
@@ -8678,7 +8678,7 @@ elem_v(tvbuff_t *tvb, proto_tree *tree, elem_idx_t idx, guint32 offset)
     curr_offset = offset;
     consumed = 0;
 
-    if (idx < 0 || idx > ANSI_A_E_NONE)
+    if ((unsigned)idx > ANSI_A_E_NONE)
     {
         /* Unknown index, skip the element */
         return tvb_length_remaining(tvb, offset) ;
