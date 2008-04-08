@@ -1,5 +1,5 @@
 /* XPM */
-static char * expert_none_xpm[] = {
+static const char * expert_none_xpm[] = {
 "10 10 2 1",
 " 	c None",
 ".	c #000000",

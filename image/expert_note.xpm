@@ -1,5 +1,5 @@
 /* XPM */
-static char * expert_note_xpm[] = {
+static const char * expert_note_xpm[] = {
 "10 10 52 1",
 " 	c None",
 ".	c #23393E",
