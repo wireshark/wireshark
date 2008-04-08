@@ -522,13 +522,11 @@ static const true_false_string tfs_supported =
     "not supported"
 };
 
-#ifdef _WIN32
-static const true_false_string tfs_yes_no =
+static const true_false_string tfs_yes_no_sbc =
 {
     "yes",
     "no"
 };
-#endif
 
 static const value_string vals_sounding_rsp_time_cap_codings[] =
 {
@@ -566,35 +564,35 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_167_association_type_support_bit0,
 		{
 			"Scanning Without Association: association not supported", "wmx.sbc.association_type_support.bit0",
-			FT_BOOLEAN, 8,  TFS(&tfs_yes_no), 0x1, "", HFILL
+			FT_BOOLEAN, 8,  TFS(&tfs_yes_no_sbc), 0x1, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit1,
 		{
 			"Association Level 0: scanning or association without coordination", "wmx.sbc.association_type_support.bit1",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x2, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x2, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit2,
 		{
 			"Association Level 1: association with coordination", "wmx.sbc.association_type_support.bit2",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x4, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit3,
 		{
 			"Association Level 2: network assisted association", "wmx.sbc.association_type_support.bit3",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x8, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x8, "", HFILL
 		}
 	},
 	{
 		&hf_sbc_tlv_t_167_association_type_support_bit4,
 		{
 			"Desired Association Support", "wmx.sbc.association_type_support.bit4",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x10, "", HFILL
 		}
 	},
 	{
@@ -692,7 +690,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_27_extension_capability_bit0,
 		{
 			"Supported Extended Subheader Format", "wmx.sbc.extension_capability.bit0",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x1, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x1, "", HFILL
 		}
 	},
 	{
@@ -909,7 +907,7 @@ static hf_register_info hf_sbc[] =
 		&hf_sbc_tlv_t_175_max_num_ul_harq_per_frm_include_one_non_harq_bst,
 		{
 			"Whether The Maximum Number Of UL HARQ Bursts Per Frame (i.e. Bits# 2-0) Includes The One Non-HARQ Burst", "wmx.sbc.max_num_bst_per_frm_capability_harq.max_num_ul_harq_per_frm_include_one_non_harq_bst",
-			FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x8, "", HFILL
+			FT_BOOLEAN, 8, TFS(&tfs_yes_no_sbc), 0x8, "", HFILL
 		}
 	},
 	{	/* 11.7.8.8 */
