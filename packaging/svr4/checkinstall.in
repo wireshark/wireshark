@@ -5,76 +5,37 @@
 # This is a modified version of a script written by mark@metalab.unc.edu .
 # The original is at http://metalab.unc.edu/pub/packages/solaris/sparc/html/creating.solaris.packages.html .
 
-GTK_CONFIG=@GTK_CONFIG@
 PKG_CONFIG=@PKG_CONFIG@
+
+gtk_version_needed="2.0"
+expected_platform="@host_cpu@"
 
 platform=`uname -p`
 
-expected_platform="@host_cpu@"
-
-if [ ${platform} != ${expected_platform} ]; then
+if [ ${platform} != ${expected_platform} ]
+then
   echo "\n\n\n\tThis package must be installed on a ${expected_platform} architecture\n"
   echo "\tAborting installation.\n\n\n"
   exit 1
 fi
 
-if [ -n "$GTK_CONFIG" ]
+if [ ! -x "$PKG_CONFIG" ]
 then
-	# We were build with GTK1
-	gtk_major_needed="1"
-	gtk_minor_needed="2"
+	# We couldn't find GTK in the location that was used to build
+	# Wireshark.
+	# Punt!
+	# If gtk-config is in the $PATH then wireshark should install fine.
+	# Some modifications to $LD_LIBRARY_PATH (or non Solaris equivalent)
+	# may be required by the user.  Should there be a warning here?
+	PKG_CONFIG=pkg-config
+fi
 
-	if [ -x "$GTK_CONFIG" ]
-	then
-		# First try the GTK location that was used to build wireshark.  This
-		# is probably the safest bet.
-		gtk_installed=`$GTK_CONFIG --version`
-		gtk_major_installed=`echo $gtk_installed | cut -f1 -d.`
-		gtk_minor_installed=`echo $gtk_installed | cut -f2 -d.`
-	elif gtk_installed=`gtk-config --version 2>&-`
-	then
-		# Punt!
-		# If gtk-config is in the $PATH then wireshark should install fine.
-		# Some modifications to $LD_LIBRARY_PATH (or non Solaris equivalent)
-		# may be required by the user.  Should there be a warning here?
-		gtk_major_installed=`echo $gtk_installed | cut -f1 -d.`
-		gtk_minor_installed=`echo $gtk_installed | cut -f2 -d.`
-	else
-		gtk_major_installed="0"
-		gtk_minor_installed="0"
-	fi
-
-	# This if statement should be more complicated but this code is only
-	# for GTK1 so the major version is guaranteed to be 1.
-	if [ "$gtk_major_installed" -lt "$gtk_major_needed" -o \
-	     "$gtk_minor_installed" -lt "$gtk_minor_needed" ]
-	then
-		echo "\n\n\n\tThis package requires gtk+ version >= $gtk_major_needed.$gtk_minor_needed installed in `dirname ${GTK_CONFIG}`."
-		echo "\tAborting installation.\n\n\n"
-		exit 1
-	fi
-else
-	# We were built with GTK2
-	gtk_version_needed="2.0"
-
-	if [ ! -x "$PKG_CONFIG" ]
-	then
-		# We couldn't find GTK in the location that was used to build
-		# Wireshark.
-		# Punt!
-		# If gtk-config is in the $PATH then wireshark should install fine.
-		# Some modifications to $LD_LIBRARY_PATH (or non Solaris equivalent)
-		# may be required by the user.  Should there be a warning here?
-		PKG_CONFIG=pkg-config
-	fi
-
-	$PKG_CONFIG gtk+-2.0 --atleast-version=$gtk_version_needed
-	if [ $? != 0 ]
-	then
-		echo "\n\n\n\tThis package requires gtk+-2 version >= $gtk_version_needed installed in `dirname ${PKG_CONFIG}`."
-		echo "\tAborting installation.\n\n\n"
-		exit 1
-	fi
+$PKG_CONFIG gtk+-2.0 --atleast-version=$gtk_version_needed
+if [ $? != 0 ]
+then
+	echo "\n\n\n\tThis package requires gtk+-2 version >= $gtk_version_needed installed in `dirname @PKG_CONFIG@`."
+	echo "\tAborting installation.\n\n\n"
+	exit 1
 fi
 
 exit 0
