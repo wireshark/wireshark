@@ -97,7 +97,7 @@
 
 /* gtk_tree_view_expand_to_path doesn't exist in gtk+ v2.0 so we must include it
  * when building with this version (taken from gtk+ v2.2.4) */
-#if GTK_MAJOR_VERSION >= 2 && GTK_MINOR_VERSION == 0
+#if GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION == 0
 /**
  * gtk_tree_view_expand_to_path:
  * @tree_view: A #GtkTreeView.
