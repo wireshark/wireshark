@@ -397,11 +397,11 @@ gui_prefs_fetch(GtkWidget *w)
 	 * places where there *can* be a bad preference value.
 	 */
 	if (font_fetch()) {
-		if (strcmp(new_font_name, prefs.PREFS_GUI_FONT_NAME) != 0) {
+		if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
 			font_changed = TRUE;
-			if (prefs.PREFS_GUI_FONT_NAME != NULL)
-				g_free(prefs.PREFS_GUI_FONT_NAME);
-			prefs.PREFS_GUI_FONT_NAME = g_strdup(new_font_name);
+			if (prefs.gui_font_name != NULL)
+				g_free(prefs.gui_font_name);
+			prefs.gui_font_name = g_strdup(new_font_name);
 		}
 	}
 }

@@ -41,14 +41,6 @@
 
 #define RTP_PLAYER_DEFAULT_VISIBLE 4
 
-/* only GTK1 *or* GTK2 font_name should be used */
-/* (we need to keep both in the preferences file but will only use the one suitable for the programs GTK version used) */
-#if GTK_MAJOR_VERSION < 2
-#define PREFS_GUI_FONT_NAME gui_font_name1
-#else
-#define PREFS_GUI_FONT_NAME gui_font_name2
-#endif
-
 /*
  * Convert a string listing name resolution types to a bitmask of
  * those types.
@@ -122,8 +114,7 @@ typedef struct _e_prefs {
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
   gint     gui_toolbar_main_style;
-  gchar   *gui_font_name1;
-  gchar   *gui_font_name2;
+  gchar   *gui_font_name;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
   gchar   *gui_colorized_fg;

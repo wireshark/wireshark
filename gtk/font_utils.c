@@ -245,7 +245,7 @@ user_font_apply(void) {
     FONT_TYPE *old_r_font = NULL, *old_b_font = NULL;
 
     /* convert font name to reflect the zoom level */
-    gui_font_name = font_zoom(prefs.PREFS_GUI_FONT_NAME);
+    gui_font_name = font_zoom(prefs.gui_font_name);
     if (gui_font_name == NULL) {
     	/*
     	 * This means the font name isn't an XLFD font name.
@@ -400,20 +400,20 @@ void font_init(void)
 #endif
 
   /* Try to load the regular and boldface fixed-width fonts */
-  m_r_font = pango_font_description_from_string(prefs.gui_font_name2);
+  m_r_font = pango_font_description_from_string(prefs.gui_font_name);
   m_b_font = pango_font_description_copy(m_r_font);
   pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
   if (m_r_font == NULL || m_b_font == NULL) {
     /* XXX - pop this up as a dialog box? no */
     if (m_r_font == NULL) {
 	fprintf(stderr, "wireshark: Warning: font %s not found - defaulting to Monospace 9\n",
-		prefs.gui_font_name2);
+		prefs.gui_font_name);
     } else {
       pango_font_description_free(m_r_font);
     }
     if (m_b_font == NULL) {
         fprintf(stderr, "wireshark: Warning: bold font %s not found - defaulting"
-                        " to Monospace 9\n", prefs.gui_font_name2);
+                        " to Monospace 9\n", prefs.gui_font_name);
     } else {
       pango_font_description_free(m_b_font);
     }
@@ -426,9 +426,9 @@ void font_init(void)
       fprintf(stderr, "wireshark: Error: font Monospace 9 bold not found\n");
       exit(1);
     }
-    g_free(prefs.gui_font_name2);
+    g_free(prefs.gui_font_name);
     pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-    prefs.gui_font_name2 = g_strdup("Monospace 9");
+    prefs.gui_font_name = g_strdup("Monospace 9");
   }
 
   /* Call this for the side-effects that set_fonts() produces */

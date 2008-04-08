@@ -546,7 +546,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
      a fix; hopefully, it'll show up in 1.2.9 if, as, and when
      they put out a 1.2.9 release. */
   gtk_font_selection_set_font_name(
-	    GTK_FONT_SELECTION(gui_font_pg), prefs.PREFS_GUI_FONT_NAME);
+	    GTK_FONT_SELECTION(gui_font_pg), prefs.gui_font_name);
 
   /* GUI Colors prefs */
   g_strlcpy(label_str, "Colors", MAX_TREE_NODE_NAME_LEN);

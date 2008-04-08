@@ -2674,9 +2674,9 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'm':        /* Fixed-width font for the display */
-        if (prefs->PREFS_GUI_FONT_NAME != NULL)
-          g_free(prefs->PREFS_GUI_FONT_NAME);
-        prefs->PREFS_GUI_FONT_NAME = g_strdup(optarg);
+        if (prefs->gui_font_name != NULL)
+          g_free(prefs->gui_font_name);
+        prefs->gui_font_name = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
         g_resolv_flags = RESOLV_NONE;

@@ -1100,16 +1100,7 @@ init_prefs(void) {
   prefs.filter_toolbar_show_in_statusbar = FALSE;
   prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef _WIN32
-  /* XXX - not sure, if it must be "Lucida Console" or "lucida console"
-   * for gui_font_name1. Maybe it's dependant on the windows version running?!
-   * verified on XP: "Lucida Console"
-   * unknown for other windows versions.
-   *
-   * Problem: if we have no preferences file, and the default font name is unknown,
-   * we cannot save Preferences as an error dialog pops up "You have not selected a font".
-   */
-  prefs.gui_font_name1 = g_strdup("-*-Lucida Console-medium-r-*-*-*-100-*-*-*-*-*-*");
-  prefs.gui_font_name2 = g_strdup("Lucida Console 10");
+  prefs.gui_font_name = g_strdup("Lucida Console 10");
 #else
   /*
    * XXX - for now, we make the initial font name a pattern that matches
@@ -1156,9 +1147,9 @@ init_prefs(void) {
    * protocol-tree, and hex-dump windows involves a lot more than, say,
    * just using font sets rather than fonts.
    */
-  prefs.gui_font_name1 = g_strdup("-misc-fixed-medium-r-semicondensed-*-*-100-*-*-*-*-iso8859-1");
+  /* XXX - the above comment was about the GTK1 font stuff, just remove this comment now */
   /* XXX- is this the correct default font name for GTK2 none win32? */
-  prefs.gui_font_name2 = g_strdup("Monospace 10");
+  prefs.gui_font_name = g_strdup("Monospace 10");
 #endif
   prefs.gui_marked_fg.pixel        =     65535;
   prefs.gui_marked_fg.red          =     65535;
@@ -1219,10 +1210,8 @@ prefs_reset(void)
   if (prefs.pr_cmd)
     g_free(prefs.pr_cmd);
   free_col_info(&prefs);
-  if (prefs.gui_font_name1)
-    g_free(prefs.gui_font_name1);
-  if (prefs.gui_font_name2)
-    g_free(prefs.gui_font_name2);
+  if (prefs.gui_font_name)
+    g_free(prefs.gui_font_name);
   if (prefs.gui_colorized_fg)
     g_free(prefs.gui_colorized_fg);
   if (prefs.gui_colorized_bg)
@@ -1923,13 +1912,11 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
 	    find_index_from_string_array(value, gui_toolbar_style_text,
 				     TB_STYLE_ICONS);
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
-    if (prefs.gui_font_name1 != NULL)
-      g_free(prefs.gui_font_name1);
-    prefs.gui_font_name1 = g_strdup(value);
+    /* GTK1 font name obsolete */
   } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_2) == 0) {
-    if (prefs.gui_font_name2 != NULL)
-      g_free(prefs.gui_font_name2);
-    prefs.gui_font_name2 = g_strdup(value);
+    if (prefs.gui_font_name != NULL)
+      g_free(prefs.gui_font_name);
+    prefs.gui_font_name = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.gui_marked_fg.pixel = 0;
@@ -2724,11 +2711,8 @@ write_prefs(char **pf_path_return)
 
   fprintf (pf, "\n######## User Interface: Font ########\n");
 
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 1).\n");
-  fprintf(pf, PRS_GUI_FONT_NAME_1 ": %s\n", prefs.gui_font_name1);
-
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 2).\n");
-  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name2);
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
+  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name);
 
   fprintf (pf, "\n######## User Interface: Colors ########\n");
 
@@ -2923,8 +2907,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_layout_content_1 = src->gui_layout_content_1;
   dest->gui_layout_content_2 = src->gui_layout_content_2;
   dest->gui_layout_content_3 = src->gui_layout_content_3;
-  dest->gui_font_name1 = g_strdup(src->gui_font_name1);
-  dest->gui_font_name2 = g_strdup(src->gui_font_name2);
+  dest->gui_font_name = g_strdup(src->gui_font_name);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
@@ -2959,13 +2942,9 @@ free_prefs(e_prefs *pr)
     pr->pr_cmd = NULL;
   }
   free_col_info(pr);
-  if (pr->gui_font_name1 != NULL) {
-    g_free(pr->gui_font_name1);
-    pr->gui_font_name1 = NULL;
-  }
-  if (pr->gui_font_name2 != NULL) {
-    g_free(pr->gui_font_name2);
-    pr->gui_font_name2 = NULL;
+  if (pr->gui_font_name != NULL) {
+    g_free(pr->gui_font_name);
+    pr->gui_font_name = NULL;
   }
   if (pr->gui_fileopen_dir != NULL) {
     g_free(pr->gui_fileopen_dir);
