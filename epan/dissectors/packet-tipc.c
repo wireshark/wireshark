@@ -838,6 +838,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 	guint msg_no = 0;
 	guint32 msg_in_bundle_size;
 	guint8 msg_in_bundle_user;
+	gint b_inst_strlen, padlen;
 
 	/* for fragmented messages */
 	gint len, reported_len;
@@ -1043,8 +1044,18 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			offset = offset + 4;
 
 			if ((message_type == TIPCv2_RESET_MSG)
-					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4))  != 0))) /* is allowed */
+					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))) /* is allowed */
 				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, FALSE);
+				/* the bearer instance string is padded with \0 to the next word boundry */
+				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
+				offset += b_inst_strlen;
+				if ((padlen = (4-b_inst_strlen%4)) > 0) {
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, padlen, "Padding: %d byte%c", padlen, (padlen!=1?'s':0));
+					offset += padlen;
+				};
+				if ((offset-msg_size) > 0) {
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, -1, "Filler for MTU discovery: %d byte%c", tvb_length_remaining(tipc_tvb, offset), (padlen!=1?'s':0));
+				};
 			break;
 		case TIPCv2_CONN_MANAGER:
 			/* CONN_MANAGER uses the 36-byte header format of CONN_MSG payload messages */
@@ -1271,7 +1282,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			{
 				case 0:
 					/* DUPLICATE_MSG */
-					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "word 9 Unused for this message type");
+					proto_tree_add_text(tipc_tree, tipc_tvb, offset, 4, "word 9 unused for this message type");
 					break;
 				case 1:
 					/* ORIGINAL_MSG */
@@ -1641,7 +1652,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	proto_tree_add_item(tipc_tree, hf_tipcv2_usr, tipc_tvb, offset, 4, FALSE);
 	/* Header Size: 4 bits */
 	item = proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
-	proto_item_append_text(item, " = %u Bytes", (hdr_size * 4));
+	proto_item_append_text(item, " = %u bytes", (hdr_size * 4));
 	/* Non-sequenced: 1 bit */
 	proto_tree_add_item(tipc_tree, hf_tipc_nonsequenced, tipc_tvb, offset, 4, FALSE);
 	if (datatype_hdr) {
@@ -2162,7 +2173,7 @@ dissect_tipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(tipc_tree, hf_tipc_ver, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_usr, tipc_tvb, offset, 4, FALSE);
 	item = proto_tree_add_item(tipc_tree, hf_tipc_hdr_size, tipc_tvb, offset, 4, FALSE);
-	proto_item_append_text(item, " = %u Bytes", (hdr_size * 4));
+	proto_item_append_text(item, " = %u bytes", (hdr_size * 4));
 	proto_tree_add_item(tipc_tree, hf_tipc_nonsequenced, tipc_tvb, offset, 4, FALSE);
 	proto_tree_add_item(tipc_tree, hf_tipc_unused, tipc_tvb, offset, 4, FALSE);
 	if (datatype_hdr) {
