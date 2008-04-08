@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include <assert.h>
 #include "dtd.h"
 #include "dtd_parse.h"
 
