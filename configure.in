@@ -1122,7 +1122,7 @@ if test "x$enable_setuid_install" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	if test "x$enable_dumpcap" = "xno" ; then
-		AC_MSG_ERROR(Setuid install works only with --enable-dumpcap, but dumpcap is disabled)
+		AC_MSG_ERROR(Setuid install works only with dumpcap but dumpcap is disabled)
 	else
 		AC_MSG_RESULT(yes)
 	fi
