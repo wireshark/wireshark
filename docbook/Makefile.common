@@ -65,12 +65,12 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-list-pane.png			\
 	wsug_graphics/ws-main-toolbar.png		\
 	wsug_graphics/ws-menu.png			\
-	wsug_graphics/ws-merge-gtk1.png			\
-	wsug_graphics/ws-merge-gtk2.png			\
+	wsug_graphics/ws-merge-gtk20.png			\
+	wsug_graphics/ws-merge-gtk24.png			\
 	wsug_graphics/ws-merge-win32.png		\
 	wsug_graphics/ws-nameresolution-preferences.png	\
-	wsug_graphics/ws-open-gtk1.png			\
-	wsug_graphics/ws-open-gtk2.png			\
+	wsug_graphics/ws-open-gtk20.png			\
+	wsug_graphics/ws-open-gtk24.png			\
 	wsug_graphics/ws-open-win32.png			\
 	wsug_graphics/ws-packet-format.png		\
 	wsug_graphics/ws-packet-pane-popup-menu.png	\
@@ -79,8 +79,8 @@ WSUG_GRAPHICS =	\
 	wsug_graphics/ws-packet-sep-win.png		\
 	wsug_graphics/ws-print.png			\
 	wsug_graphics/ws-printing-preferences.png	\
-	wsug_graphics/ws-save-as-gtk1.png		\
-	wsug_graphics/ws-save-as-gtk2.png		\
+	wsug_graphics/ws-save-as-gtk20.png		\
+	wsug_graphics/ws-save-as-gtk24.png		\
 	wsug_graphics/ws-save-as-win32.png		\
 	wsug_graphics/ws-statistics-menu.png		\
 	wsug_graphics/ws-stats-conversations.png	\

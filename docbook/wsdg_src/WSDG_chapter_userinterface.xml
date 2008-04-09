@@ -18,13 +18,13 @@
 	development team:
 	<itemizedlist>
 	  <listitem><para>
-	  Wireshark, GTK 1.x based
-	  </para></listitem>
-	  <listitem><para>
 	  Wireshark, GTK 2.x based
 	  </para></listitem>
 	  <listitem><para>
 	  TShark, console based
+	  </para></listitem>
+	  <listitem><para>
+	  Wireshark, GTK 1.x based (was removed after the Wireshark 1.0.0 release)
 	  </para></listitem>
 	</itemizedlist>
 	There exist other Wireshark frontends, not developed nor
@@ -80,6 +80,10 @@
 	<section id="ChUIGTK1x">
 	<title>GTK Version 1.x</title>
 	<para>
+	Please note: The HEAD (development) branch after the Wireshark release 
+	1.0.0 does no longer contain code to support GTK 1.x!
+	</para>
+	<para>
 	GTK 1.x was the first major release. Today there are 1.2.x and 1.3.x
 	versions "in the wild", with only very limitted differences in the API.
 	</para>
@@ -99,7 +103,7 @@
 	  the look and feel is a bit old-fashioned
 	  </para></listitem>
 	  <listitem><para>
-	  not recommended for future developments
+	  not recommended for future developments (last GTK 1.x release in 2004)
 	  </para></listitem>
 	</itemizedlist>
 	GTK 1.x depends on the following libraries:
@@ -137,15 +141,14 @@
 	  <listitem><para>
 	  recommended for future developments
 	  </para></listitem>
+	  <listitem><para>
+	  stable (in productive code for years now)
+	  </para></listitem>
 	</itemizedlist>
 	Disadvantages:
 	<itemizedlist>
 	  <listitem><para>
 	  not available on all platforms (compared to version 1.x)
-	  </para></listitem>
-	  <listitem><para>
-	  maybe a bit less stable compared to version 1.x (but should be
-	  production stable too)
 	  </para></listitem>
 	  <listitem><para>
 	  more dependencies compared to 1.x, see below

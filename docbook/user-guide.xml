@@ -249,12 +249,12 @@ FILE SECTION
   <!ENTITY WiresharkStatsSrtDcerpc SYSTEM "./wsug_graphics/ws-stats-srt-dcerpc.png" NDATA PNG>
 
   <!-- Fifth Chapter -->
-  <!ENTITY WiresharkOpenDialog1 SYSTEM "./wsug_graphics/ws-open-gtk1.png" NDATA PNG> 
-  <!ENTITY WiresharkSaveAsDialog1 SYSTEM "./wsug_graphics/ws-save-as-gtk1.png" NDATA PNG>
-  <!ENTITY WiresharkMergeDialog1 SYSTEM "./wsug_graphics/ws-merge-gtk1.png" NDATA PNG>
-  <!ENTITY WiresharkOpenDialog2 SYSTEM "./wsug_graphics/ws-open-gtk2.png" NDATA PNG> 
-  <!ENTITY WiresharkSaveAsDialog2 SYSTEM "./wsug_graphics/ws-save-as-gtk2.png" NDATA PNG>
-  <!ENTITY WiresharkMergeDialog2 SYSTEM "./wsug_graphics/ws-merge-gtk2.png" NDATA PNG>
+  <!ENTITY WiresharkOpenDialog20 SYSTEM "./wsug_graphics/ws-open-gtk20.png" NDATA PNG> 
+  <!ENTITY WiresharkSaveAsDialog20 SYSTEM "./wsug_graphics/ws-save-as-gtk20.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialog20 SYSTEM "./wsug_graphics/ws-merge-gtk20.png" NDATA PNG>
+  <!ENTITY WiresharkOpenDialog24 SYSTEM "./wsug_graphics/ws-open-gtk24.png" NDATA PNG> 
+  <!ENTITY WiresharkSaveAsDialog24 SYSTEM "./wsug_graphics/ws-save-as-gtk24.png" NDATA PNG>
+  <!ENTITY WiresharkMergeDialog24 SYSTEM "./wsug_graphics/ws-merge-gtk24.png" NDATA PNG>
   <!ENTITY WiresharkOpenDialogWin32 SYSTEM "./wsug_graphics/ws-open-win32.png" NDATA PNG> 
   <!ENTITY WiresharkSaveAsDialogWin32 SYSTEM "./wsug_graphics/ws-save-as-win32.png" NDATA PNG>
   <!ENTITY WiresharkMergeDialogWin32 SYSTEM "./wsug_graphics/ws-merge-win32.png" NDATA PNG>

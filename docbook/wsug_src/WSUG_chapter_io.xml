@@ -74,9 +74,9 @@
 	    <note>
 	      <title>The dialog appearance depends on your system!</title>
 	      <para>
-		  The appearance of this dialog depends on the system and GTK+ toolkit 
-		  version used. However, the functionality remains basically the same 
-		  on any particular system.
+		  The appearance of this dialog depends on the system and/or GTK+ 
+		  toolkit version used. However, the functionality remains basically 
+		  the same on any particular system.
 	      </para>
 	    </note>
 		
@@ -162,7 +162,7 @@
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+		<para><command>Microsoft Windows</command></para>
       <para>
 		This is the common Windows file open dialog - 
 		plus some Wireshark extensions.
@@ -197,7 +197,7 @@
 		<para>
       <figure id="ChIOOpenFileDialog">
 	<title>"Open" - new GTK version</title>
-	<graphic entityref="WiresharkOpenDialog2" format="PNG"/>
+	<graphic entityref="WiresharkOpenDialog24" format="PNG"/>
       </figure>
 		</para>
 	  </entry>
@@ -239,14 +239,13 @@
 		<para>
       <figure id="ChIOOpenFileDialog1">
 	<title>"Open" - old GTK version</title>
-	<graphic entityref="WiresharkOpenDialog1" format="PNG"/>
+	<graphic entityref="WiresharkOpenDialog20" format="PNG"/>
       </figure>
 		</para>
 		</entry>
 	  <entry valign="top">
 	    <para>
-		<command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows (GTK1 
-		installed)</command></para>
+		<command>Unix/Linux: GTK version &lt; 2.4</command></para>
 		<para>
 		  This is the file open dialog of former Gimp/GNOME versions - 
 		  plus some Wireshark extensions.
@@ -304,6 +303,7 @@
 		  <listitem><para>Endace Measurement Systems' ERF format captures</para></listitem>
 		  <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
 		  <listitem><para>Catapult DCT2000 .out files</para></listitem>
+		  <listitem><para>... new file formats are added from time to time</para></listitem>
 	</itemizedlist>
     </para>
     <note><title>Opening a file may fail due to invalid packet types!</title>
@@ -364,7 +364,7 @@
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+		<para><command>Microsoft Windows</command></para>
       <para>
 		This is the common Windows file save dialog - 
 		plus some Wireshark extensions.
@@ -394,7 +394,7 @@
 		<para>
       <figure id="ChIOSaveAsFile2">
 	<title>"Save" - new GTK version</title>
-	<graphic entityref="WiresharkSaveAsDialog2" format="PNG"/>
+	<graphic entityref="WiresharkSaveAsDialog24" format="PNG"/>
       </figure>
 		</para>
 		</entry>
@@ -422,13 +422,12 @@
 		<para>
       <figure id="ChIOSaveAsFile1">
 	<title>"Save" - old GTK version</title>
-	<graphic entityref="WiresharkSaveAsDialog1" format="PNG"/>
+	<graphic entityref="WiresharkSaveAsDialog20" format="PNG"/>
       </figure>
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows 
-		(GTK1 installed)</command></para>
+		<para><command>Unix/Linux: GTK version &lt; 2.4</command></para>
       <para>
 		This is the file save dialog of former Gimp/GNOME versions - 
 		plus some Wireshark extensions.
@@ -524,6 +523,7 @@
 	      <listitem><para>Novell LANalyzer (*.tr1)</para></listitem>
 	      <listitem><para>Sun snoop (*.snoop,*.cap)</para></listitem>
 	      <listitem><para>Visual Networks Visual UpTime traffic (*.*)</para></listitem>
+		  <listitem><para>... new file formats are added from time to time</para></listitem>
 	</itemizedlist>
     </para>
     <para>
@@ -633,7 +633,7 @@
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Microsoft Windows (GTK2 installed)</command></para>
+		<para><command>Microsoft Windows</command></para>
       <para>
 		This is the common Windows file open dialog - 
 		plus some Wireshark extensions.
@@ -645,7 +645,7 @@
 		<para>
       <figure id="ChIOMergeFile2">
 	<title>"Merge" - new GTK version</title>
-	<graphic entityref="WiresharkMergeDialog2" format="PNG"/>
+	<graphic entityref="WiresharkMergeDialog24" format="PNG"/>
       </figure>
 		</para>
 		</entry>
@@ -662,13 +662,12 @@
 		<para>
       <figure id="ChIOMergeFile1">
 	<title>"Merge" - old GTK version</title>
-	<graphic entityref="WiresharkMergeDialog1" format="PNG"/>
+	<graphic entityref="WiresharkMergeDialog20" format="PNG"/>
       </figure>
 		</para>
 		</entry>
 		<entry valign="top">
-		<para><command>Unix/Linux: GTK version &lt; 2.4 / Microsoft Windows 
-		(GTK1 installed)</command></para>
+		<para><command>Unix/Linux: GTK version &lt; 2.4</command></para>
       <para>
 		This is the file open dialog of former Gimp/GNOME versions - 
 		plus some Wireshark extensions.
@@ -952,8 +951,8 @@
 	    opened with the proper viewer or executed in the case of
 	    executables (if it is for the same platform you are
 	    running Wireshark on) without any further work on your
-	    part.  This feature is not available in the GTK1 build of
-	    Wireshark or when using GTK2 versions below 2.4.
+	    part.  This feature is not available when using GTK2 versions 
+		below 2.4.
 	  </para>
     <figure>
       <title>The "Export Objects" dialog box</title>

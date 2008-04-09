@@ -473,16 +473,10 @@ pkg_add -r wireshark
     <title>"Choose Components" page</title>
     <para>
 	<command>Wireshark</command>
-	(both Wireshark GTK1 and 2 user interfaces cannot be installed at the same 
-	time):
 	<itemizedlist>
 	<listitem><para>
-	<command>Wireshark GTK1</command> - Wireshark is a GUI network protocol 
+	<command>Wireshark GTK</command> - Wireshark is a GUI network protocol 
 	analyzer.
-	</para></listitem>
-	<listitem><para>
-	<command>Wireshark GTK2</command> - Wireshark is a GUI network protocol 
-	analyzer (using the modern GTK2 GUI toolkit, recommended).
 	</para></listitem>
 	<listitem><para>
 	<command>GTK MS Windows Engine</command> - GTK MS Windows Engine
@@ -493,12 +487,6 @@ pkg_add -r wireshark
 	<para>
 	<command>TShark</command> - TShark is a command-line based network 
 	protocol analyzer.
-	</para>
-	<para>
-	You may try the GTK1 selection if you experience any GUI problems with GTK2, 
-	e.g. Windows with only 256 (8bit) color displays won't work well with GTK2. 
-	However, the older GTK1 user interface doesn't provide some advanced 
-	analyze and statistics features.
 	</para>
 	<para>
 	<command>Plugins / Extensions</command> (for the Wireshark and TShark 

@@ -222,7 +222,7 @@
 	</para></listitem>
 	<listitem><para>800*600 (1280*1024 or higher recommended) resolution with
 	at least 65536 (16bit) colors (256 colors should work if Wireshark is
-	installed with the "legacy GTK1" selection)
+	installed with the "legacy GTK1" selection of the Wireshark 1.0.x releases)
 	</para></listitem>
 	<listitem><para>A supported network card for capturing:
 	</para>
