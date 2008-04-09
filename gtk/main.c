@@ -2400,7 +2400,7 @@ main(int argc, char *argv[])
      parameters.  We do this so we don't start GTK+ if we're only showing
      command-line help or version information.
 
-     XXX - this pre-scan is doen before we start GTK+, so we haven't
+     XXX - this pre-scan is done before we start GTK+, so we haven't
      run gtk_init() on the arguments.  That means that GTK+ arguments
      have not been removed from the argument list; those arguments
      begin with "--", and will be treated as an error by getopt().
