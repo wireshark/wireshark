@@ -1267,7 +1267,7 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 
     toolbar_tb = w;
 
-    if_description_lb	    = g_object_get_data(G_OBJECT(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    if_description_lb	    = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
     channel_lb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
     channel_cb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
     channel_offset_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
