@@ -1503,8 +1503,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	if(user_data->dlg.parent_w) {
 		gtk_window_set_transient_for(GTK_WINDOW(user_data->dlg.window),
 					     GTK_WINDOW(user_data->dlg.parent_w));
-		/* Destruction of this child window in GTK1 is handled by a call
-		 * to destroy_window() in flow_graph.c. */
+		/* Destruction of this child window */
 		gtk_window_set_destroy_with_parent(GTK_WINDOW(user_data->dlg.window), TRUE);
 	}
 	g_free(win_name);

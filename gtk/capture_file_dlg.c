@@ -294,7 +294,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 
 #if 0
 /* as the dialog layout will look very ugly when using the file chooser preview mechanism,
-   simply use the same layout as in GTK1 */
+   simply use the same layout as in GTK2.0 */
 /* GTK_CHECK_VERSION(2,4,0) */
 static void
 update_preview_cb (GtkFileChooser *file_chooser, gpointer data)

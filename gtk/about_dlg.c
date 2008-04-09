@@ -437,9 +437,7 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   /* set the initial position (must be done, before show is called!) */
   /* default position is not appropriate for the about dialog */
   gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER_ON_PARENT);
-  /* setting the size is dangerous here, as making it too short will
-   * clip content on GTK1, so simply use the natural size */
-  /*gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);*/
+  gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);
   gtk_container_border_width(GTK_CONTAINER(about_wireshark_w), 6);
 
   main_vb = gtk_vbox_new(FALSE, 12);

@@ -54,8 +54,6 @@
  *   use dlg_window_new() if you need a dialog (transient to the main window)
  * - gtk_window_set_default_size() to set the default size of the window. Only
  *   needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
- *   Be sure that the given size is larger than the initial size, otherwise the window might
- *   clip the content (at least on GTK1)
  * - SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be
  *   done after the window is destroyed, e.g. free up memory, or set the window pointer
  *   of a singleton window (only one instance allowed, e.g. about dialog) back to zero
