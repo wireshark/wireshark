@@ -1,4 +1,4 @@
-/* packet-dcp.c
+/* packet-dccp.c
  * Routines for Datagram Congestion Control Protocol, "DCCP" dissection:
  * it should be conformance to draft-ietf-dccp-spec-11.txt
  *
