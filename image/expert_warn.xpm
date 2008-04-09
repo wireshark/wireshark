@@ -1,5 +1,5 @@
 /* XPM */
-static char * expert_warn_xpm[] = {
+static const char * expert_warn_xpm[] = {
 "14 14 98 2",
 "  	c None",
 ". 	c #1F1F13",
