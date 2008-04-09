@@ -1564,18 +1564,6 @@ the selection until you press the space bar.  If the selection bar has a
 "select" behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or packet details.
 
-=item Tree Line Style (GTK1 only)
-
-Trees can be drawn with no lines, solid lines, or dotted lines between
-items, or can be drawn with "tab" headings.
-
-=item Tree Expander Style (GTK1 only)
-
-The expander item that can be clicked to show or hide items under a tree
-item can be omitted (note that this will prevent you from changing
-whether those items are shown or hidden!), or can be drawn as squares,
-triangles, or circles.
-
 =item Save Window Position
 
 If this item is selected, the position of the main Wireshark window will
