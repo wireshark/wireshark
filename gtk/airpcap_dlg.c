@@ -63,10 +63,6 @@
 
 #include "keys.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* temporary block signals to widgets */
 BOOL block_advanced_signals;
 

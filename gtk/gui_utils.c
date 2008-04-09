@@ -51,10 +51,6 @@
 /* XXX - remove this later again, when dlg_xx function cleanup done */
 #include "dlg_utils.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 
 #define WINDOW_GEOM_KEY "window_geom"
 

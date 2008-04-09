@@ -74,10 +74,6 @@
 #include "rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 const char *voip_call_state_name[8]={
 	"",
 	"CALL SETUP",

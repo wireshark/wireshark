@@ -49,9 +49,6 @@
 #include "file_util.h"
 #include "u3.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"

@@ -185,10 +185,6 @@
 /* Davide Schiera (2006-11-22) ----------------------------------------------	*/
 #endif
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.

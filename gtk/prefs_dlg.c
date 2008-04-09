@@ -68,9 +68,6 @@
 #endif
 #endif
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);

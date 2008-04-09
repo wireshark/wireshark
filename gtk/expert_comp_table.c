@@ -50,10 +50,6 @@
 #include <epan/expert.h>
 #include <epan/emem.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define SORT_ALPHABETICAL 0

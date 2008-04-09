@@ -81,10 +81,6 @@
 #include "airpcap_dlg.h"
 #endif
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 /*
  * Keep a static pointer to the current "Capture Interfaces" window, if
  * any, so that if somebody tries to do "Capture:Start" while there's

@@ -53,11 +53,6 @@
 #include "../tap_dfilter_dlg.h"
 #include "gui_utils.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
-
 #define NUM_TIMESTATS 10
 
 /* used to keep track of the statistics for an entire program interface */

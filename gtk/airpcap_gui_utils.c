@@ -55,10 +55,6 @@
 
 #include "keys.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* Controls the releay of settings back to the adapter. */
 gboolean change_airpcap_settings = FALSE;
 

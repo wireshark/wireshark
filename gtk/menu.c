@@ -89,10 +89,6 @@
 
 #include "export_object.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../epan/g_ascii_strcasecmp.h"
-#endif
-
 GtkWidget *popup_menu_object;
 
 static void
