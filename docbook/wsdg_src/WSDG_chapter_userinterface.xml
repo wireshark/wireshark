@@ -192,33 +192,13 @@
 	</section>
 
 	<section id="ChUIGTKCompat">
-	<title>Compatibility between 1.x and 2.x</title>
+	<title>Compatibility GTK versions</title>
 	<para>
 	The GTK library itself defines some values which makes it easy to
 	distinguish between the versions, e.g.:
 	GTK_MAJOR_VERSION GTK_MINOR_VERSION
 	will be set to the GTK version at compile time somewhere inside the
 	gtk.h headers.
-	</para>
-	<para>
-	There are some common compatibility issues in Wireshark between the two
-	versions. 
-	</para>
-	<para>
-	Most of them (the more simple ones) are collected in
-	gtk/compat_macros.h and can be used in an version independent manner.
-	</para>
-	<para>
-	However, there are major differences between the two versions, making
-	it necessary to distinguish between them, like:
-	<programlisting>
-<![CDATA[
-#if GTK_MAJOR_VERSION >= 2
-   ...
-#else
-   ...
-#endif]]>
-</programlisting>
 	</para>
 	</section>
 
