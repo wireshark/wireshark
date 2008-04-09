@@ -92,8 +92,8 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
  *
  * a.) keep the button layout more consistent over the different dialogs
  * b.) being able to switch between different button layouts, e.g.:
- *     GTK1 (e.g. win32) "OK" "Apply" "Cancel"
- *     GTK2 (e.g. GNOME) "Apply" "Cancel" "OK"
+ *     e.g. Win32: "OK" "Apply" "Cancel"
+ *     e.g. GNOME: "Apply" "Cancel" "OK"
  */
 GtkWidget *
 dlg_button_row_new(const gchar *stock_id_first, ...)

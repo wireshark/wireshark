@@ -245,28 +245,24 @@ write_recent(void)
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
 
   fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
-  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_upper_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE ": %d\n",
 		  recent.gui_geometry_main_upper_pane);
   }
   fprintf(rf, "\n# Main window middle pane size.\n");
-  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_lower_pane != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
   }
   fprintf(rf, "\n# Statusbar left pane size.\n");
-  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_status_pane_left != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT ": %d\n",
 		  recent.gui_geometry_status_pane_left);
   }
   fprintf(rf, "\n# Statusbar middle pane size.\n");
-  fprintf(rf, "# (GTK1: has no effect here, command line -o usage only).\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_status_pane_right != 0) {
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
@@ -600,8 +596,6 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_status_pane_left  = (DEF_WIDTH/3);
   recent.gui_geometry_status_pane_right = (DEF_WIDTH/3);
 
-  /* the following are only used if GTK2 is used (as GTK1 cannot read these geometry values) */
-  /* or if set through command line */
   recent.has_gui_geometry_main_upper_pane = TRUE;
   recent.has_gui_geometry_main_lower_pane = TRUE;
   recent.has_gui_geometry_status_pane = TRUE;

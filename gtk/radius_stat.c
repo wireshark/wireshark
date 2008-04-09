@@ -228,7 +228,6 @@ radiusstat_draw(void *prs)
 {
 	radiusstat_t *rs=(radiusstat_t *)prs;
 	int i;
-	/* gtk1 using a scrollable clist*/
 	char *str[NUM_COLUMNS];
 
 	for(i=0;i<NUM_COLUMNS;i++) {
@@ -325,8 +324,7 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 
 	init_main_stat_window(rs->win, rs->vbox, "RADIUS Service Response Time (SRT) Statistics", filter);
 
-	/* GTK1 using a scrollable clist*/
-        /* init a scrolled window*/
+	/* init a scrolled window*/
 	rs->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	rs->table = create_stat_table(rs->scrolled_window, rs->vbox, NUM_COLUMNS, titles);

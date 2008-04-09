@@ -1417,7 +1417,7 @@ update_cb(gpointer data _U_)
 #else
 
 /* if these three functions are copied to gtk1 Wireshark, since gtk1 does not
-   use threads all updte_thread_mutex can be dropped and protect/unprotect
+   use threads all update_thread_mutex can be dropped and protect/unprotect
    would just be empty functions.
 
    This allows gtk2-rpcstat.c and friends to be copied unmodified to
@@ -2590,10 +2590,10 @@ main(int argc, char *argv[])
       ut=g_thread_create(update_thread, NULL, FALSE, NULL);
       g_thread_set_priority(ut, G_THREAD_PRIORITY_LOW);
   }
-#else  /* _WIN32 || GTK1.2 || !G_THREADS_ENABLED || !USE_THREADS */
+#else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
   gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
-#endif /* !_WIN32 && GTK2 && G_THREADS_ENABLED */
+#endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
 #if HAVE_GNU_ADNS
   gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);

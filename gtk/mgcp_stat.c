@@ -193,7 +193,6 @@ mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
-	/* gtk1 using a scrollable clist*/
 	char *str[7];
 
 	for(i=0;i<7;i++) {
@@ -279,8 +278,7 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 
 	init_main_stat_window(ms->win, ms->vbox, "MGCP Service Response Time (SRT) Statistics", filter);
 
-	/* GTK1 using a scrollable clist*/
-        /* init a scrolled window*/
+	/* init a scrolled window*/
 	ms->scrolled_window = scrolled_window_new(NULL, NULL);
 
 	ms->table = create_stat_table(ms->scrolled_window, ms->vbox, 7, titles);
