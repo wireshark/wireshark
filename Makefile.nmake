@@ -143,7 +143,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-deps
+all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
 
 packaging: all
 	cd packaging
@@ -173,14 +173,14 @@ packaging_papps: all
 # use (info-)zip from cygwin to pack things
 packaging_zip: all
 !IFDEF MSVCR_DLL
-	xcopy "$(MSVCR_DLL)" $(INSTALL2_DIR)
+	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)
 !ENDIF
 !IFDEF VCREDIST_EXE
 	@echo Including vcredist_x86.exe -- your recipient may need to run it!
-	xcopy "$(VCREDIST_EXE)" $(INSTALL2_DIR)
+	xcopy "$(VCREDIST_EXE)" $(INSTALL_DIR)
 !ENDIF
 	rm -f wireshark.zip
-	zip -r -9 wireshark.zip $(INSTALL2_DIR)/
+	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
 
 $(RESOURCES): image
@@ -190,7 +190,7 @@ wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK2_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
+		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
@@ -514,7 +514,7 @@ codecs::
 
 gtk:: help config.h svnversion.h AUTHORS-SHORT doxygen
 	cd gtk
-	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake GTK_CFLAGS="$(GTK2_CFLAGS)" GTK_LIBS="$(GTK2_LIBS)" libui.lib
+	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
 
 epan:: $(RESOURCES) $(ZLIB_DLL) wiretap\wiretap-$(WTAP_VERSION).lib $(BUILT_SOURCES) doxygen
@@ -607,18 +607,18 @@ setup: verify_tools clean_setup process_libs
 # (The choice is determined by the value of the macro WIN32_SETUP_OPT).
 process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
-!IF "$(GTK2_INST_VERSION)" == "2.12"
+!IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.12/glib-2.16.1.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.12/glib-dev-2.16.1.zip
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.10"
+!ELSEIF "$(GTK_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.13.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-dev-2.12.13.zip
 !ELSE
-!ERROR ? Unknown or invalid GTK2_INST_VERSION
+!ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
 !IFDEF ICONV_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -670,8 +670,8 @@ process_libs:
 		. libsmi-0.4.5.zip
 !ENDIF
 
-!IFDEF GTK2_DIR
-!IF "$(GTK2_INST_VERSION)" == "2.12"
+!IFDEF GTK_DIR
+!IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/gtk+-2.12.9.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -690,7 +690,7 @@ process_libs:
 		gtk2 gtk2.12/tiff-3.8.2-1-bin.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/jpeg-6b-4-bin.zip
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.10"
+!ELSEIF "$(GTK_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/gtk+-2.10.14.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -706,7 +706,7 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/libpng-1.2.8-bin.zip
 !ELSE
-!ERROR ? Unknown or invalid GTK2_INST_VERSION
+!ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.20"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -776,41 +776,21 @@ clean_setup:
 ################################################################################
 
 
-# generate and install Wireshark GTK2 in INSTALL2_DIR
-debug-gtk: wireshark.exe install-files2
+# prepare debugging of Wireshark in INSTALL_DIR
+debug-wireshark: wireshark.exe install-generated-files
 
-# generate and install Wireshark GTK2 in INSTALL2_DIR
-debug-tshark: tshark.exe
-	set copycmd=/y
-	set INSTALL_DIR=$(INSTALL2_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
+# prepare debugging of tshark in INSTALL_DIR
+debug-tshark: tshark.exe install-generated-files
 
-# generate and install Wireshark GTK2 in INSTALL2_DIR
-debug-rawshark: rawshark.exe
-	set copycmd=/y
-	set INSTALL_DIR=$(INSTALL2_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
+# prepare debugging of rawshark in INSTALL_DIR
+debug-rawshark: rawshark.exe install-generated-files
 
-# generate and install Wireshark GTK2 in INSTALL2_DIR
-debug-dumpcap: dumpcap.exe
+# prepare debugging of dumpcap in INSTALL_DIR
+debug-dumpcap: dumpcap.exe install-generated-files
 
 
-# "install-deps" will copy all files needed to run Wwireshark/Tshark
-# to the INSTALL2_DIR, so you can run/debug Wireshark/Tshark from there.
-
-install-deps: install-deps2 install-files2
-
-# install Wireshark GTK2 and other generated files
-install-files2:
-!IFDEF GTK2_DIR
-	set INSTALL_DIR=$(INSTALL2_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-files
-	copy wireshark.exe $(INSTALL2_DIR)\wireshark.exe
-	if exist wireshark.pdb copy wireshark.pdb $(INSTALL2_DIR)\wireshark.pdb
-	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL2_DIR) /d
-!ENDIF
-
-install-common-files:
+# install generated files (exe, "our" libs, ...)
+install-generated-files:
 	set copycmd=/y
 !IF "$(MSVC_VARIANT)" == "MSVC2008EE"
 	xcopy "$(MSVCR_DLL)" $(INSTALL_DIR)
@@ -823,6 +803,9 @@ install-common-files:
 	if exist ".\wiretap\wiretap-$(WTAP_VERSION).pdb" xcopy ".\wiretap\wiretap-$(WTAP_VERSION).pdb" $(INSTALL_DIR) /d
 	xcopy ".\epan\libwireshark.dll" $(INSTALL_DIR) /d
 	if exist ".\epan\libwireshark.pdb" xcopy ".\epan\libwireshark.pdb" $(INSTALL_DIR) /d
+	if exist wireshark.exe copy wireshark.exe $(INSTALL_DIR)\wireshark.exe
+	if exist wireshark.pdb copy wireshark.pdb $(INSTALL_DIR)\wireshark.pdb
+	if exist ".\docbook\user-guide.chm" xcopy ".\docbook\user-guide.chm" $(INSTALL_DIR) /d
 	if exist tshark.exe xcopy tshark.exe $(INSTALL_DIR) /d
 	if exist tshark.pdb xcopy tshark.pdb $(INSTALL_DIR) /d
 	if exist rawshark.exe xcopy rawshark.exe $(INSTALL_DIR) /d
@@ -905,67 +888,56 @@ install-common-files:
 	xcopy ".\plugins\wimaxasncp\wimaxasncp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	if exist custom-install.bat custom-install $(INSTALL_DIR) $(VERSION)
 
-install-deps2: install-common-deps2
-!IFDEF GTK2_DIR
-	set copycmd=/y
-	xcopy $(GTK2_DIR)\bin\libgdk-win32-2.0-0.dll $(INSTALL2_DIR) /d
-	xcopy $(GTK2_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(INSTALL2_DIR) /d
-	xcopy $(GTK2_DIR)\bin\libgtk-win32-2.0-0.dll $(INSTALL2_DIR) /d
-	xcopy $(GTK2_DIR)\bin\libatk-1.0-0.dll $(INSTALL2_DIR) /d
-	xcopy $(GTK2_DIR)\bin\libpango-1.0-0.dll $(INSTALL2_DIR) /d
-	xcopy $(GTK2_DIR)\bin\libpangowin32-1.0-0.dll $(INSTALL2_DIR) /d
-	if not exist $(INSTALL2_DIR)\etc mkdir $(INSTALL2_DIR)\etc
-	if not exist $(INSTALL2_DIR)\etc\gtk-2.0 mkdir $(INSTALL2_DIR)\etc\gtk-2.0
-	if not exist $(INSTALL2_DIR)\etc\pango mkdir $(INSTALL2_DIR)\etc\pango
-	if not exist $(INSTALL2_DIR)\lib mkdir $(INSTALL2_DIR)\lib
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0 mkdir $(INSTALL2_DIR)\lib\gtk-2.0
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules
-	if not exist $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules mkdir $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\engines
-#	if not exist $(INSTALL2_DIR)\lib\pango mkdir $(INSTALL2_DIR)\lib\pango
-#	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)
-#	if not exist $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
-	xcopy $(GTK2_DIR)\etc\gtk-2.0\*.* $(INSTALL2_DIR)\etc\gtk-2.0 /d
-	xcopy $(GTK2_DIR)\etc\pango\pango.* $(INSTALL2_DIR)\etc\pango /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders /d
-	xcopy $(GTK2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\im-*.dll $(INSTALL2_DIR)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules /d
-#	xcopy $(GTK2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL2_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
-!IFDEF NEED_LIBPNG_DLL
-	xcopy $(GTK2_DIR)\bin\libpng13.dll $(INSTALL2_DIR) /d
-!ENDIF
-!IFDEF NEED_LIBTIFF_DLL
-	xcopy $(GTK2_DIR)\bin\libtiff3.dll $(INSTALL2_DIR) /d
-!ENDIF
-!IFDEF NEED_LIBJPEG_DLL
-	xcopy $(GTK2_DIR)\bin\jpeg62.dll $(INSTALL2_DIR) /d
-!ENDIF
-!IFDEF NEED_CAIRO_DLL
-	xcopy $(GTK2_DIR)\bin\libcairo-2.dll $(INSTALL2_DIR)  /d
-	xcopy $(GTK2_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL2_DIR) /d
-!ENDIF
-!IFDEF GTK_WIMP_DIR
-	if not exist $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR)
-	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL2_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
-	if not exist $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR)
-	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL2_DIR)\$(GTK_WIMP_RCDST_DIR) /d
-!ENDIF
-!ENDIF
-
-install-common-deps2:
-!IFDEF GTK2_DIR
-	set INSTALL_DIR=$(INSTALL2_DIR)
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-common-deps
-# This should be moved back to install-common-deps if we ever drop
-# GTK+1 support.
-	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL2_DIR) /d
-!ENDIF
-
-install-common-deps:
+# "install-all" will copy all files needed to run Wireshark/Tshark
+# to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
+install-all: install-generated-files
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
+	xcopy $(GTK_DIR)\bin\libgdk-win32-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgdk_pixbuf-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libgtk-win32-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libatk-1.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libpango-1.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libpangowin32-1.0-0.dll $(INSTALL_DIR) /d
+	if not exist $(INSTALL_DIR)\etc mkdir $(INSTALL_DIR)\etc
+	if not exist $(INSTALL_DIR)\etc\gtk-2.0 mkdir $(INSTALL_DIR)\etc\gtk-2.0
+	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
+	if not exist $(INSTALL_DIR)\lib mkdir $(INSTALL_DIR)\lib
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0 mkdir $(INSTALL_DIR)\lib\gtk-2.0
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules
+	if not exist $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules mkdir $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\engines
+#	if not exist $(INSTALL_DIR)\lib\pango mkdir $(INSTALL_DIR)\lib\pango
+#	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR) mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)
+#	if not exist $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules mkdir $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules
+	xcopy $(GTK_DIR)\etc\gtk-2.0\*.* $(INSTALL_DIR)\etc\gtk-2.0 /d
+	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
+	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\libpixbufloader-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders /d
+	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
+#	xcopy $(GTK_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
+!IFDEF NEED_LIBPNG_DLL
+	xcopy $(GTK_DIR)\bin\libpng13.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_LIBTIFF_DLL
+	xcopy $(GTK_DIR)\bin\libtiff3.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_LIBJPEG_DLL
+	xcopy $(GTK_DIR)\bin\jpeg62.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_CAIRO_DLL
+	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
+	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF GTK_WIMP_DIR
+	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
+	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
+	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
+	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
+!ENDIF
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
+	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d
 !IFDEF ICONV_DIR
 	xcopy $(ICONV_DIR)\bin\iconv.dll $(INSTALL_DIR) /d
 !ENDIF
@@ -1003,7 +975,7 @@ install-common-deps:
 !ENDIF
 
 clean-deps:
-	rm -rf $(INSTALL2_DIR)
+	rm -rf $(INSTALL_DIR)
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..

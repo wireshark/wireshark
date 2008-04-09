@@ -668,41 +668,41 @@ SectionEnd ; "Required"
 
 SectionGroup "!Wireshark" SecWiresharkGroup
 
-!ifdef GTK2_DIR
-Section "Wireshark GTK2" SecWiresharkGTK2
+!ifdef GTK_DIR
+Section "Wireshark" SecWireshark
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\wireshark.exe"
-File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
-File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
-File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
-File "${GTK2_DIR}\bin\libatk-1.0-0.dll"
-File "${GTK2_DIR}\bin\libpango-1.0-0.dll"
-File "${GTK2_DIR}\bin\libpangowin32-1.0-0.dll"
+File "${GTK_DIR}\bin\libgdk-win32-2.0-0.dll"
+File "${GTK_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
+File "${GTK_DIR}\bin\libgtk-win32-2.0-0.dll"
+File "${GTK_DIR}\bin\libatk-1.0-0.dll"
+File "${GTK_DIR}\bin\libpango-1.0-0.dll"
+File "${GTK_DIR}\bin\libpangowin32-1.0-0.dll"
 !ifdef NEED_CAIRO_DLL
-File "${GTK2_DIR}\bin\libcairo-2.dll"
-File "${GTK2_DIR}\bin\libpangocairo-1.0-0.dll"
+File "${GTK_DIR}\bin\libcairo-2.dll"
+File "${GTK_DIR}\bin\libpangocairo-1.0-0.dll"
 !endif
 !ifdef NEED_LIBPNG_DLL
-File "${GTK2_DIR}\bin\libpng13.dll"
+File "${GTK_DIR}\bin\libpng13.dll"
 !endif
 !ifdef NEED_LIBTIFF_DLL
-File "${GTK2_DIR}\bin\libtiff3.dll"
+File "${GTK_DIR}\bin\libtiff3.dll"
 !endif
 !ifdef NEED_LIBJPEG_DLL
-File "${GTK2_DIR}\bin\jpeg62.dll"
+File "${GTK_DIR}\bin\jpeg62.dll"
 !endif
 SetOutPath $INSTDIR\etc\gtk-2.0
-File "${GTK2_DIR}\etc\gtk-2.0\*.*"
+File "${GTK_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
-File "${GTK2_DIR}\etc\pango\pango.*"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders
-File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\loaders\libpixbufloader-*.dll"
-SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules
-File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_LIB_DIR}\immodules\im-*.dll"
+File "${GTK_DIR}\etc\pango\pango.*"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\loaders
+File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\loaders\libpixbufloader-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK_LIB_DIR}\immodules
+File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\immodules\im-*.dll"
 # Not needed with pango 1.14.5
 #SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
-#File "${GTK2_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
+#File "${GTK_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
 
 SectionEnd
 
@@ -1066,8 +1066,8 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
-!ifdef GTK2_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGTK2} "${PROGRAM_NAME} using the modern GTK2 user interface."
+!ifdef GTK_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWireshark} "${PROGRAM_NAME} using the GTK user interface."
 !ifdef GTK_WIMP_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK MS Windows Engine - native Win32 look and feel, for Win2000 and up."
 !endif
@@ -1105,11 +1105,11 @@ SectionEnd
 ; ============================================================================
 ; Callback functions
 ; ============================================================================
-!ifdef GTK2_DIR
+!ifdef GTK_DIR
 ; Disable FileExtension if Wireshark isn't selected
 Function .onSelChange
 	Push $0
-	SectionGetFlags ${SecWiresharkGTK2} $0
+	SectionGetFlags ${SecWireshark} $0
 	IntOp  $0 $0 & 1
 	IntCmp $0 0 onSelChange.unselect
 	SectionGetFlags ${SecFileExtensions} $0
@@ -1181,7 +1181,7 @@ lbl_winversion_unsupported_nt4:
 	Quit
 
 lbl_winversion_supported:
-!ifdef GTK2_DIR
+!ifdef GTK_DIR
 	; Enable GTK-Wimp only for Windows 2000/XP/2003
 	; ...as Win9x/ME/NT known to have problems with it!
 

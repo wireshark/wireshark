@@ -65,8 +65,8 @@ pack:	distribution
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\[a-z]*.exe
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\plugins\$(VERSION)\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\*.dll
-	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
+	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
 	-$(UPX) $(UPX_FLAGS) $(FILES)\$(APP)\$(WIRESHARK)\$(GTK_WIMP_DLLDST_DIR)\*.dll
 !ENDIF
 

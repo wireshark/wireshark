@@ -13,7 +13,7 @@ UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
 
 
 EXE=../../tshark.exe ../../editcap.exe \
-!IFDEF GTK2_DIR
+!IFDEF GTK_DIR
 	../../wireshark.exe \
 !ENDIF
 	../../text2pcap.exe ../../mergecap.exe ../../capinfos.exe WinPcap_4_0_2.exe
@@ -101,9 +101,9 @@ wireshark-setup-$(VERSION).exe : user-guide.chm $(NSI) $(DELIVERABLES) Makefile.
 !IF "$(ENABLE_LIBWIRESHARK)" != ""
 	/DENABLE_LIBWIRESHARK=$(ENABLE_LIBWIRESHARK) \
 !ENDIF
-!IFDEF GTK2_DIR
-	/DGTK2_DIR=$(GTK2_DIR) \
-	/DGTK2_LIB_DIR=$(GTK2_LIB_DIR) \
+!IFDEF GTK_DIR
+	/DGTK_DIR=$(GTK_DIR) \
+	/DGTK_LIB_DIR=$(GTK_LIB_DIR) \
 	/DPANGO_LIB_DIR=$(PANGO_LIB_DIR) \
 !IFDEF NEED_LIBPNG_DLL
 	/DNEED_LIBPNG_DLL=$(NEED_LIBPNG_DLL) \

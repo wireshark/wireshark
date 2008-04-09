@@ -86,8 +86,8 @@ pack:	distribution
 !IFDEF UPX
 	-$(UPX) $(UPX_FLAGS) $(DEVICE)\plugins\$(VERSION)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\*.dll
-	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\loaders\*.dll
-	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK2_LIB_DIR)\immodules\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK_LIB_DIR)\loaders\*.dll
+	-$(UPX) $(UPX_FLAGS) $(HOST)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\$(GTK_WIMP_DLLDST_DIR)\*.dll
 	-$(UPX) $(UPX_FLAGS) $(HOST)\[a-z]*.exe	
 !ENDIF

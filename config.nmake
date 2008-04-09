@@ -107,40 +107,29 @@ NASM=$(WIRESHARK_LIBS)\nasm-2.00\nasm.exe
 #
 # Mandatory: GLib settings
 #
-# Current versions of GTK+ 1.3 require GLib 2.0.  Earlier versions of
-# GTK+ 1.3 are buggy; we don't recommend using them, and we don't
-# support them.  Upgrade to at least GLib 2.0.
+# Please note: Since Wireshark release 1.0.0, we no longer support GLib1.x
 #
 GLIB_VERSION=2.0
 GLIB_DIR=$(WIRESHARK_LIBS)\glib
-GLIB_GTK1_HACK_DIR=$(WIRESHARK_LIBS)\glib-gtk1-hack
 
 #
-# Mandatory: GTK (& related) settings
+# Mandatory: GTK (& related libs) settings
 #
-# It's possible, to build both GTK version 1 and 2 at the same time,
-# or only one of the versions. GTK version 2 is recommended.
+# Please note: Since Wireshark release 1.0.0, we no longer support GTK1.x
 #
-# If you want building with GTK+ 1.3, set GTK1_DIR to the pathname of the
-# "gtk+" directory; if you want building with GTK+ 2.x, set GTK2_DIR to
-# the pathname of the directory in which the "include" and "lib" directories
-# reside.
+# If you want building with GTK+, set GTK_DIR to the pathname of the 
+# directory in which the "include" and "lib" directories reside.
 #
-GTK1_DIR=$(WIRESHARK_LIBS)\gtk+
-GTK2_DIR=$(WIRESHARK_LIBS)\gtk2
+GTK_DIR=$(WIRESHARK_LIBS)\gtk2
 
 #
-# Mandatory for GTK >= 2: Version numbers of gtk2 and pango.
+# Mandatory: Version numbers of GTK and pango.
 #
 # (MAJOR + MINOR Version number but without MICRO version number)
 # These macros are used by the nsis installer script and by the setup target.
 #
-# GTK 2.10 is the old mainline since Wireshark 0.99.5
-#  0.99.5: PANGO=1.14; 0.99.6: PANGO=1.16
-#GTK2_INST_VERSION=2.10
-#PANGO_INST_VERSION=1.16
 # GTK 2.12 is the mainline since Wireshark 0.99.7
-GTK2_INST_VERSION=2.12
+GTK_INST_VERSION=2.12
 PANGO_INST_VERSION=1.20
 
 #
@@ -468,12 +457,8 @@ COPYCMD=/y
 ENABLE_LIBWIRESHARK=USE
 
 #
-# install (debug) directory for Wireshark GTK1 version (relative to your source dir)
-INSTALL1_DIR=wireshark-gtk1
-
-#
-# install (debug) directory for Wireshark GTK2 version (relative to your source dir)
-INSTALL2_DIR=wireshark-gtk2
+# install (debug) directory for Wireshark (relative to your source dir)
+INSTALL_DIR=wireshark-gtk2
 
 
 
@@ -609,47 +594,40 @@ GLIB_LIBS=$(GLIB_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\lib\gobject-$(GLIB_VERSION).lib
 
-# GTK+ 1.3
-GTK1_CFLAGS=$(GLIB_CFLAGS) /I$(GTK1_DIR)\include /I$(GTK1_DIR)\include\gdk \
-	/I$(GTK1_DIR)\lib\gtk+\include
-GTK1_LIBS=$(GTK1_DIR)\lib\gtk.lib \
-	$(GTK1_DIR)\lib\gdk.lib \
+# GTK+
+GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
+	/I$(GTK_DIR)\lib\gtk-2.0\include \
+	/I$(GTK_DIR)\include\atk-1.0 \
+	/I$(GTK_DIR)\include\cairo \
+	/I$(GTK_DIR)\include\pango-1.0
+GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
+	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
+	$(GTK_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 
-# GTK+ 2.x
-GTK2_CFLAGS=$(GLIB_CFLAGS) /I$(GTK2_DIR)\include\gtk-2.0 \
-	/I$(GTK2_DIR)\lib\gtk-2.0\include \
-	/I$(GTK2_DIR)\include\atk-1.0 \
-	/I$(GTK2_DIR)\include\cairo \
-	/I$(GTK2_DIR)\include\pango-1.0
-GTK2_LIBS=$(GTK2_DIR)\lib\gtk-win32-2.0.lib \
-	$(GTK2_DIR)\lib\gdk-win32-2.0.lib \
-	$(GTK2_DIR)\lib\gdk_pixbuf-2.0.lib \
-	$(GTK2_DIR)\lib\pango-1.0.lib \
-	$(GLIB_LIBS)
-
-!IF "$(GTK2_INST_VERSION)" == "2.12"
-GTK2_LIB_DIR=2.10.0
+!IF "$(GTK_INST_VERSION)" == "2.12"
+GTK_LIB_DIR=2.10.0
 NEED_LIBPNG_DLL=USE
 NEED_LIBJPEG_DLL=USE
 NEED_LIBTIFF_DLL=USE
 NEED_CAIRO_DLL=USE
 GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
-GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
-!ELSEIF "$(GTK2_INST_VERSION)" == "2.10"
-GTK2_LIB_DIR=2.10.0
+!ELSEIF "$(GTK_INST_VERSION)" == "2.10"
+GTK_LIB_DIR=2.10.0
 NEED_LIBPNG_DLL=USE
 NEED_CAIRO_DLL=USE
 GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
-GTK_WIMP_DLLSRC_DIR=$(GTK2_DIR)\lib\gtk-2.0\2.10.0\engines
+GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
-GTK_WIMP_RCSRC_DIR=$(GTK2_DIR)\share\themes\MS-Windows\gtk-2.0
+GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
 GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 !ELSE
-!ERROR ? Unknown or invalid GTK2_INST_VERSION
+!ERROR ? Unknown or invalid GTK_INST_VERSION
 !ENDIF
 
 !IF "$(PANGO_INST_VERSION)" == "1.20"
