@@ -734,16 +734,6 @@ static void remember_selected_row(GtkCList *clist _U_, gint row, gint column _U_
 	set_buttons(uat,row);
 }
 
-static void unremember_selected_row(GtkCList *clist _U_, gint row _U_, gint column _U_, GdkEvent *event _U_, gpointer u) {
-	uat_t* uat = u;
-
-	uat->rep->selected = -1;
-	gtk_widget_set_sensitive (uat->rep->bt_edit, FALSE);
-	gtk_widget_set_sensitive(uat->rep->bt_delete, FALSE);
-	gtk_widget_set_sensitive (uat->rep->bt_down, FALSE);
-	gtk_widget_set_sensitive (uat->rep->bt_up, FALSE);
-}
-
 static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
 	uat_t* uat = u;
 	gchar* err = NULL;
