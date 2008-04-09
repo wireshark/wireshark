@@ -868,6 +868,104 @@
 		<avp name="Framed-IPv6-Prefix" code="97" mandatory="may">
 			<type type-name="OctetString"/>
 		</avp>
+<!--
+http://www.iana.org/assignments/radius-types
+   98     Login-IPv6-Host                          [RFC3162]
+   99     Framed-IPv6-Route                        [RFC3162]
+  100     Framed-IPv6-Pool                         [RFC3162]
+-->
+		<avp name="Error-Cause" code="101" mandatory="may">
+			<type type-name="Integer32"/>
+			<enum name="Diameter Common Messages" code="0"/>
+			<enum name="Residual Session Context Removed" code="201"/>
+			<enum name="Invalid EAP Packet (Ignored)" code="202"/>
+			<enum name="Unsupported Attribute"" code="401/>
+			<enum name="Missing Attribute" code="402"/>
+			<enum name="NAS Identification Mismatch" code="403"/>
+			<enum name="Invalid Request" code="404"/>
+			<enum name="Unsupported Service" code="405"/>
+			<enum name="Unsupported Extension" code="406"/>
+			<enum name="Invalid Attribute Value " code="407"/>              
+			<enum name="Administratively Prohibited" code="501"/>
+			<enum name="Request Not Routable (Proxy)" code="502"/>
+			<enum name="Session Context Not Found" code="503"/>
+			<enum name="Session Context Not Removable" code="504"/>
+			<enum name="Other Proxy Processing Error" code="505"/>
+			<enum name="Resources Unavailable" code="506"/>
+			<enum name="Request Initiated" code="507"/>
+			<enum name="Multiple Session Selection Unsupported" code="508"/>
+		</avp>
+		<avp name="EAP-Key-Name" code="102" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Response" code="103" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Realm" code="104" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Nonce" code="105" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Response-Auth" code="106" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Nextnonce" code="107" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Method" code="108" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-URI" code="109" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Qop" code="110" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Algorithm" code="111" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Entity-Body-Hash" code="112" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Digest-CNonce" code="113" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Nonce-Count" code="114" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Username" code="115" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Opaque" code="116" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Auth-Param" code="117" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-AKA-Auts" code="118" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Domain" code="119" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-Stale" code="120" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Digest-HA1" code="121" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="SIP-AOR" code="122" mandatory="may">
+			<type type-name="UTF8String"/>
+		</avp>
+<!--
+123     Delegated-IPv6-Prefix                    [RFC4818]
+124-191   (unassigned)
+192-223   Experimental Use                         [RFC3575]
+224-240   Implementation Specific                  [RFC3575]
+241-255   Reserved                                 [RFC3575]   
+
+-->
 		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
 		<avp name="Host-IP-Address" code="257" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
 			<type type-name="IPAddress"/>
