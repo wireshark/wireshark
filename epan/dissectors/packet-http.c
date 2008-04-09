@@ -61,9 +61,6 @@ typedef enum _http_type {
 
 #include <epan/tap.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 static int http_tap = -1;
 static int http_eo_tap = -1;

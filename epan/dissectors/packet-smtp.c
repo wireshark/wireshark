@@ -42,10 +42,6 @@
 #include <epan/emem.h>
 #include <epan/reassemble.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* RFC 2821 */
 #define TCP_PORT_SMTP 25
 

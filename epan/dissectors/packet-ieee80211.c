@@ -111,10 +111,6 @@
 #define MAX_ENCRYPTION_KEYS 64
 #endif
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 #ifndef roundup2
 #define	roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif

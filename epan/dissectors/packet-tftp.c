@@ -51,10 +51,6 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* Things we may want to remember for a whole conversation */
 typedef struct _tftp_conv_info_t {
 	guint16 blocksize;

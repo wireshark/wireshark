@@ -41,10 +41,6 @@
 
 #include "packet-afp.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* The information in this module (AFP) comes from:
 
   AFP 2.1 & 2.2 documentation, in PDF form, at

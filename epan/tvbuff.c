@@ -51,10 +51,6 @@
 #include "emem.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 static const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		int *exception);

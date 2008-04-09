@@ -34,10 +34,6 @@
 
 #include <epan/req_resp_hdrs.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /*
  * Optionally do reassembly of the request/response line, headers, and body.
  */

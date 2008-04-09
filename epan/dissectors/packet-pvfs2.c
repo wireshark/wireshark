@@ -48,10 +48,6 @@
 #include <epan/strutil.h>
 #include "packet-tcp.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 #define TCP_PORT_PVFS2 3334
 
 #define PVFS2_FH_LENGTH 8

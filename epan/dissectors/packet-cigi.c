@@ -42,10 +42,6 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* Forward declaration */
 void proto_reg_handoff_cigi(void);
 static gboolean packet_is_cigi(tvbuff_t*);

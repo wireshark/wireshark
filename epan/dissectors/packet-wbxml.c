@@ -62,9 +62,6 @@
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 /* General-purpose debug logger.
  * Requires double parentheses because of variable arguments of printf().

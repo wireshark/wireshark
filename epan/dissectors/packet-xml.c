@@ -54,9 +54,6 @@
 #include <epan/prefs.h>
 #include <epan/garrayfix.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 typedef struct _xml_ns_t {
     /* the name of this namespace */

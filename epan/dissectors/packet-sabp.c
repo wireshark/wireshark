@@ -51,6 +51,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-gsm_map.h"
+#include "packet-gsm_sms.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -103,7 +104,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sabp-val.h ---*/
-#line 57 "packet-sabp-template.c"
+#line 58 "packet-sabp-template.c"
 
 static dissector_handle_t sabp_handle = NULL;
 static dissector_handle_t sabp_tcp_handle = NULL;
@@ -111,6 +112,7 @@ static dissector_handle_t sabp_tcp_handle = NULL;
 /* Initialize the protocol and registered fields */
 static int proto_sabp = -1;
 
+static int hf_sabp_no_of_pages = -1;
 
 /*--- Included file: packet-sabp-hf.c ---*/
 #line 1 "packet-sabp-hf.c"
@@ -191,12 +193,13 @@ static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sabp-hf.c ---*/
-#line 65 "packet-sabp-template.c"
+#line 67 "packet-sabp-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sabp = -1;
 static int ett_sabp_e212 = -1;
-static int ett_sabp_cbs_data_coding = -1;;
+static int ett_sabp_cbs_data_coding = -1;
+static int ett_sabp_bcast_msg = -1;
 
 
 /*--- Included file: packet-sabp-ett.c ---*/
@@ -242,7 +245,7 @@ static gint ett_sabp_SuccessfulOutcome = -1;
 static gint ett_sabp_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sabp-ett.c ---*/
-#line 72 "packet-sabp-template.c"
+#line 75 "packet-sabp-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -471,8 +474,49 @@ dissect_sabp_Available_Bandwidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 170 "sabp.cnf"
+ tvbuff_t *parameter_tvb=NULL;
+ proto_tree *subtree;
+  int			length, par_offset;
+  guint8		out_len, no_of_pages;
+ static unsigned char bigbuf[1024];
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 9968, FALSE, NULL);
+                                     1, 9968, FALSE, &parameter_tvb);
+
+	if (!parameter_tvb)
+		return offset;
+	subtree = proto_item_add_subtree(actx->created_item, ett_sabp_bcast_msg);
+	par_offset = 0;
+	/* Number-of-Pages */
+	no_of_pages = tvb_get_guint8(parameter_tvb,0);
+	proto_tree_add_item(subtree, hf_sabp_no_of_pages, parameter_tvb, par_offset, 1, FALSE);
+
+	if((no_of_pages > 82)||(no_of_pages == 1)){
+		proto_tree_add_text(subtree, parameter_tvb, 0, -1, "Wrong number of pages");
+		return offset;
+	}
+	par_offset++;
+	length = tvb_length_remaining(parameter_tvb,par_offset);
+
+	switch(sms_encoding){
+    case SMS_ENCODING_7BIT:
+    case SMS_ENCODING_7BIT_LANG:
+	out_len = gsm_sms_char_7bit_unpack(par_offset, length, sizeof(bigbuf),
+					   tvb_get_ptr(parameter_tvb, par_offset, length),
+						       bigbuf);
+
+	bigbuf[out_len] = '\0';
+	gsm_sms_char_ascii_decode(bigbuf, bigbuf, out_len);
+	bigbuf[1023] = '\0';
+	proto_tree_add_text(tree, parameter_tvb, par_offset, length, "USSD String: %s", bigbuf);
+	break;
+    case SMS_ENCODING_8BIT:
+	proto_tree_add_text(tree, parameter_tvb , par_offset, length, "USSD String: %s", tvb_get_ptr(parameter_tvb, par_offset, length));
+	break;
+    default:
+	break;	
+  }
 
   return offset;
 }
@@ -1602,7 +1646,7 @@ static int dissect_SABP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-sabp-fn.c ---*/
-#line 96 "packet-sabp-template.c"
+#line 99 "packet-sabp-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1680,6 +1724,11 @@ void proto_register_sabp(void) {
   /* List of fields */
 
   static hf_register_info hf[] = {
+    { &hf_sabp_no_of_pages,
+      { "Number-of-Pages", "sabp.no_of_pages",
+        FT_UINT8, BASE_DEC, NULL, 0,
+        "Number-of-Pages", HFILL }},
+
 
 /*--- Included file: packet-sabp-hfarr.c ---*/
 #line 1 "packet-sabp-hfarr.c"
@@ -1985,7 +2034,7 @@ void proto_register_sabp(void) {
         "sabp.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sabp-hfarr.c ---*/
-#line 174 "packet-sabp-template.c"
+#line 182 "packet-sabp-template.c"
   };
 
   /* List of subtrees */
@@ -1993,6 +2042,7 @@ void proto_register_sabp(void) {
 		  &ett_sabp,
 		  &ett_sabp_e212,
 		  &ett_sabp_cbs_data_coding,
+		  &ett_sabp_bcast_msg,
 
 /*--- Included file: packet-sabp-ettarr.c ---*/
 #line 1 "packet-sabp-ettarr.c"
@@ -2037,7 +2087,7 @@ void proto_register_sabp(void) {
     &ett_sabp_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sabp-ettarr.c ---*/
-#line 182 "packet-sabp-template.c"
+#line 191 "packet-sabp-template.c"
   };
 
 
@@ -2111,7 +2161,7 @@ proto_reg_handoff_sabp(void)
 
 
 /*--- End of included file: packet-sabp-dis-tab.c ---*/
-#line 214 "packet-sabp-template.c"
+#line 223 "packet-sabp-template.c"
 
   sabp_handle = find_dissector("sabp");
   dissector_add("tcp.port", 3452, sabp_tcp_handle);

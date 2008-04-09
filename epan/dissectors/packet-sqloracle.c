@@ -34,10 +34,6 @@
 #include <epan/packet.h>
 #include "packet-sqloracle.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 #define SWAP_UI16(ui16)	(((ui16)>>8 & 0xff) | ((ui16)<<8 & 0xff00))
 
 /* option flag 1 */

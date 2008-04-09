@@ -36,9 +36,6 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 /* Enable debug logging by defining AM_CFLAGS
  * so that it contains "-DDEBUG_dfilter".

@@ -60,10 +60,6 @@
 #include "packet-frame.h"
 #include "tap.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 static Standard_Type decode_mtp3_standard;
 #define SCCP_SI 3
 

@@ -73,10 +73,6 @@
 
 #include "packet-imf.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* Dissector table for media requiring special attention in multipart
  * encapsulation. */
 static dissector_table_t multipart_media_subdissector_table;

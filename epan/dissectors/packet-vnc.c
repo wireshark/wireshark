@@ -59,9 +59,6 @@
 #include "packet-x11-keysym.h" /* This contains the X11 value_string
 				* "keysym_vals_source" that VNC also uses. */
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 static const value_string security_types_vs[] = {
 	{ 0,  "Invalid"  },

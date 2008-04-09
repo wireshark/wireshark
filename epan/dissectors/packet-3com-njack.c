@@ -59,9 +59,6 @@ Specs:
 #include <epan/packet.h>
 #include <epan/emem.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 /* protocol handles */
 static int proto_njack = -1;

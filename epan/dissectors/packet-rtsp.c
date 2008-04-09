@@ -48,10 +48,6 @@
 #include "packet-e164.h"
 #include <epan/emem.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 static int proto_rtsp		= -1;
 
 static gint ett_rtsp		= -1;

@@ -56,9 +56,6 @@
 
 #include "wep-wpadefs.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "../g_ascii_strcasecmp.h"
-#endif
 
 /****************************************************************************/
 

@@ -51,10 +51,6 @@
 #include <epan/prefs.h>
 #include <epan/ipproto.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 /* Forward declaration we need below */
 void proto_reg_handoff_tivoconnect(void);
 

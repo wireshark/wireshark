@@ -45,10 +45,6 @@
 #include "packet-edonkey.h"
 #include "packet-tcp.h"
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 static int proto_edonkey = -1;
 
 static int hf_edonkey_message  = -1;

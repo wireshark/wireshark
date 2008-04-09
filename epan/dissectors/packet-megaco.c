@@ -67,10 +67,6 @@
 #include <epan/gcp.h>
 #include <epan/tap.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 #define PORT_MEGACO_TXT 2944
 #define PORT_MEGACO_BIN 2945
 

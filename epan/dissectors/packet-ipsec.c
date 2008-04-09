@@ -85,9 +85,6 @@ HMAC-SHA256 : any keylen
 #include <gcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
 
 static int proto_ah = -1;
 static int hf_ah_spi = -1;

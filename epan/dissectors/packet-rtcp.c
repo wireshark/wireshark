@@ -68,11 +68,6 @@
 #include <epan/expert.h>
 #include <epan/strutil.h>
 
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
-
 /* Version is the first 2 bits of the first octet*/
 #define RTCP_VERSION(octet)	((octet) >> 6)
 
