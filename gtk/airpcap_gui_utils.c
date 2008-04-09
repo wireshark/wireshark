@@ -122,17 +122,17 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 
     gchar *if_label_text;
 
-    airpcap_toolbar_label    = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    airpcap_toolbar_channel  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    airpcap_toolbar_channel_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    airpcap_toolbar_channel_offset  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    airpcap_toolbar_channel_offset_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    airpcap_toolbar_fcs  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_fcs_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    airpcap_toolbar_button   = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
-    airpcap_toolbar_decryption = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-    airpcap_toolbar_decryption_lb = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
-    airpcap_toolbar_keys_button = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
+    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    airpcap_toolbar_channel  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
+    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
     if(if_info != NULL)
@@ -220,18 +220,18 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
 
     gchar *if_label_text;
 
-    airpcap_toolbar_crc_filter_combo = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_label    = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    airpcap_toolbar_channel  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    airpcap_toolbar_channel_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    airpcap_toolbar_channel_offset  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    airpcap_toolbar_channel_offset_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    airpcap_toolbar_fcs  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    airpcap_toolbar_fcs_lb  = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    airpcap_toolbar_button   = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
-    airpcap_toolbar_decryption = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
-    airpcap_toolbar_decryption_lb = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
-    airpcap_toolbar_keys_button = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
+    airpcap_toolbar_crc_filter_combo = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_label    = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    airpcap_toolbar_channel  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    airpcap_toolbar_channel_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    airpcap_toolbar_channel_offset  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    airpcap_toolbar_channel_offset_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    airpcap_toolbar_fcs  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    airpcap_toolbar_fcs_lb  = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    airpcap_toolbar_button   = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    airpcap_toolbar_decryption = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+    airpcap_toolbar_decryption_lb = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY);
+    airpcap_toolbar_keys_button = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY);
 
     /* The current interface is an airpcap interface */
     if(if_info != NULL)
@@ -1227,14 +1227,14 @@ airpcap_enable_toolbar_widgets(GtkWidget* w, gboolean en)
 
     toolbar_tb = w;
 
-    if_description_lb	= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    channel_lb			= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    channel_cb			= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    channel_offset_cb	= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    channel_offset_lb	= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    fcs_lb				= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    fcs_cb				= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    advanced_bt			= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    if_description_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    channel_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    channel_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    channel_offset_cb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    channel_offset_lb	= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    fcs_lb				= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    fcs_cb				= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    advanced_bt			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
 
 
     if(if_description_lb != NULL)	gtk_widget_set_sensitive(if_description_lb,en);
@@ -1271,14 +1271,14 @@ airpcap_set_toolbar_no_if(GtkWidget* w)
 
     toolbar_tb = w;
 
-    if_description_lb	    = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY);
-    channel_lb			      = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
-    channel_cb			      = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY);
-    channel_offset_lb			= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
-    channel_offset_cb			= OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
-    fcs_lb				        = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
-    fcs_cb				        = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
-    advanced_bt			      = OBJECT_GET_DATA(toolbar_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY);
+    if_description_lb	    = g_object_get_data(G_OBJECT(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY);
+    channel_lb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY);
+    channel_cb			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY);
+    channel_offset_lb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY);
+    channel_offset_cb			= g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY);
+    fcs_lb				        = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY);
+    fcs_cb				        = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY);
+    advanced_bt			      = g_object_get_data(G_OBJECT(toolbar_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY);
 
     if(fcs_cb != NULL)				gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(fcs_cb)->entry),"");
     if(channel_cb != NULL)			gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(channel_cb)->entry),"");

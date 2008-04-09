@@ -346,17 +346,17 @@ ansi_a_stat_gtk_win_create(
     gtk_clist_column_titles_show(GTK_CLIST(dlg_p->table));
     gtk_container_add(GTK_CONTAINER(dlg_p->scrolled_win), dlg_p->table);
 
-    SIGNAL_CONNECT(dlg_p->table, "click-column", ansi_a_stat_gtk_click_column_cb, col_arrows);
+    g_signal_connect(dlg_p->table, "click-column", G_CALLBACK(ansi_a_stat_gtk_click_column_cb), col_arrows);
 
 	/* Button row. */
     bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(dlg_p->win, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(dlg_p->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(dlg_p->win, "destroy", ansi_a_stat_gtk_win_destroy_cb, dlg_p);
+    g_signal_connect(dlg_p->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(dlg_p->win, "destroy", G_CALLBACK(ansi_a_stat_gtk_win_destroy_cb), dlg_p);
 
     gtk_widget_show_all(dlg_p->win);
     window_present(dlg_p->win);

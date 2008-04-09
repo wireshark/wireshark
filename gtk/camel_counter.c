@@ -208,11 +208,11 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
   gtk_box_pack_end(GTK_BOX(p_camelcounter->vbox), bbox, FALSE, FALSE, 0);
 
-  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(p_camelcounter->win, close_bt, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(p_camelcounter->win, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(p_camelcounter->win, "destroy", win_destroy_cb, p_camelcounter);
+  g_signal_connect(p_camelcounter->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(p_camelcounter->win, "destroy", G_CALLBACK(win_destroy_cb), p_camelcounter);
 
   gtk_widget_show_all(p_camelcounter->win);
   window_present(p_camelcounter->win);

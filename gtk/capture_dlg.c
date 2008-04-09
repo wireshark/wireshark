@@ -219,7 +219,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   data_link_info_t *data_link_info;
   gchar *linktype_menu_label;
   guint num_supported_link_types;
-  GtkWidget *linktype_lb = OBJECT_GET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY);
+  GtkWidget *linktype_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_LT_OM_LABEL_KEY);
   GtkWidget *if_ip_lb;
   GString *ip_str = g_string_new("IP address: ");
   int ips = 0;
@@ -242,7 +242,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
   /* retrieve the advanced button pointer */
-  advanced_bt = OBJECT_GET_DATA(entry,AIRPCAP_OPTIONS_ADVANCED_KEY);
+  advanced_bt = g_object_get_data(G_OBJECT(entry),AIRPCAP_OPTIONS_ADVANCED_KEY);
   airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,if_name);
   airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
   if( airpcap_if_selected != NULL)
@@ -324,8 +324,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     data_link_info = lt_entry->data;
     if (data_link_info->description != NULL) {
       lt_menu_item = gtk_menu_item_new_with_label(data_link_info->description);
-      OBJECT_SET_DATA(lt_menu_item, E_CAP_LT_OM_KEY, linktype_om);
-      SIGNAL_CONNECT(lt_menu_item, "activate", select_link_type_cb,
+      g_object_set_data(G_OBJECT(lt_menu_item), E_CAP_LT_OM_KEY, linktype_om);
+      g_signal_connect(lt_menu_item, "activate", G_CALLBACK(select_link_type_cb),
                      GINT_TO_POINTER(data_link_info->dlt));
       num_supported_link_types++;
     } else {
@@ -346,7 +346,7 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
   /* Restore the menu to the last index used */
   gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_history);
-  if_ip_lb = OBJECT_GET_DATA(linktype_om, E_CAP_IFACE_KEY);
+  if_ip_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY);
   if(ips == 0) {
     g_string_append(ip_str, "unknown");
   }
@@ -380,7 +380,7 @@ static GtkWidget *time_unit_option_menu_new(guint32 value) {
 	menu=gtk_menu_new();
 	for(i=0;i<MAX_TIME_UNITS;i++){
 		menu_item=gtk_menu_item_new_with_label(time_unit_name[i]);
-		OBJECT_SET_DATA(menu_item, "time_unit", GINT_TO_POINTER(i));
+		g_object_set_data(G_OBJECT(menu_item), "time_unit", GINT_TO_POINTER(i));
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
 
@@ -442,7 +442,7 @@ guint32 value)
 
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
     menu_item = gtk_menu_get_active(GTK_MENU(menu));
-    unit = GPOINTER_TO_INT(OBJECT_GET_DATA(menu_item, "time_unit"));
+    unit = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item), "time_unit"));
 
 
     switch(unit) {
@@ -481,7 +481,7 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
 	menu=gtk_menu_new();
 	for(i=0;i<MAX_SIZE_UNITS;i++){
 		menu_item=gtk_menu_item_new_with_label(size_unit_name[i]);
-		OBJECT_SET_DATA(menu_item, "size_unit", GINT_TO_POINTER(i));
+		g_object_set_data(G_OBJECT(menu_item), "size_unit", GINT_TO_POINTER(i));
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
 
@@ -533,7 +533,7 @@ guint32 value)
 
     menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(unit_om));
     menu_item = gtk_menu_get_active(GTK_MENU(menu));
-    unit = GPOINTER_TO_INT(OBJECT_GET_DATA(menu_item, "size_unit"));
+    unit = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menu_item), "size_unit"));
 
 
     switch(unit) {
@@ -568,7 +568,7 @@ int *from_widget;
 
 from_widget = (gint*)g_malloc(sizeof(gint));
 *from_widget = AIRPCAP_ADVANCED_FROM_OPTIONS;
-OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
 airpcap_if_active = airpcap_if_selected;
 airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
@@ -602,8 +602,8 @@ iftype_option_menu_new(capture_source value)
     for (i = 0; i < sizeof(iftype) / sizeof(iftype[0]); i++)
     {
         menu_item = gtk_menu_item_new_with_label(iftype[i].name);
-        OBJECT_SET_DATA(menu_item, E_CAP_IFTYPE_OM_KEY, iftype_om);
-        SIGNAL_CONNECT(menu_item, "activate", select_if_type_cb,
+        g_object_set_data(G_OBJECT(menu_item), E_CAP_IFTYPE_OM_KEY, iftype_om);
+        g_signal_connect(menu_item, "activate", G_CALLBACK(select_if_type_cb),
                        GINT_TO_POINTER((int)iftype[i].id));
         gtk_menu_append(GTK_MENU(menu), menu_item);
         if (value == iftype[i].id)
@@ -629,7 +629,7 @@ update_interface_list()
     if (cap_open_w == NULL)
         return;
 
-    if_cb = (GtkWidget *)OBJECT_GET_DATA(cap_open_w, E_CAP_IFACE_KEY);
+    if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
 
     if (capture_opts->src_type == CAPTURE_IFREMOTE)
         if_list = get_remote_interface_list(capture_opts->remote_host,
@@ -665,14 +665,14 @@ capture_remote_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
               *passwd_lb, *passwd_te;
     gboolean  state;
 
-    auth_passwd_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+    auth_passwd_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
                                                   E_REMOTE_AUTH_PASSWD_KEY);
-    username_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+    username_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
                                                 E_REMOTE_USERNAME_LB_KEY);
-    username_te = (GtkWidget *)OBJECT_GET_DATA(parent_w,
+    username_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
                                                 E_REMOTE_USERNAME_TE_KEY);
-    passwd_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_REMOTE_PASSWD_LB_KEY);
-    passwd_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_REMOTE_PASSWD_TE_KEY);
+    passwd_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_REMOTE_PASSWD_LB_KEY);
+    passwd_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_REMOTE_PASSWD_TE_KEY);
 
     state =  gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(auth_passwd_rb));
     gtk_widget_set_sensitive(GTK_WIDGET(username_lb), state);
@@ -687,8 +687,8 @@ capture_remote_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 {
     GtkWidget *caller;
 
-    caller = OBJECT_GET_DATA(win, E_CAP_REMOTE_CALLER_PTR_KEY);
-    OBJECT_SET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
+    caller = g_object_get_data(G_OBJECT(win), E_CAP_REMOTE_CALLER_PTR_KEY);
+    g_object_set_data(G_OBJECT(caller), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
 }
 
 /* user requested to accept remote interface options */
@@ -701,15 +701,15 @@ capture_remote_ok_cb(GtkWidget *win _U_, GtkWidget *remote_w)
     if (remote_w == NULL)
         return;
 
-    host_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_HOST_TE_KEY);
-    port_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_PORT_TE_KEY);
-    auth_pwd_rb = (GtkWidget *)OBJECT_GET_DATA(remote_w,
+    host_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY);
+    port_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY);
+    auth_pwd_rb = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w),
                                                   E_REMOTE_AUTH_PASSWD_KEY);
-    username_te = (GtkWidget *)OBJECT_GET_DATA(remote_w,
+    username_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w),
                                                 E_REMOTE_USERNAME_TE_KEY);
-    passwd_te = (GtkWidget *)OBJECT_GET_DATA(remote_w, E_REMOTE_PASSWD_TE_KEY);
-    auth_null_rb = (GtkWidget *) OBJECT_GET_DATA(remote_w, E_REMOTE_AUTH_NULL_KEY);
-    auth_passwd_rb = (GtkWidget *) OBJECT_GET_DATA(remote_w, E_REMOTE_AUTH_PASSWD_KEY);
+    passwd_te = (GtkWidget *)g_object_get_data(G_OBJECT(remote_w), E_REMOTE_PASSWD_TE_KEY);
+    auth_null_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_NULL_KEY);
+    auth_passwd_rb = (GtkWidget *) g_object_get_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY);
 
     g_free(capture_opts->remote_host);
     capture_opts->remote_host = g_strdup(gtk_entry_get_text(GTK_ENTRY(host_te)));
@@ -750,7 +750,7 @@ capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
     GSList      *auth_group;
 
     caller = gtk_widget_get_toplevel(w);
-    remote_w = OBJECT_GET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY);
+    remote_w = g_object_get_data(G_OBJECT(caller), E_CAP_REMOTE_DIALOG_PTR_KEY);
     if (remote_w != NULL)
     {
         reactivate_window(remote_w);
@@ -759,8 +759,8 @@ capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
 
     title = create_user_window_title("Wireshark: Remote Interface");
     remote_w = dlg_window_new(title);
-    OBJECT_SET_DATA(remote_w, E_CAP_REMOTE_CALLER_PTR_KEY, caller);
-    OBJECT_SET_DATA(caller, E_CAP_REMOTE_DIALOG_PTR_KEY, remote_w);
+    g_object_set_data(G_OBJECT(remote_w), E_CAP_REMOTE_CALLER_PTR_KEY, caller);
+    g_object_set_data(G_OBJECT(caller), E_CAP_REMOTE_DIALOG_PTR_KEY, remote_w);
     g_free(title);
 
     tooltips = gtk_tooltips_new();
@@ -815,8 +815,8 @@ capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
     auth_passwd_rb = gtk_radio_button_new_with_label(auth_group,
                                             "Password authentication");
     gtk_box_pack_start(GTK_BOX(auth_vb), auth_passwd_rb, TRUE, TRUE, 0);
-    SIGNAL_CONNECT(auth_passwd_rb, "toggled", capture_remote_adjust_sensitivity,
-                   remote_w);
+    g_signal_connect(auth_passwd_rb, "toggled",
+		   G_CALLBACK(capture_remote_adjust_sensitivity), remote_w);
 
     auth_passwd_tb = gtk_table_new(2, 2, FALSE);
     gtk_table_set_row_spacings(GTK_TABLE(auth_passwd_tb), 3);
@@ -844,30 +844,30 @@ capture_remote_cb(GtkWidget *w _U_, gpointer d _U_)
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", capture_remote_ok_cb, remote_w);
+    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_remote_ok_cb), remote_w);
     gtk_tooltips_set_tip(tooltips, ok_bt,
                          "Accept remote host parameters and lookup "
                          "remote interfaces.", NULL);
 
-    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     gtk_tooltips_set_tip(tooltips, cancel_bt,
                          "Cancel and exit dialog.", NULL);
     window_set_cancel_button(remote_w, cancel_bt, window_cancel_button_cb);
 
     gtk_widget_grab_default(ok_bt);
 
-    SIGNAL_CONNECT(remote_w, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(remote_w, "destroy", capture_remote_destroy_cb, NULL);
+    g_signal_connect(remote_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(remote_w, "destroy", G_CALLBACK(capture_remote_destroy_cb), NULL);
 
-    OBJECT_SET_DATA(remote_w, E_REMOTE_HOST_TE_KEY, host_te);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_PORT_TE_KEY, port_te);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_AUTH_NULL_KEY, auth_null_rb);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_AUTH_PASSWD_KEY, auth_passwd_rb);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_USERNAME_LB_KEY, user_lb);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_USERNAME_TE_KEY, user_te);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_PASSWD_LB_KEY, passwd_lb);
-    OBJECT_SET_DATA(remote_w, E_REMOTE_PASSWD_TE_KEY, passwd_te);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_HOST_TE_KEY, host_te);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_PORT_TE_KEY, port_te);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_AUTH_NULL_KEY, auth_null_rb);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_AUTH_PASSWD_KEY, auth_passwd_rb);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_USERNAME_LB_KEY, user_lb);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_USERNAME_TE_KEY, user_te);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_PASSWD_LB_KEY, passwd_lb);
+    g_object_set_data(G_OBJECT(remote_w), E_REMOTE_PASSWD_TE_KEY, passwd_te);
 
     if (capture_opts->auth_type == CAPTURE_AUTH_PWD)
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auth_passwd_rb), TRUE);
@@ -989,7 +989,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* load the airpcap interfaces */
   airpcap_if_list = get_airpcap_interface_list(&err, &err_str);
 
-  decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  decryption_cm = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
   update_decryption_mode_list(decryption_cm);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
@@ -1092,11 +1092,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(linktype_hb), linktype_lb, FALSE, FALSE, 6);
 
   linktype_om = gtk_option_menu_new();
-  OBJECT_SET_DATA(linktype_om, E_CAP_LT_OM_LABEL_KEY, linktype_lb);
+  g_object_set_data(G_OBJECT(linktype_om), E_CAP_LT_OM_LABEL_KEY, linktype_lb);
   /* Default to "use the default" */
   /* Datalink menu index is not resetted, it will be restored with last used value */
-  /* OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
-  OBJECT_SET_DATA(linktype_om, E_CAP_IFACE_KEY, if_ip_lb);
+  /* g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
+  g_object_set_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY, if_ip_lb);
   dl_hdr_menu=NULL;
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   /*
@@ -1117,8 +1117,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tooltips_set_tip(tooltips, linktype_om,
     "The selected interface supports multiple link-layer types; select the desired one.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
-  SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
-                 capture_prep_interface_changed_cb, linktype_om);
+  g_signal_connect(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
+                 G_CALLBACK(capture_prep_interface_changed_cb), linktype_om);
 
 #ifdef _WIN32
   buffer_size_lb = gtk_label_new("Buffer size:");
@@ -1129,7 +1129,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
   gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) capture_opts->buffer_size);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
-  WIDGET_SET_SIZE(buffer_size_sb, 80, -1);
+  gtk_widget_set_size_request(buffer_size_sb, 80, -1);
   gtk_tooltips_set_tip(tooltips, buffer_size_sb,
     "The memory buffer size used while capturing. If you notice packet drops, you can try to increase this size.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), buffer_size_sb, FALSE, FALSE, 0);
@@ -1139,8 +1139,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   /* Promiscuous mode row */
-  promisc_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "Capture packets in _promiscuous mode", accel_group);
+  promisc_cb = gtk_check_button_new_with_mnemonic(
+      "Capture packets in _promiscuous mode");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(promisc_cb),
 		capture_opts->promisc_mode);
   gtk_tooltips_set_tip(tooltips, promisc_cb,
@@ -1151,14 +1151,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
 #ifdef HAVE_PCAP_REMOTE
   /* RPCAP-related flags */
-  nocap_rpcap_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "Do not capture RPCAP own traffic", accel_group);
+  nocap_rpcap_cb = gtk_check_button_new_with_mnemonic(
+      "Do not capture RPCAP own traffic");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(nocap_rpcap_cb),
           capture_opts->nocap_rpcap);
   gtk_container_add(GTK_CONTAINER(capture_vb), nocap_rpcap_cb);
 
-  datatx_udp_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "Use UDP for RPCAP data transfer", accel_group);
+  datatx_udp_cb = gtk_check_button_new_with_mnemonic(
+      "Use UDP for RPCAP data transfer");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(datatx_udp_cb),
           capture_opts->datatx_udp);
   gtk_container_add(GTK_CONTAINER(capture_vb), datatx_udp_cb);
@@ -1168,10 +1168,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   snap_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(capture_vb), snap_hb);
 
-  snap_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_Limit each packet to", accel_group);
+  snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(snap_cb),
 		capture_opts->has_snaplen);
-  SIGNAL_CONNECT(snap_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(snap_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, snap_cb,
     "Limit the maximum number of bytes to be captured from each packet. This size includes the "
     "link-layer header and all subsequent headers. ", NULL);
@@ -1181,7 +1181,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     MIN_PACKET_SIZE, WTAP_MAX_PACKET_SIZE, 1.0, 10.0, 0.0);
   snap_sb = gtk_spin_button_new (snap_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (snap_sb), TRUE);
-  WIDGET_SET_SIZE(snap_sb, 80, -1);
+  gtk_widget_set_size_request(snap_sb, 80, -1);
   gtk_box_pack_start (GTK_BOX(snap_hb), snap_sb, FALSE, FALSE, 0);
 
   snap_lb = gtk_label_new("bytes");
@@ -1192,9 +1192,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
 
-  filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
-  SIGNAL_CONNECT(filter_bt, "clicked", capture_filter_construct_cb, NULL);
-  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
+  g_signal_connect(filter_bt, "clicked", G_CALLBACK(capture_filter_construct_cb), NULL);
+  g_signal_connect(filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_tooltips_set_tip(tooltips, filter_bt,
     "Select a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
@@ -1204,11 +1204,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Create the capture filter combo */
   filter_cm = gtk_combo_new();
 
-  cfilter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+  cfilter_list = g_object_get_data(G_OBJECT(top_level), E_CFILTER_FL_KEY);
   gtk_combo_disable_activate(GTK_COMBO(filter_cm));
   gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-  OBJECT_SET_DATA(top_level, E_CFILTER_FL_KEY, cfilter_list);
-  OBJECT_SET_DATA(top_level, E_CFILTER_CM_KEY, filter_cm);
+  g_object_set_data(G_OBJECT(top_level), E_CFILTER_FL_KEY, cfilter_list);
+  g_object_set_data(G_OBJECT(top_level), E_CFILTER_CM_KEY, filter_cm);
   filter_te = GTK_COMBO(filter_cm)->entry;
 
   if (cfilter_list != NULL)
@@ -1219,7 +1219,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it.",
     NULL);
-  WIDGET_SET_SIZE(filter_cm, 400, -1);
+  gtk_widget_set_size_request(filter_cm, 400, -1);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_cm, FALSE, FALSE, 3);
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_hb), 0);
@@ -1234,7 +1234,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_hb), right_vb, FALSE, FALSE, 0);
 
   /* let an eventually capture filters dialog know the text entry to fill in */
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
 
   /* advanced row */
 #ifdef HAVE_AIRPCAP
@@ -1248,8 +1248,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_button_set_label(GTK_BUTTON(advanced_bt), "Wireless Settings");
 
   /* Both the callback and the data are global */
-  SIGNAL_CONNECT(advanced_bt,"clicked",options_airpcap_advanced_cb,airpcap_tb);
-  OBJECT_SET_DATA(GTK_ENTRY(GTK_COMBO(if_cb)->entry),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
+  g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb),airpcap_tb);
+  g_object_set_data(G_OBJECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry)),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
 
   if(airpcap_if_selected != NULL)
 	{
@@ -1288,14 +1288,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
-  file_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_BROWSE);
+  file_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   gtk_tooltips_set_tip(tooltips, file_bt,
     "Select a file to which captured data will be written, "
     "instead of entering the file name directly. ",
     NULL);
   gtk_box_pack_start(GTK_BOX(file_hb), file_bt, FALSE, FALSE, 3);
 
-  SIGNAL_CONNECT(file_bt, "clicked", capture_prep_file_cb, file_te);
+  g_signal_connect(file_bt, "clicked", G_CALLBACK(capture_prep_file_cb), file_te);
 
   /* multiple files table */
   multi_tb = gtk_table_new(5, 3, FALSE);
@@ -1305,10 +1305,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   row = 0;
 
   /* multiple files row */
-  multi_files_on_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Use _multiple files", accel_group);
+  multi_files_on_cb = gtk_check_button_new_with_mnemonic("Use _multiple files");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(multi_files_on_cb),
 		capture_opts->multi_files_on);
-  SIGNAL_CONNECT(multi_files_on_cb, "toggled", capture_prep_adjust_sensitivity,
+  g_signal_connect(multi_files_on_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity),
                  cap_open_w);
   gtk_tooltips_set_tip(tooltips, multi_files_on_cb,
     "Instead of using a single capture file, multiple files will be created. "
@@ -1320,7 +1320,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ring_filesize_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
 		capture_opts->has_autostop_filesize);
-  SIGNAL_CONNECT(ring_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(ring_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
@@ -1331,7 +1331,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   ring_filesize_sb = gtk_spin_button_new (ring_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ring_filesize_sb), TRUE);
-  WIDGET_SET_SIZE(ring_filesize_sb, 80, -1);
+  gtk_widget_set_size_request(ring_filesize_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ring_filesize_sb, 1, 2, row, row+1);
 
   ring_filesize_om = size_unit_option_menu_new(capture_opts->autostop_filesize);
@@ -1346,8 +1346,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   file_duration_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(file_duration_cb),
 			      capture_opts->has_file_duration);
-  SIGNAL_CONNECT(file_duration_cb, "toggled",
-		 capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(file_duration_cb, "toggled",
+		 G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, file_duration_cb,
     "If the selected duration is exceeded, capturing switches to the next file.\n"
     "PLEASE NOTE: at least one of the \"Next file every\" options MUST be selected.",
@@ -1358,7 +1358,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   file_duration_sb = gtk_spin_button_new (file_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (file_duration_sb), TRUE);
-  WIDGET_SET_SIZE(file_duration_sb, 80, -1);
+  gtk_widget_set_size_request(file_duration_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), file_duration_sb, 1, 2, row, row+1);
 
   file_duration_om = time_unit_option_menu_new(capture_opts->file_duration);
@@ -1372,7 +1372,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ringbuffer_nbf_cb = gtk_check_button_new_with_label("Ring buffer with");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ringbuffer_nbf_cb),
 		capture_opts->has_ring_num_files);
-  SIGNAL_CONNECT(ringbuffer_nbf_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(ringbuffer_nbf_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, ringbuffer_nbf_cb,
     "After capturing has switched to the next file and the given number of files has exceeded, "
     "the oldest file will be removed.",
@@ -1383,8 +1383,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     2/*RINGBUFFER_MIN_NUM_FILES*/, RINGBUFFER_MAX_NUM_FILES, 1.0, 10.0, 0.0);
   ringbuffer_nbf_sb = gtk_spin_button_new (ringbuffer_nbf_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (ringbuffer_nbf_sb), TRUE);
-  WIDGET_SET_SIZE(ringbuffer_nbf_sb, 80, -1);
-  SIGNAL_CONNECT(ringbuffer_nbf_sb, "changed", capture_prep_adjust_sensitivity, cap_open_w);
+  gtk_widget_set_size_request(ringbuffer_nbf_sb, 80, -1);
+  g_signal_connect(ringbuffer_nbf_sb, "changed", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), ringbuffer_nbf_sb, 1, 2, row, row+1);
 
   ringbuffer_nbf_lb = gtk_label_new("files");
@@ -1396,7 +1396,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_files_cb = gtk_check_button_new_with_label("Stop capture after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_files_cb),
 		capture_opts->has_autostop_files);
-  SIGNAL_CONNECT(stop_files_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(stop_files_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, stop_files_cb,
     "Stop capturing after the given number of \"file switches\" have been done.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_cb, 0, 1, row, row+1);
@@ -1405,7 +1405,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_files_sb = gtk_spin_button_new (stop_files_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_files_sb), TRUE);
-  WIDGET_SET_SIZE(stop_files_sb, 80, -1);
+  gtk_widget_set_size_request(stop_files_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(multi_tb), stop_files_sb, 1, 2, row, row+1);
 
   stop_files_lb = gtk_label_new("file(s)");
@@ -1432,7 +1432,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_packets_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_packets_cb),
 		capture_opts->has_autostop_packets);
-  SIGNAL_CONNECT(stop_packets_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(stop_packets_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, stop_packets_cb,
     "Stop capturing after the given number of packets have been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_cb, 0, 1, row, row+1);
@@ -1441,7 +1441,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_packets_sb = gtk_spin_button_new (stop_packets_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_packets_sb), TRUE);
-  WIDGET_SET_SIZE(stop_packets_sb, 80, -1);
+  gtk_widget_set_size_request(stop_packets_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_packets_sb, 1, 2, row, row+1);
 
   stop_packets_lb = gtk_label_new("packet(s)");
@@ -1453,7 +1453,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_filesize_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_filesize_cb),
 		capture_opts->has_autostop_filesize);
-  SIGNAL_CONNECT(stop_filesize_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, stop_filesize_cb,
     "Stop capturing after the given amount of capture data has been captured.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_cb, 0, 1, row, row+1);
@@ -1462,7 +1462,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
-  WIDGET_SET_SIZE(stop_filesize_sb, 80, -1);
+  gtk_widget_set_size_request(stop_filesize_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_filesize_sb, 1, 2, row, row+1);
 
   stop_filesize_om = size_unit_option_menu_new(capture_opts->autostop_filesize);
@@ -1477,7 +1477,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_duration_cb = gtk_check_button_new_with_label("... after");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(stop_duration_cb),
 		capture_opts->has_autostop_duration);
-  SIGNAL_CONNECT(stop_duration_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, stop_duration_cb,
     "Stop capturing after the given time is exceeded.", NULL);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_cb, 0, 1, row, row+1);
@@ -1486,7 +1486,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
   stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
-  WIDGET_SET_SIZE(stop_duration_sb, 80, -1);
+  gtk_widget_set_size_request(stop_duration_sb, 80, -1);
   gtk_table_attach_defaults(GTK_TABLE(limit_tb), stop_duration_sb, 1, 2, row, row+1);
 
   stop_duration_om = time_unit_option_menu_new(capture_opts->autostop_duration);
@@ -1514,8 +1514,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   samp_none_rb = gtk_radio_button_new_with_label(NULL, "None");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
                      (capture_opts->sampling_method == CAPTURE_SAMP_NONE));
-  SIGNAL_CONNECT(samp_none_rb, "toggled",
-                 capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(samp_none_rb, "toggled",
+                 G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_none_rb, 0, 1, 0, 1);
 
   /* "Sampling by counter" row */
@@ -1523,8 +1523,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   samp_count_rb = gtk_radio_button_new_with_label(samp_group, "1 of");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
                      (capture_opts->sampling_method == CAPTURE_SAMP_BY_COUNT));
-  SIGNAL_CONNECT(samp_count_rb, "toggled",
-                 capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(samp_count_rb, "toggled",
+                 G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_count_rb, 0, 1, 1, 2);
 
   samp_count_adj = (GtkAdjustment *) gtk_adjustment_new(
@@ -1543,8 +1543,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   samp_timer_rb = gtk_radio_button_new_with_label(samp_group, "1 every");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(samp_none_rb),
                      (capture_opts->sampling_method == CAPTURE_SAMP_BY_TIMER));
-  SIGNAL_CONNECT(samp_timer_rb, "toggled",
-                 capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(samp_timer_rb, "toggled",
+                 G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_table_attach_defaults(GTK_TABLE(sampling_tb), samp_timer_rb, 0, 1, 2, 3);
 
   samp_timer_adj = (GtkAdjustment *) gtk_adjustment_new(
@@ -1568,19 +1568,19 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
 
   /* "Update display in real time" row */
-  sync_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-      "_Update list of packets in real time", accel_group);
+  sync_cb = gtk_check_button_new_with_mnemonic(
+      "_Update list of packets in real time");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb),
 		capture_opts->real_time_mode);
-  SIGNAL_CONNECT(sync_cb, "toggled", capture_prep_adjust_sensitivity, cap_open_w);
+  g_signal_connect(sync_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
     "Please note: this will slow down capturing, so increased packet drops might appear.", NULL);
   gtk_container_add(GTK_CONTAINER(display_vb), sync_cb);
 
   /* "Auto-scroll live update" row */
-  auto_scroll_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"_Automatic scrolling in live capture", accel_group);
+  auto_scroll_cb = gtk_check_button_new_with_mnemonic(
+		"_Automatic scrolling in live capture");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
   gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
@@ -1588,8 +1588,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(display_vb), auto_scroll_cb);
 
   /* "Hide capture info" row */
-  hide_info_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"_Hide capture info dialog", accel_group);
+  hide_info_cb = gtk_check_button_new_with_mnemonic(
+		"_Hide capture info dialog");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hide_info_cb), !capture_opts->show_info);
   gtk_tooltips_set_tip(tooltips, hide_info_cb,
     "Hide the capture info dialog while capturing.", NULL);
@@ -1603,24 +1603,24 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_border_width(GTK_CONTAINER(resolv_vb), 5);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
 
-  m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"Enable _MAC name resolution", accel_group);
+  m_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _MAC name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(m_resolv_cb),
 		g_resolv_flags & RESOLV_MAC);
   gtk_tooltips_set_tip(tooltips, m_resolv_cb,
     "Perform MAC layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), m_resolv_cb);
 
-  n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"Enable _network name resolution", accel_group);
+  n_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _network name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(n_resolv_cb),
 		g_resolv_flags & RESOLV_NETWORK);
   gtk_tooltips_set_tip(tooltips, n_resolv_cb,
     "Perform network layer name resolution while capturing.", NULL);
   gtk_container_add(GTK_CONTAINER(resolv_vb), n_resolv_cb);
 
-  t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"Enable _transport name resolution", accel_group);
+  t_resolv_cb = gtk_check_button_new_with_mnemonic(
+		"Enable _transport name resolution");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(t_resolv_cb),
 		g_resolv_flags & RESOLV_TRANSPORT);
   gtk_tooltips_set_tip(tooltips, t_resolv_cb,
@@ -1631,74 +1631,74 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  ok_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CAPTURE_START);
-  SIGNAL_CONNECT(ok_bt, "clicked", capture_start_cb, cap_open_w);
+  ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), cap_open_w);
   gtk_tooltips_set_tip(tooltips, ok_bt,
     "Start the capture process.", NULL);
 
-  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_tooltips_set_tip(tooltips, cancel_bt,
     "Cancel and exit dialog.", NULL);
   window_set_cancel_button(cap_open_w, cancel_bt, window_cancel_button_cb);
 
-  help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   gtk_tooltips_set_tip(tooltips, help_bt,
     "Show help about capturing.", NULL);
-  SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_OPTIONS_DIALOG);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
 
   gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, if_cb);
 #ifdef HAVE_PCAP_REMOTE
-  OBJECT_SET_DATA(cap_open_w, E_CAP_IFTYPE_OM_KEY, iftype_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_NOCAP_RPCAP_CB_KEY, nocap_rpcap_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_DATATX_UDP_CB_KEY, datatx_udp_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_OM_KEY, iftype_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_REMOTE_DIALOG_PTR_KEY, NULL);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_NOCAP_RPCAP_CB_KEY, nocap_rpcap_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_DATATX_UDP_CB_KEY, datatx_udp_cb);
 #endif
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_CB_KEY, snap_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SNAP_SB_KEY, snap_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_LT_OM_KEY, linktype_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_CB_KEY, snap_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SNAP_SB_KEY, snap_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_LT_OM_KEY, linktype_om);
 #ifdef _WIN32
-  OBJECT_SET_DATA(cap_open_w, E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
 #endif
-  OBJECT_SET_DATA(cap_open_w, E_CAP_PROMISC_KEY, promisc_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILT_KEY,  filter_te);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_TE_KEY,  file_te);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_MULTI_FILES_ON_CB_KEY,  multi_files_on_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_CB_KEY,  ringbuffer_nbf_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_CB_KEY,  ring_filesize_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_SB_KEY,  ring_filesize_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_RING_FILESIZE_OM_KEY,  ring_filesize_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_CB_KEY,  file_duration_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_SB_KEY,  file_duration_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_FILE_DURATION_OM_KEY,  file_duration_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SYNC_KEY,  sync_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_HIDE_INFO_KEY, hide_info_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_CB_KEY, stop_packets_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_SB_KEY, stop_packets_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_PACKETS_LB_KEY, stop_packets_lb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_CB_KEY, stop_filesize_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_SB_KEY, stop_filesize_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILESIZE_OM_KEY, stop_filesize_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_CB_KEY,  stop_duration_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_SB_KEY,  stop_duration_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_DURATION_OM_KEY,  stop_duration_om);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_CB_KEY, stop_files_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_SB_KEY, stop_files_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_STOP_FILES_LB_KEY, stop_files_lb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_PROMISC_KEY, promisc_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILT_KEY,  filter_te);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_TE_KEY,  file_te);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_MULTI_FILES_ON_CB_KEY,  multi_files_on_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_NBF_CB_KEY,  ringbuffer_nbf_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_NBF_SB_KEY,  ringbuffer_nbf_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_NBF_LB_KEY,  ringbuffer_nbf_lb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_CB_KEY,  ring_filesize_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_SB_KEY,  ring_filesize_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_RING_FILESIZE_OM_KEY,  ring_filesize_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_CB_KEY,  file_duration_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_SB_KEY,  file_duration_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_FILE_DURATION_OM_KEY,  file_duration_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_AUTO_SCROLL_KEY, auto_scroll_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_HIDE_INFO_KEY, hide_info_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_PACKETS_CB_KEY, stop_packets_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_PACKETS_SB_KEY, stop_packets_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_PACKETS_LB_KEY, stop_packets_lb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILESIZE_CB_KEY, stop_filesize_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILESIZE_SB_KEY, stop_filesize_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILESIZE_OM_KEY, stop_filesize_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_DURATION_CB_KEY,  stop_duration_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_DURATION_SB_KEY,  stop_duration_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_DURATION_OM_KEY,  stop_duration_om);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILES_CB_KEY, stop_files_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILES_SB_KEY, stop_files_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_STOP_FILES_LB_KEY, stop_files_lb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_M_RESOLVE_KEY,  m_resolv_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_N_RESOLVE_KEY,  n_resolv_cb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_T_RESOLVE_KEY,  t_resolv_cb);
 #ifdef HAVE_PCAP_SETSAMPLING
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_NONE_RB_KEY, samp_none_rb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_COUNT_RB_KEY, samp_count_rb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_COUNT_SB_KEY, samp_count_sb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_TIMER_RB_KEY, samp_timer_rb);
-  OBJECT_SET_DATA(cap_open_w, E_CAP_SAMP_TIMER_SB_KEY, samp_timer_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SAMP_NONE_RB_KEY, samp_none_rb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SAMP_COUNT_RB_KEY, samp_count_rb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SAMP_COUNT_SB_KEY, samp_count_sb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SAMP_TIMER_RB_KEY, samp_timer_rb);
+  g_object_set_data(G_OBJECT(cap_open_w), E_CAP_SAMP_TIMER_SB_KEY, samp_timer_sb);
 #endif
 
   /* Set the sensitivity of various widgets as per the settings of other
@@ -1736,8 +1736,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     in it; and it now appears that you simply *can't* make a combo box
     get the initial focus, at least not in the obvious fashion. Sigh.... */
 
-  SIGNAL_CONNECT(cap_open_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(cap_open_w, "destroy", capture_prep_destroy_cb, NULL);
+  g_signal_connect(cap_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(cap_open_w, "destroy", G_CALLBACK(capture_prep_destroy_cb), NULL);
 
   /* Give the initial focus to the "Filter" entry box. */
   gtk_widget_grab_focus(filter_te);
@@ -1853,14 +1853,14 @@ static void
 select_link_type_cb(GtkWidget *w, gpointer data)
 {
   int new_linktype = GPOINTER_TO_INT(data);
-  GtkWidget *linktype_om = OBJECT_GET_DATA(w, E_CAP_LT_OM_KEY);
-  int old_linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+  GtkWidget *linktype_om = g_object_get_data(G_OBJECT(w), E_CAP_LT_OM_KEY);
+  int old_linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
 
   /* If the link is changed, update the menu and store the index and the value
      to reuse later when the dialog window will be reopened */
   if (old_linktype != new_linktype) {
-    OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
-    capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+    g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
+    capture_opts->linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
     linktype_history=MAX(gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om)), 0);
 
   }
@@ -1872,13 +1872,13 @@ static void
 select_if_type_cb(GtkWidget *w, gpointer data)
 {
     int new_iftype = GPOINTER_TO_INT(data);
-    GtkWidget *iftype_om = OBJECT_GET_DATA(w, E_CAP_IFTYPE_OM_KEY);
-    int old_iftype = GPOINTER_TO_INT(OBJECT_GET_DATA(iftype_om,
+    GtkWidget *iftype_om = g_object_get_data(G_OBJECT(w), E_CAP_IFTYPE_OM_KEY);
+    int old_iftype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(iftype_om),
                                             E_CAP_OM_IFTYPE_VALUE_KEY));
 
     if (old_iftype != new_iftype)
     {
-        OBJECT_SET_DATA(iftype_om, E_CAP_OM_IFTYPE_VALUE_KEY,
+        g_object_set_data(G_OBJECT(iftype_om), E_CAP_OM_IFTYPE_VALUE_KEY,
                         GINT_TO_POINTER(new_iftype));
     }
     if (new_iftype == CAPTURE_IFREMOTE)
@@ -1933,53 +1933,53 @@ capture_dlg_prep(gpointer parent_w) {
   gchar *dirname;
   gint32 tmp;
 
-  if_cb     = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
+  if_cb     = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
 #ifdef HAVE_PCAP_REMOTE
-  iftype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFTYPE_OM_KEY);
-  datatx_udp_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_DATATX_UDP_CB_KEY);
-  nocap_rpcap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_NOCAP_RPCAP_CB_KEY);
+  iftype_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFTYPE_OM_KEY);
+  datatx_udp_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_DATATX_UDP_CB_KEY);
+  nocap_rpcap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_NOCAP_RPCAP_CB_KEY);
 #endif
-  snap_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
-  snap_sb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
-  linktype_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_LT_OM_KEY);
+  snap_cb   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
+  snap_sb   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
+  linktype_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_LT_OM_KEY);
 #ifdef _WIN32
-  buffer_size_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_BUFFER_SIZE_SB_KEY);
+  buffer_size_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_BUFFER_SIZE_SB_KEY);
 #endif
-  promisc_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_PROMISC_KEY);
-  filter_cm = OBJECT_GET_DATA(top_level, E_CFILTER_CM_KEY);
+  promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PROMISC_KEY);
+  filter_cm = g_object_get_data(G_OBJECT(top_level), E_CFILTER_CM_KEY);
   filter_te = GTK_COMBO(filter_cm)->entry;
-  file_te   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_TE_KEY);
-  multi_files_on_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_MULTI_FILES_ON_CB_KEY);
-  ringbuffer_nbf_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_CB_KEY);
-  ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
-  ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
-  ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
-  ring_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_OM_KEY);
-  file_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_CB_KEY);
-  file_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_SB_KEY);
-  file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
-  sync_cb   = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
-  auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
-  hide_info_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_HIDE_INFO_KEY);
-  stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
-  stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
-  stop_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_CB_KEY);
-  stop_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_SB_KEY);
-  stop_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_OM_KEY);
-  stop_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_CB_KEY);
-  stop_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_SB_KEY);
-  stop_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_OM_KEY);
-  stop_files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_CB_KEY);
-  stop_files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_SB_KEY);
-  m_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_M_RESOLVE_KEY);
-  n_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_N_RESOLVE_KEY);
-  t_resolv_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_T_RESOLVE_KEY);
+  file_te   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
+  multi_files_on_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
+  ringbuffer_nbf_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_CB_KEY);
+  ringbuffer_nbf_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_SB_KEY);
+  ring_filesize_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CB_KEY);
+  ring_filesize_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_SB_KEY);
+  ring_filesize_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_OM_KEY);
+  file_duration_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CB_KEY);
+  file_duration_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_SB_KEY);
+  file_duration_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_OM_KEY);
+  sync_cb   = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SYNC_KEY);
+  auto_scroll_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
+  hide_info_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_HIDE_INFO_KEY);
+  stop_packets_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_CB_KEY);
+  stop_packets_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_SB_KEY);
+  stop_filesize_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_CB_KEY);
+  stop_filesize_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_SB_KEY);
+  stop_filesize_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_OM_KEY);
+  stop_duration_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_CB_KEY);
+  stop_duration_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_SB_KEY);
+  stop_duration_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_OM_KEY);
+  stop_files_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILES_CB_KEY);
+  stop_files_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILES_SB_KEY);
+  m_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_M_RESOLVE_KEY);
+  n_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_N_RESOLVE_KEY);
+  t_resolv_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_T_RESOLVE_KEY);
 #ifdef HAVE_PCAP_SETSAMPLING
-  samp_none_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_NONE_RB_KEY);
-  samp_count_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_RB_KEY);
-  samp_timer_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_RB_KEY);
-  samp_count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_SB_KEY);
-  samp_timer_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_SB_KEY);
+  samp_none_rb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_NONE_RB_KEY);
+  samp_count_rb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_COUNT_RB_KEY);
+  samp_timer_rb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_TIMER_RB_KEY);
+  samp_count_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_COUNT_SB_KEY);
+  samp_timer_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_TIMER_SB_KEY);
 #endif
 
   entry_text =
@@ -2002,11 +2002,11 @@ capture_dlg_prep(gpointer parent_w) {
   /* The Linktype will be stored when the interface will be changed, or if not, not datalink option is used,
      the acquisition will be performed on the default datalink for the device */
   /*  capture_opts->linktype =
-      GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY)); */
+      GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY)); */
 
 #ifdef HAVE_PCAP_REMOTE
   capture_opts->src_type = (capture_source)
-      GPOINTER_TO_INT(OBJECT_GET_DATA(iftype_om, E_CAP_OM_IFTYPE_VALUE_KEY));
+      GPOINTER_TO_INT(g_object_get_data(G_OBJECT(iftype_om), E_CAP_OM_IFTYPE_VALUE_KEY));
   capture_opts->datatx_udp =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(datatx_udp_cb));
   capture_opts->nocap_rpcap =
@@ -2205,7 +2205,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 
   /* Is there a file selection dialog associated with this
      Capture Options dialog? */
-  fs = OBJECT_GET_DATA(win, E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = g_object_get_data(G_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */
@@ -2221,7 +2221,7 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data _U_)
 #endif
 
 #ifdef HAVE_PCAP_REMOTE
-  remote_w = OBJECT_GET_DATA(win, E_CAP_REMOTE_DIALOG_PTR_KEY);
+  remote_w = g_object_get_data(G_OBJECT(win), E_CAP_REMOTE_DIALOG_PTR_KEY);
   if (remote_w != NULL)
       window_destroy(remote_w);
 #endif
@@ -2234,8 +2234,8 @@ capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
   GtkWidget *linktype_om = argp;
   set_link_type_list(linktype_om, entry);
   /* Default to "use the default" */
-  OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
-  capture_opts->linktype = GPOINTER_TO_INT(OBJECT_GET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY));
+  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
+  capture_opts->linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
   linktype_history=0;
 }
 
@@ -2262,39 +2262,39 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 #endif
 
 
-  if_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_IFACE_KEY);
-  snap_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_CB_KEY);
-  snap_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SNAP_SB_KEY);
-  multi_files_on_cb  = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_MULTI_FILES_ON_CB_KEY);
-  ringbuffer_nbf_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_CB_KEY);
-  ringbuffer_nbf_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_SB_KEY);
-  ringbuffer_nbf_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_NBF_LB_KEY);
-  ring_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_CB_KEY);
-  ring_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_SB_KEY);
-  ring_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_RING_FILESIZE_OM_KEY);
-  file_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_CB_KEY);
-  file_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_SB_KEY);
-  file_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_FILE_DURATION_OM_KEY);
-  sync_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SYNC_KEY);
-  auto_scroll_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_AUTO_SCROLL_KEY);
-  hide_info_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_HIDE_INFO_KEY);
-  stop_packets_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_CB_KEY);
-  stop_packets_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_SB_KEY);
-  stop_packets_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_PACKETS_LB_KEY);
-  stop_filesize_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_CB_KEY);
-  stop_filesize_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_SB_KEY);
-  stop_filesize_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILESIZE_OM_KEY);
-  stop_duration_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_CB_KEY);
-  stop_duration_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_SB_KEY);
-  stop_duration_om = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_DURATION_OM_KEY);
-  stop_files_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_CB_KEY);
-  stop_files_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_SB_KEY);
-  stop_files_lb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_STOP_FILES_LB_KEY);
+  if_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
+  snap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_CB_KEY);
+  snap_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SNAP_SB_KEY);
+  multi_files_on_cb  = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
+  ringbuffer_nbf_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_CB_KEY);
+  ringbuffer_nbf_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_SB_KEY);
+  ringbuffer_nbf_lb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_LB_KEY);
+  ring_filesize_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_CB_KEY);
+  ring_filesize_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_SB_KEY);
+  ring_filesize_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_FILESIZE_OM_KEY);
+  file_duration_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_CB_KEY);
+  file_duration_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_SB_KEY);
+  file_duration_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_DURATION_OM_KEY);
+  sync_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SYNC_KEY);
+  auto_scroll_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_AUTO_SCROLL_KEY);
+  hide_info_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_HIDE_INFO_KEY);
+  stop_packets_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_CB_KEY);
+  stop_packets_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_SB_KEY);
+  stop_packets_lb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_PACKETS_LB_KEY);
+  stop_filesize_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_CB_KEY);
+  stop_filesize_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_SB_KEY);
+  stop_filesize_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILESIZE_OM_KEY);
+  stop_duration_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_CB_KEY);
+  stop_duration_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_SB_KEY);
+  stop_duration_om = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_DURATION_OM_KEY);
+  stop_files_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILES_CB_KEY);
+  stop_files_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILES_SB_KEY);
+  stop_files_lb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_STOP_FILES_LB_KEY);
 #ifdef HAVE_PCAP_SETSAMPLING
-  samp_count_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_RB_KEY);
-  samp_timer_rb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_RB_KEY);
-  samp_count_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_COUNT_SB_KEY);
-  samp_timer_sb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CAP_SAMP_TIMER_SB_KEY);
+  samp_count_rb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_COUNT_RB_KEY);
+  samp_timer_rb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_TIMER_RB_KEY);
+  samp_count_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_COUNT_SB_KEY);
+  samp_timer_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_SAMP_TIMER_SB_KEY);
 #endif
 
   /* The snapshot length spinbox is sensitive if the "Limit each packet

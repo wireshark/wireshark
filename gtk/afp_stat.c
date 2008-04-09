@@ -187,11 +187,11 @@ gtk_afpstat_init(const char *optarg, void *userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
+	g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(ss->win, "destroy", G_CALLBACK(win_destroy_cb), ss);
 
 	gtk_widget_show_all(ss->win);
 	window_present(ss->win);
