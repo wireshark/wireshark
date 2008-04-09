@@ -63,15 +63,8 @@
 #include <epan/value_string.h>
 #include "uat_gui.h"
 
-#if GTK_MAJOR_VERSION >= 2
-# undef GTK_MAJOR_VERSION
-# define GTK_MAJOR_VERSION 1
 # define BUTTON_SIZE_X -1
 # define BUTTON_SIZE_Y -1
-#else
-# define BUTTON_SIZE_X 50
-# define BUTTON_SIZE_Y 20
-#endif
 
 struct _uat_rep_t {
 	GtkWidget* window;
@@ -91,10 +84,7 @@ struct _uat_rep_t {
 
 	gint selected;
 	gboolean dont_save;
-#if GTK_MAJOR_VERSION >= 2
 	GtkTreeSelection  *selection;
-#endif
-	
 };
 
 struct _str_pair {
@@ -425,14 +415,8 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 
 	win = dd->win;
 
-#if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400, 30*(uat->ncols+2));
-#else
-	gtk_window_set_policy(GTK_WINDOW(win), FALSE, FALSE, TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(win), 400, 30*(uat->ncols+2));
-	gtk_widget_set_usize(win, 400, 30*(uat->ncols+2));
-#endif
 
 	main_vb = gtk_vbox_new(FALSE,5);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
@@ -574,14 +558,8 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	ud->idx = idx;
 	ud->win = win = dlg_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
 	
-#if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
-#else
-	gtk_window_set_policy(GTK_WINDOW(win), FALSE, FALSE, TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(win), 400, 25*(uat->ncols+2));
-	gtk_widget_set_usize(win, 400, 25*(uat->ncols+2));
-#endif
 
 	main_vb = gtk_vbox_new(FALSE,5);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
@@ -812,11 +790,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	uat->rep->unsaved_window = win = window_new(GTK_WINDOW_TOPLEVEL, "Discard Changes?");
 	gtk_window_set_default_size(GTK_WINDOW(win), 360, 140);
 
-#if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
-#else
-	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
-#endif
 	vbox = gtk_vbox_new(FALSE, 12);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
@@ -864,21 +838,9 @@ static GtkWidget* uat_window(void* u) {
 
 	rep->window = window_new(GTK_WINDOW_TOPLEVEL, uat->name);
 
-#if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_resizable(GTK_WINDOW(rep->window),FALSE);
 	gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);
-#else
-	gtk_window_set_policy(GTK_WINDOW(rep->window), FALSE, FALSE, TRUE);
-	gtk_window_set_default_size(GTK_WINDOW(rep->window), 720, 512);
-	gtk_widget_set_usize(rep->window, 720, 512);
-#endif
-
-
-#if GTK_MAJOR_VERSION >= 2
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
-#else
-	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER);
-#endif
 
 	gtk_container_border_width(GTK_CONTAINER(rep->window), 6);
 
@@ -895,10 +857,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);
-
-#if GTK_MAJOR_VERSION >= 2
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(rep->scrolledwindow), GTK_SHADOW_IN);
-#endif
 
 	rep->clist = gtk_clist_new(uat->ncols);
 	gtk_container_add(GTK_CONTAINER(rep->scrolledwindow), rep->clist);
@@ -918,12 +877,8 @@ static GtkWidget* uat_window(void* u) {
 
 	gtk_clist_thaw(GTK_CLIST(rep->clist));
 	
-#if GTK_MAJOR_VERSION < 2
-	gtk_clist_set_selection_mode(GTK_CLIST(rep->clist),GTK_SELECTION_SINGLE);
-#else
 	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist));
 	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
-#endif
 
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -970,12 +925,7 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
-#if GTK_MAJOR_VERSION < 2
-	SIGNAL_CONNECT(rep->clist, "select_row", remember_selected_row, uat);
-	SIGNAL_CONNECT(rep->clist, "unselect_row", unremember_selected_row, uat);
-#else
-	SIGNAL_CONNECT(selection, "changed", remember_selected_row, uat);
-#endif
+	SIGNAL_CONNECT(rep->selection, "changed", remember_selected_row, uat);
 
 	SIGNAL_CONNECT(rep->bt_new, "clicked", uat_new_cb, uat);
 	SIGNAL_CONNECT(rep->bt_edit, "clicked", uat_edit_cb, uat);
