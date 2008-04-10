@@ -1,8 +1,8 @@
 /*
  *  wslua_gui.c
- *  
+ *
  * (c) 2006, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -38,7 +38,7 @@ struct _lua_menu_data {
 static int menu_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of Menu Callback:\n %s",error);
-    return 0;    
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facility is enabled. */
@@ -49,11 +49,11 @@ WSLUA_FUNCTION wslua_gui_enabled(lua_State* L) { /* Checks whether the GUI facil
 void lua_menu_callback(gpointer data) {
     struct _lua_menu_data* md = data;
 	lua_State* L = md->L;
-	
+
 	lua_settop(L,0);
     lua_pushcfunction(L,menu_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, md->cb_ref);
-	
+
 	switch ( lua_pcall(L,0,0,1) ) {
         case 0:
             break;
@@ -67,7 +67,7 @@ void lua_menu_callback(gpointer data) {
             g_assert_not_reached();
             break;
     }
-	
+
     return;
 }
 
@@ -86,8 +86,8 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in t
 
 	if(!name)
 		WSLUA_ARG_ERROR(register_menu,NAME,"must be a string");
-	
-    if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION)) 
+
+    if (!lua_isfunction(L,WSLUA_ARG_register_menu_ACTION))
 		WSLUA_ARG_ERROR(register_menu,ACTION,"must be a function");
 
     md = g_malloc(sizeof(struct _lua_menu_data));
@@ -125,18 +125,18 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
     int i = 0;
     gchar* input;
     lua_State* L = dcbd->L;
-    
+
     lua_settop(L,0);
     lua_pushcfunction(L,dlg_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, dcbd->func_ref);
-    
+
     for (i = 0; (input = user_input[i]) ; i++) {
         lua_pushstring(L,input);
         g_free(input);
     }
-    
+
     g_free(user_input);
-    
+
     switch ( lua_pcall(L,i,0,1) ) {
         case 0:
             break;
@@ -150,7 +150,7 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
             g_assert_not_reached();
             break;
     }
-    
+
 }
 
 WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
@@ -163,57 +163,57 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     int i;
     GPtrArray* labels;
     struct _dlg_cb_data* dcbd;
-    
+
     if (! ops) {
         luaL_error(L,"the GUI facility has to be enabled");
         return 0;
     }
-    
+
     if (! (title  = luaL_checkstring(L,WSLUA_ARG_new_dialog_TITLE)) ) {
         WSLUA_ARG_ERROR(new_dialog,TITLE,"must be a string");
         return 0;
     }
-    
+
     if (! lua_isfunction(L,WSLUA_ARG_new_dialog_ACTION)) {
         WSLUA_ARG_ERROR(new_dialog,ACTION,"must be a function");
         return 0;
     }
-    
+
     if (top < 3) {
         WSLUA_ERROR(new_dialog,"at least one field required");
         return 0;
     }
-    
-    
+
+
     dcbd = g_malloc(sizeof(struct _dlg_cb_data));
     dcbd->L = L;
-    
+
     lua_remove(L,1);
-    
+
     lua_pushvalue(L, 1);
     dcbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_remove(L,1);
-        
+
     labels = g_ptr_array_new();
-    
+
     top -= 2;
-    
+
     for (i = 1; i <= top; i++) {
         gchar* label = (void*)luaL_checkstring(L,i);
-		
+
 		/* XXX leaks labels on error */
-		if (! label) 
+		if (! label)
 			WSLUA_ERROR(new_dialog,"all fields must be strings");
-		
+
         g_ptr_array_add(labels,label);
     }
-    
+
     g_ptr_array_add(labels,NULL);
-    
+
     ops->new_dialog(title, (const gchar**)labels->pdata, lua_dialog_cb, dcbd);
-    
+
     g_ptr_array_free(labels,FALSE);
-    
+
     WSLUA_RETURN(0);
 }
 
@@ -232,7 +232,7 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 	title = luaL_optstring(L,WSLUA_OPTARG_TextWindow_new_TITLE,"Untitled Window");
     tw = ops->new_text_window(title);
     pushTextWindow(L,tw);
-    
+
 	WSLUA_RETURN(1); /* The newly created TextWindow object. */
 }
 
@@ -244,7 +244,7 @@ struct _close_cb_data {
 int text_win_close_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
     report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
-    return 0;    
+    return 0;
 }
 
 static void text_win_close_cb(void* data) {
@@ -254,7 +254,7 @@ static void text_win_close_cb(void* data) {
 	lua_settop(L,0);
     lua_pushcfunction(L,text_win_close_cb_error_handler);
     lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
-    
+
     switch ( lua_pcall(L,0,0,1) ) {
         case 0:
             break;
@@ -283,14 +283,14 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
 
     if (! lua_isfunction(L,2))
         WSLUA_ARG_ERROR(TextWindow_at_close,ACTION,"must be a function");
-    
+
     cbd = g_malloc(sizeof(struct _close_cb_data));
 
     cbd->L = L;
     cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-    
+
     ops->set_close_cb(tw,text_win_close_cb,cbd);
-    
+
     pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
@@ -306,18 +306,18 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 
     if (!text)
 		WSLUA_ARG_ERROR(TextWindow_set,TEXT,"must be a string");
-    
+
     ops->set_text(tw,text);
-    
+
     pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
-#define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended */ 
+#define WSLUA_ARG_TextWindow_append_TEXT 2 /* The text to be appended */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,2);
-    
+
 	if (!tw)
 		WSLUA_ERROR(TextWindow_append,"cannot be called for something not a TextWindow");
 
@@ -325,36 +325,36 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 		WSLUA_ARG_ERROR(TextWindow_append,TEXT,"must be a string");
 
     ops->append_text(tw,text);
-    
+
     pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
-#define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be appended */ 
+#define WSLUA_ARG_TextWindow_prepend_TEXT 2 /* The text to be appended */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* text = luaL_checkstring(L,2);
-    
+
 	if (!tw)
 		WSLUA_ERROR(TextWindow_prepend,"cannot be called for something not a TextWindow");
 
  	if (!text)
 		WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"must be a string");
-   
+
     ops->prepend_text(tw,text);
-    
+
     pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
 WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Errases all text in the window. */
     TextWindow tw = checkTextWindow(L,1);
-    
+
 	if (!tw)
 		WSLUA_ERROR(TextWindow_clear,"cannot be called for something not a TextWindow");
 
     ops->clear_text(tw);
-    
+
     pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
@@ -393,7 +393,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 
 	if (ops->set_editable)
 		ops->set_editable(tw,editable);
-	
+
 	pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
@@ -406,12 +406,12 @@ typedef struct _wslua_bt_cb_t {
 static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
 	wslua_bt_cb_t* cbd = data;
 	lua_State* L = cbd->L;
-	
+
 	lua_settop(L,0);
 	lua_pushcfunction(L,dlg_cb_error_handler);
 	lua_rawgeti(L, LUA_REGISTRYINDEX, cbd->func_ref);
 	pushTextWindow(L,tw);
-	
+
 	switch ( lua_pcall(L,1,0,1) ) {
 		case 0:
 			break;
@@ -425,22 +425,22 @@ static gboolean wslua_button_callback(funnel_text_window_t* tw, void* data) {
 			g_assert_not_reached();
 			break;
 	}
-	
+
 	return TRUE;
 }
 
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
-#define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */ 
-#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */ 
+#define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */
+#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */
 	TextWindow tw = checkTextWindow(L,1);
 	const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
-	
+
 	funnel_bt_t* fbt;
 	wslua_bt_cb_t* cbd;
-	
+
 	if (!tw)
 		WSLUA_ERROR(TextWindow_add_button,"cannot be called for something not a TextWindow");
-	
+
 	if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
 		WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
@@ -455,13 +455,13 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
 		fbt->data = cbd;
 		fbt->free = g_free;
 		fbt->free_data = g_free;
-		
+
 		cbd->L = L;
 		cbd->func_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
 		ops->add_button(tw,fbt,label);
 	}
-	
+
 	pushTextWindow(L,tw);
 	WSLUA_RETURN(1); /* The TextWindow object. */
 }
@@ -487,11 +487,11 @@ WSLUA_META TextWindow_meta[] = {
 };
 
 int TextWindow_register(lua_State* L) {
-    
+
     ops = funnel_get_funnel_ops();
-    
+
 	WSLUA_REGISTER_CLASS(TextWindow);
-    
+
     return 1;
 }
 
@@ -505,7 +505,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 	} else {
 		WSLUA_ERROR(wslua_retap_packets, "does not work on TShark");
 	}
-	
+
 	return 0;
 }
 
@@ -533,8 +533,8 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* copy a string into the
 
 WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a capture file */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
-#define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter tgo be applied as the file gets opened. */
-	
+#define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter to be applied as the file gets opened. */
+
 	const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
 	const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
 	const char* error = NULL;
@@ -549,12 +549,12 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* open and display a cap
 
 	if (! ops->open_file(fname,filter,&error) ) {
 		lua_pushboolean(L,FALSE);
-		
+
 		if (error)
 			lua_pushstring(L,error);
 		else
 			lua_pushnil(L);
-		
+
 		return 2;
 	} else {
 		lua_pushboolean(L,TRUE);
