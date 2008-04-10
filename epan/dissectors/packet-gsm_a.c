@@ -458,6 +458,8 @@ static const value_string gsm_rp_msg_strings[] = {
     { 0, NULL }
 };
 
+#define GSM_BSSMAP_APDU_IE	0x49
+
 static const value_string gsm_bssmap_elem_strings[] = {
     { 0x01,	"Circuit Identity Code" },
     { 0x02,	"Reserved" },
@@ -528,7 +530,7 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { 0x46,	"Positioning Data" },
     { 0x47,	"LCS Cause" },
     { 0x48,	"LCS Client Type" },
-    { 0x49,	"APDU" },
+    { GSM_BSSMAP_APDU_IE,	"APDU" },
     { 0x4a,	"Network Element Identity" },
     { 0x4b,	"GPS Assistance Data" },
     { 0x4c,	"Deciphering Keys" },
@@ -1291,6 +1293,7 @@ static char a_bigbuf[1024];
 
 static dissector_handle_t data_handle;
 static dissector_handle_t gsm_map_handle;
+static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t bssmap_handle;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t rp_handle;
@@ -3156,11 +3159,14 @@ static guint8
 be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
+	guint8	apdu_protocol_id;
+	tvbuff_t *APDU_tvb;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree, tvb, curr_offset, len,
-	"APDU (not displayed)");
+	/* curr_offset + 1 is a hack, the length part here is 2 octets and we are off by one */ 
+    proto_tree_add_text(tree, tvb, curr_offset+1, len,
+	"APDU");
 
     /*
      * dissect the embedded APDU message
@@ -3170,8 +3176,33 @@ be_apdu(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_s
 	 * equivalent octet in the APDU element of 3GPP TS 49.031.
      */
 
-	proto_tree_add_item(tree, hf_gsm_a_apdu_protocol_id, tvb, curr_offset, 1, FALSE);
+	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset+1);
+	proto_tree_add_item(tree, hf_gsm_a_apdu_protocol_id, tvb, curr_offset+1, 1, FALSE);
 
+	switch(apdu_protocol_id){
+	case 1:
+		/* BSSLAP 
+		 * the embedded message is as defined in 3GPP TS 08.71(3GPP TS 48.071 version 7.2.0 Release 7)
+		 */
+		APDU_tvb = tvb_new_subset(tvb, curr_offset+2, len-1, len-1);
+		if(gsm_bsslap_handle)
+			call_dissector(gsm_bsslap_handle, APDU_tvb, g_pinfo, g_tree);
+		break;
+	case 2:
+		/* LLP 
+		 * The embedded message contains a Facility Information Element as defined in 3GPP TS 04.71
+		 * excluding the Facility IEI and length of Facility IEI octets defined in 3GPP TS 04.71.
+		 */
+		break;
+	case 3:
+		/* SMLCPP 
+		 * The embedded message is as defined in 3GPP TS 08.31
+		 */
+		break;
+	default:
+		break;
+	}
+	
     curr_offset += len;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
@@ -3243,14 +3274,13 @@ typedef enum
 
 	DE_RR_HO_REF,					/* 10.5.2.15  Handover Reference				*/
 
-	DE_RR_IA_REST_OCT,					/* [3] 10.5.2.16 IA Rest Octets				*/
+	DE_RR_IA_REST_OCT,				/* [3] 10.5.2.16 IA Rest Octets					*/
 /* [3] 10.5.2.17 IAR Rest Octets
  * [3] 10.5.2.18 IAX Rest Octets
  */
-	DE_RR_L2_PSEUDO_LEN,			/*	[3] 10.5.2.19 L2 Pseudo Length				*/
-/* [3] 10.5.2.20 Measurement Results
- * [3] 10.5.2.20a GPRS Measurement Results
- */
+	DE_RR_L2_PSEUDO_LEN,			/* [3] 10.5.2.19 L2 Pseudo Length				*/
+	DE_RR_MEAS_RES,					/* [3] 10.5.2.20 Measurement Results
+ /* [3] 10.5.2.20a GPRS Measurement Results */
 	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
 	DE_RR_MOB_TIME_DIFF,			/* [3] 10.5.2.21a Mobile Time Difference		*/
 	DE_RR_MULTIRATE_CONF,			/* [3] 10.5.2.21aa MultiRate configuration		*/
@@ -4854,8 +4884,15 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
     return(curr_offset - offset);
 }
 /*
- * [3] 10.5.2.20 Measurement Results
+ * [3] 10.5.2.20 Measurement Results 
  */
+guint8
+de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+{
+    guint32	curr_offset;
+
+    len = len;
+    curr_offset = offset;
 
 	/* BA-USED (octet 2), the value of the BA_IND field of the neighbour cell description
 	 * information element or elements defining the BCCH allocation used for the coding of
@@ -4868,7 +4905,11 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 	 * 0 DTX was not used
 	 * 1 DTX was used
 	 */
+	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
 
+	curr_offset = curr_offset + len;
+    return(curr_offset - offset);
+}
 	
 /*
  * [3] 10.5.2.20a GPRS Measurement Results
@@ -12633,13 +12674,13 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
  * [3]  10.5.2.14d	GPRS broadcast information
  * [3]  10.5.2.14e	Enhanced DTM CS Release Indication
  */
-	de_rr_ho_ref,						/* 10.5.2.15  Handover Reference				*/
-	de_rr_ia_rest_oct,					/* [3] 10.5.2.16 IA Rest Octets					*/
+	de_rr_ho_ref,						/* 10.5.2.15  Handover Reference			*/
+	de_rr_ia_rest_oct,					/* [3] 10.5.2.16 IA Rest Octets				*/
 /* [3] 10.5.2.18 IAX Rest Octets
  */
-	de_rr_l2_pseudo_len,				/*[3] 10.5.2.19 L2 Pseudo Length				*/
+	de_rr_l2_pseudo_len,				/*[3] 10.5.2.19 L2 Pseudo Length			*/
+	de_rr_meas_res,						/* [3] 10.5.2.20 Measurement Results		*/
 /*
- * [3] 10.5.2.20 Measurement Results
  * [3] 10.5.2.20a GPRS Measurement Results
  */
 	de_rr_mob_all,					/* [3] 10.5.2.21 Mobile Allocation				*/
@@ -12880,7 +12921,9 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 static guint8
 elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, guint32 offset, guint len, const gchar *name_add)
 {
-    guint8		oct, parm_len;
+    guint8		oct; 
+	guint16		parm_len;
+	guint8		lengt_length = 1;
     guint8		consumed;
     guint32		curr_offset;
     proto_tree		*subtree;
@@ -12897,13 +12940,23 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gu
 
     oct = tvb_get_guint8(tvb, curr_offset);
 
-    if (oct == iei)
-    {
-	parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+    if (oct == iei){
+		if (oct == GSM_BSSMAP_APDU_IE){
+			/* This elements length is in two octets (a bit of a hack here)*/
+			lengt_length = 2;
+			parm_len = tvb_get_ntohs(tvb, curr_offset + 1);
+			lengt_length = 2;
+			if(parm_len > 255){
+				/* The rest of the logic can't handle length > 255 */ 
+				DISSECTOR_ASSERT_NOT_REACHED();
+			}
+		}else{
+			parm_len = tvb_get_guint8(tvb, curr_offset + 1);
+		}
 
 	item =
 	    proto_tree_add_text(tree,
-		tvb, curr_offset, parm_len + 2,
+		tvb, curr_offset, parm_len + 1 + lengt_length,
 		"%s%s",
 		elem_names[idx].strptr,
 		(name_add == NULL) || (name_add[0] == '\0') ? "" : name_add);
@@ -12915,17 +12968,17 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gu
 	    curr_offset, 1, oct);
 
 	proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
-	    curr_offset + 1, 1, parm_len);
+	    curr_offset + 1, lengt_length, parm_len);
 
 	if (parm_len > 0)
 	{
 	    if (elem_funcs[idx] == NULL)
 	    {
 		proto_tree_add_text(subtree,
-		    tvb, curr_offset + 2, parm_len,
+		    tvb, curr_offset + 1 + lengt_length, parm_len,
 		    "Element Value");
-
-		consumed = parm_len;
+		/* See ASSERT above */
+		consumed = (guint8)parm_len;
 	    }
 	    else
 	    {
@@ -12944,7 +12997,7 @@ elem_tlv(tvbuff_t *tvb, proto_tree *tree, guint8 iei, gint pdu_type, int idx, gu
 	    }
 	}
 
-	consumed += 2;
+	consumed += 1 + lengt_length;
     }
 
     return(consumed);
@@ -18953,7 +19006,7 @@ proto_register_gsm_a(void)
 	},
 	{ &hf_gsm_a_length,
 	    { "Length",		"gsm_a.len",
-	    FT_UINT8, BASE_DEC, NULL, 0,
+	    FT_UINT16, BASE_DEC, NULL, 0,
 	    "", HFILL }
 	},
 	{ &hf_gsm_a_none,
@@ -19754,5 +19807,6 @@ proto_reg_handoff_gsm_a(void)
 	dissector_add("llcgprs.sapi", 7 , dtap_handle); /* SMS */
     data_handle = find_dissector("data");
 	gsm_map_handle = find_dissector("gsm_map");
+	gsm_bsslap_handle = find_dissector("gsm_bsslap");
 }
 
