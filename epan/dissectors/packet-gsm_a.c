@@ -3279,7 +3279,7 @@ typedef enum
  * [3] 10.5.2.18 IAX Rest Octets
  */
 	DE_RR_L2_PSEUDO_LEN,			/* [3] 10.5.2.19 L2 Pseudo Length				*/
-	DE_RR_MEAS_RES,					/* [3] 10.5.2.20 Measurement Results
+	DE_RR_MEAS_RES,					/* [3] 10.5.2.20 Measurement Results		*/
  /* [3] 10.5.2.20a GPRS Measurement Results */
 	DE_RR_MOB_ALL,					/* [3] 10.5.2.21 Mobile Allocation				*/
 	DE_RR_MOB_TIME_DIFF,			/* [3] 10.5.2.21a Mobile Time Difference		*/
