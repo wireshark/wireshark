@@ -16,7 +16,7 @@ that can run the "configure" script in this same directory. These
 are not the installation instructions for Windows systems; see
 README.win32 for those instructions.
 
-0. This is beta software.  Beware.
+0. This is software.  Beware.
 
 1. If you wish to build Wireshark, make sure you have GTK+ and GLib
    installed. Try running 'pkg-config glib-2.0 --modversion' to see if
