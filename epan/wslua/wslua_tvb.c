@@ -376,7 +376,7 @@ WSLUA_CONSTRUCTOR Tvb_new_real (lua_State *L) {
     WSLUA_RETURN(1); /* the created Tvb. */
 }
 
-WSLUA_CONSTRUCTOR Tvb_new_subset (lua_State *L) {
+WSLUA_CONSTRUCTOR Tvb_tvb (lua_State *L) {
 	/* creates a (sub)Tvb from using a TvbRange */
 #define WSLUA_ARG_Tvb_new_subset_RANGE 2 /* the TvbRange from which to create the new Tvb. */
 
@@ -508,7 +508,7 @@ int Tvb_register(lua_State* L) {
 /*
  *  read access to tvbr's data
  */
-static int TvbRange_get_index(lua_State* L) {
+static int TvbRange_index(lua_State* L) {
 	/* WSLUA_ATTRIBUTE TvbRange_tvb RO The Tvb from which this TvbRange was generated */
 	/* WSLUA_ATTRIBUTE TvbRange_len RW The length (in octets) of this TvbRange */
 	/* WSLUA_ATTRIBUTE TvbRange_offset RW The offset (in octets) of this TvbRange */
@@ -537,7 +537,7 @@ static int TvbRange_get_index(lua_State* L) {
 /*
  *  write access to tvbr's data
  */
-static int TvbRange_set_index(lua_State* L) {
+static int TvbRange_newindex(lua_State* L) {
     TvbRange tvbr = checkTvbRange(L,1);
     const gchar* index = luaL_checkstring(L,2);
 
@@ -576,7 +576,7 @@ static int TvbRange_set_index(lua_State* L) {
 /*
  *  get a Blefuscuoan unsigned integer from a tvb
  */
-WSLUA_METHOD TvbRange_get_uint(lua_State* L) {
+WSLUA_METHOD TvbRange_uint(lua_State* L) {
 	/* get a Big Endian (network order) unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
 	There's no support yet for 64 bit integers*/
     TvbRange tvbr = checkTvbRange(L,1);
@@ -611,7 +611,7 @@ WSLUA_METHOD TvbRange_get_uint(lua_State* L) {
 /*
  *  get a Lilliputian unsigned integer from a tvb
  */
-WSLUA_METHOD TvbRange_get_le_uint(lua_State* L) {
+WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
 	/* get a Little Endian unsigned integer from a TvbRange. The range must be 1, 2, 3 or 4 octets long.
 	There's no support yet for 64 bit integers*/
     TvbRange tvbr = checkTvbRange(L,1);
@@ -640,7 +640,7 @@ WSLUA_METHOD TvbRange_get_le_uint(lua_State* L) {
 /*
  *  get a Blefuscuoan float
  */
-WSLUA_METHOD TvbRange_get_float(lua_State* L) {
+WSLUA_METHOD TvbRange_float(lua_State* L) {
 	/* get a Big Endian (network order) floating point number from a TvbRange. The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!tvbr) return 0;
@@ -661,7 +661,7 @@ WSLUA_METHOD TvbRange_get_float(lua_State* L) {
 /*
  * get a Lilliputian float
  */
-WSLUA_METHOD TvbRange_get_le_float(lua_State* L) {
+WSLUA_METHOD TvbRange_le_float(lua_State* L) {
 	/* get a Little Endian floating point number from a TvbRange. The range must be 4 or 8 octets long. */
     TvbRange tvbr = checkTvbRange(L,1);
     if (!tvbr) return 0;
@@ -679,7 +679,7 @@ WSLUA_METHOD TvbRange_get_le_float(lua_State* L) {
     }
 }
 
-WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
+WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
 	/* get an IPv4 Address from a TvbRange. */
 
     TvbRange tvbr = checkTvbRange(L,1);
@@ -689,7 +689,7 @@ WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
     if ( !tvbr ) return 0;
 
 	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_get_ipv4,"The range must be 4 octets long");
+		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 
     addr = g_malloc(sizeof(address));
 
@@ -702,7 +702,7 @@ WSLUA_METHOD TvbRange_get_ipv4(lua_State* L) {
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
-WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
+WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
 	/* get an Little Endian IPv4 Address from a TvbRange. */
 	
     TvbRange tvbr = checkTvbRange(L,1);
@@ -712,7 +712,7 @@ WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
     if ( !tvbr ) return 0;
 	
 	if (tvbr->len != 4)
-		WSLUA_ERROR(TvbRange_get_ipv4,"The range must be 4 octets long");
+		WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
 	
     addr = g_malloc(sizeof(address));
 	
@@ -726,7 +726,7 @@ WSLUA_METHOD TvbRange_get_le_ipv4(lua_State* L) {
 	WSLUA_RETURN(1); /* the IPv4 Address */
 }
 
-WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
+WSLUA_METHOD TvbRange_ether(lua_State* L) {
 	/* get an Ethernet Address from a TvbRange. */
     TvbRange tvbr = checkTvbRange(L,1);
     Address addr;
@@ -737,7 +737,7 @@ WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
     addr = g_malloc(sizeof(address));
 
 	if (tvbr->len != 6)
-		WSLUA_ERROR(TvbRange_get_ether,"The range must be 6 bytes long");
+		WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
 
     buff = tvb_memdup(tvbr->tvb,tvbr->offset,tvbr->len);
 
@@ -748,7 +748,7 @@ WSLUA_METHOD TvbRange_get_ether(lua_State* L) {
 }
 
 
-WSLUA_METHOD TvbRange_get_string(lua_State* L) {
+WSLUA_METHOD TvbRange_string(lua_State* L) {
 	/* obtain a string from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
 
@@ -759,7 +759,7 @@ WSLUA_METHOD TvbRange_get_string(lua_State* L) {
 	WSLUA_RETURN(1); /* the string */
 }
 
-WSLUA_METHOD TvbRange_get_bytes(lua_State* L) {
+WSLUA_METHOD TvbRange_bytes(lua_State* L) {
 	/* obtain a ByteArray */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
@@ -787,22 +787,22 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 }
 
 static const luaL_reg TvbRange_methods[] = {
-    {"uint", TvbRange_get_uint},
-    {"le_uint", TvbRange_get_le_uint},
-    {"float", TvbRange_get_float},
-    {"le_float", TvbRange_get_le_float},
-    {"ether", TvbRange_get_ether},
-    {"ipv4", TvbRange_get_ipv4},
-	{"le_ipv4", TvbRange_get_le_ipv4},
-    {"string", TvbRange_get_string},
-    {"bytes", TvbRange_get_bytes},
-    {"tvb", Tvb_new_subset},
+    {"uint", TvbRange_uint},
+    {"le_uint", TvbRange_le_uint},
+    {"float", TvbRange_float},
+    {"le_float", TvbRange_le_float},
+    {"ether", TvbRange_ether},
+    {"ipv4", TvbRange_ipv4},
+	{"le_ipv4", TvbRange_le_ipv4},
+    {"string", TvbRange_string},
+    {"bytes", TvbRange_bytes},
+    {"tvb", Tvb_tvb},
     {0, 0}
 };
 
 static const luaL_reg TvbRange_meta[] = {
-    {"__index", TvbRange_get_index},
-    {"__newindex", TvbRange_set_index},
+    {"__index", TvbRange_index},
+    {"__newindex", TvbRange_newindex},
     {"__tostring", TvbRange__tostring},
     {0, 0}
 };
