@@ -141,6 +141,7 @@ proto_reg_handoff_foo(void)
 	if (!initialized) {
 		foo_handle = create_dissector_handle(dissect_foo, proto_foo);
 		dissector_add("udp.port", global_foo_port, foo_handle);
+		initialized = TRUE;
 	}
 }]]>
    </programlisting></example>
