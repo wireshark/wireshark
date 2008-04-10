@@ -28,7 +28,8 @@
 
 use strict;
 
-my $WSROOT = "../..";
+my $root = shift;
+my $WSROOT = $root  . "/../..";
 
 my $wtap_encaps_table = '';
 my $ft_types_table = '';

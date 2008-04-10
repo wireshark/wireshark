@@ -71,18 +71,18 @@ void lua_menu_callback(gpointer data) {
     return;
 }
 
-WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in the Statistics menu. */
-#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. */
-#define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. */
-#define WSLUA_ARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. */
+WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
+#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '/'s. (string) */
+#define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
+#define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. One of MENU_STAT (Statistics), MENU_STAT_GENERIC (Statistics, first section), MENU_STAT_CONVERSATION (Statistics/Conversation List), MENU_STAT_ENDPOINT (Statistics/Endpoint List), MENU_STAT_RESPONSE (Statistics/Service Response Time), MENU_STAT_TELEPHONY (Statistics, third section), MENU_ANALYZE (Analyze), MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter), MENU_TOOLS (Tools). (number) */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
     gboolean retap = FALSE;
-	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_ARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
+	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
 	if ( group > REGISTER_TOOLS_GROUP_NONE)
-		WSLUA_ARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
+		WSLUA_OPTARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
 
 	if(!name)
 		WSLUA_ARG_ERROR(register_menu,NAME,"must be a string");

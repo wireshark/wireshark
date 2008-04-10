@@ -154,7 +154,7 @@ do
 
 	-- using this function we register our fuction
 	-- to be called when the user selects the Tools->Test->Packets menu
-	register_menu("Test/Packets",menuable_tap)
+	register_menu("Test/Packets", menuable_tap, MENU_TOOLS)
 end
 	</programlisting>
   </section>
