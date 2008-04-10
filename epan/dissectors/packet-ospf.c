@@ -469,6 +469,8 @@ enum {
     OSPFF_LS_MPLS_REMOTE_IFID,
     OSPFF_LS_MPLS_LINKCOLOR,
     OSPFF_LS_MPLS_BC_MODEL_ID,
+    OSPFF_LS_OIF_LOCAL_NODE_ID,
+    OSPFF_LS_OIF_REMOTE_NODE_ID,
 
     OSPFF_V2_OPTIONS,
     OSPFF_V2_OPTIONS_E,
@@ -631,6 +633,13 @@ static hf_register_info ospff_info[] = {
      { "MPLS/DSTE Bandwidth Constraints Model Id", "ospf.mpls.bc", FT_UINT8,
        BASE_RANGE_STRING | BASE_DEC, RVALS(&mpls_link_stlv_bcmodel_rvals), 0x0, 
        "MPLS/DSTE Bandwidth Constraints Model Id", HFILL }},
+
+    {&ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
+     { "Local Node ID", "ospf.oif.local_node_id", FT_IPv4,
+       BASE_NONE, NULL, 0x0, "", HFILL }},
+    {&ospf_filter[OSPFF_LS_OIF_REMOTE_NODE_ID],
+     { "Remote Node ID", "ospf.oif.remote_node_id", FT_IPv4,
+       BASE_NONE, NULL, 0x0, "", HFILL }},
 
     {&ospf_filter[OSPFF_V2_OPTIONS],
      { "Options", "ospf.v2.options", FT_UINT8, BASE_HEX,
@@ -1946,8 +1955,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Local Node ID: %s",
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    proto_tree_add_item(stlv_tree, 
+				        ospf_filter[OSPFF_LS_OIF_LOCAL_NODE_ID],
+				        tvb, stlv_offset + 4, 4, FALSE);
 		    break;
 
 		case OIF_REMOTE_NODE_ID:
@@ -1959,8 +1969,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Remote Node ID: %s",
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    proto_tree_add_item(stlv_tree, 
+				        ospf_filter[OSPFF_LS_OIF_REMOTE_NODE_ID],
+				        tvb, stlv_offset + 4, 4, FALSE);
 		    break;
 
 		case OIF_SONET_SDH_SWITCHING_CAPABILITY:
