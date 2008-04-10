@@ -92,6 +92,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t fddi_handle;
 static dissector_handle_t tr_handle;
+static dissector_handle_t turbo_handle;
 static dissector_handle_t data_handle;
 
 /*
@@ -210,6 +211,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SIEMENS,			"Siemens AG" },
 	{ OUI_APPLE_ATALK,		"Apple (AppleTalk)" },
 	{ OUI_HP,				"Hewlett-Packard" },
+	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ 0,               NULL }
 };
 
@@ -685,6 +687,11 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		call_dissector(bpdu_handle, next_tvb, pinfo, tree);
 		break;
 
+	case OUI_TURBOCELL:
+		next_tvb = tvb_new_subset(tvb, offset+3, -1, -1);
+		call_dissector(turbo_handle, next_tvb, pinfo, tree);
+		break;
+
 	default:
 		/*
 		 * Do we have information for this OUI?
@@ -871,14 +878,15 @@ proto_reg_handoff_llc(void)
 	dissector_handle_t llc_handle;
 
 	/*
-	 * Get handles for the BPDU, Ethernet, FDDI, and Token Ring
-	 * dissectors.
+	 * Get handles for the BPDU, Ethernet, FDDI, Token Ring and
+	 * Turbocell dissectors.
 	 */
 	bpdu_handle = find_dissector("bpdu");
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	eth_withfcs_handle = find_dissector("eth_withfcs");
 	fddi_handle = find_dissector("fddi");
 	tr_handle = find_dissector("tr");
+	turbo_handle = find_dissector("turbocell");
 	data_handle = find_dissector("data");
 
 	llc_handle = find_dissector("llc");
