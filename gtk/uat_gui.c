@@ -503,10 +503,10 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-	bt_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
 	SIGNAL_CONNECT(bt_ok, "clicked", uat_dlg_cb, dd);
 
-	bt_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_dlg_cb, dd);
 	window_set_cancel_button(win, bt_cancel, NULL);
 
@@ -586,10 +586,10 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_DELETE, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
-	bt_ok = OBJECT_GET_DATA(bbox,GTK_STOCK_DELETE);
+	bt_ok = g_object_get_data(G_OBJECT(bbox),GTK_STOCK_DELETE);
 	SIGNAL_CONNECT(bt_ok, "clicked", uat_del_cb, ud);
 
-	bt_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
 	SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_del_cb, ud);
 	window_set_cancel_button( win, bt_cancel, NULL);
 
@@ -792,8 +792,8 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 
 	bbox = dlg_button_row_new(GTK_STOCK_YES,GTK_STOCK_NO, NULL);
 
-	yes_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_YES);
-	no_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_NO);
+	yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
+	no_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
 
 	SIGNAL_CONNECT(no_bt, "clicked", uat_nosave_cb, uat);
 	SIGNAL_CONNECT(yes_bt, "clicked", uat_yessave_cb, uat);
@@ -873,7 +873,7 @@ static GtkWidget* uat_window(void* u) {
 	if(uat->help) {
 		GtkWidget* help_btn;
 		rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
-		help_btn = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_HELP);
+		help_btn = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_btn, "clicked", uat_help_cb, uat);
 	} else {
 
@@ -903,9 +903,9 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
 
 
-	rep->bt_apply = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_APPLY);
-	rep->bt_cancel = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_CANCEL);
-	rep->bt_ok = OBJECT_GET_DATA(rep->bbox,GTK_STOCK_OK);
+	rep->bt_apply = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_APPLY);
+	rep->bt_cancel = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_CANCEL);
+	rep->bt_ok = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_OK);
 
 	gtk_box_pack_end(GTK_BOX(rep->vbox), rep->bbox, FALSE, FALSE, 0);
 

@@ -538,16 +538,16 @@ wlanstat_dlg_create (void)
 
 	gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = OBJECT_GET_DATA (bbox, GTK_STOCK_CLOSE);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button (wlanstat_dlg_w, close_bt, window_cancel_button_cb);
 
-	copy_bt = OBJECT_GET_DATA (bbox, GTK_STOCK_COPY);
+	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	SIGNAL_CONNECT(copy_bt, "clicked", wlan_copy_as_csv, hs->table);
 
 	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
-		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_WLAN_TRAFFIC_DIALOG);
 	}
 
