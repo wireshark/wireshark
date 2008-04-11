@@ -166,9 +166,6 @@ gtk_radio_button_new_with_mnemonic_from_widget( \
 gtk_radio_button_new_with_label_from_widget( \
     radio_group ? GTK_RADIO_BUTTON(radio_group) : NULL, label_text)
 
-#define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
-gtk_toggle_button_new_with_mnemonic(label_text)
-
 /* for details, see "Pango Text Attribute Markup" */
 /* maybe it's a good idea to keep this macro beyond the ongoing GTK1 cleanup!
    If we want to change the look of the dialog boxes primary line the other day,

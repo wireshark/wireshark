@@ -411,13 +411,13 @@ GtkWidget *range_new(packet_range_t *range)
   gtk_container_border_width(GTK_CONTAINER(range_tb), 5);
 
   /* captured button */
-  captured_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Captured", accel_group);
+  captured_bt = gtk_toggle_button_new_with_mnemonic("_Captured");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), captured_bt, 1, 2, 0, 1);
   SIGNAL_CONNECT(captured_bt, "toggled", toggle_captured_cb, range_tb);
   gtk_tooltips_set_tip (tooltips,captured_bt,("Process all the below chosen packets"), NULL);
 
   /* displayed button */
-  displayed_bt = TOGGLE_BUTTON_NEW_WITH_MNEMONIC("_Displayed", accel_group);
+  displayed_bt = gtk_toggle_button_new_with_mnemonic("_Displayed");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), displayed_bt, 2, 3, 0, 1);
   SIGNAL_CONNECT(displayed_bt, "toggled", toggle_filtered_cb, range_tb);
   gtk_tooltips_set_tip (tooltips,displayed_bt,("Process only the below chosen packets, which also passes the current display filter"), NULL);
