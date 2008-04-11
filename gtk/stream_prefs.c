@@ -119,7 +119,7 @@ stream_prefs_show()
   layout = gtk_widget_create_pango_layout(sample, SAMPLE_SERVER_TEXT);
   pango_layout_get_pixel_size(layout, &width, &height);
   g_object_unref(G_OBJECT(layout));
-  WIDGET_SET_SIZE(sample, width, height * 2);
+  gtk_widget_set_size_request(sample, width, height * 2);
   gtk_text_view_set_editable(GTK_TEXT_VIEW(sample), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(sample));
   gtk_text_buffer_get_start_iter(buf, &iter);

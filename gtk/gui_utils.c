@@ -339,7 +339,7 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
 
     if (geom->set_size) {
         gtk_window_resize(GTK_WINDOW(widget),
-        /*WIDGET_SET_SIZE(widget,*/
+        /*gtk_widget_set_size_request(widget,*/
                                 geom->width,
                                 geom->height);
     }

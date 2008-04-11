@@ -432,7 +432,7 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     /* Fill in the data. */
     fill_in_tree(tree, ps);
 
-    WIDGET_SET_SIZE(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
+    gtk_widget_set_size_request(tree, DEF_DLG_WIDTH, MAX_DLG_HEIGHT);
     gtk_tree_view_expand_all(tree_view);
 
     proto_hier_create_popup_menu ();

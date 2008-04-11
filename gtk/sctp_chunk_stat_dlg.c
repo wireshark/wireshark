@@ -242,7 +242,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 	clist = gtk_clist_new (NUM_COLS);
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	WIDGET_SET_SIZE(clist, 850, 200);
+	gtk_widget_set_size_request(clist, 850, 200);
 
 	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 135);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 35);
@@ -354,7 +354,7 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	u_data->io=io;
 	u_data->io->window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_position (GTK_WINDOW (u_data->io->window), GTK_WIN_POS_CENTER);
-	WIDGET_SET_SIZE(u_data->io->window, 500, 400);
+	gtk_widget_set_size_request(u_data->io->window, 500, 400);
 	SIGNAL_CONNECT(u_data->io->window, "destroy", on_destroy,u_data);
 
 	/* Container for each row of widgets */

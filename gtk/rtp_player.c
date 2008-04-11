@@ -1723,7 +1723,7 @@ decode_streams(void)
 	reset_channels();
 
 	progress_bar = gtk_progress_bar_new();
-	WIDGET_SET_SIZE(progress_bar, 100, -1);
+	gtk_widget_set_size_request(progress_bar, 100, -1);
 	gtk_box_pack_start(GTK_BOX (stat_hbox), progress_bar, FALSE, FALSE, 2);
 	gtk_widget_show(progress_bar);
 	statusbar_context = gtk_statusbar_get_context_id((GtkStatusbar *) info_bar, "main");
@@ -1764,7 +1764,7 @@ decode_streams(void)
         if (prefs.rtp_player_max_visible < 1 || prefs.rtp_player_max_visible > 10)
                 prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
-	WIDGET_SET_SIZE(main_scrolled_window, CHANNEL_WIDTH, 
+	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 
 		min(counter, prefs.rtp_player_max_visible) * (CHANNEL_HEIGHT+60));
 
 	gtk_widget_show_all(main_scrolled_window);
@@ -1872,7 +1872,7 @@ rtp_player_dlg_create(void)
 	
 	main_scrolled_window=gtk_scrolled_window_new(NULL, NULL);
 	gtk_container_set_border_width (GTK_CONTAINER (main_scrolled_window), 4);
-	WIDGET_SET_SIZE(main_scrolled_window, CHANNEL_WIDTH, 0);
+	gtk_widget_set_size_request(main_scrolled_window, CHANNEL_WIDTH, 0);
 
 	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (main_scrolled_window), GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(main_vb), main_scrolled_window);

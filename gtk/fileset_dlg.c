@@ -228,7 +228,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
       GtkRequisition requisition;
 
       gtk_widget_size_request(fs_tb, &requisition);
-      WIDGET_SET_SIZE(GTK_WINDOW(fs_sw), -1, requisition.height);
+      gtk_widget_set_size_request(fs_sw, -1, requisition.height);
       gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(fs_sw), GTK_POLICY_NEVER, GTK_POLICY_NEVER);
     }
     

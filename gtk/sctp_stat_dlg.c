@@ -499,7 +499,7 @@ gtk_sctpstat_dlg(void)
 	clist = gtk_clist_new (NUM_COLS);
 	gtk_widget_show (clist);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow1), clist);
-	WIDGET_SET_SIZE(clist, 650, 200);
+	gtk_widget_set_size_request(clist, 650, 200);
 
 	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 50);
 	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);

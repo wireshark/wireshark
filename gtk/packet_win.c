@@ -144,14 +144,14 @@ void new_window_cb(GtkWidget *w _U_)
   /* Tree view */
   tv_scrollw = main_tree_view_new(&prefs, &tree_view);
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
-  WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
+  gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
   gtk_widget_show(tv_scrollw);
   gtk_widget_show(tree_view);
 
   /* Byte view */
   bv_nb_ptr = byte_view_new();
   gtk_paned_pack2(GTK_PANED(pane), bv_nb_ptr, FALSE, FALSE);
-  WIDGET_SET_SIZE(bv_nb_ptr, -1, bv_size);
+  gtk_widget_set_size_request(bv_nb_ptr, -1, bv_size);
   gtk_widget_show(bv_nb_ptr);
 
   DataPtr->main = main_w;

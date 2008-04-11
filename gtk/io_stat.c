@@ -1378,7 +1378,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
 	g_object_set_data(G_OBJECT(io->draw_area), "io_stat_t", io);
 
-	WIDGET_SET_SIZE(io->draw_area, io->pixmap_width, io->pixmap_height);
+	gtk_widget_set_size_request(io->draw_area, io->pixmap_width, io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
 	SIGNAL_CONNECT(io->draw_area, "expose_event", expose_event, NULL);

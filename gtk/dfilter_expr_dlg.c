@@ -968,7 +968,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(tree_scrolled_win),
                                    GTK_SHADOW_IN);
     gtk_box_pack_start(GTK_BOX(field_vb), tree_scrolled_win, TRUE, TRUE, 0);
-    WIDGET_SET_SIZE(tree_scrolled_win, 300, -1);
+    gtk_widget_set_size_request(tree_scrolled_win, 300, -1);
 
 
     store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_POINTER);

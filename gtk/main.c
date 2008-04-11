@@ -3966,12 +3966,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Packet list */
     pkt_scrollw = packet_list_new(prefs);
-    WIDGET_SET_SIZE(packet_list, -1, pl_size);
+    gtk_widget_set_size_request(packet_list, -1, pl_size);
     gtk_widget_show(pkt_scrollw);
 
     /* Tree view */
     tv_scrollw = main_tree_view_new(prefs, &tree_view);
-    WIDGET_SET_SIZE(tv_scrollw, -1, tv_size);
+    gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 
     SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
@@ -3982,7 +3982,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Byte view. */
     byte_nb_ptr = byte_view_new();
-    WIDGET_SET_SIZE(byte_nb_ptr, -1, bv_size);
+    gtk_widget_set_size_request(byte_nb_ptr, -1, bv_size);
     gtk_widget_show(byte_nb_ptr);
 
     SIGNAL_CONNECT(byte_nb_ptr, "button_press_event", popup_menu_handler,
@@ -4030,7 +4030,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                               "Current 802.11 Channel", "Private");
     gtk_widget_show(channel_lb);
 
-    WIDGET_SET_SIZE(channel_lb, 85, 28);
+    gtk_widget_set_size_request(channel_lb, 85, 28);
 
     /* Create the channel combo box */
     channel_cm = gtk_combo_new();
@@ -4049,7 +4049,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_cm)->entry),
 		"Change the 802.11 RF channel", NULL);
 
-    WIDGET_SET_SIZE(channel_cm, 120, 28);
+    gtk_widget_set_size_request(channel_cm, 120, 28);
 
     if(airpcap_if_active != NULL) {
         chan_str = ieee80211_mhz_to_str(airpcap_if_active->channelInfo.Frequency);
@@ -4073,7 +4073,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                               "Current 802.11 Channel Offset", "Private");
     gtk_widget_show(channel_offset_lb);
 
-    WIDGET_SET_SIZE(channel_offset_lb, 80, 28);
+    gtk_widget_set_size_request(channel_offset_lb, 80, 28);
 
     /* Start: Channel offset combo box */
     channel_offset_cb = gtk_combo_new();
@@ -4090,7 +4090,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_tooltips_set_tip(airpcap_tooltips, GTK_WIDGET(GTK_COMBO(channel_offset_cb)->entry),
 		"Change channel offset", NULL);
 
-    WIDGET_SET_SIZE(channel_offset_cb, 50, 28);
+    gtk_widget_set_size_request(channel_offset_cb, 50, 28);
 
     gtk_widget_show(channel_offset_cb);
 
@@ -4119,7 +4119,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
                               "", "Private");
 
-    WIDGET_SET_SIZE(wrong_crc_cm, 100, -1);
+    gtk_widget_set_size_request(wrong_crc_cm, 100, -1);
 
     linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_ALL);
     linktype_list = g_list_append(linktype_list, AIRPCAP_VALIDATION_TYPE_NAME_CORRECT);
@@ -4152,7 +4152,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     enable_decryption_cb = gtk_combo_new ();
     gtk_widget_set_name (enable_decryption_cb, "enable_decryption_cb");
     gtk_widget_show (enable_decryption_cb);
-    WIDGET_SET_SIZE (enable_decryption_cb, 83, -1);
+    gtk_widget_set_size_request(enable_decryption_cb, 83, -1);
     update_decryption_mode_list(enable_decryption_cb);
 
     enable_decryption_en = GTK_COMBO (enable_decryption_cb)->entry;
@@ -4237,7 +4237,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     g_object_set_data(G_OBJECT(top_level), E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
     SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
-    WIDGET_SET_SIZE(filter_cm, 400, -1);
+    gtk_widget_set_size_request(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm,
         NULL, NULL);

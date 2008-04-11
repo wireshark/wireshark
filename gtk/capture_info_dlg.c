@@ -212,7 +212,7 @@ const gchar     *iface)
           /* downsize the default size of this progress bar in x direction (def:150), */
           /* otherwise it will become too large and the dialog will look ugly */
           /* XXX: use a TreeView instead of a table in order to fix this */
-          WIDGET_SET_SIZE(info->counts[i].percent_pb, 70, -1);
+          gtk_widget_set_size_request(info->counts[i].percent_pb, 70, -1);
       }
 
       info->counts[i].percent_lb = gtk_label_new("0.0%");

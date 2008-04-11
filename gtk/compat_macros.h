@@ -43,12 +43,6 @@ g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
 g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
-/* WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE. */
-/* don't use WIDGET_SET_SIZE() to set the size of a dialog, */
-/* use gtk_window_set_default_size() for that purpose! */
-#define WIDGET_SET_SIZE(widget, width, height) \
-gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
-
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_AIRPCAP          "_Wireless"

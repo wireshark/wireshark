@@ -856,7 +856,7 @@ add_meter_to_table(GtkWidget *list, guint *row, gchar *title,
                                              0 /* padding */);
 
     val_lb = gtk_label_new(value_title);
-    WIDGET_SET_SIZE(val_lb, 50, -1);
+    gtk_widget_set_size_request(val_lb, 50, -1);
     gtk_misc_set_alignment(GTK_MISC(val_lb), 1.0, 0.5);
 
     gtk_box_pack_start                (GTK_BOX(main_hb),

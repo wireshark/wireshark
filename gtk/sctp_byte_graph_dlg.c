@@ -1187,7 +1187,7 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 	SIGNAL_CONNECT(u_data->io->draw_area, "destroy", quit, u_data);
 	g_object_set_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t", u_data->io);
 
-	WIDGET_SET_SIZE(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
+	gtk_widget_set_size_request(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
 	SIGNAL_CONNECT(u_data->io->draw_area, "expose_event", expose_event, NULL);

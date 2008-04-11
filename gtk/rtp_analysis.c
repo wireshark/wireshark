@@ -1435,7 +1435,7 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
         SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "destroy", quit, user_data);
         g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.draw_area), "user_data_t", user_data);
 
-        WIDGET_SET_SIZE(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
+        gtk_widget_set_size_request(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
 
         /* signals needed to handle backing pixmap */
         SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "expose_event", expose_event, NULL);

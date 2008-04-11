@@ -399,7 +399,7 @@ preview_new(void)
     row = 0;
 
     label = add_string_to_table(table, &row, "Filename:", "-");
-    WIDGET_SET_SIZE(label, DEF_WIDTH/3, -1);
+    gtk_widget_set_size_request(label, DEF_WIDTH/3, -1);
     g_object_set_data(G_OBJECT(table), PREVIEW_FILENAME_KEY, label);
     label = add_string_to_table(table, &row, "Format:", "-");
     g_object_set_data(G_OBJECT(table), PREVIEW_FORMAT_KEY, label);
@@ -453,7 +453,7 @@ file_open_cmd(GtkWidget *w)
 #if GTK_CHECK_VERSION(2,4,0)
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
-  WIDGET_SET_SIZE(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
+  gtk_widget_set_size_request(file_open_w, DEF_WIDTH, DEF_HEIGHT);
 #else
   gtk_window_set_default_size(GTK_WINDOW(file_open_w), DEF_WIDTH, DEF_HEIGHT);
 #endif
@@ -791,7 +791,7 @@ file_merge_cmd(GtkWidget *w)
 #if GTK_CHECK_VERSION(2,4,0)
   /* it's annoying, that the file chooser dialog is already shown here,
      so we cannot use the correct gtk_window_set_default_size() to resize it */
-  WIDGET_SET_SIZE(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
+  gtk_widget_set_size_request(file_merge_w, DEF_WIDTH, DEF_HEIGHT);
 #else
   gtk_window_set_default_size(GTK_WINDOW(file_merge_w), DEF_WIDTH, DEF_HEIGHT);
 #endif

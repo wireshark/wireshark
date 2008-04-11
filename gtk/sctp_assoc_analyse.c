@@ -571,7 +571,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->addr_frame), addr_hb);
 
 	u_data->analyse_nb->page2->scrolled_window = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(u_data->analyse_nb->page2->scrolled_window, 560, 100);
+	gtk_widget_set_size_request(u_data->analyse_nb->page2->scrolled_window, 560, 100);
 
 	u_data->analyse_nb->page2->clist = gtk_clist_new(1);
 	gtk_widget_show(u_data->analyse_nb->page2->clist);
@@ -682,7 +682,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page3->addr_frame), addr_hb);
 
 	u_data->analyse_nb->page3->scrolled_window = scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(u_data->analyse_nb->page3->scrolled_window, 560, 100);
+	gtk_widget_set_size_request(u_data->analyse_nb->page3->scrolled_window, 560, 100);
 
 	u_data->analyse_nb->page3->clist = gtk_clist_new(1);
 	gtk_widget_show(u_data->analyse_nb->page3->clist);		

@@ -537,7 +537,7 @@ static void create_text_widget (struct graph *g)
 	debug(DBS_FENTRY) puts ("create_text_widget()");
 	streamwindow = dlg_window_new ("Wireshark: Packet chain");
 	gtk_widget_set_name (streamwindow, "Packet chain");
-	WIDGET_SET_SIZE(streamwindow, TXT_WIDTH, TXT_HEIGHT);
+	gtk_widget_set_size_request(streamwindow, TXT_WIDTH, TXT_HEIGHT);
 	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
 
 	box = gtk_vbox_new (FALSE, 0);

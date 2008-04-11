@@ -76,7 +76,7 @@
  * If you want to save size and position, be sure to call window_destroy() instead of only
  *   gtk_widget_destroy(), so you will probably have to SIGNAL_CONNECT to the "delete_event"!
  *
- * Don't use WIDGET_SET_SIZE() to set the size of a window,
+ * Don't use gtk_widget_set_size_request() to set the size of a window,
  * use gtk_window_set_default_size() for that purpose!
  *
  * Be sure to call window_present() / window_destroy() appropriately, if you
