@@ -184,7 +184,8 @@ fileset_dlg_add_file(fileset_entry *entry) {
         local->tm_hour, local->tm_min, local->tm_sec);
     size = g_strdup_printf("%ld Bytes", entry->size);
 
-    fs_rb = RADIO_BUTTON_NEW_WITH_LABEL(fs_first_rb, entry->name);
+    fs_rb = gtk_radio_button_new_with_label_from_widget(
+        fs_first_rb ? GTK_RADIO_BUTTON(fs_first_rb) : NULL, entry->name);
     if(row == 1) {
         fs_first_rb = fs_rb;
     }
