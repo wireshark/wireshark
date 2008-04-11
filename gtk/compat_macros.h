@@ -176,6 +176,10 @@ gtk_radio_button_new_with_label_from_widget( \
 gtk_toggle_button_new_with_mnemonic(label_text)
 
 /* for details, see "Pango Text Attribute Markup" */
+/* maybe it's a good idea to keep this macro beyond the ongoing GTK1 cleanup!
+   If we want to change the look of the dialog boxes primary line the other day,
+   we can easily do so, without changing lot's of places */
+/* XXX - moving it to a better place (file) might be a good idea anyway */
 #define PRIMARY_TEXT_START "<span weight=\"bold\" size=\"larger\">"
 #define PRIMARY_TEXT_END "</span>"
 
