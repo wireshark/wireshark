@@ -697,7 +697,7 @@ profile_dialog_new(void)
   gtk_widget_show(list_bb);
 
   new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-  SIGNAL_CONNECT(new_bt, "clicked", profile_new_bt_clicked_cb, NULL);
+  g_signal_connect(new_bt, "clicked", G_CALLBACK(profile_new_bt_clicked_cb), NULL);
   gtk_widget_show(new_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, new_bt,
@@ -706,7 +706,7 @@ profile_dialog_new(void)
 #if 0
   copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
   gtk_widget_set_sensitive(copy_bt, FALSE);
-  SIGNAL_CONNECT(copy_bt, "clicked", profile_copy_bt_clicked_cb, NULL);
+  g_signal_connect(copy_bt, "clicked", G_CALLBACK(profile_copy_bt_clicked_cb), NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_COPY_BT_KEY, copy_bt);
   gtk_widget_show(copy_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), copy_bt, FALSE, FALSE, 0);
@@ -716,7 +716,7 @@ profile_dialog_new(void)
 
   del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
-  SIGNAL_CONNECT(del_bt, "clicked", profile_del_bt_clicked_cb, NULL);
+  g_signal_connect(del_bt, "clicked", G_CALLBACK(profile_del_bt_clicked_cb), NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY, del_bt);
   gtk_widget_show(del_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
@@ -743,9 +743,9 @@ profile_dialog_new(void)
   gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
-  SIGNAL_CONNECT(sel, "changed", profile_sel_list_cb, profile_vb);
-  SIGNAL_CONNECT(profile_l, "button_press_event", profile_button_press_cb, NULL);
-  SIGNAL_CONNECT(profile_l, "key_release_event", profile_key_release_cb, NULL);
+  g_signal_connect(sel, "changed", G_CALLBACK(profile_sel_list_cb), profile_vb);
+  g_signal_connect(profile_l, "button_press_event", G_CALLBACK(profile_button_press_cb), NULL);
+  g_signal_connect(profile_l, "key_release_event", G_CALLBACK(profile_key_release_cb), NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY, profile_l);
   gtk_container_add(GTK_CONTAINER(profile_sc), profile_l);
   gtk_widget_show(profile_l);
@@ -776,7 +776,7 @@ profile_dialog_new(void)
   name_te = gtk_entry_new();
   gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
   g_object_set_data(G_OBJECT(main_w), E_PROF_NAME_TE_KEY, name_te);
-  SIGNAL_CONNECT(name_te, "changed", profile_name_te_changed_cb, NULL);
+  g_signal_connect(name_te, "changed", G_CALLBACK(profile_name_te_changed_cb), NULL);
 #ifdef _WIN32
   gtk_tooltips_set_tip (tooltips, name_te, "A profile name cannot start or end with a period (.), and cannot contain any of the following characters:\n   \\ / : * ? \" < > |", NULL);
 #else
@@ -790,7 +790,7 @@ profile_dialog_new(void)
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  SIGNAL_CONNECT(ok_bt, "clicked", profile_dlg_ok_cb, NULL);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(profile_dlg_ok_cb), NULL);
   gtk_tooltips_set_tip (tooltips, ok_bt, "Apply the profiles and close this dialog", NULL);
 
   /* Catch the "activate" signal on the profile name and profile
@@ -801,16 +801,16 @@ profile_dialog_new(void)
   dlg_set_activate(name_te, ok_bt);
 
   apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-  SIGNAL_CONNECT(apply_bt, "clicked", profile_dlg_apply_cb, NULL);
+  g_signal_connect(apply_bt, "clicked", G_CALLBACK(profile_dlg_apply_cb), NULL);
   gtk_tooltips_set_tip (tooltips, apply_bt, "Apply the profiles and keep this dialog open", NULL);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel the changes", NULL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", profile_dlg_cancel_cb, NULL);
+  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(profile_dlg_cancel_cb), NULL);
   window_set_cancel_button(main_w, cancel_bt, NULL);
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-  SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CONFIG_PROFILES_DIALOG);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CONFIG_PROFILES_DIALOG);
   gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
   if(ok_bt) {
@@ -829,8 +829,8 @@ profile_dialog_new(void)
     gtk_widget_grab_focus(profile_l);
   }
 
-  SIGNAL_CONNECT(main_w, "delete_event", profile_dlg_delete_event_cb, NULL);
-  SIGNAL_CONNECT(main_w, "destroy", profile_dlg_destroy_cb, NULL);
+  g_signal_connect(main_w, "delete_event", G_CALLBACK(profile_dlg_delete_event_cb), NULL);
+  g_signal_connect(main_w, "destroy", G_CALLBACK(profile_dlg_destroy_cb), NULL);
 
   gtk_widget_show(main_w);
 

@@ -154,7 +154,7 @@ gtk_sctperror_dlg(void)
 
 	sctp_error_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_error_dlg_w), GTK_WIN_POS_CENTER);
-	SIGNAL_CONNECT(sctp_error_dlg_w, "destroy", dlg_destroy,NULL);
+	g_signal_connect(sctp_error_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
 
 	/* Container for each row of widgets */
 	vbox1 = gtk_vbox_new(FALSE, 2);
@@ -220,11 +220,11 @@ gtk_sctperror_dlg(void)
 	gtk_widget_show (bt_close);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 
-	SIGNAL_CONNECT(sctp_error_dlg_w, "destroy", dlg_destroy, NULL);
-	SIGNAL_CONNECT(clist, "select_row", sctp_error_on_select_row, NULL);
-	SIGNAL_CONNECT(bt_unselect, "clicked", sctp_error_on_unselect, NULL);
-	SIGNAL_CONNECT(bt_frame, "clicked", sctp_error_on_frame, NULL);
-	SIGNAL_CONNECT(bt_close, "clicked", sctp_error_on_close, NULL);
+	g_signal_connect(sctp_error_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
+	g_signal_connect(clist, "select_row", G_CALLBACK(sctp_error_on_select_row), NULL);
+	g_signal_connect(bt_unselect, "clicked", G_CALLBACK(sctp_error_on_unselect), NULL);
+	g_signal_connect(bt_frame, "clicked", G_CALLBACK(sctp_error_on_frame), NULL);
+	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_error_on_close), NULL);
 
 	sctp_error_dlg = sctp_error_dlg_w;
 }

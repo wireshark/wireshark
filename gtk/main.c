@@ -3940,12 +3940,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 #endif
 
     gtk_widget_set_name(top_level, "main window");
-    SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
+    g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),
                    NULL);
-    SIGNAL_CONNECT(GTK_OBJECT(top_level), "window_state_event",
-                         G_CALLBACK (window_state_event_cb), NULL);
-    SIGNAL_CONNECT(GTK_OBJECT(top_level), "key-press-event",
-                         G_CALLBACK (top_level_key_pressed_cb), NULL );
+    g_signal_connect(GTK_OBJECT(top_level), "window_state_event",
+                         G_CALLBACK(window_state_event_cb), NULL);
+    g_signal_connect(GTK_OBJECT(top_level), "key-press-event",
+                         G_CALLBACK(top_level_key_pressed_cb), NULL );
 
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
 
@@ -3974,9 +3974,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_size_request(tv_scrollw, -1, tv_size);
     gtk_widget_show(tv_scrollw);
 
-    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
-                   "changed", tree_view_selection_changed_cb, NULL);
-    SIGNAL_CONNECT(tree_view, "button_press_event", popup_menu_handler,
+    g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+                   "changed", G_CALLBACK(tree_view_selection_changed_cb), NULL);
+    g_signal_connect(tree_view, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
     gtk_widget_show(tree_view);
 
@@ -3985,7 +3985,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_set_size_request(byte_nb_ptr, -1, bv_size);
     gtk_widget_show(byte_nb_ptr);
 
-    SIGNAL_CONNECT(byte_nb_ptr, "button_press_event", popup_menu_handler,
+    g_signal_connect(byte_nb_ptr, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
 
@@ -4100,9 +4100,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
     /* callback for channel combo box */
-    SIGNAL_CONNECT(GTK_COMBO(channel_cm)->entry,"changed", airpcap_toolbar_channel_changed_cb, channel_offset_cb);
+    g_signal_connect(GTK_COMBO(channel_cm)->entry,"changed", G_CALLBACK(airpcap_toolbar_channel_changed_cb), channel_offset_cb);
     /* callback for channel offset combo box */
-    SIGNAL_CONNECT(GTK_COMBO(channel_offset_cb)->entry,"changed", on_channel_offset_cb_changed, channel_offset_cb);
+    g_signal_connect(GTK_COMBO(channel_offset_cb)->entry,"changed", G_CALLBACK(on_channel_offset_cb_changed), channel_offset_cb);
     /* End: Channel offset combo box */
 
     /* Wrong CRC Label */
@@ -4136,7 +4136,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     else
         gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(wrong_crc_cm)->entry),"");
 
-    SIGNAL_CONNECT(GTK_COMBO(wrong_crc_cm)->entry,"changed",airpcap_toolbar_wrong_crc_combo_cb,airpcap_tb);
+    g_signal_connect(GTK_COMBO(wrong_crc_cm)->entry,"changed",G_CALLBACK(airpcap_toolbar_wrong_crc_combo_cb),airpcap_tb);
     gtk_widget_show(wrong_crc_cm);
 
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
@@ -4166,7 +4166,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Set current decryption mode!!!! */
     update_decryption_mode_cm(enable_decryption_cb);
-    SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, airpcap_tb);
+    g_signal_connect(enable_decryption_en, "changed", G_CALLBACK(on_enable_decryption_en_changed), airpcap_tb);
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,enable_decryption_cb);
 
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
@@ -4175,7 +4175,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     advanced_bt = gtk_button_new_with_label("Wireless Settings...");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
 
-    SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
+    g_signal_connect(advanced_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_advanced_cb), airpcap_tb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
         "Set Advanced Wireless Settings", "Private");
 
@@ -4186,7 +4186,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     key_management_bt = gtk_button_new_with_label("Decryption Keys...");
     g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
 
-    SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
+    g_signal_connect(key_management_bt, "clicked", G_CALLBACK(toolbar_display_airpcap_key_management_cb), airpcap_tb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
                               "Manage Decryption Keys", "Private");
     gtk_widget_show(key_management_bt);
@@ -4217,7 +4217,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Filter:" button */
     filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-    SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+    g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
     gtk_widget_show(filter_bt);
     g_object_set_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY, filter_bt);
 
@@ -4235,8 +4235,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
     g_object_set_data(G_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
     g_object_set_data(G_OBJECT(top_level), E_DFILTER_CM_KEY, filter_cm);
-    SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
-    SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
+    g_signal_connect(filter_te, "activate", G_CALLBACK(filter_activate_cb), filter_te);
+    g_signal_connect(filter_te, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
     gtk_widget_set_size_request(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm,
@@ -4251,7 +4251,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
        for constructing filter comparison expressions. */
     filter_add_expr_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
-    SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
+    g_signal_connect(filter_add_expr_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), filter_tb);
     gtk_widget_show(filter_add_expr_bt);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt,
         "Add an expression to this filter string", "Private");
@@ -4259,7 +4259,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Create the "Clear" button */
     filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
-    SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
+    g_signal_connect(filter_reset, "clicked", G_CALLBACK(filter_reset_cb), NULL);
     gtk_widget_show(filter_reset);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset,
         "Clear this filter string and update the display", "Private");
@@ -4267,7 +4267,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Create the "Apply" button */
     filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
-    SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
+    g_signal_connect(filter_apply, "clicked", G_CALLBACK(filter_activate_cb), filter_te);
     gtk_widget_show(filter_apply);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply,
         "Apply this filter string to the display", "Private");
@@ -4330,35 +4330,35 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(expert_image);
     expert_info_error = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
-    SIGNAL_CONNECT(expert_info_error, "button_press_event", expert_comp_dlg_cb, NULL);
+    g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
     expert_image = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
     gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_warn = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
-    SIGNAL_CONNECT(expert_info_warn, "button_press_event", expert_comp_dlg_cb, NULL);
+    g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
     expert_image = xpm_to_widget_from_parent(top_level, expert_note_xpm);
     gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_note = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
-    SIGNAL_CONNECT(expert_info_note, "button_press_event", expert_comp_dlg_cb, NULL);
+    g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
     expert_image = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
     gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
     gtk_widget_show(expert_image);
     expert_info_chat = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
-    SIGNAL_CONNECT(expert_info_chat, "button_press_event", expert_comp_dlg_cb, NULL);
+    g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
 
     expert_image = xpm_to_widget_from_parent(top_level, expert_none_xpm);
     gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
     gtk_widget_show(expert_image);
     expert_info_none = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
-    SIGNAL_CONNECT(expert_info_none, "button_press_event", expert_comp_dlg_cb, NULL);
+    g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
     gtk_widget_show(expert_info_none);
 
 

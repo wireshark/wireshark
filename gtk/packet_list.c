@@ -488,8 +488,8 @@ packet_list_new(e_prefs *prefs)
     packet_list_set_sel_browse(prefs->gui_plist_sel_browse, FALSE);
     packet_list_set_font(user_font_get_regular());
     gtk_widget_set_name(packet_list, "packet list");
-    SIGNAL_CONNECT(packet_list, "select-row", packet_list_select_cb, NULL);
-    SIGNAL_CONNECT(packet_list, "unselect-row", packet_list_unselect_cb, NULL);
+    g_signal_connect(packet_list, "select-row", G_CALLBACK(packet_list_select_cb), NULL);
+    g_signal_connect(packet_list, "unselect-row", G_CALLBACK(packet_list_unselect_cb), NULL);
     for (i = 0; i < cfile.cinfo.num_cols; i++) {
         /* For performance reasons, columns do not automatically resize,
            but are resizeable by the user. */
@@ -518,10 +518,10 @@ packet_list_new(e_prefs *prefs)
             gtk_clist_set_column_justification(GTK_CLIST(packet_list), i,
                                                GTK_JUSTIFY_RIGHT);
     }
-    SIGNAL_CONNECT(packet_list, "button_press_event", popup_menu_handler,
+    g_signal_connect(packet_list, "button_press_event", G_CALLBACK(popup_menu_handler),
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
-    SIGNAL_CONNECT(packet_list, "button_press_event",
-                   packet_list_button_pressed_cb, NULL);
+    g_signal_connect(packet_list, "button_press_event",
+                   G_CALLBACK(packet_list_button_pressed_cb), NULL);
     gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
     gtk_widget_show(packet_list);
 
@@ -591,7 +591,7 @@ packet_list_set_column_titles(void)
         gtk_widget_show(col_arrows[i].table);
     }
     gtk_clist_column_titles_show(GTK_CLIST(packet_list));
-    SIGNAL_CONNECT(packet_list, "click-column", packet_list_click_column_cb,
+    g_signal_connect(packet_list, "click-column", G_CALLBACK(packet_list_click_column_cb),
                    col_arrows);
 }
 

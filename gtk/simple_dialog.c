@@ -223,36 +223,36 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   if(ok_bt) {
       g_object_set_data(G_OBJECT(ok_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
-      SIGNAL_CONNECT(ok_bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(ok_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   if (save_bt) {
       g_object_set_data(G_OBJECT(save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
-      SIGNAL_CONNECT(save_bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   dont_save_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_DONT_SAVE);
   if (dont_save_bt) {
       g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
-      SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(dont_save_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   if(bt) {
       g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
-      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
   if(yes_bt) {
       g_object_set_data(G_OBJECT(yes_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
-      SIGNAL_CONNECT(yes_bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(yes_bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
   if(bt) {
       g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
-      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+      g_signal_connect(bt, "clicked", G_CALLBACK(simple_dialog_cancel_cb), win);
   }
 
   bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);

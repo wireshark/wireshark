@@ -163,8 +163,8 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(supported_w));
 
-  SIGNAL_CONNECT(supported_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(supported_w, "destroy", supported_destroy_cb, NULL);
+  g_signal_connect(supported_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(supported_w, "destroy", G_CALLBACK(supported_destroy_cb), NULL);
 
   gtk_widget_show(supported_w);
   window_present(supported_w);

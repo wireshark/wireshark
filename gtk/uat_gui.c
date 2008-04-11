@@ -124,12 +124,12 @@ static void set_buttons(uat_t* uat, gint row) {
 
 	if (uat->changed) {
 		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
-		SIGNAL_CONNECT(uat->rep->window, "delete_event", unsaved_dialog, uat);
-		SIGNAL_CONNECT(uat->rep->window, "destroy", unsaved_dialog, uat);
+		g_signal_connect(uat->rep->window, "delete_event", G_CALLBACK(unsaved_dialog), uat);
+		g_signal_connect(uat->rep->window, "destroy", G_CALLBACK(unsaved_dialog), uat);
 	} else {
 		g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
-		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "delete_event", uat_window_delete_event_cb, uat);
-		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "destroy", uat_window_delete_event_cb, uat);
+		g_signal_connect(GTK_WINDOW(uat->rep->window), "delete_event", G_CALLBACK(uat_window_delete_event_cb), uat);
+		g_signal_connect(GTK_WINDOW(uat->rep->window), "destroy", G_CALLBACK(uat_window_delete_event_cb), uat);
 	}
 }
 
@@ -475,8 +475,8 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 						*((char const**)valptr) = str;
 					}
 
-					SIGNAL_CONNECT(menu_item, "activate", fld_menu_item_cb, md);
-					SIGNAL_CONNECT(menu_item, "destroy", fld_menu_item_destroy_cb, md);
+					g_signal_connect(menu_item, "activate", G_CALLBACK(fld_menu_item_cb), md);
+					g_signal_connect(menu_item, "destroy", G_CALLBACK(fld_menu_item_destroy_cb), md);
 				}
 
 				g_ptr_array_add(dd->entries,valptr);
@@ -504,10 +504,10 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
 	bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-	SIGNAL_CONNECT(bt_ok, "clicked", uat_dlg_cb, dd);
+	g_signal_connect(bt_ok, "clicked", G_CALLBACK(uat_dlg_cb), dd);
 
 	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_dlg_cb, dd);
+	g_signal_connect(bt_cancel, "clicked", G_CALLBACK(uat_cancel_dlg_cb), dd);
 	window_set_cancel_button(win, bt_cancel, NULL);
 
 	gtk_widget_show_all(win);
@@ -587,10 +587,10 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
 	bt_ok = g_object_get_data(G_OBJECT(bbox),GTK_STOCK_DELETE);
-	SIGNAL_CONNECT(bt_ok, "clicked", uat_del_cb, ud);
+	g_signal_connect(bt_ok, "clicked", G_CALLBACK(uat_del_cb), ud);
 
 	bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(bt_cancel, "clicked", uat_cancel_del_cb, ud);
+	g_signal_connect(bt_cancel, "clicked", G_CALLBACK(uat_cancel_del_cb), ud);
 	window_set_cancel_button( win, bt_cancel, NULL);
 
 	gtk_widget_show_all(win);
@@ -795,8 +795,8 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 	yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
 	no_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
 
-	SIGNAL_CONNECT(no_bt, "clicked", uat_nosave_cb, uat);
-	SIGNAL_CONNECT(yes_bt, "clicked", uat_yessave_cb, uat);
+	g_signal_connect(no_bt, "clicked", G_CALLBACK(uat_nosave_cb), uat);
+	g_signal_connect(yes_bt, "clicked", G_CALLBACK(uat_yessave_cb), uat);
 
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
@@ -874,7 +874,7 @@ static GtkWidget* uat_window(void* u) {
 		GtkWidget* help_btn;
 		rep->bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
 		help_btn = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_HELP);
-		SIGNAL_CONNECT(help_btn, "clicked", uat_help_cb, uat);
+		g_signal_connect(help_btn, "clicked", G_CALLBACK(uat_help_cb), uat);
 	} else {
 
 		rep->bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL, NULL);
@@ -915,27 +915,27 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
 
 
-	SIGNAL_CONNECT(rep->selection, "changed", remember_selected_row, uat);
+	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);
 
-	SIGNAL_CONNECT(rep->bt_new, "clicked", uat_new_cb, uat);
-	SIGNAL_CONNECT(rep->bt_edit, "clicked", uat_edit_cb, uat);
-	SIGNAL_CONNECT(rep->bt_delete, "clicked", uat_delete_cb, uat);
+	g_signal_connect(rep->bt_new, "clicked", G_CALLBACK(uat_new_cb), uat);
+	g_signal_connect(rep->bt_edit, "clicked", G_CALLBACK(uat_edit_cb), uat);
+	g_signal_connect(rep->bt_delete, "clicked", G_CALLBACK(uat_delete_cb), uat);
 
-	SIGNAL_CONNECT(rep->bt_up, "clicked", uat_up_cb, uat);
-	SIGNAL_CONNECT(rep->bt_down, "clicked", uat_down_cb, uat);
+	g_signal_connect(rep->bt_up, "clicked", G_CALLBACK(uat_up_cb), uat);
+	g_signal_connect(rep->bt_down, "clicked", G_CALLBACK(uat_down_cb), uat);
 
-	SIGNAL_CONNECT(rep->bt_apply, "clicked", uat_apply_cb, uat);
-	SIGNAL_CONNECT(rep->bt_cancel, "clicked", uat_cancel_cb, uat);
-	SIGNAL_CONNECT(rep->bt_ok, "clicked", uat_ok_cb, uat);
+	g_signal_connect(rep->bt_apply, "clicked", G_CALLBACK(uat_apply_cb), uat);
+	g_signal_connect(rep->bt_cancel, "clicked", G_CALLBACK(uat_cancel_cb), uat);
+	g_signal_connect(rep->bt_ok, "clicked", G_CALLBACK(uat_ok_cb), uat);
 
 	window_set_cancel_button(rep->window, rep->bt_cancel, NULL);  /* set esc to activate cancel button */
 
 	if (uat->changed) {
-		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", unsaved_dialog, uat);
-		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "destroy", unsaved_dialog, uat);
+		g_signal_connect(GTK_WINDOW(rep->window), "delete_event", G_CALLBACK(unsaved_dialog), uat);
+		g_signal_connect(GTK_WINDOW(rep->window), "destroy", G_CALLBACK(unsaved_dialog), uat);
 	} else {
-		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "delete_event", uat_window_delete_event_cb, uat);
-		SIGNAL_CONNECT(GTK_WINDOW(rep->window), "destroy", uat_window_delete_event_cb, uat);
+		g_signal_connect(GTK_WINDOW(rep->window), "delete_event", G_CALLBACK(uat_window_delete_event_cb), uat);
+		g_signal_connect(GTK_WINDOW(rep->window), "destroy", G_CALLBACK(uat_window_delete_event_cb), uat);
 	}
 	
 	gtk_widget_grab_focus(rep->clist);

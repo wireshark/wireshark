@@ -848,8 +848,8 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	user_data->dlg.graph_window = show_conversation_graph(list, title1, title2,
 		&graph_selection_callback, user_data);
-	SIGNAL_CONNECT(user_data->dlg.graph_window, "destroy",
-			on_destroy_graph, user_data);
+	g_signal_connect(user_data->dlg.graph_window, "destroy",
+			G_CALLBACK(on_destroy_graph), user_data);
 }
 #endif /*USE_CONVERSATION_GRAPH*/
 
@@ -1432,14 +1432,14 @@ static gint scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 static void create_draw_area(user_data_t* user_data, GtkWidget *box)
 {
         user_data->dlg.dialog_graph.draw_area=gtk_drawing_area_new();
-        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "destroy", quit, user_data);
+        g_signal_connect(user_data->dlg.dialog_graph.draw_area, "destroy", G_CALLBACK(quit), user_data);
         g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.draw_area), "user_data_t", user_data);
 
         gtk_widget_set_size_request(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
 
         /* signals needed to handle backing pixmap */
-        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "expose_event", expose_event, NULL);
-        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "configure_event", configure_event, user_data);
+        g_signal_connect(user_data->dlg.dialog_graph.draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
+        g_signal_connect(user_data->dlg.dialog_graph.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
 
         gtk_widget_show(user_data->dlg.dialog_graph.draw_area);
         gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.draw_area, TRUE, TRUE, 0);
@@ -1449,7 +1449,7 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
         user_data->dlg.dialog_graph.scrollbar=gtk_hscrollbar_new(user_data->dlg.dialog_graph.scrollbar_adjustment);
         gtk_widget_show(user_data->dlg.dialog_graph.scrollbar);
         gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.scrollbar, FALSE, FALSE, 0);
-        SIGNAL_CONNECT(user_data->dlg.dialog_graph.scrollbar_adjustment, "value_changed", scrollbar_changed, user_data);
+        g_signal_connect(user_data->dlg.dialog_graph.scrollbar_adjustment, "value_changed", G_CALLBACK(scrollbar_changed), user_data);
 }
 
 /****************************************************************************/
@@ -1496,7 +1496,7 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
         gtk_box_pack_start(GTK_BOX(hbox), dgg->display_button, FALSE, FALSE, 0);
         gtk_widget_show(dgg->display_button);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dgg->display_button), dgg->display);
-        SIGNAL_CONNECT(dgg->display_button, "toggled", filter_callback, dgg);
+        g_signal_connect(dgg->display_button, "toggled", G_CALLBACK(filter_callback), dgg);
 
 	label=gtk_label_new(dgg->title);
         gtk_widget_show(label);
@@ -1595,7 +1595,7 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
                 menu_item=gtk_menu_item_new_with_label(str);
                 g_object_set_data(G_OBJECT(menu_item), "yscale_max",
                                 GUINT_TO_POINTER(yscale_max[i]));
-                SIGNAL_CONNECT(menu_item, "activate", yscale_select, user_data);
+                g_signal_connect(menu_item, "activate", G_CALLBACK(yscale_select), user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);
         }
@@ -1615,7 +1615,7 @@ static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget 
 
                 g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
-                SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, user_data);
+                g_signal_connect(menu_item, "activate", G_CALLBACK(pixels_per_tick_select), user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);
         }
@@ -1645,7 +1645,7 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
                 menu_item=gtk_menu_item_new_with_label(str);
                 g_object_set_data(G_OBJECT(menu_item), "tick_interval",
                                 GUINT_TO_POINTER(tick_interval_values[i]));
-                SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)user_data);
+                g_signal_connect(menu_item, "activate", G_CALLBACK(tick_interval_select), (gpointer)user_data);
                 gtk_widget_show(menu_item);
                 gtk_menu_append(GTK_MENU(menu), menu_item);
         }
@@ -1751,7 +1751,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
     bt_close = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(user_data->dlg.dialog_graph.window, "delete_event", window_delete_event_cb, NULL);
+    g_signal_connect(user_data->dlg.dialog_graph.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
     gtk_widget_show(user_data->dlg.dialog_graph.window);
     window_present(user_data->dlg.dialog_graph.window);
@@ -2071,15 +2071,15 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
 	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
 	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
-	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_csv_as_ok_cb),
 		user_data->dlg.save_csv_as_w);
 
 	window_set_cancel_button(user_data->dlg.save_csv_as_w,
 		GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->cancel_button, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(user_data->dlg.save_csv_as_w, "destroy",
-		save_csv_as_destroy_cb, user_data);
+	g_signal_connect(user_data->dlg.save_csv_as_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(user_data->dlg.save_csv_as_w, "destroy",
+		G_CALLBACK(save_csv_as_destroy_cb), user_data);
 
 	gtk_widget_show(user_data->dlg.save_csv_as_w);
 	window_present(user_data->dlg.save_csv_as_w);
@@ -2707,16 +2707,16 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
 	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
 	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
-	SIGNAL_CONNECT(ok_bt, "clicked", save_voice_as_ok_cb,
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_voice_as_ok_cb),
                        user_data->dlg.save_voice_as_w);
 
     window_set_cancel_button(user_data->dlg.save_voice_as_w,
       GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->cancel_button, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "delete_event",
-                        window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(user_data->dlg.save_voice_as_w, "destroy",
-                        save_voice_as_destroy_cb, user_data);
+    g_signal_connect(user_data->dlg.save_voice_as_w, "delete_event",
+                        G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(user_data->dlg.save_voice_as_w, "destroy",
+                        G_CALLBACK(save_voice_as_destroy_cb), user_data);
 
 	gtk_widget_show(user_data->dlg.save_voice_as_w);
     window_present(user_data->dlg.save_voice_as_w);
@@ -2901,7 +2901,7 @@ GtkWidget* create_clist(user_data_t* user_data)
 	/* clist for the information */
 	clist_fwd = gtk_clist_new(NUM_COLS);
 	gtk_widget_show(clist_fwd);
-	SIGNAL_CONNECT(clist_fwd, "select_row", on_clist_select_row, user_data);
+	g_signal_connect(clist_fwd, "select_row", G_CALLBACK(on_clist_select_row), user_data);
 
 	gtk_clist_column_titles_show(GTK_CLIST(clist_fwd));
 	gtk_clist_set_compare_func(GTK_CLIST(clist_fwd), rtp_sort_column);
@@ -2973,7 +2973,7 @@ column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
 		gtk_widget_show(col_arrows[i].table);
 	}
 
-	SIGNAL_CONNECT(clist, "click-column", click_column_cb, col_arrows);
+	g_signal_connect(clist, "click-column", G_CALLBACK(click_column_cb), col_arrows);
 
 	return col_arrows;
 }
@@ -3035,8 +3035,8 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 
-	user_data->dlg.notebook_signal_id = SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,
-                       user_data);
+	user_data->dlg.notebook_signal_id = 
+        g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), user_data);
 
 	/* page for forward connection */
 	page = gtk_vbox_new(FALSE, 8);
@@ -3110,40 +3110,40 @@ static void create_rtp_dialog(user_data_t* user_data)
 	voice_bt = gtk_button_new_with_label("Save payload...");
 	gtk_container_add(GTK_CONTAINER(box4), voice_bt);
 	gtk_widget_show(voice_bt);
-	SIGNAL_CONNECT(voice_bt, "clicked", on_save_bt_clicked, user_data);
+	g_signal_connect(voice_bt, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
 
 	csv_bt = gtk_button_new_with_label("Save as CSV...");
 	gtk_container_add(GTK_CONTAINER(box4), csv_bt);
 	gtk_widget_show(csv_bt);
-	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
+	g_signal_connect(csv_bt, "clicked", G_CALLBACK(save_csv_as_cb), user_data);
 
 	refresh_bt = gtk_button_new_from_stock(GTK_STOCK_REFRESH);
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
-	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
+	g_signal_connect(refresh_bt, "clicked", G_CALLBACK(on_refresh_bt_clicked), user_data);
 
 	goto_bt = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
-	SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
+	g_signal_connect(goto_bt, "clicked", G_CALLBACK(on_goto_bt_clicked), user_data);
 
         graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
-	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
+	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
 
 
 #ifdef USE_CONVERSATION_GRAPH
 	graph_bt = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
 	gtk_widget_show(graph_bt);
-	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);
+	g_signal_connect(graph_bt, "clicked", G_CALLBACK(on_graph_bt_clicked), user_data);
 #endif
 
 	next_bt = gtk_button_new_with_label("Next non-Ok");
 	gtk_container_add(GTK_CONTAINER(box4), next_bt);
 	gtk_widget_show(next_bt);
-	SIGNAL_CONNECT(next_bt, "clicked", on_next_bt_clicked, user_data);
+	g_signal_connect(next_bt, "clicked", G_CALLBACK(on_next_bt_clicked), user_data);
 
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
@@ -3151,8 +3151,8 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(close_bt);
     window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(window, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
+    g_signal_connect(window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(window, "destroy", G_CALLBACK(on_destroy), user_data);
 
     gtk_widget_show(window);
     window_present(window);

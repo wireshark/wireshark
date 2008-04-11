@@ -646,8 +646,8 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     bt_close = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
+    g_signal_connect(sp->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(sp->win, "destroy", G_CALLBACK(win_destroy_cb), sp);
 
     /* Display up-to-date contents */
     gtk_widget_show_all(sp->win);

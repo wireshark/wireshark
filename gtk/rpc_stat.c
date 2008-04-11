@@ -304,8 +304,8 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
+	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(rs->win, "destroy", G_CALLBACK(win_destroy_cb), rs);
 
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
@@ -371,8 +371,8 @@ rpcstat_program_select(GtkWidget *item _U_, gpointer key)
 		char vs[5];
 		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
-		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
-                               (long) i);
+		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
+                               (gpointer)(long) i);
 
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
@@ -388,7 +388,7 @@ rpcstat_list_programs(gpointer *key, gpointer *value, gpointer *user_data _U_)
 	GtkWidget *menu_item;
 
 	menu_item=gtk_menu_item_new_with_label(v->progname);
-	SIGNAL_CONNECT(menu_item, "activate", rpcstat_program_select, k);
+	g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_program_select), k);
 
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
@@ -472,8 +472,8 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		char vs[5];
 		g_snprintf(vs, 5, "%d",i);
 		menu_item=gtk_menu_item_new_with_label(vs);
-		SIGNAL_CONNECT(menu_item, "activate", rpcstat_version_select,
-                               (long) i);
+		g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_version_select),
+                               (gpointer)(long) i);
 
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
@@ -490,13 +490,13 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter label */
 	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-        SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
+        g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 
 	/* filter prefs dialog */
         g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
@@ -529,8 +529,8 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
         gtk_widget_grab_default(start_button );
 
-        SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+        g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(dlg, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
 
         gtk_widget_show_all(dlg);
         window_present(dlg);

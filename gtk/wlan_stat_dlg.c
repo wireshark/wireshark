@@ -500,7 +500,7 @@ wlanstat_dlg_create (void)
 		gtk_widget_show(col_arrows[i].table);
 	}
 
-	SIGNAL_CONNECT(GTK_CLIST(hs->table), "click-column", wlan_click_column_cb, col_arrows);
+	g_signal_connect(GTK_CLIST(hs->table), "click-column", G_CALLBACK(wlan_click_column_cb), col_arrows);
 
 	error_string=register_tap_listener ("wlan", hs, NULL, wlanstat_reset, 
 					    wlanstat_packet, wlanstat_draw);
@@ -520,14 +520,14 @@ wlanstat_dlg_create (void)
 	gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
 			     "Please note: The corresponding name resolution must be enabled.", NULL);
 
-	SIGNAL_CONNECT(resolv_cb, "toggled", wlan_resolve_toggle_dest, hs);
+	g_signal_connect(resolv_cb, "toggled", G_CALLBACK(wlan_resolve_toggle_dest), hs);
 
 	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
 	gtk_tooltips_set_tip(tooltips, existing_cb, "This option disables probe requests for "
 			     "unknown networks.", NULL);
-	SIGNAL_CONNECT(existing_cb, "toggled", wlan_existing_toggle_dest, hs);
+	g_signal_connect(existing_cb, "toggled", G_CALLBACK(wlan_existing_toggle_dest), hs);
 
 	/* Button row. */
 	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
@@ -544,15 +544,15 @@ wlanstat_dlg_create (void)
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
-	SIGNAL_CONNECT(copy_bt, "clicked", wlan_copy_as_csv, hs->table);
+	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
 	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
                 help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_WLAN_TRAFFIC_DIALOG);
+		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_WLAN_TRAFFIC_DIALOG);
 	}
 
-	SIGNAL_CONNECT (wlanstat_dlg_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT (wlanstat_dlg_w, "destroy", win_destroy_cb, hs);
+	g_signal_connect (wlanstat_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect (wlanstat_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), hs);
 
 	gtk_widget_show_all (wlanstat_dlg_w);
 	window_present (wlanstat_dlg_w);

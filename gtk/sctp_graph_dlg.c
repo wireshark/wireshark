@@ -1146,24 +1146,24 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	tsn_bt = gtk_button_new_with_label ("Show TSNs");
 	gtk_box_pack_start(GTK_BOX(hbox), tsn_bt, FALSE, FALSE, 0);
 	gtk_widget_show(tsn_bt);
-	SIGNAL_CONNECT(tsn_bt, "clicked", on_tsn_bt, u_data);
+	g_signal_connect(tsn_bt, "clicked", G_CALLBACK(on_tsn_bt), u_data);
 
 	both_bt = gtk_button_new_with_label ("Show both");
 	gtk_box_pack_start(GTK_BOX(hbox), both_bt, FALSE, FALSE, 0);
 	gtk_widget_show(both_bt);
-	SIGNAL_CONNECT(both_bt, "clicked", on_both_bt, u_data);
+	g_signal_connect(both_bt, "clicked", G_CALLBACK(on_both_bt), u_data);
 
 	zoomin_bt = gtk_button_new_with_label ("Zoom in");
 	gtk_box_pack_start(GTK_BOX(hbox), zoomin_bt, FALSE, FALSE, 0);
 	gtk_widget_show(zoomin_bt);
-	SIGNAL_CONNECT(zoomin_bt, "clicked", on_zoomin_bt, u_data);
+	g_signal_connect(zoomin_bt, "clicked", G_CALLBACK(on_zoomin_bt), u_data);
 	tooltip_in = gtk_tooltips_new();
 	gtk_tooltips_set_tip(tooltip_in, zoomin_bt, "Zoom in the area you have selected", NULL);
 
 	zoomout_bt = gtk_button_new_with_label ("Zoom out");
 	gtk_box_pack_start(GTK_BOX(hbox), zoomout_bt, FALSE, FALSE, 0);
 	gtk_widget_show(zoomout_bt);
-	SIGNAL_CONNECT(zoomout_bt, "clicked", on_zoomout_bt, u_data);
+	g_signal_connect(zoomout_bt, "clicked", G_CALLBACK(on_zoomout_bt), u_data);
 	tooltip_out = gtk_tooltips_new();
 	gtk_tooltips_set_tip(tooltip_out, zoomout_bt, "Zoom out one step", NULL);
 	gtk_widget_set_sensitive(zoomout_bt, FALSE);
@@ -1171,7 +1171,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(bt_close);
-	SIGNAL_CONNECT(bt_close, "clicked", sctp_graph_close_cb, u_data);
+	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_graph_close_cb), u_data);
 
 	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_press_event",(GtkSignalFunc)on_button_press, u_data);
 	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_release_event",(GtkSignalFunc)on_button_release, u_data);
@@ -1260,14 +1260,14 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 {
 
 	u_data->io->draw_area=gtk_drawing_area_new();
-	SIGNAL_CONNECT(u_data->io->draw_area, "destroy", quit, u_data);
+	g_signal_connect(u_data->io->draw_area, "destroy", G_CALLBACK(quit), u_data);
 	g_object_set_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t", u_data->io);
 
 	gtk_widget_set_size_request(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
-	SIGNAL_CONNECT(u_data->io->draw_area, "expose_event", expose_event, NULL);
-	SIGNAL_CONNECT(u_data->io->draw_area, "configure_event", configure_event, u_data);
+	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
+	g_signal_connect(u_data->io->draw_area, "configure_event", G_CALLBACK(configure_event), u_data);
 
 	gtk_widget_show(u_data->io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), u_data->io->draw_area, TRUE, TRUE, 0);

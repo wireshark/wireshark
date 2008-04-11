@@ -482,7 +482,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
                                     col_offset - 1);
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-  SIGNAL_CONNECT(selection, "changed", prefs_tree_select_cb, NULL);
+  g_signal_connect(selection, "changed", G_CALLBACK(prefs_tree_select_cb), NULL);
   gtk_container_add(GTK_CONTAINER(ct_sb), cts.tree);
   gtk_widget_show(cts.tree);
 
@@ -607,28 +607,28 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(prefs_main_ok_cb), prefs_w);
 
   apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-  SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
+  g_signal_connect(apply_bt, "clicked", G_CALLBACK(prefs_main_apply_cb), prefs_w);
 
   save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
-  SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
+  g_signal_connect(save_bt, "clicked", G_CALLBACK(prefs_main_save_cb), prefs_w);
   g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY, save_bt);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
+  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(prefs_main_cancel_cb), prefs_w);
   window_set_cancel_button(prefs_w, cancel_bt, NULL);
 
   gtk_widget_grab_default(ok_bt);
 
   if(topic_available(HELP_PREFERENCES_DIALOG)) {
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PREFERENCES_DIALOG);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PREFERENCES_DIALOG);
   }
 
-  SIGNAL_CONNECT(prefs_w, "delete_event", prefs_main_delete_event_cb, prefs_w);
-  SIGNAL_CONNECT(prefs_w, "destroy", prefs_main_destroy_cb, prefs_w);
+  g_signal_connect(prefs_w, "delete_event", G_CALLBACK(prefs_main_delete_event_cb), prefs_w);
+  g_signal_connect(prefs_w, "destroy", G_CALLBACK(prefs_main_destroy_cb), prefs_w);
 
   gtk_widget_show(prefs_w);
 
@@ -909,7 +909,7 @@ create_preference_uat(GtkWidget *main_tb, int table_position,
 	
 	button = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	
-	SIGNAL_CONNECT(button, "clicked", uat_window_cb, uat);
+	g_signal_connect(button, "clicked", G_CALLBACK(uat_window_cb), uat);
 
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), button, 1, 2,
 							  table_position, table_position+1);

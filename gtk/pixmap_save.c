@@ -155,7 +155,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	g_object_set_data(G_OBJECT(save_as_w), "type_cm", type_cm);
 	gtk_widget_show(type_cm);
 
-	SIGNAL_CONNECT(save_as_w, "destroy", pixbuf_save_destroy_cb, NULL);
+	g_signal_connect(save_as_w, "destroy", G_CALLBACK(pixbuf_save_destroy_cb), NULL);
 
 	gtk_widget_show(save_as_w);
 	window_present(save_as_w);

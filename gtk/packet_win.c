@@ -161,10 +161,10 @@ void new_window_cb(GtkWidget *w _U_)
   detail_windows = g_list_append(detail_windows, DataPtr);
 
   /* load callback handlers */
-  SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
-                 "changed", new_tree_view_selection_changed_cb, DataPtr);
+  g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
+                 "changed", G_CALLBACK(new_tree_view_selection_changed_cb), DataPtr);
 
-  SIGNAL_CONNECT(main_w, "destroy", destroy_new_window, DataPtr);
+  g_signal_connect(main_w, "destroy", G_CALLBACK(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
   add_byte_views(DataPtr->edt, tree_view, DataPtr->bv_nb_ptr);

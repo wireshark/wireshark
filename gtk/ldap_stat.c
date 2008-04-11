@@ -228,8 +228,8 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(ldap->win, close_bt, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(ldap->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(ldap->win, "destroy", win_destroy_cb, ldap);
+	g_signal_connect(ldap->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(ldap->win, "destroy", G_CALLBACK(win_destroy_cb), ldap);
 
 	gtk_widget_show_all(ldap->win);
 	window_present(ldap->win);

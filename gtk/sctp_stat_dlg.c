@@ -484,7 +484,7 @@ gtk_sctpstat_dlg(void)
 
 	sctp_stat_dlg_w = window_new (GTK_WINDOW_TOPLEVEL, "Wireshark: SCTP Associations");
 	gtk_window_set_position (GTK_WINDOW (sctp_stat_dlg_w), GTK_WIN_POS_CENTER);
-	SIGNAL_CONNECT(sctp_stat_dlg_w, "destroy", dlg_destroy,NULL);
+	g_signal_connect(sctp_stat_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
 
 	/* Container for each row of widgets */
 	vbox1 = gtk_vbox_new(FALSE, 2);
@@ -560,7 +560,7 @@ gtk_sctpstat_dlg(void)
 		gtk_widget_show(col_arrows[i].table);
 	}
 
-	SIGNAL_CONNECT(clist, "click-column", clist_click_column_cb, col_arrows);
+	g_signal_connect(clist, "click-column", G_CALLBACK(clist_click_column_cb), col_arrows);
 
 	hbuttonbox2 = gtk_hbutton_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox1), hbuttonbox2, FALSE, FALSE, 0);
@@ -597,12 +597,12 @@ gtk_sctpstat_dlg(void)
 	gtk_widget_grab_focus(bt_close);
 	gtk_widget_show (bt_close);
 
-	SIGNAL_CONNECT(sctp_stat_dlg_w, "destroy", dlg_destroy, NULL);
-	SIGNAL_CONNECT(clist, "select_row", sctp_stat_on_select_row, NULL);
-	SIGNAL_CONNECT(bt_unselect, "clicked", sctp_stat_on_unselect, NULL);
-	SIGNAL_CONNECT(bt_filter, "clicked", sctp_stat_on_filter, NULL);
-	SIGNAL_CONNECT(bt_afilter, "clicked", sctp_stat_on_apply_filter, NULL);
-	SIGNAL_CONNECT(bt_analyse, "clicked", sctp_stat_on_analyse, NULL);
+	g_signal_connect(sctp_stat_dlg_w, "destroy", G_CALLBACK(dlg_destroy), NULL);
+	g_signal_connect(clist, "select_row", G_CALLBACK(sctp_stat_on_select_row), NULL);
+	g_signal_connect(bt_unselect, "clicked", G_CALLBACK(sctp_stat_on_unselect), NULL);
+	g_signal_connect(bt_filter, "clicked", G_CALLBACK(sctp_stat_on_filter), NULL);
+	g_signal_connect(bt_afilter, "clicked", G_CALLBACK(sctp_stat_on_apply_filter), NULL);
+	g_signal_connect(bt_analyse, "clicked", G_CALLBACK(sctp_stat_on_analyse), NULL);
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
 	cf_retap_packets(&cfile, FALSE);

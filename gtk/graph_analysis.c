@@ -562,13 +562,13 @@ on_save_bt_clicked                    (GtkButton       *button _U_,
 	gtk_widget_show (vertb);
 
 	ok_bt = GTK_FILE_SELECTION(save_to_file_w)->ok_button;
-	SIGNAL_CONNECT(ok_bt, "clicked", G_CALLBACK(save_to_file_ok_cb), user_data);
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_to_file_ok_cb), user_data);
 
 	window_set_cancel_button(save_to_file_w,
 	GTK_FILE_SELECTION(save_to_file_w)->cancel_button, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(save_to_file_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	SIGNAL_CONNECT(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb),
+	g_signal_connect(save_to_file_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(save_to_file_w, "destroy", G_CALLBACK(save_to_file_destroy_cb),
 	               NULL);
 
 	gtk_widget_show(save_to_file_w);
@@ -1373,7 +1373,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
         g_object_set_data(G_OBJECT(user_data->dlg.draw_area_comments), "graph_analysis_data_t", user_data);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
 
-	SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
+	g_signal_connect(user_data->dlg.draw_area_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
 	/* create main Graph draw area */
         user_data->dlg.draw_area=gtk_drawing_area_new();
 	if (user_data->num_nodes < 2)
@@ -1396,21 +1396,21 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
 
         /* signals needed to handle backing pixmap */
-        SIGNAL_CONNECT(user_data->dlg.draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
-        SIGNAL_CONNECT(user_data->dlg.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
+        g_signal_connect(user_data->dlg.draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
+        g_signal_connect(user_data->dlg.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
 
         /* signals needed to handle backing pixmap comments*/
-        SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "expose_event", G_CALLBACK(expose_event_comments), NULL);
-        SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "configure_event", G_CALLBACK(configure_event_comments), user_data);
+        g_signal_connect(user_data->dlg.draw_area_comments, "expose_event", G_CALLBACK(expose_event_comments), NULL);
+        g_signal_connect(user_data->dlg.draw_area_comments, "configure_event", G_CALLBACK(configure_event_comments), user_data);
 
         /* signals needed to handle backing pixmap time*/
-        SIGNAL_CONNECT(user_data->dlg.draw_area_time, "expose_event", G_CALLBACK(expose_event_time), NULL);
-        SIGNAL_CONNECT(user_data->dlg.draw_area_time, "configure_event", G_CALLBACK(configure_event_time), user_data);
+        g_signal_connect(user_data->dlg.draw_area_time, "expose_event", G_CALLBACK(expose_event_time), NULL);
+        g_signal_connect(user_data->dlg.draw_area_time, "configure_event", G_CALLBACK(configure_event_time), user_data);
 
 	gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
-	SIGNAL_CONNECT(user_data->dlg.draw_area, "button_press_event", G_CALLBACK(button_press_event), user_data);
-	SIGNAL_CONNECT(user_data->dlg.draw_area, "scroll_event",  G_CALLBACK(scroll_event), user_data);
-	SIGNAL_CONNECT(user_data->dlg.draw_area, "key_press_event",  G_CALLBACK(key_press_event), user_data);
+	g_signal_connect(user_data->dlg.draw_area, "button_press_event", G_CALLBACK(button_press_event), user_data);
+	g_signal_connect(user_data->dlg.draw_area, "scroll_event",  G_CALLBACK(scroll_event), user_data);
+	g_signal_connect(user_data->dlg.draw_area, "key_press_event",  G_CALLBACK(key_press_event), user_data);
 
 	gtk_widget_show(user_data->dlg.draw_area_time);
         gtk_widget_show(user_data->dlg.draw_area);
@@ -1426,7 +1426,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 		user_data->dlg.hpane = gtk_hpaned_new();
 		gtk_paned_pack1(GTK_PANED (user_data->dlg.hpane), user_data->dlg.scroll_window, FALSE, TRUE);
 		gtk_paned_pack2(GTK_PANED (user_data->dlg.hpane), scroll_window_comments, TRUE, TRUE);
-	SIGNAL_CONNECT(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
+	g_signal_connect(user_data->dlg.hpane, "notify::position",  G_CALLBACK(pane_callback), user_data);
 	gtk_widget_show(user_data->dlg.hpane);
 
         gtk_box_pack_start(GTK_BOX(hbox), user_data->dlg.hpane, TRUE, TRUE, 0);
@@ -1436,7 +1436,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
         user_data->dlg.v_scrollbar=gtk_vscrollbar_new(user_data->dlg.v_scrollbar_adjustment);
         gtk_widget_show(user_data->dlg.v_scrollbar);
         gtk_box_pack_end(GTK_BOX(hbox), user_data->dlg.v_scrollbar, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(user_data->dlg.v_scrollbar_adjustment, "value_changed", G_CALLBACK(v_scrollbar_changed), user_data);
+	g_signal_connect(user_data->dlg.v_scrollbar_adjustment, "value_changed", G_CALLBACK(v_scrollbar_changed), user_data);
 
 
         gtk_box_pack_start(GTK_BOX(box), hbox, TRUE, TRUE, 0);
@@ -1483,7 +1483,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_save);
 	gtk_widget_show(bt_save);
-	SIGNAL_CONNECT(bt_save, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
+	g_signal_connect(bt_save, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
 	gtk_tooltips_set_tip (tooltips, bt_save, "Save an ASCII representation of the graph to a file", NULL);
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
@@ -1493,8 +1493,8 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
         window_set_cancel_button(user_data->dlg.window, bt_close, window_cancel_button_cb);
 
-        SIGNAL_CONNECT(user_data->dlg.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-	SIGNAL_CONNECT(user_data->dlg.window, "destroy", G_CALLBACK(on_destroy), user_data);
+        g_signal_connect(user_data->dlg.window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(user_data->dlg.window, "destroy", G_CALLBACK(on_destroy), user_data);
 
         gtk_widget_show(user_data->dlg.window);
         window_present(user_data->dlg.window);

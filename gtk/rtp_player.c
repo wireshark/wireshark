@@ -980,7 +980,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 
 
 	/* Connect back the "value" scroll signal */
-	SIGNAL_CONNECT(rci->h_scrollbar_adjustment, "value_changed", h_scrollbar_changed, rci);
+	g_signal_connect(rci->h_scrollbar_adjustment, "value_changed", G_CALLBACK(h_scrollbar_changed), rci);
 
 
 /*	if (index/MULT < rci->h_scrollbar_adjustment->page_increment) {
@@ -1180,7 +1180,7 @@ on_bt_check_clicked(GtkButton *button _U_, gpointer user_data _U_)
 			/* we disconnect the signal temporarly to avoid been called back */
 			g_signal_handlers_disconnect_by_func(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			gtk_toggle_button_set_active((GtkToggleButton *)rtp_channels->rci[rtp_channels->channel]->check_bt, FALSE);
-			SIGNAL_CONNECT(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
+			g_signal_connect(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", G_CALLBACK(on_bt_check_clicked), rtp_channels->rci[rtp_channels->channel]);
 			rtp_channels->rci[rtp_channels->channel]->selected = FALSE;
 		}
 
@@ -1417,14 +1417,14 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 			/* we disconnect the signal temporarly to avoid been called back */
 			g_signal_handlers_disconnect_by_func(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			gtk_toggle_button_set_active((GtkToggleButton *) rtp_channels->rci[rtp_channels->channel]->check_bt, FALSE);
-			SIGNAL_CONNECT(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
+			g_signal_connect(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", G_CALLBACK(on_bt_check_clicked), rtp_channels->rci[rtp_channels->channel]);
 			rtp_channels->rci[rtp_channels->channel]->selected = FALSE;
 		}
 
 		/* we disconnect the signal temporarly to avoid been called back */
 		g_signal_handlers_disconnect_by_func(rci->check_bt, on_bt_check_clicked, rci);
 		gtk_toggle_button_set_active((GtkToggleButton *) rci->check_bt, TRUE);
-		SIGNAL_CONNECT(rci->check_bt, "clicked", on_bt_check_clicked, rci);
+		g_signal_connect(rci->check_bt, "clicked", G_CALLBACK(on_bt_check_clicked), rci);
 
 		rtp_channels->rci[rtp_channels->channel] = rci;
 		rtp_channels->channel = !(rtp_channels->channel);
@@ -1505,11 +1505,11 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->scroll_window, FALSE, FALSE, 0);
 
 	/* signals needed to handle backing pixmap */
-	SIGNAL_CONNECT(rci->draw_area, "expose_event", expose_event_channels, NULL);
-	SIGNAL_CONNECT(rci->draw_area, "configure_event", configure_event_channels, rci);
+	g_signal_connect(rci->draw_area, "expose_event", G_CALLBACK(expose_event_channels), NULL);
+	g_signal_connect(rci->draw_area, "configure_event", G_CALLBACK(configure_event_channels), rci);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
-	SIGNAL_CONNECT(rci->draw_area, "button_press_event", button_press_event_channel, rci);
-	SIGNAL_CONNECT(rci->h_scrollbar_adjustment, "value_changed", h_scrollbar_changed, rci);
+	g_signal_connect(rci->draw_area, "button_press_event", G_CALLBACK(button_press_event_channel), rci);
+	g_signal_connect(rci->h_scrollbar_adjustment, "value_changed", G_CALLBACK(h_scrollbar_changed), rci);
 
 
 	label = g_string_new("");
@@ -1528,7 +1528,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 		gtk_box_pack_start(GTK_BOX (channels_vb), rci->separator, FALSE, FALSE, 5);
 	}
 
-	SIGNAL_CONNECT(rci->check_bt, "clicked", on_bt_check_clicked, rci);
+	g_signal_connect(rci->check_bt, "clicked", G_CALLBACK(on_bt_check_clicked), rci);
 
 	g_string_free(label, TRUE);
 }
@@ -1891,7 +1891,7 @@ rtp_player_dlg_create(void)
 	jitter_spinner = gtk_spin_button_new (jitter_spinner_adj, 5, 0);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
 	gtk_tooltips_set_tip (tooltips, jitter_spinner, "The simulated jitter buffer in [ms]", NULL);
-	SIGNAL_CONNECT(GTK_OBJECT (jitter_spinner_adj), "value_changed", (GtkSignalFunc) jitter_spinner_value_changed, NULL);
+	g_signal_connect(GTK_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
 
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
@@ -1901,22 +1901,22 @@ rtp_player_dlg_create(void)
 
 	bt_decode = gtk_button_new_with_label("Decode");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
-	SIGNAL_CONNECT(bt_decode, "clicked", on_bt_decode_clicked, NULL);
+	g_signal_connect(bt_decode, "clicked", G_CALLBACK(on_bt_decode_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_decode, "Decode the RTP stream(s)", NULL);
 
 	bt_play = gtk_button_new_with_label("Play");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_play);
-	SIGNAL_CONNECT(bt_play, "clicked", on_bt_play_clicked, NULL);
+	g_signal_connect(bt_play, "clicked", G_CALLBACK(on_bt_play_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_play, "Play the RTP channel(s)", NULL);
 
 	bt_pause = gtk_button_new_with_label("Pause");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_pause);
-	SIGNAL_CONNECT(bt_pause, "clicked", on_bt_pause_clicked, NULL);
+	g_signal_connect(bt_pause, "clicked", G_CALLBACK(on_bt_pause_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_pause, "Pause the RTP channel(s)", NULL);
 
 	bt_stop = gtk_button_new_with_label("Stop");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_stop);
-	SIGNAL_CONNECT(bt_stop, "clicked", on_bt_stop_clicked, NULL);
+	g_signal_connect(bt_stop, "clicked", G_CALLBACK(on_bt_stop_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_stop, "Stop the RTP channel(s)", NULL);
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
@@ -1924,8 +1924,8 @@ rtp_player_dlg_create(void)
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 
-	SIGNAL_CONNECT(bt_close, "clicked", rtp_player_on_destroy, NULL);
-	SIGNAL_CONNECT(rtp_player_dlg_w, "destroy", rtp_player_on_destroy, NULL);
+	g_signal_connect(bt_close, "clicked", G_CALLBACK(rtp_player_on_destroy), NULL);
+	g_signal_connect(rtp_player_dlg_w, "destroy", G_CALLBACK(rtp_player_on_destroy), NULL);
 
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();

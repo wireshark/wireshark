@@ -132,7 +132,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   proto_list = tree_view_new(GTK_TREE_MODEL(proto_store));
   gtk_container_add(GTK_CONTAINER(proto_sw), proto_list);
   proto_rend = gtk_cell_renderer_toggle_new();
-  SIGNAL_CONNECT(proto_rend, "toggled", status_toggled, proto_store);
+  g_signal_connect(proto_rend, "toggled", G_CALLBACK(status_toggled), proto_store);
   proto_col = gtk_tree_view_column_new_with_attributes(titles[0], proto_rend,
                                                     "active", 0, NULL);
   gtk_tree_view_column_set_sort_column_id(proto_col, 0);
@@ -167,19 +167,19 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* Enable All */
   button = gtk_button_new_with_label("Enable All");
-  SIGNAL_CONNECT(button, "clicked", enable_all_cb, proto_list);
+  g_signal_connect(button, "clicked", G_CALLBACK(enable_all_cb), proto_list);
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
   /* Disable All */
   button = gtk_button_new_with_label("Disable All");
-  SIGNAL_CONNECT(button, "clicked", disable_all_cb, proto_list);
+  g_signal_connect(button, "clicked", G_CALLBACK(disable_all_cb), proto_list);
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
   /* Invert */
   button = gtk_button_new_with_label("Invert");
-  SIGNAL_CONNECT(button, "clicked", toggle_all_cb, proto_list);
+  g_signal_connect(button, "clicked", G_CALLBACK(toggle_all_cb), proto_list);
   gtk_box_pack_start(GTK_BOX(bbox), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
 
@@ -194,25 +194,25 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  SIGNAL_CONNECT(ok_bt, "clicked", proto_ok_cb, proto_w);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(proto_ok_cb), proto_w);
   gtk_widget_grab_default(ok_bt);
 
   apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-  SIGNAL_CONNECT(apply_bt, "clicked", proto_apply_cb, proto_w);
+  g_signal_connect(apply_bt, "clicked", G_CALLBACK(proto_apply_cb), proto_w);
 
   save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
-  SIGNAL_CONNECT(save_bt, "clicked", proto_save_cb, proto_w);
+  g_signal_connect(save_bt, "clicked", G_CALLBACK(proto_save_cb), proto_w);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
   if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_ENABLED_PROTOCOLS_DIALOG);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_ENABLED_PROTOCOLS_DIALOG);
   }
 
-  SIGNAL_CONNECT(proto_w, "delete_event", proto_delete_event_cb, NULL);
-  SIGNAL_CONNECT(proto_w, "destroy", proto_destroy_cb, NULL);
+  g_signal_connect(proto_w, "delete_event", G_CALLBACK(proto_delete_event_cb), NULL);
+  g_signal_connect(proto_w, "destroy", G_CALLBACK(proto_destroy_cb), NULL);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
 

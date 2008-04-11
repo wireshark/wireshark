@@ -107,7 +107,7 @@ stream_prefs_show()
   for (i = 0; i < mcount; i++){
     menuitem = gtk_menu_item_new_with_label (mt[i]);
     g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, colorsel);
-    SIGNAL_CONNECT(menuitem, "activate", update_current_color, &tcolors[i]);
+    g_signal_connect(menuitem, "activate", G_CALLBACK(update_current_color), &tcolors[i]);
     gtk_widget_show (menuitem);
     gtk_menu_append (GTK_MENU (menu), menuitem);
   }
@@ -147,7 +147,7 @@ stream_prefs_show()
 		  GTK_SHRINK, GTK_SHRINK, 0, 0);
 
   g_object_set_data(G_OBJECT(colorsel), STREAM_SAMPLE_KEY, sample);
-  SIGNAL_CONNECT(colorsel, "color-changed", update_text_color, NULL);
+  g_signal_connect(colorsel, "color-changed", G_CALLBACK(update_text_color), NULL);
   gtk_widget_show(colorsel);
 
   gtk_widget_show(main_vb);

@@ -339,7 +339,7 @@ proto_hier_create_popup_menu(void)
     item_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(item_factory, sizeof(proto_hier_list_menu_items)/sizeof(proto_hier_list_menu_items[0]), proto_hier_list_menu_items, NULL, 2);
     popup_menu_object = gtk_item_factory_get_widget (item_factory, "<main>");
-    SIGNAL_CONNECT(tree, "button_press_event", proto_hier_show_popup_menu_cb, NULL);
+    g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), NULL);
 }
 
 #define MAX_DLG_HEIGHT 450
@@ -492,10 +492,10 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
                 help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_PROTO_HIERARCHY_DIALOG);
+		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
 	}
 
-	SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
+	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show_all(dlg);
 	window_present(dlg);

@@ -212,8 +212,8 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
      * the close button on the window, to stop an operation in
      * progress.
      */
-    SIGNAL_CONNECT(cancel_bt, "clicked", stop_cb, stop_flag);
-    SIGNAL_CONNECT(dlg_w, "delete_event", delete_event_cb, stop_flag);
+    g_signal_connect(cancel_bt, "clicked", G_CALLBACK(stop_cb), stop_flag);
+    g_signal_connect(dlg_w, "delete_event", G_CALLBACK(delete_event_cb), stop_flag);
 
     gtk_widget_show_all(dlg_w);
 

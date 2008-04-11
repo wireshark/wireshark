@@ -111,10 +111,10 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY,   radio_pdetails_rb);
     g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY,     radio_pbytes_rb);
 
-    SIGNAL_CONNECT(radio_none_rb,       "toggled", layout_validate_cb, main_vb);
-    SIGNAL_CONNECT(radio_plist_rb,      "toggled", layout_validate_cb, main_vb);
-    SIGNAL_CONNECT(radio_pdetails_rb,   "toggled", layout_validate_cb, main_vb);
-    SIGNAL_CONNECT(radio_pbytes_rb,     "toggled", layout_validate_cb, main_vb);
+    g_signal_connect(radio_none_rb,       "toggled", G_CALLBACK(layout_validate_cb), main_vb);
+    g_signal_connect(radio_plist_rb,      "toggled", G_CALLBACK(layout_validate_cb), main_vb);
+    g_signal_connect(radio_pdetails_rb,   "toggled", G_CALLBACK(layout_validate_cb), main_vb);
+    g_signal_connect(radio_pbytes_rb,     "toggled", G_CALLBACK(layout_validate_cb), main_vb);
 
     return radio_vb;
 }
@@ -337,7 +337,7 @@ layout_prefs_show(void)
 
 	gtk_container_add (GTK_CONTAINER(type_tb), xpm_to_widget(inline_txt[i]));
 
-	SIGNAL_CONNECT(type_tb, "toggled", layout_type_changed_cb, layout_type_buttons);
+	g_signal_connect(type_tb, "toggled", G_CALLBACK(layout_type_changed_cb), layout_type_buttons);
 	layout_type_buttons[i] = type_tb;
 	gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
     }
@@ -368,7 +368,7 @@ layout_prefs_show(void)
     default_bt = gtk_button_new_with_label("Default panes");
     gtk_tooltips_set_tip (tooltips, default_bt, 
         "Reset the pane layout settings to default values.", NULL);
-    SIGNAL_CONNECT(default_bt, "clicked", layout_defaults_cb, main_vb);
+    g_signal_connect(default_bt, "clicked", G_CALLBACK(layout_defaults_cb), main_vb);
     gtk_box_pack_end(GTK_BOX(default_vb), default_bt, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(radio_hb), default_vb, FALSE, FALSE, 0);
 

@@ -514,7 +514,7 @@ hostlist_create_popup_menu(hostlist_table *hl)
     gtk_item_factory_create_items_ac(item_factory, sizeof(hostlist_list_menu_items)/sizeof(hostlist_list_menu_items[0]), hostlist_list_menu_items, hl, 2);
 
     hl->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-    SIGNAL_CONNECT(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
+    g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
 }
 
 
@@ -737,7 +737,7 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     gtk_clist_column_titles_show(hosttable->table);
     gtk_container_add(GTK_CONTAINER(hosttable->scrolled_window), (GtkWidget *)hosttable->table);
 
-    SIGNAL_CONNECT(hosttable->table, "click-column", G_CALLBACK(hostlist_click_column_cb), col_arrows);
+    g_signal_connect(hosttable->table, "click-column", G_CALLBACK(hostlist_click_column_cb), col_arrows);
 
     hosttable->num_hosts=0;
     hosttable->hosts=NULL;
@@ -814,15 +814,15 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     gtk_tooltips_set_tip(tooltips, copy_bt, 
         "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
-    SIGNAL_CONNECT(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
+    g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_STATS_ENDPOINTS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_ENDPOINTS_DIALOG);
     }
 
-    SIGNAL_CONNECT(hosttable->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-    SIGNAL_CONNECT(hosttable->win, "destroy", G_CALLBACK(hostlist_win_destroy_cb), hosttable);
+    g_signal_connect(hosttable->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(hosttable->win, "destroy", G_CALLBACK(hostlist_win_destroy_cb), hosttable);
 
     gtk_widget_show_all(hosttable->win);
     window_present(hosttable->win);
@@ -1037,14 +1037,14 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
         "Please note: The corresponding name resolution must be enabled.", NULL);
 
-    SIGNAL_CONNECT(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
+    g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
     gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to endpoints matching the current display filter.", NULL);
 
-    SIGNAL_CONNECT(filter_cb, "toggled", G_CALLBACK(hostlist_filter_toggle_dest), pages);
+    g_signal_connect(filter_cb, "toggled", G_CALLBACK(hostlist_filter_toggle_dest), pages);
 
     /* Button row. */
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
@@ -1061,18 +1061,18 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
-    SIGNAL_CONNECT(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
+    g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, pages[page]);
 
-    SIGNAL_CONNECT(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
+    g_signal_connect(nb, "switch-page", G_CALLBACK(ct_nb_switch_page_cb), copy_bt);
 
     if(topic_available(HELP_STATS_ENDPOINTS_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_STATS_ENDPOINTS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_ENDPOINTS_DIALOG);
     }
 
-    SIGNAL_CONNECT(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-    SIGNAL_CONNECT(win, "destroy", G_CALLBACK(hostlist_win_destroy_notebook_cb), pages);
+    g_signal_connect(win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(win, "destroy", G_CALLBACK(hostlist_win_destroy_notebook_cb), pages);
 
     gtk_widget_show_all(win);
     window_present(win);

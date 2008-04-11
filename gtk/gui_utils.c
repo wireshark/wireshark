@@ -134,7 +134,7 @@ window_new(GtkWindowType type, const gchar *title)
   win = gtk_window_new(type);
   if (title != NULL)
     gtk_window_set_title(GTK_WINDOW(win), title);
-  SIGNAL_CONNECT(win, "realize", G_CALLBACK(window_icon_realize_cb), NULL);
+  g_signal_connect(win, "realize", G_CALLBACK(window_icon_realize_cb), NULL);
 
   /* XXX - which one is the correct default policy? or use a preference for this? */
   /* GTK_WIN_POS_NONE, GTK_WIN_POS_CENTER or GTK_WIN_POS_MOUSE */
@@ -245,7 +245,7 @@ window_key_press_cb (GtkWidget *widget, GdkEventKey *event, gpointer cancel_butt
 static void
 window_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
 {
-  SIGNAL_CONNECT(widget, "key_press_event", G_CALLBACK(window_key_press_cb), cancel_button);
+  g_signal_connect(widget, "key_press_event", G_CALLBACK(window_key_press_cb), cancel_button);
 }
 
 
@@ -253,7 +253,7 @@ window_set_cancel(GtkWidget *widget, GtkWidget *cancel_button)
 void window_set_cancel_button(GtkWidget *win, GtkWidget *bt, window_cancel_button_fct cb)
 {
   if(cb)
-    SIGNAL_CONNECT(bt, "clicked", G_CALLBACK(cb), win);
+    g_signal_connect(bt, "clicked", G_CALLBACK(cb), win);
 
   gtk_widget_grab_default(bt);
 
@@ -791,7 +791,7 @@ setup_scrolled_window(GtkWidget *scrollw)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-  SIGNAL_CONNECT(scrollw, "destroy", G_CALLBACK(forget_scrolled_window), NULL);
+  g_signal_connect(scrollw, "destroy", G_CALLBACK(forget_scrolled_window), NULL);
 }
 
 /* Remove a GtkScrolledWindow from the list of GtkScrolledWindows. */
@@ -859,8 +859,8 @@ setup_tree(GtkWidget *tree)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-  SIGNAL_CONNECT(tree, "destroy", G_CALLBACK(forget_tree), NULL);
-  SIGNAL_CONNECT(tree, "key-press-event", G_CALLBACK(tree_view_key_pressed_cb), NULL );
+  g_signal_connect(tree, "destroy", G_CALLBACK(forget_tree), NULL);
+  g_signal_connect(tree, "key-press-event", G_CALLBACK(tree_view_key_pressed_cb), NULL );
 }
 
 /* Remove a Tree from the list of Trees. */

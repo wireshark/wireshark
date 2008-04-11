@@ -335,13 +335,13 @@ rtpstream_on_save                      (GtkButton       *button _U_,
 	gtk_widget_show (vertb);
 
 	ok_bt = GTK_FILE_SELECTION(rtpstream_save_dlg)->ok_button;
-	SIGNAL_CONNECT(ok_bt, "clicked", save_stream_ok_cb, tapinfo);
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_stream_ok_cb), tapinfo);
 
 	window_set_cancel_button(rtpstream_save_dlg,
 	    GTK_FILE_SELECTION(rtpstream_save_dlg)->cancel_button, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(rtpstream_save_dlg, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(rtpstream_save_dlg, "destroy", save_stream_destroy_cb,
+	g_signal_connect(rtpstream_save_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(rtpstream_save_dlg, "destroy", G_CALLBACK(save_stream_destroy_cb),
 	               NULL);
 
 	gtk_widget_show(rtpstream_save_dlg);
@@ -741,7 +741,7 @@ static void rtpstream_dlg_create (void)
         gtk_widget_show(col_arrows[i].table);
     }
 
-    SIGNAL_CONNECT(clist, "click-column", rtpstream_click_column_cb, col_arrows);
+    g_signal_connect(clist, "click-column", G_CALLBACK(rtpstream_click_column_cb), col_arrows);
 
     label_fwd = gtk_label_new (FWD_LABEL_TEXT);
     gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
@@ -794,22 +794,22 @@ static void rtpstream_dlg_create (void)
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
-    SIGNAL_CONNECT(clist, "select_row", rtpstream_on_select_row, NULL);
-    SIGNAL_CONNECT(bt_unselect, "clicked", rtpstream_on_unselect, NULL);
-    SIGNAL_CONNECT(bt_findrev, "clicked", rtpstream_on_findrev, NULL);
+    g_signal_connect(clist, "select_row", G_CALLBACK(rtpstream_on_select_row), NULL);
+    g_signal_connect(bt_unselect, "clicked", G_CALLBACK(rtpstream_on_unselect), NULL);
+    g_signal_connect(bt_findrev, "clicked", G_CALLBACK(rtpstream_on_findrev), NULL);
 /*
-    SIGNAL_CONNECT(bt_goto, "clicked", rtpstream_on_goto, NULL);
+    g_signal_connect(bt_goto, "clicked", G_CALLBACK(rtpstream_on_goto), NULL);
 */
-    SIGNAL_CONNECT(bt_save, "clicked", rtpstream_on_save, NULL);
-    SIGNAL_CONNECT(bt_mark, "clicked", rtpstream_on_mark, NULL);
-    SIGNAL_CONNECT(bt_filter, "clicked", rtpstream_on_filter, NULL);
-    SIGNAL_CONNECT(bt_copy, "clicked", rtpstream_on_copy_as_csv, NULL);
-    SIGNAL_CONNECT(bt_analyze, "clicked", rtpstream_on_analyse, NULL);
+    g_signal_connect(bt_save, "clicked", G_CALLBACK(rtpstream_on_save), NULL);
+    g_signal_connect(bt_mark, "clicked", G_CALLBACK(rtpstream_on_mark), NULL);
+    g_signal_connect(bt_filter, "clicked", G_CALLBACK(rtpstream_on_filter), NULL);
+    g_signal_connect(bt_copy, "clicked", G_CALLBACK(rtpstream_on_copy_as_csv), NULL);
+    g_signal_connect(bt_analyze, "clicked", G_CALLBACK(rtpstream_on_analyse), NULL);
 
     window_set_cancel_button(rtpstream_dlg_w, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(rtpstream_dlg_w, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(rtpstream_dlg_w, "destroy", rtpstream_on_destroy, NULL);
+    g_signal_connect(rtpstream_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(rtpstream_dlg_w, "destroy", G_CALLBACK(rtpstream_on_destroy), NULL);
 
     gtk_widget_show_all(rtpstream_dlg_w);
     window_present(rtpstream_dlg_w);

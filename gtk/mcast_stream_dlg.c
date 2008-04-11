@@ -464,9 +464,9 @@ mcast_on_params                      (GtkButton       *button _U_,
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
 	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 0);
         
-	SIGNAL_CONNECT(mcast_params_dlg, "delete_event", window_delete_event_cb, NULL);
-        SIGNAL_CONNECT(mcast_params_dlg, "destroy", mcast_params_destroy_cb, NULL);
-	SIGNAL_CONNECT(ok_bt, "clicked", mcast_params_ok_cb, mcast_params_dlg);
+	g_signal_connect(mcast_params_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+        g_signal_connect(mcast_params_dlg, "destroy", G_CALLBACK(mcast_params_destroy_cb), NULL);
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(mcast_params_ok_cb), mcast_params_dlg);
 	window_set_cancel_button(mcast_params_dlg, cancel_bt, window_cancel_button_cb);
 
 	/* Attach pointers to needed widgets */
@@ -570,7 +570,7 @@ static void mcaststream_dlg_create (void)
         gtk_widget_show(col_arrows[i].table);
     }
 
-    SIGNAL_CONNECT(clist, "click-column", mcaststream_click_column_cb, col_arrows);
+    g_signal_connect(clist, "click-column", G_CALLBACK(mcaststream_click_column_cb), col_arrows);
 
     label_fwd = gtk_label_new (FWD_LABEL_TEXT);
     /*gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);*/
@@ -601,14 +601,14 @@ static void mcaststream_dlg_create (void)
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 
-    SIGNAL_CONNECT(clist, "select_row", mcaststream_on_select_row, NULL);
-    /*SIGNAL_CONNECT(bt_unselect, "clicked", mcaststream_on_unselect, NULL);*/
-    SIGNAL_CONNECT(bt_params, "clicked", mcast_on_params, NULL);
-    SIGNAL_CONNECT(bt_filter, "clicked", mcaststream_on_filter, NULL);
+    g_signal_connect(clist, "select_row", G_CALLBACK(mcaststream_on_select_row), NULL);
+    /*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(mcaststream_on_unselect), NULL);*/
+    g_signal_connect(bt_params, "clicked", G_CALLBACK(mcast_on_params), NULL);
+    g_signal_connect(bt_filter, "clicked", G_CALLBACK(mcaststream_on_filter), NULL);
     window_set_cancel_button(mcaststream_dlg_w, bt_close, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(mcaststream_dlg_w, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(mcaststream_dlg_w, "destroy", mcaststream_on_destroy, NULL);
+    g_signal_connect(mcaststream_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(mcaststream_dlg_w, "destroy", G_CALLBACK(mcaststream_on_destroy), NULL);
 
     gtk_widget_show_all(mcaststream_dlg_w);
     window_present(mcaststream_dlg_w);

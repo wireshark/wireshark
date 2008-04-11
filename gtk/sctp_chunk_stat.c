@@ -331,8 +331,8 @@ sctpstat_init(const char *optarg, void *userdata _U_)
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(hs->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
+	g_signal_connect(hs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(hs->win, "destroy", G_CALLBACK(win_destroy_cb), hs);
 
 	gtk_widget_show_all(hs->win);
 	window_present(hs->win);

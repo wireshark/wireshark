@@ -82,14 +82,14 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_JUMP_TO);
-  SIGNAL_CONNECT(ok_bt, "clicked", G_CALLBACK(goto_frame_ok_cb), goto_frame_w);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(goto_frame_ok_cb), goto_frame_w);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(goto_frame_w, cancel_bt, window_cancel_button_cb);
 
   if(topic_available(HELP_GOTO_DIALOG)) {
       help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      SIGNAL_CONNECT(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_GOTO_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_GOTO_DIALOG);
   }
 
   gtk_widget_grab_default(ok_bt);
@@ -106,7 +106,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Attach pointers to needed widgets to the capture prefs window/object */
   g_object_set_data(G_OBJECT(goto_frame_w), E_GOTO_FNUMBER_KEY, fnumber_te);
 
-  SIGNAL_CONNECT(goto_frame_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(goto_frame_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
   gtk_widget_show(goto_frame_w);
   window_present(goto_frame_w);

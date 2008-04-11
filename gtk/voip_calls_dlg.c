@@ -746,7 +746,7 @@ static void voip_calls_dlg_create (void)
 		gtk_widget_show(col_arrows[i].table);
 	}
 
-	SIGNAL_CONNECT(clist, "click-column", voip_calls_click_column_cb, col_arrows);
+	g_signal_connect(clist, "click-column", G_CALLBACK(voip_calls_click_column_cb), col_arrows);
 
 /*	label_fwd = gtk_label_new (FWD_LABEL_TEXT);
 	gtk_box_pack_start (GTK_BOX (main_vb), label_fwd, FALSE, FALSE, 0);
@@ -771,14 +771,14 @@ static void voip_calls_dlg_create (void)
 	bt_graph = gtk_button_new_with_label("Graph");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
-	SIGNAL_CONNECT(bt_graph, "clicked", on_graph_bt_clicked, NULL);
+	g_signal_connect(bt_graph, "clicked", G_CALLBACK(on_graph_bt_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_graph, "Show a flow graph of the selected calls.", NULL);
 
 #ifdef HAVE_LIBPORTAUDIO
 	bt_player = gtk_button_new_with_label("Player");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_player);
 	gtk_widget_show(bt_player);
-	SIGNAL_CONNECT(bt_player, "clicked", on_player_bt_clicked, NULL);
+	g_signal_connect(bt_player, "clicked", G_CALLBACK(on_player_bt_clicked), NULL);
 	gtk_tooltips_set_tip (tooltips, bt_player, "Launch the RTP player to listen the selected calls.", NULL);
 #endif /* HAVE_LIBPORTAUDIO */
 
@@ -792,16 +792,16 @@ static void voip_calls_dlg_create (void)
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 
-	SIGNAL_CONNECT(clist, "select_row", voip_calls_on_select_row, NULL);
-	SIGNAL_CONNECT(clist, "unselect_row", voip_calls_on_unselect_row, NULL);
-	/*SIGNAL_CONNECT(bt_unselect, "clicked", voip_calls_on_unselect, NULL);*/
-	SIGNAL_CONNECT(bt_filter, "clicked", voip_calls_on_filter, NULL);
+	g_signal_connect(clist, "select_row", G_CALLBACK(voip_calls_on_select_row), NULL);
+	g_signal_connect(clist, "unselect_row", G_CALLBACK(voip_calls_on_unselect_row), NULL);
+	/*g_signal_connect(bt_unselect, "clicked", G_CALLBACK(voip_calls_on_unselect), NULL);*/
+	g_signal_connect(bt_filter, "clicked", G_CALLBACK(voip_calls_on_filter), NULL);
 
 	window_set_cancel_button(voip_calls_dlg_w, bt_close, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(voip_calls_dlg_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(voip_calls_dlg_w, "destroy", voip_calls_on_destroy, NULL);
-	SIGNAL_CONNECT(bt_select_all, "clicked", voip_calls_on_select_all, NULL);
+	g_signal_connect(voip_calls_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(voip_calls_dlg_w, "destroy", G_CALLBACK(voip_calls_on_destroy), NULL);
+	g_signal_connect(bt_select_all, "clicked", G_CALLBACK(voip_calls_on_select_all), NULL);
 
 	gtk_widget_show_all(voip_calls_dlg_w);
 	window_present(voip_calls_dlg_w);

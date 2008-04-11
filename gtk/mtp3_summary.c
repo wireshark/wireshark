@@ -374,7 +374,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_clist_set_shadow_type(GTK_CLIST(table), GTK_SHADOW_IN);
   gtk_clist_column_titles_show(GTK_CLIST(table));
 
-  SIGNAL_CONNECT(table, "click-column", mtp3_sum_gtk_click_column_cb, col_arrows);
+  g_signal_connect(table, "click-column", G_CALLBACK(mtp3_sum_gtk_click_column_cb), col_arrows);
 
   mtp3_sum_draw(table, seconds, &tot_num_msus, &tot_num_bytes);
 
@@ -425,7 +425,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(sum_open_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(sum_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
   gtk_widget_show_all(sum_open_w);
   window_present(sum_open_w);

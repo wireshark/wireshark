@@ -156,7 +156,7 @@ file_print_cmd(gboolean print_selected)
   }
 
   print_win = open_print_dialog("Wireshark: Print", output_action_print, args);
-  SIGNAL_CONNECT(print_win, "destroy", print_destroy_cb, &print_win);
+  g_signal_connect(print_win, "destroy", G_CALLBACK(print_destroy_cb), &print_win);
 }
 
 void
@@ -216,7 +216,7 @@ export_text_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   packet_range_init(&args->range);
 
   export_text_win = open_print_dialog("Wireshark: Export as \"Plain Text\" File", output_action_export_text, args);
-  SIGNAL_CONNECT(export_text_win, "destroy", print_destroy_cb, &export_text_win);
+  g_signal_connect(export_text_win, "destroy", G_CALLBACK(print_destroy_cb), &export_text_win);
 }
 
 
@@ -265,7 +265,7 @@ export_ps_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   packet_range_init(&args->range);
 
   export_ps_win = open_print_dialog("Wireshark: Export as \"PostScript\" file", output_action_export_ps, args);
-  SIGNAL_CONNECT(export_ps_win, "destroy", print_destroy_cb, &export_ps_win);
+  g_signal_connect(export_ps_win, "destroy", G_CALLBACK(print_destroy_cb), &export_ps_win);
 }
 
 
@@ -314,7 +314,7 @@ export_psml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   packet_range_init(&args->range);
 
   export_psml_win = open_print_dialog("Wireshark: Export as \"PSML\" file", output_action_export_psml, args);
-  SIGNAL_CONNECT(export_psml_win, "destroy", print_destroy_cb, &export_psml_win);
+  g_signal_connect(export_psml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_psml_win);
 }
 
 
@@ -363,7 +363,7 @@ export_pdml_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   packet_range_init(&args->range);
 
   export_pdml_win = open_print_dialog("Wireshark: Export as \"PDML\" file", output_action_export_pdml, args);
-  SIGNAL_CONNECT(export_pdml_win, "destroy", print_destroy_cb, &export_pdml_win);
+  g_signal_connect(export_pdml_win, "destroy", G_CALLBACK(print_destroy_cb), &export_pdml_win);
 }
 
 /*
@@ -410,7 +410,7 @@ export_csv_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   packet_range_init(&args->range);
 
   export_csv_win = open_print_dialog("Wireshark: Export as \"Comma Separated Values\" File", output_action_export_csv, args);
-  SIGNAL_CONNECT(export_csv_win, "destroy", print_destroy_cb, &export_csv_win);
+  g_signal_connect(export_csv_win, "destroy", G_CALLBACK(print_destroy_cb), &export_csv_win);
 }
 
 /*
@@ -458,7 +458,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File", 
 					 output_action_export_carrays, args);
-  SIGNAL_CONNECT(export_carrays_win, "destroy", print_destroy_cb, &export_carrays_win);
+  g_signal_connect(export_carrays_win, "destroy", G_CALLBACK(print_destroy_cb), &export_carrays_win);
 }
 
 static void
@@ -644,8 +644,8 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
     gtk_widget_show(cmd_te);
 #endif
 
-  SIGNAL_CONNECT(dest_cb, "toggled", print_cmd_toggle_dest, NULL);
-  SIGNAL_CONNECT(file_bt, "clicked", print_browse_file_cb, file_te);
+  g_signal_connect(dest_cb, "toggled", G_CALLBACK(print_cmd_toggle_dest), NULL);
+  g_signal_connect(file_bt, "clicked", G_CALLBACK(print_browse_file_cb), file_te);
 
   if(action == output_action_export_ps) {
     export_format_lb = gtk_label_new("(PostScript files can be easily converted to PDF files using ghostscript's ps2pdf)");
@@ -686,7 +686,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "Print summary line" check button */
   summary_cb = gtk_check_button_new_with_mnemonic("Packet summary line");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), args->print_summary);
-  SIGNAL_CONNECT(summary_cb, "clicked", print_cmd_toggle_detail, main_win);
+  g_signal_connect(summary_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_tooltips_set_tip (tooltips, summary_cb, "Output of a packet summary line, like in the packet list", NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), summary_cb);
   gtk_widget_show(summary_cb);
@@ -695,7 +695,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "Details" check button */
   details_cb = gtk_check_button_new_with_mnemonic("Packet details:");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), args->print_dissections != print_dissections_none);
-  SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, main_win);
+  g_signal_connect(details_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_tooltips_set_tip (tooltips, details_cb, "Output format of the selected packet details (protocol tree).", NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), details_cb);
   gtk_widget_show(details_cb);
@@ -738,7 +738,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   /* "Print hex" check button. */
   hex_cb = gtk_check_button_new_with_mnemonic("Packet bytes");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), args->print_hex);
-  SIGNAL_CONNECT(hex_cb, "clicked", print_cmd_toggle_detail, main_win);
+  g_signal_connect(hex_cb, "clicked", G_CALLBACK(print_cmd_toggle_detail), main_win);
   gtk_tooltips_set_tip (tooltips, hex_cb, "Add a hexdump of the packet data", NULL);
   gtk_container_add(GTK_CONTAINER(format_vb), hex_cb);
   gtk_widget_show(hex_cb);
@@ -800,7 +800,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   g_object_set_data(G_OBJECT(ok_bt), PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_HEX_CB_KEY, hex_cb);
   g_object_set_data(G_OBJECT(ok_bt), PRINT_FORMFEED_CB_KEY, formfeed_cb);
-  SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, main_win);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(print_ok_cb), main_win);
   gtk_tooltips_set_tip (tooltips, ok_bt, "Start output", NULL);
 
   cancel_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
@@ -810,18 +810,18 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if(action == output_action_print) {
     if(topic_available(HELP_PRINT_DIALOG)) {
         help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PRINT_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PRINT_DIALOG);
     }
   } else {
 #if _WIN32
     if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
         help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_FILE_WIN32_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_WIN32_DIALOG);
     }
 #else
     if(topic_available(HELP_EXPORT_FILE_DIALOG)) {
         help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_FILE_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_EXPORT_FILE_DIALOG);
     }
 #endif
   }
@@ -838,7 +838,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if(action != output_action_print)
     dlg_set_activate(file_te, ok_bt);
 
-  SIGNAL_CONNECT(main_win, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(main_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
   gtk_widget_show(main_win);
   window_present(main_win);

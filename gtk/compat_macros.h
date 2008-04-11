@@ -36,10 +36,6 @@
  *              gtk_widget_set_size_request, ...
  */
 
-#define SIGNAL_CONNECT(widget, name, callback, arg) \
-g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
-                 (gpointer)(arg))
-
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_AIRPCAP          "_Wireless"

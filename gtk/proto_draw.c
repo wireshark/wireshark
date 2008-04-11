@@ -641,8 +641,8 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
-  SIGNAL_CONNECT(byte_view, "show", byte_view_realize_cb, NULL);
-  SIGNAL_CONNECT(byte_view, "button_press_event", byte_view_button_press_cb,
+  g_signal_connect(byte_view, "show", G_CALLBACK(byte_view_realize_cb), NULL);
+  g_signal_connect(byte_view, "button_press_event", G_CALLBACK(byte_view_button_press_cb),
                  g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
   g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
@@ -991,7 +991,7 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     file_selection_set_extra_widget(savehex_dlg, dlg_lb);
 	gtk_widget_show(dlg_lb);
 
-    SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
+    g_signal_connect(savehex_dlg, "destroy", G_CALLBACK(savehex_dlg_destroy_cb), NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
     if (gtk_dialog_run(GTK_DIALOG(savehex_dlg)) == GTK_RESPONSE_ACCEPT) {
@@ -1002,13 +1002,13 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 #else
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
     pointer to the file selection box widget */
-    SIGNAL_CONNECT(GTK_FILE_SELECTION (savehex_dlg)->ok_button, "clicked",
-        savehex_save_clicked_cb, savehex_dlg);
+    g_signal_connect(GTK_FILE_SELECTION (savehex_dlg)->ok_button, "clicked",
+        G_CALLBACK(savehex_save_clicked_cb), savehex_dlg);
 
     window_set_cancel_button(savehex_dlg,
     GTK_FILE_SELECTION(savehex_dlg)->cancel_button, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(savehex_dlg, "delete_event", window_delete_event_cb, NULL);
+    g_signal_connect(savehex_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(savehex_dlg), "");
 
@@ -1360,7 +1360,7 @@ remember_ptree_widget(GtkWidget *ptreew)
 
   /* Catch the "destroy" event on the widget, so that we remove it from
      the list when it's destroyed. */
-  SIGNAL_CONNECT(ptreew, "destroy", forget_ptree_widget, NULL);
+  g_signal_connect(ptreew, "destroy", G_CALLBACK(forget_ptree_widget), NULL);
 }
 
 /* Remove a protocol tree widget from the list of protocol tree widgets. */
@@ -1560,8 +1560,8 @@ main_tree_view_new(e_prefs *prefs, GtkWidget **tree_view_p)
 
   gtk_tree_view_column_set_sizing(GTK_TREE_VIEW_COLUMN(column),
                                   GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-  SIGNAL_CONNECT(tree_view, "row-expanded", expand_tree, NULL);
-  SIGNAL_CONNECT(tree_view, "row-collapsed", collapse_tree, NULL);
+  g_signal_connect(tree_view, "row-expanded", G_CALLBACK(expand_tree), NULL);
+  g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
   gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
   set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
   gtk_widget_modify_font(tree_view, user_font_get_regular());

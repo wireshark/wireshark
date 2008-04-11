@@ -127,7 +127,7 @@ GtkWidget * printer_prefs_show(void)
 	gtk_box_pack_start(GTK_BOX(file_bt_hb), file_te, TRUE, TRUE, 0);
 	gtk_widget_show(file_te);
 
-	SIGNAL_CONNECT(file_bt, "clicked", printer_browse_file_cb, file_te);
+	g_signal_connect(file_bt, "clicked", G_CALLBACK(printer_browse_file_cb), file_te);
 
 	gtk_widget_show(main_vb);
 	return(main_vb);

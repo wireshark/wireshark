@@ -56,7 +56,7 @@ welcome_item(const gchar *stock_item, const gchar * label, const gchar * message
     gtk_button_set_label(GTK_BUTTON(w), label);
     gtk_tooltips_set_tip(tooltips, w, tooltip, NULL);
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 0);
-    SIGNAL_CONNECT(w, "clicked", callback, callback_data);
+    g_signal_connect(w, "clicked", G_CALLBACK(callback), callback_data);
 
     w = gtk_label_new(message);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
@@ -231,9 +231,9 @@ welcome_link_new(const gchar *text, GtkWidget **label /*, void *callback, void *
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
 
-    SIGNAL_CONNECT(eb, "enter-notify-event", welcome_link_enter_cb, w);
-    SIGNAL_CONNECT(eb, "leave-notify-event", welcome_link_leave_cb, w);
-    SIGNAL_CONNECT(eb, "button-press-event", welcome_link_press_cb, w);
+    g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_link_enter_cb), w);
+    g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_link_leave_cb), w);
+    g_signal_connect(eb, "button-press-event", G_CALLBACK(welcome_link_press_cb), w);
 
     /* XXX - memleak */
     g_object_set_data(G_OBJECT(w), "TEXT", g_strdup(text));

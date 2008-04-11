@@ -340,7 +340,7 @@ srt_create_popup_menu(srt_stat_table *rst)
 	gtk_item_factory_create_items_ac(item_factory, sizeof(srt_list_menu_items)/sizeof(srt_list_menu_items[0]), srt_list_menu_items, rst, 2);
 
 	rst->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-	SIGNAL_CONNECT(rst->table, "button_press_event", srt_show_popup_menu_cb, rst);
+	g_signal_connect(rst->table, "button_press_event", G_CALLBACK(srt_show_popup_menu_cb), rst);
 }
 
 
@@ -416,7 +416,7 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox, const char *
 	gtk_clist_column_titles_show(rst->table);
 	gtk_container_add(GTK_CONTAINER(rst->scrolled_window), (GtkWidget *)rst->table);
 
-	SIGNAL_CONNECT(rst->table, "click-column", srt_click_column_cb, col_arrows);
+	g_signal_connect(rst->table, "click-column", G_CALLBACK(srt_click_column_cb), col_arrows);
 
 	gtk_widget_show(GTK_WIDGET(rst->table));
 	gtk_widget_show(rst->scrolled_window);

@@ -473,7 +473,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	u_data->analyse_nb = g_malloc(sizeof(struct notes));
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_position (GTK_WINDOW (window), GTK_WIN_POS_CENTER);
-	SIGNAL_CONNECT(window, "destroy", on_destroy,u_data);
+	g_signal_connect(window, "destroy", G_CALLBACK(on_destroy), u_data);
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
@@ -485,7 +485,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
-	SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,NULL);
+	g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), NULL);
 
 	page1 = gtk_vbox_new(FALSE, 8);
 	gtk_container_set_border_width(GTK_CONTAINER(page1), 8);
@@ -540,17 +540,17 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	chunk_stat_bt = gtk_button_new_with_label ("Chunk Statistics");
 	gtk_box_pack_start(GTK_BOX(hbox), chunk_stat_bt, FALSE, FALSE, 0);
 	gtk_widget_show(chunk_stat_bt);
-	SIGNAL_CONNECT(chunk_stat_bt, "clicked", on_chunk_stat_bt, u_data);
+	g_signal_connect(chunk_stat_bt, "clicked", G_CALLBACK(on_chunk_stat_bt), u_data);
 
 	bt_filter = gtk_button_new_with_label ("Set filter");
 	gtk_box_pack_start(GTK_BOX(hbox), bt_filter, FALSE, FALSE, 0);
 	gtk_widget_show (bt_filter);
-	SIGNAL_CONNECT(bt_filter, "clicked", sctp_set_filter, u_data);
+	g_signal_connect(bt_filter, "clicked", G_CALLBACK(sctp_set_filter), u_data);
 
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
-	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);
+	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
 
 	/* tab */
 	label = gtk_label_new(" Statistics ");
@@ -644,17 +644,17 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	chunk_bt1 = gtk_button_new_with_label("Chunk Statistics");
 	gtk_box_pack_start(GTK_BOX(h_button_box), chunk_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(chunk_bt1);
-	SIGNAL_CONNECT(chunk_bt1, "clicked", on_chunk1_dlg,u_data);
+	g_signal_connect(chunk_bt1, "clicked", G_CALLBACK(on_chunk1_dlg), u_data);
 
 	graph_bt1 = gtk_button_new_with_label("Graph TSN");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt1);
-	SIGNAL_CONNECT(graph_bt1, "clicked", on_graph1_dlg,u_data);
+	g_signal_connect(graph_bt1, "clicked", G_CALLBACK(on_graph1_dlg), u_data);
 
 	graph_bt2 = gtk_button_new_with_label("Graph Bytes");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt2, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt2);
-	SIGNAL_CONNECT(graph_bt2, "clicked", on_graph_byte1_dlg,u_data);
+	g_signal_connect(graph_bt2, "clicked", G_CALLBACK(on_graph_byte1_dlg), u_data);
 	if (u_data->assoc->n_array_tsn1==0)
 	{
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
@@ -663,7 +663,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
-	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);
+	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
 
 	label = gtk_label_new(" Endpoint 1 ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page2, label);
@@ -752,16 +752,16 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	chunk_bt1 = gtk_button_new_with_label("Chunk Statistics");
 	gtk_box_pack_start(GTK_BOX(h_button_box), chunk_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(chunk_bt1);
-	SIGNAL_CONNECT(chunk_bt1, "clicked", on_chunk2_dlg, u_data);
+	g_signal_connect(chunk_bt1, "clicked", G_CALLBACK(on_chunk2_dlg), u_data);
 	
 	graph_bt1 = gtk_button_new_with_label("Graph TSN");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt1, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt1);
-	SIGNAL_CONNECT(graph_bt1, "clicked", on_graph2_dlg, u_data);
+	g_signal_connect(graph_bt1, "clicked", G_CALLBACK(on_graph2_dlg), u_data);
 	graph_bt2 = gtk_button_new_with_label("Graph Bytes");
 	gtk_box_pack_start(GTK_BOX(h_button_box), graph_bt2, FALSE, FALSE, 0);
 	gtk_widget_show(graph_bt2);
-	SIGNAL_CONNECT(graph_bt2, "clicked", on_graph_byte2_dlg,u_data);
+	g_signal_connect(graph_bt2, "clicked", G_CALLBACK(on_graph_byte2_dlg), u_data);
 	if (u_data->assoc->n_array_tsn2==0)
 	{
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
@@ -770,7 +770,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
-	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);
+	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
 
 	label = gtk_label_new(" Endpoint 2 ");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page3, label);
