@@ -40,10 +40,6 @@
 g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
                  (gpointer)(arg))
 
-#define SIGNAL_CONNECT_OBJECT(widget, name, callback, arg) \
-g_signal_connect_swapped(G_OBJECT(widget), name, G_CALLBACK(callback), \
-                         (gpointer)(arg))
-
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
 g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 

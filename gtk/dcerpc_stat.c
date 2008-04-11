@@ -36,6 +36,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
+#include <glib.h>
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
@@ -652,8 +653,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show(bbox);
 
     start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
-	SIGNAL_CONNECT_OBJECT(start_button, "clicked", 
-                              dcerpcstat_start_button_clicked, NULL);
+	g_signal_connect_swapped(start_button, "clicked", 
+                              G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
 
     cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
     window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);

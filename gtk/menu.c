@@ -1772,8 +1772,8 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
 	OBJECT_SET_DATA(menu_item, MENU_RECENT_FILES_KEY, normalized_cf_name);
 	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
-	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate",
-		menu_open_recent_file_cmd_cb, (GtkObject *) menu_item);
+	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+		G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
 
 	/* add seperator at last position */
@@ -1784,8 +1784,8 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	/* add new "clear list" item at last position */
         menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
 	gtk_menu_append (GTK_MENU(submenu_recent_files), menu_item);
-	SIGNAL_CONNECT_OBJECT(GTK_OBJECT(menu_item), "activate",
-		clear_menu_recent_capture_file_cmd_cb, (GtkObject *) menu_item);
+	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
+		G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
 
 	update_menu_recent_capture_file(submenu_recent_files);
