@@ -93,7 +93,7 @@ extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
  *
  * @param font the new font
  */
-extern void packet_list_set_font(FONT_TYPE *font);
+extern void packet_list_set_font(PangoFontDescription *font);
 
 /** Set the selection mode of the packet list window.
  *

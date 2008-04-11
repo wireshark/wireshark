@@ -433,7 +433,7 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 
 /* Set the font of the packet list window. */
 void
-packet_list_set_font(FONT_TYPE *font)
+packet_list_set_font(PangoFontDescription *font)
 {
 	int i;
 	gint col_width;

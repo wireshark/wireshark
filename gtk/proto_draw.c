@@ -1409,7 +1409,7 @@ set_ptree_font_cb(gpointer data, gpointer user_data)
 }
 
 void
-set_ptree_font_all(FONT_TYPE *font)
+set_ptree_font_all(PangoFontDescription *font)
 {
     g_list_foreach(ptree_widgets, set_ptree_font_cb, font);
 }

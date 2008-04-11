@@ -55,14 +55,14 @@
 
 
 
-FONT_TYPE *m_r_font, *m_b_font;
+PangoFontDescription *m_r_font, *m_b_font;
 
 
 /* Get the regular user font.
  *
  * @return the regular user font
  */
-FONT_TYPE *user_font_get_regular(void)
+PangoFontDescription *user_font_get_regular(void)
 {
     return m_r_font;
 }
@@ -71,13 +71,13 @@ FONT_TYPE *user_font_get_regular(void)
  *
  * @return the bold user font
  */
-FONT_TYPE *user_font_get_bold(void)
+PangoFontDescription *user_font_get_bold(void)
 {
     return m_b_font;
 }
 
 static void
-set_fonts(FONT_TYPE *regular, FONT_TYPE *bold)
+set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
 {
 	/* Yes, assert. The code that loads the font should check
 	 * for NULL and provide its own error message. */
@@ -170,7 +170,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 gboolean
 user_font_test(gchar *font_name)
 {
-	FONT_TYPE *new_r_font, *new_b_font;
+	PangoFontDescription *new_r_font, *new_b_font;
 
 	new_r_font = pango_font_description_from_string(font_name);
 	if (new_r_font == NULL) {
@@ -241,8 +241,8 @@ font_zoom(char *gui_font_name)
 fa_ret_t
 user_font_apply(void) {
     char *gui_font_name;
-    FONT_TYPE *new_r_font, *new_b_font;
-    FONT_TYPE *old_r_font = NULL, *old_b_font = NULL;
+    PangoFontDescription *new_r_font, *new_b_font;
+    PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
 
     /* convert font name to reflect the zoom level */
     gui_font_name = font_zoom(prefs.gui_font_name);

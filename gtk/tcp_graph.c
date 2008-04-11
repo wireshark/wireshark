@@ -283,7 +283,7 @@ struct graph {
 	GtkWidget *drawing_area;
         GtkWidget *text;	/* text widget for seg list - probably
                                  * temporary */
-	FONT_TYPE *font;	/* font used for annotations etc. */
+	PangoFontDescription *font;	/* font used for annotations etc. */
 	GdkGC *fg_gc;
 	GdkGC *bg_gc;
 	GdkPixmap *title_pixmap;

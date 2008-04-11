@@ -191,6 +191,4 @@ gtk_toggle_button_new_with_mnemonic(label_text)
 #define PRIMARY_TEXT_START "<span weight=\"bold\" size=\"larger\">"
 #define PRIMARY_TEXT_END "</span>"
 
-#define FONT_TYPE PangoFontDescription
-
 #endif /* __COMPAT_MACROS_H__ */
