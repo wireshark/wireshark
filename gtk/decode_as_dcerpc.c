@@ -294,13 +294,13 @@ decode_dcerpc(GtkWidget *notebook_pg)
     decode_dcerpc_bind_values_t *binding;
 
 
-    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
-    binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
 
-    /*table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);*/
+    /*table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);*/
     table_name = "DCE-RPC";
     decode_change_one_dcerpc_binding(table_name, binding, list);
 }
@@ -362,10 +362,10 @@ decode_dcerpc_add_page (packet_info *pinfo)
 
     /* create page content */
     page_hb = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page_hb, E_PAGE_ACTION, decode_dcerpc);
-    OBJECT_SET_DATA(page_hb, E_PAGE_TABLE, "DCE-RPC");
-    OBJECT_SET_DATA(page_hb, E_PAGE_TITLE, "DCE-RPC");
-    OBJECT_SET_DATA(page_hb, E_PAGE_BINDING, binding);
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_ACTION, decode_dcerpc);
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "DCE-RPC");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "DCE-RPC");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_BINDING, binding);
     
     info_vb = gtk_vbox_new(FALSE, 5);
     gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);

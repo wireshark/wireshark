@@ -239,7 +239,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     for (i = 0; i < NUM_PRODS; i++) {
         menu_item = gtk_menu_item_new_with_label(products[i].name);
         SIGNAL_CONNECT(menu_item, "activate", select_product, GUINT_TO_POINTER(i));
-        OBJECT_SET_DATA(menu_item, WS_RULE_INFO_KEY, rule_info);
+        g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info);
         gtk_menu_append(GTK_MENU(menu), menu_item);
         /* if (i == 0)
             gtk_menu_item_select(GTK_MENU_ITEM(menu_item)); */
@@ -308,7 +308,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
 
     /* Tuck away the rule_info object into the window */
-    OBJECT_SET_DATA(rule_w, WS_RULE_INFO_KEY, rule_info);
+    g_object_set_data(G_OBJECT(rule_w), WS_RULE_INFO_KEY, rule_info);
 
     SIGNAL_CONNECT(rule_w, "delete_event", window_delete_event_cb, NULL);
     SIGNAL_CONNECT(rule_w, "destroy", firewall_destroy_cb, NULL);
@@ -329,7 +329,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
         menu_item = gtk_menu_item_new_with_label(name); \
         SIGNAL_CONNECT(menu_item, "activate", select_filter, \
             GUINT_TO_POINTER(rt)); \
-        OBJECT_SET_DATA(menu_item, WS_RULE_INFO_KEY, rule_info); \
+        g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info); \
         gtk_menu_append(GTK_MENU(menu), menu_item); \
         if (! rt_set) { \
             rt_set = TRUE; \
@@ -349,7 +349,7 @@ select_product(GtkWidget *w, gpointer data)
     rule_type_t rule_type = RT_NONE;
     gboolean rt_set = FALSE, sensitive = FALSE;
 
-    rule_info = OBJECT_GET_DATA(w, WS_RULE_INFO_KEY);
+    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
     if (prod >= NUM_PRODS || !rule_info)
         return;
@@ -429,7 +429,7 @@ select_filter(GtkWidget *w, gpointer data)
     rule_type_t cur_type = GPOINTER_TO_UINT(data);
     rule_info_t	*rule_info;
 
-    rule_info = OBJECT_GET_DATA(w, WS_RULE_INFO_KEY);
+    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
 
     if (cur_type >= NUM_RULE_TYPES || !rule_info)
         return;
@@ -660,7 +660,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
     rule_info_t	*rule_info;
 
-    rule_info = OBJECT_GET_DATA(w, WS_RULE_INFO_KEY);
+    rule_info = g_object_get_data(G_OBJECT(w), WS_RULE_INFO_KEY);
     forget_rule_info(rule_info);
 
     g_free(rule_info);
@@ -705,7 +705,7 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     rule_info->firewall_save_as_w = new_win;
 
     /* Tuck away the rule_info object into the window */
-    OBJECT_SET_DATA(new_win, WS_RULE_INFO_KEY, rule_info);
+    g_object_set_data(G_OBJECT(new_win), WS_RULE_INFO_KEY, rule_info);
 
     SIGNAL_CONNECT(new_win, "destroy", firewall_save_as_destroy_cb, rule_info);
 
@@ -763,7 +763,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
         return;
     }
 
-    rule_info = OBJECT_GET_DATA(fs, WS_RULE_INFO_KEY);
+    rule_info = g_object_get_data(G_OBJECT(fs), WS_RULE_INFO_KEY);
     fh = eth_fopen(to_name, "w");
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);

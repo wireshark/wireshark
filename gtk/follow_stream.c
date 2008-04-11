@@ -313,11 +313,11 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	buttons_row = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL,
 					 NULL);
 	gtk_container_add(GTK_CONTAINER(main_vb), buttons_row);
-	find_bt = OBJECT_GET_DATA(buttons_row, GTK_STOCK_FIND);
-	cancel_bt = OBJECT_GET_DATA(buttons_row, GTK_STOCK_CANCEL);
+	find_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
+	cancel_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
 
 	SIGNAL_CONNECT(find_bt, "clicked", follow_find_button_cb, follow_info);
-	OBJECT_SET_DATA(find_bt, "find_string", find_text_box);
+	g_object_set_data(G_OBJECT(find_bt), "find_string", find_text_box);
 	window_set_cancel_button(find_dlg_w, cancel_bt,
 				 window_cancel_button_cb);
 
@@ -341,7 +341,7 @@ follow_find_button_cb(GtkWidget * w, gpointer data)
 	GtkWidget		*find_string_w;
 
 	/* Get the text the user typed into the find field */
-	find_string_w = (GtkWidget *)OBJECT_GET_DATA(w, "find_string");
+	find_string_w = (GtkWidget *)g_object_get_data(G_OBJECT(w), "find_string");
 	find_string = gtk_entry_get_text(GTK_ENTRY(find_string_w));
 
 	/* Get the buffer associated with the follow stream */
@@ -524,7 +524,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	follow_info->follow_save_as_w = new_win;
 
 	/* Tuck away the follow_info object into the window */
-	OBJECT_SET_DATA(new_win, E_FOLLOW_INFO_KEY, follow_info);
+	g_object_set_data(G_OBJECT(new_win), E_FOLLOW_INFO_KEY, follow_info);
 
 	SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb,
 		       follow_info);
@@ -582,7 +582,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 		return;
 	}
 
-	follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
+	follow_info = g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
 	if (follow_info->show_type == SHOW_RAW) {
 		/* Write the data out as raw binary data */
 		fh = eth_fopen(to_name, "wb");
@@ -882,26 +882,26 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 5);
 
 
-	button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_FILTER_OUT_STREAM);
+	button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FILTER_OUT_STREAM);
 	gtk_tooltips_set_tip (tooltips, button,
 			      "Build a display filter which cuts this stream from the capture", NULL);
 	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream,
 		       follow_info);
 
-	button = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
 	gtk_tooltips_set_tip (tooltips, button,
 			      "Close the dialog and keep the current display filter", NULL);
 	gtk_widget_grab_default(button);
 
 	if(topic_available(HELP_FILESET_DIALOG)) {
-		button = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+            button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 		SIGNAL_CONNECT(button, "clicked", topic_cb,
 			       HELP_FOLLOW_TCP_STREAM_DIALOG);
 	}
 
 	/* Tuck away the follow_info object into the window */
-	OBJECT_SET_DATA(streamwindow, E_FOLLOW_INFO_KEY, follow_info);
+	g_object_set_data(G_OBJECT(streamwindow), E_FOLLOW_INFO_KEY, follow_info);
 
 	follow_load_text(follow_info);
 	remember_follow_info(follow_info);
@@ -930,7 +930,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	GList *cur;
 	int i;
 
-	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
+	follow_info = g_object_get_data(G_OBJECT(w), E_FOLLOW_INFO_KEY);
 
 	switch(follow_info->follow_type) {
 

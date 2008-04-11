@@ -440,7 +440,7 @@ expert_dlg_severity_cb(GtkWidget *w, gpointer data)
 	expert_tapdata_t * etd;
 
 
-	etd = OBJECT_GET_DATA(w, "tapdata");
+	etd = g_object_get_data(G_OBJECT(w), "tapdata");
 
 	etd->severity_report_level = expert_severity_om_vals[i].value;
 
@@ -517,7 +517,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	menu=gtk_menu_new();
 	for(i=0; expert_severity_om_vals[i].strptr != NULL;i++){
 		menu_item=gtk_menu_item_new_with_label(expert_severity_om_vals[i].strptr);
-		OBJECT_SET_DATA(menu_item, "tapdata", etd);
+		g_object_set_data(G_OBJECT(menu_item), "tapdata", etd);
 		SIGNAL_CONNECT(menu_item, "activate", expert_dlg_severity_cb, (long) i);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 		if(expert_severity_om_vals[i].value == (guint) etd->severity_report_level) {
@@ -555,11 +555,11 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	}
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(etd->win, close_bt, window_cancel_button_cb);
 
 	if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
-		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPERT_INFO_DIALOG);
 		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 	}

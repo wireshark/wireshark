@@ -81,7 +81,7 @@ column_prefs_show() {
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_widget_show(main_vb);
-  OBJECT_SET_DATA(GTK_OBJECT(main_vb), E_COL_CM_KEY, (gpointer)FALSE);
+  g_object_set_data(G_OBJECT(GTK_OBJECT(main_vb)), E_COL_CM_KEY, (gpointer)FALSE);
 
   /* Top row: Column list and buttons */
   top_hb = gtk_hbox_new(FALSE, 5);
@@ -569,5 +569,5 @@ void
 column_prefs_destroy(GtkWidget *w) {
     /* Let the list cb know we're about to destroy the widget tree, so it */
     /* doesn't operate on widgets that don't exist. */
-    OBJECT_SET_DATA(w, E_COL_CM_KEY, (gpointer)TRUE);
+    g_object_set_data(G_OBJECT(w), E_COL_CM_KEY, (gpointer)TRUE);
 }

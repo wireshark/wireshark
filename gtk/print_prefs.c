@@ -88,19 +88,19 @@ GtkWidget * printer_prefs_show(void)
 	/* Output format */
 	button = create_preference_radio_buttons(main_tb, 0, "Format:",
 	   NULL, print_format_vals, prefs.pr_format);
-	OBJECT_SET_DATA(main_vb, E_PRINT_FORMAT_KEY, button);
+	g_object_set_data(G_OBJECT(main_vb), E_PRINT_FORMAT_KEY, button);
 
 	/* Output destination */
 	button = create_preference_radio_buttons(main_tb, 1, "Print to:",
 	   NULL, print_dest_vals, prefs.pr_dest);
-	OBJECT_SET_DATA(main_vb, E_PRINT_DESTINATION_KEY,
+	g_object_set_data(G_OBJECT(main_vb), E_PRINT_DESTINATION_KEY,
 	   button);
 
 #ifndef _WIN32
 	/* Command text entry */
 	cmd_te = create_preference_entry(main_tb, 2, "Command:", NULL,
 	  prefs.pr_cmd);
-	OBJECT_SET_DATA(main_vb, PRINT_CMD_TE_KEY, cmd_te);
+	g_object_set_data(G_OBJECT(main_vb), PRINT_CMD_TE_KEY, cmd_te);
 #endif
 
 
@@ -122,7 +122,7 @@ GtkWidget * printer_prefs_show(void)
 	gtk_widget_show(file_bt);
 
 	file_te = gtk_entry_new();
-	OBJECT_SET_DATA(main_vb, PRINT_FILE_TE_KEY, file_te);
+	g_object_set_data(G_OBJECT(main_vb), PRINT_FILE_TE_KEY, file_te);
 	if (prefs.pr_file) gtk_entry_set_text(GTK_ENTRY(file_te), prefs.pr_file);
 	gtk_box_pack_start(GTK_BOX(file_bt_hb), file_te, TRUE, TRUE, 0);
 	gtk_widget_show(file_te);
@@ -146,22 +146,22 @@ void
 printer_prefs_fetch(GtkWidget *w)
 {
   prefs.pr_format = fetch_preference_radio_buttons_val(
-	OBJECT_GET_DATA(w, E_PRINT_FORMAT_KEY), print_format_vals);
+      g_object_get_data(G_OBJECT(w), E_PRINT_FORMAT_KEY), print_format_vals);
 
   prefs.pr_dest = fetch_preference_radio_buttons_val(
-	OBJECT_GET_DATA(w, E_PRINT_DESTINATION_KEY), print_dest_vals);
+      g_object_get_data(G_OBJECT(w), E_PRINT_DESTINATION_KEY), print_dest_vals);
 
 #ifndef _WIN32
   if (prefs.pr_cmd)
     g_free(prefs.pr_cmd);
   prefs.pr_cmd = g_strdup(gtk_entry_get_text(
-			  GTK_ENTRY(OBJECT_GET_DATA(w, PRINT_CMD_TE_KEY))));
+                              GTK_ENTRY(g_object_get_data(G_OBJECT(w), PRINT_CMD_TE_KEY))));
 #endif
 
   if (prefs.pr_file)
     g_free(prefs.pr_file);
   prefs.pr_file = g_strdup(gtk_entry_get_text(
-			   GTK_ENTRY(OBJECT_GET_DATA(w, PRINT_FILE_TE_KEY))));
+                               GTK_ENTRY(g_object_get_data(G_OBJECT(w), PRINT_FILE_TE_KEY))));
 }
 
 void
@@ -177,7 +177,7 @@ printer_prefs_destroy(GtkWidget *w)
 
   /* Is there a file selection dialog associated with this
      Preferences dialog? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = g_object_get_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
 
   if (fs != NULL) {
     /* Yes.  Destroy it. */

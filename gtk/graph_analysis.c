@@ -1011,9 +1011,9 @@ static void dialog_graph_redraw(graph_analysis_data_t* user_data)
 static gint button_press_event(GtkWidget *widget, GdkEventButton *event _U_)
 {
         graph_analysis_data_t *user_data;
-		guint32 item;
+	guint32 item;
 
-        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
 	if (event->type != GDK_BUTTON_PRESS) return TRUE;
 
@@ -1037,7 +1037,7 @@ static gint scroll_event(GtkWidget *widget, GdkEventScroll *event)
 {
 	graph_analysis_data_t *user_data;
 
-	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
 	/* Up scroll */
 	switch(event->direction) {
@@ -1070,7 +1070,7 @@ static gint key_press_event(GtkWidget *widget, GdkEventKey *event _U_)
 {
 	graph_analysis_data_t *user_data;
 
-	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
 	/* if there is nothing selected, just return */
 	if (user_data->dlg.selected_item == 0xFFFFFFFF) return TRUE;
@@ -1105,7 +1105,7 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	graph_analysis_data_t *user_data;
 
-	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
         if(!user_data){
                 exit(10);
         }
@@ -1126,7 +1126,7 @@ static gint expose_event_comments(GtkWidget *widget, GdkEventExpose *event)
 {
 	graph_analysis_data_t *user_data;
 
-	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
         if(!user_data){
                 exit(10);
         }
@@ -1147,7 +1147,7 @@ static gint expose_event_time(GtkWidget *widget, GdkEventExpose *event)
 {
 	graph_analysis_data_t *user_data;
 
-	user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+	user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
         if(!user_data){
                 exit(10);
         }
@@ -1190,7 +1190,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		{0,     0xFFFF, 0xFFFF, 0x99FF}
 	};
 
-        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
         if(!user_data){
                 exit(10);
@@ -1237,7 +1237,7 @@ static gint configure_event_comments(GtkWidget *widget, GdkEventConfigure *event
 {
         graph_analysis_data_t *user_data;
 
-        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
         if(!user_data){
                 exit(10);
@@ -1270,7 +1270,7 @@ static gint configure_event_time(GtkWidget *widget, GdkEventConfigure *event _U_
 {
         graph_analysis_data_t *user_data;
 
-        user_data=(graph_analysis_data_t *)OBJECT_GET_DATA(widget, "graph_analysis_data_t");
+        user_data=(graph_analysis_data_t *)g_object_get_data(G_OBJECT(widget), "graph_analysis_data_t");
 
         if(!user_data){
                 exit(10);
@@ -1358,7 +1358,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	/* create "time" draw area */
         user_data->dlg.draw_area_time=gtk_drawing_area_new();
         WIDGET_SET_SIZE(user_data->dlg.draw_area_time, TIME_WIDTH, user_data->dlg.pixmap_height);
-        OBJECT_SET_DATA(user_data->dlg.draw_area_time, "graph_analysis_data_t", user_data);
+        g_object_set_data(G_OBJECT(user_data->dlg.draw_area_time), "graph_analysis_data_t", user_data);
 
 	/* create "comments" draw area */
         user_data->dlg.draw_area_comments=gtk_drawing_area_new();
@@ -1370,7 +1370,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
 	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_comments), GTK_SHADOW_NONE);
-        OBJECT_SET_DATA(user_data->dlg.draw_area_comments, "graph_analysis_data_t", user_data);
+        g_object_set_data(G_OBJECT(user_data->dlg.draw_area_comments), "graph_analysis_data_t", user_data);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
 
 	SIGNAL_CONNECT(user_data->dlg.draw_area_comments, "scroll_event",  scroll_event, user_data);
@@ -1391,7 +1391,7 @@ static void create_draw_area(graph_analysis_data_t* user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
 	gtk_container_add(GTK_CONTAINER(user_data->dlg.scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
-        OBJECT_SET_DATA(user_data->dlg.draw_area, "graph_analysis_data_t", user_data);
+        g_object_set_data(G_OBJECT(user_data->dlg.draw_area), "graph_analysis_data_t", user_data);
 	GTK_WIDGET_SET_FLAGS(user_data->dlg.draw_area, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
 

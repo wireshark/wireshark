@@ -106,7 +106,7 @@ stream_prefs_show()
   menu = gtk_menu_new ();
   for (i = 0; i < mcount; i++){
     menuitem = gtk_menu_item_new_with_label (mt[i]);
-    OBJECT_SET_DATA(menuitem, STREAM_CS_KEY, colorsel);
+    g_object_set_data(G_OBJECT(menuitem), STREAM_CS_KEY, colorsel);
     SIGNAL_CONNECT(menuitem, "activate", update_current_color, &tcolors[i]);
     gtk_widget_show (menuitem);
     gtk_menu_append (GTK_MENU (menu), menuitem);
@@ -146,7 +146,7 @@ stream_prefs_show()
   gtk_table_attach(GTK_TABLE(main_tb), colorsel, 0, 3, 2, 3,
 		  GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-  OBJECT_SET_DATA(colorsel, STREAM_SAMPLE_KEY, sample);
+  g_object_set_data(G_OBJECT(colorsel), STREAM_SAMPLE_KEY, sample);
   SIGNAL_CONNECT(colorsel, "color-changed", update_text_color, NULL);
   gtk_widget_show(colorsel);
 
@@ -156,7 +156,7 @@ stream_prefs_show()
 
 static void
 update_text_color(GtkWidget *w, gpointer data _U_) {
-  GtkTextView *sample = OBJECT_GET_DATA(w, STREAM_SAMPLE_KEY);
+  GtkTextView *sample = g_object_get_data(G_OBJECT(w), STREAM_SAMPLE_KEY);
   GtkTextBuffer *buf;
   GtkTextTag    *tag;
 
@@ -179,7 +179,7 @@ update_current_color(GtkWidget *w, gpointer data)
 {
   GtkColorSelection *colorsel;
 
-  colorsel = GTK_COLOR_SELECTION(OBJECT_GET_DATA(w, STREAM_CS_KEY));
+  colorsel = GTK_COLOR_SELECTION(g_object_get_data(G_OBJECT(w), STREAM_CS_KEY));
   curcolor = (GdkColor *) data;
 
   gtk_color_selection_set_current_color(colorsel, curcolor);

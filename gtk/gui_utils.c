@@ -156,7 +156,7 @@ window_new_with_geom(GtkWindowType type, const gchar *title, const gchar *geom_n
   window_geometry_t geom;
   GtkWidget *win = window_new(type, title);
 
-  OBJECT_SET_DATA(win, WINDOW_GEOM_KEY, (gpointer)g_strdup(geom_name));
+  g_object_set_data(G_OBJECT(win), WINDOW_GEOM_KEY, (gpointer)g_strdup(geom_name));
 
   /* do we have a previously saved size and position of this window? */
   if(geom_name) {
@@ -203,7 +203,7 @@ window_present(GtkWidget *win)
   gtk_window_present(GTK_WINDOW(win));
 
   /* do we have a previously saved size and position of this window? */
-  name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+  name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
   if(name) {
     if(window_geom_load(name, &geom)) {
       /* XXX - use prefs to select which values to set? */
@@ -491,7 +491,7 @@ window_destroy(GtkWidget *win)
   if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
       window_get_geometry(win, &geom);
 
-      name = OBJECT_GET_DATA(win, WINDOW_GEOM_KEY);
+      name = g_object_get_data(G_OBJECT(win), WINDOW_GEOM_KEY);
       if(name) {
         window_geom_save(name, &geom);
         g_free((gpointer)name);
@@ -538,10 +538,10 @@ set_main_window_name(const gchar *window_name)
   gchar *old_window_name;
 
   /* Attach the new un-decorated window name to the window. */
-  old_window_name = OBJECT_GET_DATA(top_level, MAIN_WINDOW_NAME_KEY);
+  old_window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
   if (old_window_name != NULL)
     g_free(old_window_name);
-  OBJECT_SET_DATA(top_level, MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
+  g_object_set_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY, g_strdup(window_name));
 
   update_main_window_name();
 }
@@ -554,7 +554,7 @@ update_main_window_name(void)
   gchar *window_name;
   gchar *title;
 
-  window_name = OBJECT_GET_DATA(top_level, MAIN_WINDOW_NAME_KEY);
+  window_name = g_object_get_data(G_OBJECT(top_level), MAIN_WINDOW_NAME_KEY);
   if (window_name != NULL) {
     /* use user-defined window title if preference is set */
     title = create_user_window_title(window_name);

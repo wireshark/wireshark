@@ -327,7 +327,7 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
 	SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
@@ -554,7 +554,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	  "Service Response Time Statistics Filter",
 	  FALSE,
 	  FALSE,
-      FALSE
+          FALSE
 	};
 
 	/* if the window is already open, bring it to front and
@@ -634,7 +634,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-    SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
+        SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
@@ -645,21 +645,21 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
 	gtk_widget_show(filter_box);
 
-	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_entry);
+	g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_entry);
 
 	/* button box */
-    bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+        bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+        gtk_widget_show(bbox);
 
-    start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
+        start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
 	g_signal_connect_swapped(start_button, "clicked", 
                               G_CALLBACK(dcerpcstat_start_button_clicked), NULL);
 
-    cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
+        cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+        window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
+        SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
@@ -669,13 +669,13 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	   focus. */
 	dlg_set_activate(filter_entry, start_button);
 
-    gtk_widget_grab_default(start_button );
+        gtk_widget_grab_default(start_button );
 
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
 	gtk_widget_show_all(dlg);
-    window_present(dlg);
+        window_present(dlg);
 }
 
 void

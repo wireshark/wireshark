@@ -66,7 +66,7 @@ decode_ber(GtkWidget *notebook_pg)
     GtkTreeIter        iter;
 
     syntax = NULL;
-    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
 
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
@@ -125,9 +125,9 @@ decode_ber_add_page (packet_info *pinfo _U_)
 
     /* create page content */
     page_hb = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page_hb, E_PAGE_ACTION, decode_ber);
-    OBJECT_SET_DATA(page_hb, E_PAGE_TABLE, "ASN.1");
-    OBJECT_SET_DATA(page_hb, E_PAGE_TITLE, "ASN.1");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_ACTION, decode_ber);
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TABLE, "ASN.1");
+    g_object_set_data(G_OBJECT(page_hb), E_PAGE_TITLE, "ASN.1");
     
     info_vb = gtk_vbox_new(FALSE, 5);
     gtk_box_pack_start(GTK_BOX(page_hb), info_vb, TRUE, TRUE, 0);

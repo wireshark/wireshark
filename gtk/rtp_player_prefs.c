@@ -56,7 +56,7 @@ rtp_player_prefs_show(void)
         gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
         gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
         gtk_widget_show(main_tb);
-        OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, tooltips);
+        g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
         /* Max visable channels in RTP Player */
         rtp_player_max_visible_te = create_preference_entry(main_tb, pos++,
@@ -66,7 +66,7 @@ rtp_player_prefs_show(void)
         gtk_entry_set_text(GTK_ENTRY(rtp_player_max_visible_te), max_visible_str);
         gtk_tooltips_set_tip(tooltips, rtp_player_max_visible_te,
             "Maximum height of RTP Player window is defined here.", NULL);
-        OBJECT_SET_DATA(main_vb, RTP_PLAYER_MAX_VISIBLE_KEY, rtp_player_max_visible_te);
+        g_object_set_data(G_OBJECT(main_vb), RTP_PLAYER_MAX_VISIBLE_KEY, rtp_player_max_visible_te);
 
         /* Show 'em what we got */
         gtk_widget_show_all(main_vb);
@@ -79,7 +79,7 @@ rtp_player_prefs_fetch(GtkWidget *w _U_)
 {
         GtkWidget *rtp_player_max_visible_te;
 
-        rtp_player_max_visible_te = (GtkWidget *)OBJECT_GET_DATA(w, RTP_PLAYER_MAX_VISIBLE_KEY);
+        rtp_player_max_visible_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), RTP_PLAYER_MAX_VISIBLE_KEY);
 
         prefs.rtp_player_max_visible = strtol(gtk_entry_get_text(
                 GTK_ENTRY(rtp_player_max_visible_te)), NULL, 10);

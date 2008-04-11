@@ -42,7 +42,7 @@ static guint cfilter_combo_max_recent = 20;
 static gboolean
 cfilter_combo_add(gchar *s) {
   GList     *li;
-  GList     *fl = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+  GList     *fl = g_object_get_data(G_OBJECT(top_level), E_CFILTER_FL_KEY);
 
   li = g_list_first(fl);
   while (li) {
@@ -55,7 +55,7 @@ cfilter_combo_add(gchar *s) {
     li = li->next;
   }
   fl = g_list_append(fl, s);
-  OBJECT_SET_DATA(top_level, E_CFILTER_FL_KEY, fl);
+  g_object_set_data(G_OBJECT(top_level), E_CFILTER_FL_KEY, fl);
   return TRUE;
 }
 
@@ -64,7 +64,7 @@ cfilter_combo_add(gchar *s) {
  * of the combo box GList to the user's recent file */
 void
  cfilter_combo_recent_write_all(FILE *rf) {
-   GList     *cfilter_list = OBJECT_GET_DATA(top_level, E_CFILTER_FL_KEY);
+   GList     *cfilter_list = g_object_get_data(G_OBJECT(top_level), E_CFILTER_FL_KEY);
    GList     *li;
    guint      max_count = 0;
 

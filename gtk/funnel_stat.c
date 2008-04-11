@@ -195,7 +195,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 
 	tw->bt_close = gtk_button_new_with_label("Close");
 	GTK_WIDGET_SET_FLAGS(tw->bt_close, GTK_CAN_DEFAULT);
-	OBJECT_SET_DATA(hbox, "Close", tw->bt_close);
+	g_object_set_data(G_OBJECT(hbox), "Close", tw->bt_close);
 
 	gtk_box_pack_end(GTK_BOX(hbox), tw->bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(tw->bt_close);
@@ -445,13 +445,13 @@ static void funnel_new_dialog(const gchar* title,
     }
 
     bbox = dlg_button_row_new(GTK_STOCK_CANCEL,GTK_STOCK_OK, NULL);
-	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     
-    bt_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     SIGNAL_CONNECT(bt_ok, "clicked", funnel_dlg_cb, dd);
     gtk_widget_grab_default(bt_ok);
     
-    bt_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     SIGNAL_CONNECT(bt_cancel, "clicked", funnel_cancel_btn_cb, win);
     gtk_widget_grab_default(bt_cancel);
     

@@ -219,7 +219,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
-  fs = OBJECT_GET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY);
+  fs = g_object_get_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
   if (fs != NULL) {
     /* Yes.  Just re-activate that dialog box. */
     reactivate_window(fs);
@@ -228,13 +228,13 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
   fs = file_selection_new(label, action);
 
-  OBJECT_SET_DATA(fs, PRINT_FILE_TE_KEY, file_te);
+  g_object_set_data(G_OBJECT(fs), PRINT_FILE_TE_KEY, file_te);
 
   /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
-  OBJECT_SET_DATA(fs, E_FS_CALLER_PTR_KEY, caller);
+  g_object_set_data(G_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
 
   /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, fs);
+  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
 
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
@@ -283,7 +283,7 @@ file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
         return;
   }
 
-  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(win, PRINT_FILE_TE_KEY)),
+  gtk_entry_set_text(GTK_ENTRY(g_object_get_data(G_OBJECT(win), PRINT_FILE_TE_KEY)),
                      f_name);
   window_destroy(GTK_WIDGET(win));
 
@@ -299,10 +299,10 @@ file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)
   /* Get the widget that requested that we be popped up.
      (It should arrange to destroy us if it's destroyed, so
      that we don't get a pointer to a non-existent window here.) */
-  caller = OBJECT_GET_DATA(win, E_FS_CALLER_PTR_KEY);
+  caller = g_object_get_data(G_OBJECT(win), E_FS_CALLER_PTR_KEY);
 
   /* Tell it we no longer exist. */
-  OBJECT_SET_DATA(caller, E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+  g_object_set_data(G_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
 
   /* Give the focus to the file text entry widget so the user can just press
      Return to print to the file. */

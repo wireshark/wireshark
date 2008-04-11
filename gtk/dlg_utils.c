@@ -48,7 +48,7 @@ dlg_button_new(GtkWidget *hbox, GtkWidget *button_hbox, const gchar *stock_id)
 
     button = BUTTON_NEW_FROM_STOCK(stock_id);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-    OBJECT_SET_DATA(hbox, stock_id, button);
+    g_object_set_data(G_OBJECT(hbox), stock_id, button);
     gtk_box_pack_end(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
     gtk_widget_show(button);
     return button;
@@ -68,7 +68,7 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
     if (!hbox)
 	return;
 
-    button_hbox = OBJECT_GET_DATA(hbox, BUTTON_HBOX_KEY);
+    button_hbox = g_object_get_data(G_OBJECT(hbox), BUTTON_HBOX_KEY);
     children = gtk_container_children(GTK_CONTAINER(button_hbox));
 
     while (children) {
@@ -188,7 +188,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 
     button_hbox = gtk_hbutton_box_new();
     gtk_box_pack_end(GTK_BOX(hbox), button_hbox, TRUE, TRUE, 0);
-    OBJECT_SET_DATA(hbox, BUTTON_HBOX_KEY, button_hbox);
+    g_object_set_data(G_OBJECT(hbox), BUTTON_HBOX_KEY, button_hbox);
     gtk_widget_show(button_hbox);
 
     help_hbox = gtk_hbutton_box_new();
@@ -210,7 +210,7 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (help) {
         button = BUTTON_NEW_FROM_STOCK(help);
         GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-        OBJECT_SET_DATA(hbox, help, button);
+        g_object_set_data(G_OBJECT(hbox), help, button);
         gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
         gtk_widget_show(button);
         buttons--;
