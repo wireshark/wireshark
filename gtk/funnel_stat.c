@@ -160,7 +160,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     tw->buttons = g_ptr_array_new();
 	
     tw->win = window_new(GTK_WINDOW_TOPLEVEL,title);
-    SIGNAL_CONNECT(tw->win, "delete-event", text_window_delete_event_cb, tw);
+    g_signal_connect(tw->win, "delete-event", G_CALLBACK(text_window_delete_event_cb), tw);
 
     txt_scrollw = scrolled_window_new(NULL, NULL);
     main_vb = gtk_vbox_new(FALSE, 3);
@@ -200,7 +200,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 	gtk_box_pack_end(GTK_BOX(hbox), tw->bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(tw->bt_close);
 
-	SIGNAL_CONNECT(tw->bt_close, "clicked", text_window_cancel_button_cb, tw);
+	g_signal_connect(tw->bt_close, "clicked", G_CALLBACK(text_window_cancel_button_cb), tw);
     gtk_widget_grab_default(tw->bt_close);
 
 	gtk_container_add(GTK_CONTAINER(txt_scrollw), tw->txt);
@@ -311,8 +311,8 @@ static void text_window_destroy(funnel_text_window_t*  tw) {
          * the window is still there and its callbacks refer to this data structure
          * we need to change the callback so that they free tw.
          */
-        SIGNAL_CONNECT(tw->bt_close, "clicked", unref_text_win_cancel_bt_cb, tw);
-        SIGNAL_CONNECT(tw->win, "delete-event", text_window_unref_del_event_cb, tw);
+        g_signal_connect(tw->bt_close, "clicked", G_CALLBACK(unref_text_win_cancel_bt_cb), tw);
+        g_signal_connect(tw->win, "delete-event", G_CALLBACK(text_window_unref_del_event_cb), tw);
     } else {
 		unsigned i;
         /*
@@ -358,7 +358,7 @@ static void text_window_add_button(funnel_text_window_t*  tw, funnel_bt_t* cbd, 
 	gtk_box_pack_start(GTK_BOX(tw->button_hbox), button, FALSE, FALSE, 0);
 	
 	gtk_widget_show(button);
-	SIGNAL_CONNECT(button, "clicked", text_window_button_cb, cbd);
+	g_signal_connect(button, "clicked", G_CALLBACK(text_window_button_cb), cbd);
 
 }
 
@@ -448,11 +448,11 @@ static void funnel_new_dialog(const gchar* title,
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     
     bt_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-    SIGNAL_CONNECT(bt_ok, "clicked", funnel_dlg_cb, dd);
+    g_signal_connect(bt_ok, "clicked", G_CALLBACK(funnel_dlg_cb), dd);
     gtk_widget_grab_default(bt_ok);
     
     bt_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-    SIGNAL_CONNECT(bt_cancel, "clicked", funnel_cancel_btn_cb, win);
+    g_signal_connect(bt_cancel, "clicked", G_CALLBACK(funnel_cancel_btn_cb), win);
     gtk_widget_grab_default(bt_cancel);
     
     gtk_widget_show(main_tb);

@@ -194,7 +194,7 @@ fileset_dlg_add_file(fileset_entry *entry) {
     }
     gtk_tooltips_set_tip(tooltips, fs_rb, "Open this capture file", NULL);
     gtk_table_attach_defaults(GTK_TABLE(fs_tb), fs_rb, 0, 1, row, row+1);
-    SIGNAL_CONNECT(fs_rb, "toggled", fs_rb_cb, entry);
+    g_signal_connect(fs_rb, "toggled", G_CALLBACK(fs_rb_cb), entry);
     gtk_widget_show(fs_rb);
 
     fs_lb = gtk_label_new(created);
@@ -329,13 +329,13 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if(topic_available(HELP_FILESET_DIALOG)) {
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_FILESET_DIALOG);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FILESET_DIALOG);
   }
 
   gtk_widget_grab_default(close_bt);
 
-  SIGNAL_CONNECT(fs_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(fs_w, "destroy", fs_destroy_cb, NULL);
+  g_signal_connect(fs_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(fs_w, "destroy", G_CALLBACK(fs_destroy_cb), NULL);
 
   /* init the dialog content */
   fileset_update_dlg();

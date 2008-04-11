@@ -282,9 +282,9 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	gtk_window_set_destroy_with_parent(GTK_WINDOW(find_dlg_w), TRUE);
 	follow_info->find_dlg_w = find_dlg_w;
 
-	SIGNAL_CONNECT(find_dlg_w, "destroy", follow_find_destroy_cb,
+	g_signal_connect(find_dlg_w, "destroy", G_CALLBACK(follow_find_destroy_cb),
 		       follow_info);
-	SIGNAL_CONNECT(find_dlg_w, "delete_event", window_delete_event_cb,
+	g_signal_connect(find_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb),
 		       NULL);
 
 	/* Main vertical box */
@@ -316,7 +316,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 	find_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_FIND);
 	cancel_bt = g_object_get_data(G_OBJECT(buttons_row), GTK_STOCK_CANCEL);
 
-	SIGNAL_CONNECT(find_bt, "clicked", follow_find_button_cb, follow_info);
+	g_signal_connect(find_bt, "clicked", G_CALLBACK(follow_find_button_cb), follow_info);
 	g_object_set_data(G_OBJECT(find_bt), "find_string", find_text_box);
 	window_set_cancel_button(find_dlg_w, cancel_bt,
 				 window_cancel_button_cb);
@@ -526,7 +526,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	/* Tuck away the follow_info object into the window */
 	g_object_set_data(G_OBJECT(new_win), E_FOLLOW_INFO_KEY, follow_info);
 
-	SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb,
+	g_signal_connect(new_win, "destroy", G_CALLBACK(follow_save_as_destroy_cb),
 		       follow_info);
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -539,8 +539,8 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 #else
 	/* Connect the ok_button to file_save_as_ok_cb function and pass along a
 	   pointer to the file selection box widget */
-	SIGNAL_CONNECT(GTK_FILE_SELECTION(new_win)->ok_button,
-		       "clicked", follow_save_as_ok_cb, new_win);
+	g_signal_connect(GTK_FILE_SELECTION(new_win)->ok_button,
+		       "clicked", G_CALLBACK(follow_save_as_ok_cb), new_win);
 
 	window_set_cancel_button(new_win,
 				 GTK_FILE_SELECTION(new_win)->cancel_button,
@@ -548,7 +548,7 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 
 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
 
-	SIGNAL_CONNECT(new_win, "delete_event", window_delete_event_cb, NULL);
+	g_signal_connect(new_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show_all(new_win);
 	window_present(new_win);
@@ -760,20 +760,20 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 #if GTK_CHECK_VERSION(2,4,0)
 	/* Create Find Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
-	SIGNAL_CONNECT(button, "clicked", follow_find_cb, follow_info);
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
 	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 #endif
 
 	/* Create Save As Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_save_as_cmd_cb), follow_info);
 	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Print Button */
         button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
-        SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
+        g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
         gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
         gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
@@ -786,21 +786,20 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	stream_menu = gtk_menu_new();
 
 	stream_mi = gtk_menu_item_new_with_label(both_directions_string);
-	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_both,
+	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_both),
                        follow_info);
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 	follow_info->show_stream = BOTH_HOSTS;
 
 	stream_mi = gtk_menu_item_new_with_label(server_to_client_string);
-	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_client,
-                       follow_info)
-		;
+	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_client),
+                       follow_info);
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
 
 	stream_mi = gtk_menu_item_new_with_label(client_to_server_string);
-	SIGNAL_CONNECT(stream_mi, "activate", follow_stream_om_server,
+	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_server),
                        follow_info);
 	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
 	gtk_widget_show(stream_mi);
@@ -818,7 +817,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_ASCII));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->ascii_bt = radio_bt;
 
@@ -830,7 +829,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_EBCDIC));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->ebcdic_bt = radio_bt;
 
@@ -842,7 +841,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_HEXDUMP));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->hexdump_bt = radio_bt;
 
@@ -854,7 +853,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_CARRAY));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->carray_bt = radio_bt;
 
@@ -866,7 +865,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_RAW));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(radio_bt, "toggled", follow_charset_toggle_cb,
+	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
                        follow_info);
 	follow_info->raw_bt = radio_bt;
 
@@ -885,7 +884,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_FILTER_OUT_STREAM);
 	gtk_tooltips_set_tip (tooltips, button,
 			      "Build a display filter which cuts this stream from the capture", NULL);
-	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream,
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_filter_out_stream),
 		       follow_info);
 
 	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
@@ -896,8 +895,8 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	if(topic_available(HELP_FILESET_DIALOG)) {
             button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		SIGNAL_CONNECT(button, "clicked", topic_cb,
-			       HELP_FOLLOW_TCP_STREAM_DIALOG);
+		g_signal_connect(button, "clicked", G_CALLBACK(topic_cb),
+			       (gpointer)HELP_FOLLOW_TCP_STREAM_DIALOG);
 	}
 
 	/* Tuck away the follow_info object into the window */
@@ -907,8 +906,8 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	remember_follow_info(follow_info);
 
 
-	SIGNAL_CONNECT(streamwindow, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
+	g_signal_connect(streamwindow, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(streamwindow, "destroy", G_CALLBACK(follow_destroy_cb), NULL);
 
 	/* Make sure this widget gets destroyed if we quit the main loop,
 	   so that if we exit, we clean up any temporary files we have

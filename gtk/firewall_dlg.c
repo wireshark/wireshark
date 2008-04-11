@@ -238,7 +238,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     menu = gtk_menu_new();
     for (i = 0; i < NUM_PRODS; i++) {
         menu_item = gtk_menu_item_new_with_label(products[i].name);
-        SIGNAL_CONNECT(menu_item, "activate", select_product, GUINT_TO_POINTER(i));
+        g_signal_connect(menu_item, "activate", G_CALLBACK(select_product), GUINT_TO_POINTER(i));
         g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info);
         gtk_menu_append(GTK_MENU(menu), menu_item);
         /* if (i == 0)
@@ -259,14 +259,14 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rule_info->inbound_cb),
         rule_info->inbound);
     gtk_box_pack_start(GTK_BOX(hbox), rule_info->inbound_cb, FALSE, FALSE, 10);
-    SIGNAL_CONNECT(rule_info->inbound_cb, "toggled", toggle_inbound, rule_info);
+    g_signal_connect(rule_info->inbound_cb, "toggled", G_CALLBACK(toggle_inbound), rule_info);
 
     /* deny selector */
     rule_info->deny_cb = gtk_check_button_new_with_label("Deny");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rule_info->deny_cb),
         rule_info->deny);
     gtk_box_pack_start(GTK_BOX(hbox), rule_info->deny_cb, FALSE, FALSE, 10);
-    SIGNAL_CONNECT(rule_info->deny_cb, "toggled", toggle_deny, rule_info);
+    g_signal_connect(rule_info->deny_cb, "toggled", G_CALLBACK(toggle_deny), rule_info);
 
     /* create a scrolled window for the text */
     txt_scrollw = scrolled_window_new(NULL, NULL);
@@ -288,13 +288,13 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 
     /* Create Copy Button */
     button = gtk_button_new_from_stock(GTK_STOCK_COPY);
-    SIGNAL_CONNECT(button, "clicked", firewall_copy_cmd_cb, rule_info);
+    g_signal_connect(button, "clicked", G_CALLBACK(firewall_copy_cmd_cb), rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Copy rule to clipboard ", NULL);
     gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
     /* Create Save As Button */
     button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-    SIGNAL_CONNECT(button, "clicked", firewall_save_as_cmd_cb, rule_info);
+    g_signal_connect(button, "clicked", G_CALLBACK(firewall_save_as_cmd_cb), rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Save the rule as currently displayed ", NULL);
     gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
@@ -310,8 +310,8 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(rule_w), WS_RULE_INFO_KEY, rule_info);
 
-    SIGNAL_CONNECT(rule_w, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(rule_w, "destroy", firewall_destroy_cb, NULL);
+    g_signal_connect(rule_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(rule_w, "destroy", G_CALLBACK(firewall_destroy_cb), NULL);
 
     /* Make sure this widget gets destroyed if we quit the main loop,
        so that if we exit, we clean up any temporary files we have
@@ -327,7 +327,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 /* Set the current product. */
 #define ADD_TO_FILTER_MENU(rt) \
         menu_item = gtk_menu_item_new_with_label(name); \
-        SIGNAL_CONNECT(menu_item, "activate", select_filter, \
+        g_signal_connect(menu_item, "activate", G_CALLBACK(select_filter), \
             GUINT_TO_POINTER(rt)); \
         g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info); \
         gtk_menu_append(GTK_MENU(menu), menu_item); \
@@ -707,7 +707,7 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(new_win), WS_RULE_INFO_KEY, rule_info);
 
-    SIGNAL_CONNECT(new_win, "destroy", firewall_save_as_destroy_cb, rule_info);
+    g_signal_connect(new_win, "destroy", G_CALLBACK(firewall_save_as_destroy_cb), rule_info);
 
 #if GTK_CHECK_VERSION(2,4,0)
     if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
@@ -719,15 +719,15 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 #else
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
        pointer to the file selection box widget */
-    SIGNAL_CONNECT(GTK_FILE_SELECTION(new_win)->ok_button,
-        "clicked", firewall_save_as_ok_cb, new_win);
+    g_signal_connect(GTK_FILE_SELECTION(new_win)->ok_button,
+        "clicked", G_CALLBACK(firewall_save_as_ok_cb), new_win);
 
     window_set_cancel_button(new_win,
         GTK_FILE_SELECTION(new_win)->cancel_button, window_cancel_button_cb);
 
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
 
-    SIGNAL_CONNECT(new_win, "delete_event", window_delete_event_cb, NULL);
+    g_signal_connect(new_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
     gtk_widget_show_all(new_win);
     window_present(new_win);

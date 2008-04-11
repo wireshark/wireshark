@@ -1375,16 +1375,16 @@ static void
 create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
-	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
+	SIGNAL_CONNECT(io->draw_area, "destroy", G_CALLBACK(quit), io);
 	g_object_set_data(G_OBJECT(io->draw_area), "io_stat_t", io);
 
 	gtk_widget_set_size_request(io->draw_area, io->pixmap_width, io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
-	SIGNAL_CONNECT(io->draw_area, "expose_event", expose_event, NULL);
-	SIGNAL_CONNECT(io->draw_area, "configure_event", configure_event, io);
+	SIGNAL_CONNECT(io->draw_area, "expose_event", G_CALLBACK(expose_event), NULL);
+	SIGNAL_CONNECT(io->draw_area, "configure_event", G_CALLBACK(configure_event), io);
 	gtk_widget_add_events (io->draw_area, GDK_BUTTON_PRESS_MASK);
-	SIGNAL_CONNECT(io->draw_area, "button-press-event", pixmap_clicked_event, NULL);
+	SIGNAL_CONNECT(io->draw_area, "button-press-event", G_CALLBACK(pixmap_clicked_event), NULL);
 
 	gtk_widget_show(io->draw_area);
 	gtk_box_pack_start(GTK_BOX(box), io->draw_area, TRUE, TRUE, 0);
@@ -1394,7 +1394,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	io->scrollbar=gtk_hscrollbar_new(io->scrollbar_adjustment);
 	gtk_widget_show(io->scrollbar);
 	gtk_box_pack_start(GTK_BOX(box), io->scrollbar, FALSE, FALSE, 0);
-	SIGNAL_CONNECT(io->scrollbar_adjustment, "value_changed", scrollbar_changed, io);
+	SIGNAL_CONNECT(io->scrollbar_adjustment, "value_changed", G_CALLBACK(scrollbar_changed), io);
 }
 
 
@@ -1451,7 +1451,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 
 		g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
-		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(pixels_per_tick_select), io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -1496,7 +1496,7 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(str);
 		g_object_set_data(G_OBJECT(menu_item), "tick_interval",
                                 GUINT_TO_POINTER(tick_interval_values[i]));
-		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)io);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(tick_interval_select), (gpointer)io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -1522,7 +1522,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(str);
 		g_object_set_data(G_OBJECT(menu_item), "yscale_max",
 		                GUINT_TO_POINTER(yscale_max[i]));
-		SIGNAL_CONNECT(menu_item, "activate", yscale_select, io);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(yscale_select), io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -1577,7 +1577,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
 		g_object_set_data(G_OBJECT(menu_item), "count_type", GINT_TO_POINTER(i));
-		SIGNAL_CONNECT(menu_item, "activate", count_type_select, io);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(count_type_select), io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -1648,7 +1648,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	view_cb = gtk_check_button_new_with_mnemonic("_View as time of day");
 	gtk_container_add(GTK_CONTAINER(vbox), view_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), io->view_as_time);
-	SIGNAL_CONNECT(view_cb, "toggled", view_as_time_toggle_dest, io);
+	SIGNAL_CONNECT(view_cb, "toggled", G_CALLBACK(view_as_time_toggle_dest), io);
 	gtk_widget_show(view_cb);
 
 	frame = gtk_frame_new("Y Axis");
@@ -1829,7 +1829,7 @@ create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
 		gio->calc_types[i].gio=gio;
 		gio->calc_types[i].calc_type=i;
 		menu_item=gtk_menu_item_new_with_label(calc_type_names[i]);
-		SIGNAL_CONNECT(menu_item, "activate", calc_type_select, &gio->calc_types[i]);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(calc_type_select), &gio->calc_types[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -1869,7 +1869,7 @@ create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 	gio->calc_field=gtk_entry_new_with_max_length(50);
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->calc_field);
-	SIGNAL_CONNECT(gio->calc_field, "activate", filter_callback, gio);
+	SIGNAL_CONNECT(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
 }
 
 
@@ -1920,7 +1920,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->display_button, FALSE, FALSE, 0);
 	gtk_widget_show(gio->display_button);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-	SIGNAL_CONNECT(gio->display_button, "toggled", filter_callback, gio);
+	SIGNAL_CONNECT(gio->display_button, "toggled", G_CALLBACK(filter_callback), gio);
 
 	label=gtk_label_new("Color");
 	gtk_widget_show(label);
@@ -1943,8 +1943,8 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	}
 	gio->args->title=g_strdup(str);	
 
-	SIGNAL_CONNECT(gio->filter_bt, "clicked", filter_button_clicked, gio);
-	SIGNAL_CONNECT(gio->filter_bt, "destroy", filter_button_destroy_cb, NULL);
+	SIGNAL_CONNECT(gio->filter_bt, "clicked", G_CALLBACK(filter_button_clicked), gio);
+	SIGNAL_CONNECT(gio->filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
 
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(gio->filter_bt);
@@ -1957,8 +1957,8 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->filter_field);
-	SIGNAL_CONNECT(gio->filter_field, "activate", filter_callback, gio);
-	SIGNAL_CONNECT(gio->filter_field, "changed", filter_te_syntax_check_cb, NULL);
+	SIGNAL_CONNECT(gio->filter_field, "activate", G_CALLBACK(filter_callback), gio);
+	SIGNAL_CONNECT(gio->filter_field, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 
 	create_advanced_box(gio, hbox);
 
@@ -1976,7 +1976,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	for(i=0;i<MAX_PLOT_STYLES;i++){
 		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
 		g_object_set_data(G_OBJECT(menu_item), "plot_style", GINT_TO_POINTER(i));
-		SIGNAL_CONNECT(menu_item, "activate", plot_style_select, &gio->io->graphs[num-1]);
+		SIGNAL_CONNECT(menu_item, "activate", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 	}
@@ -2111,22 +2111,22 @@ init_io_stat_window(io_stat_t *io)
 	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
 	gtk_tooltips_set_tip(tooltips, save_bt, "Save the displayed graph to a file", NULL);
-	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, NULL);
+	SIGNAL_CONNECT(save_bt, "clicked", G_CALLBACK(pixmap_save_cb), NULL);
 	g_object_set_data(G_OBJECT(io->window), "save_bt", save_bt);
 #endif
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
-	SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, io);
+	SIGNAL_CONNECT(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
 	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
                 help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
+		SIGNAL_CONNECT(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_STATS_IO_GRAPH_DIALOG);
 		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 	}
 
-	SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(io->window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
 	gtk_widget_show(io->window);
 	window_present(io->window);

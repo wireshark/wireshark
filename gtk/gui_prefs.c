@@ -240,9 +240,9 @@ gui_prefs_show(void)
 		"The \"File Open\" dialog defaults always to this directory.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_KEY, fileopen_rb);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
-	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
+	SIGNAL_CONNECT(fileopen_rb, "clicked", G_CALLBACK(fileopen_selected_cb), main_vb);
 	SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
-	    fileopen_dir_changed_cb, main_vb);
+	    G_CALLBACK(fileopen_dir_changed_cb), main_vb);
 
 	/* File Open dialog preview timeout */
 	fileopen_preview_te = create_preference_entry(main_tb, pos++,
@@ -252,7 +252,7 @@ gui_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, 
         "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
-	SIGNAL_CONNECT(fileopen_preview_te, "focus_out_event", fileopen_preview_changed_cb, main_vb);
+	SIGNAL_CONNECT(fileopen_preview_te, "focus_out_event", G_CALLBACK(fileopen_preview_changed_cb), main_vb);
 
 	/* Number of entries in the recent_files list ... */
 	recent_files_count_max_te = create_preference_entry(main_tb, pos++,
@@ -262,7 +262,7 @@ gui_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, 
         "Maximum number of entries in the \"File/Open Recent\" list.", NULL);
 	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
-	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
+	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", G_CALLBACK(recent_files_count_changed_cb), main_vb);
 
 	fileopen_selected_cb(NULL, main_vb);
 

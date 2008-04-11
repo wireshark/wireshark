@@ -439,7 +439,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_widget_show(list_bb);
 
     new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-    SIGNAL_CONNECT(new_bt, "clicked", filter_new_bt_clicked_cb, filter_list_type_p);
+    g_signal_connect(new_bt, "clicked", G_CALLBACK(filter_new_bt_clicked_cb), filter_list_type_p);
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, new_bt,
@@ -447,7 +447,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
-    SIGNAL_CONNECT(del_bt, "clicked", filter_del_bt_clicked_cb, filter_list_type_p);
+    g_signal_connect(del_bt, "clicked", G_CALLBACK(filter_del_bt_clicked_cb), filter_list_type_p);
     g_object_set_data(G_OBJECT(main_w), E_FILT_DEL_BT_KEY, del_bt);
     gtk_widget_show(del_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
@@ -475,8 +475,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_tree_view_append_column(GTK_TREE_VIEW(filter_l), column);
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(filter_l));
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
-    SIGNAL_CONNECT(sel, "changed", filter_sel_list_cb, filter_vb);
-    SIGNAL_CONNECT(filter_l, "button_press_event", filter_sel_list_button_cb,
+    g_signal_connect(sel, "changed", G_CALLBACK(filter_sel_list_cb), filter_vb);
+    g_signal_connect(filter_l, "button_press_event", G_CALLBACK(filter_sel_list_button_cb),
                    NULL);
     g_object_set_data(G_OBJECT(main_w), E_FILT_FILTER_L_KEY, filter_l);
     gtk_container_add(GTK_CONTAINER(filter_sc), filter_l);
@@ -516,7 +516,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     name_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(main_w), E_FILT_NAME_TE_KEY, name_te);
-    SIGNAL_CONNECT(name_te, "changed", filter_name_te_changed_cb, filter_list_type_p);
+    g_signal_connect(name_te, "changed", G_CALLBACK(filter_name_te_changed_cb), filter_list_type_p);
     gtk_widget_show(name_te);
 
     /* row: Filter text entry */
@@ -531,7 +531,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     filter_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(main_w), E_FILT_FILTER_TE_KEY, filter_te);
-    SIGNAL_CONNECT(filter_te, "changed", filter_name_te_changed_cb, filter_list_type_p);
+    g_signal_connect(filter_te, "changed", G_CALLBACK(filter_name_te_changed_cb), filter_list_type_p);
     gtk_widget_show(filter_te);
 
     g_object_set_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
@@ -545,7 +545,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
         add_expression_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
-        SIGNAL_CONNECT(add_expression_bt, "clicked", filter_add_expr_bt_cb, main_w);
+        g_signal_connect(add_expression_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), main_w);
         gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);
         gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
@@ -558,7 +558,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_widget_show(bbox);
 
     ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", filter_dlg_ok_cb, filter_list_type_p);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(filter_dlg_ok_cb), filter_list_type_p);
     gtk_tooltips_set_tip (tooltips, ok_bt, ("Apply the filters and close this dialog"), NULL);
 
     /* Catch the "activate" signal on the filter name and filter
@@ -572,23 +572,23 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     }
 
     apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-    SIGNAL_CONNECT(apply_bt, "clicked", filter_dlg_apply_cb, filter_list_type_p);
+    g_signal_connect(apply_bt, "clicked", G_CALLBACK(filter_dlg_apply_cb), filter_list_type_p);
     gtk_tooltips_set_tip (tooltips, apply_bt, ("Apply the filters and keep this dialog open"), NULL);
 
     save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
-    SIGNAL_CONNECT(save_bt, "clicked", filter_dlg_save_cb, filter_list_type_p);
+    g_signal_connect(save_bt, "clicked", G_CALLBACK(filter_dlg_save_cb), filter_list_type_p);
     gtk_tooltips_set_tip (tooltips, save_bt, ("Save the filters permanently and keep this dialog open"), NULL);
 
     cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     gtk_tooltips_set_tip (tooltips, cancel_bt, ("Cancel the changes"), NULL);
-    SIGNAL_CONNECT(cancel_bt, "clicked", filter_dlg_cancel_cb, filter_list_type_p);
+    g_signal_connect(cancel_bt, "clicked", G_CALLBACK(filter_dlg_cancel_cb), filter_list_type_p);
     window_set_cancel_button(main_w, cancel_bt, NULL);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     if (list_type == CFILTER_EDITED_LIST) {
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_FILTERS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_FILTERS_DIALOG);
     } else {
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DISPLAY_FILTERS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DISPLAY_FILTERS_DIALOG);
     }
     gtk_tooltips_set_tip (tooltips, help_bt, ("Show topic specific help"), NULL);
 
@@ -618,8 +618,8 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter_te_str);
     }
 
-    SIGNAL_CONNECT(main_w, "delete_event", filter_dlg_delete_event_cb, filter_list_type_p);
-    SIGNAL_CONNECT(main_w, "destroy", filter_dlg_destroy_cb, filter_list_type_p);
+    g_signal_connect(main_w, "delete_event", G_CALLBACK(filter_dlg_delete_event_cb), filter_list_type_p);
+    g_signal_connect(main_w, "destroy", G_CALLBACK(filter_dlg_destroy_cb), filter_list_type_p);
 
     gtk_widget_show(main_w);
 

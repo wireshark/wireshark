@@ -256,7 +256,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button,
                            window_cancel_button_cb);
 
-  SIGNAL_CONNECT(fs, "delete_event", window_delete_event_cb, fs);
+  g_signal_connect(fs, "delete_event", window_delete_event_cb, fs);
 
   gtk_widget_show(fs);
   window_present(fs);

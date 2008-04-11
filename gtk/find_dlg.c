@@ -195,8 +195,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(filter_hb);
 
   filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
+  g_signal_connect(filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_BUTTON_KEY, filter_bt);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, filter_bt, ("Click on the filter button to select a display filter,\nor enter your search criteria into the text box"), NULL);
@@ -207,7 +207,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_text_box);
   g_object_set_data(G_OBJECT(find_frame_w), E_FILT_TE_PTR_KEY, filter_text_box);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
-  SIGNAL_CONNECT(filter_text_box, "changed", find_filter_te_syntax_check_cb, find_frame_w);
+  g_signal_connect(filter_text_box, "changed", G_CALLBACK(find_filter_te_syntax_check_cb), find_frame_w);
   gtk_widget_show(filter_text_box);
 
 
@@ -319,14 +319,14 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_FIND);
-  SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
+  g_signal_connect(ok_bt, "clicked", G_CALLBACK(find_frame_ok_cb), find_frame_w);
 
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
+  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(find_frame_close_cb), find_frame_w);
 
   if(topic_available(HELP_FIND_DIALOG)) {
       help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_FIND_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIND_DIALOG);
   }
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
@@ -349,9 +349,9 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
    * be delivered before the pointers are attached; the signal
    * handlers expect the pointers to be attached, and won't be happy.
    */
-  SIGNAL_CONNECT(hex_rb, "clicked", hex_selected_cb, find_frame_w);
-  SIGNAL_CONNECT(string_rb, "clicked", string_selected_cb, find_frame_w);
-  SIGNAL_CONNECT(filter_rb, "clicked", filter_selected_cb, find_frame_w);
+  g_signal_connect(hex_rb, "clicked", G_CALLBACK(hex_selected_cb), find_frame_w);
+  g_signal_connect(string_rb, "clicked", G_CALLBACK(string_selected_cb), find_frame_w);
+  g_signal_connect(filter_rb, "clicked", G_CALLBACK(filter_selected_cb), find_frame_w);
 
   string_selected_cb(NULL, find_frame_w);
   filter_selected_cb(NULL, find_frame_w);
@@ -369,8 +369,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Give the initial focus to the "Filter" entry box. */
   gtk_widget_grab_focus(filter_text_box);
 
-  SIGNAL_CONNECT(find_frame_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(find_frame_w, "destroy", find_frame_destroy_cb, NULL);
+  g_signal_connect(find_frame_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(find_frame_w, "destroy", G_CALLBACK(find_frame_destroy_cb), NULL);
 
   gtk_widget_show(find_frame_w);
   window_present(find_frame_w);

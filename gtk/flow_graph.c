@@ -512,7 +512,7 @@ static void flow_graph_dlg_create (void)
 	select_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
 	gtk_tooltips_set_tip (tooltips, select_all_rb, 
 		("Process all packets"), NULL);
-	SIGNAL_CONNECT(select_all_rb, "toggled", toggle_select_all, NULL);
+	g_signal_connect(select_all_rb, "toggled", G_CALLBACK(toggle_select_all), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 0, 1);
 	if (type_of_packets == ALL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_all_rb),TRUE);
@@ -523,7 +523,7 @@ static void flow_graph_dlg_create (void)
 	select_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Displayed packets");
 	gtk_tooltips_set_tip (tooltips, select_displayed_rb, 
 		("Process displayed packets"), NULL);
-	SIGNAL_CONNECT(select_displayed_rb, "toggled", toggle_select_displayed, NULL);
+	g_signal_connect(select_displayed_rb, "toggled", G_CALLBACK(toggle_select_displayed), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(range_tb), select_displayed_rb, 1, 2, 0, 1);
 	if (type_of_packets == DISPLAYED) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_displayed_rb),TRUE);
@@ -546,7 +546,7 @@ static void flow_graph_dlg_create (void)
 	select_general_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_General flow");
 	gtk_tooltips_set_tip (tooltips, select_general_rb, 
 		("Show all packets, with general information"), NULL);
-	SIGNAL_CONNECT(select_general_rb, "toggled", toggle_select_general, NULL);
+	g_signal_connect(select_general_rb, "toggled", G_CALLBACK(toggle_select_general), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_general_rb, 0, 1, 0, 1);
 	if (type_of_flow == GENERAL) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_general_rb),TRUE);
@@ -557,7 +557,7 @@ static void flow_graph_dlg_create (void)
 	select_tcp_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_general_rb), "_TCP flow");
 	gtk_tooltips_set_tip (tooltips, select_tcp_rb, 
 		("Show only TCP packets, with TCP specific information"), NULL);
-	SIGNAL_CONNECT(select_tcp_rb, "toggled", toggle_select_tcp, NULL);
+	g_signal_connect(select_tcp_rb, "toggled", G_CALLBACK(toggle_select_tcp), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(flow_type_tb), select_tcp_rb, 1, 2, 0, 1);
 	if (type_of_flow == TCP) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(select_tcp_rb),TRUE);
@@ -580,7 +580,7 @@ static void flow_graph_dlg_create (void)
 	src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_Standard source/destination addresses");
 	gtk_tooltips_set_tip (tooltips, src_dst_rb, 
 		("Nodes in the diagram are identified with source and destination addresses"), NULL);
-	SIGNAL_CONNECT(src_dst_rb, "toggled", toggle_select_srcdst, NULL);
+	g_signal_connect(src_dst_rb, "toggled", G_CALLBACK(toggle_select_srcdst), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), src_dst_rb, 0, 1, 0, 1);
 	if (node_addr_type == SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(src_dst_rb),TRUE);
@@ -591,7 +591,7 @@ static void flow_graph_dlg_create (void)
 	net_src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(src_dst_rb), "_Network source/destination addresses");
 	gtk_tooltips_set_tip (tooltips, net_src_dst_rb, 
 		("Nodes in the diagram are identified with network source and destination addresses"), NULL);
-	SIGNAL_CONNECT(net_src_dst_rb, "toggled", toggle_select_netsrcdst, NULL);
+	g_signal_connect(net_src_dst_rb, "toggled", G_CALLBACK(toggle_select_netsrcdst), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(node_addr_tb), net_src_dst_rb, 1, 2, 0, 1);
 	if (node_addr_type == NET_SRCDST) {
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(net_src_dst_rb),TRUE);
@@ -611,7 +611,7 @@ static void flow_graph_dlg_create (void)
 	bt_ok = gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_ok);
 	gtk_tooltips_set_tip (tooltips, bt_ok, "Show the flow graph", NULL);
-	SIGNAL_CONNECT(bt_ok, "clicked", flow_graph_on_ok, flow_graph_dlg_w);
+	g_signal_connect(bt_ok, "clicked", G_CALLBACK(flow_graph_on_ok), flow_graph_dlg_w);
 	gtk_widget_show(bt_ok);
 
 	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
@@ -620,8 +620,8 @@ static void flow_graph_dlg_create (void)
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
 	window_set_cancel_button(flow_graph_dlg_w, bt_close, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(flow_graph_dlg_w, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(flow_graph_dlg_w, "destroy", flow_graph_on_destroy, NULL);
+	g_signal_connect(flow_graph_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(flow_graph_dlg_w, "destroy", G_CALLBACK(flow_graph_on_destroy), NULL);
 
 	gtk_widget_show_all(flow_graph_dlg_w);
 	window_present(flow_graph_dlg_w);
