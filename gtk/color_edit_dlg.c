@@ -190,7 +190,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
     add_expression_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
-    SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, filt_text_entry);
+    g_signal_connect(add_expression_bt, "clicked", G_CALLBACK(filter_expr_cb), filt_text_entry);
     gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
     gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
 
@@ -245,28 +245,28 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     /* signals and such */
     g_object_set_data(G_OBJECT(edit_dialog), COLOR_FILTER, colorf);
-    SIGNAL_CONNECT(edit_dialog, "destroy", edit_color_filter_destroy_cb, NULL);
+    g_signal_connect(edit_dialog, "destroy", G_CALLBACK(edit_color_filter_destroy_cb), NULL);
     g_object_set_data(G_OBJECT(colorize_filter_fg), COLOR_FILTER, colorf);
-    SIGNAL_CONNECT(colorize_filter_fg, "clicked", edit_color_filter_fg_cb, NULL);
+    g_signal_connect(colorize_filter_fg, "clicked", G_CALLBACK(edit_color_filter_fg_cb), NULL);
     g_object_set_data(G_OBJECT(colorize_filter_bg), COLOR_FILTER, colorf);
-    SIGNAL_CONNECT(colorize_filter_bg, "clicked", edit_color_filter_bg_cb, NULL);
+    g_signal_connect(colorize_filter_bg, "clicked", G_CALLBACK(edit_color_filter_bg_cb), NULL);
     g_object_set_data(G_OBJECT(disabled_cb), COLOR_FILTER, colorf);
-/*    SIGNAL_CONNECT(disabled_cb, "clicked", edit_disabled_cb_cb, NULL);*/
+/*    g_signal_connect(disabled_cb, "clicked", edit_disabled_cb_cb, NULL);*/
     g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTERS_CL, color_filters);
     g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTER, colorf);
-    SIGNAL_CONNECT(edit_color_filter_ok, "clicked", edit_color_filter_ok_cb, edit_dialog);
+    g_signal_connect(edit_color_filter_ok, "clicked", G_CALLBACK(edit_color_filter_ok_cb), edit_dialog);
 
     /* set callback to delete new filters if cancel chosen */
     if (is_new_filter)
     {
         g_object_set_data(G_OBJECT(edit_color_filter_cancel), COLOR_FILTERS_CL, color_filters);
-        SIGNAL_CONNECT(edit_color_filter_cancel, "clicked",
-                       edit_new_color_filter_cancel_cb, edit_dialog);
+        g_signal_connect(edit_color_filter_cancel, "clicked",
+                       G_CALLBACK(edit_new_color_filter_cancel_cb), edit_dialog);
     }
     /* escape will select cancel */
     window_set_cancel_button(edit_dialog, edit_color_filter_cancel, window_cancel_button_cb);
 
-    SIGNAL_CONNECT(edit_dialog, "delete_event", window_delete_event_cb, NULL);
+    g_signal_connect(edit_dialog, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
     gtk_widget_show_all(edit_dialog);
     window_present(edit_dialog);
@@ -485,8 +485,8 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
 
-  SIGNAL_CONNECT(color_sel_ok, "clicked", color_sel_ok_cb, color_sel_win);
-  SIGNAL_CONNECT(color_sel_cancel, "clicked", color_sel_cancel_cb, color_sel_win);
+  g_signal_connect(color_sel_ok, "clicked", G_CALLBACK(color_sel_ok_cb), color_sel_win);
+  g_signal_connect(color_sel_cancel, "clicked", G_CALLBACK(color_sel_cancel_cb), color_sel_win);
 
   gtk_widget_show_all(color_sel_win);
   return color_sel_win;

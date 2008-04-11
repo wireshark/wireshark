@@ -496,8 +496,8 @@ file_open_cmd(GtkWidget *w)
   gtk_widget_show(filter_hbox);
 
   filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  g_signal_connect(filter_bt, "clicked", display_filter_construct_cb, &args);
+  g_signal_connect(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   gtk_tooltips_set_tip(tooltips, filter_bt,
@@ -506,7 +506,7 @@ file_open_cmd(GtkWidget *w)
   filter_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
-  SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
+  g_signal_connect(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
@@ -556,7 +556,7 @@ file_open_cmd(GtkWidget *w)
 #endif
 
 
-  SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
+  g_signal_connect(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
   /* preview widget */
   prev = preview_new();
@@ -565,7 +565,7 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
 #if GTK_CHECK_VERSION(2,4,0)
-  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_open_w), "selection-changed",
+  g_signal_connect(GTK_FILE_CHOOSER(file_open_w), "selection-changed",
       file_open_entry_changed, file_open_w);
   file_open_entry_changed(file_open_w, file_open_w);
 
@@ -577,12 +577,12 @@ file_open_cmd(GtkWidget *w)
   }
   else window_destroy(file_open_w);
 #else /* GTK_CHECK_VERSION(2,4,0) */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed",
+  g_signal_connect(GTK_FILE_SELECTION(file_open_w)->selection_entry, "changed",
       file_open_entry_changed, file_open_w);
 
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
+  g_signal_connect(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
                  file_open_ok_cb, file_open_w);
 
   g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
@@ -592,7 +592,7 @@ file_open_cmd(GtkWidget *w)
   window_set_cancel_button(file_open_w,
       GTK_FILE_SELECTION(file_open_w)->cancel_button, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(file_open_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(file_open_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(file_open_w);
   window_present(file_open_w);
@@ -849,8 +849,8 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(filter_hbox);
 
   filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-  SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
-  SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
+  g_signal_connect(filter_bt, "clicked", display_filter_construct_cb, &args);
+  g_signal_connect(filter_bt, "destroy", filter_button_destroy_cb, NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   gtk_tooltips_set_tip(tooltips, filter_bt,
@@ -859,7 +859,7 @@ file_merge_cmd(GtkWidget *w)
   filter_te = gtk_entry_new();
   g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
-  SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
+  g_signal_connect(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
@@ -915,7 +915,7 @@ file_merge_cmd(GtkWidget *w)
 #endif
 
 
-  SIGNAL_CONNECT(file_merge_w, "destroy", file_merge_destroy_cb, NULL);
+  g_signal_connect(file_merge_w, "destroy", file_merge_destroy_cb, NULL);
 
   /* preview widget */
   prev = preview_new();
@@ -924,7 +924,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
 #if GTK_CHECK_VERSION(2,4,0)
-  SIGNAL_CONNECT(GTK_FILE_CHOOSER(file_merge_w), "selection-changed",
+  g_signal_connect(GTK_FILE_CHOOSER(file_merge_w), "selection-changed",
       file_open_entry_changed, file_merge_w);
   file_open_entry_changed(file_merge_w, file_merge_w);
 
@@ -936,12 +936,12 @@ file_merge_cmd(GtkWidget *w)
   }
   else window_destroy(file_merge_w);
 #else /* GTK_CHECK_VERSION(2,4,0) */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed",
+  g_signal_connect(GTK_FILE_SELECTION(file_merge_w)->selection_entry, "changed",
       file_open_entry_changed, file_merge_w);
 
   /* Connect the ok_button to file_merge_ok_cb function and pass along a
      pointer to the file selection box widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->ok_button, "clicked",
+  g_signal_connect(GTK_FILE_SELECTION(file_merge_w)->ok_button, "clicked",
                  file_merge_ok_cb, file_merge_w);
 
   g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
@@ -951,7 +951,7 @@ file_merge_cmd(GtkWidget *w)
   window_set_cancel_button(file_merge_w,
       GTK_FILE_SELECTION(file_merge_w)->cancel_button, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(file_merge_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(file_merge_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(file_merge_w);
   window_present(file_merge_w);
@@ -1203,7 +1203,7 @@ set_file_type_list(GtkWidget *option_menu)
         /* Default to the same format as the file, if it's supported. */
         item_to_select = index;
       }
-      SIGNAL_CONNECT(ft_menu_item, "activate", select_file_type_cb,
+      g_signal_connect(ft_menu_item, "activate", G_CALLBACK(select_file_type_cb),
                      GINT_TO_POINTER(ft));
       gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
       gtk_widget_show(ft_menu_item);
@@ -1344,7 +1344,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   g_object_set_data(G_OBJECT(file_save_as_w), "compressed", compressed_cb);
   gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(cfile.cd_t));
 
-  SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
+  g_signal_connect(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(file_save_as_w)) == GTK_RESPONSE_ACCEPT) {
@@ -1355,13 +1355,13 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 #else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
+  g_signal_connect(GTK_FILE_SELECTION (file_save_as_w)->ok_button, "clicked",
                  file_save_as_ok_cb, file_save_as_w);
 
   window_set_cancel_button(file_save_as_w,
       GTK_FILE_SELECTION(file_save_as_w)->cancel_button, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(file_save_as_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(file_save_as_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(file_save_as_w);
   window_present(file_save_as_w);
@@ -1660,10 +1660,10 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
   gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
-  SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_import_w);
+  g_signal_connect(cfglobal_but, "clicked", color_global_cb, file_color_import_w);
   gtk_widget_show(cfglobal_but);
 
-  SIGNAL_CONNECT(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
+  g_signal_connect(file_color_import_w, "destroy", file_color_import_destroy_cb, NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
 
@@ -1675,13 +1675,13 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 #else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
+  g_signal_connect(GTK_FILE_SELECTION(file_color_import_w)->ok_button, "clicked",
                  file_color_import_ok_cb, color_filters);
 
   window_set_cancel_button(file_color_import_w,
       GTK_FILE_SELECTION(file_color_import_w)->cancel_button, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(file_color_import_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(file_color_import_w, "delete_event", window_delete_event_cb, NULL);
 
 
   gtk_widget_show(file_color_import_w);
@@ -1814,16 +1814,16 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
   cfselect_cb = gtk_check_button_new_with_label("Export only selected filters");
   gtk_container_add(GTK_CONTAINER(main_vb), cfselect_cb);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cfselect_cb), FALSE);
-  SIGNAL_CONNECT(cfselect_cb, "toggled", color_toggle_selected_cb, NULL);
+  g_signal_connect(cfselect_cb, "toggled", color_toggle_selected_cb, NULL);
   gtk_widget_show(cfselect_cb);
   color_set_export_selected_sensitive(cfselect_cb);
 
   cfglobal_but = gtk_button_new_with_label("Global Color Filter File");
   gtk_container_add(GTK_CONTAINER(main_vb), cfglobal_but);
-  SIGNAL_CONNECT(cfglobal_but, "clicked", color_global_cb, file_color_export_w);
+  g_signal_connect(cfglobal_but, "clicked", color_global_cb, file_color_export_w);
   gtk_widget_show(cfglobal_but);
 
-  SIGNAL_CONNECT(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
+  g_signal_connect(file_color_export_w, "destroy", file_color_export_destroy_cb, NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(file_color_export_w)) == GTK_RESPONSE_ACCEPT)
@@ -1834,13 +1834,13 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 #else /* GTK_CHECK_VERSION(2,4,0) */
   /* Connect the ok_button to file_export_ok_cb function and pass along a
      pointer to the file selection box widget */
-  SIGNAL_CONNECT(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
+  g_signal_connect(GTK_FILE_SELECTION (file_color_export_w)->ok_button, "clicked",
                  file_color_export_ok_cb, filter_list);
 
   window_set_cancel_button(file_color_export_w,
       GTK_FILE_SELECTION(file_color_export_w)->cancel_button, window_cancel_button_cb);
 
-  SIGNAL_CONNECT(file_color_export_w, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(file_color_export_w, "delete_event", window_delete_event_cb, NULL);
 
 
   gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_color_export_w), "");

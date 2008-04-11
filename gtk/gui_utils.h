@@ -54,7 +54,7 @@
  *   use dlg_window_new() if you need a dialog (transient to the main window)
  * - gtk_window_set_default_size() to set the default size of the window. Only
  *   needed, if the initial size is not appropriate, e.g. when a scrolled_window_new() is used.
- * - SIGNAL_CONNECT(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be
+ * - g_signal_connect(my_win, "destroy", my_destroy_cb, NULL) callback, if some cleanup needs to be
  *   done after the window is destroyed, e.g. free up memory, or set the window pointer
  *   of a singleton window (only one instance allowed, e.g. about dialog) back to zero
  * - create and fill in the content and button widgets
@@ -74,7 +74,7 @@
  * @section window_hints Hints
  *
  * If you want to save size and position, be sure to call window_destroy() instead of only
- *   gtk_widget_destroy(), so you will probably have to SIGNAL_CONNECT to the "delete_event"!
+ *   gtk_widget_destroy(), so you will probably have to g_signal_connect() to the "delete_event"!
  *
  * Don't use gtk_widget_set_size_request() to set the size of a window,
  * use gtk_window_set_default_size() for that purpose!
@@ -153,7 +153,7 @@ extern void window_destroy(GtkWidget *win);
 extern void window_cancel_button_cb(GtkWidget *w _U_, gpointer data);
 
 /** Default callback handler if the window managers X of the window was clicked (delete_event).
- *  Use this for SIGNAL_CONNECT(), if no user specific functionality required,
+ *  Use this for g_signal_connect(), if no user specific functionality required,
  *  will simply call window_destroy()
  */
 extern gboolean window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _U_);

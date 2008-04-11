@@ -582,21 +582,21 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_widget_show(bbox);
 
     ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(decode_show_ok_cb), decode_show_w);
     
     clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
-    SIGNAL_CONNECT(clear_bt, "clicked", decode_show_clear_cb, decode_show_w);
+    g_signal_connect(clear_bt, "clicked", G_CALLBACK(decode_show_clear_cb), decode_show_w);
 
     if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_SHOW_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_SHOW_DIALOG);
     }
 
     /* set ok as default, this button won't change anything */
     window_set_cancel_button(decode_show_w, ok_bt, NULL);
 
-    SIGNAL_CONNECT(decode_show_w, "delete_event", decode_show_delete_cb, NULL);
-    SIGNAL_CONNECT(decode_show_w, "destroy", decode_show_destroy_cb, NULL);
+    g_signal_connect(decode_show_w, "delete_event", G_CALLBACK(decode_show_delete_cb), NULL);
+    g_signal_connect(decode_show_w, "destroy", G_CALLBACK(decode_show_destroy_cb), NULL);
     
     gtk_widget_set_sensitive(clear_bt,
                              gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
@@ -1004,13 +1004,13 @@ decode_add_yes_no (void)
     radio_button = gtk_radio_button_new_with_label(NULL, "Decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-    SIGNAL_CONNECT(radio_button, "clicked", decode_update_action,
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_YES));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
-    SIGNAL_CONNECT(radio_button, "clicked", decode_update_action,
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_NO));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
@@ -1551,13 +1551,13 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_ppid_menu, page);
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_menu), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
-    SIGNAL_CONNECT(radio_button, "clicked", decode_sctp_update_srcdst_menu, page);
+    g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_menu), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
@@ -1749,14 +1749,14 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 	gtk_box_pack_start(GTK_BOX(format_hb), button_vb, TRUE, TRUE, 10);
 
     button = gtk_button_new_with_label("Show Current");
-    SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
+    g_signal_connect(button, "clicked", G_CALLBACK(decode_show_cb), decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button, 
         "Open a dialog showing the current settings.", NULL);
 
     button = gtk_button_new_with_label("Clear");
-    SIGNAL_CONNECT(button, "clicked", decode_clear_cb, decode_w);
+    g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
     gtk_tooltips_set_tip(tooltips, button, 
@@ -1775,30 +1775,30 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_widget_show(bbox);
 
     ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-    SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(decode_ok_cb), decode_w);
     gtk_tooltips_set_tip(tooltips, ok_bt, 
         "Apply current setting, close dialog and redissect packets.", NULL);
 
     apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-    SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
+    g_signal_connect(apply_bt, "clicked", G_CALLBACK(decode_apply_cb), decode_w);
     gtk_tooltips_set_tip(tooltips, apply_bt, 
         "Apply current setting, redissect packets and keep dialog open.", NULL);
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(decode_w, close_bt, NULL);
-    SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
+    g_signal_connect(close_bt, "clicked", G_CALLBACK(decode_close_cb), decode_w);
     gtk_tooltips_set_tip(tooltips, close_bt, 
         "Close the dialog, don't redissect packets.", NULL);
 
     if(topic_available(HELP_DECODE_AS_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_DIALOG);
     }
 
     gtk_widget_grab_default(ok_bt);
 
-    SIGNAL_CONNECT(decode_w, "delete_event", decode_delete_cb, NULL);
-    SIGNAL_CONNECT(decode_w, "destroy", decode_destroy_cb, NULL);
+    g_signal_connect(decode_w, "delete_event", G_CALLBACK(decode_delete_cb), NULL);
+    g_signal_connect(decode_w, "destroy", G_CALLBACK(decode_destroy_cb), NULL);
 
     gtk_widget_show_all(decode_w);
     window_present(decode_w);

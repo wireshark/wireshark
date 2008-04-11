@@ -100,13 +100,13 @@ column_prefs_show() {
   gtk_widget_show(edit_vb);
 
   new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-  SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
+  g_signal_connect(new_bt, "clicked", G_CALLBACK(column_list_new_cb), NULL);
   gtk_box_pack_start (GTK_BOX (edit_vb), new_bt, FALSE, FALSE, 5);
   gtk_widget_show(new_bt);
 
   del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
-  SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
+  g_signal_connect(del_bt, "clicked", G_CALLBACK(column_list_delete_cb), NULL);
   gtk_box_pack_start (GTK_BOX (edit_vb), del_bt, FALSE, FALSE, 5);
   gtk_widget_show(del_bt);
 
@@ -149,7 +149,7 @@ column_prefs_show() {
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 
-  SIGNAL_CONNECT(sel, "changed", column_list_select_cb, NULL);
+  g_signal_connect(sel, "changed", G_CALLBACK(column_list_select_cb), NULL);
   gtk_container_add(GTK_CONTAINER(list_sc), column_l);
   gtk_widget_show(column_l);
 
@@ -186,7 +186,7 @@ column_prefs_show() {
 
   up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
   gtk_widget_set_sensitive(up_bt, FALSE);
-  SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
+  g_signal_connect(up_bt, "clicked", G_CALLBACK(column_arrow_cb), NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
   gtk_widget_show(up_bt);
 
@@ -196,7 +196,7 @@ column_prefs_show() {
 
   dn_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
   gtk_widget_set_sensitive(dn_bt, FALSE);
-  SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
+  g_signal_connect(dn_bt, "clicked", G_CALLBACK(column_arrow_cb), NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
   gtk_widget_show(dn_bt);
 
@@ -245,7 +245,7 @@ column_prefs_show() {
   for (i = 0; i < NUM_COL_FMTS; i++) {
     mitem = gtk_menu_item_new_with_label(col_format_desc(i));
     gtk_menu_append(GTK_MENU(menu), mitem);
-    SIGNAL_CONNECT(mitem, "activate", column_menu_changed_cb, GINT_TO_POINTER(i));
+    g_signal_connect(mitem, "activate", G_CALLBACK(column_menu_changed_cb), GINT_TO_POINTER(i));
     gtk_widget_show(mitem);
   }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(fmt_m), menu);
@@ -290,7 +290,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_tree_path_free(path);
 
         gtk_entry_set_text(GTK_ENTRY(title_te), cfmt->title);
-        SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
+        g_signal_connect(title_te, "changed", G_CALLBACK(column_entry_changed_cb), column_l);
 
         if (cur_fmt == COL_CUSTOM) {
             gtk_entry_set_text(GTK_ENTRY(field_te), cfmt->custom_field);
@@ -298,7 +298,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         } else {
             gtk_widget_hide(field_te);
         }
-	SIGNAL_CONNECT(field_te, "changed", column_field_changed_cb, column_l);
+        g_signal_connect(field_te, "changed", G_CALLBACK(column_field_changed_cb), column_l);
 
         gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
         gtk_widget_grab_focus(title_te);

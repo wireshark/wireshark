@@ -493,7 +493,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 #else
   gtk_table_attach_defaults(GTK_TABLE(if_tb), stop_bt, 6, 8, row, row+1);
 #endif
-  SIGNAL_CONNECT(stop_bt, "clicked", capture_stop_cb, NULL);
+  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_stop_cb), NULL);
 
   row++;
   gtk_widget_size_request(stop_bt, &requisition);
@@ -593,7 +593,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
       /* capture button */
       if_dlg_data->capture_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_START);
-	  SIGNAL_CONNECT(if_dlg_data->capture_bt, "clicked", capture_do_cb, if_dlg_data);
+	  g_signal_connect(if_dlg_data->capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
       tmp_str = g_strdup_printf("Immediately start a capture from this interface:\n\n%s", if_tool_str->str);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->capture_bt,
           tmp_str, NULL);
@@ -602,7 +602,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
       /* prepare button */
       if_dlg_data->prepare_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_OPTIONS);
-      SIGNAL_CONNECT(if_dlg_data->prepare_bt, "clicked", capture_prepare_cb, if_dlg_data);
+      g_signal_connect(if_dlg_data->prepare_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->prepare_bt,
           "Open the capture options dialog with this interface selected.", NULL);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->prepare_bt, 7, 8, row, row+1);
@@ -610,7 +610,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       /* details button */
 #ifdef _WIN32
       if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
-	  SIGNAL_CONNECT(if_dlg_data->details_bt, "clicked", capture_details_cb, if_dlg_data);
+	  g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
       gtk_tooltips_set_tip(tooltips, if_dlg_data->details_bt,
           "Open the capture details dialog of this interface.", NULL);
       gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
@@ -642,7 +642,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   if(topic_available(HELP_CAPTURE_INTERFACES_DIALOG)) {
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DIALOG);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
   }
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
@@ -652,8 +652,8 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   gtk_widget_grab_default(close_bt);
 
-  SIGNAL_CONNECT(cap_if_w, "delete_event", window_delete_event_cb, NULL);
-  SIGNAL_CONNECT(cap_if_w, "destroy", capture_if_destroy_cb, sc);
+  g_signal_connect(cap_if_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+  g_signal_connect(cap_if_w, "destroy", G_CALLBACK(capture_if_destroy_cb), sc);
 
   gtk_widget_show_all(cap_if_w);
   window_present(cap_if_w);

@@ -381,19 +381,19 @@ colorize_dialog_new (char *filter)
   if(topic_available(HELP_COLORING_RULES_DIALOG)) {
       color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
       gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
-      SIGNAL_CONNECT(color_help, "clicked", topic_cb, HELP_COLORING_RULES_DIALOG);
+      g_signal_connect(color_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_COLORING_RULES_DIALOG);
   }
 
   gtk_widget_grab_default(color_ok);
 
   /* signals and such */
-  SIGNAL_CONNECT(color_win, "destroy", color_destroy_cb, NULL);
+  g_signal_connect(color_win, "destroy", G_CALLBACK(color_destroy_cb), NULL);
   g_object_set_data(G_OBJECT(color_filter_up), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_filter_up, "clicked", color_filter_up_cb, NULL);
+  g_signal_connect(color_filter_up, "clicked", G_CALLBACK(color_filter_up_cb), NULL);
   g_object_set_data(G_OBJECT(color_filter_down), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_filter_down, "clicked", color_filter_down_cb, NULL);
-  SIGNAL_CONNECT(selection, "changed", remember_selected_row, color_filters);
-  SIGNAL_CONNECT(color_filters, "button_press_event", color_filters_button_cb, NULL);
+  g_signal_connect(color_filter_down, "clicked", G_CALLBACK(color_filter_down_cb), NULL);
+  g_signal_connect(selection, "changed", G_CALLBACK(remember_selected_row), color_filters);
+  g_signal_connect(color_filters, "button_press_event", G_CALLBACK(color_filters_button_cb), NULL);
   g_object_set_data(G_OBJECT(color_filters), COLOR_UP_LB, color_filter_up);
   g_object_set_data(G_OBJECT(color_filters), COLOR_DOWN_LB, color_filter_down);
   g_object_set_data(G_OBJECT(color_filters), COLOR_EDIT_LB, color_edit);
@@ -401,26 +401,26 @@ colorize_dialog_new (char *filter)
   g_object_set_data(G_OBJECT(color_filters), COLOR_DISABLE_LB, color_disable);
   g_object_set_data(G_OBJECT(color_filters), COLOR_DELETE_LB, color_delete);
   g_object_set_data(G_OBJECT(color_new), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_new, "clicked", color_new_cb, NULL);
+  g_signal_connect(color_new, "clicked", G_CALLBACK(color_new_cb), NULL);
   g_object_set_data(G_OBJECT(color_edit), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_edit, "clicked", color_edit_cb, NULL);
+  g_signal_connect(color_edit, "clicked", G_CALLBACK(color_edit_cb), NULL);
   g_object_set_data(G_OBJECT(color_enable), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_enable, "clicked", color_disable_cb, FALSE);
+  g_signal_connect(color_enable, "clicked", G_CALLBACK(color_disable_cb), FALSE);
   g_object_set_data(G_OBJECT(color_disable), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_disable, "clicked", color_disable_cb, TRUE);
+  g_signal_connect(color_disable, "clicked", G_CALLBACK(color_disable_cb), (gpointer)TRUE);
   g_object_set_data(G_OBJECT(color_delete), COLOR_EDIT_LB, color_edit);
   g_object_set_data(G_OBJECT(color_delete), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_delete, "clicked", color_delete_cb, NULL);
-  SIGNAL_CONNECT(color_export, "clicked", color_export_cb, NULL);
+  g_signal_connect(color_delete, "clicked", G_CALLBACK(color_delete_cb), NULL);
+  g_signal_connect(color_export, "clicked", G_CALLBACK(color_export_cb), NULL);
   g_object_set_data(G_OBJECT(color_import), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_import, "clicked", color_import_cb, NULL);
+  g_signal_connect(color_import, "clicked", G_CALLBACK(color_import_cb), NULL);
   g_object_set_data(G_OBJECT(color_clear), COLOR_FILTERS_CL, color_filters);
-  SIGNAL_CONNECT(color_clear, "clicked", color_clear_cb, NULL);
-  SIGNAL_CONNECT(color_ok, "clicked", color_ok_cb, NULL);
-  SIGNAL_CONNECT(color_apply, "clicked", color_apply_cb, NULL);
-  SIGNAL_CONNECT(color_save, "clicked", color_save_cb, NULL);
+  g_signal_connect(color_clear, "clicked", G_CALLBACK(color_clear_cb), NULL);
+  g_signal_connect(color_ok, "clicked", G_CALLBACK(color_ok_cb), NULL);
+  g_signal_connect(color_apply, "clicked", G_CALLBACK(color_apply_cb), NULL);
+  g_signal_connect(color_save, "clicked", G_CALLBACK(color_save_cb), NULL);
 
-  SIGNAL_CONNECT(color_win, "delete_event", window_delete_event_cb, NULL);
+  g_signal_connect(color_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
   gtk_widget_grab_focus(color_filters);
 

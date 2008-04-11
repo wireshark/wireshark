@@ -2362,12 +2362,12 @@ capture_if_details_open_win(char *iface)
 
     if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DETAILS_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer) (HELP_CAPTURE_INTERFACES_DETAILS_DIALOG));
     }
 
     gtk_widget_grab_focus(close_bt);
 
-    SIGNAL_CONNECT(details_open_w, "delete_event", window_delete_event_cb, NULL);
+    g_signal_connect(details_open_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 
     gtk_widget_show_all(details_open_w);
     window_present(details_open_w);

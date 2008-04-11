@@ -266,15 +266,13 @@ const gchar     *iface)
 
   stop_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_STOP);
   window_set_cancel_button(info->cap_w, stop_bt, NULL);
-  SIGNAL_CONNECT(stop_bt, "clicked", capture_info_delete_cb, capture_opts);
-
-  SIGNAL_CONNECT(info->cap_w, "delete_event", capture_info_delete_cb,
-                 capture_opts);
+  g_signal_connect(stop_bt, "clicked", G_CALLBACK(capture_info_delete_cb), capture_opts);
+  g_signal_connect(info->cap_w, "delete_event", G_CALLBACK(capture_info_delete_cb), capture_opts);
 
   if(topic_available(HELP_CAPTURE_INFO_DIALOG)) {
       ci_help = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
       gtk_tooltips_set_tip (tooltips, ci_help, ("Get help about this dialog"), NULL);
-      SIGNAL_CONNECT(ci_help, "clicked", topic_cb, HELP_CAPTURE_INFO_DIALOG);
+      g_signal_connect(ci_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_INFO_DIALOG);
   }
 
   gtk_widget_show(info->cap_w);

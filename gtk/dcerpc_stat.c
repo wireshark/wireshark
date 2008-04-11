@@ -330,8 +330,8 @@ gtk_dcerpcstat_init(const char *optarg, void* userdata _U_)
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
-	SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
+	g_signal_connect(rs->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(rs->win, "destroy", G_CALLBACK(win_destroy_cb), rs);
 
 	gtk_widget_show_all(rs->win);
 	window_present(rs->win);
@@ -403,8 +403,8 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 
 	g_snprintf(vs, 5, "%u",k->ver);
 	menu_item=gtk_menu_item_new_with_label(vs);
-	SIGNAL_CONNECT(menu_item, "activate", dcerpcstat_version_select,
-                       ((long)k->ver));
+	g_signal_connect(menu_item, "activate", G_CALLBACK(dcerpcstat_version_select),
+                       (gpointer)((long)k->ver));
 	gtk_widget_show(menu_item);
 	gtk_menu_append(GTK_MENU(vers_menu), menu_item);
 
@@ -473,7 +473,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 	program_subitem_index++;		
 
 	program_menu_item=gtk_menu_item_new_with_label(v->name);
-	SIGNAL_CONNECT(program_menu_item, "activate", dcerpcstat_program_select, k);
+	g_signal_connect(program_menu_item, "activate", G_CALLBACK(dcerpcstat_program_select), k);
 
 	gtk_widget_show(program_menu_item);
 	gtk_menu_append(GTK_MENU(program_submenu_menu), program_menu_item);
@@ -628,7 +628,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter label */
 	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
-	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
+	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
 
@@ -659,8 +659,8 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
         cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
         window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
-        SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+        g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"

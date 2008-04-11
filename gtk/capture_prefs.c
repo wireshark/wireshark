@@ -136,7 +136,7 @@ capture_prefs_show(void)
 	ifopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	gtk_tooltips_set_tip(tooltips, ifopts_bt,
 	    "Open a dialog box to set various interface options.", NULL);
-	SIGNAL_CONNECT(ifopts_bt, "clicked", ifopts_edit_cb, NULL);
+	g_signal_connect(ifopts_bt, "clicked", G_CALLBACK(ifopts_edit_cb), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), ifopts_bt, 1, 2, row, row+1);
 	row++;
 
@@ -292,7 +292,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 40);
 	gtk_clist_column_titles_passive(GTK_CLIST(cur_clist));
 	gtk_container_add(GTK_CONTAINER(cur_scr_win), cur_clist);
-	SIGNAL_CONNECT(cur_clist, "select_row", ifopts_edit_ifsel_cb, NULL);
+	g_signal_connect(cur_clist, "select_row", G_CALLBACK(ifopts_edit_ifsel_cb), NULL);
 	gtk_widget_show(cur_clist);
 
 	/* add interface names to cell */
@@ -348,7 +348,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(if_descr_lb);
 
 	if_descr_te = gtk_entry_new();
-	SIGNAL_CONNECT(if_descr_te, "changed", ifopts_edit_descr_changed_cb,
+	g_signal_connect(if_descr_te, "changed", G_CALLBACK(ifopts_edit_descr_changed_cb),
 			cur_clist);
 	gtk_entry_set_max_length(GTK_ENTRY(if_descr_te), IFOPTS_MAX_DESCR_LEN);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, row, row+1);
@@ -362,7 +362,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(if_hide_lb);
 
 	if_hide_cb = gtk_check_button_new();
-	SIGNAL_CONNECT(if_hide_cb, "toggled", ifopts_edit_hide_changed_cb,
+	g_signal_connect(if_hide_cb, "toggled", G_CALLBACK(ifopts_edit_hide_changed_cb),
 			cur_clist);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
 	gtk_widget_show(if_hide_cb);
@@ -374,18 +374,18 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(bbox);
 
 	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
+	g_signal_connect(ok_bt, "clicked", G_CALLBACK(ifopts_edit_ok_cb), ifopts_edit_dlg);
 
 	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
         window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
 	gtk_widget_grab_default(ok_bt);
 
-        SIGNAL_CONNECT(ifopts_edit_dlg, "delete_event", window_delete_event_cb,
+	g_signal_connect(ifopts_edit_dlg, "delete_event", G_CALLBACK(window_delete_event_cb),
                  NULL);
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
-	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
+	g_signal_connect(ifopts_edit_dlg, "destroy", G_CALLBACK(ifopts_edit_destroy_cb), NULL);
 
 	/* Set the key for the new dialog to point to our caller. */
 	g_object_set_data(G_OBJECT(ifopts_edit_dlg), IFOPTS_CALLER_PTR_KEY, caller);
