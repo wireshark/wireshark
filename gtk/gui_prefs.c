@@ -187,7 +187,7 @@ gui_prefs_show(void)
 	    prefs.gui_plist_sel_browse);
 	gtk_tooltips_set_tip(tooltips, plist_browse_om, "Choose to browse "
 		"or select a packet for detailed dissection.", NULL);
-	OBJECT_SET_DATA(main_vb, PLIST_SEL_BROWSE_KEY, plist_browse_om);
+	g_object_set_data(G_OBJECT(main_vb), PLIST_SEL_BROWSE_KEY, plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
@@ -195,26 +195,26 @@ gui_prefs_show(void)
 	    prefs.gui_ptree_sel_browse);
 	gtk_tooltips_set_tip(tooltips, ptree_browse_om, "Choose to browse "
 		"or select.", NULL);
-	OBJECT_SET_DATA(main_vb, PTREE_SEL_BROWSE_KEY, ptree_browse_om);
+	g_object_set_data(G_OBJECT(main_vb), PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 
 	/* Geometry prefs */
 	save_position_cb = create_preference_check_button(main_tb, pos++,
 	    "Save window position:", NULL, prefs.gui_geometry_save_position);
 	gtk_tooltips_set_tip(tooltips, save_position_cb, "Whether to save the "
 		"position of the main window.", NULL);
-	OBJECT_SET_DATA(main_vb, GEOMETRY_POSITION_KEY, save_position_cb);
+	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_POSITION_KEY, save_position_cb);
 
 	save_size_cb = create_preference_check_button(main_tb, pos++,
 	    "Save window size:", NULL, prefs.gui_geometry_save_size);
 	gtk_tooltips_set_tip(tooltips, save_size_cb, "Whether to save the "
 		"size of the main window.", NULL);
-	OBJECT_SET_DATA(main_vb, GEOMETRY_SIZE_KEY, save_size_cb);
+	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_SIZE_KEY, save_size_cb);
 
 	save_maximized_cb = create_preference_check_button(main_tb, pos++,
 	    "Save maximized state:", NULL, prefs.gui_geometry_save_maximized);
 	gtk_tooltips_set_tip(tooltips, save_maximized_cb, "Whether to save the "
 		"maximed state of the main window.", NULL);
-	OBJECT_SET_DATA(main_vb, GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
+	g_object_set_data(G_OBJECT(main_vb), GEOMETRY_MAXIMIZED_KEY, save_maximized_cb);
 
 #ifdef _WIN32
 	/* How the console window should be opened */
@@ -223,7 +223,7 @@ gui_prefs_show(void)
 		prefs.gui_console_open);
 	gtk_tooltips_set_tip(tooltips, console_open_om, "Whether to open a console window "
 		"(Automatic will open a console if messages appear).", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_CONSOLE_OPEN_KEY, console_open_om);
+	g_object_set_data(G_OBJECT(main_vb), GUI_CONSOLE_OPEN_KEY, console_open_om);
 #endif
 
 	/* Allow user to select where they want the File Open dialog to open to
@@ -238,8 +238,8 @@ gui_prefs_show(void)
         "Directory:", NULL, prefs.gui_fileopen_dir);
 	gtk_tooltips_set_tip(tooltips, fileopen_dir_te,
 		"The \"File Open\" dialog defaults always to this directory.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_KEY, fileopen_rb);
-	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
+	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_KEY, fileopen_rb);
+	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_DIR_KEY, fileopen_dir_te);
 	SIGNAL_CONNECT(fileopen_rb, "clicked", fileopen_selected_cb, main_vb);
 	SIGNAL_CONNECT(fileopen_dir_te, "focus-out-event",
 	    fileopen_dir_changed_cb, main_vb);
@@ -251,7 +251,7 @@ gui_prefs_show(void)
 	gtk_entry_set_text(GTK_ENTRY(fileopen_preview_te), current_val_str);
 	gtk_tooltips_set_tip(tooltips, fileopen_preview_te, 
         "Reading preview data in the \"File Open\" dialog will be stopped after given seconds.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
+	g_object_set_data(G_OBJECT(main_vb), GUI_FILEOPEN_PREVIEW_KEY, fileopen_preview_te);
 	SIGNAL_CONNECT(fileopen_preview_te, "focus_out_event", fileopen_preview_changed_cb, main_vb);
 
 	/* Number of entries in the recent_files list ... */
@@ -261,7 +261,7 @@ gui_prefs_show(void)
 	gtk_entry_set_text(GTK_ENTRY(recent_files_count_max_te), current_val_str);
 	gtk_tooltips_set_tip(tooltips, recent_files_count_max_te, 
         "Maximum number of entries in the \"File/Open Recent\" list.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
+	g_object_set_data(G_OBJECT(main_vb), GUI_RECENT_FILES_COUNT_KEY, recent_files_count_max_te);
 	SIGNAL_CONNECT(recent_files_count_max_te, "focus_out_event", recent_files_count_changed_cb, main_vb);
 
 	fileopen_selected_cb(NULL, main_vb);
@@ -271,14 +271,14 @@ gui_prefs_show(void)
 	    "Ask for unsaved capture files:", NULL, prefs.gui_ask_unsaved);
 	gtk_tooltips_set_tip(tooltips, ask_unsaved_cb, "Whether a dialog should "
 		"pop up in case of an unsaved capture file.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
+	g_object_set_data(G_OBJECT(main_vb), GUI_ASK_UNSAVED_KEY, ask_unsaved_cb);
 
 	/* do we want to wrap when searching for data? */
 	find_wrap_cb = create_preference_check_button(main_tb, pos++,
 	    "Wrap to end/beginning of file during a find:", NULL, prefs.gui_find_wrap);
 	gtk_tooltips_set_tip(tooltips, find_wrap_cb, "Whether a search should "
 		"wrap in a capture file.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_FIND_WRAP_KEY, find_wrap_cb);
+	g_object_set_data(G_OBJECT(main_vb), GUI_FIND_WRAP_KEY, find_wrap_cb);
 
 	/* show an explicit Save button for settings dialogs (preferences and alike)? */
 	use_pref_save_cb = create_preference_check_button(main_tb, pos++,
@@ -286,7 +286,7 @@ gui_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, use_pref_save_cb, 
                 "Whether the various settings dialogs (e.g. Preferences) should "
 		"use an explicit save button - for advanced users.", NULL);
-	OBJECT_SET_DATA(main_vb, GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
+	g_object_set_data(G_OBJECT(main_vb), GUI_USE_PREF_SAVE_KEY, use_pref_save_cb);
 
 	/* Webbrowser */
 	if (browser_needs_pref()) {
@@ -295,7 +295,7 @@ gui_prefs_show(void)
 	    gtk_entry_set_text(GTK_ENTRY(webbrowser_te), prefs.gui_webbrowser);
 	    gtk_tooltips_set_tip(tooltips, webbrowser_te, "Command line to "
 	        "desired browser.", NULL);
-	    OBJECT_SET_DATA(main_vb, GUI_WEBBROWSER_KEY, webbrowser_te);
+	    g_object_set_data(G_OBJECT(main_vb), GUI_WEBBROWSER_KEY, webbrowser_te);
 	}
 
 	/* Show 'em what we got */
@@ -355,40 +355,40 @@ void
 gui_prefs_fetch(GtkWidget *w)
 {
 	prefs.gui_plist_sel_browse = fetch_enum_value(
-	    OBJECT_GET_DATA(w, PLIST_SEL_BROWSE_KEY), selection_mode_vals);
+	    g_object_get_data(G_OBJECT(w), PLIST_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_ptree_sel_browse = fetch_enum_value(
-	    OBJECT_GET_DATA(w, PTREE_SEL_BROWSE_KEY), selection_mode_vals);
+	    g_object_get_data(G_OBJECT(w), PTREE_SEL_BROWSE_KEY), selection_mode_vals);
 	prefs.gui_geometry_save_position =
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_POSITION_KEY));
+	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_POSITION_KEY));
 	prefs.gui_geometry_save_size =
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_SIZE_KEY));
+	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_SIZE_KEY));
 	prefs.gui_geometry_save_maximized =
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GEOMETRY_MAXIMIZED_KEY));
+	    gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GEOMETRY_MAXIMIZED_KEY));
 #ifdef _WIN32
 	prefs.gui_console_open = fetch_enum_value(
-	    OBJECT_GET_DATA(w, GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
+	    g_object_get_data(G_OBJECT(w), GUI_CONSOLE_OPEN_KEY), gui_console_open_vals);
 #endif
 	prefs.gui_fileopen_style = fetch_preference_radio_buttons_val(
-	    OBJECT_GET_DATA(w, GUI_FILEOPEN_KEY), gui_fileopen_vals);
+	    g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_KEY), gui_fileopen_vals);
 	
 	if (prefs.gui_fileopen_dir != NULL)
 		g_free(prefs.gui_fileopen_dir);
 	prefs.gui_fileopen_dir = g_strdup(gtk_entry_get_text(
-		GTK_ENTRY(OBJECT_GET_DATA(w, GUI_FILEOPEN_DIR_KEY))));
+                                              GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_FILEOPEN_DIR_KEY))));
 
     prefs.gui_ask_unsaved = 
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_ASK_UNSAVED_KEY));
+        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_ASK_UNSAVED_KEY));
 
     prefs.gui_find_wrap = 
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_FIND_WRAP_KEY));
+        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_FIND_WRAP_KEY));
 
     prefs.gui_use_pref_save = 
-	    gtk_toggle_button_get_active(OBJECT_GET_DATA(w, GUI_USE_PREF_SAVE_KEY));
+        gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_USE_PREF_SAVE_KEY));
 
     if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
 	    prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
-		    GTK_ENTRY(OBJECT_GET_DATA(w, GUI_WEBBROWSER_KEY))));
+                                                GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WEBBROWSER_KEY))));
     }
 	/*
 	 * XXX - we need to have a way to fetch the preferences into
@@ -480,7 +480,7 @@ recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
     GtkWidget	*recent_files_count_te;
     guint newval;
     
-    recent_files_count_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_RECENT_FILES_COUNT_KEY);
+    recent_files_count_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_RECENT_FILES_COUNT_KEY);
 
     /*
      * Now, just convert the string to a number and store it in the prefs
@@ -505,7 +505,7 @@ fileopen_preview_changed_cb(GtkWidget *recent_files_entry _U_,
     GtkWidget	*fileopen_preview_te;
     guint newval;
     
-    fileopen_preview_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_PREVIEW_KEY);
+    fileopen_preview_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_PREVIEW_KEY);
 
     /*
      * Now, just convert the string to a number and store it in the prefs
@@ -530,7 +530,7 @@ fileopen_dir_changed_cb(GtkWidget *fileopen_entry _U_, GdkEvent *event _U_, gpoi
     char *lastchar;
     gint fileopen_dir_te_length;
     
-    fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
+    fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
     fileopen_dir_te_length = strlen(gtk_entry_get_text (GTK_ENTRY(fileopen_entry)));
     if (fileopen_dir_te_length == 0)
     	return FALSE;
@@ -545,8 +545,8 @@ fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
 {
     GtkWidget	*fileopen_rb, *fileopen_dir_te;
     
-    fileopen_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_KEY);
-    fileopen_dir_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, GUI_FILEOPEN_DIR_KEY);
+    fileopen_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_KEY);
+    fileopen_dir_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), GUI_FILEOPEN_DIR_KEY);
     
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(fileopen_rb)))
     {

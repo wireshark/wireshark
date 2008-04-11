@@ -214,7 +214,7 @@ colorize_dialog_new (char *filter)
    * Default size is set so that it should fit into every usual screen resolution.
    * All other widgets are always packed depending on the current window size. */
   color_win = dlg_window_new ("Wireshark: Coloring Rules");
-  OBJECT_SET_DATA(color_win, "color_win", color_win);
+  g_object_set_data(G_OBJECT(color_win), "color_win", color_win);
   gtk_window_set_default_size(GTK_WINDOW(color_win), DEF_WIDTH, DEF_HEIGHT * 2/3);
   dlg_vbox = gtk_vbox_new (FALSE, 0);
   gtk_container_set_border_width  (GTK_CONTAINER (dlg_vbox), 5);
@@ -365,21 +365,21 @@ colorize_dialog_new (char *filter)
   }
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
 
-  color_ok = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_OK);
+  color_ok = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_OK);
   gtk_tooltips_set_tip (tooltips, color_ok, ("Apply the color filters to the display and close this dialog"), NULL);
 
-  color_apply = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_APPLY);
+  color_apply = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_APPLY);
   gtk_tooltips_set_tip (tooltips, color_apply, ("Apply the color filters to the display and keep this dialog open"), NULL);
 
-  color_save = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_SAVE);
+  color_save = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_SAVE);
   gtk_tooltips_set_tip (tooltips, color_save, ("Save the color filters permanently and keep this dialog open"), NULL);
 
-  color_cancel = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_CANCEL);
+  color_cancel = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(color_win, color_cancel, color_cancel_cb);
   gtk_tooltips_set_tip (tooltips, color_cancel, ("Cancel changes done (since last \"Apply\") and close this dialog"), NULL);
 
   if(topic_available(HELP_COLORING_RULES_DIALOG)) {
-      color_help = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_HELP);
+      color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
       gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
       SIGNAL_CONNECT(color_help, "clicked", topic_cb, HELP_COLORING_RULES_DIALOG);
   }
@@ -388,33 +388,33 @@ colorize_dialog_new (char *filter)
 
   /* signals and such */
   SIGNAL_CONNECT(color_win, "destroy", color_destroy_cb, NULL);
-  OBJECT_SET_DATA(color_filter_up, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_filter_up), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_filter_up, "clicked", color_filter_up_cb, NULL);
-  OBJECT_SET_DATA(color_filter_down, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_filter_down), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_filter_down, "clicked", color_filter_down_cb, NULL);
   SIGNAL_CONNECT(selection, "changed", remember_selected_row, color_filters);
   SIGNAL_CONNECT(color_filters, "button_press_event", color_filters_button_cb, NULL);
-  OBJECT_SET_DATA(color_filters, COLOR_UP_LB, color_filter_up);
-  OBJECT_SET_DATA(color_filters, COLOR_DOWN_LB, color_filter_down);
-  OBJECT_SET_DATA(color_filters, COLOR_EDIT_LB, color_edit);
-  OBJECT_SET_DATA(color_filters, COLOR_ENABLE_LB, color_enable);
-  OBJECT_SET_DATA(color_filters, COLOR_DISABLE_LB, color_disable);
-  OBJECT_SET_DATA(color_filters, COLOR_DELETE_LB, color_delete);
-  OBJECT_SET_DATA(color_new, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_UP_LB, color_filter_up);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_DOWN_LB, color_filter_down);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_EDIT_LB, color_edit);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_ENABLE_LB, color_enable);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_DISABLE_LB, color_disable);
+  g_object_set_data(G_OBJECT(color_filters), COLOR_DELETE_LB, color_delete);
+  g_object_set_data(G_OBJECT(color_new), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_new, "clicked", color_new_cb, NULL);
-  OBJECT_SET_DATA(color_edit, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_edit), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_edit, "clicked", color_edit_cb, NULL);
-  OBJECT_SET_DATA(color_enable, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_enable), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_enable, "clicked", color_disable_cb, FALSE);
-  OBJECT_SET_DATA(color_disable, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_disable), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_disable, "clicked", color_disable_cb, TRUE);
-  OBJECT_SET_DATA(color_delete, COLOR_EDIT_LB, color_edit);
-  OBJECT_SET_DATA(color_delete, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_delete), COLOR_EDIT_LB, color_edit);
+  g_object_set_data(G_OBJECT(color_delete), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_delete, "clicked", color_delete_cb, NULL);
   SIGNAL_CONNECT(color_export, "clicked", color_export_cb, NULL);
-  OBJECT_SET_DATA(color_import, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_import), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_import, "clicked", color_import_cb, NULL);
-  OBJECT_SET_DATA(color_clear, COLOR_FILTERS_CL, color_filters);
+  g_object_set_data(G_OBJECT(color_clear), COLOR_FILTERS_CL, color_filters);
   SIGNAL_CONNECT(color_clear, "clicked", color_clear_cb, NULL);
   SIGNAL_CONNECT(color_ok, "clicked", color_ok_cb, NULL);
   SIGNAL_CONNECT(color_apply, "clicked", color_apply_cb, NULL);
@@ -426,7 +426,7 @@ colorize_dialog_new (char *filter)
 
   /* prepare filter list content */
   color_filters_clone(color_filters);
-  OBJECT_SET_DATA(color_win, COLOR_FILTER_LIST, &color_filter_edit_list);
+  g_object_set_data(G_OBJECT(color_win), COLOR_FILTER_LIST, &color_filter_edit_list);
 
   gtk_widget_show_all(color_win);
 
@@ -504,7 +504,7 @@ color_filter_up_cb(GtkButton *button, gpointer user_data _U_)
   GtkTreeSelection *sel;
 
   amount = -1;
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
   for (filter_number = 0; filter_number < num_of_filters; filter_number++)
   {
@@ -529,7 +529,7 @@ color_filter_down_cb(GtkButton *button, gpointer user_data _U_)
   GtkTreeModel   *model;
 
   amount = +1;
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
   for (filter_number = num_of_filters - 1; filter_number >= 0; filter_number--)
   {
@@ -613,28 +613,28 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
       */
 
       /* We can only edit if there is exactly one filter selected */
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_EDIT_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
       gtk_widget_set_sensitive (button, data.count == 1);
 
       /* We can enable any number of filters */
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_ENABLE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
       gtk_widget_set_sensitive (button, !data.all_enabled);
 
       /* We can disable any number of filters */
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DISABLE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
       gtk_widget_set_sensitive (button, !data.all_disabled);
 
       /* We can delete any number of filters */
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DELETE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
       gtk_widget_set_sensitive (button, TRUE);
 
       /*
        * We can move them up *if* one of them isn't the top row,
        * and move them down *if* one of them isn't the bottom row.
       */
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_UP_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_UP_LB);
       gtk_widget_set_sensitive(button, !data.first_selected);
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DOWN_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DOWN_LB);
       gtk_widget_set_sensitive(button, !data.last_selected);
     }
     else
@@ -646,18 +646,18 @@ remember_selected_row(GtkTreeSelection *sel, gpointer color_filters)
        * selected row.
        */
       if (!row_is_moving) {
-        button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_UP_LB);
+        button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_UP_LB);
         gtk_widget_set_sensitive (button, FALSE);
-        button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DOWN_LB);
+        button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DOWN_LB);
         gtk_widget_set_sensitive (button, FALSE);
       }
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_EDIT_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_EDIT_LB);
       gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_ENABLE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
       gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DISABLE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
       gtk_widget_set_sensitive (button, FALSE);
-      button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DELETE_LB);
+      button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DELETE_LB);
       gtk_widget_set_sensitive (button, FALSE);
     }
 }
@@ -761,7 +761,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   GtkWidget        *color_filters;
   GtkTreeSelection *sel;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
   /* unselect all filters */
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
@@ -797,7 +797,7 @@ color_edit_cb(GtkButton *button, gpointer user_data _U_)
 {
   GtkWidget *color_filters;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
   g_assert(row_selected != -1);
   edit_color_filter_dialog(color_filters, FALSE /* is not a new filter */);
 }
@@ -830,7 +830,7 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
   GtkTreeModel     *model;
   GtkTreeSelection *sel;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
   for (filter_number = 0; filter_number < num_of_filters; filter_number++)
   {
@@ -843,9 +843,9 @@ color_disable_cb(GtkWidget *widget, gboolean action_disable)
       gtk_list_store_set(GTK_LIST_STORE(model), &iter, 4, action_disable, -1);
     }
   }
-  button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_ENABLE_LB);
+  button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_ENABLE_LB);
   gtk_widget_set_sensitive(button, action_disable);
-  button = (GtkWidget *)OBJECT_GET_DATA(color_filters, COLOR_DISABLE_LB);
+  button = (GtkWidget *)g_object_get_data(G_OBJECT(color_filters), COLOR_DISABLE_LB);
   gtk_widget_set_sensitive(button, !action_disable);
 }
 
@@ -887,11 +887,11 @@ color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
 {
   GtkWidget  *color_filters;
   gint row, num_filters;
-    GtkTreeModel     *model;
-    GtkTreeIter       iter;
-    GtkTreeSelection *sel;
+  GtkTreeModel     *model;
+  GtkTreeIter       iter;
+  GtkTreeSelection *sel;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
   /* get the number of filters in the list */
   model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
@@ -913,7 +913,7 @@ color_export_cb(GtkButton *button, gpointer data _U_)
 {
   GtkWidget        *color_filters;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
   file_color_export_cmd_cb(color_filters, color_filter_edit_list);
 }
@@ -925,7 +925,7 @@ color_import_cb(GtkButton *button, gpointer data _U_)
   GtkWidget        *color_filters;
   GtkTreeSelection *sel;
 
-  color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
 
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(color_filters));
   gtk_tree_selection_unselect_all (sel);
@@ -940,7 +940,7 @@ color_clear_cmd(GtkWidget *widget)
 {
     GtkWidget * color_filters;
 
-    color_filters = (GtkWidget *)OBJECT_GET_DATA(widget, COLOR_FILTERS_CL);
+    color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(widget), COLOR_FILTERS_CL);
 
     while (num_of_filters > 0)
     {

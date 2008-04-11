@@ -1339,7 +1339,7 @@ static gint quit(GtkWidget *widget, GdkEventExpose *event _U_)
 {
         user_data_t *user_data;
 
-        user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+        user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
 	user_data->dlg.dialog_graph.window = NULL;
         return TRUE;
@@ -1350,7 +1350,7 @@ static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	user_data_t *user_data;
 
-	user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
         if(!user_data){
                 exit(10);
         }
@@ -1372,7 +1372,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
         user_data_t *user_data;
 	int i;
 
-        user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+        user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
         if(!user_data){
                 exit(10);
@@ -1433,7 +1433,7 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
 {
         user_data->dlg.dialog_graph.draw_area=gtk_drawing_area_new();
         SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "destroy", quit, user_data);
-        OBJECT_SET_DATA(user_data->dlg.dialog_graph.draw_area, "user_data_t", user_data);
+        g_object_set_data(G_OBJECT(user_data->dlg.dialog_graph.draw_area), "user_data_t", user_data);
 
         WIDGET_SET_SIZE(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
 
@@ -1547,7 +1547,7 @@ static void yscale_select(GtkWidget *item, gpointer key)
 	user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(long)OBJECT_GET_DATA(item, "yscale_max");
+        val=(long)g_object_get_data(G_OBJECT(item), "yscale_max");
 
         user_data->dlg.dialog_graph.max_y_units=val;
         dialog_graph_redraw(user_data);
@@ -1560,7 +1560,7 @@ static void pixels_per_tick_select(GtkWidget *item, gpointer key)
         user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(long)OBJECT_GET_DATA(item, "pixels_per_tick");
+        val=(long)g_object_get_data(G_OBJECT(item), "pixels_per_tick");
         user_data->dlg.dialog_graph.pixels_per_tick=val;
         dialog_graph_redraw(user_data);
 }
@@ -1572,7 +1572,7 @@ static void tick_interval_select(GtkWidget *item, gpointer key)
         user_data_t *user_data;
 
         user_data=(user_data_t *)key;
-        val=(long)OBJECT_GET_DATA(item, "tick_interval");
+        val=(long)g_object_get_data(G_OBJECT(item), "tick_interval");
 
         user_data->dlg.dialog_graph.interval=val;
         cf_retap_packets(&cfile, FALSE);
@@ -1593,7 +1593,7 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
                         g_snprintf(str, 15, "%u ms", yscale_max[i]/1000);
                 }
                 menu_item=gtk_menu_item_new_with_label(str);
-                OBJECT_SET_DATA(menu_item, "yscale_max",
+                g_object_set_data(G_OBJECT(menu_item), "yscale_max",
                                 GUINT_TO_POINTER(yscale_max[i]));
                 SIGNAL_CONNECT(menu_item, "activate", yscale_select, user_data);
                 gtk_widget_show(menu_item);
@@ -1613,7 +1613,7 @@ static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget 
                 g_snprintf(str, 5, "%u", pixels_per_tick[i]);
                 menu_item=gtk_menu_item_new_with_label(str);
 
-                OBJECT_SET_DATA(menu_item, "pixels_per_tick",
+                g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
                 SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, user_data);
                 gtk_widget_show(menu_item);
@@ -1643,7 +1643,7 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
                 }
 
                 menu_item=gtk_menu_item_new_with_label(str);
-                OBJECT_SET_DATA(menu_item, "tick_interval",
+                g_object_set_data(G_OBJECT(menu_item), "tick_interval",
                                 GUINT_TO_POINTER(tick_interval_values[i]));
                 SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)user_data);
                 gtk_widget_show(menu_item);
@@ -1748,7 +1748,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
         gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
     gtk_widget_show(hbox);
 
-    bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
+    bt_close = g_object_get_data(G_OBJECT(hbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
 
     SIGNAL_CONNECT(user_data->dlg.dialog_graph.window, "delete_event", window_delete_event_cb, NULL);
@@ -1874,10 +1874,10 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		return;
 	}
 
-	rev = (GtkWidget*)OBJECT_GET_DATA(bt, "reversed_rb");
-	forw = (GtkWidget*)OBJECT_GET_DATA(bt, "forward_rb");
-	both = (GtkWidget*)OBJECT_GET_DATA(bt, "both_rb");
-	user_data = (user_data_t*)OBJECT_GET_DATA(bt, "user_data");
+	rev = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "reversed_rb");
+	forw = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "forward_rb");
+	both = (GtkWidget*)g_object_get_data(G_OBJECT(bt), "both_rb");
+	user_data = (user_data_t*)g_object_get_data(G_OBJECT(bt), "user_data");
 
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		fp = eth_fopen(g_dest, "w");
@@ -2067,10 +2067,10 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(both_rb), TRUE);
 
 	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->ok_button;
-	OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
-	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
-	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
-	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
+	g_object_set_data(G_OBJECT(ok_bt), "forward_rb", forward_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
 	SIGNAL_CONNECT(ok_bt, "clicked", save_csv_as_ok_cb,
 		user_data->dlg.save_csv_as_w);
 
@@ -2406,14 +2406,14 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		return;
 	}
 
-	/*wav = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "wav_rb");
-	sw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "sw_rb");*/
-	au = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "au_rb");
-	raw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "raw_rb");
-	rev = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "reversed_rb");
-	forw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "forward_rb");
-	both = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "both_rb");
-	user_data = (user_data_t *)OBJECT_GET_DATA(ok_bt, "user_data");
+	/*wav = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "wav_rb");
+	sw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "sw_rb");*/
+	au = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "au_rb");
+	raw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "raw_rb");
+	rev = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "reversed_rb");
+	forw = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "forward_rb");
+	both = (GtkWidget *)g_object_get_data(G_OBJECT(ok_bt), "both_rb");
+	user_data = (user_data_t *)g_object_get_data(G_OBJECT(ok_bt), "user_data");
 
 	/* XXX user clicks the ok button, but we know we can't save the voice info because f.e.
 	* we don't support that codec. So we pop up a warning. Maybe it would be better to
@@ -2699,14 +2699,14 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	*/
 
 	ok_bt = GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->ok_button;
-	/*OBJECT_SET_DATA(ok_bt, "wav_rb", wav_rb);*/
-	OBJECT_SET_DATA(ok_bt, "au_rb", au_rb);
-	/*OBJECT_SET_DATA(ok_bt, "sw_rb", sw_rb);*/
-	OBJECT_SET_DATA(ok_bt, "raw_rb", raw_rb);
-	OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
-	OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
-	OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
-	OBJECT_SET_DATA(ok_bt, "user_data", user_data);
+	/*g_object_set_data(G_OBJECT(ok_bt), "wav_rb", wav_rb);*/
+	g_object_set_data(G_OBJECT(ok_bt), "au_rb", au_rb);
+	/*g_object_set_data(G_OBJECT(ok_bt), "sw_rb", sw_rb);*/
+	g_object_set_data(G_OBJECT(ok_bt), "raw_rb", raw_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "forward_rb", forward_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "reversed_rb", reversed_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "both_rb", both_rb);
+	g_object_set_data(G_OBJECT(ok_bt), "user_data", user_data);
 	SIGNAL_CONNECT(ok_bt, "clicked", save_voice_as_ok_cb,
                        user_data->dlg.save_voice_as_w);
 
@@ -3033,7 +3033,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
-	OBJECT_SET_DATA(window, "notebook", notebook);
+	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 
 	user_data->dlg.notebook_signal_id = SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,
                        user_data);

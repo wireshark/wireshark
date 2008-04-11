@@ -653,11 +653,11 @@ static void create_drawing_area (struct graph *g)
 	g->toplevel = dlg_window_new ("Tcp Graph");
 	gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
-	OBJECT_SET_DATA(g->toplevel, "graph", g);
+	g_object_set_data(G_OBJECT(g->toplevel), "graph", g);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
-	OBJECT_SET_DATA(g->drawing_area, "graph", g);
+	g_object_set_data(G_OBJECT(g->drawing_area), "graph", g);
 	g->x_axis->drawing_area = g->y_axis->drawing_area = g->drawing_area;
 	gtk_drawing_area_size (GTK_DRAWING_AREA (g->drawing_area),
 					g->wp.width + g->wp.x + RMARGIN_WIDTH,
@@ -822,10 +822,10 @@ static void control_panel_create (struct graph *g)
     gtk_table_attach (GTK_TABLE (table), bbox, 0, 1, 1, 2,
                       GTK_FILL|GTK_EXPAND, GTK_FILL, 5, 5);
 
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", callback_create_help, g);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, NULL);
     SIGNAL_CONNECT(close_bt, "clicked", callback_close, g);
 
@@ -983,7 +983,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_box_pack_start (GTK_BOX (vbox), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
 
     SIGNAL_CONNECT(toplevel, "delete_event", window_delete_event_cb, NULL);
@@ -1063,8 +1063,8 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 
 	zoom_same_toggle = gtk_check_button_new_with_label("Keep them the same");
 	zoom_ratio_toggle = gtk_check_button_new_with_label("Preserve their ratio");
-	OBJECT_SET_DATA(zoom_same_toggle, "flag", (gpointer)ZOOM_STEPS_SAME);
-	OBJECT_SET_DATA(zoom_ratio_toggle, "flag",
+	g_object_set_data(G_OBJECT(zoom_same_toggle), "flag", (gpointer)ZOOM_STEPS_SAME);
+	g_object_set_data(G_OBJECT(zoom_ratio_toggle), "flag",
                         (gpointer)ZOOM_STEPS_KEEP_RATIO);
 	SIGNAL_CONNECT(zoom_same_toggle, "clicked", callback_zoom_flags, g);
 	SIGNAL_CONNECT(zoom_ratio_toggle, "clicked", callback_zoom_flags, g);
@@ -1092,8 +1092,8 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 	zoom_frame = gtk_frame_new ("Zoom");
 	gtk_container_add (GTK_CONTAINER (zoom_frame), zoom_box);
 
-	OBJECT_SET_DATA(zoom_h_step, "direction", GINT_TO_POINTER(0));
-	OBJECT_SET_DATA(zoom_v_step, "direction", GINT_TO_POINTER(1));
+	g_object_set_data(G_OBJECT(zoom_h_step), "direction", GINT_TO_POINTER(0));
+	g_object_set_data(G_OBJECT(zoom_v_step), "direction", GINT_TO_POINTER(1));
 
 	SIGNAL_CONNECT(zoom_in, "toggled", callback_zoom_inout, g);
 	SIGNAL_CONNECT(zoom_h_step, "changed", callback_zoom_step, g);
@@ -1123,7 +1123,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	GtkSpinButton *widget_this, *widget_other;
 	double old_this;
 
-	direction = (long)OBJECT_GET_DATA(spin, "direction");
+	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
 	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1162,7 +1162,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 static void callback_zoom_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (long)OBJECT_GET_DATA(toggle, "flag");
+	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
 		g->zoom.flags |= flag;
@@ -1265,10 +1265,10 @@ static GtkWidget *control_panel_create_magnify_group (struct graph *g)
 
 	g->magnify.widget.h_zoom = (GtkSpinButton * )mag_h_zoom;
 	g->magnify.widget.v_zoom = (GtkSpinButton * )mag_v_zoom;
-	OBJECT_SET_DATA(mag_h_zoom, "direction", GINT_TO_POINTER(0));
-	OBJECT_SET_DATA(mag_v_zoom, "direction", GINT_TO_POINTER(1));
-	OBJECT_SET_DATA(mag_zoom_same, "flag", (gpointer)MAGZOOMS_SAME);
-	OBJECT_SET_DATA(mag_zoom_ratio, "flag", (gpointer)MAGZOOMS_SAME_RATIO);
+	g_object_set_data(G_OBJECT(mag_h_zoom), "direction", GINT_TO_POINTER(0));
+	g_object_set_data(G_OBJECT(mag_v_zoom), "direction", GINT_TO_POINTER(1));
+	g_object_set_data(G_OBJECT(mag_zoom_same), "flag", (gpointer)MAGZOOMS_SAME);
+	g_object_set_data(G_OBJECT(mag_zoom_ratio), "flag", (gpointer)MAGZOOMS_SAME_RATIO);
 
 	SIGNAL_CONNECT(mag_width, "changed", callback_mag_width, g);
 	SIGNAL_CONNECT(mag_height, "changed", callback_mag_height, g);
@@ -1324,7 +1324,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		g->magnify.flags &= ~MAGZOOMS_IGNORE;
 		return;
 	}
-	direction = (long)OBJECT_GET_DATA(spin, "direction");
+	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
 	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
@@ -1367,7 +1367,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 static void callback_mag_flags (GtkWidget *toggle, gpointer data)
 {
 	struct graph *g = (struct graph * )data;
-	int flag = (long)OBJECT_GET_DATA(toggle, "flag");
+	int flag = (long)g_object_get_data(G_OBJECT(toggle), "flag");
 
 	if (GTK_TOGGLE_BUTTON (toggle)->active)
 		g->magnify.flags |= flag;
@@ -1506,11 +1506,11 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 	graph_frame = gtk_frame_new ("Graph type:");
 	gtk_container_add (GTK_CONTAINER (graph_frame), graph_box);
 
-	OBJECT_SET_DATA(graph_tseqstevens, "new-graph-type",
+	g_object_set_data(G_OBJECT(graph_tseqstevens), "new-graph-type",
                         GINT_TO_POINTER(0));
-	OBJECT_SET_DATA(graph_tseqttrace, "new-graph-type", GINT_TO_POINTER(1));
-	OBJECT_SET_DATA(graph_tput, "new-graph-type", GINT_TO_POINTER(2));
-	OBJECT_SET_DATA(graph_rtt, "new-graph-type", GINT_TO_POINTER(3));
+	g_object_set_data(G_OBJECT(graph_tseqttrace), "new-graph-type", GINT_TO_POINTER(1));
+	g_object_set_data(G_OBJECT(graph_tput), "new-graph-type", GINT_TO_POINTER(2));
+	g_object_set_data(G_OBJECT(graph_rtt), "new-graph-type", GINT_TO_POINTER(3));
 
         SIGNAL_CONNECT(graph_tseqttrace, "toggled", callback_graph_type, g);
         SIGNAL_CONNECT(graph_tseqstevens, "toggled", callback_graph_type, g);
@@ -1527,7 +1527,7 @@ static void callback_graph_type (GtkWidget *toggle, gpointer data)
 	int old_type, new_type;
 	struct graph *g = (struct graph * )data;
 
-	new_type = (long)OBJECT_GET_DATA(toggle,"new-graph-type");
+	new_type = (long)g_object_get_data(G_OBJECT(toggle),"new-graph-type");
 
 	if (!GTK_TOGGLE_BUTTON (toggle)->active)
 		return;
@@ -2732,7 +2732,7 @@ static void magnify_draw (struct graph *g)
 
 static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 	struct {
 		double x, y;
 	} zoom;
@@ -2791,7 +2791,7 @@ static gint configure_event (GtkWidget *widget, GdkEventConfigure *event)
 
 static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("expose_event()");
 
@@ -2815,7 +2815,7 @@ static gint expose_event (GtkWidget *widget, GdkEventExpose *event)
 
 static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("button_press_event()");
 
@@ -2910,7 +2910,7 @@ static gint button_press_event (GtkWidget *widget, GdkEventButton *event)
 
 static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 	int x, y;
 	GdkModifierType state;
 
@@ -2967,7 +2967,7 @@ static gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
 
 static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("button_release_event()");
 
@@ -2981,7 +2981,7 @@ static gint button_release_event (GtkWidget *widget, GdkEventButton *event)
 
 static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("key_press_event()");
 
@@ -3015,7 +3015,7 @@ static gint key_press_event (GtkWidget *widget, GdkEventKey *event)
 
 static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	debug(DBS_FENTRY) puts ("key_release_event()");
 
@@ -3028,7 +3028,7 @@ static gint key_release_event (GtkWidget *widget, GdkEventKey *event)
 
 static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	if (g->cross.erase_needed)
 		cross_erase (g);
@@ -3038,7 +3038,7 @@ static gint leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 
 static gint enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_)
 {
-	struct graph *g = (struct graph *) OBJECT_GET_DATA(widget, "graph");
+        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
 
 	/* graph_pixmap_display (g); */
 	if (g->cross.draw) {

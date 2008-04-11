@@ -138,7 +138,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     /* dialog window */
     edit_dialog = dlg_window_new ("Wireshark: Edit Color Filter");
     gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);
-    OBJECT_SET_DATA(edit_dialog, "edit_dialog", edit_dialog);
+    g_object_set_data(G_OBJECT(edit_dialog), "edit_dialog", edit_dialog);
     colorf->edit_dialog = edit_dialog;
 
     dialog_vbox = gtk_vbox_new (FALSE, 0);
@@ -235,31 +235,31 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), bbox, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (bbox), 0);
 
-    edit_color_filter_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    edit_color_filter_ok = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     gtk_tooltips_set_tip (tooltips, edit_color_filter_ok, ("Accept filter color change"), NULL);
 
-    edit_color_filter_cancel = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+    edit_color_filter_cancel = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
     gtk_tooltips_set_tip (tooltips, edit_color_filter_cancel, ("Reject filter color change"), NULL);
 
     gtk_widget_grab_default(edit_color_filter_ok);
 
     /* signals and such */
-    OBJECT_SET_DATA(edit_dialog, COLOR_FILTER, colorf);
+    g_object_set_data(G_OBJECT(edit_dialog), COLOR_FILTER, colorf);
     SIGNAL_CONNECT(edit_dialog, "destroy", edit_color_filter_destroy_cb, NULL);
-    OBJECT_SET_DATA(colorize_filter_fg, COLOR_FILTER, colorf);
+    g_object_set_data(G_OBJECT(colorize_filter_fg), COLOR_FILTER, colorf);
     SIGNAL_CONNECT(colorize_filter_fg, "clicked", edit_color_filter_fg_cb, NULL);
-    OBJECT_SET_DATA(colorize_filter_bg, COLOR_FILTER, colorf);
+    g_object_set_data(G_OBJECT(colorize_filter_bg), COLOR_FILTER, colorf);
     SIGNAL_CONNECT(colorize_filter_bg, "clicked", edit_color_filter_bg_cb, NULL);
-    OBJECT_SET_DATA(disabled_cb, COLOR_FILTER, colorf);
+    g_object_set_data(G_OBJECT(disabled_cb), COLOR_FILTER, colorf);
 /*    SIGNAL_CONNECT(disabled_cb, "clicked", edit_disabled_cb_cb, NULL);*/
-    OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTERS_CL, color_filters);
-    OBJECT_SET_DATA(edit_color_filter_ok, COLOR_FILTER, colorf);
+    g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTERS_CL, color_filters);
+    g_object_set_data(G_OBJECT(edit_color_filter_ok), COLOR_FILTER, colorf);
     SIGNAL_CONNECT(edit_color_filter_ok, "clicked", edit_color_filter_ok_cb, edit_dialog);
 
     /* set callback to delete new filters if cancel chosen */
     if (is_new_filter)
     {
-        OBJECT_SET_DATA(edit_color_filter_cancel, COLOR_FILTERS_CL, color_filters);
+        g_object_set_data(G_OBJECT(edit_color_filter_cancel), COLOR_FILTERS_CL, color_filters);
         SIGNAL_CONNECT(edit_color_filter_cancel, "clicked",
                        edit_new_color_filter_cancel_cb, edit_dialog);
     }
@@ -281,14 +281,14 @@ edit_color_filter_destroy_cb(GObject *object, gpointer user_data _U_)
   color_filter_t *colorf;
   GtkWidget *color_sel;
 
-  colorf = (color_filter_t *)OBJECT_GET_DATA(object, COLOR_FILTER);
+  colorf = (color_filter_t *)g_object_get_data(G_OBJECT(object), COLOR_FILTER);
   colorf->edit_dialog = NULL;
 
   /* Destroy any color selection dialogs this dialog had open. */
-  color_sel = (GtkWidget *)OBJECT_GET_DATA(object, COLOR_SELECTION_FG);
+  color_sel = (GtkWidget *)g_object_get_data(G_OBJECT(object), COLOR_SELECTION_FG);
   if (color_sel != NULL)
     window_destroy(color_sel);
-  color_sel = (GtkWidget *)OBJECT_GET_DATA(object, COLOR_SELECTION_BG);
+  color_sel = (GtkWidget *)g_object_get_data(G_OBJECT(object), COLOR_SELECTION_BG);
   if (color_sel != NULL)
     window_destroy(color_sel);
 }
@@ -300,9 +300,9 @@ edit_color_filter_fg_cb(GtkButton *button, gpointer user_data _U_)
   color_filter_t *colorf;
   GtkWidget *color_selection_fg;
 
-  colorf = (color_filter_t *)OBJECT_GET_DATA(button, COLOR_FILTER);
+  colorf = (color_filter_t *)g_object_get_data(G_OBJECT(button), COLOR_FILTER);
   /* Do we already have one open for this dialog? */
-  color_selection_fg = OBJECT_GET_DATA(colorf->edit_dialog, COLOR_SELECTION_FG);
+  color_selection_fg = g_object_get_data(G_OBJECT(colorf->edit_dialog), COLOR_SELECTION_FG);
   if (color_selection_fg != NULL) {
     /* Yes.  Just reactivate it. */
     reactivate_window(color_selection_fg);
@@ -310,8 +310,8 @@ edit_color_filter_fg_cb(GtkButton *button, gpointer user_data _U_)
     /* No.  Create a new color selection box, and associate it with
        this dialog. */
     color_selection_fg = color_sel_win_new(colorf, FALSE);
-    OBJECT_SET_DATA(colorf->edit_dialog, COLOR_SELECTION_FG, color_selection_fg);
-    OBJECT_SET_DATA(color_selection_fg, COLOR_SELECTION_PARENT, colorf->edit_dialog);
+    g_object_set_data(G_OBJECT(colorf->edit_dialog), COLOR_SELECTION_FG, color_selection_fg);
+    g_object_set_data(G_OBJECT(color_selection_fg), COLOR_SELECTION_PARENT, colorf->edit_dialog);
   }
 }
 
@@ -323,9 +323,9 @@ edit_color_filter_bg_cb                (GtkButton       *button,
   color_filter_t *colorf;
   GtkWidget *color_selection_bg;
 
-  colorf = (color_filter_t *)OBJECT_GET_DATA(button, COLOR_FILTER);
+  colorf = (color_filter_t *)g_object_get_data(G_OBJECT(button), COLOR_FILTER);
   /* Do we already have one open for this dialog? */
-  color_selection_bg = OBJECT_GET_DATA(colorf->edit_dialog, COLOR_SELECTION_BG);
+  color_selection_bg = g_object_get_data(G_OBJECT(colorf->edit_dialog), COLOR_SELECTION_BG);
   if (color_selection_bg != NULL) {
     /* Yes.  Just reactivate it. */
     reactivate_window(color_selection_bg);
@@ -333,8 +333,8 @@ edit_color_filter_bg_cb                (GtkButton       *button,
     /* No.  Create a new color selection box, and associate it with
        this dialog. */
     color_selection_bg = color_sel_win_new(colorf, TRUE);
-    OBJECT_SET_DATA(colorf->edit_dialog, COLOR_SELECTION_BG, color_selection_bg);
-    OBJECT_SET_DATA(color_selection_bg, COLOR_SELECTION_PARENT, colorf->edit_dialog);
+    g_object_set_data(G_OBJECT(colorf->edit_dialog), COLOR_SELECTION_BG, color_selection_bg);
+    g_object_set_data(G_OBJECT(color_selection_bg), COLOR_SELECTION_PARENT, colorf->edit_dialog);
   }
 }
 
@@ -346,7 +346,7 @@ edit_disabled_cb_cb 	               (GtkButton       *button,
 {
   color_filter_t *colorf;
 
-  colorf = (color_filter_t *)OBJECT_GET_DATA(button, COLOR_FILTER);
+  colorf = (color_filter_t *)g_object_get_data(G_OBJECT(button), COLOR_FILTER);
   colorf->disabled = GTK_TOGGLE_BUTTON (button)->active;
 
   printf("Colorfilter %s is now %s\n",colorf->filter_name,colorf->disabled?"disabled":"enabled");
@@ -397,8 +397,8 @@ edit_color_filter_ok_cb                (GtkButton       *button,
                       " Please try again. Filter unchanged.\n%s\n", filter_name,
                       dfilter_error_msg);
     } else {
-        color_filters = (GtkWidget *)OBJECT_GET_DATA(button, COLOR_FILTERS_CL);
-        colorf = (color_filter_t *)OBJECT_GET_DATA(button, COLOR_FILTER);
+        color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
+        colorf = (color_filter_t *)g_object_get_data(G_OBJECT(button), COLOR_FILTER);
 
         if (colorf->filter_name != NULL)
             g_free(colorf->filter_name);
@@ -432,7 +432,7 @@ static void
 edit_new_color_filter_cancel_cb(GtkButton *button, gpointer user_data _U_)
 {
     /* Delete the entry. As a side effect this destroys the edit_dialog window. */
-    color_delete(num_of_filters-1, (GtkWidget*)OBJECT_GET_DATA(button, COLOR_FILTERS_CL));
+    color_delete(num_of_filters-1, (GtkWidget*)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL));
 }
 
 static GtkWidget*
@@ -457,7 +457,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   }
   color_sel_win = gtk_color_selection_dialog_new(title);
   g_free(title);
-  OBJECT_SET_DATA(color_sel_win, "color_sel_win", color_sel_win);
+  g_object_set_data(G_OBJECT(color_sel_win), "color_sel_win", color_sel_win);
   gtk_container_set_border_width (GTK_CONTAINER (color_sel_win), 10);
 
   if (color != NULL) {
@@ -468,11 +468,11 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   }
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
-  OBJECT_SET_DATA(color_sel_win, "color_sel_ok", color_sel_ok);
+  g_object_set_data(G_OBJECT(color_sel_win), "color_sel_ok", color_sel_ok);
   GTK_WIDGET_SET_FLAGS (color_sel_ok, GTK_CAN_DEFAULT);
 
   color_sel_cancel = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->cancel_button;
-  OBJECT_SET_DATA(color_sel_win, "color_sel_cancel", color_sel_cancel);
+  g_object_set_data(G_OBJECT(color_sel_win), "color_sel_cancel", color_sel_cancel);
   GTK_WIDGET_SET_FLAGS (color_sel_cancel, GTK_CAN_DEFAULT);
   window_set_cancel_button(color_sel_win, color_sel_cancel, NULL); /* ensure esc does req'd local cxl action.    */
                                                                    /* esc as handled by the                      */
@@ -480,7 +480,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
                                                                    /*  doesn't result in this happening.         */
 
   color_sel_help = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->help_button;
-  OBJECT_SET_DATA(color_sel_win, "color_sel_help", color_sel_help);
+  g_object_set_data(G_OBJECT(color_sel_win), "color_sel_help", color_sel_help);
 
 
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
@@ -499,20 +499,20 @@ color_sel_win_destroy(GtkWidget *sel_win)
   GtkWidget *color_selection_fg, *color_selection_bg;
 
   /* Find the "Edit color filter" dialog box with which this is associated. */
-  parent = (GtkWidget *)OBJECT_GET_DATA(sel_win, COLOR_SELECTION_PARENT);
+  parent = (GtkWidget *)g_object_get_data(G_OBJECT(sel_win), COLOR_SELECTION_PARENT);
 
   /* Find that dialog box's foreground and background color selection
      boxes, if any. */
-  color_selection_fg = OBJECT_GET_DATA(parent, COLOR_SELECTION_FG);
-  color_selection_bg = OBJECT_GET_DATA(parent, COLOR_SELECTION_BG);
+  color_selection_fg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_FG);
+  color_selection_bg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_BG);
 
   if (sel_win == color_selection_fg) {
     /* This was its foreground color selection box; it isn't, anymore. */
-    OBJECT_SET_DATA(parent, COLOR_SELECTION_FG, NULL);
+    g_object_set_data(G_OBJECT(parent), COLOR_SELECTION_FG, NULL);
   }
   if (sel_win == color_selection_bg) {
     /* This was its background color selection box; it isn't, anymore. */
-    OBJECT_SET_DATA(parent, COLOR_SELECTION_BG, NULL);
+    g_object_set_data(G_OBJECT(parent), COLOR_SELECTION_BG, NULL);
   }
 
   /* Now destroy it. */
@@ -542,12 +542,12 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
   } else {
 	/* Find the "Edit color filter" dialog box with which this is
 	   associated. */
-	parent = (GtkWidget *)OBJECT_GET_DATA(color_dialog, COLOR_SELECTION_PARENT);
+        parent = (GtkWidget *)g_object_get_data(G_OBJECT(color_dialog), COLOR_SELECTION_PARENT);
 
 	/* Find that dialog box's foreground and background color selection
 	   boxes, if any. */
-	color_selection_fg = OBJECT_GET_DATA(parent, COLOR_SELECTION_FG);
-	color_selection_bg = OBJECT_GET_DATA(parent, COLOR_SELECTION_BG);
+	color_selection_fg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_FG);
+	color_selection_bg = g_object_get_data(G_OBJECT(parent), COLOR_SELECTION_BG);
 	is_bg = (color_dialog == color_selection_bg);
 
 	color_sel_win_destroy(color_dialog);

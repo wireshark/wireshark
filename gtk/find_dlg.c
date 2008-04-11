@@ -200,15 +200,15 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
   SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
   SIGNAL_CONNECT(filter_bt, "destroy", filter_button_destroy_cb, NULL);
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_BUTTON_KEY, filter_bt);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_BUTTON_KEY, filter_bt);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, filter_bt, ("Click on the filter button to select a display filter,\nor enter your search criteria into the text box"), NULL);
   gtk_widget_show(filter_bt);
 
   filter_text_box = gtk_entry_new();
   if (cfile.sfilter) gtk_entry_set_text(GTK_ENTRY(filter_text_box), cfile.sfilter);
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_text_box);
-  OBJECT_SET_DATA(find_frame_w, E_FILT_TE_PTR_KEY, filter_text_box);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_text_box);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FILT_TE_PTR_KEY, filter_text_box);
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_text_box, TRUE, TRUE, 0);
   SIGNAL_CONNECT(filter_text_box, "changed", find_filter_te_syntax_check_cb, find_frame_w);
   gtk_widget_show(filter_text_box);
@@ -325,30 +325,30 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_FIND);
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_FIND);
   SIGNAL_CONNECT(ok_bt, "clicked", find_frame_ok_cb, find_frame_w);
 
-  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", find_frame_close_cb, find_frame_w);
 
   if(topic_available(HELP_FIND_DIALOG)) {
-      help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+      help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
       SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_FIND_DIALOG);
   }
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
-  OBJECT_SET_DATA(find_frame_w, E_FIND_FILT_KEY, filter_text_box);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_BACKWARD_KEY, up_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_FILTERDATA_KEY, filter_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_HEXDATA_KEY, hex_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGDATA_KEY, string_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_LABEL_KEY, combo_lb);
-  OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_KEY, combo_cb);
-  OBJECT_SET_DATA(find_frame_w, E_CASE_SEARCH_KEY, case_cb);
-  OBJECT_SET_DATA(find_frame_w, E_SOURCE_HEX_KEY, hex_data_rb);
-  OBJECT_SET_DATA(find_frame_w, E_SOURCE_DECODE_KEY, decode_data_rb);
-  OBJECT_SET_DATA(find_frame_w, E_SOURCE_SUMMARY_KEY, summary_data_rb);
-  OBJECT_SET_DATA(find_frame_w, E_FILT_TE_BUTTON_KEY, filter_bt);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_FILT_KEY, filter_text_box);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_BACKWARD_KEY, up_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_FILTERDATA_KEY, filter_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_HEXDATA_KEY, hex_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_STRINGDATA_KEY, string_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_STRINGTYPE_LABEL_KEY, combo_lb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FIND_STRINGTYPE_KEY, combo_cb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_CASE_SEARCH_KEY, case_cb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_HEX_KEY, hex_data_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_DECODE_KEY, decode_data_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_SOURCE_SUMMARY_KEY, summary_data_rb);
+  g_object_set_data(G_OBJECT(find_frame_w), E_FILT_TE_BUTTON_KEY, filter_bt);
 
   /*
    * Now that we've attached the pointers, connect the signals - if
@@ -402,8 +402,8 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
   guint8          *bytes = NULL;
   size_t           nbytes;
 
-  hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
-  string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
+  hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
+  string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
 
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (hex_rb))) {
     /*
@@ -452,7 +452,7 @@ hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
     GtkWidget   *filter_text_box;
 
-    filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
+    filter_text_box = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
     /* Re-check the display filter. */
     find_filter_te_syntax_check_cb(filter_text_box, parent_w);
@@ -469,15 +469,15 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     GtkWidget   *string_rb, *hex_data_rb, *decode_data_rb, *summary_data_rb,
                 *data_combo_lb, *data_combo_cb, *data_case_cb, *filter_text_box;
 
-    string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
-    hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
-    decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
-    summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
+    string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
+    hex_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_HEX_KEY);
+    decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
+    summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
-    data_combo_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_LABEL_KEY);
-    data_combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
-    data_case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
-    filter_text_box = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_FILT_TE_PTR_KEY);
+    data_combo_lb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_LABEL_KEY);
+    data_combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
+    data_case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
+    filter_text_box = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_PTR_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(string_rb))) {
         gtk_widget_set_sensitive(GTK_WIDGET(hex_data_rb), TRUE);
@@ -508,8 +508,8 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
     GtkWidget   *filter_bt, *filter_rb;
 
-    filter_bt = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FILT_TE_BUTTON_KEY);
-    filter_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILTERDATA_KEY);
+    filter_bt = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FILT_TE_BUTTON_KEY);
+    filter_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILTERDATA_KEY);
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
     {
@@ -535,14 +535,14 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   dfilter_t       *sfcode = NULL;
   gboolean        found_packet=FALSE;
 
-  filter_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILT_KEY);
-  up_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_BACKWARD_KEY);
-  hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
-  string_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGDATA_KEY);
-  combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
-  case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
-  decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
-  summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
+  filter_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_FILT_KEY);
+  up_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_BACKWARD_KEY);
+  hex_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_HEXDATA_KEY);
+  string_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGDATA_KEY);
+  combo_cb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_FIND_STRINGTYPE_KEY);
+  case_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CASE_SEARCH_KEY);
+  decode_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_DECODE_KEY);
+  summary_data_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_SOURCE_SUMMARY_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   string_type = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo_cb)->entry));

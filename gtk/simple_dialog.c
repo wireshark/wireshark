@@ -190,7 +190,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   /* optional check button */
   ask_cb = gtk_check_button_new_with_label("replace with text...");
   gtk_container_add(GTK_CONTAINER(msg_vb), ask_cb);
-  OBJECT_SET_DATA(win, CHECK_BUTTON, ask_cb);
+  g_object_set_data(G_OBJECT(win), CHECK_BUTTON, ask_cb);
 
   /* Button row */
   switch(btn_mask) {
@@ -220,44 +220,44 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   if(ok_bt) {
-      OBJECT_SET_DATA(ok_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
+      g_object_set_data(G_OBJECT(ok_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
       SIGNAL_CONNECT(ok_bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
-  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+  save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   if (save_bt) {
-      OBJECT_SET_DATA(save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
+      g_object_set_data(G_OBJECT(save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_SAVE));
       SIGNAL_CONNECT(save_bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
-  dont_save_bt = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_DONT_SAVE);
+  dont_save_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_DONT_SAVE);
   if (dont_save_bt) {
-      OBJECT_SET_DATA(dont_save_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
+      g_object_set_data(G_OBJECT(dont_save_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_DONT_SAVE));
       SIGNAL_CONNECT(dont_save_bt, "clicked", simple_dialog_cancel_cb, win);
   }
-  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
+  bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
   if(bt) {
-      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
+      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CLEAR));
       SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
-  yes_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_YES);
+  yes_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_YES);
   if(yes_bt) {
-      OBJECT_SET_DATA(yes_bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
+      g_object_set_data(G_OBJECT(yes_bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
       SIGNAL_CONNECT(yes_bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
-  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_NO);
+  bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_NO);
   if(bt) {
-      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
+      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
       SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
   }
 
-  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   if(bt) {
-      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
+      g_object_set_data(G_OBJECT(bt), CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
       window_set_cancel_button(win, bt, simple_dialog_cancel_cb);
   }
 
@@ -362,9 +362,9 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
 
 static void
 simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
-  gint button = GPOINTER_TO_INT(    OBJECT_GET_DATA(w, CALLBACK_BTN_KEY));
-  simple_dialog_cb_t    callback_fct    = OBJECT_GET_DATA(win, CALLBACK_FCT_KEY);
-  gpointer              data            = OBJECT_GET_DATA(win, CALLBACK_DATA_KEY);
+  gint button                           = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), CALLBACK_BTN_KEY));
+  simple_dialog_cb_t    callback_fct    = g_object_get_data(G_OBJECT(win), CALLBACK_FCT_KEY);
+  gpointer              data            = g_object_get_data(G_OBJECT(win), CALLBACK_DATA_KEY);
 
   if (callback_fct)
     (callback_fct) (win, button, data);
@@ -375,18 +375,18 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
 void
 simple_dialog_close(gpointer dialog)
 {
-	window_destroy(GTK_WIDGET(dialog));
+    window_destroy(GTK_WIDGET(dialog));
 }
 
 void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)
 {
 
-    OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_FCT_KEY, callback_fct);
-    OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_DATA_KEY, data);
+    g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_FCT_KEY, callback_fct);
+    g_object_set_data(G_OBJECT(GTK_WIDGET(dialog)), CALLBACK_DATA_KEY, data);
 }
 
 void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
-    GtkWidget *ask_cb = OBJECT_GET_DATA(dialog, CHECK_BUTTON);
+    GtkWidget *ask_cb = g_object_get_data(G_OBJECT(dialog), CHECK_BUTTON);
 
     /* XXX - find a way to set the GtkButton label in GTK 1.x */
     gtk_button_set_label(GTK_BUTTON(ask_cb), text);
@@ -394,7 +394,7 @@ void simple_dialog_check_set(gpointer dialog, gchar *text _U_) {
 }
 
 gboolean simple_dialog_check_get(gpointer dialog) {
-    GtkWidget *ask_cb = OBJECT_GET_DATA(GTK_WIDGET(dialog), CHECK_BUTTON);
+    GtkWidget *ask_cb = g_object_get_data(G_OBJECT(GTK_WIDGET(dialog)), CHECK_BUTTON);
 
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ask_cb));
 }

@@ -106,10 +106,10 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
     gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes hexdump in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);
 
-    OBJECT_SET_DATA(radio_vb, LAYOUT_NONE_RB_KEY,       radio_none_rb);
-    OBJECT_SET_DATA(radio_vb, LAYOUT_PLIST_RB_KEY,      radio_plist_rb);
-    OBJECT_SET_DATA(radio_vb, LAYOUT_PDETAILS_RB_KEY,   radio_pdetails_rb);
-    OBJECT_SET_DATA(radio_vb, LAYOUT_PBYTES_RB_KEY,     radio_pbytes_rb);
+    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY,       radio_none_rb);
+    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY,      radio_plist_rb);
+    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY,   radio_pdetails_rb);
+    g_object_set_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY,     radio_pbytes_rb);
 
     SIGNAL_CONNECT(radio_none_rb,       "toggled", layout_validate_cb, main_vb);
     SIGNAL_CONNECT(radio_plist_rb,      "toggled", layout_validate_cb, main_vb);
@@ -141,13 +141,13 @@ layout_type_changed_cb (GtkToggleButton * togglebutton, gpointer user_data)
 
 static layout_pane_content_e  layout_pane_get_content(GtkWidget * radio_vb) {
 
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_NONE_RB_KEY))))
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY))))
         return layout_pane_content_none;
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PLIST_RB_KEY))))
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY))))
         return layout_pane_content_plist;
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PDETAILS_RB_KEY))))
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY))))
         return layout_pane_content_pdetails;
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PBYTES_RB_KEY))))
+    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY))))
         return layout_pane_content_pbytes;
 
     g_assert_not_reached();
@@ -159,16 +159,16 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
     switch(pane_content) {
     case(layout_pane_content_none):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_NONE_RB_KEY)), TRUE);
+        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_plist):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PLIST_RB_KEY)), TRUE);
+        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_pdetails):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PDETAILS_RB_KEY)), TRUE);
+        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_pbytes):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(radio_vb, LAYOUT_PBYTES_RB_KEY)), TRUE);
+        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY)), TRUE);
         break;
     default:
         g_assert_not_reached();
@@ -179,21 +179,21 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
 static void layout_set(GtkWidget * main_vb, layout_t *layout) {
     GtkWidget	*radio_vb;
-    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
 
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(layout_type_buttons[layout->type - 1]), TRUE);
 
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT1_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[0]);
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT2_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[1]);
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT3_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
     layout_pane_set_content(radio_vb, layout->content[2]);
 }
 
 static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
     GtkWidget	*radio_vb;
-    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
     int i;
 
     for (i=0; i<LAYOUT_QTY; ++i) {
@@ -203,11 +203,11 @@ static void layout_get(GtkWidget * main_vb, layout_t *layout_out) {
         }
     }
 
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT1_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY);
     layout_out->content[0] = layout_pane_get_content(radio_vb);
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT2_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY);
     layout_out->content[1] = layout_pane_get_content(radio_vb);
-    radio_vb = OBJECT_GET_DATA(main_vb, LAYOUT_CONTENT3_VB_KEY);
+    radio_vb = g_object_get_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY);
     layout_out->content[2] = layout_pane_get_content(radio_vb);
 }
 
@@ -342,7 +342,7 @@ layout_prefs_show(void)
 	gtk_box_pack_start (GTK_BOX(button_hb), type_tb, TRUE, FALSE, 0);
     }
 
-    OBJECT_SET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY, layout_type_buttons);
+    g_object_set_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY, layout_type_buttons);
 
     /* radio hbox */
     radio_hb = gtk_hbox_new(FALSE, 0);
@@ -352,17 +352,17 @@ layout_prefs_show(void)
     radio_vb = layout_content_radio_vbox(main_vb, tooltips, 1, prefs.gui_layout_content_1);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
-    OBJECT_SET_DATA(main_vb, LAYOUT_CONTENT1_VB_KEY, radio_vb);
+    g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT1_VB_KEY, radio_vb);
 
     radio_vb = layout_content_radio_vbox(main_vb, tooltips, 2, prefs.gui_layout_content_2);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
-    OBJECT_SET_DATA(main_vb, LAYOUT_CONTENT2_VB_KEY, radio_vb);
+    g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT2_VB_KEY, radio_vb);
 
     radio_vb = layout_content_radio_vbox(main_vb, tooltips, 3, prefs.gui_layout_content_3);
     gtk_container_set_border_width(GTK_CONTAINER(radio_vb), 6);
     gtk_box_pack_start (GTK_BOX(radio_hb), radio_vb, FALSE, FALSE, 0);
-    OBJECT_SET_DATA(main_vb, LAYOUT_CONTENT3_VB_KEY, radio_vb);
+    g_object_set_data(G_OBJECT(main_vb), LAYOUT_CONTENT3_VB_KEY, radio_vb);
 
     default_vb = gtk_vbox_new(FALSE, 0);
     default_bt = gtk_button_new_with_label("Default panes");
@@ -390,7 +390,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, scrollbar_om, 
         "Select where the vertical scrollbar "
         "will be displayed in the panes.", NULL);
-    OBJECT_SET_DATA(main_vb, SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
+    g_object_set_data(G_OBJECT(main_vb), SCROLLBAR_PLACEMENT_KEY, scrollbar_om);
 
     /* Alternating row colors in list and tree views */
     altern_colors_om = create_preference_option_menu(main_tb, pos++,
@@ -399,7 +399,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, altern_colors_om, 
         "Select whether or not the rows of "
         "lists and trees have alternating color.", NULL);
-    OBJECT_SET_DATA(main_vb, ALTERN_COLORS_KEY, altern_colors_om);
+    g_object_set_data(G_OBJECT(main_vb), ALTERN_COLORS_KEY, altern_colors_om);
 
     /* Hex Dump highlight style */
     highlight_style_om = create_preference_option_menu(main_tb, pos++,
@@ -408,7 +408,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, highlight_style_om, 
         "Select the style in which the "
         "hex dump will be displayed.", NULL);
-    OBJECT_SET_DATA(main_vb, HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
+    g_object_set_data(G_OBJECT(main_vb), HEX_DUMP_HIGHLIGHT_STYLE_KEY, highlight_style_om);
 
     /* Toolbar prefs */
     toolbar_style_om = create_preference_option_menu(main_tb, pos++,
@@ -417,7 +417,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, toolbar_style_om, 
         "Select the style in which the "
         "toolbar will be displayed.", NULL);
-    OBJECT_SET_DATA(main_vb, GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
+    g_object_set_data(G_OBJECT(main_vb), GUI_TOOLBAR_STYLE_KEY, toolbar_style_om);
 
     /* Placement of Filter toolbar */
     filter_toolbar_placement_om = create_preference_option_menu(main_tb, pos++,
@@ -426,7 +426,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, filter_toolbar_placement_om, 
         "Select where the filter "
         "toolbar will be displayed." , NULL);
-    OBJECT_SET_DATA(main_vb, FILTER_TOOLBAR_PLACEMENT_KEY, filter_toolbar_placement_om);
+    g_object_set_data(G_OBJECT(main_vb), FILTER_TOOLBAR_PLACEMENT_KEY, filter_toolbar_placement_om);
 
     /* Window title */
     window_title_te = create_preference_entry(main_tb, pos++,
@@ -436,7 +436,7 @@ layout_prefs_show(void)
     gtk_tooltips_set_tip(tooltips, window_title_te, 
         "Enter the text to be prepended to the "
         "window title.", NULL);
-    OBJECT_SET_DATA(main_vb, GUI_WINDOW_TITLE_KEY, window_title_te);
+    g_object_set_data(G_OBJECT(main_vb), GUI_WINDOW_TITLE_KEY, window_title_te);
 
     /* Show 'em what we got */
     gtk_widget_show_all(main_vb);
@@ -463,22 +463,22 @@ layout_prefs_fetch(GtkWidget *w)
     prefs.gui_layout_content_3 = layout_fetched.content[2];
 
     prefs.gui_scrollbar_on_right = fetch_enum_value(
-        OBJECT_GET_DATA(w, SCROLLBAR_PLACEMENT_KEY),
+        g_object_get_data(G_OBJECT(w), SCROLLBAR_PLACEMENT_KEY),
         scrollbar_placement_vals);
 
     prefs.gui_altern_colors = fetch_enum_value(
-        OBJECT_GET_DATA(w, ALTERN_COLORS_KEY), altern_colors_vals);
+        g_object_get_data(G_OBJECT(w), ALTERN_COLORS_KEY), altern_colors_vals);
     prefs.filter_toolbar_show_in_statusbar = fetch_enum_value(
-        OBJECT_GET_DATA(w, FILTER_TOOLBAR_PLACEMENT_KEY), filter_toolbar_placement_vals);
+        g_object_get_data(G_OBJECT(w), FILTER_TOOLBAR_PLACEMENT_KEY), filter_toolbar_placement_vals);
     prefs.gui_hex_dump_highlight_style = fetch_enum_value(
-        OBJECT_GET_DATA(w, HEX_DUMP_HIGHLIGHT_STYLE_KEY),  highlight_style_vals);
+        g_object_get_data(G_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),  highlight_style_vals);
     prefs.gui_toolbar_main_style = fetch_enum_value(
-        OBJECT_GET_DATA(w, GUI_TOOLBAR_STYLE_KEY), toolbar_style_vals);
+        g_object_get_data(G_OBJECT(w), GUI_TOOLBAR_STYLE_KEY), toolbar_style_vals);
 
     if (prefs.gui_window_title != NULL)
         g_free(prefs.gui_window_title);
     prefs.gui_window_title = g_strdup(gtk_entry_get_text(
-        GTK_ENTRY(OBJECT_GET_DATA(w, GUI_WINDOW_TITLE_KEY))));
+                                          GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WINDOW_TITLE_KEY))));
 }
 
 void
@@ -491,7 +491,7 @@ layout_prefs_apply(GtkWidget *w _U_)
 void
 layout_prefs_destroy(GtkWidget *main_vb)
 {
-    GtkWidget ** layout_type_buttons = OBJECT_GET_DATA(main_vb, LAYOUT_TYPE_BUTTONS_KEY);
+    GtkWidget ** layout_type_buttons = g_object_get_data(G_OBJECT(main_vb), LAYOUT_TYPE_BUTTONS_KEY);
 
     g_free(layout_type_buttons);
 }
