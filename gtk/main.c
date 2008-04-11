@@ -278,7 +278,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     }
 
     g_assert(data);
-    filter_te = OBJECT_GET_DATA(data, E_DFILTER_TE_KEY);
+    filter_te = g_object_get_data(G_OBJECT(data), E_DFILTER_TE_KEY);
     g_assert(filter_te);
 
     cur_filter = gtk_editable_get_chars(GTK_EDITABLE(filter_te), 0, -1);
@@ -486,8 +486,8 @@ selected_ptree_ref_cb(GtkWidget *widget _U_, gpointer data _U_)
 static gchar *
 get_text_from_packet_list(gpointer data)
 {
-    gint	row = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_ROW_KEY));
-    gint	column = GPOINTER_TO_INT(OBJECT_GET_DATA(data, E_MPACKET_LIST_COL_KEY));
+    gint	row = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_ROW_KEY));
+    gint	column = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), E_MPACKET_LIST_COL_KEY));
     frame_data *fdata = (frame_data *)packet_list_get_row_data(row);
 
     if(strlen(fdata->col_expr.col_expr[column]) != 0 &&
@@ -547,7 +547,7 @@ static guint dfilter_combo_max_recent = 10;
 static gboolean
 dfilter_combo_add(GtkWidget *filter_cm, char *s) {
     GList     *li;
-    GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+    GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
 
 
     /* GtkCombos don't let us get at their list contents easily, so we maintain
@@ -565,7 +565,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
     }
 
     dfilter_list = g_list_append(dfilter_list, s);
-    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
+    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
     gtk_combo_set_popdown_strings(GTK_COMBO(filter_cm), dfilter_list);
     gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), g_list_last(dfilter_list)->data);
 
@@ -577,8 +577,8 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
  * of the combo box GList to the user's recent file */
 void
 dfilter_recent_combo_write_all(FILE *rf) {
-  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
-  GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+  GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+  GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
   GList     *li;
   guint      max_count = 0;
 
@@ -596,7 +596,7 @@ dfilter_recent_combo_write_all(FILE *rf) {
 /* empty the combobox entry field */
 void
 dfilter_combo_add_empty(void) {
-  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
+  GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
 
   gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(filter_cm)->entry), "");
 }
@@ -605,7 +605,7 @@ dfilter_combo_add_empty(void) {
 /* add a display filter coming from the user's recent file to the dfilter combo box */
 gboolean
 dfilter_combo_add_recent(gchar *s) {
-  GtkWidget *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
+  GtkWidget *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
   char      *dup;
 
   dup = g_strdup(s);
@@ -622,8 +622,8 @@ dfilter_combo_add_recent(gchar *s) {
 gboolean
 main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 {
-  GtkCombo  *filter_cm = OBJECT_GET_DATA(top_level, E_DFILTER_CM_KEY);
-  GList     *dfilter_list = OBJECT_GET_DATA(filter_cm, E_DFILTER_FL_KEY);
+  GtkCombo  *filter_cm = g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY);
+  GList     *dfilter_list = g_object_get_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY);
   GList     *li;
   gboolean   add_filter = TRUE;
   gboolean   free_filter = TRUE;
@@ -655,7 +655,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
 
       free_filter = FALSE;
       dfilter_list = g_list_append(dfilter_list, s);
-      OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
+      g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
       gtk_combo_set_popdown_strings(filter_cm, dfilter_list);
       gtk_entry_set_text(GTK_ENTRY(filter_cm->entry), g_list_last(dfilter_list)->data);
     }
@@ -685,7 +685,7 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
 {
   GtkWidget *filter_te = NULL;
 
-  if ((filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY))) {
+  if ((filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY))) {
     gtk_entry_set_text(GTK_ENTRY(filter_te), "");
   }
   main_filter_packets(&cfile, NULL, FALSE);
@@ -3827,7 +3827,7 @@ toolbar_display_airpcap_advanced_cb(GtkWidget *w, gpointer data)
 
     from_widget = (gint*)g_malloc(sizeof(gint));
     *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
     display_airpcap_advanced_cb(w,data);
 }
@@ -3842,7 +3842,7 @@ toolbar_display_airpcap_key_management_cb(GtkWidget *w, gpointer data)
 
     from_widget = (gint*)g_malloc(sizeof(gint));
     *from_widget = AIRPCAP_ADVANCED_FROM_TOOLBAR;
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_ADVANCED_FROM_KEY,from_widget);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_ADVANCED_FROM_KEY,from_widget);
 
     display_airpcap_key_management_cb(w,data);
 }
@@ -3977,7 +3977,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view)),
                    "changed", tree_view_selection_changed_cb, NULL);
     SIGNAL_CONNECT(tree_view, "button_press_event", popup_menu_handler,
-                   OBJECT_GET_DATA(popup_menu_object, PM_TREE_VIEW_KEY));
+                   g_object_get_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
     gtk_widget_show(tree_view);
 
     /* Byte view. */
@@ -3986,7 +3986,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(byte_nb_ptr);
 
     SIGNAL_CONNECT(byte_nb_ptr, "button_press_event", popup_menu_handler,
-                   OBJECT_GET_DATA(popup_menu_object, PM_HEXDUMP_KEY));
+                   g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
 
     /* Panes for the packet list, tree, and byte view */
@@ -4018,14 +4018,14 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Add the label to the toolbar */
     /*gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), interface_lb,
                               "Current Wireless Interface", "Private");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_INTERFACE_KEY,interface_lb);
     gtk_widget_show(interface_lb);
     gtk_toolbar_insert_space(GTK_TOOLBAR(airpcap_tb),1);*/
 
 
     /* Create the "802.11 Channel:" label */
     channel_lb = gtk_label_new("802.11 Channel: ");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY,channel_lb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_LABEL_KEY,channel_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_lb,
                               "Current 802.11 Channel", "Private");
     gtk_widget_show(channel_lb);
@@ -4035,7 +4035,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Create the channel combo box */
     channel_cm = gtk_combo_new();
     gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_cm)->entry),FALSE);
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_KEY,channel_cm);
 
     if (airpcap_if_active != NULL && airpcap_if_active->pSupportedChannels != NULL && airpcap_if_active->numSupportedChannels > 0){
         guint i = 0;
@@ -4068,7 +4068,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Channel Offset:" label */
     channel_offset_lb = gtk_label_new("Channel Offset: ");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY,channel_offset_lb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_CHANNEL_OFFSET_LABEL_KEY,channel_offset_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), channel_offset_lb,
                               "Current 802.11 Channel Offset", "Private");
     gtk_widget_show(channel_offset_lb);
@@ -4078,7 +4078,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Start: Channel offset combo box */
     channel_offset_cb = gtk_combo_new();
     gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(channel_offset_cb)->entry),FALSE);
-    OBJECT_SET_DATA(airpcap_tb, AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY, channel_offset_cb);
+    g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY, channel_offset_cb);
 
     if(airpcap_if_active != NULL){
 		airpcap_update_channel_offset_cb(airpcap_if_active, airpcap_if_active->channelInfo.Frequency, channel_offset_cb);
@@ -4107,7 +4107,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Wrong CRC Label */
     wrong_crc_lb = gtk_label_new(" FCS Filter: ");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY,wrong_crc_lb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_LABEL_KEY,wrong_crc_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_lb,
                               "", "Private");
     gtk_widget_show(wrong_crc_lb);
@@ -4115,7 +4115,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Wrong CRC combo */
     wrong_crc_cm = gtk_combo_new();
     gtk_editable_set_editable(GTK_EDITABLE(GTK_COMBO(wrong_crc_cm)->entry),FALSE);
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_FCS_FILTER_KEY,wrong_crc_cm);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_FCS_FILTER_KEY,wrong_crc_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), wrong_crc_cm,
                               "", "Private");
 
@@ -4143,7 +4143,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Decryption mode combo box */
     enable_decryption_lb = gtk_label_new ("Decryption Mode: ");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY,enable_decryption_lb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_LABEL_KEY,enable_decryption_lb);
     gtk_widget_set_name (enable_decryption_lb, "enable_decryption_lb");
     gtk_widget_show (enable_decryption_lb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), enable_decryption_lb,
@@ -4167,13 +4167,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Set current decryption mode!!!! */
     update_decryption_mode_cm(enable_decryption_cb);
     SIGNAL_CONNECT (enable_decryption_en, "changed",on_enable_decryption_en_changed, airpcap_tb);
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY,enable_decryption_cb);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY,enable_decryption_cb);
 
     gtk_toolbar_append_space(GTK_TOOLBAR(airpcap_tb));
 
     /* Advanced button */
     advanced_bt = gtk_button_new_with_label("Wireless Settings...");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_ADVANCED_KEY,advanced_bt);
 
     SIGNAL_CONNECT(advanced_bt, "clicked", toolbar_display_airpcap_advanced_cb, airpcap_tb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), advanced_bt,
@@ -4184,7 +4184,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Key Management button */
     key_management_bt = gtk_button_new_with_label("Decryption Keys...");
-    OBJECT_SET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
+    g_object_set_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_KEY_MANAGEMENT_KEY,key_management_bt);
 
     SIGNAL_CONNECT(key_management_bt, "clicked", toolbar_display_airpcap_key_management_cb, airpcap_tb);
     gtk_toolbar_append_widget(GTK_TOOLBAR(airpcap_tb), key_management_bt,
@@ -4219,7 +4219,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_widget_show(filter_bt);
-    OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
+    g_object_set_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY, filter_bt);
 
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt,
         "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
@@ -4229,12 +4229,12 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     dfilter_list = NULL;
     gtk_combo_disable_activate(GTK_COMBO(filter_cm));
     gtk_combo_set_case_sensitive(GTK_COMBO(filter_cm), TRUE);
-    OBJECT_SET_DATA(filter_cm, E_DFILTER_FL_KEY, dfilter_list);
+    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_FL_KEY, dfilter_list);
     filter_te = GTK_COMBO(filter_cm)->entry;
     main_display_filter_widget=filter_te;
-    OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
-    OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
-    OBJECT_SET_DATA(top_level, E_DFILTER_CM_KEY, filter_cm);
+    g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
+    g_object_set_data(G_OBJECT(filter_te), E_DFILTER_CM_KEY, filter_cm);
+    g_object_set_data(G_OBJECT(top_level), E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
     SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
     WIDGET_SET_SIZE(filter_cm, 400, -1);
@@ -4250,7 +4250,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
     filter_add_expr_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
-    OBJECT_SET_DATA(filter_tb, E_FILT_FILTER_TE_KEY, filter_te);
+    g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
     gtk_widget_show(filter_add_expr_bt);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt,
@@ -4258,7 +4258,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Clear" button */
     filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
-    OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
+    g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_widget_show(filter_reset);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset,
@@ -4266,7 +4266,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Apply" button */
     filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
-    OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
+    g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_widget_show(filter_apply);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply,
@@ -4321,8 +4321,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     set_menu_object_data("/Conversation Filter/PN-CBA Server", E_DFILTER_TE_KEY,
                          filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
-    OBJECT_SET_DATA(popup_menu_object, E_DFILTER_TE_KEY, filter_te);
-    OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_KEY, packet_list);
+    g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
+    g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
 
     /* expert info indicator */
     expert_image = xpm_to_widget_from_parent(top_level, expert_error_xpm);

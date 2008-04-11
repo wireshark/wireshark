@@ -97,10 +97,10 @@ range_update_dynamics(gpointer data)
   gchar         label_text[100];
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
 
   
-  range_displayed_bt = OBJECT_GET_DATA(data, RANGE_DISPLAYED_BT_KEY);
+  range_displayed_bt = g_object_get_data(G_OBJECT(data), RANGE_DISPLAYED_BT_KEY);
   filtered_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(range_displayed_bt));
 
   /* Enable saving only the displayed packets only if there *are*
@@ -111,42 +111,42 @@ range_update_dynamics(gpointer data)
     /* If saving the displayed packets is selected, select saving the
        captured packets. */
     filtered_active = FALSE;
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_KEY)), FALSE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_KEY)), FALSE);
     gtk_widget_set_sensitive(range_displayed_bt, FALSE);
   }
 
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_C_KEY), !filtered_active);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY), !filtered_active);
   g_snprintf(label_text, sizeof(label_text), "%u", cfile.count);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_C_KEY)), label_text);
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_D_KEY), filtered_active);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_C_KEY)), label_text);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY), filtered_active);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_cnt);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_D_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_D_KEY)), label_text);
 
   /* Enable saving the currently-selected packet only if there *is* a
      currently-selected packet. */
   selected_num = (cfile.current_frame) ? cfile.current_frame->num : 0;
   can_select = (selected_num != 0);
   if (can_select) {
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_KEY), TRUE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_C_KEY), !filtered_active);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_D_KEY), filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_KEY), TRUE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_C_KEY), !filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_D_KEY), filtered_active);
   } else {
     /* If "save selected packet" is selected, select "save all packets". */
     if (range->process == range_process_selected) {
       range->process = range_process_all;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_KEY)), TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_KEY)), TRUE);
     }
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_C_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_D_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_C_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_D_KEY), FALSE);
   }
   /* XXX: how to update the radio button label but keep the mnemonic? */
 /*g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", selected_num);
   gtk_label_set_text(GTK_LABEL(GTK_BIN(select_curr_rb)->child), label_text);*/
   g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_C_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_C_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", selected_num ? 1 : 0);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_CURR_D_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_CURR_D_KEY)), label_text);
 
   /* Enable the buttons for saving marked packets only if there *are*
      marked packets. */
@@ -155,24 +155,24 @@ range_update_dynamics(gpointer data)
   else
     can_select = (cfile.marked_count > 0);
   if (can_select) {
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_KEY), TRUE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY), !filtered_active);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_D_KEY), filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_KEY), TRUE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY), !filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY), filtered_active);
   }
   else {
     /* If "save marked packet" is selected, select "save all packets". */
     if (range->process == range_process_marked) {
       range->process = range_process_all;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_KEY)), TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_KEY)), TRUE);
     }
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_D_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY), FALSE);
   }
   g_snprintf(label_text, sizeof(label_text), "%u", cfile.marked_count);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_C_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_C_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_marked_cnt);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_D_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_D_KEY)), label_text);
 
   /* Enable the buttons for saving the range of marked packets only if
      there *is* a range of marked packets. */
@@ -181,33 +181,33 @@ range_update_dynamics(gpointer data)
   else
     can_select = (range->mark_range_cnt != 0);
   if (can_select) {
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_KEY), TRUE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_C_KEY), !filtered_active);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_D_KEY), filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_KEY), TRUE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY), !filtered_active);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY), filtered_active);
   }
   else {
     /* If "save range between first and last marked packet" is selected,
        select "save all packets". */
     if (range->process == range_process_marked_range) {
       range->process = range_process_all;
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(OBJECT_GET_DATA(data, RANGE_SELECT_ALL_KEY)), TRUE);
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(data), RANGE_SELECT_ALL_KEY)), TRUE);
     }
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_C_KEY), FALSE);
-    gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_D_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY), FALSE);
+    gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY), FALSE);
   }
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_C_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_C_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_D_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_MARKED_RANGE_D_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt);
 
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_KEY), TRUE);
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_C_KEY), !filtered_active);
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_D_KEY), filtered_active);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_KEY), TRUE);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY), !filtered_active);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY), filtered_active);
   g_snprintf(label_text, sizeof(label_text), "%u", range->user_range_cnt);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_USER_C_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_C_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_user_range_cnt);
-  gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_USER_D_KEY)), label_text);
+  gtk_label_set_text(GTK_LABEL(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_D_KEY)), label_text);
 }
 
 
@@ -218,16 +218,16 @@ toggle_captured_cb(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
 
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     /* They changed the state of the "captured" button. */
     range->process_filtered = FALSE;
 
-    bt = OBJECT_GET_DATA(data, RANGE_CAPTURED_BT_KEY);
+    bt = g_object_get_data(G_OBJECT(data), RANGE_CAPTURED_BT_KEY);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), TRUE);
-    bt = OBJECT_GET_DATA(data, RANGE_DISPLAYED_BT_KEY);
+    bt = g_object_get_data(G_OBJECT(data), RANGE_DISPLAYED_BT_KEY);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), FALSE);
 
     range_update_dynamics(data);
@@ -241,14 +241,14 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process_filtered = TRUE;
-    bt = OBJECT_GET_DATA(data, RANGE_CAPTURED_BT_KEY);
+    bt = g_object_get_data(G_OBJECT(data), RANGE_CAPTURED_BT_KEY);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), FALSE);
-    bt = OBJECT_GET_DATA(data, RANGE_DISPLAYED_BT_KEY);
+    bt = g_object_get_data(G_OBJECT(data), RANGE_DISPLAYED_BT_KEY);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), TRUE);
     
     range_update_dynamics(data);
@@ -261,7 +261,7 @@ toggle_select_all(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
@@ -276,7 +276,7 @@ toggle_select_selected(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
@@ -291,7 +291,7 @@ toggle_select_marked_only(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
@@ -306,7 +306,7 @@ toggle_select_marked_range(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
@@ -321,7 +321,7 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);
   
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
@@ -330,11 +330,11 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
   }
 	
   /* Make the entry widget sensitive or insensitive */
-  gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_ENTRY_KEY), range->process == range_process_user_range);
+  gtk_widget_set_sensitive(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_ENTRY_KEY), range->process == range_process_user_range);
 
   /* When selecting user specified range, then focus on the entry */
   if (range->process == range_process_user_range)
-      gtk_widget_grab_focus(OBJECT_GET_DATA(data, RANGE_SELECT_USER_ENTRY_KEY));
+    gtk_widget_grab_focus(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_ENTRY_KEY));
 
 }
 
@@ -347,10 +347,10 @@ range_entry(GtkWidget *widget _U_, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);  
-  entry = OBJECT_GET_DATA(data, RANGE_SELECT_USER_ENTRY_KEY);
+  range = g_object_get_data(G_OBJECT(data), RANGE_VALUES_KEY);  
+  entry = g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_ENTRY_KEY);
 
-  gtk_toggle_button_set_active(OBJECT_GET_DATA(data, RANGE_SELECT_USER_KEY), TRUE);
+  gtk_toggle_button_set_active(g_object_get_data(G_OBJECT(data), RANGE_SELECT_USER_KEY), TRUE);
   entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
   packet_range_convert_str(range, entry_text);
   range_update_dynamics(data);
@@ -497,28 +497,28 @@ GtkWidget *range_new(packet_range_t *range)
   gtk_widget_show_all(range_tb);
 
 
-  OBJECT_SET_DATA(range_tb, RANGE_VALUES_KEY,               range);
-  OBJECT_SET_DATA(range_tb, RANGE_CAPTURED_BT_KEY,          captured_bt);
-  OBJECT_SET_DATA(range_tb, RANGE_DISPLAYED_BT_KEY,         displayed_bt);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_VALUES_KEY,               range);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_CAPTURED_BT_KEY,          captured_bt);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_DISPLAYED_BT_KEY,         displayed_bt);
 
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_ALL_KEY,           select_all_rb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_ALL_C_KEY,         select_all_c_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_ALL_D_KEY,         select_all_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_KEY,           select_all_rb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_C_KEY,         select_all_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_ALL_D_KEY,         select_all_d_lb);
 
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_CURR_KEY,          select_curr_rb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_CURR_C_KEY,        select_curr_c_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_KEY,        select_marked_only_rb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_C_KEY,      select_marked_only_c_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_D_KEY,      select_marked_only_d_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_RANGE_KEY,  select_marked_range_rb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_RANGE_C_KEY,select_marked_range_c_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_MARKED_RANGE_D_KEY,select_marked_range_d_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_KEY,          select_user_range_rb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_C_KEY,        select_user_range_c_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
-  OBJECT_SET_DATA(range_tb, RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_KEY,          select_curr_rb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_C_KEY,        select_curr_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_CURR_D_KEY,        select_curr_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_KEY,        select_marked_only_rb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_C_KEY,      select_marked_only_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_D_KEY,      select_marked_only_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_KEY,  select_marked_range_rb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_C_KEY,select_marked_range_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_MARKED_RANGE_D_KEY,select_marked_range_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_KEY,          select_user_range_rb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_C_KEY,        select_user_range_c_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_D_KEY,        select_user_range_d_lb);
+  g_object_set_data(G_OBJECT(range_tb), RANGE_SELECT_USER_ENTRY_KEY,    select_user_range_entry);
 
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(captured_bt), !range->process_filtered);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(displayed_bt), range->process_filtered);
