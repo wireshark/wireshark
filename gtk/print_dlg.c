@@ -821,7 +821,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 #else
     if(topic_available(HELP_EXPORT_FILE_DIALOG)) {
         help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), HELP_EXPORT_FILE_DIALOG);
+      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_DIALOG);
     }
 #endif
   }
