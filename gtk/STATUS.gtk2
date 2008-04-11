@@ -1,20 +1,10 @@
 Status of the GTK+ 2.0 port :
 ---------------------------
 
-GtkList and GtkCList ==> GtkTreeView conversion :
-- color_dlg.c : done
-- column_prefs.c : done
-- decode_as_dlg.c : done
-- dfilter_expr_dialog.c : done
-- filter_prefs.c : done
-- main.c :
-- plugins_dlg.c : done
-
-GtkCTree ==> GtkTreeView  conversion : done
-
-GtkText ==> GtkTextView conversion : done
-
 Remaining problems :
+
+GtkList and GtkCList ==> GtkTreeView conversion :
+- main.c :
 
 - gtk_font_selection_dialog_set_filter doesn't exist anymore (but hasn't
   been removed from the documentation).  There is no way to filter the
@@ -57,27 +47,7 @@ Remaining problems :
 	whose metrics almost certainly don't match your grid. So,
 	you'd have to be able to turn this off.
 
-- we have to remove GUI prefs which are not useful anymore, such as the
-  tree line style and tree expander style.  Those two items aren't
-  settable in GTK+ 2.0's new tree view widget, as the GTK+ developers
-  consider them per-user preferences rather than items that should be
-  set by individual applications.
-  ==> Done
-
-- double click on item in protocol tree doesn't expand or collapse its
-  subtree ;
-  ==> Done
-
 - the spacing between lines in the tree view is too big ;
-
-- merge gtk and gtk2 directories. Create a gtk12 directory if necessary.
-  ==> done
-
-- replace gtk_signal_xxx function with g_signal_xxx equivalent. The GTK+
-  2.0 documentation says :
-  The GTK+ 2.0 signal system merely proxies the GSignal system now. For
-  future usage, direct use of the GSignal API is recommended.
-  ==> done
 
 - gdk_font_from_description() may return NULL. It would be better to use
   pango and drop GdkFont (and functions which use it, like
