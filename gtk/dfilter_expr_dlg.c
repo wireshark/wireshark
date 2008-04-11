@@ -1032,31 +1032,31 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     show_relations(relation_list, FT_UINT8);
 
     /*
-    relation_present_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "is present", NULL);
+    relation_present_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "is present");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_present_rb, FALSE, FALSE, 0);
 
-    relation_equals_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "==", NULL);
+    relation_equals_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "==");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_equals_rb, FALSE, FALSE, 0);
 
-    relation_unequals_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "!=", NULL);
+    relation_unequals_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "!=");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_unequals_rb, FALSE, FALSE, 0);
 
-    relation_greater_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, ">", NULL);
+    relation_greater_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), ">");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_greater_rb, FALSE, FALSE, 0);
 
-    relation_less_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "<", NULL);
+    relation_less_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "<");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_less_rb, FALSE, FALSE, 0);
 
-    relation_greaterequal_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, ">=", NULL);
+    relation_greaterequal_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), ">=");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_greaterequal_rb, FALSE, FALSE, 0);
 
-    relation_lessequal_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "<=", NULL);
+    relation_lessequal_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "<=");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_lessequal_rb, FALSE, FALSE, 0);
 
-    relation_contains_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "contains", NULL);
+    relation_contains_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "contains");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_contains_rb, FALSE, FALSE, 0);
 
-    relation_matches_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(relation_present_rb, "matches", NULL);
+    relation_matches_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(relation_present_rb), "matches");
     gtk_box_pack_start(GTK_BOX(relation_vb), relation_matches_rb, FALSE, FALSE, 0);
 */
     /* value column */

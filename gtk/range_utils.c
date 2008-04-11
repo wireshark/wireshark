@@ -424,7 +424,7 @@ GtkWidget *range_new(packet_range_t *range)
 
 
   /* Process all packets */
-  select_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_All packets", accel_group);
+  select_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 1, 2);
   gtk_tooltips_set_tip (tooltips, select_all_rb, 
       ("Process all packets"), NULL);
@@ -437,7 +437,7 @@ GtkWidget *range_new(packet_range_t *range)
 
 
   /* Process currently selected */
-  select_curr_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Selected packet only", accel_group);
+  select_curr_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Selected packet only");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_rb, 0, 1, 2, 3);
   gtk_tooltips_set_tip (tooltips, select_curr_rb, ("Process the currently selected packet only"), NULL);
   SIGNAL_CONNECT(select_curr_rb, "toggled", toggle_select_selected, range_tb);
@@ -449,7 +449,7 @@ GtkWidget *range_new(packet_range_t *range)
 
 
   /* Process marked packets */
-  select_marked_only_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Marked packets only", accel_group);
+  select_marked_only_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Marked packets only");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_only_rb, 0, 1, 3, 4);
   gtk_tooltips_set_tip (tooltips, select_marked_only_rb, ("Process marked packets only"), NULL);
   SIGNAL_CONNECT(select_marked_only_rb, "toggled", toggle_select_marked_only, range_tb);
@@ -461,7 +461,7 @@ GtkWidget *range_new(packet_range_t *range)
 
 
   /* Process packet range between first and last packet */
-  select_marked_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "From first _to last marked packet", accel_group);
+  select_marked_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "From first _to last marked packet");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_marked_range_rb, 0, 1, 4, 5);
   gtk_tooltips_set_tip (tooltips,select_marked_range_rb,("Process all packets between the first and last marker"), NULL);
   SIGNAL_CONNECT(select_marked_range_rb, "toggled", toggle_select_marked_range, range_tb);
@@ -473,7 +473,7 @@ GtkWidget *range_new(packet_range_t *range)
 
 
   /* Process a user specified provided packet range : -10,30,40-70,80- */
-  select_user_range_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "Specify a packet _range:", accel_group);
+  select_user_range_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "Specify a packet _range:");
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_rb, 0, 1, 5, 6);
   gtk_tooltips_set_tip (tooltips,select_user_range_rb,("Process a specified packet range"), NULL);
   SIGNAL_CONNECT(select_user_range_rb, "toggled", toggle_select_user_range, range_tb);

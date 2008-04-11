@@ -158,10 +158,6 @@ gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 #define WIRESHARK_STOCK_COLOR9                   "Wireshark_Stock_Color_9"
 #define WIRESHARK_STOCK_COLOR0                   "Wireshark_Stock_Color_10"
 
-#define RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_group, label_text, accel_group) \
-gtk_radio_button_new_with_mnemonic_from_widget( \
-    radio_group ? GTK_RADIO_BUTTON(radio_group) : NULL, label_text)
-
 /* for details, see "Pango Text Attribute Markup" */
 /* maybe it's a good idea to keep this macro beyond the ongoing GTK1 cleanup!
    If we want to change the look of the dialog boxes primary line the other day,

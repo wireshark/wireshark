@@ -870,7 +870,8 @@ file_merge_cmd(GtkWidget *w)
                   E_RFILTER_TE_KEY, filter_te);
 #endif
 
-  prepend_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Prepend packets to existing file", accel_group);
+  prepend_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL,
+      "Prepend packets to existing file");
   gtk_tooltips_set_tip(tooltips, prepend_rb,
       "The resulting file contains the packets from the selected, followed by the packets from the currently loaded file,"
       " the packet timestamps will be ignored.", NULL);
@@ -884,7 +885,7 @@ file_merge_cmd(GtkWidget *w)
 #endif
   gtk_widget_show(prepend_rb);
 
-  chrono_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Merge packets chronologically", accel_group);
+  chrono_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Merge packets chronologically");
   gtk_tooltips_set_tip(tooltips, chrono_rb,
       "The resulting file contains all the packets from the currently loaded and the selected file,"
       " sorted by the packet timestamps.", NULL);
@@ -898,7 +899,7 @@ file_merge_cmd(GtkWidget *w)
 		  E_MERGE_CHRONO_KEY, chrono_rb);
 #endif
 
-  append_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(prepend_rb, "Append packets to existing file", accel_group);
+  append_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(prepend_rb), "Append packets to existing file");
   gtk_tooltips_set_tip(tooltips, append_rb,
       "The resulting file contains the packets from the currently loaded, followed by the packets from the selected file,"
       " the packet timestamps will be ignored.", NULL);

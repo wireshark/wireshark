@@ -86,22 +86,22 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
     gtk_misc_set_alignment(GTK_MISC(radio_lb), 0.0, 0.5);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_lb);
 
-    radio_none_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "None", NULL);
+    radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "None");
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
     gtk_tooltips_set_tip (tooltips, radio_none_rb, "Put nothing in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_none_rb);
 
-    radio_plist_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_none_rb, "Packet List", NULL);
+    radio_plist_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet List");
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_plist_rb), content == layout_pane_content_plist);
     gtk_tooltips_set_tip (tooltips, radio_plist_rb, "Put the packet list in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_plist_rb);
 
-    radio_pdetails_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_none_rb, "Packet Details", NULL);
+    radio_pdetails_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Details");
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_pdetails_rb), content == layout_pane_content_pdetails);
     gtk_tooltips_set_tip (tooltips, radio_pdetails_rb, "Put the packet details tree in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pdetails_rb);
 
-    radio_pbytes_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_none_rb, "Packet Bytes", NULL);
+    radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Bytes");
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
     gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes hexdump in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);

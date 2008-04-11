@@ -169,24 +169,21 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(find_type_lb);
 
   /* Filter */
-  filter_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
-               "_Display filter", accel_group);
+  filter_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_Display filter");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_rb), !cfile.hex && !cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), filter_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, filter_rb, ("Search for data by display filter syntax.\ne.g. ip.addr==10.1.1.1"), NULL);
   gtk_widget_show(filter_rb);
 
   /* Hex */
-  hex_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
-               "_Hex value", accel_group);
+  hex_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(filter_rb), "_Hex value");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_rb), cfile.hex);
   gtk_box_pack_start(GTK_BOX(find_type_hb), hex_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, hex_rb, ("Search for data by hex string.\ne.g. fffffda5"), NULL);
   gtk_widget_show(hex_rb);
 
   /* ASCII Search */
-  string_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(filter_rb,
-               "_String", accel_group);
+  string_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(filter_rb), "_String");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(string_rb), cfile.string);
   gtk_box_pack_start(GTK_BOX(find_type_hb), string_rb, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, string_rb, ("Search for data by string value.\ne.g. My String"), NULL);
@@ -232,24 +229,21 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(data_vb);
 
   /* Packet list */
-  summary_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL,
-               "Packet list", accel_group);
+  summary_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Packet list");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(summary_data_rb), summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), summary_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, summary_data_rb, ("Search for string in the Info column of the packet summary (top pane)"), NULL);
   gtk_widget_show(summary_data_rb);
 
   /* Packet details */
-  decode_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb,
-               "Packet details", accel_group);
+  decode_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet details");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(decode_data_rb), decode_data);
   gtk_box_pack_start(GTK_BOX(data_vb), decode_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, decode_data_rb, ("Search for string in the decoded packet display (middle pane)"), NULL);
   gtk_widget_show(decode_data_rb);
 
   /* Packet bytes */
-  hex_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb,
-                "Packet bytes", accel_group);
+  hex_data_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(summary_data_rb), "Packet bytes");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), hex_data_rb, TRUE, TRUE, 0);
   gtk_tooltips_set_tip (tooltips, hex_data_rb, ("Search for string in the packet data"), NULL);
@@ -304,12 +298,12 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(direction_frame), direction_vb);
   gtk_widget_show(direction_vb);
 
-  up_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Up", accel_group);
+  up_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_Up");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(up_rb), cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_vb), up_rb, FALSE, FALSE, 0);
   gtk_widget_show(up_rb);
 
-  down_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(up_rb, "_Down", accel_group);
+  down_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(up_rb), "_Down");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(down_rb), !cfile.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_vb), down_rb, FALSE, FALSE, 0);
   gtk_widget_show(down_rb);

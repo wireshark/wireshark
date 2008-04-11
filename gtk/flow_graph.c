@@ -509,7 +509,7 @@ static void flow_graph_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
 
 	/* Process all packets */
-	select_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_All packets", accel_group);
+	select_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_All packets");
 	gtk_tooltips_set_tip (tooltips, select_all_rb, 
 		("Process all packets"), NULL);
 	SIGNAL_CONNECT(select_all_rb, "toggled", toggle_select_all, NULL);
@@ -520,7 +520,7 @@ static void flow_graph_dlg_create (void)
   	gtk_widget_show(select_all_rb);
 
 	/* Process displayed packets */
-	select_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_all_rb, "_Displayed packets", accel_group);
+	select_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_all_rb), "_Displayed packets");
 	gtk_tooltips_set_tip (tooltips, select_displayed_rb, 
 		("Process displayed packets"), NULL);
 	SIGNAL_CONNECT(select_displayed_rb, "toggled", toggle_select_displayed, NULL);
@@ -543,7 +543,7 @@ static void flow_graph_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(flow_type_fr), flow_type_tb);
 
 	/* General information */
-	select_general_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_General flow", accel_group);
+	select_general_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_General flow");
 	gtk_tooltips_set_tip (tooltips, select_general_rb, 
 		("Show all packets, with general information"), NULL);
 	SIGNAL_CONNECT(select_general_rb, "toggled", toggle_select_general, NULL);
@@ -554,7 +554,7 @@ static void flow_graph_dlg_create (void)
   	gtk_widget_show(select_general_rb);
 
 	/* TCP specific information */
-	select_tcp_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(select_general_rb, "_TCP flow", accel_group);
+	select_tcp_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(select_general_rb), "_TCP flow");
 	gtk_tooltips_set_tip (tooltips, select_tcp_rb, 
 		("Show only TCP packets, with TCP specific information"), NULL);
 	SIGNAL_CONNECT(select_tcp_rb, "toggled", toggle_select_tcp, NULL);
@@ -577,7 +577,7 @@ static void flow_graph_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(node_addr_fr), node_addr_tb);
 
 	/* Source / Dest address */
-	src_dst_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_Standard source/destination addresses", accel_group);
+	src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "_Standard source/destination addresses");
 	gtk_tooltips_set_tip (tooltips, src_dst_rb, 
 		("Nodes in the diagram are identified with source and destination addresses"), NULL);
 	SIGNAL_CONNECT(src_dst_rb, "toggled", toggle_select_srcdst, NULL);
@@ -588,7 +588,7 @@ static void flow_graph_dlg_create (void)
   	gtk_widget_show(src_dst_rb);
 
 	/* Network source / dest address */
-	net_src_dst_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(src_dst_rb, "_Network source/destination addresses", accel_group);
+	net_src_dst_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(src_dst_rb), "_Network source/destination addresses");
 	gtk_tooltips_set_tip (tooltips, net_src_dst_rb, 
 		("Nodes in the diagram are identified with network source and destination addresses"), NULL);
 	SIGNAL_CONNECT(net_src_dst_rb, "toggled", toggle_select_netsrcdst, NULL);

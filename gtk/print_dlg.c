@@ -527,7 +527,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(printer_vb);
 
   /* "Plain text" / "Postscript" / "PDML", ... radio buttons */
-  text_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "Plain _text", accel_group);
+  text_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "Plain _text");
   if (args->format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(text_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, text_rb, "Print output in ascii \"plain text\" format. If you're unsure, use this format.", NULL);
@@ -535,7 +535,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if(action == output_action_print)
     gtk_widget_show(text_rb);
 
-  ps_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_PostScript", accel_group);
+  ps_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "_PostScript");
   if (args->format == PR_FMT_PS)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ps_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, ps_rb, "Print output in \"postscript\" format, for postscript capable printers or print servers.", NULL);
@@ -543,7 +543,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   if(action == output_action_print)
     gtk_widget_show(ps_rb);
 
-  pdml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PDM_L (XML: Packet Details Markup Language)", accel_group);
+  pdml_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "PDM_L (XML: Packet Details Markup Language)");
   if (action == output_action_export_pdml)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(pdml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, pdml_rb,
@@ -553,7 +553,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(printer_vb), pdml_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(pdml_rb); */
 
-  psml_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "PSML (XML: Packet Summary Markup Language)", accel_group);
+  psml_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "PSML (XML: Packet Summary Markup Language)");
   if (action == output_action_export_psml)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(psml_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, psml_rb,
@@ -563,7 +563,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(printer_vb), psml_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(psml_rb); */
 
-  csv_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "_CSV", accel_group);
+  csv_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "_CSV");
   if (action == output_action_export_csv)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(csv_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, csv_rb,
@@ -573,7 +573,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_box_pack_start(GTK_BOX(printer_vb), csv_rb, FALSE, FALSE, 0);
   /* gtk_widget_show(csv_rb); */
 
-  carrays_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(text_rb, "C Arrays", accel_group);
+  carrays_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(text_rb), "C Arrays");
   if (action == output_action_export_carrays)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(carrays_rb), TRUE);
   gtk_tooltips_set_tip (tooltips, carrays_rb,
@@ -717,19 +717,19 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(details_vb);
 
   /* "All collapsed"/"As displayed"/"All Expanded" radio buttons */
-  collapse_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "All co_llapsed", accel_group);
+  collapse_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "All co_llapsed");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(collapse_all_rb), args->print_dissections == print_dissections_collapsed);
   gtk_tooltips_set_tip (tooltips, collapse_all_rb, "Output of the packet details tree \"collapsed\"", NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), collapse_all_rb);
   gtk_widget_show(collapse_all_rb);
 
-  as_displayed_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "As displa_yed", accel_group);
+  as_displayed_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "As displa_yed");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), args->print_dissections == print_dissections_as_displayed);
   gtk_tooltips_set_tip (tooltips, as_displayed_rb, "Output of the packet details tree \"as displayed\"", NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
 
-  expand_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(collapse_all_rb, "All e_xpanded", accel_group);
+  expand_all_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(collapse_all_rb), "All e_xpanded");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), args->print_dissections == print_dissections_expanded);
   gtk_tooltips_set_tip (tooltips, expand_all_rb, "Output of the packet details tree \"expanded\"", NULL);
   gtk_container_add(GTK_CONTAINER(details_vb), expand_all_rb);
