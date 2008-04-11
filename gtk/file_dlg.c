@@ -238,7 +238,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 
   /* Call a handler when the file selection box is destroyed, so we can inform
      our caller, if any, that it's been destroyed. */
-  SIGNAL_CONNECT(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
+  g_signal_connect(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
 		 file_te);
 
 #if GTK_CHECK_VERSION(2,4,0)
@@ -250,7 +250,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   }
   window_destroy(fs);
 #else
-  SIGNAL_CONNECT(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
+  g_signal_connect(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
 		 file_selection_browse_ok_cb, fs);
 
   window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button,

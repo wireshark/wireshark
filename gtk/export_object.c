@@ -369,21 +369,21 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_container_add(GTK_CONTAINER(sw), object_list->tree);
 
 	selection = gtk_tree_view_get_selection(object_list->tree_view);
-        SIGNAL_CONNECT(selection, "changed", eo_remember_row_num, object_list);
+        g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
 
 
  	bbox = gtk_hbox_new(FALSE, 5);
 
 	/* Help button */
 	help_bt = gtk_button_new_from_stock(GTK_STOCK_HELP);
-	SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_OBJECT_LIST);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_OBJECT_LIST);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
 			     "Show help for this dialog.", NULL);
 	gtk_box_pack_start(GTK_BOX(bbox), help_bt, FALSE, FALSE, 0);
 
 	/* Save All button */
 	save_all_bt = gtk_button_new_with_mnemonic("Save A_ll");
-	SIGNAL_CONNECT(save_all_bt, "clicked", eo_save_all_clicked_cb,
+	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb),
 		       object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_all_bt,
 			     "Save all listed objects with their displayed "
@@ -392,7 +392,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	/* Save button */
 	save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
-	SIGNAL_CONNECT(save_bt, "clicked", eo_save_clicked_cb, object_list);
+	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_bt,
 			     "Saves the currently selected content to a file.",
 			     NULL);
@@ -410,10 +410,9 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
         gtk_widget_show(bbox);
 
 	/* Setup cancel/delete/destroy signal handlers */
-        SIGNAL_CONNECT(object_list->dlg, "delete_event",
-		       window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(object_list->dlg, "destroy",
-		       eo_win_destroy_cb, object_list);
+        g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(object_list->dlg, "destroy",
+		       G_CALLBACK(eo_win_destroy_cb), object_list);
        	window_set_cancel_button(object_list->dlg, close_bt,
 				 window_cancel_button_cb);
 

@@ -358,7 +358,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 	gtk_box_pack_start(GTK_BOX(vbox), etd->scrolled_window, TRUE, TRUE, 0);
 
 	etd->table=(GtkCList *)gtk_clist_new(5);
-	SIGNAL_CONNECT(etd->table, "select-row", select_row_cb, etd);
+	g_signal_connect(etd->table, "select-row", G_CALLBACK(select_row_cb), etd);
 
 	gtk_widget_show(GTK_WIDGET(etd->table));
 	gtk_widget_show(etd->scrolled_window);
@@ -406,7 +406,7 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
 /*    gtk_list_select_item(GTK_LIST(value_list), 0);*/
 	gtk_container_add(GTK_CONTAINER(etd->scrolled_window), (GtkWidget *)etd->table);
 
-	SIGNAL_CONNECT(etd->table, "click-column", srt_click_column_cb, col_arrows);
+	g_signal_connect(etd->table, "click-column", G_CALLBACK(srt_click_column_cb), col_arrows);
 
 	gtk_widget_show(GTK_WIDGET(etd->table));
 	gtk_widget_show(etd->scrolled_window);
@@ -518,7 +518,7 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 	for(i=0; expert_severity_om_vals[i].strptr != NULL;i++){
 		menu_item=gtk_menu_item_new_with_label(expert_severity_om_vals[i].strptr);
 		g_object_set_data(G_OBJECT(menu_item), "tapdata", etd);
-		SIGNAL_CONNECT(menu_item, "activate", expert_dlg_severity_cb, (long) i);
+		g_signal_connect(menu_item, "activate", G_CALLBACK(expert_dlg_severity_cb), (gpointer)(long) i);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
 		if(expert_severity_om_vals[i].value == (guint) etd->severity_report_level) {
 			gtk_menu_set_active(GTK_MENU(menu), i);
@@ -560,12 +560,12 @@ expert_dlg_init(const char *optarg, void* userdata _U_)
 
 	if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
                 help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPERT_INFO_DIALOG);
+		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
 		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 	}
 
-	SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
-	SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);
+	g_signal_connect(etd->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+	g_signal_connect(etd->win, "destroy", G_CALLBACK(expert_dlg_destroy_cb), etd);
 
 	gtk_widget_show_all(etd->win);
 	window_present(etd->win);

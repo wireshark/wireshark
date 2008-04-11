@@ -430,7 +430,7 @@ error_create_popup_menu(error_equiv_table *err)
     gtk_item_factory_create_items_ac(item_factory, sizeof(error_list_menu_items)/sizeof(error_list_menu_items[0]), error_list_menu_items, err, 2);
 
     err->menu = gtk_item_factory_get_widget(item_factory, "<main>");
-    SIGNAL_CONNECT(err->tree_view, "button_press_event", error_show_popup_menu_cb, err);
+    g_signal_connect(err->tree_view, "button_press_event", G_CALLBACK(error_show_popup_menu_cb), err);
 }
 
 void

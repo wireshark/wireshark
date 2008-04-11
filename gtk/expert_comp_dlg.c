@@ -249,8 +249,8 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
         return;
     }
 
-    SIGNAL_CONNECT(etd->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(etd->win, "destroy", expert_dlg_destroy_cb, etd);
+    g_signal_connect(etd->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(etd->win, "destroy", G_CALLBACK(expert_dlg_destroy_cb), etd);
 
     /* Register the tap listener */
 
@@ -275,12 +275,12 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
 
     if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
         help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPERT_INFO_DIALOG);
+        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
         gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
     }
 
-    SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
+    g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
+    g_signal_connect(ss->win, "destroy", G_CALLBACK(win_destroy_cb), ss);
 
     gtk_widget_show_all(ss->win);
     window_present(ss->win);

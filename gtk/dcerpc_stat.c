@@ -634,7 +634,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* Filter entry */
 	filter_entry=gtk_entry_new();
-        SIGNAL_CONNECT(filter_entry, "changed", filter_te_syntax_check_cb, NULL);
+	g_signal_connect(filter_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){

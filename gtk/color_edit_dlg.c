@@ -180,7 +180,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), color_filter_text, FALSE, FALSE, 0);
 
     filt_text_entry = gtk_entry_new ();
-    SIGNAL_CONNECT(filt_text_entry, "changed", filter_te_syntax_check_cb, NULL);
+    g_signal_connect(filt_text_entry, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
     gtk_entry_set_text(GTK_ENTRY(filt_text_entry), colorf->filter_text);
 
     gtk_style_unref(style);

@@ -982,7 +982,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_tree_view_append_column(GTK_TREE_VIEW(field_tree), column);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_column_set_sort_column_id(column, 0);
-    SIGNAL_CONNECT(selection, "changed", field_select_row_cb, field_tree);
+    g_signal_connect(selection, "changed", G_CALLBACK(field_select_row_cb), field_tree);
     gtk_container_add(GTK_CONTAINER(tree_scrolled_win), field_tree);
 
     relation_vb = gtk_vbox_new(FALSE, 5);
@@ -1087,16 +1087,16 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     column = gtk_tree_view_column_new_with_attributes("value", renderer,
                                                       "text", 0, NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(value_list), column);
-    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list)),
-                   "changed", value_list_sel_cb, value_entry);
+    g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list)),
+                   "changed", G_CALLBACK(value_list_sel_cb), value_entry);
 
     /*
      * The value stuff may be hidden or shown depending on what
      * relation was selected; connect to the "changed" signal
      * for the relation list, so we can make that happen.
      */
-    SIGNAL_CONNECT(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
-                   "changed", relation_list_sel_cb, NULL);
+    g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
+                   "changed", G_CALLBACK(relation_list_sel_cb), NULL);
     l_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(value_list));
     gtk_tree_selection_set_mode(l_sel, GTK_SELECTION_SINGLE);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(value_list_scrolled_win),
@@ -1173,11 +1173,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     ok_bt = g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_OK);
     gtk_widget_set_sensitive(ok_bt, FALSE);
-    SIGNAL_CONNECT(ok_bt, "clicked", dfilter_expr_dlg_accept_cb, filter_te);
+    g_signal_connect(ok_bt, "clicked", G_CALLBACK(dfilter_expr_dlg_accept_cb), filter_te);
 
     cancel_bt = g_object_get_data(G_OBJECT(list_bb), GTK_STOCK_CANCEL);
     window_set_cancel_button(window, cancel_bt, NULL);
-    SIGNAL_CONNECT(cancel_bt, "clicked", dfilter_expr_dlg_cancel_cb, window);
+    g_signal_connect(cancel_bt, "clicked", G_CALLBACK(dfilter_expr_dlg_cancel_cb), window);
 
     gtk_widget_grab_default(ok_bt);
 
@@ -1199,22 +1199,21 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                     value_list_scrolled_win);
     g_object_set_data(G_OBJECT(window), E_DFILTER_EXPR_OK_BT_KEY, ok_bt);
 
-    SIGNAL_CONNECT(window, "delete_event", dfilter_expr_dlg_delete_event_cb,
-                   window);
+    g_signal_connect(window, "delete_event", G_CALLBACK(dfilter_expr_dlg_delete_event_cb), window);
 
     /*
      * Catch the "destroy" signal on our top-level window, and,
      * when it's destroyed, disconnect the signal we'll be
      * connecting below.
      */
-    SIGNAL_CONNECT(window, "destroy", dfilter_expr_dlg_destroy_cb, filter_te);
+    g_signal_connect(window, "destroy", G_CALLBACK(dfilter_expr_dlg_destroy_cb), filter_te);
 
     /*
      * Catch the "destroy" signal on the text entry widget to which
      * we're attached; if it's destroyed, we should destroy ourselves
      * as well.
      */
-    SIGNAL_CONNECT(filter_te, "destroy", dfilter_expr_dlg_cancel_cb, window);
+    g_signal_connect(filter_te, "destroy", G_CALLBACK(dfilter_expr_dlg_cancel_cb), window);
 
     gtk_widget_show_all(window);
     window_present(window);

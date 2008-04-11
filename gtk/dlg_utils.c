@@ -399,7 +399,7 @@ dlg_window_new(const gchar *title)
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
 
-  SIGNAL_CONNECT(win, "destroy", dlg_destroy_cb, NULL);
+  g_signal_connect(win, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
 
   return win;
 }
@@ -416,7 +416,7 @@ dlg_window_new(const gchar *title)
 void
 dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button)
 {
-  SIGNAL_CONNECT(widget, "activate", dlg_activate, ok_button);
+  g_signal_connect(widget, "activate", G_CALLBACK(dlg_activate), ok_button);
 }
 
 static void
