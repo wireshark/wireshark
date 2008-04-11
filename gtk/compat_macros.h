@@ -43,12 +43,6 @@ g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
 #define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
 g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 
-#define OBJECT_SET_DATA(widget, key, data) \
-g_object_set_data(G_OBJECT(widget), key, (data))
-
-#define OBJECT_GET_DATA(widget, key) \
-g_object_get_data(G_OBJECT(widget), key)
-
 /* WIDGET_SET_SIZE would better be named WIDGET_SET_MIN_SIZE. */
 /* don't use WIDGET_SET_SIZE() to set the size of a dialog, */
 /* use gtk_window_set_default_size() for that purpose! */
