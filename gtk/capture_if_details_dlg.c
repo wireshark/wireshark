@@ -2357,11 +2357,11 @@ capture_if_details_open_win(char *iface)
     }
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(details_open_w, close_bt, window_cancel_button_cb);
 
     if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
         SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DETAILS_DIALOG);
     }
 

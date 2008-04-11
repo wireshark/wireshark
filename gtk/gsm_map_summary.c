@@ -283,7 +283,7 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
 
   SIGNAL_CONNECT(sum_open_w, "delete_event", window_delete_event_cb, NULL);

@@ -519,7 +519,7 @@ packet_list_new(e_prefs *prefs)
                                                GTK_JUSTIFY_RIGHT);
     }
     SIGNAL_CONNECT(packet_list, "button_press_event", popup_menu_handler,
-                   OBJECT_GET_DATA(popup_menu_object, PM_PACKET_LIST_KEY));
+                   g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
     SIGNAL_CONNECT(packet_list, "button_press_event",
                    packet_list_button_pressed_cb, NULL);
     gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);

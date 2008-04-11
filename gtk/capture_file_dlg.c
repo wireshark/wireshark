@@ -134,35 +134,35 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 
 
     /* init preview labels */
-    label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = OBJECT_GET_DATA(prev, PREVIEW_ELAPSED_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
-    label = OBJECT_GET_DATA(prev, PREVIEW_FIRST_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), "-");
 
     if(!cf_name) {
         return NULL;
     }
 
-    label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), get_basename(cf_name));
 
     if (test_for_directory(cf_name) == EISDIR) {
-        label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
         gtk_label_set_text(GTK_LABEL(label), "directory");
         return NULL;
     }
 
     wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
     if (wth == NULL) {
-        label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             gtk_label_set_text(GTK_LABEL(label), "unknown file format");
         } else {
@@ -179,12 +179,12 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
         return NULL;
     }
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_MODIFIER "d bytes", filesize);
-    label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* type */
     g_snprintf(string_buff, PREVIEW_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
-    label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     return wth;
@@ -241,7 +241,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 
     if(err != 0) {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packets);
-        label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+        label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
         gtk_label_set_text(GTK_LABEL(label), string_buff);
         wtap_close(wth);
         return;
@@ -253,7 +253,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     } else {
         g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packets);
     }
-    label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* first packet */
@@ -271,7 +271,7 @@ preview_do(GtkWidget *prev, wtap *wth)
 	} else {
 		g_snprintf(string_buff, PREVIEW_STR_MAX, "?");
 	}
-    label = OBJECT_GET_DATA(prev, PREVIEW_FIRST_KEY);
+        label = g_object_get_data(G_OBJECT(prev), PREVIEW_FIRST_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* elapsed time */
@@ -286,7 +286,7 @@ preview_do(GtkWidget *prev, wtap *wth)
     if(is_breaked) {
       g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
     }
-    label = OBJECT_GET_DATA(prev, PREVIEW_ELAPSED_KEY);
+    label = g_object_get_data(G_OBJECT(prev), PREVIEW_ELAPSED_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     wtap_close(wth);
@@ -319,7 +319,7 @@ update_preview_cb (GtkFileChooser *file_chooser, gpointer data)
 static void
 file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
 {
-    GtkWidget *prev = OBJECT_GET_DATA(file_sel, PREVIEW_TABLE_KEY);
+    GtkWidget *prev = g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
     const gchar* cf_name;
     gboolean have_preview;
     wtap       *wth;
@@ -400,17 +400,17 @@ preview_new(void)
 
     label = add_string_to_table(table, &row, "Filename:", "-");
     WIDGET_SET_SIZE(label, DEF_WIDTH/3, -1);
-    OBJECT_SET_DATA(table, PREVIEW_FILENAME_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_FILENAME_KEY, label);
     label = add_string_to_table(table, &row, "Format:", "-");
-    OBJECT_SET_DATA(table, PREVIEW_FORMAT_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_FORMAT_KEY, label);
     label = add_string_to_table(table, &row, "Size:", "-");
-    OBJECT_SET_DATA(table, PREVIEW_SIZE_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_SIZE_KEY, label);
     label = add_string_to_table(table, &row, "Packets:", "-");
-    OBJECT_SET_DATA(table, PREVIEW_PACKETS_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_PACKETS_KEY, label);
     label = add_string_to_table(table, &row, "First Packet:", "-");
-    OBJECT_SET_DATA(table, PREVIEW_FIRST_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_FIRST_KEY, label);
     label = add_string_to_table(table, &row, "Elapsed time:", "-");
-    OBJECT_SET_DATA(table, PREVIEW_ELAPSED_KEY, label);
+    g_object_set_data(G_OBJECT(table), PREVIEW_ELAPSED_KEY, label);
 
     return table;
 }
@@ -504,16 +504,16 @@ file_open_cmd(GtkWidget *w)
     "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
 
   filter_te = gtk_entry_new();
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_open_w, E_RFILTER_TE_KEY, filter_te);
+  g_object_set_data(G_OBJECT(file_open_w), E_RFILTER_TE_KEY, filter_te);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
                   E_RFILTER_TE_KEY, filter_te);
 #endif
 
@@ -523,10 +523,10 @@ file_open_cmd(GtkWidget *w)
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_open_w,
+  g_object_set_data(G_OBJECT(file_open_w),
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
                   E_FILE_M_RESOLVE_KEY, m_resolv_cb);
 #endif
   gtk_widget_show(m_resolv_cb);
@@ -537,9 +537,9 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(n_resolv_cb);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_open_w, E_FILE_N_RESOLVE_KEY, n_resolv_cb);
+  g_object_set_data(G_OBJECT(file_open_w), E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 #endif
 
@@ -549,9 +549,9 @@ file_open_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);
   gtk_widget_show(t_resolv_cb);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_open_w, E_FILE_T_RESOLVE_KEY, t_resolv_cb);
+  g_object_set_data(G_OBJECT(file_open_w), E_FILE_T_RESOLVE_KEY, t_resolv_cb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
 		  E_FILE_T_RESOLVE_KEY, t_resolv_cb);
 #endif
 
@@ -560,7 +560,7 @@ file_open_cmd(GtkWidget *w)
 
   /* preview widget */
   prev = preview_new();
-  OBJECT_SET_DATA(file_open_w, PREVIEW_TABLE_KEY, prev);
+  g_object_set_data(G_OBJECT(file_open_w), PREVIEW_TABLE_KEY, prev);
   gtk_widget_show_all(prev);
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
@@ -569,8 +569,8 @@ file_open_cmd(GtkWidget *w)
       file_open_entry_changed, file_open_w);
   file_open_entry_changed(file_open_w, file_open_w);
 
-  OBJECT_SET_DATA(file_open_w, E_DFILTER_TE_KEY,
-                  OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  g_object_set_data(G_OBJECT(file_open_w), E_DFILTER_TE_KEY,
+                    g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
   if (gtk_dialog_run(GTK_DIALOG(file_open_w)) == GTK_RESPONSE_ACCEPT)
   {
     file_open_ok_cb(file_open_w, file_open_w);
@@ -585,8 +585,8 @@ file_open_cmd(GtkWidget *w)
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_open_w)->ok_button, "clicked",
                  file_open_ok_cb, file_open_w);
 
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_open_w)->ok_button,
-                  E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
+                    E_DFILTER_TE_KEY, g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
   window_set_cancel_button(file_open_w,
@@ -648,7 +648,7 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
-  filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
+  filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
@@ -693,17 +693,17 @@ file_open_ok_cb(GtkWidget *w, gpointer fs) {
 
   /* Set the global resolving variable */
   g_resolv_flags = prefs.name_resolve;
-  m_resolv_cb = OBJECT_GET_DATA(w, E_FILE_M_RESOLVE_KEY);
+  m_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_M_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (m_resolv_cb)))
     g_resolv_flags |= RESOLV_MAC;
   else
     g_resolv_flags &= ~RESOLV_MAC;
-  n_resolv_cb = OBJECT_GET_DATA(w, E_FILE_N_RESOLVE_KEY);
+  n_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_N_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (n_resolv_cb)))
     g_resolv_flags |= RESOLV_NETWORK;
   else
     g_resolv_flags &= ~RESOLV_NETWORK;
-  t_resolv_cb = OBJECT_GET_DATA(w, E_FILE_T_RESOLVE_KEY);
+  t_resolv_cb = g_object_get_data(G_OBJECT(w), E_FILE_T_RESOLVE_KEY);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (t_resolv_cb)))
     g_resolv_flags |= RESOLV_TRANSPORT;
   else
@@ -857,16 +857,16 @@ file_merge_cmd(GtkWidget *w)
     "Open the \"Display Filter\" dialog, to edit/apply filters", NULL);
 
   filter_te = gtk_entry_new();
-  OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, filter_te);
+  g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
   gtk_widget_show(filter_te);
   gtk_tooltips_set_tip(tooltips, filter_te, "Enter a display filter.", NULL);
 
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_merge_w, E_RFILTER_TE_KEY, filter_te);
+  g_object_set_data(G_OBJECT(file_merge_w), E_RFILTER_TE_KEY, filter_te);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
                   E_RFILTER_TE_KEY, filter_te);
 #endif
 
@@ -876,10 +876,10 @@ file_merge_cmd(GtkWidget *w)
       " the packet timestamps will be ignored.", NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), prepend_rb, FALSE, FALSE, 0);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_merge_w,
+  g_object_set_data(G_OBJECT(file_merge_w),
                   E_MERGE_PREPEND_KEY, prepend_rb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
                   E_MERGE_PREPEND_KEY, prepend_rb);
 #endif
   gtk_widget_show(prepend_rb);
@@ -892,9 +892,9 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), chrono_rb, FALSE, FALSE, 0);
   gtk_widget_show(chrono_rb);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_merge_w, E_MERGE_CHRONO_KEY, chrono_rb);
+  g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_CHRONO_KEY, chrono_rb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
 		  E_MERGE_CHRONO_KEY, chrono_rb);
 #endif
 
@@ -907,9 +907,9 @@ file_merge_cmd(GtkWidget *w)
   gtk_box_pack_start(GTK_BOX(main_vb), append_rb, FALSE, FALSE, 0);
   gtk_widget_show(append_rb);
 #if GTK_CHECK_VERSION(2,4,0)
-  OBJECT_SET_DATA(file_merge_w, E_MERGE_APPEND_KEY, append_rb);
+  g_object_set_data(G_OBJECT(file_merge_w), E_MERGE_APPEND_KEY, append_rb);
 #else
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
 		  E_MERGE_APPEND_KEY, append_rb);
 #endif
 
@@ -918,7 +918,7 @@ file_merge_cmd(GtkWidget *w)
 
   /* preview widget */
   prev = preview_new();
-  OBJECT_SET_DATA(file_merge_w, PREVIEW_TABLE_KEY, prev);
+  g_object_set_data(G_OBJECT(file_merge_w), PREVIEW_TABLE_KEY, prev);
   gtk_widget_show_all(prev);
   gtk_box_pack_start(GTK_BOX(main_hb), prev, TRUE, TRUE, 0);
 
@@ -927,8 +927,8 @@ file_merge_cmd(GtkWidget *w)
       file_open_entry_changed, file_merge_w);
   file_open_entry_changed(file_merge_w, file_merge_w);
 
-  OBJECT_SET_DATA(file_merge_w, E_DFILTER_TE_KEY,
-                  OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  g_object_set_data(G_OBJECT(file_merge_w), E_DFILTER_TE_KEY,
+                    g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
   if (gtk_dialog_run(GTK_DIALOG(file_merge_w)) == GTK_RESPONSE_ACCEPT)
   {
     file_merge_ok_cb(file_merge_w, file_merge_w);
@@ -943,8 +943,8 @@ file_merge_cmd(GtkWidget *w)
   SIGNAL_CONNECT(GTK_FILE_SELECTION(file_merge_w)->ok_button, "clicked",
                  file_merge_ok_cb, file_merge_w);
 
-  OBJECT_SET_DATA(GTK_FILE_SELECTION(file_merge_w)->ok_button,
-                  E_DFILTER_TE_KEY, OBJECT_GET_DATA(w, E_DFILTER_TE_KEY));
+  g_object_set_data(G_OBJECT(GTK_FILE_SELECTION(file_merge_w)->ok_button),
+                    E_DFILTER_TE_KEY, g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY));
 
   /* Connect the cancel_button to destroy the widget */
   window_set_cancel_button(file_merge_w,
@@ -1005,7 +1005,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
 #else
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
-  filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
+  filter_te = g_object_get_data(G_OBJECT(w), E_RFILTER_TE_KEY);
   rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
     bad_dfilter_alert_box(rfilter);
@@ -1025,7 +1025,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   /* merge or append the two files */
-  rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
+  rb = g_object_get_data(G_OBJECT(w), E_MERGE_CHRONO_KEY);
   tmpname = NULL;
   if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
       /* chronological order */
@@ -1033,7 +1033,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
       in_filenames[1] = cf_name;
       merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
   } else {
-      rb = OBJECT_GET_DATA(w, E_MERGE_PREPEND_KEY);
+      rb = g_object_get_data(G_OBJECT(w), E_MERGE_PREPEND_KEY);
       if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (rb))) {
           /* prepend file */
           in_filenames[0] = cf_name;
@@ -1236,7 +1236,7 @@ select_file_type_cb(GtkWidget *w _U_, gpointer data)
 
   if (filetype != new_filetype) {
     filetype = new_filetype;
-    compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
+    compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), "compressed");
     if(compressed_cb)
 	    gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(new_filetype));
   }
@@ -1340,7 +1340,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
    * encapsulation ... */
   /* the rest of the implementation is just working fine :-( */
   /*gtk_widget_show(compressed_cb);*/
-  OBJECT_SET_DATA(file_save_as_w, "compressed", compressed_cb);
+  g_object_set_data(G_OBJECT(file_save_as_w), "compressed", compressed_cb);
   gtk_widget_set_sensitive(compressed_cb, wtap_dump_can_compress(cfile.cd_t));
 
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
@@ -1390,7 +1390,7 @@ file_save_as_cb(GtkWidget *w _U_, gpointer fs) {
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 #endif
 
-  compressed_cb = OBJECT_GET_DATA(file_save_as_w, "compressed");
+  compressed_cb = g_object_get_data(G_OBJECT(file_save_as_w), "compressed");
 
   /* XXX - if the user requests to save to an already existing filename, */
   /* ask in a dialog if that's intended */

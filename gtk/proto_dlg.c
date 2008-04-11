@@ -193,21 +193,21 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", proto_ok_cb, proto_w);
   gtk_widget_grab_default(ok_bt);
 
-  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", proto_apply_cb, proto_w);
 
-  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+  save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   SIGNAL_CONNECT(save_bt, "clicked", proto_save_cb, proto_w);
 
-  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
   if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_ENABLED_PROTOCOLS_DIALOG);
   }
 

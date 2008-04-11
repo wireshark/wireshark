@@ -322,12 +322,12 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(fs_w, close_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
 
   if(topic_available(HELP_FILESET_DIALOG)) {
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_FILESET_DIALOG);
   }
 

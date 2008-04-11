@@ -177,7 +177,7 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
     }
 
     /* Set the display filter entry accordingly */
-    filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+    filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY);
 
     /* needed in follow_filter_out_stream(), is there a better way? */
     follow_info->filter_te = filter_te;

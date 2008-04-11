@@ -412,7 +412,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   if (airpcap_if_list == NULL)
     airpcap_if_active = airpcap_if_selected = NULL;
 
-  decryption_cm = OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY);
+  decryption_cm = g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY);
   update_decryption_mode_list(decryption_cm);
 
   if (airpcap_if_list == NULL && err == CANT_GET_AIRPCAP_INTERFACE_LIST) {
@@ -636,12 +636,12 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   }
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
-  close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
 
   if(topic_available(HELP_CAPTURE_INTERFACES_DIALOG)) {
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_CAPTURE_INTERFACES_DIALOG);
   }
 
