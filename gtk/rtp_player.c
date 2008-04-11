@@ -1319,7 +1319,7 @@ static gint expose_event_channels(GtkWidget *widget, GdkEventExpose *event)
 {
 	rtp_channel_info_t *rci;
 
-	rci=(rtp_channel_info_t *)OBJECT_GET_DATA(widget, "rtp_channel_info_t");
+	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
 	if(!rci){
 		exit(10);
 	}
@@ -1360,7 +1360,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_)
 		{0,     0xFFFF, 0xFFFF, 0x99FF}
 	};
 
-	rci=(rtp_channel_info_t *)OBJECT_GET_DATA(widget, "rtp_channel_info_t");
+	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
 	if(!rci){
 		exit(10);
 	}
@@ -1402,7 +1402,7 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 	int this_channel;
 	guint32 prev_index;
 
-	rci=(rtp_channel_info_t *)OBJECT_GET_DATA(widget, "rtp_channel_info_t");
+	rci=(rtp_channel_info_t *)g_object_get_data(G_OBJECT(widget), "rtp_channel_info_t");
 	if(!rci){
 		exit(10);
 	}
@@ -1497,7 +1497,7 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	gtk_container_add(GTK_CONTAINER(viewport), rci->draw_area);
 	gtk_container_add(GTK_CONTAINER(rci->scroll_window), viewport);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport), GTK_SHADOW_NONE);
-	OBJECT_SET_DATA(rci->draw_area, "rtp_channel_info_t", rci);
+	g_object_set_data(G_OBJECT(rci->draw_area), "rtp_channel_info_t", rci);
 	gtk_widget_add_events (rci->draw_area, GDK_BUTTON_PRESS_MASK);
 	GTK_WIDGET_SET_FLAGS(rci->draw_area, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(rci->draw_area);

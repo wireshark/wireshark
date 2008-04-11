@@ -59,7 +59,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 	gboolean ret;
 
 	filename = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w)));
-	type_cm = OBJECT_GET_DATA(save_as_w, "type_cm");
+	type_cm = g_object_get_data(G_OBJECT(save_as_w), "type_cm");
 	file_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cm));
 	
 	/* Perhaps the user specified a directory instead of a file.
@@ -93,7 +93,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w, GdkPixbuf *pixbuf)
 void
 pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 {
-	GdkPixmap *pixmap = OBJECT_GET_DATA(w, "pixmap");
+        GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;
 	GtkWidget *main_vb, *save_as_type_hb, *type_lb, *type_cm;
@@ -152,7 +152,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	g_slist_free(file_formats);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(type_cm), 0);
-	OBJECT_SET_DATA(save_as_w, "type_cm", type_cm);
+	g_object_set_data(G_OBJECT(save_as_w), "type_cm", type_cm);
 	gtk_widget_show(type_cm);
 
 	SIGNAL_CONNECT(save_as_w, "destroy", pixbuf_save_destroy_cb, NULL);

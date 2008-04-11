@@ -484,7 +484,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	/* Start a notebook for flipping between sets of changes */
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
-	OBJECT_SET_DATA(window, "notebook", notebook);
+	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 	SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,NULL);
 
 	page1 = gtk_vbox_new(FALSE, 8);

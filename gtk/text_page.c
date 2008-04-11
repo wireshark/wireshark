@@ -73,7 +73,7 @@ GtkWidget * text_page_new(const char *absolute_path)
   /* gtk_text_view_set_left_margin(GTK_TEXT_VIEW(txt), 3); */
   /* gtk_text_view_set_right_margin(GTK_TEXT_VIEW(txt), 3); */
 
-  OBJECT_SET_DATA(page_vb, TEXT_KEY, txt);
+  g_object_set_data(G_OBJECT(page_vb), TEXT_KEY, txt);
 
   text_page_set_text(page_vb, absolute_path);
   gtk_container_add(GTK_CONTAINER(txt_scrollw), txt);
@@ -89,7 +89,7 @@ GtkWidget * text_page_new(const char *absolute_path)
  */
 static void text_page_insert(GtkWidget *page, const char *buffer, int nchars)
 {
-    GtkWidget *txt = OBJECT_GET_DATA(page, TEXT_KEY);
+    GtkWidget *txt = g_object_get_data(G_OBJECT(page), TEXT_KEY);
 
     GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(txt));
     GtkTextIter    iter;
@@ -132,7 +132,7 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
  */
 static void text_page_clear(GtkWidget *page)
 {
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(OBJECT_GET_DATA(page, TEXT_KEY)));
+  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(g_object_get_data(G_OBJECT(page), TEXT_KEY)));
 
   gtk_text_buffer_set_text(buf, "", 0);
 }

@@ -634,7 +634,7 @@ sctp_graph_t *ios;
 			draw_sack_graph(u_data);
 			break;
 	}
-	ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
 	if(!ios){
 		exit(10);
@@ -720,7 +720,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	sctp_graph_t *ios;
 
-	ios=(sctp_graph_t *)OBJECT_GET_DATA(widget, "sctp_graph_t");
+	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(widget), "sctp_graph_t");
 	if(!ios){
 		exit(10);
 	}
@@ -871,7 +871,7 @@ on_button_press (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_udata
 		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
 		                   (gint)floor(abs((long)(u_data->io->x_new-u_data->io->x_old))),
 		                   (gint)floor(abs((long)(u_data->io->y_new-u_data->io->y_old))));
-		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
 		if(!ios){
 			exit(10);
@@ -933,7 +933,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
 		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
 				   u_data->io->rect_y_max - u_data->io->rect_y_min);
-		ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
 		if(!ios){
 			exit(10);
@@ -1090,7 +1090,7 @@ on_button_release (GtkWidget *widget _U_, GdkEventButton *event, struct sctp_uda
 			                (gint)(event->y-10),
 			                layout);
 
-			ios=(sctp_graph_t *)OBJECT_GET_DATA(u_data->io->draw_area, "sctp_graph_t");
+			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 
 			if(!ios){
 				exit(10);
@@ -1261,7 +1261,7 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 
 	u_data->io->draw_area=gtk_drawing_area_new();
 	SIGNAL_CONNECT(u_data->io->draw_area, "destroy", quit, u_data);
-	OBJECT_SET_DATA(u_data->io->draw_area, "sctp_graph_t", u_data->io);
+	g_object_set_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t", u_data->io);
 
 	WIDGET_SET_SIZE(u_data->io->draw_area, u_data->io->pixmap_width, u_data->io->pixmap_height);
 

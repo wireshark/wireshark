@@ -187,7 +187,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     /*
      * Attach a pointer to the progress bar widget to the top-level widget.
      */
-    OBJECT_SET_DATA(dlg_w, PROG_BAR_KEY, prog_bar);
+    g_object_set_data(G_OBJECT(dlg_w), PROG_BAR_KEY, prog_bar);
 
     /*
      * Static and dynamic boxes are now complete
@@ -203,7 +203,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
     gtk_container_add(GTK_CONTAINER(main_vb), bbox);
     gtk_widget_show(bbox);
 
-    cancel_bt = OBJECT_GET_DATA(bbox, terminate_is_stop ? GTK_STOCK_STOP :
+    cancel_bt = g_object_get_data(G_OBJECT(bbox), terminate_is_stop ? GTK_STOCK_STOP :
                                 GTK_STOCK_CANCEL);
     gtk_widget_grab_default(cancel_bt);
 
@@ -388,7 +388,7 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, const gchar *status)
 	}
 
 	/* update progress bar */
-	prog_bar = OBJECT_GET_DATA(dlg_w, PROG_BAR_KEY);
+	prog_bar = g_object_get_data(G_OBJECT(dlg_w), PROG_BAR_KEY);
 	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(prog_bar), percentage);
 
 	/*

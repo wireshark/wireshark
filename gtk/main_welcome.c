@@ -185,7 +185,7 @@ welcome_link_enter_cb(GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpoint
     gchar *message;
     GtkWidget *w = user_data;
 
-    message = g_strdup_printf("<span foreground='blue' underline='single'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
+    message = g_strdup_printf("<span foreground='blue' underline='single'>%s</span>", g_object_get_data(G_OBJECT(w),"TEXT"));
     gtk_label_set_markup(GTK_LABEL(w), message);
     g_free(message);
 
@@ -198,7 +198,7 @@ welcome_link_leave_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer user_
     gchar *message;
     GtkWidget *w = user_data;
 
-    message = g_strdup_printf("<span foreground='blue'>%s</span>", OBJECT_GET_DATA(w,"TEXT"));
+    message = g_strdup_printf("<span foreground='blue'>%s</span>", g_object_get_data(G_OBJECT(w),"TEXT"));
     gtk_label_set_markup(GTK_LABEL(w), message);
     g_free(message);
 
@@ -236,7 +236,7 @@ welcome_link_new(const gchar *text, GtkWidget **label /*, void *callback, void *
     SIGNAL_CONNECT(eb, "button-press-event", welcome_link_press_cb, w);
 
     /* XXX - memleak */
-    OBJECT_SET_DATA(w, "TEXT", g_strdup(text));
+    g_object_set_data(G_OBJECT(w), "TEXT", g_strdup(text));
 
     return eb;
 }

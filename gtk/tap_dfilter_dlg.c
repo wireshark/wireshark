@@ -208,10 +208,10 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 
 	/* Filter entry */
 	current_dlg->filter_entry=gtk_entry_new();
-    SIGNAL_CONNECT(current_dlg->filter_entry, "changed", filter_te_syntax_check_cb, NULL);
+        SIGNAL_CONNECT(current_dlg->filter_entry, "changed", filter_te_syntax_check_cb, NULL);
 	
 	/* filter prefs dialog */
-	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
+        g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
 	/* filter prefs dialog */
 	
 	gtk_box_pack_start(GTK_BOX(filter_box), current_dlg->filter_entry, TRUE, TRUE, 0);
@@ -225,16 +225,16 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	gtk_widget_show(filter_box);
 
 	/* button box */
-    bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
+        bbox = dlg_button_row_new(WIRESHARK_STOCK_CREATE_STAT, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dlg_box), bbox, FALSE, FALSE, 0);
-    gtk_widget_show(bbox);
+        gtk_widget_show(bbox);
 
-    start_button = OBJECT_GET_DATA(bbox, WIRESHARK_STOCK_CREATE_STAT);
-    SIGNAL_CONNECT(start_button, "clicked",
+        start_button = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CREATE_STAT);
+        SIGNAL_CONNECT(start_button, "clicked",
                               tap_dfilter_dlg_start_button_clicked, current_dlg);
 
-    cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(current_dlg->dlg, cancel_button, window_cancel_button_cb);
+        cancel_button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+        window_set_cancel_button(current_dlg->dlg, cancel_button, window_cancel_button_cb);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"
@@ -246,11 +246,11 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(current_dlg->filter_entry);
 
-    gtk_widget_grab_default(start_button );
+        gtk_widget_grab_default(start_button );
 
-    SIGNAL_CONNECT(current_dlg->dlg, "delete_event", window_delete_event_cb, NULL);
+        SIGNAL_CONNECT(current_dlg->dlg, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(current_dlg->dlg, "destroy", dlg_destroy_cb, current_dlg);
 
-    gtk_widget_show_all(current_dlg->dlg);
-    window_present(current_dlg->dlg);
+        gtk_widget_show_all(current_dlg->dlg);
+        window_present(current_dlg->dlg);
 }
