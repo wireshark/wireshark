@@ -456,9 +456,9 @@ mcast_on_params                      (GtkButton       *button _U_,
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_table_attach_defaults(GTK_TABLE(table), hbuttonbox, 0, 2, 5, 6);
-	ok_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+	ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), ok_bt);
-	cancel_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CANCEL);
+	cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), cancel_bt);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_END);
@@ -596,7 +596,7 @@ static void mcaststream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_tooltips_set_tip (tooltips, bt_filter, "Prepare a display filter of the selected stream", NULL);
 
-    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);

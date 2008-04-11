@@ -1480,13 +1480,13 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
 	gtk_widget_show(hbuttonbox);
 
-	bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+	bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_save);
 	gtk_widget_show(bt_save);
 	SIGNAL_CONNECT(bt_save, "clicked", on_save_bt_clicked, user_data);
 	gtk_tooltips_set_tip (tooltips, bt_save, "Save an ASCII representation of the graph to a file", NULL);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_widget_show(bt_close);

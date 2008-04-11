@@ -1919,7 +1919,7 @@ rtp_player_dlg_create(void)
 	SIGNAL_CONNECT(bt_stop, "clicked", on_bt_stop_clicked, NULL);
 	gtk_tooltips_set_tip (tooltips, bt_stop, "Stop the RTP channel(s)", NULL);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);

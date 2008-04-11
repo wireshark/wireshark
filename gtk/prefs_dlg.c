@@ -907,7 +907,7 @@ create_preference_uat(GtkWidget *main_tb, int table_position,
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 					 tooltips);
 	
-	button = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
+	button = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	
 	SIGNAL_CONNECT(button, "clicked", uat_window_cb, uat);
 

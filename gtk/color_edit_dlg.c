@@ -189,7 +189,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    add_expression_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
+    add_expression_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
     SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, filt_text_entry);
     gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
     gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);

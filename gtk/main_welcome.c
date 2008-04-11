@@ -51,7 +51,7 @@ welcome_item(const gchar *stock_item, const gchar * label, const gchar * message
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
-    w = BUTTON_NEW_FROM_STOCK(stock_item);
+    w = gtk_button_new_from_stock(stock_item);
     WIDGET_SET_SIZE(w, 80, 40);
     gtk_button_set_label(GTK_BUTTON(w), label);
     gtk_tooltips_set_tip(tooltips, w, tooltip, NULL);

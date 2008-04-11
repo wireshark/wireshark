@@ -201,7 +201,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter button */
-	filter_bt=BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &(current_dlg->args));
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(filter_bt);

@@ -4216,7 +4216,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
-    filter_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+    filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
     SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
     gtk_widget_show(filter_bt);
     g_object_set_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY, filter_bt);
@@ -4249,7 +4249,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    filter_add_expr_bt = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ADD_EXPRESSION);
+    filter_add_expr_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
     gtk_widget_show(filter_add_expr_bt);
@@ -4257,7 +4257,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         "Add an expression to this filter string", "Private");
 
     /* Create the "Clear" button */
-    filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
+    filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_widget_show(filter_reset);
@@ -4265,7 +4265,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         "Clear this filter string and update the display", "Private");
 
     /* Create the "Apply" button */
-    filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
+    filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_widget_show(filter_apply);

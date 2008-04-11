@@ -696,7 +696,7 @@ profile_dialog_new(void)
   gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
   gtk_widget_show(list_bb);
 
-  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+  new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
   SIGNAL_CONNECT(new_bt, "clicked", profile_new_bt_clicked_cb, NULL);
   gtk_widget_show(new_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
@@ -704,7 +704,7 @@ profile_dialog_new(void)
 			"Create a new profile (with default properties)", NULL);
 
 #if 0
-  copy_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+  copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
   gtk_widget_set_sensitive(copy_bt, FALSE);
   SIGNAL_CONNECT(copy_bt, "clicked", profile_copy_bt_clicked_cb, NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_COPY_BT_KEY, copy_bt);
@@ -714,7 +714,7 @@ profile_dialog_new(void)
 			"Copy the selected profile", NULL);
 #endif
 
-  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+  del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
   SIGNAL_CONNECT(del_bt, "clicked", profile_del_bt_clicked_cb, NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY, del_bt);

@@ -375,7 +375,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
  	bbox = gtk_hbox_new(FALSE, 5);
 
 	/* Help button */
-	help_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_HELP);
+	help_bt = gtk_button_new_from_stock(GTK_STOCK_HELP);
 	SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_EXPORT_OBJECT_LIST);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
 			     "Show help for this dialog.", NULL);
@@ -391,7 +391,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_box_pack_end(GTK_BOX(bbox), save_all_bt, FALSE, FALSE, 0);
 
 	/* Save button */
-	save_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+	save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	SIGNAL_CONNECT(save_bt, "clicked", eo_save_clicked_cb, object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_bt,
 			     "Saves the currently selected content to a file.",
@@ -399,7 +399,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	gtk_box_pack_end(GTK_BOX(bbox), save_bt, FALSE, FALSE, 0);
 
 	/* Close button */
-        close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+        close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
         GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), close_bt,
 			     "Close this dialog.", NULL);

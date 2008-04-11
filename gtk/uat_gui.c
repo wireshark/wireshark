@@ -887,16 +887,16 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_end(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
 
 
-	rep->bt_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
-	rep->bt_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+	rep->bt_down = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+	rep->bt_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
 
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_up, TRUE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_down, TRUE, FALSE, 5);
 
 
-	rep->bt_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-	rep->bt_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
-	rep->bt_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+	rep->bt_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
+	rep->bt_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	rep->bt_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
 
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_edit, TRUE, FALSE, 5);

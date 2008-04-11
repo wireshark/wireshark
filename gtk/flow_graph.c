@@ -608,13 +608,13 @@ static void flow_graph_dlg_create (void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
 
-	bt_ok = BUTTON_NEW_FROM_STOCK(GTK_STOCK_OK);
+	bt_ok = gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_ok);
 	gtk_tooltips_set_tip (tooltips, bt_ok, "Show the flow graph", NULL);
 	SIGNAL_CONNECT(bt_ok, "clicked", flow_graph_on_ok, flow_graph_dlg_w);
 	gtk_widget_show(bt_ok);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);

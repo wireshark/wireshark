@@ -318,7 +318,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 	gtk_button_box_set_child_ipadding(GTK_BUTTON_BOX (hbuttonbox2), 4, 0);
 	gtk_widget_show(hbuttonbox2);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 	gtk_widget_show (bt_close);
 
@@ -436,7 +436,7 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 	gtk_button_box_set_child_ipadding(GTK_BUTTON_BOX (h_button_box), 4, 0);
 	gtk_widget_show(h_button_box);
 	
-	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);

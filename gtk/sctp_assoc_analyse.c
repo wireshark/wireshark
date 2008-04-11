@@ -547,7 +547,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_widget_show (bt_filter);
 	SIGNAL_CONNECT(bt_filter, "clicked", sctp_set_filter, u_data);
 
-	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);
@@ -660,7 +660,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
 		gtk_widget_set_sensitive(graph_bt2, FALSE);
 	}
-	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);
@@ -767,7 +767,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
 		gtk_widget_set_sensitive(graph_bt2, FALSE);
 	}
-	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	SIGNAL_CONNECT(close_bt, "clicked", on_close_dlg, u_data);

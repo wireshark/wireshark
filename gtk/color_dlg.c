@@ -236,27 +236,27 @@ colorize_dialog_new (char *filter)
   gtk_container_set_border_width  (GTK_CONTAINER (edit_vbox), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vbox);
 
-  color_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+  color_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_new, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_new, ("Create a new filter at the end of the list"), NULL);
 
-  color_edit = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EDIT);
+  color_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_edit, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_edit, ("Edit the properties of the selected filter."
       " If more than one filter is selected, edit the first selected one"), NULL);
   gtk_widget_set_sensitive (color_edit, FALSE);
 
-  color_enable = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_ENABLE);
+  color_enable = gtk_button_new_from_stock(WIRESHARK_STOCK_ENABLE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_enable, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_enable, ("Enable the selected filter(s)"), NULL);
   gtk_widget_set_sensitive (color_enable, FALSE);
 
-  color_disable = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISABLE);
+  color_disable = gtk_button_new_from_stock(WIRESHARK_STOCK_DISABLE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_disable, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_disable, ("Disable the selected filter(s)"), NULL);
   gtk_widget_set_sensitive (color_disable, FALSE);
 
-  color_delete = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+  color_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_box_pack_start (GTK_BOX (edit_vbox), color_delete, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete the selected filter(s)"), NULL);
   gtk_widget_set_sensitive (color_delete, FALSE);
@@ -271,15 +271,15 @@ colorize_dialog_new (char *filter)
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
-  color_export = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_EXPORT);
+  color_export = gtk_button_new_from_stock(WIRESHARK_STOCK_EXPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/selected filters to a file"), NULL);
 
-  color_import = BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_IMPORT);
+  color_import = gtk_button_new_from_stock(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
   gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file and append them to the list"), NULL);
 
-  color_clear = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
+  color_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
   gtk_box_pack_start(GTK_BOX (manage_vbox), color_clear, FALSE, FALSE, 5);
   gtk_tooltips_set_tip(tooltips, color_clear, ("Clear the filter list and revert to system-wide default filter set"), NULL);
 
@@ -343,7 +343,7 @@ colorize_dialog_new (char *filter)
   gtk_container_set_border_width  (GTK_CONTAINER (order_vbox), 5);
   gtk_container_add(GTK_CONTAINER(order_fr), order_vbox);
 
-  color_filter_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+  color_filter_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_up, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_up, ("Move filter higher in list"), NULL);
   gtk_widget_set_sensitive (color_filter_up, FALSE);
@@ -351,7 +351,7 @@ colorize_dialog_new (char *filter)
   order_move_label = gtk_label_new (("Move\nselected filter\nup or down"));
   gtk_box_pack_start (GTK_BOX (order_vbox), order_move_label, FALSE, FALSE, 0);
 
-  color_filter_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
+  color_filter_down = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_down, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_down, ("Move filter lower in list"), NULL);
   gtk_widget_set_sensitive (color_filter_down, FALSE);

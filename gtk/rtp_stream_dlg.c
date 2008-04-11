@@ -763,10 +763,10 @@ static void rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
     gtk_tooltips_set_tip (tooltips, bt_findrev, "Find the reverse stream matching the selected forward stream", NULL);
 /*
-    bt_goto = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
+    bt_goto = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */
-    bt_save = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+    bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
     gtk_tooltips_set_tip (tooltips, bt_save, "Save stream payload in rtpdump format", NULL);
 
@@ -780,7 +780,7 @@ static void rtpstream_dlg_create (void)
 
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    bt_copy = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+    bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
     gtk_tooltips_set_tip(tooltips, bt_copy, 
         "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
@@ -789,7 +789,7 @@ static void rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
     gtk_tooltips_set_tip (tooltips, bt_analyze, "Open an analyze window of the selected stream(s)", NULL);
 
-    bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
     gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
     GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);

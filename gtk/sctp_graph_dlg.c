@@ -1168,7 +1168,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_tooltips_set_tip(tooltip_out, zoomout_bt, "Zoom out one step", NULL);
 	gtk_widget_set_sensitive(zoomout_bt, FALSE);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(bt_close);
 	SIGNAL_CONNECT(bt_close, "clicked", sctp_graph_close_cb, u_data);

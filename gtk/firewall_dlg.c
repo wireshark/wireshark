@@ -287,19 +287,19 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
     /* Create Copy Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_COPY);
+    button = gtk_button_new_from_stock(GTK_STOCK_COPY);
     SIGNAL_CONNECT(button, "clicked", firewall_copy_cmd_cb, rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Copy rule to clipboard ", NULL);
     gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
     /* Create Save As Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+    button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
     SIGNAL_CONNECT(button, "clicked", firewall_save_as_cmd_cb, rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Save the rule as currently displayed ", NULL);
     gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
     /* Create Close Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+    button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_tooltips_set_tip (tooltips, button,
         "Close the dialog", NULL);
     gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);

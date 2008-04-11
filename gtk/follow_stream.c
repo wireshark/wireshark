@@ -759,20 +759,20 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 #if GTK_CHECK_VERSION(2,4,0)
 	/* Create Find Button */
-	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_FIND);
+	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
 	SIGNAL_CONNECT(button, "clicked", follow_find_cb, follow_info);
 	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 #endif
 
 	/* Create Save As Button */
-	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
 	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Print Button */
-        button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
+        button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
         SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
         gtk_tooltips_set_tip(tooltips, button, "Print the content as currently displayed", NULL);
         gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);

@@ -590,7 +590,7 @@ gtk_sctpstat_dlg(void)
 	gtk_widget_show (bt_analyse);
 	gtk_widget_set_sensitive(bt_analyse,FALSE);
 
-	bt_close = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
 	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
 	window_set_cancel_button( sctp_stat_dlg_w, bt_close, sctp_stat_on_close);

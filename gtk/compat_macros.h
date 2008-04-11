@@ -158,9 +158,6 @@ gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 #define WIRESHARK_STOCK_COLOR9                   "Wireshark_Stock_Color_9"
 #define WIRESHARK_STOCK_COLOR0                   "Wireshark_Stock_Color_10"
 
-#define BUTTON_NEW_FROM_STOCK(stock_id) \
-gtk_button_new_from_stock(stock_id);
-
 #define CHECK_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
 gtk_check_button_new_with_mnemonic(label_text)
 

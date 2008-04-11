@@ -3117,12 +3117,12 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(csv_bt);
 	SIGNAL_CONNECT(csv_bt, "clicked", save_csv_as_cb, user_data);
 
-	refresh_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_REFRESH);
+	refresh_bt = gtk_button_new_from_stock(GTK_STOCK_REFRESH);
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
 	SIGNAL_CONNECT(refresh_bt, "clicked", on_refresh_bt_clicked, user_data);
 
-	goto_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_JUMP_TO);
+	goto_bt = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
 	SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
@@ -3145,7 +3145,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(next_bt);
 	SIGNAL_CONNECT(next_bt, "clicked", on_next_bt_clicked, user_data);
 
-	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
     GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
 	gtk_widget_show(close_bt);

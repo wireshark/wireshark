@@ -99,12 +99,12 @@ column_prefs_show() {
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vb);
   gtk_widget_show(edit_vb);
 
-  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+  new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
   SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
   gtk_box_pack_start (GTK_BOX (edit_vb), new_bt, FALSE, FALSE, 5);
   gtk_widget_show(new_bt);
 
-  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+  del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
   SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
   gtk_box_pack_start (GTK_BOX (edit_vb), del_bt, FALSE, FALSE, 5);
@@ -184,7 +184,7 @@ column_prefs_show() {
   gtk_container_set_border_width  (GTK_CONTAINER (order_vb), 5);
   gtk_widget_show(order_vb);
 
-  up_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+  up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
   gtk_widget_set_sensitive(up_bt, FALSE);
   SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
@@ -194,7 +194,7 @@ column_prefs_show() {
   gtk_widget_show (order_lb);
   gtk_box_pack_start (GTK_BOX (order_vb), order_lb, FALSE, FALSE, 0);
 
-  dn_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
+  dn_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
   gtk_widget_set_sensitive(dn_bt, FALSE);
   SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);

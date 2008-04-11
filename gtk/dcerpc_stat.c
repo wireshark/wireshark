@@ -627,7 +627,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	filter_box=gtk_hbox_new(FALSE, 3);
 
 	/* Filter label */
-	filter_bt=BUTTON_NEW_FROM_STOCK(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);
