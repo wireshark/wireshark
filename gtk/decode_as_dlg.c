@@ -581,14 +581,14 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
     
-    clear_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLEAR);
+    clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
     SIGNAL_CONNECT(clear_bt, "clicked", decode_show_clear_cb, decode_show_w);
 
     if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
         SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_SHOW_DIALOG);
     }
 
@@ -724,17 +724,17 @@ decode_simple (GtkWidget *notebook_pg)
     gchar *table_name;
     guint value;
 
-    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
 #ifdef DEBUG
-    string = OBJECT_GET_DATA(notebook_pg, E_PAGE_TITLE);
+    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
     decode_debug(GTK_CLIST(list), string);
 #endif
 
-    table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
-    value = GPOINTER_TO_UINT(OBJECT_GET_DATA(notebook_pg, E_PAGE_VALUE));
+    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
+    value = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_VALUE));
     decode_change_one_dissector(table_name, value, list);
 }
 
@@ -756,21 +756,21 @@ decode_transport(GtkWidget *notebook_pg)
     gint requested_srcdst, requested_port, ppid;
     gpointer portp;
 
-    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
+    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 
-    menu = OBJECT_GET_DATA(notebook_pg, E_MENU_SRCDST);
+    menu = g_object_get_data(G_OBJECT(notebook_pg), E_MENU_SRCDST);
 
     menuitem = gtk_menu_get_active(GTK_MENU(menu));
-    requested_srcdst = GPOINTER_TO_INT(OBJECT_GET_DATA(menuitem, "user_data"));
+    requested_srcdst = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "user_data"));
 
 #ifdef DEBUG
-    string = OBJECT_GET_DATA(notebook_pg, E_PAGE_TITLE);
+    string = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TITLE);
     decode_debug(GTK_CLIST(list), string);
 #endif
 
-    table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
+    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
     if (requested_srcdst >= E_DECODE_PPID) {
     	if (requested_srcdst == E_DECODE_PPID)
     	   ppid = 0;
@@ -783,14 +783,14 @@ decode_transport(GtkWidget *notebook_pg)
         return;
     }
     if (requested_srcdst != E_DECODE_DPORT) {
-        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_SPORT);
+        portp = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_SPORT);
         if (portp != NULL) {
             requested_port = GPOINTER_TO_INT(portp);
             decode_change_one_dissector(table_name, requested_port, list);
         }
     }
     if (requested_srcdst != E_DECODE_SPORT) {
-        portp = OBJECT_GET_DATA(notebook_pg, E_PAGE_DPORT);
+        portp = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_DPORT);
         if (portp != NULL) {
             requested_port = GPOINTER_TO_INT(portp);
             decode_change_one_dissector(table_name, requested_port, list);
@@ -825,17 +825,17 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     void *binding = NULL;
 
     /* Call the right routine for the page that was currently in front. */
-    notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
+    notebook =  g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    func = OBJECT_GET_DATA(notebook_pg, E_PAGE_ACTION);
+    func = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
-    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    notebook_pg = g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
     if(notebook_pg) {
-        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+        binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
     }
     if(binding) {
         decode_dcerpc_binding_free(binding);    
@@ -866,11 +866,11 @@ decode_apply_cb (GtkWidget *apply_bt _U_, gpointer parent_w)
     gint page_num;
 
     /* Call the right routine for the page that was currently in front. */
-    notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
+    notebook =  g_object_get_data(G_OBJECT(parent_w), E_NOTEBOOK);
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    func = OBJECT_GET_DATA(notebook_pg, E_PAGE_ACTION);
+    func = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_ACTION);
     func(notebook_pg);
 
     cf_redissect_packets(&cfile);
@@ -892,9 +892,9 @@ decode_close_cb (GtkWidget *close_bt _U_, gpointer parent_w)
     void *binding = NULL;
 
 
-    notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
+    notebook_pg = g_object_get_data(G_OBJECT(parent_w), E_PAGE_DCERPC);
     if(notebook_pg) {
-        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+        binding = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_BINDING);
     }
     if(binding) {
         decode_dcerpc_binding_free(binding);
@@ -1064,25 +1064,25 @@ decode_add_srcdst_menu (GtkWidget *page)
     menu = gtk_menu_new();
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     menuitem = gtk_menu_item_new_with_label("both");
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
+    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
-    OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
-    OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
+    g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
+    g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));
 
     alignment = decode_add_pack_menu(optmenu);
 
@@ -1101,7 +1101,7 @@ decode_add_ppid_menu (GtkWidget *page)
     
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     
@@ -1109,13 +1109,13 @@ decode_add_ppid_menu (GtkWidget *page)
       if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
         g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
-        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
         gtk_menu_append(GTK_MENU(menu), menuitem);
         gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
 
-    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
+    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
 
     return(optmenu);
@@ -1240,7 +1240,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
-    OBJECT_SET_DATA(G_OBJECT(decode_w), "sctp_data", store);
+    g_object_set_data(G_OBJECT(decode_w), "sctp_data", store);
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     g_object_unref(G_OBJECT(store));
     sortable = GTK_TREE_SORTABLE(store);
@@ -1355,10 +1355,10 @@ decode_add_simple_page (const gchar *prompt, const gchar *title, const gchar *ta
     GtkWidget	*page, *label, *scrolled_window;
 
     page = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
-    OBJECT_SET_DATA(page, E_PAGE_TITLE, (gchar *) title);
-    OBJECT_SET_DATA(page, E_PAGE_VALUE, GUINT_TO_POINTER(value));
+    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, (gchar *) title);
+    g_object_set_data(G_OBJECT(page), E_PAGE_VALUE, GUINT_TO_POINTER(value));
 
     /* Always enabled */
     label = gtk_label_new(prompt);
@@ -1405,9 +1405,9 @@ decode_add_tcpudp_page (const gchar *prompt, const gchar *table_name)
     GtkWidget	*page, *label, *scrolled_window, *optmenu;
 
     page = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
-    OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
+    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
 
     /* Always enabled */
     label = gtk_label_new(prompt);
@@ -1437,7 +1437,7 @@ decode_sctp_list_menu_start(GtkWidget **list_p, GtkWidget **scrolled_win_p)
     GtkTreeViewColumn *tc;
     GtkTreeSortable   *sortable;
 
-    sctp_store = OBJECT_GET_DATA(decode_w, "sctp_data");
+    sctp_store = g_object_get_data(G_OBJECT(decode_w), "sctp_data");
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(sctp_store)));
     g_object_unref(G_OBJECT(sctp_store));
     sortable = GTK_TREE_SORTABLE(sctp_store);
@@ -1474,25 +1474,25 @@ decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
 
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
       if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
         g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
-        OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
+        g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
         gtk_menu_append(GTK_MENU(menu), menuitem);
         gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
 
-    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.ppi");
-    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
+    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.ppi");
+    sctpmenu = g_object_get_data(G_OBJECT(decode_w), "user_data");
     gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
 
-    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
+    sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
     decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.ppi", decode_proto_add_to_list, list);
@@ -1510,28 +1510,28 @@ decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
     menu = gtk_menu_new();
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     menuitem = gtk_menu_item_new_with_label("both");
-    OBJECT_SET_DATA(menuitem, "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
+    g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, "sctp.port");
-    sctpmenu = OBJECT_GET_DATA(decode_w, "user_data");
+    g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, "sctp.port");
+    sctpmenu = g_object_get_data(G_OBJECT(decode_w), "user_data");
     gtk_option_menu_set_menu(GTK_OPTION_MENU(sctpmenu), menu);
-    OBJECT_SET_DATA(page, E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
-    OBJECT_SET_DATA(page, E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));  
-    sctp_store = OBJECT_GET_DATA(G_OBJECT(decode_w), "sctp_data");
+    g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
+    g_object_set_data(G_OBJECT(page), E_PAGE_DPORT, GINT_TO_POINTER(cfile.edt->pi.destport));  
+    sctp_store = g_object_get_data(G_OBJECT(G_OBJECT(decode_w)), "sctp_data");
     gtk_list_store_clear(sctp_store);
     decode_sctp_list_menu_start(&list, &scrolled_window);
     dissector_table_foreach_handle("sctp.port", decode_proto_add_to_list, list);
@@ -1571,9 +1571,9 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
     GtkWidget	*page, *label, *scrolled_window,  *radio, *vbox, *alignment, *sctpbox, *sctpmenu;
 
     page = gtk_hbox_new(FALSE, 5);
-    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
-    OBJECT_SET_DATA(page, E_PAGE_TABLE, (gchar *) table_name);
-    OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
+    g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_transport);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TABLE, (gchar *) table_name);
+    g_object_set_data(G_OBJECT(page), E_PAGE_TITLE, "Transport");
 
     vbox = gtk_vbox_new(FALSE, 5);
     radio = decode_sctp_add_port_ppid(page);
@@ -1584,7 +1584,7 @@ decode_add_sctp_page (const gchar *prompt, const gchar *table_name)
     label = gtk_label_new(prompt);
     gtk_box_pack_start(GTK_BOX(sctpbox), label, TRUE, TRUE, 0);  
     sctpmenu = decode_add_ppid_menu(page);
-    OBJECT_SET_DATA(decode_w, "user_data", sctpmenu);
+    g_object_set_data(G_OBJECT(decode_w), "user_data", sctpmenu);
     alignment = decode_add_pack_menu(sctpmenu);
 
     gtk_box_pack_start(GTK_BOX(sctpbox), alignment, TRUE, TRUE, 0);
@@ -1635,7 +1635,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Start a nootbook for flipping between sets of changes */
     notebook = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(format_hb), notebook);
-    OBJECT_SET_DATA(decode_w, E_NOTEBOOK, notebook);
+    g_object_set_data(G_OBJECT(decode_w), E_NOTEBOOK, notebook);
 
     /* Add link level selection page */
     if (cfile.edt->pi.ethertype) {
@@ -1652,7 +1652,7 @@ decode_add_notebook (GtkWidget *format_hb)
 	 */
 	g_snprintf(buffer, 40, "IP protocol %u", cfile.edt->pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
-	OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
+	g_object_set_data(G_OBJECT(page), E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
@@ -1685,14 +1685,14 @@ decode_add_notebook (GtkWidget *format_hb)
 	    page = decode_dcerpc_add_page(&cfile.edt->pi);
 	    label = gtk_label_new("DCE-RPC");
 	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        OBJECT_SET_DATA(decode_w, E_PAGE_DCERPC, page);
+            g_object_set_data(G_OBJECT(decode_w), E_PAGE_DCERPC, page);
     }
 
     if(cfile.cd_t == WTAP_FILE_BER) {
 	    page = decode_ber_add_page(&cfile.edt->pi);
 	    label = gtk_label_new("ASN.1");
 	    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
-        OBJECT_SET_DATA(decode_w, E_PAGE_ASN1, page);
+            g_object_set_data(G_OBJECT(decode_w), E_PAGE_ASN1, page);
     }
 
     /* Select the last added page (selects first by default) */
@@ -1774,24 +1774,24 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
-    ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+    ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
     gtk_tooltips_set_tip(tooltips, ok_bt, 
         "Apply current setting, close dialog and redissect packets.", NULL);
 
-    apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+    apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
     SIGNAL_CONNECT(apply_bt, "clicked", decode_apply_cb, decode_w);
     gtk_tooltips_set_tip(tooltips, apply_bt, 
         "Apply current setting, redissect packets and keep dialog open.", NULL);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(decode_w, close_bt, NULL);
     SIGNAL_CONNECT(close_bt, "clicked", decode_close_cb, decode_w);
     gtk_tooltips_set_tip(tooltips, close_bt, 
         "Close the dialog, don't redissect packets.", NULL);
 
     if(topic_available(HELP_DECODE_AS_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
         SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_DECODE_AS_DIALOG);
     }
 
