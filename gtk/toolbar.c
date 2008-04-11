@@ -281,7 +281,7 @@ toolbar_redraw_all(void)
 {
     GtkWidget     *main_tb;
 
-    main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
+    main_tb = g_object_get_data(G_OBJECT(top_level), E_TB_MAIN_KEY);
 
     gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
                           prefs.gui_toolbar_main_style);
@@ -314,7 +314,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_BUTTON_TOOLTIP_TEXT, NULL);
-        OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(1));
+        g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_hide(GTK_WIDGET(save_as_button));
             gtk_widget_show(GTK_WIDGET(save_button));
@@ -325,7 +325,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 	    GTK_STOCK_SAVE_AS);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_AS_BUTTON_TOOLTIP_TEXT, NULL);
-        OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(0));
+        g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
 #else /* GTK_CHECK_VERSION(2,4,0) */
 	    gtk_widget_show(GTK_WIDGET(save_as_button));
 	    gtk_widget_hide(GTK_WIDGET(save_button));
@@ -342,7 +342,7 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 
 #if GTK_CHECK_VERSION(2,4,0)
 static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
-    if (GPOINTER_TO_INT(OBJECT_GET_DATA(save_button,"save")) == 1) {
+    if (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(save_button),"save")) == 1) {
         file_save_cmd_cb(w, data);
     }
     else {
@@ -566,7 +566,7 @@ toolbar_new(void)
     gtk_toolbar_set_orientation(GTK_TOOLBAR(main_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 
-    OBJECT_SET_DATA(top_level, E_TB_MAIN_KEY, main_tb);
+    g_object_set_data(G_OBJECT(top_level), E_TB_MAIN_KEY, main_tb);
 
 
 #ifdef HAVE_LIBPCAP
@@ -607,7 +607,7 @@ toolbar_new(void)
 #else
     toolbar_item(save_button, window, main_tb, 
 	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, stock_save_24_xpm, file_save_or_save_as_cmd_cb, NULL);
-    OBJECT_SET_DATA(save_button, "save", GINT_TO_POINTER(1));
+    g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
 #endif
 
     toolbar_item(close_button, window, main_tb, 
@@ -703,6 +703,6 @@ toolbar_new(void)
 void
 set_toolbar_object_data(gchar *key, gpointer data)
 {
-    OBJECT_SET_DATA(open_button, key, data);
-    OBJECT_SET_DATA(reload_button, key, data);
+    g_object_set_data(G_OBJECT(open_button), key, data);
+    g_object_set_data(G_OBJECT(reload_button), key, data);
 }

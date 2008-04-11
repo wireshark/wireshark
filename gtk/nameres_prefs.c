@@ -101,28 +101,28 @@ nameres_prefs_show(void)
 	gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
 	gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
 	gtk_widget_show(main_tb);
-	OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, tooltips);
+	g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, tooltips);
 
 	/* Resolve MAC addresses */
 	table_row = 0;
 	m_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable MAC name resolution:", "e.g. Ethernet address to manufacturer name",
 	    prefs.name_resolve & RESOLV_MAC);
-	OBJECT_SET_DATA(main_vb, M_RESOLVE_KEY, m_resolv_cb);
+	g_object_set_data(G_OBJECT(main_vb), M_RESOLVE_KEY, m_resolv_cb);
 
 	/* Resolve network addresses */
 	table_row++;
 	n_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable network name resolution:", "e.g. IP address to DNS name (hostname)",
 	    prefs.name_resolve & RESOLV_NETWORK);
-	OBJECT_SET_DATA(main_vb, N_RESOLVE_KEY, n_resolv_cb);
+	g_object_set_data(G_OBJECT(main_vb), N_RESOLVE_KEY, n_resolv_cb);
 
 	/* Resolve transport addresses */
 	table_row++;
 	t_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable transport name resolution:", "e.g. TCP/UDP port to service name",
 	    prefs.name_resolve & RESOLV_TRANSPORT);
-	OBJECT_SET_DATA(main_vb, T_RESOLVE_KEY, t_resolv_cb);
+	g_object_set_data(G_OBJECT(main_vb), T_RESOLVE_KEY, t_resolv_cb);
 
 #ifdef HAVE_GNU_ADNS
 	/* Enable concurrent (asynchronous) DNS lookups */
@@ -130,14 +130,14 @@ nameres_prefs_show(void)
 	c_resolv_cb = create_preference_check_button(main_tb, table_row,
 	    "Enable concurrent DNS name resolution:", "be sure to enable network name resolution",
 	    prefs.name_resolve & RESOLV_CONCURRENT);
-	OBJECT_SET_DATA(main_vb, C_RESOLVE_KEY, c_resolv_cb);
+	g_object_set_data(G_OBJECT(main_vb), C_RESOLVE_KEY, c_resolv_cb);
 
 	/* Max concurrent requests */
 	table_row++;
 	g_snprintf(concur_str, 10+1, "%d", prefs.name_resolve_concurrency);
 	resolv_concurrency_te = create_preference_entry(main_tb, table_row,
 	    "Maximum concurrent requests:", "maximum parallel running DNS requests", concur_str);
-	OBJECT_SET_DATA(main_vb, RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
+	g_object_set_data(G_OBJECT(main_vb), RESOLVE_CONCURRENCY_KEY, resolv_concurrency_te);
 
 #endif /* HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
@@ -150,7 +150,7 @@ nameres_prefs_show(void)
                     "Search paths for SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_paths_uat);
-		OBJECT_SET_DATA(main_vb, SP_RESOLVE_KEY, sp_resolv_cb);
+		g_object_set_data(G_OBJECT(main_vb), SP_RESOLVE_KEY, sp_resolv_cb);
 	}
 
 	/* SMI modules UAT */
@@ -162,7 +162,7 @@ nameres_prefs_show(void)
                     "List of enabled SMI (MIB and PIB) modules. You must\n"
                     "restart Wireshark for these changes to take effect.",
                     smi_modules_uat);
-		OBJECT_SET_DATA(main_vb, SM_RESOLVE_KEY, sm_resolv_cb);
+		g_object_set_data(G_OBJECT(main_vb), SM_RESOLVE_KEY, sm_resolv_cb);
 	}
 #endif
 
@@ -183,17 +183,17 @@ nameres_prefs_fetch(GtkWidget *w)
 	GtkWidget *sp_resolv_cb, *sm_resolv_cb;
 #endif
 
-	m_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, M_RESOLVE_KEY);
-	n_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, N_RESOLVE_KEY);
-	t_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, T_RESOLVE_KEY);
+	m_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), M_RESOLVE_KEY);
+	n_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), N_RESOLVE_KEY);
+	t_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), T_RESOLVE_KEY);
 #ifdef HAVE_GNU_ADNS
-	c_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, C_RESOLVE_KEY);
+	c_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), C_RESOLVE_KEY);
 
-	resolv_concurrency_te = (GtkWidget *)OBJECT_GET_DATA(w, RESOLVE_CONCURRENCY_KEY);
+	resolv_concurrency_te = (GtkWidget *)g_object_get_data(G_OBJECT(w), RESOLVE_CONCURRENCY_KEY);
 #endif /* HAVE_GNU_ADNS */
 #ifdef HAVE_LIBSMI
-	sp_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, SP_RESOLVE_KEY);
-	sm_resolv_cb = (GtkWidget *)OBJECT_GET_DATA(w, SM_RESOLVE_KEY);
+	sp_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SP_RESOLVE_KEY);
+	sm_resolv_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SM_RESOLVE_KEY);
 #endif
 
 	prefs.name_resolve = RESOLV_NONE;

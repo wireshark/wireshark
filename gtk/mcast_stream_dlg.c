@@ -339,7 +339,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	gint32        fnumber;
 	char        *p;
 
-	fnumber_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_MCAST_ENTRY_1);
+	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_1);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 1000) ){
@@ -347,7 +347,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		return; }
 	burstint = fnumber;
 
-	fnumber_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_MCAST_ENTRY_2);
+	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_2);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
@@ -355,7 +355,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		return; }
 	trigger = fnumber;
 
-	fnumber_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_MCAST_ENTRY_3);
+	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_3);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
@@ -363,7 +363,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		return; }
 	bufferalarm = fnumber;
 
-	fnumber_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_MCAST_ENTRY_4);
+	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_4);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 10000000) ){
@@ -371,7 +371,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 		return; }
 	emptyspeed = fnumber;
 
-	fnumber_te = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_MCAST_ENTRY_5);
+	fnumber_te = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w), E_MCAST_ENTRY_5);
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) || (fnumber > 10000000) ){
@@ -470,11 +470,11 @@ mcast_on_params                      (GtkButton       *button _U_,
 	window_set_cancel_button(mcast_params_dlg, cancel_bt, window_cancel_button_cb);
 
 	/* Attach pointers to needed widgets */
-	OBJECT_SET_DATA(mcast_params_dlg, E_MCAST_ENTRY_1, entry1);
-	OBJECT_SET_DATA(mcast_params_dlg, E_MCAST_ENTRY_2, entry2);
-	OBJECT_SET_DATA(mcast_params_dlg, E_MCAST_ENTRY_3, entry3);
-	OBJECT_SET_DATA(mcast_params_dlg, E_MCAST_ENTRY_4, entry4);
-	OBJECT_SET_DATA(mcast_params_dlg, E_MCAST_ENTRY_5, entry5);
+	g_object_set_data(G_OBJECT(mcast_params_dlg), E_MCAST_ENTRY_1, entry1);
+	g_object_set_data(G_OBJECT(mcast_params_dlg), E_MCAST_ENTRY_2, entry2);
+	g_object_set_data(G_OBJECT(mcast_params_dlg), E_MCAST_ENTRY_3, entry3);
+	g_object_set_data(G_OBJECT(mcast_params_dlg), E_MCAST_ENTRY_4, entry4);
+	g_object_set_data(G_OBJECT(mcast_params_dlg), E_MCAST_ENTRY_5, entry5);
 
 	gtk_widget_show_all(mcast_params_dlg);
 	window_present(mcast_params_dlg);

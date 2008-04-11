@@ -373,7 +373,7 @@ conversation_cb(GtkWidget * w, gpointer data _U_, int action)
 
         /* Run the display filter so it goes in effect - even if it's the
         same as the previous display filter. */
-        filter_te = OBJECT_GET_DATA(w, E_DFILTER_TE_KEY);
+        filter_te = g_object_get_data(G_OBJECT(w), E_DFILTER_TE_KEY);
         gtk_entry_set_text(GTK_ENTRY(filter_te), filter);
         main_filter_packets(&cfile, filter, TRUE);
 
@@ -1084,7 +1084,7 @@ void menu_dissector_filter_cb(  GtkWidget *widget _U_,
     const char              *buf;    
 
 
-    filter_te = OBJECT_GET_DATA(popup_menu_object, E_DFILTER_TE_KEY);
+    filter_te = g_object_get_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY);
 
     /* XXX - this gets the packet_info of the last dissected packet, */
     /* which is not necessarily the last selected packet */
@@ -1136,18 +1136,18 @@ menus_init(void) {
     packet_list_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     popup_menu_object = gtk_menu_new();
     gtk_item_factory_create_items_ac(packet_list_menu_factory, sizeof(packet_list_menu_items)/sizeof(packet_list_menu_items[0]), packet_list_menu_items, popup_menu_object, 2);
-    OBJECT_SET_DATA(popup_menu_object, PM_PACKET_LIST_KEY,
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY,
                     packet_list_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, packet_list_menu_factory);
 
     tree_view_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
     gtk_item_factory_create_items_ac(tree_view_menu_factory, sizeof(tree_view_menu_items)/sizeof(tree_view_menu_items[0]), tree_view_menu_items, popup_menu_object, 2);
-    OBJECT_SET_DATA(popup_menu_object, PM_TREE_VIEW_KEY,
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                     tree_view_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, tree_view_menu_factory);
 
     hexdump_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU, "<main>", NULL);
-    OBJECT_SET_DATA(popup_menu_object, PM_HEXDUMP_KEY,
+    g_object_set_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY,
                     hexdump_menu_factory->widget);
     popup_menu_list = g_slist_append((GSList *)popup_menu_list, hexdump_menu_factory);
     /* main */
@@ -1567,7 +1567,7 @@ set_menu_object_data_meat(GtkItemFactory *ifactory, const gchar *path, const gch
 	GtkWidget *menu = NULL;
 
 	if ((menu = gtk_item_factory_get_widget(ifactory, path)) != NULL)
-		OBJECT_SET_DATA(menu, key, data);
+                g_object_set_data(G_OBJECT(menu), key, data);
 }
 
 void
@@ -1597,7 +1597,7 @@ static void
 update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     gchar *widget_cf_name;
 
-    widget_cf_name = OBJECT_GET_DATA(widget, MENU_RECENT_FILES_KEY);
+    widget_cf_name = g_object_get_data(G_OBJECT(widget), MENU_RECENT_FILES_KEY);
 
     /* if this menu item is a file, count it */
     if (widget_cf_name) {
@@ -1626,7 +1626,7 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
     gchar *widget_cf_name;
 
 
-    widget_cf_name = OBJECT_GET_DATA(widget, MENU_RECENT_FILES_KEY);
+    widget_cf_name = g_object_get_data(G_OBJECT(widget), MENU_RECENT_FILES_KEY);
     g_free(widget_cf_name);
 
     /* get the submenu container item */
@@ -1747,7 +1747,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	for (li = g_list_first(menu_item_list); li; li = li->next, cnt++) {
 		/* get capture filename */
 		menu_item = GTK_WIDGET(li->data);
-		widget_cf_name = OBJECT_GET_DATA(menu_item, MENU_RECENT_FILES_KEY);
+		widget_cf_name = g_object_get_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY);
 
 		/* if this element string is one of our special items (seperator, ...) or
 		 * already in the list or
@@ -1770,7 +1770,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 
 	/* add new item at latest position */
 	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
-	OBJECT_SET_DATA(menu_item, MENU_RECENT_FILES_KEY, normalized_cf_name);
+	g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
 	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
 	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
 		G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
@@ -1833,7 +1833,7 @@ menu_recent_file_write_all(FILE *rf) {
     child = g_list_last(children);
     while(child != NULL) {
         /* get capture filename from the menu item label */
-        cf_name = OBJECT_GET_DATA(child->data, MENU_RECENT_FILES_KEY);
+        cf_name = g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
         if (cf_name) {
             if(u3_active())
                 fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
@@ -2321,13 +2321,13 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
      * as a pixmap.
      */
     /* Check if we are on packet_list object */
-    if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY) &&
+    if (widget == g_object_get_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY) &&
 	((GdkEventButton *)event)->button != 1) {
         if (packet_list_get_event_row_column(widget, (GdkEventButton *)event,
                                              &row, &column)) {
-            OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
+            g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_ROW_KEY,
                             GINT_TO_POINTER(row));
-            OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
+            g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_COL_KEY,
                             GINT_TO_POINTER(column));
             packet_list_set_selected_row(row);
         }

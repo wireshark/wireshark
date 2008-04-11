@@ -167,7 +167,7 @@ get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
   tvbuff_t *byte_view_tvb;
   const guint8 *data_ptr;
 
-  byte_view_tvb = OBJECT_GET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY);
+  byte_view_tvb = g_object_get_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY);
   if (byte_view_tvb == NULL)
     return NULL;
 
@@ -191,7 +191,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
        (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
        num++) {
     bv = GTK_BIN(bv_page)->child;
-    bv_tvb = OBJECT_GET_DATA(bv, E_BYTE_VIEW_TVBUFF_KEY);
+    bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
     if (bv_tvb == tvb) {
       /* Found it. */
       gtk_notebook_set_page(GTK_NOTEBOOK(nb_ptr), num);
@@ -368,7 +368,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * Get the number of digits of offset being displayed, and
      * compute the columns of various parts of the display.
      */
-    ndigits = GPOINTER_TO_UINT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_NDIGITS_KEY));
+    ndigits = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY));
 
     /*
      * The column of the first hex digit in the first half.
@@ -437,14 +437,14 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      */
     text_end_2 = text_start_2 + BYTES_PER_LINE/2 - 1;
 
-    tree = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TREE_PTR);
+    tree = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
     if (tree == NULL) {
         /*
          * Somebody clicked on the dummy byte view; do nothing.
          */
         return FALSE;
     }
-    tree_view = GTK_TREE_VIEW(OBJECT_GET_DATA(widget,
+    tree_view = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(widget),
                                               E_BYTE_VIEW_TREE_VIEW_PTR));
 
     /* get the row/column selected */
@@ -486,7 +486,7 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
     byte += row * 16;
 
     /* Get the data source tvbuff */
-    tvb = OBJECT_GET_DATA(widget, E_BYTE_VIEW_TVBUFF_KEY);
+    tvb = g_object_get_data(G_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
 
     return highlight_field(tvb, byte, tree_view, tree);
 }
@@ -638,15 +638,15 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                              "background-gdk", &style->base[GTK_STATE_SELECTED],
                              NULL);
   gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
-  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TVBUFF_KEY, tvb);
+  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
   SIGNAL_CONNECT(byte_view, "show", byte_view_realize_cb, NULL);
   SIGNAL_CONNECT(byte_view, "button_press_event", byte_view_button_press_cb,
-                 OBJECT_GET_DATA(popup_menu_object, PM_HEXDUMP_KEY));
+                 g_object_get_data(G_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
-  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TREE_PTR, tree);
-  OBJECT_SET_DATA(byte_view, E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
+  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_PTR, tree);
+  g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TREE_VIEW_PTR, tree_view);
 
   gtk_widget_show(byte_view);
 
@@ -828,8 +828,8 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
          * Should this be fixed? There is one exception - packet_hex_reprint,
          * so can't just change it round without functional change.
          */
-	    end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
-	    start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+        end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+        start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 
 	if(start >= 0 && end > start && (end - start <= (int)len)) {
             len = end - start;
@@ -911,8 +911,8 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	/*
 	 * Retrieve the info we need
 	 */
-	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
-	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
@@ -963,8 +963,8 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not find the corresponding text window!");
 		return;
 	}
-	end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
-	start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
+	end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+	start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
 	data_p = get_byte_view_data_and_length(bv, &len);
 
 	if (data_p == NULL || start == -1 || start > end) {
@@ -1084,7 +1084,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
     use_digits = 4;	/* we'll supply 4 digits */
 
   /* Record the number of digits in this text view. */
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY, GUINT_TO_POINTER(use_digits));
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -1313,11 +1313,11 @@ packet_hex_print(GtkWidget *bv, const guint8 *pd, frame_data *fd,
 
   /* save the information needed to redraw the text */
   /* should we save the fd & finfo pointers instead ?? */
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(aend));
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(astart));
-  OBJECT_SET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY,
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY, GINT_TO_POINTER(bend));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY, GINT_TO_POINTER(aend));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY, GINT_TO_POINTER(astart));
+  g_object_set_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY,
                   GUINT_TO_POINTER((guint)fd->flags.encoding));
 
   packet_hex_print_common(bv, pd, len, bstart, bend, astart, aend, fd->flags.encoding);
@@ -1335,13 +1335,13 @@ packet_hex_reprint(GtkWidget *bv)
   const guint8 *data;
   guint len = 0;
 
-  start = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_START_KEY));
-  end = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_END_KEY));
-  astart = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_APP_START_KEY));
-  aend = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_APP_END_KEY));
+  start = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_START_KEY));
+  end = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_END_KEY));
+  astart = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_START_KEY));
+  aend = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_APP_END_KEY));
   data = get_byte_view_data_and_length(bv, &len);
   g_assert(data != NULL);
-  encoding = GPOINTER_TO_INT(OBJECT_GET_DATA(bv, E_BYTE_VIEW_ENCODE_KEY));
+  encoding = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
 
   packet_hex_print_common(bv, data, len, start, end, astart, aend, encoding);
 }

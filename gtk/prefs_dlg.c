@@ -332,7 +332,7 @@ module_prefs_show(module_t *module, gpointer user_data)
     frame = gtk_frame_new(module->description);
     gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), frame);
-    OBJECT_SET_DATA(main_sw, E_PAGESW_FRAME_KEY, frame);
+    g_object_set_data(G_OBJECT(main_sw), E_PAGESW_FRAME_KEY, frame);
 
     /* Main vertical box */
     main_vb = gtk_vbox_new(FALSE, 5);
@@ -344,22 +344,22 @@ module_prefs_show(module_t *module, gpointer user_data)
     gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
     gtk_table_set_row_spacings(GTK_TABLE(main_tb), 10);
     gtk_table_set_col_spacings(GTK_TABLE(main_tb), 15);
-    OBJECT_SET_DATA(main_tb, E_TOOLTIPS_KEY, cts->tooltips);
+    g_object_set_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY, cts->tooltips);
 
     /* Add items for each of the preferences */
     prefs_pref_foreach(module, pref_show, main_tb);
 
     /* Associate this module with the page's frame. */
-    OBJECT_SET_DATA(frame, E_PAGE_MODULE_KEY, module);
+    g_object_set_data(G_OBJECT(frame), E_PAGE_MODULE_KEY, module);
 
     /* Add the page to the notebook */
     gtk_notebook_append_page(GTK_NOTEBOOK(cts->notebook), main_sw, NULL);
 
     /* Attach the page to the tree item */
     gtk_tree_store_set(model, &iter, 0, label_str, 1, cts->page, -1);
-    OBJECT_SET_DATA(frame, E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
+    g_object_set_data(G_OBJECT(frame), E_PAGE_ITER_KEY, gtk_tree_iter_copy(&iter));
 
-  cts->page++;
+    cts->page++;
 
     /* Show 'em what we got */
     gtk_widget_show_all(main_sw);
@@ -400,7 +400,7 @@ prefs_nb_page_add(GtkWidget *notebook, const gchar *title, GtkWidget *page, cons
   gtk_widget_show(frame);
   if(page) {
     gtk_container_add(GTK_CONTAINER(frame), page);
-    OBJECT_SET_DATA(prefs_w, page_key, page);
+    g_object_set_data(G_OBJECT(prefs_w), page_key, page);
   }
   gtk_notebook_append_page (GTK_NOTEBOOK(notebook), frame, NULL);
 
@@ -464,13 +464,13 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   	GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   gtk_container_add(GTK_CONTAINER(top_hb), ct_sb);
   gtk_widget_show(ct_sb);
-  OBJECT_SET_DATA(prefs_w, E_PREFSW_SCROLLW_KEY, ct_sb);
+  g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_SCROLLW_KEY, ct_sb);
 
   /* categories tree */
   store = gtk_tree_store_new(2, G_TYPE_STRING, G_TYPE_INT);
   cts.tree = tree_view_new(GTK_TREE_MODEL(store));
   cts.iter.stamp = 0; /* mark this as the toplevel */
-  OBJECT_SET_DATA(prefs_w, E_PREFSW_TREE_KEY, cts.tree);
+  g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_TREE_KEY, cts.tree);
   gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(cts.tree), FALSE);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(cts.tree));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
@@ -488,7 +488,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* A notebook widget without tabs is used to flip between prefs */
   prefs_nb = gtk_notebook_new();
-  OBJECT_SET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY, prefs_nb);
+  g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY, prefs_nb);
   gtk_notebook_set_show_tabs(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_notebook_set_show_border(GTK_NOTEBOOK(prefs_nb), FALSE);
   gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
@@ -606,24 +606,24 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_box_pack_start(GTK_BOX(cts.main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   SIGNAL_CONNECT(ok_bt, "clicked", prefs_main_ok_cb, prefs_w);
 
-  apply_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_APPLY);
+  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
   SIGNAL_CONNECT(apply_bt, "clicked", prefs_main_apply_cb, prefs_w);
 
-  save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+  save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
   SIGNAL_CONNECT(save_bt, "clicked", prefs_main_save_cb, prefs_w);
-  OBJECT_SET_DATA(prefs_w, E_PREFSW_SAVE_BT_KEY, save_bt);
+  g_object_set_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY, save_bt);
 
-  cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", prefs_main_cancel_cb, prefs_w);
   window_set_cancel_button(prefs_w, cancel_bt, NULL);
 
   gtk_widget_grab_default(ok_bt);
 
   if(topic_available(HELP_PREFERENCES_DIALOG)) {
-    help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_PREFERENCES_DIALOG);
   }
 
@@ -669,7 +669,7 @@ create_preference_check_button(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *check_box;
 
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -696,7 +696,7 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 	const enum_val_t *enum_valp;
 	GtkWidget *event_box;
 
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -790,7 +790,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	const enum_val_t *enum_valp;
 	GtkWidget *event_box;
 
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -856,7 +856,7 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *entry;
 
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 	    tooltips);
@@ -880,7 +880,7 @@ create_preference_static_text(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *label;
 
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 
 	if(label_text != NULL)
 		label = gtk_label_new(label_text);
@@ -902,7 +902,7 @@ create_preference_uat(GtkWidget *main_tb, int table_position,
 	GtkTooltips *tooltips;
 	GtkWidget *button = NULL;
 	
-	tooltips = OBJECT_GET_DATA(main_tb, E_TOOLTIPS_KEY);
+	tooltips = g_object_get_data(G_OBJECT(main_tb), E_TOOLTIPS_KEY);
 	
 	set_option_label(main_tb, table_position, label_text, tooltip_text,
 					 tooltips);
@@ -1115,7 +1115,7 @@ prefs_airpcap_update()
   gboolean airpcap_decryption_was_enabled;
   gboolean wireshark_decryption_is_now_enabled;
 
-  decryption_cm = GTK_WIDGET(OBJECT_GET_DATA(airpcap_tb,AIRPCAP_TOOLBAR_DECRYPTION_KEY));
+  decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
   decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
 
   if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
@@ -1244,25 +1244,25 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
   /* Fetch the preferences (i.e., make sure all the values set in all of
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
-  gui_prefs_fetch(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
-  layout_prefs_fetch(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
-  column_prefs_fetch(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(OBJECT_GET_DATA(dlg, E_GUI_COLORS_PAGE_KEY));
+  gui_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY));
+  layout_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
+  column_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_fetch(OBJECT_GET_DATA(dlg, E_CAPTURE_PAGE_KEY));
+  capture_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_fetch(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
-  nameres_prefs_fetch(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+  printer_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
+  nameres_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_fetch(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+  rtp_player_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
 #endif
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
@@ -1282,29 +1282,29 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
    */
   prefs_apply_all();
 
-  gui_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY), redissect);
-  layout_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
-  column_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_apply(OBJECT_GET_DATA(dlg, E_GUI_COLORS_PAGE_KEY));
+  gui_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY), redissect);
+  layout_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
+  column_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_apply(OBJECT_GET_DATA(dlg, E_CAPTURE_PAGE_KEY));
+  capture_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_apply(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
-  nameres_prefs_apply(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+  printer_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
+  nameres_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_apply(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+  rtp_player_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
 #endif
 
   /* show/hide the Save button - depending on setting */
-  save_bt = OBJECT_GET_DATA(prefs_w, E_PREFSW_SAVE_BT_KEY);
+  save_bt = g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY);
   if(prefs.gui_use_pref_save) {
     gtk_widget_show(save_bt);
   } else {
@@ -1321,31 +1321,31 @@ prefs_main_destroy_all(GtkWidget *dlg)
   GtkWidget *frame;
 
   for (page_num = 0;
-       (frame = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
+       (frame = gtk_notebook_get_nth_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
-		   if(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY))
-               gtk_tree_iter_free(OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
+           if(g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY))
+               gtk_tree_iter_free(g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY));
 	   }
 
-  gui_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_PAGE_KEY));
-  layout_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_LAYOUT_PAGE_KEY));
-  column_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_COLUMN_PAGE_KEY));
-  stream_prefs_destroy(OBJECT_GET_DATA(dlg, E_GUI_COLORS_PAGE_KEY));
+  gui_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_PAGE_KEY));
+  layout_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_LAYOUT_PAGE_KEY));
+  column_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_GUI_COLORS_PAGE_KEY));
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (has_wpcap) {
 #endif /* _WIN32 */
-  capture_prefs_destroy(OBJECT_GET_DATA(dlg, E_CAPTURE_PAGE_KEY));
+  capture_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_CAPTURE_PAGE_KEY));
 #ifdef _WIN32
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-  printer_prefs_destroy(OBJECT_GET_DATA(dlg, E_PRINT_PAGE_KEY));
-  nameres_prefs_destroy(OBJECT_GET_DATA(dlg, E_NAMERES_PAGE_KEY));
+  printer_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
+  nameres_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
 #ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_destroy(OBJECT_GET_DATA(dlg, E_RTP_PLAYER_PAGE_KEY));
+  rtp_player_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
 #endif
 
   /* Free up the saved preferences (both for "prefs" and for registered
@@ -1723,18 +1723,18 @@ properties_cb(GtkWidget *w, gpointer dummy)
   /* Search all the pages in that window for the one with the specified
      module. */
   for (page_num = 0;
-       (sw = gtk_notebook_get_nth_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
+       (sw = gtk_notebook_get_nth_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page_num)) != NULL;
        page_num++) {
     /* Get the frame from the scrollable window */
-    frame = OBJECT_GET_DATA(sw, E_PAGESW_FRAME_KEY);
+    frame = g_object_get_data(G_OBJECT(sw), E_PAGESW_FRAME_KEY);
     /* Get the module for this page (non-protocol prefs don't have one). */
     if(frame) {
-      page_module = OBJECT_GET_DATA(frame, E_PAGE_MODULE_KEY);
+      page_module = g_object_get_data(G_OBJECT(frame), E_PAGE_MODULE_KEY);
       if (page_module != NULL) {
 	if (page_module == p.module) {
 	  tree_select_node(
-		  OBJECT_GET_DATA(prefs_w, E_PREFSW_TREE_KEY),
-		  OBJECT_GET_DATA(frame, E_PAGE_ITER_KEY));
+                  g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_TREE_KEY),
+		  g_object_get_data(G_OBJECT(frame), E_PAGE_ITER_KEY));
 	  return;
 	}
       }
@@ -1755,6 +1755,6 @@ prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   {
     gtk_tree_model_get(model, &iter, 1, &page, -1);
     if (page >= 0)
-      gtk_notebook_set_page(OBJECT_GET_DATA(prefs_w, E_PREFSW_NOTEBOOK_KEY), page);
+        gtk_notebook_set_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page);
   }
 }

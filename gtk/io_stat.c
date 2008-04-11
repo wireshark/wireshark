@@ -1217,7 +1217,7 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 	int i;
 	io_stat_t *io;
 
-	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
+	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
 
 	for(i=0;i<MAX_GRAPHS;i++){
 		if(io->graphs[i].display){
@@ -1240,7 +1240,7 @@ quit(GtkWidget *widget, GdkEventExpose *event _U_)
 static gint
 pixmap_clicked_event(GtkWidget *widget, GdkEventButton *event)
 {
-	io_stat_t *io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
+        io_stat_t *io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
 	guint32 draw_width, interval, last_interval;
 	guint frame_num;
 
@@ -1287,7 +1287,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	GtkWidget *save_bt;
 #endif
 
-	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
+	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1305,8 +1305,8 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	io->pixmap_height=widget->allocation.height;
 
 #if GTK_CHECK_VERSION(2,6,0)
-	save_bt = OBJECT_GET_DATA(io->window, "save_bt");
-	OBJECT_SET_DATA(save_bt, "pixmap", io->pixmap);
+	save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
+	g_object_set_data(G_OBJECT(save_bt), "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
 #endif
     
@@ -1354,7 +1354,7 @@ expose_event(GtkWidget *widget, GdkEventExpose *event)
 {
 	io_stat_t *io;
 
-	io=(io_stat_t *)OBJECT_GET_DATA(widget, "io_stat_t");
+	io=(io_stat_t *)g_object_get_data(G_OBJECT(widget), "io_stat_t");
 	if(!io){
 		exit(10);
 	}
@@ -1376,7 +1376,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 {
 	io->draw_area=gtk_drawing_area_new();
 	SIGNAL_CONNECT(io->draw_area, "destroy", quit, io);
-	OBJECT_SET_DATA(io->draw_area, "io_stat_t", io);
+	g_object_set_data(G_OBJECT(io->draw_area), "io_stat_t", io);
 
 	WIDGET_SET_SIZE(io->draw_area, io->pixmap_width, io->pixmap_height);
 
@@ -1405,7 +1405,7 @@ tick_interval_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)OBJECT_GET_DATA(item, "tick_interval");
+	val=(long)g_object_get_data(G_OBJECT(item), "tick_interval");
 
 	io->interval=val;
 	cf_retap_packets(&cfile, FALSE);
@@ -1419,7 +1419,7 @@ pixels_per_tick_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)OBJECT_GET_DATA(item, "pixels_per_tick");
+	val=(long)g_object_get_data(G_OBJECT(item), "pixels_per_tick");
 	io->pixels_per_tick=val;
 	io_stat_redraw(io);
 }
@@ -1431,7 +1431,7 @@ plot_style_select(GtkWidget *item, gpointer key)
 	io_stat_graph_t *ppt;
 
 	ppt=(io_stat_graph_t *)key;
-	val=(long)OBJECT_GET_DATA(item, "plot_style");
+	val=(long)g_object_get_data(G_OBJECT(item), "plot_style");
 
 	ppt->plot_style=val;
 
@@ -1449,7 +1449,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
 		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
 		menu_item=gtk_menu_item_new_with_label(str);
 
-		OBJECT_SET_DATA(menu_item, "pixels_per_tick",
+		g_object_set_data(G_OBJECT(menu_item), "pixels_per_tick",
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
 		SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, io);
 		gtk_widget_show(menu_item);
@@ -1467,7 +1467,7 @@ yscale_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)OBJECT_GET_DATA(item, "yscale_max");
+	val=(long)g_object_get_data(G_OBJECT(item), "yscale_max");
 
 	io->max_y_units=val;
 	io_stat_redraw(io);
@@ -1494,7 +1494,7 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
 		}
 
 		menu_item=gtk_menu_item_new_with_label(str);
-		OBJECT_SET_DATA(menu_item, "tick_interval",
+		g_object_set_data(G_OBJECT(menu_item), "tick_interval",
                                 GUINT_TO_POINTER(tick_interval_values[i]));
 		SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)io);
 		gtk_widget_show(menu_item);
@@ -1520,7 +1520,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 			g_snprintf(str, 15, "%u", yscale_max[i]);
 		}
 		menu_item=gtk_menu_item_new_with_label(str);
-		OBJECT_SET_DATA(menu_item, "yscale_max",
+		g_object_set_data(G_OBJECT(menu_item), "yscale_max",
 		                GUINT_TO_POINTER(yscale_max[i]));
 		SIGNAL_CONNECT(menu_item, "activate", yscale_select, io);
 		gtk_widget_show(menu_item);
@@ -1538,7 +1538,7 @@ count_type_select(GtkWidget *item, gpointer key)
 	io_stat_t *io;
 
 	io=(io_stat_t *)key;
-	val=(long)OBJECT_GET_DATA(item, "count_type");
+	val=(long)g_object_get_data(G_OBJECT(item), "count_type");
 
 	io->count_type=val;
 
@@ -1576,7 +1576,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
 		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
-		OBJECT_SET_DATA(menu_item, "count_type", GINT_TO_POINTER(i));
+		g_object_set_data(G_OBJECT(menu_item), "count_type", GINT_TO_POINTER(i));
 		SIGNAL_CONNECT(menu_item, "activate", count_type_select, io);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1952,7 +1952,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gio->filter_field=gtk_entry_new_with_max_length(256);
 
 	/* filter prefs dialog */
-	OBJECT_SET_DATA(gio->filter_bt, E_FILT_TE_PTR_KEY, gio->filter_field);
+	g_object_set_data(G_OBJECT(gio->filter_bt), E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */
 
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_field, TRUE, TRUE, 0);
@@ -1975,7 +1975,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	menu=gtk_menu_new();
 	for(i=0;i<MAX_PLOT_STYLES;i++){
 		menu_item=gtk_menu_item_new_with_label(plot_style_name[i]);
-		OBJECT_SET_DATA(menu_item, "plot_style", GINT_TO_POINTER(i));
+		g_object_set_data(G_OBJECT(menu_item), "plot_style", GINT_TO_POINTER(i));
 		SIGNAL_CONNECT(menu_item, "activate", plot_style_select, &gio->io->graphs[num-1]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -2103,25 +2103,25 @@ init_io_stat_window(io_stat_t *io)
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
 	gtk_tooltips_set_tip(tooltips, close_bt, "Close this dialog", NULL);
 
 #if GTK_CHECK_VERSION(2,6,0)
-	save_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
+	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
 	gtk_tooltips_set_tip(tooltips, save_bt, "Save the displayed graph to a file", NULL);
 	SIGNAL_CONNECT(save_bt, "clicked", pixmap_save_cb, NULL);
-	OBJECT_SET_DATA(io->window, "save_bt", save_bt);
+	g_object_set_data(G_OBJECT(io->window), "save_bt", save_bt);
 #endif
 
-	copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
 	SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, io);
 
 	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
-		help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 		SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_IO_GRAPH_DIALOG);
 		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 	}

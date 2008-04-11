@@ -124,7 +124,7 @@ capture_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, GTK_COMBO(if_cb)->entry,
 	    "The default interface to be captured from.", NULL);
 	gtk_widget_show(if_cb);
-	OBJECT_SET_DATA(main_vb, DEVICE_KEY, if_cb);
+	g_object_set_data(G_OBJECT(main_vb), DEVICE_KEY, if_cb);
 	row++;
 
 	/* Interface properties */
@@ -148,7 +148,7 @@ capture_prefs_show(void)
 	    "Usually a network card will only capture the traffic sent to its own network address. "
 	    "If you want to capture all traffic that the network card can \"see\", mark this option. "
 	    "See the FAQ for some more details of capturing packets from a switched network.", NULL);
-	OBJECT_SET_DATA(main_vb, PROM_MODE_KEY, promisc_cb);
+	g_object_set_data(G_OBJECT(main_vb), PROM_MODE_KEY, promisc_cb);
 
 	/* Real-time capture */
 	sync_cb = create_preference_check_button(main_tb, row++,
@@ -157,7 +157,7 @@ capture_prefs_show(void)
 	gtk_tooltips_set_tip(tooltips, sync_cb,
         "Update the list of packets while capture is in progress. "
         "Don't use this option if you notice packet drops.", NULL);
-	OBJECT_SET_DATA(main_vb, CAPTURE_REAL_TIME_KEY, sync_cb);
+	g_object_set_data(G_OBJECT(main_vb), CAPTURE_REAL_TIME_KEY, sync_cb);
 
 	/* Auto-scroll real-time capture */
 	auto_scroll_cb = create_preference_check_button(main_tb, row++,
@@ -165,7 +165,7 @@ capture_prefs_show(void)
 	    prefs.capture_auto_scroll);
 	gtk_tooltips_set_tip(tooltips, auto_scroll_cb,
         "Automatic scrolling of the packet list while live capture is in progress. ", NULL);
-	OBJECT_SET_DATA(main_vb, AUTO_SCROLL_KEY, auto_scroll_cb);
+	g_object_set_data(G_OBJECT(main_vb), AUTO_SCROLL_KEY, auto_scroll_cb);
 
 	/* Show capture info dialog */
 	show_info_cb = create_preference_check_button(main_tb, row++,
@@ -173,7 +173,7 @@ capture_prefs_show(void)
 	    !prefs.capture_show_info);
 	gtk_tooltips_set_tip(tooltips, show_info_cb,
 	    "Hide the capture info dialog while capturing. ", NULL);
-	OBJECT_SET_DATA(main_vb, SHOW_INFO_KEY, show_info_cb);
+	g_object_set_data(G_OBJECT(main_vb), SHOW_INFO_KEY, show_info_cb);
 
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
@@ -187,11 +187,11 @@ capture_prefs_fetch(GtkWidget *w)
 	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb, *show_info_cb;
 	gchar	*if_text;
 
-	if_cb = (GtkWidget *)OBJECT_GET_DATA(w, DEVICE_KEY);
-	promisc_cb = (GtkWidget *)OBJECT_GET_DATA(w, PROM_MODE_KEY);
-	sync_cb = (GtkWidget *)OBJECT_GET_DATA(w, CAPTURE_REAL_TIME_KEY);
-	auto_scroll_cb = (GtkWidget *)OBJECT_GET_DATA(w, AUTO_SCROLL_KEY);
-    show_info_cb = (GtkWidget *)OBJECT_GET_DATA(w, SHOW_INFO_KEY);
+	if_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), DEVICE_KEY);
+	promisc_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), PROM_MODE_KEY);
+	sync_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), CAPTURE_REAL_TIME_KEY);
+	auto_scroll_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), AUTO_SCROLL_KEY);
+        show_info_cb = (GtkWidget *)g_object_get_data(G_OBJECT(w), SHOW_INFO_KEY);
 
 	if (prefs.capture_device != NULL) {
 		g_free(prefs.capture_device);
@@ -231,7 +231,7 @@ capture_prefs_destroy(GtkWidget *w)
 
 	/* Is there an interface descriptions dialog associated with this
 	   Preferences dialog? */
-	dlg = OBJECT_GET_DATA(caller, IFOPTS_DIALOG_PTR_KEY);
+	dlg = g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
 
 	if (dlg != NULL) {
 		/* Yes.  Destroy it. */
@@ -256,7 +256,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
-	ifopts_edit_dlg = OBJECT_GET_DATA(caller, IFOPTS_DIALOG_PTR_KEY);
+	ifopts_edit_dlg = g_object_get_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY);
 	if (ifopts_edit_dlg != NULL) {
 		/* Yes.  Just re-activate that dialog box. */
 		reactivate_window(ifopts_edit_dlg);
@@ -366,31 +366,31 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 			cur_clist);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_hide_cb, 1, 2, row, row+1);
 	gtk_widget_show(if_hide_cb);
-    row++;
+        row++;
 
 	/* button row: OK and Cancel buttons */
 	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
-	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
 	SIGNAL_CONNECT(ok_bt, "clicked", ifopts_edit_ok_cb, ifopts_edit_dlg);
 
-	cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
+	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+        window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
 
 	gtk_widget_grab_default(ok_bt);
 
-    SIGNAL_CONNECT(ifopts_edit_dlg, "delete_event", window_delete_event_cb,
+        SIGNAL_CONNECT(ifopts_edit_dlg, "delete_event", window_delete_event_cb,
                  NULL);
 	/* Call a handler when we're destroyed, so we can inform
 	   our caller, if any, that we've been destroyed. */
 	SIGNAL_CONNECT(ifopts_edit_dlg, "destroy", ifopts_edit_destroy_cb, NULL);
 
 	/* Set the key for the new dialog to point to our caller. */
-	OBJECT_SET_DATA(ifopts_edit_dlg, IFOPTS_CALLER_PTR_KEY, caller);
+	g_object_set_data(G_OBJECT(ifopts_edit_dlg), IFOPTS_CALLER_PTR_KEY, caller);
 	/* Set the key for the caller to point to us */
-	OBJECT_SET_DATA(caller, IFOPTS_DIALOG_PTR_KEY, ifopts_edit_dlg);
+	g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, ifopts_edit_dlg);
 
     /* select the first row in if list, all option fields must exist for this */
 	gtk_clist_select_row(GTK_CLIST(cur_clist), 0, -1);
@@ -426,11 +426,11 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 	/* Get the widget that requested that we be popped up, if any.
 	   (It should arrange to destroy us if it's destroyed, so
 	   that we don't get a pointer to a non-existent window here.) */
-	caller = OBJECT_GET_DATA(win, IFOPTS_CALLER_PTR_KEY);
+	caller = g_object_get_data(G_OBJECT(win), IFOPTS_CALLER_PTR_KEY);
 
 	if (caller != NULL) {
 		/* Tell it we no longer exist. */
-		OBJECT_SET_DATA(caller, IFOPTS_DIALOG_PTR_KEY, NULL);
+                g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, NULL);
 	}
 }
 

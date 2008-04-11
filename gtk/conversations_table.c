@@ -377,7 +377,7 @@ static gint
 ct_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 {
 	guint32 idx1, idx2;
-	conversations_table *ct = OBJECT_GET_DATA(clist, CONV_PTR_KEY);
+	conversations_table *ct = g_object_get_data(G_OBJECT(clist), CONV_PTR_KEY);
 	conv_t *conv1 = NULL;
 	conv_t *conv2 = NULL;
         double duration1, duration2;
@@ -1261,7 +1261,7 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
    GtkClipboard    *cb;
    GString         *CSV_str = g_string_new("");
 
-   conversations_table *talkers=OBJECT_GET_DATA(copy_bt, CONV_PTR_KEY);
+   conversations_table *talkers=g_object_get_data(G_OBJECT(copy_bt), CONV_PTR_KEY);
    if (!talkers)
      return;
 
@@ -1335,7 +1335,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_box_pack_start(GTK_BOX(vbox), conversations->scrolled_window, TRUE, TRUE, 0);
 
     conversations->table=(GtkCList *)gtk_clist_new(NUM_COLS);
-    OBJECT_SET_DATA(conversations->table, CONV_PTR_KEY, conversations);
+    g_object_set_data(G_OBJECT(conversations->table), CONV_PTR_KEY, conversations);
 
     col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
     win_style = gtk_widget_get_style(conversations->scrolled_window);
@@ -1441,17 +1441,17 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
 
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(conversations->win, close_bt, window_cancel_button_cb);
 
-    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
-    OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, conversations);
+    g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, conversations);
     SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
         SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_CONVERSATIONS_DIALOG);
     }
 
@@ -1478,12 +1478,12 @@ static void
 ct_nb_switch_page_cb(GtkNotebook *nb, GtkNotebookPage *pg _U_, guint page, gpointer data)
 {
     GtkWidget *copy_bt = (GtkWidget *) data;
-    void ** pages = OBJECT_GET_DATA(nb, NB_PAGES_KEY);
+    void ** pages = g_object_get_data(G_OBJECT(nb), NB_PAGES_KEY);
 
     page++;
 
     if (pages && page > 0 && (int) page <= GPOINTER_TO_INT(pages[0]) && copy_bt) {
-        OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
+        g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
     }
 }
 
@@ -1637,7 +1637,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     nb = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(vbox), nb);
-    OBJECT_SET_DATA(nb, NB_PAGES_KEY, pages);
+    g_object_set_data(G_OBJECT(nb), NB_PAGES_KEY, pages);
 
     page = 0;
 
@@ -1647,7 +1647,7 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
         page_lb = gtk_label_new("");
         conversations = init_ct_notebook_page_cb(registered->hide_ports, registered->table_name, registered->tap_name,
             registered->filter, registered->packet_func);
-        OBJECT_SET_DATA(conversations->win, CONV_PTR_KEY, conversations);
+        g_object_set_data(G_OBJECT(conversations->win), CONV_PTR_KEY, conversations);
         gtk_notebook_append_page(GTK_NOTEBOOK(nb), conversations->win, page_lb);
         conversations->win = win;
         conversations->page_lb = page_lb;
@@ -1687,19 +1687,19 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
-    close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
-    copy_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_COPY);
+    copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
     gtk_tooltips_set_tip(tooltips, copy_bt,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.", NULL);
     SIGNAL_CONNECT(copy_bt, "clicked", copy_as_csv_cb, NULL);
-    OBJECT_SET_DATA(copy_bt, CONV_PTR_KEY, pages[page]);
+    g_object_set_data(G_OBJECT(copy_bt), CONV_PTR_KEY, pages[page]);
 
     SIGNAL_CONNECT(nb, "switch-page", ct_nb_switch_page_cb, copy_bt);
 
     if(topic_available(HELP_STATS_CONVERSATIONS_DIALOG)) {
-        help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
         SIGNAL_CONNECT(help_bt, "clicked", topic_cb, HELP_STATS_CONVERSATIONS_DIALOG);
     }
 
