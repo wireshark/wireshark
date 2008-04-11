@@ -265,8 +265,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_border_width(GTK_CONTAINER(string_opt_vb), 3);
   gtk_widget_show(string_opt_vb);
 
-  case_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC(
-		"Case sensitive", accel_group);
+  case_cb = gtk_check_button_new_with_mnemonic("Case sensitive");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(case_cb), !case_type);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), case_cb);
   gtk_tooltips_set_tip (tooltips, case_cb, ("Search by mixed upper/lower case?"), NULL);

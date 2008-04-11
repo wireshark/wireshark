@@ -514,7 +514,7 @@ wlanstat_dlg_create (void)
 	hbox = gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-	resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Name resolution", NULL);
+	resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
 	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
 	gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
@@ -522,7 +522,7 @@ wlanstat_dlg_create (void)
 
 	SIGNAL_CONNECT(resolv_cb, "toggled", wlan_resolve_toggle_dest, hs);
 
-	existing_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Only show existing networks", NULL);
+	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
 	gtk_tooltips_set_tip(tooltips, existing_cb, "This option disables probe requests for "

@@ -1645,7 +1645,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	create_ctrl_menu(io, vbox, "Tick interval:", create_tick_interval_menu_items);
 	create_ctrl_menu(io, vbox, "Pixels per tick:", create_pixels_per_tick_menu_items);
 
-	view_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("_View as time of day", accel_group);
+	view_cb = gtk_check_button_new_with_mnemonic("_View as time of day");
 	gtk_container_add(GTK_CONTAINER(vbox), view_cb);
 	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), io->view_as_time);
 	SIGNAL_CONNECT(view_cb, "toggled", view_as_time_toggle_dest, io);

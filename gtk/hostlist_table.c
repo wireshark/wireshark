@@ -1031,7 +1031,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     hbox = gtk_hbox_new(FALSE, 3);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-    resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Name resolution", NULL);
+    resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
     gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
@@ -1039,7 +1039,7 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     SIGNAL_CONNECT(resolv_cb, "toggled", hostlist_resolve_toggle_dest, pages);
 
-    filter_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Limit to display filter", NULL);
+    filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
     gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
     gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to endpoints matching the current display filter.", NULL);

@@ -518,7 +518,7 @@ file_open_cmd(GtkWidget *w)
 #endif
 
   /* resolve buttons */
-  m_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _MAC name resolution", accel_group);
+  m_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _MAC name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
 	g_resolv_flags & RESOLV_MAC);
   gtk_box_pack_start(GTK_BOX(main_vb), m_resolv_cb, FALSE, FALSE, 0);
@@ -531,7 +531,7 @@ file_open_cmd(GtkWidget *w)
 #endif
   gtk_widget_show(m_resolv_cb);
 
-  n_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _network name resolution", accel_group);
+  n_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _network name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
 	g_resolv_flags & RESOLV_NETWORK);
   gtk_box_pack_start(GTK_BOX(main_vb), n_resolv_cb, FALSE, FALSE, 0);
@@ -543,7 +543,7 @@ file_open_cmd(GtkWidget *w)
 		  E_FILE_N_RESOLVE_KEY, n_resolv_cb);
 #endif
 
-  t_resolv_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Enable _transport name resolution", accel_group);
+  t_resolv_cb = gtk_check_button_new_with_mnemonic("Enable _transport name resolution");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(t_resolv_cb),
 	g_resolv_flags & RESOLV_TRANSPORT);
   gtk_box_pack_start(GTK_BOX(main_vb), t_resolv_cb, FALSE, FALSE, 0);

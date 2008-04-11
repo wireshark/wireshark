@@ -596,7 +596,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
 
   /* Output to file button */
-  dest_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Output to _file:", accel_group);
+  dest_cb = gtk_check_button_new_with_mnemonic("Output to _file:");
   if (args->to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_cb), TRUE);
   gtk_tooltips_set_tip (tooltips, dest_cb, "Output to file instead of printer", NULL);
@@ -684,7 +684,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(format_vb);
 
   /* "Print summary line" check button */
-  summary_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet summary line", accel_group);
+  summary_cb = gtk_check_button_new_with_mnemonic("Packet summary line");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_cb), args->print_summary);
   SIGNAL_CONNECT(summary_cb, "clicked", print_cmd_toggle_detail, main_win);
   gtk_tooltips_set_tip (tooltips, summary_cb, "Output of a packet summary line, like in the packet list", NULL);
@@ -693,7 +693,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
 
   /* "Details" check button */
-  details_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet details:", accel_group);
+  details_cb = gtk_check_button_new_with_mnemonic("Packet details:");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(details_cb), args->print_dissections != print_dissections_none);
   SIGNAL_CONNECT(details_cb, "clicked", print_cmd_toggle_detail, main_win);
   gtk_tooltips_set_tip (tooltips, details_cb, "Output format of the selected packet details (protocol tree).", NULL);
@@ -736,7 +736,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(expand_all_rb);
 
   /* "Print hex" check button. */
-  hex_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Packet bytes", accel_group);
+  hex_cb = gtk_check_button_new_with_mnemonic("Packet bytes");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), args->print_hex);
   SIGNAL_CONNECT(hex_cb, "clicked", print_cmd_toggle_detail, main_win);
   gtk_tooltips_set_tip (tooltips, hex_cb, "Add a hexdump of the packet data", NULL);
@@ -749,7 +749,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_widget_show(sep);
 
   /* "Each packet on a new page" check button. */
-  formfeed_cb = CHECK_BUTTON_NEW_WITH_MNEMONIC("Each packet on a new page", accel_group);
+  formfeed_cb = gtk_check_button_new_with_mnemonic("Each packet on a new page");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(formfeed_cb), args->print_formfeed);
   gtk_tooltips_set_tip (tooltips, formfeed_cb, "When checked, a new page will be used for each packet. "
       "This is done by adding a formfeed (or similar) between the packet outputs.", NULL);
