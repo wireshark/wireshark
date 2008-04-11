@@ -1996,7 +1996,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
         /* And increment the point address, may be overwritten by an index value */
         al_ptaddr++;
       }
-      if (start_offset >= offset) {
+      if (start_offset > offset) {
 	expert_add_info_format(pinfo, point_item, PI_MALFORMED, PI_ERROR, "Invalid length");
 	offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
       }
