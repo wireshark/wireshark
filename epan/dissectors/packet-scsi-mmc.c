@@ -155,6 +155,8 @@ static int hf_scsi_mmc_reservation_size = -1;
 static int hf_scsi_mmc_last_recorded_address = -1;
 static int hf_scsi_mmc_first_track = -1;
 static int hf_scsi_mmc_fixed_packet_size = -1;
+static int hf_scsi_mmc_closetrack_immed = -1;
+static int hf_scsi_mmc_closetrack_func = -1;
 static int hf_scsi_mmc_synccache_immed = -1;
 static int hf_scsi_mmc_synccache_reladr = -1;
 static int hf_scsi_mmc_num_blocks      = -1;
@@ -388,10 +390,10 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
                     break;
                 default:
 		    proto_tree_add_text (tree, tvb_v, offset_v, additional_length,
-			"SCSI/MMC Unknown Feature:0x%04x",feature);
+			"SCSI/MMC Unknown Feature data");
 		    break;
                 }
-                old_offset+=additional_length;
+		offset_v=old_offset+additional_length;
                 len-=4+additional_length;
         }
 	END_TRY_SCSI_CDB_ALLOC_LEN;
@@ -884,6 +886,53 @@ dissect_mmc4_reservetrack (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 
+static const value_string scsi_closetrack_func_val[] = {
+	{0,	"Stop background format"},
+	{1,	"Close track"},
+	{2,	"Close last incomplete session"},
+	{3,	"Special case close session"},
+	{5,	"Close last session and finalize disk, special case"},
+	{6,	"Close last session and finalize disk"},
+	{0, NULL}
+};
+
+static void
+dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+                     guint offset, gboolean isreq, gboolean iscdb,
+                     guint payload_len _U_, scsi_task_data_t *cdata _U_)
+
+{
+    int flags;
+
+    if (tree && isreq && iscdb) {
+	/* immediate */
+        proto_tree_add_item (tree, hf_scsi_mmc_closetrack_immed, tvb, offset, 1, 0);
+	offset++;
+
+	/* close function */
+        proto_tree_add_item (tree, hf_scsi_mmc_closetrack_func, tvb, offset, 1, 0);
+	offset++;
+
+	/* reserved */
+	offset++;
+
+	/* track number */
+	proto_tree_add_item (tree, hf_scsi_mmc_track, tvb, offset, 2, 0);
+	offset+=2;
+
+	/* reserved */
+	offset+=3;
+
+        flags = tvb_get_guint8 (tvb, offset);
+        proto_tree_add_uint_format (tree, hf_scsi_control, tvb, offset, 1,
+                                    flags,
+                                    "Vendor Unique = %u, NACA = %u, Link = %u",
+                                    flags & 0xC0, flags & 0x4, flags & 0x1);
+
+    }
+}
+
+
 static void
 dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                      guint offset, gboolean isreq, gboolean iscdb,
@@ -1020,8 +1069,9 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define SCSI_MMC4_READDISCINFORMATION    0x51
 #define SCSI_MMC4_READTRACKINFORMATION   0x52
 #define SCSI_MMC4_RESERVETRACK           0x53
+#define SCSI_MMC4_CLOSETRACK		 0x5b
 #define SCSI_MMC4_READBUFFERCAPACITY     0x5c
-#define SCSI_MMC4_REPORTKEY		0xa4
+#define SCSI_MMC4_REPORTKEY		 0xa4
 #define SCSI_MMC4_READ12                 0xa8
 #define SCSI_MMC4_WRITE12                0xaa
 #define SCSI_MMC4_GETPERFORMANCE         0xac
@@ -1029,7 +1079,7 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 #define SCSI_MMC4_SETSTREAMING           0xb6
 #define SCSI_MMC4_SETCDSPEED             0xbb
 const value_string scsi_mmc_vals[] = {
-    {SCSI_MMC4_GETCONFIGURATION      , "Get Configuraion"},
+    {SCSI_MMC4_GETCONFIGURATION      , "Get Configuration"},
     {SCSI_MMC4_GETEVENTSTATUSNOTIFY  , "Get Event Status Notification"},
     {SCSI_MMC4_GETPERFORMANCE        , "Get Performance"},
     {SCSI_SPC_INQUIRY               , "Inquiry"},
@@ -1038,6 +1088,7 @@ const value_string scsi_mmc_vals[] = {
     {SCSI_SPC_PREVMEDREMOVAL        , "Prevent/Allow Medium Removal"},
     {SCSI_MMC4_READ10                , "Read(10)"},
     {SCSI_MMC4_READ12                , "Read(12)"},
+    {SCSI_MMC4_CLOSETRACK            , "Close Track"},
     {SCSI_MMC4_READBUFFERCAPACITY    , "Read Buffer Capacity"},
     {SCSI_MMC4_READCAPACITY10        , "Read Capacity(10)"},
     {SCSI_MMC4_READDISCINFORMATION   , "Read Disc Information"},
@@ -1152,7 +1203,7 @@ scsi_cdb_table_t scsi_mmc_table[256] = {
 /*MMC 0x58*/{NULL},
 /*MMC 0x59*/{NULL},
 /*SPC 0x5a*/{dissect_spc_modesense10},
-/*MMC 0x5b*/{NULL},
+/*MMC 0x5b*/{dissect_mmc4_close_track},
 /*MMC 0x5c*/{dissect_mmc4_readbuffercapacity},
 /*MMC 0x5d*/{NULL},
 /*MMC 0x5e*/{NULL},
@@ -1663,6 +1714,12 @@ proto_register_scsi_mmc(void)
         { &hf_scsi_mmc_fixed_packet_size,
           {"Fixed Packet Size", "scsi.mmc.fixed_packet_size", FT_UINT32, BASE_DEC,
            NULL, 0, "", HFILL}},
+        { &hf_scsi_mmc_closetrack_immed,
+          {"IMMED", "scsi.mmc.closetrack.immed", FT_BOOLEAN, 8,
+           NULL, 0x01, "", HFILL}},
+        { &hf_scsi_mmc_closetrack_func,
+          {"Close Function", "scsi.mmc.closetrack.func", FT_UINT8, BASE_HEX,
+           VALS(scsi_closetrack_func_val), 0x07, "", HFILL}},
         { &hf_scsi_mmc_synccache_immed,
           {"IMMED", "scsi.mmc.synccache.immed", FT_BOOLEAN, 8,
            NULL, 0x02, "", HFILL}},
