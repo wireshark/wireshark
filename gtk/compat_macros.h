@@ -55,12 +55,6 @@ g_object_get_data(G_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
-#define SIGNAL_EMIT_BY_NAME g_signal_emit_by_name
-#define SIGNAL_EMIT_OBJECT(object) G_OBJECT(object)
-
-#define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
-g_signal_stop_emission_by_name(G_OBJECT(widget), name)
-
 #define ITEM_FACTORY_ENTRY(path, accelerator, callback, action, type, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, type, data}
 

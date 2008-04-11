@@ -2353,7 +2353,7 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
             gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
                            event_button->button,
                            event_button->time);
-            SIGNAL_EMIT_STOP_BY_NAME(widget, "button_press_event");
+            g_signal_stop_emission_by_name(widget, "button_press_event");
             return TRUE;
         }
     }
