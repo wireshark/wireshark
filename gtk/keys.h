@@ -26,7 +26,7 @@
 #define __KEYS_H__
 
 /** @file
- * Various keys for OBJECT_SET_DATA().
+ * Various keys for g_object_set_data().
  */
 
 #define E_DFILTER_TE_KEY				"display_filter_entry"

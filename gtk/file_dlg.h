@@ -85,7 +85,7 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
  */
 extern void file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra);
 
-/** The function file_selection_browse() will OBJECT_SET_DATA() itself on it's parent window.
+/** The function file_selection_browse() will g_object_set_data() itself on it's parent window.
  *  When destroying the parent window, it can close the corresponding file selection. */
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
 

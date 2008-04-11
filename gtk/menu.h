@@ -68,7 +68,7 @@ extern void menu_auto_scroll_live_changed(gboolean auto_scroll_in);
  */
 extern GtkWidget *main_menu_new(GtkAccelGroup **accel);
 
-/** Set object data of menu, like OBJECT_SET_DATA().
+/** Set object data of menu, like g_object_set_data().
  *
  * @param path the path of the menu item
  * @param key the key to set

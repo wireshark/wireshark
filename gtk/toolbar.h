@@ -83,7 +83,7 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets);
 void set_toolbar_for_packet_history(gboolean back_history, gboolean forward_history);
 
 /** Set object data of some buttons (where needed). It's needed so callback 
- *  functions can read back their required data. Acts like OBJECT_SET_DATA() 
+ *  functions can read back their required data. Acts like g_object_set_data() 
  *  on multiple buttons.
  *
  * @param key the key

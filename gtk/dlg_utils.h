@@ -80,7 +80,7 @@
 extern GtkWidget *dlg_window_new(const gchar *title);
 
 /** Create a button row (with variable number of buttons) for a dialog.
- *  The button widgets will be available by OBJECT_GET_DATA(dlg, stock_id) later.
+ *  The button widgets will be available by g_object_get_data(dlg, stock_id) later.
  *
  * @param stock_id_first the first button (e.g. GTK_STOCK_OK)
  * @param ... the next buttons, just like stock_id_first
