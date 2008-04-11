@@ -946,7 +946,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	}
 
 	/* Disconnect the scroll bar "value" signal to not be called */
-	SIGNAL_DISCONNECT_BY_FUNC(rci->h_scrollbar_adjustment, h_scrollbar_changed, rci);
+	g_signal_handlers_disconnect_by_func(rci->h_scrollbar_adjustment, h_scrollbar_changed, rci);
 
 	/* Move the horizontal scroll bar */
 /*	if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) && 
@@ -1178,7 +1178,7 @@ on_bt_check_clicked(GtkButton *button _U_, gpointer user_data _U_)
 		/* if there are already both channels selected, unselect the old one */
 		if (rtp_channels->rci[rtp_channels->channel]) {
 			/* we disconnect the signal temporarly to avoid been called back */
-			SIGNAL_DISCONNECT_BY_FUNC(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
+			g_signal_handlers_disconnect_by_func(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			gtk_toggle_button_set_active((GtkToggleButton *)rtp_channels->rci[rtp_channels->channel]->check_bt, FALSE);
 			SIGNAL_CONNECT(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			rtp_channels->rci[rtp_channels->channel]->selected = FALSE;
@@ -1415,14 +1415,14 @@ button_press_event_channel(GtkWidget *widget, GdkEventButton *event _U_)
 		/* if there are already both channels selected, unselect the old one */
 		if (rtp_channels->rci[rtp_channels->channel]) {
 			/* we disconnect the signal temporarly to avoid been called back */
-			SIGNAL_DISCONNECT_BY_FUNC(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
+			g_signal_handlers_disconnect_by_func(rtp_channels->rci[rtp_channels->channel]->check_bt, on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			gtk_toggle_button_set_active((GtkToggleButton *) rtp_channels->rci[rtp_channels->channel]->check_bt, FALSE);
 			SIGNAL_CONNECT(rtp_channels->rci[rtp_channels->channel]->check_bt, "clicked", on_bt_check_clicked, rtp_channels->rci[rtp_channels->channel]);
 			rtp_channels->rci[rtp_channels->channel]->selected = FALSE;
 		}
 
 		/* we disconnect the signal temporarly to avoid been called back */
-		SIGNAL_DISCONNECT_BY_FUNC(rci->check_bt, on_bt_check_clicked, rci);
+		g_signal_handlers_disconnect_by_func(rci->check_bt, on_bt_check_clicked, rci);
 		gtk_toggle_button_set_active((GtkToggleButton *) rci->check_bt, TRUE);
 		SIGNAL_CONNECT(rci->check_bt, "clicked", on_bt_check_clicked, rci);
 

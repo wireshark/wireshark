@@ -123,11 +123,11 @@ static void set_buttons(uat_t* uat, gint row) {
 	}
 
 	if (uat->changed) {
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
+		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(uat->rep->window, "delete_event", unsaved_dialog, uat);
 		SIGNAL_CONNECT(uat->rep->window, "destroy", unsaved_dialog, uat);
 	} else {
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+		g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "delete_event", uat_window_delete_event_cb, uat);
 		SIGNAL_CONNECT(GTK_WINDOW(uat->rep->window), "destroy", uat_window_delete_event_cb, uat);
 	}
@@ -626,8 +626,8 @@ static gboolean uat_window_delete_event_cb(GtkWindow *w _U_, GdkEvent* e _U_, gp
 	if (uat->rep) {
 		void* rep = uat->rep;
 
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-		SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+		g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
+		g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 
 		gtk_widget_destroy(uat->rep->window);
 
@@ -684,8 +684,8 @@ static void uat_cancel_cb(GtkWidget *button _U_, gpointer u) {
 		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 	}
 
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 	gtk_widget_destroy(uat->rep->window);
 	g_free(uat->rep);
 	uat->rep = NULL;
@@ -714,8 +714,8 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 		if (cfile.state == FILE_READ_DONE) cf_reload(&cfile);
 	}
 
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 	gtk_widget_destroy(uat->rep->window);
 	g_free(uat->rep);
 	uat->rep = NULL;
@@ -746,8 +746,8 @@ static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
 		report_failure("Error while saving %s: %s",uat->name,err);
 	}
 
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 	window_destroy(uat->rep->window);
 
 	g_free(uat->rep);
@@ -758,8 +758,8 @@ static void uat_yessave_cb(GtkWindow *w _U_, void* u) {
 static void uat_nosave_cb(GtkWindow *w _U_, void* u) {
 	uat_t* uat = u;
 	window_delete_event_cb(uat->rep->unsaved_window,NULL,NULL);
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, uat_window_delete_event_cb, uat);
-	SIGNAL_DISCONNECT_BY_FUNC(uat->rep->window, unsaved_dialog, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, uat_window_delete_event_cb, uat);
+	g_signal_handlers_disconnect_by_func(uat->rep->window, unsaved_dialog, uat);
 	window_destroy(uat->rep->window);
 
 	g_free(uat->rep);

@@ -906,7 +906,7 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 	 * attached, as the handler for that signal is supposed
 	 * to destroy us, but we're already gone.
 	 */
-	SIGNAL_DISCONNECT_BY_FUNC(filter_te, dfilter_expr_dlg_cancel_cb, w);
+	g_signal_handlers_disconnect_by_func(filter_te, dfilter_expr_dlg_cancel_cb, w);
 }
 
 /*

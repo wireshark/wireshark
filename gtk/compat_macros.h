@@ -40,9 +40,6 @@
 g_signal_connect(G_OBJECT(widget), name, G_CALLBACK(callback), \
                  (gpointer)(arg))
 
-#define SIGNAL_DISCONNECT_BY_FUNC(object, func, data) \
-g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
-
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_AIRPCAP          "_Wireless"
