@@ -49,12 +49,6 @@ g_signal_handlers_disconnect_by_func(G_OBJECT(object), func, data)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
-#define ITEM_FACTORY_ENTRY(path, accelerator, callback, action, type, data) \
-{path, accelerator, GTK_MENU_FUNC(callback), action, type, data}
-
-#define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
-{path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
-
 #ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_LABEL_CAPTURE_INTERFACES       "_Interfaces"
 #define WIRESHARK_STOCK_LABEL_CAPTURE_AIRPCAP          "_Wireless"
