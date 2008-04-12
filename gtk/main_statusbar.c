@@ -24,7 +24,11 @@
 
 
 #ifdef HAVE_CONFIG_H
-# include "config.h"
+#include "config.h"
+#endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -82,10 +86,10 @@ static gchar        *packets_str = NULL;
 static gchar        *profile_str = NULL;
 
 
-GtkWidget *info_bar_new(void);
-GtkWidget *packets_bar_new(void);
-GtkWidget *profile_bar_new(void);
-void status_expert_new(void);
+static GtkWidget *info_bar_new(void);
+static GtkWidget *packets_bar_new(void);
+static GtkWidget *profile_bar_new(void);
+static void status_expert_new(void);
 
 
 
@@ -506,7 +510,7 @@ statusbar_set_filename(const char *file_name, gint64 file_length, nstime_t *file
 
 
 static void
-statusbar_cf_file_closing_cb(capture_file *cf)
+statusbar_cf_file_closing_cb(capture_file *cf _U_)
 {
     /* Clear any file-related status bar messages.
        XXX - should be "clear *ALL* file-related status bar messages;
@@ -554,7 +558,7 @@ statusbar_cf_file_read_finished_cb(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static void
-statusbar_cf_live_capture_prepared_cb(capture_options *capture_opts)
+statusbar_cf_live_capture_prepared_cb(capture_options *capture_opts _U_)
 {
     statusbar_push_file_msg(" Waiting for capture input data ...");
 }
@@ -664,7 +668,7 @@ statusbar_cf_live_capture_fixed_finished_cb(capture_file *cf _U_)
 
 
 static void
-statusbar_cf_field_unselected_cb(capture_file *cf)
+statusbar_cf_field_unselected_cb(capture_file *cf _U_)
 {
     statusbar_pop_field_msg();
 }
