@@ -82,6 +82,7 @@ WIRESHARK_GTK_SRC = \
 	layout_prefs.c	\
 	macros_dlg.c	\
 	main.c		\
+	main_filter_toolbar.c	\
 	main_menu.c		\
 	main_packet_list.c	\
 	main_proto_draw.c	\
@@ -246,6 +247,7 @@ noinst_HEADERS = \
 	layout_prefs.h	\
 	macros_dlg.h	\
 	main.h		\
+	main_filter_toolbar.h	\
 	main_menu.h		\
 	main_packet_list.h	\
 	main_proto_draw.h	\
