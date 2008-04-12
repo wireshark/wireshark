@@ -47,6 +47,7 @@
 #include "font_utils.h"
 #include "packet_history.h"
 #include "progress_dlg.h"
+#include "recent.h"
 
 #include "main.h"
 #include "main_menu.h"
@@ -433,7 +434,7 @@ packet_list_set_sel_browse(gboolean val, gboolean force_set)
 
 /* Set the font of the packet list window. */
 void
-packet_list_set_font(PangoFontDescription *font)
+packet_list_set_font(PangoFontDescription *font, gboolean saved_column_width)
 {
 	int i;
 	gint col_width;
@@ -448,13 +449,18 @@ packet_list_set_font(PangoFontDescription *font)
 
 	/* Compute default column sizes. */
 	for (i = 0; i < cfile.cinfo.num_cols; i++) {
-                layout = gtk_widget_create_pango_layout(packet_list,
-		    get_column_width_string(get_column_format(i), i));
-                pango_layout_get_pixel_size(layout, &col_width, NULL);
-                g_object_unref(G_OBJECT(layout));
-
+		col_width = -1;
+		if (saved_column_width) {
+			col_width = recent_get_column_width(i);
+		}
+		if (col_width == -1) {
+			layout = gtk_widget_create_pango_layout(packet_list,
+			   get_column_width_string(get_column_format(i), i));
+			pango_layout_get_pixel_size(layout, &col_width, NULL);
+			g_object_unref(G_OBJECT(layout));
+		}
 		gtk_clist_set_column_width(GTK_CLIST(packet_list), i,
-			col_width);
+					   col_width);
 	}
 }
 
@@ -486,7 +492,7 @@ packet_list_new(e_prefs *prefs)
     gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
 
     packet_list_set_sel_browse(prefs->gui_plist_sel_browse, FALSE);
-    packet_list_set_font(user_font_get_regular());
+    packet_list_set_font(user_font_get_regular(), prefs->gui_geometry_save_column_width);
     gtk_widget_set_name(packet_list, "packet list");
     g_signal_connect(packet_list, "select-row", G_CALLBACK(packet_list_select_cb), NULL);
     g_signal_connect(packet_list, "unselect-row", G_CALLBACK(packet_list_unselect_cb), NULL);
@@ -796,13 +802,18 @@ packet_list_set_text(gint row, gint column, const gchar *text)
 void
 packet_list_set_cls_time_width(gint column)
 {
-    gint      width;
+    gint      width = -1;
     PangoLayout  *layout;
 
-    layout = gtk_widget_create_pango_layout(packet_list,
-                 get_column_longest_string(COL_CLS_TIME));
-    pango_layout_get_pixel_size(layout, &width, NULL);
-    g_object_unref(G_OBJECT(layout));
+    if (prefs.gui_geometry_save_column_width) {
+      width = recent_get_column_width(column);
+    }
+    if (width == -1) {
+        layout = gtk_widget_create_pango_layout(packet_list,
+                     get_column_longest_string(COL_CLS_TIME));
+	pango_layout_get_pixel_size(layout, &width, NULL);
+	g_object_unref(G_OBJECT(layout));
+    }
     gtk_clist_set_column_width(GTK_CLIST(packet_list), column, width);
 }
 
@@ -951,4 +962,24 @@ packet_list_set_sort_column(void)
     gtk_clist_sort(GTK_CLIST(packet_list));
 
     packet_list_thaw();
+}
+
+void
+packet_list_recent_write_all(FILE *rf)
+{
+  gint col;
+
+  fprintf (rf, "%s:", RECENT_KEY_COL_WIDTH);
+  for (col = 0; col < cfile.cinfo.num_cols; col++) {
+     if (cfile.cinfo.col_fmt[col] == COL_CUSTOM) {
+       fprintf (rf, " %%Cus:%s,", get_column_custom_field(col));
+     } else {
+       fprintf (rf, " %s,", col_format_to_string(cfile.cinfo.col_fmt[col]));
+     }
+     fprintf (rf, " %d", GTK_CLIST(packet_list)->column[col].width);
+     if (col != cfile.cinfo.num_cols-1) {
+       fprintf (rf, ",");
+     }
+   }
+   fprintf (rf, "\n");
 }
