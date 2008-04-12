@@ -161,9 +161,9 @@ browser_open_url (const gchar *url)
   if (! g_shell_parse_argv (cmd, NULL, &argv, &error))
     {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          PRIMARY_TEXT_START "Could not parse web browser command: \"%s\"" PRIMARY_TEXT_END
-          "\n\n\"%s\"\n\n%s",
-          browser, error->message,
+          "%sCould not parse web browser command: \"%s\"%s\n\n\"%s\"\n\n%s",
+          simple_dialog_primary_start(), browser, simple_dialog_primary_end(),
+          error->message,
           "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
       return FALSE;
@@ -177,9 +177,9 @@ browser_open_url (const gchar *url)
   if (! retval)
     {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-          PRIMARY_TEXT_START "Could not execute web browser: \"%s\"" PRIMARY_TEXT_END
-          "\n\n\"%s\"\n\n%s",
-          browser, error->message,
+          "%sCould not execute web browser: \"%s\"%s\n\n\"%s\"\n\n%s",
+          simple_dialog_primary_start(), browser, simple_dialog_primary_end(),
+          error->message,
           "Please correct the web browser setting in the Preferences dialog.");
       g_error_free (error);
     }
