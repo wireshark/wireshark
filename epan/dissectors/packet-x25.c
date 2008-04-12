@@ -94,6 +94,7 @@ typedef enum {
 #define X25_FAC_REVERSE			0x01
 #define X25_FAC_THROUGHPUT		0x02
 #define X25_FAC_CUG			0x03
+#define X25_FAC_CHARGING_INFO		0x04
 #define X25_FAC_CALLED_MODIF		0x08
 #define X25_FAC_CUG_OUTGOING_ACC	0x09
 #define X25_FAC_THROUGHPUT_MIN		0x0A
@@ -102,8 +103,15 @@ typedef enum {
 #define X25_FAC_PACKET_SIZE		0x42
 #define X25_FAC_WINDOW_SIZE		0x43
 #define X25_FAC_RPOA_SELECTION		0x44
+#define X25_FAC_CUG_EXT			0x47
+#define X25_FAC_CUG_OUTGOING_ACC_EXT	0x48
 #define X25_FAC_TRANSIT_DELAY		0x49
+#define X25_FAC_CALL_DURATION		0xC1
+#define X25_FAC_SEGMENT_COUNT		0xC2
 #define X25_FAC_CALL_TRANSFER		0xC3
+#define X25_FAC_RPOA_SELECTION_EXT	0xC4
+#define X25_FAC_MONETARY_UNIT		0xC5
+#define X25_FAC_NUI			0xC6
 #define X25_FAC_CALLED_ADDR_EXT		0xC9
 #define X25_FAC_ETE_TRANSIT_DELAY	0xCA
 #define X25_FAC_CALLING_ADDR_EXT	0xCB
@@ -133,6 +141,7 @@ static gint ett_x25_fac = -1;
 static gint ett_x25_fac_unknown = -1;
 static gint ett_x25_fac_mark = -1;
 static gint ett_x25_fac_reverse = -1;
+static gint ett_x25_fac_charging_info = -1;
 static gint ett_x25_fac_throughput = -1;
 static gint ett_x25_fac_cug = -1;
 static gint ett_x25_fac_called_modif = -1;
@@ -143,8 +152,15 @@ static gint ett_x25_fac_bilateral_cug = -1;
 static gint ett_x25_fac_packet_size = -1;
 static gint ett_x25_fac_window_size = -1;
 static gint ett_x25_fac_rpoa_selection = -1;
+static gint ett_x25_fac_cug_ext = -1;
+static gint ett_x25_fac_cug_outgoing_acc_ext = -1;
 static gint ett_x25_fac_transit_delay = -1;
+static gint ett_x25_fac_call_duration = -1;
+static gint ett_x25_fac_segment_count = -1;
 static gint ett_x25_fac_call_transfer = -1;
+static gint ett_x25_fac_rpoa_selection_ext = -1;
+static gint ett_x25_fac_monetary_unit = -1;
+static gint ett_x25_fac_nui = -1;
 static gint ett_x25_fac_called_addr_ext = -1;
 static gint ett_x25_fac_ete_transit_delay = -1;
 static gint ett_x25_fac_calling_addr_ext = -1;
@@ -694,6 +710,20 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 				"Reverse charging not requested"));
 		}
 		break;
+	    case X25_FAC_CHARGING_INFO:
+		if (fac_tree) {
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Charging information)", fac);
+		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_charging_info);
+		    byte1 = tvb_get_guint8(tvb, *offset + 1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+			    "Parameter : %02X", byte1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+			    decode_boolean_bitfield(byte1, 0x01, 1*8,
+				"Charging information requested",
+				"Charging information not requested"));
+		}
+		break;
 	    case X25_FAC_THROUGHPUT:
 		if (fac_tree) {
 		    char *tmpbuf;
@@ -858,16 +888,16 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    case 0x08:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (256)");
 			break;
-		    case 0x0D:
+		    case 0x09:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (512)");
 			break;
-		    case 0x0C:
+		    case 0x0A:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (1024)");
 			break;
-		    case 0x0E:
+		    case 0x0B:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (2048)");
 			break;
-		    case 0x0F:
+		    case 0x0C:
 			g_snprintf(tmpbuf, 80, "From the called DTE : %%u (4096)");
 			break;
 		    default:
@@ -877,7 +907,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
 			    decode_numeric_bitfield(byte1, 0x0F, 1*8, tmpbuf));
 
-		    byte2 = tvb_get_guint8(tvb, *offset + 1);
+		    byte2 = tvb_get_guint8(tvb, *offset + 2);
 		    switch (byte2)
 		    {
 		    case 0x04:
@@ -895,16 +925,16 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    case 0x08:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (256)");
 			break;
-		    case 0x0D:
+		    case 0x09:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (512)");
 			break;
-		    case 0x0C:
+		    case 0x0A:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (1024)");
 			break;
-		    case 0x0E:
+		    case 0x0B:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (2048)");
 			break;
-		    case 0x0F:
+		    case 0x0C:
 			g_snprintf(tmpbuf, 80, "From the calling DTE : %%u (4096)");
 			break;
 		    default:
@@ -937,6 +967,26 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 2,
 					"Data network identification code : %04X",
 					tvb_get_ntohs(tvb, *offset+1));
+		}
+		break;
+	    case X25_FAC_CUG_EXT:
+		if (fac_tree) {
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Extended closed user group selection)", fac);
+		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_cug_ext);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 2,
+			    "Closed user group: %04X", tvb_get_ntohs(tvb, *offset+1));
+		}
+		break;
+	    case X25_FAC_CUG_OUTGOING_ACC_EXT:
+		if (fac_tree) {
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Extended closed user group with outgoing access selection)",
+			    fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_cug_outgoing_acc_ext);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 2,
+			    "Closed user group: %04X", tvb_get_ntohs(tvb, *offset+1));
 		}
 		break;
 	    case X25_FAC_TRANSIT_DELAY:
@@ -977,6 +1027,65 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 	    break;
 	case X25_FAC_CLASS_D:
 	    switch (fac) {
+	    case X25_FAC_CALL_DURATION:
+		if (fac_tree) {
+		    int i;
+
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Call duration)", fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_call_duration);
+		    byte1 = tvb_get_guint8(tvb, *offset+1);
+		    if ((byte1 < 4) || (byte1 % 4)) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
+		    for (i = 0; (i<byte1); i+=4) {
+			    proto_tree_add_text(fac_subtree, tvb, *offset+2+i, 4,
+				"Call duration : %u Day(s) %02X:%02X:%02X Hour(s)",
+				tvb_get_guint8(tvb, *offset+2+i),
+				tvb_get_guint8(tvb, *offset+3+i),
+				tvb_get_guint8(tvb, *offset+4+i),
+				tvb_get_guint8(tvb, *offset+5+i));
+			}
+		}
+		break;
+	    case X25_FAC_SEGMENT_COUNT:
+		if (fac_tree) {
+			int i;
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Segment count)", fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_segment_count);
+		    byte1 = tvb_get_guint8(tvb, *offset+1);
+		    if ((byte1 < 8) || (byte1 % 8)) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
+		    for (i = 0; (i<byte1); i+=8) {
+			    proto_tree_add_text(fac_subtree, tvb, *offset+2+i, 4,
+				"Segments sent to DTE : %02X%02X%02X%02X",
+				tvb_get_guint8(tvb, *offset+2+i),
+				tvb_get_guint8(tvb, *offset+3+i),
+				tvb_get_guint8(tvb, *offset+4+i),
+				tvb_get_guint8(tvb, *offset+5+i));
+			    proto_tree_add_text(fac_subtree, tvb, *offset+6+i, 4,
+				"Segments received from DTE : %02X%02X%02X%02X",
+				tvb_get_guint8(tvb, *offset+6+i),
+				tvb_get_guint8(tvb, *offset+7+i),
+				tvb_get_guint8(tvb, *offset+8+i),
+				tvb_get_guint8(tvb, *offset+9+i));
+			}
+		}
+		break;
 	    case X25_FAC_CALL_TRANSFER:
 		if (fac_tree) {
 		    int i;
@@ -1047,6 +1156,30 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 			    "DTE address : %s", tmpbuf);
 		}
 		break;
+	    case X25_FAC_RPOA_SELECTION_EXT:
+		if (fac_tree) {
+		    int i;
+
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Extended RPOA selection)", fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_rpoa_selection_ext);
+		    byte1 = tvb_get_guint8(tvb, *offset+1);
+		    if ((byte1 < 2) || (byte1 % 2)) {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Bogus length : %d", byte1);
+			return;
+		    } else {
+			proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+				"Length : %u", byte1);
+		    }
+		    for (i = 0; (i<byte1); i+=2) {
+			    proto_tree_add_text(fac_subtree, tvb, *offset+2+i, 2,
+				"Data network identification code : %04X",
+				tvb_get_ntohs(tvb, *offset+2+i));
+			}
+		}
+		break;
 	    case X25_FAC_CALLING_ADDR_EXT:
 		if (fac_tree) {
 		    int i;
@@ -1085,6 +1218,30 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 		    tmpbuf[i] = 0;
 		    proto_tree_add_text(fac_subtree, tvb, *offset+3, byte1 - 1,
 			    "DTE address : %s", tmpbuf);
+		}
+		break;
+	    case X25_FAC_MONETARY_UNIT:
+		if (fac_tree) {
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Monetary Unit)", fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_monetary_unit);
+		    byte1 = tvb_get_guint8(tvb, *offset+1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+			    "Length : %u", byte1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+2, byte1, "Value");
+		}
+		break;
+	    case X25_FAC_NUI:
+		if (fac_tree) {
+		    ti = proto_tree_add_text(fac_tree, tvb, *offset, 1, "Code : %02X "
+			    "(Network User Identification selection)", fac);
+		    fac_subtree = proto_item_add_subtree(ti,
+			    ett_x25_fac_nui);
+		    byte1 = tvb_get_guint8(tvb, *offset+1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+1, 1,
+			    "Length : %u", byte1);
+		    proto_tree_add_text(fac_subtree, tvb, *offset+2, byte1, "NUI");
 		}
 		break;
 	    case X25_FAC_CALLED_ADDR_EXT:
@@ -2521,6 +2678,7 @@ proto_register_x25(void)
 	&ett_x25_fac_unknown,
 	&ett_x25_fac_mark,
 	&ett_x25_fac_reverse,
+	&ett_x25_fac_charging_info,
 	&ett_x25_fac_throughput,
 	&ett_x25_fac_cug,
 	&ett_x25_fac_called_modif,
@@ -2531,8 +2689,15 @@ proto_register_x25(void)
 	&ett_x25_fac_packet_size,
 	&ett_x25_fac_window_size,
 	&ett_x25_fac_rpoa_selection,
+	&ett_x25_fac_cug_ext,
+	&ett_x25_fac_cug_outgoing_acc_ext,
 	&ett_x25_fac_transit_delay,
+	&ett_x25_fac_call_duration,
+	&ett_x25_fac_segment_count,
 	&ett_x25_fac_call_transfer,
+	&ett_x25_fac_rpoa_selection_ext,
+	&ett_x25_fac_monetary_unit,
+	&ett_x25_fac_nui,
 	&ett_x25_fac_called_addr_ext,
 	&ett_x25_fac_ete_transit_delay,
 	&ett_x25_fac_calling_addr_ext,
