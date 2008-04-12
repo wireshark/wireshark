@@ -26,7 +26,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* WSLUA_MODULE Dumper saving capture files */
+/* WSLUA_MODULE Dumper Saving capture files */
 
 #include "wslua.h"
 #include <math.h>

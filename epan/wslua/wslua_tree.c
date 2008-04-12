@@ -26,7 +26,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* WSLUA_MODULE Tree adding information to the dissection tree */
+/* WSLUA_MODULE Tree Adding information to the dissection tree */
 
 #include "wslua.h"
 #include <epan/expert.h>

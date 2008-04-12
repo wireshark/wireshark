@@ -28,7 +28,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* WSLUA_MODULE Listener post-dissection packet analysis */
+/* WSLUA_MODULE Listener Post-dissection packet analysis */
 
 #include "wslua.h"
 
