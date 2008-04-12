@@ -1345,6 +1345,7 @@ main_cf_cb_file_closing(capture_file *cf)
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(cf);
     set_menus_for_capture_in_progress(FALSE);
+    set_capture_if_dialog_for_capture_in_progress(FALSE);
     set_menus_for_selected_tree_row(cf);
 
     /* Set up main window for no capture file. */
@@ -1448,6 +1449,7 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
     /* Disable menu items that make no sense if you're currently running
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
+    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
@@ -1470,6 +1472,7 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
     g_free(title);
 
     set_menus_for_capture_in_progress(TRUE);
+    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
     /* Enable menu items that make sense if you have some captured
        packets (yes, I know, we don't have any *yet*). */
@@ -1489,6 +1492,7 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     set_menus_for_capture_in_progress(FALSE);
+    set_capture_if_dialog_for_capture_in_progress(FALSE);
 
     /* Enable menu items that make sense if you have a capture file
        you've finished reading. */
@@ -1526,6 +1530,7 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     /* Enable menu items that make sense if you're not currently running
      a capture. */
     set_menus_for_capture_in_progress(FALSE);
+    set_capture_if_dialog_for_capture_in_progress(FALSE);
 
     /* Restore the standard title bar message */
     /* (just in case we have trouble opening the capture file). */
@@ -2650,7 +2655,8 @@ main(int argc, char *argv[])
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
         show_main_window(FALSE);
-	set_menus_for_capture_in_progress(FALSE);
+	    set_menus_for_capture_in_progress(FALSE);
+        set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
     }
   } else {
@@ -2678,6 +2684,7 @@ main(int argc, char *argv[])
     else {
       show_main_window(FALSE);
       set_menus_for_capture_in_progress(FALSE);
+      set_capture_if_dialog_for_capture_in_progress(FALSE);
     }
 
     /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
@@ -2688,6 +2695,7 @@ main(int argc, char *argv[])
 #else /* HAVE_LIBPCAP */
     show_main_window(FALSE);
     set_menus_for_capture_in_progress(FALSE);
+    set_capture_if_dialog_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
   }
 

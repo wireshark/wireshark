@@ -26,7 +26,6 @@
 #ifndef __TOOLBAR_H__
 #define __TOOLBAR_H__
 
-gboolean is_capture_in_progress(void);
 
 /** @file
  *  The main toolbar.
@@ -34,7 +33,7 @@ gboolean is_capture_in_progress(void);
  */
 
 /** Create the main toolbar.
- * @return the new (still hidden) toolbar
+ * @return the new toolbar
  */
 GtkWidget *toolbar_new(void);
 
