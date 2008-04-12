@@ -83,12 +83,12 @@ WIRESHARK_GTK_SRC = \
 	macros_dlg.c	\
 	main.c		\
 	main_menu.c		\
+	main_packet_list.c	\
 	main_statusbar.c		\
 	main_toolbar.c	\
 	main_welcome.c		\
 	nameres_prefs.c	\
 	packet_history.c	\
-	packet_list.c	\
 	packet_win.c	\
 	pixmap_save.c	\
 	plugins_dlg.c	\
@@ -247,13 +247,13 @@ noinst_HEADERS = \
 	macros_dlg.h	\
 	main.h		\
 	main_menu.h		\
+	main_packet_list.h	\
 	main_statusbar.h		\
 	main_toolbar.h	\
 	main_welcome.h		\
 	mtp3_stat.h	\
 	nameres_prefs.h	\
 	packet_history.h	\
-	packet_list.h	\
 	packet_win.h	\
 	pixmap_save.h	\
 	plugins_dlg.h	\

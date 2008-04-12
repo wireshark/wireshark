@@ -127,6 +127,7 @@
 
 #include "main.h"
 #include "main_menu.h"
+#include "main_packet_list.h"
 #include "main_statusbar.h"
 #include "main_toolbar.h"
 #include "main_welcome.h"
@@ -139,7 +140,6 @@
 #include "packet_win.h"
 #include "stock_icons.h"
 #include "find_dlg.h"
-#include "packet_list.h"
 #include "recent.h"
 #include "follow_tcp.h"
 #include "font_utils.h"

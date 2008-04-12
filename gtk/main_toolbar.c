@@ -46,6 +46,7 @@
 #include "prefs_dlg.h"
 #include "main.h"
 #include "main_menu.h"
+#include "main_packet_list.h"
 #include "main_toolbar.h"
 #include "help_dlg.h"
 #include "gtkglobals.h"
@@ -53,7 +54,6 @@
 #include "keys.h"
 #include "recent.h"
 #include "packet_history.h"
-#include "packet_list.h"
 #include "color_filters.h"
 
 

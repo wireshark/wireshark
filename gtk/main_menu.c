@@ -30,12 +30,6 @@
 
 #include <string.h>
 
-#include "main.h"
-#include "main_menu.h"
-#include "main_toolbar.h"
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -73,7 +67,6 @@
 #include "stock_icons.h"
 #include "gtkglobals.h"
 #include "register.h"
-#include "packet_list.h"
 #include "recent.h"
 #include "../ui_util.h"
 #include "proto_draw.h"
@@ -87,6 +80,13 @@
 #include "u3.h"
 #include "macros_dlg.h"
 #include "export_object.h"
+
+#include "main.h"
+#include "main_menu.h"
+#include "main_packet_list.h"
+#include "main_toolbar.h"
+#include "../stat_menu.h"
+#include "gui_stat_menu.h"
 
 
 typedef struct _menu_item {

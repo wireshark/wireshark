@@ -436,6 +436,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_menu.c"
+				>
+			</File>
+			<File
+				RelativePath=".\main_packet_list.c"
+				>
+			</File>
+			<File
 				RelativePath=".\main_statusbar.c"
 				>
 			</File>
@@ -453,10 +461,6 @@
 			</File>
 			<File
 				RelativePath=".\mcast_stream_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\menu.c"
 				>
 			</File>
 			<File
@@ -481,10 +485,6 @@
 			</File>
 			<File
 				RelativePath=".\packet_history.c"
-				>
-			</File>
-			<File
-				RelativePath=".\packet_list.c"
 				>
 			</File>
 			<File
@@ -906,6 +906,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\main_packet_list.h"
+				>
+			</File>
+			<File
 				RelativePath=".\main_statusbar.h"
 				>
 			</File>
@@ -926,10 +934,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\menu.h"
-				>
-			</File>
-			<File
 				RelativePath=".\mtp3_stat.h"
 				>
 			</File>
@@ -939,10 +943,6 @@
 			</File>
 			<File
 				RelativePath=".\packet_history.h"
-				>
-			</File>
-			<File
-				RelativePath=".\packet_list.h"
 				>
 			</File>
 			<File

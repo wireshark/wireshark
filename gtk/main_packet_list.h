@@ -25,8 +25,6 @@
 #ifndef __PACKET_LIST_H__
 #define __PACKET_LIST_H__
 
-#define RECENT_KEY_COL_WIDTH                "column.width"
-
 /** @file
  *  Packet list pane.
  *  @ingroup main_window_group
@@ -94,9 +92,8 @@ extern gboolean packet_list_get_event_row_column(GtkWidget *widget,
 /** Set the font of the packet list.
  *
  * @param font the new font
- * @param saved_column_width set if using saved column widths
  */
-extern void packet_list_set_font(PangoFontDescription *font, gboolean saved_column_width);
+extern void packet_list_set_font(PangoFontDescription *font);
 
 /** Set the selection mode of the packet list window.
  *
@@ -134,11 +131,4 @@ typedef enum {
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */
 extern void packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type);
-
-/** Write all packet list geometry values to the recent file.
- *
- *  @param rf recent file handle from caller
- */
-extern void packet_list_recent_write_all(FILE *rf);
-
 #endif /* __PACKET_LIST_H__ */
