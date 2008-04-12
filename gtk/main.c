@@ -1366,7 +1366,7 @@ main_cf_cb_file_closed(capture_file *cf _U_)
 
 
 static void
-main_cf_cb_file_read_start(capture_file *cf)
+main_cf_cb_file_read_start(capture_file *cf _U_)
 {
   /* Set up main window for a capture file. */
   main_set_for_capture_file(TRUE);
@@ -1512,7 +1512,7 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 }
 
 static void
-main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
+main_cf_cb_live_capture_fixed_started(capture_options *capture_opts _U_)
 {
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
