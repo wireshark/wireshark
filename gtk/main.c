@@ -124,7 +124,6 @@
 #include "gtkglobals.h"
 #include "colors.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "color_dlg.h"
 
 #include "main.h"
@@ -435,7 +434,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 
         /* ask the user if the wiki page really should be opened */
         dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-                    PRIMARY_TEXT_START "Open Wireshark Wiki page of protocol \"%s\"?" PRIMARY_TEXT_END "\n"
+                    "%sOpen Wireshark Wiki page of protocol \"%s\"?%s\n"
                     "\n"
                     "This will open the \"%s\" related Wireshark Wiki page in your Web browser.\n"
                     "\n"
@@ -452,7 +451,7 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
                     "\n"
                     "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate,\n"
                     "which will save you a lot of editing and will give a consistent look over the pages.",
-                    proto_abbrev, proto_abbrev);
+                    simple_dialog_primary_start(), proto_abbrev, simple_dialog_primary_end(), proto_abbrev);
         simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, (gpointer) proto_abbrev);
     }
 }
@@ -740,9 +739,10 @@ reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
     if (cfile.current_frame) {
         if(recent.gui_time_format != TS_RELATIVE && cfile.current_frame->flags.ref_time==0) {
             reftime_dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
-                PRIMARY_TEXT_START "Switch to the appropriate Time Display Format?" PRIMARY_TEXT_END "\n\n"
+                "%sSwitch to the appropriate Time Display Format?%s\n\n"
                 "Time References don't work well with the currently selected Time Display Format.\n\n"
-                "Do you want to switch to \"Seconds Since Beginning of Capture\" now?");
+                "Do you want to switch to \"Seconds Since Beginning of Capture\" now?",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
             simple_dialog_set_cb(reftime_dialog, reftime_answered_cb, NULL);
         } else {
             /* XXX hum, should better have a "cfile->current_row" here ... */
@@ -1133,8 +1133,9 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
     gtk_window_present(GTK_WINDOW(top_level));
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
-                "If you quit the program without saving, your capture data will be discarded.");
+                "%sSave capture file before program quit?%s\n\n"
+                "If you quit the program without saving, your capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
     return TRUE;
   } else {
@@ -1235,8 +1236,9 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before program quit?" PRIMARY_TEXT_END "\n\n"
-                "If you quit the program without saving, your capture data will be discarded.");
+                "%sSave capture file before program quit?%s\n\n"
+                "If you quit the program without saving, your capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, file_quit_answered_cb, NULL);
   } else {
     /* unchanged file, just exit */

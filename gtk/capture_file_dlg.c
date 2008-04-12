@@ -46,7 +46,6 @@
 #include "file_dlg.h"
 #include "capture_file_dlg.h"
 #include "main.h"
-#include "compat_macros.h"
 #include <epan/prefs.h>
 #include "recent.h"
 #include "color.h"
@@ -630,8 +629,9 @@ file_open_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
-                "If you open a new capture file without saving, your capture data will be discarded.");
+                "%sSave capture file before opening a new one?%s\n\n"
+                "If you open a new capture file without saving, your capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, file_open_answered_cb, widget);
   } else {
     /* unchanged file, just open a new one */
@@ -990,8 +990,9 @@ file_merge_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-                PRIMARY_TEXT_START "Save the capture file before merging to another one?" PRIMARY_TEXT_END "\n\n"
-                "A temporary capture file can't be merged.");
+                "%sSave the capture file before merging to another one?%s\n\n"
+                "A temporary capture file can't be merged.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, file_merge_answered_cb, widget);
   } else {
     /* unchanged file, just start to merge */
@@ -1157,8 +1158,9 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before closing it?" PRIMARY_TEXT_END "\n\n"
-                "If you close without saving, your capture data will be discarded.");
+                "%sSave capture file before closing it?%s\n\n"
+                "If you close without saving, your capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
 
     simple_dialog_set_cb(dialog, file_close_answered_cb, NULL);
   } else {
@@ -1585,9 +1587,9 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
 
   /* the file exists, ask the user to remove it first */
   dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
-      PRIMARY_TEXT_START "A file named \"%s\" already exists."
-      PRIMARY_TEXT_END "\n\n"
-      "Do you want to replace it with the capture you are saving?", cf_name);
+      "%sA file named \"%s\" already exists.%s\n\n"
+      "Do you want to replace it with the capture you are saving?", 
+      simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
   simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
 
   g_free(cf_name);

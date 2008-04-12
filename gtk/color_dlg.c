@@ -42,7 +42,6 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "dfilter_expr_dlg.h"
-#include "compat_macros.h"
 #include "stock_icons.h"
 #include "filter_dlg.h"
 #include "capture_file_dlg.h"
@@ -973,9 +972,10 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 
     /* ask user, if he/she is really sure */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_CLEAR | ESD_BTN_CANCEL,
-                PRIMARY_TEXT_START "Remove all your personal color settings?" PRIMARY_TEXT_END "\n\n"
+                "%sRemove all your personal color settings?%s\n\n"
                 "This will revert the color settings to global defaults.\n\n"
-                "Are you really sure?");
+                "Are you really sure?",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
 
     simple_dialog_set_cb(dialog, color_clear_answered_cb, widget);
 }

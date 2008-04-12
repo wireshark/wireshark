@@ -38,7 +38,6 @@
 #include "util.h"
 #include "capture_file_dlg.h"
 #include "../menu.h"
-#include "compat_macros.h"
 #include "file.h"
 #include "simple_dialog.h"
 #include "main.h"
@@ -257,8 +256,9 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
     default:
         /* build and show the info dialog */
         dialog_text = g_string_sized_new(200);
-        g_string_append(dialog_text, PRIMARY_TEXT_START
-            "Merging the following files:" PRIMARY_TEXT_END "\n\n");
+        g_string_printf(dialog_text, 
+            "%sMerging the following files:%s\n\n",
+            simple_dialog_primary_start(), simple_dialog_primary_end());
         for(files_work = 0; files_work < in_files; files_work++) {
             g_string_append(dialog_text, in_filenames[files_work]);
             g_string_append(dialog_text, "\n");
@@ -318,8 +318,9 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         if((capture_opts->state != CAPTURE_STOPPED)) {
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
-                        PRIMARY_TEXT_START "Drag and Drop currently not possible!" PRIMARY_TEXT_END "\n\n"
-                        "Dropping a file isn't possible while a capture is in progress.");
+                        "%sDrag and Drop currently not possible!%s\n\n"
+                        "Dropping a file isn't possible while a capture is in progress.",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
             return;
         }
 #endif
@@ -328,8 +329,9 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
         if((cfile.state == FILE_READ_IN_PROGRESS)) {
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
-                        PRIMARY_TEXT_START "Drag and Drop currently not possible!" PRIMARY_TEXT_END "\n\n"
-                        "Dropping a file isn't possible while loading another capture file.");
+                        "%sDrag and Drop currently not possible!%s\n\n"
+                        "Dropping a file isn't possible while loading another capture file.",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
             return;
         }
 
@@ -344,8 +346,9 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
             /* user didn't saved his current file, ask him */
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                        PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
-                        "If you open a new capture file without saving, your current capture data will be discarded.");
+                        "%sSave capture file before opening a new one?%s\n\n"
+                        "If you open a new capture file without saving, your current capture data will be discarded.",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
             simple_dialog_set_cb(dialog, dnd_save_file_answered_cb, cf_names_freeme );
         } else {
             /* unchanged file */

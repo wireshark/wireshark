@@ -54,7 +54,6 @@
 #include <epan/prefs.h>
 #include "ringbuffer.h"
 #include <epan/filesystem.h>
-#include "compat_macros.h"
 #include "stock_icons.h"
 #include "capture_file_dlg.h"
 #include "help_dlg.h"
@@ -1763,10 +1762,11 @@ capture_start_confirmed(void)
         if(prefs.capture_device == NULL) {
             simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
-                        PRIMARY_TEXT_START "No capture interface selected!" PRIMARY_TEXT_END "\n\n"
+                        "%sNo capture interface selected!%s\n\n"
                         "To select an interface use:\n\n"
                         "Capture->Options (until Wireshark is stopped)\n"
-                        "Edit->Preferences/Capture (permanent, if saved)");
+                        "Edit->Preferences/Capture (permanent, if saved)",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
             return;
         }
         if_device = g_strdup(prefs.capture_device);
@@ -1840,8 +1840,9 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_SAVE_DONTSAVE_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before starting a new capture?" PRIMARY_TEXT_END "\n\n"
-                "If you start a new capture without saving, your current capture data will\nbe discarded.");
+                "%sSave capture file before starting a new capture?%s\n\n"
+                "If you start a new capture without saving, your current capture data will\nbe discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, capture_start_answered_cb, NULL);
   } else {
     /* unchanged file, just capture a new one */
@@ -2156,8 +2157,9 @@ capture_dlg_prep(gpointer parent_w) {
         capture_opts->autostop_filesize = tmp;
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          PRIMARY_TEXT_START "Multiple files: Requested filesize too large!\n\n" PRIMARY_TEXT_END
-          "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
+          "%sMultiple files: Requested filesize too large!%s\n\n"
+          "The setting \"Next file every x byte(s)\" can't be greater than %u bytes (2GB).", 
+          simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
         return;
       }
     }
@@ -2165,14 +2167,16 @@ capture_dlg_prep(gpointer parent_w) {
     /* test if the settings are ok for a ringbuffer */
     if (capture_opts->save_file == NULL) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        PRIMARY_TEXT_START "Multiple files: No capture file name given!\n\n" PRIMARY_TEXT_END
-        "You must specify a filename if you want to use multiple files.");
+        "%sMultiple files: No capture file name given!%s\n\n"
+        "You must specify a filename if you want to use multiple files.",
+        simple_dialog_primary_start(), simple_dialog_primary_end());
       return;
     } else if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        PRIMARY_TEXT_START "Multiple files: No file limit given!\n\n" PRIMARY_TEXT_END
+        "%sMultiple files: No file limit given!%s\n\n"
         "You must specify a file size or duration at which is switched to the next capture file\n"
-        "if you want to use multiple files.");
+        "if you want to use multiple files.",
+        simple_dialog_primary_start(), simple_dialog_primary_end());
       g_free(capture_opts->save_file);
       capture_opts->save_file = NULL;
       return;
@@ -2187,8 +2191,9 @@ capture_dlg_prep(gpointer parent_w) {
         capture_opts->autostop_filesize = tmp;
       } else {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          PRIMARY_TEXT_START "Stop Capture: Requested filesize too large!\n\n" PRIMARY_TEXT_END
-          "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).", G_MAXINT);
+          "%sStop Capture: Requested filesize too large!%s\n\n"
+          "The setting \"... after x byte(s)\" can't be greater than %u bytes (2GB).", 
+          simple_dialog_primary_start(), simple_dialog_primary_end(), G_MAXINT);
         return;
       }
     }

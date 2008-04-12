@@ -54,7 +54,6 @@ noinst_HEADERS = \
 	color_edit_dlg.h	\
 	colors.h	\
 	column_prefs.h	\
-	compat_macros.h	\
 	conversations_table.h \
 	decode_as_ber.h	\
 	decode_as_dlg.h	\

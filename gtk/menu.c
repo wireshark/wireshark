@@ -68,7 +68,6 @@
 #include "keys.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
-#include "compat_macros.h"
 #include "stock_icons.h"
 #include "toolbar.h"
 #include "gtkglobals.h"
@@ -1709,8 +1708,9 @@ menu_open_recent_file_cmd_cb(GtkWidget *widget, gpointer data _U_) {
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     /* user didn't saved his current file, ask him */
     dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO_CANCEL,
-                PRIMARY_TEXT_START "Save capture file before opening a new one?" PRIMARY_TEXT_END "\n\n"
-                "If you open a new capture file without saving, your current capture data will be discarded.");
+                "%sSave capture file before opening a new one?%s\n\n"
+                "If you open a new capture file without saving, your current capture data will be discarded.",
+                simple_dialog_primary_start(), simple_dialog_primary_end());
     simple_dialog_set_cb(dialog, menu_open_recent_file_answered_cb, widget);
   } else {
     /* unchanged file */

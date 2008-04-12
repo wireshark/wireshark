@@ -34,7 +34,6 @@
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "stock_icons.h"
 
 #include <epan/strutil.h>
@@ -402,12 +401,12 @@ gboolean simple_dialog_check_get(gpointer dialog) {
 
 char *
 simple_dialog_primary_start(void) {
-    return PRIMARY_TEXT_START;
+    return "<span weight=\"bold\" size=\"larger\">";
 }
 
 char *
 simple_dialog_primary_end(void) {
-    return PRIMARY_TEXT_END;
+    return "</span>";
 }
 
 char *
