@@ -2654,7 +2654,7 @@ main(int argc, char *argv[])
           dfilter_free(rfcode);
         cfile.rfcode = NULL;
         show_main_window(FALSE);
-	    set_menus_for_capture_in_progress(FALSE);
+        set_menus_for_capture_in_progress(FALSE);
         set_capture_if_dialog_for_capture_in_progress(FALSE);
       }
     }
