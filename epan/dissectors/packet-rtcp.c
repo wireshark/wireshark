@@ -144,7 +144,8 @@ static const value_string rtcp_sdes_type_vals[] =
 	{ 0,               NULL }
 };
 
-/* RTCP XR Blocks (Section 4, RTC 3611) */
+/* RTCP XR Blocks (Section 4, RTC 3611)
+ * or http://www.iana.org/assignments/rtcp-xr-block-types */
 #define RTCP_XR_LOSS_RLE    1
 #define RTCP_XR_DUP_RLE     2
 #define RTCP_XR_PKT_RXTIMES 3
@@ -152,6 +153,7 @@ static const value_string rtcp_sdes_type_vals[] =
 #define RTCP_XR_DLRR        5
 #define RTCP_XR_STATS_SUMRY 6
 #define RTCP_XR_VOIP_METRCS 7
+#define RTCP_XR_BT_XNQ      8
 
 static const value_string rtcp_xr_type_vals[] = 
 {
@@ -162,6 +164,7 @@ static const value_string rtcp_xr_type_vals[] =
 	{ RTCP_XR_DLRR,         "DLRR Report Block" },
 	{ RTCP_XR_STATS_SUMRY,  "Statistics Summary Report Block" },
 	{ RTCP_XR_VOIP_METRCS,  "VoIP Metrics Report Block" },
+	{ RTCP_XR_BT_XNQ,       "BT XNQ RTCP XR (RFC5093) Report Block" },
 	{ 0, NULL}
 };
 
@@ -412,6 +415,18 @@ static int hf_srtcp_e = -1;
 static int hf_srtcp_index = -1;
 static int hf_srtcp_mki = -1;
 static int hf_srtcp_auth_tag = -1;
+static int hf_rtcp_xr_btxnq_begseq = -1;               /* added for BT XNQ block (RFC5093) */
+static int hf_rtcp_xr_btxnq_endseq = -1;
+static int hf_rtcp_xr_btxnq_vmaxdiff = -1;
+static int hf_rtcp_xr_btxnq_vrange = -1;
+static int hf_rtcp_xr_btxnq_vsum = -1;
+static int hf_rtcp_xr_btxnq_cycles = -1;
+static int hf_rtcp_xr_btxnq_jbevents = -1;
+static int hf_rtcp_xr_btxnq_tdegnet = -1;
+static int hf_rtcp_xr_btxnq_tdegjit = -1;
+static int hf_rtcp_xr_btxnq_es = -1;
+static int hf_rtcp_xr_btxnq_ses = -1;
+static int hf_rtcp_xr_btxnq_spare = -1;
 
 /* RTCP setup fields */
 static int hf_rtcp_setup        = -1;
@@ -1594,6 +1609,7 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, int offset, guint block_
         return FALSE;
 
     case RTCP_XR_VOIP_METRCS:
+    case RTCP_XR_BT_XNQ:
         if (block_len != 8)
             proto_tree_add_text(tree, tvb, offset, 2, "Invalid block length, should be 8");
         return FALSE;
@@ -1608,6 +1624,7 @@ static int
 dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, gint packet_len)
 {
     guint block_num = 1;
+    guint temp_value = 0;                          /* used when checking spare bits in block type 8 */
     
     /* Packet length should at least be 4 */
     if (packet_len < 4) {
@@ -1929,7 +1946,49 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *t
             
             break;
         }
+        case RTCP_XR_BT_XNQ: {										/* BT XNQ block as defined in RFC5093 */
 
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_begseq, tvb, offset, 2, FALSE);          /* Begin Sequence number */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_endseq, tvb, offset+2, 2, FALSE);        /* End Sequence number */
+            offset += 4;
+
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vmaxdiff, tvb, offset, 2, FALSE);        /* vmaxdiff */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vrange, tvb, offset+2, 2, FALSE);        /* vrange */
+            offset += 4;
+
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vsum, tvb, offset, 4, FALSE);            /* vsum */
+            offset += 4;
+
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_cycles, tvb, offset, 2, FALSE);          /* cycle count */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_jbevents, tvb, offset+2, 2, FALSE);      /* jitter buffer events */
+            offset += 4;
+
+            temp_value = tvb_get_ntohl(tvb, offset);                                                    /* tDegNet */
+            if( (temp_value & 0x0ff000000) != 0)
+                proto_tree_add_string(content_tree, hf_rtcp_xr_btxnq_spare, tvb, offset, 1, "Warning - spare bits not 0");
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_btxnq_tdegnet, tvb, offset+1, 3, temp_value & 0x0ffffff);
+            offset += 4;
+
+            temp_value = tvb_get_ntohl(tvb, offset);                                                    /* tDegJit */
+            if( (temp_value & 0x0ff000000) != 0)
+                proto_tree_add_string(content_tree, hf_rtcp_xr_btxnq_spare, tvb, offset, 1, "Warning - spare bits not 0");
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_btxnq_tdegjit, tvb, offset+1, 3, temp_value & 0x0ffffff);
+            offset += 4;
+
+            temp_value = tvb_get_ntohl(tvb, offset);                                                    /* ES */
+            if( (temp_value & 0x0ff000000) != 0)
+                proto_tree_add_string(content_tree, hf_rtcp_xr_btxnq_spare, tvb, offset, 1, "Warning - spare bits not 0");
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_btxnq_es, tvb, offset+1, 3, temp_value & 0x0ffffff);
+            offset += 4;
+
+            temp_value = tvb_get_ntohl(tvb, offset);                                                    /* SES */
+            if( (temp_value & 0x0ff000000) != 0)
+                proto_tree_add_string(content_tree, hf_rtcp_xr_btxnq_spare, tvb, offset, 1, "Warning - spare bits not 0");
+            proto_tree_add_uint(content_tree, hf_rtcp_xr_btxnq_ses, tvb, offset+1, 3, temp_value & 0x0ffffff);
+            offset += 4;
+
+            break;
+        }
         default:
             /* skip over the unknown block */
             offset += content_length;
@@ -4232,7 +4291,153 @@ proto_register_rtcp(void)
 				"SRTCP Authentication Tag", HFILL
 			}
 		},
-};
+		/* additions for BT XNQ block as defined in RFC5093 */
+		{
+			&hf_rtcp_xr_btxnq_begseq,
+			{
+				"Starting sequence number",
+				"rtcp.xr.btxnq.begseq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_endseq,
+			{
+				"Last sequence number",
+				"rtcp.xr.btxnq.endseq",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_vmaxdiff,
+			{
+				"Maximum IPDV difference in 1 cycle",
+				"rtcp.xr.btxnq.vmaxdiff",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_vrange,
+			{
+				"Maximum IPDV difference seen to date",
+				"rtcp.xr.btxnq.vrange",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_vsum,
+			{
+				"Sum of peak IPDV differences to date",
+				"rtcp.xr.btxnq.vsum",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_cycles,
+			{
+				"Number of cycles in calculation",
+				"rtcp.xr.btxnq.cycles",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_jbevents,
+			{
+				"Number of jitter buffer adaptions to date",
+				"rtcp.xr.btxnq.jbevents",
+				FT_UINT16,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_spare,
+			{
+				"Spare/reserved bits",
+				"rtcp.xr.btxnq.spare",
+				FT_STRING,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_tdegnet,
+			{
+				"Time degraded by packet loss or late delivery",
+				"rtcp.xr.btxnq.tdegnet",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_tdegjit,
+			{
+				"Time degraded by jitter buffer adaption events",
+				"rtcp.xr.btxnq.tdegjit",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_es,
+			{
+				"ES due to unavailable packet events",
+				"rtcp.xr.btxnq.es",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_btxnq_ses,
+			{
+				"SES due to unavailable packet events",
+				"rtcp.xr.btxnq.ses",
+				FT_UINT32,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"", HFILL
+			}
+		},
+	};
+
 	static gint *ett[] =
 	{
 		&ett_rtcp,
