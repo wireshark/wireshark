@@ -42,7 +42,7 @@
 #endif
 #include "file_dlg.h"
 #include "capture_file_dlg.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "gtkglobals.h"
 
 static void printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te);

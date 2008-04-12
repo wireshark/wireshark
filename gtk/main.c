@@ -137,6 +137,7 @@
 #include "proto_draw.h"
 #include "keys.h"
 #include "packet_win.h"
+#include "stock_icons.h"
 #include "toolbar.h"
 #include "find_dlg.h"
 #include "packet_list.h"
@@ -2930,6 +2931,8 @@ main(int argc, char *argv[])
   g_free(rc_file);
 
   font_init();
+
+  stock_icons_init();
 
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);

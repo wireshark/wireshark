@@ -49,7 +49,7 @@
 #include "main.h"
 #include "globals.h"
 #include "filter_dlg.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "service_response_time_table.h"
 #include "gtkglobals.h"
 

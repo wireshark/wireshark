@@ -49,7 +49,7 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "help_dlg.h"
 #include "keys.h"
 #include "uat_gui.h"

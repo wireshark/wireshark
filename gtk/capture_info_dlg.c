@@ -35,7 +35,7 @@
 #ifdef HAVE_LIBPCAP
 
 #include <gtk/gtk.h>
-#include "gtk/compat_macros.h"
+#include "gtk/stock_icons.h"
 
 #include <time.h>
 

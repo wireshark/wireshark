@@ -42,7 +42,7 @@
 #include "capture-pcap-util.h"
 #include "capture_ui_utils.h"
 #include "main.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "capture.h"
 #include <epan/strutil.h>
 

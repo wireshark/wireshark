@@ -39,7 +39,7 @@
 #include "gui_utils.h"
 #include "simple_dialog.h"
 #include "dfilter_expr_dlg.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "gtkglobals.h"
 #include "help_dlg.h"
 #include <epan/prefs.h>

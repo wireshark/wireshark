@@ -52,7 +52,7 @@
 #include "dlg_utils.h"
 #include "help_dlg.h"
 #include "menu.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include <epan/proto.h>
 #include <epan/packet.h>
 #include "../stat_menu.h"

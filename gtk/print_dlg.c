@@ -47,7 +47,7 @@
 #ifdef _WIN32
 #include "print_mswin.h"
 #endif
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "range_utils.h"
 #include "help_dlg.h"
 #include "file_util.h"

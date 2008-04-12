@@ -40,7 +40,7 @@
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
 #include <gtk/colors.h>
-#include <gtk/compat_macros.h>
+#include <gtk/stock_icons.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/follow_stream.h>
 #include <gtk/font_utils.h>

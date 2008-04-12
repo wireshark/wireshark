@@ -35,6 +35,7 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "compat_macros.h"
+#include "stock_icons.h"
 
 #include <epan/strutil.h>
 

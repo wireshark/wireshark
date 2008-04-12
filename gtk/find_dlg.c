@@ -42,7 +42,7 @@
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "keys.h"

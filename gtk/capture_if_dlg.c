@@ -42,7 +42,7 @@
 #include "capture-wpcap.h"
 #endif
 
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "simple_dialog.h"
 #include "capture.h"
 #include "capture_dlg.h"

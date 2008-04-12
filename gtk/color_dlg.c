@@ -43,6 +43,7 @@
 #include "gui_utils.h"
 #include "dfilter_expr_dlg.h"
 #include "compat_macros.h"
+#include "stock_icons.h"
 #include "filter_dlg.h"
 #include "capture_file_dlg.h"
 #include "gtkglobals.h"

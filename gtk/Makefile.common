@@ -110,6 +110,7 @@ WIRESHARK_GTK_SRC = \
 	sctp_error_dlg.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
+	stock_icons.c	\
 	stream_prefs.c	\
 	summary_dlg.c	\
 	supported_protos_dlg.c	\

@@ -51,7 +51,7 @@
 #include "simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "dlg_utils.h"
 #include "filter_dlg.h"
 #include "help_dlg.h"

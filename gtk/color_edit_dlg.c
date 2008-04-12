@@ -37,7 +37,7 @@
 
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 #include "filter_dlg.h"
 #include "dfilter_expr_dlg.h"
 #include "simple_dialog.h"

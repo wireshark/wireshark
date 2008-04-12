@@ -628,6 +628,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stock_icons.c"
+				>
+			</File>
+			<File
 				RelativePath=".\stream_prefs.c"
 				>
 			</File>
@@ -1007,6 +1011,10 @@
 			</File>
 			<File
 				RelativePath=".\ssl-dlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\stock_icons.h"
 				>
 			</File>
 			<File

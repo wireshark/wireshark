@@ -32,7 +32,7 @@
 #include "gtkglobals.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
+#include "stock_icons.h"
 
 #include <string.h>
 #include <stdarg.h>

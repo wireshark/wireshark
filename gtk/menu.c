@@ -69,6 +69,7 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include "compat_macros.h"
+#include "stock_icons.h"
 #include "toolbar.h"
 #include "gtkglobals.h"
 #include "register.h"
