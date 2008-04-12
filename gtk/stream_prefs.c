@@ -36,7 +36,7 @@
 #include "print.h"
 #include <epan/prefs.h>
 #include "follow_tcp.h"
-#include "packet_list.h"
+#include "main_packet_list.h"
 
 #define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
 #define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"

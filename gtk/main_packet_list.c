@@ -1,4 +1,4 @@
-/* packet_list.c
+/* main_packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
  * $Id$

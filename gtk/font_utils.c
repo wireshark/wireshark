@@ -48,7 +48,7 @@
 #include "font_utils.h"
 #include "simple_dialog.h"
 
-#include "packet_list.h"
+#include "main_packet_list.h"
 #include "proto_draw.h"
 #include "follow_tcp.h"
 

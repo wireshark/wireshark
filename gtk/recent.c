@@ -41,7 +41,7 @@
 #include <epan/prefs-int.h>
 #include <epan/column.h>
 #include "gui_utils.h"
-#include "packet_list.h"
+#include "main_packet_list.h"
 #if 0
 #include "dlg_utils.h"
 #endif

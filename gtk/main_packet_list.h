@@ -1,4 +1,4 @@
-/* packet_list.h
+/* main_packet_list.h
  * Declarations of GTK+-specific routines for managing the packet list.
  *
  * $Id$

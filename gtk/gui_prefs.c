@@ -44,7 +44,7 @@
 #include "main.h"
 #include "main_toolbar.h"
 #include "font_utils.h"
-#include "packet_list.h"
+#include "main_packet_list.h"
 #include "recent.h"
 #include "webbrowser.h"
 

@@ -34,7 +34,7 @@
 #include <epan/prefs.h>
 #include <epan/column.h>
 #include "gui_utils.h"
-#include "packet_list.h"
+#include "main_packet_list.h"
 #include "filter_dlg.h"
 
 static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
