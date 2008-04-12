@@ -56,9 +56,9 @@
 #include "dlg_utils.h"
 
 #include "main.h"
+#include "main_toolbar.h"
 #include "wtap.h"
 #include "help_dlg.h"
-#include "toolbar.h"
 #include "keys.h"
 
 #include "webbrowser.h"

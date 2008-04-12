@@ -90,6 +90,7 @@ noinst_HEADERS = \
 	macros_dlg.h	\
 	main.h		\
 	main_statusbar.h		\
+	main_toolbar.h	\
 	main_welcome.h		\
 	menu.h		\
 	mtp3_stat.h	\
@@ -123,7 +124,6 @@ noinst_HEADERS = \
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
 	text_page.h	\
-	toolbar.h	\
 	u3.h \
 	uat_gui.h \
 	voip_calls.h	\

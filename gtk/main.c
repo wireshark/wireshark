@@ -127,6 +127,7 @@
 
 #include "main.h"
 #include "main_statusbar.h"
+#include "main_toolbar.h"
 #include "main_welcome.h"
 #include "menu.h"
 #include "../main_window.h"
@@ -138,7 +139,6 @@
 #include "keys.h"
 #include "packet_win.h"
 #include "stock_icons.h"
-#include "toolbar.h"
 #include "find_dlg.h"
 #include "packet_list.h"
 #include "recent.h"
@@ -168,8 +168,6 @@
 #include "airpcap_loader.h"
 #include "airpcap_dlg.h"
 #include "airpcap_gui_utils.h"
-
-#include "./gtk/toolbar.h"
 
 #include "./image/toolbar/wep_closed_24.xpm"
 #endif

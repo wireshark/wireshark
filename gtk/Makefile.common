@@ -83,6 +83,7 @@ WIRESHARK_GTK_SRC = \
 	macros_dlg.c	\
 	main.c		\
 	main_statusbar.c		\
+	main_toolbar.c	\
 	main_welcome.c		\
 	menu.c		\
 	nameres_prefs.c	\
@@ -117,7 +118,6 @@ WIRESHARK_GTK_SRC = \
 	supported_protos_dlg.c	\
 	tap_dfilter_dlg.c	\
 	text_page.c	\
-	toolbar.c	\
 	u3.c		\
 	uat_gui.c	\
 	voip_calls.c	\

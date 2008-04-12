@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "main.h"
+#include "main_toolbar.h"
 #include "menu.h"
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
@@ -69,7 +70,6 @@
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include "stock_icons.h"
-#include "toolbar.h"
 #include "gtkglobals.h"
 #include "register.h"
 #include "../menu.h"

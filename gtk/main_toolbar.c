@@ -45,6 +45,7 @@
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "main.h"
+#include "main_toolbar.h"
 #include "help_dlg.h"
 #include "gtkglobals.h"
 #include "stock_icons.h"

@@ -440,6 +440,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_toolbar.c"
+				>
+			</File>
+			<File
 				RelativePath=".\main_welcome.c"
 				>
 			</File>
@@ -661,10 +665,6 @@
 			</File>
 			<File
 				RelativePath=".\text_page.c"
-				>
-			</File>
-			<File
-				RelativePath=".\toolbar.c"
 				>
 			</File>
 			<File
@@ -910,6 +910,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_toolbar.h"
+				>
+			</File>
+			<File
 				RelativePath=".\main_welcome.h"
 				>
 			</File>
@@ -1043,10 +1047,6 @@
 			</File>
 			<File
 				RelativePath=".\text_page.h"
-				>
-			</File>
-			<File
-				RelativePath=".\toolbar.h"
 				>
 			</File>
 			<File

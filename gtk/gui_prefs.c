@@ -42,9 +42,9 @@
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
+#include "main_toolbar.h"
 #include "font_utils.h"
 #include "packet_list.h"
-#include "toolbar.h"
 #include "recent.h"
 #include "webbrowser.h"
 
