@@ -31,6 +31,28 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define CRC32C_PRELOAD 0xffffffff
+
+/* 
+ * Byte swap fix contributed by Dave Wysochanski <davidw@netapp.com>.
+ */
+#define CRC32C_SWAP(crc32c_value)				\
+	(((crc32c_value & 0xff000000) >> 24)	|	\
+	 ((crc32c_value & 0x00ff0000) >>  8)	|	\
+	 ((crc32c_value & 0x0000ff00) <<  8)	|	\
+	 ((crc32c_value & 0x000000ff) << 24))
+
+#define CRC32C(c,d) (c=(c>>8)^crc32c_table[(c^(d))&0xFF])
+
+extern const guint32 crc32c_table[256];
+	
+/** Compute CRC32C checksum of a buffer of data.
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param crc The preload value for the CRC32C computation.
+ @return The CRC32C checksum. */
+extern guint32 calculate_crc32c(const void *buf, int len, guint32 crc);
+
 extern const guint32 crc32_ccitt_table[256];
 
 /** Compute CRC32 CCITT checksum of a buffer of data.
