@@ -232,6 +232,10 @@ typedef struct _ipxnet
 
 static hashipv4_t	*ipv4_table[HASHHOSTSIZE];
 static hashipv6_t	*ipv6_table[HASHHOSTSIZE];
+
+static hashport_t	**cb_port_table;
+static gchar		*cb_service;
+
 static hashport_t	*udp_port_table[HASHPORTSIZE];
 static hashport_t	*tcp_port_table[HASHPORTSIZE];
 static hashport_t	*sctp_port_table[HASHPORTSIZE];
@@ -249,6 +253,7 @@ static int 		ipxnet_resolution_initialized = 0;
 static int 		service_resolution_initialized = 0;
 
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
+static void add_serv_port_cb(guint32 port);
 
 /*
  * Flag controlling what names to resolve.
@@ -391,6 +396,8 @@ static void parse_service_line (char *line)
   gchar *service;
   gchar *port;
 
+  range_t *port_rng = NULL;
+  guint32 max_port = MAX_UDP_PORT;
 
   if ((cp = strchr(line, '#')))
     *cp = '\0';
@@ -413,27 +420,42 @@ static void parse_service_line (char *line)
 
   /* seems we got all interesting things from the file */
   if(strcmp(cp, "tcp") == 0) {
-    add_service_name(tcp_port_table, atoi(port), service);
+    max_port = MAX_TCP_PORT;
+    cb_port_table = tcp_port_table;
+  }
+  else if(strcmp(cp, "udp") == 0) {
+    max_port = MAX_UDP_PORT;
+    cb_port_table = udp_port_table;
+  }
+  else if(strcmp(cp, "sctp") == 0) {
+    max_port = MAX_SCTP_PORT;
+    cb_port_table = sctp_port_table;
+  }
+  else if(strcmp(cp, "dccp") == 0) {
+    max_port = MAX_DCCP_PORT;
+    cb_port_table = dccp_port_table;
+  } else {
     return;
   }
 
-  if(strcmp(cp, "udp") == 0) {
-    add_service_name(udp_port_table, atoi(port), service);
+  if(CVT_NO_ERROR != range_convert_str(&port_rng, port, max_port) ) {
+    /* some assertion here? */
     return;
   }
 
-  if(strcmp(cp, "sctp") == 0) {
-    add_service_name(sctp_port_table, atoi(port), service);
-    return;
-  }
-
-  if(strcmp(cp, "dcp") == 0) {
-    add_service_name(dccp_port_table, atoi(port), service);
-    return;
-  }
+  cb_service = service;
+  range_foreach(port_rng, add_serv_port_cb);
 
 } /* parse_service_line */
 
+
+static void
+add_serv_port_cb(guint32 port)
+{
+    if ( port ) {
+      add_service_name(cb_port_table, port, cb_service);
+    }
+}
 
 
 static void parse_services_file(const char * path)
