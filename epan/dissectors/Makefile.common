@@ -494,6 +494,8 @@ CLEAN_DISSECTOR_SRC = \
 	packet-isup_thin.c	\
 	packet-iua.c		\
 	packet-iuup.c		\
+	packet-iwarp-ddp-rdmap.c\
+	packet-iwarp-mpa.c	\
 	packet-jabber.c		\
 	packet-jpeg.c 		\
 	packet-juniper.c 	\

@@ -2737,6 +2737,10 @@ Stephen Donnelly	<stephen [AT] endace.com> {
 	Infiniband support
 }
 
+Philip Frey		<frey.philip [AT] gmail.com> {
+	iWARP dissectors (MPA, DDP and RDMAP)
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
