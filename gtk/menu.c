@@ -89,10 +89,6 @@
 
 #include "export_object.h"
 
-GtkWidget *popup_menu_object;
-
-static void
-clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
 
 typedef struct _menu_item {
     char    *name;
@@ -107,42 +103,25 @@ typedef struct _menu_item {
 
 static GList *tap_menu_tree_root = NULL;
 
-static void
-merge_all_tap_menus(GList *node);
+GtkWidget *popup_menu_object;
+
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
+static void merge_all_tap_menus(GList *node);
+static void clear_menu_recent_capture_file_cmd_cb(GtkWidget *w, gpointer unused _U_);
+
 static void menus_init(void);
 static void set_menu_sensitivity (GtkItemFactory *, const gchar *, gint);
-static void main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
-static void filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
-#ifdef HAVE_AIRPCAP
-static void airpcap_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
-#endif
-static void packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_);
-static void tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
-static void byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_);
-static void statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_delta_dis_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_epoch_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void timestamp_nsec_cb(GtkWidget *w _U_, gpointer d _U_);
-static void name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_);
-static void name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_);
-static void name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_);
+static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
+static void timestamp_format_cb(GtkWidget *w, gpointer d, gint action);
+static void timestamp_precision_cb(GtkWidget *w, gpointer d, gint action);
+static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
 #ifdef HAVE_LIBPCAP
-static void auto_scroll_live_cb(GtkWidget *w _U_, gpointer d _U_);
+static void auto_scroll_live_cb(GtkWidget *w, gpointer d);
 #endif
-static void colorize_cb(GtkWidget *w _U_, gpointer d _U_);
+static void colorize_cb(GtkWidget *w, gpointer d);
+
 
 /* This is the GtkItemFactoryEntry structure used to generate new menus.
        Item 1: The menu path. The letter after the underscore indicates an
@@ -186,12 +165,23 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
+typedef enum {
+    SHOW_HIDE_MAIN_TOOLBAR = 1,
+    SHOW_HIDE_FILTER_TOOLBAR,
+    SHOW_HIDE_AIRPCAP_TOOLBAR,
+    SHOW_HIDE_STATUSBAR,
+    SHOW_HIDE_PACKET_LIST,
+    SHOW_HIDE_TREE_VIEW,
+    SHOW_HIDE_BYTE_VIEW
+} show_hide_values_e;
 
-#define CONV_ETHER  1
-#define CONV_IP     2
-#define CONV_TCP    3
-#define CONV_UDP    4
-#define CONV_CBA    5
+typedef enum {
+    CONV_ETHER = 1,
+    CONV_IP,
+    CONV_TCP,
+    CONV_UDP,
+    CONV_CBA
+} conv_values_e;
 
 char *
 build_conversation_filter(int action, gboolean show_dialog)
@@ -521,51 +511,51 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/_Preferences...", "<shift><control>P", GTK_MENU_FUNC(prefs_cb),
                              0, "<StockItem>", GTK_STOCK_PREFERENCES,},
     {"/_View", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(main_toolbar_show_cb), 0, "<CheckItem>", NULL,},
-    {"/View/_Filter Toolbar", NULL, GTK_MENU_FUNC(filter_toolbar_show_cb), 0, "<CheckItem>", NULL,},
+    {"/View/_Main Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_MAIN_TOOLBAR, "<CheckItem>", NULL,},
+    {"/View/_Filter Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_FILTER_TOOLBAR, "<CheckItem>", NULL,},
 #ifdef HAVE_AIRPCAP
-    {"/View/_Wireless Toolbar", NULL, GTK_MENU_FUNC(airpcap_toolbar_show_cb), 0, "<CheckItem>", NULL,},
+    {"/View/_Wireless Toolbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_AIRPCAP_TOOLBAR, "<CheckItem>", NULL,},
 #endif
-    {"/View/_Statusbar", NULL, GTK_MENU_FUNC(statusbar_show_cb), 0, "<CheckItem>", NULL,},
+    {"/View/_Statusbar", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_STATUSBAR, "<CheckItem>", NULL,},
     {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Packet _List", NULL, GTK_MENU_FUNC(packet_list_show_cb), 0, "<CheckItem>", NULL,},
-    {"/View/Packet _Details", NULL, GTK_MENU_FUNC(tree_view_show_cb), 0, "<CheckItem>", NULL,},
-    {"/View/Packet _Bytes", NULL, GTK_MENU_FUNC(byte_view_show_cb), 0, "<CheckItem>", NULL,},
+    {"/View/Packet _List", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_PACKET_LIST, "<CheckItem>", NULL,},
+    {"/View/Packet _Details", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_TREE_VIEW, "<CheckItem>", NULL,},
+    {"/View/Packet _Bytes", NULL, GTK_MENU_FUNC(show_hide_cb), SHOW_HIDE_BYTE_VIEW, "<CheckItem>", NULL,},
     {"/View/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/View/_Time Display Format", NULL, NULL, 0, "<Branch>", NULL,},
-    {"/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL, GTK_MENU_FUNC(timestamp_absolute_date_cb),
-                        0, "<RadioItem>", NULL,},
-    {"/View/Time Display Format/Time of Day:   01:02:03.123456", NULL, GTK_MENU_FUNC(timestamp_absolute_cb),
-                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, GTK_MENU_FUNC(timestamp_relative_cb),
-                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Previous Captured Packet:   1.123456", NULL, GTK_MENU_FUNC(timestamp_delta_cb),
-                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456", NULL, GTK_MENU_FUNC(timestamp_delta_dis_cb),
-                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
-    {"/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456", NULL, GTK_MENU_FUNC(timestamp_epoch_cb),
-                        0, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_ABSOLUTE_WITH_DATE, "<RadioItem>", NULL,},
+    {"/View/Time Display Format/Time of Day:   01:02:03.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb), 
+                        TS_ABSOLUTE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Beginning of Capture:   123.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_RELATIVE, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Previous Captured Packet:   1.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_DELTA, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Previous Displayed Packet:   1.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_DELTA_DIS, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
+    {"/View/Time Display Format/Seconds Since Epoch (1970-01-01):   1234567890.123456", NULL, GTK_MENU_FUNC(timestamp_format_cb),
+                        TS_EPOCH, "/View/Time Display Format/Date and Time of Day:   1970-01-01 01:02:03.123456", NULL,},
     {"/View/Time Display Format/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Time Display Format/Automatic (File Format Precision)", NULL, GTK_MENU_FUNC(timestamp_auto_cb),
-                        0, "<RadioItem>", NULL,},
-    {"/View/Time Display Format/Seconds:   0", NULL, GTK_MENU_FUNC(timestamp_sec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Deciseconds:   0.1", NULL, GTK_MENU_FUNC(timestamp_dsec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Centiseconds:   0.12", NULL, GTK_MENU_FUNC(timestamp_csec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Milliseconds:   0.123", NULL, GTK_MENU_FUNC(timestamp_msec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Microseconds:   0.123456", NULL, GTK_MENU_FUNC(timestamp_usec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
-    {"/View/Time Display Format/Nanoseconds:   0.123456789", NULL, GTK_MENU_FUNC(timestamp_nsec_cb),
-                        0, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Automatic (File Format Precision)", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_AUTO, "<RadioItem>", NULL,},
+    {"/View/Time Display Format/Seconds:   0", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_SEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Deciseconds:   0.1", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_DSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Centiseconds:   0.12", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_CSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Milliseconds:   0.123", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_MSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Microseconds:   0.123456", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_USEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
+    {"/View/Time Display Format/Nanoseconds:   0.123456789", NULL, GTK_MENU_FUNC(timestamp_precision_cb),
+                        TS_PREC_FIXED_NSEC, "/View/Time Display Format/Automatic (File Format Precision)", NULL,},
     {"/View/Name Resol_ution", NULL, NULL, 0, "<Branch>", NULL,},
     {"/View/Name Resolution/_Resolve Name", NULL, GTK_MENU_FUNC(resolve_name_cb), 0, NULL, NULL,},
     {"/View/Name Resolution/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
-    {"/View/Name Resolution/Enable for _MAC Layer", NULL, GTK_MENU_FUNC(name_resolution_mac_cb), 0, "<CheckItem>", NULL,},
-    {"/View/Name Resolution/Enable for _Network Layer", NULL, GTK_MENU_FUNC(name_resolution_network_cb), 0, "<CheckItem>", NULL,},
-    {"/View/Name Resolution/Enable for _Transport Layer", NULL, GTK_MENU_FUNC(name_resolution_transport_cb), 0, "<CheckItem>", NULL,},
+    {"/View/Name Resolution/Enable for _MAC Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_MAC, "<CheckItem>", NULL,},
+    {"/View/Name Resolution/Enable for _Network Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_NETWORK, "<CheckItem>", NULL,},
+    {"/View/Name Resolution/Enable for _Transport Layer", NULL, GTK_MENU_FUNC(name_resolution_cb), RESOLV_TRANSPORT, "<CheckItem>", NULL,},
     {"/View/Colorize Packet List", NULL, colorize_cb, 0, "<CheckItem>", NULL,},
 #ifdef HAVE_LIBPCAP
     {"/View/Auto Scroll in Li_ve Capture", NULL, GTK_MENU_FUNC(auto_scroll_live_cb), 0, "<CheckItem>", NULL,},
@@ -1851,209 +1841,64 @@ menu_recent_file_write_all(FILE *rf) {
 
 
 static void
-main_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
+show_hide_cb(GtkWidget *w, gpointer data _U_, gint action)
 {
 
     /* save current setting in recent */
-    recent.main_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
-
-
-static void
-filter_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* save current setting in recent */
-    recent.filter_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
-
+    switch(action) {
+        case(SHOW_HIDE_MAIN_TOOLBAR):
+        recent.main_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
+        case(SHOW_HIDE_FILTER_TOOLBAR):
+        recent.filter_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
 #ifdef HAVE_AIRPCAP
-static void
-airpcap_toolbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* save current setting in recent */
-    recent.airpcap_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
+        case(SHOW_HIDE_AIRPCAP_TOOLBAR):
+        recent.airpcap_toolbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
 #endif
-
-static void
-packet_list_show_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* save current setting in recent */
-    recent.packet_list_show = GTK_CHECK_MENU_ITEM(w)->active;
+        case(SHOW_HIDE_STATUSBAR):
+        recent.statusbar_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
+        case(SHOW_HIDE_PACKET_LIST):
+        recent.packet_list_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
+        case(SHOW_HIDE_TREE_VIEW):
+        recent.tree_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
+        case(SHOW_HIDE_BYTE_VIEW):
+        recent.byte_view_show = GTK_CHECK_MENU_ITEM(w)->active;
+        break;
+        default:
+            g_assert_not_reached();
+    }
 
     main_widgets_show_or_hide();
 }
 
 
 static void
-tree_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
+timestamp_format_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 {
-
-    /* save current setting in recent */
-    recent.tree_view_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
-
-
-static void
-byte_view_show_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* save current setting in recent */
-    recent.byte_view_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
-
-
-static void
-statusbar_show_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-
-    /* save current setting in recent */
-    recent.statusbar_show = GTK_CHECK_MENU_ITEM(w)->active;
-
-    main_widgets_show_or_hide();
-}
-
-
-static void
-timestamp_absolute_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_format != TS_ABSOLUTE) {
-        timestamp_set_type(TS_ABSOLUTE);
-        recent.gui_time_format  = TS_ABSOLUTE;
+    if (recent.gui_time_format != action) {
+        timestamp_set_type(action);
+        recent.gui_time_format = action;
         cf_change_time_formats(&cfile);
     }
 }
 
-static void
-timestamp_absolute_date_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_format != TS_ABSOLUTE_WITH_DATE) {
-        timestamp_set_type(TS_ABSOLUTE_WITH_DATE);
-        recent.gui_time_format  = TS_ABSOLUTE_WITH_DATE;
-        cf_change_time_formats(&cfile);
-    }
-}
 
 static void
-timestamp_relative_cb(GtkWidget *w _U_, gpointer d _U_)
+timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 {
-    if (recent.gui_time_format != TS_RELATIVE) {
-        timestamp_set_type(TS_RELATIVE);
-        recent.gui_time_format  = TS_RELATIVE;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_delta_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_format != TS_DELTA) {
-        timestamp_set_type(TS_DELTA);
-        recent.gui_time_format  = TS_DELTA;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_delta_dis_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_format != TS_DELTA_DIS) {
-        timestamp_set_type(TS_DELTA_DIS);
-        recent.gui_time_format  = TS_DELTA_DIS;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_epoch_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_format != TS_EPOCH) {
-        timestamp_set_type(TS_EPOCH);
-        recent.gui_time_format  = TS_EPOCH;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_auto_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_AUTO) {
+    if (recent.gui_time_precision != action) {
 		/* the actual precision will be set in cf_change_time_formats() below */
-        timestamp_set_precision(TS_PREC_AUTO_SEC);
-        recent.gui_time_precision  = TS_PREC_AUTO;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_sec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_SEC) {
-        timestamp_set_precision(TS_PREC_FIXED_SEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_SEC;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_dsec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_DSEC) {
-        timestamp_set_precision(TS_PREC_FIXED_DSEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_DSEC;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_csec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_CSEC) {
-        timestamp_set_precision(TS_PREC_FIXED_CSEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_CSEC;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_msec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_MSEC) {
-        timestamp_set_precision(TS_PREC_FIXED_MSEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_MSEC;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_usec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_USEC) {
-        timestamp_set_precision(TS_PREC_FIXED_USEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_USEC;
-        cf_change_time_formats(&cfile);
-    }
-}
-
-static void
-timestamp_nsec_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (recent.gui_time_precision != TS_PREC_FIXED_NSEC) {
-        timestamp_set_precision(TS_PREC_FIXED_NSEC);
-        recent.gui_time_precision  = TS_PREC_FIXED_NSEC;
+        if(action == TS_PREC_AUTO) {
+            timestamp_set_precision(TS_PREC_AUTO_SEC);
+        } else {
+            timestamp_set_precision(action);
+        }
+        recent.gui_time_precision  = action;
         cf_change_time_formats(&cfile);
     }
 }
@@ -2075,32 +1920,12 @@ menu_name_resolution_changed(void)
 }
 
 static void
-name_resolution_mac_cb(GtkWidget *w _U_, gpointer d _U_)
+name_resolution_cb(GtkWidget *w, gpointer d _U_, gint action)
 {
     if (GTK_CHECK_MENU_ITEM(w)->active) {
-        g_resolv_flags |= RESOLV_MAC;
+        g_resolv_flags |= action;
     } else {
-        g_resolv_flags &= ~RESOLV_MAC;
-    }
-}
-
-static void
-name_resolution_network_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (GTK_CHECK_MENU_ITEM(w)->active) {
-        g_resolv_flags |= RESOLV_NETWORK;
-    } else {
-        g_resolv_flags &= ~RESOLV_NETWORK;
-    }
-}
-
-static void
-name_resolution_transport_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    if (GTK_CHECK_MENU_ITEM(w)->active) {
-        g_resolv_flags |= RESOLV_TRANSPORT;
-    } else {
-        g_resolv_flags &= ~RESOLV_TRANSPORT;
+        g_resolv_flags &= ~action;
     }
 }
 
