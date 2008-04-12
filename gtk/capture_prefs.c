@@ -33,7 +33,6 @@
 
 #include "globals.h"
 #include "capture_prefs.h"
-#include "gtkglobals.h"
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
 #include "gui_utils.h"

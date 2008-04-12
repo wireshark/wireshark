@@ -52,7 +52,6 @@
 #include "service_response_time_table.h"
 #include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"
-#include "gtkglobals.h"
 
 
 /* used to keep track of the statistics for an entire program interface */

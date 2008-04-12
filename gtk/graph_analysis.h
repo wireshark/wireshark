@@ -33,7 +33,6 @@
 
 #include <glib.h>
 #include <gtk/gtk.h>
-#include "gtkglobals.h"
 #include <epan/address.h>
 
 #define MAX_NUM_NODES 10

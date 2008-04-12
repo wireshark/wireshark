@@ -30,8 +30,7 @@
  * - the application font for menu's, dialog's and such
  * - the user font for the packet panes
  * 
- * The user font is also available in regular (m_r_font) and bold (m_b_font) versions,
- * see gtkglobals.h.
+ * The user font is also available in regular (m_r_font) and bold (m_b_font) versions.
  */
 
 #ifndef __FONT_UTILS_H__

@@ -45,7 +45,6 @@
 #include "gui_utils.h"
 #include "simple_dialog.h"
 #include "dfilter_expr_dlg.h"
-#include "gtkglobals.h"
 #include "help_dlg.h"
 
 #include <airpcap.h>
