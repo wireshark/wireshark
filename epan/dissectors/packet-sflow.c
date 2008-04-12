@@ -1342,7 +1342,7 @@ proto_register_sflow(void)
 	sflow_module = prefs_register_protocol(proto_sflow,
 					       proto_reg_handoff_sflow);
 
-/* Set default Neflow port(s) */
+/* Set default sFlow port(s) */
 	range_convert_str(&global_sflow_ports, SFLOW_UDP_PORTS,
 			  MAX_UDP_PORT);
 

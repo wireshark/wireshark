@@ -2952,7 +2952,7 @@ proto_register_netflow(void)
 	netflow_module = prefs_register_protocol(proto_netflow,
 	    proto_reg_handoff_netflow);
 
-	/* Set default Neflow port(s) */
+	/* Set default Netflow port(s) */
 	range_convert_str(&global_netflow_ports, NETFLOW_UDP_PORTS,
 			  MAX_UDP_PORT);
 	range_convert_str(&global_ipfix_ports, IPFIX_UDP_PORTS,
