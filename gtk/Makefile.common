@@ -82,6 +82,7 @@ WIRESHARK_GTK_SRC = \
 	layout_prefs.c	\
 	macros_dlg.c	\
 	main.c		\
+	main_airpcap_toolbar.c	\
 	main_filter_toolbar.c	\
 	main_menu.c		\
 	main_packet_list.c	\
@@ -247,6 +248,7 @@ noinst_HEADERS = \
 	layout_prefs.h	\
 	macros_dlg.h	\
 	main.h		\
+	main_airpcap_toolbar.h	\
 	main_filter_toolbar.h	\
 	main_menu.h		\
 	main_packet_list.h	\
@@ -294,6 +296,7 @@ EXTRA_DIST = \
 	airpcap_gui_utils.c \
 	capture_if_details_dlg.c	\
 	doxygen.cfg.in \
+	main_airpcap_toolbar.c \
 	Makefile.common \
 	Makefile.nmake \
 	print_mswin.c  \
