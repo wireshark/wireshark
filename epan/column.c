@@ -647,7 +647,7 @@ get_column_title(gint col) {
   return(cfmt->title);
 }
 
-gchar *
+const gchar *
 get_column_custom_field(gint col) {
   GList    *clp = g_list_nth(prefs.col_list, col);
   fmt_data *cfmt;

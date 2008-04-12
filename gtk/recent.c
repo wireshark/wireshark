@@ -39,7 +39,9 @@
 #include "main_menu.h"
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/column.h>
 #include "gui_utils.h"
+#include "packet_list.h"
 #if 0
 #include "dlg_utils.h"
 #endif
@@ -103,6 +105,23 @@ find_index_from_string_array(const char *needle, const char **haystack, int defa
 		i++;
 	}
 	return default_value;
+}
+
+static void
+free_col_width_info(recent_settings_t *rs)
+{
+  col_width_data *cfmt;
+
+  while (rs->col_width_list != NULL) {
+    cfmt = rs->col_width_list->data;
+    if (cfmt->cfield) {
+      g_free(cfmt->cfield);
+    }
+    g_free(cfmt);
+    rs->col_width_list = g_list_remove_link(rs->col_width_list, rs->col_width_list);
+  }
+  g_list_free(rs->col_width_list);
+  rs->col_width_list = NULL;
 }
 
 /* Attempt to Write out "recent" to the user's recent file.
@@ -236,7 +255,7 @@ write_recent(void)
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
   		  recent.gui_geometry_main_height);
 
-  fprintf(rf, "\n# Main window maximized (GTK2 only!).\n");
+  fprintf(rf, "\n# Main window maximized.\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
 		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
@@ -265,6 +284,10 @@ write_recent(void)
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
 		  recent.gui_geometry_status_pane_right);
   }
+
+  fprintf(rf, "\n# Packet list column pixel widths.\n");
+  fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
+  packet_list_recent_write_all(rf);
 
   fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
@@ -303,7 +326,7 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 {
     window_geometry_t *geom = value;
 
-    fprintf(rf, "\n# Geometry and maximized state (GTK2 only) of %s window.\n", geom->key);
+    fprintf(rf, "\n# Geometry and maximized state of %s window.\n", geom->key);
     fprintf(rf, "# Decimal integers.\n");
     fprintf(rf, RECENT_GUI_GEOMETRY "%s.x: %d\n", geom->key, geom->x);
     fprintf(rf, RECENT_GUI_GEOMETRY "%s.y: %d\n", geom->key, geom->y);
@@ -325,6 +348,10 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
 {
   long num;
   char *p;
+  GList *col_l, *col_l_elt;
+  col_width_data *cfmt;
+  const gchar *cust_format = col_format_to_string(COL_CUSTOM);
+  int cust_format_len = strlen(cust_format);
 
   if (strcmp(key, RECENT_KEY_MAIN_TOOLBAR_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
@@ -354,7 +381,7 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     else {
         recent.airpcap_driver_check_show = FALSE;
     }
-  }else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
+  } else if (strcmp(key, RECENT_KEY_PACKET_LIST_SHOW) == 0) {
     if (g_ascii_strcasecmp(value, "true") == 0) {
         recent.packet_list_show = TRUE;
     }
@@ -492,6 +519,66 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
     else {
         recent.privs_warn_if_no_npf = FALSE;
     }
+  } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
+    col_l = prefs_get_string_list(value);
+    if (col_l == NULL)
+      return PREFS_SET_SYNTAX_ERR;
+    if ((g_list_length(col_l) % 2) != 0) {
+      /* A title didn't have a matching width.  */
+      prefs_clear_string_list(col_l);
+      return PREFS_SET_SYNTAX_ERR;
+    }
+    /* Check to make sure all column formats are valid.  */
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      /* Make sure the format isn't empty.  */
+      if (strcmp(col_l_elt->data, "") == 0) {
+      	/* It is.  */
+        prefs_clear_string_list(col_l);
+        return PREFS_SET_SYNTAX_ERR;
+      }
+
+      /* Check the format.  */
+      if (strncmp(col_l_elt->data, cust_format, cust_format_len) != 0) {
+        if (get_column_format_from_str(col_l_elt->data) == -1) {
+          /* It's not a valid column format.  */
+          prefs_clear_string_list(col_l);
+          return PREFS_SET_SYNTAX_ERR;
+        }
+      }
+
+      /* Go past the format.  */
+      col_l_elt = col_l_elt->next;
+
+      /* Go past the width.  */
+      col_l_elt = col_l_elt->next;
+    }
+    free_col_width_info(&recent);
+    recent.col_width_list = NULL;
+    col_l_elt = g_list_first(col_l);
+    while(col_l_elt) {
+      gchar *fmt = g_strdup(col_l_elt->data);
+      cfmt = (col_width_data *) g_malloc(sizeof(col_width_data));
+      if (strncmp(fmt, cust_format, cust_format_len) != 0) {
+	cfmt->cfmt   = get_column_format_from_str(fmt);
+	cfmt->cfield = NULL;
+      } else {
+	cfmt->cfmt   = COL_CUSTOM;
+	cfmt->cfield = g_strdup(&fmt[cust_format_len+1]);  /* add 1 for ':' */
+      }
+      g_free (fmt);
+      if (cfmt->cfmt == -1)
+	return PREFS_SET_SYNTAX_ERR;   /* string was bad */
+
+      col_l_elt      = col_l_elt->next;
+      cfmt->width    = strtol(col_l_elt->data, &p, 0);
+      if (p == col_l_elt->data || *p != '\0')
+	return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+
+      col_l_elt      = col_l_elt->next;
+      recent.col_width_list = g_list_append(recent.col_width_list, cfmt);
+    }
+    prefs_clear_string_list(col_l);
   }
 
   return PREFS_SET_OK;
@@ -600,6 +687,8 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.privs_warn_if_elevated = TRUE;
   recent.privs_warn_if_no_npf = TRUE;
 
+  recent.col_width_list = NULL;
+
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
 
@@ -656,4 +745,29 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
   }
 }
 
+gint
+recent_get_column_width(gint col)
+{
+  GList *col_l;
+  col_width_data *col_w;
+  gint cfmt;
+  const gchar *cfield = NULL;
 
+  cfmt = get_column_format(col);
+  if (cfmt == COL_CUSTOM) {
+    cfield = get_column_custom_field(col);
+  }
+
+  col_l = g_list_first(recent.col_width_list);
+  while (col_l) {
+    col_w = (col_width_data *) col_l->data;
+    if (col_w->cfmt == cfmt) {
+      if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+	return col_w->width;
+      }
+    }
+    col_l = col_l->next;
+  }
+
+  return -1;
+}

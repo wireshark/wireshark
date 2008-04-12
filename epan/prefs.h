@@ -122,6 +122,7 @@ typedef struct _e_prefs {
   gboolean gui_geometry_save_position;
   gboolean gui_geometry_save_size;
   gboolean gui_geometry_save_maximized;
+  gboolean gui_geometry_save_column_width;
   console_open_e gui_console_open;
   guint    gui_recent_files_count_max;
   guint    gui_fileopen_style;
@@ -358,6 +359,14 @@ typedef guint (*pref_cb)(pref_t *pref, gpointer user_data);
  */
 extern guint prefs_pref_foreach(module_t *module, pref_cb callback,
     gpointer user_data);
+
+/* Parse through a list of comma-separated, possibly quoted strings.
+ *  Return a list of the string data. 
+ */
+extern GList *prefs_get_string_list(gchar *str);
+
+/* Clear the given list of string data. */
+extern void prefs_clear_string_list(GList *sl);
 
 /*
  * Register all non-dissector modules' preferences.

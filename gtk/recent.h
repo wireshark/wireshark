@@ -39,6 +39,12 @@
 /** ???. */
 #define RECENT_KEY_DISPLAY_FILTER       "recent.display_filter"
 
+typedef struct _col_width_data {
+  gint   cfmt;
+  gchar *cfield;
+  gint   width;
+} col_width_data;
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
@@ -59,17 +65,18 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_main_width;
     gint        gui_geometry_main_height;
 
-    gboolean    gui_geometry_main_maximized;    /* this is valid in GTK2 only */
+    gboolean    gui_geometry_main_maximized;
 
     gboolean    has_gui_geometry_main_upper_pane;   /* gui_geometry_main_upper_pane is valid */
-    gint        gui_geometry_main_upper_pane;       /* this is autodetected in GTK2 only */
+    gint        gui_geometry_main_upper_pane;
     gboolean    has_gui_geometry_main_lower_pane;   /* gui_geometry_main_lower_pane is valid */
-    gint        gui_geometry_main_lower_pane;       /* this is autodetected in GTK2 only */
+    gint        gui_geometry_main_lower_pane;
     gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
-    gint        gui_geometry_status_pane_left;      /* this is autodetected in GTK2 only */
-    gint        gui_geometry_status_pane_right;      /* this is autodetected in GTK2 only */
+    gint        gui_geometry_status_pane_left;
+    gint        gui_geometry_status_pane_right;
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
+    GList      *col_width_list;                     /* column widths */
 } recent_settings_t;
 
 /** Global recent settings. */
@@ -113,5 +120,11 @@ extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
  * @return PREFS_SET_OK or PREFS_SET_SYNTAX_ERR
  */
 extern int recent_set_arg(char *prefarg);
+
+/** Get the column width for the given column
+ * 
+ * @param col column number
+ */
+extern gint recent_get_column_width(gint col);
 
 #endif /* recent.h */

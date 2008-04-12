@@ -92,7 +92,7 @@ view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
 
     save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level++;
-    switch (user_font_apply()) {
+    switch (user_font_apply(FALSE)) {
 
     case FA_SUCCESS:
         break;
@@ -118,7 +118,7 @@ view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
 
     save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level--;
-    switch (user_font_apply()) {
+    switch (user_font_apply(FALSE)) {
 
     case FA_SUCCESS:
         break;
@@ -144,7 +144,7 @@ view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
 
     save_gui_zoom_level = recent.gui_zoom_level;
     recent.gui_zoom_level = 0;
-    switch (user_font_apply()) {
+    switch (user_font_apply(FALSE)) {
 
     case FA_SUCCESS:
         break;
@@ -238,7 +238,7 @@ font_zoom(char *gui_font_name)
 }
 
 fa_ret_t
-user_font_apply(void) {
+user_font_apply(gboolean saved_column_width) {
     char *gui_font_name;
     PangoFontDescription *new_r_font, *new_b_font;
     PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
@@ -276,7 +276,7 @@ user_font_apply(void) {
     }
 
     /* the font(s) seem to be ok */
-    packet_list_set_font(new_r_font);
+    packet_list_set_font(new_r_font, saved_column_width);
     set_ptree_font_all(new_r_font);
     old_r_font = m_r_font;
     old_b_font = m_b_font;
