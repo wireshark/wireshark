@@ -176,7 +176,6 @@ wireshark_INCLUDES =	\
 	stat_menu.h	\
 	summary.h	\
 	sync_pipe.h	\
-	tap_dfilter_dlg.h	\
 	ui_util.h
 
 # tshark specifics
