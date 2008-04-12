@@ -169,7 +169,6 @@ wireshark_INCLUDES =	\
 	globals.h	\
 	log.h	\
 	main_window.h	\
-	menu.h	\
 	merge.h	\
 	progress_dlg.h	\
 	proto_hier_stats.h	\
