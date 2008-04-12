@@ -55,6 +55,7 @@
 #ifdef HAVE_LIBPCAP
 #include "capture_dlg.h"
 #endif
+#include "stock_icons.h"
 #include "range_utils.h"
 #include "merge.h"
 #include "util.h"
