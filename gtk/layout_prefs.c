@@ -35,7 +35,6 @@
 #include "prefs_dlg.h"
 #include "gui_utils.h"
 #include "main.h"
-#include "compat_macros.h"
 #include "dlg_utils.h"
 #include "../ui_util.h"
 

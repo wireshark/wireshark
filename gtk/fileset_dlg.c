@@ -37,7 +37,6 @@
 #include "globals.h"
 
 
-#include "compat_macros.h"
 #include "simple_dialog.h"
 
 #include "gui_utils.h"

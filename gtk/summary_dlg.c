@@ -47,7 +47,6 @@
 #include "summary_dlg.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "help_dlg.h"
 #include <epan/strutil.h>
 

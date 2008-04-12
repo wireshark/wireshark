@@ -49,7 +49,6 @@
 #include "gtkglobals.h"
 #include "stock_icons.h"
 #include "keys.h"
-#include "compat_macros.h"
 #include "recent.h"
 #include "packet_history.h"
 #include "packet_list.h"

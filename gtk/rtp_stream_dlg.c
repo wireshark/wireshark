@@ -39,7 +39,6 @@
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "gtkglobals.h"
 
 #include "image/clist_ascend.xpm"

@@ -35,7 +35,6 @@
 #include "goto_dlg.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
 #include "gui_utils.h"
 #include "help_dlg.h"
 

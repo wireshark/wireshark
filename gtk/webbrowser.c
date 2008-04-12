@@ -38,7 +38,6 @@
 
 #include <epan/prefs.h>
 #include "webbrowser.h"
-#include "compat_macros.h"
 #include "simple_dialog.h"
 
 /*

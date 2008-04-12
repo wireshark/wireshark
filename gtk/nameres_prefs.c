@@ -38,7 +38,6 @@
 #include "gui_utils.h"
 #include "main.h"
 #include "menu.h"
-#include "compat_macros.h"
 
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"

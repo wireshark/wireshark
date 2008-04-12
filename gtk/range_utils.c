@@ -35,7 +35,6 @@
 #include "packet-range.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
 #include "simple_dialog.h"
 #include "range_utils.h"
 

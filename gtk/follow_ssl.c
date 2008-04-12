@@ -54,7 +54,6 @@
 #include <gtk/gui_utils.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include <gtk/compat_macros.h>
 #include <epan/ipproto.h>
 #include <gtk/font_utils.h>
 #include <wiretap/file_util.h>

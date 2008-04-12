@@ -68,7 +68,6 @@
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
 
 #include "graph_analysis.h"
 #include "voip_calls_dlg.h"

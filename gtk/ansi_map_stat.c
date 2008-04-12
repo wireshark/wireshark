@@ -51,7 +51,6 @@
 #include "../register.h"
 #include "../globals.h"
 #include "filter_dlg.h"
-#include "compat_macros.h"
 #include <epan/dissectors/packet-ansi_map.h>
 #include "gui_utils.h"
 

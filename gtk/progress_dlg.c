@@ -33,7 +33,6 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "progress_dlg.h"
-#include "compat_macros.h"
 
 #define	PROG_BAR_KEY	"progress_bar"
 

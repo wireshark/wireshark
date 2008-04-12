@@ -39,7 +39,6 @@
 #include "dlg_utils.h"
 #include "proto_dlg.h"
 #include "simple_dialog.h"
-#include "compat_macros.h"
 #include "disabled_protos.h"
 #include <epan/filesystem.h>
 #include "help_dlg.h"

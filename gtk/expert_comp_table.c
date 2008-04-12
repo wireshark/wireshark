@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <gtk/gtk.h>
-#include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "expert_comp_table.h"
 

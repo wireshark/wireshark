@@ -49,7 +49,6 @@
 #include "summary.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include <epan/tap.h>
 
 #include <epan/asn1.h>

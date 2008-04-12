@@ -65,7 +65,6 @@
 #include "file_dlg.h"
 #include "gui_utils.h"
 #include "gtkglobals.h"
-#include "compat_macros.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
 #include "progress_dlg.h"

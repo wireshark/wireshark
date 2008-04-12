@@ -42,7 +42,6 @@
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
-#include "compat_macros.h"
 #include "font_utils.h"
 #include "packet_list.h"
 #include "toolbar.h"

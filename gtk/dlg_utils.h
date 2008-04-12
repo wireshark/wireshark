@@ -106,14 +106,4 @@ extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
  */
 void dlg_button_focus_nth(GtkWidget *hbox, gint focus_item);
 
-/** used by compat_macros.h only, don't use directly */
-extern GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
-    const gchar *label, GtkAccelGroup *accel_group);
-/** used by compat_macros.h only, don't use directly */
-extern GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
-    GtkAccelGroup *accel_group);
-/** used by compat_macros.h only, don't use directly */
-extern GtkWidget *dlg_toggle_button_new_with_label_with_mnemonic(const gchar *label,
-			GtkAccelGroup *accel_group);
-
 #endif

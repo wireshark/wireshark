@@ -52,7 +52,6 @@
 #include "image/clist_descend.xpm"
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include <epan/tap.h>
 
 #include <epan/dissectors/packet-mtp3.h>

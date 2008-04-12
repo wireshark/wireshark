@@ -39,7 +39,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 
-#include "compat_macros.h"
 #include "hostlist_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"

@@ -40,7 +40,6 @@
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "color.h"
-#include "compat_macros.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
 #include "dlg_utils.h"

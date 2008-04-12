@@ -37,7 +37,6 @@
 #include <epan/tap.h>
 #include "follow_stream.h"
 #include <globals.h>
-#include <gtk/compat_macros.h>
 #include <gtk/keys.h>
 #include <gtk/main.h>
 #include <simple_dialog.h>

@@ -35,7 +35,6 @@
 #include "keys.h"
 #include "print.h"
 #include <epan/prefs.h>
-#include "compat_macros.h"
 #include "follow_tcp.h"
 #include "packet_list.h"
 

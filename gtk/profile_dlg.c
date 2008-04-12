@@ -40,7 +40,6 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "simple_dialog.h"
-#include "compat_macros.h"
 #include "gtkglobals.h"
 #include "help_dlg.h"
 #include <epan/prefs.h>

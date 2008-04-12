@@ -41,7 +41,6 @@
 #include "../register.h"
 #include <epan/dissectors/packet-sip.h>
 #include "../globals.h"
-#include "compat_macros.h"
 #include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"
 

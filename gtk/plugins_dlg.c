@@ -32,7 +32,6 @@
 #include <epan/plugins.h>
 #include "dlg_utils.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "plugins_dlg.h"
 
 #ifdef HAVE_PLUGINS

@@ -38,7 +38,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 #include "../register.h"
-#include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "dlg_utils.h"
 #include "../globals.h"

@@ -34,7 +34,6 @@
 #include "gui_utils.h"
 #include "file_dlg.h"
 #include "keys.h"
-#include "compat_macros.h"
 
 #include <string.h>
 #include <errno.h>

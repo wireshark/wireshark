@@ -32,14 +32,12 @@
 
 #include "proto_hier_stats.h"
 #include "proto_hier_stats_dlg.h"
-#include "compat_macros.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "find_dlg.h"
 #include "color_dlg.h"
 #include "gtkglobals.h"
 #include "main.h"
-#include "compat_macros.h"
 #include "simple_dialog.h"
 #include "help_dlg.h"
 

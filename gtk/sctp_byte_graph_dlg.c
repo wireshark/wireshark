@@ -38,7 +38,6 @@
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "main.h"
-#include "compat_macros.h"
 #include "simple_dialog.h"
 #include "sctp_stat.h"
 #include <epan/strutil.h>

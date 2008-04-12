@@ -40,7 +40,6 @@
 #include <epan/tap.h>
 #include "../register.h"
 #include "../globals.h"
-#include "compat_macros.h"
 #include <epan/dissectors/packet-wsp.h>
 #include "../stat_menu.h"
 #include "../tap_dfilter_dlg.h"

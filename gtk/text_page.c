@@ -35,7 +35,6 @@
 #include "epan/filesystem.h"
 #include "text_page.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "simple_dialog.h"
 #include "font_utils.h"
 #include "file_util.h"

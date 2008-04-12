@@ -62,7 +62,6 @@
 #include "gui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#include "compat_macros.h"
 #include <epan/ipproto.h>
 #include "print_mswin.h"
 #include "font_utils.h"

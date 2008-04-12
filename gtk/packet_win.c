@@ -63,7 +63,6 @@
 #include "gui_utils.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
-#include "compat_macros.h"
 #include <epan/strutil.h>
 
 #include "../ui_util.h"

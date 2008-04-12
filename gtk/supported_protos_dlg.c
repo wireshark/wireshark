@@ -35,7 +35,6 @@
 #include "globals.h"
 #include "gtkglobals.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "dlg_utils.h"
 #include "font_utils.h"
 

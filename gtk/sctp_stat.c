@@ -33,7 +33,6 @@
 #include "epan/packet_info.h"   /* Needed for packet_info */
 #include <epan/tap.h>           /* Needed for register_tap_listener */
 #include "dlg_utils.h"
-#include "compat_macros.h"
 #include "register.h"
 #include <string.h>
 #include "sctp_stat.h"

@@ -46,7 +46,6 @@
 #include "../globals.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"
-#include "compat_macros.h"
 
 static GtkWidget *win=NULL;
 static GtkWidget *table=NULL;

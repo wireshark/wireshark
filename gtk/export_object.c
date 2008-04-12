@@ -39,7 +39,6 @@
 #include <epan/packet_info.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
-#include <gtk/compat_macros.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/file_dlg.h>
 #include <gtk/gui_utils.h>

@@ -36,7 +36,6 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "gui_stat_util.h"
-#include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"

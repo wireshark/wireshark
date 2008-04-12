@@ -45,7 +45,6 @@
 
 #include "../register.h"
 #include "../timestats.h"
-#include "compat_macros.h"
 #include "../simple_dialog.h"
 #include "gui_utils.h"
 #include "dlg_utils.h"

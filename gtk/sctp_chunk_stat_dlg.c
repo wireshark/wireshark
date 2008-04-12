@@ -38,7 +38,6 @@
 #include "dlg_utils.h"
 #include "gui_utils.h"
 #include "main.h"
-#include "compat_macros.h"
 
 #include "sctp_stat.h"
 

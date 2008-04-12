@@ -41,7 +41,6 @@
 #include "colors.h"
 #include <epan/column.h>
 #include "epan/column_info.h"
-#include "compat_macros.h"
 #include <epan/prefs.h>
 #include "capture_file_dlg.h"
 #include "packet_list.h"

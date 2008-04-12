@@ -53,7 +53,6 @@
 #include <epan/dissectors/packet-gsm_a.h>
 #include "../globals.h"
 #include "filter_dlg.h"
-#include "compat_macros.h"
 #include "gui_utils.h"
 
 

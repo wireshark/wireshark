@@ -37,7 +37,6 @@
 #include "simple_dialog.h"
 #include "gui_utils.h"
 #include "file_dlg.h"
-#include "compat_macros.h"
 #include <errno.h>
 #include <epan/filesystem.h>
 

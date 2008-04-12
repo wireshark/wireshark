@@ -53,7 +53,6 @@
 #include "file_dlg.h"
 #include "gui_utils.h"
 #include "main.h"
-#include "compat_macros.h"
 #include "../color.h"
 #include "epan/filesystem.h"
 #include "file_util.h"

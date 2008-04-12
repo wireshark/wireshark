@@ -70,7 +70,6 @@
 #include "gui_stat_menu.h"
 #include "main.h"
 #include "progress_dlg.h"
-#include "compat_macros.h"
 #include "../color.h"
 
 #include "image/clist_ascend.xpm"

@@ -39,7 +39,6 @@
 #include <epan/prefs.h>
 #include "epan/epan.h"
 #include "../ui_util.h"
-#include "compat_macros.h"
 #include "recent.h"
 
 #ifdef _WIN32

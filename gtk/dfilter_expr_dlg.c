@@ -55,7 +55,6 @@
 #include "proto_dlg.h"
 #include "filter_dlg.h"
 #include "dfilter_expr_dlg.h"
-#include "compat_macros.h"
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"

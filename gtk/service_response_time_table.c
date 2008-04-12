@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <gtk/gtk.h>
-#include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "service_response_time_table.h"
 #include "image/clist_ascend.xpm"

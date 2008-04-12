@@ -28,7 +28,6 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
-#include "compat_macros.h"
 #include "main.h"
 #include "gtkglobals.h"
 #include "cfilter_combo_utils.h"

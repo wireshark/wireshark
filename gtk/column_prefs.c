@@ -33,7 +33,6 @@
 #include "gtkglobals.h"
 #include <epan/prefs.h>
 #include <epan/column.h>
-#include "compat_macros.h"
 #include "gui_utils.h"
 #include "packet_list.h"
 #include "filter_dlg.h"

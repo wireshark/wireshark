@@ -51,7 +51,6 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gui_stat_util.h"
-#include "gtk/compat_macros.h"
 #include "gtk/service_response_time_table.h"
 
 #include "epan/asn1.h"

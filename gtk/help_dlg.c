@@ -38,7 +38,6 @@
 #include <epan/prefs.h>
 #include "gtkglobals.h"
 #include "gui_utils.h"
-#include "compat_macros.h"
 #include "dlg_utils.h"
 #include "simple_dialog.h"
 #include "webbrowser.h"

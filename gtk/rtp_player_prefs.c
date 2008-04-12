@@ -31,7 +31,6 @@
 #include "rtp_player_prefs.h"
 #include <epan/prefs.h>
 #include "prefs_dlg.h"
-#include "compat_macros.h"
 
 #define RTP_PLAYER_MAX_VISIBLE_KEY   "max_visible"
 #define RTP_PLAYER_TABLE_ROWS 6

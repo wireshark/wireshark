@@ -39,7 +39,6 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "file_dlg.h"
-#include "compat_macros.h"
 #include "globals.h"
 #include "log.h"
 #include "text_page.h"

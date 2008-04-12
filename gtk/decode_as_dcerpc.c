@@ -36,7 +36,6 @@
 #include <epan/ipproto.h>
 #include "gui_utils.h"
 #include <epan/epan_dissect.h>
-#include "compat_macros.h"
 #include "decode_as_dcerpc.h"
 
 #include <epan/dissectors/packet-dcerpc.h>

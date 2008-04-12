@@ -45,7 +45,6 @@
 
 #include "gtkglobals.h"
 
-#include "compat_macros.h"
 #include "font_utils.h"
 #include "simple_dialog.h"
 

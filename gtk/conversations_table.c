@@ -44,7 +44,6 @@
 #include <epan/tap.h>
 #include <epan/nstime.h>
 
-#include "compat_macros.h"
 #include "sat.h"
 #include "conversations_table.h"
 #include "image/clist_ascend.xpm"

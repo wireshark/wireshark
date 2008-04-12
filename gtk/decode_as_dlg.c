@@ -37,7 +37,6 @@
 #include <epan/ipproto.h>
 #include "gui_utils.h"
 #include <epan/epan_dissect.h>
-#include "compat_macros.h"
 #include "decode_as_dcerpc.h"
 #include "decode_as_ber.h"
 #include "help_dlg.h"
