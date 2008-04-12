@@ -39,7 +39,6 @@
 #include <epan/prefs.h>
 #include <epan/nstime.h>
 #include <epan/dfilter/dfilter.h>
-#include "cfile.h"
 #include <epan/column.h>
 #include <epan/packet.h>
 
@@ -658,50 +657,50 @@ get_column_custom_field(gint col) {
 }
 
 void
-build_column_format_array(capture_file *cfile, gboolean reset_fences)
+build_column_format_array(column_info *cinfo, gboolean reset_fences)
 {
   int i, j;
 
-  col_setup(&cfile->cinfo, prefs.num_cols);
+  col_setup(cinfo, prefs.num_cols);
 
-  for (i = 0; i < cfile->cinfo.num_cols; i++) {
-    cfile->cinfo.col_fmt[i] = get_column_format(i);
-    cfile->cinfo.col_title[i] = g_strdup(get_column_title(i));
-    if (cfile->cinfo.col_fmt[i] == COL_CUSTOM) {
-      cfile->cinfo.col_custom_field[i] = g_strdup(get_column_custom_field(i));
+  for (i = 0; i < cinfo->num_cols; i++) {
+    cinfo->col_fmt[i] = get_column_format(i);
+    cinfo->col_title[i] = g_strdup(get_column_title(i));
+    if (cinfo->col_fmt[i] == COL_CUSTOM) {
+      cinfo->col_custom_field[i] = g_strdup(get_column_custom_field(i));
     } else {
-      cfile->cinfo.col_custom_field[i] = NULL;
+      cinfo->col_custom_field[i] = NULL;
     }
-    cfile->cinfo.fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
+    cinfo->fmt_matx[i] = (gboolean *) g_malloc0(sizeof(gboolean) *
 						     NUM_COL_FMTS);
-    get_column_format_matches(cfile->cinfo.fmt_matx[i],
-			      cfile->cinfo.col_fmt[i]);
-    cfile->cinfo.col_data[i] = NULL;
+    get_column_format_matches(cinfo->fmt_matx[i],
+			      cinfo->col_fmt[i]);
+    cinfo->col_data[i] = NULL;
 
-    if (cfile->cinfo.col_fmt[i] == COL_INFO)
-      cfile->cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) *
+    if (cinfo->col_fmt[i] == COL_INFO)
+      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) *
 						  COL_MAX_INFO_LEN);
     else
-      cfile->cinfo.col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      cinfo->col_buf[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
 
     if(reset_fences)
-      cfile->cinfo.col_fence[i] = 0;
+      cinfo->col_fence[i] = 0;
 
-    cfile->cinfo.col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) *
+    cinfo->col_expr.col_expr[i] = (gchar *) g_malloc(sizeof(gchar) *
 							    COL_MAX_LEN);
-    cfile->cinfo.col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
+    cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) *
 								COL_MAX_LEN);
   }
 
-  for (i = 0; i < cfile->cinfo.num_cols; i++) {
+  for (i = 0; i < cinfo->num_cols; i++) {
     for (j = 0; j < NUM_COL_FMTS; j++) {
-      if (!cfile->cinfo.fmt_matx[i][j])
+      if (!cinfo->fmt_matx[i][j])
 	      continue;
 
-      if (cfile->cinfo.col_first[j] == -1)
-        cfile->cinfo.col_first[j] = i;
+      if (cinfo->col_first[j] == -1)
+        cinfo->col_first[j] = i;
 
-      cfile->cinfo.col_last[j] = i;
+      cinfo->col_last[j] = i;
     }
   }
 }

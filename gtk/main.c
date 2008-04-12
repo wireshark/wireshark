@@ -72,89 +72,84 @@
 #include <epan/funnel.h>
 #include <epan/expert.h>
 #include <epan/frequency-utils.h>
-
-/* general (not GTK specific) */
-#include "file.h"
-#include "summary.h"
-#include "filters.h"
-#include "disabled_protos.h"
 #include <epan/prefs.h>
-#include "filter_dlg.h"
-#include "layout_prefs.h"
-#include "color.h"
-#include "color_filters.h"
-#include "print.h"
-#include "simple_dialog.h"
-#include "register.h"
 #include <epan/prefs-int.h>
-#include "ringbuffer.h"
-#include "../ui_util.h"
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
-#include "util.h"
-#include "clopts_common.h"
-#include "cmdarg_err.h"
-#include "version_info.h"
-#include "merge.h"
-#include "u3.h"
-#include "uat_gui.h"
-#include "epan/uat.h"
+#include <epan/uat.h>
+#include <epan/emem.h>
+#include <epan/column.h>
+
+/* general (not GTK specific) */
+#include "../file.h"
+#include "../summary.h"
+#include "../filters.h"
+#include "../disabled_protos.h"
+#include "../color.h"
+#include "../color_filters.h"
+#include "../print.h"
+#include "../simple_dialog.h"
+#include "../register.h"
+#include "../ringbuffer.h"
+#include "../ui_util.h"
+#include "../util.h"
+#include "../clopts_common.h"
+#include "../cmdarg_err.h"
+#include "../version_info.h"
+#include "../merge.h"
+#include "../alert_box.h"
+#include "../capture_ui_utils.h"
+#include "../log.h"
+#include "../wiretap/file_util.h"
 
 
 #ifdef HAVE_LIBPCAP
-#include "capture-pcap-util.h"
-#include "capture.h"
-#include "capture_sync.h"
+#include "../capture-pcap-util.h"
+#include "../capture.h"
+#include "../capture_sync.h"
 #endif
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
-#include "capture_wpcap_packet.h"
+#include "../capture-wpcap.h"
+#include "../capture_wpcap_packet.h"
 #include <tchar.h> /* Needed for Unicode */
 #include <commctrl.h>
 #endif /* _WIN32 */
 
 /* GTK related */
-#include "alert_box.h"
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "file_dlg.h"
-#include "gtkglobals.h"
-#include "colors.h"
-#include "gui_utils.h"
-#include "color_dlg.h"
-
-#include "main.h"
-#include "main_airpcap_toolbar.h"
-#include "main_filter_toolbar.h"
-#include "main_menu.h"
-#include "main_packet_list.h"
-#include "main_statusbar.h"
-#include "main_toolbar.h"
-#include "main_welcome.h"
-#include "../main_window.h"
-#include "drag_and_drop.h"
-#include "capture_file_dlg.h"
-#include <epan/column.h>
-#include "main_proto_draw.h"
-#include "keys.h"
-#include "packet_win.h"
-#include "stock_icons.h"
-#include "find_dlg.h"
-#include "recent.h"
-#include "follow_tcp.h"
-#include "font_utils.h"
-#include "about_dlg.h"
-#include "help_dlg.h"
-#include "decode_as_dlg.h"
-#include "webbrowser.h"
-#include "capture_dlg.h"
-#include "capture_ui_utils.h"
-#include "log.h"
-#include "../epan/emem.h"
-#include "file_util.h"
-#include "tap_dfilter_dlg.h"
+#include "gtk/file_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/colors.h"
+#include "gtk/gui_utils.h"
+#include "gtk/color_dlg.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/uat_gui.h"
+#include "gtk/layout_prefs.h"
+#include "gtk/u3.h"
+#include "gtk/main.h"
+#include "gtk/main_airpcap_toolbar.h"
+#include "gtk/main_filter_toolbar.h"
+#include "gtk/main_menu.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/main_statusbar.h"
+#include "gtk/main_toolbar.h"
+#include "gtk/main_welcome.h"
+#include "gtk/drag_and_drop.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/main_proto_draw.h"
+#include "gtk/keys.h"
+#include "gtk/packet_win.h"
+#include "gtk/stock_icons.h"
+#include "gtk/find_dlg.h"
+#include "gtk/recent.h"
+#include "gtk/follow_tcp.h"
+#include "gtk/font_utils.h"
+#include "gtk/about_dlg.h"
+#include "gtk/help_dlg.h"
+#include "gtk/decode_as_dlg.h"
+#include "gtk/webbrowser.h"
+#include "gtk/capture_dlg.h"
+#include "gtk/tap_dfilter_dlg.h"
 
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
@@ -179,6 +174,7 @@
 #include <epan/crypt/airpdcap_ws.h>
 #endif
 
+
 /*
  * Files under personal and global preferences directories in which
  * GTK settings for Wireshark are stored.
@@ -186,22 +182,21 @@
 #define RC_FILE "gtkrc"
 
 capture_file cfile;
-GtkWidget   *main_display_filter_widget=NULL;
-GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
-GtkWidget   *pkt_scrollw;
-static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
-static GtkWidget   *main_first_pane, *main_second_pane;
-GtkWidget   *statusbar;
-static GtkWidget   *menubar, *main_vbox, *main_tb, *filter_tb;
 
-static GtkWidget   *priv_warning_dialog;
+/* "exported" main widgets */
+GtkWidget   *top_level = NULL, *pkt_scrollw, *tree_view, *byte_nb_ptr;
+
+/* placement widgets (can be a bit confusing, because of the many layout possibilities */
+static GtkWidget   *main_vbox, *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
+static GtkWidget   *main_first_pane, *main_second_pane;
+
+/* internally used widgets */
+static GtkWidget   *menubar, *main_tb, *filter_tb, *tv_scrollw, *statusbar, *welcome_pane;
 
 #ifdef HAVE_AIRPCAP
 GtkWidget *airpcap_tb;
 int    airpcap_dll_ret_val = -1;
 #endif
-
-static GtkWidget    *welcome_pane;
 
 GString *comp_info_str, *runtime_info_str;
 gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
@@ -214,15 +209,16 @@ static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
 
 #ifdef HAVE_LIBPCAP
-static gboolean list_link_layer_types;
 capture_options global_capture_opts;
 capture_options *capture_opts = &global_capture_opts;
 #endif
+
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void show_main_window(gboolean);
 static void file_quit_answered_cb(gpointer dialog, gint btn, gpointer data);
 static void main_save_window_geometry(GtkWidget *widget);
+
 
 /* Match selected byte pattern */
 static void
@@ -512,8 +508,6 @@ set_frame_reftime(gboolean set, frame_data *frame, gint row) {
 }
 
 
-GtkWidget *reftime_dialog = NULL;
-
 static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
     switch(btn) {
@@ -540,6 +534,7 @@ static void reftime_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_
 void
 reftime_frame_cb(GtkWidget *w _U_, gpointer data _U_, REFTIME_ACTION_E action)
 {
+  static GtkWidget *reftime_dialog = NULL;
 
   switch(action){
   case REFTIME_TOGGLE:
@@ -1394,7 +1389,7 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     }
 }
 
-#endif
+#endif  /* HAVE_LIBPCAP */
 
 static void
 main_cf_cb_packet_selected(gpointer data)
@@ -1441,7 +1436,8 @@ main_cf_cb_file_safe_reload_finished(gpointer data _U_)
     set_menus_for_capture_file(&cfile);
 }
 
-static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
+static void 
+main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
     case(cf_cb_file_closing):
@@ -1547,11 +1543,7 @@ get_gui_compiled_info(GString *str)
 }
 
 static void
-get_gui_runtime_info(GString *str
-#ifndef HAVE_AIRPCAP
-	_U_
-#endif
-)
+get_gui_runtime_info(GString *str)
 {
 #ifdef HAVE_AIRPCAP
   g_string_append(str, ", ");
@@ -1688,6 +1680,7 @@ main(int argc, char *argv[])
   int                  err;
 #ifdef HAVE_LIBPCAP
   gboolean             start_capture = FALSE;
+  gboolean             list_link_layer_types = FALSE;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
@@ -1698,6 +1691,7 @@ main(int argc, char *argv[])
   e_prefs             *prefs;
   char                 badopt;
   GtkWidget           *splash_win = NULL;
+  gpointer             priv_warning_dialog;
   GLogLevelFlags       log_flags;
   guint                go_to_packet = 0;
   int                  optind_initial;
@@ -1706,7 +1700,6 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_AIRPCAP
   char			*err_str;
-  /*gchar			*cant_get_if_list_errstr;*/
 #endif
 
 #define OPTSTRING_INIT "a:b:c:C:Df:g:Hhi:klLm:nN:o:P:pQr:R:Ss:t:vw:X:y:z:"
@@ -2341,7 +2334,7 @@ main(int argc, char *argv[])
     set_disabled_protos_list();
   }
 
-  build_column_format_array(&cfile, TRUE);
+  build_column_format_array(&cfile.cinfo, TRUE);
 
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
@@ -2781,11 +2774,9 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(menubar);
     gtk_widget_ref(main_tb);
     gtk_widget_ref(filter_tb);
-
 #ifdef HAVE_AIRPCAP
     gtk_widget_ref(airpcap_tb);
 #endif
-
     gtk_widget_ref(pkt_scrollw);
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
@@ -2918,13 +2909,6 @@ is_widget_visible(GtkWidget *widget, gpointer data)
 }
 
 
-
-/*
- * XXX - this doesn't appear to work with the paned widgets in
- * GTK+ 1.2[.x]; if you hide one of the panes, the splitter remains
- * and the other pane doesn't grow to take up the rest of the pane.
- * It does appear to work with GTK+ 2.x.
- */
 void
 main_widgets_show_or_hide(void)
 {
@@ -3130,13 +3114,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     gtk_widget_show(main_pane_h1);
     main_pane_h2 = gtk_hpaned_new();
     gtk_widget_show(main_pane_h2);
-
 #ifdef HAVE_AIRPCAP
     airpcap_tb = airpcap_toolbar_new();
+    gtk_widget_show(airpcap_tb);
 #endif
-
     /* status bar */
     statusbar = statusbar_new();
+    gtk_widget_show(statusbar);
 
     /* Pane for the welcome screen */
     welcome_pane = welcome_new();

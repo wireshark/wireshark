@@ -30,29 +30,29 @@
 #include <string.h>
 
 #include <epan/epan.h>
-
-#include "globals.h"
-#include "gtkglobals.h"
-#include "color.h"
-#include "color_filters.h"
-#include "../ui_util.h"
-#include "gui_utils.h"
-#include "colors.h"
 #include <epan/column.h>
 #include <epan/column_info.h>
 #include <epan/prefs.h>
 #include <epan/timestamp.h>
-#include "capture_file_dlg.h"
-#include "keys.h"
-#include "font_utils.h"
-#include "packet_history.h"
-#include "progress_dlg.h"
-#include "recent.h"
 
-#include "main.h"
-#include "main_menu.h"
-#include "main_packet_list.h"
-#include "main_statusbar.h"
+#include "../globals.h"
+#include "../color.h"
+#include "../color_filters.h"
+#include "../ui_util.h"
+#include "../progress_dlg.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/colors.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/keys.h"
+#include "gtk/font_utils.h"
+#include "gtk/packet_history.h"
+#include "gtk/recent.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/main_statusbar.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -541,7 +541,7 @@ packet_list_recreate(void)
 
     prefs.num_cols = g_list_length(prefs.col_list);
 
-    build_column_format_array(&cfile, FALSE);
+    build_column_format_array(&cfile.cinfo, FALSE);
 
     pkt_scrollw = packet_list_new(&prefs);
     gtk_widget_show(pkt_scrollw);

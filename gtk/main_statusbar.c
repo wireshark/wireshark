@@ -187,6 +187,10 @@ statusbar_new(void)
 {
     GtkWidget *status_hbox;
 
+    /* Sstatus hbox */
+    status_hbox = gtk_hbox_new(FALSE, 1);
+    gtk_container_border_width(GTK_CONTAINER(status_hbox), 0);
+
     /* info (main) statusbar */
     info_bar = info_bar_new();
     gtk_widget_show(info_bar);
@@ -201,11 +205,6 @@ statusbar_new(void)
 
     /* expert info indicator */
     status_expert_new();
-
-    /* Filter/status hbox */
-    status_hbox = gtk_hbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(status_hbox), 0);
-    gtk_widget_show(status_hbox);
 
     /* Pane for the statusbar */
     status_pane_left = gtk_hpaned_new();

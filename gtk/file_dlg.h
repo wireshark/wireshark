@@ -1,4 +1,4 @@
-/* file_utils.h
+/* file_dlg.h
  * Declarations of utilities to use when constructing file selection dialogs
  *
  * $Id$

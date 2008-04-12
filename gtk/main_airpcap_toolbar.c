@@ -255,7 +255,6 @@ GtkWidget *airpcap_toolbar_new()
     airpcap_tb = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-    gtk_widget_show(airpcap_tb);
 
     /* Interface Label */
     /*if(airpcap_if_active != NULL) {

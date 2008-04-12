@@ -26,14 +26,14 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_LIBPCAP
-
 #ifdef HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
 
-
 #include <gtk/gtk.h>
+
+
+#ifdef HAVE_LIBPCAP
 
 #include "globals.h"
 #include "capture-pcap-util.h"

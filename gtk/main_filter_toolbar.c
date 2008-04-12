@@ -47,6 +47,8 @@
 #include "main_filter_toolbar.h"
 
 
+GtkWidget   *main_display_filter_widget=NULL;
+
 /* Run the current display filter on the current packet set, and
    redisplay. */
 static void
