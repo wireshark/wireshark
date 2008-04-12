@@ -174,9 +174,15 @@ static const value_string subsystem[] = {
 	{ 250, "DHCPV6D" },
 	{ 252, "IGELAN" },
 	{ 253, "IETHER" },
+	{ 257, "WBEMProvider-LAN" },
+	{ 258, "SYSADMIN" },
+	{ 264, "LVMPROVIDER" },
 	{ 265, "IXGBE" },
 	{ 267, "NS_LS_TELNET" },
 	{ 268, "NS_LS_SCTP" },
+	{ 269, "HSSN" },
+	{ 270, "IGSSN" },
+	{ 271, "ICXGBE" },
 	{ 513, "KL_VM" },
 	{ 514, "KL_PKM" },
 	{ 515, "KL_DLKM" },
@@ -191,6 +197,7 @@ static const value_string subsystem[] = {
 	{ 524, "KL_NET" },
 	{ 525, "KL_MC" },
 	{ 526, "KL_DYNTUNE" },
+	{ 527, "KL_KEN" },
 	{ 0, NULL }
 };
 

@@ -433,6 +433,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	case NETTL_SUBSYS_IGELAN :
 	case NETTL_SUBSYS_IETHER :
 	case NETTL_SUBSYS_IXGBE :
+	case NETTL_SUBSYS_IGSSN :
+	case NETTL_SUBSYS_ICXGBE :
 	case NETTL_SUBSYS_HPPB_FDDI :
 	case NETTL_SUBSYS_EISA_FDDI :
         case NETTL_SUBSYS_PCI_FDDI :
