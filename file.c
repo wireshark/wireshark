@@ -177,7 +177,7 @@ cf_callback_remove(cf_callback_t func)
     while(cb_item != NULL) {
         cb = cb_item->data;
         if(cb->cb_fct == func) {
-            g_list_remove(cf_callbacks, cb);
+            cf_callbacks = g_list_remove(cf_callbacks, cb);
             g_free(cb);
             return;
         }
