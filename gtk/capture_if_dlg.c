@@ -667,5 +667,11 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   timer_id = gtk_timeout_add(1000, update_all, sc);
 }
 
+#else /* HAVE_LIBPCAP */
+
+void
+set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress _U_)
+{
+}
 
 #endif /* HAVE_LIBPCAP */
