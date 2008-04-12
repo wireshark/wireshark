@@ -69,7 +69,7 @@
 #include "register.h"
 #include "recent.h"
 #include "../ui_util.h"
-#include "proto_draw.h"
+#include "main_proto_draw.h"
 #include "conversations_table.h"
 #include "hostlist_table.h"
 #include "simple_dialog.h"

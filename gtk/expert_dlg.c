@@ -57,7 +57,7 @@
 
 #include <epan/prefs.h>
 #include "colors.h"
-#include "proto_draw.h"
+#include "main_proto_draw.h"
 #include "help_dlg.h"
 
 

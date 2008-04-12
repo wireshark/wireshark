@@ -49,7 +49,7 @@
 #include "simple_dialog.h"
 
 #include "main_packet_list.h"
-#include "proto_draw.h"
+#include "main_proto_draw.h"
 #include "follow_tcp.h"
 
 

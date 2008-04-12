@@ -55,7 +55,7 @@
 #include <epan/addr_resolv.h>
 #include "packet_win.h"
 #include "simple_dialog.h"
-#include "proto_draw.h"
+#include "main_proto_draw.h"
 #include "keys.h"
 #include "gtkglobals.h"
 #include "gui_utils.h"

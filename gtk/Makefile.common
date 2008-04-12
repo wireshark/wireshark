@@ -84,6 +84,7 @@ WIRESHARK_GTK_SRC = \
 	main.c		\
 	main_menu.c		\
 	main_packet_list.c	\
+	main_proto_draw.c	\
 	main_statusbar.c		\
 	main_toolbar.c	\
 	main_welcome.c		\
@@ -98,7 +99,6 @@ WIRESHARK_GTK_SRC = \
 	profile_dlg.c	\
 	progress_dlg.c	\
 	proto_dlg.c	\
-	proto_draw.c	\
 	proto_hier_stats_dlg.c	\
 	range_utils.c	\
 	recent.c	\
@@ -248,6 +248,7 @@ noinst_HEADERS = \
 	main.h		\
 	main_menu.h		\
 	main_packet_list.h	\
+	main_proto_draw.h	\
 	main_statusbar.h		\
 	main_toolbar.h	\
 	main_welcome.h		\
@@ -261,7 +262,6 @@ noinst_HEADERS = \
 	print_prefs.h	\
 	profile_dlg.h	\
 	proto_dlg.h	\
-	proto_draw.h	\
 	proto_hier_stats_dlg.h	\
 	range_utils.h \
 	recent.h	\

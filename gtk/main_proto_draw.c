@@ -48,8 +48,6 @@
 
 #include "isprint.h"
 
-#include "main.h"
-#include "main_menu.h"
 #include <epan/packet.h>
 #include <epan/charsets.h>
 #include "keys.h"
@@ -57,7 +55,6 @@
 #include <epan/prefs.h>
 #include "colors.h"
 #include "capture_file_dlg.h"
-#include "proto_draw.h"
 #include "packet_win.h"
 #if 0
 #include "dlg_utils.h"
@@ -73,6 +70,10 @@
 #include "../ui_util.h"
 #include "file_util.h"
 #include "webbrowser.h"
+
+#include "main.h"
+#include "main_menu.h"
+#include "main_proto_draw.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>

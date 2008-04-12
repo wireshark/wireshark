@@ -135,7 +135,7 @@
 #include "drag_and_drop.h"
 #include "capture_file_dlg.h"
 #include <epan/column.h>
-#include "proto_draw.h"
+#include "main_proto_draw.h"
 #include "keys.h"
 #include "packet_win.h"
 #include "stock_icons.h"

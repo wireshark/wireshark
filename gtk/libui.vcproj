@@ -444,6 +444,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_proto_draw.c"
+				>
+			</File>
+			<File
 				RelativePath=".\main_statusbar.c"
 				>
 			</File>
@@ -525,10 +529,6 @@
 			</File>
 			<File
 				RelativePath=".\proto_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\proto_draw.c"
 				>
 			</File>
 			<File
@@ -914,6 +914,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_proto_draw.h"
+				>
+			</File>
+			<File
 				RelativePath=".\main_statusbar.h"
 				>
 			</File>
@@ -975,10 +979,6 @@
 			</File>
 			<File
 				RelativePath=".\proto_dlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\proto_draw.h"
 				>
 			</File>
 			<File

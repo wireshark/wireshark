@@ -40,11 +40,11 @@
 #include "gui_utils.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
-#include "proto_draw.h"
 #include "main.h"
+#include "main_packet_list.h"
+#include "main_proto_draw.h"
 #include "main_toolbar.h"
 #include "font_utils.h"
-#include "main_packet_list.h"
 #include "recent.h"
 #include "webbrowser.h"
 
