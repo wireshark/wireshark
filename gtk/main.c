@@ -115,7 +115,6 @@
 #endif /* _WIN32 */
 
 /* GTK related */
-#include "statusbar.h"
 #include "alert_box.h"
 #if 0
 #include "dlg_utils.h"
@@ -127,6 +126,7 @@
 #include "color_dlg.h"
 
 #include "main.h"
+#include "main_statusbar.h"
 #include "main_welcome.h"
 #include "menu.h"
 #include "../main_window.h"
@@ -153,7 +153,6 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
-#include "expert_comp_dlg.h"
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
 #include "../image/wsicon32.xpm"
@@ -163,11 +162,6 @@
 #include "../image/wsiconcap32.xpm"
 #include "../image/wsiconcap48.xpm"
 #endif
-#include "../image/expert_error.xpm"
-#include "../image/expert_warn.xpm"
-#include "../image/expert_note.xpm"
-#include "../image/expert_chat.xpm"
-#include "../image/expert_none.xpm"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>
@@ -192,20 +186,14 @@
  */
 #define RC_FILE "gtkrc"
 
-#ifdef HAVE_LIBPCAP
-#define DEF_READY_MESSAGE " Ready to load or capture"
-#else
-#define DEF_READY_MESSAGE " Ready to load file"
-#endif
-
 capture_file cfile;
 GtkWidget   *main_display_filter_widget=NULL;
 GtkWidget   *top_level = NULL, *tree_view, *byte_nb_ptr, *tv_scrollw;
 GtkWidget   *pkt_scrollw;
 static GtkWidget   *main_pane_v1, *main_pane_v2, *main_pane_h1, *main_pane_h2;
 static GtkWidget   *main_first_pane, *main_second_pane;
-static GtkWidget   *status_pane_left, *status_pane_right;
-static GtkWidget   *menubar, *main_vbox, *main_tb, *stat_hbox, *filter_tb;
+GtkWidget   *statusbar;
+static GtkWidget   *menubar, *main_vbox, *main_tb, *filter_tb;
 static GtkWidget   *priv_warning_dialog;
 
 #ifdef HAVE_AIRPCAP
@@ -214,32 +202,8 @@ static GtkWidget *driver_warning_dialog;
 static int    airpcap_dll_ret_val = -1;
 #endif
 
-/*
- * The order below defines the priority of info bar contexts.
- */
-typedef enum {
-    STATUS_LEVEL_MAIN,
-    STATUS_LEVEL_FILE,
-    STATUS_LEVEL_FILTER,
-    STATUS_LEVEL_HELP,
-    NUM_STATUS_LEVELS
-} status_level_e;
-
-static GtkWidget    *info_bar;
-static GtkWidget    *packets_bar = NULL;
-static GtkWidget    *profile_bar = NULL;
 static GtkWidget    *welcome_pane;
-static GtkWidget    *expert_info_error;
-static GtkWidget    *expert_info_warn;
-static GtkWidget    *expert_info_note;
-static GtkWidget    *expert_info_chat;
-static GtkWidget    *expert_info_none;
-static guint        main_ctx, file_ctx, help_ctx, filter_ctx;
-static guint        status_levels[NUM_STATUS_LEVELS];
-static guint        packets_ctx;
-static guint        profile_ctx;
-static gchar        *packets_str = NULL;
-static gchar        *profile_str = NULL;
+
 GString *comp_info_str, *runtime_info_str;
 gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
@@ -830,6 +794,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
             length = strlen(finfo->hfinfo->name);
         }
         finfo_length = finfo->length + finfo->appendix_length;
+
         if (finfo_length == 0) {
             len_str[0] = '\0';
         } else if (finfo_length == 1) {
@@ -867,7 +832,6 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
             statusbar_push_field_msg("");
         }
     }
-
     packet_hex_print(byte_view, byte_data, cfile.current_frame, finfo,
                      byte_len);
 }
@@ -900,145 +864,6 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
     proto_tree_draw(cfile.edt->tree, tree_view);
     g_resolv_flags = tmp;
   }
-}
-
-/*
- * Push a message referring to file access onto the statusbar.
- */
-void
-statusbar_push_file_msg(const gchar *msg)
-{
-    int i;
-
-    /*g_warning("statusbar_push: %s", msg);*/
-    for (i = STATUS_LEVEL_FILE + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
-    status_levels[STATUS_LEVEL_FILE]++;
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, msg);
-}
-
-/*
- * Pop a message referring to file access off the statusbar.
- */
-void
-statusbar_pop_file_msg(void)
-{
-    /*g_warning("statusbar_pop");*/
-    if (status_levels[STATUS_LEVEL_FILE] > 0) {
-        status_levels[STATUS_LEVEL_FILE]--;
-    }
-    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
-}
-
-/*
- * XXX - do we need multiple statusbar contexts?
- */
-
-/*
- * Push a message referring to the currently-selected field onto the statusbar.
- */
-void
-statusbar_push_field_msg(const gchar *msg)
-{
-    int i;
-
-    for (i = STATUS_LEVEL_HELP + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
-    status_levels[STATUS_LEVEL_HELP]++;
-
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, msg);
-}
-
-/*
- * Pop a message referring to the currently-selected field off the statusbar.
- */
-void
-statusbar_pop_field_msg(void)
-{
-    if (status_levels[STATUS_LEVEL_HELP] > 0) {
-        status_levels[STATUS_LEVEL_HELP]--;
-    }
-    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), help_ctx);
-}
-
-/*
- * Push a message referring to the current filter onto the statusbar.
- */
-void
-statusbar_push_filter_msg(const gchar *msg)
-{
-    int i;
-
-    for (i = STATUS_LEVEL_FILTER + 1; i < NUM_STATUS_LEVELS; i++) {
-        if (status_levels[i])
-            return;
-    }
-    status_levels[STATUS_LEVEL_FILTER]++;
-
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), filter_ctx, msg);
-}
-
-/*
- * Pop a message referring to the current filter off the statusbar.
- */
-void
-statusbar_pop_filter_msg(void)
-{
-    if (status_levels[STATUS_LEVEL_FILTER] > 0) {
-        status_levels[STATUS_LEVEL_FILTER]--;
-    }
-    gtk_statusbar_pop(GTK_STATUSBAR(info_bar), filter_ctx);
-}
-
-/*
- * update the packets statusbar to the current values
- */
-void packets_bar_update(void)
-{
-
-    if(packets_bar) {
-        /* remove old status */
-        if(packets_str) {
-            g_free(packets_str);
-            gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
-        }
-
-        /* do we have any packets? */
-        if(cfile.count) {
-            if(cfile.drops_known) {
-                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u Dropped: %u",
-                    cfile.count, cfile.displayed_count, cfile.marked_count, cfile.drops);
-            } else {
-                packets_str = g_strdup_printf(" Packets: %u Displayed: %u Marked: %u",
-                    cfile.count, cfile.displayed_count, cfile.marked_count);
-            }
-        } else {
-            packets_str = g_strdup(" No Packets");
-        }
-        gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, packets_str);
-    }
-}
-
-/*
- * update the packets statusbar to the current values
- */
-void profile_bar_update(void)
-{
-    if (profile_bar) {
-        /* remove old status */
-        if(profile_str) {
-            g_free(profile_str);
-            gtk_statusbar_pop(GTK_STATUSBAR(profile_bar), profile_ctx);
-        }
-
-	profile_str = g_strdup_printf (" Profile: %s", get_profile_name ());
-
-        gtk_statusbar_push(GTK_STATUSBAR(profile_bar), profile_ctx, profile_str);
-    }
 }
 
 void
@@ -1178,10 +1003,7 @@ main_load_window_geometry(GtkWidget *widget)
         gtk_paned_set_position(GTK_PANED(main_first_pane), recent.gui_geometry_main_upper_pane);
     if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_main_lower_pane)
         gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
-    if (recent.has_gui_geometry_status_pane && recent.gui_geometry_status_pane_left)
-        gtk_paned_set_position(GTK_PANED(status_pane_left), recent.gui_geometry_status_pane_left);
-    if (recent.has_gui_geometry_status_pane && recent.gui_geometry_status_pane_right)
-        gtk_paned_set_position(GTK_PANED(status_pane_right), recent.gui_geometry_status_pane_right);
+    statusbar_load_window_geometry();
 }
 
 
@@ -1208,8 +1030,7 @@ main_save_window_geometry(GtkWidget *widget)
 
     recent.gui_geometry_main_upper_pane     = gtk_paned_get_position(GTK_PANED(main_first_pane));
     recent.gui_geometry_main_lower_pane     = gtk_paned_get_position(GTK_PANED(main_second_pane));
-    recent.gui_geometry_status_pane_left    = gtk_paned_get_position(GTK_PANED(status_pane_left));
-    recent.gui_geometry_status_pane_right   = gtk_paned_get_position(GTK_PANED(status_pane_right));
+    statusbar_save_window_geometry();
 }
 
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
@@ -1461,14 +1282,11 @@ unprotect_thread_critical_region(void)
 #endif
 }
 
-/* Set the file name in the status line, in the name for the main window,
-   and in the name for the main window's icon. */
+/* Set the file name in the name for the main window and in the name for the main window's icon. */
 static void
 set_display_filename(capture_file *cf)
 {
   const gchar *name_ptr;
-  gchar       *status_msg;
-  gchar       *size_str;
   gchar       *win_name;
 
   name_ptr = cf_get_display_name(cf);
@@ -1477,49 +1295,6 @@ set_display_filename(capture_file *cf)
     /* Add this filename to the list of recent files in the "Recent Files" submenu */
     add_menu_recent_capture_file(cf->filename);
   }
-
-  /* expert info indicator */
-  gtk_widget_hide(expert_info_error);
-  gtk_widget_hide(expert_info_warn);
-  gtk_widget_hide(expert_info_note);
-  gtk_widget_hide(expert_info_chat);
-  gtk_widget_hide(expert_info_none);
-  switch(expert_get_highest_severity()) {
-      case(PI_ERROR):
-        gtk_widget_show(expert_info_error);
-        break;
-      case(PI_WARN):
-        gtk_widget_show(expert_info_warn);
-        break;
-      case(PI_NOTE):
-        gtk_widget_show(expert_info_note);
-        break;
-      case(PI_CHAT):
-        gtk_widget_show(expert_info_chat);
-        break;
-      default:
-        gtk_widget_show(expert_info_none);
-        break;
-  }
-
-  /* statusbar */
-  /* convert file size */
-  if (cf->f_datalen/1024/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d MB", cf->f_datalen/1024/1024);
-  } else if (cf->f_datalen/1024 > 10) {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d KB", cf->f_datalen/1024);
-  } else {
-    size_str = g_strdup_printf("%" G_GINT64_MODIFIER "d Bytes", cf->f_datalen);
-  }
-
-  status_msg = g_strdup_printf(" File: \"%s\" %s %02lu:%02lu:%02lu",
-    (cf->filename) ? cf->filename : "", size_str,
-    (long)cf->elapsed_time.secs/3600,
-    (long)cf->elapsed_time.secs%3600/60,
-    (long)cf->elapsed_time.secs%60);
-  g_free(size_str);
-  statusbar_push_file_msg(status_msg);
-  g_free(status_msg);
 
   /* window title */
   win_name = g_strdup_printf("%s - Wireshark", name_ptr);
@@ -1564,18 +1339,6 @@ main_cf_cb_file_closing(capture_file *cf)
     destroy_packet_wins();
     file_save_as_destroy();
 
-    /* Clear any file-related status bar messages.
-       XXX - should be "clear *ALL* file-related status bar messages;
-       will there ever be more than one on the stack? */
-    statusbar_pop_file_msg();
-
-    /* reset expert info indicator */
-    gtk_widget_hide(expert_info_error);
-    gtk_widget_hide(expert_info_warn);
-    gtk_widget_hide(expert_info_note);
-    gtk_widget_hide(expert_info_chat);
-    gtk_widget_show(expert_info_none);
-
     /* Restore the standard title bar message. */
     set_main_window_name("The Wireshark Network Analyzer");
 
@@ -1599,26 +1362,12 @@ main_cf_cb_file_closed(capture_file *cf _U_)
     splash_destroy(close_dlg);
     close_dlg = NULL;
   }
-
-  /* go back to "No packets" */
-  packets_bar_update();
 }
+
 
 static void
 main_cf_cb_file_read_start(capture_file *cf)
 {
-  const gchar *name_ptr;
-  gchar       *load_msg;
-
-  /* Ensure we pop any previous loaded filename */
-  statusbar_pop_file_msg();
-
-  name_ptr = get_basename(cf->filename);
-
-  load_msg = g_strdup_printf(" Loading: %s", name_ptr);
-  statusbar_push_file_msg(load_msg);
-  g_free(load_msg);
-
   /* Set up main window for a capture file. */
   main_set_for_capture_file(TRUE);
 }
@@ -1626,7 +1375,6 @@ main_cf_cb_file_read_start(capture_file *cf)
 static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
-    statusbar_pop_file_msg();
     set_display_filename(cf);
 
     /* Enable menu items that make sense if you have a capture file you've
@@ -1703,9 +1451,6 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
        a capture. */
     set_menus_for_capture_in_progress(TRUE);
 
-    /* update statusbar */
-    statusbar_push_file_msg(" Waiting for capture input data ...");
-
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
 }
@@ -1713,7 +1458,6 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 static void
 main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 {
-    gchar *capture_msg;
     gchar *title;
 
     /* We've done this in "prepared" above, but it will be cleared while
@@ -1733,91 +1477,14 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
        packets (yes, I know, we don't have any *yet*). */
     set_menus_for_captured_packets(TRUE);
 
-    statusbar_pop_file_msg();
-
-    if(capture_opts->iface) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				      get_iface_description(capture_opts),
-				      (capture_opts->save_file) ? capture_opts->save_file : "");
-    } else {
-        capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
-            (capture_opts->save_file) ? capture_opts->save_file : "");
-    }
-
-    statusbar_push_file_msg(capture_msg);
-
-    g_free(capture_msg);
-
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
 }
 
 static void
-main_cf_cb_live_capture_update_continue(capture_file *cf)
-{
-    gchar *capture_msg;
-
-
-    statusbar_pop_file_msg();
-
-    /* expert info indicator */
-    gtk_widget_hide(expert_info_error);
-    gtk_widget_hide(expert_info_warn);
-    gtk_widget_hide(expert_info_note);
-    gtk_widget_hide(expert_info_chat);
-    gtk_widget_hide(expert_info_none);
-    switch(expert_get_highest_severity()) {
-        case(PI_ERROR):
-        gtk_widget_show(expert_info_error);
-        break;
-        case(PI_WARN):
-        gtk_widget_show(expert_info_warn);
-        break;
-        case(PI_NOTE):
-        gtk_widget_show(expert_info_note);
-        break;
-        case(PI_CHAT):
-        gtk_widget_show(expert_info_chat);
-        break;
-        default:
-        gtk_widget_show(expert_info_none);
-        break;
-    }
-
-    if (cf->f_datalen/1024/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024/1024);
-    } else if (cf->f_datalen/1024 > 10) {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen/1024);
-    } else {
-        capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
-				      cf->f_datalen);
-    }
-
-    statusbar_push_file_msg(capture_msg);
-}
-
-GtkWidget * stop_dlg = NULL;
-
-static void
 main_cf_cb_live_capture_update_finished(capture_file *cf)
 {
     static GList *icon_list = NULL;
-
-    if(stop_dlg != NULL) {
-        simple_dialog_close(stop_dlg);
-        stop_dlg = NULL;
-    }
-
-    /* Pop the "<live capture in progress>" message off the status bar. */
-    statusbar_pop_file_msg();
 
     set_display_filename(cf);
 
@@ -1847,58 +1514,14 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 static void
 main_cf_cb_live_capture_fixed_started(capture_options *capture_opts)
 {
-    gchar *capture_msg;
-
-
-    /* Enable menu items that make sense if you have some captured
-       packets (yes, I know, we don't have any *yet*). */
-    /*set_menus_for_captured_packets(TRUE);*/
-
-    statusbar_pop_file_msg();
-
-    capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				  get_iface_description(capture_opts),
-				  (capture_opts->save_file) ? capture_opts->save_file : "");
-
-    statusbar_push_file_msg(capture_msg);
-    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");
-
-    g_free(capture_msg);
-
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
-}
-
-static void
-main_cf_cb_live_capture_fixed_continue(capture_file *cf)
-{
-    gchar *capture_msg;
-
-
-    gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
-
-    capture_msg = g_strdup_printf(" Packets: %u", cf_get_packet_count(cf));
-
-    gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, capture_msg);
-
-    g_free(capture_msg);
 }
 
 static void
 main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
 {
     static GList *icon_list = NULL;
-
-    if(stop_dlg != NULL) {
-        simple_dialog_close(stop_dlg);
-        stop_dlg = NULL;
-    }
-
-    /* Pop the "<live capture in progress>" message off the status bar. */
-    statusbar_pop_file_msg();
-
-    /* Pop the "<capturing>" message off the status bar */
-    gtk_statusbar_pop(GTK_STATUSBAR(packets_bar), packets_ctx);
 
     /*set_display_filename(cf);*/
 
@@ -1923,23 +1546,6 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
     }
-}
-
-static void
-main_cf_cb_live_capture_stopping(capture_file *cf _U_)
-{
-    /* Beware: this state won't be called, if the capture child
-     * closes the capturing on it's own! */
-#if 0
-    /* XXX - the time to stop the capture has been reduced (this was only a
-     * problem on Win32 because of the capture piping), so showing a splash
-     * isn't really necessary any longer. Unfortunately, the GTKClist packet
-     * list seems to have problems updating after the dialog is closed, so
-     * this was disabled here. */
-    stop_dlg = simple_dialog(ESD_TYPE_STOP, ESD_BTN_NONE, "%sCapture stop!%s\n\nPlease wait ...",
-		simple_dialog_primary_start(), simple_dialog_primary_end());
-    gtk_window_set_position(GTK_WINDOW(stop_dlg), GTK_WIN_POS_CENTER_ON_PARENT);
-#endif
 }
 
 #endif
@@ -1980,36 +1586,7 @@ main_cf_cb_packet_unselected(capture_file *cf)
 static void
 main_cf_cb_field_unselected(capture_file *cf)
 {
-    statusbar_pop_field_msg();
     set_menus_for_selected_tree_row(cf);
-}
-
-static void
-main_cf_cb_file_safe_started(gchar * filename)
-{
-    const gchar  *name_ptr;
-    gchar        *save_msg;
-
-    name_ptr = get_basename(filename);
-
-    save_msg = g_strdup_printf(" Saving: %s...", name_ptr);
-
-    statusbar_push_file_msg(save_msg);
-    g_free(save_msg);
-}
-
-static void
-main_cf_cb_file_safe_finished(gpointer data _U_)
-{
-    /* Pop the "Saving:" message off the status bar. */
-    statusbar_pop_file_msg();
-}
-
-static void
-main_cf_cb_file_safe_failed(gpointer data _U_)
-{
-    /* Pop the "Saving:" message off the status bar. */
-    statusbar_pop_file_msg();
 }
 
 static void
@@ -2048,7 +1625,6 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_live_capture_update_continue):
         /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
-        main_cf_cb_live_capture_update_continue(data);
         break;
     case(cf_cb_live_capture_update_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
@@ -2060,7 +1636,6 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_live_capture_fixed_continue):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
-        main_cf_cb_live_capture_fixed_continue(data);
         break;
     case(cf_cb_live_capture_fixed_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
@@ -2068,7 +1643,8 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_live_capture_stopping):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
-        main_cf_cb_live_capture_stopping(data);
+        /* Beware: this state won't be called, if the capture child
+         * closes the capturing on it's own! */
         break;
 #endif
     case(cf_cb_packet_selected):
@@ -2082,11 +1658,9 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_file_safe_started):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe started");
-        main_cf_cb_file_safe_started(data);
         break;
     case(cf_cb_file_safe_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe finished");
-        main_cf_cb_file_safe_finished(data);
         break;
     case(cf_cb_file_safe_reload_finished):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: reload finished");
@@ -2094,7 +1668,6 @@ static void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         break;
     case(cf_cb_file_safe_failed):
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: safe failed");
-        main_cf_cb_file_safe_failed(data);
         break;
     default:
         g_warning("main_cf_callback: event %u unknown", event);
@@ -2497,6 +2070,7 @@ main(int argc, char *argv[])
   gtk_init (&argc, &argv);
 
   cf_callback_add(main_cf_callback, NULL);
+  cf_callback_add(statusbar_cf_callback, NULL);
 
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.
@@ -3322,48 +2896,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 }
 
 
-static GtkWidget *info_bar_new(void)
-{
-    int i;
-
-    /* tip: tooltips don't work on statusbars! */
-    info_bar = gtk_statusbar_new();
-    main_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "main");
-    file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
-    help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
-    filter_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "filter");
-    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
-
-    for (i = 0; i < NUM_STATUS_LEVELS; i++) {
-        status_levels[i] = 0;
-    }
-
-    return info_bar;
-}
-
-static GtkWidget *packets_bar_new(void)
-{
-    /* tip: tooltips don't work on statusbars! */
-    packets_bar = gtk_statusbar_new();
-    packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
-    packets_bar_update();
-    gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
-
-    return packets_bar;
-}
-
-static GtkWidget *profile_bar_new(void)
-{
-    /* tip: tooltips don't work on statusbars! */
-    profile_bar = gtk_statusbar_new();
-    profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
-    profile_bar_update();
-
-    return profile_bar;
-}
-
-
 /*
  * Helper for main_widgets_rearrange()
  */
@@ -3412,17 +2944,7 @@ void main_widgets_rearrange(void) {
     gtk_widget_ref(pkt_scrollw);
     gtk_widget_ref(tv_scrollw);
     gtk_widget_ref(byte_nb_ptr);
-    gtk_widget_ref(stat_hbox);
-    gtk_widget_ref(expert_info_error);
-    gtk_widget_ref(expert_info_warn);
-    gtk_widget_ref(expert_info_note);
-    gtk_widget_ref(expert_info_chat);
-    gtk_widget_ref(expert_info_none);
-    gtk_widget_ref(info_bar);
-    gtk_widget_ref(packets_bar);
-    gtk_widget_ref(profile_bar);
-    gtk_widget_ref(status_pane_left);
-    gtk_widget_ref(status_pane_right);
+    gtk_widget_ref(statusbar);
     gtk_widget_ref(main_pane_v1);
     gtk_widget_ref(main_pane_v2);
     gtk_widget_ref(main_pane_h1);
@@ -3431,13 +2953,12 @@ void main_widgets_rearrange(void) {
 
     /* empty all containers participating */
     gtk_container_foreach(GTK_CONTAINER(main_vbox),     foreach_remove_a_child, main_vbox);
-    gtk_container_foreach(GTK_CONTAINER(stat_hbox),     foreach_remove_a_child, stat_hbox);
-    gtk_container_foreach(GTK_CONTAINER(status_pane_left),   foreach_remove_a_child, status_pane_left);
-    gtk_container_foreach(GTK_CONTAINER(status_pane_right),   foreach_remove_a_child, status_pane_right);
     gtk_container_foreach(GTK_CONTAINER(main_pane_v1),  foreach_remove_a_child, main_pane_v1);
     gtk_container_foreach(GTK_CONTAINER(main_pane_v2),  foreach_remove_a_child, main_pane_v2);
     gtk_container_foreach(GTK_CONTAINER(main_pane_h1),  foreach_remove_a_child, main_pane_h1);
     gtk_container_foreach(GTK_CONTAINER(main_pane_h2),  foreach_remove_a_child, main_pane_h2);
+
+    statusbar_widgets_emptying(statusbar);
 
     /* add the menubar always at the top */
     gtk_box_pack_start(GTK_BOX(main_vbox), menubar, FALSE, TRUE, 0);
@@ -3518,12 +3039,12 @@ void main_widgets_rearrange(void) {
     /* welcome pane */
     gtk_box_pack_start(GTK_BOX(main_vbox), welcome_pane, TRUE, TRUE, 0);
 
-    /* statusbar hbox */
-    gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
+    /* statusbar */
+    gtk_box_pack_start(GTK_BOX(main_vbox), statusbar, FALSE, TRUE, 0);
 
     /* filter toolbar in statusbar hbox */
     if (prefs.filter_toolbar_show_in_statusbar) {
-        gtk_box_pack_start(GTK_BOX(stat_hbox), filter_tb, FALSE, TRUE, 1);
+        gtk_box_pack_start(GTK_BOX(statusbar), filter_tb, FALSE, TRUE, 1);
     }
 
 #ifdef HAVE_AIRPCAP
@@ -3531,17 +3052,8 @@ void main_widgets_rearrange(void) {
     gtk_box_pack_start(GTK_BOX(main_vbox), airpcap_tb, FALSE, TRUE, 1);
 #endif
 
-    /* statusbar */
-    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_error, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_warn, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_note, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_chat, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), expert_info_none, FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(stat_hbox), status_pane_left, TRUE, TRUE, 0);
-    gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar, FALSE, FALSE);
-    gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
-    gtk_paned_pack1(GTK_PANED(status_pane_right), packets_bar, TRUE, FALSE);
-    gtk_paned_pack2(GTK_PANED(status_pane_right), profile_bar, FALSE, FALSE);
+    /* statusbar widgets */
+    statusbar_widgets_pack(statusbar);
 
     /* hide widgets on users recent settings */
     main_widgets_show_or_hide();
@@ -3579,28 +3091,7 @@ main_widgets_show_or_hide(void)
         gtk_widget_hide(main_tb);
     }
 
-    /*
-     * Show the status hbox if either:
-     *
-     *    1) we're showing the filter toolbar and we want it in the status
-     *       line
-     *
-     * or
-     *
-     *    2) we're showing the status bar.
-     */
-    if ((recent.filter_toolbar_show && prefs.filter_toolbar_show_in_statusbar) ||
-         recent.statusbar_show) {
-        gtk_widget_show(stat_hbox);
-    } else {
-        gtk_widget_hide(stat_hbox);
-    }
-
-    if (recent.statusbar_show) {
-        gtk_widget_show(status_pane_left);
-    } else {
-        gtk_widget_hide(status_pane_left);
-    }
+    statusbar_widgets_show_or_hide(statusbar);
 
     if (recent.filter_toolbar_show) {
         gtk_widget_show(filter_tb);
@@ -3890,8 +3381,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
                   *filter_bt, *filter_cm, *filter_te,
                   *filter_add_expr_bt,
                   *filter_apply,
-                  *filter_reset,
-                  *expert_image;
+                  *filter_reset;
     GList         *dfilter_list = NULL;
     GtkTooltips   *tooltips;
 
@@ -4330,66 +3820,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
 
-    /* expert info indicator */
-    expert_image = xpm_to_widget_from_parent(top_level, expert_error_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_image, "ERROR is the highest expert info level", NULL);
-    gtk_widget_show(expert_image);
-    expert_info_error = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(expert_info_error), expert_image);
-    g_signal_connect(expert_info_error, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
-
-    expert_image = xpm_to_widget_from_parent(top_level, expert_warn_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_image, "WARNING is the highest expert info level", NULL);
-    gtk_widget_show(expert_image);
-    expert_info_warn = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(expert_info_warn), expert_image);
-    g_signal_connect(expert_info_warn, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
-
-    expert_image = xpm_to_widget_from_parent(top_level, expert_note_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_image, "NOTE is the highest expert info level", NULL);
-    gtk_widget_show(expert_image);
-    expert_info_note = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(expert_info_note), expert_image);
-    g_signal_connect(expert_info_note, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
-
-    expert_image = xpm_to_widget_from_parent(top_level, expert_chat_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_image, "CHAT is the highest expert info level", NULL);
-    gtk_widget_show(expert_image);
-    expert_info_chat = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
-    g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
-
-    expert_image = xpm_to_widget_from_parent(top_level, expert_none_xpm);
-    gtk_tooltips_set_tip(tooltips, expert_image, "No expert info", NULL);
-    gtk_widget_show(expert_image);
-    expert_info_none = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(expert_info_none), expert_image);
-    g_signal_connect(expert_info_none, "button_press_event", G_CALLBACK(expert_comp_dlg_cb), NULL);
-    gtk_widget_show(expert_info_none);
-
-
-    /* info (main) statusbar */
-    info_bar = info_bar_new();
-    gtk_widget_show(info_bar);
-
-    /* packets statusbar */
-    packets_bar = packets_bar_new();
-    gtk_widget_show(packets_bar);
-
-    /* profile statusbar */
-    profile_bar = profile_bar_new();
-    gtk_widget_show(profile_bar);
-
-    /* Filter/status hbox */
-    stat_hbox = gtk_hbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
-    gtk_widget_show(stat_hbox);
-
-    /* Pane for the statusbar */
-    status_pane_left = gtk_hpaned_new();
-    gtk_widget_show(status_pane_left);
-    status_pane_right = gtk_hpaned_new();
-    gtk_widget_show(status_pane_right);
+    /* status bar */
+    statusbar = statusbar_new();
 
     /* Pane for the welcome screen */
     welcome_pane = welcome_new();

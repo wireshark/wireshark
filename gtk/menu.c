@@ -2413,7 +2413,6 @@ set_menus_for_capture_file(capture_file *cf)
     set_toolbar_for_unsaved_capture_file(!cf->user_saved);
     set_toolbar_for_capture_file(TRUE);
   }
-  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether there's a capture in
@@ -2551,7 +2550,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
   walk_menu_tree_for_captured_packets(tap_menu_tree_root,
       have_captured_packets);
   set_toolbar_for_captured_packets(have_captured_packets);
-  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether a packet is selected and,
@@ -2737,7 +2735,6 @@ set_menus_for_selected_packet(capture_file *cf)
 
   walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
       cf->edt);
-  packets_bar_update();
 }
 
 /* Enable or disable menu items based on whether a tree row is selected

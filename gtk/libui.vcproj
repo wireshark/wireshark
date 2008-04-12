@@ -436,6 +436,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\main_statusbar.c"
+				>
+			</File>
+			<File
 				RelativePath=".\main_welcome.c"
 				>
 			</File>
@@ -899,6 +903,10 @@
 			</File>
 			<File
 				RelativePath=".\main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\main_statusbar.h"
 				>
 			</File>
 			<File

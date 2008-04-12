@@ -326,12 +326,6 @@ extern void main_widgets_show_or_hide(void);
 extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
     gboolean force);
 
-/** Update the packets statusbar to the current values. */
-extern void packets_bar_update(void);
-
-/** Update the profile statusbar to the current values. */
-extern void profile_bar_update(void);
-
 #ifdef _WIN32
 /** Win32 only: Create a console. Beware: cannot be closed again. */
 extern void create_console(void);
@@ -344,17 +338,5 @@ extern void prefs_to_capture_opts(void);
 extern void change_configuration_profile(const gchar *profile_name);
 
 extern GtkWidget *pkt_scrollw;
-
-/** Push a message referring to the current filter onto the statusbar.
- *
- * @param msg The message
- */
-void
-statusbar_push_filter_msg(const gchar *msg);
-
-/** Pop a message referring to the current filter off the statusbar.
- */
-void
-statusbar_pop_filter_msg(void);
 
 #endif /* __MAIN_H__ */

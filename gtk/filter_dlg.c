@@ -33,7 +33,8 @@
 #include <epan/filesystem.h>
 
 #include "filters.h"
-#include "gtk/main.h"
+#include "main.h"
+#include "main_statusbar.h"
 #include "filter_dlg.h"
 #include "dlg_utils.h"
 #include "gui_utils.h"

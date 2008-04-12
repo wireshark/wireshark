@@ -175,7 +175,6 @@ wireshark_INCLUDES =	\
 	proto_hier_stats.h	\
 	simple_dialog.h	\
 	stat_menu.h	\
-	statusbar.h	\
 	summary.h	\
 	sync_pipe.h	\
 	tap_dfilter_dlg.h	\
