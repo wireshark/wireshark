@@ -34,14 +34,14 @@
 
 #include <string.h>
 #include <gtk/gtk.h>
-#include <stdio.h>        /* menu.h needs FILE */
-#include <gtk/menu.h>
+#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
 
 #include <epan/packet.h>
 #include "capture.h"
 #include "globals.h"
 #include <epan/addr_resolv.h>
 #include "main.h"
+#include "main_menu.h"
 #include "gui_utils.h"
 #include "capture_dlg.h"
 #include "capture_errs.h"

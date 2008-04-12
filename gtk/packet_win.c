@@ -50,8 +50,6 @@
 #include "summary.h"
 #include "file.h"
 #include <epan/prefs.h>
-#include "menu.h"
-#include "../menu.h"
 #include <epan/column.h>
 #include "print.h"
 #include <epan/addr_resolv.h>

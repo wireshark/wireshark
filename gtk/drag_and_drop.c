@@ -37,11 +37,11 @@
 #include "gtkglobals.h"
 #include "util.h"
 #include "capture_file_dlg.h"
-#include "../menu.h"
 #include "file.h"
 #include "simple_dialog.h"
 #include "drag_and_drop.h"
 #include "main.h"
+#include "main_menu.h"
 #ifdef HAVE_LIBPCAP
 #include "capture.h"
 #endif

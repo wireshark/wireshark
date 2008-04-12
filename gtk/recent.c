@@ -35,8 +35,8 @@
 #include "recent.h"
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include "menu.h"
 #include "main.h"
+#include "main_menu.h"
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include "gui_utils.h"

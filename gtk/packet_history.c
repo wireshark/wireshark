@@ -33,7 +33,7 @@
 #include "file.h"
 #include "globals.h"
 
-#include "menu.h"
+#include "main_menu.h"
 #include "packet_history.h"
 
 

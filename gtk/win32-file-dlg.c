@@ -59,7 +59,7 @@
 #include "file_dlg.h"
 #include "capture_file_dlg.h"
 #include "main.h"
-#include "menu.h"
+#include "main_menu.h"
 #include "drag_and_drop.h"
 #if 0
 #include "dlg_utils.h"

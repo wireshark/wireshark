@@ -43,7 +43,7 @@
 #include "dlg_utils.h"
 
 #include "main.h"
-#include "menu.h"
+#include "main_menu.h"
 #include "help_dlg.h"
 
 #include <epan/filesystem.h>

@@ -37,8 +37,8 @@
 #include "../ui_util.h"
 #include "gui_utils.h"
 #include "main.h"
+#include "main_menu.h"
 #include "main_statusbar.h"
-#include "menu.h"
 #include "colors.h"
 #include <epan/column.h>
 #include "epan/column_info.h"

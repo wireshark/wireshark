@@ -37,7 +37,7 @@
 #include "prefs_dlg.h"
 #include "gui_utils.h"
 #include "main.h"
-#include "menu.h"
+#include "main_menu.h"
 
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"

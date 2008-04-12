@@ -126,12 +126,11 @@
 #include "color_dlg.h"
 
 #include "main.h"
+#include "main_menu.h"
 #include "main_statusbar.h"
 #include "main_toolbar.h"
 #include "main_welcome.h"
-#include "menu.h"
 #include "../main_window.h"
-#include "../menu.h"
 #include "drag_and_drop.h"
 #include "capture_file_dlg.h"
 #include <epan/column.h>

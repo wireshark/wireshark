@@ -49,9 +49,9 @@
 #include "isprint.h"
 
 #include "main.h"
+#include "main_menu.h"
 #include <epan/packet.h>
 #include <epan/charsets.h>
-#include "menu.h"
 #include "keys.h"
 
 #include <epan/prefs.h>

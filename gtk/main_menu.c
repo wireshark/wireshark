@@ -1,5 +1,5 @@
-/* menu.c
- * Menu routines
+/* main_menu.c
+ * Main menu routines
  *
  * $Id$
  *
@@ -31,10 +31,11 @@
 #include <string.h>
 
 #include "main.h"
+#include "main_menu.h"
 #include "main_toolbar.h"
-#include "menu.h"
 #include "../stat_menu.h"
 #include "gui_stat_menu.h"
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -72,7 +73,6 @@
 #include "stock_icons.h"
 #include "gtkglobals.h"
 #include "register.h"
-#include "../menu.h"
 #include "packet_list.h"
 #include "recent.h"
 #include "../ui_util.h"
@@ -86,7 +86,6 @@
 #include "firewall_dlg.h"
 #include "u3.h"
 #include "macros_dlg.h"
-
 #include "export_object.h"
 
 

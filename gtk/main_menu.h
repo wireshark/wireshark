@@ -1,5 +1,5 @@
-/* menu.h
- * Menu definitions
+/* main_menu.h
+ * Main menu definitions
  *
  * $Id$
  *
@@ -22,13 +22,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __GTKGUIMENU_H__
-#define __GTKGUIMENU_H__
+#ifndef __MAIN_MENU_H__
+#define __MAIN_MENU_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
+/* Add a new recent capture filename to the "Recent Files" submenu
+   (duplicates will be ignored) */
 extern void add_menu_recent_capture_file(gchar *cf_name);
 
 /** @file
@@ -102,8 +104,32 @@ extern void set_menus_for_file_set(gboolean file_set, gboolean previous_file, gb
 /** The popup menu. */
 extern GtkWidget           *popup_menu_object;
 
+
+/* Enable or disable menu items based on whether a tree row is selected
+   and and on whether a "Match Selected" can be done. */
+void set_menus_for_selected_tree_row(capture_file *cf);
+
+
+/* Enable or disable menu items based on whether you have a capture file
+   you've finished reading and, if you have one, whether it's been saved
+   and whether it could be saved except by copying the raw packet data. */
+void set_menus_for_capture_file(capture_file *);
+
+
+/* Enable or disable menu items based on whether there's a capture in
+   progress. */
+void set_menus_for_capture_in_progress(gboolean);
+
+/* Enable or disable menu items based on whether you have some captured
+   packets. */
+void set_menus_for_captured_packets(gboolean);
+
+/* Enable or disable menu items based on whether a packet is selected. */
+void set_menus_for_selected_packet(capture_file *cf);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __GTKGUIMENU_H__ */
+#endif /* __MAIN_MENU_H__ */

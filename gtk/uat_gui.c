@@ -51,7 +51,6 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "help_dlg.h"
-#include "menu.h"
 #include "stock_icons.h"
 #include <epan/proto.h>
 #include <epan/packet.h>

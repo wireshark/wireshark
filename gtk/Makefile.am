@@ -89,10 +89,10 @@ noinst_HEADERS = \
 	layout_prefs.h	\
 	macros_dlg.h	\
 	main.h		\
+	main_menu.h		\
 	main_statusbar.h		\
 	main_toolbar.h	\
 	main_welcome.h		\
-	menu.h		\
 	mtp3_stat.h	\
 	nameres_prefs.h	\
 	packet_history.h	\

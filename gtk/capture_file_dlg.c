@@ -41,12 +41,12 @@
 #include "gui_utils.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "menu.h"
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "capture_file_dlg.h"
 #include "drag_and_drop.h"
 #include "main.h"
+#include "main_menu.h"
 #include <epan/prefs.h>
 #include "recent.h"
 #include "color.h"

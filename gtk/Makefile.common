@@ -82,10 +82,10 @@ WIRESHARK_GTK_SRC = \
 	layout_prefs.c	\
 	macros_dlg.c	\
 	main.c		\
+	main_menu.c		\
 	main_statusbar.c		\
 	main_toolbar.c	\
 	main_welcome.c		\
-	menu.c		\
 	nameres_prefs.c	\
 	packet_history.c	\
 	packet_list.c	\
