@@ -131,6 +131,7 @@
 #include "menu.h"
 #include "../main_window.h"
 #include "../menu.h"
+#include "drag_and_drop.h"
 #include "capture_file_dlg.h"
 #include <epan/column.h>
 #include "proto_draw.h"

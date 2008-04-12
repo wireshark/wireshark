@@ -45,6 +45,7 @@
 #include "dlg_utils.h"
 #include "file_dlg.h"
 #include "capture_file_dlg.h"
+#include "drag_and_drop.h"
 #include "main.h"
 #include <epan/prefs.h>
 #include "recent.h"

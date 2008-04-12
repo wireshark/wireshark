@@ -782,6 +782,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\drag_and_drop.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ethclist.h"
 				>
 			</File>

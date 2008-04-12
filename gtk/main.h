@@ -326,17 +326,6 @@ extern void main_widgets_show_or_hide(void);
 extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
     gboolean force);
 
-/** Init the drag-n-drop functionality.
- *
- * @param w the target widget for this dnd operations
- */
-extern void dnd_init(GtkWidget *w);
-
-/** Open a new file coming from drag and drop.
- * @param cf_names_freeme the selection data reported from GTK
- */
-extern void dnd_open_file_cmd(gchar *cf_names_freeme);
-
 /** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
 

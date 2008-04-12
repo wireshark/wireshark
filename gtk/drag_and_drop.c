@@ -40,6 +40,7 @@
 #include "../menu.h"
 #include "file.h"
 #include "simple_dialog.h"
+#include "drag_and_drop.h"
 #include "main.h"
 #ifdef HAVE_LIBPCAP
 #include "capture.h"
