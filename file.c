@@ -131,34 +131,60 @@ static   gboolean copy_binary_file(const char *from_filename, const char *to_fil
 #define	FRAME_DATA_CHUNK_SIZE	1024
 
 
-/* one callback for now, we could have a list later */
-static cf_callback_t cf_cb = NULL;
-static gpointer cf_cb_user_data = NULL;
+/* this callback mechanism should possibly be replaced by the g_signal_...() stuff (if I only would know how :-) */
+typedef struct {
+    cf_callback_t cb_fct;
+    gpointer user_data;
+} cf_callback_data_t;
+
+GList *cf_callbacks = NULL;
 
 void
 cf_callback_invoke(int event, gpointer data)
 {
-    g_assert(cf_cb != NULL);
-    cf_cb(event, data, cf_cb_user_data);
+    cf_callback_data_t *cb;
+    GList *cb_item = cf_callbacks;
+
+    /* there should be at least one interested */
+    g_assert(cb_item != NULL);
+
+    while(cb_item != NULL) {
+        cb = cb_item->data;
+        cb->cb_fct(event, data, cb->user_data);
+        cb_item = g_list_next(cb_item);
+    }
 }
 
 
 void
 cf_callback_add(cf_callback_t func, gpointer user_data)
 {
-    /* More than one callback listener is currently not implemented,
-       but should be easy to do. */
-    g_assert(cf_cb == NULL);
-    cf_cb = func;
-    cf_cb_user_data = user_data;
+    cf_callback_data_t *cb;
+
+    cb = g_malloc(sizeof(cf_callback_data_t));
+    cb->cb_fct = func;
+    cb->user_data = user_data;
+
+    cf_callbacks = g_list_append(cf_callbacks, cb);
 }
 
 void
-cf_callback_remove(cf_callback_t func _U_)
+cf_callback_remove(cf_callback_t func)
 {
-    g_assert(cf_cb != NULL);
-    cf_cb = NULL;
-    cf_cb_user_data = NULL;
+    cf_callback_data_t *cb;
+    GList *cb_item = cf_callbacks;
+
+    while(cb_item != NULL) {
+        cb = cb_item->data;
+        if(cb->cb_fct == func) {
+            g_list_remove(cf_callbacks, cb);
+            g_free(cb);
+            return;
+        }
+        cb_item = g_list_next(cb_item);
+    }
+
+    g_assert_not_reached();
 }
 
 void
