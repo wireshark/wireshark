@@ -89,4 +89,28 @@ RevAnnContent/status pkistatus
 #.FN_BODY InfoTypeAndValue/infoValue
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
+#.FN_PARS PKIBody
+  VAL_PTR = &branch_taken
+
+#.FN_BODY PKIBody
+  gint branch_taken;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
+  }
+
+#.FN_PARS PKIStatus
+  VAL_PTR = &value
+
+#.FN_BODY PKIStatus
+  guint32 value;
+
+  %(DEFAULT_BODY)s
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
+  }
+
 #.END_OF_CNF

@@ -147,6 +147,7 @@
          cp       [3]  CertRepMessage,         --Certification Response
          -- p10cr    [4]  CertificationRequest,   
 	   --imported from [PKCS10]
+         p10cr    [4]  NULL, -- added for Wireshark to avoid miscounting of the branch_taken
          popdecc  [5]  POPODecKeyChallContent, --pop Challenge
          popdecr  [6]  POPODecKeyRespContent,  --pop Response
          kur      [7]  CertReqMessages,        --Key Update Request

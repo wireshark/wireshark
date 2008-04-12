@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cmp.c                                                               */
-/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
+/* ../../tools/asn2wrs.py -b -p cmp -c ./cmp.cnf -s ./packet-cmp-template -D . CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -115,6 +115,7 @@ static int hf_cmp_ir = -1;                        /* CertReqMessages */
 static int hf_cmp_ip = -1;                        /* CertRepMessage */
 static int hf_cmp_cr = -1;                        /* CertReqMessages */
 static int hf_cmp_cp = -1;                        /* CertRepMessage */
+static int hf_cmp_p10cr = -1;                     /* NULL */
 static int hf_cmp_popdecc = -1;                   /* POPODecKeyChallContent */
 static int hf_cmp_popdecr = -1;                   /* POPODecKeyRespContent */
 static int hf_cmp_kur = -1;                       /* CertReqMessages */
@@ -334,7 +335,7 @@ static const value_string cmp_T_pvno_vals[] = {
 static int
 dissect_cmp_T_pvno(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -474,7 +475,7 @@ dissect_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate(gboolean implicit_tag _U_, tvb
 static int
 dissect_cmp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -494,8 +495,18 @@ const value_string cmp_PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+#line 108 "cmp.cnf"
+  guint32 value;
+
+    offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                &value);
+
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Status=%s", val_to_str(value, cmp_PKIStatus_vals, "unknown"));
+  }
+
+
 
   return offset;
 }
@@ -636,6 +647,15 @@ int
 dissect_cmp_CertRepMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertRepMessage_sequence, hf_index, ett_cmp_CertRepMessage);
+
+  return offset;
+}
+
+
+
+static int
+dissect_cmp_NULL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_null(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
 }
@@ -1015,6 +1035,7 @@ const value_string cmp_PKIBody_vals[] = {
   {   1, "ip" },
   {   2, "cr" },
   {   3, "cp" },
+  {   4, "p10cr" },
   {   5, "popdecc" },
   {   6, "popdecr" },
   {   7, "kur" },
@@ -1045,6 +1066,7 @@ static const ber_choice_t PKIBody_choice[] = {
   {   1, &hf_cmp_ip              , BER_CLASS_CON, 1, 0, dissect_cmp_CertRepMessage },
   {   2, &hf_cmp_cr              , BER_CLASS_CON, 2, 0, dissect_crmf_CertReqMessages },
   {   3, &hf_cmp_cp              , BER_CLASS_CON, 3, 0, dissect_cmp_CertRepMessage },
+  {   4, &hf_cmp_p10cr           , BER_CLASS_CON, 4, 0, dissect_cmp_NULL },
   {   5, &hf_cmp_popdecc         , BER_CLASS_CON, 5, 0, dissect_cmp_POPODecKeyChallContent },
   {   6, &hf_cmp_popdecr         , BER_CLASS_CON, 6, 0, dissect_cmp_POPODecKeyRespContent },
   {   7, &hf_cmp_kur             , BER_CLASS_CON, 7, 0, dissect_crmf_CertReqMessages },
@@ -1072,9 +1094,19 @@ static const ber_choice_t PKIBody_choice[] = {
 
 int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_choice(actx, tree, tvb, offset,
+#line 96 "cmp.cnf"
+  gint branch_taken;
+
+    offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PKIBody_choice, hf_index, ett_cmp_PKIBody,
-                                 NULL);
+                                 &branch_taken);
+
+
+  if (check_col(actx->pinfo->cinfo, COL_INFO)) {
+  	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " Body=%s", val_to_str(branch_taken, cmp_PKIBody_vals, "unknown"));
+  }
+
+
 
   return offset;
 }
@@ -1804,6 +1836,10 @@ void proto_register_cmp(void) {
       { "cp", "cmp.cp",
         FT_NONE, BASE_NONE, NULL, 0,
         "cmp.CertRepMessage", HFILL }},
+    { &hf_cmp_p10cr,
+      { "p10cr", "cmp.p10cr",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "cmp.NULL", HFILL }},
     { &hf_cmp_popdecc,
       { "popdecc", "cmp.popdecc",
         FT_UINT32, BASE_DEC, NULL, 0,
