@@ -71,7 +71,6 @@
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include "stat_menu.h"
-#include "tap_dfilter_dlg.h"
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
@@ -431,7 +430,6 @@ cf_read(capture_file *cf)
   cum_bytes=0;
 
   reset_tap_listeners();
-  tap_dfilter_dlg_update();
 
   cf_callback_invoke(cf_cb_file_read_start, cf);
 

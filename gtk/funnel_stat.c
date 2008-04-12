@@ -51,7 +51,7 @@
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 #include "font_utils.h"
 #include "gui_stat_menu.h"
 #include <epan/prefs.h>

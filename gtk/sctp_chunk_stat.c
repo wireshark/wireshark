@@ -49,7 +49,7 @@
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 #include "gui_utils.h"
 
 

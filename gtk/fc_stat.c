@@ -52,7 +52,7 @@
 #include "filter_dlg.h"
 #include "service_response_time_table.h"
 #include "../stat_menu.h"
-#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 #include "gtkglobals.h"
 
 

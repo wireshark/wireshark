@@ -42,7 +42,7 @@
 #include <epan/dissectors/packet-sip.h>
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 
 #define SUM_STR_MAX	1024
 

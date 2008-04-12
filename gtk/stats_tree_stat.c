@@ -39,7 +39,7 @@
 #include "gui_utils.h"
 #include "dlg_utils.h"
 #include "../stat_menu.h"
-#include "../tap_dfilter_dlg.h"
+#include "tap_dfilter_dlg.h"
 
 struct _st_node_pres {
 	GtkTreeIter*	iter;

@@ -152,6 +152,8 @@
 #include "log.h"
 #include "../epan/emem.h"
 #include "file_util.h"
+#include "tap_dfilter_dlg.h"
+
 #ifdef HAVE_LIBPCAP
 #include "../image/wsicon16.xpm"
 #include "../image/wsicon32.xpm"
@@ -1366,6 +1368,8 @@ main_cf_cb_file_closed(capture_file *cf _U_)
 static void
 main_cf_cb_file_read_start(capture_file *cf _U_)
 {
+  tap_dfilter_dlg_update();
+
   /* Set up main window for a capture file. */
   main_set_for_capture_file(TRUE);
 }
