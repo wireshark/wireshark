@@ -207,7 +207,7 @@ noinst_HEADERS = \
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	color_edit_dlg.h	\
-	colors.h	\
+	color_utils.h	\
 	conversations_table.h \
 	decode_as_ber.h	\
 	decode_as_dlg.h	\
