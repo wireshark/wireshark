@@ -27,11 +27,8 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
 #include <stdio.h>
 #include <string.h>
-
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -39,36 +36,39 @@
 
 #include <ctype.h>
 
-#include "isprint.h"
+#include <gtk/gtk.h>
 
-#include "file_util.h"
-#include "color.h"
-#include "colors.h"
-#include "file.h"
-#include "follow_tcp.h"
 #include <epan/follow.h>
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "keys.h"
-#include "globals.h"
-#include "main.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
 #include <epan/dissectors/packet-ipv6.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/charsets.h>
-#include "tempfile.h"
-#include "gui_utils.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include <epan/ipproto.h>
-#include "print_mswin.h"
-#include "font_utils.h"
-#include "help_dlg.h"
 #include <epan/charsets.h>
 
-#include "follow_stream.h"
+#include "../isprint.h"
+#include "../color.h"
+#include "../file.h"
+#include "../globals.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../tempfile.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/colors.h"
+#include "gtk/follow_tcp.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/keys.h"
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/print_mswin.h"
+#include "gtk/font_utils.h"
+#include "gtk/help_dlg.h"
+#include "gtk/follow_stream.h"
+
 
 /* With MSVC and a libwireshark.dll, we need a special declaration. */
 WS_VAR_IMPORT FILE *data_out_file;

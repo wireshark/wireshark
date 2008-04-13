@@ -27,38 +27,39 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+#include <gtk/gtk.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <gtk/gtk.h>
 #include "epan/packet_info.h"
+#include <epan/stat_cmd_args.h>
+#include <epan/prefs.h>
+
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../color.h"
+#include "../stat_menu.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-#include "simple_dialog.h"
-#include "globals.h"
-#include "gtk/find_dlg.h"
-#include "color.h"
-#include "gtk/color_dlg.h"
-#include "main.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-#include "dlg_utils.h"
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "tap_dfilter_dlg.h"
-#include <epan/stat_cmd_args.h>
 
-#include <epan/prefs.h>
-#include "colors.h"
-#include "main_proto_draw.h"
-#include "help_dlg.h"
+#include "gtk/find_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/colors.h"
+#include "gtk/main_proto_draw.h"
+#include "gtk/help_dlg.h"
 
 
 static const value_string expert_severity_om_vals[] = {

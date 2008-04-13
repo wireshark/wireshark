@@ -34,19 +34,21 @@
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
 #include <epan/strutil.h>
-#include "globals.h"
-
-#include "gui_utils.h"
-#include "find_dlg.h"
-#include "filter_dlg.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "stock_icons.h"
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
-#include "keys.h"
-#include "help_dlg.h"
+
+#include "../globals.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/find_dlg.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/stock_icons.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/keys.h"
+#include "gtk/help_dlg.h"
+
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY       "find_filter_te"

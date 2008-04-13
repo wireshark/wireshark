@@ -27,18 +27,26 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #include <ctype.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include <alert_box.h>
-#include <isprint.h>
-#include <print.h>
 #include <epan/addr_resolv.h>
 #include <epan/follow.h>
 #include <epan/filesystem.h>
 #include <epan/prefs.h>
+#include <epan/charsets.h>
+
+#include <../alert_box.h>
+#include <../isprint.h>
+#include <../print.h>
+#include <../simple_dialog.h>
+#include <wiretap/file_util.h>
+
 #include <gtk/colors.h>
 #include <gtk/stock_icons.h>
 #include <gtk/dlg_utils.h>
@@ -47,16 +55,9 @@
 #include <gtk/file_dlg.h>
 #include <gtk/gui_utils.h>
 #include <gtk/help_dlg.h>
-#include <simple_dialog.h>
-#include <wiretap/file_util.h>
-#include <epan/charsets.h>
+#include "gtk/main.h"
+#include "gtk/print_mswin.h"
 
-#include "main.h"
-#include "print_mswin.h"
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
 /* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
  * earlier).  It defines the new wrap behavior (unknown in earlier versions)

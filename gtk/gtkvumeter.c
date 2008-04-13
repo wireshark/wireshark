@@ -15,7 +15,7 @@
 
 #include <math.h>
 #include <gtk/gtk.h>
-#include "gtkvumeter.h"
+#include "gtk/gtkvumeter.h"
 
 
 #define MIN_DYNAMIC_SIDE    40

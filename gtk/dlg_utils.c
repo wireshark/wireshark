@@ -25,17 +25,16 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
-
-#include "gtkglobals.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "stock_icons.h"
-
 #include <string.h>
 #include <stdarg.h>
+
+#include <gtk/gtk.h>
+
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/stock_icons.h"
+
 
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);

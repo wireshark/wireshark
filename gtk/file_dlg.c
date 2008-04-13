@@ -25,18 +25,18 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <string.h>
+#include <errno.h>
 
 #include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
 
-#include "gtkglobals.h"
-#include "gui_utils.h"
-#include "file_dlg.h"
-#include "keys.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/keys.h"
 
-#include <string.h>
-#include <errno.h>
 
 static gchar *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;

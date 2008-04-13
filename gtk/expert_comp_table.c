@@ -33,21 +33,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <gtk/gtk.h>
-#include "epan/packet_info.h"
-#include "expert_comp_table.h"
 
-#include "simple_dialog.h"
-#include "globals.h"
-#include "gtk/find_dlg.h"
-#include "color.h"
-#include "gtk/color_dlg.h"
-#include "main.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-#include "webbrowser.h"
+#include <gtk/gtk.h>
+
+#include "epan/packet_info.h"
 #include <epan/expert.h>
 #include <epan/emem.h>
+
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../color.h"
+
+#include "gtk/expert_comp_table.h"
+#include "gtk/find_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/webbrowser.h"
+
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 

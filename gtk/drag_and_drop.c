@@ -29,26 +29,26 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
+#include <string.h>
+#include <stdio.h>
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
-
-#include "gtkglobals.h"
-#include "util.h"
-#include "capture_file_dlg.h"
-#include "file.h"
-#include "simple_dialog.h"
-#include "drag_and_drop.h"
-#include "main.h"
-#include "main_menu.h"
-#ifdef HAVE_LIBPCAP
-#include "capture.h"
-#endif
 #include <epan/prefs.h>
 
-#include <string.h>
-#include <stdio.h>
+#include "../globals.h"
+#include "../util.h"
+#include "../file.h"
+#include "../simple_dialog.h"
+#ifdef HAVE_LIBPCAP
+#include "../capture.h"
+#endif
+
+#include "gtk/gtkglobals.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/drag_and_drop.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
 
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };

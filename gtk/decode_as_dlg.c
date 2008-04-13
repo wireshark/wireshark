@@ -25,21 +25,23 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "decode_as_dlg.h"
-#include "dlg_utils.h"
-#include "globals.h"
-#include "simple_dialog.h"
+#include <gtk/gtk.h>
+
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include "gui_utils.h"
 #include <epan/epan_dissect.h>
-#include "decode_as_dcerpc.h"
-#include "decode_as_ber.h"
-#include "help_dlg.h"
+
+#include "../globals.h"
+#include "../simple_dialog.h"
+
+#include "gtk/decode_as_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/decode_as_dcerpc.h"
+#include "gtk/decode_as_ber.h"
+#include "gtk/help_dlg.h"
 
 #undef DEBUG
 

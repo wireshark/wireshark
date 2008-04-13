@@ -33,22 +33,17 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
-#include "file_util.h"
-#include "gtkglobals.h"
-#include "gui_utils.h"
 #include <epan/prefs.h>
 #include "epan/epan.h"
-#include "../ui_util.h"
-#include "recent.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include "../ui_util.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/recent.h"
 
 #include "image/wsicon16.xpm"
-
-/* XXX - remove this later again, when dlg_xx function cleanup done */
-#include "dlg_utils.h"
 
 
 #define WINDOW_GEOM_KEY "window_geom"

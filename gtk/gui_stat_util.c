@@ -32,13 +32,16 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#include <string.h>
 
 #include <gtk/gtk.h>
-#include <string.h>
-#include "gui_stat_util.h"
+
 #include "../simple_dialog.h"
 #include "../file.h"
 #include "../globals.h"
+
+#include "gtk/gui_stat_util.h"
+
 
 /* insert a string into a GTK_TABLE at column x and row y*/
 #if 0

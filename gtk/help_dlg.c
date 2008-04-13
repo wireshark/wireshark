@@ -26,22 +26,24 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
 
+#include <gtk/gtk.h>
+
 #include "epan/filesystem.h"
-#include "help_dlg.h"
-#include "text_page.h"
 #include <epan/prefs.h>
-#include "gtkglobals.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "simple_dialog.h"
-#include "webbrowser.h"
-#include "file_util.h"
+
+#include "../simple_dialog.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/help_dlg.h"
+#include "gtk/text_page.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/webbrowser.h"
 
 #ifdef HHC_DIR
 #include <windows.h>

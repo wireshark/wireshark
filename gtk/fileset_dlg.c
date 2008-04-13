@@ -34,22 +34,18 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
-
-
-#include "simple_dialog.h"
-
-#include "gui_utils.h"
-#include "dlg_utils.h"
-
-#include "main.h"
-#include "main_menu.h"
-#include "help_dlg.h"
-
 #include <epan/filesystem.h>
 
-#include "fileset.h"
-#include "fileset_dlg.h"
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../fileset.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/help_dlg.h"
+#include "gtk/fileset_dlg.h"
 
 
 

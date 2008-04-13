@@ -38,32 +38,32 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-
 #include <string.h>
 
 #include <gtk/gtk.h>
 
+#include <epan/prefs.h>
+#include <epan/funnel.h>
+
 #include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
-#include "font_utils.h"
-#include "gui_stat_menu.h"
-#include <epan/prefs.h>
-#include "column_prefs.h"
-#include "prefs_dlg.h"
-#include "file.h"
-#include "main.h"
-#include "webbrowser.h"
+#include "../file.h"
 
-#include "gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/font_utils.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/column_prefs.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/main.h"
+#include "gtk/webbrowser.h"
+#include "gtk/gtkglobals.h"
 
-#include <epan/funnel.h>
 
 struct _funnel_text_window_t {
 	GtkWidget* win;

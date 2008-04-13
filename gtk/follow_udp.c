@@ -23,11 +23,12 @@
  * USA.
  */
 
-#include "config.h"
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+#include <string.h>
 
 #include <gtk/gtk.h>
-
-#include <string.h>
 
 #include <epan/addr_resolv.h>
 #include <epan/epan_dissect.h>
@@ -35,13 +36,14 @@
 #include <epan/ipproto.h>
 #include <epan/strutil.h>
 #include <epan/tap.h>
-#include "follow_stream.h"
-#include <globals.h>
+
+#include <../globals.h>
+#include <../simple_dialog.h>
+
+#include "gtk/follow_stream.h"
 #include <gtk/keys.h>
 #include <gtk/main.h>
-#include <simple_dialog.h>
-
-#include "follow_udp.h"
+#include "gtk/follow_udp.h"
 
 
 static int

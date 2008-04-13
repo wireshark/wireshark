@@ -27,29 +27,32 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+#include <string.h>
 
-#include "register.h"
+#include <gtk/gtk.h>
 
-#include "globals.h"
-#include "epan/filesystem.h"
-
-#include "graph_analysis.h"
+#include <epan/epan.h>
+#include <epan/packet.h>
+#include <epan/filesystem.h>
 #include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-
-#include "simple_dialog.h"
-
 #include <epan/to_str.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-tcp.h>
-
-#include <string.h>
 #include <epan/strutil.h>
+
+#include "../register.h"
+#include "../globals.h"
+#include "../stat_menu.h"
+#include "../simple_dialog.h"
+
+#include "gtk/graph_analysis.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+
+
 
 #define DISPLAYED 0
 #define ALL 1

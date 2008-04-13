@@ -30,13 +30,15 @@
 #include <gtk/gtk.h>
 
 #include <epan/proto.h>
-#include "globals.h"
 
-#include "goto_dlg.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "help_dlg.h"
+#include "../globals.h"
+#include "../simple_dialog.h"
+
+#include "gtk/goto_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/help_dlg.h"
+
 
 /* Capture callback data keys */
 #define E_GOTO_FNUMBER_KEY     "goto_fnumber_te"

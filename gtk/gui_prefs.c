@@ -25,28 +25,29 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <string.h>
 
 #include <gtk/gtk.h>
 
-#include <string.h>
-
-#include "globals.h"
-#include "gui_prefs.h"
-#include "gtkglobals.h"
-#include "help_dlg.h"
-#include "supported_protos_dlg.h"
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "main.h"
-#include "main_packet_list.h"
-#include "main_proto_draw.h"
-#include "main_toolbar.h"
-#include "font_utils.h"
-#include "recent.h"
-#include "webbrowser.h"
+
+#include "../globals.h"
+#include "../simple_dialog.h"
+
+#include "gtk/gui_prefs.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/help_dlg.h"
+#include "gtk/supported_protos_dlg.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/main_proto_draw.h"
+#include "gtk/main_toolbar.h"
+#include "gtk/font_utils.h"
+#include "gtk/recent.h"
+#include "gtk/webbrowser.h"
 
 
 static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);

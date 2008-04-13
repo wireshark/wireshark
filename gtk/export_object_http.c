@@ -36,11 +36,11 @@
 #if GTK_CHECK_VERSION(2,4,0)
 
 #include <epan/dissectors/packet-http.h>
-
 #include <epan/emem.h>
 #include <epan/tap.h>
 
-#include "export_object.h"
+#include "gtk/export_object.h"
+
 
 static int
 eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,

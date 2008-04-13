@@ -31,41 +31,32 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-#include <epan/epan_dissect.h>
-
-#include "util.h"
-#include <epan/tap.h>
-#include "register.h"
-#include <epan/dissectors/packet-rtp.h>
-#include <epan/addr_resolv.h>
-
-/* in /gtk ... */
-#include <gtk/gtk.h>
-#include <glib-object.h>
-
-#include <gdk/gdkkeysyms.h>
-#include "gtkglobals.h"
-
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "file_dlg.h"
-#include "gui_utils.h"
-#include "main.h"
-#include "../color.h"
-#include "epan/filesystem.h"
-#include "file_util.h"
-
 #include <string.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
-#include "simple_dialog.h"
+#include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
-#include "graph_analysis.h"
+#include <epan/epan_dissect.h>
+#include <epan/tap.h>
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/addr_resolv.h>
+#include "epan/filesystem.h"
+
+#include "../util.h"
+#include "../register.h"
+#include "../color.h"
+#include "../simple_dialog.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/file_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/graph_analysis.h"
 
 
 /****************************************************************************/

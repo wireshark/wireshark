@@ -25,13 +25,14 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <gtk/gtk.h>
+
 #include <epan/packet.h>
+#include <epan/prefs.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -39,18 +40,15 @@
 #include <epan/unicode-utils.h>
 #endif
 
-#include "main.h"
-#include "recent.h"
-#include <epan/prefs.h>
+#include "../simple_dialog.h"
 
-#include "gtkglobals.h"
-
-#include "font_utils.h"
-#include "simple_dialog.h"
-
-#include "main_packet_list.h"
-#include "main_proto_draw.h"
-#include "follow_tcp.h"
+#include "gtk/main.h"
+#include "gtk/recent.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/font_utils.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/main_proto_draw.h"
+#include "gtk/follow_tcp.h"
 
 
 

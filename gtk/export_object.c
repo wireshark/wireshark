@@ -28,23 +28,9 @@
 # include "config.h"
 #endif
 
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #if GTK_CHECK_VERSION(2,4,0)
-
-#include <alert_box.h>
-#include <simple_dialog.h>
-
-#include <epan/packet_info.h>
-#include <epan/prefs.h>
-#include <epan/tap.h>
-#include <gtk/dlg_utils.h>
-#include <gtk/file_dlg.h>
-#include <gtk/gui_utils.h>
-#include <gtk/help_dlg.h>
-#include <gtk/main.h>
-#include <wiretap/file_util.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -54,7 +40,20 @@
 #include <unistd.h>
 #endif
 
-#include "export_object.h"
+#include <epan/packet_info.h>
+#include <epan/prefs.h>
+#include <epan/tap.h>
+
+#include <../alert_box.h>
+#include <../simple_dialog.h>
+#include <wiretap/file_util.h>
+
+#include <gtk/dlg_utils.h>
+#include <gtk/file_dlg.h>
+#include <gtk/gui_utils.h>
+#include <gtk/help_dlg.h>
+#include <gtk/main.h>
+#include "gtk/export_object.h"
 
 enum {
 	EO_PKT_NUM_COLUMN,

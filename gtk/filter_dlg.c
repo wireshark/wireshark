@@ -31,19 +31,21 @@
 #include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
-
-#include "filters.h"
-#include "main.h"
-#include "main_statusbar.h"
-#include "filter_dlg.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "dfilter_expr_dlg.h"
-#include "stock_icons.h"
-#include "gtkglobals.h"
-#include "help_dlg.h"
 #include <epan/prefs.h>
+
+#include "../filters.h"
+#include "../simple_dialog.h"
+
+#include "gtk/main.h"
+#include "gtk/main_statusbar.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dfilter_expr_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/help_dlg.h"
+
 
 #define E_FILT_DIALOG_PTR_KEY       "filter_dialog_ptr"
 #define E_FILT_BUTTON_PTR_KEY       "filter_button_ptr"

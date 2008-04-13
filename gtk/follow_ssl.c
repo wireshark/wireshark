@@ -23,10 +23,9 @@
  * USA.
  */
 
-#include "config.h"
-
-#include <gtk/gtk.h>
-
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -37,27 +36,33 @@
 
 #include <ctype.h>
 
-#include <color.h>
-#include <gtk/colors.h>
-#include <gtk/main.h>
+#include <gtk/gtk.h>
+
 #include <epan/follow.h>
-#include <gtk/dlg_utils.h>
-#include <gtk/file_dlg.h>
-#include <gtk/keys.h>
-#include <globals.h>
-#include <alert_box.h>
-#include <simple_dialog.h>
 #include <epan/dissectors/packet-ipv6.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
-#include <util.h>
-#include <gtk/gui_utils.h>
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
 #include <epan/ipproto.h>
-#include <gtk/font_utils.h>
-#include <wiretap/file_util.h>
 #include <epan/tap.h>
+
+#include <../color.h>
+#include <../globals.h>
+#include <../alert_box.h>
+#include <../simple_dialog.h>
+#include <../util.h>
+#include <wiretap/file_util.h>
+
+#include <gtk/colors.h>
+#include <gtk/main.h>
+#include <gtk/dlg_utils.h>
+#include <gtk/file_dlg.h>
+#include <gtk/keys.h>
+#include <gtk/gui_utils.h>
+#include <gtk/font_utils.h>
+#include "gtk/follow_ssl.h"
+#include "gtk/follow_stream.h"
 
 #ifdef SSL_PLUGIN
 #include "packet-ssl-utils.h"
@@ -65,9 +70,6 @@
 #include <epan/dissectors/packet-ssl-utils.h>
 #endif
 
-#include "follow_ssl.h"
-
-#include "follow_stream.h"
 
 typedef struct {
     gboolean is_server;

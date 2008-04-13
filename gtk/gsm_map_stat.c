@@ -33,29 +33,33 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
-#include "epan/value_string.h"
-#include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include <epan/tap.h>
-#include "../register.h"
-#include "../globals.h"
-#include "filter_dlg.h"
+#include <gtk/gtk.h>
 
+#include <epan/epan.h>
+#include <epan/packet.h>
+#include <epan/packet_info.h>
+#include <epan/value_string.h>
+#include <epan/stat_cmd_args.h>
+#include <epan/tap.h>
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
-#include "gsm_map_stat.h"
+
+#include "../stat_menu.h"
+#include "../simple_dialog.h"
+#include "../register.h"
+#include "../globals.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/gsm_map_stat.h"
+
+#include "image/clist_ascend.xpm"
+#include "image/clist_descend.xpm"
+
 
 typedef struct column_arrows {
     GtkWidget		*table;

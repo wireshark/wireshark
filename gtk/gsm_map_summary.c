@@ -37,23 +37,26 @@
 
 #include <gtk/gtk.h>
 
-#include <wtap.h>
+#include <wiretap/wtap.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
-#include "epan/value_string.h"
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "globals.h"
-#include "file.h"
-#include "summary.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
+#include <epan/epan.h>
+#include <epan/packet.h>
+#include <epan/packet_info.h>
+#include <epan/value_string.h>
 #include <epan/tap.h>
-
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-gsm_map.h>
-#include "gsm_map_stat.h"
+
+#include "../stat_menu.h"
+#include "../globals.h"
+#include "../file.h"
+#include "../summary.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gsm_map_stat.h"
+
 
 #define SUM_STR_MAX 1024
 

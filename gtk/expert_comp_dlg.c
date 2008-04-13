@@ -29,22 +29,26 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-
 #include <string.h>
+
 #include <gtk/gtk.h>
+
 #include <epan/packet_info.h>
 #include <epan/tap.h>
+#include <epan/stat_cmd_args.h>
+
 #include "../register.h"
 #include "../simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include "../globals.h"
-#include "expert_comp_table.h"
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include <epan/stat_cmd_args.h>
-#include "help_dlg.h"
-#include "expert_comp_dlg.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/expert_comp_table.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/help_dlg.h"
+#include "gtk/expert_comp_dlg.h"
+
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _expert_comp_dlg_t {

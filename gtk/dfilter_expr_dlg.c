@@ -42,19 +42,21 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <ctype.h>
 #include <string.h>
 
-#include "globals.h"
-#include "main.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "proto_dlg.h"
-#include "filter_dlg.h"
-#include "dfilter_expr_dlg.h"
+#include <gtk/gtk.h>
+
+#include "../globals.h"
+#include "../simple_dialog.h"
+
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/proto_dlg.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/dfilter_expr_dlg.h"
+
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"
