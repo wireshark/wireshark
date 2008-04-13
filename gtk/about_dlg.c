@@ -50,6 +50,7 @@
 #include "gtk/plugins_dlg.h"
 
 #include "../image/wssplash.xpm"
+#include "webbrowser.h"
 
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
 
@@ -317,6 +318,31 @@ about_authors_page_new(void)
   return page;
 }
 
+static gint about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id)
+{
+  gint row = 0, col = 0;
+  GtkTreeSelection *tree_selection;
+  GtkTreeModel *model;
+  GtkTreeIter  iter;
+  gchar        *path;
+
+  tree_selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
+
+  if(gtk_tree_selection_count_selected_rows(tree_selection) == 0)
+    return FALSE;
+
+  if(event->type != GDK_2BUTTON_PRESS)
+    /* not a double click */
+    return FALSE;
+
+  if(gtk_tree_selection_get_selected (tree_selection, &model, &iter)) {
+    gtk_tree_model_get(model, &iter, 1, &path, -1);
+    browser_open_data_file(path);
+  }
+
+  return TRUE;
+}
+
 static void
 about_folders_row(GtkWidget *table, const char *label, const char *dir, const char *tip)
 {
@@ -332,6 +358,10 @@ about_folders_page_new(void)
   char *path;
   const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
+#ifdef HAVE_LIBSMI
+  gint i; 
+  gchar **resultArray;
+#endif 
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -339,6 +369,12 @@ about_folders_page_new(void)
 
   /* Container for our data */
   table = simple_list_new(3, titles);
+
+  /* connect a callback so we can spot a double-click */
+  gtk_signal_connect(GTK_OBJECT(table), "button_press_event", 
+		     GTK_SIGNAL_FUNC(about_folders_callback), (gpointer)0);
+
+  simple_list_url_col(table, 1);
 
   /* "file open" */
   about_folders_row(table, "\"File\" dialogs", get_last_open_dir(),
@@ -388,8 +424,13 @@ about_folders_page_new(void)
 #ifdef HAVE_LIBSMI
   /* SMI MIBs/PIBs */
   path = oid_get_default_mib_path();
-  about_folders_row(table, "MIB/PIB paths", path,
-      "SMI MIB/PIB search path");
+
+  resultArray = g_strsplit(path, ";", 10);
+
+  for(i = 0; resultArray[i]; i++) 
+    about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
+		      "SMI MIB/PIB search path");
+  g_strfreev(resultArray);
   g_free((void *) path);
 #endif
 

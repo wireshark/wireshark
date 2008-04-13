@@ -933,6 +933,37 @@ simple_list_new(gint cols, const gchar **titles) {
     return plugins_list;
 }
 
+void render_as_url(GtkCellRenderer *cell)
+{
+    g_object_set(cell, "foreground", "blue", NULL);
+    g_object_set(cell, "foreground-set", TRUE, NULL);
+
+    g_object_set(cell, "underline", PANGO_UNDERLINE_SINGLE, NULL);
+    g_object_set(cell, "underline-set", TRUE, NULL);
+}
+
+void simple_list_url_col(GtkWidget *list, gint col)
+{
+  GtkTreeViewColumn *ul_column;
+  GList             *renderers_list;
+  GtkCellRenderer   *ul_renderer;
+
+  /* make the column look like a link ... */
+  ul_column = gtk_tree_view_get_column(GTK_TREE_VIEW(list), col);
+
+  renderers_list = gtk_tree_view_column_get_cell_renderers(ul_column);
+
+  if(renderers_list != NULL) {
+    /* it is simple list - there should be only one renderer */
+    ul_renderer = (GtkCellRenderer*)renderers_list->data;
+
+    render_as_url(ul_renderer);
+
+    g_list_free(renderers_list);
+  }
+
+}
+
 void
 copy_to_clipboard(GString *str)
 {

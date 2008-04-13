@@ -275,6 +275,16 @@ browser_open_data_file(const gchar *filename)
     gchar *uri;
 
     /* build filename */
+#ifdef G_OS_WIN32
+    if((strlen(filename) > 2) && (filename[1] == ':'))
+      file_path = g_strdup(filename);
+#else
+    /* XXX: is this correct for MacOS/Linux ? */
+    if((strlen(filename) > 1) && (filename[0] == '/'))
+      file_path = g_strdup(filename);
+#endif 
+    else
+
     file_path = g_strdup_printf("%s/%s", get_datafile_dir(), filename);
 
     /* XXX - check, if the file is really existing, otherwise display a simple_dialog about the problem */

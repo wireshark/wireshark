@@ -248,7 +248,19 @@ extern GtkWidget *simple_list_new(gint cols, const gchar **titles);
  */
 extern void simple_list_append(GtkWidget *list, ...);
 
+/*** Make a column look like a url
+ *
+ * @param list the list from simple_list_new()
+ * @param col the column to make the values lookk like urls
+ */
+extern void simple_list_url_col(GtkWidget *list, gint col);
 
+/*** Make a cell underline to look like links
+ *
+ * @param cell the cell renderer that will show the text as a link
+ */
+
+extern void render_as_url(GtkCellRenderer *cell);
 
 /** Set the styles of all Trees based upon user preferences. */
 extern void set_tree_styles_all(void);

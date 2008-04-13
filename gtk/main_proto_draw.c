@@ -1492,11 +1492,7 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 
     if((fi->hfinfo->type == FT_FRAMENUM) ||
        (FI_GET_FLAG(fi, FI_URL) && IS_FT_STRING(fi->hfinfo->type))) {
-        g_object_set (cell, "foreground", "blue", NULL);
-        g_object_set (cell, "foreground-set", TRUE, NULL);
-
-        g_object_set (cell, "underline", PANGO_UNDERLINE_SINGLE, NULL);
-        g_object_set (cell, "underline-set", TRUE, NULL);
+        render_as_url(cell);
     }
 
 	if(FI_GET_FLAG(fi, PI_SEVERITY_MASK)) {
