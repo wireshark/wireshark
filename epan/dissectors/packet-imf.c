@@ -83,6 +83,9 @@ static int hf_imf_ext_mailer = -1;
 static int hf_imf_ext_mimeole = -1;
 static int hf_imf_ext_tnef_correlator = -1;
 static int hf_imf_ext_expiry_date = -1;
+static int hf_imf_ext_uidl = -1;
+static int hf_imf_ext_authentication_warning = -1;
+static int hf_imf_ext_virus_scanned = -1;
 static int hf_imf_extension = -1;
 static int hf_imf_extension_type = -1;
 static int hf_imf_extension_value = -1;
@@ -116,6 +119,10 @@ static int hf_imf_x400_originator = -1;
 static int hf_imf_x400_received = -1;
 static int hf_imf_x400_recipients = -1;
 
+static int hf_imf_delivered_to = -1;
+
+static int hf_imf_message_text = -1;
+
 static int hf_imf_display_name = -1;
 static int hf_imf_address = -1;
 static int hf_imf_mailbox_list = -1;
@@ -130,7 +137,7 @@ static int ett_imf_group = -1;
 static int ett_imf_mailbox_list = -1;
 static int ett_imf_address_list = -1;
 static int ett_imf_extension = -1;
-
+static int ett_imf_message_text = -1;
 
 struct imf_field {
   char         *name;     /* field name - in lower case for matching purposes */
@@ -204,12 +211,17 @@ struct imf_field imf_fields[] = {
   {"x400-originator", &hf_imf_x400_originator, NULL, FALSE},
   {"x400-received", &hf_imf_x400_received, NULL, FALSE},
   {"x400-recipients", &hf_imf_x400_recipients, NULL, FALSE},
+  /* delivery */
+  {"delivered-to", &hf_imf_delivered_to, dissect_imf_mailbox, FALSE}, /* mailbox */
   /* some others */
   {"x-mailer", &hf_imf_ext_mailer, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"thread-index", &hf_imf_thread_index, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-mimeole", &hf_imf_ext_mimeole, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"expiry-date", &hf_imf_ext_expiry_date, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-ms-tnef-correlator", &hf_imf_ext_tnef_correlator, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"x-uidl", &hf_imf_ext_uidl, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"x-authentication-warning", &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"x-virus-scanned", &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {NULL, NULL, NULL, FALSE},
 };
 
@@ -460,7 +472,7 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item  *item;
-  proto_tree  *unknown_tree;
+  proto_tree  *unknown_tree, *text_tree;
   char  *content_type_str = NULL;
   char  *parameters = NULL;
   int   hf_id;
@@ -588,7 +600,7 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if(content_type_str && media_type_dissector_table) {
 
-    pinfo->private_data = parameters; /* "boundary=\"----=_NextPart_000_0012_01C7B64E.426C8120\""; */
+    pinfo->private_data = parameters; 
 
     next_tvb = tvb_new_subset(tvb, end_offset, -1, -1);
 
@@ -598,8 +610,32 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* just show the lines or highlight the rest of the buffer as message text */
 
+    item = proto_tree_add_item(tree, hf_imf_message_text, tvb, start_offset, -1 , FALSE);
+    text_tree = proto_item_add_subtree(item, ett_imf_message_text);
+
+    start_offset = end_offset;
+    while (tvb_offset_exists(tvb, start_offset)) {
+
+      /*
+       * Find the end of the line.
+       */
+      tvb_find_line_end(tvb, start_offset, -1, &end_offset, FALSE);
+
+      /*
+       * Put this line.
+       */
+      proto_tree_add_text(text_tree, tvb, start_offset, end_offset - start_offset,
+			  "%s",
+			  tvb_format_text(tvb, start_offset, end_offset - start_offset - 2));
+
+      /*
+       * Step to the next line.
+       */
+      start_offset = end_offset;
+    }
   }
 }
+
 
 /* Register all the bits needed by the filtering engine */
 
@@ -775,6 +811,9 @@ proto_register_imf(void)
     { &hf_imf_x400_recipients,
 	{ "X400-Recipients", "imf.x400_recipients", FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL }},
+    { &hf_imf_delivered_to,
+      { "Delivered-To", "imf.delivered_to", FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
     { &hf_imf_ext_mailer,
       { "X-Mailer", "imf.ext.mailer", FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }},
@@ -786,6 +825,15 @@ proto_register_imf(void)
       	"", HFILL }},
     { &hf_imf_ext_tnef_correlator,
       { "X-MS-TNEF-Correlator", "imf.ext.tnef-correlator", FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_imf_ext_uidl,
+      { "X-UIDL", "imf.ext.uidl", FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+    { &hf_imf_ext_authentication_warning,
+      { "X-Authentication-Warning", "imf.ext.authentication_warning", FT_STRING,  BASE_NONE,
+	NULL, 0x0, "", HFILL }},
+    { &hf_imf_ext_virus_scanned,
+      { "X-Virus-Scanned", "imf.ext.virus_scanned", FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }},
     { &hf_imf_thread_index,
       { "Thread-Index", "imf.thread-index", FT_STRING,  BASE_NONE, NULL, 0x0,
@@ -817,6 +865,9 @@ proto_register_imf(void)
     { &hf_imf_mailbox_list_item,
       { "Item", "imf.mailbox_list.item", FT_STRING,  BASE_NONE, NULL, 0x0,
       	"", HFILL }},
+    { &hf_imf_message_text,
+      { "Message-Text", "imf.message_text", FT_NONE,  BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
   };
   static gint *ett[] = {
     &ett_imf,
@@ -826,6 +877,7 @@ proto_register_imf(void)
     &ett_imf_mailbox_list,
     &ett_imf_address_list,
     &ett_imf_extension,
+    &ett_imf_message_text,
   };
 
   struct imf_field *f;
