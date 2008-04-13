@@ -305,7 +305,7 @@ test_step_failed() {
 	# XXX - add a mechanism to optionally stop here
 }
 
-# the test step succeeded
+# the test step skipped (usually not suitable for this machine/platform)
 test_step_skipped() {
 	# count appearance
 	let "TEST_SKIPPED += 1"
