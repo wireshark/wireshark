@@ -40,7 +40,6 @@ WIRESHARK_GTK_SRC = \
 	airpcap_gui_utils.c \
 	capture_dlg.c	\
 	capture_file_dlg.c	\
-	capture_if_details_dlg.c	\
 	capture_if_dlg.c	\
 	capture_info_dlg.c	\
 	capture_prefs.c	\
@@ -206,7 +205,6 @@ noinst_HEADERS = \
 	airpcap_gui_utils.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
-	capture_if_details_dlg.h	\
 	capture_prefs.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
@@ -295,13 +293,14 @@ noinst_HEADERS = \
 EXTRA_DIST = \
 	airpcap_dlg.c \
 	airpcap_gui_utils.c \
-	capture_if_details_dlg.c	\
+	capture_if_details_dlg_win32.c	\
+	capture_if_details_dlg_win32.h	\
 	doxygen.cfg.in \
+	file_dlg_win32.c \
+	file_dlg_win32.h \
 	main_airpcap_toolbar.c \
 	Makefile.common \
 	Makefile.nmake \
-	print_mswin.c  \
-	print_mswin.h  \
-	win32-file-dlg.c \
-	win32-file-dlg.h
+	print_win32.c  \
+	print_win32.h
 

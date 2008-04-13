@@ -64,7 +64,7 @@
 #include "gtk/keys.h"
 #include "gtk/main.h"
 #include "gtk/gui_utils.h"
-#include "gtk/print_mswin.h"
+#include "gtk/print_win32.h"
 #include "gtk/font_utils.h"
 #include "gtk/help_dlg.h"
 #include "gtk/follow_stream.h"

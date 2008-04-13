@@ -33,11 +33,9 @@
 #include <windows.h>
 #include <commdlg.h>
 
-#ifdef __WIN32__
 #include <winspool.h>
-#endif
 
-#include "gtk/print_mswin.h"
+#include "gtk/print_win32.h"
 #include "wiretap/file_util.h"
 
 /*

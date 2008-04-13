@@ -56,7 +56,7 @@
 #include "gtk/main_menu.h"
 #include "gtk/drag_and_drop.h"
 #include "gtk/capture_dlg.h"
-#include "gtk/win32-file-dlg.h"
+#include "gtk/file_dlg_win32.h"
 #include "gtk/help_dlg.h"
 
 #include <windows.h>

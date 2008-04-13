@@ -73,7 +73,7 @@
 #if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "win32-file-dlg.h"
+#include "file_dlg_win32.h"
 #endif
 
 #define BYTE_VIEW_WIDTH    16

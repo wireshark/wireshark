@@ -56,8 +56,8 @@
 #if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "gtk/win32-file-dlg.h"
-#include "gtk/print_mswin.h"
+#include "gtk/file_dlg_win32.h"
+#include "gtk/print_win32.h"
 #endif
 
 /* dialog output action */

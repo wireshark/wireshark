@@ -49,7 +49,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/help_dlg.h"
 #include "gtk/gtkvumeter.h"
-#include "gtk/capture_if_details_dlg.h"
+#include "gtk/capture_if_details_dlg_win32.h"
 
 
 

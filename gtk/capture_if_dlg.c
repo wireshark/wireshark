@@ -47,11 +47,11 @@
 
 #ifdef _WIN32
 #include "../capture-wpcap.h"
+#include "gtk/capture_if_details_dlg_win32.h"
 #endif
 
 #include "gtk/stock_icons.h"
 #include "gtk/capture_dlg.h"
-#include "gtk/capture_if_details_dlg.h"
 #include "gtk/recent.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"

@@ -56,7 +56,7 @@
 #include <gtk/gui_utils.h>
 #include <gtk/help_dlg.h>
 #include "gtk/main.h"
-#include "gtk/print_mswin.h"
+#include "gtk/print_win32.h"
 
 
 /* This is backwards-compatibility code for old versions of GTK+ (2.2.1 and
