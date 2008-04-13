@@ -117,7 +117,7 @@ static const true_false_string tfs_optional_field_bit = {
 
 #define BYTE_ALIGN_OFFSET(offset) if(offset&0x07){offset=(offset&0xfffffff8)+8;}
 
-static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32 length)
+static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 length)
 {
   tvbuff_t *sub_tvb = NULL;
   guint32 boffset = offset >> 3;
@@ -141,6 +141,7 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, guint32
     }
     sub_tvb = tvb_new_real_data(buf, actual_length, length);
     tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+    add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   } else {  /* aligned */
     sub_tvb = tvb_new_subset(tvb, boffset, actual_length, length);
   }
@@ -161,7 +162,7 @@ static const guint16 bit_mask16[] = {
 /* Fetch a number of bits to a new tvb right adjusted to the nearest number of bytes.
  * (add proceeding zeros).
  */
-static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, guint32 no_of_bits)
+static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits)
 {
   tvbuff_t *sub_tvb = NULL;
   guint32 boffset = offset >> 3;
@@ -180,7 +181,7 @@ static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, gu
 	  length++;
   }else{
 	  /* Number of bits = even number of octets */
-	return new_octet_aligned_subset(tvb, offset, length);
+	return new_octet_aligned_subset(tvb, offset, actx, length);
   }
   buf = ep_alloc(length);
 
@@ -204,6 +205,7 @@ static tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, gu
   }
   sub_tvb = tvb_new_real_data(buf, length, length);
   tvb_set_child_real_data_tvbuff(tvb, sub_tvb);
+  add_new_data_source(actx->pinfo, sub_tvb, "Unaligned OCTET STRING");
   
   return sub_tvb;
 }
@@ -227,7 +229,7 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 	end_offset = offset + type_length * 8;
 
     if ((variant==CB_DISSECTOR)||(variant==CB_NEW_DISSECTOR)) {
-		val_tvb = new_octet_aligned_subset(tvb, offset, type_length);
+		val_tvb = new_octet_aligned_subset(tvb, offset, actx, type_length);
 		if (hfi) {
 			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
 				if (IS_FT_UINT(hfi->type))
@@ -877,7 +879,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 
   offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_object_identifier_length, &length);
   if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
-  val_tvb = new_octet_aligned_subset(tvb, offset, length);
+  val_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
 	
   hfi = proto_registrar_get_nth(hf_index);
   if (hfi->type == FT_OID) {
@@ -1540,7 +1542,7 @@ dissect_per_real(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tr
 
 	offset = dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_real_length, &val_length);
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
-    val_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+	val_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
 	end_offset = offset + val_length * 8;
 
 	val = asn1_get_real(tvb_get_ptr(val_tvb, 0, val_length), val_length);
@@ -1901,7 +1903,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
 	if ((min_len==max_len) && (max_len<=16)) {
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, min_len);
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, min_len);
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
 			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
@@ -1922,10 +1924,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			/* TODO the displayed value will be wrong for the unaligned variant */
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, min_len);
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, min_len);
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item, " [bit length %u]",max_len);
+			proto_item_append_text(actx->created_item, " [bit length %u]", max_len);
 		}
 		offset+=min_len;
 		if (value_tvb)
@@ -1947,10 +1949,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = new_octet_aligned_subset_bits(tvb, offset, length);
+		out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
 		if (hfi) {
 			actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
-			proto_item_append_text(actx->created_item,"[bit length %u]",length);
+			proto_item_append_text(actx->created_item, " [bit length %u]", length);
 		}
 	}
 	val_start = offset>>3;
@@ -2037,7 +2039,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		/* 16.6 if length is fixed and less than or equal to two bytes*/
 		val_start = offset>>3; 
 		val_length = min_len;
-		out_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+		out_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
 		offset+=min_len*8;
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  
@@ -2049,7 +2051,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 		}
 		val_start = offset>>3;
 		val_length = min_len;
-		out_tvb = new_octet_aligned_subset(tvb, offset, val_length);
+		out_tvb = new_octet_aligned_subset(tvb, offset, actx, val_length);
 		offset+=min_len*8;
 
 	} else {  /* 16.8 */
@@ -2069,7 +2071,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 			if (actx->aligned){
 				BYTE_ALIGN_OFFSET(offset);
 			}
-			out_tvb = new_octet_aligned_subset(tvb, offset, length);
+			out_tvb = new_octet_aligned_subset(tvb, offset, actx, length);
 		} else {
 			val_start = offset>>3; 
 		}
