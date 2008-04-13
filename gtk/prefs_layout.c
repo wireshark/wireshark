@@ -33,7 +33,7 @@
 #include "../globals.h"
 #include "../ui_util.h"
 
-#include "gtk/layout_prefs.h"
+#include "gtk/prefs_layout.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/gui_utils.h"

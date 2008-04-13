@@ -34,7 +34,7 @@
 #include "../globals.h"
 #include "../simple_dialog.h"
 
-#include "gtk/gui_prefs.h"
+#include "gtk/prefs_gui.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
 #include "gtk/supported_protos_dlg.h"

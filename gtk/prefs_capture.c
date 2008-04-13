@@ -39,7 +39,7 @@
 #include "../capture_ui_utils.h"
 #include "../capture.h"
 
-#include "gtk/capture_prefs.h"
+#include "gtk/prefs_capture.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"

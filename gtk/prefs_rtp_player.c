@@ -31,7 +31,7 @@
 
 #include <epan/prefs.h>
 
-#include "gtk/rtp_player_prefs.h"
+#include "gtk/prefs_rtp_player.h"
 #include "gtk/prefs_dlg.h"
 
 

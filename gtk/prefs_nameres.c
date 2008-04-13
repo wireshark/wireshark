@@ -34,7 +34,7 @@
 
 #include "../globals.h"
 
-#include "gtk/nameres_prefs.h"
+#include "gtk/prefs_nameres.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/gui_utils.h"

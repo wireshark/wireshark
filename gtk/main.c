@@ -124,7 +124,6 @@
 #include "gtk/color_dlg.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/uat_gui.h"
-#include "gtk/layout_prefs.h"
 #include "gtk/u3.h"
 #include "gtk/main.h"
 #include "gtk/main_airpcap_toolbar.h"

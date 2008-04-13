@@ -35,7 +35,7 @@
 #include "../print.h"
 
 #include "gtk/color_utils.h"
-#include "gtk/stream_prefs.h"
+#include "gtk/prefs_stream.h"
 #include "gtk/keys.h"
 #include "gtk/follow_tcp.h"
 #include "gtk/main_packet_list.h"

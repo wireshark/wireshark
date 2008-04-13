@@ -35,7 +35,7 @@
 #include "../print.h"
 #include "../util.h"
 
-#include "gtk/print_prefs.h"
+#include "gtk/prefs_print.h"
 #include "gtk/keys.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/gui_utils.h"

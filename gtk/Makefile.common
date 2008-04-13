@@ -42,12 +42,10 @@ WIRESHARK_GTK_SRC = \
 	capture_file_dlg.c	\
 	capture_if_dlg.c	\
 	capture_info_dlg.c	\
-	capture_prefs.c	\
 	cfilter_combo_utils.c	\
 	color_dlg.c	\
 	color_edit_dlg.c	\
 	color_utils.c	\
-	column_prefs.c	\
 	conversations_table.c	\
 	decode_as_ber.c	\
 	decode_as_dcerpc.c	\
@@ -71,12 +69,10 @@ WIRESHARK_GTK_SRC = \
 	goto_dlg.c	\
 	graph_analysis.c \
 	gtkvumeter.c	\
-	gui_prefs.c	\
 	gui_stat_util.c	\
 	gui_utils.c	\
 	help_dlg.c	\
 	hostlist_table.c \
-	layout_prefs.c	\
 	macros_dlg.c	\
 	main.c		\
 	main_airpcap_toolbar.c	\
@@ -88,14 +84,20 @@ WIRESHARK_GTK_SRC = \
 	main_toolbar.c	\
 	main_welcome.c		\
 	mcast_stream.c	\
-	nameres_prefs.c	\
 	packet_history.c	\
 	packet_win.c	\
 	pixmap_save.c	\
 	plugins_dlg.c	\
+	prefs_capture.c	\
+	prefs_column.c	\
 	prefs_dlg.c	\
+	prefs_gui.c	\
+	prefs_layout.c	\
+	prefs_nameres.c	\
+	prefs_print.c	\
+	prefs_rtp_player.c	\
+	prefs_stream.c	\
 	print_dlg.c	\
-	print_prefs.c	\
 	profile_dlg.c	\
 	progress_dlg.c	\
 	proto_dlg.c	\
@@ -103,7 +105,6 @@ WIRESHARK_GTK_SRC = \
 	range_utils.c	\
 	recent.c	\
 	rtp_player.c	\
-	rtp_player_prefs.c	\
 	rtp_stream.c	\
 	sctp_byte_graph_dlg.c	\
 	sctp_error_dlg.c	\
@@ -112,7 +113,6 @@ WIRESHARK_GTK_SRC = \
 	service_response_time_table.c	\
 	simple_dialog.c	\
 	stock_icons.c	\
-	stream_prefs.c	\
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
 	tap_dfilter_dlg.c	\
@@ -204,12 +204,10 @@ noinst_HEADERS = \
 	airpcap_gui_utils.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
-	capture_prefs.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	color_edit_dlg.h	\
 	colors.h	\
-	column_prefs.h	\
 	conversations_table.h \
 	decode_as_ber.h	\
 	decode_as_dlg.h	\
@@ -235,7 +233,6 @@ noinst_HEADERS = \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
 	gtkvumeter.h \
-	gui_prefs.h	\
 	gui_stat_menu.h	\
 	gui_stat_util.h \
 	gui_utils.h	\
@@ -243,7 +240,6 @@ noinst_HEADERS = \
 	hostlist_table.h \
 	isprint.h	\
 	keys.h		\
-	layout_prefs.h	\
 	macros_dlg.h	\
 	main.h		\
 	main_airpcap_toolbar.h	\
@@ -257,13 +253,19 @@ noinst_HEADERS = \
 	mcast_stream.h  \
 	mcast_stream_dlg.h \
 	mtp3_stat.h	\
-	nameres_prefs.h	\
 	packet_history.h	\
 	packet_win.h	\
 	pixmap_save.h	\
 	plugins_dlg.h	\
+	prefs_capture.h	\
+	prefs_column.h	\
 	prefs_dlg.h	\
-	print_prefs.h	\
+	prefs_gui.h	\
+	prefs_layout.h	\
+	prefs_nameres.h	\
+	prefs_print.h	\
+	prefs_rtp_player.h 	\
+	prefs_stream.h	\
 	profile_dlg.h	\
 	proto_dlg.h	\
 	proto_hier_stats_dlg.h	\
@@ -271,14 +273,12 @@ noinst_HEADERS = \
 	recent.h	\
 	rtp_analysis.h	\
 	rtp_player.h 	\
-	rtp_player_prefs.h 	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
 	stock_icons.h	\
-	stream_prefs.h	\
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
 	tap_dfilter_dlg.h	\

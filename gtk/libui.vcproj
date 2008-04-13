@@ -96,10 +96,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\capture_prefs.c"
-				>
-			</File>
-			<File
 				RelativePath=".\cfilter_combo_utils.c"
 				>
 			</File>
@@ -113,14 +109,6 @@
 			</File>
 			<File
 				RelativePath=".\color_utils.c"
-				>
-			</File>
-			<File
-				RelativePath=".\colors.c"
-				>
-			</File>
-			<File
-				RelativePath=".\column_prefs.c"
 				>
 			</File>
 			<File
@@ -220,10 +208,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui_prefs.c"
-				>
-			</File>
-			<File
 				RelativePath=".\gui_stat_util.c"
 				>
 			</File>
@@ -237,10 +221,6 @@
 			</File>
 			<File
 				RelativePath=".\hostlist_table.c"
-				>
-			</File>
-			<File
-				RelativePath=".\layout_prefs.c"
 				>
 			</File>
 			<File
@@ -288,10 +268,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\nameres_prefs.c"
-				>
-			</File>
-			<File
 				RelativePath=".\packet_history.c"
 				>
 			</File>
@@ -308,15 +284,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\prefs_capture.c"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_column.c"
+				>
+			</File>
+			<File
 				RelativePath=".\prefs_dlg.c"
 				>
 			</File>
 			<File
-				RelativePath=".\print_dlg.c"
+				RelativePath=".\prefs_gui.c"
 				>
 			</File>
 			<File
-				RelativePath=".\print_prefs.c"
+				RelativePath=".\prefs_layout.c"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_nameres.c"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_print.c"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_rtp_player.c"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_stream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\print_dlg.c"
 				>
 			</File>
 			<File
@@ -352,10 +356,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtp_player_prefs.c"
-				>
-			</File>
-			<File
 				RelativePath=".\rtp_stream.c"
 				>
 			</File>
@@ -385,10 +385,6 @@
 			</File>
 			<File
 				RelativePath=".\stock_icons.c"
-				>
-			</File>
-			<File
-				RelativePath=".\stream_prefs.c"
 				>
 			</File>
 			<File
@@ -742,11 +738,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\capture_if_details_dlg.h"
-				>
-			</File>
-			<File
-				RelativePath=".\capture_prefs.h"
+				RelativePath=".\capture_if_details_dlg_win32.h"
 				>
 			</File>
 			<File
@@ -762,15 +754,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\colors.h"
-				>
-			</File>
-			<File
-				RelativePath=".\column_prefs.h"
-				>
-			</File>
-			<File
-				RelativePath=".\compat_macros.h"
+				RelativePath=".\color_utils.h"
 				>
 			</File>
 			<File
@@ -815,6 +799,10 @@
 			</File>
 			<File
 				RelativePath=".\file_dlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\file_dlg_win32.h"
 				>
 			</File>
 			<File
@@ -874,10 +862,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui_prefs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gui_stat_menu.h"
 				>
 			</File>
@@ -903,10 +887,6 @@
 			</File>
 			<File
 				RelativePath=".\keys.h"
-				>
-			</File>
-			<File
-				RelativePath=".\layout_prefs.h"
 				>
 			</File>
 			<File
@@ -962,10 +942,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\nameres_prefs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\packet_history.h"
 				>
 			</File>
@@ -982,15 +958,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\prefs_capture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_column.h"
+				>
+			</File>
+			<File
 				RelativePath=".\prefs_dlg.h"
 				>
 			</File>
 			<File
-				RelativePath=".\print_mswin.h"
+				RelativePath=".\prefs_gui.h"
 				>
 			</File>
 			<File
-				RelativePath=".\print_prefs.h"
+				RelativePath=".\prefs_layout.h"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_nameres.h"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_print.h"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_rtp_player.h"
+				>
+			</File>
+			<File
+				RelativePath=".\prefs_stream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\print_win32.h"
 				>
 			</File>
 			<File
@@ -1022,10 +1026,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtp_player_prefs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\rtp_stream.h"
 				>
 			</File>
@@ -1050,10 +1050,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\stream_prefs.h"
-				>
-			</File>
-			<File
 				RelativePath=".\summary_dlg.h"
 				>
 			</File>
@@ -1062,7 +1058,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\text_page.h"
+				RelativePath=".\tap_dfilter_dlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\text_page_utils.h"
 				>
 			</File>
 			<File
@@ -1083,10 +1083,6 @@
 			</File>
 			<File
 				RelativePath=".\webbrowser.h"
-				>
-			</File>
-			<File
-				RelativePath=".\win32-file-dlg.h"
 				>
 			</File>
 		</Filter>

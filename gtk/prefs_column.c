@@ -34,7 +34,7 @@
 
 #include "../globals.h"
 
-#include "gtk/column_prefs.h"
+#include "gtk/prefs_column.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
 #include "gtk/main_packet_list.h"

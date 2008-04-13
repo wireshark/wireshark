@@ -58,7 +58,6 @@
 #include "gtk/tap_dfilter_dlg.h"
 #include "gtk/font_utils.h"
 #include "gtk/gui_stat_menu.h"
-#include "gtk/column_prefs.h"
 #include "gtk/prefs_dlg.h"
 #include "gtk/main.h"
 #include "gtk/webbrowser.h"
