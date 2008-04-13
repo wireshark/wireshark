@@ -546,7 +546,7 @@ dissect_disp_Time(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_disp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1428,7 +1428,7 @@ dissect_disp_ShadowProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   guint32 problem;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &problem);
+                                                &problem);
 
 
   if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -2158,11 +2158,7 @@ void proto_register_disp(void) {
 
   /* Register our configuration options for DISP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   disp_module = prefs_register_protocol_subtree("OSI/X.500", proto_disp, prefs_register_disp);
-#else
-  disp_module = prefs_register_protocol(proto_disp, prefs_register_disp);
-#endif
 
   prefs_register_uint_preference(disp_module, "tcp.port", "DISP TCP Port",
 				 "Set the port for DISP operations (if other"
@@ -2187,7 +2183,7 @@ void proto_reg_handoff_disp(void) {
 
 
 /*--- End of included file: packet-disp-dis-tab.c ---*/
-#line 247 "packet-disp-template.c"
+#line 243 "packet-disp-template.c"
 
   /* APPLICATION CONTEXT */
 

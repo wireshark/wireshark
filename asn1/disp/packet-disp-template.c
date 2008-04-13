@@ -225,11 +225,7 @@ void proto_register_disp(void) {
 
   /* Register our configuration options for DISP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   disp_module = prefs_register_protocol_subtree("OSI/X.500", proto_disp, prefs_register_disp);
-#else
-  disp_module = prefs_register_protocol(proto_disp, prefs_register_disp);
-#endif
 
   prefs_register_uint_preference(disp_module, "tcp.port", "DISP TCP Port",
 				 "Set the port for DISP operations (if other"
