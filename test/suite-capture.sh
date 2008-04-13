@@ -43,9 +43,11 @@ capture_test_output_print() {
 traffic_gen_ping() {
 	# Generate some traffic for quiet networks.
 	# This will have to be adjusted for non-Windows systems.
+	
+	# the following will run in the background and return immediately
 	{
 	date
-	for (( x=20; x<=50; x++ )) # in effect: number the packets
+	for (( x=28; x<=58; x++ )) # in effect: number the packets
 	do
 		# How does ping _not_ have a standard set of arguments?
 		case $WS_SYSTEM in
