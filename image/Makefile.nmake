@@ -15,7 +15,7 @@ wireshark.exe.manifest: wireshark.exe.manifest.in ..\config.nmake
 		-e s/@VERSION_MICRO@/$(VERSION_MICRO)/ \
 		< wireshark.exe.manifest.in > $@
 
-wireshark.rc   : win32-file-dlg.rc wireshark.rc.in wireshark.exe.manifest ..\config.nmake
+wireshark.rc   : file_dlg_win32.rc wireshark.rc.in wireshark.exe.manifest ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< wireshark.rc.in > $@
