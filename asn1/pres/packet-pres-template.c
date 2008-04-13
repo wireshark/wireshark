@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/oids.h>
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"

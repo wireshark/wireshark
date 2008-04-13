@@ -45,6 +45,7 @@
 #include <string.h>
 
 #include <epan/asn1.h>
+#include <epan/oids.h>
 #include "packet-ber.h"
 #include "packet-ses.h"
 #include "packet-pres.h"
@@ -166,7 +167,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 80 "packet-pres-template.c"
+#line 81 "packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -211,7 +212,7 @@ static gint ett_pres_T_presentation_data_values = -1;
 static gint ett_pres_User_session_requirements = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 85 "packet-pres-template.c"
+#line 86 "packet-pres-template.c"
 
 
 static guint
@@ -308,7 +309,7 @@ static const value_string pres_T_mode_value_vals[] = {
 static int
 dissect_pres_T_mode_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -375,13 +376,21 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 69 "pres.cnf"
+  const char *name;
+  char *oid;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &presentation_context_identifier);
+                                                &presentation_context_identifier);
 
 
   if(session)
 	session->pres_ctx_id = presentation_context_identifier;
+
+  oid = find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
+
+  if(oid && (name = oid_resolved_from_string(oid))) {
+	proto_item_append_text(actx->created_item, " (%s)", name);
+  }
 
 
 
@@ -429,13 +438,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "pres.cnf"
+#line 84 "pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 79 "pres.cnf"
+#line 87 "pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -767,7 +776,7 @@ static const value_string pres_Result_vals[] = {
 static int
 dissect_pres_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -785,7 +794,7 @@ static const value_string pres_T_provider_reason_vals[] = {
 static int
 dissect_pres_T_provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -891,7 +900,7 @@ static const value_string pres_Provider_reason_vals[] = {
 static int
 dissect_pres_Provider_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1018,7 +1027,7 @@ static const value_string pres_Abort_reason_vals[] = {
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1065,7 +1074,7 @@ static const value_string pres_Event_identifier_vals[] = {
 static int
 dissect_pres_Event_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1165,7 +1174,7 @@ static const value_string pres_Presentation_context_deletion_result_list_item_va
 static int
 dissect_pres_Presentation_context_deletion_result_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1255,7 +1264,7 @@ dissect_pres_RSA_PPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 168 "packet-pres-template.c"
+#line 169 "packet-pres-template.c"
 
 
 /*
@@ -1718,7 +1727,7 @@ void proto_register_pres(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 322 "packet-pres-template.c"
+#line 323 "packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1764,7 +1773,7 @@ void proto_register_pres(void) {
     &ett_pres_User_session_requirements,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 328 "packet-pres-template.c"
+#line 329 "packet-pres-template.c"
   };
 
   /* Register protocol */

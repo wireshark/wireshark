@@ -66,11 +66,19 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
  VAL_PTR = &presentation_context_identifier
 
 #.FN_BODY Presentation-context-identifier
+  const char *name;
+  char *oid;
 
   %(DEFAULT_BODY)s
 
   if(session)
 	session->pres_ctx_id = presentation_context_identifier;
+
+  oid = find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
+
+  if(oid && (name = oid_resolved_from_string(oid))) {
+	proto_item_append_text(actx->created_item, " (%%s)", name);
+  }
 
 #.FN_HDR Context-list/_item
 	abstract_syntax_name_oid=NULL;
