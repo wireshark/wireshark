@@ -167,7 +167,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct smtp_request_val *request_val;
     const guchar            *line;
     guint32                 code;
-    int                     linelen;
+    int                     linelen = 0;
     gint                    length_remaining;
     gboolean                eom_seen = FALSE;
     gint                    next_offset;
