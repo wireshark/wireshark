@@ -318,9 +318,8 @@ about_authors_page_new(void)
   return page;
 }
 
-static gint about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id)
+static gint about_folders_callback(GtkWidget *widget, GdkEventButton *event, gint id _U_)
 {
-  gint row = 0, col = 0;
   GtkTreeSelection *tree_selection;
   GtkTreeModel *model;
   GtkTreeIter  iter;
