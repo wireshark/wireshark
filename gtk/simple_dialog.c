@@ -25,23 +25,24 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <stdio.h>
 
 #include <gtk/gtk.h>
 
-#include <stdio.h>
-
-#include "gtkglobals.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "stock_icons.h"
-
 #include <epan/strutil.h>
+
+#include "../simple_dialog.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/stock_icons.h"
 
 #include "image/stock_dialog_error_48.xpm"
 #include "image/stock_dialog_info_48.xpm"
 #include "image/stock_dialog_warning_48.xpm"
 #include "image/stock_dialog_stop_48.xpm"
+
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 

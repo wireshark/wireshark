@@ -39,24 +39,26 @@
 
 #include <epan/epan_dissect.h>
 #include <epan/packet_info.h>
-
-#include "gtkglobals.h"
-#include "gui_utils.h"
 #include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
 #include <epan/tap.h>
+#include <epan/strutil.h>
+
+#include "../stat_menu.h"
 #include "../register.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
-#include "stock_icons.h"
-#include "dlg_utils.h"
-#include "filter_dlg.h"
-#include "help_dlg.h"
-#include "pixmap_save.h"
-#include <epan/strutil.h>
+
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/stock_icons.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/help_dlg.h"
+#include "gtk/pixmap_save.h"
+
 
 void protect_thread_critical_region(void);
 void unprotect_thread_critical_region(void);

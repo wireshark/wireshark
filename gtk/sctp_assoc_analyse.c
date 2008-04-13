@@ -25,23 +25,25 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+#include <string.h>
 
 #include <gtk/gtk.h>
-#include <string.h>  /* for memmove */
-#include "globals.h"
-#include "simple_dialog.h"
+
 #include <epan/epan_dissect.h>
 #include "epan/filesystem.h"
-#include "register.h"
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "main.h"
 #include <epan/strutil.h>
 
-#include "sctp_stat.h"
-#include "gtkglobals.h"
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../stat_menu.h"
+#include "../register.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/sctp_stat.h"
+#include "gtk/gtkglobals.h"
 
 static sctp_assoc_info_t static_assoc;
 

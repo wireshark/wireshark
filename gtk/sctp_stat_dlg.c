@@ -25,24 +25,24 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "globals.h"
+#include <gtk/gtk.h>
+
 #include "epan/filesystem.h"
+
+#include "../globals.h"
+#include "../stat_menu.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/sctp_stat.h"
+#include "gtk/gtkglobals.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "main.h"
-
-#include "sctp_stat.h"
-#include "gtkglobals.h"
 
 
 static GtkWidget *sctp_stat_dlg=NULL;

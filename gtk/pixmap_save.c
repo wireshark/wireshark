@@ -27,18 +27,20 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <errno.h>
 
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #if GTK_CHECK_VERSION(2,6,0)
 
-#include "pixmap_save.h"
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "file_dlg.h"
-#include <errno.h>
 #include <epan/filesystem.h>
+
+#include "../simple_dialog.h"
+
+#include "gtk/pixmap_save.h"
+#include "gtk/gui_utils.h"
+#include "gtk/file_dlg.h"
+
 
 static GtkWidget *save_as_w;
 

@@ -37,21 +37,22 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 #include <epan/value_string.h>
-
 #include <epan/tap.h>
 #include <epan/dissectors/packet-ldap.h>
+
 #include "../register.h"
 #include "../timestats.h"
 #include "../simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
-#include "filter_dlg.h"
-#include "service_response_time_table.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
-#include "gtkglobals.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/service_response_time_table.h"
+#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/gtkglobals.h"
 
 
 /* used to keep track of the statistics for an entire program interface */

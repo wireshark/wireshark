@@ -28,15 +28,18 @@
 
 #include <gtk/gtk.h>
 
-#include "color.h"
-#include "colors.h"
-#include "globals.h"
-#include "stream_prefs.h"
-#include "keys.h"
-#include "print.h"
 #include <epan/prefs.h>
-#include "follow_tcp.h"
-#include "main_packet_list.h"
+
+#include "../color.h"
+#include "../globals.h"
+#include "../print.h"
+
+#include "gtk/colors.h"
+#include "gtk/stream_prefs.h"
+#include "gtk/keys.h"
+#include "gtk/follow_tcp.h"
+#include "gtk/main_packet_list.h"
+
 
 #define SAMPLE_MARKED_TEXT "Sample marked packet text\n"
 #define SAMPLE_CLIENT_TEXT "Sample TCP stream client text\n"

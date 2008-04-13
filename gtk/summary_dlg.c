@@ -29,26 +29,28 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-
 #include <string.h>
+#include <time.h>
 
 #include <gtk/gtk.h>
 
-#include <wtap.h>
-#include <time.h>
-
-#include "globals.h"
-#include "file.h"
-#ifdef HAVE_LIBPCAP
-#include "capture.h"
-#include "main.h"
-#endif
-#include "summary.h"
-#include "summary_dlg.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "help_dlg.h"
 #include <epan/strutil.h>
+
+#include <wiretap/wtap.h>
+
+#include "../globals.h"
+#include "../file.h"
+#include "../summary.h"
+#ifdef HAVE_LIBPCAP
+#include "../capture.h"
+#include "gtk/main.h"
+#endif
+
+#include "gtk/summary_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/help_dlg.h"
+
 
 #define SUM_STR_MAX     1024
 #define FILTER_SNIP_LEN 50

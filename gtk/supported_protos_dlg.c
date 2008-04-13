@@ -26,17 +26,19 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include "supported_protos_dlg.h"
+#include <gtk/gtk.h>
+
 #include <epan/prefs.h>
-#include "globals.h"
-#include "gtkglobals.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "font_utils.h"
+
+#include "../globals.h"
+
+#include "gtk/supported_protos_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/font_utils.h"
 
 
 

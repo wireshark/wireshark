@@ -29,10 +29,13 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include "gtkglobals.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "progress_dlg.h"
+
+#include "../progress_dlg.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+
 
 #define	PROG_BAR_KEY	"progress_bar"
 

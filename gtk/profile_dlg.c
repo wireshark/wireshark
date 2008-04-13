@@ -33,16 +33,18 @@
 #include <gdk/gdkkeysyms.h>
 
 #include <epan/filesystem.h>
+#include <epan/prefs.h>
+
+#include "../simple_dialog.h"
 #include <wiretap/file_util.h>
 
 #include "gtk/main.h"
-#include "profile_dlg.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "gtkglobals.h"
-#include "help_dlg.h"
-#include <epan/prefs.h>
+#include "gtk/profile_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/help_dlg.h"
+
 
 #define E_PROF_PROFILE_L_KEY        "profile_profile_l"
 #define E_PROF_COPY_BT_KEY          "profile_copy_bt"

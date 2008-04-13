@@ -28,33 +28,30 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
+#include <string.h>
+#include <locale.h>
 
-#include "rtp_stream_dlg.h"
-
-#include "globals.h"
+#include <epan/rtp_pt.h>
+#include <epan/address.h>
+#include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 #include "epan/filesystem.h"
 
+#include "../globals.h"
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
+
+#include "gtk/rtp_stream_dlg.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/rtp_stream.h"
+#include "gtk/rtp_analysis.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-#include <epan/rtp_pt.h>
-
-#include <epan/address.h>
-
-#include <string.h>
-#include <locale.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
-
-#include "rtp_stream.h"
-#include "rtp_analysis.h"
 
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with SHIFT + left mouse button";

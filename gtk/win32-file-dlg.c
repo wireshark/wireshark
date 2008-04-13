@@ -26,48 +26,43 @@
 # include "config.h"
 #endif
 
-#include "globals.h"
-
-#include <gtk/gtk.h>
-
 #include <stdio.h>
-
-#include <windows.h>
-#include <windowsx.h>
-#include <commdlg.h>
-#include <richedit.h>
 #include <tchar.h>
 #include <wchar.h>
-
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <io.h>
 #include <fcntl.h>
 
-#include "alert_box.h"
-#include "color.h"
-#include "color_filters.h"
+#include <gtk/gtk.h>
+
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
-#include "merge.h"
 #include "epan/prefs.h"
-#include "print.h"
-#include "simple_dialog.h"
-#include "util.h"
 #include "epan/unicode-utils.h"
 
-#include "file_dlg.h"
-#include "capture_file_dlg.h"
-#include "main.h"
-#include "main_menu.h"
-#include "drag_and_drop.h"
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "capture_dlg.h"
+#include "../globals.h"
+#include "../alert_box.h"
+#include "../color.h"
+#include "../print.h"
+#include "../simple_dialog.h"
+#include "../util.h"
+#include "../color_filters.h"
+#include "../merge.h"
 
-#include "win32-file-dlg.h"
-#include "help_dlg.h"
+#include "gtk/file_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/drag_and_drop.h"
+#include "gtk/capture_dlg.h"
+#include "gtk/win32-file-dlg.h"
+#include "gtk/help_dlg.h"
+
+#include <windows.h>
+#include <windowsx.h>
+#include <commdlg.h>
+#include <richedit.h>
 
 typedef enum {
     merge_append,

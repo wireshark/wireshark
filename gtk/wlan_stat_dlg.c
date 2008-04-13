@@ -30,25 +30,30 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-
 #include <string.h>
+
 #include <gtk/gtk.h>
 
+#include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
+#include <epan/dissectors/packet-ieee80211.h>
+#include <epan/strutil.h>
+
 #include "../register.h"
 #include "../simple_dialog.h"
-#include "dlg_utils.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "gui_utils.h"
-#include <epan/dissectors/packet-ieee80211.h>
+
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/gui_utils.h"
+#include "gtk/help_dlg.h"
+
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-#include "help_dlg.h"
-#include <epan/strutil.h>
+
 
 #define NUM_COLS 12
 static const gchar *titles[] = {"BSSID", "Channel", "SSID", "Beacons", "Data Packets", "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Percent", "Protection" };

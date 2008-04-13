@@ -34,21 +34,8 @@
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-
 #include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
-#include "gui_stat_menu.h"
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include <epan/tap.h>
-#include "register.h"
-#include "main.h"
-#include "globals.h"
-#include "filter_dlg.h"
-#include "stock_icons.h"
-#include "service_response_time_table.h"
-#include "gtkglobals.h"
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-scsi.h>
 #include <epan/dissectors/packet-fc.h>
@@ -56,6 +43,21 @@
 #include <epan/dissectors/packet-scsi-ssc.h>
 #include <epan/dissectors/packet-scsi-smc.h>
 #include <epan/dissectors/packet-scsi-osd.h>
+
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../stat_menu.h"
+#include "../register.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/service_response_time_table.h"
+#include "gtk/gtkglobals.h"
+
 
 static GtkWidget *dlg=NULL;
 

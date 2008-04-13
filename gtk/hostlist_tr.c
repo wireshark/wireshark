@@ -29,17 +29,20 @@
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
+#include <string.h>
 
 #include <gtk/gtk.h>
-#include <string.h>
+
 #include "epan/packet.h"
 #include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
 #include <epan/tap.h>
-#include "../register.h"
-#include "hostlist_table.h"
 #include <epan/dissectors/packet-tr.h>
+
+#include "../stat_menu.h"
+#include "../register.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/hostlist_table.h"
 
 
 static int

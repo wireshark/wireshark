@@ -42,7 +42,8 @@
  *  @todo what's this?
  */
 
-#define INTERFACE        2
+/* XXX - don't define stuff that potential name conflicts */
+#define MCAST_INTERFACE        2
 #define FILTER           3
 #define TRIGGER          4
 #define TIMER            5

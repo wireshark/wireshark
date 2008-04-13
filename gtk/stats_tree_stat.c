@@ -27,19 +27,21 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
 #include <string.h>
+
 #include <gtk/gtk.h>
 
 #include <epan/stats_tree_priv.h>
 #include <epan/report_err.h>
 
-#include "simple_dialog.h"
-#include "globals.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
+#include "../simple_dialog.h"
+#include "../globals.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+
 
 struct _st_node_pres {
 	GtkTreeIter*	iter;

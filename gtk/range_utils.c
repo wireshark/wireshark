@@ -30,13 +30,13 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../packet-range.h"
 
-#include "packet-range.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "simple_dialog.h"
-#include "range_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/range_utils.h"
 
 
 #define RANGE_VALUES_KEY                "range_values"

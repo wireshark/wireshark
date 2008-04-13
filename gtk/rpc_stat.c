@@ -36,22 +36,23 @@
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-
 #include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
-#include "gui_stat_menu.h"
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include <epan/tap.h>
-#include "register.h"
 #include <epan/dissectors/packet-rpc.h>
-#include "main.h"
-#include "globals.h"
-#include "filter_dlg.h"
-#include "stock_icons.h"
-#include "service_response_time_table.h"
-#include "gtkglobals.h"
+
+#include "../stat_menu.h"
+#include "../simple_dialog.h"
+#include "../register.h"
+#include "../globals.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/service_response_time_table.h"
+#include "gtk/gtkglobals.h"
 
 
 /* used to keep track of the statistics for an entire program interface */

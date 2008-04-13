@@ -34,28 +34,29 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 
-#include <wtap.h>
+#include <gtk/gtk.h>
 
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "epan/value_string.h"
+#include <epan/tap.h>
+#include <epan/dissectors/packet-mtp3.h>
+
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "globals.h"
-#include "file.h"
-#include "summary.h"
+#include "../globals.h"
+#include "../file.h"
+#include "../summary.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/mtp3_stat.h"
+
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include <epan/tap.h>
 
-#include <epan/dissectors/packet-mtp3.h>
-#include "mtp3_stat.h"
 
 #define SUM_STR_MAX 1024
 

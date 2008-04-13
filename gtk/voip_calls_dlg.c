@@ -36,40 +36,40 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-
 #include <string.h>
 #include <ctype.h>
 
-#include "register.h"
+#include "gtk/gtk.h"
 
-#include "graph_analysis.h"
-#include "voip_calls_dlg.h"
-#include "voip_calls.h"
-
-#include "globals.h"
+#include <epan/epan.h>
+#include <epan/packet.h>
 #include "epan/filesystem.h"
-
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
+#include <epan/to_str.h>
+#include <epan/address.h>
+#include <epan/addr_resolv.h>
+#include <epan/dissectors/packet-h248.h>
+
+#include "../register.h"
+#include "../globals.h"
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
+
+#include "gtk/graph_analysis.h"
+#include "gtk/voip_calls_dlg.h"
+#include "gtk/voip_calls.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"
 
-#include <epan/to_str.h>
-
-#include <epan/address.h>
-#include <epan/addr_resolv.h>
-#include <epan/dissectors/packet-h248.h>
-
 #ifdef HAVE_LIBPORTAUDIO
-#include "rtp_analysis.h"
-#include "rtp_player.h"
+#include "gtk/rtp_analysis.h"
+#include "gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
 

@@ -28,11 +28,14 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
 #include <epan/plugins.h>
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "plugins_dlg.h"
+
+#include "../globals.h"
+
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/plugins_dlg.h"
+
 
 #ifdef HAVE_PLUGINS
 

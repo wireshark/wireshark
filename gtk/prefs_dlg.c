@@ -31,31 +31,32 @@
 #include <string.h>
 
 #include <epan/filesystem.h>
-
-#include "main.h"
 #include <epan/packet.h>
-#include "file.h"
 #include <epan/prefs.h>
-#include "column_prefs.h"
-#include "print.h"
-#include "prefs_dlg.h"
-#include "print_prefs.h"
-#include "stream_prefs.h"
-#include "gui_prefs.h"
-#include "layout_prefs.h"
-#include "capture_prefs.h"
-#include "nameres_prefs.h"
-#include "rtp_player_prefs.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "simple_dialog.h"
-#include "stock_icons.h"
-#include "help_dlg.h"
-#include "keys.h"
-#include "uat_gui.h"
 #include <epan/strutil.h>
-
 #include <epan/prefs-int.h>
+
+#include "../file.h"
+#include "../print.h"
+#include "../simple_dialog.h"
+
+#include "gtk/main.h"
+#include "gtk/column_prefs.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/print_prefs.h"
+#include "gtk/stream_prefs.h"
+#include "gtk/gui_prefs.h"
+#include "gtk/layout_prefs.h"
+#include "gtk/capture_prefs.h"
+#include "gtk/nameres_prefs.h"
+#include "gtk/rtp_player_prefs.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/stock_icons.h"
+#include "gtk/help_dlg.h"
+#include "gtk/keys.h"
+#include "gtk/uat_gui.h"
+
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32

@@ -27,28 +27,32 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <math.h>
+#include <string.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-#include <math.h>		/* rint() */
-#include <string.h>
 
 #include <epan/ipproto.h>
-#include "globals.h" 		/* cfile */
-#include <epan/packet.h>	/* frame_data */
+
+#include <epan/packet.h>
 #include <epan/emem.h>
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "color.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
-#include "dlg_utils.h"
 #include <epan/epan_dissect.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/address.h>
 #include <epan/tap.h>
+
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../color.h"
+#include "../stat_menu.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_stat_menu.h"
+
 
 #define TH_FIN    0x01
 #define TH_SYN    0x02

@@ -44,26 +44,28 @@
 #include <string.h>
 
 #include <epan/epan.h>
-#include "main.h"
 #include <epan/timestamp.h>
 #include <epan/packet.h>
-#include "summary.h"
-#include "file.h"
 #include <epan/prefs.h>
 #include <epan/column.h>
-#include "print.h"
 #include <epan/addr_resolv.h>
-#include "packet_win.h"
-#include "simple_dialog.h"
-#include "main_proto_draw.h"
-#include "keys.h"
-#include "gtkglobals.h"
-#include "gui_utils.h"
 #include <epan/plugins.h>
 #include <epan/epan_dissect.h>
 #include <epan/strutil.h>
 
+#include "../file.h"
+#include "../print.h"
+#include "../simple_dialog.h"
 #include "../ui_util.h"
+#include "../summary.h"
+
+#include "gtk/main.h"
+#include "gtk/packet_win.h"
+#include "gtk/main_proto_draw.h"
+#include "gtk/keys.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+
 
 /* Data structure holding information about a packet-detail window. */
 struct PacketWinData {

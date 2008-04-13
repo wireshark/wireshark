@@ -28,17 +28,20 @@
  * It was modified to suit the Wireshark environment (#if 0)!
  */
 
-#include "config.h"
-
+#ifdef HAVE_CONFIG_H
+#  include <config.h>
+#endif
 #include <string.h> /* strlen, strstr */
 
 #include <gtk/gtk.h>
 
 #include <epan/filesystem.h>
-
 #include <epan/prefs.h>
-#include "webbrowser.h"
-#include "simple_dialog.h"
+
+#include "../simple_dialog.h"
+
+#include "gtk/webbrowser.h"
+
 
 /*
  * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer

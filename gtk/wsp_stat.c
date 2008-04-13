@@ -26,23 +26,25 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 
 #include <gtk/gtk.h>
 
+#include <epan/packet.h>
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include <epan/tap.h>
+#include <epan/dissectors/packet-wsp.h>
+
+#include "../simple_dialog.h"
 #include "../register.h"
 #include "../globals.h"
-#include <epan/dissectors/packet-wsp.h>
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {

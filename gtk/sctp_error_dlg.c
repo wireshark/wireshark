@@ -28,15 +28,16 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
 #include "epan/filesystem.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "main.h"
 
-#include "sctp_stat.h"
-/*#include "sctp_assoc_analyse.h"*/
+#include "../globals.h"
+#include "../simple_dialog.h"
+
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/sctp_stat.h"
+/*#include "gtk/sctp_assoc_analyse.h"*/
 
 
 static GtkWidget *sctp_error_dlg=NULL;

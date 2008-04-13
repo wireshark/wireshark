@@ -30,34 +30,34 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
-#include "gtkglobals.h"
-#include "keys.h"
-#include "print.h"
 #include <epan/prefs.h>
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "capture_file_dlg.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "main.h"
 #include <epan/epan_dissect.h>
 #include <epan/filesystem.h>
-#ifdef _WIN32
-#include "print_mswin.h"
-#endif
-#include "stock_icons.h"
-#include "range_utils.h"
-#include "help_dlg.h"
-#include "file_util.h"
-#include "tempfile.h"
-#include "util.h"
+
+#include "../globals.h"
+#include "../print.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../tempfile.h"
+#include "../util.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/keys.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/main.h"
+#include "gtk/stock_icons.h"
+#include "gtk/range_utils.h"
+#include "gtk/help_dlg.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "win32-file-dlg.h"
+#include "gtk/win32-file-dlg.h"
+#include "gtk/print_mswin.h"
 #endif
 
 /* dialog output action */

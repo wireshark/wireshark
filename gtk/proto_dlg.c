@@ -26,22 +26,25 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <string.h>
 
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
-#include <string.h>
 
 #include <epan/prefs.h>
-#include "globals.h"
-#include "main.h"
-#include "util.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "proto_dlg.h"
-#include "simple_dialog.h"
-#include "disabled_protos.h"
 #include <epan/filesystem.h>
-#include "help_dlg.h"
+
+#include "../globals.h"
+#include "../util.h"
+#include "../simple_dialog.h"
+#include "../disabled_protos.h"
+
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/proto_dlg.h"
+#include "gtk/help_dlg.h"
+
 
 static gboolean proto_delete_event_cb(GtkWidget *, GdkEvent *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);

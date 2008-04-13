@@ -30,16 +30,18 @@
 
 #include <gtk/gtk.h>
 
-#include "proto_hier_stats.h"
-#include "proto_hier_stats_dlg.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "find_dlg.h"
-#include "color_dlg.h"
-#include "gtkglobals.h"
-#include "main.h"
-#include "simple_dialog.h"
-#include "help_dlg.h"
+#include "../proto_hier_stats.h"
+#include "../simple_dialog.h"
+
+#include "gtk/proto_hier_stats_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/find_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/main.h"
+#include "gtk/help_dlg.h"
+
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 

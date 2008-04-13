@@ -29,25 +29,26 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 
-#include "graph_analysis.h"
-
-#include "globals.h"
-
+#include <epan/epan.h>
+#include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/epan_dissect.h>
 #include <epan/dissectors/packet-t38.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/conversation.h>
 #include <epan/stat_cmd_args.h>
-#include "stat_menu.h"
 
-#include "main.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "gui_stat_menu.h"
+#include "../globals.h"
+#include "../stat_menu.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+
+#include "gtk/graph_analysis.h"
+#include "gtk/main.h"
+#include "gtk/gui_stat_menu.h"
+
 
 void voip_calls_init_tap(const char *);	
 

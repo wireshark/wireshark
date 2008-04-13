@@ -33,28 +33,30 @@
 #  include <config.h>
 #endif
 
-#include "mcast_stream_dlg.h"
-#include "mcast_stream.h"
+#include <string.h>
+#include <locale.h>
 
-#include "globals.h"
+#include "gtk/gtk.h"
+
 #include "epan/filesystem.h"
+#include <epan/address.h>
+#include <epan/addr_resolv.h>
+#include <epan/strutil.h>
 
+#include "../globals.h"
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-#include "simple_dialog.h"
+#include "../simple_dialog.h"
+
+#include "gtk/mcast_stream_dlg.h"
+#include "gtk/mcast_stream.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-#include <epan/address.h>
-
-#include <string.h>
-#include <locale.h>
-#include <epan/addr_resolv.h>
-#include <epan/strutil.h>
 
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"

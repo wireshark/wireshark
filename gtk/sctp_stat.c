@@ -25,20 +25,24 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <stdio.h>
-#include <gtk/gtk.h>
-#include "simple_dialog.h"      /* Both is used for error handling */
-#include "globals.h"
-#include "epan/packet_info.h"   /* Needed for packet_info */
-#include <epan/tap.h>           /* Needed for register_tap_listener */
-#include "dlg_utils.h"
-#include "register.h"
 #include <string.h>
-#include "sctp_stat.h"
 #include <math.h>
+
+#include <gtk/gtk.h>
+
+#include "epan/packet_info.h"
+#include <epan/tap.h>
 #include "epan/address.h"
 #include <epan/strutil.h>
+
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../register.h"
+
+#include "gtk/dlg_utils.h"
+#include "gtk/sctp_stat.h"
+
 
 #define SCTP_HEARTBEAT_CHUNK_ID          4
 #define SCTP_HEARTBEAT_ACK_CHUNK_ID      5

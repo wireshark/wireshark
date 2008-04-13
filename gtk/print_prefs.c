@@ -25,25 +25,25 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
 #include <errno.h>
+
 #include <gtk/gtk.h>
 
-#include "globals.h"
-#include "print_prefs.h"
-#include "keys.h"
-#include "print.h"
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
-#include "util.h"
-#include "gui_utils.h"
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "file_dlg.h"
-#include "capture_file_dlg.h"
-#include "stock_icons.h"
-#include "gtkglobals.h"
+
+#include "../globals.h"
+#include "../print.h"
+#include "../util.h"
+
+#include "gtk/print_prefs.h"
+#include "gtk/keys.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/gtkglobals.h"
+
 
 static void printer_browse_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 

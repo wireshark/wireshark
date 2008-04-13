@@ -26,18 +26,21 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
 
+#include <gtk/gtk.h>
+
 #include "epan/filesystem.h"
-#include "text_page.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "font_utils.h"
-#include "file_util.h"
+
+#include "../simple_dialog.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/text_page.h"
+#include "gtk/gui_utils.h"
+#include "gtk/font_utils.h"
+
 
 #define TEXT_KEY        "txt_key"
 

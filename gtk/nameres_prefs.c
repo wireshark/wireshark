@@ -28,16 +28,19 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
-#include "nameres_prefs.h"
-#include "gtkglobals.h"
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
-#include "prefs_dlg.h"
-#include "gui_utils.h"
-#include "main.h"
-#include "main_menu.h"
+
+#include "../globals.h"
+
+#include "gtk/nameres_prefs.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+
 
 #define M_RESOLVE_KEY	"m_resolve"
 #define N_RESOLVE_KEY	"n_resolve"

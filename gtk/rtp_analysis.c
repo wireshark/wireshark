@@ -36,49 +36,9 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
-/*do not define this symbol. will be added soon*/
-/*#define USE_CONVERSATION_GRAPH 1*/
-
-#ifdef USE_CONVERSATION_GRAPH
-#include "../graph/graph.h"
-#endif
-
-#include <epan/epan_dissect.h>
-#include <epan/filesystem.h>
-#include <epan/pint.h>
-
-#include "util.h"
-#include <epan/tap.h>
-#include "register.h"
-#include <epan/dissectors/packet-rtp.h>
-#include "g711.h"
-#include <epan/rtp_pt.h>
-#include <epan/addr_resolv.h>
-
-/* in /gtk ... */
-#include <gtk/gtk.h>
-#include "gtkglobals.h"
-
-#include <epan/stat_cmd_args.h>
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "gui_utils.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "main.h"
-#include "progress_dlg.h"
-#include "../color.h"
-
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
-
 #include <math.h>
 #include <string.h>
 #include <locale.h>
-#include <epan/strutil.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -88,12 +48,41 @@
 #include <fcntl.h>
 #endif
 
-#include "file_util.h"
-#include "tempfile.h"
+#include <gtk/gtk.h>
 
-#include "rtp_analysis.h"
-#include "rtp_stream.h"
-#include "rtp_stream_dlg.h"
+#include <epan/epan_dissect.h>
+#include <epan/filesystem.h>
+#include <epan/pint.h>
+#include <epan/tap.h>
+#include <epan/dissectors/packet-rtp.h>
+#include <epan/rtp_pt.h>
+#include <epan/addr_resolv.h>
+#include <epan/stat_cmd_args.h>
+#include <epan/strutil.h>
+
+#include "../util.h"
+#include "../register.h"
+#include "../g711.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../stat_menu.h"
+#include "../progress_dlg.h"
+#include "../color.h"
+#include "../tempfile.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/main.h"
+#include "gtk/rtp_analysis.h"
+#include "gtk/rtp_stream.h"
+#include "gtk/rtp_stream_dlg.h"
+
+#include "image/clist_ascend.xpm"
+#include "image/clist_descend.xpm"
 
 
 /****************************************************************************/

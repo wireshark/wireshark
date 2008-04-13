@@ -26,15 +26,15 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
 #include <stdio.h>
 
-#include "file.h"
-#include "globals.h"
+#include <gtk/gtk.h>
 
-#include "main_menu.h"
-#include "packet_history.h"
+#include "../file.h"
+#include "../globals.h"
+
+#include "gtk/main_menu.h"
+#include "gtk/packet_history.h"
 
 
 GList *history_current = NULL;

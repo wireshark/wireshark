@@ -38,19 +38,20 @@
 #include <epan/packet_info.h>
 #include <epan/epan.h>
 #include <epan/value_string.h>
-
 #include <epan/tap.h>
-#include "../register.h"
 #include <epan/dissectors/packet-radius.h>
+
+#include "../register.h"
 #include "../timestats.h"
-#include "gui_stat_util.h"
 #include "../simple_dialog.h"
-#include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
-#include "gui_utils.h"
+
+#include "gtk/gui_stat_util.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/gui_utils.h"
 
 
 #define NUM_TIMESTATS 8

@@ -26,30 +26,30 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
-#include "recent.h"
+#include <gtk/gtk.h>
+
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include "main.h"
-#include "main_menu.h"
+#include <epan/emem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
 #include <epan/column.h>
-#include "gui_utils.h"
-#include "main_packet_list.h"
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "file_dlg.h"
-#include "cfilter_combo_utils.h"
-#include "simple_dialog.h"
-#include "file_util.h"
-#include "u3.h"
+
+#include "../simple_dialog.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/recent.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/file_dlg.h"
+#include "gtk/cfilter_combo_utils.h"
+#include "gtk/u3.h"
 
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"

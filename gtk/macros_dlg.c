@@ -24,14 +24,15 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+#include <stdlib.h>
 
 #include <gtk/gtk.h>
 
 #include <epan/dfilter/dfilter-macro.h>
-#include <stdlib.h>
 #include <epan/uat.h>
-#include "uat_gui.h"
-#include "macros_dlg.h"
+
+#include "gtk/uat_gui.h"
+#include "gtk/macros_dlg.h"
 
 void macros_dialog_cb(GtkWidget *w _U_, gpointer data _U_) {
 		void* dfmuat;

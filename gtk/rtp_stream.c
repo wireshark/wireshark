@@ -28,17 +28,7 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include "globals.h"
-
-#include <epan/tap.h>
-#include "register.h"
-#include <epan/dissectors/packet-rtp.h>
-
-
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "file_util.h"
+#include <string.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -48,12 +38,23 @@
 # include <sys/types.h>
 #endif
 
-#include <string.h>
+
+#include <epan/epan.h>
+#include <epan/packet.h>
+#include <epan/tap.h>
+#include <epan/dissectors/packet-rtp.h>
 #include <epan/addr_resolv.h>
 
-#include "rtp_stream.h"
-#include "rtp_stream_dlg.h"
-#include "tap-rtp-common.h"
+#include "../globals.h"
+#include "../register.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../tap-rtp-common.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/rtp_stream.h"
+#include "gtk/rtp_stream_dlg.h"
+
 
 /****************************************************************************/
 /* redraw the output */

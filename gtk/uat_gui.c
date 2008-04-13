@@ -37,30 +37,33 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
+
 #include <epan/dfilter/dfilter-macro.h>
 #include <epan/emem.h>
 #include <epan/report_err.h>
-#include <gdk/gdkkeysyms.h>
-#include "gtkglobals.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "help_dlg.h"
-#include "stock_icons.h"
 #include <epan/proto.h>
 #include <epan/packet.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "main.h"
-
 #include <epan/uat-int.h>
 #include <epan/value_string.h>
-#include "uat_gui.h"
+
+#include "../stat_menu.h"
+
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/help_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/main.h"
+#include "gtk/uat_gui.h"
+
 
 # define BUTTON_SIZE_X -1
 # define BUTTON_SIZE_Y -1

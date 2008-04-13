@@ -25,23 +25,25 @@
 #ifdef HAVE_CONFIG_H
 #  include <config.h>
 #endif
-
-
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "globals.h"
+
+#include <gtk/gtk.h>
+
 #include "epan/filesystem.h"
-#include "../color.h"
-#include "dlg_utils.h"
-#include "ui_util.h"
-#include "main.h"
-#include "simple_dialog.h"
-#include "sctp_stat.h"
 #include <epan/strutil.h>
+
+#include "../globals.h"
+#include "../color.h"
+#include "../ui_util.h"
+#include "../simple_dialog.h"
+
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/sctp_stat.h"
+
 
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK 4

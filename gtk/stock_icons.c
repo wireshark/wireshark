@@ -28,7 +28,8 @@
 #endif
 
 #include <gtk/gtk.h>
-#include "stock_icons.h"
+
+#include "gtk/stock_icons.h"
 
 /* these icons are derived from the original stock icons */
 #ifdef HAVE_LIBPCAP

@@ -27,24 +27,28 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
 #include <gtk/gtk.h>
+
 #include "epan/packet_info.h"
-#include "service_response_time_table.h"
+
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../color.h"
+
+#include "gtk/service_response_time_table.h"
+#include "gtk/find_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-#include "simple_dialog.h"
-#include "globals.h"
-#include "gtk/find_dlg.h"
-#include "color.h"
-#include "gtk/color_dlg.h"
-#include "main.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
 
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))

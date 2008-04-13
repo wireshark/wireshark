@@ -56,34 +56,32 @@
 #endif
 
 #ifdef HAVE_LIBPORTAUDIO
-/* TODO: The RTP Player it is only supported for GTK >=2 */
+#include <math.h>
+#include <string.h>
+#include "portaudio.h"
+
 #include <gtk/gtk.h>
 
 #include <epan/stats_tree.h>
 #include <epan/addr_resolv.h>
-#include <string.h>
-#include <glib.h>
-#include "globals.h"
-#include "portaudio.h"
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-
-#include "graph_analysis.h"
-#include "voip_calls_dlg.h"
-#include "voip_calls.h"
-#include "gtkglobals.h"
-
-
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/rtp_pt.h>
 #include <epan/codecs.h>
+#include <epan/prefs.h>
 
-#include "rtp_player.h"
-#include "codecs/G711a/G711adecode.h"
-#include "codecs/G711u/G711udecode.h"
-#include <math.h>
-#include <epan/prefs.h>       /* For prefs.rtp_player_max_visible and RTP_PLAYER_DEFAULT_VISIBLE */
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../codecs/G711a/G711adecode.h"
+#include "../codecs/G711u/G711udecode.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/graph_analysis.h"
+#include "gtk/voip_calls_dlg.h"
+#include "gtk/voip_calls.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/rtp_player.h"
+
 
 #ifndef min
 #define min(a,b) (((a)<(b))?(a):(b))

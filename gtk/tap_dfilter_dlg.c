@@ -28,26 +28,28 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
 #include <gtk/gtk.h>
-#include <string.h>
 
-#include "stock_icons.h"
+#include <epan/stat_cmd_args.h>
+
 #include "../simple_dialog.h"
-#include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
-#include "filter_dlg.h"
-#include <epan/stat_cmd_args.h>
 #include "../stat_menu.h"
-#include "gui_stat_menu.h"
-#include "tap_dfilter_dlg.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
+
+#include "gtk/stock_icons.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/gui_stat_menu.h"
+#include "gtk/tap_dfilter_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
 
 
 typedef struct _tap_dfilter_dlg_list_item {

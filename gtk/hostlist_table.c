@@ -39,19 +39,21 @@
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 
-#include "hostlist_table.h"
+#include "../simple_dialog.h"
+#include "../globals.h"
+#include "../color.h"
+
+#include "gtk/hostlist_table.h"
+#include "gtk/find_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/main.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/help_dlg.h"
+
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
-#include "simple_dialog.h"
-#include "globals.h"
-#include "find_dlg.h"
-#include "color.h"
-#include "gtk/color_dlg.h"
-#include "gtkglobals.h"
-#include "main.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "help_dlg.h"
 
 
 #define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))

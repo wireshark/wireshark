@@ -32,20 +32,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include "mcast_stream.h"
-#include "mcast_stream_dlg.h"
-
-#include "globals.h"
-
-#include <epan/tap.h>
-#include "register.h"
-
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "file_util.h"
-#include <time.h>
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -54,8 +40,26 @@
 # include <sys/types.h>
 #endif
 
+#include <time.h>
 #include <string.h>
+
+#include <gtk/gtk.h>
+
+#include <epan/epan.h>
+#include <epan/packet.h>
+#include <epan/tap.h>
 #include <epan/strutil.h>
+
+#include "../globals.h"
+#include "../register.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "wiretap/file_util.h"
+
+#include "gtk/mcast_stream.h"
+#include "gtk/mcast_stream_dlg.h"
+
+
 
 gint32 trigger=50; /* limit for triggering the burst alarm (in packets per second) */
 gint32 bufferalarm = 10000; /* limit for triggernig the buffer alarm (in bytes) */

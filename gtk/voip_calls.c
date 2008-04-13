@@ -36,16 +36,10 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 
-#include "graph_analysis.h"
-#include "voip_calls.h"
-#include "voip_calls_dlg.h"
-
-#include "main.h"
-#include "globals.h"
-
+#include <epan/epan.h>
+#include <epan/packet.h>
 #include <epan/tap.h>
 #include <epan/tap-voip.h>
 #include <epan/dissectors/packet-sip.h>
@@ -67,12 +61,19 @@
 #include <epan/conversation.h>
 #include <epan/rtp_pt.h>
 
-#include "alert_box.h"
-#include "simple_dialog.h"
+#include "../globals.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+
+#include "gtk/graph_analysis.h"
+#include "gtk/voip_calls.h"
+#include "gtk/voip_calls_dlg.h"
+#include "gtk/main.h"
 
 #ifdef HAVE_LIBPORTAUDIO
-#include "rtp_player.h"
+#include "gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
+
 
 const char *voip_call_state_name[8]={
 	"",

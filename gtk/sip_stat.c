@@ -26,23 +26,24 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
 #include <string.h>
 
 #include <gtk/gtk.h>
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include <epan/tap.h>
-#include "../register.h"
 #include <epan/dissectors/packet-sip.h>
+
+#include "../simple_dialog.h"
+#include "../register.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+
 
 #define SUM_STR_MAX	1024
 

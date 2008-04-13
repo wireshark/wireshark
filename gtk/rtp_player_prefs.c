@@ -25,12 +25,15 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+#include <stdlib.h>
 
 #include <gtk/gtk.h>
-#include <stdlib.h>
-#include "rtp_player_prefs.h"
+
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
+
+#include "gtk/rtp_player_prefs.h"
+#include "gtk/prefs_dlg.h"
+
 
 #define RTP_PLAYER_MAX_VISIBLE_KEY   "max_visible"
 #define RTP_PLAYER_TABLE_ROWS 6
