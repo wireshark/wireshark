@@ -54,7 +54,7 @@
 #include <../util.h>
 #include <wiretap/file_util.h>
 
-#include <gtk/colors.h>
+#include <gtk/color_utils.h>
 #include <gtk/main.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/file_dlg.h>

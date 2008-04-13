@@ -40,7 +40,7 @@
 #include "../simple_dialog.h"
 
 #include "gtk/main.h"
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/color_dlg.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"

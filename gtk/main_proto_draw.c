@@ -58,7 +58,7 @@
 #include "wiretap/file_util.h"
 
 #include "gtk/keys.h"
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/packet_win.h"
 #include "gtk/file_dlg.h"
@@ -75,6 +75,7 @@
 #include <windows.h>
 #include "file_dlg_win32.h"
 #endif
+
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8

@@ -84,7 +84,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\capture_if_details_dlg.c"
+				RelativePath=".\capture_if_details_dlg_win32.c"
 				>
 			</File>
 			<File
@@ -165,6 +165,10 @@
 			</File>
 			<File
 				RelativePath=".\file_dlg.c"
+				>
+			</File>
+			<File
+				RelativePath=".\file_dlg_win32.c"
 				>
 			</File>
 			<File
@@ -312,11 +316,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\print_mswin.c"
+				RelativePath=".\print_prefs.c"
 				>
 			</File>
 			<File
-				RelativePath=".\print_prefs.c"
+				RelativePath=".\print_win32.c"
 				>
 			</File>
 			<File
@@ -400,7 +404,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\text_page.c"
+				RelativePath=".\text_page_utils.c"
 				>
 			</File>
 			<File
@@ -417,10 +421,6 @@
 			</File>
 			<File
 				RelativePath=".\webbrowser.c"
-				>
-			</File>
-			<File
-				RelativePath=".\win32-file-dlg.c"
 				>
 			</File>
 			<File

@@ -119,7 +119,7 @@
 /* GTK related */
 #include "gtk/file_dlg.h"
 #include "gtk/gtkglobals.h"
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/color_dlg.h"
 #include "gtk/filter_dlg.h"

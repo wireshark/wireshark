@@ -47,7 +47,7 @@
 #include <../simple_dialog.h>
 #include <wiretap/file_util.h>
 
-#include <gtk/colors.h>
+#include <gtk/color_utils.h>
 #include <gtk/stock_icons.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/follow_stream.h>

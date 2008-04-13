@@ -43,7 +43,7 @@
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/keys.h"
 #include "gtk/font_utils.h"

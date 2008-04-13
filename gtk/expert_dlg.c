@@ -57,7 +57,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/tap_dfilter_dlg.h"
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/main_proto_draw.h"
 #include "gtk/help_dlg.h"
 

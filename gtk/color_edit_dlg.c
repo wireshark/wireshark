@@ -36,7 +36,7 @@
 #include "../color_filters.h"
 #include "../simple_dialog.h"
 
-#include "gtk/colors.h"
+#include "gtk/color_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/stock_icons.h"
