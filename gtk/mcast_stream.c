@@ -170,9 +170,12 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
         tmp_strinfo.dest_port = pinfo->destport;
 
 	/* first we ignore non multicast packets; we filter out only those ethernet packets
-	 * which start with the 01:00:5E multicast address */
+	 * which start with the 01:00:5E multicast address (for IPv4) and 33:33 multicast
+	 * address (for IPv6).
+	 */
 	if ((pinfo->dl_dst.type != AT_ETHER) ||
-	    (strncmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0))
+	    ((strncmp("01005E", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 6) != 0) &&
+	     (strncmp("3333", bytes_to_str(pinfo->dl_dst.data, pinfo->dl_dst.len), 4) != 0)) )
 		return 0;
 
 	/* check wether we already have a stream with these parameters in the list */
