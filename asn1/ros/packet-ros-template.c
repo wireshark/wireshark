@@ -384,6 +384,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int old_offset;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
+	proto_tree *next_tree=NULL;
 	conversation_t *conversation;
 	ros_conv_info_t *ros_info = NULL;
 	asn1_ctx_t asn1_ctx;
@@ -451,7 +452,13 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		old_offset=offset;
 		offset=dissect_ros_ROS(FALSE, tvb, offset, &asn1_ctx , tree, -1);
 		if(offset == old_offset){
-			proto_tree_add_text(tree, tvb, offset, -1,"Internal error, zero-byte ROS PDU");
+			item = proto_tree_add_text(tree, tvb, offset, -1,"Unknown ROS PDU");
+
+			if(item){
+				next_tree=proto_item_add_subtree(item, ett_ros_unknown);
+				dissect_unknown_ber(pinfo, tvb, offset, next_tree);
+			}
+
 			offset = tvb_length(tvb);
 			break;
 		}
