@@ -302,6 +302,7 @@ EBCDIC_to_ASCII
 EBCDIC_to_ASCII1
 eap_code_vals                 DATA
 eap_type_vals                 DATA
+emem_tree_foreach
 emem_tree_insert32
 emem_tree_insert32_array
 emem_tree_insert_string
