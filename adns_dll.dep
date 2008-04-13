@@ -1,0 +1,85 @@
+# Microsoft Developer Studio Generated Dependency File, included by adns_dll.mak
+
+.\adns_dll.cpp : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	
+
+..\adns_unix_calls.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	
+
+..\..\src\check.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\event.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	"..\..\src\tvarith.h"\
+	
+
+..\..\src\general.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\parse.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\query.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\reply.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\setup.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	
+
+..\..\src\transmit.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	"..\..\src\tvarith.h"\
+	
+
+..\..\src\types.c : \
+	"..\..\src\adns.h"\
+	"..\..\src\adns_win32.h"\
+	"..\..\src\config.h"\
+	"..\..\src\dlist.h"\
+	"..\..\src\internal.h"\
+	

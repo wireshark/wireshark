@@ -143,7 +143,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
+all: $(LIBS_CHECK) config.h tools image codecs $(ADNS_DLL) $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
 
 packaging: all
 	cd packaging
@@ -402,8 +402,11 @@ clean: clean-local
 # "distclean" removes all files not part of the distribution.
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
+!IFDEF ADNS_DIR
+	rm -f $(ADNS_DLL) $(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+!ENDIF
 !IFDEF ZLIB_DIR
-	rm -f $(ZLIB_DIR)\zlib1.dll $(ZLIB_DIR)\zlib1.dll.manifest \
+	rm -f $(ZLIB_DLL) $(ZLIB_DIR)\zlib1.dll.manifest \
 		$(ZLIB_DIR)\include\zlib.h $(ZLIB_DIR)\include\zconf.h \
 		$(ZLIB_DIR)\lib\zdll.lib
 !ENDIF
@@ -479,30 +482,31 @@ image::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-
-#!IFDEF ADNS_DIR
+!IFDEF ADNS_DIR
 # Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
 # therefore compile the adns dll from source ADNS_DIR package.
 # To avoid path problems, copy the adns sources to a temp dir,
 # compile and copy the resulting files back to (source) ADNS_DIR
-#$(ADNS_DLL):
-#	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
-#	cd adns.tmp\adns_win32\adns_dll
-#	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
-#	if not exist $(ADNS_DIR) mkdir $(ADNS_DIR)
-#	if not exist $(ADNS_DIR)\lib mkdir $(ADNS_DIR)\lib
-#	if not exist $(ADNS_DIR)\include mkdir $(ADNS_DIR)\include
-#!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
-#	mt.exe -nologo -manifest "adns.dll.manifest" -outputresource:adns.dll;2
-#!ENDIF
-#	copy adns.dll $(ADNS_DIR)
-#	copy adns.lib $(ADNS_DIR)\lib
-#	copy conf.h $(ADNS_DIR)\include
-#	copy adns.h $(ADNS_DIR)\include
-#	cd ..\..\..
-#   rm -r -f adns.tmp
-#!ENDIF
-
+#
+# Unfortunately, we need to "patch" adns_dll.rep and adns_dll.rc
+# (at least for MSVC2005EE)
+$(ADNS_DLL):
+	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
+	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
+	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
+	cd adns.tmp\adns_win32\adns_dll
+	set CFG=adns_dll - Win32 Release
+	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
+	cd ..\lib
+	pwd
+	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
+!ENDIF
+	copy adns_dll.dll $(ADNS_DLL)
+	copy adns_dll.lib $(ADNS_LIBS)
+	cd ..\..\..
+	rm -r -f adns.tmp
+!ENDIF
 
 !IFDEF ZLIB_DIR
 # Non-MSVC6 variants have to avoid indirectly using msvcrt.dll,
@@ -969,10 +973,10 @@ install-all: install-generated-files
 !ENDIF
 	xcopy $(GETTEXT_DIR)\bin\intl.dll $(INSTALL_DIR) /d
 !IFDEF ZLIB_DIR
-	xcopy $(ZLIB_DIR)\zlib1.dll $(INSTALL_DIR) /d
+	xcopy $(ZLIB_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF ADNS_DIR
-	xcopy $(ADNS_DIR)\adns_win32\LIB\adns_dll.dll $(INSTALL_DIR) /d
+	xcopy $(ADNS_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF PCRE_DIR
 	xcopy $(PCRE_DIR)\bin\pcre3.dll $(INSTALL_DIR) /d
