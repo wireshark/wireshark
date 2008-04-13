@@ -1481,7 +1481,7 @@ SyntaxGraphicString ::= GraphicString
 SyntaxISO646String ::= ISO646String
 SyntaxVisibleString ::= VisibleString
 SyntaxGeneralString ::= GeneralString
-
+GUID ::= OCTET STRING
 
 END -- SelectedAttributeTypes
 

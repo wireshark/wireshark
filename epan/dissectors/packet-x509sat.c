@@ -97,6 +97,7 @@ static int hf_x509sat_SyntaxGraphicString_PDU = -1;  /* SyntaxGraphicString */
 static int hf_x509sat_SyntaxISO646String_PDU = -1;  /* SyntaxISO646String */
 static int hf_x509sat_SyntaxVisibleString_PDU = -1;  /* SyntaxVisibleString */
 static int hf_x509sat_SyntaxGeneralString_PDU = -1;  /* SyntaxGeneralString */
+static int hf_x509sat_GUID_PDU = -1;              /* GUID */
 static int hf_x509sat_teletexString = -1;         /* TeletexString */
 static int hf_x509sat_printableString = -1;       /* PrintableString */
 static int hf_x509sat_universalString = -1;       /* UniversalString */
@@ -1511,7 +1512,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 298 "x509sat.cnf"
+#line 305 "x509sat.cnf"
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 
@@ -1519,7 +1520,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 303 "x509sat.cnf"
+#line 310 "x509sat.cnf"
 	if (! wide_tvb) {
 		return offset;
 	}
@@ -1625,6 +1626,32 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_GeneralString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 316 "x509sat.cnf"
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
+  guint32 len;
+  e_guid_t uuid;
+
+  if(!implicit_tag){
+    offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &class, &pc, &tag);
+    offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+  } else {
+    gint32 remaining=tvb_length_remaining(tvb, offset);
+    len=remaining>0 ? remaining : 0;
+  }
+
+  tvb_get_ntohguid (tvb, offset, &uuid);
+  actx->created_item = proto_tree_add_guid(tree, hf_index, tvb, offset, len, &uuid);
+
 
   return offset;
 }
@@ -1831,6 +1858,11 @@ static void dissect_SyntaxGeneralString_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_SyntaxGeneralString(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_SyntaxGeneralString_PDU);
 }
+static void dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  dissect_x509sat_GUID(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_GUID_PDU);
+}
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
@@ -2005,6 +2037,10 @@ void proto_register_x509sat(void) {
       { "SyntaxGeneralString", "x509sat.SyntaxGeneralString",
         FT_STRING, BASE_NONE, NULL, 0,
         "x509sat.SyntaxGeneralString", HFILL }},
+    { &hf_x509sat_GUID_PDU,
+      { "GUID", "x509sat.GUID",
+        FT_GUID, BASE_NONE, NULL, 0,
+        "x509sat.GUID", HFILL }},
     { &hf_x509sat_teletexString,
       { "teletexString", "x509sat.teletexString",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -2718,10 +2754,12 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfCitizenship");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_SyntaxPrintableString_PDU, proto_x509sat, "pkcs-9-at-countryOfResidence");
   register_ber_oid_dissector("0.9.2342.19200300.100.1.25", dissect_SyntaxIA5String_PDU, proto_x509sat, "dc");
+  register_ber_oid_dissector("1.3.6.1.4.1.311.20.2", dissect_SyntaxBMPString_PDU, proto_x509sat, "id-ms-certificate-template-name");
   register_ber_oid_dissector("1.3.6.1.4.1.311.20.2.3", dissect_SyntaxUTF8String_PDU, proto_x509sat, "id-ms-user-principal-name");
   register_ber_oid_dissector("1.2.826.0.1063.7.0.0.0", dissect_Integer_PDU, proto_x509sat, "unknown-UK-organisation-defined-extension");
   register_ber_oid_dissector("1.2.826.0.1004.10.1.1", dissect_SyntaxIA5String_PDU, proto_x509sat, "nexor-originating-ua");
   register_ber_oid_dissector("2.6.1.6.3", dissect_Boolean_PDU, proto_x509sat, "id-sat-ipm-auto-discarded");
+  register_ber_oid_dissector("1.3.6.1.1.16.4", dissect_GUID_PDU, proto_x509sat, "entryUUID");
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
