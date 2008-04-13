@@ -39,7 +39,7 @@
 #include "wiretap/file_util.h"
 
 #include "gtk/help_dlg.h"
-#include "gtk/text_page.h"
+#include "gtk/text_page_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"

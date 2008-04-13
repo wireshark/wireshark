@@ -1,4 +1,5 @@
-/* text_page.c
+/* text_page_utils.c
+ *  Construct a simple text page widget from a file.
  *
  * $Id$
  *
@@ -37,7 +38,7 @@
 #include "../simple_dialog.h"
 #include "wiretap/file_util.h"
 
-#include "gtk/text_page.h"
+#include "gtk/text_page_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/font_utils.h"
 

@@ -117,7 +117,7 @@ WIRESHARK_GTK_SRC = \
 	summary_dlg.c	\
 	supported_protos_dlg.c	\
 	tap_dfilter_dlg.c	\
-	text_page.c	\
+	text_page_utils.c	\
 	u3.c		\
 	uat_gui.c	\
 	voip_calls.c	\
@@ -283,7 +283,7 @@ noinst_HEADERS = \
 	summary_dlg.h   \
 	supported_protos_dlg.h   \
 	tap_dfilter_dlg.h	\
-	text_page.h	\
+	text_page_utils.h	\
 	u3.h \
 	uat_gui.h \
 	voip_calls.h	\

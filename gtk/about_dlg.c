@@ -44,7 +44,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/file_dlg.h"
-#include "gtk/text_page.h"
+#include "gtk/text_page_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
 #include "gtk/plugins_dlg.h"
