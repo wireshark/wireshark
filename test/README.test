@@ -37,13 +37,13 @@ Prerequisites
 
 What you'll need (to do):
 
- - THE LATEST DEVELOPER BUILDS (the 0.10.13 release won't work)!
+ - edit the file config.sh to suit your configuration
  - obviously, compile the programs (wireshark, ...) to be tested
  - have a bash (cygwin should do well)
+ - have tput (e.g. in the cygwin ncurses package)
  - you'll need a network interface with some network traffic 
    (so you can run the capture tests)
- - edit the file config.sh to suit your configuration
-
+ 
 A Test Ride
 -----------
 
