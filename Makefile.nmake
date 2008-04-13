@@ -403,7 +403,9 @@ clean: clean-local
 # It does not remove generated files that are part of the distribution.
 distclean-local: clean-local
 !IFDEF ADNS_DIR
+!IF "$(MSVC_VARIANT)" != "MSVC6"
 	rm -f $(ADNS_DLL) $(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+!ENDIF
 !ENDIF
 !IFDEF ZLIB_DIR
 	rm -f $(ZLIB_DLL) $(ZLIB_DIR)\zlib1.dll.manifest \
@@ -488,9 +490,12 @@ image::
 # To avoid path problems, copy the adns sources to a temp dir,
 # compile and copy the resulting files back to (source) ADNS_DIR
 #
-# Unfortunately, we need to "patch" adns_dll.rep and adns_dll.rc
-# (at least for MSVC2005EE)
+# Unfortunately:
+# - we need to "patch" adns_dll.rep and adns_dll.rc (at least for MSVC2005EE)
+# - on MSVC6 we can't easily rebuild, because iphlpapi.h is needed
+# 
 $(ADNS_DLL):
+!IF "$(MSVC_VARIANT)" != "MSVC6"
 	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
 	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
 	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
@@ -506,6 +511,7 @@ $(ADNS_DLL):
 	copy adns_dll.lib $(ADNS_LIBS)
 	cd ..\..\..
 	rm -r -f adns.tmp
+!ENDIF
 !ENDIF
 
 !IFDEF ZLIB_DIR
