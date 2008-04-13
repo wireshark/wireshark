@@ -404,7 +404,7 @@ clean: clean-local
 distclean-local: clean-local
 !IFDEF ADNS_DIR
 !IF "$(MSVC_VARIANT)" != "MSVC6"
-	rm -f $(ADNS_DLL) $(ADNS_DIR)\adns_win32\lib\adns_dll.lib
+	rm -f $(ADNS_DLL) $(ADNS_LIBS)
 !ENDIF
 !ENDIF
 !IFDEF ZLIB_DIR
@@ -495,7 +495,11 @@ image::
 # - on MSVC6 we can't easily rebuild, because iphlpapi.h is needed
 # 
 $(ADNS_DLL):
-!IF "$(MSVC_VARIANT)" != "MSVC6"
+!IF "$(MSVC_VARIANT)" == "MSVC6"
+	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
+	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.dll $(ADNS_DLL)
+	copy $(ADNS_DIR)\adns_win32\lib\adns_dll.lib $(ADNS_LIBS)
+!ELSE
 	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
 	copy adns_dll.dep adns.tmp\adns_win32\adns_dll
 	copy adns_dll.rc adns.tmp\adns_win32\adns_dll
@@ -504,9 +508,9 @@ $(ADNS_DLL):
 	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	cd ..\lib
-	pwd
 	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
 !ENDIF
+	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
 	copy adns_dll.dll $(ADNS_DLL)
 	copy adns_dll.lib $(ADNS_LIBS)
 	cd ..\..\..

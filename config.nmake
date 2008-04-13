@@ -701,8 +701,8 @@ ZLIB_CONFIG=
 !IFDEF ADNS_DIR
 ADNS_PATH=$(ADNS_DIR)\adns_win32\lib
 ADNS_CFLAGS=/I$(ADNS_DIR)\src /I$(ADNS_DIR)\adns_win32
-ADNS_LIBS=$(ADNS_DIR)\adns_win32\lib\adns_dll.lib
-ADNS_DLL=$(ADNS_DIR)\adns_win32\lib\adns_dll.dll
+ADNS_LIBS=$(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns\adns_dll.lib
+ADNS_DLL=$(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns\adns_dll.dll
 # Nmake uses carets to escape special characters
 ADNS_CONFIG=^#define HAVE_GNU_ADNS 1
 !else
