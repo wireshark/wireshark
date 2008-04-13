@@ -158,7 +158,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_BROWSE,                stock_open_24_xpm },
         { WIRESHARK_STOCK_CREATE_STAT,           stock_ok_20_xpm },
         { WIRESHARK_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
-        { WIRESHARK_STOCK_IMPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
+        { WIRESHARK_STOCK_IMPORT,                stock_open_24_xpm },    /* XXX: needs a better icon */
         { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
         { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
         { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
