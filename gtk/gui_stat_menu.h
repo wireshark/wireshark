@@ -69,6 +69,21 @@ extern void register_stat_menu_item(
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
 
+/**
+ * Same as register_stat_menu_item() but with optional stock item.
+ *
+ * @param stock_id the stock_id (icon) to show, or NULL
+ *
+ */
+extern void register_stat_menu_item_stock(
+    const char *name, 
+    register_stat_group_t group,
+    const gchar *stock_id,
+    GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
+    gpointer callback_data);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -2149,6 +2149,7 @@ register_tap_listener_gtk_iostat(void)
 {
 	register_stat_cmd_arg("io,stat", gtk_iostat_init,NULL);
 
-	register_stat_menu_item("_IO Graphs", REGISTER_STAT_GROUP_GENERIC,
+	register_stat_menu_item_stock("_IO Graphs", 
+        REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,
         gtk_iostat_cb, NULL, NULL, NULL);
 }

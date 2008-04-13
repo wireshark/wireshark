@@ -92,6 +92,7 @@
 typedef struct _menu_item {
     char    *name;
     gint    group;
+    const char *stock_id;
     gboolean enabled;
     GtkItemFactoryCallback callback;
     gpointer callback_data;
@@ -1188,6 +1189,7 @@ static gint tap_menu_item_add_compare(gconstpointer a, gconstpointer b)
 static GList * tap_menu_item_add(
     char *name,
     gint group,
+    const char *stock_id,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
@@ -1199,8 +1201,9 @@ static GList * tap_menu_item_add(
 
 
     child = g_malloc(sizeof (menu_item_t));
-    child->group            = group;
     child->name             = name;
+    child->group            = group;
+    child->stock_id         = stock_id;
     child->callback         = callback;
     child->selected_packet_enabled = selected_packet_enabled;
     child->selected_tree_row_enabled = selected_tree_row_enabled;
@@ -1239,9 +1242,10 @@ static GList * tap_menu_item_add(
  * is selected and, if one is, on the tree row) and FALSE if not.
  */
 void
-register_stat_menu_item(
+register_stat_menu_item_stock(
     const char *name,
     register_stat_group_t group,
+    const char *stock_id,
     GtkItemFactoryCallback callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
@@ -1321,7 +1325,7 @@ register_stat_menu_item(
              * add it to the Tools menu tree.
              */
             childnode = tap_menu_item_add(
-                menupath, group, NULL, NULL ,NULL, NULL, curnode);
+                menupath, group, "", NULL, NULL ,NULL, NULL, curnode);
         } else {
             /*
              * Yes.  We don't need this "menupath" any longer.
@@ -1349,11 +1353,30 @@ register_stat_menu_item(
      * the main menu.
      */
     tap_menu_item_add(
-        menupath, group, callback,
+        menupath, group, stock_id, callback,
         selected_packet_enabled, selected_tree_row_enabled,
         callback_data, curnode);
 }
 
+
+void
+register_stat_menu_item(
+    const char *name,
+    register_stat_group_t group,
+    GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
+    gpointer callback_data)
+{
+    register_stat_menu_item_stock(
+        name,
+        group,
+        NULL,
+        callback,
+        selected_packet_enabled,
+        selected_tree_row_enabled,
+        callback_data);
+}
 
 static guint merge_tap_menus_layered(GList *node, gint group) {
     GtkItemFactoryEntry *entry;
@@ -1409,6 +1432,10 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             default:
                 g_assert_not_reached();
             }
+            if(node_data->stock_id!= NULL) {
+                entry->item_type = "<StockItem>";
+                entry->extra_data = node_data->stock_id;
+            }
             gtk_item_factory_create_item(main_menu_factory, entry, node_data->callback_data, /* callback_type */ 2);
             set_menu_sensitivity(main_menu_factory, node_data->name, FALSE); /* no capture file yet */
             added++;
@@ -1447,45 +1474,45 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
 
 
 void merge_all_tap_menus(GList *node) {
-    GtkItemFactoryEntry *entry;
+    GtkItemFactoryEntry *sep_entry;
 
-    entry = g_malloc0(sizeof (GtkItemFactoryEntry));
-    entry->item_type = "<Separator>";
-    entry->path = "/Statistics/";
+    sep_entry = g_malloc0(sizeof (GtkItemFactoryEntry));
+    sep_entry->item_type = "<Separator>";
+    sep_entry->path = "/Statistics/";
 
     /*
      * merge only the menu items of the specific group,
      * and then append a seperator
      */
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_GENERIC)) {
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_CONVERSATION_LIST)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_ENDPOINT_LIST)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_RESPONSE_TIME)) {
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_TELEPHONY)) {
-        gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+        gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
     }
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_NONE)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_NONE)) {
-        entry->path = "/Analyze/";
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        sep_entry->path = "/Analyze/";
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
     if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER)) {
-        entry->path = "/Analyze/Conversation Filter/";
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        sep_entry->path = "/Analyze/Conversation Filter/";
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
 #ifdef HAVE_LUA_5_1
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
-        /*gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);*/
+        /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
 #endif
 }
