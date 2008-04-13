@@ -339,7 +339,7 @@ dissect_dsp_T_nameResolutionPhase(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_dsp_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2564,11 +2564,7 @@ void proto_register_dsp(void) {
 
   /* Register our configuration options for DSP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   dsp_module = prefs_register_protocol_subtree("OSI/X.500", proto_dsp, prefs_register_dsp);
-#else
-  dsp_module = prefs_register_protocol(proto_dsp, prefs_register_dsp);
-#endif
 
   prefs_register_uint_preference(dsp_module, "tcp.port", "DSP TCP Port",
 				 "Set the port for DSP operations (if other"
@@ -2593,7 +2589,7 @@ void proto_reg_handoff_dsp(void) {
 
 
 /*--- End of included file: packet-dsp-dis-tab.c ---*/
-#line 326 "packet-dsp-template.c"
+#line 322 "packet-dsp-template.c"
 
   /* APPLICATION CONTEXT */
 
