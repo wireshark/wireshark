@@ -143,7 +143,7 @@ RESOURCES=image\wireshark.res image\libwireshark.res image\tshark.res \
 
 LIBS_CHECK=_libs_check_
 
-all: $(LIBS_CHECK) config.h tools image codecs $(ADNS_DLL) $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
+all: $(LIBS_CHECK) config.h tools image codecs $(ZLIB_DLL) wiretap epan $(EXECUTABLES) $(RESOURCES) doc install-all
 
 packaging: all
 	cd packaging
@@ -485,8 +485,7 @@ image::
 # therefore compile the adns dll from source ADNS_DIR package.
 # To avoid path problems, copy the adns sources to a temp dir,
 # compile and copy the resulting files back to (source) ADNS_DIR
-$(ADNS_DLL):
-
+#$(ADNS_DLL):
 #	xcopy $(ADNS_DIR) adns.tmp /D /I /E /Y
 #	cd adns.tmp\adns_win32\adns_dll
 #	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
