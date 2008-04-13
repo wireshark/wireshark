@@ -31,18 +31,19 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet.h>
-#include "color.h"
-#include "colors.h"
-#include "color_filters.h"
 
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "stock_icons.h"
-#include "filter_dlg.h"
-#include "dfilter_expr_dlg.h"
-#include "simple_dialog.h"
+#include "../color.h"
+#include "../color_filters.h"
+#include "../simple_dialog.h"
 
-#include "color_edit_dlg.h"
+#include "gtk/colors.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/stock_icons.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/dfilter_expr_dlg.h"
+#include "gtk/color_edit_dlg.h"
+
 
 #define BUTTON_SIZE_X -1
 #define BUTTON_SIZE_Y -1

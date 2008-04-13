@@ -35,19 +35,21 @@
 #ifdef HAVE_LIBSMI
 #include <epan/oids.h>
 #endif
-#include "about_dlg.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "globals.h"
-#include "log.h"
-#include "text_page.h"
+
+#include "../globals.h"
+#include "../log.h"
+#include "../version_info.h"
+
+#include "gtk/about_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/text_page.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/main.h"
+#include "gtk/plugins_dlg.h"
 
 #include "../image/wssplash.xpm"
-#include "gtkglobals.h"
-#include "version_info.h"
-#include "main.h"
-#include "plugins_dlg.h"
 
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
 

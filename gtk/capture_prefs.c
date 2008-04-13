@@ -31,19 +31,22 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-#include "globals.h"
-#include "capture_prefs.h"
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
-#include "simple_dialog.h"
-#include "capture-pcap-util.h"
-#include "capture_ui_utils.h"
-#include "main.h"
-#include "stock_icons.h"
-#include "capture.h"
+
+#include "../globals.h"
+#include "../simple_dialog.h"
+#include "../capture-pcap-util.h"
+#include "../capture_ui_utils.h"
+#include "../capture.h"
+
+#include "gtk/capture_prefs.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/stock_icons.h"
 #include <epan/strutil.h>
+
 
 #define DEVICE_KEY				"device"
 #define PROM_MODE_KEY			"prom_mode"

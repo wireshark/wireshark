@@ -33,28 +33,31 @@
 
 #include <gtk/gtk.h>
 
-#ifdef HAVE_LIBPCAP
-#include "capture_dlg.h"
-#endif /* HAVE_LIBPCAP */
-#include "filter_dlg.h"
-#include "capture_file_dlg.h"
-#include "find_dlg.h"
-#include "goto_dlg.h"
-#include "color.h"
-#include "color_dlg.h"
 #include <epan/prefs.h>
-#include "prefs_dlg.h"
-#include "main.h"
-#include "main_menu.h"
-#include "main_packet_list.h"
-#include "main_toolbar.h"
-#include "help_dlg.h"
-#include "gtkglobals.h"
-#include "stock_icons.h"
-#include "keys.h"
-#include "recent.h"
-#include "packet_history.h"
-#include "color_filters.h"
+#include <epan/dfilter/dfilter.h>
+
+#include "../color.h"
+#include "../color_filters.h"
+
+#ifdef HAVE_LIBPCAP
+#include "gtk/capture_dlg.h"
+#endif /* HAVE_LIBPCAP */
+#include "gtk/filter_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/find_dlg.h"
+#include "gtk/goto_dlg.h"
+#include "gtk/color_dlg.h"
+#include "gtk/prefs_dlg.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/main_toolbar.h"
+#include "gtk/help_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/stock_icons.h"
+#include "gtk/keys.h"
+#include "gtk/recent.h"
+#include "gtk/packet_history.h"
 
 
 

@@ -28,9 +28,9 @@
 
 #include <gtk/gtk.h>
 
-#include "color.h"
+#include "../color.h"
 
-#include "colors.h"
+#include "gtk/colors.h"
 
 /*
  * Initialize a color with R, G, and B values, including any toolkit-dependent

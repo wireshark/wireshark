@@ -34,25 +34,26 @@
 #include <string.h>
 #include <gtk/gtk.h>
 
-#include "epan/packet_info.h"
-#include "epan/epan.h"
-#include "epan/value_string.h"
-#include "epan/tap.h"
+#include <epan/epan.h>
+#include <epan/packet_info.h>
+#include <epan/value_string.h>
+#include <epan/tap.h>
+#include <epan/packet.h>
+#include <epan/asn1.h>
+#include <epan/camel-persistentdata.h>
 
-#include "register.h"
-#include "timestats.h"
-#include "simple_dialog.h"
-#include "file.h"
-#include "globals.h"
-#include "stat_menu.h"
-#include "tap_dfilter_dlg.h"
+#include "../globals.h"
+#include "../stat_menu.h"
+#include "../register.h"
+#include "../timestats.h"
+#include "../simple_dialog.h"
 
 #include "gtk/main.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gui_stat_util.h"
-#include "epan/asn1.h"
-#include "epan/camel-persistentdata.h"
+#include "gtk/tap_dfilter_dlg.h"
+
 
 static void gtk_camelcounter_reset(void *phs);
 static int gtk_camelcounter_packet(void *phs,

@@ -27,13 +27,14 @@
 #endif
 
 #include <string.h>
+
 #include <gtk/gtk.h>
-#include "main.h"
-#include "gtkglobals.h"
-#include "cfilter_combo_utils.h"
-#include "recent.h"
-#ifdef HAVE_LIBPCAP
-#endif
+
+#include "gtk/main.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/cfilter_combo_utils.h"
+#include "gtk/recent.h"
+
 
 /* XXX: use a preference for this setting! */
 static guint cfilter_combo_max_recent = 20;

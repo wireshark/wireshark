@@ -29,11 +29,11 @@
 
 #include <string.h>
 
-#include "color.h"	/* to declare "color_t" */
+#include "../color.h"	/* to declare "color_t" */
+#include "../simple_dialog.h"
 
-#include "colors.h"
-#include "simple_dialog.h"
-#include "gtkglobals.h"
+#include "gtk/colors.h"
+#include "gtk/gtkglobals.h"
 
 static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;

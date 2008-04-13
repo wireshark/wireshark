@@ -35,33 +35,31 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include "globals.h"
-#include "capture-pcap-util.h"
-
-#ifdef _WIN32
-#include "capture-wpcap.h"
-#endif
-
-#include "stock_icons.h"
-#include "simple_dialog.h"
-#include "capture.h"
-#include "capture_dlg.h"
-#include "capture_if_details_dlg.h"
-#include "capture_errs.h"
-#include "capture_ui_utils.h"
-#include "recent.h"
 #include <epan/prefs.h>
 
-#include "gui_utils.h"
-#include "dlg_utils.h"
+#include "../globals.h"
+#include "../capture-pcap-util.h"
+#include "../simple_dialog.h"
+#include "../capture.h"
+#include "../capture_errs.h"
+#include "../capture_ui_utils.h"
+#include <wiretap/wtap.h>
 
-#include "main.h"
-#include "main_toolbar.h"
-#include "wtap.h"
-#include "help_dlg.h"
-#include "keys.h"
+#ifdef _WIN32
+#include "../capture-wpcap.h"
+#endif
 
-#include "webbrowser.h"
+#include "gtk/stock_icons.h"
+#include "gtk/capture_dlg.h"
+#include "gtk/capture_if_details_dlg.h"
+#include "gtk/recent.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/main.h"
+#include "gtk/main_toolbar.h"
+#include "gtk/help_dlg.h"
+#include "gtk/keys.h"
+#include "gtk/webbrowser.h"
 
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"

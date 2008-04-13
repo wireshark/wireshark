@@ -25,9 +25,9 @@
 
 #include <gtk/gtk.h>
 
-#include "gui_utils.h"
-#include "recent.h"
-#include "main_welcome.h"
+#include "gtk/gui_utils.h"
+#include "gtk/recent.h"
+#include "gtk/main_welcome.h"
 
 
 #ifdef SHOW_WELCOME_PAGE

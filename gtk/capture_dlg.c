@@ -33,38 +33,41 @@
 #endif
 
 #include <string.h>
+//#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
+
 #include <gtk/gtk.h>
-#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
 
 #include <epan/packet.h>
-#include "capture.h"
-#include "globals.h"
 #include <epan/addr_resolv.h>
-#include "main.h"
-#include "main_menu.h"
-#include "gui_utils.h"
-#include "capture_dlg.h"
-#include "capture_errs.h"
-#include "filter_dlg.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "capture-pcap-util.h"
-#include "capture_ui_utils.h"
 #include <epan/prefs.h>
-#include "ringbuffer.h"
 #include <epan/filesystem.h>
-#include "stock_icons.h"
-#include "capture_file_dlg.h"
-#include "help_dlg.h"
-#include "gtkglobals.h"
-#include "cfilter_combo_utils.h"
+
+#include "../capture.h"
+#include "../globals.h"
+#include "../capture_errs.h"
+#include "../simple_dialog.h"
+#include "../capture-pcap-util.h"
+#include "../capture_ui_utils.h"
+#include "../ringbuffer.h"
+
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/gui_utils.h"
+#include "gtk/capture_dlg.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/help_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/cfilter_combo_utils.h"
 
 #ifdef _WIN32
-#include "capture-wpcap.h"
+#include "../capture-wpcap.h"
 #endif
 
-#include "keys.h"
+#include "gtk/keys.h"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>

@@ -39,16 +39,17 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
-#include "cfile.h"
-#include "file.h"
-#include "capture_opts.h"
-#include "capture_ui_utils.h"
-#include "recent.h"
-#include "main.h"
-#include "main_statusbar.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-#include "expert_comp_dlg.h"
+#include "../cfile.h"
+#include "../file.h"
+#include "../capture_opts.h"
+#include "../capture_ui_utils.h"
+
+#include "gtk/recent.h"
+#include "gtk/main.h"
+#include "gtk/main_statusbar.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/expert_comp_dlg.h"
 
 #include "../image/expert_error.xpm"
 #include "../image/expert_warn.xpm"

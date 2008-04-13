@@ -26,30 +26,32 @@
 # include "config.h"
 #endif
 
-#include <gtk/gtk.h>
-
 #include <string.h>
 
-#include "gtk/main.h"
-#include <epan/packet.h>
-#include "color.h"
-#include "colors.h"
-#include "color_filters.h"
-#include "color_dlg.h"
-#include "file.h"
-#include <epan/dfilter/dfilter.h>
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "dfilter_expr_dlg.h"
-#include "stock_icons.h"
-#include "filter_dlg.h"
-#include "capture_file_dlg.h"
-#include "gtkglobals.h"
-#include <epan/prefs.h>
-#include "help_dlg.h"
+#include <gtk/gtk.h>
 
-#include "color_edit_dlg.h"
+#include <epan/packet.h>
+#include <epan/dfilter/dfilter.h>
+#include <epan/prefs.h>
+
+#include "../color.h"
+#include "../color_filters.h"
+#include "../file.h"
+#include "../simple_dialog.h"
+
+#include "gtk/main.h"
+#include "gtk/colors.h"
+#include "gtk/color_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dfilter_expr_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/help_dlg.h"
+#include "gtk/color_edit_dlg.h"
+
 
 #define BUTTON_SIZE_X -1
 #define BUTTON_SIZE_Y -1

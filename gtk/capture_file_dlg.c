@@ -26,51 +26,53 @@
 #include "config.h"
 #endif
 
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #include <string.h>
 
 #include <gtk/gtk.h>
 
 #include "packet-range.h"
 #include <epan/filesystem.h>
-
-#include "globals.h"
-#include "gtkglobals.h"
 #include <epan/addr_resolv.h>
-#include "keys.h"
-#include "filter_dlg.h"
-#include "gui_utils.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "dlg_utils.h"
-#include "file_dlg.h"
-#include "capture_file_dlg.h"
-#include "drag_and_drop.h"
-#include "main.h"
-#include "main_menu.h"
 #include <epan/prefs.h>
-#include "recent.h"
-#include "color.h"
+
+#include "../globals.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../color.h"
 #include "../ui_util.h"
-#include "color_filters.h"
-#include "gtk/color_dlg.h"
-#ifdef HAVE_LIBPCAP
-#include "capture_dlg.h"
-#endif
-#include "stock_icons.h"
-#include "range_utils.h"
-#include "merge.h"
-#include "util.h"
+#include "../color_filters.h"
+#include "../merge.h"
+#include "../util.h"
 #include <wiretap/file_util.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#include "gtk/gtkglobals.h"
+#include "gtk/keys.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/file_dlg.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/drag_and_drop.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/recent.h"
+#include "gtk/color_dlg.h"
+#ifdef HAVE_LIBPCAP
+#include "gtk/capture_dlg.h"
 #endif
+#include "gtk/stock_icons.h"
+#include "gtk/range_utils.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>
 #include <windows.h>
-#include "win32-file-dlg.h"
+#include "gtk/win32-file-dlg.h"
 #endif
+
 
 static void file_open_ok_cb(GtkWidget *w, gpointer fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);

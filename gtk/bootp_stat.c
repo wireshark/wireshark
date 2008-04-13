@@ -32,15 +32,17 @@
 
 #include <epan/packet_info.h>
 #include <epan/epan.h>
-
-#include "simple_dialog.h"
-#include "gui_utils.h"
-#include "dlg_utils.h"
 #include <epan/tap.h>
+
+#include "../simple_dialog.h"
 #include "../register.h"
 #include "../globals.h"
 #include "../stat_menu.h"
-#include "tap_dfilter_dlg.h"
+
+#include "gtk/gui_utils.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/tap_dfilter_dlg.h"
+
 
 typedef const char* bootp_info_value_t;
 

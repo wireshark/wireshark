@@ -32,8 +32,7 @@
 #ifdef HAVE_AIRPCAP
 
 #include <gtk/gtk.h>
-#include <glib.h>
-#include <glib/gprintf.h>
+//#include <glib/gprintf.h>
 
 #include <string.h>
 
@@ -46,22 +45,23 @@
 
 #include <pcap.h>
 
-#include "gtk/main.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "dfilter_expr_dlg.h"
-#include "stock_icons.h"
-#include "gtkglobals.h"
-#include "help_dlg.h"
+#include "../simple_dialog.h"
 
+#include "gtk/main.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dfilter_expr_dlg.h"
+#include "gtk/stock_icons.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/help_dlg.h"
+#include "gtk/keys.h"
 
 #include <airpcap.h>
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 #include "airpcap_dlg.h"
 
-#include "keys.h"
+
 
 /* temporary block signals to widgets */
 BOOL block_advanced_signals;

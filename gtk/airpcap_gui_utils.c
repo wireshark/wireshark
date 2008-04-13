@@ -40,18 +40,19 @@
 #include <epan/frequency-utils.h>
 #include <epan/crypt/airpdcap_ws.h>
 
+#include "../simple_dialog.h"
+
 #include "gtk/main.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "simple_dialog.h"
-#include "dfilter_expr_dlg.h"
-#include "help_dlg.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/dfilter_expr_dlg.h"
+#include "gtk/help_dlg.h"
+#include "gtk/keys.h"
 
 #include <airpcap.h>
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 
-#include "keys.h"
 
 /* Controls the releay of settings back to the adapter. */
 gboolean change_airpcap_settings = FALSE;

@@ -46,34 +46,29 @@
 
 #include <epan/epan_dissect.h>
 
-#include "isprint.h"
-
 #include <epan/packet.h>
 #include <epan/charsets.h>
-#include "keys.h"
-
 #include <epan/prefs.h>
-#include "colors.h"
-#include "capture_file_dlg.h"
-#include "packet_win.h"
-#if 0
-#include "dlg_utils.h"
-#endif
-#include "file_dlg.h"
-#include "gui_utils.h"
-#include "gtkglobals.h"
-#include "alert_box.h"
-#include "simple_dialog.h"
-#include "progress_dlg.h"
-#include "font_utils.h"
 
+#include "../isprint.h"
+#include "../alert_box.h"
+#include "../simple_dialog.h"
+#include "../progress_dlg.h"
 #include "../ui_util.h"
-#include "file_util.h"
-#include "webbrowser.h"
+#include "wiretap/file_util.h"
 
-#include "main.h"
-#include "main_menu.h"
-#include "main_proto_draw.h"
+#include "gtk/keys.h"
+#include "gtk/colors.h"
+#include "gtk/capture_file_dlg.h"
+#include "gtk/packet_win.h"
+#include "gtk/file_dlg.h"
+#include "gtk/gui_utils.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/font_utils.h"
+#include "gtk/webbrowser.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
+#include "gtk/main_proto_draw.h"
 
 #if _WIN32
 #include <gdk/gdkwin32.h>

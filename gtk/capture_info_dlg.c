@@ -26,29 +26,30 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_LIBPCAP
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
 #include <string.h>
-
-#ifdef HAVE_LIBPCAP
-
-#include <gtk/gtk.h>
-#include "gtk/stock_icons.h"
-
 #include <time.h>
 
+#include <gtk/gtk.h>
+
 #include <epan/packet.h>
-#include "capture.h"
-#include "capture_info.h"
-#include "globals.h"
-#include "capture_ui_utils.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "main.h"
-#include "capture-pcap-util.h"
-#include "help_dlg.h"
+
+#include "../capture.h"
+#include "../capture_info.h"
+#include "../globals.h"
+#include "../capture_ui_utils.h"
+#include "../capture-pcap-util.h"
+
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main.h"
+#include "gtk/help_dlg.h"
+#include "gtk/stock_icons.h"
 
 #ifdef HAVE_AIRPCAP
 #include <airpcap.h>

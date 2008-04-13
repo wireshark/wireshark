@@ -28,14 +28,18 @@
 
 #include <gtk/gtk.h>
 
-#include "globals.h"
-#include "column_prefs.h"
-#include "gtkglobals.h"
 #include <epan/prefs.h>
+#include <epan/column_info.h>
 #include <epan/column.h>
-#include "gui_utils.h"
-#include "main_packet_list.h"
-#include "filter_dlg.h"
+
+#include "../globals.h"
+
+#include "gtk/column_prefs.h"
+#include "gtk/gtkglobals.h"
+#include "gtk/gui_utils.h"
+#include "gtk/main_packet_list.h"
+#include "gtk/filter_dlg.h"
+
 
 static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;

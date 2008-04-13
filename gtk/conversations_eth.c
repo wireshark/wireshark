@@ -30,16 +30,20 @@
 # include <sys/types.h>
 #endif
 
-#include <gtk/gtk.h>
 #include <string.h>
-#include "epan/packet.h"
+
+#include <gtk/gtk.h>
+
+#include <epan/packet.h>
 #include <epan/stat_cmd_args.h>
-#include "../stat_menu.h"
-#include "gui_stat_menu.h"
 #include <epan/tap.h>
-#include "../register.h"
-#include "conversations_table.h"
 #include <epan/dissectors/packet-eth.h>
+
+#include "../stat_menu.h"
+#include "../register.h"
+
+#include "gtk/gui_stat_menu.h"
+#include "gtk/conversations_table.h"
 
 
 static int

@@ -29,25 +29,29 @@
 
 #if defined HAVE_LIBPCAP && defined _WIN32
 
+#include <time.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include <wtap.h>
-#include <time.h>
-
-#include "globals.h"
-#include "file.h"
-#include "capture.h"
-#include "main.h"
-#include "dlg_utils.h"
-#include "gui_utils.h"
-#include "help_dlg.h"
-
 #include <epan/value_string.h>
 #include <epan/addr_resolv.h>
 
-#include "gtkvumeter.h"
+#include "../globals.h"
+#include "../file.h"
+#include "../capture.h"
+#include "../capture_wpcap_packet.h"
+#include "../simple_dialog.h"
+#include <wiretap/wtap.h>
+
+#include "gtk/main.h"
+#include "gtk/dlg_utils.h"
+#include "gtk/gui_utils.h"
+#include "gtk/help_dlg.h"
+#include "gtk/gtkvumeter.h"
+#include "gtk/capture_if_details_dlg.h"
+
+
 
 /* packet32.h requires sockaddr_storage 
  * wether sockaddr_storage is defined or not depends on the Platform SDK 
@@ -93,11 +97,6 @@ struct sockaddr_storage {
 #include <windows.h>
 #include <windowsx.h>
 #include <Ntddndis.h>
-
-#include "capture_wpcap_packet.h"
-#include "capture_if_details_dlg.h"
-
-#include "simple_dialog.h"
 
 #define DETAILS_STR_MAX     1024
 
