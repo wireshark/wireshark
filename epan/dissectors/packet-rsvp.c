@@ -4271,6 +4271,7 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
     proto_item *ti2;
     proto_tree *rsvp_gen_uni_subtree, *rsvp_session_subtree, *rsvp_template_subtree;
     int s_len, s_class, s_type;
+    int offset3;
 
     proto_item_set_text(ti, "GENERALIZED UNI: ");
 
@@ -4418,24 +4419,24 @@ dissect_rsvp_gen_uni (proto_tree *ti, proto_tree *rsvp_object_tree,
 				offset2+8+l+10, 1, s_class);
 		    dissect_rsvp_session(ti2, rsvp_session_subtree, tvb, offset2+l+8,
 					 s_len, s_class, s_type, rsvph);
-		    offset2 += s_len;
-		    s_len = tvb_get_ntohs(tvb, offset2+l+8);
-		    s_class = tvb_get_guint8(tvb, offset2+l+10);
-		    s_type = tvb_get_guint8(tvb, offset2+l+11);
-		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset2+l+8,
+		    offset3 = offset2 + s_len;
+		    s_len = tvb_get_ntohs(tvb, offset3+l+8);
+		    s_class = tvb_get_guint8(tvb, offset3+l+10);
+		    s_type = tvb_get_guint8(tvb, offset3+l+11);
+		    ti2 = proto_tree_add_text(rsvp_gen_uni_subtree, tvb, offset3+l+8,
 					      s_len, "Template");
 		    rsvp_template_subtree =
 		        proto_item_add_subtree(ti2, TREE(rsvp_class_to_tree_type(s_class)));
 		    if (s_len < 4) {
-			proto_tree_add_text(rsvp_object_tree, tvb, offset2+l+8, 2,
+			proto_tree_add_text(rsvp_object_tree, tvb, offset3+l+8, 2,
 			    "Length: %u (bogus, must be >= 4)", s_len);
 			break;
 		    }
-		    proto_tree_add_text(rsvp_template_subtree, tvb, offset2+l+8, 2,
+		    proto_tree_add_text(rsvp_template_subtree, tvb, offset3+l+8, 2,
 				"Length: %u", s_len);
 		    proto_tree_add_uint(rsvp_template_subtree, rsvp_filter[RSVPF_OBJECT], tvb,
-				offset2+8+l+10, 1, s_class);
-		    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset2+l+8,
+				offset3+8+l+10, 1, s_class);
+		    dissect_rsvp_template_filter(ti2, rsvp_template_subtree, tvb, offset3+l+8,
 						 s_len, s_class, s_type, rsvph);
 
 		    if (i < 4) {
@@ -4733,21 +4734,57 @@ dissect_rsvp_protection_info (proto_tree *ti, proto_tree *rsvp_object_tree,
 			      int offset, int obj_length,
 			      int class _U_, int type)
 {
+    guint8 flags, flag;
+    proto_tree *ti2, *rsvp_pi_flags_tree;
     int offset2 = offset + 4;
 
     proto_item_set_text(ti, "PROTECTION_INFO: ");
     switch(type) {
     case 1:
 	proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
-			    "C-type: 1 - IPv4");
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
-			    "Router ID: %s",
-			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
-	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, 4,
-			    "Interface ID: %u", tvb_get_ntohl(tvb, offset2+4));
-	proto_item_append_text(ti, "Router-ID %s, Interface-ID %d",
-			    ip_to_str(tvb_get_ptr(tvb, offset2, 4)),
-			    tvb_get_ntohl(tvb, offset2+4));
+			    "C-type: 1 - Protection");
+	flag = tvb_get_guint8(tvb, offset2);
+	proto_tree_add_text(rsvp_object_tree, tvb, offset2, 1,
+			    "Secondary LSP: %s",
+			    decode_boolean_bitfield(flag, 0x80, 8, "Yes", "No"));
+
+	flags = tvb_get_guint8(tvb, offset2+3);
+	ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
+				  "Link Flags: 0x%02x", flags);
+	rsvp_pi_flags_tree = proto_item_add_subtree(ti2,
+						    TREE(TT_PROTECTION_INFO));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x01, 8,
+						    "Extra Traffic desired",
+						    "Extra Traffic not desired"));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x02, 8,
+						    "Unprotected desired",
+						    "Unprotected not desired"));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x04, 8,
+						    "Shared desired",
+						    "Shared not desired"));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x08, 8,
+						    "Dedicated 1:1 desired",
+						    "Dedicated 1:1 not desired"));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x10, 8,
+						    "Dedicated 1+1 desired",
+						    "Dedicated 1+1 not desired"));
+	proto_tree_add_text(rsvp_pi_flags_tree, tvb, offset2+3, 1,
+			    decode_boolean_bitfield(flags, 0x20, 8,
+						    "Enhanced desired",
+						    "Enhanced not desired"));
+	proto_item_append_text(ti, "%s%s%s%s%s%s%s.",
+			       flag  &0x80 ? "SecondaryLSP " : "",
+			       flags &0x01 ? "ExtraTraffic " : "",
+			       flags &0x02 ? "Unprotected " : "",
+			       flags &0x04 ? "Shared " : "",
+			       flags &0x08 ? "Dedicated1:1 " : "",
+			       flags &0x10 ? "Dedicated1+1 " : "",
+			       flags &0x20 ? "Enhanced " : "");
 	break;
 
     default:
