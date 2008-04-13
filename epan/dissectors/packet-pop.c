@@ -36,6 +36,9 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/conversation.h>
+#include <epan/prefs.h>
+#include <epan/reassemble.h>
 
 static int proto_pop = -1;
 
@@ -49,18 +52,69 @@ static int hf_pop_request_command = -1;
 static int hf_pop_request_parameter = -1;
 static int hf_pop_request_data = -1;
 
+static int hf_pop_data_fragments = -1;
+static int hf_pop_data_fragment = -1;
+static int hf_pop_data_fragment_overlap = -1;
+static int hf_pop_data_fragment_overlap_conflicts = -1;
+static int hf_pop_data_fragment_multiple_tails = -1;
+static int hf_pop_data_fragment_too_long_fragment = -1;
+static int hf_pop_data_fragment_error = -1;
+static int hf_pop_data_reassembled_in = -1;
+
 static gint ett_pop = -1;
 static gint ett_pop_reqresp = -1;
 
+static gint ett_pop_data_fragment = -1;
+static gint ett_pop_data_fragments = -1;
+
 static dissector_handle_t data_handle;
+static dissector_handle_t imf_handle = NULL;
 
 #define TCP_PORT_POP			110
+
+/* desegmentation of POP command and response lines */
+static gboolean pop_data_desegment = TRUE;
+
+static GHashTable *pop_data_segment_table = NULL;
+static GHashTable *pop_data_reassembled_table = NULL;
+
+static const fragment_items pop_data_frag_items = {
+	/* Fragment subtrees */
+	&ett_pop_data_fragment,
+	&ett_pop_data_fragments,
+	/* Fragment fields */
+	&hf_pop_data_fragments,
+	&hf_pop_data_fragment,
+	&hf_pop_data_fragment_overlap,
+	&hf_pop_data_fragment_overlap_conflicts,
+	&hf_pop_data_fragment_multiple_tails,
+	&hf_pop_data_fragment_too_long_fragment,
+	&hf_pop_data_fragment_error,
+	/* Reassembled in field */
+	&hf_pop_data_reassembled_in,
+	/* Tag */
+	"DATA fragments"
+};
+
+struct pop_proto_data {
+  guint16 conversation_id;
+  gboolean more_frags;
+};
+
+struct pop_data_val {
+  gboolean msg_request;
+  guint32 msg_read_len;  /* Length of RETR message read so far */
+  guint32 msg_tot_len;   /* Total length of RETR message */
+};
+
+
 
 static gboolean response_is_continuation(const guchar *data);
 
 static void
 dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+        struct pop_proto_data  *frame_data;
 	gboolean     is_request;
 	gboolean     is_continuation;
 	proto_tree   *pop_tree, *reqresp_tree;
@@ -71,6 +125,11 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int          linelen;
 	int          tokenlen;
 	const guchar *next_token;
+	fragment_data  *frag_msg = NULL;
+	tvbuff_t     *next_tvb = NULL;
+	conversation_t          *conversation;
+	struct pop_data_val *data_val = NULL;
+	gint         length_remaining;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
@@ -93,6 +152,37 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		is_continuation = response_is_continuation(line);
 	}
 
+	frame_data = p_get_proto_data(pinfo->fd, proto_pop);
+
+	if (!frame_data) {
+
+	  conversation = find_conversation(pinfo->fd->num, 
+					   &pinfo->src, &pinfo->dst, 
+					   pinfo->ptype,
+					   pinfo->srcport, pinfo->destport, 0);
+
+	  if (conversation == NULL) { /* No conversation, create one */
+	    conversation = conversation_new(pinfo->fd->num, 
+					    &pinfo->src, &pinfo->dst, pinfo->ptype,
+					    pinfo->srcport, pinfo->destport, 0);
+	  }
+
+	  data_val = conversation_get_proto_data(conversation, proto_pop);
+
+	  if (!data_val) {
+
+	    /*
+	     * No - create one and attach it.
+	     */
+	    data_val = se_alloc(sizeof(struct pop_data_val));
+	    data_val->msg_request = FALSE;
+	    data_val->msg_read_len = 0;
+	    data_val->msg_tot_len = 0;
+	    
+	    conversation_add_proto_data(conversation, proto_pop, data_val);
+	  }
+	}
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
@@ -100,25 +190,77 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * line terminator).
 		 * Otherwise, just call it a continuation.
 		 */
-		if (is_continuation)
-			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+		if (is_continuation) {
+			length_remaining = tvb_length_remaining(tvb, offset);
+			col_set_str(pinfo->cinfo, COL_INFO, "S: DATA fragment");
+		        col_append_fstr(pinfo->cinfo, COL_INFO, ", %d byte%s", 
+					length_remaining,  
+					plurality (length_remaining, "", "s"));
+		}
 		else
 			col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-			    is_request ? "Request" : "Response",
+			    is_request ? "C" : "S",
 			    format_text(line, linelen));
 	}
 
-	if (tree) {
+	if (tree) { 
 		ti = proto_tree_add_item(tree, proto_pop, tvb, offset, -1,
 		    FALSE);
 		pop_tree = proto_item_add_subtree(ti, ett_pop);
 
 		if (is_continuation) {
-			/*
-			 * Put the whole packet into the tree as data.
-			 */
-			call_dissector(data_handle,tvb, pinfo, pop_tree);
-			return;
+
+		  if(pop_data_desegment) {
+
+		    if(!frame_data) {
+
+   		      data_val->msg_read_len += tvb_length(tvb);
+
+		      frame_data = se_alloc(sizeof(struct pop_proto_data));
+
+		      frame_data->conversation_id = conversation->index;
+		      frame_data->more_frags = data_val->msg_read_len < data_val->msg_tot_len;
+
+		      p_add_proto_data(pinfo->fd, proto_pop, frame_data);	
+		    }
+
+		    frag_msg = fragment_add_seq_next (tvb, 0, pinfo, 
+						      frame_data->conversation_id, 
+						      pop_data_segment_table, 
+						      pop_data_reassembled_table, 
+						      tvb_length(tvb), 
+						      frame_data->more_frags);
+
+		    next_tvb = process_reassembled_data (tvb, offset, pinfo, 
+							 "Reassembled DATA",
+							 frag_msg, &pop_data_frag_items, 
+							 NULL, pop_tree);
+
+		    if(next_tvb) {
+
+		      if(imf_handle)
+			call_dissector(imf_handle, next_tvb, pinfo, tree);
+
+		      if(data_val) {
+			      /* we have read everything - reset */
+			      
+			      data_val->msg_read_len = 0;
+			      data_val->msg_tot_len = 0; 
+		      }
+		      pinfo->fragmented = FALSE;
+		    } else {
+		      pinfo->fragmented = TRUE;
+		    }
+
+		  } else {
+
+		    /*
+		     * Put the whole packet into the tree as data.
+		     */
+		    call_dissector(data_handle,tvb, pinfo, pop_tree);
+		  
+		  }
+		  return;
 		}
 
 		/*
@@ -146,9 +288,29 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                        hf_pop_response_indicator,
 			                    tvb, offset, tokenlen, FALSE);
 
+			if(is_request) {
+			  /* see if this is RETR or TOP command */
+			  if((g_ascii_strncasecmp(line, "RETR", 4) == 0) ||
+			     (g_ascii_strncasecmp(line, "TOP", 3) == 0))
+			    /* the next response will tell us how many bytes */
+			    data_val->msg_request = TRUE;
+			} else {
+			  if(data_val->msg_request) {
+			    /* this is a response to a RETR or TOP command */
+
+			    if(g_ascii_strncasecmp(line, "+OK ", 4) == 0) {
+			      /* the message will be sent - work out how many bytes */
+			      data_val->msg_read_len = 0;
+			      data_val->msg_tot_len = atoi(line + 4);
+			    }
+			    data_val->msg_request = FALSE;
+			  }
+			}
+
 			offset += next_token - line;
 			linelen -= next_token - line;
 			line = next_token;
+
 		}
 
 		/*
@@ -188,7 +350,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			                             tvb_format_text(tvb, offset, next_offset - offset));
 			offset = next_offset;
 		}
-	}
+		} 
 }
 
 static gboolean response_is_continuation(const guchar *data)
@@ -202,10 +364,15 @@ static gboolean response_is_continuation(const guchar *data)
   return TRUE;
 }
 
+static void pop_data_reassemble_init (void)
+{
+  fragment_table_init (&pop_data_segment_table);
+  reassembled_table_init (&pop_data_reassembled_table);
+}
+
 void
 proto_register_pop(void)
 {
-
   static hf_register_info hf[] = {
     { &hf_pop_response,
       { "Response",           "pop.response",
@@ -223,7 +390,6 @@ proto_register_pop(void)
       { "Data",           "pop.response.data",
 	     FT_STRING, BASE_NONE, NULL, 0x0,
 	     "Response Data", HFILL }},
-
     { &hf_pop_request,
       { "Request",           "pop.request",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
@@ -240,17 +406,59 @@ proto_register_pop(void)
       { "Data",           "pop.request.data",
 	     FT_STRING, BASE_NONE, NULL, 0x0,
 	     "Request data", HFILL }},
-
+    /* Fragment entries */
+    { &hf_pop_data_fragments,
+      { "DATA fragments", "pop.data.fragments", FT_NONE, BASE_NONE,
+	NULL, 0x00, "Message fragments", HFILL } },
+    { &hf_pop_data_fragment,
+      { "DATA fragment", "pop.data.fragment", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "Message fragment", HFILL } },
+    { &hf_pop_data_fragment_overlap,
+      { "DATA fragment overlap", "pop.data.fragment.overlap", FT_BOOLEAN,
+	BASE_NONE, NULL, 0x00, "Message fragment overlap", HFILL } },
+    { &hf_pop_data_fragment_overlap_conflicts,
+      { "DATA fragment overlapping with conflicting data",
+	"pop.data.fragment.overlap.conflicts", FT_BOOLEAN, BASE_NONE, NULL,
+	0x00, "Message fragment overlapping with conflicting data", HFILL } },
+    { &hf_pop_data_fragment_multiple_tails,
+      { "DATA has multiple tail fragments",
+	"pop.data.fragment.multiple_tails", FT_BOOLEAN, BASE_NONE,
+	NULL, 0x00, "Message has multiple tail fragments", HFILL } },
+    { &hf_pop_data_fragment_too_long_fragment,
+      { "DATA fragment too long", "pop.data.fragment.too_long_fragment",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x00, "Message fragment too long",
+	HFILL } },
+    { &hf_pop_data_fragment_error,
+      { "DATA defragmentation error", "pop.data.fragment.error", FT_FRAMENUM,
+	BASE_NONE, NULL, 0x00, "Message defragmentation error", HFILL } },
+    { &hf_pop_data_reassembled_in,
+      { "Reassembled DATA in frame", "pop.data.reassembled.in", FT_FRAMENUM, BASE_NONE,
+	NULL, 0x00, "This DATA fragment is reassembled in this frame", HFILL } },
   };
+
   static gint *ett[] = {
     &ett_pop,
     &ett_pop_reqresp,
+    &ett_pop_data_fragment,
+    &ett_pop_data_fragments
   };
+  module_t *pop_module;
+
 
   proto_pop = proto_register_protocol("Post Office Protocol", "POP", "pop");
   register_dissector("pop", dissect_pop, proto_pop);
   proto_register_field_array(proto_pop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine (&pop_data_reassemble_init);
+
+  /* Preferences */
+  pop_module = prefs_register_protocol(proto_pop, NULL);
+
+  prefs_register_bool_preference(pop_module, "desegment_data",
+    "Reassemble POP RETR and TOP responses spanning multiple TCP segments",
+    "Whether the POP dissector should reassemble RETR and TOP responses and spanning multiple TCP segments."
+    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+    &pop_data_desegment);
 }
 
 void
@@ -261,4 +469,8 @@ proto_reg_handoff_pop(void)
   pop_handle = create_dissector_handle(dissect_pop, proto_pop);
   dissector_add("tcp.port", TCP_PORT_POP, pop_handle);
   data_handle = find_dissector("data");
+
+  /* find the IMF dissector */
+  imf_handle = find_dissector("imf");
+
 }
