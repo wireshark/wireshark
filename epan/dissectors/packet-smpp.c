@@ -801,14 +801,14 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
 {
     struct tm	 r_time;
     time_t	 t_diff;
-    gboolean	 relative = FALSE;
+    gboolean	 relative = (datestr[15] == 'R') ? TRUE : FALSE;
 
     r_time.tm_year = 10 * (datestr[0] - '0') + (datestr[1] - '0');
     /*
      * Y2K rollover date as recommended in appendix C
      */
     if (r_time.tm_year < 38)
-	r_time.tm_year += 100;
+      r_time.tm_year += 100;
     r_time.tm_mon  = 10 * (datestr[2] - '0') + (datestr[3] - '0');
     r_time.tm_mon--;
     r_time.tm_mday = 10 * (datestr[4] - '0') + (datestr[5] - '0');
@@ -816,15 +816,23 @@ smpp_mktime(const char *datestr, time_t *secs, int *nsecs)
     r_time.tm_min  = 10 * (datestr[8] - '0') + (datestr[9] - '0');
     r_time.tm_sec  = 10 * (datestr[10] - '0') + (datestr[11] - '0');
     r_time.tm_isdst = -1;
-    *secs = mktime(&r_time);
-    *nsecs = (datestr[12] - '0') * 100000000;
-    t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
-    if (datestr[15] == '+')
-	*secs += t_diff;
-    else if (datestr[15] == '-')
-	*secs -= t_diff;
-    else				/* Must be relative ('R')	*/
-	relative = TRUE;
+
+    if (relative == FALSE) {
+      *secs = mktime(&r_time);
+      *nsecs = (datestr[12] - '0') * 100000000;
+      t_diff = (10 * (datestr[13] - '0') + (datestr[14] - '0')) * 900;
+      if (datestr[15] == '+')
+        *secs += t_diff;
+      else if (datestr[15] == '-')
+        *secs -= t_diff;
+    } else {
+      *secs = r_time.tm_sec + 60 *
+             (r_time.tm_min + 60 *
+             (r_time.tm_hour + 24 *
+              r_time.tm_mday));
+      *nsecs = 0;
+    }
+
     return relative;
 }
 
