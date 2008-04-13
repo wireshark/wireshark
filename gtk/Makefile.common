@@ -40,8 +40,8 @@ WIRESHARK_GTK_SRC = \
 	airpcap_gui_utils.c \
 	capture_dlg.c	\
 	capture_file_dlg.c	\
-	capture_if_dlg.c	\
 	capture_if_details_dlg.c	\
+	capture_if_dlg.c	\
 	capture_info_dlg.c	\
 	capture_prefs.c	\
 	cfilter_combo_utils.c	\
@@ -52,12 +52,11 @@ WIRESHARK_GTK_SRC = \
 	column_prefs.c	\
 	conversations_table.c	\
 	decode_as_ber.c	\
-	decode_as_dlg.c	\
 	decode_as_dcerpc.c	\
+	decode_as_dlg.c	\
 	dfilter_expr_dlg.c	\
 	dlg_utils.c	\
 	drag_and_drop.c 	\
-	wireshark-tap-register.c	\
 	expert_comp_table.c    \
 	export_object.c	       \
 	export_object_http.c   \
@@ -74,8 +73,8 @@ WIRESHARK_GTK_SRC = \
 	goto_dlg.c	\
 	graph_analysis.c \
 	gtkvumeter.c	\
-	gui_stat_util.c	\
 	gui_prefs.c	\
+	gui_stat_util.c	\
 	gui_utils.c	\
 	help_dlg.c	\
 	hostlist_table.c \
@@ -90,6 +89,7 @@ WIRESHARK_GTK_SRC = \
 	main_statusbar.c		\
 	main_toolbar.c	\
 	main_welcome.c		\
+	mcast_stream.c	\
 	nameres_prefs.c	\
 	packet_history.c	\
 	packet_win.c	\
@@ -107,11 +107,10 @@ WIRESHARK_GTK_SRC = \
 	rtp_player.c	\
 	rtp_player_prefs.c	\
 	rtp_stream.c	\
-	mcast_stream.c	\
-	sctp_stat.c	\
-	sctp_graph_dlg.c	\
 	sctp_byte_graph_dlg.c	\
 	sctp_error_dlg.c	\
+	sctp_graph_dlg.c	\
+	sctp_stat.c	\
 	service_response_time_table.c	\
 	simple_dialog.c	\
 	stock_icons.c	\
@@ -123,7 +122,8 @@ WIRESHARK_GTK_SRC = \
 	u3.c		\
 	uat_gui.c	\
 	voip_calls.c	\
-	webbrowser.c
+	webbrowser.c	\
+	wireshark-tap-register.c
 
 about_dlg.c: ../image/wssplash.xpm
 
@@ -175,6 +175,7 @@ WIRESHARK_TAP_SRC = \
 	hostlist_wlan.c \
 	io_stat.c	\
 	ldap_stat.c	\
+	mcast_stream_dlg.c	\
 	mgcp_stat.c	\
 	mtp3_stat.c	\
 	mtp3_summary.c	\
@@ -184,16 +185,15 @@ WIRESHARK_TAP_SRC = \
 	rpc_stat.c	\
 	rtp_analysis.c	\
 	rtp_stream_dlg.c	\
-	mcast_stream_dlg.c	\
-	stats_tree_stat.c	\
 	scsi_stat.c	\
 	sctp_assoc_analyse.c	\
-	sctp_chunk_stat_dlg.c	\
 	sctp_chunk_stat.c	\
+	sctp_chunk_stat_dlg.c	\
 	sctp_stat_dlg.c	\
 	sip_stat.c	\
 	smb_stat.c	\
 	smb2_stat.c	\
+	stats_tree_stat.c	\
 	t38_analysis.c  \
 	tcp_graph.c	\
 	voip_calls_dlg.c \
@@ -238,8 +238,9 @@ noinst_HEADERS = \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
 	gtkvumeter.h \
-	gui_stat_util.h \
 	gui_prefs.h	\
+	gui_stat_menu.h	\
+	gui_stat_util.h \
 	gui_utils.h	\
 	help_dlg.h	\
 	hostlist_table.h \
@@ -256,6 +257,8 @@ noinst_HEADERS = \
 	main_statusbar.h		\
 	main_toolbar.h	\
 	main_welcome.h		\
+	mcast_stream.h  \
+	mcast_stream_dlg.h \
 	mtp3_stat.h	\
 	nameres_prefs.h	\
 	packet_history.h	\
@@ -274,12 +277,9 @@ noinst_HEADERS = \
 	rtp_player_prefs.h 	\
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
-	mcast_stream.h  \
-	mcast_stream_dlg.h \
 	sat.h		\
 	sctp_stat.h	\
 	service_response_time_table.h	\
-	gui_stat_menu.h	\
 	stock_icons.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \

@@ -46,7 +46,7 @@
 				ReBuildCommandLine=""
 				CleanCommandLine=""
 				Output="libui.exe"
-				PreprocessorDefinitions="WIN32;NDEBUG;HAVE_LIBPCAP"
+				PreprocessorDefinitions="WIN32;NDEBUG;HAVE_LIBPCAP;HAVE_LIBPORTAUDIO"
 				IncludeSearchPath=""
 				ForcedIncludes=""
 				AssemblySearchPath=""
@@ -68,35 +68,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\afp_stat.c"
-				>
-			</File>
-			<File
 				RelativePath=".\airpcap_dlg.c"
 				>
 			</File>
 			<File
 				RelativePath=".\airpcap_gui_utils.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ansi_a_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ansi_map_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\bootp_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\camel_counter.c"
-				>
-			</File>
-			<File
-				RelativePath=".\camel_srt.c"
 				>
 			</File>
 			<File
@@ -148,67 +124,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\conversations_eth.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_fc.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_fddi.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_ip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_ipx.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_jxta.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_ncp.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_rsvp.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_sctp.c"
-				>
-			</File>
-			<File
 				RelativePath=".\conversations_table.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_tcpip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_tr.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_udpip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_usb.c"
-				>
-			</File>
-			<File
-				RelativePath=".\conversations_wlan.c"
-				>
-			</File>
-			<File
-				RelativePath=".\dcerpc_stat.c"
 				>
 			</File>
 			<File
@@ -236,15 +152,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\expert_comp_dlg.c"
-				>
-			</File>
-			<File
 				RelativePath=".\expert_comp_table.c"
-				>
-			</File>
-			<File
-				RelativePath=".\expert_dlg.c"
 				>
 			</File>
 			<File
@@ -253,10 +161,6 @@
 			</File>
 			<File
 				RelativePath=".\export_object_http.c"
-				>
-			</File>
-			<File
-				RelativePath=".\fc_stat.c"
 				>
 			</File>
 			<File
@@ -280,10 +184,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\flow_graph.c"
-				>
-			</File>
-			<File
 				RelativePath=".\follow_ssl.c"
 				>
 			</File>
@@ -304,27 +204,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\funnel_stat.c"
-				>
-			</File>
-			<File
 				RelativePath=".\goto_dlg.c"
 				>
 			</File>
 			<File
 				RelativePath=".\graph_analysis.c"
-				>
-			</File>
-			<File
-				RelativePath=".\gsm_a_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\gsm_map_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\gsm_map_summary.c"
 				>
 			</File>
 			<File
@@ -344,51 +228,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\h225_counter.c"
-				>
-			</File>
-			<File
-				RelativePath=".\h225_ras_srt.c"
-				>
-			</File>
-			<File
 				RelativePath=".\help_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_eth.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_fc.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_fddi.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_ip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_ipx.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_jxta.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_ncp.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_rsvp.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_sctp.c"
 				>
 			</File>
 			<File
@@ -396,35 +236,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\hostlist_tcpip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_tr.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_udpip.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_usb.c"
-				>
-			</File>
-			<File
-				RelativePath=".\hostlist_wlan.c"
-				>
-			</File>
-			<File
-				RelativePath=".\io_stat.c"
-				>
-			</File>
-			<File
 				RelativePath=".\layout_prefs.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ldap_stat.c"
 				>
 			</File>
 			<File
@@ -433,6 +245,14 @@
 			</File>
 			<File
 				RelativePath=".\main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\main_airpcap_toolbar.c"
+				>
+			</File>
+			<File
+				RelativePath=".\main_filter_toolbar.c"
 				>
 			</File>
 			<File
@@ -464,27 +284,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mcast_stream_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mgcp_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mtp3_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\mtp3_summary.c"
-				>
-			</File>
-			<File
 				RelativePath=".\nameres_prefs.c"
-				>
-			</File>
-			<File
-				RelativePath=".\ncp_stat.c"
 				>
 			</File>
 			<File
@@ -536,27 +336,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\radius_stat.c"
-				>
-			</File>
-			<File
 				RelativePath=".\range_utils.c"
 				>
 			</File>
 			<File
 				RelativePath=".\recent.c"
-				>
-			</File>
-			<File
-				RelativePath=".\rpc_progs.c"
-				>
-			</File>
-			<File
-				RelativePath=".\rpc_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\rtp_analysis.c"
 				>
 			</File>
 			<File
@@ -572,27 +356,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\rtp_stream_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\scsi_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sctp_assoc_analyse.c"
-				>
-			</File>
-			<File
 				RelativePath=".\sctp_byte_graph_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sctp_chunk_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sctp_chunk_stat_dlg.c"
 				>
 			</File>
 			<File
@@ -608,31 +372,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\sctp_stat_dlg.c"
-				>
-			</File>
-			<File
 				RelativePath=".\service_response_time_table.c"
 				>
 			</File>
 			<File
 				RelativePath=".\simple_dialog.c"
-				>
-			</File>
-			<File
-				RelativePath=".\sip_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\smb2_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\smb_stat.c"
-				>
-			</File>
-			<File
-				RelativePath=".\stats_tree_stat.c"
 				>
 			</File>
 			<File
@@ -652,15 +396,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\t38_analysis.c"
-				>
-			</File>
-			<File
 				RelativePath=".\tap_dfilter_dlg.c"
-				>
-			</File>
-			<File
-				RelativePath=".\tcp_graph.c"
 				>
 			</File>
 			<File
@@ -680,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\voip_calls_dlg.c"
-				>
-			</File>
-			<File
 				RelativePath=".\webbrowser.c"
 				>
 			</File>
@@ -695,14 +427,294 @@
 				RelativePath=".\wireshark-tap-register.c"
 				>
 			</File>
-			<File
-				RelativePath=".\wlan_stat_dlg.c"
+			<Filter
+				Name="Taps"
 				>
-			</File>
-			<File
-				RelativePath=".\wsp_stat.c"
-				>
-			</File>
+				<File
+					RelativePath=".\afp_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ansi_a_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ansi_map_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\bootp_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\camel_counter.c"
+					>
+				</File>
+				<File
+					RelativePath=".\camel_srt.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_eth.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_fc.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_fddi.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_ip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_ipx.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_jxta.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_ncp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_rsvp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_sctp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_tcpip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_tr.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_udpip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_usb.c"
+					>
+				</File>
+				<File
+					RelativePath=".\conversations_wlan.c"
+					>
+				</File>
+				<File
+					RelativePath=".\dcerpc_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\expert_comp_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\expert_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\fc_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\flow_graph.c"
+					>
+				</File>
+				<File
+					RelativePath=".\funnel_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\gsm_a_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\gsm_map_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\gsm_map_summary.c"
+					>
+				</File>
+				<File
+					RelativePath=".\h225_counter.c"
+					>
+				</File>
+				<File
+					RelativePath=".\h225_ras_srt.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_eth.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_fc.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_fddi.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_ip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_ipx.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_jxta.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_ncp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_rsvp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_sctp.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_tcpip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_tr.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_udpip.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_usb.c"
+					>
+				</File>
+				<File
+					RelativePath=".\hostlist_wlan.c"
+					>
+				</File>
+				<File
+					RelativePath=".\io_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ldap_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mcast_stream_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mgcp_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mtp3_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\mtp3_summary.c"
+					>
+				</File>
+				<File
+					RelativePath=".\ncp_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\radius_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\rpc_progs.c"
+					>
+				</File>
+				<File
+					RelativePath=".\rpc_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\rtp_analysis.c"
+					>
+				</File>
+				<File
+					RelativePath=".\rtp_stream_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\scsi_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\sctp_assoc_analyse.c"
+					>
+				</File>
+				<File
+					RelativePath=".\sctp_chunk_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\sctp_chunk_stat_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\sctp_stat_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\sip_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\smb2_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\smb_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\stats_tree_stat.c"
+					>
+				</File>
+				<File
+					RelativePath=".\t38_analysis.c"
+					>
+				</File>
+				<File
+					RelativePath=".\tcp_graph.c"
+					>
+				</File>
+				<File
+					RelativePath=".\voip_calls_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\wlan_stat_dlg.c"
+					>
+				</File>
+				<File
+					RelativePath=".\wsp_stat.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -790,7 +802,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ethclist.h"
+				RelativePath=".\expert_comp_dlg.h"
 				>
 			</File>
 			<File
@@ -903,6 +915,14 @@
 			</File>
 			<File
 				RelativePath=".\main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\main_airpcap_toolbar.h"
+				>
+			</File>
+			<File
+				RelativePath=".\main_filter_toolbar.h"
 				>
 			</File>
 			<File
@@ -1023,10 +1043,6 @@
 			</File>
 			<File
 				RelativePath=".\service_response_time_table.h"
-				>
-			</File>
-			<File
-				RelativePath=".\ssl-dlg.h"
 				>
 			</File>
 			<File
