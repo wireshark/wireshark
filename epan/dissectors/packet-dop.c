@@ -418,7 +418,7 @@ dissect_dop_T_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
@@ -440,11 +440,11 @@ dissect_dop_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	guint32	value;
 
 	  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &value);
+                                                &value);
 
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%d", value);
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%d", value);
   	}
 
 
@@ -1572,7 +1572,7 @@ dissect_dop_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   guint32 precedence = 0;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  &precedence);
+                                                &precedence);
 
 
   proto_item_append_text(tree, " precedence=%d", precedence);
@@ -1604,7 +1604,7 @@ dissect_dop_T_level(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_dop_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3067,11 +3067,7 @@ void proto_register_dop(void) {
 
   /* Register our configuration options for DOP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, prefs_register_dop);
-#else
-  dop_module = prefs_register_protocol(proto_dop, prefs_register_dop);
-#endif 
 
   prefs_register_uint_preference(dop_module, "tcp.port", "DOP TCP Port",
 				 "Set the port for DOP operations (if other"
@@ -3109,7 +3105,7 @@ void proto_reg_handoff_dop(void) {
 
 
 /*--- End of included file: packet-dop-dis-tab.c ---*/
-#line 297 "packet-dop-template.c"
+#line 293 "packet-dop-template.c"
   /* APPLICATION CONTEXT */
 
   oid_add_from_string("id-ac-directory-operational-binding-management","2.5.3.3");
@@ -3160,6 +3156,6 @@ void prefs_register_dop(void) {
   tcp_port = global_dop_tcp_port;
 
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add("tcp.port", global_dop_tcp_port, tpkt_handle);
+    dissector_add("tcp.port", tcp_port, tpkt_handle);
 
 }

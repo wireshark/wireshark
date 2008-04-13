@@ -274,11 +274,7 @@ void proto_register_dop(void) {
 
   /* Register our configuration options for DOP, particularly our port */
 
-#ifdef PREFERENCE_GROUPING
   dop_module = prefs_register_protocol_subtree("OSI/X.500", proto_dop, prefs_register_dop);
-#else
-  dop_module = prefs_register_protocol(proto_dop, prefs_register_dop);
-#endif 
 
   prefs_register_uint_preference(dop_module, "tcp.port", "DOP TCP Port",
 				 "Set the port for DOP operations (if other"
@@ -344,6 +340,6 @@ void prefs_register_dop(void) {
   tcp_port = global_dop_tcp_port;
 
   if((tcp_port > 0) && (tcp_port != 102) && tpkt_handle)
-    dissector_add("tcp.port", global_dop_tcp_port, tpkt_handle);
+    dissector_add("tcp.port", tcp_port, tpkt_handle);
 
 }

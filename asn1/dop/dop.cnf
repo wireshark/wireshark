@@ -185,7 +185,7 @@ OpBindingErrorParam/bindingType  BindingType
 	%(DEFAULT_BODY)s
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " id=%%d", value);
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, ",%%d", value);
   	}
 
 #.FN_PARS Precedence VAL_PTR = &precedence
