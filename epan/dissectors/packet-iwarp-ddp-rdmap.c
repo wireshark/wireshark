@@ -372,7 +372,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 							break;
 						case IWARP_ETYPE_DDP_UNTAGGED:
 							proto_tree_add_item(term_ctrl_field_tree,
-									hf_iwarp_rdma_term_errcode_ddp_tagged, tvb,
+									hf_iwarp_rdma_term_errcode_ddp_untagged, tvb,
 									offset, 1, FALSE);
 							offset += 1;
 							break;
@@ -814,6 +814,11 @@ proto_register_iwarp_ddp_rdmap(void)
 				"Error Code", "iwarp_rdma.term_errcode",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
 				"Terminate Control Field: Error Code", HFILL} },
+		{ &hf_iwarp_rdma_term_errcode_llp, {
+				"Error Code for LLP layer", "iwarp_rdma.term_errcode_llp",
+				FT_UINT8, BASE_HEX, NULL, 0x0,
+				"Terminate Control Field: Lower Layer Protocol Error Code",
+				HFILL} },
 		{ &hf_iwarp_rdma_term_hdrct, {
 				"Header control bits", "iwarp_rdma.term_hdrct",
 				FT_NONE, BASE_NONE, NULL, IWARP_HDRCT,

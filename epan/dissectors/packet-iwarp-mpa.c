@@ -103,7 +103,6 @@ static gint hf_mpa_pd_length = -1;
 static gint hf_mpa_private_data = -1;
 
 static gint hf_mpa_ulpdu_length = -1;
-static gint hf_mpa_ulpdu = -1;
 static gint hf_mpa_pad = -1;
 static gint hf_mpa_crc = -1;
 static gint hf_mpa_crc_check = -1;
@@ -970,10 +969,6 @@ void proto_register_mpa(void)
 			{ &hf_mpa_ulpdu_length, {
 					"ULPDU length", "iwarp_mpa.ulpdulength",
 					FT_UINT16, BASE_DEC, NULL, 0x0,
-					NULL, HFILL } },
-			{ &hf_mpa_ulpdu, {
-					"ULPDU", "iwarp_mpa.ulpdu",
-					FT_BYTES, BASE_HEX, NULL, 0x0,
 					NULL, HFILL } },
 			{ &hf_mpa_pad, {
 					"Padding", "iwarp_mpa.pad",
