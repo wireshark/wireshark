@@ -67,6 +67,7 @@ static gboolean cap_end_time = FALSE;
 static gboolean cap_data_rate_byte = FALSE;
 static gboolean cap_data_rate_bit = FALSE;
 static gboolean cap_packet_size = FALSE;
+static gboolean cap_packet_rate = FALSE;
 
 
 typedef struct _capture_info {
@@ -119,6 +120,7 @@ print_stats(capture_info *cf_info)
   if (cap_data_rate_byte) printf("Data rate: %.2f bytes/s\n", cf_info->data_rate);
   if (cap_data_rate_bit) printf("Data rate: %.2f bits/s\n", cf_info->data_rate*8);
   if (cap_packet_size) printf("Average packet size: %.2f bytes\n", cf_info->packet_size);
+  if (cap_packet_rate) printf("Average packet rate: %.2f packets/s\n", cf_info->packet_rate);
 }
 
 static int
@@ -200,10 +202,12 @@ process_cap_file(wtap *wth, const char *filename)
 
   if (packet > 0) {
     cf_info.data_rate   = (double)bytes / (stop_time-start_time);  /* Data rate per second */
+    cf_info.packet_rate = (double)packet / (stop_time-start_time); /* packet rate per second */
     cf_info.packet_size = (double)bytes / packet;                  /* Avg packet size      */
   }
   else {
     cf_info.data_rate   = 0.0;
+    cf_info.packet_rate = 0.0;
     cf_info.packet_size = 0.0;
   }
 
@@ -254,6 +258,7 @@ usage(gboolean is_error)
   fprintf(output, "  -y display average data rate (in bytes/s)\n");
   fprintf(output, "  -i display average data rate (in bits/s)\n");
   fprintf(output, "  -z display average packet size (in bytes)\n");
+  fprintf(output, "  -x display average packet rate (in packets/s)\n");
   fprintf(output, "\n");
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h display this help and exit\n");
@@ -306,7 +311,7 @@ main(int argc, char *argv[])
 
   /* Process the options */
 
-  while ((opt = getopt(argc, argv, "tEcsduaeyizvh")) !=-1) {
+  while ((opt = getopt(argc, argv, "tEcsduaeyizvhx")) !=-1) {
 
     switch (opt) {
 
@@ -354,6 +359,10 @@ main(int argc, char *argv[])
       cap_packet_size = TRUE;
       break;
 
+    case 'x':
+      cap_packet_rate = TRUE;
+      break;
+
     case 'h':
       usage(FALSE);
       exit(1);
@@ -381,6 +390,7 @@ main(int argc, char *argv[])
     cap_data_rate_byte = TRUE;
     cap_data_rate_bit = TRUE;
     cap_packet_size = TRUE;
+    cap_packet_rate = TRUE;
   }
 
   if ((argc - optind) < 1) {

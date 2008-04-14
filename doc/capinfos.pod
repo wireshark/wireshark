@@ -17,6 +17,7 @@ S<[ B<-e> ]>
 S<[ B<-y> ]>
 S<[ B<-i> ]>
 S<[ B<-z> ]>
+S<[ B<-x> ]>
 S<[ B<-h> ]>
 E<lt>I<infile>E<gt>
 I<...>
@@ -103,6 +104,10 @@ Displays the average data rate, in bits
 =item -z
 
 displays the average packet size, in bytes
+
+=item -x
+
+displays the average packet rate, in packets
 
 =item -h
 
