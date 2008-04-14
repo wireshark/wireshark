@@ -424,7 +424,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 test_tapa_discover(tvbuff_t *tvb)
 {
-	guint8 type, unknown, req_type;
+	guint8 type, req_type;
 	guint16 length;
 
 	if (tvb_length(tvb) < 4)
@@ -432,13 +432,12 @@ test_tapa_discover(tvbuff_t *tvb)
 
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
 	type = tvb_get_guint8(tvb, 0);
-	unknown = tvb_get_guint8(tvb, 1);
+	/* unknown = tvb_get_guint8(tvb, 1); */
 	length = tvb_get_ntohs(tvb, 2);
 	req_type = tvb_get_guint8(tvb, 4);
 
 	if (type < TAPA_TYPE_REQUEST		||
 	    type > TAPA_TYPE_REPLY_NEW		||
-	    (unknown > 8 && unknown != 0x30)	||
 	    length < 12				||
 	    length > 1472			||
 	    (type == TAPA_TYPE_REQUEST && (req_type < TAPA_REQUEST_SERIAL || req_type > TAPA_REQUEST_MODEL))) {
