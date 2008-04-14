@@ -420,9 +420,6 @@ dlg_conf_window_new(const gchar *title)
    * working with.
    */
   profile_name = get_profile_name();
-  if (!profile_name) {
-     profile_name = DEFAULT_PROFILE;
-  }
 
   win_name = g_strdup_printf("%s - Profile: %s", title, profile_name);
   win = dlg_window_new(win_name);
