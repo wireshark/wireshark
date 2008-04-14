@@ -48,7 +48,7 @@ static int amqp_port = 5672;
     int tmp;\
     tmp = offset;\
     offset += (addend);\
-    DISSECTOR_ASSERT(offset >= tmp && offset <= bound);\
+    DISSECTOR_ASSERT(offset <= bound);\
 }
 
 #define AMQP_FRAME_TYPE_METHOD                                    1
