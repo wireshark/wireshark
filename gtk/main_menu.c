@@ -414,11 +414,6 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
     }
 }
 
-#ifdef HAVE_LUA_5_1
-static gboolean have_items_in_tools_menu = FALSE;
-#endif
-
-
 /* main menu */
 static GtkItemFactoryEntry menu_items[] =
 {
@@ -676,8 +671,6 @@ static GtkItemFactoryEntry menu_items[] =
                        MATCH_SELECTED_AND_NOT, NULL, NULL,},
     {"/Analyze/Prepare a Filter/... o_r not Selected", NULL, GTK_MENU_FUNC(match_selected_ptree_cb),
                        MATCH_SELECTED_OR_NOT, NULL, NULL,},
-    {"/Analyze/Firewall ACL Rules", NULL,
-                       firewall_rule_cb, 0, NULL, NULL,},
     {"/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Analyze/_Enabled Protocols...", "<shift><control>R", GTK_MENU_FUNC(proto_cb), 
                        0, "<StockItem>", WIRESHARK_STOCK_CHECKBOX,},
@@ -700,9 +693,9 @@ static GtkItemFactoryEntry menu_items[] =
                        GTK_MENU_FUNC(init_conversation_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_CONVERSATIONS,},
     {"/Statistics/Endpoints", NULL,
                        GTK_MENU_FUNC(init_hostlist_notebook_cb), 0, "<StockItem>", WIRESHARK_STOCK_ENDPOINTS,},
-#ifdef HAVE_LUA_5_1
     {"/_Tools", NULL, NULL, 0, "<Branch>", NULL,},
-#endif
+    {"/Tools/Firewall ACL Rules", NULL,
+                       firewall_rule_cb, 0, NULL, NULL,},
     {"/_Help", NULL, NULL, 0, "<Branch>", NULL,},
     {"/Help/_Contents", "F1", GTK_MENU_FUNC(topic_menu_cb), HELP_CONTENT, "<StockItem>", GTK_STOCK_HELP,},
     {"/Help/_Supported Protocols", NULL, GTK_MENU_FUNC(supported_cb), 0, NULL, NULL,},
@@ -1145,12 +1138,6 @@ menus_init(void) {
     main_menu_factory = gtk_item_factory_new(GTK_TYPE_MENU_BAR, "<main>", grp);
     gtk_item_factory_create_items_ac(main_menu_factory, nmenu_items, menu_items, NULL, 2);
 
-#ifdef HAVE_LUA_5_1
-    if (! have_items_in_tools_menu) {
-      gtk_widget_hide(gtk_item_factory_get_item(main_menu_factory,"/Tools"));
-    }
-#endif
-
     menu_dissector_filter();
     merge_all_tap_menus(tap_menu_tree_root);
 
@@ -1274,12 +1261,7 @@ register_stat_menu_item_stock(
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
-#ifdef HAVE_LUA_5_1
-    case(REGISTER_TOOLS_GROUP_NONE):
-        toolspath = "/Tools/";
-        have_items_in_tools_menu = TRUE;
-        break;
-#endif
+    case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
     default:
         g_assert(!"no such menu group");
         toolspath = NULL;
@@ -1425,10 +1407,8 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
                 break;
-#ifdef HAVE_LUA_5_1
             case(REGISTER_TOOLS_GROUP_NONE):
                 break;
-#endif
             default:
                 g_assert_not_reached();
             }
@@ -1510,11 +1490,9 @@ void merge_all_tap_menus(GList *node) {
         sep_entry->path = "/Analyze/Conversation Filter/";
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
-#ifdef HAVE_LUA_5_1
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
-#endif
 }
 
 
@@ -2523,8 +2501,6 @@ set_menus_for_selected_packet(capture_file *cf)
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/SCTP",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_SCTP) : FALSE);
-  set_menu_sensitivity(main_menu_factory, "/Analyze/Firewall ACL Rules",
-      cf->current_frame != NULL);
   set_menu_sensitivity(main_menu_factory, "/Analyze/Follow TCP Stream",
       cf->current_frame != NULL ? (cf->edt->pi.ipproto == IP_PROTO_TCP) : FALSE);
   set_menu_sensitivity(packet_list_menu_factory, "/Follow TCP Stream",
@@ -2582,6 +2558,8 @@ set_menus_for_selected_packet(capture_file *cf)
   set_menu_sensitivity(packet_list_menu_factory, "/Apply as Filter",
       cf->current_frame != NULL);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare a Filter",
+      cf->current_frame != NULL);
+  set_menu_sensitivity(main_menu_factory, "/Tools/Firewall ACL Rules",
       cf->current_frame != NULL);
 
   walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
