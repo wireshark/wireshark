@@ -203,13 +203,15 @@ typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_main* WireShark;
 typedef struct _wslua_dir* Dir;
 
+
 /*
  * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
  * checkXxx(L,idx) gets a Xxx from an index after calling check_code (No Lua Error if it fails)
  * pushXxx(L,xxx) pushes an Xxx into the stack
  * isXxx(L,idx) tests whether we have an Xxx at idx
- *
- * LUA_CLASS_DEFINE must be used without trailing ';'
+ * shiftXxx(L,idx) removes and returns an Xxx from idx only if it has a type of Xxx, returns NULL otherwise
+ * WSLUA_CLASS_DEFINE must be used with a trailing ';'
+ * (a dummy typedef is used to be syntactically correct)
  */
 #define WSLUA_CLASS_DEFINE(C,check_code,push_code) \
 C to##C(lua_State* L, int index) { \
@@ -249,7 +251,7 @@ C shift##C(lua_State* L,int i) { \
 	if (p) { lua_remove(L,i); return *p; }\
 	else return NULL;\
 } \
-int dummy##C
+typedef int dummy##C
 
 #ifdef HAVE_LUA_5_1
 

@@ -28,8 +28,10 @@
 
 use strict;
 
-my $root = shift;
-my $WSROOT = $root  . "/../..";
+my $cd = shift;
+my $WSROOT = $cd  . "/../..";
+
+die "'$cd' is not a directory" unless -d $cd;
 
 my $wtap_encaps_table = '';
 my $ft_types_table = '';
@@ -50,8 +52,11 @@ my %replacements = %{{
 # load template
 #
 my $template = '';
-$template .= $_ while(<>);
+my $template_filename = shift;
 
+open TEMPLATE, "< $template_filename" or die "could not open '$template_filename'";
+$template .= $_ while(<TEMPLATE>);
+close TEMPLATE;
 
 #
 # make wiretap encapusulation table 
