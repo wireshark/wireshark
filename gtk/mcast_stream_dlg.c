@@ -499,7 +499,7 @@ static void mcaststream_dlg_create (void)
     GtkWidget *column_lb;
     int i;
 
-    mcaststream_dlg_w = dlg_window_new("Wireshark: Multicast Streams");
+    mcaststream_dlg_w = dlg_window_new("Wireshark: UDP Multicast Streams");
     gtk_window_set_default_size(GTK_WINDOW(mcaststream_dlg_w), 620, 400);
 
     main_vb = gtk_vbox_new (FALSE, 0);
@@ -688,6 +688,6 @@ static void mcaststream_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_mcast_stream_dlg(void)
 {
-	register_stat_menu_item("Multicast Streams", REGISTER_STAT_GROUP_NONE,
+	register_stat_menu_item("UDP Multicast Streams", REGISTER_STAT_GROUP_NONE,
 	    mcaststream_launch, NULL, NULL, NULL);
 }
