@@ -51,7 +51,7 @@ static const gchar* port_type_to_str (port_type type) {
 
 /* ip host stats_tree -- basic test */
 static int st_node_ip = -1;
-static const gchar* st_str_ip = "IP address";
+static const gchar* st_str_ip = "IP Addresses";
 
 static void ip_hosts_stats_tree_init(stats_tree* st) {
 	st_node_ip = stats_tree_create_node(st, st_str_ip, 0, TRUE);	
@@ -73,7 +73,7 @@ static int ip_hosts_stats_tree_packet(stats_tree *st  , packet_info *pinfo, epan
 
 /* packet type stats_tree -- test pivot node */
 static int st_node_ptype = -1;
-static const gchar* st_str_ptype = "Port Type";
+static const gchar* st_str_ptype = "IP Protocol Types";
 
 static void ptype_stats_tree_init(stats_tree* st) {
 	st_node_ptype = stats_tree_create_pivot(st, st_str_ptype, 0);
@@ -91,7 +91,7 @@ static int ptype_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_diss
 
 /* packet length stats_tree -- test range node */ 
 static int st_node_plen = -1;
-static const gchar* st_str_plen = "Packet Length";
+static const gchar* st_str_plen = "Packet Lengths";
 
 static void plen_stats_tree_init(stats_tree* st) {
 	st_node_plen = stats_tree_create_range_node(st, st_str_plen, 0, "0-19","20-39","40-79","80-159","160-319","320-639","640-1279","1280-2559","2560-5119","5120-",NULL);
@@ -111,7 +111,7 @@ static int plen_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_disse
 
 */
 static int st_node_dsts = -1;
-static const gchar* st_str_dsts = "Destinations";
+static const gchar* st_str_dsts = "IP Destinations";
 
 static void dsts_stats_tree_init(stats_tree* st) {
 	st_node_dsts = stats_tree_create_node(st, st_str_dsts, 0, TRUE);	
