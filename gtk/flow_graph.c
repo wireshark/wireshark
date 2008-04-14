@@ -50,6 +50,7 @@
 #include "gtk/gui_stat_menu.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_utils.h"
+#include "gtk/stock_icons.h"
 #include "gtk/gtkglobals.h"
 
 
@@ -670,7 +671,8 @@ void
 register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap,NULL);
-	register_stat_menu_item("Flo_w Graph...", REGISTER_STAT_GROUP_NONE,
+	register_stat_menu_item_stock("Flo_w Graph...", 
+        REGISTER_STAT_GROUP_NONE, WIRESHARK_STOCK_FLOW_GRAPH,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    
 }

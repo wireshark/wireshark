@@ -647,9 +647,11 @@ EXTRA_DIST = \
 	image/toolbar/decode_as_16.xpm	\
 	image/toolbar/display_filter_24.xpm	\
 	image/toolbar/endpoints_16.xpm	\
+	image/toolbar/expert_info_16.xpm	\
 	image/toolbar/file_set_list_16.xpm	\
 	image/toolbar/file_set_next_16.xpm	\
 	image/toolbar/file_set_previous_16.xpm	\
+	image/toolbar/flow_graph_16.xpm	\
 	image/toolbar/graphs_16.xpm	\
 	image/toolbar/icon_color_0.xpm	\
 	image/toolbar/icon_color_1.xpm	\

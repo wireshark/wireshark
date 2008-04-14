@@ -58,6 +58,8 @@
 #include "../image/toolbar/wiki_24.xpm"
 #include "../image/toolbar/conversations_16.xpm"
 #include "../image/toolbar/endpoints_16.xpm"
+#include "../image/toolbar/expert_info_16.xpm"
+#include "../image/toolbar/flow_graph_16.xpm"
 #include "../image/toolbar/graphs_16.xpm"
 #include "../image/toolbar/telephony_16.xpm"
 #include "../image/toolbar/decode_as_16.xpm"
@@ -120,7 +122,9 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_WIKI,                  "Wiki",                  0, 0, NULL },
         { WIRESHARK_STOCK_CONVERSATIONS,         "Conversations",         0, 0, NULL },
         { WIRESHARK_STOCK_ENDPOINTS,             "Endpoints",             0, 0, NULL },
+        { WIRESHARK_STOCK_EXPERT_INFO,           "Expert Info",           0, 0, NULL },
         { WIRESHARK_STOCK_GRAPHS,                "Graphs",                0, 0, NULL },
+        { WIRESHARK_STOCK_FLOW_GRAPH,            "Flow Graph",            0, 0, NULL },
         { WIRESHARK_STOCK_TELEPHONY,             "Telephony",             0, 0, NULL },
         { WIRESHARK_STOCK_DECODE_AS,             "Decode As",             0, 0, NULL },
         { WIRESHARK_STOCK_CHECKBOX,              "Checkbox",              0, 0, NULL },
@@ -171,7 +175,9 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_WIKI,                  wiki_24_xpm},
         { WIRESHARK_STOCK_CONVERSATIONS,         conversations_16_xpm},
         { WIRESHARK_STOCK_ENDPOINTS,             endpoints_16_xpm},
+        { WIRESHARK_STOCK_EXPERT_INFO,           expert_info_16_xpm},
         { WIRESHARK_STOCK_GRAPHS,                graphs_16_xpm},
+        { WIRESHARK_STOCK_FLOW_GRAPH,            flow_graph_16_xpm},
         { WIRESHARK_STOCK_TELEPHONY,             telephony_16_xpm},
         { WIRESHARK_STOCK_DECODE_AS,             decode_as_16_xpm},
         { WIRESHARK_STOCK_CHECKBOX,              checkbox_16_xpm},
