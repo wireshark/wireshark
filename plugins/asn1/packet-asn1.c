@@ -2692,6 +2692,7 @@ showGNodes(GNode *p, int n)
 	showGNodes(p->next, n);
 }
 
+#if 0
 static void showGenv(GNode *p, int n, int m)
 {
 	int i;
@@ -2709,6 +2710,7 @@ static void showGenv(GNode *p, int n, int m)
 	if (p && asn1_verbose) g_message("%*s.....", n*2, empty);
 
 }
+#endif
 
 static void
 debug_dump_TT(void)		/* dump contents of TT struct, for debugging */
@@ -4093,6 +4095,7 @@ showstack(statestack *pos, char *txt, int n)
 	g_message(buf);
 }
 
+#if 0
 static void
 showrefNode(GNode *node, int n)
 {
@@ -4121,7 +4124,9 @@ showrefNode(GNode *node, int n)
 	if (ref)
 		showrefNode(ref, n+1);
 }
+#endif
 
+#if 0
 static void
 showNode(GNode *node, int n, int m)
 {
@@ -4150,6 +4155,7 @@ showNode(GNode *node, int n, int m)
 	if (node->children) showNode(node->children, n+1, m);
 	if (node->next) showNode(node->next, n, m);
 }
+#endif
 
 static void
 PDUreset(int count, int count2)
