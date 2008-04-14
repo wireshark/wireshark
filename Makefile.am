@@ -603,6 +603,12 @@ EXTRA_DIST = \
 	image/dn_arrow.xpm	\
 	image/dumpcap.rc.in	\
 	image/editcap.rc.in	\
+	image/expert_chat.xpm	\
+	image/expert_error.xpm	\
+	image/expert_none.xpm	\
+	image/expert_note.xpm	\
+	image/expert_warn.xpm	\
+	image/file_dlg_win32.rc \
 	image/hi16-app-wireshark.png	\
 	image/hi32-app-wireshark.png	\
 	image/hi48-app-wireshark.png	\
@@ -680,14 +686,12 @@ EXTRA_DIST = \
 	image/toolbar/wiki_24.xpm	\
 	image/tshark.rc.in	\
 	image/up_arrow.xpm	\
-	image/file_dlg_win32.rc \
 	image/wiresharkdoc.ico	\
-	image/wiresharkinst.ico	\
 	image/wireshark.exe.manifest.in \
 	image/wireshark.ico	\
+	image/wiresharkinst.ico	\
 	image/wireshark.rc.in	\
 	image/wiretap.rc.in	\
-	image/wsicon.svg	\
 	image/wsicon16.png	\
 	image/wsicon16.xpm	\
 	image/wsicon256.png	\
@@ -697,15 +701,16 @@ EXTRA_DIST = \
 	image/wsicon48.xpm	\
 	image/wsicon64.png	\
 	image/wsicon64.xpm	\
-	image/wsiconcap.svg	\
 	image/wsiconcap16.xpm	\
 	image/wsiconcap256.png	\
 	image/wsiconcap32.xpm	\
 	image/wsiconcap48.xpm	\
-	image/wsicondoc.svg	\
+	image/wsiconcap.svg	\
 	image/wsicondoc256.png	\
-	image/wsiconinst.svg	\
+	image/wsicondoc.svg	\
 	image/wsiconinst256.png	\
+	image/wsiconinst.svg	\
+	image/wsicon.svg	\
 	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
@@ -882,7 +887,7 @@ svr4-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA)
 
 solaris-package: svr4-package
 
-rpm_topdir=`cd $(top_srcdir) && pwd`/packaging/rpm
+rpm_topdir=`cd $(top_builddir) && pwd`/packaging/rpm
 rpm-package: dist
 	if test x$(HAVE_RPM) = xyes ; then \
 		cd $(rpm_topdir) ; \
