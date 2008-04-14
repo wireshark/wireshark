@@ -97,6 +97,7 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8, FALSE);
 		asf_tree = proto_item_add_subtree(ti, ett_asf);
+		/* FIXME: resolve enterprise ID */
 		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4, FALSE);
 		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1, FALSE);
 		proto_tree_add_item(asf_tree, hf_asf_tag, tvb, 5, 1, FALSE);
