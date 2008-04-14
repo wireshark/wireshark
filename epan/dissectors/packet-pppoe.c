@@ -1,6 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
- *
+ * Up to date with http://www.iana.org/assignments/pppoe-parameters (2007-07-10)
+ * 
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -54,7 +55,22 @@ static gint hf_pppoed_tag_host_uniq = -1;
 static gint hf_pppoed_tag_ac_cookie = -1;
 static gint hf_pppoed_tag_vendor_id = -1;
 static gint hf_pppoed_tag_vendor_unspecified = -1;
+static gint hf_pppoed_tag_credits = -1;
+static gint hf_pppoed_tag_credits_fcn = -1;
+static gint hf_pppoed_tag_credits_bcn = -1;
+static gint hf_pppoed_tag_metrics = -1;
+static gint hf_pppoed_tag_metrics_r = -1;
+static gint hf_pppoed_tag_metrics_rlq = -1;
+static gint hf_pppoed_tag_metrics_resource = -1;
+static gint hf_pppoed_tag_metrics_latency = -1;
+static gint hf_pppoed_tag_metrics_curr_drate = -1;
+static gint hf_pppoed_tag_metrics_max_drate = -1;
+static gint hf_pppoed_tag_seq_num = -1;
 static gint hf_pppoed_tag_relay_session_id = -1;
+static gint hf_pppoed_tag_hurl = -1;
+static gint hf_pppoed_tag_motm = -1;
+static gint hf_pppoed_tag_max_payload = -1;
+static gint hf_pppoed_tag_ip_route_add = -1;
 static gint hf_pppoed_tag_service_name_error = -1;
 static gint hf_pppoed_tag_ac_system_error = -1;
 static gint hf_pppoed_tag_generic_error = -1;
@@ -73,11 +89,16 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 
 
 #define PPPOE_CODE_SESSION    0x00
-#define PPPOE_CODE_PADO       0x7
-#define PPPOE_CODE_PADI       0x9
+#define PPPOE_CODE_PADO       0x07
+#define PPPOE_CODE_PADI       0x09
+#define PPPOE_CODE_PADG       0x10
+#define PPPOE_CODE_PADC       0x11
+#define PPPOE_CODE_PADQ       0x12
 #define PPPOE_CODE_PADR       0x19
 #define PPPOE_CODE_PADS       0x65
 #define PPPOE_CODE_PADT       0xa7
+#define PPPOE_CODE_PADM       0xd3
+#define PPPOE_CODE_PADN       0xd4
 
 #define PPPOE_TAG_EOL         0x0000
 #define PPPOE_TAG_SVC_NAME    0x0101
@@ -85,7 +106,14 @@ static gboolean global_pppoe_show_tags_and_lengths = FALSE;
 #define PPPOE_TAG_HOST_UNIQ   0x0103
 #define PPPOE_TAG_AC_COOKIE   0x0104
 #define PPPOE_TAG_VENDOR      0x0105
+#define PPPOE_TAG_CREDITS     0x0106
+#define PPPOE_TAG_METRICS     0x0107
+#define PPPOE_TAG_SEQ_NUM     0x0108
 #define PPPOE_TAG_RELAY_ID    0x0110
+#define PPPOE_TAG_HURL        0x0111
+#define PPPOE_TAG_MOTM        0x0112
+#define PPPOE_TAG_MAX_PAYLD   0x0120
+#define PPPOE_TAG_IP_RT_ADD   0x0121
 #define PPPOE_TAG_SVC_ERR     0x0201
 #define PPPOE_TAG_AC_ERR      0x0202
 #define PPPOE_TAG_GENERIC_ERR 0x0203
@@ -94,9 +122,14 @@ static const value_string code_vals[] = {
 		{PPPOE_CODE_SESSION, "Session Data"                             },
 		{PPPOE_CODE_PADO, "Active Discovery Offer (PADO)"               },
 		{PPPOE_CODE_PADI, "Active Discovery Initiation (PADI)"          },
+		{PPPOE_CODE_PADG, "Active Discovery Session-Grant (PADG)"       },
+		{PPPOE_CODE_PADC, "Active Discovery Session-Credit Resp.(PADC)" },
+		{PPPOE_CODE_PADQ, "Active Discovery Quality (PADQ)"             },
 		{PPPOE_CODE_PADR, "Active Discovery Request (PADR)"             },
 		{PPPOE_CODE_PADS, "Active Discovery Session-confirmation (PADS)"},
 		{PPPOE_CODE_PADT, "Active Discovery Terminate (PADT)"           },
+		{PPPOE_CODE_PADM, "Active Discovery Message (PADM)"             },
+		{PPPOE_CODE_PADN, "Active Discovery Network (PADN)"             },
 		{0,               NULL                                          }
 };
 
@@ -108,7 +141,14 @@ static const value_string tag_vals[] = {
 		{PPPOE_TAG_HOST_UNIQ,  "Host-Uniq"         },
 		{PPPOE_TAG_AC_COOKIE,  "AC-Cookie"         },
 		{PPPOE_TAG_VENDOR,     "Vendor-Specific"   },
+		{PPPOE_TAG_CREDITS,    "Credits"           },
+		{PPPOE_TAG_METRICS,    "Metrics"           },
+		{PPPOE_TAG_SEQ_NUM,    "Seqence Number"    },
 		{PPPOE_TAG_RELAY_ID,   "Relay-Session-Id"  },
+		{PPPOE_TAG_HURL,       "HURL"              },
+		{PPPOE_TAG_MOTM,       "MOTM"              },
+		{PPPOE_TAG_MAX_PAYLD,  "PPP-Max-Payload"   },
+		{PPPOE_TAG_IP_RT_ADD,  "IP Route Add"      },
 		{PPPOE_TAG_SVC_ERR,    "Service-Name-Error"},
 		{PPPOE_TAG_AC_ERR,     "AC-System-Error"   },
 		{PPPOE_TAG_GENERIC_ERR,"Generic-Error"     },
@@ -141,7 +181,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 		tagstart = offset;
 
 		/* Loop until all data seen or End-Of-List tag found */
-		while (tagstart <= payload_length-2 )
+		while (tagstart <= payload_length-2)
 		{
 			poe_tag = tvb_get_ntohs(tvb, tagstart);
 			poe_tag_length = tvb_get_ntohs(tvb, tagstart + 2);
@@ -157,16 +197,19 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 			switch (poe_tag)
 			{
 				case PPPOE_TAG_SVC_NAME:
-					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					if (poe_tag_length > 0)
+					{
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_service_name, tvb,
+						                    tagstart+4, poe_tag_length, FALSE);
+					}
 					break;
 				case PPPOE_TAG_AC_NAME:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_name, tvb,
 					                    tagstart+4, poe_tag_length, FALSE);
 					/* Show AC-Name in info column */
-					if (check_col(pinfo->cinfo,COL_INFO))
+					if (check_col(pinfo->cinfo, COL_INFO))
 					{
-						col_append_fstr(pinfo->cinfo, COL_INFO, "  AC-Name='%s'",
+						col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'",
 						               tvb_get_ephemeral_string(tvb, tagstart+4, poe_tag_length));
 					}
 					break;
@@ -190,8 +233,60 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						                    tagstart+4+4, poe_tag_length-4, FALSE);
 					}
 					break;
+				case PPPOE_TAG_CREDITS:
+					if (poe_tag_length == 4)
+					{
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits_fcn, tvb,
+						                    tagstart+4, 2, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits_bcn, tvb,
+						                    tagstart+6, 2, FALSE);
+					} else {
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
+						                    tagstart+4, poe_tag_length, FALSE);
+					}
+					break;
+				case PPPOE_TAG_METRICS:
+					if (poe_tag_length == 10)
+					{
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
+						                    tagstart+4, 2, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_rlq, tvb,
+						                    tagstart+6, 1, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_resource, tvb,
+						                    tagstart+7, 1, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_latency, tvb,
+						                    tagstart+8, 2, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_curr_drate, tvb,
+						                    tagstart+10, 2, FALSE);
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_max_drate, tvb,
+						                    tagstart+12, 2, FALSE);
+					} else {
+						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics, tvb,
+						                    tagstart+4, poe_tag_length, FALSE);
+					}
+					break;
+				case PPPOE_TAG_SEQ_NUM:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_seq_num, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_HURL:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_hurl, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_MOTM:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_motm, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_MAX_PAYLD:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_max_payload, tvb,
+					                    tagstart+4, poe_tag_length, FALSE);
+					break;
+				case PPPOE_TAG_IP_RT_ADD:
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ip_route_add, tvb,
 					                    tagstart+4, poe_tag_length, FALSE);
 					break;
 
@@ -221,7 +316,10 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						   show tag value if we didn't
 						   do it above */
 						if (!global_pppoe_show_tags_and_lengths)
+						{
 							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
+						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
 						                    tagstart+4, poe_tag_length, FALSE);
 					}
@@ -239,24 +337,24 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8  pppoe_code;
 	guint16 reported_payload_length;
 
-	proto_tree  *pppoe_tree;
+	proto_tree  *pppoe_tree = NULL;
 	proto_item  *ti;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	{
-		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoED");
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPPoED");
 	}
-	if (check_col(pinfo->cinfo,COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_clear(pinfo->cinfo,COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	/* Start Decoding Here. */
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->cinfo,COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_add_str(pinfo->cinfo,COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(pppoe_code, code_vals, "Unknown"));
 	}
 
 	/* Read length of payload */
@@ -264,7 +362,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_pppoed, tvb,0, reported_payload_length+6, FALSE);
+		ti = proto_tree_add_item(tree, proto_pppoed, tvb, 0, reported_payload_length+6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 
 		/* Dissect fixed fields */
@@ -278,7 +376,7 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Now dissect any tags */
 	if (reported_payload_length > 0)
 	{
-		dissect_pppoe_tags(tvb, pinfo, 6, tree, 6+reported_payload_length);
+		dissect_pppoe_tags(tvb, pinfo, 6, pppoe_tree, 6+reported_payload_length);
 	}
 
 }
@@ -331,7 +429,7 @@ void proto_register_pppoed(void)
 			}
 		},
 		{ &hf_pppoed_tag_unknown_data,
-			{ "Unknown Data", "pppoed.tag.unknown_data", FT_STRING, BASE_HEX,
+			{ "Unknown Data", "pppoed.tag.unknown_data", FT_BYTES, BASE_NONE,
 				 NULL, 0x0, "", HFILL
 			}
 		},
@@ -365,8 +463,83 @@ void proto_register_pppoed(void)
 				 NULL, 0x0, "", HFILL
 			}
 		},
+		{ &hf_pppoed_tag_credits,
+			{ "Credits", "pppoed.tags.credits", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_credits_fcn,
+			{ "FCN", "pppoed.tags.credits.fcn", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_credits_bcn,
+			{ "BCN", "pppoed.tags.credits.bcn", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics,
+			{ "Metrics", "pppoed.tags.metrics", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_r,
+			{ "Receive Only", "pppoed.tags.metrics.r", FT_BOOLEAN, 16,
+				 NULL, 0x01, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_rlq,
+			{ "Relative Link Quality", "pppoed.tags.metrics.rlq", FT_UINT8, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_resource,
+			{ "Resource", "pppoed.tags.metrics.resource", FT_UINT8, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_latency,
+			{ "Latency", "pppoed.tags.metrics.latency", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_curr_drate,
+			{ "Curr. datarate", "pppoed.tags.metrics.curr_drate", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_metrics_max_drate,
+			{ "Max. datarate", "pppoed.tags.metrics.max_drate", FT_UINT16, BASE_DEC,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_seq_num,
+			{ "Sequence Number", "pppoed.tags.seq_num", FT_UINT16, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
 		{ &hf_pppoed_tag_relay_session_id,
 			{ "Relay-Session-Id", "pppoed.tags.relay_session_id", FT_BYTES, BASE_NONE,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_hurl,
+			{ "HURL", "pppoed.tags.hurl", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_motm,
+			{ "MOTM", "pppoed.tags.motm", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_max_payload,
+			{ "PPP Max Palyload", "pppoed.tags.max_payload", FT_BYTES, BASE_HEX,
+				 NULL, 0x0, "", HFILL
+			}
+		},
+		{ &hf_pppoed_tag_ip_route_add,
+			{ "IP Route Add", "pppoed.tags.ip_route_add", FT_BYTES, BASE_HEX,
 				 NULL, 0x0, "", HFILL
 			}
 		},
@@ -401,7 +574,7 @@ void proto_register_pppoed(void)
 	proto_register_field_array(proto_pppoed, hf, array_length(hf));
 
 	/* Preference setting */
-	pppoed_module = prefs_register_protocol(proto_pppoed, proto_reg_handoff_pppoed);
+	pppoed_module = prefs_register_protocol(proto_pppoed, NULL);
 	prefs_register_bool_preference(pppoed_module, "show_tags_and_lengths",
 	                               "Show tag values and lengths",
 	                               "Show values of tags and lengths of data fields",
