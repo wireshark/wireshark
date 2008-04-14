@@ -137,7 +137,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     tooltips = gtk_tooltips_new ();
 
     /* dialog window */
-    edit_dialog = dlg_window_new ("Wireshark: Edit Color Filter");
+    edit_dialog = dlg_conf_window_new ("Wireshark: Edit Color Filter");
     gtk_window_set_default_size(GTK_WINDOW(edit_dialog), 500, -1);
     g_object_set_data(G_OBJECT(edit_dialog), "edit_dialog", edit_dialog);
     colorf->edit_dialog = edit_dialog;

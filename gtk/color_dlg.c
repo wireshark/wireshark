@@ -215,7 +215,7 @@ colorize_dialog_new (char *filter)
   /* Resizing of the dialog window is now reasonably done.
    * Default size is set so that it should fit into every usual screen resolution.
    * All other widgets are always packed depending on the current window size. */
-  color_win = dlg_window_new ("Wireshark: Coloring Rules");
+  color_win = dlg_conf_window_new ("Wireshark: Coloring Rules");
   g_object_set_data(G_OBJECT(color_win), "color_win", color_win);
   gtk_window_set_default_size(GTK_WINDOW(color_win), DEF_WIDTH, DEF_HEIGHT * 2/3);
   dlg_vbox = gtk_vbox_new (FALSE, 0);

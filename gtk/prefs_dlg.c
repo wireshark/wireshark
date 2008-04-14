@@ -436,7 +436,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
      if the user presses "Cancel". */
   copy_prefs(&saved_prefs, &prefs);
 
-  prefs_w = dlg_window_new("Wireshark: Preferences");
+  prefs_w = dlg_conf_window_new("Wireshark: Preferences");
 
   /*
    * Unfortunately, we can't arrange that a GtkTable widget wrap an event box

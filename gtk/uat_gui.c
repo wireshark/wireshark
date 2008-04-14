@@ -408,7 +408,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 	tooltips = gtk_tooltips_new();
 	
 	dd->entries = g_ptr_array_new();
-	dd->win = dlg_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
+	dd->win = dlg_conf_window_new(ep_strdup_printf("%s: %s", uat->name, (row == -1 ? "New" : "Edit")));
 	dd->uat = uat;
 	dd->rec = row < 0 ? g_malloc0(uat->record_size) : UAT_INDEX_PTR(uat,row);
 	dd->is_new = row < 0 ? TRUE : FALSE;
@@ -558,7 +558,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 	ud->uat = uat;
 	ud->idx = idx;
-	ud->win = win = dlg_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
+	ud->win = win = dlg_conf_window_new(ep_strdup_printf("%s: Confirm Delete", uat->name));
 	
 	gtk_window_set_resizable(GTK_WINDOW(win),FALSE);
 	gtk_window_resize(GTK_WINDOW(win),400,25*(uat->ncols+2));
@@ -779,7 +779,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 		return TRUE;
 	}
 
-	uat->rep->unsaved_window = win = window_new(GTK_WINDOW_TOPLEVEL, "Discard Changes?");
+	uat->rep->unsaved_window = win = dlg_conf_window_new("Discard Changes?");
 	gtk_window_set_default_size(GTK_WINDOW(win), 360, 140);
 
 	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
@@ -828,7 +828,7 @@ static GtkWidget* uat_window(void* u) {
 		uat->rep = rep = g_malloc0(sizeof(uat_rep_t));
 	}
 
-	rep->window = window_new(GTK_WINDOW_TOPLEVEL, uat->name);
+	rep->window = dlg_conf_window_new(uat->name);
 
 	gtk_window_set_resizable(GTK_WINDOW(rep->window),FALSE);
 	gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);

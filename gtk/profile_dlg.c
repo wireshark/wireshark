@@ -669,7 +669,7 @@ profile_dialog_new(void)
   
   tooltips = gtk_tooltips_new ();
   
-  main_w = dlg_window_new("Wireshark: Configuration Profiles");
+  main_w = dlg_conf_window_new("Wireshark: Configuration Profiles");
   gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
   
   main_vb = gtk_vbox_new(FALSE, 0);

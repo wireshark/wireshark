@@ -35,6 +35,8 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/stock_icons.h"
 
+#include "epan/filesystem.h"
+
 
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
@@ -399,6 +401,33 @@ dlg_window_new(const gchar *title)
   }
 
   g_signal_connect(win, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
+
+  return win;
+}
+
+/* Create a configuration dialog box window that belongs to Wireshark's
+ * main window and add the name of the current profile name to it's title bar
+ */
+GtkWidget *
+dlg_conf_window_new(const gchar *title)
+{
+  const char *profile_name; 
+  gchar      *win_name;
+  GtkWidget  *win;
+
+  /*
+   * Set window title to reflect which preferences profile we are
+   * working with.
+   */
+  profile_name = get_profile_name();
+  if (!profile_name) {
+     profile_name = DEFAULT_PROFILE;
+  }
+
+  win_name = g_strdup_printf("%s - Profile: %s", title, profile_name);
+  win = dlg_window_new(win_name);
+
+  g_free(win_name);
 
   return win;
 }

@@ -79,6 +79,16 @@
  */
 extern GtkWidget *dlg_window_new(const gchar *title);
 
+/** Create a configuration dialog box window that belongs to Wireshark's
+ * main window and add the name of the current profile name to it's title bar
+ * If you want to create a window, use window_new() instead.
+ * See window_new() for general window usage.
+ *
+ * @param title the title for the new dialog
+ * @return the newly created dialog
+ */
+extern GtkWidget *dlg_conf_window_new(const gchar *title);
+
 /** Create a button row (with variable number of buttons) for a dialog.
  *  The button widgets will be available by g_object_get_data(dlg, stock_id) later.
  *
