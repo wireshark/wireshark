@@ -1261,7 +1261,9 @@ register_stat_menu_item_stock(
     case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
+#ifdef HAVE_LUA_5_1
     case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
+#endif
     default:
         g_assert(!"no such menu group");
         toolspath = NULL;
@@ -1407,8 +1409,10 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 break;
             case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
                 break;
+#ifdef HAVE_LUA_5_1
             case(REGISTER_TOOLS_GROUP_NONE):
                 break;
+#endif
             default:
                 g_assert_not_reached();
             }
@@ -1490,9 +1494,11 @@ void merge_all_tap_menus(GList *node) {
         sep_entry->path = "/Analyze/Conversation Filter/";
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
+#ifdef HAVE_LUA_5_1
     if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
+#endif
 }
 
 
