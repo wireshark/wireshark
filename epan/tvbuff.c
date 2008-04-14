@@ -731,6 +731,7 @@ tvb_set_reported_length(tvbuff_t* tvb, guint reported_length)
 }
 
 
+#if 0
 static const guint8*
 first_real_data_ptr(tvbuff_t *tvb)
 {
@@ -750,6 +751,7 @@ first_real_data_ptr(tvbuff_t *tvb)
 	DISSECTOR_ASSERT_NOT_REACHED();
 	return NULL;
 }
+#endif
 
 int
 offset_from_real_beginning(tvbuff_t *tvb, int counter)
