@@ -45,7 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %prefix/lib/*
 %prefix/share/wireshark/*
 %prefix/share/wireshark/*/*
-%prefix/man/*/*
+%prefix/share/man/*/*
 
 %changelog
 * Thu Aug 10 2006 Joerg Mayer
