@@ -143,7 +143,7 @@ static int ett_ie_resource_inf = -1;
 static int ett_ie_rlm_cause	=-1;
 static int ett_ie_staring_time = -1;
 static int ett_ie_timing_adv = -1;
-static int ett_ie_uplik_meas = -1;
+static int ett_ie_uplink_meas = -1;
 static int ett_ie_full_imm_ass_inf = -1;
 static int ett_ie_smscb_inf = -1;
 static int ett_ie_ms_timing_offset = -1;
@@ -177,6 +177,8 @@ static int ett_ie_sys_info_type = -1;
 proto_tree *top_tree;
 dissector_handle_t gsm_a_ccch_handle = NULL;
 dissector_handle_t gsm_a_dtap_handle = NULL;
+
+static gboolean is_si2q = FALSE;
 
 /* Forward declarations */
 static int dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -428,7 +430,7 @@ static const value_string rsl_ie_type_vals[] = {
 	{  0x18,	"Timing Advance" },				/*  9.3.24 */
 	{  0x19,	"Uplink Measurements" },		/*  9.3.25 */
 	{  0x1a,	"Cause" },						/*  9.3.26 */
-	{  0x1b,	"Measurement result number" },	/*  9.3.27 */
+	{  0x1b,	"Measurement Result Number" },	/*  9.3.27 */
 	{  0x1c,	"Message Identifier" },			/*  9.3.28 */
 	{  0x1d,	"reserved" },					/*  */
 	{  0x1e,	"System Info Type" },			/*  9.3.30 */
@@ -443,26 +445,26 @@ static const value_string rsl_ie_type_vals[] = {
 	{  0x27,	"Full BCCH Information" },		/*  9.3.39 */
 	{  0x28,	"Channel Needed" },				/*  9.3.40 */
 	{  0x29,	"CB Command type" },			/*  9.3.41 */
-	{  0x2a,	"SMSCB message" },				/*  9.3.42 */
+	{  0x2a,	"SMSCB Message" },				/*  9.3.42 */
 	{  0x2b,	"Full Immediate Assign Info" },	/*  9.3.35 */
 	{  0x2c,	"SACCH Information" },			/*  9.3.29 */
 	{  0x2d,	"CBCH Load Information" },		/*  9.3.43 */
 	{  0x2e,	"SMSCB Channel Indicator" },	/*  9.3.44 */
-	{  0x2f,	"Group call reference" },		/*  9.3.45 */
-	{  0x30,	"Channel description" },		/*  9.3.46 */
-	{  0x31,	"NCH DRX information" },		/*  9.3.47 */
-	{  0x32,	"Command indicator" },			/*  9.3.48 */
+	{  0x2f,	"Group Call Reference" },		/*  9.3.45 */
+	{  0x30,	"Channel Description" },		/*  9.3.46 */
+	{  0x31,	"NCH DRX Information" },		/*  9.3.47 */
+	{  0x32,	"Command Indicator" },			/*  9.3.48 */
 	{  0x33,	"eMLPP Priority" },				/*  9.3.49 */
 	{  0x34,	"UIC" },						/*  9.3.50 */
-	{  0x35,	"Main channel reference" },		/*  9.3.51 */
-	{  0x36,	"MultiRate configuration" },	/*  9.3.52 */
+	{  0x35,	"Main Channel Reference" },		/*  9.3.51 */
+	{  0x36,	"MultiRate Configuration" },	/*  9.3.52 */
 	{  0x37,	"MultiRate Control" },			/*  9.3.53 */
 	{  0x38,	"Supported Codec Types" },		/*  9.3.54 */
 	{  0x39,	"Codec Configuration" },		/*  9.3.55 */
 	{  0x3a,	"Round Trip Delay" },			/*  9.3.56 */
 	{  0x3b,	"TFO Status" },					/*  9.3.57 */
 	{  0x3c,	"LLP APDU" },					/*  9.3.58 */
-	{  0x3d,	"TFO transparent container" },	/*  9.3.59 */
+	{  0x3d,	"TFO Transparent Container" },	/*  9.3.59 */
 	/*
 			0 0 1 1 1 1 1 0
 			to
@@ -572,7 +574,7 @@ dissect_rsl_ie_link_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 			return offset;
 	}
 
-	ti = proto_tree_add_text(tree, tvb,offset,2,"Link Identifier IE ");
+	ti = proto_tree_add_text(tree, tvb,offset,2, "Link Identifier IE ");
 	ie_tree = proto_item_add_subtree(ti, ett_ie_link_id);
 
 	/* Element identifier */
@@ -935,10 +937,10 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		proto_tree_add_text(ie_tree, tvb,offset,1,"Speech or data indicator != 1,2 or 3");
 		break;
 	}
+
 	offset++;
 
 	return ie_offset + length;
-
 }
 
 /*
@@ -987,7 +989,6 @@ dissect_rsl_ie_enc_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
  	offset++;
 
 	/* Algorithm Identifier field (octet 3) */
-
 	proto_tree_add_item(ie_tree, hf_rsl_alg_id, tvb, offset, 1, FALSE);
 
 	/* key */
@@ -1129,12 +1130,11 @@ dissect_rsl_ie_L3_inf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	length = tvb_get_ntohs(tvb, offset);
 	proto_item_set_len(ti, length+3);
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 2, FALSE);
- 	offset= offset +2;
+ 	offset= offset+2;
 
 	/* Link Layer Service Data Unit (i.e. a layer 3 message
 	 * as defined in 3GPP TS 24.008 or 3GPP TS 44.018)
 	 */
-
 	proto_tree_add_text(ie_tree, tvb,offset,length,"Link Layer Service Data Unit ( L3 Message)");
 	next_tvb = tvb_new_subset(tvb, offset, length, length);
 	call_dissector(gsm_a_dtap_handle, next_tvb, pinfo, top_tree);
@@ -1674,7 +1674,7 @@ dissect_rsl_ie_uplik_meas(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	}
 
 	ti = proto_tree_add_text(tree, tvb,offset,0,"Uplink Measurements IE");
-	ie_tree = proto_item_add_subtree(ti, ett_ie_uplik_meas);
+	ie_tree = proto_item_add_subtree(ti, ett_ie_uplink_meas);
 
 	/* Element identifier */
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
@@ -1864,7 +1864,7 @@ dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	proto_item *ti;
 	proto_tree *ie_tree;
-	guint8 ie_id;
+	guint8 ie_id, sitype;
 
 	if(is_mandatory == FALSE){
 		ie_id = tvb_get_guint8(tvb,offset);
@@ -1880,9 +1880,16 @@ dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset++;
 	/* Message Type */
 	proto_tree_add_item(tree, hf_rsl_sys_info_type, tvb, offset, 1, FALSE);
+	sitype = tvb_get_guint8(tvb, offset);
 	offset++;
+
+	/* Check if SI is 2q, if so set flag */
+	if (sitype==0x29) {
+		is_si2q = TRUE; }
+
 	return offset;
 }
+
 /*
  * 9.3.35 Full Immediate Assign Info TLV 25
  */
@@ -2069,10 +2076,10 @@ dissect_rsl_ie_full_bcch_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, FALSE);
 	offset++;
 	/* Length */
-	length = tvb_get_ntohs(tvb, offset);
-	proto_item_set_len(ti, length+3);
-	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 2, FALSE);
- 	offset= offset +2;
+	length = tvb_get_guint8(tvb, offset);
+	proto_item_set_len(ti, length+2);
+	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
+ 	offset++;
 
 	/* 
 	 * Octets 3-25 contain the complete L3 message as defined in 3GPP TS 44.018.
@@ -2684,6 +2691,22 @@ dissect_rsl_ie_sup_codec_types(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 /*
  * 9.3.55 Codec Configuration
  */
+/* The Active Codec Type field (bits 1-8, octet 3) indicates the type of codec in use. It is coded as follows: */
+/*
+0 0 0 0 . 0 0 0 0: Full Rate Codec in use
+0 0 0 0 . 0 0 0 1: Half Rate Codec in use
+0 0 0 0 . 0 0 1 0: Enhanced Full Rate Codec in use
+0 0 0 0 . 0 0 1 1: FR Adaptive Multi Rate Codec in use
+0 0 0 0 . 0 1 0 0: HR Adaptive Multi Rate Codec in use
+0 0 0 0 . 0 1 0 1: UMTS Adaptive Multi Rate Codec in use
+0 0 0 0 . 0 1 1 0: UMTS Adaptive Multi Rate 2 Codec in use
+0 0 0 0 . 1 0 0 1: Full Rate Adaptive Multi-Rate WideBand Codec in use
+0 0 0 0 1 0 1 0 UMTS Adaptive Multi-Rate WideBand Codec in use
+0 0 0 0 1 0 1 1 8PSK Half Rate Adaptive Multi-Rate Codec in use
+0 0 0 0 1 1 0 0 8PSK Full Rate Adaptive Multi-Rate WideBand Codec in use
+0 0 0 0 1 1 0 1 8PSK Half Rate Adaptive Multi-Rate WideBand Codec in use
+All other values are reserved for future use
+*/
 static int
 dissect_rsl_ie_codec_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
 {
@@ -2708,6 +2731,8 @@ dissect_rsl_ie_codec_conf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	proto_item_set_len(ti, length+2);
 	proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, FALSE);
 	offset++;
+
+	/* Active Codec Type */
 
 	return offset + length;
 }
@@ -3885,7 +3910,7 @@ void proto_register_rsl(void)
 		&ett_ie_rlm_cause,
 		&ett_ie_staring_time,
 		&ett_ie_timing_adv,
-		&ett_ie_uplik_meas,
+		&ett_ie_uplink_meas,
 		&ett_ie_full_imm_ass_inf,
 		&ett_ie_smscb_inf,
 		&ett_ie_ms_timing_offset,
