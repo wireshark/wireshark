@@ -1819,8 +1819,6 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	*err = NULL;
 
 	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
-	if (ue->user.authPassword.len < 8) g_string_sprintfa(es,"short authPassword (%d), ", ue->user.authPassword.len);
-	if (ue->user.privPassword.len < 8) g_string_sprintfa(es,"short privPassword (%d), ", ue->user.privPassword.len);
 
 	if (es->len) {
 		g_string_truncate(es,es->len-2);

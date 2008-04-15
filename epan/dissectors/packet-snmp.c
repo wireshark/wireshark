@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-snmp.c                                                              */
-/* ../../tools/asn2wrs.py -b -p snmp -c snmp.cnf -s packet-snmp-template snmp.asn */
+/* ../../tools/asn2wrs.py -b -p snmp -c ./snmp.cnf -s ./packet-snmp-template -D . snmp.asn */
 
 /* Input file: packet-snmp-template.c */
 
@@ -3012,8 +3012,6 @@ static void snmp_users_update_cb(void* p _U_, const char** err) {
 	*err = NULL;
 
 	if (! ue->user.userName.len) g_string_append(es,"no userName, ");
-	if (ue->user.authPassword.len < 8) g_string_sprintfa(es,"short authPassword (%d), ", ue->user.authPassword.len);
-	if (ue->user.privPassword.len < 8) g_string_sprintfa(es,"short privPassword (%d), ", ue->user.privPassword.len);
 
 	if (es->len) {
 		g_string_truncate(es,es->len-2);
@@ -3367,7 +3365,7 @@ void proto_register_snmp(void) {
         "snmp.T_operation", HFILL }},
 
 /*--- End of included file: packet-snmp-hfarr.c ---*/
-#line 1913 "packet-snmp-template.c"
+#line 1911 "packet-snmp-template.c"
   };
 
   /* List of subtrees */
@@ -3407,7 +3405,7 @@ void proto_register_snmp(void) {
     &ett_snmp_RReqPDU_U,
 
 /*--- End of included file: packet-snmp-ettarr.c ---*/
-#line 1929 "packet-snmp-template.c"
+#line 1927 "packet-snmp-template.c"
   };
   module_t *snmp_module;
   static uat_field_t users_fields[] = {
