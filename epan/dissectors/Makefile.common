@@ -432,6 +432,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-h248_q1950.c	\
 	packet-h261.c		\
 	packet-h263.c		\
+	packet-h263p.c		\
 	packet-h264.c		\
 	packet-hci_h1.c		\
 	packet-hci_h4.c		\
@@ -634,6 +635,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-redback.c 	\
 	packet-redbackli.c 	\
 	packet-retix-bpdu.c 	\
+	packet-rfc2190.c 	\
 	packet-rgmp.c		\
 	packet-rip.c		\
 	packet-ripng.c		\

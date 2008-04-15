@@ -5,6 +5,9 @@
  * Copyright 2003 Niklas ™gren <niklas.ogren@7l.se>
  * Seven Levels Consultants AB
  *
+ * Copyright 2008 Richard van der Hoff, MX Telecom
+ * <richardv@mxtelecom.com>
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -28,13 +31,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/*
- * This dissector tries to dissect the H.263 protocol according to
- * ITU-T Recommendations and RFC 2190,
- * http://www.ietf.org/rfc/rfc4629.txt?number=4629
- * and http://www.itu.int/rec/T-REC-H.263/en
- */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -46,42 +42,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <epan/emem.h>
-#include <epan/rtp_pt.h>
-#include <epan/iax2_codec_type.h>
-
 #include "prefs.h"
 
-static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
+#include "packet-h263.h"
 
-/* H.263 header fields             */
-static int proto_h263			= -1;
-static int proto_h263P			= -1;
 static int proto_h263_data		= -1;
 
-/* Mode A header */
-static int hf_h263_ftype = -1;
-static int hf_h263_pbframes = -1;
-static int hf_h263_sbit = -1;
-static int hf_h263_ebit = -1;
-static int hf_h263_srcformat = -1;
-static int hf_h263_picture_coding_type = -1;	
-static int hf_h263_unrestricted_motion_vector = -1;
-static int hf_h263_syntax_based_arithmetic = -1;
-static int hf_h263_advanced_prediction = -1;
-static int hf_h263_r = -1;
-static int hf_h263_rr = -1;
-static int hf_h263_dbq = -1;
-static int hf_h263_trb = -1;
-static int hf_h263_tr = -1;
-/* Additional fields for Mode B or C header */
-static int hf_h263_quant = -1;
-static int hf_h263_gobn = -1;
-static int hf_h263_mba = -1;
-static int hf_h263_hmv1 = -1;
-static int hf_h263_vmv1 = -1;
-static int hf_h263_hmv2 = -1;
-static int hf_h263_vmv2 = -1;
 /* Fields for the data section */
 static int hf_h263_psc = -1;
 static int hf_h263_gbsc = -1;
@@ -96,7 +62,6 @@ static int hf_h263_syntax_based_arithmetic_coding_mode = -1;
 static int hf_h263_optional_advanced_prediction_mode = -1;
 static int hf_h263_PB_frames_mode = -1;
 static int hf_h263_data			= -1;
-static int hf_h263_payload		= -1;
 static int hf_h263_GN			= -1;
 static int hf_h263_UFEP			= -1;
 static int hf_h263_opptype		= -1;
@@ -108,20 +73,12 @@ static int hf_h263_ext_source_format = -1;
 static int hf_h263_custom_pcf	= -1;
 static int hf_h263_pei			= -1;
 static int hf_h263_psupp		= -1;
+static int hf_h263_trb = -1;
 
-/* H.263 RFC 4629 fields */
-static int hf_h263P_payload = -1;
-static int hf_h263P_rr = -1;
-static int hf_h263P_pbit = -1;
-static int hf_h263P_vbit = -1;
-static int hf_h263P_plen = -1;
-static int hf_h263P_pebit = -1;
-static int hf_h263P_tid = -1;
-static int hf_h263P_trun = -1;
-static int hf_h263P_s = -1;
-static int hf_h263P_extra_hdr = -1;
-static int hf_h263P_PSC = -1;
-static int hf_h263P_TR = -1;
+/* H.263 fields defining a sub tree */
+static gint ett_h263_payload	= -1;
+static gint ett_h263_optype		= -1;
+
 
 /* Source format types */
 #define H263_SRCFORMAT_FORB		0  /* forbidden */
@@ -132,7 +89,7 @@ static int hf_h263P_TR = -1;
 #define H263_SRCFORMAT_16CIF	5
 #define H263_PLUSPTYPE			7
 
-static const value_string srcformat_vals[] =
+const value_string h263_srcformat_vals[] =
 {
   { H263_SRCFORMAT_FORB,		"forbidden" },
   { H263_SRCFORMAT_SQCIF,		"sub-QCIF 128x96" },
@@ -140,8 +97,8 @@ static const value_string srcformat_vals[] =
   { H263_SRCFORMAT_CIF,			"CIF 352x288" },
   { H263_SRCFORMAT_4CIF,		"4CIF 704x576" },
   { H263_SRCFORMAT_16CIF,		"16CIF 1408x1152" },
-  { 6,							"Reserved",},
-  { H263_PLUSPTYPE,				"extended PTYPE" },
+  { 6,					"Reserved",},
+  { H263_PLUSPTYPE,			"extended PTYPE" },
   { 0,		NULL },
 };
 
@@ -215,173 +172,6 @@ static const value_string picture_type_code_vals[] =
   { 0,		NULL },
 };
 
-/* H.263 fields defining a sub tree */
-static gint ett_h263			= -1;
-static gint ett_h263_payload	= -1;
-static gint ett_h263_optype		= -1;
-
-/* H.263-1998 fields defining a sub tree */
-static gint ett_h263P			= -1;
-static gint ett_h263P_extra_hdr = -1;
-static gint ett_h263P_payload	= -1;
-static gint ett_h263P_data = -1;
-
-/* The dynamic payload type which will be dissected as H.263-1998/H263-2000 */
-
-static guint dynamic_payload_type = 0;
-static guint temp_dynamic_payload_type = 0;
-
-static void
-dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
-{
-	proto_item *ti					= NULL;
-	proto_tree *h263_tree			= NULL;
-	unsigned int offset				= 0;
-	unsigned int h263_version		= 0;
-	tvbuff_t *next_tvb;
-
-	h263_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
-
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 " );
-	}
-
-	if( h263_version == 0x00) {
-	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
-	  }
-	}
-	else if( h263_version == 0x02) {
-	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
-	  }
-	}
-	else if( h263_version == 0x03) {
-	  if ( check_col( pinfo->cinfo, COL_INFO) ) {
-	    col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
-	  }
-	}
-
-	if ( tree ) {
-	  ti = proto_tree_add_item( tree, proto_h263, tvb, offset, -1, FALSE );
-	  h263_tree = proto_item_add_subtree( ti, ett_h263 );
-
-	  /* FBIT 1st octet, 1 bit */
-	  proto_tree_add_boolean( h263_tree, hf_h263_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
-	  /* PBIT 1st octet, 1 bit */
-	  proto_tree_add_boolean( h263_tree, hf_h263_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
-	  /* SBIT 1st octet, 3 bits */
-	  proto_tree_add_uint( h263_tree, hf_h263_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
-	  /* EBIT 1st octet, 3 bits */
-	  proto_tree_add_uint( h263_tree, hf_h263_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
-
-	  offset++;
-
-	  /* SRC 2nd octet, 3 bits */
-	  proto_tree_add_uint( h263_tree, hf_h263_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
-
-	  if(h263_version == 0x00) { /* MODE A */
-	    /* I flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
-	    /* U flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
-	    /* S flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
-	    /* A flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
-
-	    /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
-
-	    offset++;
-
-	    /* DBQ 3 octect, 2 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
-	    /* TRB 3 octect, 3 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
-
-	    offset++;
-	    
-	    /* TR 4 octect, 8 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
-	    
-	    offset++;
-
-	  } else { /* MODE B or MODE C */
-
-	    /* QUANT 2 octect, 5 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
-
-	    offset++;
-
-	    /* GOBN 3 octect, 5 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
-	    /* MBA 3 octect, 3 bits + 4 octect 6 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
-	    
-	    offset++;
-
-	    /* Reserved 4th octect, 2 bits */
-	    proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
-
-	    offset++;
-
-	    /* I flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
-	    /* U flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
-	    /* S flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
-	    /* A flag, 1 bit */
-	    proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
-
-	    /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
-	    proto_tree_add_uint( h263_tree, hf_h263_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
-
-	    offset++;
-	    
-	    /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
-	    proto_tree_add_uint( h263_tree, hf_h263_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
-	    
-	    offset++;
-
-	    /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
-	    proto_tree_add_uint( h263_tree, hf_h263_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
-	    
-	    offset++;
-
-	    /* VMV2 8th octect, 7 bits*/
-	    proto_tree_add_uint( h263_tree, hf_h263_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
-		  
-	    offset++;
-
-	    if(h263_version == 0x03) { /* MODE C */
-	      /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
-
-	      offset+=2;
-
-	      /* DBQ 11th octect, 2 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
-	      /* TRB 11th octect, 3 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
-	      
-	      offset++;
-	      
-	      /* TR 12th octect, 8 bits */
-	      proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
-	      
-	      offset++;
-	    } /* end mode c */
-	  } /* end not mode a */
-
-	  /* The rest of the packet is the H.263 stream */
-	  next_tvb = tvb_new_subset( tvb, offset, tvb_length(tvb) - offset, tvb_reported_length(tvb) - offset);
-	  dissect_h263_data( next_tvb, pinfo, h263_tree );
-
-	}
-}
-
 
 /*
  * 5.3 Macroblock layer
@@ -393,7 +183,7 @@ dissect_h263_macroblock_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  */
 
 
-static int
+int
 dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset, gboolean is_rfc4626)
 {
 
@@ -435,7 +225,7 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 /*
  * Length is used for the "Extra header" otherwise set to -1.
  */
-static int
+int
 dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint length _U_, gboolean is_rfc4626)
 {
 	proto_tree *h263_opptype_tree	= NULL;
@@ -815,148 +605,6 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 }
 
-/* RFC 4629 */
-static void
-dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
-{
-	proto_item *ti					= NULL;
-	proto_item *data_item			= NULL;
-	proto_item *extra_hdr_item		= NULL;
-	proto_tree *h263P_tree			= NULL;
-	proto_tree *h263P_extr_hdr_tree	= NULL;
-	proto_tree *h263P_data_tree		= NULL;
-	unsigned int offset				= 0;
-	unsigned int start_offset		= 0;
-	guint16 data16, plen;
-	guint8 startcode;
-
-	/*
-	tvbuff_t *next_tvb;
-	*/
-
-	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 RFC4629 " );
-	}
-
-	if ( tree ) {
-	  ti = proto_tree_add_item( tree, proto_h263P, tvb, offset, -1, FALSE );
-	  h263P_tree = proto_item_add_subtree( ti, ett_h263P );
-	  /* Add it as hidden to make a filter of h263 possible here as well */
-	  proto_tree_add_item_hidden( tree, proto_h263, tvb, offset, -1, FALSE );
-
-	  data16 = tvb_get_ntohs(tvb,offset);
-	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_vbit, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_plen, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, FALSE );
-	  offset = offset +2;
-	  /*
-	   *   V: 1 bit
-	   *
-	   *      Indicates the presence of an 8-bit field containing information
-	   *      for Video Redundancy Coding (VRC), which follows immediately after
-	   *      the initial 16 bits of the payload header, if present.  For syntax
-	   *      and semantics of that 8-bit VRC field, see Section 5.2.
-	   */
-
-	  if ((data16&0x0200)==0x0200){
-		  /* V bit = 1 
-		   *   The format of the VRC header extension is as follows:
-		   *
-		   *         0 1 2 3 4 5 6 7
-		   *        +-+-+-+-+-+-+-+-+
-		   *        | TID | Trun  |S|
-		   *        +-+-+-+-+-+-+-+-+
-		   *
-		   *   TID: 3 bits
-		   *
-		   *   Thread ID.  Up to 7 threads are allowed.  Each frame of H.263+ VRC
-		   *   data will use as reference information only sync frames or frames
-		   *   within the same thread.  By convention, thread 0 is expected to be
-		   *   the "canonical" thread, which is the thread from which the sync frame
-		   *   should ideally be used.  In the case of corruption or loss of the
-		   *   thread 0 representation, a representation of the sync frame with a
-		   *   higher thread number can be used by the decoder.  Lower thread
-		   *   numbers are expected to contain representations of the sync frames
-		   *   equal to or better than higher thread numbers in the absence of data
-		   *   corruption or loss.  See [Vredun] for a detailed discussion of VRC.
-		   *
-		   *   Trun: 4 bits
-		   *
-		   *   Monotonically increasing (modulo 16) 4-bit number counting the packet
-		   *   number within each thread.
-		   *
-		   *   S: 1 bit
-		   *
-		   *   A bit that indicates that the packet content is for a sync frame.  
-		   *   :
-		   */
-		  proto_tree_add_item( h263P_tree, hf_h263P_tid, tvb, offset, 1, FALSE );
-		  proto_tree_add_item( h263P_tree, hf_h263P_trun, tvb, offset, 1, FALSE );
-		  proto_tree_add_item( h263P_tree, hf_h263P_s, tvb, offset, 1, FALSE );
-		  offset++;
-	  }
-
-	  /* Length, in bytes, of the extra picture header. */
-	  plen = (data16 & 0x01f8) >> 3;
-	  if (plen != 0){
-		  start_offset = offset;
-		  extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, FALSE );
-		  h263P_extr_hdr_tree = proto_item_add_subtree( extra_hdr_item, ett_h263P_extra_hdr );
-		  
-		  dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, TRUE);
-
-		  offset = start_offset + plen;		
-	  }
-	  if ((data16&0x0400)!=0){
-		  /* P bit = 1 */
-		  data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
-		  h263P_data_tree = proto_item_add_subtree( data_item, ett_h263P_data );
-		  /* Startc code holds bit 17 -23 of the codeword */
-		  startcode = tvb_get_guint8(tvb,offset)&0xfe;
-		  if (startcode & 0x80){
-			  /* All picture, slice, and EOSBS start codes
-			   * shall be byte aligned, and GOB and EOS start codes may be byte aligned.
-			   */
-			  switch(startcode){
-			  case 0xf8:
-				  /* End Of Sub-Bitstream code (EOSBS) 
-				   * EOSBS codes shall be byte aligned
-				   * ( 1111 100. )
-				   */
-				  break;
-			  case 0x80:
-			  case 0x82:
-				  /* Picture Start Code (PSC)
-				   * ( 1000 00x.)
-				   */
-				  if(check_col( pinfo->cinfo, COL_INFO))
-					  col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
-				  offset = dissect_h263_picture_layer( tvb, pinfo, h263P_data_tree, offset, -1, TRUE);
-				  break;
-			  case 0xfc:
-			  case 0xfe:
-				  /* End Of Sequence (EOS)
-				   * ( 1111 11x. )
-				   */
-			  default:
-				  /* Group of Block Start Code (GBSC) or
-				   * Slice Start Code (SSC)
-				   */
-				  if ( check_col( pinfo->cinfo, COL_INFO) )
-					  col_append_str( pinfo->cinfo, COL_INFO, "(GBSC) ");
-				  dissect_h263_group_of_blocks_layer( tvb, h263P_data_tree, offset,TRUE);
-				  break;
-			  }
-		  }else{
-			  /* Error */
-		  }
-		  return;
-	  }
-	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
-	}
-}
 /*
 	5.1.1 Picture Start Code (PSC) (22 bits)
 	PSC is a word of 22 bits. Its value is 0000 0000 0000 0000 1 00000. All picture start codes shall be
@@ -992,7 +640,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	if( tree ) {
-	  h263_payload_item = proto_tree_add_item( tree, hf_h263_payload, tvb, offset, -1, FALSE );
+	  h263_payload_item = proto_tree_add_item( tree, proto_h263_data, tvb, offset, -1, FALSE );
 	  h263_payload_tree = proto_item_add_subtree( h263_payload_item, ett_h263_payload );
 	}
 
@@ -1044,322 +692,10 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 void
-proto_reg_handoff_h263(void)
-{
-	dissector_handle_t h263_handle;
-
-	h263_handle = find_dissector("h263");
-	dissector_add("rtp.pt", PT_H263, h263_handle);
-	dissector_add("iax2.codec", AST_FORMAT_H263, h263_handle);
-}
-
-void
-proto_reg_handoff_h263P(void)
-{
-	dissector_handle_t h263P_handle;
-	static int h263P_prefs_initialized = FALSE;
-
-	h263P_handle = create_dissector_handle(dissect_h263P, proto_h263P);
-
-	if (!h263P_prefs_initialized) {
-		h263P_prefs_initialized = TRUE;
-	  }
-	else {
-		if ( dynamic_payload_type > 95 )
-			dissector_delete("rtp.pt", dynamic_payload_type, h263P_handle);
-	}
-	dynamic_payload_type = temp_dynamic_payload_type;
-
-	if ( dynamic_payload_type > 95 ){
-		dissector_add("rtp.pt", dynamic_payload_type, h263P_handle);
-	}
-
-	h263P_handle = find_dissector("h263P");
-	dissector_add_string("rtp_dyn_payload_type","H263-1998", h263P_handle);
-	dissector_add_string("rtp_dyn_payload_type","H263-2000", h263P_handle);
-}
-
-void
-proto_register_h263(void)
+proto_register_h263_data(void)
 {
 	static hf_register_info hf[] =
 	{
-		{
-			&hf_h263_ftype,
-			{
-				"F",
-				"h263.ftype",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Indicates the mode of the payload header (MODE A or B/C)", HFILL
-			}
-		},
-		{
-			&hf_h263_pbframes,
-			{
-				"p/b frame",
-				"h263.pbframes",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Optional PB-frames mode as defined by H.263 (MODE C)", HFILL
-			}
-		},
-		{
-			&hf_h263_sbit,
-			{
-				"Start bit position",
-				"h263.sbit",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Start bit position specifies number of most significant bits that shall be ignored in the first data byte.", HFILL
-			}
-		},
-		{
-			&hf_h263_ebit,
-			{
-				"End bit position",
-				"h263.ebit",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"End bit position specifies number of least significant bits that shall be ignored in the last data byte.", HFILL
-			}
-		},
-		{
-			&hf_h263_srcformat,
-			{
-				"SRC format",
-				"h263.srcformat",
-				FT_UINT8,
-				BASE_DEC,
-				VALS(srcformat_vals),
-				0x0,
-				"Source format specifies the resolution of the current picture.", HFILL
-			}
-		},
-		{
-			&hf_h263_picture_coding_type,
-			{
-				"Inter-coded frame",
-				"h263.picture_coding_type",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
-			}
-		},
-		{
-			&hf_h263_unrestricted_motion_vector,
-			{
-				"Motion vector",
-				"h263.unrestricted_motion_vector",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Unrestricted Motion Vector option for current picture", HFILL
-			}
-		},
-		{
-			&hf_h263_syntax_based_arithmetic,
-			{
-				"Syntax-based arithmetic coding",
-				"h263.syntax_based_arithmetic",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Syntax-based Arithmetic Coding option for current picture", HFILL
-			}
-		},
-		{
-			&hf_h263_advanced_prediction,
-			{
-				"Advanced prediction option",
-				"h263.advanced_prediction",
-				FT_BOOLEAN,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"Advanced Prediction option for current picture", HFILL
-			}
-		},
-		{
-			&hf_h263_dbq,
-			{
-				"Differential quantization parameter",
-				"h263.dbq",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Differential quantization parameter used to calculate quantizer for the B frame based on quantizer for the P frame, when PB-frames option is used.", HFILL
-			}
-		},
-		{
-			&hf_h263_trb,
-			{
-				"Temporal Reference for B frames",
-				"h263.trb",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Temporal Reference for the B frame as defined by H.263", HFILL
-			}
-		},
-		{
-			&hf_h263_tr,
-			{
-				"Temporal Reference for P frames",
-				"h263.tr",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Temporal Reference for the P frame as defined by H.263", HFILL
-			}
-		},
-		{
-			&hf_h263_quant,
-			{
-				"Quantizer",
-				"h263.quant",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Quantization value for the first MB coded at the starting of the packet.", HFILL
-			}
-		},
-		{
-			&hf_h263_gobn,
-			{
-				"GOB Number",
-				"h263.gobn",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"GOB number in effect at the start of the packet.", HFILL
-			}
-		},
-		{
-			&hf_h263_mba,
-			{
-				"Macroblock address",
-				"h263.mba",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"The address within the GOB of the first MB in the packet, counting from zero in scan order.", HFILL
-			}
-		},
-		{
-			&hf_h263_hmv1,
-			{
-				"Horizontal motion vector 1",
-				"h263.hmv1",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Horizontal motion vector predictor for the first MB in this packet ", HFILL
-			}
-		},
-		{
-			&hf_h263_vmv1,
-			{
-				"Vertical motion vector 1",
-				"h263.vmv1",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Vertical motion vector predictor for the first MB in this packet ", HFILL
-			}
-		},
-		{
-			&hf_h263_hmv2,
-			{
-				"Horizontal motion vector 2",
-				"h263.hmv2",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Horizontal motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
-			}
-		},
-		{
-			&hf_h263_vmv2,
-			{
-				"Vertical motion vector 2",
-				"h263.vmv2",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Vertical motion vector predictor for block number 3 in the first MB in this packet when four motion vectors are used with the advanced prediction option.", HFILL
-			}
-		},
-		{
-			&hf_h263_r,
-			{
-				"Reserved field",
-				"h263.r",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Reserved field that houls contain zeroes", HFILL
-			}
-		},
-		{
-			&hf_h263_rr,
-			{
-				"Reserved field 2",
-				"h263.rr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0,
-				"Reserved field that should contain zeroes", HFILL
-			}
-		},
-		{
-			&hf_h263_payload,
-			{
-				"H.263 payload",
-				"h263.payload",
-				FT_NONE,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"The actual H.263 data", HFILL
-			}
-		},
-		{
-			&hf_h263_data,
-			{
-				"H.263 stream",
-				"h263.stream",
-				FT_BYTES,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"The H.263 stream including its Picture, GOB or Macro block start code.", HFILL
-			}
-		},
 		{
 			&hf_h263_psc,
 			{
@@ -1393,6 +729,18 @@ proto_register_h263(void)
 				NULL,
 				0x000003fc,
 				"Temporal Reference, TR", HFILL
+			}
+		},
+		{
+			&hf_h263_trb,
+			{
+				"Temporal Reference for B frames",
+				"h263.trb",
+				FT_UINT8,
+				BASE_DEC,
+				NULL,
+				0x0,
+				"Temporal Reference for the B frame as defined by H.263", HFILL
 			}
 		},
 		{
@@ -1438,7 +786,7 @@ proto_register_h263(void)
 				"h263.source_format",
 				FT_UINT8,
 				BASE_HEX,
-				VALS(srcformat_vals),
+				VALS(h263_srcformat_vals),
 				0x1c,
 				"Source Format", HFILL
 			}
@@ -1635,207 +983,30 @@ proto_register_h263(void)
 				"Supplemental Enhancement Information (PSUPP)", HFILL
 			}
 		},
-};
-
-	static gint *ett[] =
-	{
-		&ett_h263,
-		&ett_h263_payload,
-		&ett_h263_optype,
-	};
-
-
-	proto_h263 = proto_register_protocol("ITU-T Recommendation H.263 RTP Payload header (RFC2190)",
-	    "H.263", "h263");
-	proto_h263_data = proto_register_protocol("ITU-T Recommendation H.263",
-	    "H.263 data", "h263data");
-	proto_register_field_array(proto_h263, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-	register_dissector("h263", dissect_h263, proto_h263);
-	register_dissector("h263data", dissect_h263_data, proto_h263_data);
-}
-
-void
-proto_register_h263P(void)
-{
-	module_t *h263P_module;
-
-	static hf_register_info hf[] =
-	{
 		{
-			&hf_h263P_payload,
+			&hf_h263_data,
 			{
-				"H.263 RFC4629 payload",
-				"h263P.payload",
-				FT_NONE,
-				BASE_NONE,
-				NULL,
-				0x0,
-				"The actual H.263 RFC4629 data", HFILL
-			}
-		},
-		{
-			&hf_h263P_rr,
-			{
-				"Reserved",
-				"h263P.rr",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0xf800,
-				"Reserved SHALL be zero", HFILL
-			}
-		},
-		{
-			&hf_h263P_pbit,
-			{
-				"P",
-				"h263P.p",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x0400,
-				"Indicates (GOB/Slice) start or (EOS or EOSBS)", HFILL
-			}
-		},
-		{
-			&hf_h263P_vbit,
-			{
-				"V",
-				"h263P.v",
-				FT_BOOLEAN,
-				16,
-				NULL,
-				0x0200,
-				"presence of Video Redundancy Coding (VRC) field", HFILL
-			}
-		},
-		{
-			&hf_h263P_plen,
-			{
-				"PLEN",
-				"h263P.plen",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x01f8,
-				"Length, in bytes, of the extra picture header", HFILL
-			}
-		},
-		{
-			&hf_h263P_pebit,
-			{
-				"PEBIT",
-				"h263P.pebit",
-				FT_UINT16,
-				BASE_DEC,
-				NULL,
-				0x0003,
-				"number of bits that shall be ignored in the last byte of the picture header", HFILL
-			}
-		},
-
-
-		{
-			&hf_h263P_tid,
-			{
-				"Thread ID",
-				"h263P.tid",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0xe0,
-				"Thread ID", HFILL
-			}
-		},
-		{
-			&hf_h263P_trun,
-			{
-				"Trun",
-				"h263P.trun",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x1e,
-				"Monotonically increasing (modulo 16) 4-bit number counting the packet number within each thread", HFILL
-			}
-		},
-		{
-			&hf_h263P_s,
-			{
-				"S",
-				"h263P.s",
-				FT_UINT8,
-				BASE_DEC,
-				NULL,
-				0x01,
-				"Indicates that the packet content is for a sync frame", HFILL
-			}
-		},
-		{
-			&hf_h263P_extra_hdr,
-			{
-				"Extra picture header",
-				"h263P.extra_hdr",
+				"H.263 stream",
+				"h263.stream",
 				FT_BYTES,
 				BASE_NONE,
 				NULL,
 				0x0,
-				"Extra picture header", HFILL
+				"The H.263 stream including its Picture, GOB or Macro block start code.", HFILL
 			}
 		},
-		{
-			&hf_h263P_PSC,
-			{
-				"H.263 PSC",
-				"h263P.PSC",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0xfc00,
-				"Picture Start Code(PSC)", HFILL
-			}
-		},
-		{
-			&hf_h263P_TR,
-			{
-				"H.263 Temporal Reference",
-				"h263P.tr",
-				FT_UINT16,
-				BASE_HEX,
-				NULL,
-				0x03fc,
-				"Temporal Reference, TR", HFILL
-			}
-		},
+};
 
-	};
-
-	static gint *ett[] =
+        static gint *ett[] =
 	{
-		&ett_h263P,
-		&ett_h263P_extra_hdr,
-		&ett_h263P_payload,
-		&ett_h263P_data,
+            &ett_h263_payload,
+            &ett_h263_optype,
 	};
 
+        proto_register_subtree_array(ett, array_length(ett));
 
-	proto_h263P = proto_register_protocol("ITU-T Recommendation H.263 RTP Payload header (RFC4629)",
-	    "H263P", "h263p");
-
-	proto_register_field_array(proto_h263P, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-
-	h263P_module = prefs_register_protocol(proto_h263P, proto_reg_handoff_h263P);
-
-	prefs_register_uint_preference(h263P_module, "dynamic.payload.type",
-								   "H263-1998 and H263-2000 dynamic payload type",
-								   "The dynamic payload type which will be interpreted as H264",
-								   10,
-								   &temp_dynamic_payload_type);
-
-	register_dissector("h263P", dissect_h263P, proto_h263P);
-
+	proto_h263_data = proto_register_protocol("ITU-T Recommendation H.263",
+	    "H.263 data", "h263data");
+	proto_register_field_array(proto_h263_data, hf, array_length(hf));
+	register_dissector("h263data", dissect_h263_data, proto_h263_data);
 }
-
-
