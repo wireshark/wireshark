@@ -604,7 +604,8 @@ static const value_string gsm_dtap_elem_strings[] = {
  * [3] 10.5.2.18 IAX Rest Octets
  */
 	{ 0x00, "L2 Pseudo Length" },				/* [3] 10.5.2.19	*/
-/* [3] 10.5.2.20 Measurement Results
+	{ 0x00, "Measurement Results" },			/* [3] 10.5.2.20 Measurement Results */
+/*
  * [3] 10.5.2.20a GPRS Measurement Results
  */
  	{ 0x00, "Mobile Allocation" },				/* [3] 10.5.2.21	*/ 
@@ -4886,26 +4887,167 @@ de_rr_l2_pseudo_len(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 /*
  * [3] 10.5.2.20 Measurement Results 
  */
+static const value_string gsm_a_rr_dtx_vals[] = {
+	{ 0,	"DTX was not used"},
+	{ 1,	"DTX was used"},
+};
+static const value_string gsm_a_rr_rxlev_vals [] = {
+  {0, "< -110 dBm"},
+  {1, "-110 <= x < -109 dBm"},
+  {2, "-109 <= x < -108 dBm"},
+  {3, "-108 <= x < -107 dBm"},
+  {4, "-107 <= x < -106 dBm"},
+  {5, "-106 <= x < -105 dBm"},
+  {6, "-105 <= x < -104 dBm"},
+  {7, "-104 <= x < -103 dBm"},
+  {8, "-103 <= x < -102 dBm"},
+  {9, "-102 <= x < -101 dBm"},
+  {10, "-101 <= x < -100 dBm"},
+  {11, "-100 <= x < -99 dBm"},
+  {12, "-99 <= x < -98 dBm"},
+  {13, "-98 <= x < -97 dBm"},
+  {14, "-97 <= x < -96 dBm"},
+  {15, "-96 <= x < -95 dBm"},
+  {16, "-95 <= x < -94 dBm"},
+  {17, "-94 <= x < -93 dBm"},
+  {18, "-93 <= x < -92 dBm"},
+  {19, "-92 <= x < -91 dBm"},
+  {20, "-91 <= x < -90 dBm"},
+  {21, "-90 <= x < -89 dBm"},
+  {22, "-89 <= x < -88 dBm"},
+  {23, "-88 <= x < -87 dBm"},
+  {24, "-87 <= x < -86 dBm"},
+  {25, "-86 <= x < -85 dBm"},
+  {26, "-85 <= x < -84 dBm"},
+  {27, "-84 <= x < -83 dBm"},
+  {28, "-83 <= x < -82 dBm"},
+  {29, "-82 <= x < -81 dBm"},
+  {30, "-81 <= x < -80 dBm"},
+  {31, "-80 <= x < -79 dBm"},
+  {32, "-79 <= x < -78 dBm"},
+  {33, "-78 <= x < -77 dBm"},
+  {34, "-77 <= x < -76 dBm"},
+  {35, "-76 <= x < -75 dBm"},
+  {36, "-75 <= x < -74 dBm"},
+  {37, "-74 <= x < -73 dBm"},
+  {38, "-73 <= x < -72 dBm"},
+  {39, "-72 <= x < -71 dBm"},
+  {40, "-71 <= x < -70 dBm"},
+  {41, "-70 <= x < -69 dBm"},
+  {42, "-69 <= x < -68 dBm"},
+  {43, "-68 <= x < -67 dBm"},
+  {44, "-67 <= x < -66 dBm"},
+  {45, "-66 <= x < -65 dBm"},
+  {46, "-65 <= x < -64 dBm"},
+  {47, "-64 <= x < -63 dBm"},
+  {48, "-63 <= x < -62 dBm"},
+  {49, "-62 <= x < -61 dBm"},
+  {50, "-61 <= x < -60 dBm"},
+  {51, "-60 <= x < -59 dBm"},
+  {52, "-59 <= x < -58 dBm"},
+  {53, "-58 <= x < -57 dBm"},
+  {54, "-57 <= x < -56 dBm"},
+  {55, "-56 <= x < -55 dBm"},
+  {56, "-55 <= x < -54 dBm"},
+  {57, "-54 <= x < -53 dBm"},
+  {58, "-53 <= x < -52 dBm"},
+  {59, "-52 <= x < -51 dBm"},
+  {60, "-51 <= x < -50 dBm"},
+  {61, "-50 <= x < -49 dBm"},
+  {62, "-49 <= x < -48 dBm"},
+  {63, ">= -48 dBm"},
+};
+static const value_string gsm_a_rr_mv_vals[] = {
+	{ 0,	"The measurement results are valid"},
+	{ 1,	"The measurement results are not valid"},
+};
+static const value_string gsm_a_rr_rxqual_vals [] = {
+  {0, "BER < 0.2%, Mean value 0.14%"},
+  {1, "0.2% <= BER < 0.4%, Mean value 0.28%"},
+  {2, "0.4% <= BER < 0.8%, Mean value 0.57%"},
+  {3, "0.8% <= BER < 1.6%, Mean value 1.13%"},
+  {4, "1.6% <= BER < 3.2%, Mean value 2.26%"},
+  {5, "3.2% <= BER < 6.4%, Mean value 4.53%"},
+  {6, "6.4% <= BER < 12.8%, Mean value 9.05%"},
+  {7, "BER > 12.8%, Mean value 18.10%"},
+};
+static const value_string gsm_a_rr_ncell_vals [] = {
+  {0, "No neighbour cell measurement result"},
+  {1, "1 neighbour cell measurement result"},
+  {2, "2 neighbour cell measurement result"},
+  {3, "3 neighbour cell measurement result"},
+  {4, "4 neighbour cell measurement result"},
+  {5, "5 neighbour cell measurement result"},
+  {6, "6 neighbour cell measurement result"},
+  {7, "Neighbour cell information not available for serving cell"},
+};
+
 guint8
 de_rr_meas_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+    proto_tree	*subtree;
+    proto_item	*item;
     guint32	curr_offset;
-
+    guint8	oct, nextoct, val;
     len = len;
     curr_offset = offset;
 
-	/* BA-USED (octet 2), the value of the BA_IND field of the neighbour cell description
-	 * information element or elements defining the BCCH allocation used for the coding of
-	 * BCCH-FREQ-NCELL fields. Range 0 to 1.
-	 */
+	item =
+	proto_tree_add_text(tree,
+	    tvb, curr_offset, 16,
+	    gsm_dtap_elem_strings[DE_RR_MEAS_RES].strptr);
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_MEAS_RES]);
+	
+	/* 2nd octet */
+	oct = tvb_get_guint8(tvb,curr_offset);
+	/* BA-USED */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = BA-USED: %d",a_bigbuf,(oct & 0x80)>>7);
+	/* DTX USED */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = DTX USED: %s",a_bigbuf,\
+		val_to_str((oct & 0x40)>>6, gsm_a_rr_dtx_vals, "Reserved (0x%02x)"));
+	/* RXLEV-FULL-SERVING-CELL */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x3F, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXLEV-FULL-SERVING-CELL: %s (%d)",a_bigbuf,\
+		val_to_str((oct & 0x3F), gsm_a_rr_rxlev_vals, "Reserved (0x%02x)"),(oct & 0x3F));
 
-	/* DTX-USED (octet 2) This bit indicates whether or not the mobile station used DTX during
-	 *	the previous measurement period.
-	 * Bit 7
-	 * 0 DTX was not used
-	 * 1 DTX was used
-	 */
-	proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+	curr_offset++;
+	
+	/* 3rd octet */
+	oct = tvb_get_guint8(tvb,curr_offset);
+	/* 3G-BA-USED */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x80, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = 3G-BA-USED: %d",a_bigbuf,(oct & 0x80)>>7);
+	/* MEAS-VALID */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x40, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = MEAS-VALID: %s",a_bigbuf,\
+		val_to_str((oct & 0x40)>>6, gsm_a_rr_mv_vals, "Reserved (0x%02x)"));
+	/* RXLEV-SUB-SERVING-CELL */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x3F, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXLEV-SUB-SERVING-CELL: %s (%d)",\
+		a_bigbuf,val_to_str((oct & 0x3F), gsm_a_rr_rxlev_vals, "Reserved (0x%02x)"),(oct & 0x3F));
+
+	curr_offset++;
+	
+	/* 4th octet */
+	oct = tvb_get_guint8(tvb,curr_offset);
+	/* RXQUAL-FULL-SERVING-CELL */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x70, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXQUAL-FULL-SERVING-CELL: %s (%d)",a_bigbuf,\
+		val_to_str((oct & 0x7)>>4, gsm_a_rr_rxqual_vals, "Reserved (0x%02x)"),(oct & 0x70)>>4);
+	/* RXQUAL-SUB-SERVING-CELL */
+	other_decode_bitfield_value(a_bigbuf, oct, 0x0e, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s = RXQUAL-SUB-SERVING-CELL: %s (%d)",a_bigbuf,\
+		val_to_str((oct & 0x0e)>>1, gsm_a_rr_rxqual_vals, "Reserved (0x%02x)"),(oct & 0x0e)>>1);
+	/* NO-NCELL-M */
+	nextoct = tvb_get_guint8(tvb,curr_offset+1);
+	val = ((oct & 0x01) << 2) + ((nextoct & 0xc0) >> 6);
+	other_decode_bitfield_value(a_bigbuf, oct, 0x01, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset,1,"%s",a_bigbuf);
+	other_decode_bitfield_value(a_bigbuf, nextoct, 0xc0, 8);
+	proto_tree_add_text(subtree,tvb,curr_offset+1,1,"%s = NO-NCELL-M: %s (%d)",a_bigbuf,\
+		val_to_str(val, gsm_a_rr_ncell_vals, "Reserved (0x%02x)"),val);
 
 	curr_offset = curr_offset + len;
     return(curr_offset - offset);
@@ -5067,28 +5209,81 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar
 static guint8
 de_rr_packet_ch_desc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree	*subtree;
-    proto_item	*item;
-    guint32	curr_offset;
+
+	guint32	curr_offset;
+	guint8	oct8;
+	guint16	arfcn, hsn, maio;
+	proto_tree	*subtree;
+	proto_item	*item;
+	const gchar *str;
 
     len = len;
     curr_offset = offset;
 
-	item =
-	proto_tree_add_text(tree,
-	    tvb, curr_offset, 1,
-	    gsm_dtap_elem_strings[DE_RR_PACKET_CH_DESC].strptr);
+	item = proto_tree_add_text(tree,tvb,curr_offset,3,gsm_dtap_elem_strings[DE_RR_PACKET_CH_DESC].strptr);
+	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_PACKET_CH_DESC]);
 
-    subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_RR_PACKET_CH_DESC]);
-	proto_tree_add_text(tree,tvb, curr_offset, 3 ,"Data(Not decoded)");
+	/* Octet 2 */
+	oct8 = tvb_get_guint8(tvb, curr_offset);
+	/* Channel Type */
+	str = "Spare bits (ignored by receiver)"; 
+	other_decode_bitfield_value(a_bigbuf, oct8, 0xf8, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = %s",a_bigbuf,str);
+	/* TN */
+	other_decode_bitfield_value(a_bigbuf, oct8, 0x07, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Timeslot: %d",a_bigbuf,(oct8 & 0x07));
 
-	curr_offset = curr_offset + 3;
+	curr_offset +=1;
+		
+	/* Octet 3 */
+	oct8 = tvb_get_guint8(tvb, curr_offset);
+	other_decode_bitfield_value(a_bigbuf, oct8, 0xe0, 8);
+	proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Training Sequence: %d",a_bigbuf,((oct8 & 0xe0)>>5));
+		
+	if ((oct8 & 0x10) == 0x10)
+	{
+		/* Hopping sequence */
+		maio = ((oct8 & 0x0f)<<2) | ((tvb_get_guint8(tvb,curr_offset+1) & 0xc0) >> 6);
+		hsn = (tvb_get_guint8(tvb,curr_offset+1) & 0x3f);
+		str = "Yes";
+
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: MAIO %d",maio);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Hopping channel: HSN %d",hsn);
+	}
+	else
+	{
+		/* single ARFCN */
+		arfcn = ((oct8 & 0x03) << 8) | tvb_get_guint8(tvb,curr_offset+1);
+		str = "No";
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x10, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Hopping channel: %s",a_bigbuf,str);
+		other_decode_bitfield_value(a_bigbuf, oct8, 0x0c, 8);
+		proto_tree_add_text(subtree,tvb, curr_offset, 1,"%s = Spare",a_bigbuf);
+		proto_tree_add_text(subtree,tvb, curr_offset, 2,"Single channel : ARFCN %d",arfcn);
+	}
+	
+	curr_offset = curr_offset + 2;
     return(curr_offset - offset);
 
 }
 /*
  * [3] 10.5.2.25b Dedicated mode or TBF
  */
+
+static const value_string gsm_a_rr_dedicated_mode_or_tbf_vals[] = {
+	{ 0,		"This message assigns a dedicated mode resource"},
+	{ 1,		"This message assigns an uplink TBF or is the second message of two in a two-message assignment of an uplink or downlink TBF"},
+	{ 2,		"Not used"},
+	{ 3,		"This message assigns a downlink TBF to the mobile station identified in the IA Rest Octets IE"},
+	{ 4,		"Not used"},
+	{ 5,		"This message is the first message of two in a two-message assignment of an uplink TBF"},
+	{ 6,		"Not used"},
+	{ 7,		"This message is the first message of two in a two-message assignment of a downlink TBF to the mobile station identified in the IA Rest Octets IE"},
+	{ 0,	NULL }
+};
+
 static guint8
 de_rr_ded_mod_or_tbf(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
@@ -15534,18 +15729,25 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     curr_len = len;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
+	
+	/* NOTE: The order of the mandatory information elements should be chosen so that 
+	 * information elements with 1/2 octet of content (type 1) go together in succession.
+	 * The first type 1 information element occupies bits 1 to 4 of octet N, 
+	 * the second bits 5 to 8 of octet N, the third bits 1 to 4 of octet N+1 etc. 
+	 * If the number of type 1 information elements is odd then bits 5 to 8 of the last octet
+	 *  occupied by these information elements should be treated as spare bits,
+	 * i.e. coded with a "0" in each.
+	 */
+
 	/* Page Mode					10.5.2.26	M V 1/2 */
 	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_PAGE_MODE);
 	
 	/* Dedicated mode or TBF		10.5.2.25b	M V 1/2 */
 	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_DED_MOD_OR_TBF);
 	curr_offset++;
-	if((oct&0x07) == 0){
-	/* Channel Description			10.5.2.5	C V 3
-	 * If the Dedicated mode or TBF IE indicates that the message assigns a dedicated mode resource,
-	 * the mobile station shall consider this information element present in the message.
-	 */
-		ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CELL_CH_DSC);
+	if((oct&0x10) == 0){
+	/* Channel Description			10.5.2.5	C V 3m */
+		ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_CH_DSC);
 	}else{
 	/* Packet Channel Description	10.5.2.25a	C V 3
 	 * If the Dedicated mode or TBF IE indicates that the message assigns a Temporary Block Flow (TBF),
@@ -15576,8 +15778,20 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
 /*
  * 9.1.21 Measurement report
  */
+void
+dtap_rr_meas_rep(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    
+    curr_offset = offset;
+    curr_len = len;
 
 	/* Measurement Results 10.5.2.20 M V 16 */
+	ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RR_MEAS_RES);
+}
+
 /*
  * [4] 9.1.25
  */
@@ -17989,7 +18203,7 @@ static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     dtap_rr_rr_status,	/* RR Status */
     NULL,	/* Channel Mode Modify Acknowledge */
     NULL,	/* Frequency Redefinition */
-    NULL,	/* 9.1.21 Measurement report */
+    dtap_rr_meas_rep,		/* 9.1.21 Measurement report */
     dtap_rr_mm_cm_change,	/* 9.1.11 Classmark Change */
     NULL,	/* Classmark Enquiry */
     NULL,	/* Extended Measurement Report */
@@ -18612,7 +18826,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * add DTAP message name
      */
     proto_tree_add_uint_format(dtap_tree, hf_idx, tvb, offset, 1, oct,
-		"Message Type %s",msg_str ? msg_str : "(Unknown)");
+		"Message Type: %s",msg_str ? msg_str : "(Unknown)");
 
     offset++;
 
@@ -19281,12 +19495,12 @@ proto_register_gsm_a(void)
 
 	{ &hf_gsm_a_rr_page_mode,
 		{ "Page Mode","gsm_a.rr.page_mode",
-		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x30,          
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_page_mode_vals), 0x03,          
 		"Page Mode", HFILL }
 	},
 	{ &hf_gsm_a_rr_dedicated_mode_or_tbf,
 		{ "Dedicated mode or TBF","gsm_a.rr.dedicated_mode_or_tbf",
-		FT_UINT8,BASE_DEC,  NULL, 0x07,          
+		FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_dedicated_mode_or_tbf_vals), 0x70,          
 		"Dedicated mode or TBF", HFILL }
 	},
 	{ &hf_gsm_a_rr_pow_cmd_epc,
