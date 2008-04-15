@@ -2488,6 +2488,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return TRUE;
 	}
 
+	/* we must queue this packet to the tap system before we actually
+	   call the subdissectors since short packets (i.e. nfs read reply)
+	   will cause an exception and execution would never reach the call
+	   to tap_queue_packet() in that case
+	*/
+	tap_queue_packet(rpc_tap, pinfo, rpc_call);
+
 	/* create here the program specific sub-tree */
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
 		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1,
@@ -2523,17 +2530,17 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	/* we must queue this packet to the tap system before we actually
-	   call the subdissectors since short packets (i.e. nfs read reply)
-	   will cause an exception and execution would never reach the call
-	   to tap_queue_packet() in that case
-	*/
-	tap_queue_packet(rpc_tap, pinfo, rpc_call);
-
 	/* proto==0 if this is an unknown program */
 	if( (proto==0) || !proto_is_protocol_enabled(proto)){
 		dissect_function = NULL;
 	}
+
+        /*
+         * Don't call any subdissector if we have no more date to dissect.
+         */
+        if (tvb_length_remaining(tvb, offset) == 0) {
+                return TRUE;
+        }
 
 	/*
 	 * Handle RPCSEC_GSS and AUTH_GSSAPI specially.
