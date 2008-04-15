@@ -704,7 +704,7 @@ proto_register_h263_data(void)
 				FT_UINT32,
 				BASE_HEX,
 				NULL,
-				0xfffffc00,
+				0x0,
 				"Picture start Code, PSC", HFILL
 			}
 		},
@@ -715,7 +715,7 @@ proto_register_h263_data(void)
 				FT_UINT32,
 				BASE_HEX,
 				NULL,
-				0xffff8000,
+				0x0,
 				"Group of Block Start Code", HFILL
 			}
 		},
@@ -727,7 +727,7 @@ proto_register_h263_data(void)
 				FT_UINT32,
 				BASE_DEC,
 				NULL,
-				0x000003fc,
+				0x0,
 				"Temporal Reference, TR", HFILL
 			}
 		},
@@ -751,7 +751,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x80,
+				0x0,
 				"Split screen indicator", HFILL
 			}
 		},
@@ -763,7 +763,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x40,
+				0x0,
 				"Document camera indicator", HFILL
 			}
 		},
@@ -775,7 +775,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x20,
+				0x0,
 				"Full Picture Freeze Release", HFILL
 			}
 		},
@@ -787,7 +787,7 @@ proto_register_h263_data(void)
 				FT_UINT8,
 				BASE_HEX,
 				VALS(h263_srcformat_vals),
-				0x1c,
+				0x0,
 				"Source Format", HFILL
 			}
 		},
@@ -811,7 +811,7 @@ proto_register_h263_data(void)
 				FT_UINT16,
 				BASE_DEC,
 				VALS(h263_ufep_vals),
-				0x0380,
+				0x0,
 				"Update Full Extended PTYPE", HFILL
 			}
 		},
@@ -823,7 +823,7 @@ proto_register_h263_data(void)
 				FT_UINT24,
 				BASE_DEC,
 				NULL,
-				0x7fffe0,
+				0x0,
 				"Optional Part of PLUSPTYPE", HFILL
 			}
 		},
@@ -835,8 +835,8 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&picture_coding_type_flg),
-				0x02,
-				"Picture Coding Typet", HFILL
+				0x0,
+				"Picture Coding Type", HFILL
 			}
 		},
 		{
@@ -847,7 +847,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x01,
+				0x0,
 				"Optional Unrestricted Motion Vector mode", HFILL
 			}
 		},
@@ -859,7 +859,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x80,
+				0x0,
 				"Optional Syntax-based Arithmetic Coding mode", HFILL
 			}
 		},
@@ -871,7 +871,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&on_off_flg),
-				0x40,
+				0x0,
 				"Optional Advanced Prediction mode", HFILL
 			}
 		},
@@ -883,7 +883,7 @@ proto_register_h263_data(void)
 				FT_BOOLEAN,
 				8,
 				TFS(&PB_frames_mode_flg),
-				0x20,
+				0x0,
 				"Optional PB-frames mode", HFILL
 			}
 		},
@@ -895,7 +895,7 @@ proto_register_h263_data(void)
 				FT_UINT32,
 				BASE_DEC,
 				NULL,
-				0x00007c00,
+				0x0,
 				"Group Number, GN", HFILL
 			}
 		},
