@@ -52,179 +52,176 @@
 
 #include "packet-h263.h"
 
-// XXX: rename proto & fields
-// 
-
 /* H.263 header fields             */
-static int proto_h263		= -1;
+static int proto_rfc2190		= -1;
 
 /* Mode A header */
-static int hf_h263_ftype = -1;
-static int hf_h263_pbframes = -1;
-static int hf_h263_sbit = -1;
-static int hf_h263_ebit = -1;
-static int hf_h263_srcformat = -1;
-static int hf_h263_picture_coding_type = -1;	
-static int hf_h263_unrestricted_motion_vector = -1;
-static int hf_h263_syntax_based_arithmetic = -1;
-static int hf_h263_advanced_prediction = -1;
-static int hf_h263_r = -1;
-static int hf_h263_rr = -1;
-static int hf_h263_dbq = -1;
-static int hf_h263_trb = -1;
-static int hf_h263_tr = -1;
+static int hf_rfc2190_ftype = -1;
+static int hf_rfc2190_pbframes = -1;
+static int hf_rfc2190_sbit = -1;
+static int hf_rfc2190_ebit = -1;
+static int hf_rfc2190_srcformat = -1;
+static int hf_rfc2190_picture_coding_type = -1;	
+static int hf_rfc2190_unrestricted_motion_vector = -1;
+static int hf_rfc2190_syntax_based_arithmetic = -1;
+static int hf_rfc2190_advanced_prediction = -1;
+static int hf_rfc2190_r = -1;
+static int hf_rfc2190_rr = -1;
+static int hf_rfc2190_dbq = -1;
+static int hf_rfc2190_trb = -1;
+static int hf_rfc2190_tr = -1;
 /* Additional fields for Mode B or C header */
-static int hf_h263_quant = -1;
-static int hf_h263_gobn = -1;
-static int hf_h263_mba = -1;
-static int hf_h263_hmv1 = -1;
-static int hf_h263_vmv1 = -1;
-static int hf_h263_hmv2 = -1;
-static int hf_h263_vmv2 = -1;
+static int hf_rfc2190_quant = -1;
+static int hf_rfc2190_gobn = -1;
+static int hf_rfc2190_mba = -1;
+static int hf_rfc2190_hmv1 = -1;
+static int hf_rfc2190_vmv1 = -1;
+static int hf_rfc2190_hmv2 = -1;
+static int hf_rfc2190_vmv2 = -1;
 
-static gint ett_h263			= -1;
+static gint ett_rfc2190			= -1;
 static dissector_handle_t h263_handle = NULL;
 
 
 static void
-dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
     proto_item *ti					= NULL;
-    proto_tree *h263_tree			= NULL;
+    proto_tree *rfc2190_tree			= NULL;
     unsigned int offset				= 0;
-    unsigned int h263_version		= 0;
+    unsigned int rfc2190_version		= 0;
     tvbuff_t *next_tvb;
 
-    h263_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
+    rfc2190_version = (tvb_get_guint8( tvb, offset ) & 0xc0 ) >> 6;
 
     if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
         col_set_str( pinfo->cinfo, COL_PROTOCOL, "H.263 " );
     }
 
-    if( h263_version == 0x00) {
+    if( rfc2190_version == 0x00) {
         if ( check_col( pinfo->cinfo, COL_INFO) ) {
 	    col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
         }
     }
-    else if( h263_version == 0x02) {
+    else if( rfc2190_version == 0x02) {
         if ( check_col( pinfo->cinfo, COL_INFO) ) {
 	    col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
         }
     }
-    else if( h263_version == 0x03) {
+    else if( rfc2190_version == 0x03) {
         if ( check_col( pinfo->cinfo, COL_INFO) ) {
 	    col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
         }
     }
 
     if ( tree ) {
-        ti = proto_tree_add_item( tree, proto_h263, tvb, offset, -1, FALSE );
-        h263_tree = proto_item_add_subtree( ti, ett_h263 );
+        ti = proto_tree_add_item( tree, proto_rfc2190, tvb, offset, -1, FALSE );
+        rfc2190_tree = proto_item_add_subtree( ti, ett_rfc2190 );
     }
     
     /* FBIT 1st octet, 1 bit */
-    proto_tree_add_boolean( h263_tree, hf_h263_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+    proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
     /* PBIT 1st octet, 1 bit */
-    proto_tree_add_boolean( h263_tree, hf_h263_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+    proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
     /* SBIT 1st octet, 3 bits */
-    proto_tree_add_uint( h263_tree, hf_h263_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
+    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
     /* EBIT 1st octet, 3 bits */
-    proto_tree_add_uint( h263_tree, hf_h263_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
+    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
 
     offset++;
 
     /* SRC 2nd octet, 3 bits */
-    proto_tree_add_uint( h263_tree, hf_h263_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
+    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
 
-    if(h263_version == 0x00) { /* MODE A */
+    if(rfc2190_version == 0x00) { /* MODE A */
         /* I flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
         /* U flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
         /* S flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
         /* A flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
 
         /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
 
         offset++;
 
         /* DBQ 3 octect, 2 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
         /* TRB 3 octect, 3 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
         
         offset++;
 	    
         /* TR 4 octect, 8 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	    
         offset++;
 
     } else { /* MODE B or MODE C */
         /* QUANT 2 octect, 5 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
 
         offset++;
 
         /* GOBN 3 octect, 5 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
         /* MBA 3 octect, 3 bits + 4 octect 6 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
 	    
         offset++;
 
         /* Reserved 4th octect, 2 bits */
-        proto_tree_add_uint( h263_tree, hf_h263_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
 
         offset++;
 
         /* I flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
         /* U flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
         /* S flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
         /* A flag, 1 bit */
-        proto_tree_add_boolean( h263_tree, hf_h263_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
         
         /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
-        proto_tree_add_uint( h263_tree, hf_h263_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
         
         offset++;
 	    
         /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
-        proto_tree_add_uint( h263_tree, hf_h263_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
 	    
         offset++;
 
         /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
-        proto_tree_add_uint( h263_tree, hf_h263_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
 	
         offset++;
 
         /* VMV2 8th octect, 7 bits*/
-        proto_tree_add_uint( h263_tree, hf_h263_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
 		  
         offset++;
 
-        if(h263_version == 0x03) { /* MODE C */
+        if(rfc2190_version == 0x03) { /* MODE C */
             /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
-            proto_tree_add_uint( h263_tree, hf_h263_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
             
             offset+=2;
 
             /* DBQ 11th octect, 2 bits */
-            proto_tree_add_uint( h263_tree, hf_h263_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
             /* TRB 11th octect, 3 bits */
-            proto_tree_add_uint( h263_tree, hf_h263_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
 	      
             offset++;
 	      
             /* TR 12th octect, 8 bits */
-            proto_tree_add_uint( h263_tree, hf_h263_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	    
             offset++;
         } /* end mode c */
@@ -236,11 +233,11 @@ dissect_h263( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 }
 
 void
-proto_reg_handoff_h263(void)
+proto_reg_handoff_rfc2190(void)
 {
 	dissector_handle_t rfc2190_handle;
 
-	rfc2190_handle = find_dissector("h263");
+	rfc2190_handle = find_dissector("rfc2190");
 	dissector_add("rtp.pt", PT_H263, rfc2190_handle);
 	dissector_add("iax2.codec", AST_FORMAT_H263, rfc2190_handle);
 
@@ -249,15 +246,15 @@ proto_reg_handoff_h263(void)
 
 
 void
-proto_register_h263(void)
+proto_register_rfc2190(void)
 {
 	static hf_register_info hf[] =
 	{
 		{
-			&hf_h263_ftype,
+			&hf_rfc2190_ftype,
 			{
 				"F",
-				"h263.ftype",
+				"rfc2190.ftype",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -266,10 +263,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_pbframes,
+			&hf_rfc2190_pbframes,
 			{
 				"p/b frame",
-				"h263.pbframes",
+				"rfc2190.pbframes",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -278,10 +275,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_sbit,
+			&hf_rfc2190_sbit,
 			{
 				"Start bit position",
-				"h263.sbit",
+				"rfc2190.sbit",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -290,10 +287,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_ebit,
+			&hf_rfc2190_ebit,
 			{
 				"End bit position",
-				"h263.ebit",
+				"rfc2190.ebit",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -302,10 +299,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_srcformat,
+			&hf_rfc2190_srcformat,
 			{
 				"SRC format",
-				"h263.srcformat",
+				"rfc2190.srcformat",
 				FT_UINT8,
 				BASE_DEC,
 				VALS(h263_srcformat_vals),
@@ -314,10 +311,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_picture_coding_type,
+			&hf_rfc2190_picture_coding_type,
 			{
 				"Inter-coded frame",
-				"h263.picture_coding_type",
+				"rfc2190.picture_coding_type",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -326,10 +323,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_unrestricted_motion_vector,
+			&hf_rfc2190_unrestricted_motion_vector,
 			{
 				"Motion vector",
-				"h263.unrestricted_motion_vector",
+				"rfc2190.unrestricted_motion_vector",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -338,10 +335,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_syntax_based_arithmetic,
+			&hf_rfc2190_syntax_based_arithmetic,
 			{
 				"Syntax-based arithmetic coding",
-				"h263.syntax_based_arithmetic",
+				"rfc2190.syntax_based_arithmetic",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -350,10 +347,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_advanced_prediction,
+			&hf_rfc2190_advanced_prediction,
 			{
 				"Advanced prediction option",
-				"h263.advanced_prediction",
+				"rfc2190.advanced_prediction",
 				FT_BOOLEAN,
 				BASE_NONE,
 				NULL,
@@ -362,10 +359,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_dbq,
+			&hf_rfc2190_dbq,
 			{
 				"Differential quantization parameter",
-				"h263.dbq",
+				"rfc2190.dbq",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -374,10 +371,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_trb,
+			&hf_rfc2190_trb,
 			{
 				"Temporal Reference for B frames",
-				"h263.trb",
+				"rfc2190.trb",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -386,10 +383,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_tr,
+			&hf_rfc2190_tr,
 			{
 				"Temporal Reference for P frames",
-				"h263.tr",
+				"rfc2190.tr",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -398,10 +395,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_quant,
+			&hf_rfc2190_quant,
 			{
 				"Quantizer",
-				"h263.quant",
+				"rfc2190.quant",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -410,10 +407,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_gobn,
+			&hf_rfc2190_gobn,
 			{
 				"GOB Number",
-				"h263.gobn",
+				"rfc2190.gobn",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -422,10 +419,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_mba,
+			&hf_rfc2190_mba,
 			{
 				"Macroblock address",
-				"h263.mba",
+				"rfc2190.mba",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
@@ -434,10 +431,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_hmv1,
+			&hf_rfc2190_hmv1,
 			{
 				"Horizontal motion vector 1",
-				"h263.hmv1",
+				"rfc2190.hmv1",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -446,10 +443,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_vmv1,
+			&hf_rfc2190_vmv1,
 			{
 				"Vertical motion vector 1",
-				"h263.vmv1",
+				"rfc2190.vmv1",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -458,10 +455,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_hmv2,
+			&hf_rfc2190_hmv2,
 			{
 				"Horizontal motion vector 2",
-				"h263.hmv2",
+				"rfc2190.hmv2",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -470,10 +467,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_vmv2,
+			&hf_rfc2190_vmv2,
 			{
 				"Vertical motion vector 2",
-				"h263.vmv2",
+				"rfc2190.vmv2",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -482,10 +479,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_r,
+			&hf_rfc2190_r,
 			{
 				"Reserved field",
-				"h263.r",
+				"rfc2190.r",
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
@@ -494,10 +491,10 @@ proto_register_h263(void)
 			}
 		},
 		{
-			&hf_h263_rr,
+			&hf_rfc2190_rr,
 			{
 				"Reserved field 2",
-				"h263.rr",
+				"rfc2190.rr",
 				FT_UINT16,
 				BASE_DEC,
 				NULL,
@@ -509,15 +506,15 @@ proto_register_h263(void)
 
         static gint *ett[] =
 	{
-            &ett_h263,
+            &ett_rfc2190,
         };
 
         proto_register_subtree_array(ett, array_length(ett));
 
-	proto_h263 = proto_register_protocol("H.263 RTP Payload header (RFC2190)",
-	    "H.263", "h263");
+	proto_rfc2190 = proto_register_protocol("H.263 RTP Payload header (RFC2190)",
+	    "RFC2190", "rfc2190");
 
-	proto_register_field_array(proto_h263, hf, array_length(hf));
-	register_dissector("h263", dissect_h263, proto_h263);
+	proto_register_field_array(proto_rfc2190, hf, array_length(hf));
+	register_dissector("rfc2190", dissect_rfc2190, proto_rfc2190);
 }
 
