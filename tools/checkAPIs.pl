@@ -50,7 +50,12 @@ my @prohibitedAPIs=
 	'ntohs',
 	'htonl',
 	'htons',
-	# use ep_ or se_ functions instead of these:
+	'strdup',
+	'strndup',
+	# use ep_*, se_*, or g_* functions instead of these:
+	# (One thing to be aware of is that space allocated with malloc()
+	# may not be freeable--at least on Windows--with g_free() and
+	# vice-versa.)
 	'malloc',
 	'free',
 	# Locale-unsafe APIs
