@@ -44,6 +44,7 @@
 #include "../image/toolbar/display_filter_24.xpm"
 /* these icons are standard stock icons, but used for Wireshark specific stock icon labels */
 #include "../image/toolbar/stock_add_24.xpm"
+#include "../image/toolbar/stock_clear_24.xpm"
 #include "../image/toolbar/stock_open_24.xpm"
 #include "../image/toolbar/stock_ok_20.xpm"
 #include "../image/toolbar/stock_save_24.xpm"
@@ -165,6 +166,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_IMPORT,                stock_open_24_xpm },    /* XXX: needs a better icon */
         { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
         { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
+        { WIRESHARK_STOCK_DONT_SAVE,             stock_clear_24_xpm },
         { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
         { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
         { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
