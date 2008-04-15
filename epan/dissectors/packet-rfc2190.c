@@ -117,116 +117,129 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     if ( tree ) {
         ti = proto_tree_add_item( tree, proto_rfc2190, tvb, offset, -1, FALSE );
         rfc2190_tree = proto_item_add_subtree( ti, ett_rfc2190 );
-    }
     
-    /* FBIT 1st octet, 1 bit */
-    proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
-    /* PBIT 1st octet, 1 bit */
-    proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
-    /* SBIT 1st octet, 3 bits */
-    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
-    /* EBIT 1st octet, 3 bits */
-    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
-
-    offset++;
-
-    /* SRC 2nd octet, 3 bits */
-    proto_tree_add_uint( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
-
-    if(rfc2190_version == 0x00) { /* MODE A */
-        /* I flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
-        /* U flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
-        /* S flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
-        /* A flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
-
-        /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
+        /* FBIT 1st octet, 1 bit */
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_ftype, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+        /* PBIT 1st octet, 1 bit */
+        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_pbframes, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+        /* SBIT 1st octet, 3 bits */
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_sbit, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x38 ) >> 3 );
+        /* EBIT 1st octet, 3 bits */
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_ebit, tvb, offset, 1, tvb_get_guint8( tvb, offset )  & 0x7 );
 
         offset++;
 
-        /* DBQ 3 octect, 2 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
-        /* TRB 3 octect, 3 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
-        
-        offset++;
-	    
-        /* TR 4 octect, 8 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
-	    
-        offset++;
+        /* SRC 2nd octet, 3 bits */
+        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, tvb_get_guint8( tvb, offset ) >> 5 );
 
-    } else { /* MODE B or MODE C */
-        /* QUANT 2 octect, 5 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
-
-        offset++;
-
-        /* GOBN 3 octect, 5 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
-        /* MBA 3 octect, 3 bits + 4 octect 6 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
-	    
-        offset++;
-
-        /* Reserved 4th octect, 2 bits */
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
-
-        offset++;
-
-        /* I flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
-        /* U flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
-        /* S flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
-        /* A flag, 1 bit */
-        proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
-        
-        /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
-        
-        offset++;
-	    
-        /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
-	    
-        offset++;
-
-        /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
-	
-        offset++;
-
-        /* VMV2 8th octect, 7 bits*/
-        proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
-		  
-        offset++;
-
-        if(rfc2190_version == 0x03) { /* MODE C */
-            /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
+        if(rfc2190_version == 0x00) { /* MODE A */
+            /* I flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+            /* U flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x08 );
+            /* S flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x04 );
+            /* A flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x02 );
             
-            offset+=2;
+            /* Reserved 2nd octect, 1 bit + 3rd octect 3 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xe0 ) >> 5 ) );
 
-            /* DBQ 11th octect, 2 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
-            /* TRB 11th octect, 3 bits */
-            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
-	      
             offset++;
-	      
-            /* TR 12th octect, 8 bits */
+
+            /* DBQ 3 octect, 2 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >> 3 );
+            /* TRB 3 octect, 3 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x07 ) );
+        
+            offset++;
+	    
+            /* TR 4 octect, 8 bits */
             proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	    
             offset++;
-        } /* end mode c */
-    } /* end not mode a */
 
+        } else { /* MODE B or MODE C */
+            /* QUANT 2 octect, 5 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_quant, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x1f );
+
+            offset++;
+
+            /* GOBN 3 octect, 5 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_gobn, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0xf8 ) >> 3);
+            /* MBA 3 octect, 3 bits + 4 octect 6 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_mba, tvb, offset, 2, ( ( tvb_get_guint8( tvb, offset ) & 0x7 ) << 6 ) + ( ( tvb_get_guint8( tvb, offset + 1 ) & 0xfc ) >> 2 ) );
+	    
+            offset++;
+
+            /* Reserved 4th octect, 2 bits */
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_r, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x3 ) );
+
+            offset++;
+
+            /* I flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_picture_coding_type, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x80 );
+            /* U flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_unrestricted_motion_vector, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x40 );
+            /* S flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_syntax_based_arithmetic, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x20 );
+            /* A flag, 1 bit */
+            proto_tree_add_boolean( rfc2190_tree, hf_rfc2190_advanced_prediction, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x10 );
+        
+            /* HMV1 5th octect, 4 bits + 6th octect 3 bits*/
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0xf ) << 3 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xe0 ) >> 5) );
+        
+            offset++;
+	    
+            /* VMV1 6th octect, 5 bits + 7th octect 2 bits*/
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv1, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x1f ) << 2 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xc0 ) >> 6) );
+	    
+            offset++;
+
+            /* HMV2 7th octect, 6 bits + 8th octect 1 bit*/
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_hmv2, tvb, offset, 2,( ( tvb_get_guint8( tvb, offset ) & 0x3f ) << 1 ) + ( ( tvb_get_guint8( tvb, offset+1 ) & 0xf0 ) >> 7) );
+	
+            offset++;
+
+            /* VMV2 8th octect, 7 bits*/
+            proto_tree_add_uint( rfc2190_tree, hf_rfc2190_vmv2, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x7f );
+		  
+            offset++;
+
+            if(rfc2190_version == 0x03) { /* MODE C */
+                /* Reserved 9th to 11th octect, 8 + 8 + 3 bits */
+                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ( tvb_get_guint8( tvb, offset ) << 11 ) + ( tvb_get_guint8( tvb, offset + 1 ) << 3 ) + ( ( tvb_get_guint8( tvb, offset + 2 ) & 0xe0 ) >> 5 ) );
+            
+                offset+=2;
+
+                /* DBQ 11th octect, 2 bits */
+                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_dbq, tvb, offset, 1, ( tvb_get_guint8( tvb, offset ) & 0x18 ) >>3 );
+                /* TRB 11th octect, 3 bits */
+                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_trb, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 0x07 );
+	      
+                offset++;
+                
+                /* TR 12th octect, 8 bits */
+                proto_tree_add_uint( rfc2190_tree, hf_rfc2190_tr, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
+	    
+                offset++;
+            } /* end mode c */
+        } /* end not mode a */
+    } else {
+        switch(rfc2190_version) {
+            case 0x00: /* MODE A */
+                offset += 4;
+                break;
+            case 0x01: /* MODE B */
+                offset += 8;
+                break;
+            case 0x02: /* MODE C */
+                offset += 12;
+                break;
+        }
+    }
+    
+            
     /* The rest of the packet is the H.263 stream */
     next_tvb = tvb_new_subset( tvb, offset, tvb_length(tvb) - offset, tvb_reported_length(tvb) - offset);
     call_dissector(h263_handle,next_tvb,pinfo,tree);
