@@ -162,7 +162,7 @@ topic_action(topic_action_e action)
         browser_open_url ("http://wiki.wireshark.org");
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        browser_open_url ("http://www.wireshark.org/download/");
+        browser_open_url ("http://www.wireshark.org/download.html");
         break;
     case(ONLINEPAGE_USERGUIDE):
         browser_open_url ("http://www.wireshark.org/docs/wsug_html_chunked/");
@@ -172,6 +172,18 @@ topic_action(topic_action_e action)
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
         browser_open_url ("http://wiki.wireshark.org/SampleCaptures");
+        break;
+    case(ONLINEPAGE_CAPTURE_SETUP):
+        browser_open_url ("http://wiki.wireshark.org/CaptureSetup");
+        break;
+    case(ONLINEPAGE_NETWORK_MEDIA):
+        browser_open_url ("http://wiki.wireshark.org/CaptureSetup/NetworkMedia");
+        break;
+    case(ONLINEPAGE_SAMPLE_CAPTURES):
+        browser_open_url ("http://wiki.wireshark.org/SampleCaptures");
+        break;
+    case(ONLINEPAGE_SECURITY):
+        browser_open_url ("http://wiki.wireshark.org/Security");
         break;
 
     /* local manual pages */
