@@ -454,21 +454,21 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 	/* get/display the interface device from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 0, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = strdup(text);
+    text = g_strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_dev_lb), text);
     g_free(text);
 
 	/* get/display the interface name from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 1, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = strdup(text);
+    text = g_strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_name_lb), text);
     g_free(text);
 
 	/* get/display the interface description from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 2, &text);
     /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = strdup(text);
+    text = g_strdup(text);
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), text);
     g_free(text);
 

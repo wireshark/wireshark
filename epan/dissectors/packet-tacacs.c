@@ -899,7 +899,7 @@ parse_tacplus_keys( const char *keys_from_option )
 		/* option not in client/server=key format */
 		return ;
 	}
-	key_copy=strdup(keys_from_option);
+	key_copy=g_strdup(keys_from_option);
 	s=key_copy;
 	while(s){
 		if( (s1=strchr( s, ' ' )) != NULL )
