@@ -465,7 +465,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                }
                        }
                        /* Just check that offset will advance */
-                       g_assert((avp_length+padding)!=0);
+                       DISSECTOR_ASSERT((avp_length+padding)!=0);
 
                        offset += avp_data_length + padding;
                }
