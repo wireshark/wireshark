@@ -87,6 +87,7 @@
 #include "gtk/main_menu.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_toolbar.h"
+#include "gtk/main_welcome.h"
 
 
 typedef struct _menu_item {
@@ -1594,6 +1595,8 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
 #define MENU_RECENT_FILES_PATH "/File/Open Recent"
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
+
+
 static void
 update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     gchar *widget_cf_name;
@@ -1603,8 +1606,10 @@ update_menu_recent_capture_file1(GtkWidget *widget, gpointer cnt) {
     /* if this menu item is a file, count it */
     if (widget_cf_name) {
         (*(guint *)cnt)++;
+        main_welcome_add_recent_capture_files(widget_cf_name);
     }
 }
+
 
 
 /* update the menu */
@@ -1612,11 +1617,48 @@ static void
 update_menu_recent_capture_file(GtkWidget *submenu_recent_files) {
     guint cnt = 0;
 
+
+    main_welcome_reset_recent_capture_files();
+
     gtk_container_foreach(GTK_CONTAINER(submenu_recent_files),
 		update_menu_recent_capture_file1, &cnt);
 
     /* make parent menu item sensitive only, if we have any valid files in the list */
     set_menu_sensitivity(main_menu_factory, MENU_RECENT_FILES_PATH, cnt);
+}
+
+
+
+/* remove the capture filename from the "Recent Files" menu */
+static void
+remove_menu_recent_capture_filename(gchar *cf_name) {
+    GtkWidget *submenu_recent_files;
+    GList* child_list;
+    GList* child_list_item;
+	GtkWidget *menu_item_child;
+	gchar     *menu_item_cf_name;
+    
+
+    /* get the submenu container item */
+    submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+
+    /* find the corresponding menu item to be removed */
+    child_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
+    child_list_item = child_list;
+    while(child_list_item) {
+	    menu_item_child = (GTK_BIN(child_list_item->data))->child;
+	    gtk_label_get(GTK_LABEL(menu_item_child), &menu_item_cf_name);
+        if(strcmp(menu_item_cf_name, cf_name) == 0) {
+            /* XXX: is this all we need to do, to free the menu item and its label?
+               The reference count of widget will go to 0, so it'll be freed;
+               will that free the label? */
+            gtk_container_remove(GTK_CONTAINER(submenu_recent_files), child_list_item->data);
+        }
+        child_list_item = g_list_next(child_list_item);
+    }
+    g_list_free(child_list);
+
+    update_menu_recent_capture_file(submenu_recent_files);
 }
 
 
@@ -1640,7 +1682,7 @@ remove_menu_recent_capture_file(GtkWidget *widget, gpointer unused _U_) {
 }
 
 
-/* callback, if the user pushed the <Clear File List> item */
+/* callback, if the user pushed the <Clear> menu item */
 static void
 clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
     GtkWidget *submenu_recent_files;
@@ -1652,6 +1694,29 @@ clear_menu_recent_capture_file_cmd_cb(GtkWidget *w _U_, gpointer unused _U_) {
 		remove_menu_recent_capture_file, NULL);
 
     update_menu_recent_capture_file(submenu_recent_files);
+}
+
+
+/* Open a file by it's name
+   (Beware: will not ask to close existing capture file!) */
+void
+menu_open_filename(gchar *cf_name)
+{
+	GtkWidget *submenu_recent_files;
+	int       err;
+
+	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
+
+	/* open and read the capture file (this will close an existing file) */
+	if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+		cf_read(&cfile);
+	} else {
+		/* the capture file isn't existing any longer, remove menu item */
+		/* XXX: ask user to remove item, it's maybe only a temporary problem */
+		remove_menu_recent_capture_filename(cf_name);
+	}
+
+	update_menu_recent_capture_file(submenu_recent_files);
 }
 
 
@@ -1682,7 +1747,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
 	update_menu_recent_capture_file(submenu_recent_files);
 }
 
-static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
     case(ESD_BTN_YES):

@@ -28,17 +28,27 @@
 
 #include <gtk/gtk.h>
 
+#include <epan/prefs.h>
+
 #include "../color.h"
+#include "capture.h"
+#include "capture-pcap-util.h"
+#include "capture_opts.h"
+#include "simple_dialog.h"
 
 #include "gtk/gui_utils.h"
 #include "gtk/color_utils.h"
 #include "gtk/recent.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/main.h"
+#include "gtk/main_menu.h"
 #include "gtk/main_welcome.h"
 #include "gtk/capture_dlg.h"
 #include "gtk/capture_file_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
+
+
 
 
 /* XXX - There seems to be some disagreement about if and how this feature should be implemented.
@@ -53,22 +63,31 @@
 #ifdef SHOW_WELCOME_PAGE
 
 
+/* XXX */
+extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
+
+
 GdkColor topic_item_entered_bg;
 GdkColor topic_content_bg;
 GdkColor header_bar_bg;
 GdkColor topic_header_bg;
 
+GtkWidget *welcome_file_panel_vb = NULL;
 
+
+
+/* mouse entered this widget - change background color */
 static gboolean
-welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data)
+welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_entered_bg);
 
     return FALSE;
 }
 
+/* mouse has left this widget - change background color  */
 static gboolean
-welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data)
+welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
 {
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_content_bg);
 
@@ -76,19 +95,9 @@ welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data)
 }
 
 
-static gboolean
-welcome_item_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_) {
-
-    g_warning("TBD: item pressed");
-
-    return FALSE;
-}
-
-
-
-
+/* create a "button widget" */
 GtkWidget *
-welcome_item(const gchar *stock_item, const gchar * title, const gchar * subtitle,
+welcome_button(const gchar *stock_item, const gchar * title, const gchar * subtitle,
 			 GtkSignalFunc callback, void *callback_data)
 {
     GtkWidget *eb, *w, *item_hb, *text_vb;
@@ -97,7 +106,7 @@ welcome_item(const gchar *stock_item, const gchar * title, const gchar * subtitl
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
-    /* event box */
+    /* event box (for background color and events) */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_content_bg);
@@ -135,6 +144,7 @@ welcome_item(const gchar *stock_item, const gchar * title, const gchar * subtitl
 }
 
 
+/* create the banner "above our heads" */
 GtkWidget *
 welcome_header_new(void)
 {
@@ -171,6 +181,7 @@ welcome_header_new(void)
 }
 
 
+/* create a "topic header widget" */
 GtkWidget *
 welcome_topic_header_new(const char *header)
 {
@@ -193,6 +204,7 @@ welcome_topic_header_new(const char *header)
 }
 
 
+/* create a "topic widget" */
 GtkWidget *
 welcome_topic_new(const char *header, GtkWidget **to_fill)
 {
@@ -221,43 +233,23 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
 }
 
 
+/* a file link was pressed */
 static gboolean
-welcome_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_) {
-
-    g_warning("TBD: link pressed");
+welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
+{
+    menu_open_filename(data);
 
     return FALSE;
 }
 
+
+/* create a "file link widget" */
 GtkWidget *
-welcome_link_new(const gchar *text, GtkWidget **label /*, void *callback, void *private_data */)
+welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 {
-    gchar *message;
     GtkWidget *w;
     GtkWidget *eb;
-
-    message = g_strdup_printf("<span foreground='blue'>%s</span>", text);
-    w = gtk_label_new(message);
-    *label = w;
-    gtk_label_set_markup(GTK_LABEL(w), message);
-    g_free(message);
-
-	/* event box */
-    eb = gtk_event_box_new();
-    gtk_container_add(GTK_CONTAINER(eb), w);
-    
-    g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
-    g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
-    g_signal_connect(eb, "button-press-event", G_CALLBACK(welcome_link_press_cb), w);
-
-    return eb;
-}
-
-GtkWidget *
-welcome_filename_link_new(const char *filename, GtkWidget **label)
-{
     GString		*str;
-    GtkWidget	*w;
     const unsigned int max = 60;
 
 
@@ -268,29 +260,67 @@ welcome_filename_link_new(const char *filename, GtkWidget **label)
         g_string_prepend(str, "... ");
     }
 
-    w = welcome_link_new(str->str, label);
+    g_string_prepend(str, "<span foreground='blue'>");
+    g_string_append(str, "</span>");
+
+    w = gtk_label_new(str->str);
+    *label = w;
+    gtk_label_set_markup(GTK_LABEL(w), str->str);
+    gtk_misc_set_padding(GTK_MISC(w), 5, 2);
+
+	/* event box */
+    eb = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(eb), w);
+    
+    g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
+    g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
+    g_signal_connect(eb, "button-press-event", G_CALLBACK(welcome_filename_link_press_cb), (gchar *) filename);
 
     g_string_free(str, TRUE);
 
-    return w;
+    return eb;
 }
 
 
-#include <epan/prefs.h>
-#include "capture.h"
-#include "capture-pcap-util.h"
-#include "capture_opts.h"
-#include "main.h"
-#include "simple_dialog.h"
+/* reset the list of recent files */
+void
+main_welcome_reset_recent_capture_files()
+{
+    GList* child_list;
+    GList* child_list_item;
+    
+    child_list = gtk_container_get_children(GTK_CONTAINER(welcome_file_panel_vb));
+    child_list_item = child_list;
 
-extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
+    while(child_list_item) {
+        gtk_container_remove(GTK_CONTAINER(welcome_file_panel_vb), child_list_item->data);
+        child_list_item = g_list_next(child_list_item);
+    }
+
+    g_list_free(child_list);
+}
 
 
+/* add a new file to the list of recent files */
+void
+main_welcome_add_recent_capture_files(const char *widget_cf_name)
+{
+    GtkWidget *w;
+    GtkWidget *label;
+
+    w = welcome_filename_link_new(widget_cf_name, &label);
+    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
+    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
+    gtk_box_pack_start(GTK_BOX(welcome_file_panel_vb), w, FALSE, FALSE, 0);
+    gtk_widget_show_all(w);
+}
+
+
+#ifdef HAVE_LIBPCAP
+/* user clicked on an interface button */
 static gboolean
-welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data) {
-
-    //g_warning("TBD: start capture pressed");
-
+welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
+{
     if (capture_opts->iface)
         g_free(capture_opts->iface);
     if (capture_opts->iface_descr)
@@ -298,7 +328,8 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data) {
 
     capture_opts->iface = g_strdup(data);
     capture_opts->iface_descr = NULL;
-    //capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
+    /* XXX - fix this */
+    /*capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);*/
 
     /* XXX - remove this? */
     if (capture_opts->save_file) {
@@ -312,8 +343,8 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data) {
 }
 
 
-#ifdef HAVE_LIBPCAP
-GtkWidget *
+/* create a single interface entry */
+static GtkWidget *
 welcome_if_new(const char *if_name, GdkColor *topic_bg, gpointer interf)
 {
     GtkWidget *interface_hb;
@@ -358,22 +389,7 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg, gpointer interf)
 }
 
 
-/*
- * Sorts the Interface List in alphabetical order
- */
-/*gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
-  const if_info_t *first = first_arg, *second = second_arg;
-
-  if (first != NULL && first->description != NULL &&
-      second != NULL && second->description != NULL) {
-    return g_ascii_strcasecmp(first->description, second->description);
-  } else {
-    return 0;
-  }
-}*/
-
-
-
+/* create the list of interfaces */
 GtkWidget *
 welcome_if_panel_new(void)
 {
@@ -386,7 +402,7 @@ int err;
   gchar         *err_str;
   int           ifs;
   GList         *curr;
-  //if_dlg_data_t *if_dlg_data;
+  /*if_dlg_data_t *if_dlg_data;*/
 
     panel_vb = gtk_vbox_new(FALSE, 0);
 
@@ -415,7 +431,7 @@ int err;
 
   /* List the interfaces */
   for(ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
-      //g_string_assign(if_tool_str, "");
+      /*g_string_assign(if_tool_str, "");*/
       if_info = curr->data;
 
       /* Continue if capture device is hidden */
@@ -423,20 +439,20 @@ int err;
           continue;
       }
 
-      //if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
-      //if_dlg_data->if_info = *if_info;
+      /*if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));*/
+      /*if_dlg_data->if_info = *if_info;*/
 
       /* Kind of adaptor (icon) */
-      //icon = xpm_to_widget(capture_ethernet_16_xpm);
-      //gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);
+      /*icon = xpm_to_widget(capture_ethernet_16_xpm);*/
+      /*gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);*/
 
       /* description */
-      //if (if_info->description != NULL)
-        //if_dlg_data->descr_lb = gtk_label_new(if_info->description);
-      //else
-        //if_dlg_data->descr_lb = gtk_label_new("");
-      //gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0, 0.5);
-      //gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);
+      /*if (if_info->description != NULL)*/
+        /*if_dlg_data->descr_lb = gtk_label_new(if_info->description);*/
+      /*else*/
+        /*if_dlg_data->descr_lb = gtk_label_new("");*/
+      /*gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0, 0.5);*/
+      /*gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);*/
 
 #if 0
       if (if_info->description) {
@@ -483,25 +499,12 @@ int err;
 
     free_interface_list(if_list);
 
-#if 0
-    /* Generic dialup */
-    interface_hb = welcome_if_new("Generic dialup adapter", &topic_content_bg, TRUE);
-    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
-
-    /* Marvell interface */
-    interface_hb = welcome_if_new("Marvell Gigabit Ethernet Controller", &topic_content_bg, TRUE);
-    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
-
-    /* Wireless interface */
-    interface_hb = welcome_if_new("Intel(R) PRO/Wireless 3945ABG Network Connection", &topic_content_bg, TRUE);
-    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
-#endif
-
     return panel_vb;
 }
 #endif  /* HAVE_LIBPCAP */
 
 
+/* create the welcome page */
 GtkWidget *
 welcome_new(void)
 {
@@ -511,7 +514,6 @@ welcome_new(void)
     GtkWidget *column_vb;
     GtkWidget *item_hb;
     GtkWidget *w;
-    GtkWidget *label;
     GtkWidget *header;
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
@@ -560,6 +562,7 @@ welcome_new(void)
     gtk_container_border_width(GTK_CONTAINER(welcome_hb), 10);
     gtk_box_pack_start(GTK_BOX(welcome_vb), welcome_hb, TRUE, TRUE, 0);
 
+
     /* column capture */
     column_vb = gtk_vbox_new(FALSE, 10);
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
@@ -569,7 +572,7 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
 #ifdef HAVE_LIBPCAP
-    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_INTERFACES,
+    item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
         "Interface List",
 		"Life list of the capture interfaces (counts incoming packets)",
         GTK_SIGNAL_FUNC(capture_if_cb), NULL);
@@ -582,7 +585,7 @@ welcome_new(void)
     w = welcome_if_panel_new();
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
 
-    item_hb = welcome_item(WIRESHARK_STOCK_CAPTURE_OPTIONS,
+    item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
         "Capture Options",
 		"Start a capture with detailed options",
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
@@ -592,29 +595,23 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Capture Help", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-    item_hb = welcome_item(WIRESHARK_STOCK_WIKI,
+    item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"How to Capture",
 		"Step by step to a successful capture setup",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-    item_hb = welcome_item(WIRESHARK_STOCK_WIKI,
+    item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"Network Media",
         "Specific infos for capturing on: Ethernet, WLAN, ...",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
-
-    /*item_hb = welcome_item(WIRESHARK_STOCK_WIKI,
-		"Capture Filters",
-		"Capture filter examples on the wiki",
-        GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_FILTERS));
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);*/
 #else
     /* place a note that capturing is not compiled in */
     w = gtk_label_new("Capturing is not compiled into this version of Wireshark!");
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
-#endif
+#endif  /* HAVE_LIBPCAP */
 
     /* fill bottom space */
     w = gtk_label_new("");
@@ -625,52 +622,23 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Files", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(welcome_hb), topic_vb, TRUE, TRUE, 0);
 
-    item_hb = welcome_item(GTK_STOCK_OPEN,
+    item_hb = welcome_button(GTK_STOCK_OPEN,
         "Open",
 		"Open a previously captured file",
         GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-    /* list of recent files */
+    /* prepare list of recent files (will be filled in later) */
     w = gtk_label_new("Open Recent:");
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
-    w = welcome_link_new("C:\\Testfiles\\hello.pcap", &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+    welcome_file_panel_vb = gtk_vbox_new(FALSE, 1);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), welcome_file_panel_vb, FALSE, FALSE, 0);
 
-    w = welcome_filename_link_new("C:\\Testfiles\\hello2.pcap", &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-    w = welcome_filename_link_new("C:\\Testfiles\\hello3.pcap", &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-    w = welcome_filename_link_new("C:\\Testfiles\\hello4.pcap", &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-    w = welcome_filename_link_new("C:\\Testfiles\\hello5.pcap", &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-    w = welcome_filename_link_new(
-		"C:\\Testfiles\\to avoid screen garbage\\Unfortunately this is a very long filename which had to be truncated.pcap",
-		&label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
-    gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
-
-    item_hb = welcome_item(WIRESHARK_STOCK_WIKI,
+    item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Sample Captures",
-		"A rich assortment of sample capture files on the wiki",
+		"A rich assortment of example capture files on the wiki",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
@@ -687,19 +655,19 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Online", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-    item_hb = welcome_item(GTK_STOCK_HOME,
+    item_hb = welcome_button(GTK_STOCK_HOME,
         "Website",
 		"Visit the project's website",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-    item_hb = welcome_item(WIRESHARK_STOCK_WEB_SUPPORT,
+    item_hb = welcome_button(GTK_STOCK_HELP,
         "User's Guide",
 		"The User's Guide (local version, if installed)",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-    item_hb = welcome_item(WIRESHARK_STOCK_WIKI,
+    item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Security",
 		"Work with Wireshark as secure as possible",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
@@ -725,7 +693,18 @@ welcome_new(void)
 
     return welcome_scrollw;
 }
-#else
+#else   /* SHOW_WELCOME_PAGE */
+
+/* SOME DUMMY FUNCTIONS, UNTIL THE WELCOME PAGE GET'S LIVE */
+void main_welcome_reset_recent_capture_files(void)
+{
+}
+
+/* add a new file to the list of recently used files */
+void main_welcome_add_recent_capture_files(const char *widget_cf_name _U_)
+{
+}
+
 GtkWidget *
 welcome_new(void)
 {

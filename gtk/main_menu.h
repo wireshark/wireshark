@@ -33,6 +33,10 @@ extern "C" {
    (duplicates will be ignored) */
 extern void add_menu_recent_capture_file(gchar *cf_name);
 
+/* Open a file(name)
+   (will not ask to close existing capture file!) */
+extern void menu_open_filename(gchar *cf_name);
+
 /** @file
  *  Menubar and context menus.
  *  @ingroup main_window_group
