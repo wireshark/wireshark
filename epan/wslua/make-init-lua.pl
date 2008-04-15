@@ -54,7 +54,7 @@ my %replacements = %{{
 my $template = '';
 my $template_filename = shift;
 
-open TEMPLATE, "< $template_filename" or die "could not open '$template_filename'";
+open TEMPLATE, "< $template_filename" or die "could not open '$template_filename':  $!";
 $template .= $_ while(<TEMPLATE>);
 close TEMPLATE;
 
@@ -64,7 +64,7 @@ close TEMPLATE;
 
 $wtap_encaps_table = "-- Wiretap encapsulations\nwtap = {\n";
 
-open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h'";
+open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h':  $!";
 
 while(<WTAP_H>) {
     if ( /^#define WTAP_ENCAP_([A-Z0-9_]+)\s+(\d+)/ ) {
@@ -82,7 +82,7 @@ $ft_types_table = " -- Field Types\nftypes = {\n";
 
 my $ftype_num = 0;
 
-open FTYPES_H, "< $WSROOT/epan/ftypes/ftypes.h" or die "cannot open '$WSROOT/epan/ftypes/ftypes.h'";
+open FTYPES_H, "< $WSROOT/epan/ftypes/ftypes.h" or die "cannot open '$WSROOT/epan/ftypes/ftypes.h':  $!";
 while(<FTYPES_H>) {
     if ( /^\s+FT_([A-Z0-9a-z_]+)\s*,/ ) {
         $ft_types_table .= "\t[\"$1\"] = $ftype_num,\n";
@@ -104,7 +104,7 @@ $expert_pi = "-- Expert flags and facilities\n";
 
 my $base_num = 0;
 
-open PROTO_H, "< $WSROOT/epan/proto.h" or die "cannot open '$WSROOT/epan/proto.h'";
+open PROTO_H, "< $WSROOT/epan/proto.h" or die "cannot open '$WSROOT/epan/proto.h':  $!";
 while(<PROTO_H>) {
 	if (/^\s+BASE_([A-Z_]+),/ ) {
 		$bases_table .= "\t[\"$1\"] = $base_num,\n";
@@ -122,10 +122,9 @@ close PROTO_H;
 
 
 $menu_groups .= "-- menu groups for register_menu \n";
-$menu_groups .= "-- values obtained from $WSROOT/stat_menu.h \n";
 my $menu_i = 0;
 
-open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h'";
+open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h':  $!";
 while(<STAT_MENU>) {
 	if (/REGISTER_([A-Z]+)_GROUP_([A-Z]+)/) {
 		$menu_groups .= "MENU_$1_$2 = $menu_i\n";
