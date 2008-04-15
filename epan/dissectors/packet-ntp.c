@@ -177,7 +177,7 @@ static const struct {
 	{ "MSF\0",	"Rugby (UK) Radio 60 kHz" },
 	{ "WWV\0",	"Ft. Collins (US) Radio 2.5, 5, 10, 15, 20 MHz" },
 	{ "WWVB",	"Boulder (US) Radio 60 kHz" },
-	{ "WWVH",	"Kaui Hawaii (US) Radio 2.5, 5, 10, 15 MHz" },
+	{ "WWVH",	"Kauai Hawaii (US) Radio 2.5, 5, 10, 15 MHz" },
 	{ "CHU\0",	"Ottawa (Canada) Radio 3330, 7335, 14670 kHz" },
 	{ "LORC",	"LORAN-C radionavigation system" },
 	{ "OMEG",	"OMEGA radionavigation system" },
@@ -452,7 +452,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, 
+		col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
 	if (tree) {
