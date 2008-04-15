@@ -506,8 +506,8 @@ $(ADNS_DLL):
 	cd adns.tmp\adns_win32\adns_dll
 	set CFG=adns_dll - Win32 Release
 	$(MAKE) /$(MAKEFLAGS) -f adns_dll.mak LOC="-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE"
-!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	cd ..\lib
+!IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "adns_dll.dll.manifest" -outputresource:adns_dll.dll;2
 !ENDIF
 	if not exist $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns mkdir $(WIRESHARK_LIBS)\$(MSVC_VARIANT)\adns
