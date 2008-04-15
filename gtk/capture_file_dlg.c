@@ -608,7 +608,7 @@ file_open_cmd(GtkWidget *w)
 #endif /* _WIN32 */
 }
 
-static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
+static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
     switch(btn) {
     case(ESD_BTN_SAVE):
