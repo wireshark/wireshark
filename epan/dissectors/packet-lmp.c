@@ -32,6 +32,12 @@
  *
  * Support for LMP service discovery extensions added by Manu Pathak
  * (mapathak@cisco.com), June 2005.
+ *
+ * Support for RFC4207 (SONET/SDH encoding for LMP test messages) added
+ * by Roberto Morro (roberto.morro [AT] tilab.com), August 2007
+ *
+ * Support for (provisional) oif-p0040.010.006 added by Roberto Morro,
+ * August 2007
  */
 
 #ifdef HAVE_CONFIG_H
@@ -92,9 +98,23 @@ typedef enum {
     LMP_MSG_CHANNEL_STATUS_ACK,
     LMP_MSG_CHANNEL_STATUS_REQ,
     LMP_MSG_CHANNEL_STATUS_RESP,
+    LMP_MSG_TRACE_MONITOR,
+    LMP_MSG_TRACE_MONITOR_ACK,
+    LMP_MSG_TRACE_MONITOR_NACK,
+    LMP_MSG_TRACE_MISMATCH,
+    LMP_MSG_TRACE_MISMATCH_ACK,
+    LMP_MSG_TRACE_REQUEST,
+    LMP_MSG_TRACE_REPORT,
+    LMP_MSG_TRACE_REQUEST_NACK,
+    LMP_MSG_INSERT_TRACE,
+    LMP_MSG_INSERT_TRACE_ACK,
+    LMP_MSG_INSERT_TRACE_NACK,
     LMP_MSG_SERVICE_CONFIG=50,
     LMP_MSG_SERVICE_CONFIG_ACK,
-    LMP_MSG_SERVICE_CONFIG_NACK
+    LMP_MSG_SERVICE_CONFIG_NACK,
+    LMP_MSG_DISCOVERY_RESP=241,
+    LMP_MSG_DISCOVERY_RESP_ACK,
+    LMP_MSG_DISCOVERY_RESP_NACK
 } lmp_message_types;
 
 static value_string message_type_vals[] = {
@@ -118,9 +138,23 @@ static value_string message_type_vals[] = {
     {LMP_MSG_CHANNEL_STATUS_ACK,  "ChannelStatusAck Message. "},
     {LMP_MSG_CHANNEL_STATUS_REQ,  "ChannelStatusRequest Message. "},
     {LMP_MSG_CHANNEL_STATUS_RESP, "ChannelStatusResponse Message. "},
+    {LMP_MSG_TRACE_MONITOR,       "TraceMonitor Message. "},
+    {LMP_MSG_TRACE_MONITOR_ACK,   "TraceMonitorAck Message. "},
+    {LMP_MSG_TRACE_MONITOR_NACK,  "TraceMonitorNack Message. "},
+    {LMP_MSG_TRACE_MISMATCH,      "TraceMismatch Message. "},
+    {LMP_MSG_TRACE_MISMATCH_ACK,  "TraceMismatchAck Message. "},
+    {LMP_MSG_TRACE_REQUEST,       "TraceRequest Message. "},
+    {LMP_MSG_TRACE_REPORT,        "TraceReport Message. "},
+    {LMP_MSG_TRACE_REQUEST_NACK,  "TraceReportNack Message. "},
+    {LMP_MSG_INSERT_TRACE,        "InsertTrace Message. "},
+    {LMP_MSG_INSERT_TRACE_ACK,    "InsertTraceAck Message. "},
+    {LMP_MSG_INSERT_TRACE_NACK,   "InsertTraceNack Message. "},
     {LMP_MSG_SERVICE_CONFIG,      "ServiceConfig Message. "},
     {LMP_MSG_SERVICE_CONFIG_ACK,  "ServiceConfigAck Message. "},
     {LMP_MSG_SERVICE_CONFIG_NACK, "ServiceConfigNack Message. "},
+    {LMP_MSG_DISCOVERY_RESP,      "DiscoveryResponse Message. "},
+    {LMP_MSG_DISCOVERY_RESP_ACK,  "DiscoveryResponseAck Message. "},
+    {LMP_MSG_DISCOVERY_RESP_NACK, "DiscoveryResponseNack Message. "},
     {0, NULL}
 };
 
@@ -145,8 +179,12 @@ static value_string message_type_vals[] = {
 #define	LMP_CLASS_CHANNEL_STATUS_REQUEST        14
 #define LMP_LAST_CONTIGUOUS_CLASS              	LMP_CLASS_CHANNEL_STATUS_REQUEST  
 #define	LMP_CLASS_ERROR                         20
+#define LMP_CLASS_TRACE                         21
+#define LMP_CLASS_TRACE_REQ                     22
 #define LMP_CLASS_SERVICE_CONFIG                51
-#define	LMP_CLASS_MAX                           52
+#define LMP_CLASS_DA_DCN_ADDRESS               248
+#define LMP_CLASS_LOCAL_LAD_INFO               249
+#define	LMP_CLASS_MAX                          250
 
 static value_string lmp_class_vals[] = {
 
@@ -165,7 +203,11 @@ static value_string lmp_class_vals[] = {
     {LMP_CLASS_CHANNEL_STATUS, "CHANNEL_STATUS"},
     {LMP_CLASS_CHANNEL_STATUS_REQUEST, "CHANNEL_STATUS_REQUEST"},
     {LMP_CLASS_ERROR, "ERROR"},
-    {LMP_CLASS_SERVICE_CONFIG, "SERVICE_CONFIG " },
+    {LMP_CLASS_TRACE, "TRACE"},
+    {LMP_CLASS_TRACE_REQ, "TRACE_REQ"},
+    {LMP_CLASS_SERVICE_CONFIG, "SERVICE_CONFIG"},
+    {LMP_CLASS_DA_DCN_ADDRESS, "DA_DCN_ADDRESS"},
+    {LMP_CLASS_LOCAL_LAD_INFO, "LOCAL_LAD_INFO"},
     {0, NULL}
 };
 
@@ -225,6 +267,17 @@ static const value_string service_attribute_signal_types_sonet_str[] = {
     {0, NULL}
 };
 
+/* Trace type */
+static const value_string lmp_trace_type_str[] = {
+    { 1, "SONET Section Trace (J0 Byte)"},
+    { 2, "SONET Path Trace (J1 Byte)"},
+    { 3, "SONET Path Trace (J2 Byte)"},
+    { 4, "SDH Section Trace (J0 Byte)"},
+    { 5, "SDH Path Trace (J1 Byte)"},
+    { 6, "SDH Path Trace (J2 Byte)"},
+    { 0, NULL}
+};
+
 /* 
  * These values are used by the code that handles the Service Discovery
  * Client Port-Level Service Attributes Object.
@@ -261,9 +314,23 @@ enum lmp_filter_keys {
   LMPF_MSG_CHANNEL_STATUS_ACK,
   LMPF_MSG_CHANNEL_STATUS_REQ,
   LMPF_MSG_CHANNEL_STATUS_RESP,
-  LMPF_MSG_SERVICE_CONFIG=50,
+  LMPF_MSG_TRACE_MONITOR,
+  LMPF_MSG_TRACE_MONITOR_ACK,
+  LMPF_MSG_TRACE_MONITOR_NACK,
+  LMPF_MSG_TRACE_MISMATCH,
+  LMPF_MSG_TRACE_MISMATCH_ACK,
+  LMPF_MSG_TRACE_REQUEST,
+  LMPF_MSG_TRACE_REPORT,
+  LMPF_MSG_TRACE_REQUEST_NACK,
+  LMPF_MSG_INSERT_TRACE,
+  LMPF_MSG_INSERT_TRACE_ACK,
+  LMPF_MSG_INSERT_TRACE_NACK,
+  LMPF_MSG_SERVICE_CONFIG,
   LMPF_MSG_SERVICE_CONFIG_ACK,
   LMPF_MSG_SERVICE_CONFIG_NACK,
+  LMPF_MSG_DISCOVERY_RESP,
+  LMPF_MSG_DISCOVERY_RESP_ACK,
+  LMPF_MSG_DISCOVERY_RESP_NACK,
 
   LMPF_MSG_MAX,
 
@@ -290,7 +357,11 @@ enum lmp_filter_keys {
   LMPF_CLASS_CHANNEL_STATUS,
   LMPF_CLASS_CHANNEL_STATUS_REQUEST,
   LMPF_CLASS_ERROR,
+  LMPF_CLASS_TRACE,
+  LMPF_CLASS_TRACE_REQ,
   LMPF_CLASS_SERVICE_CONFIG,
+  LMPF_CLASS_DA_DCN_ADDRESS,
+  LMPF_CLASS_LOCAL_LAD_INFO,
 
   LMPF_VAL_CTYPE,
   LMPF_VAL_LOCAL_CCID,
@@ -361,6 +432,23 @@ enum lmp_filter_keys {
   LMPF_VAL_ERROR_CONFIG_BAD_PARAMETERS,
   LMPF_VAL_ERROR_CONFIG_RENEGOTIATE,
   LMPF_VAL_ERROR_CONFIG_BAD_CCID,
+  LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE,
+  LMPF_VAL_ERROR_TRACE_INVALID_MSG,
+  LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE,
+  LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH,
+  LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH,
+  LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH,
+  LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH,
+  LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE,
+
+  LMPF_VAL_TRACE_LOCAL_TYPE,
+  LMPF_VAL_TRACE_LOCAL_LEN,
+  LMPF_VAL_TRACE_LOCAL_MSG,
+  LMPF_VAL_TRACE_REMOTE_TYPE,
+  LMPF_VAL_TRACE_REMOTE_LEN,
+  LMPF_VAL_TRACE_REMOTE_MSG,
+
+  LMPF_VAL_TRACE_REQ_TYPE,
 
   LMPF_VAL_SERVICE_CONFIG_SP_FLAGS,
   LMPF_VAL_SERVICE_CONFIG_SP_FLAGS_RSVP,
@@ -386,6 +474,26 @@ enum lmp_filter_keys {
   LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_LINK,
   LMPF_VAL_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS_SRLG,
   
+  LMPF_VAL_LOCAL_DA_DCN_ADDR,
+  LMPF_VAL_REMOTE_DA_DCN_ADDR,
+
+  LMPF_VAL_LOCAL_LAD_INFO_NODE_ID,
+  LMPF_VAL_LOCAL_LAD_INFO_AREA_ID,
+  LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID,
+  LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID,
+  LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID,
+  LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR,
+
+  LMPF_VAL_LAD_INFO_SUBOBJ,
+  LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID,
+  LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID,
+  LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR,
+  LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID,
+  LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID,
+  LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR,
+  LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE,
+  LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING,
+
   LMPF_MAX
 };
 
@@ -479,6 +587,50 @@ static hf_register_info lmpf_info[] = {
      { "ChannelStatusResponse Message", "lmp.msg.channelstatusresponse", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&lmp_filter[LMPF_MSG_TRACE_MONITOR],
+     { "TraceMonitor Message", "lmp.msg.tracemonitor", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_MONITOR_ACK],
+     { "TraceMonitorAck Message", "lmp.msg.tracemonitorack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_MONITOR_NACK],
+     { "TraceMonitorNack Message", "lmp.msg.tracemonitornack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_MISMATCH],
+     { "TraceMismatch Message", "lmp.msg.tracemismatch", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_MISMATCH_ACK],
+     { "TraceMismatchAck Message", "lmp.msg.tracemismatchack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_REQUEST],
+     { "TraceRequest Message", "lmp.msg.tracerequest", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_REPORT],
+     { "TraceReport Message", "lmp.msg.tracereport", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_TRACE_REQUEST_NACK],
+     { "TraceRequestNack Message", "lmp.msg.tracerequestnack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_INSERT_TRACE],
+     { "InsertTrace Message", "lmp.msg.inserttrace", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_INSERT_TRACE_ACK],
+     { "InsertTraceAck Message", "lmp.msg.inserttraceack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_INSERT_TRACE_NACK],
+     { "InsertTraceNack Message", "lmp.msg.inserttracenack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&lmp_filter[LMPF_MSG_SERVICE_CONFIG],
      { "ServiceConfig Message", "lmp.msg.serviceconfig", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -489,6 +641,18 @@ static hf_register_info lmpf_info[] = {
 
     {&lmp_filter[LMPF_MSG_SERVICE_CONFIG_NACK],
      { "ServiceConfigNack Message", "lmp.msg.serviceconfignack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_DISCOVERY_RESP],
+     { "DiscoveryResponse Message", "lmp.msg.discoveryresp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_DISCOVERY_RESP_ACK],
+     { "DiscoveryResponseAck Message", "lmp.msg.discoveryrespack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_MSG_DISCOVERY_RESP_NACK],
+     { "DiscoveryResponseNack Message", "lmp.msg.discoveryrespnack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
     /* LMP Message Header Fields ------------------- */
@@ -552,15 +716,33 @@ static hf_register_info lmpf_info[] = {
     {&lmp_filter[LMPF_CLASS_CHANNEL_STATUS],
      { "CHANNEL_STATUS", "lmp.obj.channel_status", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
+
     {&lmp_filter[LMPF_CLASS_CHANNEL_STATUS_REQUEST],
      { "CHANNEL_STATUS_REQUEST", "lmp.obj.channel_status_request", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
+
     {&lmp_filter[LMPF_CLASS_ERROR],
      { "ERROR", "lmp.obj.error", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&lmp_filter[LMPF_CLASS_TRACE],
+     { "TRACE", "lmp.obj.trace", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_CLASS_TRACE_REQ],
+     { "TRACE REQ", "lmp.obj.trace_req", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&lmp_filter[LMPF_CLASS_SERVICE_CONFIG],
      { "SERVICE_CONFIG", "lmp.obj.serviceconfig", FT_NONE, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+
+    {&lmp_filter[LMPF_CLASS_DA_DCN_ADDRESS],
+     { "DA_DCN_ADDRESS", "lmp.obj.dadcnaddr", FT_NONE, BASE_NONE, NULL, 0x0,
+       "", HFILL }},
+
+    {&lmp_filter[LMPF_CLASS_LOCAL_LAD_INFO],
+     { "LOCAL_LAD_INFO", "lmp.obj.localladinfo", FT_NONE, BASE_NONE, NULL, 0x0,
        "", HFILL }},
 
     /* Other LMP Value Filters ------------------------------ */
@@ -745,11 +927,58 @@ static hf_register_info lmpf_info[] = {
      { "Config - Unacceptable non-negotiable parameters", "lmp.error.config_bad_params",
        FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_CONFIG_RENEGOTIATE],
-     { "Config - Renegotiate Parametere", "lmp.error.config_renegotiate",
+     { "Config - Renegotiate Parameter", "lmp.error.config_renegotiate",
        FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
     {&lmp_filter[LMPF_VAL_ERROR_CONFIG_BAD_CCID],
      { "Config - Bad CC ID", "lmp.error.config_bad_ccid",
        FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
+     { "Trace - Unsupported trace type", "lmp.error.trace_unsupported_type",
+       FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
+     { "Trace - Invalid Trace Message", "lmp.error.trace_invalid_msg",
+       FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
+     { "Trace - Unknown Object C-Type", "lmp.error.trace_unknown_ctype",
+       FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
+     { "LAD - Domain Routing Area ID Mismatch detected", "lmp.error.lad_area_id_mismatch",
+       FT_BOOLEAN, 8, NULL, 0x01, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
+     { "LAD - TCP ID Mismatch detected", "lmp.error.lad_tcp_id_mismatch",
+       FT_BOOLEAN, 8, NULL, 0x02, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
+     { "LAD - DA DCN Mismatch detected", "lmp.error.lad_da_dcn_mismatch",
+       FT_BOOLEAN, 8, NULL, 0x04, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
+     { "LAD - Capability Mismatch detected", "lmp.error.lad_capability_mismatch",
+       FT_BOOLEAN, 8, NULL, 0x08, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
+     { "LAD - Unknown Object C-Type", "lmp.error.lad_unknown_ctype",
+       FT_BOOLEAN, 8, NULL, 0x10, "", HFILL }},
+
+    {&lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
+     { "Local Trace Type", "lmp.trace.local_type", FT_UINT16, BASE_DEC,
+       VALS(lmp_trace_type_str), 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
+     { "Local Trace Length", "lmp.trace.local_length", FT_UINT16, BASE_DEC,
+       NULL, 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
+     { "Local Trace Message", "lmp.trace.local_msg", FT_STRING, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
+     { "Remote Trace Type", "lmp.trace.remote_type", FT_UINT16, BASE_DEC,
+       VALS(lmp_trace_type_str), 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
+     { "Remote Trace Length", "lmp.trace.remote_length", FT_UINT16, BASE_DEC,
+       NULL, 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
+     { "Remote Trace Message", "lmp.trace.remote_msg", FT_STRING, BASE_NONE,
+       NULL, 0x0, "", HFILL }},
+
+    {&lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
+     { "Trace Type", "lmp.trace_req.type", FT_UINT16, BASE_DEC,
+       VALS(lmp_trace_type_str), 0x0, "", HFILL }},
 
     {&lmp_filter[LMPF_VAL_SERVICE_CONFIG_SP_FLAGS],
      { "Service Config - Supported Signalling Protocols", 
@@ -861,6 +1090,58 @@ static hf_register_info lmpf_info[] = {
        "lmp.service_config.nsa.diversity.srlg",
        FT_BOOLEAN, 8, NULL, 0x04, "", HFILL}},
 
+    {&lmp_filter[LMPF_VAL_LOCAL_DA_DCN_ADDR],
+     { "Local DA DCN Address", "lmp.local_da_dcn_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_REMOTE_DA_DCN_ADDR],
+     { "Remote DA DCN Address", "lmp.remote_da_dcn_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
+     { "Node ID", "lmp.local_lad_node_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
+     { "Area ID", "lmp.local_lad_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
+     { "TE Link ID", "lmp.local_lad_telink_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
+     { "Component Link ID", "lmp.local_lad_comp_id", FT_UINT32, BASE_DEC, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
+     { "SC PC ID", "lmp.local_lad_sc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
+     { "SC PC Address", "lmp.local_lad_sc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
+     { "Subobject", "lmp.lad_info_subobj", FT_NONE, BASE_DEC, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
+     { "SC PC Address", "lmp.lad_pri_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
+     { "SC PC Address", "lmp.lad_pri_rc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
+     { "SC PC Address", "lmp.lad_pri_rc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
+     { "SC PC Address", "lmp.lad_sec_area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
+     { "SC PC Address", "lmp.lad_sec_rc_pc_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
+     { "SC PC Address", "lmp.lad_sec_rc_pc_addr", FT_IPv4, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
+     { "Interface Switching Capability", "lmp.lad_switching", FT_UINT8, BASE_DEC,
+       VALS(gmpls_switching_type_str), 0x0, "", HFILL }},
+    {&lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
+     { "LSP Encoding Type", "lmp.lad_encoding", FT_UINT8, BASE_DEC,
+       VALS(gmpls_lsp_enc_str), 0x0, "", HFILL }},
 };
 
 static int
@@ -872,11 +1153,46 @@ lmp_valid_class(int class)
 
     /* Noncontiguous classes */
     if (class == LMP_CLASS_ERROR || 
-	class == LMP_CLASS_SERVICE_CONFIG) 
+        class == LMP_CLASS_TRACE ||
+        class == LMP_CLASS_TRACE_REQ ||
+	class == LMP_CLASS_SERVICE_CONFIG || 
+        class == LMP_CLASS_DA_DCN_ADDRESS ||
+        class == LMP_CLASS_LOCAL_LAD_INFO)
 	return 1;
 
     return 0;
 }
+
+static int
+lmp_msg_to_filter_num(int msg_type)
+{
+  if (msg_type <= LMP_MSG_INSERT_TRACE_NACK)
+    return LMPF_MSG + msg_type;
+
+  switch (msg_type) {
+    case LMP_MSG_SERVICE_CONFIG:
+      return LMPF_MSG_SERVICE_CONFIG;
+
+    case LMP_MSG_SERVICE_CONFIG_ACK:
+      return LMPF_MSG_SERVICE_CONFIG_ACK;
+
+    case LMP_MSG_SERVICE_CONFIG_NACK:
+      return LMPF_MSG_SERVICE_CONFIG_NACK;
+
+    case LMP_MSG_DISCOVERY_RESP:
+      return LMPF_MSG_DISCOVERY_RESP;
+
+    case LMP_MSG_DISCOVERY_RESP_ACK:
+      return LMPF_MSG_DISCOVERY_RESP_ACK;
+
+    case LMP_MSG_DISCOVERY_RESP_NACK:
+      return LMPF_MSG_DISCOVERY_RESP_NACK;
+
+    default:
+	return -1;
+    }
+}
+
 
 static int
 lmp_class_to_filter_num(int class)
@@ -908,8 +1224,20 @@ lmp_class_to_filter_num(int class)
     case LMP_CLASS_ERROR:
 	return LMPF_CLASS_ERROR;
 	
+    case LMP_CLASS_TRACE:
+	return LMPF_CLASS_TRACE;
+
+    case LMP_CLASS_TRACE_REQ:
+	return LMPF_CLASS_TRACE_REQ;
+
     case LMP_CLASS_SERVICE_CONFIG:
 	return LMPF_CLASS_SERVICE_CONFIG;
+
+    case LMP_CLASS_DA_DCN_ADDRESS:
+	return LMPF_CLASS_DA_DCN_ADDRESS;
+
+    case LMP_CLASS_LOCAL_LAD_INFO:
+	return LMPF_CLASS_LOCAL_LAD_INFO;
 
     default:
 	return -1;
@@ -941,6 +1269,7 @@ enum {
     LMP_TREE_SERVICE_CONFIG_NSA_TRANSPARENCY_FLAGS,
     LMP_TREE_SERVICE_CONFIG_NSA_TCM_FLAGS,
     LMP_TREE_SERVICE_CONFIG_NSA_NETWORK_DIVERSITY_FLAGS,
+    LMP_TREE_LAD_INFO_SUBOBJ,
 
     LMP_TREE_CLASS_START
 };
@@ -954,6 +1283,12 @@ static int lmp_class_to_subtree(int class)
     if (lmp_valid_class(class)) {
 	if (class == LMP_CLASS_SERVICE_CONFIG) {
 	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_SERVICE_CONFIG];
+	}
+	if (class == LMP_CLASS_DA_DCN_ADDRESS) {
+	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_DA_DCN_ADDRESS];
+	}
+	if (class == LMP_CLASS_LOCAL_LAD_INFO) {
+	    return lmp_subtree[LMP_TREE_CLASS_START + LMP_CLASS_LOCAL_LAD_INFO];
 	}
 
 	return lmp_subtree[LMP_TREE_CLASS_START + class];
@@ -1033,10 +1368,12 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    msg_length);
 /*	if (LMPF_MSG + message_type < LMPF_MSG_MAX && message_type > 0) {*/
     /* this "if" is still a hack, but compared to the former one at least correct */
-    if ((message_type >= LMPF_MSG_CONFIG && message_type <= LMPF_MSG_CHANNEL_STATUS_RESP) ||
-        (message_type >= LMPF_MSG_SERVICE_CONFIG && message_type <= LMPF_MSG_SERVICE_CONFIG_NACK) ) {
-	    proto_tree_add_boolean_hidden(lmp_header_tree, lmp_filter[LMPF_MSG + message_type], tvb,
-					  offset+3, 1, 1);
+    if ((message_type >= LMP_MSG_CONFIG && message_type <= LMP_MSG_CHANNEL_STATUS_RESP) ||
+        (message_type >= LMP_MSG_SERVICE_CONFIG && message_type <= LMP_MSG_SERVICE_CONFIG_NACK) ||
+        (message_type >= LMP_MSG_DISCOVERY_RESP && message_type <= LMP_MSG_DISCOVERY_RESP_NACK) ) {
+	    proto_tree_add_boolean_hidden(lmp_header_tree,
+                                          lmp_filter[lmp_msg_to_filter_num(message_type)],
+                                          tvb, offset+3, 1, 1);
 	} else {
 	    proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
 					   "Invalid message type: %u", message_type);
@@ -1080,8 +1417,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  type = tvb_get_guint8(tvb, offset);
 	  negotiable = (type >> 7); type &= 0x7f;
 	  object_type = val_to_str(class, lmp_class_vals, "Unknown");
-	  proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT],
-				     tvb,
+	  proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT], tvb,
 				     offset, 1, class);
 	  if (lmp_valid_class(class)) {
 
@@ -1787,6 +2123,50 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					   tvb, offset, 4, l);
 		    break;
 		    
+	      case 3:
+		  proto_item_append_text(ti, ": TRACE_ERROR: %s%s%s",
+					 (l&0x01) ? "Unsupported Trace Type " : "",
+					 (l&0x02) ? "Invalid Trace Message" : "",
+					 (l&0x10) ? "Unknown Object C-Type" : "");
+		  lmp_flags_tree = proto_item_add_subtree(ti2, 
+							  lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_TRACE_UNSUPPORTED_TYPE],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_TRACE_INVALID_MSG],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_TRACE_UNKNOWN_CTYPE],
+					 tvb, offset, 4, l);
+		  break;
+
+	      case 4:
+		  proto_item_append_text(ti, ": LAD_ERROR: %s%s%s%s%s",
+					 (l&0x01) ? "Domain Routing Area ID mismatch" : "",
+					 (l&0x02) ? "TCP ID mismatch" : "",
+					 (l&0x04) ? "DA DCN mismatch" : "",
+					 (l&0x08) ? "Capability mismatch" : "",
+					 (l&0x10) ? "Unknown Object C-Type" : "");
+		  lmp_flags_tree = proto_item_add_subtree(ti2, 
+							  lmp_subtree[LMP_TREE_ERROR_FLAGS]);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_LAD_AREA_ID_MISMATCH],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_LAD_TCP_ID_MISMATCH],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_LAD_DA_DCN_MISMATCH],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_LAD_CAPABILITY_MISMATCH],
+					 tvb, offset, 4, l);
+		  proto_tree_add_boolean(lmp_flags_tree,
+					 lmp_filter[LMPF_VAL_ERROR_LAD_UNKNOWN_CTYPE],
+					 tvb, offset, 4, l);
+		  break;
+
 	      default:
 		  proto_item_append_text(ti, ": UNKNOWN_ERROR (%d): 0x%04x", type, l);
 		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -1795,6 +2175,79 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	      }
 	      break;
 	      
+          case LMP_CLASS_TRACE:
+	      switch (type) {
+	      case 1:
+	          l = tvb_get_ntohs(tvb, offset2);
+	          proto_tree_add_uint(lmp_object_tree, 
+				      lmp_filter[LMPF_VAL_TRACE_LOCAL_TYPE],
+				      tvb, offset2, 2, l);
+		  proto_item_append_text(lmp_object_tree, ": %s",
+					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
+
+	          l = tvb_get_ntohs(tvb, offset2+2);
+	          proto_tree_add_uint(lmp_object_tree, 
+				      lmp_filter[LMPF_VAL_TRACE_LOCAL_LEN],
+				      tvb, offset2+2, 2, l);
+		  if (l && l <= obj_length - 8) {
+		    proto_item_append_text(lmp_object_tree, " = %s",
+					   tvb_format_text(tvb, offset2+4, l));
+		    proto_tree_add_string(lmp_object_tree, 
+					  lmp_filter[LMPF_VAL_TRACE_LOCAL_MSG],
+					  tvb, offset2+4, l, tvb_format_text(tvb,
+									     offset2+4,l));
+		  }
+		  else
+		    proto_tree_add_text(lmp_object_tree, tvb, offset2+4, 1,
+					"[Invalid Trace Length]");
+		  break;
+
+	      case 2:
+	          l = tvb_get_ntohs(tvb, offset2);
+	          proto_tree_add_uint(lmp_object_tree, 
+				      lmp_filter[LMPF_VAL_TRACE_REMOTE_TYPE],
+				      tvb, offset2, 2, l);
+		  proto_item_append_text(lmp_object_tree, ": %s",
+					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
+
+	          l = tvb_get_ntohs(tvb, offset2+2);
+	          proto_tree_add_uint(lmp_object_tree, 
+				      lmp_filter[LMPF_VAL_TRACE_REMOTE_LEN],
+				      tvb, offset2+2, 2, l);
+		  proto_item_append_text(lmp_object_tree, " = %s",
+			                 tvb_format_text(tvb, offset2+4, l));
+	          proto_tree_add_string(lmp_object_tree, 
+				        lmp_filter[LMPF_VAL_TRACE_REMOTE_MSG],
+				        tvb, offset2+4, l, tvb_format_text(tvb, offset2+4,l));
+		  break;
+
+	      default:
+		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+				      "Data (%d bytes)", mylen);
+		  break;
+              
+	      }
+	      break;
+
+          case LMP_CLASS_TRACE_REQ:
+	      switch (type) {
+	      case 1:
+	          l = tvb_get_ntohs(tvb, offset2);
+	          proto_tree_add_uint(lmp_object_tree, 
+				      lmp_filter[LMPF_VAL_TRACE_REQ_TYPE],
+				      tvb, offset2, 2, l);
+		  proto_item_append_text(lmp_object_tree, ": %s",
+					 val_to_str(l, lmp_trace_type_str, "Unknown (%d)"));
+		  break;
+
+	      default:
+		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+				      "Data (%d bytes)", mylen);
+		  break;
+              
+	      }
+	      break;
+
 	  case LMP_CLASS_SERVICE_CONFIG:
 
 	      /* Support for the ServiceConfig object defined in the UNI 1.0 spec */
@@ -2033,6 +2486,160 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  break;
 	      }
 	      
+	  case LMP_CLASS_DA_DCN_ADDRESS:
+	      switch(type) {
+		  
+	      case 1:
+		  l = LMPF_VAL_LOCAL_DA_DCN_ADDR;
+		  proto_item_append_text(ti, ": %s",
+					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+				      offset2, 4, FALSE);
+		  break;
+		  
+	      case 2:
+		  l = LMPF_VAL_REMOTE_DA_DCN_ADDR;
+		  proto_item_append_text(ti, ": %s",
+					 ip_to_str(tvb_get_ptr(tvb, offset2, 4)));
+		  proto_tree_add_item(lmp_object_tree, lmp_filter[l], tvb, 
+				      offset2, 4, FALSE);
+		  break;
+		  
+	      default:
+		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+				      "Data (%d bytes)", mylen);
+		  break;
+	      }
+	      break;
+	      
+
+	  case LMP_CLASS_LOCAL_LAD_INFO:
+	      switch(type) {
+	        case 1:
+		  proto_item_append_text(ti, ": IPv4");
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_NODE_ID],
+				      tvb, offset2, 4, FALSE);
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_AREA_ID],
+				      tvb, offset2+4, 4, FALSE);
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_TE_LINK_ID],
+				      tvb, offset2+8, 4, FALSE);
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_COMPONENT_ID],
+				      tvb, offset2+12, 4, FALSE);
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ID],
+				      tvb, offset2+16, 4, FALSE);
+		  proto_tree_add_item(lmp_object_tree,
+				      lmp_filter[LMPF_VAL_LOCAL_LAD_INFO_SC_PC_ADDR],
+				      tvb, offset2+20, 4, FALSE);
+		  l = 24;
+		  while (l < obj_length - 4) {
+		    mylen = tvb_get_guint8(tvb, offset2+l+1);
+		    ti2 = proto_tree_add_item(lmp_object_tree, 
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ],
+					    tvb, offset2+l, mylen, FALSE);
+		    lmp_subobj_tree = proto_item_add_subtree(ti2, 
+							     lmp_subtree[LMP_TREE_LAD_INFO_SUBOBJ]);
+		    proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l, 1,
+					"Subobject Type: %d", tvb_get_guint8(tvb, offset2+l));
+
+		    if (mylen == 0 || l + mylen > obj_length - 4) {
+	    		proto_tree_add_text(lmp_object_tree, tvb, offset2+l+1, 1,
+					    "Subobject Length: %d (Invalid)", mylen);
+			break;
+		    }
+		    else
+			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+1, 1,
+					    "Subobject Length: %d", mylen);
+
+		    switch(tvb_get_guint8(tvb, offset2+l)) {
+
+		      case 250:
+			proto_item_set_text(ti2, "Primary Routing Controller: "
+					    "Area ID: %s, RC PC ID: %s, "
+					    "RC PC Addr: %s",
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+8, 4)),
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+12, 4)));
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_AREA_ID],
+					    tvb, offset2+l+4, 4, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ID],
+					    tvb, offset2+l+8, 4, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_PRI_RC_PC_ADDR],
+					    tvb, offset2+l+12, 4, FALSE);
+			break;
+		      
+		      case 251:
+			proto_item_set_text(ti2, "Secondary Routing Controller: "
+					    "Area ID: %s, RC PC ID: %s, "
+					    "RC PC Addr: %s",
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+4, 4)),
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+8, 4)),
+					    ip_to_str(tvb_get_ptr(tvb, offset2+l+12, 4)));
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_AREA_ID],
+					    tvb, offset2+l+4, 4, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ID],
+					    tvb, offset2+l+8, 4, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SEC_RC_PC_ADDR],
+					    tvb, offset2+l+12, 4, FALSE);
+			break;
+		      
+		      case 252:
+			proto_item_set_text(ti2, "SONET/SDH Layer Capability: "
+					    "Switching Cap: %s, Encoding Type: %s",
+					    val_to_str(tvb_get_guint8(tvb, offset2+l+4),
+						       gmpls_switching_type_str, "Unknown (%d)"),
+					    val_to_str(tvb_get_guint8(tvb, offset2+l+5),
+						       gmpls_lsp_enc_str, "Unknown (%d)"));
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_SWITCHING_TYPE],
+					    tvb, offset2+l+4, 1, FALSE);
+			proto_tree_add_item(lmp_subobj_tree,
+					    lmp_filter[LMPF_VAL_LAD_INFO_SUBOBJ_LSP_ENCODING],
+					    tvb, offset2+l+5, 1, FALSE);
+
+			for (j = 0; j < (mylen - 8) / 4; j++) {
+			  proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+8+(j*4), 4,
+					      "%s: %d free timeslots",
+                                              val_to_str(tvb_get_guint8(tvb, offset2+l+8+(j*4)),
+                                                         gmpls_sonet_signal_type_str,
+                                                         "Unknown Signal Type (%d)"),
+					      tvb_get_ntoh24(tvb, offset2+l+9+(j*4)));
+		    	}
+			break;
+
+		      default:
+		        proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l,
+					    tvb_get_guint8(tvb, offset2+l+1),
+					    "Data (%d bytes)", tvb_get_guint8(tvb,
+									      offset2+l+1));
+		        break;
+		  }
+		  if (tvb_get_guint8(tvb, offset2+l+1) < 1)
+		      THROW(ReportedBoundsError);
+		  l += tvb_get_guint8(tvb, offset2+l+1);
+	      }
+	      
+		  break;
+		  
+	      default:
+		  proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
+				      "Data (%d bytes)", mylen);
+		  break;
+	      }
+	      break;
+	      
+
+
 	  default:
 	      proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 				  "Data (%d bytes)", mylen);
