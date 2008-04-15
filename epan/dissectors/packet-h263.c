@@ -1006,7 +1006,7 @@ proto_register_h263_data(void)
         proto_register_subtree_array(ett, array_length(ett));
 
 	proto_h263_data = proto_register_protocol("ITU-T Recommendation H.263",
-	    "H.263 data", "h263data");
+	    "H.263", "h263");
 	proto_register_field_array(proto_h263_data, hf, array_length(hf));
 	register_dissector("h263data", dissect_h263_data, proto_h263_data);
 }
