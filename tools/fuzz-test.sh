@@ -9,14 +9,12 @@
 # each fuzzed file and checks for errors.  The files are processed
 # repeatedly until an error is found.
 
-# Tweak the following to your liking.  Editcap must support "-E".
-TSHARK=./tshark
-EDITCAP=./editcap
-CAPINFOS=./capinfos
-
 # This needs to point to a 'date' that supports %s.
 DATE=/bin/date
 BASE_NAME=fuzz-`$DATE +%Y-%m-%d`-$$
+
+# Directory containing binaries.  Default current directory.
+BIN_DIR=.
 
 # Temporary file directory and names.
 # (had problems with this on cygwin, tried TMP_DIR=./ which worked)
@@ -43,13 +41,19 @@ WIRESHARK_ABORT_ON_DISSECTOR_BUG="True"
 
 
 # To do: add options for file names and limits
-while getopts ":d:p:" OPTCHAR ; do
+while getopts ":b:d:p:" OPTCHAR ; do
 	case $OPTCHAR in
+		b) BIN_DIR=$OPTARG ;;
 		d) TMP_DIR=$OPTARG ;;
 		p) MAX_PASSES=$OPTARG ;;
 	esac
 done
 shift $(($OPTIND - 1))
+
+# Tweak the following to your liking.  Editcap must support "-E".
+TSHARK="$BIN_DIR/tshark"
+EDITCAP="$BIN_DIR/editcap"
+CAPINFOS="$BIN_DIR/capinfos"
 
 # set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
 # (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
