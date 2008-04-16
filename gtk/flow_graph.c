@@ -479,7 +479,7 @@ static void flow_graph_dlg_create (void)
 	GtkWidget *flow_graph_dlg_w;
 	GtkWidget *main_vb;
 	GtkWidget *hbuttonbox;
-	GtkWidget *bt_close, *bt_ok;
+	GtkWidget *bt_cancel, *bt_ok;
 #if 0
 	GtkWidget *top_label = NULL;
 #endif
@@ -617,11 +617,11 @@ static void flow_graph_dlg_create (void)
 	g_signal_connect(bt_ok, "clicked", G_CALLBACK(flow_graph_on_ok), flow_graph_dlg_w);
 	gtk_widget_show(bt_ok);
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
-	GTK_WIDGET_SET_FLAGS(bt_close, GTK_CAN_DEFAULT);
-	gtk_tooltips_set_tip (tooltips, bt_close, "Close this dialog", NULL);
-	window_set_cancel_button(flow_graph_dlg_w, bt_close, window_cancel_button_cb);
+	bt_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_cancel);
+	GTK_WIDGET_SET_FLAGS(bt_cancel, GTK_CAN_DEFAULT);
+	gtk_tooltips_set_tip (tooltips, bt_cancel, "Cancel this dialog", NULL);
+	window_set_cancel_button(flow_graph_dlg_w, bt_cancel, window_cancel_button_cb);
 
 	g_signal_connect(flow_graph_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(flow_graph_dlg_w, "destroy", G_CALLBACK(flow_graph_on_destroy), NULL);
