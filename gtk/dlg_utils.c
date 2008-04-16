@@ -359,10 +359,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (cap_start   != NULL) dlg_button_new(hbox, button_hbox, cap_start);
     if (cap_stop    != NULL) dlg_button_new(hbox, button_hbox, cap_stop);
     if (stop    != NULL) dlg_button_new(hbox, button_hbox, stop);
-    if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (clear   != NULL) dlg_button_new(hbox, button_hbox, clear);
-    if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
     if (filter_stream!= NULL) dlg_button_new(hbox, button_hbox, filter_stream);
+    if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
+    if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 
     /* GTK2: we don't know that button combination, add it to the above list! */
     /* g_assert_not_reached(); */
