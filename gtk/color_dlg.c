@@ -75,8 +75,8 @@ static void color_ok_cb(GtkButton *button, gpointer user_data);
 static void color_cancel_cb(GtkWidget *widget, gpointer user_data);
 static void color_apply_cb(GtkButton *button, gpointer user_data);
 static void color_clear_cb(GtkWidget *button, gpointer user_data);
-static void color_export_cb(GtkButton *button, gpointer user_data );
 static void color_import_cb(GtkButton *button, gpointer user_data );
+static void color_export_cb(GtkButton *button, gpointer user_data );
 
 
 static GtkWidget *colorize_win;
@@ -189,8 +189,8 @@ colorize_dialog_new (char *filter)
 
   GtkWidget *manage_fr;
   GtkWidget *manage_vbox;
-  GtkWidget *color_export;
   GtkWidget *color_import;
+  GtkWidget *color_export;
   GtkWidget *color_clear;
 
   GtkWidget *button_ok_hbox;
@@ -273,13 +273,13 @@ colorize_dialog_new (char *filter)
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
-  color_export = gtk_button_new_from_stock(WIRESHARK_STOCK_EXPORT);
-  gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
-  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/selected filters to a file"), NULL);
-
   color_import = gtk_button_new_from_stock(WIRESHARK_STOCK_IMPORT);
   gtk_box_pack_start (GTK_BOX (manage_vbox), color_import, FALSE, FALSE, 5);
   gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file and append them to the list"), NULL);
+
+  color_export = gtk_button_new_from_stock(WIRESHARK_STOCK_EXPORT);
+  gtk_box_pack_start (GTK_BOX (manage_vbox), color_export, FALSE, FALSE, 5);
+  gtk_tooltips_set_tip(tooltips, color_export, ("Save all/selected filters to a file"), NULL);
 
   color_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
   gtk_box_pack_start(GTK_BOX (manage_vbox), color_clear, FALSE, FALSE, 5);
@@ -413,9 +413,9 @@ colorize_dialog_new (char *filter)
   g_object_set_data(G_OBJECT(color_delete), COLOR_EDIT_LB, color_edit);
   g_object_set_data(G_OBJECT(color_delete), COLOR_FILTERS_CL, color_filters);
   g_signal_connect(color_delete, "clicked", G_CALLBACK(color_delete_cb), NULL);
-  g_signal_connect(color_export, "clicked", G_CALLBACK(color_export_cb), NULL);
   g_object_set_data(G_OBJECT(color_import), COLOR_FILTERS_CL, color_filters);
   g_signal_connect(color_import, "clicked", G_CALLBACK(color_import_cb), NULL);
+  g_signal_connect(color_export, "clicked", G_CALLBACK(color_export_cb), NULL);
   g_object_set_data(G_OBJECT(color_clear), COLOR_FILTERS_CL, color_filters);
   g_signal_connect(color_clear, "clicked", G_CALLBACK(color_clear_cb), NULL);
   g_signal_connect(color_ok, "clicked", G_CALLBACK(color_ok_cb), NULL);
@@ -909,17 +909,6 @@ color_delete_cb(GtkWidget *widget, gpointer user_data _U_)
   }
 }
 
-/* User pressed "Export": Pop up an "Export color filter" dialog box. */
-static void
-color_export_cb(GtkButton *button, gpointer data _U_)
-{
-  GtkWidget        *color_filters;
-
-  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
-
-  file_color_export_cmd_cb(color_filters, color_filter_edit_list);
-}
-
 /* User pressed "Import": Pop up an "Import color filter" dialog box. */
 static void
 color_import_cb(GtkButton *button, gpointer data _U_)
@@ -933,6 +922,17 @@ color_import_cb(GtkButton *button, gpointer data _U_)
   gtk_tree_selection_unselect_all (sel);
 
   file_color_import_cmd_cb(color_filters, &color_filter_edit_list);
+}
+
+/* User pressed "Export": Pop up an "Export color filter" dialog box. */
+static void
+color_export_cb(GtkButton *button, gpointer data _U_)
+{
+  GtkWidget        *color_filters;
+
+  color_filters = (GtkWidget *)g_object_get_data(G_OBJECT(button), COLOR_FILTERS_CL);
+
+  file_color_export_cmd_cb(color_filters, color_filter_edit_list);
 }
 
 /* User confirmed the clear operation: Remove all user defined color filters and
