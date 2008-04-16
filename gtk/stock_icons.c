@@ -212,7 +212,7 @@ void stock_icons_init(void) {
     }
 
     /* use default stock icons for Wireshark specifics where the icon metapher makes sense */
-    /* PLEASE DON'T REUSE STOCK ICONS IF THEY ARE USUALLY USED FOR SOME DIFFERENT MEANING!!!)
+    /* PLEASE DON'T REUSE STOCK ICONS IF THEY ARE USUALLY USED FOR SOME DIFFERENT MEANING!!!) */
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_OPEN);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_BROWSE, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_OK);
