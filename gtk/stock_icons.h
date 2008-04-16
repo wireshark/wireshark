@@ -46,6 +46,7 @@
 #define WIRESHARK_STOCK_EDIT                     "Wireshark_Stock_Edit"
 #define WIRESHARK_STOCK_ADD_EXPRESSION           "Wireshark_Stock_Edit_Add_Expression"
 #define WIRESHARK_STOCK_DONT_SAVE                "Wireshark_Stock_Continue_without_Saving"
+#define WIRESHARK_STOCK_SAVE_ALL                 "Wireshark_Stock_Save_All"
 #define WIRESHARK_STOCK_ABOUT                    "Wireshark_Stock_About"
 #define WIRESHARK_STOCK_COLORIZE                 "Wireshark_Stock_Colorize"
 #define WIRESHARK_STOCK_AUTOSCROLL               "Wireshark_Stock_Autoscroll"

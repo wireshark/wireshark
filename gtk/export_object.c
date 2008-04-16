@@ -53,6 +53,7 @@
 #include <gtk/gui_utils.h>
 #include <gtk/help_dlg.h>
 #include <gtk/main.h>
+#include <gtk/stock_icons.h>
 #include "gtk/export_object.h"
 
 enum {
@@ -266,7 +267,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 	GtkCellRenderer *renderer;
 	GtkTreeViewColumn *column;
 	GtkTreeSelection *selection;
-	GtkWidget *vbox, *bbox, *help_bt, *close_bt, *save_bt, *save_all_bt;
+	GtkWidget *vbox, *bbox, *help_bt, *cancel_bt, *save_bt, *save_all_bt;
 	GtkTooltips *button_bar_tips;
 	GString *error_msg;
 	export_object_list_t *object_list;
@@ -370,48 +371,44 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
         g_signal_connect(selection, "changed", G_CALLBACK(eo_remember_row_num), object_list);
 
 
- 	bbox = gtk_hbox_new(FALSE, 5);
+    bbox = dlg_button_row_new(GTK_STOCK_HELP, WIRESHARK_STOCK_SAVE_ALL, GTK_STOCK_SAVE_AS, GTK_STOCK_CANCEL, NULL);
 
 	/* Help button */
-	help_bt = gtk_button_new_from_stock(GTK_STOCK_HELP);
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_OBJECT_LIST);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), help_bt,
 			     "Show help for this dialog.", NULL);
-	gtk_box_pack_start(GTK_BOX(bbox), help_bt, FALSE, FALSE, 0);
 
 	/* Save All button */
-	save_all_bt = gtk_button_new_with_mnemonic("Save A_ll");
+    save_all_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_SAVE_ALL);
 	g_signal_connect(save_all_bt, "clicked", G_CALLBACK(eo_save_all_clicked_cb),
 		       object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_all_bt,
 			     "Save all listed objects with their displayed "
 			     "filenames.", NULL);
-	gtk_box_pack_end(GTK_BOX(bbox), save_all_bt, FALSE, FALSE, 0);
 
-	/* Save button */
-	save_bt = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+	/* Save As button */
+    save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE_AS);
 	g_signal_connect(save_bt, "clicked", G_CALLBACK(eo_save_clicked_cb), object_list);
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), save_bt,
 			     "Saves the currently selected content to a file.",
 			     NULL);
-	gtk_box_pack_end(GTK_BOX(bbox), save_bt, FALSE, FALSE, 0);
 
-	/* Close button */
-        close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-        GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), close_bt,
-			     "Close this dialog.", NULL);
-	gtk_box_pack_end(GTK_BOX(bbox), close_bt, FALSE, FALSE, 0);
+	/* Cancel button */
+    cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(button_bar_tips), cancel_bt,
+			     "Cancel this dialog.", NULL);
+
 
 	/* Pack the buttons into the "button box" */
-        gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
-        gtk_widget_show(bbox);
+	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
+	gtk_widget_show(bbox);
 
 	/* Setup cancel/delete/destroy signal handlers */
         g_signal_connect(object_list->dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect(object_list->dlg, "destroy",
 		       G_CALLBACK(eo_win_destroy_cb), object_list);
-       	window_set_cancel_button(object_list->dlg, close_bt,
+       	window_set_cancel_button(object_list->dlg, cancel_bt,
 				 window_cancel_button_cb);
 
 	/* Show the window */

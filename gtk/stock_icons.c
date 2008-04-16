@@ -112,6 +112,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_IMPORT,                "_Import...",                0, 0, NULL },
         { WIRESHARK_STOCK_EDIT,                  "_Edit...",                  0, 0, NULL },
         { WIRESHARK_STOCK_ADD_EXPRESSION,        "_Expression..." ,        0, 0, NULL }, /* plus sign coming from icon */
+        { WIRESHARK_STOCK_SAVE_ALL,              "Save A_ll",             0, 0, NULL },
         { WIRESHARK_STOCK_DONT_SAVE,             "Continue _without Saving",             0, 0, NULL },
         { WIRESHARK_STOCK_ABOUT,                 "_About",                 0, 0, NULL },
         { WIRESHARK_STOCK_COLORIZE,              "_Colorize",              0, 0, NULL },
@@ -167,6 +168,7 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
         { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
         { WIRESHARK_STOCK_DONT_SAVE,             stock_clear_24_xpm },
+        { WIRESHARK_STOCK_SAVE_ALL,              stock_save_24_xpm },    /* XXX: needs a better icon */
         { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
         { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
         { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },

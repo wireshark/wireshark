@@ -125,6 +125,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     const gchar *ok           = NULL;
     const gchar *print        = NULL;
     const gchar *save         = NULL;
+    const gchar *save_as      = NULL;
+    const gchar *save_all     = NULL;
     const gchar *stop         = NULL;
     const gchar *yes          = NULL;
 
@@ -141,6 +143,10 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
             apply = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_SAVE) == 0) {
             save = stock_id;
+        } else if (strcmp(stock_id, GTK_STOCK_SAVE_AS) == 0) {
+            save_as = stock_id;
+        } else if (strcmp(stock_id, WIRESHARK_STOCK_SAVE_ALL) == 0) {
+            save_all = stock_id;
         } else if (strcmp(stock_id, WIRESHARK_STOCK_DONT_SAVE) == 0) {
         	dont_save = stock_id;
         } else if (strcmp(stock_id, GTK_STOCK_CANCEL) == 0) {
@@ -356,6 +362,8 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
     if (no      != NULL) dlg_button_new(hbox, button_hbox, no);
     if (save    != NULL) dlg_button_new(hbox, button_hbox, save);
+    if (save_as    != NULL) dlg_button_new(hbox, button_hbox, save_as);
+    if (save_all    != NULL) dlg_button_new(hbox, button_hbox, save_all);
     if (dont_save   != NULL) dlg_button_new(hbox, button_hbox, dont_save);
     if (cap_start   != NULL) dlg_button_new(hbox, button_hbox, cap_start);
     if (cap_stop    != NULL) dlg_button_new(hbox, button_hbox, cap_stop);
