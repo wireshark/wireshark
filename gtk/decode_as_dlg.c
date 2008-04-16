@@ -1756,7 +1756,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_tooltips_set_tip(tooltips, button, 
         "Open a dialog showing the current settings.", NULL);
 
-    button = gtk_button_new_with_label("Clear");
+    button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
