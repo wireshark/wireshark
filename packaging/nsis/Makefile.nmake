@@ -35,11 +35,13 @@ DOC=../../doc/ws.css			\
 	../../README.win32
 DOC_dos=NEWS.txt
 GPL=../../COPYING
-HELP=../../help/toc \
-	../../help/overview.txt \
-	../../help/capture_filters.txt \
+HELP=../../help/capture_filters.txt \
+	../../help/capturing.txt \
 	../../help/display_filters.txt \
-	../../help/faq.txt
+	../../help/faq.txt \
+	../../help/getting_started.txt \
+	../../help/overview.txt \
+	../../help/toc
 
 PLUGINS= \
 	../../plugins/agentx/agentx.dll \
