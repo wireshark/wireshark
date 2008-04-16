@@ -217,6 +217,16 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
         buttons--;
     }
 
+    /* do we have a copy button? -> special handling for it */
+    if (copy) {
+        button = gtk_button_new_from_stock(copy);
+        GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+        g_object_set_data(G_OBJECT(hbox), copy, button);
+        gtk_box_pack_start(GTK_BOX(help_hbox), button, FALSE, FALSE, 0);
+        gtk_widget_show(button);
+        buttons--;
+    }
+
     /* if more than one button, sort buttons from left to right */
     /* (the whole button cluster will then be right aligned) */
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
@@ -340,7 +350,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (jump    != NULL) dlg_button_new(hbox, button_hbox, jump);
     if (find    != NULL) dlg_button_new(hbox, button_hbox, find);
     if (print   != NULL) dlg_button_new(hbox, button_hbox, print);
-    if (copy    != NULL) dlg_button_new(hbox, button_hbox, copy);
     if (create_stat != NULL) dlg_button_new(hbox, button_hbox, create_stat);
     if (apply   != NULL) dlg_button_new(hbox, button_hbox, apply);
     if (yes     != NULL) dlg_button_new(hbox, button_hbox, yes);
