@@ -61,7 +61,6 @@
 #include "../image/toolbar/file_set_list_16.xpm"
 #include "../image/toolbar/file_set_next_16.xpm"
 #include "../image/toolbar/file_set_previous_16.xpm"
-#include "../image/toolbar/stock_close_24.xpm"
 #include "../image/toolbar/icon_color_1.xpm"
 #include "../image/toolbar/icon_color_2.xpm"
 #include "../image/toolbar/icon_color_3.xpm"
@@ -177,7 +176,6 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_FILE_SET_PREVIOUS,     file_set_previous_16_xpm},
         { WIRESHARK_STOCK_FILTER_OUT_STREAM,     display_filter_24_xpm},
         { WIRESHARK_STOCK_ENABLE,                checkbox_16_xpm},
-        { WIRESHARK_STOCK_DISABLE,               stock_close_24_xpm},
         { WIRESHARK_STOCK_COLOR1,                icon_color_1_xpm},
         { WIRESHARK_STOCK_COLOR2,                icon_color_2_xpm},
         { WIRESHARK_STOCK_COLOR3,                icon_color_3_xpm},
@@ -231,6 +229,8 @@ void stock_icons_init(void) {
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_DONT_SAVE, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_SAVE);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_SAVE_ALL, icon_set);  /* XXX: needs a better icon */
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLOSE);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_DISABLE, icon_set);
 
     /* Drop our reference to the factory, GTK will hold a reference.*/
     g_object_unref (G_OBJECT (factory));
