@@ -191,10 +191,12 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     gtk_box_pack_end(GTK_BOX(hbox), button_hbox, TRUE, TRUE, 0);
     g_object_set_data(G_OBJECT(hbox), BUTTON_HBOX_KEY, button_hbox);
     gtk_widget_show(button_hbox);
+    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
     help_hbox = gtk_hbutton_box_new();
     gtk_box_pack_end(GTK_BOX(hbox), help_hbox, FALSE, FALSE, 0);
     gtk_widget_show(help_hbox);
+    gtk_button_box_set_spacing(GTK_BUTTON_BOX(help_hbox), 5);
 
     if (buttons == 0) {
         /* if no buttons wanted, simply do nothing */
@@ -230,7 +232,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     /* if more than one button, sort buttons from left to right */
     /* (the whole button cluster will then be right aligned) */
     gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
 /* GTK+ 1.3 and later - on Win32, we use 1.3[.x] or 2.x, not 1.2[.x] */
 #if !defined(_WIN32)
@@ -364,8 +365,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
     if (close   != NULL) dlg_button_new(hbox, button_hbox, close);
     if (cancel  != NULL) dlg_button_new(hbox, button_hbox, cancel);
 
-    /* GTK2: we don't know that button combination, add it to the above list! */
-    /* g_assert_not_reached(); */
     return hbox;
 }
 
