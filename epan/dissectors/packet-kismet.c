@@ -178,7 +178,6 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					 * No request dissection
 					 */
 				} else {
-					DISSECTOR_ASSERT(reqresp);
 					/*
 					 * *KISMET: {Version} {Start time} \001{Server name}\001 {Build Revision}
 					 * two fields left undocumented: {???} {?ExtendedVersion?}
