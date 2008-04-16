@@ -1641,7 +1641,7 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_hdr, 
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hfindex field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits
@@ -1653,7 +1653,7 @@ proto_tree_add_bits_item(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint bit
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
  @param tree the tree to append this item to
- @param hfindex field index
+ @param hfindex field index. Fields for use with this function should have bitmask==0.
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits

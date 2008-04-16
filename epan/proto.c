@@ -6111,6 +6111,11 @@ proto_tree_add_bits_ret_val(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint 
 
 	hf_field = proto_registrar_get_nth(hf_index);
 
+	if(hf_field -> bitmask != 0) {
+		REPORT_DISSECTOR_BUG(ep_strdup_printf("Incompatible use of proto_tree_add_bits_ret_val with field '%s' (%s) with bitmask != 0",
+											  hf_field->abbrev, hf_field->name));
+	}
+	
 	/* Byte align offset */
 	offset = bit_offset>>3;
 
