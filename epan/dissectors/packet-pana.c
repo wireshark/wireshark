@@ -320,19 +320,10 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
        proto_tree *avp_eap_tree;
 
        offset = 0;
-       buffer_length = 0;
-       buffer_length = tvb_length(tvb);
-
-       if (buffer_length <= 0) {
-               proto_tree_add_text(avp_tree, tvb, offset, tvb_length(tvb),     "No Attribute Value Pairs Found");
-               return;
-       }
+       buffer_length = tvb_reported_length(tvb);
 
        /* Go through all AVPs */
-       while (buffer_length > 0 ) {
-               /* Check buffer length */
-               if (buffer_length < MIN_AVP_SIZE) return;
-
+       while (buffer_length > 0) {
                avp_code = tvb_get_ntohs(tvb, offset);
                avp_flags = tvb_get_ntohs(tvb, offset + 2);
                avp_length = tvb_get_ntohs(tvb, offset + 4);
@@ -349,11 +340,34 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                /* Check AVP type */
                avp_type = pana_avp_get_type(avp_code, vendor_id);
 
-               /* AVP data length */
-               avp_data_length = avp_length - avp_hdr_length;
-
                /* Check AVP length */
-               if ((avp_length < MIN_AVP_SIZE) || (avp_length > buffer_length)) bad_avp = TRUE;
+               if (avp_length < avp_hdr_length) {
+                       single_avp_item = proto_tree_add_text(avp_tree, tvb, offset, avp_length,
+                                                             "%s (%s) length: %d bytes (shorter than header length %d)",
+                                                             val_to_str(avp_code, avp_code_names, "Unknown (%d)"),
+                                                             val_to_str(avp_type, avp_type_names, "Unknown (%d)"),
+                                                             avp_length,
+                                                             avp_hdr_length);
+
+                       single_avp_tree = proto_item_add_subtree(single_avp_item, ett_pana_avp_info);
+
+                       if (single_avp_tree != NULL) {
+                               /* AVP Code */
+                               proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
+                                                                offset, 2, avp_code, "%s (%u)",
+                                                                val_to_str(avp_code, avp_code_names, "Unknown (%d)"),
+                                                                avp_code);
+                               offset += 2;
+                               /* AVP Flags */
+                               dissect_pana_avp_flags(single_avp_tree, tvb, offset, avp_flags);
+                               offset += 2;
+                               /* AVP Length */
+                               proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
+                               offset += 2;
+                       }
+                       return;
+               }
+
                /* Check AVP flags */
                if (avp_flags & PANA_AVP_FLAG_RES) bad_avp = TRUE;
 
@@ -369,27 +383,40 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 
                single_avp_tree = proto_item_add_subtree(single_avp_item, ett_pana_avp_info);
 
+               /* AVP data length */
+               avp_data_length = avp_length - avp_hdr_length;
+
                if (single_avp_tree != NULL) {
                        /* AVP Code */
                        proto_tree_add_uint_format_value(single_avp_tree, hf_pana_avp_code, tvb,
                                                        offset, 2, avp_code, "%s (%u)",
                                                        val_to_str(avp_code, avp_code_names, "Unknown (%d)"),
                                                        avp_code);
-                       offset += 2;
+               }
+               offset += 2;
+               if (single_avp_tree != NULL) {
                        /* AVP Flags */
                        dissect_pana_avp_flags(single_avp_tree, tvb, offset, avp_flags);
-                       offset += 2;
+               }
+               offset += 2;
+               if (single_avp_tree != NULL) {
                        /* AVP Length */
                        proto_tree_add_item(single_avp_tree, hf_pana_avp_length, tvb, offset, 2, FALSE);
-                       offset += 2;
+               }
+               offset += 2;
+               if (single_avp_tree != NULL) {
                        /* Reserved */
                        proto_tree_add_item(single_avp_tree, hf_pana_avp_reserved, tvb, offset, 2, FALSE);
-                       offset += 2;
-                       /* Vendor ID */
-                       if (avp_flags & PANA_AVP_FLAG_V) {
+               }
+               offset += 2;
+               if (avp_flags & PANA_AVP_FLAG_V) {
+                       if (single_avp_tree != NULL) {
+                               /* Vendor ID */
                                proto_tree_add_item(single_avp_tree, hf_pana_avp_vendorid, tvb, offset, 4, FALSE);
-                               offset += 4;
                        }
+                       offset += 4;
+               }
+               if (avp_flags & PANA_AVP_FLAG_V) {
                        /* AVP Value */
                        switch(avp_type) {
                                case PANA_GROUPED: {
@@ -464,11 +491,8 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        break;
                                }
                        }
-                       /* Just check that offset will advance */
-                       DISSECTOR_ASSERT((avp_length+padding)!=0);
-
-                       offset += avp_data_length + padding;
                }
+               offset += avp_data_length + padding;
 
                /* Update the buffer length */
                buffer_length -=  avp_length + padding;
