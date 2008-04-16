@@ -293,8 +293,6 @@ static proto_tree * tcap_stat_tree=NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
 
-static dissector_table_t sccp_ssn_table;
-
 static void raz_tcap_private(struct tcap_private_t * p_tcap_private);
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_tcap_UserInformation(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index _U_);
@@ -2219,7 +2217,7 @@ static void dissect_UniDialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 149 "packet-tcap-template.c"
+#line 147 "packet-tcap-template.c"
 
 
 
@@ -2331,15 +2329,8 @@ void
 proto_reg_handoff_tcap(void)
 {
 
-    static gboolean prefs_initialized = FALSE;
-
-    if (! prefs_initialized) {
-        sccp_ssn_table = find_dissector_table("sccp.ssn");
-        prefs_initialized = TRUE;
-    }
-
     data_handle = find_dissector("data");
-	ansi_tcap_handle = find_dissector("ansi_tcap");
+    ansi_tcap_handle = find_dissector("ansi_tcap");
 
 
 /*--- Included file: packet-tcap-dis-tab.c ---*/
@@ -2349,7 +2340,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 271 "packet-tcap-template.c"
+#line 262 "packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -2912,7 +2903,7 @@ proto_register_tcap(void)
         "", HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 333 "packet-tcap-template.c"
+#line 324 "packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -2977,7 +2968,7 @@ proto_register_tcap(void)
     &ett_tcap_ErrorCode,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 343 "packet-tcap-template.c"
+#line 334 "packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {
@@ -2995,7 +2986,7 @@ proto_register_tcap(void)
     proto_register_field_array(proto_tcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    tcap_module = prefs_register_protocol(proto_tcap, proto_reg_handoff_tcap);
+    tcap_module = prefs_register_protocol(proto_tcap, NULL);
 
 #if 0
     prefs_register_enum_preference(tcap_module, "standard", "ITU TCAP standard",
