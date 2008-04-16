@@ -71,6 +71,7 @@
 #include <gtk/main.h>
 #include <gtk/dlg_utils.h>
 #include <gtk/file_dlg.h>
+#include <gtk/help_dlg.h>
 #include <gtk/keys.h>
 #include <gtk/gui_utils.h>
 #include <gtk/font_utils.h>
@@ -283,32 +284,32 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_container_add(GTK_CONTAINER(txt_scrollw), text);
     rule_info->text = text;
 
-    /* button hbox */
-    button_hbox = gtk_hbutton_box_new();
+    /* Button row */
+    if(topic_available(HELP_FIREWALL_DIALOG)) {
+        button_hbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_COPY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+    } else {
+        button_hbox = dlg_button_row_new(GTK_STOCK_COPY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
+    }
     gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
     /* Create Copy Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_COPY);
+    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_COPY);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_copy_cmd_cb), rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Copy rule to clipboard ", NULL);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
-    /* Create Save As Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+    /* Create Save Button */
+    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_SAVE);
     g_signal_connect(button, "clicked", G_CALLBACK(firewall_save_as_cmd_cb), rule_info);
     gtk_tooltips_set_tip (tooltips, button, "Save the rule as currently displayed ", NULL);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
-    /* Create Close Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
-    gtk_tooltips_set_tip (tooltips, button,
-        "Close the dialog", NULL);
-    gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
-    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
-
+    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_CANCEL);
+    gtk_tooltips_set_tip (tooltips, button, "Cancel the dialog", NULL);
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
+
+    if(topic_available(HELP_FIND_DIALOG)) {
+        button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
+        g_signal_connect(button, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIREWALL_DIALOG);
+    }
 
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(rule_w), WS_RULE_INFO_KEY, rule_info);
