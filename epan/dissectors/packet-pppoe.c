@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  * Up to date with http://www.iana.org/assignments/pppoe-parameters (2007-07-10)
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -154,9 +154,6 @@ static const value_string tag_vals[] = {
 		{PPPOE_TAG_GENERIC_ERR,"Generic-Error"     },
 		{0,                    NULL                }
 };
-
-/* Forward declare discovery protocol handoff function */
-void proto_reg_handoff_pppoed(void);
 
 
 /* Dissect discovery protocol tags */
