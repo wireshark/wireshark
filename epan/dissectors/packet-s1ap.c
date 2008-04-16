@@ -1159,7 +1159,7 @@ dissect_s1ap_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 121 "s1ap.cnf"
+#line 137 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -2459,7 +2459,14 @@ dissect_s1ap_UERadioCapability(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_s1ap_SAEB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 107 "s1ap.cnf"
+  asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
+  asn1_param_push_integer(actx, 1);
+  asn1_param_push_integer(actx, maxNrOfSAEBs);
   offset = dissect_s1ap_ProtocolIE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  asn1_stack_frame_pop(actx, "ProtocolIE-ContainerList");
+
 
   return offset;
 }
@@ -2468,7 +2475,14 @@ dissect_s1ap_SAEB_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_s1ap_SAEB_IE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 116 "s1ap.cnf"
+  asn1_stack_frame_push(actx, "ProtocolIE-ContainerPairList");
+  asn1_param_push_integer(actx, 1);
+  asn1_param_push_integer(actx, maxNrOfSAEBs);
   offset = dissect_s1ap_ProtocolIE_ContainerPairList(tvb, offset, actx, tree, hf_index);
+
+  asn1_stack_frame_pop(actx, "ProtocolIE-ContainerPairList");
+
 
   return offset;
 }
@@ -2477,7 +2491,14 @@ dissect_s1ap_SAEB_IE_ContainerPairList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_s1ap_ProtocolError_IE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 125 "s1ap.cnf"
+  asn1_stack_frame_push(actx, "ProtocolIE-ContainerList");
+  asn1_param_push_integer(actx, 1);
+  asn1_param_push_integer(actx, maxNrOfSAEBs);
   offset = dissect_s1ap_ProtocolIE_ContainerList(tvb, offset, actx, tree, hf_index);
+
+  asn1_stack_frame_pop(actx, "ProtocolIE-ContainerList");
+
 
   return offset;
 }
