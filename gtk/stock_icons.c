@@ -42,13 +42,6 @@
 #include "../image/toolbar/capture_details_24.xpm"
 #endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/display_filter_24.xpm"
-/* these icons are standard stock icons, but used for Wireshark specific stock icon labels */
-#include "../image/toolbar/stock_add_24.xpm"
-#include "../image/toolbar/stock_clear_24.xpm"
-#include "../image/toolbar/stock_open_24.xpm"
-#include "../image/toolbar/stock_ok_20.xpm"
-#include "../image/toolbar/stock_save_24.xpm"
-#include "../image/toolbar/stock_properties_24.xpm"
 #include "../image/wsicon16.xpm"
 #include "../image/toolbar/colorize_24.xpm"
 #include "../image/toolbar/autoscroll_24.xpm"
@@ -90,6 +83,8 @@ typedef struct stock_pixmap_tag{
 void stock_icons_init(void) {
     GtkIconFactory * factory;
     gint32 i;
+    GdkPixbuf * pixbuf;
+    GtkIconSet *icon_set;
 
 
     /* register non-standard pixmaps with the gtk-stock engine */
@@ -161,14 +156,6 @@ void stock_icons_init(void) {
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        display_filter_24_xpm },
         { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  display_filter_24_xpm },
-        { WIRESHARK_STOCK_BROWSE,                stock_open_24_xpm },
-        { WIRESHARK_STOCK_CREATE_STAT,           stock_ok_20_xpm },
-        { WIRESHARK_STOCK_EXPORT,                stock_save_24_xpm },    /* XXX: needs a better icon */
-        { WIRESHARK_STOCK_IMPORT,                stock_open_24_xpm },    /* XXX: needs a better icon */
-        { WIRESHARK_STOCK_EDIT,                  stock_properties_24_xpm },
-        { WIRESHARK_STOCK_ADD_EXPRESSION,        stock_add_24_xpm },
-        { WIRESHARK_STOCK_DONT_SAVE,             stock_clear_24_xpm },
-        { WIRESHARK_STOCK_SAVE_ALL,              stock_save_24_xpm },    /* XXX: needs a better icon */
         { WIRESHARK_STOCK_ABOUT,                 wsicon16_xpm },
         { WIRESHARK_STOCK_COLORIZE,              colorize_24_xpm },
         { WIRESHARK_STOCK_AUTOSCROLL,            autoscroll_24_xpm },
@@ -213,16 +200,37 @@ void stock_icons_init(void) {
 
     /* Create the stock items to add into our icon factory */
     for (i = 0; pixmaps[i].name != NULL; i++) {
-        GdkPixbuf * pixbuf;
-        GtkIconSet *icon_set;
-
+        /* The default icon */
         pixbuf = gdk_pixbuf_new_from_xpm_data((const char **) (pixmaps[i].xpm_data));
         g_assert(pixbuf);
         icon_set = gtk_icon_set_new_from_pixbuf (pixbuf);
+
+        /* XXX - add different sized icons here (some 16*16 icons look a bit blurred) */
+        /*gtk_icon_set_add_source(icon_set, const GtkIconSource *source);*/
+
         gtk_icon_factory_add (factory, pixmaps[i].name, icon_set);
         gtk_icon_set_unref (icon_set);
         g_object_unref (G_OBJECT (pixbuf));
     }
+
+    /* use default stock icons for Wireshark specifics where the icon metapher makes sense */
+    /* PLEASE DON'T REUSE STOCK ICONS IF THEY ARE USUALLY USED FOR SOME DIFFERENT MEANING!!!)
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_OPEN);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_BROWSE, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_OK);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_CREATE_STAT, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_SAVE);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_EXPORT, icon_set);    /* XXX: needs a better icon */
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_OPEN);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_IMPORT, icon_set);    /* XXX: needs a better icon */
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_PROPERTIES);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_EDIT, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_ADD);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_ADD_EXPRESSION, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLEAR);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_DONT_SAVE, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_SAVE);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_SAVE_ALL, icon_set);  /* XXX: needs a better icon */
 
     /* Drop our reference to the factory, GTK will hold a reference.*/
     g_object_unref (G_OBJECT (factory));

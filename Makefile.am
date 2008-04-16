@@ -671,14 +671,6 @@ EXTRA_DIST = \
 	image/toolbar/icon_color_9.xpm	\
 	image/toolbar/internet_24.xpm	\
 	image/toolbar/resize_columns_24.xpm	\
-	image/toolbar/stock_add_24.xpm	\
-	image/toolbar/stock_clear_24.xpm	\
-	image/toolbar/stock_close_24.xpm	\
-	image/toolbar/stock_ok_20.xpm	\
-	image/toolbar/stock_open_24.xpm	\
-	image/toolbar/stock_properties_24.xpm	\
-	image/toolbar/stock_save_24.xpm	\
-	image/toolbar/stock_stop_24.xpm	\
 	image/toolbar/telephony_16.xpm	\
 	image/toolbar/time_24.xpm	\
 	image/toolbar/web_support_24.xpm	\
