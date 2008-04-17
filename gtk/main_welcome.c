@@ -28,7 +28,7 @@
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
-
+#include <time.h>
 
 #include <gtk/gtk.h>
 
@@ -90,7 +90,7 @@ welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_
 
 /* create a "button widget" */
 GtkWidget *
-welcome_button(const gchar *stock_item, 
+welcome_button(const gchar *stock_item,
                const gchar * title, const gchar * subtitle, const gchar *tooltip,
 			   GtkSignalFunc callback, void *callback_data)
 {
@@ -128,7 +128,7 @@ welcome_button(const gchar *stock_item,
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
     gtk_box_pack_start(GTK_BOX(text_vb), w, FALSE, FALSE, 1);
-    
+
     /* subtitle */
     w = gtk_label_new(subtitle);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
@@ -136,7 +136,7 @@ welcome_button(const gchar *stock_item,
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
     gtk_box_pack_start(GTK_BOX(text_vb), w, FALSE, FALSE, 1);
-    
+
     gtk_box_pack_start(GTK_BOX(item_hb), text_vb, TRUE, TRUE, 5);
 
     return eb;
@@ -153,7 +153,8 @@ welcome_header_new(void)
     GtkWidget *icon;
     gchar *message;
     GtkWidget *w;
-
+    time_t secs = time(NULL);
+    struct tm *now = localtime(&secs);
 
     item_vb = gtk_vbox_new(FALSE, 0);
 
@@ -168,7 +169,11 @@ welcome_header_new(void)
     icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
-    message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
+    if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon = 6 && now->tm_mday == 14)) {
+        message = "<span weight=\"bold\" size=\"x-large\">" "Sniffing the glue that holds the Internet together" "</span>";
+    } else {
+        message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
+    }
     w = gtk_label_new(message);
     gtk_label_set_markup(GTK_LABEL(w), message);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
@@ -299,7 +304,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     if(err != 0) {
         gtk_widget_set_sensitive(w, FALSE);
     }
-    
+
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
     g_signal_connect(eb, "button-press-event", G_CALLBACK(welcome_filename_link_press_cb), (gchar *) filename);
@@ -316,7 +321,7 @@ main_welcome_reset_recent_capture_files()
 {
     GList* child_list;
     GList* child_list_item;
-    
+
     child_list = gtk_container_get_children(GTK_CONTAINER(welcome_file_panel_vb));
     child_list_item = child_list;
 
