@@ -40,6 +40,7 @@
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
 #include "simple_dialog.h"
+#include "wiretap/file_util.h"
 
 #include "gtk/gui_utils.h"
 #include "gtk/color_utils.h"
@@ -58,7 +59,7 @@
 
 /* XXX - There seems to be some disagreement about if and how this feature should be implemented.
    As I currently don't have the time to continue this, it's temporarily disabled. - ULFL */
-/*#define SHOW_WELCOME_PAGE*/
+#define SHOW_WELCOME_PAGE
 
 #ifdef SHOW_WELCOME_PAGE
 #include "../image/wssplash.xpm"
@@ -72,10 +73,11 @@
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
 
-GdkColor topic_item_entered_bg;
-GdkColor topic_content_bg;
 GdkColor header_bar_bg;
 GdkColor topic_header_bg;
+GdkColor topic_content_bg;
+GdkColor topic_item_idle_bg;
+GdkColor topic_item_entered_bg;
 
 GtkWidget *welcome_file_panel_vb = NULL;
 
@@ -94,7 +96,7 @@ welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_
 static gboolean
 welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_)
 {
-    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_content_bg);
+    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 
     return FALSE;
 }
@@ -114,7 +116,7 @@ welcome_button(const gchar *stock_item, const gchar * title, const gchar * subti
     /* event box (for background color and events) */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
-    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_content_bg);
+    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
@@ -256,18 +258,38 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     GtkWidget *eb;
     GString		*str;
     const unsigned int max = 60;
+    int err;
+    struct stat stat_buf;
 
 
+    /* filename */
     str = g_string_new(filename);
 
+    /* cut max filename length */
     if(str->len > max) {
         g_string_erase(str, 0, str->len-max /*cut*/);
         g_string_prepend(str, "... ");
     }
 
+    /* add file size */
+    err = eth_stat(filename, &stat_buf);
+    if(err == 0) {
+        if (stat_buf.st_size/1024/1024 > 10) {
+            g_string_append_printf(str, " %dMB", stat_buf.st_size/1024/1024);
+        } else if (stat_buf.st_size/1024 > 10) {
+            g_string_append_printf(str, " %dKB", stat_buf.st_size/1024);
+        } else {
+            g_string_append_printf(str, " %dBytes", stat_buf.st_size);
+        }
+    } else {
+        g_string_append(str, " (not found)");
+    }
+
+    /* pango format string */
     g_string_prepend(str, "<span foreground='blue'>");
     g_string_append(str, "</span>");
 
+    /* label */
     w = gtk_label_new(str->str);
     *label = w;
     gtk_label_set_markup(GTK_LABEL(w), str->str);
@@ -314,7 +336,7 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
     GtkWidget *label;
 
     w = welcome_filename_link_new(widget_cf_name, &label);
-    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_content_bg);
+    gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_item_idle_bg);
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(welcome_file_panel_vb), w, FALSE, FALSE, 0);
     gtk_widget_show_all(w);
@@ -360,7 +382,7 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg, gpointer interf)
 
     /* event box */
     eb = gtk_event_box_new();
-    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_content_bg);
+    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
@@ -402,28 +424,14 @@ welcome_if_panel_new(void)
     GtkWidget *panel_vb;
 
   if_info_t     *if_info;
-GList           *if_list;
-int err;
+  GList         *if_list;
+  int err;
   gchar         *err_str;
   int           ifs;
   GList         *curr;
-  /*if_dlg_data_t *if_dlg_data;*/
 
-    panel_vb = gtk_vbox_new(FALSE, 0);
 
-#if 0
-#ifdef _WIN32
-  /* Is WPcap loaded? */
-  if (!has_wpcap) {
-    char *detailed_err;
-
-    detailed_err = cant_load_winpcap_err("Wireshark");
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", detailed_err);
-    g_free(detailed_err);
-    return;
-  }
-#endif
-#endif
+  panel_vb = gtk_vbox_new(FALSE, 0);
 
   /* LOAD THE INTERFACES */
   if_list = capture_interface_list(&err, &err_str);
@@ -444,67 +452,17 @@ int err;
           continue;
       }
 
-      /*if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));*/
-      /*if_dlg_data->if_info = *if_info;*/
-
-      /* Kind of adaptor (icon) */
-      /*icon = xpm_to_widget(capture_ethernet_16_xpm);*/
-      /*gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 0, 1, row, row+1);*/
-
-      /* description */
-      /*if (if_info->description != NULL)*/
-        /*if_dlg_data->descr_lb = gtk_label_new(if_info->description);*/
-      /*else*/
-        /*if_dlg_data->descr_lb = gtk_label_new("");*/
-      /*gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0, 0.5);*/
-      /*gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 2, 3, row, row+1);*/
-
-#if 0
-      if (if_info->description) {
-        g_string_append(if_tool_str, "Description: ");
-        g_string_append(if_tool_str, if_info->description);
-        g_string_append(if_tool_str, "\n");
-      }
-#endif
-
+#ifdef _WIN32
     interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
-    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
-
-#if 0
-      /* IP address */
-      /* only the first IP address will be shown */
-      g_string_append(if_tool_str, "IP: ");
-      curr_ip = g_slist_nth(if_info->ip_addr, 0);
-      if(curr_ip) {
-        ip_addr = (if_addr_t *)curr_ip->data;
-        switch (ip_addr->type) {
-
-        case AT_IPv4:
-          tmp_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
-          break;
-
-        case AT_IPv6:
-          tmp_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
-          break;
-
-        default:
-          g_assert_not_reached();
-          tmp_str = NULL;
-        }
-        if_dlg_data->ip_lb = gtk_label_new(tmp_str);
-        gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
-        g_string_append(if_tool_str, tmp_str);
-      } else {
-        if_dlg_data->ip_lb = gtk_label_new("unknown");
-        gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
-        g_string_append(if_tool_str, "unknown");
-      }
+#else
+    interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
 #endif
+    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
   }
 
-    free_interface_list(if_list);
+  free_interface_list(if_list);
 
-    return panel_vb;
+  return panel_vb;
 }
 #endif  /* HAVE_LIBPCAP */
 
@@ -546,12 +504,33 @@ welcome_new(void)
     topic_content_bg.blue = 228 * 255;
     get_color(&topic_content_bg);
 
+	/* topic item idle background color */
+    /*topic_item_idle_bg.pixel = 0;
+    topic_item_idle_bg.red = 216 * 255;
+    topic_item_idle_bg.green = 221 * 255;
+    topic_item_idle_bg.blue = 223 * 255;
+    get_color(&topic_item_idle_bg);*/
+
+    topic_item_idle_bg = topic_content_bg;
+
 	/* topic item entered color */
     topic_item_entered_bg.pixel = 0;
+    topic_item_entered_bg.red = 211 * 255;
+    topic_item_entered_bg.green = 216 * 255;
+    topic_item_entered_bg.blue = 218 * 255;
+    get_color(&topic_item_entered_bg);
+
+    /*topic_item_entered_bg.pixel = 0;
+    topic_item_entered_bg.red = 216 * 255;
+    topic_item_entered_bg.green = 221 * 255;
+    topic_item_entered_bg.blue = 223 * 255;
+    get_color(&topic_item_entered_bg);*/
+
+    /*topic_item_entered_bg.pixel = 0;
     topic_item_entered_bg.red = 154 * 255;
     topic_item_entered_bg.green = 210 * 255;
     topic_item_entered_bg.blue = 229 * 255;
-    get_color(&topic_item_entered_bg);
+    get_color(&topic_item_entered_bg);*/
 
 
     welcome_scrollw = scrolled_window_new(NULL, NULL);
@@ -612,7 +591,6 @@ welcome_new(void)
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
-    /* place a note that capturing is not compiled in */
     w = gtk_label_new("Capturing is not compiled into this version of Wireshark!");
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
