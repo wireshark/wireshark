@@ -43,15 +43,15 @@ typedef int  (*stat_tree_packet_cb)(stats_tree*,
 									epan_dissect_t*,
 									const void *);
 
-/* stats_tree initilaization callback */
+/* stats_tree initialization callback */
 typedef void  (*stat_tree_init_cb)(stats_tree*);
 
-/* stats_tree initilaization callback */
+/* stats_tree cleanup callback */
 typedef void  (*stat_tree_cleanup_cb)(stats_tree*);
 
 /* registers a new stats tree 
  * abbr: protocol abbr
- * name: protocol name
+ * name: protocol display name
  * packet: per packet callback
  * init: tree initialization callback
  */
