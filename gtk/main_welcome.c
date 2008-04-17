@@ -603,7 +603,7 @@ welcome_new(void)
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"Network Media",
-        "Specific infos for capturing on: Ethernet, WLAN, ...",
+        "Specific information for capturing on: Ethernet, WLAN, ...",
         topic_online_url(ONLINEPAGE_NETWORK_MEDIA),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
