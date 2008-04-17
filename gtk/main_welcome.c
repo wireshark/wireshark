@@ -372,7 +372,7 @@ welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
 
 /* create a single interface entry */
 static GtkWidget *
-welcome_if_new(const char *if_name, GdkColor *topic_bg, gpointer interf)
+welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
 {
     GtkWidget *interface_hb;
     GtkWidget *w;
