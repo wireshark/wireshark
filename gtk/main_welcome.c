@@ -275,11 +275,11 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     err = eth_stat(filename, &stat_buf);
     if(err == 0) {
         if (stat_buf.st_size/1024/1024 > 10) {
-            g_string_append_printf(str, " %dMB", stat_buf.st_size/1024/1024);
+            g_string_append_printf(str, " %dMB", (int) (stat_buf.st_size/1024/1024));
         } else if (stat_buf.st_size/1024 > 10) {
-            g_string_append_printf(str, " %dKB", stat_buf.st_size/1024);
+            g_string_append_printf(str, " %dKB", (int) (stat_buf.st_size/1024));
         } else {
-            g_string_append_printf(str, " %dBytes", stat_buf.st_size);
+            g_string_append_printf(str, " %dBytes", (int) (stat_buf.st_size));
         }
     } else {
         g_string_append(str, " (not found)");
