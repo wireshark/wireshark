@@ -290,12 +290,14 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
             g_string_append_printf(str, " %" G_GINT64_MODIFIER "d Bytes", (gint64) (stat_buf.st_size));
         }
     } else {
-        g_string_append(str, " (not found)");
+        g_string_append(str, " [not found]");
     }
 
     /* pango format string */
-    g_string_prepend(str, "<span foreground='blue'>");
-    g_string_append(str, "</span>");
+    if(err == 0) {
+        g_string_prepend(str, "<span foreground='blue'>");
+        g_string_append(str, "</span>");
+    }
 
     /* label */
     w = gtk_label_new(str->str);
@@ -307,6 +309,9 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
     gtk_tooltips_set_tip(tooltips, eb, filename, "");
+    if(err != 0) {
+        gtk_widget_set_sensitive(w, FALSE);
+    }
     
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
