@@ -235,14 +235,14 @@ filemanager_open_directory (const gchar *path)
 
 #elif defined(HAVE_XDG_OPEN)
 
-  GError    *error = NULL;
-  gchar     *argv[3];
-  gboolean   retval;
+  GError   *error = NULL;
+  gchar    *argv[3];
+  gboolean  retval;
 
   g_return_val_if_fail (path != NULL, FALSE);
 
   argv[0] = "xdg-open";
-  argv[1] = path;
+  argv[1] = (char *)path;	/* Grr - g_spawn_async() shouldn't modify this */
   argv[2] = NULL;
 
   /*
