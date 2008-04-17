@@ -27,17 +27,17 @@ include Makefile.common
 WIRESHARK_WIN32_GTK_SRC = \
 	$(WIRESHARK_GTK_SRC) \
 	capture_if_details_dlg_win32.c	\
-	print_win32.c \
 	file_dlg_win32.c \
+	print_win32.c \
 !IFDEF PORTAUDIO_DIR
 !IF "$(PORTAUDIO_VERSION)" == "18"
 	pa_lib.c \
 !ELSE
-	pa_front.c \
 	pa_allocation.c \
 	pa_converters.c \
 	pa_cpuload.c \
 	pa_dither.c \
+	pa_front.c \
 	pa_process.c \
 	pa_skeleton.c \
 	pa_stream.c \
