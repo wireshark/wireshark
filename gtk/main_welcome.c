@@ -103,12 +103,16 @@ welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_
 
 /* create a "button widget" */
 GtkWidget *
-welcome_button(const gchar *stock_item, const gchar * title, const gchar * subtitle,
-			 GtkSignalFunc callback, void *callback_data)
+welcome_button(const gchar *stock_item, 
+               const gchar * title, const gchar * subtitle, const gchar *tooltip,
+			   GtkSignalFunc callback, void *callback_data)
 {
     GtkWidget *eb, *w, *item_hb, *text_vb;
     gchar *formatted_text;
+    GtkTooltips *tooltips;
 
+
+    tooltips = gtk_tooltips_new();
 
     item_hb = gtk_hbox_new(FALSE, 1);
 
@@ -116,6 +120,9 @@ welcome_button(const gchar *stock_item, const gchar * title, const gchar * subti
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
+    if(tooltip != NULL) {
+        gtk_tooltips_set_tip(tooltips, eb, tooltip, "");
+    }
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
@@ -556,6 +563,7 @@ welcome_new(void)
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
         "Interface List",
 		"Live list of the capture interfaces (counts incoming packets)",
+        "Same as Capture/Interfaces menu or toolbar item",
         GTK_SIGNAL_FUNC(capture_if_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
@@ -569,6 +577,7 @@ welcome_new(void)
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
         "Capture Options",
 		"Start a capture with detailed options",
+        "Same as Capture/Options menu or toolbar item",
         GTK_SIGNAL_FUNC(capture_prep_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
@@ -579,12 +588,14 @@ welcome_new(void)
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"How to Capture",
 		"Step by step to a successful capture setup",
+        topic_online_url(ONLINEPAGE_CAPTURE_SETUP),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_CAPTURE_SETUP));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
 		"Network Media",
         "Specific infos for capturing on: Ethernet, WLAN, ...",
+        topic_online_url(ONLINEPAGE_NETWORK_MEDIA),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
@@ -605,6 +616,7 @@ welcome_new(void)
     item_hb = welcome_button(GTK_STOCK_OPEN,
         "Open",
 		"Open a previously captured file",
+        "Same as File/Open menu or toolbar item",
         GTK_SIGNAL_FUNC(file_open_cmd_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
@@ -619,6 +631,7 @@ welcome_new(void)
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Sample Captures",
 		"A rich assortment of example capture files on the wiki",
+        topic_online_url(ONLINEPAGE_SAMPLE_CAPTURES),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SAMPLE_CAPTURES));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
@@ -638,18 +651,21 @@ welcome_new(void)
     item_hb = welcome_button(GTK_STOCK_HOME,
         "Website",
 		"Visit the project's website",
+        topic_online_url(ONLINEPAGE_HOME),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_HOME));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(GTK_STOCK_HELP,
         "User's Guide",
 		"The User's Guide (local version, if installed)",
+        "Locally installed (if installed) otherwise online version",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(HELP_CONTENT));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Security",
 		"Work with Wireshark as securely as possible",
+        topic_online_url(ONLINEPAGE_SECURITY),
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 

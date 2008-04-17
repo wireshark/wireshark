@@ -128,4 +128,9 @@ void help_redraw(void);
  */
 void help_topic_html(const gchar *topic);
 
+/* get the url string of one of the ONLINEPAGE_xxx values */
+const char *
+topic_online_url(topic_action_e action);
+
+
 #endif

@@ -150,42 +150,60 @@ void help_redraw(void)
 }
 
 
+const char *
+topic_online_url(topic_action_e action)
+{
+    switch(action) {
+    case(ONLINEPAGE_HOME):
+        return "http://www.wireshark.org";
+        break;
+    case(ONLINEPAGE_WIKI):
+        return "http://wiki.wireshark.org";
+        break;
+    case(ONLINEPAGE_DOWNLOAD):
+        return "http://www.wireshark.org/download.html";
+        break;
+    case(ONLINEPAGE_USERGUIDE):
+        return "http://www.wireshark.org/docs/wsug_html_chunked/";
+        break;
+    case(ONLINEPAGE_FAQ):
+        return "http://www.wireshark.org/faq.html";
+        break;
+    case(ONLINEPAGE_SAMPLE_FILES):
+        return "http://wiki.wireshark.org/SampleCaptures";
+        break;
+    case(ONLINEPAGE_CAPTURE_SETUP):
+        return "http://wiki.wireshark.org/CaptureSetup";
+        break;
+    case(ONLINEPAGE_NETWORK_MEDIA):
+        return "http://wiki.wireshark.org/CaptureSetup/NetworkMedia";
+        break;
+    case(ONLINEPAGE_SAMPLE_CAPTURES):
+        return "http://wiki.wireshark.org/SampleCaptures";
+        break;
+    case(ONLINEPAGE_SECURITY):
+        return "http://wiki.wireshark.org/Security";
+        break;
+    default:
+        return NULL;
+    }
+}
+
+
 static void
 topic_action(topic_action_e action)
 {
-    /* pages online at www.wireshark.org */
-    switch(action) {
-    case(ONLINEPAGE_HOME):
-        browser_open_url ("http://www.wireshark.org");
-        break;
-    case(ONLINEPAGE_WIKI):
-        browser_open_url ("http://wiki.wireshark.org");
-        break;
-    case(ONLINEPAGE_DOWNLOAD):
-        browser_open_url ("http://www.wireshark.org/download.html");
-        break;
-    case(ONLINEPAGE_USERGUIDE):
-        browser_open_url ("http://www.wireshark.org/docs/wsug_html_chunked/");
-        break;
-    case(ONLINEPAGE_FAQ):
-        browser_open_url ("http://www.wireshark.org/faq.html");
-        break;
-    case(ONLINEPAGE_SAMPLE_FILES):
-        browser_open_url ("http://wiki.wireshark.org/SampleCaptures");
-        break;
-    case(ONLINEPAGE_CAPTURE_SETUP):
-        browser_open_url ("http://wiki.wireshark.org/CaptureSetup");
-        break;
-    case(ONLINEPAGE_NETWORK_MEDIA):
-        browser_open_url ("http://wiki.wireshark.org/CaptureSetup/NetworkMedia");
-        break;
-    case(ONLINEPAGE_SAMPLE_CAPTURES):
-        browser_open_url ("http://wiki.wireshark.org/SampleCaptures");
-        break;
-    case(ONLINEPAGE_SECURITY):
-        browser_open_url ("http://wiki.wireshark.org/Security");
-        break;
+    const char *online_url;
 
+
+    /* pages online at www.wireshark.org */
+    online_url = topic_online_url(action);
+    if(online_url != NULL) {
+        browser_open_url (online_url);
+        return;
+    }
+
+    switch(action) {
     /* local manual pages */
     case(LOCALPAGE_MAN_WIRESHARK):
         browser_open_data_file("wireshark.html");
