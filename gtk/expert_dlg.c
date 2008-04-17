@@ -588,6 +588,6 @@ register_tap_listener_expert(void)
 {
 	register_stat_cmd_arg("expert", expert_dlg_init,NULL);
 
-	register_stat_menu_item("E_xpert Info", REGISTER_ANALYZE_GROUP_NONE,
+	register_stat_menu_item("E_xpert Info", REGISTER_ANALYZE_GROUP_UNSORTED,
         expert_dlg_cb, NULL, NULL, NULL);
 }

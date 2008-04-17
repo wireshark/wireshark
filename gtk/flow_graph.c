@@ -672,7 +672,7 @@ register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap,NULL);
 	register_stat_menu_item_stock("Flo_w Graph...", 
-        REGISTER_STAT_GROUP_NONE, WIRESHARK_STOCK_FLOW_GRAPH,
+        REGISTER_STAT_GROUP_UNSORTED, WIRESHARK_STOCK_FLOW_GRAPH,
 	    flow_graph_launch, NULL, NULL, NULL);
 	    
 }

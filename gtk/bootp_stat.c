@@ -282,5 +282,5 @@ void
 register_tap_listener_gtkdhcpstat(void)
 {
 	register_dfilter_stat(&dhcp_stat_dlg, "BOOTP-DHCP",
-	    REGISTER_STAT_GROUP_NONE);
+	    REGISTER_STAT_GROUP_UNSORTED);
 }

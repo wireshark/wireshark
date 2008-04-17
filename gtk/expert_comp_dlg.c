@@ -314,6 +314,6 @@ register_tap_listener_expert_comp(void)
 {
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
     register_stat_menu_item_stock("Expert Info _Composite", 
-        REGISTER_ANALYZE_GROUP_NONE, WIRESHARK_STOCK_EXPERT_INFO,
+        REGISTER_ANALYZE_GROUP_UNSORTED, WIRESHARK_STOCK_EXPERT_INFO,
         expert_comp_dlg_cb, NULL, NULL, NULL);
 }

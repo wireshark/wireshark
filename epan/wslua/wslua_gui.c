@@ -81,7 +81,7 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
     gboolean retap = FALSE;
 	register_stat_group_t group = (int)luaL_optnumber(L,WSLUA_OPTARG_register_menu_GROUP,REGISTER_STAT_GROUP_GENERIC);
 
-	if ( group > REGISTER_TOOLS_GROUP_NONE)
+	if ( group > REGISTER_TOOLS_GROUP_UNSORTED)
 		WSLUA_OPTARG_ERROR(register_menu,GROUP,"must be a defined MENU_* (see init.lua)");
 
 	if(!name)

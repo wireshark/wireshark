@@ -1259,11 +1259,11 @@ register_stat_menu_item_stock(
     case(REGISTER_STAT_GROUP_ENDPOINT_LIST): toolspath = "/Statistics/_Endpoint List/"; break;
     case(REGISTER_STAT_GROUP_RESPONSE_TIME): toolspath = "/Statistics/Service _Response Time/"; break;
     case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Statistics/"; break;
-    case(REGISTER_STAT_GROUP_NONE): toolspath = "/Statistics/"; break;
-    case(REGISTER_ANALYZE_GROUP_NONE): toolspath = "/Analyze/"; break;
+    case(REGISTER_STAT_GROUP_UNSORTED): toolspath = "/Statistics/"; break;
+    case(REGISTER_ANALYZE_GROUP_UNSORTED): toolspath = "/Analyze/"; break;
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
 #ifdef HAVE_LUA_5_1
-    case(REGISTER_TOOLS_GROUP_NONE): toolspath = "/Tools/"; break;
+    case(REGISTER_TOOLS_GROUP_UNSORTED): toolspath = "/Tools/"; break;
 #endif
     default:
         g_assert(!"no such menu group");
@@ -1386,7 +1386,7 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
             entry->path = node_data->name;
             entry->callback = node_data->callback;
             switch(group) {
-            case(REGISTER_STAT_GROUP_NONE):
+            case(REGISTER_STAT_GROUP_UNSORTED):
                 break;
             case(REGISTER_STAT_GROUP_GENERIC):
                 break;
@@ -1406,12 +1406,12 @@ static guint merge_tap_menus_layered(GList *node, gint group) {
                 entry->item_type = "<StockItem>";
                 entry->extra_data = WIRESHARK_STOCK_TELEPHONY;
                 break;
-            case(REGISTER_ANALYZE_GROUP_NONE):
+            case(REGISTER_ANALYZE_GROUP_UNSORTED):
                 break;
             case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER):
                 break;
 #ifdef HAVE_LUA_5_1
-            case(REGISTER_TOOLS_GROUP_NONE):
+            case(REGISTER_TOOLS_GROUP_UNSORTED):
                 break;
 #endif
             default:
@@ -1484,10 +1484,10 @@ void merge_all_tap_menus(GList *node) {
     if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_TELEPHONY)) {
         gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);
     }
-    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_NONE)) {
+    if (merge_tap_menus_layered(node, REGISTER_STAT_GROUP_UNSORTED)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
-    if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_NONE)) {
+    if (merge_tap_menus_layered(node, REGISTER_ANALYZE_GROUP_UNSORTED)) {
         sep_entry->path = "/Analyze/";
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
@@ -1496,7 +1496,7 @@ void merge_all_tap_menus(GList *node) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
 #ifdef HAVE_LUA_5_1
-    if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_NONE)) {
+    if (merge_tap_menus_layered(node, REGISTER_TOOLS_GROUP_UNSORTED)) {
         /*gtk_item_factory_create_item(main_menu_factory, sep_entry, NULL, 2);*/
     }
 #endif

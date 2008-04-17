@@ -418,6 +418,6 @@ register_tap_listener_gtkrpcprogs(void)
 {
 	register_stat_cmd_arg("rpc,programs", gtk_rpcprogs_init,NULL);
 
-	register_stat_menu_item("ONC-RPC Programs", REGISTER_STAT_GROUP_NONE,
+	register_stat_menu_item("ONC-RPC Programs", REGISTER_STAT_GROUP_UNSORTED,
 	gtk_rpcprogs_cb, NULL, NULL, NULL);
 }
