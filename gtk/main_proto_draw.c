@@ -1416,6 +1416,7 @@ GdkColor	expert_color_chat	= { 0, 0xcc00, 0xcc00, 0xe000 };	/* a pale bluegrey *
 GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
 GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
 GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
+GdkColor	hidden_proto_item	= { 0, 0x4400, 0x4400, 0x4400 };	/* gray */
 
 void proto_draw_colors_init(void)
 {
@@ -1427,6 +1428,7 @@ void proto_draw_colors_init(void)
 	get_color(&expert_color_note);
 	get_color(&expert_color_warn);
 	get_color(&expert_color_error);
+	get_color(&hidden_proto_item);
 
 	colors_ok = TRUE;
 }
@@ -1481,6 +1483,9 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
         */
         /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
         g_object_set (cell, "weight-set", TRUE, NULL);*/
+    } else if(FI_GET_FLAG(fi, FI_HIDDEN)) {
+        g_object_set (cell, "foreground-gdk", &hidden_proto_item, NULL);
+        g_object_set (cell, "foreground-set", TRUE, NULL);
     }
 
     if(fi->hfinfo->type == FT_PROTOCOL) {
@@ -1686,7 +1691,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     GtkTreeIter   iter;
     GtkTreePath  *path;
 
-    if (PROTO_ITEM_IS_HIDDEN(node))
+    if (PROTO_ITEM_IS_HIDDEN(node) && !prefs.display_hidden_proto_items)
         return;
 
     /* was a free format label produced? */
@@ -1713,8 +1718,10 @@ proto_tree_draw_node(proto_node *node, gpointer data)
         is_expanded = FALSE;
     }
 
-    if(PROTO_ITEM_IS_GENERATED(node)) {
+    if (PROTO_ITEM_IS_GENERATED(node)) {
         label_ptr = g_strdup_printf("[%s]", label_ptr);
+    } else if (PROTO_ITEM_IS_HIDDEN(node)) {
+        label_ptr = g_strdup_printf("<%s>", label_ptr);
     }
 
     info.tree_view = parent_info->tree_view;
@@ -1722,7 +1729,7 @@ proto_tree_draw_node(proto_node *node, gpointer data)
     gtk_tree_store_append(store, &iter, parent_info->iter);
     gtk_tree_store_set(store, &iter, 0, label_ptr, 1, fi, -1);
 
-    if(PROTO_ITEM_IS_GENERATED(node)) {
+    if (PROTO_ITEM_IS_GENERATED(node) || PROTO_ITEM_IS_HIDDEN(node)) {
         g_free(label_ptr);
     }
 

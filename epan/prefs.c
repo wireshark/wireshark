@@ -1192,6 +1192,8 @@ init_prefs(void) {
 /* set the default values for the rtp player dialog box */
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
+  prefs.display_hidden_proto_items = FALSE;
+
   prefs_initialized = TRUE;
 }
 
@@ -1672,6 +1674,8 @@ prefs_is_capture_device_hidden(const char *name)
 /*  values for the rtp player preferences dialog box */
 #define PRS_RTP_PLAYER_MAX_VISIBLE        "rtp_player.max_visible"
 
+#define PRS_DISPLAY_HIDDEN_PROTO_ITEMS          "packet_list.display_hidden_proto_items"
+
 static const gchar *pr_formats[] = { "text", "postscript" };
 static const gchar *pr_dests[]   = { "command", "file" };
 
@@ -2078,6 +2082,8 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     prefs.name_resolve_concurrency = strtol(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) {
     prefs.rtp_player_max_visible = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_DISPLAY_HIDDEN_PROTO_ITEMS) == 0) {
+    prefs.display_hidden_proto_items = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else {
     /* To which module does this preference belong? */
     module = NULL;
@@ -2855,6 +2861,11 @@ write_prefs(char **pf_path_return)
 
   fprintf(pf, "\n####### Protocols ########\n");
 
+  fprintf(pf, "\n# Display hidden items in packet details pane?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_DISPLAY_HIDDEN_PROTO_ITEMS ": %s\n",
+		  prefs.display_hidden_proto_items == TRUE ? "TRUE" : "FALSE");
+
   pe_tree_foreach(prefs_modules, write_module_prefs, pf);
 
   fclose(pf);
@@ -2935,6 +2946,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->capture_show_info = src->capture_show_info;
   dest->name_resolve = src->name_resolve;
   dest->name_resolve_concurrency = src->name_resolve_concurrency;
+  dest->display_hidden_proto_items = src->display_hidden_proto_items;
 
 }
 

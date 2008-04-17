@@ -50,6 +50,7 @@
 #include "gtk/prefs_capture.h"
 #include "gtk/prefs_nameres.h"
 #include "gtk/prefs_rtp_player.h"
+#include "gtk/prefs_protocols.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/stock_icons.h"
@@ -96,6 +97,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_PRINT_PAGE_KEY        "printer_options_page"
 #define E_NAMERES_PAGE_KEY      "nameres_options_page"
 #define E_RTP_PLAYER_PAGE_KEY   "rtp_player_options_page"
+#define E_PROTOCOLS_PAGE_KEY    "protocols_options_page"
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -122,7 +124,7 @@ struct ct_struct {
   gboolean     is_protocol;
 };
 
-static gint blank_page = 0;
+static gint protocols_page = 0;
 
 static guint
 pref_exists(pref_t *pref _U_, gpointer user_data _U_)
@@ -365,9 +367,9 @@ module_prefs_show(module_t *module, gpointer user_data)
     /* Show 'em what we got */
     gtk_widget_show_all(main_sw);
   } else {
-    /* show the blank page */
+    /* show the protocols page */
 
-    gtk_tree_store_set(model, &iter, 0, label_str, 1, blank_page, -1);  
+    gtk_tree_store_set(model, &iter, 0, label_str, 1, protocols_page, -1);  
 
   }
 
@@ -497,10 +499,10 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   cts.page = 0;
 
-  /* Blank Page */
-  g_strlcpy(label_str, "(No Specific Preferences)", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, NULL, NULL);
-  blank_page = cts.page++;
+  /* Preferences common for all protocols */
+  g_strlcpy(label_str, "Protocols", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, protocols_prefs_show(), E_PROTOCOLS_PAGE_KEY);
+  protocols_page = cts.page++;
 
   /* GUI prefs */
   g_strlcpy(label_str, "User Interface", MAX_TREE_NODE_NAME_LEN);
@@ -1265,6 +1267,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 #ifdef HAVE_LIBPORTAUDIO
   rtp_player_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
 #endif
+  protocols_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
   return TRUE;
@@ -1303,6 +1306,7 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 #ifdef HAVE_LIBPORTAUDIO
   rtp_player_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
 #endif
+  protocols_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
 
   /* show/hide the Save button - depending on setting */
   save_bt = g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_SAVE_BT_KEY);
@@ -1353,6 +1357,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
      preferences). */
   free_prefs(&saved_prefs);
   prefs_modules_foreach(module_prefs_clean, NULL);
+  protocols_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
 }
 
 

@@ -148,6 +148,7 @@ typedef struct _e_prefs {
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
   guint    rtp_player_max_visible;
+  gboolean display_hidden_proto_items;
 } e_prefs;
 
 WS_VAR_IMPORT e_prefs prefs;
