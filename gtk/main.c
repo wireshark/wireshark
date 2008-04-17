@@ -1949,6 +1949,9 @@ main(int argc, char *argv[])
   capture_opts->has_ring_num_files  = TRUE;
 #endif
 
+  /* Initialize whatever we need to allocate colors for GTK+ */
+  colors_init();
+
   /* We won't come till here, if we had a "console only" command line parameter. */
   splash_win = splash_new("Loading Wireshark ...");
   if (init_progfile_dir_error != NULL) {
@@ -2395,7 +2398,6 @@ main(int argc, char *argv[])
 
   dnd_init(top_level);
 
-  colors_init();
   color_filters_init();
   decode_as_init();
 
