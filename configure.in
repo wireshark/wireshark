@@ -65,6 +65,11 @@ then
 		AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
 	fi
 else
+	#
+	# XXX - define something to be the full path of xdg-open, so we
+	# just run that?
+	#
+	AC_DEFINE(HAVE_XDG_OPEN, 1, [Define if we have xdg-open])
 	AC_DEFINE_UNQUOTED(HTML_VIEWER, "xdg-open", [HTML viewer, e.g. mozilla])
 fi
 

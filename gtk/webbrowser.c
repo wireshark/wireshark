@@ -105,14 +105,14 @@ browser_open_url (const gchar *url)
   if (url_CFString == NULL)
     return (FALSE);
   url_CFURL = CFURLCreateWithString(NULL, url_CFString, NULL);
+  CFRelease(url_CFString);
   if (url_CFURL == NULL) {
     /*
-     * XXX - this could mean that the url_CFString isn't a valid URL,
+     * XXX - this could mean that the url_CFString wasn't a valid URL,
      * or that memory allocation failed.  We can't determine which,
      * except perhaps by providing our own allocator and somehow
      * flagging allocation failures.
      */
-    CFRelease(url_CFString);
     return (FALSE);
   }
   /*
@@ -123,7 +123,6 @@ browser_open_url (const gchar *url)
    */
   status = LSOpenCFURLRef(url_CFURL, NULL);
   CFRelease(url_CFURL);
-  CFRelease(url_CFString);
   return (status == 0);
 
 #elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
@@ -172,6 +171,10 @@ browser_open_url (const gchar *url)
       return FALSE;
     }
 
+  /*
+   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * the same screen?
+   */
   retval = g_spawn_async (NULL, argv, NULL,
                           G_SPAWN_SEARCH_PATH,
                           NULL, NULL,
@@ -190,6 +193,75 @@ browser_open_url (const gchar *url)
   g_free (browser);
   g_free (cmd);
   g_strfreev (argv);
+
+  return retval;
+#endif
+}
+
+gboolean
+filemanager_open_directory (const gchar *path)
+{
+#if defined(G_OS_WIN32)
+
+  return ((gint) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(path), NULL, NULL, SW_SHOWNORMAL) > 32);
+
+#elif defined(HAVE_OS_X_FRAMEWORKS)
+
+  CFStringRef path_CFString;
+  CFURLRef path_CFURL;
+  OSStatus status;
+
+  path_CFString = CFStringCreateWithCString(NULL, path, kCFStringEncodingUTF8);
+  if (path_CFString == NULL)
+    return (FALSE);
+  path_CFURL = CFURLCreateWithFileSystemPath(NULL, path_CFString,
+                                             kCFURLPOSIXPathStyle, true);
+  CFRelease(path_CFString);
+  if (path_CFURL == NULL) {
+    /*
+     * XXX - does this always mean that that memory allocation failed?
+     */
+    return (FALSE);
+  }
+  /*
+   * XXX - this is a Launch Services result code, and we should probably
+   * display a dialog box if it's not 0, describing what the error was.
+   * Then again, we should probably do the same for the ShellExecute call,
+   * unless that call itself happens to pop up a dialog box for all errors.
+   */
+  status = LSOpenCFURLRef(path_CFURL, NULL);
+  CFRelease(path_CFURL);
+  return (status == 0);
+
+#elif defined(HAVE_XDG_OPEN)
+
+  GError    *error = NULL;
+  gchar     *argv[3];
+  gboolean   retval;
+
+  g_return_val_if_fail (path != NULL, FALSE);
+
+  argv[0] = "xdg-open";
+  argv[1] = path;
+  argv[2] = NULL;
+
+  /*
+   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * the same screen?
+   */
+  retval = g_spawn_async (NULL, argv, NULL,
+                          G_SPAWN_SEARCH_PATH,
+                          NULL, NULL,
+                          NULL, &error);
+
+  if (! retval)
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "%sCould not execute xdg-open: %s\n\n\"%s\"",
+          simple_dialog_primary_start(), simple_dialog_primary_end(),
+          error->message);
+      g_error_free (error);
+    }
 
   return retval;
 #endif

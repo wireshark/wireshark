@@ -29,6 +29,8 @@ extern gboolean browser_needs_pref(void);
 
 extern gboolean browser_open_url (const gchar *url);
 
+extern gboolean filemanager_open_directory (const gchar *path);
+
 /* browse a file relative to the data dir */
 extern void browser_open_data_file (const gchar *filename);
 
