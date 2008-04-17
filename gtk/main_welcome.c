@@ -279,7 +279,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
         } else if (stat_buf.st_size/1024 > 10) {
             g_string_append_printf(str, " %" G_GINT64_MODIFIER "dKB", (gint64) (stat_buf.st_size/1024));
         } else {
-            g_string_append_printf(str, " %" G_GINT64_MODIFIER "dBytes", (gint64) (stat_buf.st_size));
+            g_string_append_printf(str, " %" G_GINT64_MODIFIER "d Bytes", (gint64) (stat_buf.st_size));
         }
     } else {
         g_string_append(str, " (not found)");
@@ -452,11 +452,10 @@ welcome_if_panel_new(void)
           continue;
       }
 
-#ifdef _WIN32
-    interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
-#else
-    interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
-#endif
+    if (if_info->description != NULL)
+        interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
+    else
+        interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
     gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
   }
 
@@ -652,7 +651,7 @@ welcome_new(void)
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
         "Security",
-		"Work with Wireshark as secure as possible",
+		"Work with Wireshark as securely as possible",
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_SECURITY));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
