@@ -238,7 +238,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 5: /*5 oCalledPartyBusy */
     offset=dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, actx, tree, hf_inap_OCalledPartyBusyArg_PDU);
-    break;	 
+    break;
   case 6: /*6 oNoAnswer */
     offset=dissect_inap_ONoAnswerArg(FALSE, tvb, offset, actx, tree, hf_inap_ONoAnswerArg_PDU);
     break;
@@ -283,7 +283,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case  20: /*Connect*/
     offset=dissect_inap_ConnectArg(FALSE, tvb, offset, actx, tree,hf_inap_ConnectArg_PDU);
-    break;	
+    break;
   case  21: /* 21 HoldCallInNetwork */
     offset=dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, actx, tree,hf_inap_HoldCallInNetworkArg_PDU);
     break;
@@ -327,7 +327,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 35: /*35, ApplyCharging */
     offset=dissect_inap_ApplyChargingArg(FALSE, tvb, offset, actx, tree, hf_inap_ApplyChargingArg_PDU);
-    break;	
+    break;
   case 36: /*36, "ApplyChargingReport */
     offset=dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, actx, tree, hf_inap_ApplyChargingReportArg_PDU);
     break;
@@ -351,7 +351,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 43:/*43, "ServiceFilteringResponse */
     offset=dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, actx, tree, hf_inap_ServiceFilteringResponseArg_PDU);
-    break;    
+    break;
   case  44: /*CallInformationReport*/
     offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, actx, tree, hf_inap_CallInformationReportArg_PDU);
     break;
@@ -476,7 +476,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	offset = dissect_inap_MonitorRouteReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
 	/*55 ActivityTest*/
-   default: 
+   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
   }
@@ -493,9 +493,9 @@ TC-Returnable OPERATION ::=
    activityTest						- No Arg
    requestCurrentStatusReport		- RESULT         RequestCurrentStatusReportResultArg
    requestEveryStatusChangeReport	- No arg
-   requestFirstStatusMatchReport	- No Arg 
+   requestFirstStatusMatchReport	- No Arg
    promptAndCollectUserInformation	- RESULT         ReceivedInformationArg
-	
+
 */
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   switch(opcode){
@@ -513,7 +513,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 /* From GSMMAP TODO find out if there is ERROR parameters */
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
-	
+
   switch(errorCode){
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
@@ -572,11 +572,12 @@ static void range_add_callback(guint32 ssn)
 void proto_reg_handoff_inap(void) {
 
     static int inap_prefs_initialized = FALSE;
-    
-    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
-	
+
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
+
+	    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
+	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
@@ -587,7 +588,6 @@ void proto_reg_handoff_inap(void) {
 
     range_foreach(ssn_range, range_add_callback);
 
-	oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
 }
 
 
@@ -596,7 +596,7 @@ void proto_register_inap(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-	  
+
 
 #include "packet-inap-hfarr.c"
   };
@@ -619,15 +619,15 @@ void proto_register_inap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  
+
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
   ssn_range = range_empty();
-  
+
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 
   prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn");
- 
+
   prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn1");
 
   prefs_register_range_preference(inap_module, "ssn", "TCAP SSNs",

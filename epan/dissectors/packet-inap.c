@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-inap.c                                                              */
-/* ../../tools/asn2wrs.py -b -e -p inap -c inap.cnf -s packet-inap-template ../ros/Remote-Operations-Information-Objects.asn IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn inap.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn */
+/* ../../tools/asn2wrs.py -b -e -p inap -c ./inap.cnf -s ./packet-inap-template -D . ../ros/Remote-Operations-Information-Objects.asn IN-common-classes.asn IN-SSF-SCF-Classes.asn IN-SCF-SRF-Classes.asn inap.asn IN-object-identifiers.asn IN-common-datatypes.asn IN-SSF-SCF-datatypes.asn IN-SSF-SCF-ops-args.asn IN-SCF-SRF-datatypes.asn IN-SCF-SRF-ops-args.asn */
 
 /* Input file: packet-inap-template.c */
 
@@ -1013,7 +1013,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 static int
 dissect_inap_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1054,7 +1054,7 @@ dissect_inap_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_inap_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1064,7 +1064,7 @@ dissect_inap_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_inap_InvokeIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1305,7 +1305,7 @@ static const value_string inap_GeneralProblem_vals[] = {
 static int
 dissect_inap_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1327,7 +1327,7 @@ static const value_string inap_InvokeProblem_vals[] = {
 static int
 dissect_inap_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1344,7 +1344,7 @@ static const value_string inap_ReturnResultProblem_vals[] = {
 static int
 dissect_inap_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1363,7 +1363,7 @@ static const value_string inap_ReturnErrorProblem_vals[] = {
 static int
 dissect_inap_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1459,7 +1459,7 @@ dissect_inap_T_problem_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_inap_INTEGER_M128_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1604,7 +1604,7 @@ dissect_inap_Extensions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 int
 dissect_inap_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1614,7 +1614,7 @@ dissect_inap_Integer4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 static int
 dissect_inap_InvokeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -1850,7 +1850,7 @@ dissect_inap_AlternativeATMTrafficDescriptor(gboolean implicit_tag _U_, tvbuff_t
 static int
 dissect_inap_ApplicationTimer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2095,7 +2095,7 @@ dissect_inap_LegID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_inap_NumberOfDigits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2511,7 +2511,7 @@ dissect_inap_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 static int
 dissect_inap_CallSegmentID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2653,7 +2653,7 @@ dissect_inap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_inap_ComponentCorrelationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2761,7 +2761,7 @@ dissect_inap_CorrelationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_inap_CounterID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2815,7 +2815,7 @@ dissect_inap_CreateOrRemoveIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 static int
 dissect_inap_CSAID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -2846,7 +2846,7 @@ dissect_inap_CUG_Index(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_inap_CutAndPaste(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3043,7 +3043,7 @@ dissect_inap_MessageID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 static int
 dissect_inap_INTEGER_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3053,7 +3053,7 @@ dissect_inap_INTEGER_1_127(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_inap_INTEGER_0_32767(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3463,7 +3463,7 @@ dissect_inap_ForwardServiceInteractionInd(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_inap_SuspendTimer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -3638,7 +3638,7 @@ dissect_inap_DpSpecificCommonParameters(gboolean implicit_tag _U_, tvbuff_t *tvb
 int
 dissect_inap_Duration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4238,7 +4238,7 @@ dissect_inap_FacilityGroup(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_inap_FacilityGroupMember(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4296,7 +4296,7 @@ dissect_inap_SFBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_
 static int
 dissect_inap_MaximumNumberOfCounters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4323,7 +4323,7 @@ dissect_inap_FilteredCallTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_inap_INTEGER_M1_32000(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4469,7 +4469,7 @@ dissect_inap_GapCriteria(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 int
 dissect_inap_Interval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -4859,7 +4859,7 @@ dissect_inap_RequestedInformationType(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int
 dissect_inap_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -5145,7 +5145,7 @@ dissect_inap_TravellingClassMark(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_inap_T_triggerId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -6708,7 +6708,7 @@ dissect_inap_ReconnectArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static int
 dissect_inap_INTEGER_1_numOfCSs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7146,7 +7146,7 @@ dissect_inap_SetServiceProfileArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_inap_INTEGER_2_numOfCSs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7444,7 +7444,7 @@ dissect_inap_GapOnResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_inap_INTEGER_1_3600(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7454,7 +7454,7 @@ dissect_inap_INTEGER_1_3600(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 static int
 dissect_inap_INTEGER_0_b3__maxRecordingTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -7706,7 +7706,7 @@ dissect_inap_PromptAndReceiveMessageArg(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int
 dissect_inap_INTEGER_1_b3__maxRecordedMessageUnits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -8456,7 +8456,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 5: /*5 oCalledPartyBusy */
     offset=dissect_inap_OCalledPartyBusyArg(FALSE, tvb, offset, actx, tree, hf_inap_OCalledPartyBusyArg_PDU);
-    break;	 
+    break;
   case 6: /*6 oNoAnswer */
     offset=dissect_inap_ONoAnswerArg(FALSE, tvb, offset, actx, tree, hf_inap_ONoAnswerArg_PDU);
     break;
@@ -8501,7 +8501,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case  20: /*Connect*/
     offset=dissect_inap_ConnectArg(FALSE, tvb, offset, actx, tree,hf_inap_ConnectArg_PDU);
-    break;	
+    break;
   case  21: /* 21 HoldCallInNetwork */
     offset=dissect_inap_HoldCallInNetworkArg(FALSE, tvb, offset, actx, tree,hf_inap_HoldCallInNetworkArg_PDU);
     break;
@@ -8545,7 +8545,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 35: /*35, ApplyCharging */
     offset=dissect_inap_ApplyChargingArg(FALSE, tvb, offset, actx, tree, hf_inap_ApplyChargingArg_PDU);
-    break;	
+    break;
   case 36: /*36, "ApplyChargingReport */
     offset=dissect_inap_ApplyChargingReportArg(FALSE, tvb, offset, actx, tree, hf_inap_ApplyChargingReportArg_PDU);
     break;
@@ -8569,7 +8569,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
   case 43:/*43, "ServiceFilteringResponse */
     offset=dissect_inap_ServiceFilteringResponseArg(FALSE, tvb, offset, actx, tree, hf_inap_ServiceFilteringResponseArg_PDU);
-    break;    
+    break;
   case  44: /*CallInformationReport*/
     offset=dissect_inap_CallInformationReportArg(FALSE, tvb, offset, actx, tree, hf_inap_CallInformationReportArg_PDU);
     break;
@@ -8694,7 +8694,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
 	offset = dissect_inap_MonitorRouteReportArg(FALSE, tvb, offset, actx, tree, -1);
     break;
 	/*55 ActivityTest*/
-   default: 
+   default:
     proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
     /* todo call the asn.1 dissector */
   }
@@ -8711,9 +8711,9 @@ TC-Returnable OPERATION ::=
    activityTest						- No Arg
    requestCurrentStatusReport		- RESULT         RequestCurrentStatusReportResultArg
    requestEveryStatusChangeReport	- No arg
-   requestFirstStatusMatchReport	- No Arg 
+   requestFirstStatusMatchReport	- No Arg
    promptAndCollectUserInformation	- RESULT         ReceivedInformationArg
-	
+
 */
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
   switch(opcode){
@@ -8731,7 +8731,7 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
 /* From GSMMAP TODO find out if there is ERROR parameters */
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx) {
   proto_item *cause;
-	
+
   switch(errorCode){
   default:
     cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
@@ -8790,11 +8790,12 @@ static void range_add_callback(guint32 ssn)
 void proto_reg_handoff_inap(void) {
 
     static int inap_prefs_initialized = FALSE;
-    
-    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
-	
+
     if (!inap_prefs_initialized) {
 	    inap_prefs_initialized = TRUE;
+
+	    inap_handle = create_dissector_handle(dissect_inap, proto_inap);
+	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
@@ -8805,7 +8806,6 @@ void proto_reg_handoff_inap(void) {
 
     range_foreach(ssn_range, range_add_callback);
 
-	oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
 }
 
 
@@ -8814,7 +8814,7 @@ void proto_register_inap(void) {
   /* List of fields */
   static hf_register_info hf[] = {
 
-	  
+
 
 
 /*--- Included file: packet-inap-hfarr.c ---*/
@@ -11298,15 +11298,15 @@ void proto_register_inap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_inap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
-  
+
   /* Set default SSNs */
   range_convert_str(&global_ssn_range, "106,241", MAX_SSN);
   ssn_range = range_empty();
-  
+
   inap_module = prefs_register_protocol(proto_inap, proto_reg_handoff_inap);
 
   prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn");
- 
+
   prefs_register_obsolete_preference(inap_module, "tcap.itu_ssn1");
 
   prefs_register_range_preference(inap_module, "ssn", "TCAP SSNs",
