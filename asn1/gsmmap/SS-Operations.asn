@@ -14,7 +14,7 @@ EXPORTS
 -- exports operations
 
 -- operations defined in this specification
-processUnstructuredSS-Data, notifySS, forwardChargeAdvice, forwardCUG-Info, buildMPTY, holdMPTY, retrieveMPTY, splitMPTY, explicitCT, accessRegisterCCEntry, callDeflection, userUserService,
+processUnstructuredSS-Data, beginSubscriberActivity, notifySS, forwardChargeAdvice, forwardCUG-Info, buildMPTY, holdMPTY, retrieveMPTY, splitMPTY, explicitCT, accessRegisterCCEntry, callDeflection, userUserService,
 lcs-LocationNotification, lcs-MOLR, lcs-AreaEventRequest, lcs-AreaEventReport, lcs-AreaEventCancellation, lcs-PeriodicLocationRequest, lcs-LocationUpdate, lcs-PeriodicLocationCancellation;
 
 IMPORTS
@@ -32,6 +32,7 @@ Remote-Operations-Information-Objects {
 
 -- imports SS-data types
 NotifySS-Arg,
+BeginSubscriberActivityArg,
 ForwardChargeAdviceArg,
 ForwardCUG-InfoArg,
 SS-UserData,
@@ -86,6 +87,10 @@ processUnstructuredSS-Data	OPERATION ::= { -- Timer T(PUSSD)= 15s to 30s
 				systemFailure |
 				unexpectedDataValue}
 	CODE		local:19 }
+
+beginSubscriberActivity      OPERATION ::= {
+        ARGUMENT         BeginSubscriberActivityArg
+        CODE            local:54 }
 
 notifySS 	OPERATION ::= {
 	ARGUMENT	NotifySS-Arg

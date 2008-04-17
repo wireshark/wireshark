@@ -1201,7 +1201,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     break;
     /* reserved traceSubscriberActivity (52) */
     /* undefined 53 */
-    /* reserved beginSubscriberActivity (54) */
+  case 54: /*beginSubscriberActivity*/
+    offset=dissect_gsm_ss_BeginSubscriberActivityArg(FALSE, tvb, offset, actx, tree, -1);
+    break;
   case 55: /*sendIdentification*/
     offset=dissect_mc_message(tvb, offset, actx, tree,    
 			      FALSE, dissect_gsm_map_TMSI, hf_gsm_map_tmsi,

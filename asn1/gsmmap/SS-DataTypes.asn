@@ -38,6 +38,7 @@ maxSignalInfoLength,
 ISDN-AddressString,
 ISDN-SubaddressString,
 AlertingPattern,
+IMSI,
 LCSClientExternalID,
 AddressString,
 LCSServiceTypeID,
@@ -89,6 +90,13 @@ NotifySS-Arg ::= SEQUENCE{
 	ccbs-Feature				[21]	CCBS-Feature OPTIONAL,
 	alertingPattern				[22]	AlertingPattern OPTIONAL,
 	multicall-Indicator			[23]	Multicall-Indicator OPTIONAL}
+
+
+BeginSubscriberActivityArg ::= SEQUENCE {
+    imsi            IMSI,
+    originatingEntityNumber ISDN-AddressString,
+    msisdn                  [PRIVATE 28] AddressString OPTIONAL,
+    ... }
 
 --  The nameIndicator is defined because of CNAP.
 
