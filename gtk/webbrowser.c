@@ -264,6 +264,77 @@ filemanager_open_directory (const gchar *path)
     }
 
   return retval;
+
+#elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
+
+  GError    *error = NULL;
+  gchar     *browser;
+  gchar     *argument;
+  gchar     *cmd;
+  gchar    **argv;
+  gboolean   retval;
+
+  g_return_val_if_fail (path != NULL, FALSE);
+
+  /*  browser = gimp_gimprc_query ("web-browser");*/
+  browser = g_strdup(prefs.gui_webbrowser);
+
+  if (browser == NULL || ! strlen (browser))
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "Web browser not specified.\n"
+          "Please correct the web browser setting in the Preferences dialog.");
+      g_free (browser);
+      return FALSE;
+    }
+
+  /* conver the path to a URI */
+  argument = filename2uri (path);
+
+  /* replace %s with URL */
+  if (strstr (browser, "%s"))
+    cmd = strreplace (browser, "%s", argument);
+  else
+    cmd = g_strconcat (browser, " ", argument, NULL);
+
+  g_free (argument);
+
+  /* parse the cmd line */
+  if (! g_shell_parse_argv (cmd, NULL, &argv, &error))
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "%sCould not parse web browser command: \"%s\"%s\n\n\"%s\"\n\n%s",
+          simple_dialog_primary_start(), browser, simple_dialog_primary_end(),
+          error->message,
+          "Please correct the web browser setting in the Preferences dialog.");
+      g_error_free (error);
+      return FALSE;
+    }
+
+  /*
+   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * the same screen?
+   */
+  retval = g_spawn_async (NULL, argv, NULL,
+                          G_SPAWN_SEARCH_PATH,
+                          NULL, NULL,
+                          NULL, &error);
+
+  if (! retval)
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "%sCould not execute web browser: \"%s\"%s\n\n\"%s\"\n\n%s",
+          simple_dialog_primary_start(), browser, simple_dialog_primary_end(),
+          error->message,
+          "Please correct the web browser setting in the Preferences dialog.");
+      g_error_free (error);
+    }
+
+  g_free (browser);
+  g_free (cmd);
+  g_strfreev (argv);
+
+  return retval;
 #endif
 }
 
