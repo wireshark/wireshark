@@ -6,7 +6,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -125,7 +124,6 @@ welcome_button(const gchar *stock_item, const gchar * title, const gchar * subti
     /* icon */
     w = gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 5);
-    g_signal_connect(w, "clicked", G_CALLBACK(callback), callback_data);
 
     text_vb = gtk_vbox_new(FALSE, 3);
 
@@ -557,7 +555,7 @@ welcome_new(void)
 #ifdef HAVE_LIBPCAP
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_INTERFACES,
         "Interface List",
-		"Life list of the capture interfaces (counts incoming packets)",
+		"Live list of the capture interfaces (counts incoming packets)",
         GTK_SIGNAL_FUNC(capture_if_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
