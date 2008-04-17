@@ -52,20 +52,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
-
-
-
-
-/* XXX - There seems to be some disagreement about if and how this feature should be implemented.
-   As I currently don't have the time to continue this, it's temporarily disabled. - ULFL */
-#define SHOW_WELCOME_PAGE
-
-#ifdef SHOW_WELCOME_PAGE
 #include "../image/wssplash.xpm"
-#endif
-
-
-#ifdef SHOW_WELCOME_PAGE
 
 
 /* XXX */
@@ -698,24 +685,4 @@ welcome_new(void)
 
     return welcome_scrollw;
 }
-#else   /* SHOW_WELCOME_PAGE */
-
-/* SOME DUMMY FUNCTIONS, UNTIL THE WELCOME PAGE GET'S LIVE */
-void main_welcome_reset_recent_capture_files(void)
-{
-}
-
-/* add a new file to the list of recently used files */
-void main_welcome_add_recent_capture_files(const char *widget_cf_name _U_)
-{
-}
-
-GtkWidget *
-welcome_new(void)
-{
-    /* this is just a dummy to fill up window space, simply showing nothing */
-    return scrolled_window_new(NULL, NULL);
-}
-#endif
-
 
