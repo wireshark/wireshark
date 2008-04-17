@@ -271,6 +271,15 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
  %(DEFAULT_BODY)s
 	actx->value_ptr = parameter_tvb;
 
+
+#.FN_BODY SM-DeliveryFailureCause
+	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+        if (!actx->value_ptr)
+                return offset;
+        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
 #.FN_BODY ForwardSM-Arg
 
 	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -289,6 +298,15 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 		return offset;
 	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
+#.FN_BODY MO-ForwardSM-Res
+
+        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+        if (!actx->value_ptr)
+                return offset;
+        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
 #.FN_BODY MT-ForwardSM-Arg
 
 	/* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
@@ -297,6 +315,33 @@ actx->pinfo->p2p_dir = P2P_DIR_RECV;
 	if (!actx->value_ptr)
 		return offset;
 	dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MT-ForwardSM-Res
+
+        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+        if (!actx->value_ptr)
+                return offset;
+        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MT-ForwardSM-VGCS-Arg
+
+        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+        if (!actx->value_ptr)
+                return offset;
+        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
+
+#.FN_BODY MT-ForwardSM-VGCS-Res
+
+        /* dissect_gsm_map_SignalInfo will return parameter_tvb in actx */
+%(DEFAULT_BODY)s
+
+        if (!actx->value_ptr)
+                return offset;
+        dissector_try_port(sms_dissector_table, 0, actx->value_ptr, actx->pinfo, top_tree);
 
 #.FN_BODY SS-Status VAL_PTR = &parameter_tvb
 
