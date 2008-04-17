@@ -265,15 +265,18 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     const unsigned int max = 60;
     int err;
     struct stat stat_buf;
+    GtkTooltips *tooltips;
 
+
+    tooltips = gtk_tooltips_new();
 
     /* filename */
     str = g_string_new(filename);
 
     /* cut max filename length */
-    if(str->len > max) {
-        g_string_erase(str, 0, str->len-max /*cut*/);
-        g_string_prepend(str, "... ");
+    if( (str->len > max) && (str->len-(max) > 5) ) {
+        g_string_erase(str, 20, str->len-(max+5));
+        g_string_insert(str, 20, " ... ");
     }
 
     /* add file size */
@@ -303,6 +306,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 	/* event box */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
+    gtk_tooltips_set_tip(tooltips, eb, filename, "");
     
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), w);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), w);
