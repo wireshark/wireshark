@@ -203,7 +203,7 @@ filemanager_open_directory (const gchar *path)
 {
 #if defined(G_OS_WIN32)
 
-  return ((gint) ShellExecute (HWND_DESKTOP, _T("open"), utf_8to16(path), NULL, NULL, SW_SHOWNORMAL) > 32);
+  return ((gint) ShellExecute (HWND_DESKTOP, _T("explore"), utf_8to16(path), NULL, NULL, SW_SHOWNORMAL) > 32);
 
 #elif defined(HAVE_OS_X_FRAMEWORKS)
 
