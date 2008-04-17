@@ -7,11 +7,11 @@
   <title>Introduction</title>
     <para>
     Wireshark provides a wide range of network statistics which can be accessed via the
-    <command>Statistics</command> menu. 
+    <command>Statistics</command> menu.
     </para>
     <para>
-	These statistics range from general information about the loaded capture file 
-	(like the number of captured packets), to statistics about specific protocols 
+	These statistics range from general information about the loaded capture file
+	(like the number of captured packets), to statistics about specific protocols
 	(e.g. statistics about the number of HTTP requests and responses captured).
 	<itemizedlist>
 	<listitem>
@@ -26,15 +26,15 @@
 	<para><command>Protocol Hierarchy</command> of the captured packets.</para>
 	</listitem>
 	<listitem>
-	<para><command>Conversations</command> e.g. traffic between specific IP 
+	<para><command>Conversations</command> e.g. traffic between specific IP
 	addresses.</para>
 	</listitem>
 	<listitem>
-	<para><command>Endpoints</command> e.g. traffic to and from an IP 
+	<para><command>Endpoints</command> e.g. traffic to and from an IP
 	addresses.</para>
 	</listitem>
 	<listitem>
-	<para><command>IO Graphs</command> visualizing the number of packets (or 
+	<para><command>IO Graphs</command> visualizing the number of packets (or
 	similar) in time.</para>
 	</listitem>
 	</itemizedlist>
@@ -45,7 +45,7 @@
 	</para>
 	<itemizedlist>
 	<listitem>
-	<para><command>Service Response Time</command> between request and response 
+	<para><command>Service Response Time</command> between request and response
 	of some protocols.</para>
 	</listitem>
 	<listitem>
@@ -56,14 +56,14 @@
 	</itemizedlist>
 	<note><title>Note!</title>
 	<para>
-	The protocol specific statistics requires detailed knowledge about the 
-	specific protocol. Unless you are familiar with that protocol, statistics 
+	The protocol specific statistics requires detailed knowledge about the
+	specific protocol. Unless you are familiar with that protocol, statistics
 	about it will be pretty hard to understand.
 	</para>
 	</note>
     </para>
   </section>
-  
+
   <section id="ChStatSummary">
     <title>The "Summary" window</title>
     <para>
@@ -78,12 +78,12 @@
 	</para>
 	</listitem>
 	<listitem>
-	<para><command>Time</command>: the timestamps when the first and the 
+	<para><command>Time</command>: the timestamps when the first and the
 	last packet were captured (and the time between them).</para>
 	</listitem>
 	<listitem>
-	<para><command>Capture</command>: information from the time when the 
-	capture was done (only available if the packet data was captured from the 
+	<para><command>Capture</command>: information from the time when the
+	capture was done (only available if the packet data was captured from the
 	network and not loaded from a file).</para>
 	</listitem>
 	<listitem>
@@ -91,11 +91,11 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>Traffic</command>: some statistics of the network traffic seen. 
+	<command>Traffic</command>: some statistics of the network traffic seen.
 	If a display filter is set, you will see values in the Captured column,
 	and if any packages are marked, you will see values in the Marked column.
-	The values in the <command>Captured</command> column will remain the same as 
-	before, while the values in the <command>Displayed</command> column will 
+	The values in the <command>Captured</command> column will remain the same as
+	before, while the values in the <command>Displayed</command> column will
 	reflect the values corresponding to the packets shown in the display.
 	The values in the <command>Marked</command> column will reflect the values
 	corresponding to the marked packages.
@@ -103,7 +103,7 @@
 	</listitem>
 	</itemizedlist>
   </section>
-  
+
   <section id="ChStatHierarchy">
     <title>The "Protocol Hierarchy" window</title>
     <para>
@@ -111,12 +111,12 @@
 	<figure><title>The "Protocol Hierarchy" window</title>
 	  <graphic entityref="WiresharkStatsHierarchy" format="PNG"/>
 	</figure>
-	This is a tree of all the protocols in the capture. You can collapse or 
+	This is a tree of all the protocols in the capture. You can collapse or
 	expand subtrees, by clicking on the plus / minus icons. By default, all
 	trees are expanded.
 	</para>
 	<para>
-	Each row contains the statistical values of one protocol.  
+	Each row contains the statistical values of one protocol.
 	The <command>Display filter</command> will show the current display filter.
 	</para>
 	<para>
@@ -126,36 +126,36 @@
 	<para><command>Protocol</command>: this protocol's name</para>
 	</listitem>
 	<listitem>
-	<para><command>% Packets</command>: the percentage of protocol packets, 
+	<para><command>% Packets</command>: the percentage of protocol packets,
 	relative to all packets in the capture</para>
 	</listitem>
 	<listitem>
-	<para><command>Packets</command>: the absolute number of packets of this 
+	<para><command>Packets</command>: the absolute number of packets of this
 	protocol</para>
 	</listitem>
 	<listitem>
-	<para><command>Bytes</command>: the absolute number of bytes of this 
+	<para><command>Bytes</command>: the absolute number of bytes of this
 	protocol</para>
 	</listitem>
 	<listitem>
-	<para><command>MBit/s</command>: the bandwidth of this protocol, relative 
+	<para><command>MBit/s</command>: the bandwidth of this protocol, relative
 	to the capture time</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Packets</command>: the absolute number of packets of this 
+	<command>End Packets</command>: the absolute number of packets of this
 	protocol (where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Bytes</command>: the absolute number of bytes of this protocol 
+	<command>End Bytes</command>: the absolute number of bytes of this protocol
 	(where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End MBit/s</command>: the bandwidth of this protocol, relative to 
+	<command>End MBit/s</command>: the bandwidth of this protocol, relative to
 	the capture time (where this protocol was the highest protocol to decode)
 	</para>
 	</listitem>
@@ -163,26 +163,26 @@
 	</para>
 	<note><title>Note!</title>
 	<para>
-	Packets will usually contain multiple protocols, so more than one protocol 
+	Packets will usually contain multiple protocols, so more than one protocol
 	will be counted for each packet.
-	Example: In the screenshot IP has 99,17% and TCP 85,83% (which is together 
+	Example: In the screenshot IP has 99,17% and TCP 85,83% (which is together
 	much more than 100%).
 	</para>
 	</note>
 	<note><title>Note!</title>
 	<para>
-	Protocol layers can consist of packets that won't contain any higher layer 
-	protocol, so the sum of all higher layer packets may not sum up to the 
+	Protocol layers can consist of packets that won't contain any higher layer
+	protocol, so the sum of all higher layer packets may not sum up to the
 	protocols packet count.
-	Example: In the screenshot TCP has 85,83% but the sum of the subprotocols 
-	(HTTP, ...) is much less. This may be caused by TCP protocol overhead, 
+	Example: In the screenshot TCP has 85,83% but the sum of the subprotocols
+	(HTTP, ...) is much less. This may be caused by TCP protocol overhead,
 	e.g. TCP ACK packets won't be counted as packets of the higher layer).
 	</para>
 	</note>
 	<note><title>Note!</title>
 	<para>
-	A single packet can contain the same protocol more than once. In this case, 
-	the protocol is counted more than once. For example: in some tunneling 
+	A single packet can contain the same protocol more than once. In this case,
+	the protocol is counted more than once. For example: in some tunneling
 	configurations the IP layer can appear twice.
 	</para>
 	</note>
@@ -191,22 +191,23 @@
   <section id="ChStatConversations">
     <title>Conversations</title>
     <para>
-      Statistics of the captured conversations. 
+      Statistics of the captured conversations.
     </para>
     <section>
       <title>What is a Conversation?</title>
       <para>
-	A network conversation is the traffic between two specific endpoints. For 
-	example, an IP conversation is all the traffic between two IP addresses. 
-	The description of the known endpoint types can be found in 
+	A network conversation is the traffic between two specific endpoints. For
+	example, an IP conversation is all the traffic between two IP addresses.
+	The description of the known endpoint types can be found in
 	<xref linkend="ChStatEndpointDefinition"/>.
       </para>
     </section>
     <section id="ChStatConversationsWindow"><title>The "Conversations" window</title>
     <para>
-      Other than the list content, the conversations window works the same way as the 
-      endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a 
-      description how it works.
+      The conversations window is similar to the
+      endpoint Window; see <xref linkend="ChStatEndpointsWindow"/> for a
+      description of their common features. Along with addresses, packet
+      counters, and byte counters the conversation window adds four columns: the time in seconds between the start of the capture and the start of the conversation ("Rel Start"), the duration of the conversation in seconds, and the average bits (not bytes) per second in each direction.
       <figure><title>The "Conversations" window</title>
       <graphic entityref="WiresharkStatsConversations" format="PNG"/>
       </figure>
@@ -215,8 +216,8 @@
       Each row in the list shows the statistical values for exactly one conversation.
     </para>
     <para>
-      <command>Name resolution</command> will be done if selected in the window 
-      and if it is active for the specific protocol layer (MAC layer for the 
+      <command>Name resolution</command> will be done if selected in the window
+      and if it is active for the specific protocol layer (MAC layer for the
       selected Ethernet endpoints page).
     </para>
     <para>
@@ -224,12 +225,12 @@
       the current display filter.
     </para>
     <para>
-      The <command>copy</command> button will copy the list values to the 
+      The <command>copy</command> button will copy the list values to the
       clipboard in CSV (Comma Seperated Values) format.
     </para>
     <tip><title>Tip!</title>
     <para>
-      This window will be updated frequently, so it will be useful, even if 
+      This window will be updated frequently, so it will be useful, even if
       you open it before (or while) you are doing a live capture.
     </para>
     </tip>
@@ -237,11 +238,11 @@
     <section id="ChStatConversationListWindow">
       <title>The protocol specific "Conversation List" windows</title>
       <para>
-	Before the combined window described above was available, each of its 
-	pages was shown as a separate window. Even though the combined window is 
-	much more convenient to use, these separate windows are still 
-	available. The main reason is that they might process faster for 
-	very large capture files. However, as the functionality is exactly the 
+	Before the combined window described above was available, each of its
+	pages was shown as a separate window. Even though the combined window is
+	much more convenient to use, these separate windows are still
+	available. The main reason is that they might process faster for
+	very large capture files. However, as the functionality is exactly the
 	same as in the combined window, they won't be discussed in detail here.
       </para>
     </section>
@@ -254,21 +255,21 @@
       <tip><title>Tip!</title>
       <para>
 	If you are looking for a feature other network tools call a <command>
-	hostlist</command>, here is the right place to look. The list of 
+	hostlist</command>, here is the right place to look. The list of
 	Ethernet or IP endpoints is usually what you're looking for.
       </para>
       </tip>
     </para>
     <section id="ChStatEndpointDefinition"><title>What is an Endpoint?</title>
     <para>
-      A network endpoint is the logical endpoint of separate protocol traffic of 
-      a specific protocol layer. The endpoint statistics of Wireshark will take 
+      A network endpoint is the logical endpoint of separate protocol traffic of
+      a specific protocol layer. The endpoint statistics of Wireshark will take
       the following endpoints into account:
     </para>
     <itemizedlist>
       <listitem>
 	<para>
-	  <command>Ethernet</command>: an Ethernet endpoint is identical to the 
+	  <command>Ethernet</command>: an Ethernet endpoint is identical to the
 	  Ethernet's MAC address.
 	</para>
       </listitem>
@@ -279,7 +280,7 @@
       </listitem>
       <listitem>
 	<para>
-	  <command>FDDI</command>: a FDDI endpoint is identical to the FDDI MAC 
+	  <command>FDDI</command>: a FDDI endpoint is identical to the FDDI MAC
 	  address.
 	</para>
       </listitem>
@@ -295,30 +296,30 @@
       </listitem>
       <listitem>
 	<para>
-	  <command>TCP</command>: a TCP endpoint is a combination of the IP address 
+	  <command>TCP</command>: a TCP endpoint is a combination of the IP address
 	  and the TCP port used, so different TCP ports on the same IP address are
 	  different TCP endpoints.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  <command>Token Ring</command>: a Token Ring endpoint is identical to the 
+	  <command>Token Ring</command>: a Token Ring endpoint is identical to the
 	  Token Ring MAC address.
 	</para>
       </listitem>
       <listitem>
 	<para>
-	  <command>UDP</command>: a UDP endpoint is a combination of the IP address 
+	  <command>UDP</command>: a UDP endpoint is a combination of the IP address
 	  and the UDP port used, so different UDP ports on the same IP address are
 	  different UDP endpoints.
 	</para>
       </listitem>
-    </itemizedlist>	
+    </itemizedlist>
     <note><title>Broadcast / multicast endpoints</title>
     <para>
       Broadcast / multicast traffic will be shown separately as additional
-      endpoints. Of course, as these endpoints are virtual endpoints, the real 
-      traffic will be received by all (multicast: some) of the listed unicast 
+      endpoints. Of course, as these endpoints are virtual endpoints, the real
+      traffic will be received by all (multicast: some) of the listed unicast
       endpoints.
     </para>
     </note>
@@ -326,29 +327,29 @@
     <section id="ChStatEndpointsWindow">
       <title>The "Endpoints" window</title>
       <para>
-	This window shows statistics about the endpoints captured. 
+	This window shows statistics about the endpoints captured.
       </para>
       <figure><title>The "Endpoints" window</title>
       <graphic entityref="WiresharkStatsEndpoints" format="PNG"/>
       </figure>
       <para>
 	For each supported protocol, a tab is shown in this window.
-	Each tab label shows the number of endpoints captured (e.g. the 
-	tab label "Ethernet: 5" tells you that five ethernet endpoints have been 
-	captured). If no endpoints of a specific protocol were captured, the tab 
+	Each tab label shows the number of endpoints captured (e.g. the
+	tab label "Ethernet: 5" tells you that five ethernet endpoints have been
+	captured). If no endpoints of a specific protocol were captured, the tab
 	label will be greyed out (although the related page can still be selected).
       </para>
       <para>
 	Each row in the list shows the statistical values for exactly one endpoint.
       </para>
       <para>
-	<command>Name resolution</command> will be done if selected in the window 
-	and if it is active for the specific protocol layer (MAC layer for the 
-	selected Ethernet endpoints page). As you might have noticed, the first 
-	row has a name 
+	<command>Name resolution</command> will be done if selected in the window
+	and if it is active for the specific protocol layer (MAC layer for the
+	selected Ethernet endpoints page). As you might have noticed, the first
+	row has a name
 	resolution of the first three bytes "Netgear", the second row's address was
-	resolved to an IP address (using ARP) and the third was resolved 
-	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two 
+	resolved to an IP address (using ARP) and the third was resolved
+	to a broadcast (unresolved this would still be: ff:ff:ff:ff:ff:ff); the last two
 	Ethernet addresses remain unresolved.
       </para>
       <para>
@@ -356,29 +357,29 @@
 	the current display filter.
       </para>
       <para>
-	The <command>copy</command> button will copy the list values to the 
+	The <command>copy</command> button will copy the list values to the
 	clipboard in CSV (Comma Seperated Values) format.
       </para>
       <tip><title>Tip!</title>
       <para>
-	This window will be updated frequently, so it will be useful, even if 
+	This window will be updated frequently, so it will be useful, even if
 	you open it before (or while) you are doing a live capture.
       </para>
       </tip>
-    </section>	
+    </section>
     <section id="ChStatEndpointListWindow">
       <title>The protocol specific "Endpoint List" windows</title>
       <para>
-	Before the combined window described above was available, each of its 
-	pages was shown as a separate window. Even though the combined window is 
-	much more convenient to use, these separate windows are still 
-	available. The main reason is that they might process faster for 
-	very large capture files. However, as the functionality is exactly the 
+	Before the combined window described above was available, each of its
+	pages was shown as a separate window. Even though the combined window is
+	much more convenient to use, these separate windows are still
+	available. The main reason is that they might process faster for
+	very large capture files. However, as the functionality is exactly the
 	same as in the combined window, they won't be discussed in detail here.
-      </para>	
+      </para>
     </section>
   </section>
-  
+
   <section id="ChStatIOGraphs">
     <title>The "IO Graphs" window</title>
     <para>
@@ -387,11 +388,11 @@
     <para>
 	You can define up to five differently colored graphs.
     </para>
-	
+
 	<figure><title>The "IO Graphs" window</title>
 	  <graphic entityref="WiresharkStatsIOGraphs" format="PNG"/>
 	</figure>
-	
+
 	<para>
 	The user can configure the following things:
 	<itemizedlist>
@@ -400,7 +401,7 @@
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Graph 1-5</command>: enable the specific graph 1-5 (only graph 1 is enabled 
+	<command>Graph 1-5</command>: enable the specific graph 1-5 (only graph 1 is enabled
 	by default)
 	</para>
 	</listitem>
@@ -411,7 +412,7 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>Filter</command>: a display filter for this graph (only the 
+	<command>Filter</command>: a display filter for this graph (only the
 	packets that pass this filter will be taken into account for this graph)
 	</para>
 	</listitem>
@@ -420,16 +421,16 @@
 	<command>Style</command>: the style of the graph (Line/Impulse/FBar/Dot)
 	</para>
 	</listitem>
-	</itemizedlist>	
+	</itemizedlist>
 	</para>
 	</listitem>
-	
+
 	<listitem>
 	<para><command>X Axis</command>
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Tick interval</command>: an interval in x direction lasts 
+	<command>Tick interval</command>: an interval in x direction lasts
 	(10/1 minutes or 10/1/0.1/0.01/0.001 seconds)
 	</para>
 	</listitem>
@@ -440,39 +441,39 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>View as time of day</command>: option to view x direction labels 
+	<command>View as time of day</command>: option to view x direction labels
 	as time of day instead of seconds or minutes since beginning of capture
 	</para>
 	</listitem>
 	</itemizedlist>
 	</para>
 	</listitem>
-	
+
 	<listitem>
 	<para><command>Y Axis</command>
 	<itemizedlist>
 	<listitem>
 	<para>
-	<command>Unit</command>: the unit for the y direction (Packets/Tick, 
+	<command>Unit</command>: the unit for the y direction (Packets/Tick,
 	Bytes/Tick, Bits/Tick, Advanced...)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>Scale</command>: the scale for the y unit 
+	<command>Scale</command>: the scale for the y unit
 	(10,20,50,100,200,500,...) [XXX - describe the Advanced feature.]
 	</para>
 	</listitem>
-	</itemizedlist>	
+	</itemizedlist>
 	</para>
 	</listitem>
-	
+
 	</itemizedlist>
 	</para>
 	<para>
 	  The <command>save</command> button will save the currently displayed
 	  portion of the graph as one of various file formats.  The save feature
-	  is only available when using GTK version 2.6 or higher (the latest 
+	  is only available when using GTK version 2.6 or higher (the latest
 	  Windows versions comply with this requirement) and Wireshark version
 	  0.99.7 or higher.
 	</para>
@@ -487,37 +488,37 @@
 	</para>
 	</tip>
   </section>
-  
+
   <section id="ChStatWLANTraffic">
     <title>WLAN Traffic Statistics</title>
     <para>
-      Statistics of the captured WLAN traffic.  This window will summarize the 
-      wireless network traffic found in the capture.  Probe requests will be 
+      Statistics of the captured WLAN traffic.  This window will summarize the
+      wireless network traffic found in the capture.  Probe requests will be
       merged into an existing network if the SSID matches.
     </para>
 
     <figure><title>The "WLAN Traffic Statistics" window</title>
     <graphic entityref="WiresharkStatsWLANTraffic" format="PNG"/>
     </figure>
-	
+
     <para>
       Each row in the list shows the statistical values for exactly one wireless network.
     </para>
     <para>
-      <command>Name resolution</command> will be done if selected in the window 
+      <command>Name resolution</command> will be done if selected in the window
       and if it is active for the MAC layer.
     </para>
     <para>
-      <command>Only show existing networks</command> will exclude probe requests 
+      <command>Only show existing networks</command> will exclude probe requests
       with a SSID not matching any network from the list.
     </para>
     <para>
-      The <command>copy</command> button will copy the list values to the 
+      The <command>copy</command> button will copy the list values to the
       clipboard in CSV (Comma Seperated Values) format.
     </para>
     <tip><title>Tip!</title>
     <para>
-      This window will be updated frequently, so it will be useful, even if 
+      This window will be updated frequently, so it will be useful, even if
       you open it before (or while) you are doing a live capture.
     </para>
     </tip>
@@ -526,13 +527,13 @@
   <section id="ChStatSRT">
     <title>Service Response Time</title>
     <para>
-	The service response time is the time between a request and the 
+	The service response time is the time between a request and the
 	corresponding response. This information is available for many protocols.
     </para>
     <para>
-	Service response time statistics are currently available for the following 
+	Service response time statistics are currently available for the following
 	protocols:
-	<itemizedlist>	
+	<itemizedlist>
 	<listitem>
 	<para><command>DCE-RPC</command></para>
 	</listitem>
@@ -554,12 +555,12 @@
 	<listitem>
 	<para><command>SMB</command></para>
 	</listitem>
-	</itemizedlist>	
-	As an example, the DCE-RPC service response time is described in more 
+	</itemizedlist>
+	As an example, the DCE-RPC service response time is described in more
 	detail.
 	<note><title>Note!</title>
 	<para>
-	The other Service Response Time windows will work the same way (or only 
+	The other Service Response Time windows will work the same way (or only
 	slightly different) compared to the following description.
 	</para>
 	</note>
@@ -567,7 +568,7 @@
   <section id="ChStatSRTDceRpc">
     <title>The "Service Response Time DCE-RPC" window</title>
     <para>
-	The service response time of DCE-RPC is the time between the request and 
+	The service response time of DCE-RPC is the time between the request and
 	the corresponding response.
     </para>
     <para>
@@ -583,27 +584,27 @@
 	  <graphic entityref="WiresharkStatsSrtDcerpc" format="PNG"/>
 	</figure>
 	<para>
-	Each row corresponds to a method of the interface selected (so the EPM 
-	interface in version 3 has 7 methods). For each 
-	method the number of calls, and the statistics of the SRT time is 
+	Each row corresponds to a method of the interface selected (so the EPM
+	interface in version 3 has 7 methods). For each
+	method the number of calls, and the statistics of the SRT time is
 	calculated.
     </para>
   </section>
   </section>
-  
+
   <section id="ChStatXXX">
     <title>The protocol specific statistics windows</title>
     <para>
-	The protocol specific statistics windows display detailed information 
-	of specific protocols and might be described in a later 
+	The protocol specific statistics windows display detailed information
+	of specific protocols and might be described in a later
 	version of this document.
     </para>
     <para>
-	Some of these statistics are described at the 
+	Some of these statistics are described at the
 	<ulink url="&WiresharkWikiPage;/Statistics"/> pages.
     </para>
   </section>
-  
+
 </chapter>
 <!-- End of WSUG Chapter Statistics -->
 
