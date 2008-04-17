@@ -227,7 +227,7 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenFolder(tvbuff_t *tvb _U_, int of
 	old_offset = offset;
 	folder_id = tvb_get_letoh64(tvb, offset);
 	offset += 8;
-	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "folder ID: 0x%llx", folder_id);
+	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "folder ID: 0x%" G_GINT64_MODIFIER "x", folder_id);
 
 	old_offset = offset;
 	unknown = tvb_get_guint8(tvb, offset);
