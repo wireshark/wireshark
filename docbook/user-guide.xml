@@ -196,6 +196,7 @@ FILE SECTION
   <!ENTITY WiresharkFilterAddExpression SYSTEM "./wsug_graphics/ws-filter-add-expression.png" NDATA PNG>
   <!ENTITY WiresharkFilters2 SYSTEM "./wsug_graphics/ws-filters-2.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInterfacesDialog SYSTEM "./wsug_graphics/ws-capture-interfaces.png" NDATA PNG>
+  <!ENTITY WiresharkCaptureInterfacesDialogWin32 SYSTEM "./wsug_graphics/ws-capture-interfaces-win32.png" NDATA PNG>
   <!ENTITY WiresharkCaptureOptionsDialog SYSTEM "./wsug_graphics/ws-capture-options.png" NDATA PNG>
   <!ENTITY WiresharkCaptureInfoDialog SYSTEM "./wsug_graphics/ws-capture-info.png" NDATA PNG>
   <!ENTITY WiresharkTimeReference SYSTEM "./wsug_graphics/ws-time-reference.png" NDATA PNG>

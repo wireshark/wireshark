@@ -102,6 +102,7 @@
 	    You can get an overview of the available local interfaces using the 
 		"<inlinegraphic entityref="WiresharkToolbarCaptureInterfaces" format="PNG"/>
 		Capture Interfaces" dialog box, see 
+		<xref linkend="ChCapCaptureInterfacesDialogWin32"/> or 
 		<xref linkend="ChCapCaptureInterfacesDialog"/>. You can start a 
 		capture from this dialog box, using (one of) the "Capture" button(s).
 	  </para>
@@ -143,6 +144,7 @@ wireshark -i eth0 -k
 	<para>
 	When you select "Interfaces..." from the Capture menu, Wireshark pops 
 	up the "Capture Interfaces" dialog box as shown in 
+	<xref linkend="ChCapCaptureInterfacesDialogWin32"/> or 
 	<xref linkend="ChCapCaptureInterfacesDialog"/>.
 	<warning><title>Warning!</title>
 	<para>
@@ -158,12 +160,27 @@ wireshark -i eth0 -k
 	cannot detect the remote interfaces available, there could be more capture 
 	interfaces available than listed.
 	</para>
+	<para>
+	Also note that this dialog box will not show interfaces marked as hidden
+	in the "Interface Options" preferences dialog.
+	</para>
 	</note>
+	<figure id="ChCapCaptureInterfacesDialogWin32">
+	<title>The "Capture Interfaces" dialog box on Win32</title>
+	<graphic entityref="WiresharkCaptureInterfacesDialogWin32" format="PNG"/>
+	</figure>
 	<figure id="ChCapCaptureInterfacesDialog">
-	<title>The "Capture Interfaces" dialog box</title>
+	<title>The "Capture Interfaces" dialog box on other than Win32</title>
 	<graphic entityref="WiresharkCaptureInterfacesDialog" format="PNG"/>
 	</figure>
 	<variablelist>
+	  <varlistentry><term><command>Device (not on Win32)</command></term>
+	    <listitem>
+	      <para>
+		  The interface device name.
+	      </para>
+	    </listitem>
+	  </varlistentry>
 	  <varlistentry><term><command>Description</command></term>
 	    <listitem>
 	      <para>
