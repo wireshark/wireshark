@@ -38,6 +38,7 @@
 #include "capture.h"
 #include "capture-pcap-util.h"
 #include "capture_opts.h"
+#include "capture_ui_utils.h"
 #include "simple_dialog.h"
 #include "wiretap/file_util.h"
 
@@ -435,7 +436,7 @@ welcome_if_panel_new(void)
   gchar         *err_str;
   int           ifs;
   GList         *curr;
-
+  gchar         *descr;
 
   panel_vb = gtk_vbox_new(FALSE, 0);
 
@@ -458,11 +459,22 @@ welcome_if_panel_new(void)
           continue;
       }
 
-    if (if_info->description != NULL)
-        interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
-    else
+      descr = capture_dev_user_descr_find(if_info->name);
+      if (descr) {
+#ifndef _WIN32
+	gchar *comment = descr;
+	descr = g_strdup_printf("%s (%s)", comment, if_info->name);
+	g_free (comment);
+#endif
+	interface_hb = welcome_if_new(descr, &topic_content_bg, g_strdup(if_info->name));
+	g_free (descr);
+      } else if (if_info->description != NULL) {
+	interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
+      } else {
         interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
-    gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
+      }
+
+      gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
   }
 
   free_interface_list(if_list);
