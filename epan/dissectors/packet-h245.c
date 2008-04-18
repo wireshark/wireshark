@@ -20612,7 +20612,7 @@ void proto_reg_handoff_h245(void) {
 	t38_handle = find_dissector("t38");
 	data_handle = find_dissector("data");
 	h263_handle = find_dissector("h263data");
-	amr_handle = find_dissector("amr_if2");
+	amr_handle = find_dissector("amr_if2_nb");
 
 
 	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
