@@ -169,7 +169,7 @@ welcome_header_new(void)
     icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
-    if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon = 6 && now->tm_mday == 14)) {
+    if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
         message = "<span weight=\"bold\" size=\"x-large\">" "Sniffing the glue that holds the Internet together" "</span>";
     } else {
         message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
