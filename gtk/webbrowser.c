@@ -198,6 +198,55 @@ browser_open_url (const gchar *url)
 #endif
 }
 
+/** Convert local absolute path to uri.
+ *
+ * @param filename to (absolute pathed) filename to convert
+ * @return a newly allocated uri, you must g_free it later
+ */
+static gchar *
+filename2uri(const gchar *filename)
+{
+    int i = 0;
+    gchar *file_tmp;
+    GString *filestr;
+
+
+    filestr = g_string_sized_new(200);
+
+    /* this escaping is somewhat slow but should working fine */
+    for(i=0; filename[i]; i++) {
+        switch(filename[i]) {
+        case(' '):
+            g_string_append(filestr, "%20");
+            break;
+        case('%'):
+            g_string_append(filestr, "%%");
+            break;
+        case('\\'):
+            g_string_append_c(filestr, '/');
+            break;
+            /* XXX - which other chars need to be escaped? */
+        default:
+            g_string_append_c(filestr, filename[i]);
+        }
+    }
+
+
+    /* prepend URI header "file:" appropriate for the system */
+#ifdef G_OS_WIN32
+    /* XXX - how do we handle UNC names (e.g. //servername/sharename/dir1/dir2/capture-file.cap) */
+    g_string_prepend(filestr, "file:///");
+#else
+    g_string_prepend(filestr, "file://");
+#endif
+
+    file_tmp = filestr->str;
+
+    g_string_free(filestr, FALSE /* don't free segment data */);
+
+    return file_tmp;
+}
+
 gboolean
 filemanager_open_directory (const gchar *path)
 {
@@ -373,54 +422,6 @@ strreplace (const gchar *string,
 
 #endif /* MUST_LAUNCH_BROWSER_OURSELVES */
 
-/** Convert local absolute path to uri.
- *
- * @param filename to (absolute pathed) filename to convert
- * @return a newly allocated uri, you must g_free it later
- */
-static gchar *
-filename2uri(gchar *filename)
-{
-    int i = 0;
-    gchar *file_tmp;
-    GString *filestr;
-
-
-    filestr = g_string_sized_new(200);
-
-    /* this escaping is somewhat slow but should working fine */
-    for(i=0; filename[i]; i++) {
-        switch(filename[i]) {
-        case(' '):
-            g_string_append(filestr, "%20");
-            break;
-        case('%'):
-            g_string_append(filestr, "%%");
-            break;
-        case('\\'):
-            g_string_append_c(filestr, '/');
-            break;
-            /* XXX - which other chars need to be escaped? */
-        default:
-            g_string_append_c(filestr, filename[i]);
-        }
-    }
-
-
-    /* prepend URI header "file:" appropriate for the system */
-#ifdef G_OS_WIN32
-    /* XXX - how do we handle UNC names (e.g. //servername/sharename/dir1/dir2/capture-file.cap) */
-    g_string_prepend(filestr, "file:///");
-#else
-    g_string_prepend(filestr, "file://");
-#endif
-
-    file_tmp = filestr->str;
-
-    g_string_free(filestr, FALSE /* don't free segment data */);
-
-    return file_tmp;
-}
 
 /* browse a file relative to the data dir */
 void
