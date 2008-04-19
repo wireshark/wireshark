@@ -66,7 +66,100 @@ GdkColor topic_content_bg;
 GdkColor topic_item_idle_bg;
 GdkColor topic_item_entered_bg;
 
+
 GtkWidget *welcome_file_panel_vb = NULL;
+
+
+
+
+/* The "scroll box dynamic" is a (complicated) pseudo widget to */
+/* place a vertically list of widgets in (currently the interfaces and recent files). */
+/* Once this list get's higher than a specified amount, */
+/* it is moved into a scrolled_window. */
+/* This is all complicated, the scrolled window is a bit ugly, */
+/* the sizes might not be the same on all systems, ... */
+/* ... but that's the best what we currently have */
+#define SCROLL_BOX_CHILD_BOX        "ScrollBoxDynamic_ChildBox"
+#define SCROLL_BOX_MAX_CHILDS       "ScrollBoxDynamic_MaxChilds"
+#define SCROLL_BOX_SCROLLW_Y_SIZE   "ScrollBoxDynamic_Scrollw_Y_Size"
+#define SCROLL_BOX_SCROLLW          "ScrollBoxDynamic_Scrollw"
+
+
+static GtkWidget *
+scroll_box_dynamic_new(GtkBox *child_box, guint max_childs, guint scrollw_y_size) {
+    GtkWidget * parent_box;
+
+
+    parent_box = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(parent_box), GTK_WIDGET(child_box), TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX, child_box);
+    g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS, GINT_TO_POINTER(max_childs));
+    g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW_Y_SIZE, GINT_TO_POINTER(scrollw_y_size));
+    gtk_widget_show_all(parent_box);
+
+    return parent_box;
+}
+
+static GtkWidget *
+scroll_box_dynamic_add(GtkWidget *parent_box)
+{
+    GtkWidget *child_box;
+    GtkWidget *scrollw;
+    guint max_cnt;
+    guint curr_cnt;
+    guint scrollw_y_size;
+    GList *childs;
+
+
+    child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
+    max_cnt = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS));
+    
+    /* get the current number of children */
+    childs = gtk_container_get_children(GTK_CONTAINER(child_box));
+    curr_cnt = g_list_length(childs);
+    g_list_free(childs);
+
+    /* have we just reached the max? */
+    if(curr_cnt == max_cnt) {
+        /* create the scrolled window */
+        /* XXX - there's no way to get rid of the shadow frame - except for creating an own widget :-( */
+        scrollw = scrolled_window_new(NULL, NULL);
+        scrollw_y_size = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW_Y_SIZE));
+	    gtk_widget_set_usize(scrollw, -1, scrollw_y_size);
+
+        g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW, scrollw);
+        gtk_box_pack_start(GTK_BOX(parent_box), scrollw, TRUE, TRUE, 0);
+
+        /* move child_box from parent_box into scrolled window */
+        gtk_widget_ref(child_box);
+        gtk_container_remove(GTK_CONTAINER(parent_box), child_box);
+        gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollw),
+                                              child_box);
+    }
+
+    return child_box;
+}
+
+static GtkWidget *
+scroll_box_dynamic_reset(GtkWidget *parent_box)
+{
+    GtkWidget *child_box, *scrollw;
+
+
+    child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
+    scrollw = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW);
+
+    if(scrollw != NULL) {
+        /* move the child_box back from scrolled window into the parent_box */
+        gtk_widget_ref(child_box);
+        gtk_container_remove(GTK_CONTAINER(parent_box), scrollw);
+        g_object_set_data(G_OBJECT(parent_box), SCROLL_BOX_SCROLLW, NULL);
+        gtk_box_pack_start(GTK_BOX(parent_box), child_box, TRUE, TRUE, 0);
+    }
+
+    return child_box;
+}
+
 
 
 
@@ -110,7 +203,7 @@ welcome_button(const gchar *stock_item,
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
     if(tooltip != NULL) {
         gtk_tooltips_set_tip(tooltips, eb, tooltip, "");
-    }
+    }   
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
@@ -320,14 +413,17 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 void
 main_welcome_reset_recent_capture_files()
 {
+    GtkWidget *child_box;
     GList* child_list;
     GList* child_list_item;
 
-    child_list = gtk_container_get_children(GTK_CONTAINER(welcome_file_panel_vb));
+
+    child_box = scroll_box_dynamic_reset(welcome_file_panel_vb);
+    child_list = gtk_container_get_children(GTK_CONTAINER(child_box));
     child_list_item = child_list;
 
     while(child_list_item) {
-        gtk_container_remove(GTK_CONTAINER(welcome_file_panel_vb), child_list_item->data);
+        gtk_container_remove(GTK_CONTAINER(child_box), child_list_item->data);
         child_list_item = g_list_next(child_list_item);
     }
 
@@ -340,13 +436,17 @@ void
 main_welcome_add_recent_capture_files(const char *widget_cf_name)
 {
     GtkWidget *w;
+    GtkWidget *child_box;
     GtkWidget *label;
+
 
     w = welcome_filename_link_new(widget_cf_name, &label);
     gtk_widget_modify_bg(w, GTK_STATE_NORMAL, &topic_item_idle_bg);
     gtk_misc_set_alignment (GTK_MISC(label), 0.0, 0.0);
-    gtk_box_pack_start(GTK_BOX(welcome_file_panel_vb), w, FALSE, FALSE, 0);
+    child_box = scroll_box_dynamic_add(welcome_file_panel_vb);
+    gtk_box_pack_start(GTK_BOX(child_box), w, FALSE, FALSE, 0);
     gtk_widget_show_all(w);
+    gtk_widget_show_all(child_box);
 }
 
 
@@ -427,8 +527,10 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
 GtkWidget *
 welcome_if_panel_new(void)
 {
-    GtkWidget *interface_hb;
-    GtkWidget *panel_vb;
+  GtkWidget *panel_vb;
+  GtkWidget *parent_box;
+  GtkWidget *child_box;
+  GtkWidget *interface_hb;
 
   if_info_t     *if_info;
   GList         *if_list;
@@ -438,7 +540,11 @@ welcome_if_panel_new(void)
   GList         *curr;
   gchar         *descr;
 
+
   panel_vb = gtk_vbox_new(FALSE, 0);
+  /* 8 capture interfaces or 150 pixels height is about the size */
+  /* that still fits on a screen of about 1000*700 */
+  parent_box = scroll_box_dynamic_new(GTK_BOX(panel_vb), 8, 150);
 
   /* LOAD THE INTERFACES */
   if_list = capture_interface_list(&err, &err_str);
@@ -462,24 +568,25 @@ welcome_if_panel_new(void)
       descr = capture_dev_user_descr_find(if_info->name);
       if (descr) {
 #ifndef _WIN32
-	gchar *comment = descr;
-	descr = g_strdup_printf("%s (%s)", comment, if_info->name);
-	g_free (comment);
+        gchar *comment = descr;
+        descr = g_strdup_printf("%s (%s)", comment, if_info->name);
+        g_free (comment);
 #endif
-	interface_hb = welcome_if_new(descr, &topic_content_bg, g_strdup(if_info->name));
-	g_free (descr);
+        interface_hb = welcome_if_new(descr, &topic_content_bg, g_strdup(if_info->name));
+        g_free (descr);
       } else if (if_info->description != NULL) {
-	interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
+        interface_hb = welcome_if_new(if_info->description, &topic_content_bg, g_strdup(if_info->name));
       } else {
         interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
       }
 
-      gtk_box_pack_start(GTK_BOX(panel_vb), interface_hb, FALSE, FALSE, 2);
+      child_box = scroll_box_dynamic_add(parent_box);
+      gtk_box_pack_start(GTK_BOX(child_box), interface_hb, FALSE, FALSE, 1);
   }
 
   free_interface_list(if_list);
 
-  return panel_vb;
+  return parent_box;
 }
 #endif  /* HAVE_LIBPCAP */
 
@@ -497,6 +604,7 @@ welcome_new(void)
     GtkWidget *header;
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
+    GtkWidget *file_child_box;
 
 
     /* prepare colors */
@@ -638,7 +746,10 @@ welcome_new(void)
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
-    welcome_file_panel_vb = gtk_vbox_new(FALSE, 1);
+    file_child_box = gtk_vbox_new(FALSE, 1);
+    /* 17 file items or 300 pixels height is about the size */
+    /* that still fits on a screen of about 1000*700 */
+    welcome_file_panel_vb = scroll_box_dynamic_new(GTK_BOX(file_child_box), 17, 300);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), welcome_file_panel_vb, FALSE, FALSE, 0);
 
     item_hb = welcome_button(WIRESHARK_STOCK_WIKI,
