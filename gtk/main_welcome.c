@@ -135,6 +135,7 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
         gtk_container_remove(GTK_CONTAINER(parent_box), child_box);
         gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrollw),
                                               child_box);
+        gtk_widget_show_all(scrollw);
     }
 
     return child_box;
@@ -418,16 +419,18 @@ main_welcome_reset_recent_capture_files()
     GList* child_list_item;
 
 
-    child_box = scroll_box_dynamic_reset(welcome_file_panel_vb);
-    child_list = gtk_container_get_children(GTK_CONTAINER(child_box));
-    child_list_item = child_list;
+    if(welcome_file_panel_vb) {
+        child_box = scroll_box_dynamic_reset(welcome_file_panel_vb);
+        child_list = gtk_container_get_children(GTK_CONTAINER(child_box));
+        child_list_item = child_list;
 
-    while(child_list_item) {
-        gtk_container_remove(GTK_CONTAINER(child_box), child_list_item->data);
-        child_list_item = g_list_next(child_list_item);
+        while(child_list_item) {
+            gtk_container_remove(GTK_CONTAINER(child_box), child_list_item->data);
+            child_list_item = g_list_next(child_list_item);
+        }
+
+        g_list_free(child_list);
     }
-
-    g_list_free(child_list);
 }
 
 
