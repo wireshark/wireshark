@@ -783,6 +783,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-xdmcp.c		\
 	packet-xml.c		\
 	packet-xot.c		\
+	packet-xtp.c		\
 	packet-xyplex.c		\
 	packet-yhoo.c		\
 	packet-ymsg.c		\
@@ -1090,6 +1091,7 @@ DISSECTOR_INCLUDES =	\
 	packet-x509ce.h	\
 	packet-x509if.h	\
 	packet-x509sat.h	\
+	packet-xtp.h	\
 	packet-ypbind.h	\
 	packet-yppasswd.h	\
 	packet-ypserv.h	\

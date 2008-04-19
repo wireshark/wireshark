@@ -69,7 +69,7 @@
 #define IP_PROTO_DCCP           33              /* Datagram Congestion Control Protocol */
 #define IP_PROTO_3PC            34              /* Third party connect protocol */
 #define IP_PROTO_IDPR           35              /* Interdomain policy routing protocol */
-#define IP_PROTO_XTP            36              /* XTP */
+#define IP_PROTO_XTP            36              /* Xpress Transport Protocol */
 #define IP_PROTO_DDP            37              /* Datagram Delivery Protocol */
 #define IP_PROTO_CMTP           38              /* Control Message Transport Protocol */
 #define IP_PROTO_TPPP           39              /* TP++ Transport Protocol */
