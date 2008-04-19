@@ -146,35 +146,33 @@ wireshark -i eth0 -k
 	up the "Capture Interfaces" dialog box as shown in 
 	<xref linkend="ChCapCaptureInterfacesDialogWin32"/> or 
 	<xref linkend="ChCapCaptureInterfacesDialog"/>.
-	<warning><title>Warning!</title>
+	<warning><title>This dialog consumes lot's of system resources!</title>
 	<para>
 	As the "Capture Interfaces" dialog is showing live captured data, it is 
 	consuming a lot of system resources. Close this dialog as soon as 
 	possible to prevent excessive system load.
 	</para>
 	</warning>
-	<note><title>Note!</title>
+	<note><title>Not all available interfaces may be displayed!</title>
 	<para>
 	This dialog box will only show the local interfaces Wireshark knows 
-	of. As Wireshark might not be able to detect all local interfaces, and it 
+	of. It will not show interfaces marked as hidden in the "Interface Options" 
+	preferences dialog.
+	As Wireshark might not be able to detect all local interfaces, and it 
 	cannot detect the remote interfaces available, there could be more capture 
 	interfaces available than listed.
 	</para>
-	<para>
-	Also note that this dialog box will not show interfaces marked as hidden
-	in the "Interface Options" preferences dialog.
-	</para>
 	</note>
 	<figure id="ChCapCaptureInterfacesDialogWin32">
-	<title>The "Capture Interfaces" dialog box on Win32</title>
+	<title>The "Capture Interfaces" dialog box on Microsoft Windows</title>
 	<graphic entityref="WiresharkCaptureInterfacesDialogWin32" format="PNG"/>
 	</figure>
 	<figure id="ChCapCaptureInterfacesDialog">
-	<title>The "Capture Interfaces" dialog box on other than Win32</title>
+	<title>The "Capture Interfaces" dialog box on Unix/Linux</title>
 	<graphic entityref="WiresharkCaptureInterfacesDialog" format="PNG"/>
 	</figure>
 	<variablelist>
-	  <varlistentry><term><command>Device (not on Win32)</command></term>
+	  <varlistentry><term><command>Device (Unix/Linux only)</command></term>
 	    <listitem>
 	      <para>
 		  The interface device name.
@@ -223,7 +221,7 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>Capture</command></term>
+	  <varlistentry><term><command>Start</command></term>
 	    <listitem>
 	      <para>
 		  Start a capture on this interface immediately, using the settings 
@@ -243,6 +241,13 @@ wireshark -i eth0 -k
 	    <listitem>
 	      <para>
 		  Open a dialog with detailed information about the interface.
+	      </para>
+	    </listitem>
+	  </varlistentry>
+	  <varlistentry><term><command>Help</command></term>
+	    <listitem>
+	      <para>
+		  Show this help page.
 	      </para>
 	    </listitem>
 	  </varlistentry>
