@@ -1262,7 +1262,6 @@ register_stat_menu_item_stock(
     case(REGISTER_STAT_GROUP_UNSORTED): toolspath = "/Statistics/"; break;
     case(REGISTER_ANALYZE_GROUP_UNSORTED): toolspath = "/Analyze/"; break;
     case(REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER): toolspath = "/Analyze/Conversation Filter/"; break;
-    case(REGISTER_STAT_GROUP_TELEPHONY): toolspath = "/Telephony/"; break;
     case(REGISTER_TOOLS_GROUP_UNSORTED): toolspath = "/Tools/"; break;
     default:
         g_assert(!"no such menu group");
