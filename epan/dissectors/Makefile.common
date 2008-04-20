@@ -513,6 +513,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-lapbether.c	\
 	packet-lapd.c		\
 	packet-laplink.c	\
+	packet-l1-events.c	\
 	packet-ldp.c		\
 	packet-lge_monitor.c	\
 	packet-linx.c		\

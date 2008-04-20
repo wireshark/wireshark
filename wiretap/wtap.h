@@ -204,6 +204,7 @@ extern "C" {
 #define WTAP_ENCAP_LIN				107
 #define WTAP_ENCAP_MOST				108
 #define WTAP_ENCAP_CAN20B			109
+#define WTAP_ENCAP_LAYER1_EVENT			110
 
 #define WTAP_NUM_ENCAP_TYPES			wtap_get_num_encap_types()
 
@@ -730,6 +731,11 @@ struct bthci_phdr {
 #define BTHCI_CHANNEL_SCO     3
 #define BTHCI_CHANNEL_EVENT   4
 
+/* pseudo header for WTAP_ENCAP_LAYER1_EVENT */
+struct l1event_phdr {
+	gboolean uton;
+};
+  
 union wtap_pseudo_header {
 	struct eth_phdr		eth;
 	struct x25_phdr		x25;
@@ -749,6 +755,7 @@ union wtap_pseudo_header {
 	struct erf_mc_phdr      erf;
 	struct sita_phdr	sita;
 	struct bthci_phdr	bthci;
+	struct l1event_phdr	l1event;
 };
 
 struct wtap_nstime {

@@ -26,4 +26,12 @@
 
 int eyesdn_open(wtap *wth, int *err, gchar **err_info);
 
+enum EyeSDN_TYPES {
+    EYESDN_ENCAP_ISDN=0,
+    EYESDN_ENCAP_MSG,
+    EYESDN_ENCAP_LAPB,
+    EYESDN_ENCAP_ATM,
+    EYESDN_ENCAP_MTP2
+};
+
 #endif

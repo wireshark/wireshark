@@ -43,9 +43,8 @@
  * Each Frame starts with the 0xff Flag byte
  * - Bytes 0-2: timestamp (long usec in network byte order)
  * - Bytes 3-7: timestamp (40bits sec since 1970 in network byte order)
- * - Byte 8: channel (0 for D channel, 1-30 for B1-B30, 
- *     128 ATM cells, 129 ATM layer indications)
- * - Byte 9: Sender (0 NT, 1 TE)
+ * - Byte 8: channel (0 for D channel, 1-30 for B1-B30)
+ * - Byte 9: Sender Bit 0(0 NT, 1 TE), Protocol in Bits 7:1, see enum
  * - Byte 10-11: frame size in bytes
  * - Byte 12-n: Frame Payload
  * 
@@ -58,10 +57,15 @@
  */
 
 
-static int esc_read(guint8 *buf, int len, FILE_T fh)
+static int esc_read(guint8 *buf, int len, FILE_T fh, int seekback)
 {
     int i;
     int value;
+    gint64 cur_off;
+    int err;
+
+    if(seekback) cur_off = file_tell(fh);
+    else cur_off=0; // suppress uninitialized warning
     
     for(i=0; i<len; i++) {
 	value=file_getc(fh);
@@ -77,6 +81,11 @@ static int esc_read(guint8 *buf, int len, FILE_T fh)
 	    value+=2;
 	}
 	buf[i]=value;
+    }
+
+    if(seekback) {
+	if (file_seek(fh, cur_off, SEEK_SET, &err) == -1)
+	    return err<0?err:-err;
     }
     return i;
 }
@@ -151,7 +160,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info _U_)
 		return 0;
 
 	wth->data_offset = 0;
-	wth->file_encap = WTAP_ENCAP_ISDN;
+	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_type = WTAP_FILE_EYESDN;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = eyesdn_read;
@@ -234,7 +243,7 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	 * for a packet. Read in that header and extract the useful
 	 * information.
 	 */
-	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh) != EYESDN_HDR_LENGTH) {
+	if (esc_read(hdr, EYESDN_HDR_LENGTH, fh, 0) != EYESDN_HDR_LENGTH) {
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -260,20 +269,73 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
         pkt_len = ((unsigned long) hdr[10]);
         pkt_len = (pkt_len << 8) | ((unsigned long) hdr[11]);
 
-        /* sanity checks */
-        if((channel>30)&&(channel<128)) {
-	    *err = WTAP_ERR_BAD_RECORD;
-            *err_info = g_strdup_printf("eyesdn: bad channel number %u",
-		channel);
-	    return -1;
-	}
+	switch(direction >> 1) {
+	default:
+	case EYESDN_ENCAP_ISDN: // ISDN
+	    pseudo_header->isdn.uton = direction & 1;
+	    pseudo_header->isdn.channel = channel;
+	    if(channel) { // bearer channels
+		if(wth) {
+		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN; // recognises PPP
+		    pseudo_header->isdn.uton=!pseudo_header->isdn.uton; // bug
+		}
+	    } else { // D channel
+		if(wth) {
+		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
+		}
+	    }
+	    break;
+	case EYESDN_ENCAP_MSG: // Layer 1 message
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_LAYER1_EVENT;
+	    }
+	    pseudo_header->l1event.uton = (direction & 1);
+	    break;
+	case EYESDN_ENCAP_LAPB: // X.25 via LAPB 
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_LAPB;
+	    }
+	    pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
+	    break;
+	case EYESDN_ENCAP_ATM: { // ATM cells
+#define CELL_LEN 53
+	    unsigned char cell[CELL_LEN];
+	    if(pkt_len != CELL_LEN) {
+		*err = WTAP_ERR_BAD_RECORD;
+		*err_info = g_strdup_printf("eyesdn: ATM cell has a length "
+					    "!= 53 (%u)", pkt_len);
+		return -1;
+	    }
 
-        if(direction>1) {
-	    *err = WTAP_ERR_BAD_RECORD;
-            *err_info = g_strdup_printf("eyesdn: bad direction value %u",
-		direction);
-	    return -1;
+	    if (esc_read(cell, CELL_LEN, fh, 1) != CELL_LEN) {
+		*err = file_error(fh);
+		if (*err == 0)
+		    *err = WTAP_ERR_SHORT_READ;
+		return -1;
+	    }
+
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
+	    }
+	    pseudo_header->atm.flags=ATM_RAW_CELL;
+	    pseudo_header->atm.aal=AAL_UNKNOWN;
+	    pseudo_header->atm.type=TRAF_UMTS_FP;
+	    pseudo_header->atm.subtype=TRAF_ST_UNKNOWN;
+	    pseudo_header->atm.vpi=((cell[0]&0xf)<<4) + (cell[0]&0xf);
+	    pseudo_header->atm.vci=((cell[0]&0xf)<<4) + cell[0]; // from cell
+	    pseudo_header->atm.channel=direction & 1;
 	}
+	    break;
+	case EYESDN_ENCAP_MTP2: // SS7 frames
+	    pseudo_header->mtp2.sent = direction & 1;
+	    pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
+	    pseudo_header->mtp2.link_number = channel;	    
+	    if(wth) {
+		wth->phdr.pkt_encap = WTAP_ENCAP_MTP2;
+	    }
+	    break;
+	} 
+
         if(pkt_len > EYESDN_MAX_PACKET_LEN) {
 	    *err = WTAP_ERR_BAD_RECORD;
 	    *err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
@@ -287,8 +349,6 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
 	}
-        pseudo_header->isdn.uton = direction;
-        pseudo_header->isdn.channel = channel;
 
 	return pkt_len;
 }
@@ -301,7 +361,7 @@ parse_eyesdn_packet_data(FILE_T fh, int pkt_len, guint8* buf, int *err,
         int bytes_read;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = esc_read(buf, pkt_len, fh);
+	bytes_read = esc_read(buf, pkt_len, fh, 0);
 	if (bytes_read != pkt_len) {
 	    if (bytes_read == -2) {
 		*err = file_error(fh);
