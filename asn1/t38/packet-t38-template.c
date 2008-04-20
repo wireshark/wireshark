@@ -136,14 +136,14 @@ static int hf_t38_setup_frame  = -1;
 static int hf_t38_setup_method = -1;
 
 /* T38 Data reassemble fields */
-static int hf_data_fragments = -1;
-static int hf_data_fragment = -1;
-static int hf_data_fragment_overlap = -1;
-static int hf_data_fragment_overlap_conflicts = -1;
-static int hf_data_fragment_multiple_tails = -1;
-static int hf_data_fragment_too_long_fragment = -1;
-static int hf_data_fragment_error = -1;
-static int hf_data_reassembled_in = -1;
+static int hf_t38_fragments = -1;
+static int hf_t38_fragment = -1;
+static int hf_t38_fragment_overlap = -1;
+static int hf_t38_fragment_overlap_conflicts = -1;
+static int hf_t38_fragment_multiple_tails = -1;
+static int hf_t38_fragment_too_long_fragment = -1;
+static int hf_t38_fragment_error = -1;
+static int hf_t38_reassembled_in = -1;
 
 static gint ett_t38 = -1;
 #include "packet-t38-ett.c"
@@ -164,15 +164,15 @@ static const fragment_items data_frag_items = {
 	&ett_data_fragment,
 	&ett_data_fragments,
 	/* Fragment fields */
-	&hf_data_fragments,
-	&hf_data_fragment,
-	&hf_data_fragment_overlap,
-	&hf_data_fragment_overlap_conflicts,
-	&hf_data_fragment_multiple_tails,
-	&hf_data_fragment_too_long_fragment,
-	&hf_data_fragment_error,
+	&hf_t38_fragments,
+	&hf_t38_fragment,
+	&hf_t38_fragment_overlap,
+	&hf_t38_fragment_overlap_conflicts,
+	&hf_t38_fragment_multiple_tails,
+	&hf_t38_fragment_too_long_fragment,
+	&hf_t38_fragment_error,
 	/* Reassembled in field */
-	&hf_data_reassembled_in,
+	&hf_t38_reassembled_in,
 	/* Tag */
 	"Data fragments"
 };
@@ -700,31 +700,31 @@ proto_register_t38(void)
         {   &hf_t38_setup_method,
             { "Stream Method", "t38.setup-method", FT_STRING, BASE_NONE,
             NULL, 0x0, "Method used to set up this stream", HFILL }},
-		{&hf_data_fragments,
-			{"Message fragments", "data.fragments",
+		{&hf_t38_fragments,
+			{"Message fragments", "t38.fragments",
 			FT_NONE, BASE_NONE, NULL, 0x00,	NULL, HFILL } },
-		{&hf_data_fragment,
-			{"Message fragment", "data.fragment",
+		{&hf_t38_fragment,
+			{"Message fragment", "t38.fragment",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_fragment_overlap,
-			{"Message fragment overlap", "data.fragment.overlap",
+		{&hf_t38_fragment_overlap,
+			{"Message fragment overlap", "t38.fragment.overlap",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_fragment_overlap_conflicts,
+		{&hf_t38_fragment_overlap_conflicts,
 			{"Message fragment overlapping with conflicting data",
-			"data.fragment.overlap.conflicts",
+			"t38.fragment.overlap.conflicts",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_fragment_multiple_tails,
+		{&hf_t38_fragment_multiple_tails,
 			{"Message has multiple tail fragments",
-			"data.fragment.multiple_tails", 
+			"t38.fragment.multiple_tails", 
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_fragment_too_long_fragment,
-			{"Message fragment too long", "data.fragment.too_long_fragment",
+		{&hf_t38_fragment_too_long_fragment,
+			{"Message fragment too long", "t38.fragment.too_long_fragment",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_fragment_error,
-			{"Message defragmentation error", "data.fragment.error",
+		{&hf_t38_fragment_error,
+			{"Message defragmentation error", "t38.fragment.error",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-		{&hf_data_reassembled_in,
-			{"Reassembled in", "data.reassembled.in",
+		{&hf_t38_reassembled_in,
+			{"Reassembled in", "t38.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
 	};
 
