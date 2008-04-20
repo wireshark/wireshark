@@ -93,49 +93,6 @@ fi
 ])
 
 
-dnl
-dnl Check whether a given format can be used to print 64-bit integers
-dnl
-AC_DEFUN([AC_WIRESHARK_CHECK_64BIT_FORMAT],
-[
-  AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
-  AC_RUN_IFELSE(
-    [
-      AC_LANG_SOURCE(
-	[[
-#	  ifdef HAVE_INTTYPES_H
-	  #include <inttypes.h>
-#	  endif
-	  #include <glibconfig.h>
-	  #include <stdio.h>
-	  #include <sys/types.h>
-
-	  main()
-	  {
-	    guint64 t = 1;
-	    char strbuf[16+1];
-	    sprintf(strbuf, "%016$1x", t << 32);
-	    if (strcmp(strbuf, "0000000100000000") == 0)
-	      exit(0);
-	    else
-	      exit(1);
-	  }
-	]])
-    ],
-    [
-      AC_DEFINE(PRId64, "$1d", [Format for printing 64-bit signed decimal numbers])
-      AC_DEFINE(PRIo64, "$1o", [Format for printing 64-bit unsigned octal numbers])
-      AC_DEFINE(PRIx64, "$1x", [Format for printing 64-bit unsigned hexadecimal numbers (lower-case)])
-      AC_DEFINE(PRIX64, "$1X", [Format for printing 64-bit unsigned hexadecimal numbers (upper-case)])
-      AC_DEFINE(PRIu64, "$1u", [Format for printing 64-bit unsigned decimal numbers])
-      AC_MSG_RESULT(yes)
-    ],
-    [
-      AC_MSG_RESULT(no)
-      $2
-    ])
-])
-
 #
 # AC_WIRESHARK_IPV6_STACK
 #
@@ -1559,6 +1516,10 @@ dnl
 AC_DEFUN([AC_WIRESHARK_CHECK_64BIT_FORMAT],
 [
   AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
+  ac_save_CFLAGS="$CFLAGS"
+  ac_save_LIBS="$LIBS"
+  CFLAGS="$CFLAGS $GLIB_CFLAGS"
+  LIBS="$GLIB_LIBS $LIBS"
   AC_RUN_IFELSE(
     [
       AC_LANG_SOURCE(
@@ -1587,6 +1548,8 @@ AC_DEFUN([AC_WIRESHARK_CHECK_64BIT_FORMAT],
       AC_MSG_RESULT(no)
       $2
     ])
+  CFLAGS="$ac_save_CFLAGS"
+  LIBS="$ac_save_LIBS"
 ])
 
 #
