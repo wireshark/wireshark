@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Frederic Peters <fpeters@debian.org>
 Standards-Version: 3.7.2.0
-Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 5.0.37.2), libtool, python, automake1.9, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], bison, libgnutls-dev, python-support (>= 0.3), libportaudio-dev, libkrb5-dev
+Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 5.0.37.2), libtool, python, automake1.9, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], bison, libgnutls-dev, python-support (>= 0.3), libportaudio-dev | portaudio19-dev, libkrb5-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
 XS-Python-Version: all
 
