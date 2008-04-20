@@ -360,7 +360,7 @@ cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
 	GByteArray	*b = fv_b->value.bytes;
 
 	if (a->len != b->len) {
-		return FALSE;
+		return TRUE;
 	}
 
 	return (memcmp(a->data, b->data, a->len) != 0);
