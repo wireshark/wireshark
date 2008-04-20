@@ -250,12 +250,13 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   window_destroy(fs);
 #else
   g_signal_connect(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
-		 file_selection_browse_ok_cb, fs);
+                   GTK_SIGNAL_FUNC(file_selection_browse_ok_cb), fs);
 
   window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button,
                            window_cancel_button_cb);
 
-  g_signal_connect(fs, "delete_event", window_delete_event_cb, fs);
+  g_signal_connect(fs, "delete_event", GTK_SIGNAL_FUNC(window_delete_event_cb),
+                   fs);
 
   gtk_widget_show(fs);
   window_present(fs);
