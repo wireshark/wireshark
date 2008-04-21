@@ -101,7 +101,7 @@ static int dev_zero_fd;
 #ifdef DEBUG_USE_CANARIES
 #define EMEM_CANARY_SIZE 8
 #define EMEM_CANARY_DATA_SIZE (EMEM_CANARY_SIZE * 2 - 1)
-guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
+static guint8  ep_canary[EMEM_CANARY_DATA_SIZE], se_canary[EMEM_CANARY_DATA_SIZE];
 #endif /* DEBUG_USE_CANARIES */
 
 typedef struct _emem_chunk_t {
@@ -125,8 +125,8 @@ typedef struct _emem_header_t {
   emem_chunk_t *used_list;
 } emem_header_t;
 
-emem_header_t ep_packet_mem;
-emem_header_t se_packet_mem;
+static emem_header_t ep_packet_mem;
+static emem_header_t se_packet_mem;
 
 #if !defined(SE_DEBUG_FREE)
 #if defined (_WIN32)
