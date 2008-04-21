@@ -1,6 +1,9 @@
 /* packet-cmp.c
+ *
  * Routines for RFC2510 Certificate Management Protocol packet dissection
  *   Ronnie Sahlberg 2004
+ * Updated to RFC4210 CMPv2 and associated "Transport Protocols for CMP" draft
+ *   Martin Peylo 2008
  *
  * $Id$
  *
@@ -58,11 +61,13 @@ static gboolean cmp_desegment = TRUE;
 /* Initialize the protocol and registered fields */
 int proto_cmp = -1;
 static int hf_cmp_type_oid = -1;
-static int hf_cmp_rm = -1;
-static int hf_cmp_type = -1;
-static int hf_cmp_poll_ref = -1;
-static int hf_cmp_next_poll_ref = -1;
-static int hf_cmp_ttcb = -1;
+static int hf_cmp_tcptrans_len = -1;
+static int hf_cmp_tcptrans_type = -1;
+static int hf_cmp_tcptrans_poll_ref = -1;
+static int hf_cmp_tcptrans_next_poll_ref = -1;
+static int hf_cmp_tcptrans_ttcb = -1;
+static int hf_cmp_tcptrans10_version = -1;
+static int hf_cmp_tcptrans10_flags = -1;
 #include "packet-cmp-hf.c"
 
 /* Initialize the subtree pointers */
@@ -98,27 +103,30 @@ static const value_string cmp_pdu_types[] = {
 	{ 0, NULL },
 };
 
-static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+
+static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	tvbuff_t   *next_tvb;
-	guint32 pdu_len;
-	guint8 pdu_type;
-	nstime_t	ts;
+	guint32    pdu_len;
+	guint8     pdu_type;
+	nstime_t   ts;
 	proto_item *item=NULL;
+	proto_item *ti=NULL;
 	proto_tree *tree=NULL;
+	proto_tree *tcptrans_tree=NULL;
 	asn1_ctx_t asn1_ctx;
+	int offset=0;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
-		
+
 		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 	}
-
 
 	if(parent_tree){
 		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);
@@ -128,65 +136,92 @@ static void dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p
 	pdu_len=tvb_get_ntohl(tvb, 0);
 	pdu_type=tvb_get_guint8(tvb, 4);
 
-	proto_tree_add_uint(tree, hf_cmp_rm, tvb, 0, 4, pdu_len);
-	proto_tree_add_uint(tree, hf_cmp_type, tvb, 4, 1, pdu_type);
-
-        if (check_col (pinfo->cinfo, COL_INFO)) {
-            col_set_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
-        }
-
-	switch(pdu_type){
-	case CMP_TYPE_PKIMSG:
-		next_tvb = tvb_new_subset(tvb, 5, tvb_length_remaining(tvb, 5), pdu_len);
-		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-		break;
-	case CMP_TYPE_POLLREP:
-		proto_tree_add_item(tree, hf_cmp_poll_ref, tvb, 0, 4, FALSE);
-
-		ts.secs = tvb_get_ntohl(tvb, 4);
-		ts.nsecs = 0;
-		proto_tree_add_time(tree, hf_cmp_ttcb, tvb, 4, 4, &ts);
-		break;
-	case CMP_TYPE_POLLREQ:
-		proto_tree_add_item(tree, hf_cmp_poll_ref, tvb, 0, 4, FALSE);
-		break;
-	case CMP_TYPE_NEGPOLLREP:
-		break;
-	case CMP_TYPE_PARTIALMSGREP:
-		proto_tree_add_item(tree, hf_cmp_next_poll_ref, tvb, 0, 4, FALSE);
-
-		ts.secs = tvb_get_ntohl(tvb, 4);
-		ts.nsecs = 0;
-		proto_tree_add_time(tree, hf_cmp_ttcb, tvb, 4, 4, &ts);
-
-		next_tvb = tvb_new_subset(tvb, 13, tvb_length_remaining(tvb, 13), pdu_len);
-		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-		break;
-	case CMP_TYPE_FINALMSGREP:
-		next_tvb = tvb_new_subset(tvb, 5, tvb_length_remaining(tvb, 5), pdu_len);
-		dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
-		break;
-	case CMP_TYPE_ERRORMSGREP:
-		/*XXX to be added*/
-		break;
+	if (pdu_type < 10) {
+		/* RFC2510 TCP transport */
+		ti = proto_tree_add_item(tree, proto_cmp, tvb, offset, 5, FALSE);
+		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
+		proto_tree_add_item(tree, hf_cmp_tcptrans_len, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(tree, hf_cmp_tcptrans_type, tvb, offset++, 1, FALSE);
+	} else {
+		/* post RFC2510 TCP transport - the former "type" field is now "version" */
+		ti = proto_tree_add_text(tree, tvb, offset, 7, "TCP transport");
+		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
+		pdu_type=tvb_get_guint8(tvb, 6);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_version, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_flags, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_type, tvb, offset++, 1, FALSE);
 	}
 
+	if (check_col (pinfo->cinfo, COL_INFO)) {
+		col_set_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
+	}
+
+	switch(pdu_type){
+		case CMP_TYPE_PKIMSG:
+			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			offset += tvb_length_remaining(tvb, offset);
+			break;
+		case CMP_TYPE_POLLREP:
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, FALSE);
+			offset += 4;
+
+			ts.secs = tvb_get_ntohl(tvb, 4);
+			ts.nsecs = 0;
+			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			offset += 4;
+			break;
+		case CMP_TYPE_POLLREQ:
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, FALSE);
+			offset += 4;
+			break;
+		case CMP_TYPE_NEGPOLLREP:
+			break;
+		case CMP_TYPE_PARTIALMSGREP:
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_next_poll_ref, tvb, offset, 4, FALSE);
+			offset += 4;
+
+			ts.secs = tvb_get_ntohl(tvb, 4);
+			ts.nsecs = 0;
+			proto_tree_add_time(tcptrans_tree, hf_cmp_tcptrans_ttcb, tvb, offset, 4, &ts);
+			offset += 4;
+
+			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			offset += tvb_length_remaining(tvb, offset);
+			break;
+		case CMP_TYPE_FINALMSGREP:
+			next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), pdu_len);
+			dissect_cmp_pdu(next_tvb, tree, &asn1_ctx);
+			offset += tvb_length_remaining(tvb, offset);
+			break;
+		case CMP_TYPE_ERRORMSGREP:
+			/*XXX to be added*/
+			break;
+	}
+
+	return offset;
 }
+
 
 static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint32 plen;
+	guint32 plen;
 
-  /*
-   * Get the length of the CMP-over-TCP packet.
-   */
-  plen = tvb_get_ntohl(tvb, offset);
+	/*
+	 * Get the length of the CMP-over-TCP packet.
+	 */
+	plen = tvb_get_ntohl(tvb, offset);
 
-  return plen+4;
+	return plen+4;
 }
 
-/* CMP over TCP    RFC2510 section 5.2 */
-static int
+
+/* CMP over TCP: RFC2510 section 5.2 and "Transport Protocols for CMP" draft */
+	static int
 dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	guint32 pdu_len;
@@ -202,9 +237,9 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	pdu_len=tvb_get_ntohl(tvb, 0);
 	pdu_type=tvb_get_guint8(tvb, 4);
 
-	/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes 
+	/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
 	 * in size.
-	 * It is definitely at least 1 byte to accomodate the flags byte 
+	 * It is definitely at least 1 byte to accomodate the flags byte
 	 */
 	if((pdu_len<=0)||(pdu_len>10000)){
 		return 0;
@@ -213,7 +248,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if(pdu_type>6){
 		return 0;
 	}
-	/* type 0 contains a PKI message and must therefore be >= 3 bytes 
+	/* type 0 contains a PKI message and must therefore be >= 3 bytes
 	 * long (flags + BER TAG + BER LENGTH
 	 */
 	if((pdu_type==0)&&(pdu_len<3)){
@@ -221,12 +256,13 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, 4, get_cmp_pdu_len,
-		dissect_cmp_tcp_pdu);
+			dissect_cmp_tcp_pdu);
 
 	return tvb_length(tvb);
 }
 
-static int
+
+	static int
 dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item=NULL;
@@ -235,15 +271,13 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMP");
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_clear(pinfo->cinfo, COL_INFO);
-		
 		col_set_str(pinfo->cinfo, COL_INFO, "PKIXCMP");
 	}
-
 
 	if(parent_tree){
 		item=proto_tree_add_item(parent_tree, proto_cmp, tvb, 0, -1, FALSE);
@@ -257,71 +291,90 @@ dissect_cmp_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 /*--- proto_register_cmp ----------------------------------------------*/
 void proto_register_cmp(void) {
 
-  /* List of fields */
-  static hf_register_info hf[] = {
-    { &hf_cmp_type_oid,
-      { "InfoType", "cmp.type.oid",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Type of InfoTypeAndValue", HFILL }},
-    { &hf_cmp_rm,
-      { "Record Marker", "cmp.rm",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "Record Marker  length of PDU in bytes", HFILL }},
-    { &hf_cmp_type,
-      { "Type", "cmp.type",
-        FT_UINT8, BASE_DEC, VALS(cmp_pdu_types), 0,
-        "PDU Type", HFILL }},
-    { &hf_cmp_poll_ref,
-      { "Polling Reference", "cmp.poll_ref",
-        FT_UINT32, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_cmp_next_poll_ref,
-      { "Next Polling Reference", "cmp.next_poll_ref",
-        FT_UINT32, BASE_HEX, NULL, 0,
-        "", HFILL }},
-    { &hf_cmp_ttcb,
-      { "Time to check Back", "cmp.ttcb",
-        FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
-        "", HFILL }},
+	/* List of fields */
+	static hf_register_info hf[] = {
+		{ &hf_cmp_type_oid,
+			{ "InfoType", "cmp.type.oid",
+				FT_STRING, BASE_NONE, NULL, 0,
+				"Type of InfoTypeAndValue", HFILL }},
+		{ &hf_cmp_tcptrans_len,
+			{ "Length", "cmp.tcptrans.length",
+				FT_UINT32, BASE_DEC, NULL, 0,
+				"TCP transport Length of PDU in bytes", HFILL }},
+		{ &hf_cmp_tcptrans_type,
+			{ "Type", "cmp.tcptrans.type",
+				FT_UINT8, BASE_DEC, VALS(cmp_pdu_types), 0,
+				"TCP transport PDU Type", HFILL }},
+		{ &hf_cmp_tcptrans_poll_ref,
+			{ "Polling Reference", "cmp.tcptrans.poll_ref",
+				FT_UINT32, BASE_HEX, NULL, 0,
+				"TCP transport Polling Reference", HFILL }},
+		{ &hf_cmp_tcptrans_next_poll_ref,
+			{ "Next Polling Reference", "cmp.tcptrans.next_poll_ref",
+				FT_UINT32, BASE_HEX, NULL, 0,
+				"TCP transport Next Polling Reference ", HFILL }},
+		{ &hf_cmp_tcptrans_ttcb,
+			{ "Time to check Back", "cmp.tcptrans.ttcb",
+				FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,
+				"TCP transport Time to check Back", HFILL }},
+		{ &hf_cmp_tcptrans10_version,
+			{ "Version", "cmp.tcptrans10.version",
+				FT_UINT8, BASE_DEC, NULL, 0,
+				"TCP transport version", HFILL }},
+		{ &hf_cmp_tcptrans10_flags,
+			{ "Flags", "cmp.tcptrans10.flags",
+				FT_UINT8, BASE_DEC, NULL, 0,
+				"TCP transport flags", HFILL }},
 #include "packet-cmp-hfarr.c"
-  };
+	};
 
-  /* List of subtrees */
-  static gint *ett[] = {
-    &ett_cmp,
+	/* List of subtrees */
+	static gint *ett[] = {
+		&ett_cmp,
 #include "packet-cmp-ettarr.c"
-  };
-  module_t *cmp_module;
+	};
+	module_t *cmp_module;
 
-  /* Register protocol */
-  proto_cmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	/* Register protocol */
+	proto_cmp = proto_register_protocol(PNAME, PSNAME, PFNAME);
 
-  /* Register fields and subtrees */
-  proto_register_field_array(proto_cmp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+	/* Register fields and subtrees */
+	proto_register_field_array(proto_cmp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
-  cmp_module = prefs_register_protocol(proto_cmp, NULL);
-  prefs_register_bool_preference(cmp_module, "desegment",
-		"Reassemble CMP-over-TCP messages spanning multiple TCP segments",
-		"Whether the CMP-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
-		"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-		&cmp_desegment);
+	cmp_module = prefs_register_protocol(proto_cmp, NULL);
+	prefs_register_bool_preference(cmp_module, "desegment",
+			"Reassemble CMP-over-TCP messages spanning multiple TCP segments",
+			"Whether the CMP-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
+			"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+			&cmp_desegment);
 }
 
 
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
 	dissector_handle_t cmp_http_handle;
+	dissector_handle_t cmp_tcp_style_http_handle;
 	dissector_handle_t cmp_tcp_handle;
 
 	cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
 	dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
+	dissector_add_string("media_type", "application/x-pkixcmp", cmp_http_handle);
+
+	cmp_tcp_style_http_handle = new_create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
+	dissector_add_string("media_type", "application/pkixcmp-poll", cmp_tcp_style_http_handle);
+	dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
 
 	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
 	dissector_add("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
 	oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
 	oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
+
+	oid_add_from_string("HMAC MD5","1.3.6.1.5.5.8.1.1");
+	oid_add_from_string("HMAC SHA-1","1.3.6.1.5.5.8.1.2");
+	oid_add_from_string("HMAC TIGER","1.3.6.1.5.5.8.1.3");
+	oid_add_from_string("HMAC RIPEMD-160","1.3.6.1.5.5.8.1.4");
 
 #include "packet-cmp-dis-tab.c"
 }
