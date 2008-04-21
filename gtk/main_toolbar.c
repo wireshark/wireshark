@@ -266,14 +266,9 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     }
 #endif /* GTK_CHECK_VERSION(2,4,0) */
 
-#define toolbar_icon(new_icon, window, xpm) { \
-    icon = gdk_pixmap_create_from_xpm_d(window->window, &mask, &window->style->white, (gchar **) xpm); \
-    new_icon = gtk_image_new_from_pixmap(icon, mask); \
-    }
-
 
 #if GTK_CHECK_VERSION(2,4,0)
-#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
+#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
     new_item = gtk_toggle_tool_button_new_from_stock(stock); \
     gtk_tool_item_set_tooltip(new_item, tooltips,  tooltip_text, NULL);	\
     g_signal_connect(new_item, "toggled", G_CALLBACK(callback), user_data); \
@@ -281,8 +276,10 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     gtk_widget_show_all(GTK_WIDGET(new_item)); \
     }
 #else /* GTK_CHECK_VERSION(2,4,0) */
-#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, xpm, callback, user_data) { \
-    toolbar_icon(iconw, window, xpm); \
+#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
+    GtkWidget *iconw; \
+    iconw = gtk_image_new_from_stock(stock, GTK_ICON_SIZE_SMALL_TOOLBAR); \
+    gtk_widget_show(iconw); \
     new_item = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar), \
         GTK_TOOLBAR_CHILD_TOGGLEBUTTON, NULL, \
         stock, tooltip_text, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
@@ -290,53 +287,42 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 #endif /* GTK_CHECK_VERSION(2,4,0) */
 
 
+#if GTK_CHECK_VERSION(2,4,0)
+#define TOGGLE_BUTTON               GTK_TOGGLE_TOOL_BUTTON
+#define TOGGLE_BUTTON_GET_ACTIVE    gtk_toggle_tool_button_get_active
+#define TOGGLE_BUTTON_SET_ACTIVE    gtk_toggle_tool_button_set_active
+#else /* GTK_CHECK_VERSION(2,4,0) */
+#define TOGGLE_BUTTON               GTK_TOGGLE_BUTTON
+#define TOGGLE_BUTTON_GET_ACTIVE    gtk_toggle_button_get_active
+#define TOGGLE_BUTTON_SET_ACTIVE    gtk_toggle_button_set_active
+#endif /* GTK_CHECK_VERSION(2,4,0) */
+
 static void
 colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_)  {
-#if GTK_CHECK_VERSION(2,4,0)
-    menu_colorize_changed(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button)));
-#else /* GTK_CHECK_VERSION(2,4,0) */
-    menu_colorize_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button)));
-#endif /* GTK_CHECK_VERSION(2,4,0) */
+    menu_colorize_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(toggle_button)));
 }
 
 void
 toolbar_colorize_changed(gboolean packet_list_colorize) {
-#if GTK_CHECK_VERSION(2,4,0)
-    if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(colorize_button)) != packet_list_colorize) {
-        gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(colorize_button), packet_list_colorize);
+    if(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(colorize_button)) != packet_list_colorize) {
+        TOGGLE_BUTTON_SET_ACTIVE(TOGGLE_BUTTON(colorize_button), packet_list_colorize);
     }
-#else /* GTK_CHECK_VERSION(2,4,0) */
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(colorize_button)) != packet_list_colorize) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(colorize_button), packet_list_colorize);
-    }
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
-
 
 #ifdef HAVE_LIBPCAP
 static void
 auto_scroll_live_toggle_cb(GtkWidget *autoscroll_button, gpointer user_data _U_) {
-#if GTK_CHECK_VERSION(2,4,0)
-    menu_auto_scroll_live_changed(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button)));
-#else /* GTK_CHECK_VERSION(2,4,0) */
-    menu_auto_scroll_live_changed(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)));
-
-#endif /* GTK_CHECK_VERSION(2,4,0) */
+    menu_auto_scroll_live_changed(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button)));
 }
 
 void
 toolbar_auto_scroll_live_changed(gboolean auto_scroll_live) {
-#if GTK_CHECK_VERSION(2,4,0)
-    if(gtk_toggle_tool_button_get_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button)) != auto_scroll_live) {
-        gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(autoscroll_button), auto_scroll_live);
+    if(TOGGLE_BUTTON_GET_ACTIVE(TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live) {
+        TOGGLE_BUTTON_SET_ACTIVE(TOGGLE_BUTTON(autoscroll_button), auto_scroll_live);
     }
-#else /* GTK_CHECK_VERSION(2,4,0) */
-    if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoscroll_button)) != auto_scroll_live) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(autoscroll_button), auto_scroll_live);
-    }
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 #endif
+
 
 /*
  * Create all toolbars (currently only the main toolbar)
@@ -346,11 +332,6 @@ toolbar_new(void)
 {
     GtkWidget *main_tb;
     GtkWidget *window = top_level;
-#if !GTK_CHECK_VERSION(2,4,0)
-    GdkPixmap *icon;
-    GdkBitmap * mask;
-    GtkWidget *iconw;
-#endif
     GtkTooltips *tooltips;
 
     tooltips = gtk_tooltips_new();
@@ -445,11 +426,11 @@ toolbar_new(void)
     toolbar_append_separator(main_tb);
 
     toolbar_toggle_button(colorize_button, window, main_tb, 
-	WIRESHARK_STOCK_COLORIZE, tooltips, "Colorize Packet List", colorize_24_xpm, colorize_toggle_cb, NULL);
+	WIRESHARK_STOCK_COLORIZE, tooltips, "Colorize Packet List", colorize_toggle_cb, NULL);
 
 #ifdef HAVE_LIBPCAP
     toolbar_toggle_button(autoscroll_button, window, main_tb, 
-	WIRESHARK_STOCK_AUTOSCROLL, tooltips, "Auto Scroll Packet List in Live Capture", autoscroll_24_xpm, auto_scroll_live_toggle_cb, NULL);
+	WIRESHARK_STOCK_AUTOSCROLL, tooltips, "Auto Scroll Packet List in Live Capture", auto_scroll_live_toggle_cb, NULL);
 #endif
 
     toolbar_append_separator(main_tb);
