@@ -34,24 +34,24 @@
  *
  * @return the new preferences page
  */
-GtkWidget *rtp_player_prefs_show(void);
+GtkWidget *stats_prefs_show(void);
 
 /** Fetch preference values from page.
  *
  * @param widget widget from rtp_player_prefs_show()
  */
-void rtp_player_prefs_fetch(GtkWidget *widget);
+void stats_prefs_fetch(GtkWidget *widget);
 
 /** Apply preference values from page.
  *
  * @param widget widget from rtp_player_prefs_show()
  */
-void rtp_player_prefs_apply(GtkWidget *widget);
+void stats_prefs_apply(GtkWidget *widget);
 
 /** Destroy preference values from page.
  *
  * @param widget widget from rtp_player_prefs_show()
  */
-void rtp_player_prefs_destroy(GtkWidget *widget);
+void stats_prefs_destroy(GtkWidget *widget);
 
 #endif

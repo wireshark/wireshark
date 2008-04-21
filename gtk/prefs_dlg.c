@@ -96,7 +96,7 @@ static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_CAPTURE_PAGE_KEY      "capture_options_page"
 #define E_PRINT_PAGE_KEY        "printer_options_page"
 #define E_NAMERES_PAGE_KEY      "nameres_options_page"
-#define E_RTP_PLAYER_PAGE_KEY   "rtp_player_options_page"
+#define E_TAPS_PAGE_KEY         "taps_options_page"
 #define E_PROTOCOLS_PAGE_KEY    "protocols_options_page"
 
 /*
@@ -586,13 +586,11 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
 
-#ifdef HAVE_LIBPORTAUDIO
-  /* RTP player prefs */
-  g_strlcpy(label_str, "RTP Player", MAX_TREE_NODE_NAME_LEN);
-  prefs_nb_page_add(prefs_nb, label_str, rtp_player_prefs_show(), E_RTP_PLAYER_PAGE_KEY);
+  /* TAPS player prefs */
+  g_strlcpy(label_str, "Taps/Statistics", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, stats_prefs_show(), E_TAPS_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL, FALSE);
   cts.page++;
-#endif
 
   /* Registered prefs */
   cts.notebook = prefs_nb;
@@ -1264,9 +1262,7 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
-#ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
-#endif
+  stats_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
   protocols_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
   prefs_modules_foreach(module_prefs_fetch, must_redissect);
 
@@ -1303,9 +1299,7 @@ prefs_main_apply_all(GtkWidget *dlg, gboolean redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
-#ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
-#endif
+  stats_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
   protocols_prefs_apply(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
 
   /* show/hide the Save button - depending on setting */
@@ -1349,9 +1343,7 @@ prefs_main_destroy_all(GtkWidget *dlg)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
-#ifdef HAVE_LIBPORTAUDIO
-  rtp_player_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_RTP_PLAYER_PAGE_KEY));
-#endif
+  stats_prefs_destroy(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
 
   /* Free up the saved preferences (both for "prefs" and for registered
      preferences). */

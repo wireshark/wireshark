@@ -40,6 +40,7 @@
 #define MAX_VAL_LEN  1024
 
 #define RTP_PLAYER_DEFAULT_VISIBLE 4
+#define TAP_UPDATE_DEFAULT_INTERVAL 3000
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -148,6 +149,7 @@ typedef struct _e_prefs {
   gboolean capture_auto_scroll;
   gboolean capture_show_info;
   guint    rtp_player_max_visible;
+  guint    tap_update_interval;
   gboolean display_hidden_proto_items;
 } e_prefs;
 

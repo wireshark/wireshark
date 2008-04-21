@@ -200,6 +200,8 @@ int    airpcap_dll_ret_val = -1;
 GString *comp_info_str, *runtime_info_str;
 gboolean have_capture_file = FALSE; /* XXX - is there an equivalent in cfile? */
 
+guint  tap_update_timer_id;
+
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
@@ -1071,6 +1073,16 @@ update_cb(gpointer data _U_)
 	draw_tap_listeners(FALSE);
 	return 1;
 }
+
+/* Restart the tap update display timer with new configured interval */
+void reset_tap_update_timer(void)
+{
+#if defined(_WIN32) || ! defined USE_THREADS
+    gtk_timeout_remove(tap_update_timer_id);
+    tap_update_timer_id = gtk_timeout_add(prefs.tap_update_interval, (GtkFunction)update_cb,(gpointer)NULL);
+#endif
+}
+
 #else
 
 /* if these three functions are copied to gtk1 Wireshark, since gtk1 does not
@@ -1094,13 +1106,16 @@ update_thread(gpointer data _U_)
         g_static_mutex_unlock(&update_thread_mutex);
         g_thread_yield();
         g_get_current_time(&tv2);
-        if( ((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) >
+
+        /* Assuming it took less than configured time to update tap listeners... */
+        if( (tv1.tv_sec * 1000000 + tv1.tv_usec + prefs.tap_update_interval * 1000) >
             (tv2.tv_sec * 1000000 + tv2.tv_usec) ){
-            g_usleep(((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) -
+            /* Wait for remainder of configured time */
+            g_usleep((tv1.tv_sec * 1000000 + tv1.tv_usec + prefs.tap_update_interval * 1000) -
                      (tv2.tv_sec * 1000000 + tv2.tv_usec));
         }
-    }
-    return NULL;
+
+        return NULL;
 }
 #endif
 void
@@ -1994,6 +2009,8 @@ main(int argc, char *argv[])
      We must do that before we read the preferences as well. */
   prefs_register_modules();
 
+  prefs = read_configuration_files (&gdp_path, &dp_path);
+
   /* multithread support currently doesn't seem to work in win32 gtk2.0.6 */
 #if !defined(_WIN32) && defined(G_THREADS_ENABLED) && defined USE_THREADS
   {
@@ -2005,7 +2022,7 @@ main(int argc, char *argv[])
   }
 #else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
-  gtk_timeout_add(3000, (GtkFunction)update_cb,(gpointer)NULL);
+  tap_update_timer_id = gtk_timeout_add(prefs->tap_update_interval, (GtkFunction)update_cb,(gpointer)NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
 #if HAVE_GNU_ADNS
@@ -2014,7 +2031,6 @@ main(int argc, char *argv[])
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
 
-  prefs = read_configuration_files (&gdp_path, &dp_path);
 
   /* Read the (static part) of the recent file. Only the static part of it will be read, */
   /* as we don't have the gui now to fill the recent lists which is done in the dynamic part. */

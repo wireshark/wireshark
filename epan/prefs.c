@@ -1189,7 +1189,8 @@ init_prefs(void) {
   prefs.name_resolve             = RESOLV_ALL ^ RESOLV_NETWORK;
   prefs.name_resolve_concurrency = 500;
 
-/* set the default values for the rtp player dialog box */
+/* set the default values for the tap/statistics dialog box */
+  prefs.tap_update_interval = TAP_UPDATE_DEFAULT_INTERVAL;
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
   prefs.display_hidden_proto_items = FALSE;
@@ -1564,7 +1565,7 @@ prefs_set_pref(char *prefarg)
 		*colonp = ':';
 		return PREFS_SET_SYNTAX_ERR;
 	}
-        if (strcmp(prefarg, "uat")) {
+	if (strcmp(prefarg, "uat")) {
 		ret = set_pref(prefarg, p, NULL);
 	} else {
 		ret = prefs_set_uat_pref(p) ? PREFS_SET_OK : PREFS_SET_SYNTAX_ERR;
@@ -1672,7 +1673,8 @@ prefs_is_capture_device_hidden(const char *name)
 #define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
 /*  values for the rtp player preferences dialog box */
-#define PRS_RTP_PLAYER_MAX_VISIBLE        "rtp_player.max_visible"
+#define PRS_TAP_UPDATE_INTERVAL           "taps.update_interval"
+#define PRS_RTP_PLAYER_MAX_VISIBLE        "taps.rtp_player_max_visible"
 
 #define PRS_DISPLAY_HIDDEN_PROTO_ITEMS          "packet_list.display_hidden_proto_items"
 
@@ -2080,8 +2082,12 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     }
   } else if (strcmp(pref_name, PRS_NAME_RESOLVE_CONCURRENCY) == 0) {
     prefs.name_resolve_concurrency = strtol(value, NULL, 10);
-  } else if (strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) {
+  } else if ((strcmp(pref_name, PRS_RTP_PLAYER_MAX_VISIBLE) == 0) ||
+             (strcmp(pref_name, "rtp_player.max_visible") == 0)) {
+    /* ... also accepting old name for this preference */
     prefs.rtp_player_max_visible = strtol(value, NULL, 10);
+  } else if (strcmp(pref_name, PRS_TAP_UPDATE_INTERVAL) == 0) {
+    prefs.tap_update_interval = strtol(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_DISPLAY_HIDDEN_PROTO_ITEMS) == 0) {
     prefs.display_hidden_proto_items = ((g_ascii_strcasecmp(value, "true") == 0)?TRUE:FALSE);
   } else {
@@ -2852,8 +2858,12 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_NAME_RESOLVE_CONCURRENCY ": %d\n",
 		  prefs.name_resolve_concurrency);
 
-  fprintf(pf, "\n####### RTP Player ########\n");
+  fprintf(pf, "\n####### Taps/Statistics ########\n");
 
+  fprintf(pf, "\n# Tap update interval in ms.\n");
+  fprintf(pf, "# An integer value greater between 100 and 10000.\n");
+  fprintf(pf, PRS_TAP_UPDATE_INTERVAL ": %d\n",
+          prefs.tap_update_interval);
   fprintf(pf, "\n# Maximum visible channels in RTP Player window.\n");
   fprintf(pf, "# An integer value greater than 0.\n");
   fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
