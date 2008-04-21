@@ -123,7 +123,13 @@ Wireshark Info
 
         <listitem>
           <para>
-            This release includes an experimental Mac OS X packge.
+            Wireshark now supports custom columns.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            This release includes an experimental Mac OS X package.
           </para>
         </listitem>
 
@@ -269,12 +275,6 @@ Hilscher Analyzer
     </para>
 
     <para>
-      Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
-      1420</ulink>)
-    </para>
-
-    <para>
       The BER dissector might infinitely loop.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
@@ -310,6 +310,12 @@ Hilscher Analyzer
       Filtering tshark captures with display filters (-R) no longer works.
       (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
       2234</ulink>)
+    </para>
+
+    <para>
+      The BOOTP dissector fails to initialize and display some values.
+      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2395">Bug
+      2395</ulink>)
     </para>
 
   </section>
