@@ -58,7 +58,12 @@ static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLAS
 static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLASS_APP, 0,                       4,   4, OID_KEY_TYPE_IPADDR,  4};
 static const oid_value_type_t counter32_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 1,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t unsigned32_type = { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 2,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
-static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
+/*static const oid_value_type_t timeticks_type =  { FT_UINT32, BASE_DEC,  BER_CLASS_APP, 3,                       1,   4, OID_KEY_TYPE_INTEGER, 1};
+ * TimeTicks ::= [APPLICATION 3] IMPLICIT INTEGER (0..4294967295)
+ * If the BER encoding should not have the top bit set as to not become a negative number
+ * the ber encoding may take 5 octets to encode.
+ */
+static const oid_value_type_t timeticks_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 3,                       1,   5, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t opaque_type =     { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 4,                       1,   4, OID_KEY_TYPE_BYTES,   0};
 static const oid_value_type_t nsap_type =       { FT_BYTES,  BASE_NONE, BER_CLASS_APP, 5,                       0,  -1, OID_KEY_TYPE_NSAP,    0};
 static const oid_value_type_t counter64_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 6,                       1,   8, OID_KEY_TYPE_INTEGER, 1};
