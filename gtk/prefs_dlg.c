@@ -49,7 +49,7 @@
 #include "gtk/prefs_layout.h"
 #include "gtk/prefs_capture.h"
 #include "gtk/prefs_nameres.h"
-#include "gtk/prefs_rtp_player.h"
+#include "gtk/prefs_taps.h"
 #include "gtk/prefs_protocols.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"

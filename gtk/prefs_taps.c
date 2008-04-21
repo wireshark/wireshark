@@ -1,4 +1,4 @@
-/* tap_prefs.c
+/* prefs_taps.c
  * Dialog box for tap/statistics preferences
  *
  * $Id$
@@ -31,7 +31,7 @@
 
 #include <epan/prefs.h>
 
-#include "gtk/prefs_rtp_player.h"
+#include "gtk/prefs_taps.h"
 #include "gtk/prefs_dlg.h"
 
 #define TAP_UPDATE_INTERVAL_KEY   "update_interval"

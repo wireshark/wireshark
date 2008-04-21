@@ -1,5 +1,5 @@
-/* rtp_player_prefs.h
- * Definitions for RTP player preferences window
+/* prefs_taps.h
+ * Definitions for Taps/Statistics preferences window
  *
  * $Id$
  *
@@ -22,8 +22,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __RTP_PLAYER_PREFS_H__
-#define __RTP_PLAYER_PREFS_H__
+#ifndef __PREFS_STATS_H__
+#define __PREFS_STATS_H__
 
 /** @file
  *  "RTP player" preferences page.
