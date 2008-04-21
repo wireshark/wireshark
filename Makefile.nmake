@@ -649,9 +649,9 @@ process_libs:
     if not exist $(WIRESHARK_LIBS) md $(WIRESHARK_LIBS)
 !IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-2.16.1.zip
+		glib gtk2.12/glib-2.16.3.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		glib gtk2.12/glib-dev-2.16.1.zip
+		glib gtk2.12/glib-dev-2.16.3.zip
 !ELSEIF "$(GTK_INST_VERSION)" == "2.10"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		glib gtk2.10/glib-2.12.13.zip
@@ -717,9 +717,9 @@ process_libs:
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/gtk+-dev-2.12.9.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/cairo-1.4.14.zip
+		gtk2 gtk2.12/cairo-1.6.4.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/cairo-dev-1.4.14.zip
+		gtk2 gtk2.12/cairo-dev-1.6.4.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/atk-1.22.0.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
