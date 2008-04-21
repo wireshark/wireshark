@@ -196,6 +196,110 @@ slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 }
 
 static gboolean
+cmp_eq(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+
+	if (a_len != tvb_length(b)) {
+		return FALSE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) == 0);
+}
+
+static gboolean
+cmp_ne(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+
+	if (a_len != tvb_length(b)) {
+		return TRUE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) != 0);
+}
+
+static gboolean
+cmp_gt(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+	guint		b_len = tvb_length(b);
+
+	if (a_len > b_len) {
+		return TRUE;
+	}
+
+	if (a_len < b_len) {
+		return FALSE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) > 0);
+}
+
+static gboolean
+cmp_ge(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+	guint		b_len = tvb_length(b);
+
+	if (a_len > b_len) {
+		return TRUE;
+	}
+
+	if (a_len < b_len) {
+		return FALSE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) >= 0);
+}
+
+static gboolean
+cmp_lt(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+	guint		b_len = tvb_length(b);
+
+	if (a_len < b_len) {
+		return TRUE;
+	}
+
+	if (a_len > b_len) {
+		return FALSE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) < 0);
+}
+
+static gboolean
+cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	tvbuff_t	*a = fv_a->value.tvb;
+	tvbuff_t	*b = fv_b->value.tvb;
+	guint		a_len = tvb_length(a);
+	guint		b_len = tvb_length(b);
+
+	if (a_len < b_len) {
+		return TRUE;
+	}
+
+	if (a_len > b_len) {
+		return FALSE;
+	}
+
+	return (memcmp(tvb_get_ptr(a, 0, a_len), tvb_get_ptr(b, 0, a_len), a_len) <= 0);
+}
+
+static gboolean
 cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	if (tvb_find_tvb(fv_a->value.tvb, fv_b->value.tvb, 0) > -1) {
@@ -281,15 +385,12 @@ ftype_register_tvbuff(void)
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
-
-		/* TODO - tvb's *can* do 'eq', etc. */
-
-		NULL,				/* cmp_eq */
-		NULL,				/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
 		NULL,				/* cmp_bitwise_and */
 		cmp_contains,
 		CMP_MATCHES,

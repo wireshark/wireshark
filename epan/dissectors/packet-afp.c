@@ -160,6 +160,10 @@ http://developer.apple.com/documentation/Networking/Reference/AFP_Reference/inde
 #define AFP_SETACL		74
 #define AFP_ACCESS		75
 
+/* AFP 3.2 calls added in 10.5 */
+#define AFP_SYNCDIR		78
+#define AFP_SYNCFORK		79
+
 /* ----------------------------- */
 static int proto_afp = -1;
 static int hf_afp_reserved = -1;
@@ -422,6 +426,8 @@ const value_string CommandCode_vals[] = {
   {AFP_GETACL,		"FPGetACL" },
   {AFP_SETACL,		"FPSetACL" },
   {AFP_ACCESS,		"FPAccess" },
+  {AFP_SYNCFORK,	"FPSyncFork" },
+  {AFP_SYNCDIR,		"FPSyncDir" },
   {0,			 NULL }
 };
 
@@ -2638,6 +2644,7 @@ dissect_query_afp_close_dt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 		fork number
 	AFP_FLUSHFORK
 	AFP_CLOSEFORK
+	AFP_SYNCFORK
 */
 static gint
 dissect_query_afp_with_fork(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
@@ -3851,6 +3858,19 @@ dissect_query_afp_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 }
 
 /* ************************** */
+static gint
+dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+/* ************************** */
 static guint16
 decode_acl_list_bitmap(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
@@ -4143,6 +4163,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_CLOSEDT:
 			offset = dissect_query_afp_close_dt(tvb, pinfo, afp_tree, offset);break;
 		case AFP_FLUSHFORK: /* same packet as closefork */
+		case AFP_SYNCFORK:
 		case AFP_CLOSEFORK:
 			offset = dissect_query_afp_with_fork(tvb, pinfo, afp_tree, offset);break;
 		case AFP_COPYFILE:
@@ -4258,6 +4279,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_set_acl(tvb, pinfo, afp_tree, offset);break;
 		case AFP_ACCESS:
 			offset = dissect_query_afp_access(tvb, pinfo, afp_tree, offset);break;
+		case AFP_SYNCDIR:
+			offset = dissect_query_afp_with_did(tvb, pinfo, afp_tree, offset);break;
  		}
 	}
  	else {
