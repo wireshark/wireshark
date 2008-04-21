@@ -281,7 +281,7 @@ const oid_value_type_t* get_typedata(SmiType* smiType) {
 		{"MacAddress",SMI_BASETYPE_UNKNOWN,&ether_type},
 		{"TimeTicks",SMI_BASETYPE_UNKNOWN,&timeticks_type},
 		{"Ipv6Address",SMI_BASETYPE_UNKNOWN,&ipv6_type},
-		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&integer_type},
+		{"TimeStamp",SMI_BASETYPE_UNKNOWN,&timeticks_type},
 		{"DisplayString",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"SnmpAdminString",SMI_BASETYPE_UNKNOWN,&string_type},
 		{"DateAndTime",SMI_BASETYPE_UNKNOWN,&string_type},
