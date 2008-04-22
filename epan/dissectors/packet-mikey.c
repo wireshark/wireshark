@@ -753,7 +753,6 @@ dissect_payload_kemac(mikey_t *mikey, tvbuff_t *tvb, packet_info *pinfo, proto_t
 		mac_length = 160/8;
 		break;
 	default:
-		proto_tree_add_debug_text(tree, "Unknown mac alg %d", mac_alg);
 		return -1;
 	}
 
@@ -976,7 +975,6 @@ dissect_payload_v(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		length = 160/8;
 		break;
 	default:
-		proto_tree_add_debug_text(tree, "Unknown mac alg %d", alg);
 		return -1;
 	}
 
@@ -1311,7 +1309,6 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		len = dissect_payload(payload, mikey, subtvb, pinfo, mikey_payload_tree);
 		if (len < 0) {
-			proto_tree_add_debug_text(mikey_payload_tree, "Negative length");
 			return -1;
 		}
 
