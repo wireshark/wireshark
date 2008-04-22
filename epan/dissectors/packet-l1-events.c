@@ -1,5 +1,5 @@
 /* packet-l1-events.c
- * Routines for text-based layer 1 message
+ * Routines for text-based layer 1 messages in EyeSDN trace files
  *
  * (C) Rolf Fiedler 2008, based on packet-text-media.c by Olivier Biot, 2004.
  *
