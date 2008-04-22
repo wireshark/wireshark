@@ -293,7 +293,7 @@ AIRPCAP_DIR=$(WIRESHARK_LIBS)\AirPcap_Devpack_1_0_0_594\AirPcap_Devpack
 #
 # Used for oid-name resolution for SNMP and other protocols
 #
-SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.5
+SMI_DIR=$(WIRESHARK_LIBS)\libsmi-0.4.8
 
 
 ##### Tools #####

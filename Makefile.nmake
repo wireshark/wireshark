@@ -707,7 +707,7 @@ process_libs:
 !ENDIF
 !IFDEF SMI_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. libsmi-0.4.5.zip
+		. libsmi-0.4.8.zip
 !ENDIF
 
 !IFDEF GTK_DIR
@@ -799,6 +799,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
+    rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.8
     rm -r -f $(WIRESHARK_LIBS)/nasm-2.00
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
