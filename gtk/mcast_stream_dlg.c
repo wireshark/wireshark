@@ -360,7 +360,7 @@ mcast_params_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 	fnumber_text = gtk_entry_get_text(GTK_ENTRY(fnumber_te));
 	fnumber = strtoul(fnumber_text, &p, 10);
 	if ( (p == fnumber_text || *p != '\0') || (fnumber <=0) ){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm treshold you entered isn't valid.");
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "The buffer alarm threshold you entered isn't valid.");
 		return; }
 	bufferalarm = fnumber;
 
@@ -427,13 +427,13 @@ mcast_on_params                      (GtkButton       *button _U_,
 	g_snprintf(label_text, 50, "%u", burstint);
 	gtk_entry_set_text(GTK_ENTRY(entry1), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry1, 1, 2, 0, 1);
-	label = gtk_label_new("  Burst alarm treshold (packets)   ");
+	label = gtk_label_new("  Burst alarm threshold (packets)   ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 1, 2);
 	entry2 = gtk_entry_new();
 	g_snprintf(label_text, 50, "%u", trigger);
 	gtk_entry_set_text(GTK_ENTRY(entry2), label_text);
 	gtk_table_attach_defaults(GTK_TABLE(table), entry2, 1, 2, 1, 2);
-	label = gtk_label_new("  Buffer alarm treshold (bytes)     ");
+	label = gtk_label_new("  Buffer alarm threshold (bytes)     ");
 	gtk_table_attach_defaults(GTK_TABLE(table), label, 0, 1, 2, 3);
 	entry3 = gtk_entry_new();
 	g_snprintf(label_text, 50, "%u", bufferalarm);
