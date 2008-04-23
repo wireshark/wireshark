@@ -403,7 +403,28 @@ static struct encap_type_info encap_table_base[] = {
 	{ "Intelligent Platform Management Bus", "ipmb" },
 
 	/* WTAP_ENCAP_IEEE802_15_4 */
-	{ "IEEE 802.15.4 Wireless PAN", "wpan" }
+	{ "IEEE 802.15.4 Wireless PAN", "wpan" },
+
+	/* WTAP_ENCAP_X2E_XORAYA */
+	{ "X2E XORAYA", "x2e-xoraya" },
+
+	/* WTAP_ENCAP_FLEXRAY */
+	{ "FlexRay", "flexray" },
+
+	/* WTAP_ENCAP_LIN */
+	{ "LIN", "lin" },
+
+	/* WTAP_ENCAP_MOST */
+	{ "MOST", "most" },
+
+	/* WTAP_ENCAP_CAN20B */
+	{ "CAN 2.0B", "can20b" },
+
+	/* WTAP_ENCAP_LAYER1_EVENT */
+	{ "Layer 1 event", "layer1-event" },
+
+	/* WTAP_ENCAP_X2E_SERIAL */
+	{ "X2E SERIAL", "x2e-serial" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
