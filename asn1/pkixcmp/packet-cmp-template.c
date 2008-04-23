@@ -46,6 +46,7 @@
 #include "packet-pkix1implicit.h"
 #include <epan/emem.h>
 #include "packet-tcp.h"
+#include "packet-http.h"
 #include <epan/prefs.h>
 #include <epan/nstime.h>
 
@@ -57,6 +58,18 @@
 
 /* desegmentation of CMP over TCP */
 static gboolean cmp_desegment = TRUE;
+
+static dissector_handle_t cmp_http_handle;
+static dissector_handle_t cmp_tcp_style_http_handle;
+static dissector_handle_t cmp_tcp_handle;
+
+static gboolean inited = FALSE;
+static guint cmp_alternate_tcp_port = 0;
+static guint cmp_alternate_tcp_port_prev = 0;
+static guint cmp_alternate_http_port = 0;
+static guint cmp_alternate_http_port_prev = 0;
+static guint cmp_alternate_tcp_style_http_port = 0;
+static guint cmp_alternate_tcp_style_http_port_prev = 0;
 
 /* Initialize the protocol and registered fields */
 int proto_cmp = -1;
@@ -206,6 +219,10 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
+static void dissect_cmp_tcp_pdu_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	dissect_cmp_tcp_pdu(tvb, pinfo, parent_tree);
+}
 
 static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -226,6 +243,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	guint32 pdu_len;
 	guint8 pdu_type;
+	int offset=4; /* RFC2510 TCP transport header length */
 
 	/* only attempt to dissect it as CMP over TCP if we have
 	 * at least 5 bytes.
@@ -237,17 +255,32 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	pdu_len=tvb_get_ntohl(tvb, 0);
 	pdu_type=tvb_get_guint8(tvb, 4);
 
-	/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
-	 * in size.
-	 * It is definitely at least 1 byte to accomodate the flags byte
-	 */
-	if((pdu_len<=0)||(pdu_len>10000)){
-		return 0;
+	if(pdu_type == 10) {
+		/* post RFC2510 TCP transport */
+		pdu_type = tvb_get_guint8(tvb, 7);
+		offset = 7; /* post RFC2510 TCP transport header length */
+		/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
+		 * in size.
+		 * It is definitely at least 3 byte for post RFC2510 TCP transport
+		 */
+		if((pdu_len<=2)||(pdu_len>10000)){
+			return 0;
+		}
+	} else {
+		/* RFC2510 TCP transport */
+		/* type is between 0 and 6 */
+		if(pdu_type>6){
+			return 0;
+		}
+		/* arbitrary limit: assume a CMP over TCP pdu is never >10000 bytes
+		 * in size.
+		 * It is definitely at least 1 byte to accomodate the flags byte
+		 */
+		if((pdu_len<=0)||(pdu_len>10000)){
+			return 0;
+		}
 	}
-	/* type is between 0 and 6 */
-	if(pdu_type>6){
-		return 0;
-	}
+
 	/* type 0 contains a PKI message and must therefore be >= 3 bytes
 	 * long (flags + BER TAG + BER LENGTH
 	 */
@@ -255,8 +288,8 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		return 0;
 	}
 
-	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, 4, get_cmp_pdu_len,
-			dissect_cmp_tcp_pdu);
+	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, offset, get_cmp_pdu_len,
+			dissect_cmp_tcp_pdu_no_return);
 
 	return tvb_length(tvb);
 }
@@ -342,40 +375,94 @@ void proto_register_cmp(void) {
 	proto_register_field_array(proto_cmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	cmp_module = prefs_register_protocol(proto_cmp, NULL);
+	cmp_module = prefs_register_protocol(proto_cmp, proto_reg_handoff_cmp);
 	prefs_register_bool_preference(cmp_module, "desegment",
 			"Reassemble CMP-over-TCP messages spanning multiple TCP segments",
 			"Whether the CMP-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
 			"To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 			&cmp_desegment);
+
+	prefs_register_uint_preference(cmp_module, "tcp_alternate_port",
+			"Alternate TCP port",
+			"Decode this TCP port\'s traffic as CMP. Set to \"0\" to disable.",
+			10,
+			&cmp_alternate_tcp_port);
+
+	prefs_register_uint_preference(cmp_module, "http_alternate_port",
+			"Alternate HTTP port",
+			"Decode this TCP port\'s traffic as CMP-over-HTTP. Set to \"0\" to disable. "
+			"Use this if the Content-Type is not set correctly.",
+			10,
+			&cmp_alternate_http_port);
+
+	prefs_register_uint_preference(cmp_module, "tcp_style_http_alternate_port",
+			"Alternate TCP-style-HTTP port",
+			"Decode this TCP port\'s traffic as TCP-transport-style CMP-over-HTTP. Set to \"0\" to disable. "
+			"Use this if the Content-Type is not set correctly.",
+			10,
+			&cmp_alternate_tcp_style_http_port);
 }
 
 
 /*--- proto_reg_handoff_cmp -------------------------------------------*/
 void proto_reg_handoff_cmp(void) {
-	dissector_handle_t cmp_http_handle;
-	dissector_handle_t cmp_tcp_style_http_handle;
-	dissector_handle_t cmp_tcp_handle;
 
-	cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
-	dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
-	dissector_add_string("media_type", "application/x-pkixcmp", cmp_http_handle);
+	if (!inited) {
+		cmp_http_handle = new_create_dissector_handle(dissect_cmp_http, proto_cmp);
+		dissector_add_string("media_type", "application/pkixcmp", cmp_http_handle);
+		dissector_add_string("media_type", "application/x-pkixcmp", cmp_http_handle);
 
-	cmp_tcp_style_http_handle = new_create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
-	dissector_add_string("media_type", "application/pkixcmp-poll", cmp_tcp_style_http_handle);
-	dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
+		cmp_tcp_style_http_handle = new_create_dissector_handle(dissect_cmp_tcp_pdu, proto_cmp);
+		dissector_add_string("media_type", "application/pkixcmp-poll", cmp_tcp_style_http_handle);
+		dissector_add_string("media_type", "application/x-pkixcmp-poll", cmp_tcp_style_http_handle);
 
-	cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
-	dissector_add("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
+		cmp_tcp_handle = new_create_dissector_handle(dissect_cmp_tcp, proto_cmp);
+		dissector_add("tcp.port", TCP_PORT_CMP, cmp_tcp_handle);
 
-	oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
-	oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
+		oid_add_from_string("Cryptlib-presence-check","1.3.6.1.4.1.3029.3.1.1");
+		oid_add_from_string("Cryptlib-PKIBoot","1.3.6.1.4.1.3029.3.1.2");
 
-	oid_add_from_string("HMAC MD5","1.3.6.1.5.5.8.1.1");
-	oid_add_from_string("HMAC SHA-1","1.3.6.1.5.5.8.1.2");
-	oid_add_from_string("HMAC TIGER","1.3.6.1.5.5.8.1.3");
-	oid_add_from_string("HMAC RIPEMD-160","1.3.6.1.5.5.8.1.4");
+		oid_add_from_string("HMAC MD5","1.3.6.1.5.5.8.1.1");
+		oid_add_from_string("HMAC SHA-1","1.3.6.1.5.5.8.1.2");
+		oid_add_from_string("HMAC TIGER","1.3.6.1.5.5.8.1.3");
+		oid_add_from_string("HMAC RIPEMD-160","1.3.6.1.5.5.8.1.4");
+
+		oid_add_from_string("sha256WithRSAEncryption","1.2.840.113549.1.1.11");
 
 #include "packet-cmp-dis-tab.c"
+		inited = TRUE;
+	}
+
+	/* change alternate TCP port if changed in the preferences */
+	if (cmp_alternate_tcp_port != cmp_alternate_tcp_port_prev) {
+		if (cmp_alternate_tcp_port_prev != 0)
+			dissector_delete("tcp.port", cmp_alternate_tcp_port_prev, cmp_tcp_handle);
+		if (cmp_alternate_tcp_port != 0)
+			dissector_add("tcp.port", cmp_alternate_tcp_port, cmp_tcp_handle);
+		cmp_alternate_tcp_port_prev = cmp_alternate_tcp_port;
+	}
+
+	/* change alternate HTTP port if changed in the preferences */
+	if (cmp_alternate_http_port != cmp_alternate_http_port_prev) {
+		if (cmp_alternate_http_port_prev != 0) {
+			dissector_delete("tcp.port", cmp_alternate_http_port_prev, NULL);
+			dissector_delete("http.port", cmp_alternate_http_port_prev, NULL);
+		}
+		if (cmp_alternate_http_port != 0)
+			http_dissector_add( cmp_alternate_http_port, cmp_http_handle);
+		cmp_alternate_http_port_prev = cmp_alternate_http_port;
+	}
+
+	/* change alternate TCP-style-HTTP port if changed in the preferences */
+	if (cmp_alternate_tcp_style_http_port != cmp_alternate_tcp_style_http_port_prev) {
+		if (cmp_alternate_tcp_style_http_port_prev != 0) {
+			dissector_delete("tcp.port", cmp_alternate_tcp_style_http_port_prev, NULL);
+			dissector_delete("http.port", cmp_alternate_tcp_style_http_port_prev, NULL);
+		}
+		if (cmp_alternate_tcp_style_http_port != 0)
+			http_dissector_add( cmp_alternate_tcp_style_http_port, cmp_tcp_style_http_handle);
+		cmp_alternate_tcp_style_http_port_prev = cmp_alternate_tcp_style_http_port;
+	}
+
 }
 

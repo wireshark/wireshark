@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cmp.c                                                               */
-/* ../../tools/asn2wrs.py -b -p cmp -c cmp.cnf -s packet-cmp-template CMP.asn */
+/* ../../../svn/trunk/tools/asn2wrs.py -b -p cmp -c ../../../svn/trunk/asn1/pkixcmp/cmp.cnf -s ../../../svn/trunk/asn1/pkixcmp/packet-cmp-template -D ../../../svn/trunk/asn1/pkixcmp CMP.asn */
 
 /* Input file: packet-cmp-template.c */
 
@@ -1605,6 +1605,10 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	return offset;
 }
 
+static void dissect_cmp_tcp_pdu_no_return(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+	dissect_cmp_tcp_pdu(tvb, pinfo, parent_tree);
+}
 
 static guint get_cmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
@@ -1671,7 +1675,7 @@ dissect_cmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	tcp_dissect_pdus(tvb, pinfo, parent_tree, cmp_desegment, offset, get_cmp_pdu_len,
-			dissect_cmp_tcp_pdu);
+			dissect_cmp_tcp_pdu_no_return);
 
 	return tvb_length(tvb);
 }
@@ -2373,7 +2377,7 @@ void proto_register_cmp(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 358 "packet-cmp-template.c"
+#line 362 "packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2431,7 +2435,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 364 "packet-cmp-template.c"
+#line 368 "packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2518,7 +2522,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 429 "packet-cmp-template.c"
+#line 433 "packet-cmp-template.c"
 		inited = TRUE;
 	}
 
