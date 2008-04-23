@@ -83,6 +83,11 @@ static const value_string ntlmssp_message_types[] = {
  * "Request Init Response", "Request Accept Response", and
  * "Request Non-NT Session Key", rather than those values shifted
  * right one having those interpretations.
+ *
+ * UPDATE: Further information obtained from [MS-NLMP]: 
+ * NT LAN Manager (NTLM) Authentication Protocol Specification
+ * http://msdn2.microsoft.com/en-us/library/cc236621.aspx
+ *
  */
 #define NTLMSSP_NEGOTIATE_UNICODE          0x00000001
 #define NTLMSSP_NEGOTIATE_OEM              0x00000002
@@ -90,26 +95,26 @@ static const value_string ntlmssp_message_types[] = {
 #define NTLMSSP_NEGOTIATE_00000008         0x00000008
 #define NTLMSSP_NEGOTIATE_SIGN             0x00000010
 #define NTLMSSP_NEGOTIATE_SEAL             0x00000020
-#define NTLMSSP_NEGOTIATE_DATAGRAM_STYLE   0x00000040
+#define NTLMSSP_NEGOTIATE_DATAGRAM         0x00000040
 #define NTLMSSP_NEGOTIATE_LM_KEY           0x00000080
-#define NTLMSSP_NEGOTIATE_NETWARE          0x00000100
+#define NTLMSSP_NEGOTIATE_00000100         0x00000100
 #define NTLMSSP_NEGOTIATE_NTLM             0x00000200
-#define NTLMSSP_NEGOTIATE_00000400         0x00000400
-#define NTLMSSP_NEGOTIATE_ANONYMOUS        0x00000800
-#define NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED  0x00001000
-#define NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED 0x00002000
-#define NTLMSSP_NEGOTIATE_THIS_IS_LOCAL_CALL  0x00004000
+#define NTLMSSP_NEGOTIATE_NT_ONLY          0x00000400
+#define NTLMSSP_NEGOTIATE_00000800         0x00000800
+#define NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED 0x00001000
+#define NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED 0x00002000
+#define NTLMSSP_NEGOTIATE_00004000         0x00004000
 #define NTLMSSP_NEGOTIATE_ALWAYS_SIGN      0x00008000
-#define NTLMSSP_CHAL_INIT_RESPONSE         0x00010000
-#define NTLMSSP_CHAL_ACCEPT_RESPONSE       0x00020000
-#define NTLMSSP_CHAL_NON_NT_SESSION_KEY    0x00040000
+#define NTLMSSP_TARGET_TYPE_DOMAIN         0x00010000
+#define NTLMSSP_TARGET_TYPE_SERVER         0x00020000
+#define NTLMSSP_TARGET_TYPE_SHARE          0x00040000
 #define NTLMSSP_NEGOTIATE_NTLM2            0x00080000
-#define NTLMSSP_NEGOTIATE_00100000         0x00100000
+#define NTLMSSP_NEGOTIATE_IDENTIFY         0x00100000
 #define NTLMSSP_NEGOTIATE_00200000         0x00200000
-#define NTLMSSP_NEGOTIATE_00400000         0x00400000
-#define NTLMSSP_CHAL_TARGET_INFO           0x00800000
+#define NTLMSSP_REQUEST_NON_NT_SESSION     0x00400000
+#define NTLMSSP_NEGOTIATE_TARGET_INFO      0x00800000
 #define NTLMSSP_NEGOTIATE_01000000         0x01000000
-#define NTLMSSP_NEGOTIATE_02000000         0x02000000
+#define NTLMSSP_NEGOTIATE_VERSION          0x02000000
 #define NTLMSSP_NEGOTIATE_04000000         0x04000000
 #define NTLMSSP_NEGOTIATE_08000000         0x08000000
 #define NTLMSSP_NEGOTIATE_10000000         0x10000000
@@ -1578,45 +1583,45 @@ proto_register_ntlmssp(void)
     { &hf_ntlmssp_negotiate_flags_20,
       { "Negotiate Seal", "ntlmssp.negotiateseal", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_SEAL, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_40,
-      { "Negotiate Datagram Style", "ntlmssp.negotiatedatagramstyle", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_DATAGRAM_STYLE, "", HFILL }},
+      { "Negotiate Datagram", "ntlmssp.negotiatedatagram", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_DATAGRAM, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_80,
       { "Negotiate Lan Manager Key", "ntlmssp.negotiatelmkey", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_LM_KEY, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_100,
-      { "Negotiate Netware", "ntlmssp.negotiatenetware", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_NETWARE, "", HFILL }},
+      { "Negotiate 0x00000100", "ntlmssp.negotiate00000100", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00000100, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_200,
       { "Negotiate NTLM key", "ntlmssp.negotiatentlm", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_NTLM, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_400,
-      { "Negotiate 0x00000400", "ntlmssp.negotiate00000400", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00000400, "", HFILL }},
+      { "Negotiate NT Only", "ntlmssp.negotiatentonly", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_NT_ONLY, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_800,
-      { "Negotiate Anonymous", "ntlmssp.negotiateanonymous", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_ANONYMOUS, "", HFILL }},
+      { "Negotiate 0x00000800", "ntlmssp.negotiate00000800", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00000800, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_1000,
-      { "Negotiate Domain Supplied", "ntlmssp.negotiatedomainsupplied", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_DOMAIN_SUPPLIED, "", HFILL }},
+      { "Negotiate OEM Domain Supplied", "ntlmssp.negotiateoemdomainsupplied", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_OEM_DOMAIN_SUPPLIED, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_2000,
-      { "Negotiate Workstation Supplied", "ntlmssp.negotiateworkstationsupplied", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_WORKSTATION_SUPPLIED, "", HFILL }},
+      { "Negotiate OEM Workstation Supplied", "ntlmssp.negotiateoemworkstationsupplied", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_OEM_WORKSTATION_SUPPLIED, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_4000,
-      { "Negotiate This is Local Call", "ntlmssp.negotiatethisislocalcall", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_THIS_IS_LOCAL_CALL, "", HFILL }},
+      { "Negotiate 0x00004000", "ntlmssp.negotiate00004000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00004000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_8000,
       { "Negotiate Always Sign", "ntlmssp.negotiatealwayssign", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_ALWAYS_SIGN, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_10000,
-      { "Negotiate Challenge Init Response", "ntlmssp.negotiatechallengeinitresponse", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_CHAL_INIT_RESPONSE, "", HFILL }},
+      { "Target Type Domain", "ntlmssp.targettypedomain", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_TARGET_TYPE_DOMAIN, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_20000,
-      { "Negotiate Challenge Accept Response", "ntlmssp.negotiatechallengeacceptresponse", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_CHAL_ACCEPT_RESPONSE, "", HFILL }},
+      { "Target Type Server", "ntlmssp.targettypeserver", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_TARGET_TYPE_SERVER, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_40000,
-      { "Negotiate Challenge Non NT Session Key", "ntlmssp.negotiatechallengenonntsessionkey", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_CHAL_NON_NT_SESSION_KEY, "", HFILL }},
+      { "Target Type Share", "ntlmssp.targettypeshare", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_TARGET_TYPE_SHARE, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_80000,
       { "Negotiate NTLM2 key", "ntlmssp.negotiatentlm2", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_NTLM2, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_100000,
-      { "Negotiate 0x00100000", "ntlmssp.negotiatent00100000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00100000, "", HFILL }},
+      { "Negotiate Identify", "ntlmssp.negotiateidentify", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_IDENTIFY, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_200000,
       { "Negotiate 0x00200000", "ntlmssp.negotiatent00200000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00200000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_400000,
-      { "Negotiate 0x00400000", "ntlmssp.negotiatent00400000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_00400000, "", HFILL }},
+      { "Request Non-NT Session", "ntlmssp.requestnonntsession", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_REQUEST_NON_NT_SESSION, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_800000,
-      { "Negotiate Target Info", "ntlmssp.negotiatetargetinfo", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_CHAL_TARGET_INFO, "", HFILL }},
+      { "Negotiate Target Info", "ntlmssp.negotiatetargetinfo", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_TARGET_INFO, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_1000000,
       { "Negotiate 0x01000000", "ntlmssp.negotiatent01000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_01000000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_2000000,
-      { "Negotiate 0x02000000", "ntlmssp.negotiatent02000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_02000000, "", HFILL }},
+      { "Negotiate Version", "ntlmssp.negotiateversion", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_VERSION, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_4000000,
       { "Negotiate 0x04000000", "ntlmssp.negotiatent04000000", FT_BOOLEAN, 32, TFS (&flags_set_truth), NTLMSSP_NEGOTIATE_04000000, "", HFILL }},
     { &hf_ntlmssp_negotiate_flags_8000000,
@@ -1840,6 +1845,10 @@ proto_reg_handoff_ntlmssp(void)
    * any other levels here?
    */
   register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_CONNECT,
+				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+				    &ntlmssp_sign_fns);
+
+  register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT,
 				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
 				    &ntlmssp_sign_fns);
 
