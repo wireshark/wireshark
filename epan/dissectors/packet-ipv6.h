@@ -432,8 +432,8 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 21      CARD Request option                     [RFC4065]
 22      CARD Reply option                       [RFC4065]
 23      MAP Option                              [RFC4140]
-24      Route Information Option                [RFC4191]
 */
+#define ND_OPT_ROUTE_INFO			24  /* Route Information Option                [RFC4191] */
 #define ND_OPT_RECURSIVE_DNS_SERVER	25	/* Recursive DNS Server Option             [RFC5006] */
 /*
 26      RA Flags Extension Option               [RFC5075]
@@ -444,8 +444,6 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 254     RFC3692-style Experiment 2 (*)          [RFC4727]
 */
 
-/* draft-ietf-ipngwg-router-preference, not officially assigned yet */
-#define ND_OPT_ROUTE_INFO		200
 /* draft-ietf-mobileip-hmipv6, not officially assigned yet */
 #define ND_OPT_MAP			201
 

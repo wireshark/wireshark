@@ -224,7 +224,7 @@ static const value_string option_vals[] = {
 	{ 21,		"CARD Request" },                     /* [RFC4065] */
 	{ 22,		"CARD Reply" },                       /* [RFC4065] */
 	{ 23,		"MAP" },                              /* [RFC4140] */
-	{ 24,		"Route Information" },                /* [RFC4191] */
+	{ ND_OPT_ROUTE_INFO,				"Route Information" },                /* [RFC4191] */
 	{ ND_OPT_RECURSIVE_DNS_SERVER,		"Recursive DNS Server" },             /* [RFC5006] */
 	{ 26,		"RA Flags Extension" },               /* [RFC5075] */
 	{ 27,		"Handover Key Request" },             /* [RFC-ietf-mipshop-handover-key-03.txt] */
