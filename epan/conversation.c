@@ -608,8 +608,8 @@ conversation_set_addr2(conversation_t *conv, address *addr)
 }
 
 /*
- * Search a particular hash table for a conversaton with the specified
- * addr1, port1, addr2, and port2.
+ * Search a particular hash table for a conversation with the specified
+ * {addr1, port1, addr2, port2} and set up before frame_num.
  */
 static conversation_t *
 conversation_lookup_hashtable(GHashTable *hashtable, guint32 frame_num, address *addr1, address *addr2,
@@ -637,6 +637,8 @@ conversation_lookup_hashtable(GHashTable *hashtable, guint32 frame_num, address 
 				&& (conversation->setup_frame > match->setup_frame))
 				match = conversation;
 		}
+		if (match->setup_frame > frame_num)
+			match = NULL;
 	}
 
 	return match;
