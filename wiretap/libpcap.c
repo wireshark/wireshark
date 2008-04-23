@@ -461,6 +461,10 @@ static const struct {
 	{ 211, 		WTAP_ENCAP_MOST },
 	/* LIN frame */
 	{ 212, 		WTAP_ENCAP_LIN },
+	/* X2E Xoraya serial frame */
+	{ 213, 		WTAP_ENCAP_X2E_SERIAL },
+	/* X2E Xoraya frame */
+	{ 214, 		WTAP_ENCAP_X2E_XORAYA },
 
 	/*
 	 * To repeat:
