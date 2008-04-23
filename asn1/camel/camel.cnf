@@ -276,6 +276,30 @@ dissect_isup_called_party_number_parameter(parameter_tvb, tree, NULL);
 #.END
 
 #----------------------------------------------------------------------------------------
+#.FN_BODY LocationNumber VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+        return offset;
+
+dissect_isup_location_number_parameter(parameter_tvb, tree, NULL);
+#.END
+
+#----------------------------------------------------------------------------------------
+#.FN_BODY GenericNumber VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+
+ if (!parameter_tvb)
+        return offset;
+
+dissect_isup_generic_number_parameter(parameter_tvb, tree, NULL);
+#.END
+
+#----------------------------------------------------------------------------------------
 #.FN_BODY Cause VAL_PTR = &parameter_tvb
 
 tvbuff_t *parameter_tvb;

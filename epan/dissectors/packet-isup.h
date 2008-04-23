@@ -174,6 +174,10 @@ void dissect_isup_redirection_information_parameter(tvbuff_t *parameter_tvb, pro
 void dissect_isup_original_called_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 void dissect_isup_redirecting_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
 
+void dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+
+void dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item);
+
 extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int len);
 
 #endif  /* PACKET_ISUP_H */

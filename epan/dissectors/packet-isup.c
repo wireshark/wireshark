@@ -4614,7 +4614,7 @@ dissect_isup_transmission_medium_requirement_prime_parameter(tvbuff_t *parameter
 /* ------------------------------------------------------------------
   Dissector Parameter location number
  */
-static void
+void
 dissect_isup_location_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;
@@ -5050,7 +5050,7 @@ dissect_isup_collect_call_request_parameter(tvbuff_t *parameter_tvb, proto_tree 
 /* ------------------------------------------------------------------
   Dissector Parameter Generic number
  */
-static void
+void
 dissect_isup_generic_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_item *address_digits_item;

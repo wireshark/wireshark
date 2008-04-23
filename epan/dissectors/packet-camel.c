@@ -2652,8 +2652,16 @@ dissect_camel_ChargeIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_camel_LocationNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+        return offset;
+
+dissect_isup_location_number_parameter(parameter_tvb, tree, NULL);
 
   return offset;
 }
@@ -4240,8 +4248,16 @@ dissect_camel_GapTreatment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_camel_GenericNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+
+ if (!parameter_tvb)
+        return offset;
+
+dissect_isup_generic_number_parameter(parameter_tvb, tree, NULL);
 
   return offset;
 }
