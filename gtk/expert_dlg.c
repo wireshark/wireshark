@@ -93,8 +93,10 @@ static void expert_dlg_display_reset(expert_tapdata_t * etd)
 	gtk_clist_clear(etd->table);
 	gtk_clist_columns_autosize(etd->table);
 
-	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos");
-	gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
+	gtk_window_set_title(GTK_WINDOW(etd->win), "Wireshark: ? Expert Infos"); 
+	if(etd->label) {
+		gtk_label_set_text(GTK_LABEL(etd->label), "Please wait ...");
+	}
 }
 
 
@@ -164,11 +166,13 @@ expert_dlg_draw(void *data)
 
 	displayed = etd->disp_events;
 
-	if(etd->new_events != NULL) {
-		title = g_strdup_printf("Adding: %u new messages", 
-			g_list_length(etd->new_events));
-		gtk_label_set_text(GTK_LABEL(etd->label), title);
-		g_free(title);
+	if(etd->label) {
+		if(etd->new_events != NULL) {
+			title = g_strdup_printf("Adding: %u new messages", 
+				g_list_length(etd->new_events)); 
+			gtk_label_set_text(GTK_LABEL(etd->label), title);
+			g_free(title);
+		}
 	}
 
 	gtk_clist_freeze(etd->table);
@@ -245,14 +249,16 @@ expert_dlg_draw(void *data)
 	 * (there might be no large changes behind this amount) */
 	if(etd->disp_events < 1000)
 		gtk_clist_columns_autosize(etd->table);
-    gtk_clist_moveto(etd->table,
+	gtk_clist_moveto(etd->table,
                      etd->disp_events - 1, -1, 1.0, 1.0);
 	gtk_clist_thaw(etd->table);
 
-	title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
-		etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
-	gtk_label_set_text(GTK_LABEL(etd->label), title);
-	g_free(title);
+	if(etd->label) { 
+		title = g_strdup_printf("Errors: %u Warnings: %u Notes: %u Chats: %u", 
+			etd->error_events, etd->warn_events, etd->note_events, etd->chat_events);
+			gtk_label_set_text(GTK_LABEL(etd->label), title);
+		g_free(title);
+	}
 
 	title = g_strdup_printf("Wireshark: %u Expert Info%s", 
 		etd->disp_events,
