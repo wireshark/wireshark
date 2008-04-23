@@ -556,7 +556,7 @@ AC_DEFINE_UNQUOTED(DATAFILE_DIR,"$datafiledir", [Directory for data])
 # programs to be built with GTK+.
 #
 if test "x$enable_wireshark" = "xyes"; then
-	AM_PATH_GTK_2_0(2.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
+	AM_PATH_GTK_2_0(2.4.0, CFLAGS="$CFLAGS $GTK_CFLAGS", GTK_OK=no, gthread)
 else
 	GTK_OK=no
 fi
