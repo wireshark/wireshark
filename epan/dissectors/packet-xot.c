@@ -40,31 +40,124 @@
 #include <epan/prefs.h>
 
 #define TCP_PORT_XOT 1998
+#define XOT_HEADER_LENGTH 4
+#define XOT_VERSION 0
+
+/* Some X25 macros from packet-x25.c - some adapted code as well below */
+#define X25_MIN_HEADER_LENGTH 3
+#define X25_MIN_M128_HEADER_LENGTH 4
+#define	X25_NONDATA_BIT			0x01
+#define PACKET_IS_DATA(type)		(!(type & X25_NONDATA_BIT))
+#define X25_MBIT_MOD8			0x10
+#define X25_MBIT_MOD128			0x01
+
+static dissector_handle_t x25_handle;
+static dissector_handle_t xot_handle;
 
 static gint proto_xot = -1;
+static gint ett_xot = -1;
 static gint hf_xot_version = -1;
 static gint hf_xot_length = -1;
 
-static gint ett_xot = -1;
-
-/* desegmentation of X.25 over TCP */
+/* desegmentation of X.25 over multiple TCP */
 static gboolean xot_desegment = TRUE;
-
-static dissector_handle_t x25_handle;
+/* desegmentation of X.25 packet sequences */
+static gboolean x25_desegment = FALSE;
 
 static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-  guint16 plen;
+   guint16 plen;
+   int remain = tvb_length_remaining(tvb, offset);
+   if ( remain < XOT_HEADER_LENGTH){
+      /* We did not get the data we asked for, use up what we can */
+      return remain;
+   }
 
-  /*
-   * Get the length of the X.25-over-TCP packet.
-   */
-  plen = tvb_get_ntohs(tvb, offset + 2);
+   /*
+    * Get the length of the X.25-over-TCP packet.
+    */
+   plen = tvb_get_ntohs(tvb, offset + 2);
+   return XOT_HEADER_LENGTH + plen;
+}
 
-  /*
-   * That length doesn't include the header; add that in.
-   */
-  return plen + 4;
+/* next parameter describes if the routine should return the current known
+   length or the next length required to determine the length of a sequence */
+static guint get_xot_pdu_len_mult_int(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int next)
+{
+   int offset_next = MAX(offset, tvb_length_remaining(tvb, offset));
+   int offset_sequence = offset;
+   int tvb_len;
+
+  while (tvb_len = tvb_length_remaining(tvb, offset), tvb_len>0){
+      guint16 plen = 0;
+      int modulo;
+      guint16 bytes0_1;
+      guint8 pkt_type;
+      gboolean m_bit_set;
+      int offset_x25 = 0;
+
+      /* When checking sequences of X25 packets, require the x25 header as well */
+      plen = XOT_HEADER_LENGTH;
+      if (next) plen += X25_MIN_HEADER_LENGTH;
+      
+      if (tvb_len < plen) {
+         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; /* tcp_dissect_pdus
+                                                               will set this */
+         return next ? plen : tvb_len;
+      }
+
+      /*
+       * Get the length of the current X.25-over-TCP packet.
+       */
+      plen = get_xot_pdu_len(pinfo, tvb, offset);
+
+      /* Make sure we have enough data */
+      if (tvb_len < plen){
+         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; /* tcp_dissect_pdus
+                                                               will set this */
+         return next ? plen : tvb_len;
+      }
+      
+      offset_x25  = offset + XOT_HEADER_LENGTH;
+      offset_next = offset + plen;
+
+      /*Some minor code copied from packet-x25.c */
+      bytes0_1 = tvb_get_ntohs(tvb,  offset_x25+0);
+      pkt_type = tvb_get_guint8(tvb, offset_x25+2);
+
+      /* If this is the first packet and it is not data, no sequence needed */
+      if (offset == offset_sequence && !PACKET_IS_DATA(pkt_type)) {
+          return offset_next - offset_sequence; 
+      }
+
+      /* Check for data, there can be X25 control packets in the X25 data */
+      if (PACKET_IS_DATA(pkt_type)){
+         modulo = ((bytes0_1 & 0x2000) ? 128 : 8);
+         if (modulo == 8) {
+            m_bit_set = pkt_type & X25_MBIT_MOD8;
+         } else {
+            m_bit_set = tvb_get_guint8(tvb, offset_x25+3) & X25_MBIT_MOD128;
+         }
+
+         if (!m_bit_set){
+            /* We are done with this sequence when the mbit is no longer set */
+            return offset_next-offset_sequence;
+         }
+      }
+      offset = offset_next;
+  }
+  
+  /* not enough data */
+  /* When checking sequences of X25 packets, require the x25 header as well */
+  /* Also include the extra bytes when checking length, to satisfy
+     tcp_dissect_pdus len check */
+  /*if (next)*/ offset += XOT_HEADER_LENGTH+X25_MIN_HEADER_LENGTH;
+  return offset - offset_sequence;
+}
+
+static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+   return get_xot_pdu_len_mult_int(pinfo, tvb, offset, 0);
 }
 
 static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -72,7 +165,6 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int offset = 0;
   guint16 version;
   guint16 plen;
-  int length;
   proto_item *ti;
   proto_tree *xot_tree;
   tvbuff_t   *next_tvb;
@@ -80,56 +172,89 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Dissect the X.25-over-TCP packet.
    */
-  version = tvb_get_ntohs(tvb, offset + 0);
-  plen = tvb_get_ntohs(tvb, offset + 2);
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
-		 version, plen);
+     if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "XOT");
+     version = tvb_get_ntohs(tvb, offset + 0);
+     plen = tvb_get_ntohs(tvb, offset + 2);
+     if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "XOT Version = %u, size = %u",
+                     version, plen);
+     if (check_col(pinfo->cinfo, COL_INFO) && offset == 0 &&
+         tvb_length_remaining(tvb, offset) > XOT_HEADER_LENGTH + plen )
+        col_append_fstr(pinfo->cinfo, COL_INFO, " TotX25: %d",
+                        tvb_length_remaining(tvb, offset));
 
-  if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, 4,
+     if (tree) {
+        ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, XOT_HEADER_LENGTH,
 					    "X.25 over TCP");
-    xot_tree = proto_item_add_subtree(ti, ett_xot);
+        xot_tree = proto_item_add_subtree(ti, ett_xot);
 
-    proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
-    proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
-  }
-
-  /*
-   * Construct a tvbuff containing the amount of the payload we have
-   * available.  Make its reported length the amount of data in the
-   * X.25-over-TCP packet.
-   */
-  length = tvb_length_remaining(tvb, offset + 4);
-  if (length > plen)
-    length = plen;
-  if (plen > 0)
-  {
-    next_tvb = tvb_new_subset(tvb, offset + 4, length, plen);
-    call_dissector(x25_handle, next_tvb, pinfo, tree);
-  }
+        proto_tree_add_uint(xot_tree, hf_xot_version, tvb, offset, 2, version);
+        proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset + 2, 2, plen);
+     }
+  
+     plen = tvb_get_ntohs(tvb, offset + 2);
+     offset += XOT_HEADER_LENGTH;
+     /*
+      * Construct a tvbuff containing the amount of the payload we have
+      * available.  Make its reported length the amount of data in the
+      * X.25-over-TCP packet.
+      */
+     if (plen >= X25_MIN_HEADER_LENGTH) {
+        next_tvb = tvb_new_subset(tvb, offset,
+                                  MIN(plen, tvb_length_remaining(tvb, offset)), plen);
+        call_dissector(x25_handle, next_tvb, pinfo, tree);
+     }
+     offset += plen;
 }
 
-static int dissect_xot(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  /*
-   * Do we have the full version number and, if so, is it zero?
-   * If we have it but it's not zero, reject this segment.
-   */
-  if (tvb_length(tvb) >= 2) {
-    if (tvb_get_ntohs(tvb, 0) != 0)
+   int offset = 0;
+   int len = get_xot_pdu_len_mult(pinfo, tvb, offset);
+   tvbuff_t   *next_tvb;
+   int offset_max = offset+MIN(len,tvb_length_remaining(tvb, offset));
+   proto_item *ti;
+   proto_tree *xot_tree;
+
+   if (tree) {
+      /* Special header to show segments */
+      ti = proto_tree_add_protocol_format(tree, proto_xot, tvb, offset, offset_max-offset,
+                                          "X.25 over TCP - X.25 Sequence");
+      xot_tree = proto_item_add_subtree(ti, ett_xot);
+      proto_tree_add_uint(xot_tree, hf_xot_length, tvb, offset, offset_max, len);
+   }
+      
+   while (offset <= offset_max - XOT_HEADER_LENGTH){
+      int plen = get_xot_pdu_len(pinfo, tvb, offset);
+      next_tvb = tvb_new_subset(tvb, offset,plen, plen);
+                                /*MIN(plen,tvb_length_remaining(tvb, offset)),plen*/
+                                
+      dissect_xot_pdu(next_tvb, pinfo, tree);
+      offset += plen;
+   }
+}
+static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+   /* Let tcp_dissect_pdu report an error */
+   int tvb_len = tvb_length(tvb);
+   if (tvb_len >= 2 && tvb_get_ntohs(tvb,0) != XOT_VERSION) {
       return 0;
-  }
+   }
+   /* No more checks if not desegmenting x25 sequences */
+   if (!x25_desegment || !xot_desegment){
+      tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
+                               XOT_HEADER_LENGTH,
+                               get_xot_pdu_len, 
+							   dissect_xot_pdu);
+	return tvb_length(tvb);
+	}
 
-  /*
-   * The version number's OK, so dissect this segment.
-   */
-  tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment, 4, get_xot_pdu_len,
-		   dissect_xot_pdu);
-
-  return tvb_length(tvb);
+   tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
+                            get_xot_pdu_len_mult_int(pinfo, tvb, 0, 1),
+                            get_xot_pdu_len_mult, 
+							dissect_xot_mult);
+   return tvb_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -155,26 +280,45 @@ proto_register_xot(void)
 	proto_xot = proto_register_protocol("X.25 over TCP", "XOT", "xot");
 	proto_register_field_array(proto_xot, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("xot", dissect_xot, proto_xot);
-
-	xot_module = prefs_register_protocol(proto_xot, NULL);
+	new_register_dissector("xot", dissect_xot_tcp_heur, proto_xot);
+ 	xot_module = prefs_register_protocol(proto_xot, NULL);
+        
 	prefs_register_bool_preference(xot_module, "desegment",
 	    "Reassemble X.25-over-TCP messages spanning multiple TCP segments",
 	    "Whether the X.25-over-TCP dissector should reassemble messages spanning multiple TCP segments. "
-	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+	    "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings",
 	    &xot_desegment);
+	prefs_register_bool_preference(xot_module, "x25_desegment",
+	    "Reassemble X.25 packets with More flag to enable safe X.25 reassembly",
+	    "Whether the X.25-over-TCP dissector should reassemble all X.25 packets before calling the X25 dissector. "
+            "If the TCP packets arrive out-of-order, the X.25 reassembly can otherwise fail. "
+	    "To use this option, you should also enable \"Reassemble X.25-over-TCP messages spanning multiple TCP segments\", \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings and \"Reassemble fragmented X.25 packets\" in the X.25 protocol settings.",
+	    &x25_desegment);
+
 }
 
 void
 proto_reg_handoff_xot(void)
 {
-	dissector_handle_t xot_handle;
+   static gboolean initialized = FALSE;
+   static int currentPort = -1;
+
+   if(!initialized) {
 
 	/*
 	 * Get a handle for the X.25 dissector.
 	 */
 	x25_handle = find_dissector("x.25");
 
-	xot_handle = new_create_dissector_handle(dissect_xot, proto_xot);
-	dissector_add("tcp.port", TCP_PORT_XOT, xot_handle);
+	xot_handle = new_create_dissector_handle(dissect_xot_tcp_heur, proto_xot);
+ 
+        initialized = TRUE;
+   }
+
+   if (currentPort != -1) {
+      dissector_delete("tcp.port", currentPort, xot_handle);
+   }
+   currentPort = TCP_PORT_XOT;
+
+   dissector_add("tcp.port", currentPort, xot_handle);
 }
