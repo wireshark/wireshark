@@ -478,11 +478,6 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (! global_rtp_heur)
 		return FALSE;
 
-	/* Was it sent between 2 even-numbered ports? */
-	if ((pinfo->srcport % 2) || (pinfo->destport % 2)) {
-		return FALSE;
-	}
-
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet1 );
@@ -504,6 +499,11 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		}
 	} else if (version != 2) {
 		/* Unknown or unsupported version */
+		return FALSE;
+	}
+
+	/* Was it sent between 2 even-numbered ports? */
+	if ((pinfo->srcport % 2) || (pinfo->destport % 2)) {
 		return FALSE;
 	}
 
