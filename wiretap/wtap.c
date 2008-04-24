@@ -406,25 +406,25 @@ static struct encap_type_info encap_table_base[] = {
 	{ "IEEE 802.15.4 Wireless PAN", "wpan" },
 
 	/* WTAP_ENCAP_X2E_XORAYA */
-	{ "X2E XORAYA", "x2e-xoraya" },
+	{ "X2E Xoraya", "x2e-xoraya" },
 
 	/* WTAP_ENCAP_FLEXRAY */
 	{ "FlexRay", "flexray" },
 
 	/* WTAP_ENCAP_LIN */
-	{ "LIN", "lin" },
+	{ "Local Interconnect Network", "lin" },
 
 	/* WTAP_ENCAP_MOST */
-	{ "MOST", "most" },
+	{ "Media Oriented Systems Transport", "most" },
 
 	/* WTAP_ENCAP_CAN20B */
-	{ "CAN 2.0B", "can20b" },
+	{ "Controller Area Network 2.0B", "can20b" },
 
 	/* WTAP_ENCAP_LAYER1_EVENT */
-	{ "Layer 1 event", "layer1-event" },
+	{ "EyeSDN Layer 1 event", "layer1-event" },
 
 	/* WTAP_ENCAP_X2E_SERIAL */
-	{ "X2E SERIAL", "x2e-serial" }
+	{ "X2E serial line capture", "x2e-serial" }
 };
 
 gint wtap_num_encap_types = sizeof(encap_table_base) / sizeof(struct encap_type_info);
