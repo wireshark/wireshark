@@ -416,6 +416,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-gprs-ns.c	\
 	packet-gre.c		\
 	packet-gsm_a.c		\
+	packet-gsm_bsslap.c		\
 	packet-gsm_sms.c	\
 	packet-gsm_sms_ud.c	\
 	packet-gssapi.c		\
