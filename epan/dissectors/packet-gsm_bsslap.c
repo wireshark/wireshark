@@ -2,7 +2,7 @@
  * Routines for Location Services (LCS) Serving Mobile Location Centre - Base Station System (SMLC-BSS) dissection
  * Copyright 2008, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id: packet-amr.c 24022 2008-01-07 19:16:26Z etxrab $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
