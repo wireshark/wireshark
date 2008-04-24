@@ -351,7 +351,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	}
 
 	if (upcoming_channel->srtp_flag) {
-		struct srtp_info *dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
+		dummy_srtp_info = se_alloc0(sizeof(struct srtp_info));
 	}
 	if (upcoming_channel->media_addr.addr.type!=AT_NONE && upcoming_channel->media_addr.port!=0 && rtp_handle) {
 		srtp_add_address(pinfo, &upcoming_channel->media_addr.addr, 
