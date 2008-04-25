@@ -4341,7 +4341,8 @@ void proto_register_dmp (void)
   module_t *dmp_module;
 
   proto_dmp = proto_register_protocol (PNAME, PSNAME, PFNAME);
-
+  register_dissector(PFNAME, dissect_dmp, proto_dmp);
+	
   proto_register_field_array (proto_dmp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   register_init_routine (&dmp_init_routine);
