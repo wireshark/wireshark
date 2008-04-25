@@ -1,9 +1,4 @@
 /*
- * We want to stop processing when we get to the end of the input.
- */
-%option noyywrap
-
-/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput 
@@ -72,6 +67,13 @@
 	static mate_config* mc;
 	
 #define MATE_PARSE(token_type) MateParser(pParser, (token_type), g_strdup(yytext), mc );
+
+/*
+ * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
+ */
+#ifdef _WIN32
+#define YY_NO_UNISTD_H
+#endif
 
 %}
 
@@ -324,4 +326,15 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 	ENDTRY;
 	
 	return state;
+}
+
+/*
+ * We want to stop processing when we get to the end of the input.
+ * (%option noyywrap is not used because if used then 
+ * some flex versions (eg: 2.5.35) generate code which causes
+ * warnings by the Windows VC compiler).
+ */
+
+int yywrap(void) {
+    return 1;
 }

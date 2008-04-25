@@ -1,9 +1,4 @@
 /*
- * We want to stop processing when we get to the end of the input.
- */
-%option noyywrap
-
-/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput 
@@ -110,6 +105,13 @@
 
 
 #define YY_INPUT(buff,result,max_size) ( (result) = my_yyinput((buff),(max_size)) )
+
+/*
+ * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
+ */
+#ifdef _WIN32
+#define YY_NO_UNISTD_H
+#endif
 
 %}
 
@@ -366,4 +368,15 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	DtdParseFree(pParser, g_free );
 	
 	return build_data;
+}
+
+/*
+ * We want to stop processing when we get to the end of the input.
+ * (%option noyywrap is not used because if used then 
+ * some flex versions (eg: 2.5.35) generate code which causes
+ * warnings by the Windows VC compiler).
+ */
+
+int yywrap(void) {
+    return 1;
 }

@@ -1,9 +1,4 @@
 /*
- * We want to stop processing when we get to the end of the input.
- */
-%option noyywrap
-
-/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput
@@ -729,6 +724,17 @@ void wimaxasncp_dict_print(FILE *fh, wimaxasncp_dict_t *d) {
 					e->code);
 		}
 	}
+}
+
+/*
+ * We want to stop processing when we get to the end of the input.
+ * (%option noyywrap is not used because if used then 
+ * some flex versions (eg: 2.5.35) generate code which causes
+ * warnings by the Windows VC compiler).
+ */
+
+int yywrap(void) {
+    return 1;
 }
 
 #ifdef TEST_WIMAXASNCP_DICT_STANDALONE

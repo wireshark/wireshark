@@ -1,9 +1,4 @@
 /*
- * We want to stop processing when we get to the end of the input.
- */
-%option noyywrap
-
-/*
  * We don't use unput, so don't generate code for it.
  */
 %option nounput

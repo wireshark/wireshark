@@ -41,7 +41,14 @@
 #include <stdlib.h>
 
 #include "text2pcap.h"
-    
+
+/*
+ * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
+ */
+#ifdef _WIN32
+#define YY_NO_UNISTD_H
+#endif    
+
 %}
 
 hexdigit [0-9A-Fa-f]
