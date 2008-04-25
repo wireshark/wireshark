@@ -85,6 +85,7 @@ static int hf_fp_cmch_pi = -1;
 static int hf_fp_user_buffer_size = -1;
 static int hf_fp_hsdsch_credits = -1;
 static int hf_fp_hsdsch_max_macd_pdu_len = -1;
+static int hf_fp_hsdsch_max_macdc_pdu_len = -1;
 static int hf_fp_hsdsch_interval = -1;
 static int hf_fp_hsdsch_calculated_rate = -1;
 static int hf_fp_hsdsch_unlimited_rate = -1;
@@ -115,6 +116,9 @@ static int hf_fp_mc_info = -1;
 static int hf_fp_rach_new_ie_flags = -1;
 static int hf_fp_rach_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_fp_cell_portion_id = -1;
+static int hf_fp_ext_propagation_delay = -1;
+static int hf_fp_angle_of_arrival = -1;
+static int hf_fp_ext_received_sync_ul_timing_deviation = -1;
 static int hf_fp_radio_interface_parameter_update_flag[5] = {-1, -1, -1, -1, -1};
 static int hf_fp_dpc_mode = -1;
 static int hf_fp_tpc_po = -1;
@@ -240,30 +244,32 @@ static const value_string dch_control_frame_type_vals[] = {
 
 
 /* Common channel control types */
-#define COMMON_OUTER_LOOP_POWER_CONTROL         1
-#define COMMON_TIMING_ADJUSTMENT                2
-#define COMMON_DL_SYNCHRONISATION               3
-#define COMMON_UL_SYNCHRONISATION               4
-
-#define COMMON_DL_NODE_SYNCHRONISATION          6
-#define COMMON_UL_NODE_SYNCHRONISATION          7
-#define COMMON_DYNAMIC_PUSCH_ASSIGNMENT         8
-#define COMMON_TIMING_ADVANCE                   9
-#define COMMON_HS_DSCH_Capacity_Request         10
-#define COMMON_HS_DSCH_Capacity_Allocation      11
+#define COMMON_OUTER_LOOP_POWER_CONTROL                1
+#define COMMON_TIMING_ADJUSTMENT                       2
+#define COMMON_DL_SYNCHRONISATION                      3
+#define COMMON_UL_SYNCHRONISATION                      4
+                                                       
+#define COMMON_DL_NODE_SYNCHRONISATION                 6
+#define COMMON_UL_NODE_SYNCHRONISATION                 7
+#define COMMON_DYNAMIC_PUSCH_ASSIGNMENT                8
+#define COMMON_TIMING_ADVANCE                          9
+#define COMMON_HS_DSCH_Capacity_Request                10
+#define COMMON_HS_DSCH_Capacity_Allocation             11
+#define COMMON_HS_DSCH_Capacity_Allocation_Type_2      12
 
 static const value_string common_control_frame_type_vals[] = {
-    { COMMON_OUTER_LOOP_POWER_CONTROL,         "OUTER LOOP POWER CONTROL" },
-    { COMMON_TIMING_ADJUSTMENT,                "TIMING ADJUSTMENT" },
-    { COMMON_DL_SYNCHRONISATION,               "DL SYNCHRONISATION" },
-    { COMMON_UL_SYNCHRONISATION,               "UL SYNCHRONISATION" },
-    { 5,                                       "Reserved Value" },
-    { COMMON_DL_NODE_SYNCHRONISATION,          "DL NODE SYNCHRONISATION" },
-    { COMMON_UL_NODE_SYNCHRONISATION,          "UL NODE SYNCHRONISATION" },
-    { COMMON_DYNAMIC_PUSCH_ASSIGNMENT,         "DYNAMIC PUSCH ASSIGNMENT" },
-    { COMMON_TIMING_ADVANCE,                   "TIMING ADVANCE" },
-    { COMMON_HS_DSCH_Capacity_Request,         "HS-DSCH Capacity Request" },
-    { COMMON_HS_DSCH_Capacity_Allocation,      "HS-DSCH Capacity Allocation" },
+    { COMMON_OUTER_LOOP_POWER_CONTROL,            "OUTER LOOP POWER CONTROL" },
+    { COMMON_TIMING_ADJUSTMENT,                   "TIMING ADJUSTMENT" },
+    { COMMON_DL_SYNCHRONISATION,                  "DL SYNCHRONISATION" },
+    { COMMON_UL_SYNCHRONISATION,                  "UL SYNCHRONISATION" },
+    { 5,                                          "Reserved Value" },
+    { COMMON_DL_NODE_SYNCHRONISATION,             "DL NODE SYNCHRONISATION" },
+    { COMMON_UL_NODE_SYNCHRONISATION,             "UL NODE SYNCHRONISATION" },
+    { COMMON_DYNAMIC_PUSCH_ASSIGNMENT,            "DYNAMIC PUSCH ASSIGNMENT" },
+    { COMMON_TIMING_ADVANCE,                      "TIMING ADVANCE" },
+    { COMMON_HS_DSCH_Capacity_Request,            "HS-DSCH Capacity Request" },
+    { COMMON_HS_DSCH_Capacity_Allocation,         "HS-DSCH Capacity Allocation" },
+    { COMMON_HS_DSCH_Capacity_Allocation_Type_2,  "HS-DSCH Capacity Allocation Type 2" },
     { 0,   NULL },
 };
 
@@ -279,6 +285,8 @@ static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                                             int offset);
 
 /* Dissect common control messages */
+static int dissect_common_outer_loop_power_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                                   int offset, struct fp_info *p_fp_info);
 static int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                             int offset, struct fp_info *p_fp_info);
 static int dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree *tree,
@@ -297,6 +305,8 @@ static int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
                                           tvbuff_t *tvb, int offset);
 static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
                                              tvbuff_t *tvb, int offset);
+static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
+                                                    tvbuff_t *tvb, int offset);
 static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    int offset, struct fp_info *p_fp_info);
 static int dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
@@ -596,6 +606,13 @@ void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
 /***********************************************************/
 /* Common control message types                            */
 
+int dissect_common_outer_loop_power_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
+                                            int offset, struct fp_info *p_fp_info _U_)
+{
+    return dissect_dch_outer_loop_power_control(tree, pinfo, tvb, offset);
+}
+
+
 int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                                      int offset, struct fp_info *p_fp_info)
 {
@@ -737,7 +754,7 @@ int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t
 
     /* Timing Advance */
     timing_advance = (tvb_get_guint8(tvb, offset) & 0x3f) * 4;
-    proto_tree_add_uint(tree, hf_fp_timing_advance, tvb, offset, 1, timing_advance*4);
+    proto_tree_add_uint(tree, hf_fp_timing_advance, tvb, offset, 1, timing_advance);
     offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -745,6 +762,8 @@ int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, tvbuff_t
         col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u, TA = %u",
                         cfn, timing_advance);
     }
+
+    /* TODO: R7 (at least) has an IE flags byte here... */
 
     return offset;
 }
@@ -780,9 +799,9 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_item *rate_ti;
     guint16 max_pdu_length;
-    guint8 repetition_period;
-    guint8 interval;
-    guint16 credits;
+    guint8  repetition_period;
+    guint8  interval;
+    guint64 credits;
 
     /* CmCH-PI */
     proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
@@ -794,8 +813,92 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     offset++;
 
     /* HS-DSCH credits (11 bits) */
-    credits = (tvb_get_ntohs(tvb, offset) & 0x07ff);
-    ti = proto_tree_add_item(tree, hf_fp_hsdsch_credits, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_bits_ret_val(tree, hf_fp_hsdsch_credits, tvb,
+                                     offset*8 + 5, 11, &credits, FALSE);
+
+    offset += 2;
+    if (credits == 0)
+    {
+        proto_item_append_text(ti, " (stop transmission)");
+        expert_add_info_format(pinfo, ti,
+                               PI_RESPONSE_CODE, PI_NOTE,
+                               "Stop HSDPA transmission");
+    }
+    if (credits == 2047)
+    {
+        proto_item_append_text(ti, " (unlimited)");
+    }
+
+    /* HS-DSCH Interval */
+    interval = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_uint(tree, hf_fp_hsdsch_interval, tvb, offset, 1, interval*10);
+    offset++;
+    if (interval == 0)
+    {
+        proto_item_append_text(ti, " (none of the credits shall be used)");
+    }
+
+    /* HS-DSCH Repetition period */
+    repetition_period = tvb_get_guint8(tvb, offset);
+    ti = proto_tree_add_item(tree, hf_fp_hsdsch_repetition_period, tvb, offset, 1, FALSE);
+    offset++;
+    if (repetition_period == 0)
+    {
+        proto_item_append_text(ti, " (unlimited repetition period)");
+    }
+
+    /* Calculated and show effective rate enabled */
+    if (credits == 2047)
+    {
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
+        PROTO_ITEM_SET_GENERATED(rate_ti);
+    }
+    else
+    {
+        if (interval != 0)
+        {
+            rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
+                                          credits * max_pdu_length * (1000 / (interval*10)));
+            PROTO_ITEM_SET_GENERATED(rate_ti);
+        }
+    }
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO,
+                        "   Max-PDU-len=%u  Credits=%u  Interval=%u  Rep-Period=%u",
+                        max_pdu_length, (guint16)credits, interval, repetition_period);
+    }
+
+    return offset;
+}
+
+int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
+                                             tvbuff_t *tvb, int offset)
+{
+    proto_item *ti;
+    proto_item *rate_ti;
+    guint16 max_pdu_length;
+    guint8 repetition_period;
+    guint8 interval;
+    guint16 credits;
+
+    /* CmCH-PI */
+    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* 5 spare bits follow here */
+
+    /* Max MAC-d/c PDU length (11 bits) */
+    max_pdu_length = (tvb_get_ntohs(tvb, offset) >> 3);
+    proto_tree_add_item(tree, hf_fp_hsdsch_max_macdc_pdu_len, tvb, offset, 2, FALSE);
+    offset += 2;
+
+    /* HS-DSCH credits (16 bits) */
+    credits = (tvb_get_ntohs(tvb, offset));
+    ti = proto_tree_add_uint(tree, hf_fp_hsdsch_credits, tvb,
+                             offset, 2, credits);
+
     offset += 2;
     if (credits == 0)
     {
@@ -854,6 +957,7 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
 }
 
 
+
 int dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tree *tree,
                                             tvbuff_t *tvb, int offset)
 {
@@ -909,6 +1013,7 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (control_frame_type)
     {
         case COMMON_OUTER_LOOP_POWER_CONTROL:
+            offset = dissect_common_outer_loop_power_control(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_TIMING_ADJUSTMENT:
             offset = dissect_common_timing_adjustment(pinfo, tree, tvb, offset, p_fp_info);
@@ -936,6 +1041,9 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
         case COMMON_HS_DSCH_Capacity_Allocation:
             offset = dissect_hsdpa_capacity_allocation(pinfo, tree, tvb, offset);
+            break;
+        case COMMON_HS_DSCH_Capacity_Allocation_Type_2:
+            offset = dissect_hsdpa_capacity_allocation_type_2(pinfo, tree, tvb, offset);
             break;
 
         default:
@@ -1060,9 +1168,28 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 /* Last bit set will indicate another flags byte follows... */
             } while (0); /*((flags & 0x01) && (flag_bytes < 31));*/
 
-            /* Cell portion ID */
-            proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
-            offset++;
+            /* Bit 0 indicates Cell Portion ID */
+            if (flags & 0x01) {
+                proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
+                offset++;
+            }
+
+            /* Bit 1 indicates Ext propagation delay */
+            if (flags & 0x40) {
+                proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 1, FALSE);
+                offset++;
+            }
+
+            if (p_fp_info->channel == CHANNEL_RACH_TDD_128) {
+                /* Angle of Arrival (AOA) */
+                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
+                offset += 2;
+
+                /* Ext received Sync UL Timing Deviation */
+                proto_tree_add_item(tree, hf_fp_ext_received_sync_ul_timing_deviation, tvb, offset, 2, FALSE);
+                offset += 2;
+            }
+
         }
 
         /* Spare Extension and Payload CRC */
@@ -1744,7 +1871,7 @@ void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* Spare extension and payload CRC (optional) */
         dissect_spare_extension_and_crc(tvb, pinfo, tree,
-					p_fp_info->dch_crc_present, offset);
+                                        p_fp_info->dch_crc_present, offset);
     }
 }
 
@@ -2024,6 +2151,7 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         /********************************/
         /* HS-DCH data here             */
+        /* TODO: handle type 2 frames (will know from config) */
 
         /* CmCH-PI */
         proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
@@ -2532,7 +2660,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_hsdsch_credits,
             { "HS-DSCH Credits",
-              "fp.hsdsch-credits", FT_UINT16, BASE_DEC, 0, 0x07ff,
+              "fp.hsdsch-credits", FT_UINT16, BASE_DEC, 0, 0x0,
               "HS-DSCH Credits", HFILL
             }
         },
@@ -2540,6 +2668,12 @@ void proto_register_fp(void)
             { "Max MAC-d PDU Length",
               "fp.hsdsch.max-macd-pdu-len", FT_UINT16, BASE_DEC, 0, 0xfff8,
               "Maximum MAC-d PDU Length in bits", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_max_macdc_pdu_len,
+            { "Max MAC-d/c PDU Length",
+              "fp.hsdsch.max-macdc-pdu-len", FT_UINT16, BASE_DEC, 0, 0x07ff,
+              "Maximum MAC-d/c PDU Length in bits", HFILL
             }
         },
         { &hf_fp_hsdsch_interval,
@@ -2794,6 +2928,25 @@ void proto_register_fp(void)
               "Cell Portion ID", HFILL
             }
         },
+        { &hf_fp_ext_propagation_delay,
+            { "Ext Propagation Delay",
+              "fp.ext-propagation-delay", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Ext Propagation Delay", HFILL
+            }
+        },
+        { &hf_fp_angle_of_arrival,
+            { "Angle of Arrival",
+              "fp.angle-of-arrival", FT_UINT16, BASE_DEC, NULL, 0x03ff,
+              "Angle of Arrival", HFILL
+            }
+        },
+        { &hf_fp_ext_received_sync_ul_timing_deviation,
+            { "Ext Received SYNC UL Timing Deviation",
+              "fp.ext-received-sync-ul-timing-deviation", FT_UINT16, BASE_DEC, NULL, 0x1fff,
+              "Ext Received SYNC UL Timing Deviation", HFILL
+            }
+        },
+
 
         { &hf_fp_radio_interface_parameter_update_flag[0],
             { "CFN valid",
