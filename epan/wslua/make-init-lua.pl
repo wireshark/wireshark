@@ -42,9 +42,9 @@ my $menu_groups = '';
 my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
     FT_TYPES => \$ft_types_table,
-	BASES => \$bases_table,
-	EXPERT => \$expert_pi,
-	MENU_GROUPS => \$menu_groups,
+    BASES => \$bases_table,
+    EXPERT => \$expert_pi,
+    MENU_GROUPS => \$menu_groups,
 }};
 
 
@@ -106,31 +106,31 @@ my $base_num = 0;
 
 open PROTO_H, "< $WSROOT/epan/proto.h" or die "cannot open '$WSROOT/epan/proto.h':  $!";
 while(<PROTO_H>) {
-	if (/^\s+BASE_([A-Z_]+),/ ) {
-		$bases_table .= "\t[\"$1\"] = $base_num,\n";
-		$base_num++;
-	}
-	
-	if ( /^.define\s+(PI_[A-Z_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
-		my ($name, $value) = ($1, hex($2));
-		$expert_pi .= "$name = $value\n";
-	}
+    if (/^\s+BASE_([A-Z_]+),/ ) {
+        $bases_table .= "\t[\"$1\"] = $base_num,\n";
+        $base_num++;
+    }
+
+    if ( /^.define\s+(PI_[A-Z_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
+        my ($name, $value) = ($1, hex($2));
+        $expert_pi .= "$name = $value\n";
+    }
 }
 close PROTO_H;
 
 # register_stat_group_t
 
 
-$menu_groups .= "-- menu groups for register_menu \n";
+$menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
 
 open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h':  $!";
 while(<STAT_MENU>) {
-	if (/REGISTER_([A-Z]+)_GROUP_([A-Z]+)/) {
-		$menu_groups .= "MENU_$1_$2 = $menu_i\n";
-		$menu_groups =~ s/_NONE//;
-		$menu_i++;
-	}
+    if (/REGISTER_([A-Z]+)_GROUP_([A-Z]+)/) {
+        $menu_groups .= "MENU_$1_$2 = $menu_i\n";
+        $menu_groups =~ s/_NONE//;
+        $menu_i++;
+    }
 }
 close STAT_MENU;
 

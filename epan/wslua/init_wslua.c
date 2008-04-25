@@ -55,10 +55,10 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     lua_pinfo = pinfo;
     lua_tvb = tvb;
 
-	lua_tree = ep_alloc(sizeof(struct _wslua_treeitem));
-	lua_tree->tree = tree;
-	lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
-	PROTO_ITEM_SET_HIDDEN(lua_tree->item);
+    lua_tree = ep_alloc(sizeof(struct _wslua_treeitem));
+    lua_tree->tree = tree;
+    lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
 
     /*
      * almost equivalent to Lua:
@@ -92,9 +92,9 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
             if (lua_isnumber(L, -1)) {
                 consumed_bytes = (int) lua_tonumber(L, -1);
                 lua_pop(L, 1);  /* pop returned value */
+            }
         }
-	}
-	
+
     } else {
         proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"Lua Error: did not find the %s dissector"
                                              " in the dissectors table",pinfo->current_proto);
@@ -160,7 +160,7 @@ static int init_error_handler(lua_State* LS) {
 
 
 static void wslua_init_routine(void) {
-	static gboolean initialized = FALSE;
+    static gboolean initialized = FALSE;
 
     if ( ! initialized ) {
         lua_prime_all_fields(NULL);
@@ -227,8 +227,8 @@ static void basic_logger(const gchar *log_domain _U_,
 }
 
 static int wslua_panic(lua_State* LS) {
-	g_error("LUA PANIC: %s",lua_tostring(LS,-1));
-	return 0;
+    g_error("LUA PANIC: %s",lua_tostring(LS,-1));
+    return 0;
 }
 
 int wslua_init(lua_State* LS) {
@@ -244,16 +244,16 @@ int wslua_init(lua_State* LS) {
                       G_LOG_LEVEL_DEBUG,
                       ops ? ops->logger : basic_logger, NULL);
 
-	if (!L) {
-		if (LS)
-			L = LS;
-		else
-			L = luaL_newstate();
-	}
+    if (!L) {
+        if (LS)
+            L = LS;
+        else
+            L = luaL_newstate();
+    }
 
-	WSLUA_INIT(L);
+    WSLUA_INIT(L);
 
-	lua_atpanic(L,wslua_panic);
+    lua_atpanic(L,wslua_panic);
 
     /* the init_routines table (accessible by the user) */
     lua_pushstring(L, WSLUA_INIT_ROUTINES);
@@ -265,7 +265,7 @@ int wslua_init(lua_State* LS) {
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* set running_superuser variable to it's propper value */
-	WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
+    WSLUA_REG_GLOBAL_BOOL(L,"running_superuser",started_with_special_privs());
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");
@@ -282,10 +282,10 @@ int wslua_init(lua_State* LS) {
     lua_gettable(L, LUA_GLOBALSINDEX);
 
     if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
-		/* disable lua */
-		lua_close(L);
-		L = NULL;
-		return 0;
+        /* disable lua */
+        lua_close(L);
+        L = NULL;
+        return 0;
     }
 
     /* check whether we should run other scripts even if running superuser */
@@ -303,8 +303,8 @@ int wslua_init(lua_State* LS) {
 
         if (( file_exists(filename))) {
             lua_load_script(filename);
-	    g_free(filename);
-	    filename = NULL;
+            g_free(filename);
+            filename = NULL;
         }
 
         while((filename = (gchar *)ex_opt_get_next("lua_script"))) {
@@ -331,7 +331,7 @@ int wslua_init(lua_State* LS) {
     lua_data_handle = find_dissector("data");
     lua_malformed = proto_get_id_by_filter_name("malformed");
 
-	Proto_commit(L);
+    Proto_commit(L);
 
     return 0;
 }

@@ -6,7 +6,7 @@
 --  It can be used to load libraries, disable functions and more.
 --
 -- $Id$
--- 
+--
 -- Wireshark - Network traffic analyzer
 -- By Gerald Combs <gerald@wireshark.org>
 -- Copyright 1998 Gerald Combs
@@ -36,8 +36,8 @@ run_user_scripts_when_superuser = false
 
 -- disable potentialy harmful lua functions when running superuser
 if running_superuser then
-	local disabled_lib = {}
-	setmetatable(disabled_lib,{ __index = function() error("this package has been disabled") end } );
+    local disabled_lib = {}
+    setmetatable(disabled_lib,{ __index = function() error("this package has been disabled") end } );
 
     dofile = function() error("dofile has been disabled") end
     loadfile = function() error("loadfile has been disabled") end
@@ -52,7 +52,7 @@ end
 -- has been suppresed so that it yields an error.
 -- have print() call info() instead.
 if gui_enabled() then
-	print = info
+    print = info
 end
 
 -- %WTAP_ENCAPS%
