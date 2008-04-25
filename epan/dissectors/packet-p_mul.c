@@ -1277,7 +1277,8 @@ void proto_register_p_mul (void)
   module_t *p_mul_module;
 
   proto_p_mul = proto_register_protocol (PNAME, PSNAME, PFNAME);
-
+  register_dissector(PFNAME, dissect_p_mul, proto_p_mul);
+  
   proto_register_field_array (proto_p_mul, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
   register_init_routine (&p_mul_init_routine);
