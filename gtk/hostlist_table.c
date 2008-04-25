@@ -690,6 +690,10 @@ init_hostlist_table_page(hostlist_table *hosttable, GtkWidget *vbox, gboolean hi
     hosttable->default_titles[5] = "Tx Bytes";
     hosttable->default_titles[6] = "Rx Packets";
     hosttable->default_titles[7] = "Rx Bytes";
+    if (strcmp(table_name, "NCP")==0) {
+        hosttable->default_titles[1] = "Connection";
+    }
+
     hosttable->has_ports=!hide_ports;
     hosttable->num_hosts = 0;
     hosttable->resolve_names=TRUE;
