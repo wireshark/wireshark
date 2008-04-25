@@ -20,6 +20,11 @@
 #define __STDC__ 0
 #endif
 
+/* 
+ * Flex (v 2.5.35) uses this symbol to "exclude" unistd.h
+ */
+#define YY_NO_UNISTD_H
+
 /* Use Unicode in Windows runtime functions. */
 #define UNICODE 1
 #define _UNICODE 1
