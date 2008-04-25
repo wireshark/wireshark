@@ -857,6 +857,7 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     {
         if (interval != 0)
         {
+            /* Cast on credits is safe, since we know it won't exceed 10^11 */
             rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
                                           (guint16)credits * max_pdu_length * (1000 / (interval*10)));
             PROTO_ITEM_SET_GENERATED(rate_ti);
