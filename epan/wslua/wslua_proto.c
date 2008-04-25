@@ -906,13 +906,13 @@ static const luaL_reg ProtoField_methods[] = {
     {"ubytes",ProtoField_ubytes},
     {"guid",ProtoField_guid},
     {"oid",ProtoField_oid},
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg ProtoField_meta[] = {
     {"__gc", ProtoField_gc },
     {"__tostring", ProtoField_tostring },
-    {0, 0}
+    { NULL, NULL }
 };
 
 int ProtoField_register(lua_State* L) {
@@ -1215,7 +1215,7 @@ static const luaL_reg Proto_meta[] = {
     {"__tostring", Proto_tostring},
     {"__index", Proto_index},
     {"__newindex", Proto_newindex},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Proto_register(lua_State* L) {
@@ -1340,12 +1340,12 @@ WSLUA_METAMETHOD Dissector_tostring(lua_State* L) {
 static const luaL_reg Dissector_methods[] = {
     {"get", Dissector_get },
     {"call", Dissector_call },
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg Dissector_meta[] = {
     {"__tostring", Dissector_tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Dissector_register(lua_State* L) {
@@ -1632,12 +1632,12 @@ static const luaL_reg DissectorTable_methods[] = {
     {"remove", DissectorTable_remove },
     {"try", DissectorTable_try },
     {"get_dissector", DissectorTable_get_dissector },
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg DissectorTable_meta[] = {
     {"__tostring", DissectorTable_tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int DissectorTable_register(lua_State* L) {

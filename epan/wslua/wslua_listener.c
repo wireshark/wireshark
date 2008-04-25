@@ -294,13 +294,13 @@ static int Listener_newindex(lua_State* L) {
 static const luaL_reg Listener_methods[] = {
     {"new", Listener_new},
     {"remove", Listener_remove},
-    {0, 0}
+    { NULL, NULL }
 };
 
 static const luaL_reg Listener_meta[] = {
     {"__tostring", Listener_tostring},
     {"__newindex", Listener_newindex},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Listener_register(lua_State* L) {

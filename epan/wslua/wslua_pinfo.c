@@ -539,7 +539,7 @@ static const luaL_reg Columns_meta[] = {
     {"__tostring", Columns__tostring },
     {"__newindex", Columns__newindex },
     {"__index",  Columns_index},
-    {0,0}
+    { NULL, NULL }
 };
 
 
@@ -891,7 +891,7 @@ static const luaL_reg Pinfo_meta[] = {
     {"__index", Pinfo_index},
     {"__newindex",Pinfo_setindex},
     {"__tostring", Pinfo_tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Pinfo_register(lua_State* L) {

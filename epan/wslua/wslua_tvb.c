@@ -284,7 +284,7 @@ static const luaL_reg ByteArray_methods[] = {
     {"tvb", Tvb_new_real},
     {"get_index", ByteArray_get_index},
     {"set_index", ByteArray_set_index},
-    {0,0}
+    { NULL, NULL }
 };
 
 static const luaL_reg ByteArray_meta[] = {
@@ -292,7 +292,7 @@ static const luaL_reg ByteArray_meta[] = {
     {"__gc",       ByteArray_gc},
     {"__concat", ByteArray__concat},
     {"__call",ByteArray_subset},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int ByteArray_register(lua_State* L) {
@@ -489,7 +489,7 @@ static const luaL_reg Tvb_methods[] = {
     {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
-    {0,0}
+    { NULL, NULL }
 };
 
 static int Tvb_range(lua_State* L);
@@ -497,7 +497,7 @@ static int Tvb_range(lua_State* L);
 static const luaL_reg Tvb_meta[] = {
     {"__call", Tvb_range},
     {"__tostring", Tvb__tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Tvb_register(lua_State* L) {
@@ -797,14 +797,14 @@ static const luaL_reg TvbRange_methods[] = {
     {"string", TvbRange_string},
     {"bytes", TvbRange_bytes},
     {"tvb", Tvb_tvb},
-    {0, 0}
+    { NULL, NULL }
 };
 
 static const luaL_reg TvbRange_meta[] = {
     {"__index", TvbRange_index},
     {"__newindex", TvbRange_newindex},
     {"__tostring", TvbRange__tostring},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int TvbRange_register(lua_State* L) {

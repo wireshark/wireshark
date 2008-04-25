@@ -297,10 +297,10 @@ static const luaL_reg TreeItem_methods[] = {
     {"add_expert_info",       TreeItem_add_expert_info},
     {"set_generated",       TreeItem_set_generated},
     {"set_hidden",       TreeItem_set_hidden},
-    {0, 0}
+    { NULL, NULL }
 };
 static const luaL_reg TreeItem_meta[] = {
-    {0, 0}
+    { NULL, NULL }
 };
 
 
