@@ -2732,7 +2732,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 		if (hfinfo->strings) {
 			tfstring = (const struct true_false_string*) hfinfo->strings;
 		}
-		col_custom_set_fstr(fi->hfinfo, "%s", value ? tfstring->true_string : tfstring->false_string);
+		col_custom_set_fstr(fi->hfinfo, "%s", integer ? tfstring->true_string : tfstring->false_string);
 	} else if (hfinfo->strings) {
 		col_custom_set_fstr(fi->hfinfo, "%s", val_to_str(integer, cVALS(hfinfo->strings), "%d"));
 	} else if (IS_BASE_DUAL(hfinfo->display)) {
