@@ -941,6 +941,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	struct _rtp_conversation_info *p_conv_data = NULL;
 	struct srtp_info *srtp_info = NULL;
 	unsigned int srtp_offset;
+	unsigned int hdrext_offset = 0;
 	tvbuff_t *newtvb = NULL;
 
 	/* Can tap up to 4 RTP packets within same packet */
@@ -1185,8 +1186,10 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			newtvb = tvb_new_subset(tvb, offset, hdr_extension * 4, hdr_extension * 4);
 			if ( !(rtp_info->info_payload_type_str && dissector_try_string(rtp_hdr_ext_dissector_table,
 				rtp_info->info_payload_type_str, newtvb, pinfo, rtp_hext_tree)) ) {
+				hdrext_offset = offset;
 				for ( i = 0; i < hdr_extension; i++ ) {
-					if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, offset, 4, tvb_get_ntohl( tvb, offset ) );
+					if ( tree ) proto_tree_add_uint( rtp_hext_tree, hf_rtp_hdr_ext, tvb, hdrext_offset, 4, tvb_get_ntohl( tvb, hdrext_offset ) );
+					hdrext_offset += 4;
 				}
 			}
 			offset += hdr_extension * 4;
