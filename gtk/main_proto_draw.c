@@ -90,47 +90,6 @@
 #define E_BYTE_VIEW_APP_END_KEY   "byte_view_app_end"
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
 
-
-/* gtk_tree_view_expand_to_path doesn't exist in gtk+ v2.0 so we must include it
- * when building with this version (taken from gtk+ v2.2.4) */
-#if GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION == 0
-/**
- * gtk_tree_view_expand_to_path:
- * @tree_view: A #GtkTreeView.
- * @path: path to a row.
- *
- * Expands the row at @path. This will also expand all parent rows of
- * @path as necessary.
- *
- * Since: 2.2
- **/
-void
-gtk_tree_view_expand_to_path (GtkTreeView *tree_view,
-                              GtkTreePath *path)
-{
-  gint i, depth;
-  gint *indices;
-  GtkTreePath *tmp;
-
-  g_return_if_fail (GTK_IS_TREE_VIEW (tree_view));
-  g_return_if_fail (path != NULL);
-
-  depth = gtk_tree_path_get_depth (path);
-  indices = gtk_tree_path_get_indices (path);
-
-  tmp = gtk_tree_path_new ();
-  g_return_if_fail (tmp != NULL);
-
-  for (i = 0; i < depth; i++)
-    {
-      gtk_tree_path_append_index (tmp, indices[i]);
-      gtk_tree_view_expand_row (tree_view, tmp, FALSE);
-    }
-
-  gtk_tree_path_free (tmp);
-}
-#endif
-
 static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     proto_tree *tree, GtkWidget *tree_view);
@@ -885,11 +844,7 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 	const guint8 *data_p = NULL;
 	const char *file = NULL;
 
-#if GTK_CHECK_VERSION(2,4,0)
 	file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(savehex_dlg));
-#else
-	file = gtk_file_selection_get_filename(GTK_FILE_SELECTION(savehex_dlg));
-#endif
 
 	if (!file ||! *file) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Please enter a filename!");
@@ -989,28 +944,11 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 
     g_signal_connect(savehex_dlg, "destroy", G_CALLBACK(savehex_dlg_destroy_cb), NULL);
 
-#if GTK_CHECK_VERSION(2,4,0)
     if (gtk_dialog_run(GTK_DIALOG(savehex_dlg)) == GTK_RESPONSE_ACCEPT) {
         savehex_save_clicked_cb(savehex_dlg, savehex_dlg);
     } else {
         window_destroy(savehex_dlg);
     }
-#else
-    /* Connect the ok_button to file_save_as_ok_cb function and pass along a
-    pointer to the file selection box widget */
-    g_signal_connect(GTK_FILE_SELECTION (savehex_dlg)->ok_button, "clicked",
-        G_CALLBACK(savehex_save_clicked_cb), savehex_dlg);
-
-    window_set_cancel_button(savehex_dlg,
-    GTK_FILE_SELECTION(savehex_dlg)->cancel_button, window_cancel_button_cb);
-
-    g_signal_connect(savehex_dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(savehex_dlg), "");
-
-    gtk_widget_show_all(savehex_dlg);
-    window_present(savehex_dlg);
-#endif
 }
 
 

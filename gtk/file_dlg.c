@@ -41,9 +41,6 @@
 static gchar *last_open_dir = NULL;
 static gboolean updated_last_open_dir = FALSE;
 
-#if !GTK_CHECK_VERSION(2,4,0)
-static void file_selection_browse_ok_cb(GtkWidget *w, gpointer data);
-#endif
 static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 
 /* Keys ... */
@@ -51,7 +48,6 @@ static void file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* file_te)
 
 /* Create a file selection dialog box window that belongs to Wireshark's
    main window. */
-#if GTK_CHECK_VERSION(2,4,0)
 GtkWidget *
 file_selection_new(const gchar *title, file_selection_action_t action)
 {
@@ -119,44 +115,11 @@ file_selection_new(const gchar *title, file_selection_action_t action)
 #endif
   return win;
 }
-#else
-GtkWidget *
-file_selection_new(const gchar *title, file_selection_action_t action _U_)
-{
-  GtkWidget *win;
-#ifdef _WIN32
-  char *u3devicedocumentpath;
-#endif
-  win = gtk_file_selection_new(title);
-  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
-  gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
-
-  /* XXX - why are we doing this?  We don't do it with the GtkFileChooser,
-     as it complains that the file name isn't being set to an absolute
-     path; does this provoke a similar complaint? */
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(win), "");
-
-  /* If we've opened a file before, start out by showing the files in the directory
-     in which that file resided. */
-  if (last_open_dir)
-    file_selection_set_current_folder(win, last_open_dir);
-#ifdef _WIN32
-  else {
-	u3devicedocumentpath = getenv_utf8("U3_DEVICE_DOCUMENT_PATH");
-	if(u3devicedocumentpath != NULL)
-	  file_selection_set_current_folder(win, u3devicedocumentpath);
-
-  }
-#endif
-  return win;
-}
-#endif
 
 /* Set the current folder for a file selection dialog. */
 gboolean
 file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 {
-#if GTK_CHECK_VERSION(2,4,0)
     gboolean ret;
     int filename_len = strlen(filename);
     gchar *new_filename;
@@ -180,10 +143,6 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
     ret = gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fs), new_filename);
     g_free(new_filename);
     return ret;
-#else
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), filename);
-    return TRUE;
-#endif
 }
 
 /* Set the "extra" widget for a file selection dialog, with user-supplied
@@ -191,12 +150,7 @@ file_selection_set_current_folder(GtkWidget *fs, const gchar *filename)
 void
 file_selection_set_extra_widget(GtkWidget *fs, GtkWidget *extra)
 {
-#if GTK_CHECK_VERSION(2,4,0)
   gtk_file_chooser_set_extra_widget(GTK_FILE_CHOOSER(fs), extra);
-#else
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(fs)->action_area), extra,
-                     FALSE, FALSE, 0);
-#endif
 }
 
 
@@ -212,9 +166,7 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
 {
   GtkWidget *caller = gtk_widget_get_toplevel(file_bt);
   GtkWidget *fs;
-#if GTK_CHECK_VERSION(2,4,0)
   gchar     *f_name;
-#endif
 
   /* Has a file selection dialog box already been opened for that top-level
      widget? */
@@ -240,7 +192,6 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
   g_signal_connect(fs, "destroy", GTK_SIGNAL_FUNC(file_selection_browse_destroy_cb), 
 		 file_te);
 
-#if GTK_CHECK_VERSION(2,4,0)
   if (gtk_dialog_run(GTK_DIALOG(fs)) == GTK_RESPONSE_ACCEPT)
   {
       f_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
@@ -248,48 +199,8 @@ file_selection_browse(GtkWidget *file_bt, GtkWidget *file_te, const char *label,
       g_free(f_name);
   }
   window_destroy(fs);
-#else
-  g_signal_connect(GTK_FILE_SELECTION(fs)->ok_button, "clicked", 
-                   GTK_SIGNAL_FUNC(file_selection_browse_ok_cb), fs);
-
-  window_set_cancel_button(fs, GTK_FILE_SELECTION(fs)->cancel_button,
-                           window_cancel_button_cb);
-
-  g_signal_connect(fs, "delete_event", GTK_SIGNAL_FUNC(window_delete_event_cb),
-                   fs);
-
-  gtk_widget_show(fs);
-  window_present(fs);
-#endif
 }
 
-
-#if !GTK_CHECK_VERSION(2,4,0)
-static void
-file_selection_browse_ok_cb(GtkWidget *w _U_, gpointer data)
-{
-  gchar     *f_name;
-  GtkWidget *win = data;
-
-  f_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (data)));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(f_name) == EISDIR) {
-        /* It's a directory - set the file selection box to display it. */
-        set_last_open_dir(f_name);
-        g_free(f_name);
-        file_selection_set_current_folder(data, last_open_dir);
-        return;
-  }
-
-  gtk_entry_set_text(GTK_ENTRY(g_object_get_data(G_OBJECT(win), PRINT_FILE_TE_KEY)),
-                     f_name);
-  window_destroy(GTK_WIDGET(win));
-
-  g_free(f_name);
-}
-#endif
 
 static void
 file_selection_browse_destroy_cb(GtkWidget *win, GtkWidget* parent_te)

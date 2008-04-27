@@ -67,25 +67,16 @@
 
 static gboolean toolbar_init = FALSE;
 
-#if GTK_CHECK_VERSION(2,4,0)
-#define BUTTON_TYPE GtkToolItem
-#else /* GTK_CHECK_VERSION(2,4,0) */
-#define BUTTON_TYPE GtkWidget
-#endif /* GTK_CHECK_VERSION(2,4,0) */
-
 #ifdef HAVE_LIBPCAP
-static BUTTON_TYPE *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
-static BUTTON_TYPE *capture_filter_button, *autoscroll_button;
+static GtkToolItem *capture_options_button, *new_button, *stop_button, *clear_button, *if_button;
+static GtkToolItem *capture_filter_button, *autoscroll_button;
 #endif /* HAVE_LIBPCAP */
-static BUTTON_TYPE *open_button, *save_button, *close_button, *reload_button;
-static BUTTON_TYPE *print_button, *find_button, *history_forward_button, *history_back_button;
-static BUTTON_TYPE *go_to_button, *go_to_top_button, *go_to_bottom_button;
-static BUTTON_TYPE *display_filter_button;
-static BUTTON_TYPE *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
-static BUTTON_TYPE *color_display_button, *prefs_button, *help_button;
-#if !GTK_CHECK_VERSION(2,4,0)
-static BUTTON_TYPE *save_as_button;
-#endif
+static GtkToolItem *open_button, *save_button, *close_button, *reload_button;
+static GtkToolItem *print_button, *find_button, *history_forward_button, *history_back_button;
+static GtkToolItem *go_to_button, *go_to_top_button, *go_to_bottom_button;
+static GtkToolItem *display_filter_button;
+static GtkToolItem *zoom_in_button, *zoom_out_button, *zoom_100_button, *colorize_button, *resize_columns_button;
+static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
 #define SAVE_BUTTON_TOOLTIP_TEXT "Save this capture file..."
 #define SAVE_AS_BUTTON_TOOLTIP_TEXT "Save this capture file as..."
@@ -110,9 +101,6 @@ toolbar_redraw_all(void)
 void set_toolbar_for_capture_file(gboolean have_capture_file) {
     if (toolbar_init) {
 	gtk_widget_set_sensitive(GTK_WIDGET(save_button), have_capture_file);
-#if !GTK_CHECK_VERSION(2,4,0)
-        gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), have_capture_file);
-#endif
         gtk_widget_set_sensitive(GTK_WIDGET(close_button), have_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(reload_button), have_capture_file);
     }
@@ -127,27 +115,17 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
 
     if (toolbar_init) {
         if(have_unsaved_capture_file) {
-#if GTK_CHECK_VERSION(2,4,0)
 	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
 	    GTK_STOCK_SAVE);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_BUTTON_TOOLTIP_TEXT, NULL);
         g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
-#else /* GTK_CHECK_VERSION(2,4,0) */
-	    gtk_widget_hide(GTK_WIDGET(save_as_button));
-            gtk_widget_show(GTK_WIDGET(save_button));
-#endif /* GTK_CHECK_VERSION(2,4,0) */
         } else {
-#if GTK_CHECK_VERSION(2,4,0)
 	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(save_button),
 	    GTK_STOCK_SAVE_AS);
         gtk_tool_item_set_tooltip(save_button, tooltips,
 	    SAVE_AS_BUTTON_TOOLTIP_TEXT, NULL);
         g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(0));
-#else /* GTK_CHECK_VERSION(2,4,0) */
-	    gtk_widget_show(GTK_WIDGET(save_as_button));
-	    gtk_widget_hide(GTK_WIDGET(save_button));
-#endif /* GTK_CHECK_VERSION(2,4,0) */
         }
         /*gtk_widget_set_sensitive((GTK_WIDGET(save_button), have_unsaved_capture_file);
         gtk_widget_set_sensitive(GTK_WIDGET(save_as_button), !have_unsaved_capture_file);*/
@@ -158,7 +136,6 @@ void set_toolbar_for_unsaved_capture_file(gboolean have_unsaved_capture_file) {
    value of the "save" key associated with the save button
 */
 
-#if GTK_CHECK_VERSION(2,4,0)
 static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
     if (GPOINTER_TO_INT(g_object_get_data(G_OBJECT(save_button),"save")) == 1) {
         file_save_cmd_cb(w, data);
@@ -167,7 +144,6 @@ static void file_save_or_save_as_cmd_cb(GtkWidget *w, gpointer data) {
         file_save_as_cmd_cb(w, data);
     }
 }
-#endif
 
 /** The packet history has changed, we need to update the menu.
  *
@@ -237,19 +213,13 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
 /* helper function: add a separator to the toolbar */
 static void toolbar_append_separator(GtkWidget *toolbar) {
-#if GTK_CHECK_VERSION(2,4,0)
     GtkToolItem *tool_item = gtk_separator_tool_item_new();
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), tool_item, -1);
     gtk_widget_show(GTK_WIDGET(tool_item));
-#else /* GTK_CHECK_VERSION(2,4,0) */
-    /* GTK 2 uses (as it should be) a seperator when adding this space */
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 }
 
 
 
-#if GTK_CHECK_VERSION(2,4,0)
 #define toolbar_item(new_item, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
     new_item = gtk_tool_button_new_from_stock(stock); \
     gtk_tool_item_set_tooltip(new_item, tooltips,  tooltip_text, NULL); \
@@ -258,16 +228,6 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     gtk_widget_show(GTK_WIDGET(new_item)); \
     }
 
-#else /* GTK_CHECK_VERSION(2,4,0) */
-
-#define toolbar_item(new_item, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
-    new_item = gtk_toolbar_insert_stock(GTK_TOOLBAR(toolbar), \
-        stock, tooltip_text, "Private", G_CALLBACK(callback), user_data, -1);\
-    }
-#endif /* GTK_CHECK_VERSION(2,4,0) */
-
-
-#if GTK_CHECK_VERSION(2,4,0)
 #define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
     new_item = gtk_toggle_tool_button_new_from_stock(stock); \
     gtk_tool_item_set_tooltip(new_item, tooltips,  tooltip_text, NULL);	\
@@ -275,27 +235,10 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new_item, -1); \
     gtk_widget_show_all(GTK_WIDGET(new_item)); \
     }
-#else /* GTK_CHECK_VERSION(2,4,0) */
-#define toolbar_toggle_button(new_item, window, toolbar, stock, tooltips, tooltip_text, callback, user_data) { \
-    GtkWidget *iconw; \
-    iconw = gtk_image_new_from_stock(stock, GTK_ICON_SIZE_SMALL_TOOLBAR); \
-    gtk_widget_show(iconw); \
-    new_item = gtk_toolbar_append_element(GTK_TOOLBAR(toolbar), \
-        GTK_TOOLBAR_CHILD_TOGGLEBUTTON, NULL, \
-        stock, tooltip_text, "Private", iconw, GTK_SIGNAL_FUNC(callback), user_data);\
-    }
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 
-
-#if GTK_CHECK_VERSION(2,4,0)
 #define TOGGLE_BUTTON               GTK_TOGGLE_TOOL_BUTTON
 #define TOGGLE_BUTTON_GET_ACTIVE    gtk_toggle_tool_button_get_active
 #define TOGGLE_BUTTON_SET_ACTIVE    gtk_toggle_tool_button_set_active
-#else /* GTK_CHECK_VERSION(2,4,0) */
-#define TOGGLE_BUTTON               GTK_TOGGLE_BUTTON
-#define TOGGLE_BUTTON_GET_ACTIVE    gtk_toggle_button_get_active
-#define TOGGLE_BUTTON_SET_ACTIVE    gtk_toggle_button_set_active
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 
 static void
 colorize_toggle_cb(GtkWidget *toggle_button, gpointer user_data _U_)  {
@@ -383,16 +326,9 @@ toolbar_new(void)
      * will then call the appropriate file_save_cmd_cb or file_save_as_cmd_cb
      */
 
-#if !GTK_CHECK_VERSION(2,4,0)
-    toolbar_item(save_button, main_tb, 
-	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, file_save_cmd_cb, NULL);
-    toolbar_item(save_as_button, main_tb, 
-	GTK_STOCK_SAVE_AS, tooltips, SAVE_AS_BUTTON_TOOLTIP_TEXT, file_save_as_cmd_cb, NULL);
-#else
     toolbar_item(save_button, main_tb, 
 	GTK_STOCK_SAVE, tooltips, SAVE_BUTTON_TOOLTIP_TEXT, file_save_or_save_as_cmd_cb, NULL);
     g_object_set_data(G_OBJECT(save_button), "save", GINT_TO_POINTER(1));
-#endif
 
     toolbar_item(close_button, main_tb, 
 	GTK_STOCK_CLOSE, tooltips, "Close this capture file", file_close_cmd_cb, NULL);

@@ -30,8 +30,6 @@
 
 #include <gtk/gtk.h>
 
-#if GTK_CHECK_VERSION(2,4,0)
-
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
@@ -417,5 +415,3 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	cf_retap_packets(&cfile, FALSE);
 }
-
-#endif /* GTK_CHECK_VERSION(2,4,0) */

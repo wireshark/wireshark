@@ -377,19 +377,6 @@ dlg_button_row_new(const gchar *stock_id_first, ...)
 }
 
 
-/* this is called, when a dialog was closed */
-static void dlg_destroy_cb(GtkWidget *dialog _U_, gpointer data	_U_)
-{
-#if !GTK_CHECK_VERSION(2,4,0)
-    if(top_level) {
-        /* bring main window back to front (workaround for a bug in win32 GTK2.x)
-           XXX - do this only on Windows? */
-        gtk_window_present(GTK_WINDOW(top_level));
-    }
-#endif
-}
-
-
 /* Create a dialog box window that belongs to Wireshark's main window. */
 GtkWidget *
 dlg_window_new(const gchar *title)
@@ -415,8 +402,6 @@ dlg_window_new(const gchar *title)
   if (top_level) {
     gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
   }
-
-  g_signal_connect(win, "destroy", G_CALLBACK(dlg_destroy_cb), NULL);
 
   return win;
 }

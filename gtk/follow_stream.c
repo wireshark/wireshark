@@ -259,7 +259,6 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 	return;
 }
 
-#if GTK_CHECK_VERSION(2,4,0)
 void
 follow_find_cb(GtkWidget * w _U_, gpointer data)
 {
@@ -386,7 +385,6 @@ follow_find_destroy_cb(GtkWidget * win _U_, gpointer data)
 	/* Note that we no longer have a dialog box. */
 	follow_info->find_dlg_w = NULL;
 }
-#endif /* GTK_CHECK_VERSION(2,4,0) */
 
 void
 follow_print_stream(GtkWidget * w _U_, gpointer data)
@@ -530,30 +528,12 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	g_signal_connect(new_win, "destroy", G_CALLBACK(follow_save_as_destroy_cb),
 		       follow_info);
 
-#if GTK_CHECK_VERSION(2,4,0)
 	if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
 		{
 			follow_save_as_ok_cb(new_win, new_win);
 		} else {
 		window_destroy(new_win);
 	}
-#else
-	/* Connect the ok_button to file_save_as_ok_cb function and pass along a
-	   pointer to the file selection box widget */
-	g_signal_connect(GTK_FILE_SELECTION(new_win)->ok_button,
-		       "clicked", G_CALLBACK(follow_save_as_ok_cb), new_win);
-
-	window_set_cancel_button(new_win,
-				 GTK_FILE_SELECTION(new_win)->cancel_button,
-				 window_cancel_button_cb);
-
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
-
-	g_signal_connect(new_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-
-	gtk_widget_show_all(new_win);
-	window_present(new_win);
-#endif
 }
 
 
@@ -566,11 +546,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	print_stream_t	*stream = NULL;
 	gchar		*dirname;
 
-#if GTK_CHECK_VERSION(2,4,0)
 	to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-#else
-	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
-#endif
 
 	/* Perhaps the user specified a directory instead of a file.
 	   Check whether they did. */
@@ -758,13 +734,11 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	hbox = gtk_hbox_new(FALSE, 1);
 	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
 
-#if GTK_CHECK_VERSION(2,4,0)
 	/* Create Find Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_FIND);
 	g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
 	gtk_tooltips_set_tip (tooltips, button, "Find text in the displayed content", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-#endif
 
 	/* Create Save As Button */
 	button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);

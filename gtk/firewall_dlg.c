@@ -713,29 +713,12 @@ firewall_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 
     g_signal_connect(new_win, "destroy", G_CALLBACK(firewall_save_as_destroy_cb), rule_info);
 
-#if GTK_CHECK_VERSION(2,4,0)
     if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
     {
         firewall_save_as_ok_cb(new_win, new_win);
     } else {
         window_destroy(new_win);
     }
-#else
-    /* Connect the ok_button to file_save_as_ok_cb function and pass along a
-       pointer to the file selection box widget */
-    g_signal_connect(GTK_FILE_SELECTION(new_win)->ok_button,
-        "clicked", G_CALLBACK(firewall_save_as_ok_cb), new_win);
-
-    window_set_cancel_button(new_win,
-        GTK_FILE_SELECTION(new_win)->cancel_button, window_cancel_button_cb);
-
-    gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
-
-    g_signal_connect(new_win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
-
-    gtk_widget_show_all(new_win);
-    window_present(new_win);
-#endif
 }
 
 
@@ -750,11 +733,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     GtkTextIter start, end;
     GtkTextBuffer *buf;
 
-#if GTK_CHECK_VERSION(2,4,0)
     to_name = g_strdup(gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fs)));
-#else
-    to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
-#endif
 
     /* Perhaps the user specified a directory instead of a file.
        Check whether they did. */
