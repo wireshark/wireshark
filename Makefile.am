@@ -538,6 +538,8 @@ EXTRA_DIST = \
 	aclocal-fallback/gtk.m4 \
 	aclocal-fallback/iconv.m4 \
 	aclocal-flags		\
+	adns_dll.dep		\
+	adns_dll.rc		\
 	autogen.sh		\
 	capinfos.c		\
 	capture-wpcap.c		\
