@@ -908,7 +908,7 @@ int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tre
                                PI_RESPONSE_CODE, PI_NOTE,
                                "Stop HSDPA transmission");
     }
-    if (credits == 2047)
+    if (credits == 65535)
     {
         proto_item_append_text(ti, " (unlimited)");
     }
@@ -932,7 +932,7 @@ int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tre
     }
 
     /* Calculated and show effective rate enabled */
-    if (credits == 2047)
+    if (credits == 65535)
     {
         rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
         PROTO_ITEM_SET_GENERATED(rate_ti);
