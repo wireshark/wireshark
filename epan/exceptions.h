@@ -27,7 +27,7 @@
     An attempt was made to read past the logical end of a buffer. This
     differs from a BoundsError in that the parent protocol established a
     limit past which this dissector should not process in the buffer and that
-    limit was execeeded.
+    limit was exceeded.
     This generally means that the packet is invalid, i.e. whatever
     code constructed the packet and put it on the wire didn't put enough
     data into it.  It is therefore currently reported as a "Malformed
