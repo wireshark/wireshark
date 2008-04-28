@@ -76,6 +76,7 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_status_pane_right;
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
+    gboolean    has_recent_common;
     GList      *col_width_list;                     /* column widths */
 } recent_settings_t;
 
