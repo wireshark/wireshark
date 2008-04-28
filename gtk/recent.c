@@ -802,7 +802,9 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
   if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
+    fclose(rf);
     /* Read older common settings, in case we come from an older version */
+    rf = eth_fopen(rf_path, "r");
     read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
     fclose(rf);
     g_free(rf_path);
