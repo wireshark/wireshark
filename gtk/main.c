@@ -720,6 +720,7 @@ main_do_quit(void)
 
 	/* write user's recent file to disk
 	 * It is no problem to write this file, even if we do not quit */
+	write_profile_recent();
 	write_recent();
 
 	/* XXX - should we check whether the capture file is an
@@ -810,6 +811,16 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 }
 
 
+static void
+main_pane_load_window_geometry(void)
+{
+    if (recent.has_gui_geometry_main_upper_pane && recent.gui_geometry_main_upper_pane)
+        gtk_paned_set_position(GTK_PANED(main_first_pane), recent.gui_geometry_main_upper_pane);
+    if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_main_lower_pane) {
+        gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
+    }
+}
+
 
 static void
 main_load_window_geometry(GtkWidget *widget)
@@ -837,10 +848,7 @@ main_load_window_geometry(GtkWidget *widget)
 
     window_set_geometry(widget, &geom);
 
-    if (recent.has_gui_geometry_main_upper_pane && recent.gui_geometry_main_upper_pane)
-        gtk_paned_set_position(GTK_PANED(main_first_pane), recent.gui_geometry_main_upper_pane);
-    if (recent.has_gui_geometry_main_lower_pane && recent.gui_geometry_main_lower_pane)
-        gtk_paned_set_position(GTK_PANED(main_second_pane), recent.gui_geometry_main_lower_pane);
+    main_pane_load_window_geometry();
     statusbar_load_window_geometry();
 }
 
@@ -2036,6 +2044,17 @@ main(int argc, char *argv[])
   /* as we don't have the gui now to fill the recent lists which is done in the dynamic part. */
   /* We have to do this already here, so command line parameters can overwrite these values. */
   recent_read_static(&rf_path, &rf_open_errno);
+  if (rf_path != NULL && rf_open_errno != 0) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open common recent file\n\"%s\": %s.", 
+		  rf_path, strerror(rf_open_errno));
+  }
+  recent_read_profile_static(&rf_path, &rf_open_errno);
+  if (rf_path != NULL && rf_open_errno != 0) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open recent file\n\"%s\": %s.", 
+		  rf_path, strerror(rf_open_errno));
+  }
 
   init_cap_file(&cfile);
 
@@ -2377,6 +2396,12 @@ main(int argc, char *argv[])
 
   /* Read the dynamic part of the recent file, as we have the gui now ready for it. */
   recent_read_dynamic(&rf_path, &rf_open_errno);
+  if (rf_path != NULL && rf_open_errno != 0) {
+    simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open recent file\n\"%s\": %s.", 
+		  rf_path, strerror(rf_open_errno));
+  }
+
   color_filters_enable(recent.packet_list_colorize);
 
   /* rearrange all the widgets as we now have all recent settings ready for this */
@@ -3191,11 +3216,19 @@ prefs_to_capture_opts(void)
 void change_configuration_profile (const gchar *profile_name)
 {
    char  *gdp_path, *dp_path;
+   char  *rf_path;
+   int    rf_open_errno;
 
    /* First check if profile exists */
    if (!profile_exists(profile_name)) {
      return;
    }
+
+   /* Get the current geometry, before writing it to disk */
+   main_save_window_geometry(top_level);
+
+   /* Write recent file for profile we are leaving */
+   write_profile_recent();
 
    /* Set profile name and update the status bar */
    set_profile_name (profile_name);
@@ -3204,6 +3237,20 @@ void change_configuration_profile (const gchar *profile_name)
    /* Reset current preferences and apply the new */
    prefs_reset();
    (void) read_configuration_files (&gdp_path, &dp_path);
+
+   recent_read_profile_static(&rf_path, &rf_open_errno);
+   if (rf_path != NULL && rf_open_errno != 0) {
+     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+		  "Could not open common recent file\n\"%s\": %s.", 
+		  rf_path, strerror(rf_open_errno));
+   }
+   timestamp_set_type (recent.gui_time_format);
+   color_filters_enable(recent.packet_list_colorize);
+   menu_recent_read_finished();
+   main_pane_load_window_geometry();
+   recent.gui_time_format = timestamp_get_type ();
+
+   prefs_to_capture_opts();
    prefs_apply_all();
 
    /* Update window view and redraw the toolbar */

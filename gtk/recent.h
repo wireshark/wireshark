@@ -88,12 +88,25 @@ extern recent_settings_t recent;
  */
 extern gboolean write_recent(void);
 
+/** Write profile recent settings file.
+ *
+ * @return TRUE if succeeded, FALSE if failed
+ */
+extern gboolean write_profile_recent(void);
+
 /** Read recent settings file (static part).
  *
  * @param rf_path_return path to recent file if function failed
  * @param rf_errno_return if failed
  */
 extern void recent_read_static(char **rf_path_return, int *rf_errno_return);
+
+/** Read profile recent settings file (static part).
+ *
+ * @param rf_path_return path to recent file if function failed
+ * @param rf_errno_return if failed
+ */
+extern void recent_read_profile_static(char **rf_path_return, int *rf_errno_return);
 
 /** Read recent settings file (dynamic part).
  *

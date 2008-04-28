@@ -79,6 +79,7 @@
 #define RECENT_KEY_PRIVS_WARN_IF_NO_NPF     "privs.warn_if_no_npf"
 
 #define RECENT_FILE_NAME "recent"
+#define RECENT_COMMON_FILE_NAME "recent_common"
 
 recent_settings_t recent;
 
@@ -150,7 +151,7 @@ write_recent(void)
      return FALSE;
   }
 
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, TRUE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, TRUE);
   if ((rf = eth_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
@@ -181,6 +182,97 @@ write_recent(void)
     "\n", rf);
 
   dfilter_recent_combo_write_all(rf);
+  fprintf(rf, "\n# Main window geometry.\n");
+  fprintf(rf, "# Decimal numbers.\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
+  		  recent.gui_geometry_main_width);
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
+  		  recent.gui_geometry_main_height);
+
+  fprintf(rf, "\n# Main window maximized.\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
+		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(rf, "\n# Statusbar left pane size.\n");
+  fprintf(rf, "# Decimal number.\n");
+  if (recent.gui_geometry_status_pane_left != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT ": %d\n",
+		  recent.gui_geometry_status_pane_left);
+  }
+  fprintf(rf, "\n# Statusbar middle pane size.\n");
+  fprintf(rf, "# Decimal number.\n");
+  if (recent.gui_geometry_status_pane_right != 0) {
+    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
+		  recent.gui_geometry_status_pane_right);
+  }
+
+  fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_ELEVATED ": %s\n",
+		  recent.privs_warn_if_elevated == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(rf, "\n# Warn if npf.sys isn't loaded on Windows >= 6.0.\n");
+  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_NO_NPF ": %s\n",
+		  recent.privs_warn_if_no_npf == TRUE ? "TRUE" : "FALSE");
+
+  window_geom_recent_write_all(rf);
+
+  fclose(rf);
+
+  /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
+     an error indication, or maybe write to a new recent file and
+     rename that file on top of the old one only if there are not I/O
+     errors. */
+  return TRUE;
+}
+
+
+/* Attempt to Write out profile "recent" to the user's recent file.
+   If we got an error report it with a dialog box and return FALSE,
+   otherwise return TRUE. */
+gboolean
+write_profile_recent(void)
+{
+  char        *pf_dir_path;
+  char        *rf_path;
+  FILE        *rf;
+
+  /* To do:
+   * - Split output lines longer than MAX_VAL_LEN
+   * - Create a function for the preference directory check/creation
+   *   so that duplication can be avoided with filter.c
+   */
+
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
+      strerror(errno));
+     g_free(pf_dir_path);
+     return FALSE;
+  }
+
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, TRUE);
+  if ((rf = eth_fopen(rf_path, "w")) == NULL) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't open recent file\n\"%s\": %s.", rf_path,
+      strerror(errno));
+    g_free(rf_path);
+    return FALSE;
+  }
+  g_free(rf_path);
+
+  fputs("# Recent settings file for Wireshark " VERSION ".\n"
+    "#\n"
+    "# This file is regenerated each time Wireshark is quit\n"
+    "# and when changing configuration profile.\n"
+    "# So be careful, if you want to make manual changes here.\n"
+    "\n", rf);
 
   fprintf(rf, "\n# Main Toolbar show (hide).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
@@ -246,20 +338,6 @@ write_recent(void)
   fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
 		  recent.gui_zoom_level);
 
-  fprintf(rf, "\n# Main window geometry.\n");
-  fprintf(rf, "# Decimal numbers.\n");
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_X ": %d\n", recent.gui_geometry_main_x);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_Y ": %d\n", recent.gui_geometry_main_y);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_WIDTH ": %d\n",
-  		  recent.gui_geometry_main_width);
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_HEIGHT ": %d\n",
-  		  recent.gui_geometry_main_height);
-
-  fprintf(rf, "\n# Main window maximized.\n");
-  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED ": %s\n",
-		  recent.gui_geometry_main_maximized == TRUE ? "TRUE" : "FALSE");
-
   fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
   fprintf(rf, "# Decimal number.\n");
   if (recent.gui_geometry_main_upper_pane != 0) {
@@ -272,32 +350,10 @@ write_recent(void)
     fprintf(rf, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE ": %d\n",
 		  recent.gui_geometry_main_lower_pane);
   }
-  fprintf(rf, "\n# Statusbar left pane size.\n");
-  fprintf(rf, "# Decimal number.\n");
-  if (recent.gui_geometry_status_pane_left != 0) {
-    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT ": %d\n",
-		  recent.gui_geometry_status_pane_left);
-  }
-  fprintf(rf, "\n# Statusbar middle pane size.\n");
-  fprintf(rf, "# Decimal number.\n");
-  if (recent.gui_geometry_status_pane_right != 0) {
-    fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
-		  recent.gui_geometry_status_pane_right);
-  }
 
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
   packet_list_recent_write_all(rf);
-
-  fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
-  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_ELEVATED ": %s\n",
-		  recent.privs_warn_if_elevated == TRUE ? "TRUE" : "FALSE");
-
-  fprintf(rf, "\n# Warn if npf.sys isn't loaded on Windows >= 6.0.\n");
-  fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
-  fprintf(rf, RECENT_KEY_PRIVS_WARN_IF_NO_NPF ": %s\n",
-		  recent.privs_warn_if_no_npf == TRUE ? "TRUE" : "FALSE");
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -307,8 +363,6 @@ write_recent(void)
     else
       fprintf(rf, RECENT_GUI_FILEOPEN_REMEMBERED_DIR ": %s\n", get_last_open_dir());
   }
-
-  window_geom_recent_write_all(rf);
 
   fclose(rf);
 
@@ -341,6 +395,88 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 
 }
 
+/* set one user's recent common file key/value pair */
+static prefs_set_pref_e
+read_set_recent_common_pair_static(gchar *key, gchar *value, void *private_data _U_)
+{
+  long num;
+  char *p;
+
+  if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+        recent.gui_geometry_main_maximized = TRUE;
+    }
+    else {
+        recent.gui_geometry_main_maximized = FALSE;
+    }
+
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_X) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_geometry_main_x = num;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_Y) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_geometry_main_y = num;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_width = num;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_height = num;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_status_pane_right = num;
+    recent.has_gui_geometry_status_pane = TRUE;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_status_pane_left = num;
+    recent.has_gui_geometry_status_pane = TRUE;
+  } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
+    /* now have something like "gui.geom.main.x", split it into win and sub_key */
+    char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
+    char *sub_key = strchr(win, '.');
+    if(sub_key) {
+      *sub_key = '\0';
+      sub_key++;
+      window_geom_recent_read_pair(win, sub_key, value);
+    }
+  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_ELEVATED) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+        recent.privs_warn_if_elevated = TRUE;
+    }
+    else {
+        recent.privs_warn_if_elevated = FALSE;
+    }
+  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+        recent.privs_warn_if_no_npf = TRUE;
+    }
+    else {
+        recent.privs_warn_if_no_npf = FALSE;
+    }
+  }
+
+  return PREFS_SET_OK;
+}
 
 /* set one user's recent file key/value pair */
 static prefs_set_pref_e
@@ -435,30 +571,6 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
         recent.gui_geometry_main_maximized = FALSE;
     }
 
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_X) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_geometry_main_x = num;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_Y) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    recent.gui_geometry_main_y = num;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    if (num <= 0)
-      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_width = num;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    if (num <= 0)
-      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_main_height = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
     num = strtol(value, &p, 0);
     if (p == value || *p != '\0')
@@ -475,50 +587,6 @@ read_set_recent_pair_static(gchar *key, gchar *value, void *private_data _U_)
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    if (num <= 0)
-      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_status_pane_right = num;
-    recent.has_gui_geometry_status_pane = TRUE;
-  } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT) == 0) {
-    num = strtol(value, &p, 0);
-    if (p == value || *p != '\0')
-      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
-    if (num <= 0)
-      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
-    recent.gui_geometry_status_pane_left = num;
-    recent.has_gui_geometry_status_pane = TRUE;
-  } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
-    if(u3_active())
-      set_last_open_dir(u3_expand_device_path(value));
-    else
-      set_last_open_dir(value);
-  } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
-    /* now have something like "gui.geom.main.x", split it into win and sub_key */
-    char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
-    char *sub_key = strchr(win, '.');
-    if(sub_key) {
-      *sub_key = '\0';
-      sub_key++;
-      window_geom_recent_read_pair(win, sub_key, value);
-    }
-  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_ELEVATED) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-        recent.privs_warn_if_elevated = TRUE;
-    }
-    else {
-        recent.privs_warn_if_elevated = FALSE;
-    }
-  } else if (strcmp(key, RECENT_KEY_PRIVS_WARN_IF_NO_NPF) == 0) {
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-        recent.privs_warn_if_no_npf = TRUE;
-    }
-    else {
-        recent.privs_warn_if_no_npf = FALSE;
-    }
   } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
@@ -653,36 +721,15 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   char       *rf_path;
   FILE       *rf;
 
-
   /* set defaults */
-  recent.main_toolbar_show      = TRUE;
-  recent.filter_toolbar_show    = TRUE;
-  recent.airpcap_toolbar_show   = FALSE;
-  recent.airpcap_driver_check_show   = TRUE;
-  recent.packet_list_show       = TRUE;
-  recent.tree_view_show         = TRUE;
-  recent.byte_view_show         = TRUE;
-  recent.statusbar_show         = TRUE;
-  recent.packet_list_colorize   = TRUE;
-  recent.gui_time_format        = TS_RELATIVE;
-  recent.gui_time_precision     = TS_PREC_AUTO;
-  recent.gui_zoom_level         = 0;
-
   recent.gui_geometry_main_x        =        20;
   recent.gui_geometry_main_y        =        20;
   recent.gui_geometry_main_width    = DEF_WIDTH;
   recent.gui_geometry_main_height   = DEF_HEIGHT;
   recent.gui_geometry_main_maximized=     FALSE;
 
-  /* pane size of zero will autodetect */
-  recent.gui_geometry_main_upper_pane   = 0;
-  recent.gui_geometry_main_lower_pane   = 0;
   recent.gui_geometry_status_pane_left  = (DEF_WIDTH/3);
   recent.gui_geometry_status_pane_right = (DEF_WIDTH/3);
-
-  recent.has_gui_geometry_main_upper_pane = TRUE;
-  recent.has_gui_geometry_main_lower_pane = TRUE;
-  recent.has_gui_geometry_status_pane = TRUE;
 
   recent.privs_warn_if_elevated = TRUE;
   recent.privs_warn_if_no_npf = TRUE;
@@ -690,13 +737,14 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
   recent.col_width_list = NULL;
 
   /* Construct the pathname of the user's recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
   if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
-    read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
+    read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
+
     fclose(rf);
     g_free(rf_path);
     rf_path = NULL;
@@ -713,6 +761,63 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
 
 
+/* opens the user's recent file and read the first part */
+void
+recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
+{
+  char       *rf_path;
+  FILE       *rf;
+
+  /* set defaults */
+  recent.main_toolbar_show      = TRUE;
+  recent.filter_toolbar_show    = TRUE;
+  recent.airpcap_toolbar_show   = FALSE;
+  recent.airpcap_driver_check_show   = TRUE;
+  recent.packet_list_show       = TRUE;
+  recent.tree_view_show         = TRUE;
+  recent.byte_view_show         = TRUE;
+  recent.statusbar_show         = TRUE;
+  recent.packet_list_colorize   = TRUE;
+  recent.gui_time_format        = TS_RELATIVE;
+  recent.gui_time_precision     = TS_PREC_AUTO;
+  recent.gui_zoom_level         = 0;
+
+  /* pane size of zero will autodetect */
+  recent.gui_geometry_main_upper_pane   = 0;
+  recent.gui_geometry_main_lower_pane   = 0;
+
+  recent.has_gui_geometry_main_upper_pane = TRUE;
+  recent.has_gui_geometry_main_lower_pane = TRUE;
+  recent.has_gui_geometry_status_pane = TRUE;
+
+  if (recent.col_width_list) {
+    free_col_width_info(&recent);
+  }
+
+  /* Construct the pathname of the user's recent file. */
+  rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, FALSE);
+
+  /* Read the user's recent file, if it exists. */
+  *rf_path_return = NULL;
+  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
+    /* We succeeded in opening it; read it. */
+    read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
+    /* Read older common settings, in case we come from an older version */
+    read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
+    fclose(rf);
+    g_free(rf_path);
+    rf_path = NULL;
+  } else {
+    /* We failed to open it.  If we failed for some reason other than
+       "it doesn't exist", return the errno and the pathname, so our
+       caller can report the error. */
+    if (errno != ENOENT) {
+      *rf_errno_return = errno;
+      *rf_path_return = rf_path;
+    }
+  }
+}
+
 /* opens the user's recent file and read it out */
 void
 recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
@@ -722,14 +827,14 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
 
   /* Construct the pathname of the user's recent file. */
-  rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE, FALSE);
+  rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, FALSE);
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
   if ((rf = eth_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic, NULL);
-	/* set dfilter combobox to have an empty line */
+    /* set dfilter combobox to have an empty line */
     dfilter_combo_add_empty();
     fclose(rf);
     g_free(rf_path);
