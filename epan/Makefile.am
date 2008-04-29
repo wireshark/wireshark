@@ -76,8 +76,6 @@ libwireshark_asmopt_la_SOURCES = \
 	asm_utils_win32_x86.asm
 
 EXTRA_libwireshark_la_SOURCES =	\
-	g_ascii_strcasecmp.c	\
-	g_ascii_strcasecmp.h	\
 	g_ascii_strtoull.c	\
 	g_ascii_strtoull.h	\
 	inet_aton.c		\
@@ -124,7 +122,7 @@ MAINTAINERCLEANFILES = \
 #
 # Add the object files for missing routines, if any.
 #
-libwireshark_la_LIBADD = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ \
+libwireshark_la_LIBADD = @G_ASCII_STRTOULL_LO@ \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
 	libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la \
 	dfilter/libdfilter.la dissectors/libcleandissectors.la \
@@ -132,7 +130,7 @@ libwireshark_la_LIBADD = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ \
 	dissectors/libpidldissectors.la $(wslua_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ @LIBICONV@ @KRB5_LIBS@ \
 	@SSL_LIBS@ @LIBSMI_LDFLAGS@ -lm
-libwireshark_la_DEPENDENCIES = @G_ASCII_STRCASECMP_LO@ @G_ASCII_STRTOULL_LO@ \
+libwireshark_la_DEPENDENCIES = @G_ASCII_STRTOULL_LO@ \
 	@INET_ATON_LO@ @INET_PTON_LO@ @INET_NTOP_LO@ libwireshark_generated.la \
 	libwireshark_asmopt.la crypt/libairpdcap.la ftypes/libftypes.la \
 	dfilter/libdfilter.la dissectors/libcleandissectors.la \

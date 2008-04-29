@@ -53,10 +53,6 @@
 #include "dtd_parse.h"
 #include "dtd_parse_lex.h"
 	
-#ifdef NEED_G_ASCII_STRCASECMP_H
-#include "g_ascii_strcasecmp.h"
-#endif
-
 	struct _proto_xmlpi_attr {
 		gchar* name;
 		void (*act)(gchar*);
