@@ -79,7 +79,7 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	NULL
     };
 
-    if (!tree) 
+    if (!tree)
         return;
 
     if (isreq && iscdb) {
@@ -110,7 +110,7 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	NULL
     };
 
-    if (!tree) 
+    if (!tree)
         return;
 
     if (isreq && iscdb) {
@@ -134,7 +134,7 @@ dissect_smc_initialize_element_status (tvbuff_t *tvb, packet_info *pinfo _U_, pr
 {
     guint8 flags;
 
-    if (!tree) 
+    if (!tree)
         return;
 
     if (isreq && iscdb) {
@@ -158,7 +158,7 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
 	NULL
     };
 
-    if (!tree) 
+    if (!tree)
         return;
 
     if (isreq && iscdb) {
@@ -183,7 +183,7 @@ dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U
 {
     guint8 flags;
 
-    if (!tree) 
+    if (!tree)
         return;
 
     if (isreq && iscdb) {
@@ -290,8 +290,6 @@ dissect_scsi_smc_element (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 flags;
     guint8 ident_len;
 
-    if (elem_bytecnt < 2)
-        return;
     proto_tree_add_text (tree, tvb, offset, 2,
                          "Element Address: %u",
                          tvb_get_ntohs (tvb, offset));
@@ -483,8 +481,13 @@ dissect_scsi_smc_elements (tvbuff_t *tvb, packet_info *pinfo,
 
     while (desc_bytecnt != 0) {
         elem_bytecnt = elem_desc_len;
+
         if (elem_bytecnt > desc_bytecnt)
             elem_bytecnt = desc_bytecnt;
+
+	if (elem_bytecnt < 2)
+	    break;
+
         dissect_scsi_smc_element (tvb, pinfo, tree, offset, elem_bytecnt,
                                    elem_type, voltag_flags);
         offset += elem_bytecnt;
