@@ -41,7 +41,7 @@
 #include "gtk/filter_dlg.h"
 
 
-static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_m, *up_bt, *dn_bt;
+static GtkWidget *column_l, *del_bt, *title_te, *field_te, *fmt_cmb, *up_bt, *dn_bt;
 static gint       cur_fmt, cur_row;
 
 static void   column_list_select_cb(GtkTreeSelection *, gpointer);
@@ -62,7 +62,7 @@ void          column_set_arrow_button_sensitivity(GList *);
 GtkWidget *
 column_prefs_show() {
   GtkWidget         *main_vb, *top_hb, *new_bt,
-                    *tb, *lb, *menu, *mitem;
+                    *tb, *lb;
   GtkWidget         *order_fr, *order_vb, *order_lb;
   GtkWidget         *list_fr, *list_vb, *list_lb, *list_sc;
   GtkWidget         *edit_fr, *edit_vb;
@@ -243,20 +243,19 @@ column_prefs_show() {
   gtk_widget_set_sensitive(field_te, FALSE);
   gtk_widget_hide(field_te);
 
-  fmt_m = gtk_option_menu_new();
-  menu  = gtk_menu_new();
-  for (i = 0; i < NUM_COL_FMTS; i++) {
-    mitem = gtk_menu_item_new_with_label(col_format_desc(i));
-    gtk_menu_append(GTK_MENU(menu), mitem);
-    g_signal_connect(mitem, "activate", G_CALLBACK(column_menu_changed_cb), GINT_TO_POINTER(i));
-    gtk_widget_show(mitem);
-  }
-  gtk_option_menu_set_menu(GTK_OPTION_MENU(fmt_m), menu);
+  fmt_cmb = gtk_combo_box_new_text();
+
+  for (i = 0; i < NUM_COL_FMTS; i++)
+    gtk_combo_box_append_text(GTK_COMBO_BOX(fmt_cmb), col_format_desc(i));
+
+  g_signal_connect(fmt_cmb, "changed", G_CALLBACK(column_menu_changed_cb),
+	NULL);
+
   cur_fmt = 0;
-  gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
-  gtk_widget_set_sensitive(fmt_m, FALSE);
-  gtk_box_pack_start(GTK_BOX(props_hb), fmt_m, FALSE, FALSE, 0);
-  gtk_widget_show(fmt_m);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(fmt_cmb), cur_fmt);
+  gtk_widget_set_sensitive(fmt_cmb, FALSE);
+  gtk_box_pack_start(GTK_BOX(props_hb), fmt_cmb, FALSE, FALSE, 0);
+  gtk_widget_show(fmt_cmb);
 
   /* select the first row */
   gtk_tree_selection_select_iter(sel, &first_iter);
@@ -306,12 +305,12 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_editable_select_region(GTK_EDITABLE(title_te), 0, -1);
         gtk_widget_grab_focus(title_te);
 
-        gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(fmt_cmb), cur_fmt);
 
         gtk_widget_set_sensitive(del_bt, TRUE);
         gtk_widget_set_sensitive(title_te, TRUE);
         gtk_widget_set_sensitive(field_te, TRUE);
-        gtk_widget_set_sensitive(fmt_m, TRUE);
+        gtk_widget_set_sensitive(fmt_cmb, TRUE);
         column_set_arrow_button_sensitivity(clp);
     }
     else
@@ -323,7 +322,7 @@ column_list_select_cb(GtkTreeSelection *sel, gpointer  user_data _U_)
         gtk_widget_set_sensitive(del_bt, FALSE);
         gtk_widget_set_sensitive(title_te, FALSE);
         gtk_widget_set_sensitive(field_te, FALSE);
-        gtk_widget_set_sensitive(fmt_m, FALSE);
+        gtk_widget_set_sensitive(fmt_cmb, FALSE);
         gtk_widget_set_sensitive(up_bt, FALSE);
         gtk_widget_set_sensitive(dn_bt, FALSE);
     }
@@ -446,7 +445,7 @@ column_field_changed_cb(GtkEditable *te, gpointer data) {
 
 /* The user changed the format menu. */
 static void
-column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
+column_menu_changed_cb(GtkWidget *w, gpointer data _U_) {
     fmt_data         *cfmt;
     GList            *clp;
     const gchar      *fmt;
@@ -457,7 +456,7 @@ column_menu_changed_cb(GtkWidget *w _U_, gpointer data) {
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
     if (gtk_tree_selection_get_selected(sel, &model, &iter))
     {
-        cur_fmt = (gint)(long) data;
+        cur_fmt = gtk_combo_box_get_active(GTK_COMBO_BOX(w));
         gtk_tree_model_get(model, &iter, 2, &clp, -1);
         cfmt    = (fmt_data *) clp->data;
 
