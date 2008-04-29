@@ -782,7 +782,7 @@ proto_register_ssh(void)
 
     { &hf_ssh_padding_string,
       { "Padding String",	  "ssh.padding_string",
-	FT_STRING, BASE_NONE, NULL, 0x0,
+	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"SSH Padding String", HFILL }},
 
     { &hf_ssh_mac_string,
