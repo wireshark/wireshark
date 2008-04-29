@@ -272,15 +272,11 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
 	dir->dir = OPENDIR_OP(dirname_clean);
 	g_free(dirname_clean);
 	dir->ext = extension ? g_strdup(extension) : NULL;
-#if GLIB_MAJOR_VERSION >= 2
 	dir->dummy = g_malloc(sizeof(GError *));
 	*(dir->dummy) = NULL;
-#endif
 	
 	if (dir->dir == NULL) {
-#if GLIB_MAJOR_VERSION >= 2
 		g_free(dir->dummy);
-#endif
 		g_free(dir);
 
 		WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
@@ -354,9 +350,7 @@ WSLUA_METAMETHOD wslua_Dir__gc(lua_State* L) {
 		CLOSEDIR_OP(dir->dir);
 	}
 	
-#if GLIB_MAJOR_VERSION >= 2
 	g_free(dir->dummy);
-#endif
 	
 	if (dir->ext) g_free(dir->ext);
 

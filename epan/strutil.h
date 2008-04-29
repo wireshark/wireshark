@@ -215,29 +215,4 @@ char * convert_string_case(const char *string, gboolean case_insensitive);
  */
 char * epan_strcasestr(const char *haystack, const char *needle);
 
-/* g_strlcat() does not exist in GLib 1.2[.x] */
-#if GLIB_MAJOR_VERSION < 2
-gsize g_strlcat(gchar *dst, const gchar *src, gsize size);
-gsize g_strlcpy(gchar *dest, const gchar *src, gsize dest_size);
-#endif
-
-#if GLIB_MAJOR_VERSION < 2
-/* g_ascii_isprint() does not exist in GLib 1.2[.x].
- * assume all codes >=0x20 and <0x80 are ASCII printables.
- */
-#define g_ascii_isprint(c)						\
-	(((c<0x20)||(c>=0x80))?FALSE:TRUE)
-/* g_ascii_isxdigit() does not exist in Glib 1.2 */
-#define g_ascii_isxdigit(c)						\
-	( ((c>='0')&&(c<='9'))?TRUE:					\
-		( ((c>='a')&&(c<='f'))?TRUE:				\
-			(((c>='A')&&(c<='F'))?TRUE:FALSE) ) )
-
-#endif
-
-#if GLIB_MAJOR_VERSION < 2
-/* g_byte_array_sized_new() doesnt exist in glib-1.2 */
-GByteArray *g_byte_array_sized_new(guint reserved_size);
-#endif
-
 #endif /* __STRUTIL_H__ */

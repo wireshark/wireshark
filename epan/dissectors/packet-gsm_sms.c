@@ -53,9 +53,7 @@
 #include "epan/packet.h"
 #include <epan/prefs.h>
 
-#if GLIB_MAJOR_VERSION >= 2
 #include <glib.h>
-#endif
 
 #include "packet-gsm_sms.h"
 
@@ -1486,15 +1484,6 @@ gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned i
 #define GN_CHAR_ALPHABET_SIZE 128
 
 #define GN_CHAR_ESCAPE 0x1b
-#if GLIB_MAJOR_VERSION < 2
-typedef unsigned int gunichar;
-
-int g_unichar_to_utf8(gunichar c, char * outbuf) {
-	*outbuf = (unsigned char) c;
-	return 1;
-}
-
-#endif
 
 static gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
@@ -1830,12 +1819,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint32	out_len;
     char	*ustr;
     char        messagebuf[160];
-#if GLIB_MAJOR_VERSION >= 2
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
     GIConv cd;
     GError *l_conv_error = NULL;
-#endif
 
     fill_bits = 0;
 
@@ -1918,7 +1905,6 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		}
 		else if (ucs2)
 		{
-#if GLIB_MAJOR_VERSION >= 2
 			if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv)-1)
 			{
 				utf8_text = g_convert_with_iconv(tvb->real_data +  offset, length , cd , NULL , NULL , &l_conv_error);
@@ -1934,13 +1920,10 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 			}
 			else
 			{
-#endif
 				/* tvb_get_ephemeral_faked_unicode takes the lengt in number of guint16's */
 				ustr = tvb_get_ephemeral_faked_unicode(tvb, offset, (length>>1), FALSE);
 				proto_tree_add_text(subtree, tvb, offset, length, "%s", ustr);
-#if GLIB_MAJOR_VERSION >= 2
 			}
-#endif
 		}
     }
 }
