@@ -107,6 +107,7 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 void
 epan_cleanup(void)
 {
+	se_free_all();
 	expert_cleanup();
 	dfilter_cleanup();
 	proto_cleanup();
