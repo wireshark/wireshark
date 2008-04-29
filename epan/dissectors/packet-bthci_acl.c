@@ -18,12 +18,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -88,7 +88,7 @@ static const value_string bc_flag_vals[] = {
 
 
 /* Code to actually dissect the packets */
-static void 
+static void
 dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti=NULL;
@@ -140,7 +140,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	case 0x02:	/* Start fragment */
 		l2cap_length=tvb_get_letohs(tvb, offset);
-		fragmented=((l2cap_length+4)!=length);	
+		fragmented=((l2cap_length+4)!=length);
 		break;
 	default:
 		/* unknown pb_flag */
@@ -169,9 +169,9 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				mfp->first_frame=pinfo->fd->num;
 				mfp->last_frame=0;
 				mfp->tot_len=l2cap_length+4;
-				mfp->reassembled=se_alloc(l2cap_length+4);
-				tvb_memcpy(tvb, (guint8*)mfp->reassembled, offset, tvb_length_remaining(tvb, offset));
-				mfp->cur_off=tvb_length_remaining(tvb, offset);
+				mfp->reassembled=se_alloc(mfp->tot_len);
+				tvb_memcpy(tvb, (guint8*)mfp->reassembled, offset, mfp->tot_len);
+				mfp->cur_off=mfp->tot_len;
 				se_tree_insert32(chandle_data->start_fragments, pinfo->fd->num, mfp);
 			} else {
 				mfp=se_tree_lookup32(chandle_data->start_fragments, pinfo->fd->num);
@@ -221,28 +221,28 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_btacl(void)
-{                 
+{
 
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_btacl_chandle,
 			{ "Connection Handle",           "btacl.chandle",
-				FT_UINT16, BASE_HEX, NULL, 0x0FFF,          
+				FT_UINT16, BASE_HEX, NULL, 0x0FFF,
 				"Connection Handle", HFILL }
 		},
 		{ &hf_btacl_pb_flag,
 			{ "PB Flag",           "btacl.pb_flag",
-				FT_UINT16, BASE_DEC, VALS(pb_flag_vals), 0x3000,          
+				FT_UINT16, BASE_DEC, VALS(pb_flag_vals), 0x3000,
 				"Packet Boundary Flag", HFILL }
 		},
 		{ &hf_btacl_bc_flag,
 			{ "BC Flag",           "btacl.bc_flag",
-				FT_UINT16, BASE_DEC, VALS(bc_flag_vals), 0xC000,          
+				FT_UINT16, BASE_DEC, VALS(bc_flag_vals), 0xC000,
 				"Broadcast Flag", HFILL }
 		},
 		{ &hf_btacl_length,
 			{ "Data Total Length",           "btacl.length",
-				FT_UINT16, BASE_DEC, NULL, 0x0,          
+				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"Data Total Length", HFILL }
 		},
 		{ &hf_btacl_data,
