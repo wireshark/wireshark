@@ -629,33 +629,26 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	follow_info->follow_save_as_w = NULL;
 }
 
-/* XXX - can I emulate follow_charset_toggle_cb() instead of having
- * 3 different functions here?
- * That might not be a bad idea, as it might mean we only reload
- * the window once, not twice - see follow_charset_toggle_cb()
- * for an explanation. */
 void
-follow_stream_om_both(GtkWidget *w _U_, gpointer data)
+follow_stream_direction_changed(GtkWidget *w, gpointer data)
 {
-	follow_info_t	*follow_info = data;
-	follow_info->show_stream = BOTH_HOSTS;
-	follow_load_text(follow_info);
-}
+	follow_info_t *follow_info = data;
 
-void
-follow_stream_om_client(GtkWidget *w _U_, gpointer data)
-{
-	follow_info_t	*follow_info = data;
-	follow_info->show_stream = FROM_CLIENT;
-	follow_load_text(follow_info);
-}
+	switch(gtk_combo_box_get_active(GTK_COMBO_BOX(w))) {
 
-void
-follow_stream_om_server(GtkWidget *w _U_, gpointer data)
-{
-	follow_info_t	*follow_info = data;
-	follow_info->show_stream = FROM_SERVER;
-	follow_load_text(follow_info);
+	case 0 :
+		follow_info->show_stream = BOTH_HOSTS;
+		follow_load_text(follow_info);
+		break;
+	case 1 :
+		follow_info->show_stream = FROM_CLIENT;
+		follow_load_text(follow_info);
+		break;
+	case 2 :
+		follow_info->show_stream = FROM_SERVER;
+		follow_load_text(follow_info);
+		break;
+	}
 }
 
 /* Add a "follow_info_t" structure to the list. */
@@ -681,7 +674,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	GtkWidget	*streamwindow, *vbox, *txt_scrollw, *text;
 	GtkWidget	*hbox, *bbox, *button, *radio_bt;
 	GtkWidget	*stream_fr, *stream_vb;
-	GtkWidget	*stream_om, *stream_menu, *stream_mi;
+	GtkWidget	*stream_cmb;
 	GtkTooltips	*tooltips;
 	follow_stats_t stats;
 
@@ -757,34 +750,27 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	follow_info->is_ipv6 = stats.is_ipv6;
 
-	stream_om = gtk_option_menu_new();
-	stream_menu = gtk_menu_new();
+	stream_cmb = gtk_combo_box_new_text();
 
-	stream_mi = gtk_menu_item_new_with_label(both_directions_string);
-	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_both),
-                       follow_info);
-	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-	gtk_widget_show(stream_mi);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+				  both_directions_string);
 	follow_info->show_stream = BOTH_HOSTS;
 
-	stream_mi = gtk_menu_item_new_with_label(server_to_client_string);
-	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_client),
-                       follow_info);
-	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-	gtk_widget_show(stream_mi);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+				  server_to_client_string);
 
-	stream_mi = gtk_menu_item_new_with_label(client_to_server_string);
-	g_signal_connect(stream_mi, "activate", G_CALLBACK(follow_stream_om_server),
-                       follow_info);
-	gtk_menu_append(GTK_MENU(stream_menu), stream_mi);
-	gtk_widget_show(stream_mi);
+	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+				   client_to_server_string);
 
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(stream_om), stream_menu);
-	/* Set history to 0th item, i.e., the first item. */
-	gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
-	gtk_tooltips_set_tip (tooltips, stream_om,
+	g_signal_connect(stream_cmb, "changed",
+			 G_CALLBACK(follow_stream_direction_changed),
+			 follow_info);
+
+	gtk_combo_box_set_active(GTK_COMBO_BOX(stream_cmb), 0);
+
+	gtk_tooltips_set_tip (tooltips, stream_cmb,
 			      "Select the stream direction to display", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), stream_cmb, FALSE, FALSE, 0);
 
 	/* ASCII radio button */
 	radio_bt = gtk_radio_button_new_with_label(NULL, "ASCII");
