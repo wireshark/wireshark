@@ -8,7 +8,8 @@ This directory contains the source files needed to build the:
  - Lua Reference
 
 
-To build everything, just do 'make' - but see requirements below.
+To build everything, just do 'make' (for Win32: 'nmake -f Makefile.nmake')
+but see the requirements below.
 
 
 The guides are written in Docbook/XML (formerly Docbook/SGML). This format is 
@@ -107,15 +108,15 @@ See ..\config.nmake for Win32 settings.
 
 Tool/File           Cygwin Package          Opt./Mand.  Comments
 ---------           --------------          ----------  --------
-xsltproc:           libxslt                 M
-xmllint:            libxml2                 M
-xsl stylesheets:    docbook-xsl             M           docbook.xsl, chunk.xsl and htmlhelp.xsl
-docbookx.dtd:       docbook_xml42           M
-lynx:               lynx                    M
+xsltproc:           Doc/libxslt             M
+xmllint:            Doc/libxml2             M
+xsl stylesheets:    Doc/docbook-xsl         M           docbook.xsl, chunk.xsl and htmlhelp.xsl
+docbookx.dtd:       Doc/docbook_xml42       M
+lynx:               Web/lynx                M
 fop:                -                       O           URL: http://xml.apache.org/fop/ - install it into fop-0.20.5 to keep defaults from config.nmake
 jimi:               -                       O           URL: http://java.sun.com/products/jimi/ - see above
 hhc:                -                       O           URL: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/htmlhelp/html/hwMicrosoftHTMLHelpDownloads.asp 
-zip:                zip                     O
+zip:                Archive/zip             O
 
 
 Packages for Suse 9.3
