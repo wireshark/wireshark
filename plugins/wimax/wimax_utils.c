@@ -2949,7 +2949,10 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			case PKM_ATTR_PKM_EAP_PAYLOAD:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, FALSE);
-				call_dissector(eap_handle, tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
+				if (eap_handle)
+					call_dissector(eap_handle, tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
+				else
+					proto_tree_add_item(tlv_tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, FALSE);
 			break;
 			case PKM_ATTR_PKM_NONCE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_nonce, tvb, offset, tlv_len, FALSE);
