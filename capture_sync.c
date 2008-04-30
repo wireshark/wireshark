@@ -87,10 +87,10 @@
 #include "globals.h"
 #include "file.h"
 #include <epan/filesystem.h>
+#include <epan/report_err.h>
 
 #include "capture.h"
 #include "capture_sync.h"
-#include "simple_dialog.h"
 
 #include "sync_pipe.h"
 
@@ -288,7 +288,7 @@ sync_pipe_start(capture_options *capture_opts) {
     argv = init_pipe_args(&argc);
     if (!argv) {
         /* We don't know where to find dumpcap. */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "We don't know where to find dumpcap.");
+        report_failure("We don't know where to find dumpcap.");
         return FALSE;
     }
     
@@ -425,8 +425,7 @@ sync_pipe_start(capture_options *capture_opts) {
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
       /* Couldn't create the pipe between parent and child. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
-                        strerror(errno));
+      report_failure("Couldn't create sync pipe: %s", strerror(errno));
       g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
@@ -440,8 +439,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (signal_pipe == INVALID_HANDLE_VALUE) {
       /* Couldn't create the signal pipe between parent and child. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create signal pipe: %s",
-                        strerror(errno));
+      report_failure("Couldn't create signal pipe: %s", strerror(errno));
       g_free( (gpointer) argv[0]);
       g_free( (gpointer) argv);
       return FALSE;
@@ -475,9 +473,8 @@ sync_pipe_start(capture_options *capture_opts) {
     /* call dumpcap */
     if(!CreateProcess(NULL, utf_8to16(args->str), NULL, NULL, TRUE,
                       CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "Couldn't run %s in child process: error %u",
-                    args->str, GetLastError());
+      report_failure("Couldn't run %s in child process: error %u",
+                     args->str, GetLastError());
       CloseHandle(sync_pipe_read);
       CloseHandle(sync_pipe_write);
       g_free( (gpointer) argv[0]);
@@ -497,8 +494,7 @@ sync_pipe_start(capture_options *capture_opts) {
 #else /* _WIN32 */
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Couldn't create sync pipe: %s",
-			strerror(errno));
+      report_failure("Couldn't create sync pipe: %s", strerror(errno));
       g_free( (gpointer) argv[0]);
       g_free(argv);
       return FALSE;
@@ -547,8 +543,7 @@ sync_pipe_start(capture_options *capture_opts) {
 
     if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			"Couldn't create child process: %s", strerror(errno));
+      report_failure("Couldn't create child process: %s", strerror(errno));
       eth_close(sync_pipe_read_fd);
 #ifdef _WIN32
       eth_close(capture_opts->signal_pipe_write_fd);
@@ -1255,8 +1250,8 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
 
 #ifdef _WIN32
   if (_cwait(&wstatus, capture_opts->fork_child, _WAIT_CHILD) == -1) {
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		"Child capture process stopped unexpectedly (errno:%u)", errno);
+    report_failure("Child capture process stopped unexpectedly (errno:%u)",
+                   errno);
   }
 #else
   if (wait(&wstatus) != -1) {
@@ -1268,26 +1263,22 @@ sync_pipe_wait_for_child(capture_options *capture_opts)
       /* If there are situations where the child won't send us such an error message, */
       /* this should be fixed in the child and not here! */
       if (WEXITSTATUS(wstatus) != 0 && WEXITSTATUS(wstatus) != 1) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Child capture process exited: exit status %d",
-		      WEXITSTATUS(wstatus));
+        report_failure("Child capture process exited: exit status %d",
+		       WEXITSTATUS(wstatus));
       }
     } else if (WIFSTOPPED(wstatus)) {
       /* It stopped, rather than exiting.  "Should not happen." */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Child capture process stopped: %s",
-		    sync_pipe_signame(WSTOPSIG(wstatus)));
+      report_failure("Child capture process stopped: %s",
+		     sync_pipe_signame(WSTOPSIG(wstatus)));
     } else if (WIFSIGNALED(wstatus)) {
       /* It died with a signal. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Child capture process died: %s%s",
-		    sync_pipe_signame(WTERMSIG(wstatus)),
-		    WCOREDUMP(wstatus) ? " - core dumped" : "");
+      report_failure("Child capture process died: %s%s",
+		     sync_pipe_signame(WTERMSIG(wstatus)),
+		     WCOREDUMP(wstatus) ? " - core dumped" : "");
     } else {
       /* What?  It had to either have exited, or stopped, or died with
          a signal; what happened here? */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		    "Child capture process died: wait status %#o", wstatus);
+      report_failure("Child capture process died: wait status %#o", wstatus);
     }
   }
 #endif

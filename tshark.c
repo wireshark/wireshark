@@ -1879,26 +1879,6 @@ void main_window_update(void)
 {
 }
 
-/* XXX - move the call to simple_dialog() out of capture_sync.c */
-#include "simple_dialog.h"
-
-/* capture_sync.c want's to tell us an error */
-gpointer simple_dialog(ESD_TYPE_E type _U_, gint btn_mask _U_,
-					   const gchar *msg_format, ...)
-{
-	va_list ap;
-
-	/* XXX - do we need to display buttons and alike? */
-	va_start(ap, msg_format);
-	fprintf(stderr, "tshark: ");
-	vfprintf(stderr, msg_format, ap);
-	fprintf(stderr, "\n");
-	va_end(ap);
-
-	return NULL;
-}
-
-
 /* capture child detected an error */
 void
 capture_input_error_message(capture_options *capture_opts _U_, char *error_msg, char *secondary_error_msg)
@@ -3157,9 +3137,7 @@ cmdarg_err(const char *fmt, ...)
   va_list ap;
 
   va_start(ap, fmt);
-  fprintf(stderr, "tshark: ");
-  vfprintf(stderr, fmt, ap);
-  fprintf(stderr, "\n");
+  failure_message(fmt, ap);
   va_end(ap);
 }
 
