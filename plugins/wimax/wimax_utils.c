@@ -77,6 +77,8 @@ static gint ett_vendor_id_encoding_decoder = -1;
 static gint ett_ul_service_flow_decoder = -1;
 static gint ett_dl_service_flow_decoder = -1;
 
+static dissector_handle_t eap_handle = NULL;
+
 /* The following two variables save the Scheduling Service type for
    the Grant Management subheader dissector and track whether or not
    one has been seen.
@@ -1689,6 +1691,8 @@ void proto_register_wimax_utility_decoders(void)
 		proto_register_field_array(proto_wimax_utility_decoders, hf_snp, array_length(hf_snp));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_pkm, array_length(hf_pkm));
 		proto_register_field_array(proto_wimax_utility_decoders, hf_common_tlv, array_length(hf_common_tlv));
+
+		eap_handle = find_dissector("eap");
 	}
 }
 
@@ -2945,7 +2949,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			case PKM_ATTR_PKM_EAP_PAYLOAD:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, FALSE);
+				call_dissector(eap_handle, tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
 			break;
 			case PKM_ATTR_PKM_NONCE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_nonce, tvb, offset, tlv_len, FALSE);
