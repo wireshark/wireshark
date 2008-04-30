@@ -3154,5 +3154,3 @@ cmdarg_err_cont(const char *fmt, ...)
   fprintf(stderr, "\n");
   va_end(ap);
 }
-
-
