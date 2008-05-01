@@ -33,7 +33,7 @@
 #endif
 
 #include <string.h>
-//#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
+/*#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
 
 #include <gtk/gtk.h>
 
