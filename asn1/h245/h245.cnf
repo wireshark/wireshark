@@ -252,7 +252,6 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
     olc_key = gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->src, &%(ACTX)s->pinfo->dst);
     olc_req = g_hash_table_lookup(h245_pending_olc_reqs, olc_key);
     if (olc_req) {
-      printf("#%%u: OLC found %%s\n", %(ACTX)s->pinfo->fd->num, olc_key);
       update_unicast_addr(&olc_req->fwd_lc.media_addr, &upcoming_olc->fwd_lc.media_addr);
       update_unicast_addr(&olc_req->fwd_lc.media_control_addr, &upcoming_olc->fwd_lc.media_control_addr);
       update_unicast_addr(&olc_req->rev_lc.media_addr, &upcoming_olc->rev_lc.media_addr);
