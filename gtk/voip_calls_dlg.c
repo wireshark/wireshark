@@ -108,6 +108,7 @@ static graph_analysis_data_t *graph_analysis_data = NULL;
 #define CALL_COL_COMMENTS		8
 static const GdkColor COLOR_SELECT = {0, 0x00ff, 0x80ff, 0x80ff};
 static const GdkColor COLOR_DEFAULT = {0, 0xffff, 0xffff, 0xffff};
+static const GdkColor COLOR_FOREGROUND = {0, 0x0000, 0x0000, 0x0000};
 
 /****************************************************************************/
 /* append a line to clist */
@@ -121,7 +122,8 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	isup_calls_info_t *tmp_isupinfo;
 	h323_calls_info_t *tmp_h323info;
 	gboolean tmp_bool = FALSE;
-	GdkColor color = COLOR_SELECT;
+	GdkColor bg_color = COLOR_SELECT;
+	GdkColor fg_color = COLOR_FOREGROUND;
 	for (c=0;c<NUM_COLS;c++){
 		data[c]=&field[c][0];
 	}
@@ -170,7 +172,8 @@ static void add_to_clist(voip_calls_info_t* strinfo)
 	/* set the background color if selected */
 	if (strinfo->selected) { 
 		calls_ns++;
-		gtk_clist_set_background(GTK_CLIST(clist), added_row, &color);
+		gtk_clist_set_background(GTK_CLIST(clist), added_row, &bg_color);
+		gtk_clist_set_foreground(GTK_CLIST(clist), added_row, &fg_color);
 	}
 
 	/* set data pointer of last row to point to user data for that row */
