@@ -1429,6 +1429,8 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     if(fi->hfinfo->type == FT_PROTOCOL) {
         g_object_set (cell, "background", "gray90", NULL);
         g_object_set (cell, "background-set", TRUE, NULL);
+        g_object_set (cell, "foreground", "black", NULL);
+        g_object_set (cell, "foreground-set", TRUE, NULL);
         /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
         g_object_set (cell, "weight-set", TRUE, NULL);*/
 	}
@@ -1459,6 +1461,8 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 		default:
 			g_assert_not_reached();
 		}
+		g_object_set (cell, "foreground", "black", NULL);
+		g_object_set (cell, "foreground-set", TRUE, NULL);
 	}
 }
 
