@@ -1354,6 +1354,7 @@ GdkColor	expert_color_chat	= { 0, 0xcc00, 0xcc00, 0xe000 };	/* a pale bluegrey *
 GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
 GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
 GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
+GdkColor	expert_color_foreground	= { 0, 0x0000, 0x0000, 0x0000 };	/* black */
 GdkColor	hidden_proto_item	= { 0, 0x4400, 0x4400, 0x4400 };	/* gray */
 
 void proto_draw_colors_init(void)
@@ -1366,6 +1367,7 @@ void proto_draw_colors_init(void)
 	get_color(&expert_color_note);
 	get_color(&expert_color_warn);
 	get_color(&expert_color_error);
+	get_color(&expert_color_foreground);
 	get_color(&hidden_proto_item);
 
 	colors_ok = TRUE;
