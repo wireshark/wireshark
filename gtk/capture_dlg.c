@@ -33,7 +33,13 @@
 #endif
 
 #include <string.h>
-/*#include <stdio.h>        /* main_menu.h needs FILE XXX - true?*/
+#if 0
+/*
+ * main_menu.h uses FILE, but I guess <stdio.h> is included by
+ * something else before main_menu.h is included.
+ */
+#include <stdio.h>
+#endif
 
 #include <gtk/gtk.h>
 
