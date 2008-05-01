@@ -96,6 +96,7 @@ static gint hf_sip_contact_addr		= -1;
 static gint hf_sip_contact_item		= -1;
 static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
+static gint hf_sip_matching_request_frame = -1;
 
 static gint hf_sip_auth                  = -1;
 static gint hf_sip_auth_scheme           = -1;
@@ -260,9 +261,9 @@ Hide                          [RFC3261] (deprecated)
                 { "Request-Disposition",		"d"  },  /*  68 RFC3841  */
                 { "Require", 					NULL },  /*  69 RFC3261  */
                 { "Resource-Priority",			NULL },	 /*  70 RFC4412  */
-				/*
+                /*
                 { "Response-Key (Deprecated)     [RFC3261]
-				*/
+                */
                 { "Retry-After", 				NULL },  /*  71 RFC3261  */
                 { "Route", 						NULL },  /*  72 RFC3261  */
                 { "RSeq", 						NULL },  /*  73 RFC3262  */
@@ -420,7 +421,7 @@ static gint hf_header_array[] = {
                 -1, /* 34"Organization",								*/
                 -1, /* 35"P-Access-Network-Info",				RFC3455	*/
                 -1, /* 36"P-Asserted-Identity",					RFC3325	*/
-				-1, /* 37"P-Asserted-Identity",							*/
+                -1, /* 37"P-Asserted-Identity",							*/
                 -1, /* 38"P-Associated-URI",					RFC3455	*/
                 -1, /* 39"P-Called-Party-ID",					RFC3455	*/
                 -1, /* 40"P-Charging-Function-Addresses",		RFC3455 */
@@ -430,11 +431,11 @@ static gint hf_header_array[] = {
                 -1, /* 44"P-DCS-Billing-Info",					RFC3603 */
                 -1, /* 45"P-DCS-LAES",							RFC3603 */
                 -1, /* 46"P-DCS-Redirect",						RFC3603 */
-				-1, /* 47"P-Early-Media",								*/
+                -1, /* 47"P-Early-Media",								*/
                 -1, /* 48"P-Media-Authorization",				RFC3313 */
                 -1, /* 49"P-Preferred-Identity",				RFC3325 */
-				-1, /* 50"P-Profile-Key",								*/
-				-1, /* 51"P-User-Database						RFC4457 */
+                -1, /* 50"P-Profile-Key",								*/
+                -1, /* 51"P-User-Database						RFC4457 */
                 -1, /* 52"P-Visited-Network-ID",				RFC3455 */
                 -1, /* 53"Path",								RFC3327 */
                 -1, /* 54"Priority"										*/
@@ -453,8 +454,8 @@ static gint hf_header_array[] = {
                 -1, /* 67"Reply-To",							RFC3261 */
                 -1, /* 68"Request-Disposition",					RFC3841 */
                 -1, /* 69"Require",								RFC3261 */
-				-1, /* 70"Resource-Priority",					RFC4412 */
-				-1, /* 71"Retry-After",							RFC3261 */
+                -1, /* 70"Resource-Priority",					RFC4412 */
+                -1, /* 71"Retry-After",							RFC3261 */
                 -1, /* 72"Route",								RFC3261 */
                 -1, /* 73"RSeq",								RFC3262 */
                 -1, /* 74"Security-Client",						RFC3329 */
@@ -468,7 +469,7 @@ static gint hf_header_array[] = {
                 -1, /* 82"Subject",								RFC3261 */
                 -1, /* 83"Subscription-State",					RFC3265 */
                 -1, /* 84"Supported",							RFC3261 */
-				-1, /* 85"Target-Dialog",						RFC4538 */
+                -1, /* 85"Target-Dialog",						RFC4538 */
                 -1, /* 86"Timestamp",							RFC3261 */
                 -1, /* 87"To",									RFC3261 */
                 -1, /* 88"Unsupported",							RFC3261 */
@@ -576,6 +577,11 @@ static guint sip_is_packet_resend(packet_info *pinfo,
 				guchar cseq_number_set, guint32 cseq_number,
 				line_type_t line_type);
 
+static guint sip_find_request(packet_info *pinfo,
+				gchar* cseq_method,
+				gchar* call_id,
+				guchar cseq_number_set, guint32 cseq_number);
+
 
 /* SIP content type and internet media type used by other dissectors
  * are the same.  List of media types from IANA at:
@@ -603,6 +609,15 @@ static sip_info_value_t *stat_info;
  * - store with each dissected packet original frame (if any)
  * - maintain a global hash table of
  *   (call_id, source_addr, dest_addr) -> (cseq, transaction_state, frame)
+ *
+ * N.B. This is broken for a couple of reasons:
+ * - it won't cope properly with overlapping transactions within the
+ *   same dialog
+ * - request response mapping won't work where the response uses a different
+ *   address pair from the request
+ *
+ * TODO: proper transaction matching uses RFC fields (use Max-forwards or
+ * maybe Via count as extra key to limit view to one hop)
  ****************************************************************************/
 
 static GHashTable *sip_hash = NULL;           /* Hash table */
@@ -627,6 +642,7 @@ typedef enum
 	final_response_seen
 } transaction_state_t;
 
+/* TODO: store nstime_t time of request */
 typedef struct
 {
 	guint32 cseq;
@@ -635,6 +651,14 @@ typedef struct
 	guint32 response_code;
 	gint frame_number;
 } sip_hash_value;
+
+
+/* TODO: store response_request_ts for working out time difference */
+typedef struct
+{
+	gint       original_frame_num;
+	gint       response_request_frame_num;
+} sip_frame_result_value;
 
 
 /************************/
@@ -1508,6 +1532,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	char *media_type_str_lower_case = NULL;
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
+	guint request_for_response = 0;
 	int strlen_to_copy;
 
 
@@ -1643,7 +1668,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	offset = next_offset;
 	if (sip_tree) {
-		th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset, -1, FALSE);
+		th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset,
+                                 tvb_length_remaining(tvb, offset), FALSE);
 		hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 	}
 
@@ -2429,6 +2455,23 @@ separator_found2:
 		}
 	}
 
+    /* For responses, try to link back to request frame */
+	if (line_type == STATUS_LINE)
+	{
+		request_for_response = sip_find_request(pinfo, cseq_method, call_id,
+		                                        cseq_number_set, cseq_number);
+	}
+
+	if (reqresp_tree)
+	{
+		proto_item *item;
+		if (request_for_response > 0)
+		{
+			item = proto_tree_add_uint(reqresp_tree, hf_sip_matching_request_frame,
+			                           tvb, orig_offset, 0, request_for_response);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+	}
 
 	if (ts != NULL)
 		proto_item_set_len(ts, offset - orig_offset);
@@ -2691,7 +2734,7 @@ tvb_raw_text_add(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     }
 }
 
-/* Check to see if this packet is a resent request.  Return value is number
+/* Check to see if this packet is a resent request.  Return value is the frame number
    of the original frame this packet seems to be resending (0 = no resend). */
 guint sip_is_packet_resend(packet_info *pinfo,
 			gchar *cseq_method,
@@ -2703,6 +2746,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	sip_hash_key   key;
 	sip_hash_key   *p_key = 0;
 	sip_hash_value *p_val = 0;
+	sip_frame_result_value *sip_frame_result = NULL;
 	guint result = 0;
 
 	/* Only consider retransmission of UDP packets */
@@ -2728,7 +2772,15 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	/* Return any answer stored from previous dissection */
 	if (pinfo->fd->flags.visited)
 	{
-		return GPOINTER_TO_UINT(p_get_proto_data(pinfo->fd, proto_sip));
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		if (sip_frame_result != NULL)
+		{
+			return sip_frame_result->original_frame_num;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 
 	/* No packet entry found, consult global hash table */
@@ -2753,6 +2805,16 @@ guint sip_is_packet_resend(packet_info *pinfo,
 	{
 		/* Table entry found, we'll use its value for comparison */
 		cseq_to_compare = p_val->cseq;
+
+		/* First time through, must update value with current details if
+		    cseq number has changed */
+		if (cseq_number != p_val->cseq)
+		{
+			p_val->cseq = cseq_number;
+			g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
+			p_val->transaction_state = nothing_seen;
+			p_val->frame_number = 0;
+		}
 	}
 	else
 	{
@@ -2822,6 +2884,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 			p_val->transaction_state = request_seen;
 			if (!result)
 			{
+				/* This frame is the original request */
 				p_val->frame_number = pinfo->fd->num;
 			}
 			break;
@@ -2832,6 +2895,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 				p_val->transaction_state = final_response_seen;
 				if (!result)
 				{
+					/* This frame is the original response */
 					p_val->frame_number = pinfo->fd->num;
 				}
 			}
@@ -2844,11 +2908,117 @@ guint sip_is_packet_resend(packet_info *pinfo,
 			break;
 	}
 
+	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	if (sip_frame_result == NULL)
+	{
+		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+	}
+
 	/* Store return value with this packet */
-	p_add_proto_data(pinfo->fd, proto_sip, GUINT_TO_POINTER(result));
+	sip_frame_result->original_frame_num = result;
+	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
 
 	return result;
 }
+
+
+/* Check to see if this packet is a resent request.  Return value is the frame number
+   of the original frame this packet seems to be resending (0 = no resend). */
+guint sip_find_request(packet_info *pinfo,
+			gchar *cseq_method,
+			gchar *call_id,
+			guchar cseq_number_set,
+			guint32 cseq_number)
+{
+	guint32 cseq_to_compare = 0;
+	sip_hash_key   key;
+	sip_hash_value *p_val = 0;
+	sip_frame_result_value *sip_frame_result = NULL;
+	guint result = 0;
+
+	/* Only consider UDP */
+	if (pinfo->ptype != PT_UDP)
+	{
+		return 0;
+	}
+
+	/* Ignore error (usually ICMP) frames */
+	if (pinfo->in_error_pkt)
+	{
+		return 0;
+	}
+
+	/* A broken packet may have no cseq number set. Ignore. */
+	if (!cseq_number_set)
+	{
+		return 0;
+	}
+
+	/* Return any answer stored from previous dissection */
+	if (pinfo->fd->flags.visited)
+	{
+		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
+		if (sip_frame_result != NULL)
+		{
+			return sip_frame_result->response_request_frame_num;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
+	/* No packet entry found, consult global hash table */
+
+	/* Prepare the key */
+	g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+
+	/* Looking for matching request, so reverse addresses for this lookup */
+	SET_ADDRESS(&key.dest_address, pinfo->net_src.type, pinfo->net_src.len,
+		    pinfo->net_src.data);
+	SET_ADDRESS(&key.source_address, pinfo->net_dst.type, pinfo->net_dst.len,
+			pinfo->net_dst.data);
+	key.dest_port = pinfo->srcport;
+	key.source_port = pinfo->destport;
+
+	/* Do the lookup */
+	p_val = (sip_hash_value*)g_hash_table_lookup(sip_hash, &key);
+
+	if (p_val)
+	{
+		/* Table entry found, we'll use its value for comparison */
+		cseq_to_compare = p_val->cseq;
+	}
+	else
+	{
+		/* We don't have the request */
+		return 0;
+	}
+
+
+	/**************************************************/
+	/* Is it a response to a request that we've seen? */
+	if ((cseq_number == cseq_to_compare) &&
+	    (p_val->transaction_state == request_seen) &&
+	    (strcmp(cseq_method, p_val->method) == 0))
+	{
+		result = p_val->frame_number;
+	}
+
+
+	/* Store return value with this packet */
+	sip_frame_result = p_get_proto_data(pinfo->fd, proto_sip);
+	if (sip_frame_result == NULL)
+	{
+		sip_frame_result = se_alloc(sizeof(sip_frame_result_value));
+	}
+
+	sip_frame_result->response_request_frame_num = result;
+	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
+
+	return result;
+}
+
 
 
 /* Register the protocol with Wireshark */
@@ -3414,6 +3584,11 @@ void proto_register_sip(void)
 			{ "Suspected resend of frame",  "sip.resend-original",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    	"Original transmission of frame", HFILL}
+		},
+		{ &hf_sip_matching_request_frame,
+			{ "Request Frame",  "sip.response-request",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    	"Request Frame", HFILL}
 		},
 		{ &hf_sip_auth,
 			{ "Authentication",  "sip.auth",
