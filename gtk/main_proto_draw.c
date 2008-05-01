@@ -585,7 +585,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
   gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
   buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
-  style = gtk_widget_get_style(GTK_WIDGET(byte_view));
+  style = gtk_widget_get_style(GTK_WIDGET(packet_list));
   gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
   gtk_text_buffer_create_tag(buf, "reverse",
                              "font-desc", user_font_get_regular(),
