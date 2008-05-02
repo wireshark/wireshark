@@ -1446,7 +1446,7 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 guint8 extra_bits = tvb_get_guint8(tvb, offset) & 0x03;
                 proto_item_append_text(rx_timing_deviation_ti,
                                        " (extended to %u)",
-                                       (tx_timing_deviation << 2) | extra_bits);
+                                       (rx_timing_deviation << 2) | extra_bits);
             }
             offset++;
         }
