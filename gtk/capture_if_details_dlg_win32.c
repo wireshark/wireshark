@@ -130,7 +130,7 @@ struct sockaddr_storage {
  * MS MSDN (some explanations of a special MS 802.11 Information Element)
  *  http://msdn.microsoft.com/library/default.asp?url=/library/en-us/randz/protocol/securing_public_wi-fi_hotspots.asp
  *
- * "WLANINFO für Windows XP"
+ * "WLANINFO fuer Windows XP"
  *  http://www-pc.uni-regensburg.de/systemsw/TOOLS/wlaninfo.htm
  */
 
