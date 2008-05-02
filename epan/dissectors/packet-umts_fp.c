@@ -1419,6 +1419,7 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset++;
 
         /* Rx Timing Deviation */
+        rx_timing_deviation = tvb_get_guint8(tvb, offset);
         rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation,
                                                      tvb, offset, 1, FALSE);
         offset++;
