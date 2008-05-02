@@ -1258,6 +1258,21 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
 
+        /* New IE flags */
+        if ((p_fp_info->release == 7) &&
+            (tvb_length_remaining(tvb, offset) > 2))
+        {
+            guint8 flags = tvb_get_guint8(tvb, offset);
+            guint8 aoa_present = flags & 0x01;
+            offset++;
+
+            if (aoa_present)
+            {
+                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
+                offset += 2;
+            }
+        }
+
         /* Spare Extension and Payload CRC */
         dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
     }
@@ -1384,6 +1399,8 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
         int num_tbs = 0;
         guint cfn;
+        guint16 rx_timing_deviation;
+        proto_item *rx_timing_deviation_ti;
 
         /* DATA */
 
@@ -1402,7 +1419,8 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset++;
 
         /* Rx Timing Deviation */
-        proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, FALSE);
+        rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation,
+                                                     tvb, offset, 1, FALSE);
         offset++;
 
         /* TB data */
@@ -1414,6 +1432,24 @@ void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* CRCIs */
         offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
+
+        /* New IEs */
+        if ((p_fp_info->release == 7) &&
+            (tvb_length_remaining(tvb, offset) > 2))
+        {
+            guint8 flags = tvb_get_guint8(tvb, offset);
+            guint8 bits_extended = flags & 0x01;
+            offset++;
+
+            if (bits_extended)
+            {
+                guint8 extra_bits = tvb_get_guint8(tvb, offset) & 0x03;
+                proto_item_append_text(rx_timing_deviation_ti,
+                                       " (extended to %u)",
+                                       (tx_timing_deviation << 2) | extra_bits);
+            }
+            offset++;
+        }
 
         /* Spare Extension and Payload CRC */
         dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
@@ -1789,7 +1825,7 @@ int dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
         {
             guint8 extra_bit = tvb_get_guint8(tvb, offset) & 0x01;
             proto_item_append_text(timing_advance_ti, " (extended to %u)",
-                                   (timing_advance << 1) & extra_bit);
+                                   (timing_advance << 1) | extra_bit);
         }
         offset++;
     }
