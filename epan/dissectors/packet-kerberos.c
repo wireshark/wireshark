@@ -4503,6 +4503,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	get_ber_identifier(tvb, offset, &tmp_class, &tmp_pc, &tmp_tag);
         if(tmp_class!=BER_CLASS_APP){
+	    pinfo->private_data=saved_private_data;
             return 0;
         }
         switch(tmp_tag){
@@ -4525,6 +4526,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             case KRB5_MSG_ERROR:
                 break;
             default:
+                pinfo->private_data=saved_private_data;
                 return 0;
         }
 	if (do_col_protocol) {
