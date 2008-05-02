@@ -57,11 +57,6 @@ wireshark.html: wireshark-tmp.pod ../config.h ws.css
 	--noindex                                 \
 	wireshark-tmp.pod > wireshark.html
 
-../$(INSTALL_DIR)/tshark.exe:
-	cd ..
-	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake tshark.exe
-	cd doc
-
 tshark.1: tshark.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Wireshark Network Analyzer" \
@@ -88,11 +83,10 @@ wireshark-filter.html: wireshark-filter.pod ../config.h ws.css
 	--noindex                                 \
 	wireshark-filter.pod > wireshark-filter.html
 
-wireshark-filter.pod: wireshark-filter.pod.template  ../$(INSTALL_DIR)/tshark.exe
+wireshark-filter.pod: wireshark-filter.pod.template  ../tshark.exe
 	cd ..
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-all
 	$(INSTALL_DIR)\tshark.exe -G | $(PERL) doc\dfilter2pod.pl doc\wireshark-filter.pod.template > doc\wireshark-filter.pod
-	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd doc
 
 capinfos.1: capinfos.pod ../config.h
