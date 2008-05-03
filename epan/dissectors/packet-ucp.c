@@ -28,6 +28,9 @@
  * www.etsi.org).
  * Includes the extension of EMI-UCP interface (V4.0, May 2001, www.cmgwds.com)
  *
+ * Support for statistics using the Stats Tree API added by
+ * Abhik Sarkar <sarkar.abhik@gmail.com>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -45,12 +48,19 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
-#include "packet-tcp.h"
+#include <epan/stats_tree.h>
 
-/* #include "packet-ucp.h" */			/* We autoregister	*/
+#include "packet-tcp.h"
 
 /* Prototypes	*/
 static void dissect_ucp_common(tvbuff_t *, packet_info *, proto_tree *);
+
+/* Tap Record */
+typedef struct _ucp_tap_rec_t {
+	guint message_type;	/* 0 = Operation; 1 = Result */
+	guint operation;	/* Operation Type */
+	guint result;		/* 0 = Success; Non 0 = Error Code */
+} ucp_tap_rec_t;
 
 /* Preferences */
 gboolean ucp_desegment = TRUE;
@@ -68,7 +78,7 @@ gboolean ucp_desegment = TRUE;
 
 #define UCP_MALFORMED	-1			/* Not a valid PDU	*/
 #define UCP_SHORTENED	-2			/* May be valid but short */
-#define UCP_INV_CHK	-3				/* Checksum doesn't add up */
+#define UCP_INV_CHK 	-3			/* Checksum doesn't add up */
 
 #define	UCP_O_R_OFFSET 10			/* Location of O/R field*/
 #define UCP_OT_OFFSET  12			/* Location of OT field	*/
@@ -89,6 +99,23 @@ static int hf_ucp_hdr_TRN	= -1;
 static int hf_ucp_hdr_LEN	= -1;
 static int hf_ucp_hdr_O_R	= -1;
 static int hf_ucp_hdr_OT	= -1;
+
+/*
+ * Stats section
+ */
+static int st_ucp_messages	= -1;
+static int st_ucp_ops		= -1;
+static int st_ucp_res		= -1;
+static int st_ucp_results	= -1;
+static int st_ucp_results_pos	= -1;
+static int st_ucp_results_neg	= -1;
+
+static guint8* st_str_ucp	= "UCP Messages";
+static guint8* st_str_ops	= "Operations";
+static guint8* st_str_res	= "Results";
+static guint8* st_str_ucp_res	= "UCP Results Acks/Nacks";
+static guint8* st_str_pos	= "Positive";
+static guint8* st_str_neg	= "Negative";
 
 /*
  * Data (variable) section
@@ -199,6 +226,9 @@ static int hf_xser_service	= -1;
 static gint ett_ucp  = -1;
 static gint ett_sub  = -1;
 static gint ett_XSer = -1;
+
+/* Tap */
+static int ucp_tap		= -1;
 
 /*
  * Value-arrays for certain field-contents
@@ -616,6 +646,57 @@ static const value_string vals_xser_service[] = {
     {  0, NULL },
 };
 
+/* For statistics */
+void
+ucp_stats_tree_init(stats_tree* st)
+{
+    st_ucp_messages = stats_tree_create_node(st, st_str_ucp, 0, TRUE);
+    st_ucp_ops = stats_tree_create_node(st, st_str_ops, st_ucp_messages, TRUE);
+    st_ucp_res = stats_tree_create_node(st, st_str_res, st_ucp_messages, TRUE);
+    st_ucp_results = stats_tree_create_node(st, st_str_ucp_res, 0, TRUE);
+    st_ucp_results_pos = stats_tree_create_node(st, st_str_pos, st_ucp_results, TRUE);
+    st_ucp_results_neg = stats_tree_create_node(st, st_str_neg, st_ucp_results, TRUE);
+}
+
+int
+ucp_stats_tree_per_packet(stats_tree *st, /* st as it was passed to us */
+                                      packet_info *pinfo _U_,
+                                      epan_dissect_t *edt _U_,
+                                      const void *p) /* Used for getting UCP stats */
+{
+    ucp_tap_rec_t* tap_rec = (ucp_tap_rec_t*)p;
+
+    tick_stat_node(st, st_str_ucp, 0, TRUE);
+
+    if (tap_rec->message_type == 0) /* Operation */
+    {
+        tick_stat_node(st, st_str_ops, st_ucp_messages, TRUE);
+        tick_stat_node(st, val_to_str(tap_rec->operation, vals_hdr_OT,
+                       "Unknown OT: %d"), st_ucp_ops, FALSE);
+    }
+    else /* Result */
+    {
+        tick_stat_node(st, st_str_res, st_ucp_messages, TRUE);
+        tick_stat_node(st, val_to_str(tap_rec->operation, vals_hdr_OT,
+                       "Unknown OT: %d"), st_ucp_res, FALSE);
+
+        tick_stat_node(st, st_str_ucp_res, 0, TRUE);
+
+        if (tap_rec->result == 0) /* Positive Result */
+        {
+            tick_stat_node(st, st_str_pos, st_ucp_results, FALSE);
+        }
+        else /* Negative Result */
+        {
+            tick_stat_node(st, st_str_neg, st_ucp_results, TRUE);
+            tick_stat_node(st, val_to_str(tap_rec->result, vals_parm_EC,
+                           "Unknown EC: %d"), st_ucp_results_neg, FALSE);
+        }
+    }
+
+    return 1;
+}
+
 /*!
  * Checks whether the PDU looks a bit like UCP and checks the checksum
  *
@@ -953,7 +1034,7 @@ add_00O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_00R(proto_tree *tree, tvbuff_t *tvb)
+add_00R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -972,8 +1053,10 @@ add_00R(proto_tree *tree, tvbuff_t *tvb)
 	UcpHandleInt(hf_ucp_parm_NoN);
 	UcpHandleInt(hf_ucp_parm_NoA);
 	UcpHandleInt(hf_ucp_parm_NoB);
+
+	tap_rec->result = 0;
     } else {
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
 	UcpHandleString(hf_ucp_parm_SM);
     }
 }
@@ -990,14 +1073,16 @@ add_01O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_01R(proto_tree *tree, tvbuff_t *tvb)
+add_01R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
 
     intval = UcpHandleByte(hf_ucp_parm_ACK);
     if (intval == 'N')
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
+    else
+	tap_rec->result = 0;
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1017,7 +1102,7 @@ add_02O(proto_tree *tree, tvbuff_t *tvb)
     ucp_handle_mt(tree, tvb, &offset);
 }
 
-#define add_02R(a, b) add_01R(a,b)
+#define add_02R(a, b, c) add_01R(a, b, c)
 
 static void
 add_03O(proto_tree *tree, tvbuff_t *tvb)
@@ -1046,7 +1131,7 @@ add_03O(proto_tree *tree, tvbuff_t *tvb)
     ucp_handle_mt(tree, tvb, &offset);
 }
 
-#define add_03R(a, b) add_01R(a,b)
+#define add_03R(a, b, c) add_01R(a, b, c)
 
 static void
 add_04O(proto_tree *tree, tvbuff_t *tvb)
@@ -1060,7 +1145,7 @@ add_04O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_04R(proto_tree *tree, tvbuff_t *tvb)
+add_04R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1072,8 +1157,9 @@ add_04R(proto_tree *tree, tvbuff_t *tvb)
 	for (idx = 0; idx < intval; idx++)
 	    UcpHandleString(hf_ucp_parm_AdC);
 	UcpHandleString(hf_ucp_parm_GAdC);
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1094,7 +1180,7 @@ add_05O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleByte(hf_ucp_parm_A_D);
 }
 
-#define add_05R(a, b) add_01R(a, b)
+#define add_05R(a, b, c) add_01R(a, b, c)
 
 static void
 add_06O(proto_tree *tree, tvbuff_t *tvb)
@@ -1106,7 +1192,7 @@ add_06O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_06R(proto_tree *tree, tvbuff_t *tvb)
+add_06R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1115,8 +1201,9 @@ add_06R(proto_tree *tree, tvbuff_t *tvb)
     if (intval == 'A') {
 	UcpHandleTime(hf_ucp_parm_CT);
 	UcpHandleString(hf_ucp_parm_AAC);
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1130,7 +1217,7 @@ add_07O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_NAC);
 }
 
-#define add_07R(a, b) add_01R(a, b)
+#define add_07R(a, b, c) add_01R(a, b, c)
 
 static void
 add_08O(proto_tree *tree, tvbuff_t *tvb)
@@ -1148,7 +1235,7 @@ add_08O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleString(hf_ucp_parm_LST);
 }
 
-#define add_08R(a, b) add_01R(a, b)
+#define add_08R(a, b, c) add_01R(a, b, c)
 
 static void
 add_09O(proto_tree *tree, tvbuff_t *tvb)
@@ -1160,7 +1247,7 @@ add_09O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_09R(proto_tree *tree, tvbuff_t *tvb)
+add_09R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1171,8 +1258,9 @@ add_09R(proto_tree *tree, tvbuff_t *tvb)
 	intval = UcpHandleInt(hf_ucp_parm_NPL);
 	for (idx = 0; idx < intval; idx++)
 	    UcpHandleString(hf_ucp_parm_LST);
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1189,12 +1277,12 @@ add_10O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_CS);
 }
 
-#define add_10R(a, b) add_01R(a, b)
+#define add_10R(a, b, c) add_01R(a, b, c)
 
 #define add_11O(a, b) add_06O(a, b)		/* Request roaming info	*/
 
 static void
-add_11R(proto_tree *tree, tvbuff_t *tvb)
+add_11R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1205,8 +1293,9 @@ add_11R(proto_tree *tree, tvbuff_t *tvb)
 	intval = UcpHandleInt(hf_ucp_parm_NPL);
 	for (idx = 0; idx < intval; idx++)
 	    UcpHandleString(hf_ucp_parm_GA);
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1224,11 +1313,11 @@ add_12O(proto_tree *tree, tvbuff_t *tvb)
 	UcpHandleString(hf_ucp_parm_GA);
 }
 
-#define add_12R(a, b) add_01R(a, b)
+#define add_12R(a, b, c) add_01R(a, b, c)
 
 #define add_13O(a, b) add_06O(a, b)		/* Roaming reset	*/
 
-#define add_13R(a, b) add_01R(a, b)
+#define add_13R(a, b, c) add_01R(a, b, c)
 
 static void
 add_14O(proto_tree *tree, tvbuff_t *tvb)
@@ -1242,7 +1331,7 @@ add_14O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_14R(proto_tree *tree, tvbuff_t *tvb)
+add_14R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1257,9 +1346,10 @@ add_14R(proto_tree *tree, tvbuff_t *tvb)
 	 */
 	for (idx = 0; idx < intval; idx++)
 	    UcpHandleData(hf_ucp_data_section);
+	tap_rec->result = 0;
     } else {
-	UcpHandleInt(hf_ucp_parm_EC);
-	UcpHandleString(hf_ucp_parm_SM);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
+        UcpHandleString(hf_ucp_parm_SM);
     }
 }
 
@@ -1274,11 +1364,11 @@ add_15O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_15R(a, b) add_01R(a, b)
+#define add_15R(a, b, c) add_01R(a, b, c)
 
 #define add_16O(a, b) add_06O(a, b)		/* Cancel call barring	*/
 
-#define add_16R(a, b) add_01R(a, b)
+#define add_16R(a, b, c) add_01R(a, b, c)
 
 static void
 add_17O(proto_tree *tree, tvbuff_t *tvb)
@@ -1292,11 +1382,11 @@ add_17O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_17R(a, b) add_01R(a, b)
+#define add_17R(a, b, c) add_01R(a, b, c)
 
 #define add_18O(a, b) add_06O(a, b)		/* Cancel call diversion */
 
-#define add_18R(a, b) add_01R(a, b)
+#define add_18R(a, b, c) add_01R(a, b, c)
 
 static void
 add_19O(proto_tree *tree, tvbuff_t *tvb)
@@ -1309,15 +1399,15 @@ add_19O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleTime(hf_ucp_parm_SP);
 }
 
-#define add_19R(a, b) add_01R(a, b)
+#define add_19R(a, b, c) add_01R(a, b, c)
 
 #define add_20O(a, b) add_06O(a, b)		/* Cancel deferred delivery */
 
-#define add_20R(a, b) add_01R(a, b)
+#define add_20R(a, b, c) add_01R(a, b, c)
 
 #define add_21O(a, b) add_06O(a, b)		/* All features reset	*/
 
-#define add_21R(a, b) add_01R(a, b)
+#define add_21R(a, b, c) add_01R(a, b, c)
 
 static void
 add_22O(proto_tree *tree, tvbuff_t *tvb)
@@ -1331,7 +1421,7 @@ add_22O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_CS);
 }
 
-#define add_22R(a, b) add_01R(a, b)
+#define add_22R(a, b, c) add_01R(a, b, c)
 
 static void
 add_23O(proto_tree *tree, tvbuff_t *tvb)
@@ -1343,7 +1433,7 @@ add_23O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_23R(proto_tree *tree, tvbuff_t *tvb)
+add_23R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1355,8 +1445,9 @@ add_23R(proto_tree *tree, tvbuff_t *tvb)
 	intval = UcpHandleInt(hf_ucp_parm_NPL);
 	for (idx = 0; idx < intval; idx++)
 	    UcpHandleInt(hf_ucp_hdr_OT);
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1371,7 +1462,7 @@ add_24O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_24R(proto_tree *tree, tvbuff_t *tvb)
+add_24R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
@@ -1446,8 +1537,9 @@ add_24R(proto_tree *tree, tvbuff_t *tvb)
 		intval = UcpHandleInt(hf_ucp_parm_NMESS);
 	    }
 	}
+	tap_rec->result = 0;
     } else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1469,16 +1561,18 @@ add_30O(proto_tree *tree, tvbuff_t *tvb)
 }
 
 static void
-add_30R(proto_tree *tree, tvbuff_t *tvb)
+add_30R(proto_tree *tree, tvbuff_t *tvb, ucp_tap_rec_t *tap_rec)
 {
     int		 offset = 1;
     guint	 intval;
 
     intval = UcpHandleByte(hf_ucp_parm_ACK);
-    if (intval == 'A')
+    if (intval == 'A') {
 	UcpHandleTime(hf_ucp_parm_MVP);
-    else
-	UcpHandleInt(hf_ucp_parm_EC);
+	tap_rec->result = 0;
+    } else {
+	tap_rec->result = UcpHandleInt(hf_ucp_parm_EC);
+    }
     UcpHandleString(hf_ucp_parm_SM);
 }
 
@@ -1491,7 +1585,7 @@ add_31O(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleInt(hf_ucp_parm_PID);
 }
 
-#define add_31R(a, b) add_01R(a, b)
+#define add_31R(a, b, c) add_01R(a, b, c)
 
 static void
 add_5xO(proto_tree *tree, tvbuff_t *tvb)
@@ -1559,7 +1653,7 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
     UcpHandleData(hf_ucp_parm_RES5);
 }
 
-#define add_5xR(a, b) add_30R(a, b)
+#define add_5xR(a, b,c ) add_30R(a, b, c)
 
 static void
 add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
@@ -1587,7 +1681,7 @@ add_6xO(proto_tree *tree, tvbuff_t *tvb, guint8 OT)
     }
 }
 
-#define add_6xR(a, b) add_01R(a, b)
+#define add_6xR(a, b, c) add_01R(a, b, c)
 
 /*
  * End of convenient shorthands
@@ -1677,6 +1771,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	 OT;		/* Operation type			*/
     guint	 intval;
     int		 i;
+    ucp_tap_rec_t* tap_rec;	/* Tap record				*/
 
     /* Set up structures needed to add the protocol subtree and manage it */
     proto_item	*ti;
@@ -1705,6 +1800,11 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     OT  = tvb_get_guint8(tvb, UCP_OT_OFFSET) - '0';
     OT  = 10 * OT + (tvb_get_guint8(tvb, UCP_OT_OFFSET + 1) - '0');
+
+    /* Create Tap record */
+    tap_rec = ep_alloc0(sizeof(ucp_tap_rec_t));
+    tap_rec->message_type = (O_R == 'O' ? 0 : 1);
+    tap_rec->operation = OT;
 
      /* Make entries in  Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -1771,97 +1871,101 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (OT) {
 	    case  0:
-		O_R == 'O' ? add_00O(sub_tree,tmp_tvb) : add_00R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_00O(sub_tree,tmp_tvb) : add_00R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  1:
-		O_R == 'O' ? add_01O(sub_tree,tmp_tvb) : add_01R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_01O(sub_tree,tmp_tvb) : add_01R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  2:
-		O_R == 'O' ? add_02O(sub_tree,tmp_tvb) : add_02R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_02O(sub_tree,tmp_tvb) : add_02R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  3:
-		O_R == 'O' ? add_03O(sub_tree,tmp_tvb) : add_03R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_03O(sub_tree,tmp_tvb) : add_03R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  4:
-		O_R == 'O' ? add_04O(sub_tree,tmp_tvb) : add_04R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_04O(sub_tree,tmp_tvb) : add_04R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  5:
-		O_R == 'O' ? add_05O(sub_tree,tmp_tvb) : add_05R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_05O(sub_tree,tmp_tvb) : add_05R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  6:
-		O_R == 'O' ? add_06O(sub_tree,tmp_tvb) : add_06R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_06O(sub_tree,tmp_tvb) : add_06R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  7:
-		O_R == 'O' ? add_07O(sub_tree,tmp_tvb) : add_07R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_07O(sub_tree,tmp_tvb) : add_07R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  8:
-		O_R == 'O' ? add_08O(sub_tree,tmp_tvb) : add_08R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_08O(sub_tree,tmp_tvb) : add_08R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case  9:
-		O_R == 'O' ? add_09O(sub_tree,tmp_tvb) : add_09R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_09O(sub_tree,tmp_tvb) : add_09R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 10:
-		O_R == 'O' ? add_10O(sub_tree,tmp_tvb) : add_10R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_10O(sub_tree,tmp_tvb) : add_10R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 11:
-		O_R == 'O' ? add_11O(sub_tree,tmp_tvb) : add_11R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_11O(sub_tree,tmp_tvb) : add_11R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 12:
-		O_R == 'O' ? add_12O(sub_tree,tmp_tvb) : add_12R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_12O(sub_tree,tmp_tvb) : add_12R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 13:
-		O_R == 'O' ? add_13O(sub_tree,tmp_tvb) : add_13R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_13O(sub_tree,tmp_tvb) : add_13R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 14:
-		O_R == 'O' ? add_14O(sub_tree,tmp_tvb) : add_14R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_14O(sub_tree,tmp_tvb) : add_14R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 15:
-		O_R == 'O' ? add_15O(sub_tree,tmp_tvb) : add_15R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_15O(sub_tree,tmp_tvb) : add_15R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 16:
-		O_R == 'O' ? add_16O(sub_tree,tmp_tvb) : add_16R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_16O(sub_tree,tmp_tvb) : add_16R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 17:
-		O_R == 'O' ? add_17O(sub_tree,tmp_tvb) : add_17R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_17O(sub_tree,tmp_tvb) : add_17R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 18:
-		O_R == 'O' ? add_18O(sub_tree,tmp_tvb) : add_18R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_18O(sub_tree,tmp_tvb) : add_18R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 19:
-		O_R == 'O' ? add_19O(sub_tree,tmp_tvb) : add_19R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_19O(sub_tree,tmp_tvb) : add_19R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 20:
-		O_R == 'O' ? add_20O(sub_tree,tmp_tvb) : add_20R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_20O(sub_tree,tmp_tvb) : add_20R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 21:
-		O_R == 'O' ? add_21O(sub_tree,tmp_tvb) : add_21R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_21O(sub_tree,tmp_tvb) : add_21R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 22:
-		O_R == 'O' ? add_22O(sub_tree,tmp_tvb) : add_22R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_22O(sub_tree,tmp_tvb) : add_22R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 23:
-		O_R == 'O' ? add_23O(sub_tree,tmp_tvb) : add_23R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_23O(sub_tree,tmp_tvb) : add_23R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 24:
-		O_R == 'O' ? add_24O(sub_tree,tmp_tvb) : add_24R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_24O(sub_tree,tmp_tvb) : add_24R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 30:
-		O_R == 'O' ? add_30O(sub_tree,tmp_tvb) : add_30R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_30O(sub_tree,tmp_tvb) : add_30R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 31:
-		O_R == 'O' ? add_31O(sub_tree,tmp_tvb) : add_31R(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_31O(sub_tree,tmp_tvb) : add_31R(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 51: case 52: case 53: case 54: case 55: case 56: case 57:
 	    case 58:
-		O_R == 'O' ? add_5xO(sub_tree,tmp_tvb) : add_5xR(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_5xO(sub_tree,tmp_tvb) : add_5xR(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    case 60: case 61:
-		O_R == 'O' ? add_6xO(sub_tree,tmp_tvb,OT) : add_6xR(sub_tree,tmp_tvb);
+		O_R == 'O' ? add_6xO(sub_tree,tmp_tvb,OT) : add_6xR(sub_tree,tmp_tvb, tap_rec);
 		break;
 	    default:
 		break;
 	}
     }
+    
+    /* Queue packet for Tap */
+    tap_queue_packet(ucp_tap, pinfo, tap_rec);
+
     return;
 }
 
@@ -2617,6 +2721,9 @@ proto_register_ucp(void)
     proto_register_field_array(proto_ucp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Register for tapping */
+    ucp_tap = register_tap("ucp");
+
   /* register preferences */
   ucp_module = prefs_register_protocol(proto_ucp, NULL);
   prefs_register_bool_preference(ucp_module, "desegment_ucp_messages",
@@ -2648,4 +2755,7 @@ proto_reg_handoff_ucp(void)
      */
     ucp_handle = create_dissector_handle(dissect_ucp_tcp, proto_ucp);
     dissector_add_handle("tcp.port", ucp_handle);
+
+    /* Tapping setup */
+    stats_tree_register("ucp", "ucp_messages", st_str_ucp, ucp_stats_tree_per_packet, ucp_stats_tree_init, NULL);
 }
