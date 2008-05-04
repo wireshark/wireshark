@@ -1063,6 +1063,7 @@ static int tim_bmapctl = -1;
 
 static int hf_fixed_parameters = -1;  /* Protocol payload for management frames */
 static int hf_tagged_parameters = -1;  /* Fixed payload item */
+static int hf_tagged_ssid = -1;
 static int hf_wep_iv = -1;
 static int hf_wep_iv_weak = -1;
 static int hf_tkip_extiv = -1;
@@ -4082,7 +4083,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
   char out_buff[SHORT_STR];
   char print_buff[SHORT_STR];
   proto_tree * orig_tree=tree;
-  proto_item *ti;
+  proto_item *ti, *en;
 
   tag_no = tvb_get_guint8(tvb, offset);
   tag_len = tvb_get_guint8(tvb, offset + 1);
@@ -4134,6 +4135,10 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         } else {
           proto_item_append_text(ti, ": Broadcast");
         }
+        en = proto_tree_add_string_format (tree, hf_tagged_ssid, tvb, offset + 2,
+                                           tag_len, format_text(ssid, tag_len), 
+                                           "SSID: %s", format_text(ssid, tag_len));
+        PROTO_ITEM_SET_HIDDEN (en);
         beacon_padding++; /* padding bug */
       }
       break;
@@ -9082,6 +9087,10 @@ proto_register_ieee80211 (void)
     {&hf_tagged_parameters,
      {"Tagged parameters", "wlan_mgt.tagged.all", FT_UINT16, BASE_DEC, NULL, 0,
       "Tagged parameters", HFILL }},
+
+    {&hf_tagged_ssid,
+     {"SSID", "wlan_mgt.ssid", FT_STRING, BASE_DEC, NULL, 0, 
+      "SSID", HFILL }},
 
     /*** Begin: Block Ack Params Fixed Field - Dustin Johnson ***/
     {&ff_block_ack_params,
