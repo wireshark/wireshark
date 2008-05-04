@@ -257,7 +257,7 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 
 /* What to do when a list item is selected/unselected */
 static void
-packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_) {
+packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
   frame_data *fdata;
 
   /* Remove the hex display tabbed pages */
@@ -275,7 +275,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_
 }
 
 static void
-packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, gpointer evt _U_) {
+packet_list_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
 
   cf_unselect_packet(&cfile);
 }
