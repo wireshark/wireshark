@@ -4128,10 +4128,8 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
         if (tag_len > 0) {
           proto_item_append_text(ti, ": \"%s\"",
                                  format_text(ssid, tag_len));
-          if (tag_len < 32) {
-            g_strlcpy(wlan_stats.ssid, ssid, MAX_SSID_LEN);
-            wlan_stats.ssid[MAX_SSID_LEN-1] = '\0';
-          }
+          memcpy(wlan_stats.ssid, ssid, MAX_SSID_LEN);
+          wlan_stats.ssid_len = tag_len;
         } else {
           proto_item_append_text(ti, ": Broadcast");
         }

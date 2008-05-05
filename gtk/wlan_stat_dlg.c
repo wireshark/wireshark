@@ -110,6 +110,7 @@ typedef struct _wlan_stat_t {
 	gboolean   show_only_existing;
 	address    selected_bssid;
 	gboolean   selected_bssid_valid;
+	guint8     selected_ssid_len;
 	guchar     selected_ssid[MAX_SSID_LEN];
 	gboolean   selected_ssid_valid;
 	wlan_ep_t* ep_list;
@@ -172,7 +173,8 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	
 	SE_COPY_ADDRESS (&ep->bssid, &si->bssid);
 	ep->stats.channel = si->stats.channel;
-	g_strlcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+	memcpy (ep->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+	ep->stats.ssid_len = si->stats.ssid_len;
 	g_strlcpy (ep->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
 	memset(&ep->type, 0, sizeof (int) * 256);
 	ep->number_of_packets = 0;
@@ -299,10 +301,11 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 	} else {
 		for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
 			if (((si->type == 0x04) &&
-			     (((tmp->stats.ssid[0] == 0) && (si->stats.ssid[0] == 0) && 
+			     (((tmp->stats.ssid_len == 0) && (si->stats.ssid_len == 0) && 
 			       (strcmp (get_addr_name(&tmp->bssid), "Broadcast") == 0)) ||
-			      (si->stats.ssid[0] != 0 &&
-			       (strcmp (tmp->stats.ssid, si->stats.ssid) == 0)))) ||
+			      (si->stats.ssid_len != 0 &&
+			       (tmp->stats.ssid_len == si->stats.ssid_len) && 
+			       (memcmp (tmp->stats.ssid, si->stats.ssid, si->stats.ssid_len) == 0)))) ||
 			    ((si->type != 0x04) && 
 			     (!CMP_ADDRESS (&tmp->bssid, &si->bssid)))) {
 				te = tmp;
@@ -310,7 +313,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 			}
 		}
 
-		if (te && si->type != 0x04 && te->type[0x04] == 0 && te->stats.ssid[0] != 0) {
+		if (te && si->type != 0x04 && te->type[0x04] == 0 && te->stats.ssid_len != 0) {
 			/* 
 			 * We have found a matching entry without Probe Requests.  
 			 * Search the rest of the entries for a corresponding entry 
@@ -322,8 +325,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 		 	wlan_ep_t *prev = NULL;
 
 			for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
-				if (te->stats.ssid[0] &&
-				    (strcmp (te->stats.ssid, tmp->stats.ssid) == 0) &&
+				if (te->stats.ssid_len &&
+				    (te->stats.ssid_len == tmp->stats.ssid_len) &&
+				    (memcmp (te->stats.ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0) &&
 				    (strcmp (get_addr_name(&tmp->bssid), "Broadcast") == 0)) {
 					/* 
 					 * Found a matching entry. Merge with the previous
@@ -369,8 +373,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 	if (te->stats.channel == 0 && si->stats.channel != 0) {
 		te->stats.channel = si->stats.channel;
 	}
-	if (te->stats.ssid[0] == 0 && si->stats.ssid[0] != 0) {
-		g_strlcpy (te->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+	if (te->stats.ssid[0] == 0 && si->stats.ssid_len != 0) {
+		memcpy (te->stats.ssid, si->stats.ssid, MAX_SSID_LEN);
+		te->stats.ssid_len = si->stats.ssid_len;
 	}
 	if (te->stats.protection[0] == 0 && si->stats.protection[0] != 0) {
 		g_strlcpy (te->stats.protection, si->stats.protection, MAX_PROTECT_LEN);
@@ -588,10 +593,9 @@ wlanstat_draw(void *phs)
 	wlan_ep_t* list = hs->ep_list, *tmp = 0;
 	guint32 data = 0, other = 0;
 	char *str[NUM_COLS];
-	guchar ssid[MAX_SSID_LEN];
 	gboolean broadcast;
 	float f;
-	int row, selected_row = -1, len, i=0;
+	int row, selected_row = -1, i;
 
 	for (i = 0; i < NUM_COLS; i++) {
 		str[i] = g_malloc (sizeof(char[256]));
@@ -609,18 +613,6 @@ wlanstat_draw(void *phs)
 			continue;
 		}
 
-		/* Ensure we have printable characters in ssid */
-		i = 0; len = strlen (tmp->stats.ssid);
-		while (i < len && i < MAX_SSID_LEN-1) {
-		  if (isprint(tmp->stats.ssid[i])) {
-		    ssid[i] = tmp->stats.ssid[i];
-		  } else {
-		    ssid[i] = '.';
-		  }
-		  i++;
-		}
-		ssid[i] = '\0';
-
 		data = tmp->type[0x20] + tmp->type[0x21] + tmp->type[0x22] + tmp->type[0x23] +
 		  tmp->type[0x28] + tmp->type[0x29] + tmp->type[0x2A] + tmp->type[0x2B];
 		other = tmp->number_of_packets - data - tmp->type[0x08] - tmp->type[0x04] - 
@@ -637,14 +629,12 @@ wlanstat_draw(void *phs)
 		} else {
 			str[1][0] = '\0';
 		}
-		if (ssid[0] == 0) {
-			if (broadcast) {
-				g_snprintf (str[2],  sizeof(char[256]),"<Broadcast>");
-			} else {
-				g_snprintf (str[2],  sizeof(char[256]),"<Hidden>");
-			}
+		if (tmp->stats.ssid_len == 0) {
+			g_snprintf (str[2],  sizeof(char[256]),"<Broadcast>");
+		} else if (tmp->stats.ssid_len == 1 && tmp->stats.ssid[0] == 0) {
+			g_snprintf (str[2],  sizeof(char[256]),"<Hidden>");
 		} else {
-			g_snprintf (str[2],  sizeof(char[256]),"%s", ssid);
+			g_snprintf (str[2],  sizeof(char[256]),"%s", format_text(tmp->stats.ssid, tmp->stats.ssid_len));
 		}
 		g_snprintf (str[3],  sizeof(char[256]),"%u", tmp->type[0x08]);
 		g_snprintf (str[4],  sizeof(char[256]),"%u", data);
@@ -656,7 +646,9 @@ wlanstat_draw(void *phs)
 		g_snprintf (str[10], sizeof(char[256]),"%.2f%%", f);
 		g_snprintf (str[11], sizeof(char[256]),"%s", tmp->stats.protection);
 		row = gtk_clist_append (GTK_CLIST(hs->table), str);
-		if ((hs->selected_ssid_valid && strcmp(hs->selected_ssid, tmp->stats.ssid) == 0) ||
+		if ((hs->selected_ssid_valid && 
+		     (hs->selected_ssid_len == tmp->stats.ssid_len) && 
+		     (memcmp(hs->selected_ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0)) ||
 		    (hs->selected_bssid_valid && !CMP_ADDRESS(&hs->selected_bssid, &tmp->bssid))) {
 			selected_row = row;
 		}
@@ -684,7 +676,8 @@ wlan_select_cb(GtkWidget *w, gint row, gint col _U_, GdkEventButton *event _U_, 
 	wlan_ep_t *ep = gtk_clist_get_row_data (GTK_CLIST(w), row);
 
 	if (strcmp (get_addr_name(&ep->bssid), "Broadcast") == 0) {
-		strcpy (hs->selected_ssid, ep->stats.ssid);
+		memcpy (hs->selected_ssid, ep->stats.ssid, MAX_SSID_LEN);
+		hs->selected_ssid_len = ep->stats.ssid_len;
 		hs->selected_bssid_valid = FALSE;
 		hs->selected_ssid_valid = TRUE;
 	} else {
@@ -895,7 +888,7 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
 	ep = gtk_clist_get_row_data (GTK_CLIST(hs->table), selection);
 
 	if (strcmp (get_addr_name(&ep->bssid), "Broadcast") == 0) {
-		g_snprintf(dirstr, 127, "wlan_mgt.ssid == \"%s\"", ep->stats.ssid);
+		g_snprintf(dirstr, 127, "wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
 	} else {
 		g_snprintf(dirstr, 127, "wlan.bssid==%s", address_to_str(&ep->bssid));
 	}
