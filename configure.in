@@ -584,14 +584,14 @@ if test "$GTK_OK" = "no" ; then
 	wireshark_bin=""
 	wireshark_man=""
 	# Honor GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.0 or later distribution not found.), gmodule)
+	AM_PATH_GLIB_2_0(2.4.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib 2.0 or later distribution not found.), gmodule)
 
 else
 	wireshark_bin="wireshark\$(EXEEXT)"
 	wireshark_man="wireshark.1"
         wireshark_SUBDIRS="codecs gtk"
 	# Honor GLIB_CFLAGS
-	AM_PATH_GLIB_2_0(2.0.0, , AC_MSG_ERROR(GLib 2.0 or later distribution not found.), gmodule)
+	AM_PATH_GLIB_2_0(2.4.0, , AC_MSG_ERROR(GLib 2.4 or later distribution not found.), gmodule)
 fi
 
 #
@@ -628,66 +628,6 @@ if test "$ac_cv_glib_supports_modules" = yes ; then
 else
   AC_MSG_RESULT(no)
   have_plugins=no
-fi
-
-#
-# We can't just check for <inttypes.h> - some systems have one that
-# doesn't define all the PRI[doxu]64 macros.
-#
-AC_CHECK_HEADERS(inttypes.h,
-  [
-    #
-    # OK, we have inttypes.h, but does it define those macros?
-    #
-    AC_MSG_CHECKING([[whether inttypes.h defines the PRI[doxu]64 macros]])
-    AC_COMPILE_IFELSE(
-      [
-	AC_LANG_SOURCE(
-	  [[
-	    #include <inttypes.h>
-	    #include <glib.h>
-	    #include <stdio.h>
-	    #include <sys/types.h>
-
-	    main()
-	    {
-	      printf("%" PRId64 "\n", (gint64)1);
-	      printf("%" PRIo64 "\n", (guint64)1);
-	      printf("%" PRIx64 "\n", (guint64)1);
-	      printf("%" PRIX64 "\n", (guint64)1);
-	      printf("%" PRIu64 "\n", (guint64)1);
-	    }
-	  ]])
-      ],
-      [
-	AC_MSG_RESULT(yes)
-	ac_wireshark_inttypes_h_defines_formats=yes
-      ],
-      [
-	AC_MSG_RESULT(no)
-	ac_wireshark_inttypes_h_defines_formats=no
-      ])
-  ],
-  [
-    #
-    # We don't have inttypes.h, so it obviously can't define those
-    # macros.
-    #
-    ac_wireshark_inttypes_h_defines_formats=no
-  ])
-if test "$ac_wireshark_inttypes_h_defines_formats" = yes; then
-  AC_DEFINE(INTTYPES_H_DEFINES_FORMATS,,[Define if <inttypes.h> defines PRI[doxu]64 macros])
-else
-  AC_WIRESHARK_CHECK_64BIT_FORMAT(ll,
-    [
-      AC_WIRESHARK_CHECK_64BIT_FORMAT(L,
-	[
-	  AC_WIRESHARK_CHECK_64BIT_FORMAT(q,
-	    [
-	      AC_MSG_ERROR([neither %llx nor %Lx nor %qx worked on a 64-bit integer])
-	    ])
-	])
-    ])
 fi
 
 AC_SUBST(wireshark_bin)
@@ -1164,8 +1104,7 @@ fi
 AC_SUBST(LIBCAP_LIBS)
 
 dnl Checks for header files.
-AC_HEADER_STDC
-AC_CHECK_HEADERS(direct.h dirent.h fcntl.h grp.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
+AC_CHECK_HEADERS(direct.h dirent.h fcntl.h grp.h inttypes.h netdb.h pwd.h stdarg.h stddef.h unistd.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/param.h sys/socket.h sys/sockio.h sys/stat.h sys/time.h sys/types.h sys/utsname.h sys/wait.h)
 AC_CHECK_HEADERS(netinet/in.h)
 AC_CHECK_HEADERS(arpa/inet.h arpa/nameser.h)
@@ -1289,45 +1228,6 @@ AC_C_BIGENDIAN
 # Checks whether "-traditional" is needed when using "ioctl".
 # XXX - do we need this?
 AC_PROG_GCC_TRADITIONAL
-
-#
-# Does GLib define G_GINT64_MODIFIER?
-#
-AC_MSG_CHECKING([[whether glib.h defines the G_GINT64_MODIFIER macro]])
-AC_COMPILE_IFELSE(
-  [
-    AC_LANG_SOURCE(
-      [[
-	#include <glib.h>
-	#include <glib/gprintf.h>
-	#include <stdio.h>
-
-	main()
-	{
-	  char strbuf[16+1];
-	  g_snprintf(strbuf, sizeof strbuf, "%" G_GINT64_MODIFIER "x\n", (gint64)1);
-	}
-      ]])
-  ],
-  [
-    AC_MSG_RESULT(yes)
-  ],
-  [
-    AC_MSG_RESULT(no)
-    AC_WIRESHARK_CHECK_64BIT_FORMAT(l,
-      [
-      AC_WIRESHARK_CHECK_64BIT_FORMAT(ll,
-	[
-	  AC_WIRESHARK_CHECK_64BIT_FORMAT(L,
-	    [
-	      AC_WIRESHARK_CHECK_64BIT_FORMAT(q,
-		[
-		  AC_MSG_ERROR([neither %lx nor %llx nor %Lx nor %qx worked on a 64-bit integer])
-		])
-	    ])
-	])
-    ])
-  ])
 
 GETOPT_C=""
 GETOPT_O=""

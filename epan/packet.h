@@ -25,14 +25,6 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
-/*
- * If <inttypes.h> defines formats to be used to print 64-bit integers,
- * include it.
- */
-#ifdef INTTYPES_H_DEFINES_FORMATS
-#include <inttypes.h>
-#endif
-
 #include "wiretap/wtap.h"
 #include "proto.h"
 #include "tvbuff.h"

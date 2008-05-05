@@ -1510,48 +1510,6 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 	AC_SUBST(KRB5_LIBS)
 ])
 
-dnl
-dnl Check whether a given format can be used to print 64-bit integers
-dnl
-AC_DEFUN([AC_WIRESHARK_CHECK_64BIT_FORMAT],
-[
-  AC_MSG_CHECKING([whether %$1x can be used to format 64-bit integers])
-  ac_save_CFLAGS="$CFLAGS"
-  ac_save_LIBS="$LIBS"
-  CFLAGS="$CFLAGS $GLIB_CFLAGS"
-  LIBS="$GLIB_LIBS $LIBS"
-  AC_RUN_IFELSE(
-    [
-      AC_LANG_SOURCE(
-	[[
-	  #include <glib.h>
-	  #include <glib/gprintf.h>
-	  #include <stdio.h>
-
-	  main()
-	  {
-	    guint64 t = 1;
-	    char strbuf[16+1];
-	    g_snprintf(strbuf, sizeof strbuf, "%016$1x", t << 32);
-	    if (strcmp(strbuf, "0000000100000000") == 0)
-	      exit(0);
-	    else
-	      exit(1);
-	  }
-	]])
-    ],
-    [
-      AC_DEFINE(G_GINT64_MODIFIER, "$1", [Format modifier for printing 64-bit numbers])
-      AC_MSG_RESULT(yes)
-    ],
-    [
-      AC_MSG_RESULT(no)
-      $2
-    ])
-  CFLAGS="$ac_save_CFLAGS"
-  LIBS="$ac_save_LIBS"
-])
-
 #
 # AC_WIRESHARK_GCC_CFLAGS_CHECK
 #
