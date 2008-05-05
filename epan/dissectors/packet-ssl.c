@@ -323,7 +323,7 @@ ssl_parse(void)
 
     /* remove only associations created from key list */
     tmp_stack = ep_stack_new();
-    g_tree_traverse(ssl_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
+    g_tree_foreach(ssl_associations, ssl_assoc_from_key_list, tmp_stack);
     while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
         ssl_association_remove(ssl_associations, tmp_assoc);
     }

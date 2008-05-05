@@ -217,7 +217,7 @@ dtls_parse(void)
 
   /* remove only associations created from key list */
   tmp_stack = ep_stack_new();
-  g_tree_traverse(dtls_associations, ssl_assoc_from_key_list, G_IN_ORDER, tmp_stack);
+  g_tree_foreach(dtls_associations, ssl_assoc_from_key_list, tmp_stack);
   while ((tmp_assoc = ep_stack_pop(tmp_stack)) != NULL) {
     ssl_association_remove(dtls_associations, tmp_assoc);
   }
