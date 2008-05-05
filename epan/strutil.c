@@ -265,7 +265,7 @@ format_text(const guchar *string, int len)
  * Given a string, generate a string from it that shows non-printable
  * characters as C-style escapes except a whitespace character
  * (space, tab, carriage return, new line, vertical tab, or formfeed)
- * which will be replaved by a space, and return a pointer to it.
+ * which will be replaced by a space, and return a pointer to it.
  */
 gchar *
 format_text_wsp(const guchar *string, int len)
