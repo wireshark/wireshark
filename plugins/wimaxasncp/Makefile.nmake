@@ -106,3 +106,6 @@ distclean: clean
 	rm -f wimaxasncp_dict.c wimaxasncp_dict_lex.h
 
 maintainer-clean: distclean
+
+checkapi: 
+	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

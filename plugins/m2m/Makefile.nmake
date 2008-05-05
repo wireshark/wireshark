@@ -98,3 +98,6 @@ clean:
 distclean: clean
 
 maintainer-clean: distclean
+
+checkapi: 
+	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

@@ -126,3 +126,6 @@ $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../plugins/mate
+
+checkapi: 
+	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)
