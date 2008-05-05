@@ -546,13 +546,18 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          ecat_header_tree = proto_item_add_subtree(aitem, ett_ecat_header);
 
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_cmd, tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
-         if( subCount < 10 )
-            aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_cmd[subCount], tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
+         if( subCount < 10 ){
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_cmd[subCount], tvb, suboffset, sizeof(ecHdr.cmd), TRUE);
+			PROTO_ITEM_SET_HIDDEN(aitem);
+		 }
+
          suboffset+= sizeof(ecHdr.cmd);
 
          aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_idx, tvb, suboffset, sizeof(ecHdr.idx), TRUE);
-         if( subCount < 10 )
-            aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_idx[subCount], tvb, suboffset, sizeof(ecHdr.idx), TRUE);
+         if( subCount < 10 ){
+            aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_idx[subCount], tvb, suboffset, sizeof(ecHdr.idx), TRUE);
+			PROTO_ITEM_SET_HIDDEN(aitem);
+		 }
          suboffset+= sizeof(ecHdr.idx);
 
          switch ( ecHdr.cmd )
@@ -561,20 +566,26 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          case 11:
          case 12:
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_lad, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_lad[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
 
             suboffset += (sizeof(ecHdr.anAddrUnion.a.adp)+sizeof(ecHdr.anAddrUnion.a.ado));
             break;
          default:
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_adp, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), TRUE);
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_adp[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.adp), TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
 
             suboffset+= sizeof(ecHdr.anAddrUnion.a.adp);
             aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_ado, tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_header_tree, hf_ecat_sub_ado[subCount], tvb, suboffset, sizeof(ecHdr.anAddrUnion.a.ado), TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
 
             suboffset+= sizeof(ecHdr.anAddrUnion.a.ado);
          }
@@ -729,14 +740,17 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                ecat_dc_tree = ecat_datagram_tree;
             }
 
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
 
             if ( pDC[3] != 0 )
             {
                proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_da, tvb, suboffset, 4, pDC[3] - pDC[0]);
-               if( subCount < 10 )
+               if( subCount < 10 ){
                   proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_da[subCount], tvb, suboffset, 4, pDC[3] - pDC[0]);
+			   }
 
                if ( pDC[1] != 0 )
                {
@@ -790,8 +804,10 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, TRUE);
             }
 
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, startOfData, dataLength, TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
          }
       }
       else
@@ -805,16 +821,20 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
             }
 
-            if( subCount < 10 )
-               aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+            if( subCount < 10 ){
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_data[subCount], tvb, offset + EcParserHDR_Len, ecHdr.len & 0x07ff, TRUE);
+			   PROTO_ITEM_SET_HIDDEN(aitem);
+			}
          }
       }
 
       if( tree )
       {
          aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_cnt, tvb, offset + EcParserHDR_Len + len , 2, TRUE);
-         if( subCount < 10 )
-            aitem = proto_tree_add_item_hidden(ecat_datagram_tree, hf_ecat_sub_cnt[subCount], tvb, offset + EcParserHDR_Len + len , 2, TRUE);
+         if( subCount < 10 ){
+            aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_sub_cnt[subCount], tvb, offset + EcParserHDR_Len + len , 2, TRUE);
+			PROTO_ITEM_SET_HIDDEN(aitem);
+		 }
       }
 
       offset+=subsize;

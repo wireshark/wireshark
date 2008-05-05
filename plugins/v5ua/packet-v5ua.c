@@ -965,7 +965,7 @@ static const value_string l3_info_element_values [] = {
 static void
 dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_item *parameter_item, packet_info *pinfo)
 {
-  proto_item *layer3_header_item,*layer3_item;
+  proto_item *layer3_header_item,*layer3_item, *hidden_item;
   proto_tree *layer3_header_tree,*layer3_tree;
   guint16 discriminator_offset, address_offset, low_address_offset, msg_type_offset,  info_element_offset;
   guint8  info_element, info_element_length, buffer;
@@ -1005,7 +1005,8 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 
 		  while(tvb_length_remaining(layer3_data_tvb,info_element_offset)){
 			  info_element = tvb_get_guint8(layer3_data_tvb, info_element_offset);
-			  proto_tree_add_item_hidden(layer3_tree, hf_l3_info_element, layer3_data_tvb,info_element_offset,INFO_ELEMENT_LENGTH,FALSE);
+			  hidden_item = proto_tree_add_item(layer3_tree, hf_l3_info_element, layer3_data_tvb,info_element_offset,INFO_ELEMENT_LENGTH,FALSE);
+			  PROTO_ITEM_SET_HIDDEN(hidden_item);
 			  switch(tvb_get_guint8(layer3_data_tvb, msg_type_offset) & 0xf0){
 			  case 0x00:
 				  /* Variable Length */
