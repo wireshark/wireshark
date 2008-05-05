@@ -66,6 +66,16 @@ my @prohibitedAPIs=
 	'strncasecmp',
 	'g_strcasecmp',
 	'g_strncasecmp',
+	'g_strup',
+	'g_strdown',
+	'g_string_up',
+	'g_string_down',
+	# Depreciated glib functions
+	'g_string_sprintf',
+	# use g_string_printf().
+	'g_string_sprintfa',
+	# use g_string_append_print
+	'g_tree_traverse',
 	# Use the eth_* version of these:
 	# (Necessary because on Windows we use UTF8 for throughout the code
 	# so we must tweak that to UTF16 before operating on the file.  Code
