@@ -37,7 +37,7 @@
 #   pkg_format - Like "format", but used for the package version.
 #
 # If run with the "-p" or "--package-version" argument, the
-# AM_INIT_AUTOMAKE macro in configure.in and the VERSION macro in
+# AC_INIT macro in configure.in and the VERSION macro in
 # config.nmake will have the pkg_format template appended to the 
 # version number.  svnversion.h will _not_ be generated if either
 # argument is present.
@@ -160,7 +160,7 @@ sub read_svn_info {
 
 
 # Read configure.in, then write it back out with an updated 
-# "AM_INIT_AUTOMAKE" line.
+# "AC_INIT" line.
 sub update_configure_in
 {
 	my $line;
@@ -171,8 +171,8 @@ sub update_configure_in
 	
 	open(CFGIN, "< configure.in") || die "Can't read configure.in!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^AM_INIT_AUTOMAKE\(wireshark, (\d+)\.(\d+).(\d+)/) {
-			$line = "AM_INIT_AUTOMAKE\(wireshark, $1.$2.$3$package_string)\n";
+		if ($line =~ /^AC_INIT\(wireshark, (\d+)\.(\d+).(\d+)/) {
+			$line = "AC_INIT\(wireshark, $1.$2.$3$package_string)\n";
 		}
 		$contents .= $line
 	}
