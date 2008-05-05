@@ -379,7 +379,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring, t
 	tap_id=find_tap_id(tapname);
 	if(!tap_id){
 		error_string = g_string_new("");
-		g_string_sprintf(error_string, "Tap %s not found", tapname);
+		g_string_printf(error_string, "Tap %s not found", tapname);
 		return error_string;
 	}
 
@@ -389,7 +389,7 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring, t
 	if(fstring){
 		if(!dfilter_compile(fstring, &tl->code)){
 			error_string = g_string_new("");
-			g_string_sprintf(error_string,
+			g_string_printf(error_string,
 			    "Filter \"%s\" is invalid - %s",
 			    fstring, dfilter_error_msg);
 			g_free(tl);
@@ -445,7 +445,7 @@ set_tap_dfilter(void *tapdata, const char *fstring)
 		if(fstring){
 			if(!dfilter_compile(fstring, &tl->code)){
 				error_string = g_string_new("");
-				g_string_sprintf(error_string,
+				g_string_printf(error_string,
 						 "Filter \"%s\" is invalid - %s",
 						 fstring, dfilter_error_msg);
 				return error_string;

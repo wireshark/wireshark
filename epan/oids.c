@@ -224,7 +224,7 @@ static GString* smi_errors;
 UAT_CSTRING_CB_DEF(smi_mod,name,smi_module_t)
 
 static void smi_error_handler(char *path, int line, int severity, char *msg, char *tag) {
-		g_string_sprintfa(smi_errors,"%s:%d %d %s %s\n",
+		g_string_append_printf(smi_errors,"%s:%d %d %s %s\n",
 						  path ? path : "-",
 						  line, severity,
 						  tag ? tag : "-",
@@ -1071,16 +1071,16 @@ oid_get_default_mib_path(void) {
 #ifdef _WIN32
 #define PATH_SEPARATOR ";"
 	path = get_datafile_path("snmp\\mibs");
-	g_string_sprintfa(path_str, "%s;", path);
+	g_string_append_printf(path_str, "%s;", path);
 	g_free (path);
 
 	path = get_persconffile_path("snmp\\mibs", FALSE, FALSE);
-	g_string_sprintfa(path_str, "%s", path);
+	g_string_append_printf(path_str, "%s", path);
 	g_free (path);
 #else
 #define PATH_SEPARATOR ":"
 	path = smiGetPath();
-	g_string_sprintfa(path_str, "%s", path);
+	g_string_append_printf(path_str, "%s", path);
 	free (path);
 #endif
 
@@ -1088,7 +1088,7 @@ oid_get_default_mib_path(void) {
 		if (!( smi_paths[i].name && *smi_paths[i].name))
 			continue;
 
-		g_string_sprintfa(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
+		g_string_append_printf(path_str,PATH_SEPARATOR "%s",smi_paths[i].name);
 	}
 
 	path_ret = path_str->str;

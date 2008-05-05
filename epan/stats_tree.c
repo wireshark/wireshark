@@ -128,7 +128,7 @@ extern void stats_tree_branch_to_str(const stat_node* node, GString* s, guint in
 	
 	indentation[i++] = '\0';
 	
-	g_string_sprintfa(s,format,
+	g_string_append_printf(s,format,
 					  indentation,node->name,value,rate,percent);
 		
 	if (node->children) {

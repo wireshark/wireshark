@@ -1,4 +1,7 @@
 /*
+ *
+ * $Id$
+ *
  * Reed-Solomon coding and decoding
  * Phil Karn (karn@ka9q.ampr.org) September 1996
  * Separate CCSDS version create Dec 1998, merged into this version May 1999

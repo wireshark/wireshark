@@ -304,3 +304,5 @@ dtd_grammar.h: dtd_grammar.c
 dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
 	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
 
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl $(LIBWIRESHARK_SRC) \

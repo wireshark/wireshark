@@ -109,3 +109,7 @@ distclean: clean
 
 maintainer-clean: distclean
 	rm -f $(GENERATED_FILES)
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC) \
+	$(CLEAN_DISSECTOR_SRC)
