@@ -80,12 +80,10 @@ static guint get_xot_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
    return XOT_HEADER_LENGTH + plen;
 }
 
-/* next parameter describes if the routine should return the current known
-   length or the next length required to determine the length of a sequence */
-static guint get_xot_pdu_len_mult_int(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, int next)
+static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-   int offset_next = MAX(offset, tvb_length_remaining(tvb, offset));
-   int offset_sequence = offset;
+   int offset_before = offset; /* offset where we start this test */
+   int offset_next = offset + XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
    int tvb_len;
 
   while (tvb_len = tvb_length_remaining(tvb, offset), tvb_len>0){
@@ -94,40 +92,33 @@ static guint get_xot_pdu_len_mult_int(packet_info *pinfo _U_, tvbuff_t *tvb, int
       guint16 bytes0_1;
       guint8 pkt_type;
       gboolean m_bit_set;
-      int offset_x25 = 0;
+      int offset_x25 = offset + XOT_HEADER_LENGTH;
 
-      /* When checking sequences of X25 packets, require the x25 header as well */
-      plen = XOT_HEADER_LENGTH;
-      if (next) plen += X25_MIN_HEADER_LENGTH;
-      
-      if (tvb_len < plen) {
-         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; /* tcp_dissect_pdus
-                                                               will set this */
-         return next ? plen : tvb_len;
+      /* Minimum where next starts */
+      offset_next = offset_x25 + X25_MIN_HEADER_LENGTH;
+
+      if (tvb_len < XOT_HEADER_LENGTH) {
+         return offset_next-offset_before;
       }
 
       /*
        * Get the length of the current X.25-over-TCP packet.
        */
       plen = get_xot_pdu_len(pinfo, tvb, offset);
+      offset_next = offset + plen;
 
       /* Make sure we have enough data */
       if (tvb_len < plen){
-         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT; /* tcp_dissect_pdus
-                                                               will set this */
-         return next ? plen : tvb_len;
+         return offset_next-offset_before;
       }
       
-      offset_x25  = offset + XOT_HEADER_LENGTH;
-      offset_next = offset + plen;
-
       /*Some minor code copied from packet-x25.c */
       bytes0_1 = tvb_get_ntohs(tvb,  offset_x25+0);
       pkt_type = tvb_get_guint8(tvb, offset_x25+2);
 
       /* If this is the first packet and it is not data, no sequence needed */
-      if (offset == offset_sequence && !PACKET_IS_DATA(pkt_type)) {
-          return offset_next - offset_sequence; 
+      if (offset == offset_before && !PACKET_IS_DATA(pkt_type)) {
+          return offset_next-offset_before; 
       }
 
       /* Check for data, there can be X25 control packets in the X25 data */
@@ -141,23 +132,16 @@ static guint get_xot_pdu_len_mult_int(packet_info *pinfo _U_, tvbuff_t *tvb, int
 
          if (!m_bit_set){
             /* We are done with this sequence when the mbit is no longer set */
-            return offset_next-offset_sequence;
+            return offset_next-offset_before;
          }
       }
       offset = offset_next;
+      offset_next += XOT_HEADER_LENGTH + X25_MIN_HEADER_LENGTH;
   }
   
   /* not enough data */
-  /* When checking sequences of X25 packets, require the x25 header as well */
-  /* Also include the extra bytes when checking length, to satisfy
-     tcp_dissect_pdus len check */
-  /*if (next)*/ offset += XOT_HEADER_LENGTH+X25_MIN_HEADER_LENGTH;
-  return offset - offset_sequence;
-}
-
-static guint get_xot_pdu_len_mult(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
-{
-   return get_xot_pdu_len_mult_int(pinfo, tvb, offset, 0);
+  pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+  return offset_next - offset_before;
 }
 
 static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -236,25 +220,45 @@ static void dissect_xot_mult(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 static int dissect_xot_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-   /* Let tcp_dissect_pdu report an error */
    int tvb_len = tvb_length(tvb);
+   int len = 0;
+   
    if (tvb_len >= 2 && tvb_get_ntohs(tvb,0) != XOT_VERSION) {
       return 0;
    }
-   /* No more checks if not desegmenting x25 sequences */
+   
    if (!x25_desegment || !xot_desegment){
       tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
-                               XOT_HEADER_LENGTH,
-                               get_xot_pdu_len, 
-							   dissect_xot_pdu);
-	return tvb_length(tvb);
-	}
-
-   tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
-                            get_xot_pdu_len_mult_int(pinfo, tvb, 0, 1),
-                            get_xot_pdu_len_mult, 
-							dissect_xot_mult);
-   return tvb_length(tvb);
+                       XOT_HEADER_LENGTH,
+                       get_xot_pdu_len, 
+                       dissect_xot_pdu);
+      len=get_xot_pdu_len(pinfo, tvb, 0);
+   } else {
+      /* Use length version that "peeks" into X25, possibly several XOT packets */
+      tcp_dissect_pdus(tvb, pinfo, tree, xot_desegment,
+                       XOT_HEADER_LENGTH,
+                       get_xot_pdu_len_mult, 
+                       dissect_xot_mult);
+      len=get_xot_pdu_len_mult(pinfo, tvb, 0);
+   }
+   /*As tcp_dissect_pdus will not report the success/failure, we have to compute
+     again */
+   if (len < XOT_HEADER_LENGTH) {
+      /* TCP has reported bounds error */
+      len = 0;
+   } else if (tvb_len < XOT_HEADER_LENGTH) {
+      pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+      len=tvb_len - XOT_HEADER_LENGTH; /* bytes missing */
+   } else if (tvb_len < len) {
+      if (x25_desegment){
+         /* As the "fixed_len" is not fixed here, just request new segments */
+         pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+      } else {
+         pinfo->desegment_len = len - tvb_len;
+      }
+      len=tvb_len - len; /* bytes missing */
+   }
+   return len;
 }
 
 /* Register the protocol with Wireshark */
