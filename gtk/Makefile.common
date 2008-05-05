@@ -239,7 +239,6 @@ noinst_HEADERS = \
 	gui_utils.h	\
 	help_dlg.h	\
 	hostlist_table.h \
-	isprint.h	\
 	keys.h		\
 	macros_dlg.h	\
 	main.h		\

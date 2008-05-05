@@ -882,10 +882,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\isprint.h"
-				>
-			</File>
-			<File
 				RelativePath=".\keys.h"
 				>
 			</File>
