@@ -215,7 +215,7 @@ release-notes.chm: $(RELEASE_NOTES_SOURCE)
 
 
 wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
-        $(PERL) make-wsluarm.pl $(WSLUA_MODULES)
-        touch wsluarm
+	$(PERL) make-wsluarm.pl $(WSLUA_MODULES)
+	touch wsluarm
 
 
