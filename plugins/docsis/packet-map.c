@@ -88,7 +88,7 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint8 iuc;
   guint16 offset;
   guint32 ie, temp, mask;
-  proto_item *it;
+  proto_item *it, *item;
   proto_tree *map_tree;
   guint8 upchid, ucd_count;
 
@@ -150,9 +150,12 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  iuc = (guint8) (temp & 0x0F);
 	  mask = 0x3FFF;
 	  offset = (guint16) (ie & mask);
-	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_sid, tvb, pos, 4, FALSE);
-	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_iuc, tvb, pos, 4, FALSE);
-	  proto_tree_add_item_hidden(map_tree, hf_docsis_map_offset, tvb, pos, 4, FALSE);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_sid, tvb, pos, 4, FALSE);
+	  PROTO_ITEM_SET_HIDDEN(item);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_iuc, tvb, pos, 4, FALSE);
+	  PROTO_ITEM_SET_HIDDEN(item);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_offset, tvb, pos, 4, FALSE);
+	  PROTO_ITEM_SET_HIDDEN(item);
 	  if (sid == 0x3FFF)
 	    proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,
 				      ie, "SID = 0x%x (All CM's), IUC = %s, Offset = %u",

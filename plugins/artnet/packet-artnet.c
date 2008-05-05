@@ -755,6 +755,7 @@ static guint
 dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree *hi,*si;
+  proto_item *item;
   guint16 length,r,c,row_count;
   guint8 v;
   static char string[255];
@@ -823,8 +824,9 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
   }
 
   /* Add the real type hidden */
-  proto_tree_add_item_hidden(si, hf_artnet_output_data_filter, tvb,
+  item = proto_tree_add_item(si, hf_artnet_output_data_filter, tvb,
                       offset, length, FALSE );
+  PROTO_ITEM_SET_HIDDEN(item);
   offset += length;
 
   return offset;

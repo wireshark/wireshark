@@ -208,6 +208,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	static char string[255];
 
 	proto_tree *hi,*si;
+	proto_item *item;
 	guint16 length,r,c,row_count;
 	guint8 v,type,count;
 	guint16 ci,ui,i,start_offset,end_offset;
@@ -315,8 +316,9 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 			ptr = string;
 		}
 		
-		proto_tree_add_item_hidden(si, hf_enttec_dmx_data_data_filter, tvb,
+		item = proto_tree_add_item(si, hf_enttec_dmx_data_data_filter, tvb,
 				offset, length, FALSE );
+		PROTO_ITEM_SET_HIDDEN(item);
 		
 		offset += length;
 	} else if (type == ENTTEC_DATA_TYPE_CHAN_VAL) {
