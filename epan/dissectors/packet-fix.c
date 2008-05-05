@@ -919,7 +919,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             summary_label = g_string_new(msg_type);
         } else {
             summary_label = g_string_new("FIX Message");
-            g_string_sprintfa(summary_label, " (%s)", value);
+            g_string_append_printf(summary_label, " (%s)", value);
         }
     }
 
@@ -1093,7 +1093,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                        enhance the value display for the MsgType field */
                     label = g_string_new(value);
                     msg_type = (char *)g_datalist_get_data(&msg_types, value);
-                    if (NULL != msg_type) g_string_sprintfa(label, " (%s)", msg_type);
+                    if (NULL != msg_type) g_string_append_printf(label, " (%s)", msg_type);
                     proto_tree_add_string(fix_tree, hf_fix_MsgType, tvb, offset, field_len, label->str);
                     g_string_free(label, TRUE);
                     break;
@@ -3026,7 +3026,7 @@ dissect_fix(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
         if (msg_count > 1)
-            g_string_sprintfa(summary_label, " (%d)", msg_count);
+            g_string_append_printf(summary_label, " (%d)", msg_count);
         col_add_str(pinfo->cinfo, COL_INFO, summary_label->str);
         g_string_free(summary_label, TRUE);
     }

@@ -212,7 +212,7 @@ static gint add_message(tvbuff_t * tvb, gint offset, proto_tree * tree,
 	proto_tree_add_item(msg_tree, hf_armagetronad_descriptor_id, tvb,
 			    offset, 2, FALSE);
 	if (info)
-		g_string_sprintfa(info, "%s, ", descriptor);
+		g_string_append_printf(info, "%s, ", descriptor);
 
 	/* MessageID field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_message_id, tvb,

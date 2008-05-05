@@ -774,7 +774,7 @@ static gchar* fully_qualified_name(GPtrArray* hier, gchar* name, gchar* proto_na
 	g_string_append(s,".");
 	
 	for (i = 1; i < hier->len; i++) {
-		g_string_sprintfa(s, "%s.",(gchar*)g_ptr_array_index(hier,i));
+		g_string_append_printf(s, "%s.",(gchar*)g_ptr_array_index(hier,i));
 	}
 
 	g_string_append(s,name);
@@ -806,7 +806,7 @@ static xml_ns_t* make_xml_hier(gchar* elem_name,
     }
 
 	if (! ( orig = g_hash_table_lookup(elements,elem_name) )) {
-		g_string_sprintfa(error,"element '%s' is not defined\n", elem_name);
+		g_string_append_printf(error,"element '%s' is not defined\n", elem_name);
 		return NULL;
 	}
 
@@ -905,7 +905,7 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		element->elements = g_hash_table_new(g_str_hash,g_str_equal);
 
         if( g_hash_table_lookup(elements,element->name) ) {
-            g_string_sprintfa(errors,"element %s defined more than once\n", element->name);
+            g_string_append_printf(errors,"element %s defined more than once\n", element->name);
             free_elements(NULL,element,NULL);
         } else {
             g_hash_table_insert(elements,element->name,element);
@@ -921,7 +921,7 @@ static void register_dtd(dtd_build_data_t* dtd_data, GString* errors) {
 		xml_ns_t* element = g_hash_table_lookup(elements,nl->name);
 
 		if (!element) {
-			g_string_sprintfa(errors,"element %s is not defined\n", nl->name);
+			g_string_append_printf(errors,"element %s is not defined\n", nl->name);
 
             goto next_attribute;
 		}

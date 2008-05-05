@@ -1588,7 +1588,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
                     /* snarf each value in path */
                     for (j = 0; j < length; j++) {
-			g_string_sprintfa(as_path_gstr, "%u%s",
+			g_string_append_printf(as_path_gstr, "%u%s",
 				(asn_len == 2) ?
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
 				(type == AS_SET || type == AS_CONFED_SET) ?
@@ -1616,7 +1616,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
                 /* check for empty AS_PATH */
 		if (tlen == 0)
-                    g_string_sprintf(as_path_gstr, "empty");
+                    g_string_printf(as_path_gstr, "empty");
 
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
                         "%s: %s (%u byte%s)",
@@ -1703,7 +1703,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		    else if (tvb_get_ntohl(tvb, q) == BGP_COMM_NO_EXPORT_SUBCONFED)
                         g_string_append(communities_gstr, "NO_EXPORT_SUBCONFED ");
                     else {
-                        g_string_sprintfa(communities_gstr, "%u:%u ",
+                        g_string_append_printf(communities_gstr, "%u:%u ",
 		                tvb_get_ntohs(tvb, q),
                                 tvb_get_ntohs(tvb, q + 2));
                     }
@@ -1748,7 +1748,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                 /* snarf each cluster list */
                 while (q < end) {
 		    ipaddr = tvb_get_ipv4(tvb, q);
-                    g_string_sprintfa(cluster_list_gstr, "%s ", ip_to_str((guint8 *)&ipaddr));
+                    g_string_append_printf(cluster_list_gstr, "%s ", ip_to_str((guint8 *)&ipaddr));
                     q += 4;
                 }
                 /* cleanup end of string */
@@ -1890,7 +1890,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
                     /* snarf each value in path */
                     for (j = 0; j < length; j++) {
-			g_string_sprintfa(as_path_gstr, "%u%s",
+			g_string_append_printf(as_path_gstr, "%u%s",
 				(asn_len == 2) ? 
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q),
                                 (type == AS_SET || type == AS_CONFED_SET) ? ", " : " ");
