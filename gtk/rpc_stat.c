@@ -330,10 +330,10 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	const char *filter;
 
 	str = g_string_new("rpc,srt");
-	g_string_sprintfa(str, ",%d,%d", rpc_program, rpc_version);
+	g_string_append_printf(str, ",%d,%d", rpc_program, rpc_version);
 	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
-		g_string_sprintfa(str, ",%s", filter);
+		g_string_append_printf(str, ",%s", filter);
 	}
 
 	gtk_rpcstat_init(str->str,NULL);

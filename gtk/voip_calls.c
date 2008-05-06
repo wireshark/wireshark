@@ -2832,7 +2832,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 			 ctx_term;
 			 ctx_term = ctx_term->next ) {
 			if ( ctx_term->term && ctx_term->term->str) {
-				g_string_sprintfa(s," %s",ctx_term->term->str);
+				g_string_append_printf(s," %s",ctx_term->term->str);
 			}
 		}
 		

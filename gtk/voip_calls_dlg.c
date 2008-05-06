@@ -303,18 +303,18 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 	filter_string_fwd = g_string_new(filter_prepend);
 	
 	/* look in the Graph and get all the frame_num for this call */
-	g_string_sprintfa(filter_string_fwd, " (");
+	g_string_append_printf(filter_string_fwd, " (");
 	list = g_list_first(voip_calls_get_info()->graph_analysis->list);
 	while (list)
 	{
 		gai = list->data;
 		if (gai->conv_num == selected_call_fwd->call_num){
-			g_string_sprintfa(filter_string_fwd,"%sframe.number == %d", isFirst?"":" or ", gai->frame_num );
+			g_string_append_printf(filter_string_fwd,"%sframe.number == %d", isFirst?"":" or ", gai->frame_num );
 			isFirst = FALSE;
 		}		
 		list = g_list_next (list);
 	}
-	g_string_sprintfa(filter_string_fwd, ") ");
+	g_string_append_printf(filter_string_fwd, ") ");
 	filter_length = filter_length + filter_string_fwd->len;
 
 	if (filter_length < max_filter_length){
@@ -326,7 +326,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 		switch(selected_call_fwd->protocol){
 			case VOIP_SIP:
 				tmp_sipinfo = selected_call_fwd->prot_info;
-				g_string_sprintfa(filter_string_fwd,
+				g_string_append_printf(filter_string_fwd,
 				   "(sip.Call-ID == \"%s\") ",
 				   tmp_sipinfo->call_identifier 
 				   );
@@ -334,7 +334,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				break;
 			case VOIP_ISUP:
 				tmp_isupinfo = selected_call_fwd->prot_info;
-				g_string_sprintfa(filter_string_fwd,
+				g_string_append_printf(filter_string_fwd,
 				   "(isup.cic == %i and frame.number >=%i and frame.number<=%i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or((mtp3.dpc == %i) and (mtp3.opc == %i))) ",
 				   tmp_isupinfo->cic,selected_call_fwd->first_frame_num,
 				   selected_call_fwd->last_frame_num, 
@@ -345,7 +345,7 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				break;
 			case VOIP_H323:
 				tmp_h323info = selected_call_fwd->prot_info;
-				g_string_sprintfa(filter_string_fwd,
+				g_string_append_printf(filter_string_fwd,
 				   "((h225.guid == %s || q931.call_ref == %x:%x || q931.call_ref == %x:%x) ",
 				   guid_to_str(&tmp_h323info->guid[0]),
 				   (guint8)(tmp_h323info->q931_crv & 0xff),
@@ -356,12 +356,12 @@ voip_calls_on_filter                    (GtkButton       *button _U_,
 				while (list)
 				{
 					h245_add=list->data;
-					g_string_sprintfa(filter_string_fwd,
+					g_string_append_printf(filter_string_fwd,
 						" || (ip.addr == %s && tcp.port == %d && h245) ", 
 						ip_to_str((guint8 *)&(h245_add->h245_address)), h245_add->h245_port);
 				list = g_list_next(list);
 				}
-				g_string_sprintfa(filter_string_fwd, ") ");
+				g_string_append_printf(filter_string_fwd, ") ");
 				gtk_entry_append_text(GTK_ENTRY(main_display_filter_widget), filter_string_fwd->str);
 				break;
 			case TEL_H248: {

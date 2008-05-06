@@ -151,7 +151,7 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 			GString* s = g_string_sized_new( len*2 + 1 );
 			guint i;
 			
-			for (i=0; i<len;i++) g_string_sprintfa(s,"%.2X",((guint8*)ptr)[i]);
+			for (i=0; i<len;i++) g_string_append_printf(s,"%.2X",((guint8*)ptr)[i]);
 			
 			out = ep_strdup_printf(s->str);
 			

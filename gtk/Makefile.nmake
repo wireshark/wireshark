@@ -142,3 +142,6 @@ doxygen.chm:
 
 doxygen: doxygen.cfg doxygen-run doxygen.chm
 
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl $(WIRESHARK_GTK_SRC) \
+	$(WIRESHARK_TAP_SRC)

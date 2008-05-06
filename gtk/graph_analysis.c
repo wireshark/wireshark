@@ -342,11 +342,11 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 	/* Write the node names on top */
 	for (i=0; i<display_nodes; i++){
 		/* print the node identifiers */
-		g_string_sprintf(label_string, "| %s",
+		g_string_printf(label_string, "| %s",
 			get_addr_name(&(user_data->nodes[i+first_node])));
 		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
 		fprintf(of, "%s", label_string->str);
-		g_string_sprintf(label_string, "| ");
+		g_string_printf(label_string, "| ");
 		enlarge_string(label_string, NODE_CHARS_WIDTH, ' ');
 		g_string_append(empty_line, label_string->str);
 	}
@@ -385,19 +385,19 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 		/* write the conversation number */
 		if (several_convs){
-			g_string_sprintf(label_string, "%i", user_data->dlg.items[current_item].conv_num);
+			g_string_printf(label_string, "%i", user_data->dlg.items[current_item].conv_num);
 			enlarge_string(label_string, 5, ' ');
 			fprintf(of, "%s", label_string->str);
 		}
 
 		/* write the time */
-		g_string_sprintf(label_string, "|%.3f", user_data->dlg.items[current_item].time);
+		g_string_printf(label_string, "|%.3f", user_data->dlg.items[current_item].time);
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
 
 		/* write the frame label */
 
-		g_string_sprintf(tmp_str, empty_line->str);
+		g_string_printf(tmp_str, empty_line->str);
 		overwrite(tmp_str,user_data->dlg.items[current_item].frame_label,
 			start_position,
 			end_position
@@ -410,7 +410,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 		/* write the arrow and frame label*/
 		fprintf(of, "%s", empty_header);
 
-		g_string_sprintf(tmp_str, empty_line->str);
+		g_string_printf(tmp_str, empty_line->str);
 
 		g_string_truncate(tmp_str2, 0);
 
@@ -419,7 +419,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 			g_string_append_c(tmp_str2, '>');
 		}
 		else{
-			g_string_sprintf(tmp_str2, "<");
+			g_string_printf(tmp_str2, "<");
 			enlarge_string(tmp_str2, item_width-1, '-');
 		}
 

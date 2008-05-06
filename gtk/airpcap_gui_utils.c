@@ -85,7 +85,7 @@ airpcap_get_all_channels_list(airpcap_if_info_t* if_info)
             if(current_adapter != if_info && g_ascii_strncasecmp("AirPcap USB wireless capture adapter nr.", current_adapter->description, 40) == 0)
             {
                 chan_str = ieee80211_mhz_to_str(current_adapter->channelInfo.Frequency);
-                g_string_sprintfa(freq_str, "%s%s", sep, chan_str);
+                g_string_append_printf(freq_str, "%s%s", sep, chan_str);
                 g_free(chan_str);
                 sep = ", ";
             }

@@ -360,7 +360,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	const char *filter;
 
 	str = g_string_new("dcerpc,srt");
-	g_string_sprintfa(str,
+	g_string_append_printf(str,
 	    ",%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%u.%u",
 	    dcerpc_uuid_program->Data1, dcerpc_uuid_program->Data2,
 	    dcerpc_uuid_program->Data3,
@@ -371,7 +371,7 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	    dcerpc_version, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]!=0){
-		g_string_sprintfa(str, ",%s", filter);
+		g_string_append_printf(str, ",%s", filter);
 	}
 
 	gtk_dcerpcstat_init(str->str,NULL);

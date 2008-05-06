@@ -32,7 +32,7 @@
 #ifdef HAVE_AIRPCAP
 
 #include <gtk/gtk.h>
-//#include <glib/gprintf.h>
+/*#include <glib/gprintf.h> */
 
 #include <string.h>
 

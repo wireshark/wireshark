@@ -681,12 +681,12 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
     i = 0;
 	while (i<data_len){
         if(end_of_line) {
-            g_string_sprintfa(hex_str,"%04x  ",i); /* Offset - note that we _append_ here */
+            g_string_append_printf(hex_str,"%04x  ",i); /* Offset - note that we _append_ here */
         }
 
-        g_string_sprintfa(hex_str," %02x",*data_p);
+        g_string_append_printf(hex_str," %02x",*data_p);
         if(append_text) {
-            g_string_sprintfa(char_str,"%c",isprint(*data_p) ? *data_p : '.');
+            g_string_append_printf(char_str,"%c",isprint(*data_p) ? *data_p : '.');
         }
 
         ++data_p;
@@ -745,7 +745,7 @@ int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int dat
 static 
 int copy_hex_bytes_hex(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
-    g_string_sprintfa(copy_buffer, "%02x", *data_p);
+    g_string_append_printf(copy_buffer, "%02x", *data_p);
     return 1;
 }
 

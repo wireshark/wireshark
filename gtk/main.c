@@ -289,7 +289,7 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     /* Don't change the current display filter if we only want to copy the filter */
     if (action&MATCH_SELECTED_COPY_ONLY) {
         GString *gtk_text_str = g_string_new("");
-        g_string_sprintfa(gtk_text_str, "%s", new_filter);
+        g_string_append_printf(gtk_text_str, "%s", new_filter);
         copy_to_clipboard(gtk_text_str);
         g_string_free(gtk_text_str, TRUE);
     } else {
@@ -478,11 +478,11 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_)
     char *stringpointer = labelstring;
 
     if (cfile.finfo_selected->rep->representation != 0) {
-        g_string_sprintfa(gtk_text_str, "%s", cfile.finfo_selected->rep->representation);   /* Get the represented data */
+        g_string_append_printf(gtk_text_str, "%s", cfile.finfo_selected->rep->representation);   /* Get the represented data */
     }
     if (gtk_text_str->len == 0) {                                                           /* If no representation then... */
         proto_item_fill_label(cfile.finfo_selected, stringpointer);                         /* Try to read the value */
-        g_string_sprintfa(gtk_text_str, "%s", stringpointer);
+        g_string_append_printf(gtk_text_str, "%s", stringpointer);
     }
     if (gtk_text_str->len == 0) {                                                           /* Could not get item so display error msg */
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not acquire information to copy, try expanding or choosing another item");
@@ -1812,7 +1812,7 @@ main(int argc, char *argv[])
   comp_info_str = g_string_new("Compiled ");
 
   g_string_append(comp_info_str, "with ");
-  g_string_sprintfa(comp_info_str,
+  g_string_append_printf(comp_info_str,
 #ifdef GTK_MAJOR_VERSION
                     "GTK+ %d.%d.%d", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
                     GTK_MICRO_VERSION);

@@ -2029,7 +2029,7 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 	g_string_append(CSV_str, "Interval start");
 	for(i=0;i<MAX_GRAPHS;i++) {
 		if (io->graphs[i].display) {
-			g_string_sprintfa(CSV_str, ",Graph %d", i+1);
+			g_string_append_printf(CSV_str, ",Graph %d", i+1);
 		}
 	}
 	g_string_append(CSV_str,"\n");
@@ -2040,7 +2040,7 @@ copy_as_csv_cb(GtkWindow *copy_bt _U_, gpointer data)
 		for(i=0;i<MAX_GRAPHS;i++) {
 			if (io->graphs[i].display) {
 				val=get_it_value(io, i, interval/io->interval);
-				g_string_sprintfa(CSV_str, ",%d", val);
+				g_string_append_printf(CSV_str, ",%d", val);
 			}
 		}
 		g_string_append(CSV_str,"\n");

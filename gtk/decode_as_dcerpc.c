@@ -376,17 +376,17 @@ decode_dcerpc_add_page (packet_info *pinfo)
 
     switch(binding->ptype) {
     case(PT_TCP):
-        g_string_sprintf(gs2, "TCP port");
+        g_string_printf(gs2, "TCP port");
         break;
     case(PT_UDP):
-        g_string_sprintf(gs2, "UDP port");
+        g_string_printf(gs2, "UDP port");
         break;
     default:
-        g_string_sprintf(gs2, "Unknown port type");
+        g_string_printf(gs2, "Unknown port type");
     }
 
     /* XXX - how to print the address binding->addr_a? */
-    g_string_sprintf(gs, "Address: ToBeDone %s: %u", gs2->str, binding->port_a);
+    g_string_printf(gs, "Address: ToBeDone %s: %u", gs2->str, binding->port_a);
     label = gtk_label_new(gs->str);
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
 
@@ -394,14 +394,14 @@ decode_dcerpc_add_page (packet_info *pinfo)
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
 
     /* XXX - how to print the address binding->addr_b? */
-    g_string_sprintf(gs, "Address: ToBeDone %s: %u", gs2->str, binding->port_b);
+    g_string_printf(gs, "Address: ToBeDone %s: %u", gs2->str, binding->port_b);
     label = gtk_label_new(gs->str);
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
 
     label = gtk_label_new("&");
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
 
-    g_string_sprintf(gs, "Context ID: %u", binding->ctx_id);
+    g_string_printf(gs, "Context ID: %u", binding->ctx_id);
     label = gtk_label_new(gs->str);
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
 
@@ -409,7 +409,7 @@ decode_dcerpc_add_page (packet_info *pinfo)
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
     gtk_widget_set_sensitive(label, binding->smb_fid);
 
-    g_string_sprintf(gs, "SMB FID: %u", binding->smb_fid);
+    g_string_printf(gs, "SMB FID: %u", binding->smb_fid);
     label = gtk_label_new(gs->str);
     gtk_box_pack_start(GTK_BOX(info_vb), label, TRUE, TRUE, 0);
     gtk_widget_set_sensitive(label, binding->smb_fid);

@@ -482,10 +482,10 @@ set_rule_text(rule_info_t *rule_info) {
     GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(rule_info->text));
 
     if (prod < NUM_PRODS) {
-        g_string_sprintf(rtxt, "%s %s\n", products[prod].comment_pfx, products[prod].name);
+        g_string_printf(rtxt, "%s %s\n", products[prod].comment_pfx, products[prod].name);
         switch(rt) {
             case RT_NONE:
-                g_string_sprintfa(rtxt, "%s Not supported", products[prod].comment_pfx);
+                g_string_append_printf(rtxt, "%s Not supported", products[prod].comment_pfx);
                 rt_func = sf_dummy;
                 break;
             case RT_MAC_SRC:
@@ -520,7 +520,7 @@ set_rule_text(rule_info_t *rule_info) {
     if (rt_func) {
         rt_func(rtxt, addr_str, port, rule_info->ptype, rule_info->inbound, rule_info->deny);
     } else {
-        g_string_sprintfa(rtxt, "ERROR: Unable to create rule");
+        g_string_append_printf(rtxt, "ERROR: Unable to create rule");
     }
 
     gtk_text_buffer_set_text(buf, rtxt->str, rtxt->len);
@@ -538,121 +538,121 @@ static void sf_dummy(GString *rtxt _U_, gchar *addr _U_, guint32 port _U_, port_
 #define IPFW_DENY (deny ? "deny" : "allow")
 #define IPFW_IN (inbound ? "in" : "out")
 static void sf_ipfw_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "add %s MAC %s any %s",
+    g_string_append_printf(rtxt, "add %s MAC %s any %s",
         IPFW_DENY, addr, IPFW_IN);
 }
 
 #define NF_DROP (deny ? "DROP" : "ACCEPT")
 #define NF_INPUT (inbound ? "INPUT" : "OUTPUT")
 static void sf_netfilter_mac(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "iptables -A %s --mac-source %s -j %s",
+    g_string_append_printf(rtxt, "iptables -A %s --mac-source %s -j %s",
         NF_INPUT, addr, NF_DROP);
 }
 
 /* IPv4 */
 #define IOS_DENY (deny ? "deny" : "permit")
 static void sf_ios_std_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound _U_, gboolean deny) {
-    g_string_sprintfa(rtxt, "access-list NUMBER %s host %s", IOS_DENY, addr);
+    g_string_append_printf(rtxt, "access-list NUMBER %s host %s", IOS_DENY, addr);
 }
 
 static void sf_ios_ext_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_sprintfa(rtxt, "access-list NUMBER %s ip host %s any", IOS_DENY, addr);
+        g_string_append_printf(rtxt, "access-list NUMBER %s ip host %s any", IOS_DENY, addr);
     else
-        g_string_sprintfa(rtxt, "access-list NUMBER %s ip any host %s", IOS_DENY, addr);
+        g_string_append_printf(rtxt, "access-list NUMBER %s ip any host %s", IOS_DENY, addr);
 }
 
 #define IPFILTER_DENY (deny ? "block" : "pass")
 #define IPFILTER_IN (inbound ? "in" : "out")
 static void sf_ipfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "%s %s on le0 from %s to any",
+    g_string_append_printf(rtxt, "%s %s on le0 from %s to any",
         IPFILTER_DENY, IPFILTER_IN, addr);
 }
 
 static void sf_ipfw_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "add %s ip from %s to any %s",
+    g_string_append_printf(rtxt, "add %s ip from %s to any %s",
         IPFW_DENY, addr, IPFW_IN);
 }
 
 static void sf_netfilter_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "iptables -A %s -i eth0 -d %s/32 -j %s",
+    g_string_append_printf(rtxt, "iptables -A %s -i eth0 -d %s/32 -j %s",
         NF_INPUT, addr, NF_DROP);
 }
 
 #define PF_DENY (deny ? "block" : "pass")
 #define PF_IN (inbound ? "in" : "out")
 static void sf_pf_ipv4(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "%s %s quick on $ext_if from %s to any",
+    g_string_append_printf(rtxt, "%s %s quick on $ext_if from %s to any",
         PF_DENY, PF_IN, addr);
 }
 
 /* Port */
 #define RT_TCP_UDP (ptype == PT_TCP ? "tcp" : "udp")
 static void sf_ios_ext_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_sprintfa(rtxt, "access-list NUMBER %s %s any any eq %u",
+    g_string_append_printf(rtxt, "access-list NUMBER %s %s any any eq %u",
         IOS_DENY, RT_TCP_UDP, port);
 }
 
 static void sf_ipfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype _U_, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "%s %s on le0 proto %s from any to any port = %u",
+    g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to any port = %u",
         IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, port);
 }
 
 static void sf_ipfw_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "add %s %s from any to any %u %s",
+    g_string_append_printf(rtxt, "add %s %s from any to any %u %s",
         IPFW_DENY, RT_TCP_UDP, port, IPFW_IN);
 }
 
 static void sf_netfilter_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "iptables -A %s -p %s --destination-port %u -j %s",
+    g_string_append_printf(rtxt, "iptables -A %s -p %s --destination-port %u -j %s",
             NF_INPUT, RT_TCP_UDP, port, NF_DROP);
 }
 
 static void sf_pf_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "%s %s quick on $ext_if proto %s from any to any port %u",
+    g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from any to any port %u",
         PF_DENY, PF_IN, RT_TCP_UDP, port);
 }
 
 #define NETSH_DENY (deny ? "DISABLE" : "ENABLE")
 static void sf_netsh_port(GString *rtxt, gchar *addr _U_, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_sprintfa(rtxt, "add portopening %s %u Wireshark %s",
+    g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s",
         RT_TCP_UDP, port, NETSH_DENY);
 }
 
 /* IPv4 + port */
 static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype _U_, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_sprintfa(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
+        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
     else
-        g_string_sprintfa(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
+        g_string_append_printf(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_DENY, RT_TCP_UDP, addr, port);
 }
 
 static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_sprintfa(rtxt, "%s %s on le0 proto %s from %s to any port = %u",
+        g_string_append_printf(rtxt, "%s %s on le0 proto %s from %s to any port = %u",
             IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
     else
-        g_string_sprintfa(rtxt, "%s %s on le0 proto %s from any to %s port = %u",
+        g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to %s port = %u",
             IPFILTER_DENY, IPFILTER_IN, RT_TCP_UDP, addr, port);
 }
 
 static void sf_ipfw_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "add %s %s from %s to any %u %s",
+    g_string_append_printf(rtxt, "add %s %s from %s to any %u %s",
         IPFW_DENY, RT_TCP_UDP, addr, port, IPFW_IN);
 }
 
 static void sf_pf_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "%s %s quick on $ext_if proto %s from %s to any port %u",
+    g_string_append_printf(rtxt, "%s %s quick on $ext_if proto %s from %s to any port %u",
         PF_DENY, PF_IN, RT_TCP_UDP, addr, port);
 }
 
 static void sf_netfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_sprintfa(rtxt, "iptables -A %s -p %s -d %s/32 --destination-port %u -j %s",
+    g_string_append_printf(rtxt, "iptables -A %s -p %s -d %s/32 --destination-port %u -j %s",
         NF_INPUT, RT_TCP_UDP, addr, port, NF_DROP);
 }
 
 static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound _U_, gboolean deny) {
-    g_string_sprintfa(rtxt, "add portopening %s %u Wireshark %s %s",
+    g_string_append_printf(rtxt, "add portopening %s %u Wireshark %s %s",
         RT_TCP_UDP, port, NETSH_DENY, addr);
 }
 
