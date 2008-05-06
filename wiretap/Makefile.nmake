@@ -71,3 +71,6 @@ distclean: clean
 	rm -f $(GENERATED_FILES)
 
 maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl $(NONGENERATED_C_FILES)
