@@ -218,6 +218,7 @@ static const value_string vals_marker[] = {
 	{ MARKER_JPG11,	"Reserved for JPEG extensions - 11" },
 	{ MARKER_JPG12,	"Reserved for JPEG extensions - 12" },
 	{ MARKER_JPG13,	"Reserved for JPEG extensions - 13" },
+	{ MARKER_COM,	"Comment" },
 	{ 0x00, NULL }
 };
 
