@@ -244,7 +244,9 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (conv &&
 	    (data = conversation_get_proto_data(conv, proto_rtsp)) &&
+	    /* Add the following condition if it is not always true.
 	    rf_chan < RTSP_MAX_INTERLEAVED &&
+	    */
 	    (dissector = data->interleaved[rf_chan].dissector)) {
 		call_dissector(dissector, next_tvb, pinfo, tree);
 	} else {
