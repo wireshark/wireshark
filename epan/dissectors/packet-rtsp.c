@@ -111,7 +111,7 @@ typedef struct {
 	dissector_handle_t		dissector;
 } rtsp_interleaved_t;
 
-#define RTSP_MAX_INTERLEAVED		(8)
+#define RTSP_MAX_INTERLEAVED		(256)
 
 /*
  * Careful about dynamically allocating memory in this structure (say
