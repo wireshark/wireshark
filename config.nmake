@@ -159,7 +159,7 @@ PCAP_DIR=$(WIRESHARK_LIBS)\WPdpack
 # Optional: WinPcap remote capture support and new API
 # (pcap_open(), pcap_findalldevs_ex(), etc.)
 #
-#PCAP_REMOTE=1
+PCAP_REMOTE=1
 
 #
 # Optional: The ZLib enables unzipping of gzip compressed capture files
