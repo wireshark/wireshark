@@ -704,8 +704,9 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	guint	len;
 	int	i;
+	int start_offset = offset;
 
-	proto_item *tf;
+	proto_item *tf = NULL;
 	proto_item *key_init_tree=NULL;
 
 	if (tree) {
@@ -729,6 +730,11 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 		}
 		offset+=len;
 	}
+
+	if (tf != NULL) {
+		proto_item_set_len(tf, offset-start_offset);
+	}
+
 	return offset;
 }
 proto_item *
