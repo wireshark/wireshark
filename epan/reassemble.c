@@ -236,7 +236,7 @@ free_all_fragments(gpointer key_arg, gpointer value, gpointer user_data _U_)
 static fragment_data *new_head(guint32 flags)
 {
 	fragment_data *fd_head;
-	/* head/first structure in list only holds no other data than
+	/* If head/first structure in list only holds no other data than
          * 'datalen' then we don't have to change the head of the list
          * even if we want to keep it sorted
          */
@@ -390,7 +390,7 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 	fd_head = g_hash_table_lookup(fragment_table, &key);
 
 	if(fd_head==NULL){
-		/* We do not recognize this as a PDU we have seen before. return*/
+		/* We do not recognize this as a PDU we have seen before. return */
 		return NULL;
 	}
 
@@ -412,7 +412,7 @@ fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
 }
 
 /* This function is used to check if there is partial or completed reassembly state
- * matching this packet. I.e. Are there reassembly going on or not for this packet?
+ * matching this packet. I.e. Is there reassembly going on or not for this packet?
  */
 fragment_data *
 fragment_get(packet_info *pinfo, guint32 id, GHashTable *fragment_table)
@@ -459,7 +459,7 @@ fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassemb
 	return fd_head;
 }
 
-/* This function can be used to explicitely set the total length (if known)
+/* This function can be used to explicitly set the total length (if known)
  * for reassembly of a PDU.
  * This is useful for reassembly of PDUs where one may have the total length specified
  * in the first fragment instead of as for, say, IPv4 where a flag indicates which
@@ -469,7 +469,7 @@ fragment_get_reassembled_id(packet_info *pinfo, guint32 id, GHashTable *reassemb
  * and just tell the reassembly engine the expected total length of the reassembled data
  * using fragment_set_tot_len immediately after doing fragment_add for the first packet.
  *
- * note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
+ * Note that for FD_BLOCKSEQUENCE tot_len is the index for the tail fragment.
  * i.e. since the block numbers start at 0, if we specify tot_len==2, that
  * actually means we want to defragment 3 blocks, block 0, 1 and 2.
  */
@@ -687,7 +687,7 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			 */
 			if (fd_head->datalen != (fd->offset + fd->len) ){
 				/* Oops, this tail indicates a different packet
-				 * len than the previous ones. Somethings wrong
+				 * len than the previous ones. Something's wrong.
 				 */
 				fd->flags      |= FD_MULTIPLETAILS;
 				fd_head->flags |= FD_MULTIPLETAILS;
@@ -705,19 +705,19 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 
 
 	/* If the packet is already defragmented, this MUST be an overlap.
-         * The entire defragmented packet is in fd_head->data
-	 * Even if we have previously defragmented this packet, we still check
+	 * The entire defragmented packet is in fd_head->data.
+	 * Even if we have previously defragmented this packet, we still
 	 * check it. Someone might play overlap and TTL games.
-         */
+	 */
 	if (fd_head->flags & FD_DEFRAGMENTED) {
 		fd->flags      |= FD_OVERLAP;
 		fd_head->flags |= FD_OVERLAP;
-		/* make sure its not too long */
+		/* make sure it's not too long */
 		if (fd->offset + fd->len > fd_head->datalen) {
 			fd->flags      |= FD_TOOLONGFRAGMENT;
 			fd_head->flags |= FD_TOOLONGFRAGMENT;
 		}
-		/* make sure it doesnt conflict with previous data */
+		/* make sure it doesn't conflict with previous data */
 		else if ( memcmp(fd_head->data+fd->offset,
 			tvb_get_ptr(tvb,offset,fd->len),fd->len) ){
 			fd->flags      |= FD_OVERLAPCONFLICT;
@@ -1206,7 +1206,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			 */
 			if (fd_head->datalen != fd->offset ){
 				/* Oops, this tail indicates a different packet
-				 * len than the previous ones. Somethings wrong
+				 * len than the previous ones. Something's wrong.
 				 */
 				fd->flags      |= FD_MULTIPLETAILS;
 				fd_head->flags |= FD_MULTIPLETAILS;
@@ -1238,7 +1238,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			LINK_FRAG(fd_head,fd);
 			return TRUE;
 		}
-		/* make sure it doesnt conflict with previous data */
+		/* make sure it doesn't conflict with previous data */
 		dfpos=0;
 		last_fd=NULL;
 		for (fd_i=fd_head->next;fd_i && (fd_i->offset!=fd->offset);fd_i=fd_i->next) {
@@ -1316,7 +1316,7 @@ fragment_add_seq_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	 * XXX - what if we didn't capture the entire fragment due
 	 * to a too-short snapshot length?
 	 */
-	/* check len, ther may be a fragment with 0 len, that is actually the tail */
+	/* check len, there may be a fragment with 0 len, that is actually the tail */
 	if (fd->len) {
 		fd->data = g_malloc(fd->len);
 		tvb_memcpy(tvb, fd->data, offset, fd->len);
