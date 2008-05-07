@@ -55,9 +55,9 @@ static void draw_stats_tree(void *psp) {
 	
 	s = g_string_new("\n===================================================================\n");
 	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_tree_branch_max_namelen(&st->root,0));
-	g_string_sprintfa(s,fmt,"",st->cfg->name,"value","rate","percent");
+	g_string_append_printf(s,fmt,"",st->cfg->name,"value","rate","percent");
 	g_free(fmt);
-	g_string_sprintfa(s,"-------------------------------------------------------------------\n");
+	g_string_append_printf(s,"-------------------------------------------------------------------\n");
 	
 	for (child = st->root.children; child; child = child->next ) {
 		stats_tree_branch_to_str(child,s,0);

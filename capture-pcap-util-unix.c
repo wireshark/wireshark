@@ -345,7 +345,7 @@ get_compiled_pcap_version(GString *str)
 #ifdef HAVE_PCAP_VERSION
 	extern char pcap_version[];
 
-	g_string_sprintfa(str, "with libpcap %s", pcap_version);
+	g_string_append_printf(str, "with libpcap %s", pcap_version);
 #else
 	g_string_append(str, "with libpcap (version unknown)");
 #endif
@@ -357,7 +357,7 @@ get_compiled_pcap_version(GString *str)
 void
 get_runtime_pcap_version(GString *str)
 {
-	g_string_sprintfa(str, "with ");
+	g_string_append_printf(str, "with ");
 #ifdef HAVE_PCAP_LIB_VERSION
 	g_string_sprintfa(str, pcap_lib_version());
 #else

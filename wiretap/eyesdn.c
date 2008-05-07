@@ -65,7 +65,7 @@ static int esc_read(guint8 *buf, int len, FILE_T fh, int seekback)
     int err;
 
     if(seekback) cur_off = file_tell(fh);
-    else cur_off=0; // suppress uninitialized warning
+    else cur_off=0; /* suppress uninitialized warning */
     
     for(i=0; i<len; i++) {
 	value=file_getc(fh);
@@ -271,33 +271,33 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 
 	switch(direction >> 1) {
 	default:
-	case EYESDN_ENCAP_ISDN: // ISDN
+	case EYESDN_ENCAP_ISDN: /* ISDN */
 	    pseudo_header->isdn.uton = direction & 1;
 	    pseudo_header->isdn.channel = channel;
-	    if(channel) { // bearer channels
+	    if(channel) { /* bearer channels */
 		if(wth) {
-		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN; // recognises PPP
-		    pseudo_header->isdn.uton=!pseudo_header->isdn.uton; // bug
+		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN; /* recognises PPP */
+		    pseudo_header->isdn.uton=!pseudo_header->isdn.uton; /* bug */
 		}
-	    } else { // D channel
+	    } else { /* D channel */
 		if(wth) {
 		    wth->phdr.pkt_encap = WTAP_ENCAP_ISDN;
 		}
 	    }
 	    break;
-	case EYESDN_ENCAP_MSG: // Layer 1 message
+	case EYESDN_ENCAP_MSG: /* Layer 1 message */
 	    if(wth) {
 		wth->phdr.pkt_encap = WTAP_ENCAP_LAYER1_EVENT;
 	    }
 	    pseudo_header->l1event.uton = (direction & 1);
 	    break;
-	case EYESDN_ENCAP_LAPB: // X.25 via LAPB 
+	case EYESDN_ENCAP_LAPB: /* X.25 via LAPB */ 
 	    if(wth) {
 		wth->phdr.pkt_encap = WTAP_ENCAP_LAPB;
 	    }
 	    pseudo_header->x25.flags = (direction & 1) ? 0 : 0x80;
 	    break;
-	case EYESDN_ENCAP_ATM: { // ATM cells
+	case EYESDN_ENCAP_ATM: { /* ATM cells */
 #define CELL_LEN 53
 	    unsigned char cell[CELL_LEN];
 	    if(pkt_len != CELL_LEN) {
@@ -322,11 +322,11 @@ parse_eyesdn_rec_hdr(wtap *wth, FILE_T fh,
 	    pseudo_header->atm.type=TRAF_UMTS_FP;
 	    pseudo_header->atm.subtype=TRAF_ST_UNKNOWN;
 	    pseudo_header->atm.vpi=((cell[0]&0xf)<<4) + (cell[0]&0xf);
-	    pseudo_header->atm.vci=((cell[0]&0xf)<<4) + cell[0]; // from cell
+	    pseudo_header->atm.vci=((cell[0]&0xf)<<4) + cell[0]; /* from cell */
 	    pseudo_header->atm.channel=direction & 1;
 	}
 	    break;
-	case EYESDN_ENCAP_MTP2: // SS7 frames
+	case EYESDN_ENCAP_MTP2: /* SS7 frames */
 	    pseudo_header->mtp2.sent = direction & 1;
 	    pseudo_header->mtp2.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 	    pseudo_header->mtp2.link_number = channel;	    

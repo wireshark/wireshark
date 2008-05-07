@@ -2539,7 +2539,7 @@ get_runtime_airpcap_version(GString *str)
     }
 
     g_PAirpcapGetVersion(&vmaj, &vmin, &vrev, &build);
-    g_string_sprintfa(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
+    g_string_append_printf(str, "with AirPcap %d.%d.%d build %d", vmaj, vmin,
 	vrev, build);
 }
 #endif /* HAVE_AIRPCAP */

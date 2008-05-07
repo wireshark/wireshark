@@ -152,14 +152,14 @@ const gchar *get_conn_cfilter(void) {
 	if ((env = getenv("SSH_CONNECTION")) != NULL) {
 		tokens = g_strsplit(env, " ", 4);
 		if (tokens[3]) {
-			g_string_sprintf(filter_str, "not (tcp port %s and %s host %s "
+			g_string_printf(filter_str, "not (tcp port %s and %s host %s "
 							 "and tcp port %s and %s host %s)", tokens[1], host_ip_af(tokens[0]), tokens[0],
 				tokens[3], host_ip_af(tokens[2]), tokens[2]);
 			return filter_str->str;
 		}
 	} else if ((env = getenv("SSH_CLIENT")) != NULL) {
 		tokens = g_strsplit(env, " ", 3);
-		g_string_sprintf(filter_str, "not (tcp port %s and %s host %s "
+		g_string_printf(filter_str, "not (tcp port %s and %s host %s "
 			"and tcp port %s)", tokens[1], host_ip_af(tokens[0]), tokens[0], tokens[2]);
 		return filter_str->str;
 	} else if ((env = getenv("REMOTEHOST")) != NULL) {
@@ -169,7 +169,7 @@ const gchar *get_conn_cfilter(void) {
 		    strcmp(env, "") == 0) {
 			return "";
 		}
-		g_string_sprintf(filter_str, "not %s host %s", host_ip_af(env), env);
+		g_string_printf(filter_str, "not %s host %s", host_ip_af(env), env);
 		return filter_str->str;
 	} else if ((env = getenv("DISPLAY")) != NULL) {
 		/*
@@ -298,7 +298,7 @@ const gchar *get_conn_cfilter(void) {
 			}
 		}
 
-		g_string_sprintf(filter_str, "not %s host %s",
+		g_string_printf(filter_str, "not %s host %s",
 			host_ip_af(phostname), phostname);
 		g_free(phostname);
 		return filter_str->str;
@@ -314,7 +314,7 @@ const gchar *get_conn_cfilter(void) {
 		 * http://www.microsoft.com/technet/archive/termsrv/maintain/featusability/tsrvapi.mspx?mfr=true
 		 */
 		if (g_ascii_strncasecmp(env, "rdp", 3) == 0) {
-			g_string_sprintf(filter_str, "not tcp port 3389");
+			g_string_printf(filter_str, "not tcp port 3389");
 			return filter_str->str;
 		}
 	}

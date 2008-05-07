@@ -768,9 +768,9 @@ get_runtime_pcap_version(GString *str)
 	gchar *blankp;
 
 	if (has_wpcap) {
-		g_string_sprintfa(str, "with ");
+		g_string_append_printf(str, "with ");
 		if (p_pcap_lib_version != NULL)
-			g_string_sprintfa(str, p_pcap_lib_version());
+			g_string_append_printf(str, p_pcap_lib_version());
 		else {
 			/*
 			 * An alternative method of obtaining the version
@@ -802,7 +802,7 @@ get_runtime_pcap_version(GString *str)
 					g_module_close(handle);
 				}
 			}
-			g_string_sprintfa(str, "WinPcap (%s)", packetVer);
+			g_string_append_printf(str, "WinPcap (%s)", packetVer);
 		}
 	} else
 		g_string_append(str, "without WinPcap");

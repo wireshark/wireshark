@@ -133,7 +133,7 @@ get_compiled_version_info(GString *str, void (*additional_info)(GString *))
 {
         /* GLIB */
 	g_string_append(str, "with ");
-	g_string_sprintfa(str,
+	g_string_append_printf(str,
 #ifdef GLIB_MAJOR_VERSION
 	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
 	    GLIB_MICRO_VERSION);
@@ -196,9 +196,9 @@ get_epan_compiled_version_info(GString *str)
 	g_string_append(str, "with libpcre ");
 #ifdef PCRE_MAJOR
 #ifdef PCRE_MINOR
-	g_string_sprintfa(str, "%u.%u", PCRE_MAJOR, PCRE_MINOR);
+	g_string_append_printf(str, "%u.%u", PCRE_MAJOR, PCRE_MINOR);
 #else			/* PCRE_MINOR */
-	g_string_sprintfa(str, "%u", PCRE_MAJOR);
+	g_string_append_printf(str, "%u", PCRE_MAJOR);
 #endif			/* PCRE_MINOR */
 #else		/* PCRE_MAJOR */
 	g_string_append(str, "(version unknown)");
@@ -312,7 +312,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 
 	case VER_PLATFORM_WIN32s:
 		/* Shyeah, right. */
-		g_string_sprintfa(str, "Windows 3.1 with Win32s");
+		g_string_append_printf(str, "Windows 3.1 with Win32s");
 		break;
 
 	case VER_PLATFORM_WIN32_WINDOWS:
@@ -324,26 +324,26 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			switch (info.dwMinorVersion) {
 
 			case 0:
-				g_string_sprintfa(str, "Windows 95");
+				g_string_append_printf(str, "Windows 95");
 				break;
 
 			case 10:
-				g_string_sprintfa(str, "Windows 98");
+				g_string_append_printf(str, "Windows 98");
 				break;
 
 			case 90:
-				g_string_sprintfa(str, "Windows Me");
+				g_string_append_printf(str, "Windows Me");
 				break;
 
 			default:
-				g_string_sprintfa(str, "Windows OT, unknown version %lu.%lu",
+				g_string_append_printf(str, "Windows OT, unknown version %lu.%lu",
 				    info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
 			break;
 
 		default:
-			g_string_sprintfa(str, "Windows OT, unknown version %lu.%lu",
+			g_string_append_printf(str, "Windows OT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 		}
@@ -355,7 +355,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 
 		case 3:
 		case 4:
-			g_string_sprintfa(str, "Windows NT %lu.%lu",
+			g_string_append_printf(str, "Windows NT %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 
@@ -364,49 +364,49 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			switch (info.dwMinorVersion) {
 
 			case 0:
-				g_string_sprintfa(str, "Windows 2000");
+				g_string_append_printf(str, "Windows 2000");
 				break;
 
 			case 1:
-				g_string_sprintfa(str, "Windows XP");
+				g_string_append_printf(str, "Windows XP");
 				break;
 
 			case 2:
-				g_string_sprintfa(str, "Windows Server 2003");
+				g_string_append_printf(str, "Windows Server 2003");
 				break;
 
 			default:
-				g_string_sprintfa(str, "Windows NT, unknown version %lu.%lu",
+				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 				    info.dwMajorVersion, info.dwMinorVersion);
 				break;
 			}
 			break;
 
 		case 6:
-			g_string_sprintfa(str, "Windows Vista");
+			g_string_append_printf(str, "Windows Vista");
 			break;
 
 		default:
-			g_string_sprintfa(str, "Windows NT, unknown version %lu.%lu",
+			g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
 			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 		}
 		break;
 
 	default:
-		g_string_sprintfa(str, "Unknown Windows platform %lu version %lu.%lu",
+		g_string_append_printf(str, "Unknown Windows platform %lu version %lu.%lu",
 		    info.dwPlatformId, info.dwMajorVersion, info.dwMinorVersion);
 		break;
 	}
 	if (info.szCSDVersion[0] != '\0')
-		g_string_sprintfa(str, " %s", utf_16to8(info.szCSDVersion));
-	g_string_sprintfa(str, ", build %lu", info.dwBuildNumber);
+		g_string_append_printf(str, " %s", utf_16to8(info.szCSDVersion));
+	g_string_append_printf(str, ", build %lu", info.dwBuildNumber);
 #elif defined(HAVE_SYS_UTSNAME_H)
 	/*
 	 * We have <sys/utsname.h>, so we assume we have "uname()".
 	 */
 	if (uname(&name) < 0) {
-		g_string_sprintfa(str, "unknown OS version (uname failed - %s)",
+		g_string_append_printf(str, "unknown OS version (uname failed - %s)",
 		    strerror(errno));
 		return;
 	}
@@ -419,7 +419,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * version number and "name.release" be the minor
 		 * version number.
 		 */
-		g_string_sprintfa(str, "%s %s.%s", name.sysname, name.version,
+		g_string_append_printf(str, "%s %s.%s", name.sysname, name.version,
 		    name.release);
 	} else {
 		/*
@@ -430,7 +430,7 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 		 * On HP-UX, it appears to be some sort of subrevision
 		 * thing.
 		 */
-		g_string_sprintfa(str, "%s %s", name.sysname, name.release);
+		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #ifdef HAVE_OS_X_FRAMEWORKS
 		Gestalt(gestaltSystemVersion, &macosx_ver);
 
@@ -440,12 +440,12 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 			Gestalt(gestaltSystemVersionMinor, &macosx_minor_ver);
 			Gestalt(gestaltSystemVersionBugFix, &macosx_bugfix_ver);
 
-			g_string_sprintfa(str, " (MacOS %ld.%ld.%ld)",
+			g_string_append_printf(str, " (MacOS %ld.%ld.%ld)",
 					  macosx_major_ver,
 					  macosx_minor_ver,
 					  macosx_bugfix_ver);
 		} else {
-			g_string_sprintfa(str, " (MacOS X < 10.4 [%lx])",
+			g_string_append_printf(str, " (MacOS X < 10.4 [%lx])",
 					  macosx_ver);
 			/* See Apple's Gestalt Manager Reference for meanings
 			 * of the macosx_ver values. */
@@ -479,56 +479,56 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	 * string, we should probably prettify the number somehow.
 	 */
 #if defined(__GNUC__) && defined(__VERSION__)
-	g_string_sprintfa(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
+	g_string_append_printf(str, "\n\nBuilt using gcc %s.\n", __VERSION__);
 #elif defined(__HP_aCC)
-	g_string_sprintfa(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
+	g_string_append_printf(str, "\n\nBuilt using HP aCC %d.\n", __HP_aCC);
 #elif defined(__xlC__)
-	g_string_sprintfa(str, "\n\nBuilt using IBM XL C %d.%d\n",
+	g_string_append_printf(str, "\n\nBuilt using IBM XL C %d.%d\n",
 	    (__xlC__ >> 8) & 0xFF, __xlC__ & 0xFF);
 #ifdef __IBMC__
 	if ((__IBMC__ % 10) != 0)
-		g_string_sprintfa(str, " patch %d", __IBMC__ % 10);
+		g_string_append_printf(str, " patch %d", __IBMC__ % 10);
 #endif /* __IBMC__ */
-	g_string_sprintfa(str, "\n");
+	g_string_append_printf(str, "\n");
 #elif defined(__INTEL_COMPILER)
-	g_string_sprintfa(str, "\n\nBuilt using Intel C %d.%d",
+	g_string_append_printf(str, "\n\nBuilt using Intel C %d.%d",
 	    __INTEL_COMPILER / 100, (__INTEL_COMPILER / 10) % 10);
 	if ((__INTEL_COMPILER % 10) != 0)
-		g_string_sprintfa(str, " patch %d", __INTEL_COMPILER % 10);
+		g_string_append_printf(str, " patch %d", __INTEL_COMPILER % 10);
 #ifdef __INTEL_COMPILER_BUILD_DATE
 	g_string_sprinta(str, ", compiler built %04d-%02d-%02d",
 	    __INTEL_COMPILER_BUILD_DATE / 10000,
 	    (__INTEL_COMPILER_BUILD_DATE / 100) % 100,
 	    __INTEL_COMPILER_BUILD_DATE % 100);
 #endif /* __INTEL_COMPILER_BUILD_DATE */
-	g_string_sprintfa(str, "\n");
+	g_string_append_printf(str, "\n");
 #elif defined(_MSC_FULL_VER)
 	if (_MSC_FULL_VER > 99999999) {
-		g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+		g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
 		    (_MSC_FULL_VER / 10000000) - 6,
 		    (_MSC_FULL_VER / 100000) % 100);
 		if ((_MSC_FULL_VER % 100000) != 0)
-			g_string_sprintfa(str, " build %d",
+			g_string_append_printf(str, " build %d",
 			    _MSC_FULL_VER % 100000);
 	} else {
-		g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
+		g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d",
 		    (_MSC_FULL_VER / 1000000) - 6,
 		    (_MSC_FULL_VER / 10000) % 100);
 		if ((_MSC_FULL_VER % 10000) != 0)
-			g_string_sprintfa(str, " build %d",
+			g_string_append_printf(str, " build %d",
 			    _MSC_FULL_VER % 10000);
 	}
-	g_string_sprintfa(str, "\n");
+	g_string_append_printf(str, "\n");
 #elif defined(_MSC_VER)
 	/* _MSC_FULL_VER not defined, but _MSC_VER defined */
-	g_string_sprintfa(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
+	g_string_append_printf(str, "\n\nBuilt using Microsoft Visual C++ %d.%d\n",
 	    (_MSC_VER / 100) - 6, _MSC_VER % 100);
 #elif defined(__SUNPRO_C)
-	g_string_sprintfa(str, "\n\nBuilt using Sun C %d.%d",
+	g_string_append_printf(str, "\n\nBuilt using Sun C %d.%d",
 	    (__SUNPRO_C >> 8) & 0xF, (__SUNPRO_C >> 4) & 0xF);
 	if ((__SUNPRO_C & 0xF) != 0)
-		g_string_sprintfa(str, " patch %d", __SUNPRO_C & 0xF);
-	g_string_sprintfa(str, "\n");
+		g_string_append_printf(str, " patch %d", __SUNPRO_C & 0xF);
+	g_string_append_printf(str, "\n");
 #endif
 
 	end_string(str);

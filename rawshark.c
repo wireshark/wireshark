@@ -400,7 +400,7 @@ set_link_type(const char *lt_arg) {
       encap = WTAP_ENCAP_USER0;
       pref_str = g_string_new("uat:user_dlts:");
       /* This must match the format used in the user_dlts file */
-      g_string_sprintfa(pref_str,
+      g_string_append_printf(pref_str,
 			"\"User 0 (DLT=147)\",\"%s\",\"0\",\"\",\"0\",\"\"",
 			spec_ptr);
       if (prefs_set_pref(pref_str->str) != PREFS_SET_OK) {

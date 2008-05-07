@@ -1,4 +1,6 @@
 /*
+ * $Id: util.c 24859 2008-04-09 05:36:08Z etxrab $
+ *
  * Copyright (c) 2000, Red Hat, Inc.
  *
  *     This program is free software; you can redistribute it and/or modify
