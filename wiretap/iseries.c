@@ -509,9 +509,9 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
          iseries_UNICODE_to_ASCII ((guint8 *)data, ISERIES_LINE_LENGTH);
 	}
       /* look for packet header */
-      for (i=0; i<8; i++) {      
-	if (strncmp(data+i,"*",1) == 0)
-	  strncpy(data+i," ",1);
+      for (i=0; i<8; i++) {
+		  if (strncmp(data+i,"*",1) == 0)
+			  g_strlcpy(data+i," ",(ISERIES_LINE_LENGTH * 2));
       }
       num_items_scanned =
 	sscanf (data,

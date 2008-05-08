@@ -218,8 +218,7 @@ static gint64 cosine_seek_next_packet(wtap *wth, int *err, char *hdr)
 		if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
 			if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
 			    strstr(buf, COSINE_REC_MAGIC_STR2)) {
-				strncpy(hdr, buf, COSINE_LINE_LENGTH-1);
-				hdr[COSINE_LINE_LENGTH-1] = '\0';
+				g_strlcpy(hdr, buf, COSINE_LINE_LENGTH);
 				return cur_off;
 			}
 		} else {
@@ -449,8 +448,8 @@ parse_cosine_rec_hdr(wtap *wth, const char *line,
 	} else if (strncmp(direction, "l2-rx", 5) == 0) {
 		pseudo_header->cosine.direction = COSINE_DIR_RX;
 	}
-	strncpy(pseudo_header->cosine.if_name, if_name,
-		COSINE_MAX_IF_NAME_LEN - 1);
+	g_strlcpy(pseudo_header->cosine.if_name, if_name,
+		COSINE_MAX_IF_NAME_LEN);
 	pseudo_header->cosine.pro = pro;
 	pseudo_header->cosine.off = off;
 	pseudo_header->cosine.pri = pri;

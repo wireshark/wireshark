@@ -127,8 +127,7 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, char *hdr)
 		if (file_gets(buf, sizeof(buf), wth->fh) != NULL) {
 			if (strstr(buf, NETSCREEN_REC_MAGIC_STR1) ||
 			    strstr(buf, NETSCREEN_REC_MAGIC_STR2)) {
-				strncpy(hdr, buf, NETSCREEN_LINE_LENGTH-1);
-				hdr[NETSCREEN_LINE_LENGTH-1] = '\0';
+				g_strlcpy(hdr, buf, NETSCREEN_LINE_LENGTH);
 				return cur_off;
 			}
 		} else {

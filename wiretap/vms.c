@@ -174,9 +174,8 @@ static long vms_seek_next_packet(wtap *wth, int *err)
       if (strstr(buf, VMS_REC_MAGIC_STR1) ||
 	  strstr(buf, VMS_REC_MAGIC_STR2) ||
 	  strstr(buf, VMS_REC_MAGIC_STR2)) {
-	strncpy(hdr, buf, VMS_LINE_LENGTH-1);
-	hdr[VMS_LINE_LENGTH-1] = '\0';
-	return cur_off;
+		  g_strlcpy(hdr, buf,VMS_LINE_LENGTH);
+		  return cur_off;
       }
     } else {
       if (file_eof(wth->fh)) {

@@ -498,7 +498,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, gboolean cant_seek, int
 		return FALSE;
 	}
 	memset(&file_header, 0x00, sizeof(capture_file_header));
-	strncpy(file_header.observer_version, network_instruments_magic, 32);
+	g_strlcpy(file_header.observer_version, network_instruments_magic, 32);
 	file_header.offset_to_first_packet = sizeof(capture_file_header) + sizeof(tlv_header) + strlen(comment);
 	file_header.offset_to_first_packet = GUINT16_TO_LE(file_header.offset_to_first_packet);
 	file_header.number_of_information_elements = 1;
