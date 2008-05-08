@@ -684,7 +684,7 @@ int k12_open(wtap *wth, int *err, gchar **err_info _U_) {
             rec->input_name = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len, name_len);
             rec->stack_file = g_memdup(read_buffer + K12_SRCDESC_EXTRATYPE + extra_len + name_len, stack_len);
 
-            g_strdown(rec->stack_file);
+            g_ascii_strdown (rec->stack_file,stack_len);
 
             g_hash_table_insert(file_data->src_by_id,GUINT_TO_POINTER(rec->input),rec);
             g_hash_table_insert(file_data->src_by_name,rec->stack_file,rec);

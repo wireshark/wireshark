@@ -23,7 +23,7 @@ wiretap_LIBS = \
 	$(GLIB_LIBS)	\
 	$(ZLIB_LIBS)
 
-all: wiretap-$(WTAP_VERSION).dll
+all: checkapi wiretap-$(WTAP_VERSION).dll
 
 wiretap-$(WTAP_VERSION).lib: wiretap-$(WTAP_VERSION).dll
 wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll

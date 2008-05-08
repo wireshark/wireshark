@@ -50,10 +50,11 @@ static guint8 nettl_magic_hpux10[MAGIC_SIZE] = {
 };
 
 #define FILE_HDR_SIZE	128
+#define NETTL_FILENAME_SIZE 56
 
 struct nettl_file_hdr {
     guint8	magic[MAGIC_SIZE];
-    gchar	file_name[56];
+    gchar	file_name[NETTL_FILENAME_SIZE];
     gchar	tz[20];
     gchar	host_name[9];
     gchar	os_vers[9];
@@ -724,12 +725,12 @@ gboolean nettl_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err)
 	/* Write the file header. */
 	memset(&file_hdr,0,sizeof(file_hdr));
 	memcpy(file_hdr.magic,nettl_magic_hpux10,sizeof(file_hdr.magic));
-	strcpy(file_hdr.file_name,"/tmp/wireshark.TRC000");
-	strcpy(file_hdr.tz,"UTC");
-	strcpy(file_hdr.host_name,"");
-	strcpy(file_hdr.os_vers,"B.11.11");
+	g_strlcpy(file_hdr.file_name,"/tmp/wireshark.TRC000",NETTL_FILENAME_SIZE);
+	g_strlcpy(file_hdr.tz,"UTC",20);
+	g_strlcpy(file_hdr.host_name,"",9);
+	g_strlcpy(file_hdr.os_vers,"B.11.11",9);
 	file_hdr.os_v=0x55;
-	strcpy(file_hdr.model,"9000/800");
+	g_strlcpy(file_hdr.model,"9000/800",11);
 	file_hdr.unknown=g_htons(0x406);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof(file_hdr)) {

@@ -275,7 +275,7 @@ iseries_check_file_type (wtap * wth, int *err, int format)
 	    {
              iseries_UNICODE_to_ASCII ((guint8 *)buf, ISERIES_LINE_LENGTH);
 	    }
-	  g_strup(buf);
+	  g_ascii_strup(buf,ISERIES_LINE_LENGTH);
 	  num_items_scanned = sscanf (buf,
 				      "   OBJECT PROTOCOL  . . . . . . :  %8s",
 				      protocol);
