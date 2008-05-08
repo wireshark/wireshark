@@ -715,51 +715,53 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
     offset += 4;
 
     /* Transport-Layer Feedback Message Elements */
-    switch(rtcp_rtpfb_fmt) {
-    case 1: 
-	/* NACK */
-	while ((offset - start_offset) < packet_length) {
-	    proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_nack_pid,
-				 tvb, offset, 2, FALSE);
-	    rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
-	    offset += 2;
-	    ti = proto_tree_add_item( rtcp_tree, hf_rtcp_rtpfb_nack_blp,
-				      tvb, offset, 2, FALSE);
-	    proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
-	    rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
-	    bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
-	    nack_num_frames_lost ++;
-	    if (rtcp_rtpfb_nack_blp) {
-		for (i = 0; i < 16; i ++) {
-		    g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
-		    proto_tree_add_text(
-			bitfield_tree, tvb, offset, 2,
-			decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
-						16, strbuf, ""));
-		    if (rtcp_rtpfb_nack_blp & (1<<i)) {
-			proto_tree_add_uint_hidden(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
-						   tvb, offset, 2,
-						   rtcp_rtpfb_nack_pid + i + 1);
-			proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
-			nack_num_frames_lost ++;
-		    }
-		}
-	    } else {
-		proto_item_set_text(ti, "0 (No additional frames lost)");
-	    }
-	    offset += 2;
-	}
-	if (top_item) {
-	    proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
-	}
-	break;
-    default:
-	/* Unknown FMT */
-	proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
-	offset = start_offset + packet_length;
-    }
-    return offset;
+    switch (rtcp_rtpfb_fmt) {
+    	case 1: 
+			/* NACK */
+			while ((offset - start_offset) < packet_length) {
+				proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid,
+				                    tvb, offset, 2, FALSE);
+				rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
+				offset += 2;
+				ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp,
+				                         tvb, offset, 2, FALSE);
+				proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
+				rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
+				bitfield_tree = proto_item_add_subtree( ti, ett_rtcp_nack_blp);
+				nack_num_frames_lost ++;
+				if (rtcp_rtpfb_nack_blp) {
+					for (i = 0; i < 16; i ++) {
+						g_snprintf(strbuf, 64, "Frame %d also lost", rtcp_rtpfb_nack_pid + i + 1);
+						proto_tree_add_text(bitfield_tree, tvb, offset, 2,
+						decode_boolean_bitfield(rtcp_rtpfb_nack_blp, (1<<i),
+											16, strbuf, ""));
+						if (rtcp_rtpfb_nack_blp & (1<<i)) {
+							proto_item *hidden_ti;
+							hidden_ti = proto_tree_add_uint_hidden(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
+																   tvb, offset, 2,
+																   rtcp_rtpfb_nack_pid + i + 1);
+							proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
+							nack_num_frames_lost ++;
+						}
+					}
+				} else {
+					proto_item_set_text(ti, "0 (No additional frames lost)");
+				}
+				offset += 2;
+			}
 
+			if (top_item) {
+				proto_item_append_text(top_item, ": NACK: %d frames lost", nack_num_frames_lost);
+			}
+			break;
+
+		default:
+			/* Unknown FMT */
+			proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - offset, FALSE );
+			offset = start_offset + packet_length;
+	}
+
+	return offset;
 }
 static int
 dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,

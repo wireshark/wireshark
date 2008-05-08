@@ -452,8 +452,9 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_zebra, tvb, offset, -1,
 			FALSE);
 		zebra_tree = proto_item_add_subtree(ti, ett_zebra);
-		proto_tree_add_boolean_hidden(zebra_tree, hf_zebra_request,
+		ti = proto_tree_add_boolean(zebra_tree, hf_zebra_request,
 			tvb, offset, 0, request);
+		PROTO_ITEM_SET_HIDDEN(ti);
 
 		for (;;) {
 			guint8		command;

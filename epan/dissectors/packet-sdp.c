@@ -956,13 +956,16 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 				       key_tree);
   }
 
-  if (found_match)
-    proto_tree_add_item_hidden(key_tree, hf_key_mgmt_data,
-			       keymgmt_tvb, 0, -1, FALSE);
-  else
+  if (found_match) {
+    proto_item *ti = proto_tree_add_item(key_tree, hf_key_mgmt_data,
+                                         keymgmt_tvb, 0, -1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(ti);
+  }
+  else {
     proto_tree_add_item(key_tree, hf_key_mgmt_data,
-			keymgmt_tvb, 0, -1, FALSE);
-  return;
+                        keymgmt_tvb, 0, -1, FALSE);
+  }
+
 }
 
 

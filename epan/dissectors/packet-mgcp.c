@@ -402,8 +402,9 @@ static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (mgcp_tree)
 		{
-			proto_tree_add_uint_hidden(mgcp_tree, hf_mgcp_messagecount, tvb,
-			                           0 ,0 , num_messages);
+			proto_item *ti = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
+			                                     0 ,0 , num_messages);
+			PROTO_ITEM_SET_HIDDEN(ti);
 		}
 
 		/*
@@ -1543,7 +1544,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		switch (mgcp_type)
 		{
 			case MGCP_RESPONSE:
-				proto_tree_add_boolean_hidden(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(proto_tree_add_boolean(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE));
 				/* Check for MGCP response.  A response must match a call that
 				   we've seen, and the response must be sent to the same
 				   port and address that the call came from, and must
@@ -1631,7 +1632,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 								if (tree)
 								{
 									proto_item* item;
-									proto_tree_add_uint_hidden(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+									item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+									PROTO_ITEM_SET_HIDDEN(item);
 									item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
 									                           tvb, 0, 0, mi->transid);
 									PROTO_ITEM_SET_GENERATED(item);
@@ -1647,7 +1649,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				}
 				break;
 			case MGCP_REQUEST:
-				proto_tree_add_boolean_hidden(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(proto_tree_add_boolean(tree, hf_mgcp_req, tvb, 0, 0, TRUE));
 				/* Keep track of the address and port whence the call came,
 				 * and the port to which the call is being sent, so that
 				 * we can match up calls with replies.
@@ -1725,7 +1727,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						if (tree)
 						{
 							proto_item* item;
-							proto_tree_add_uint_hidden(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+							item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0,0, mi->transid);
+							PROTO_ITEM_SET_HIDDEN(item);
 							item = proto_tree_add_uint(tree, hf_mgcp_req_dup, tvb, 0,0, mi->transid);
 							PROTO_ITEM_SET_GENERATED(item);
 							item = proto_tree_add_uint(tree, hf_mgcp_req_dup_frame, tvb, 0,0, mi->req_num);

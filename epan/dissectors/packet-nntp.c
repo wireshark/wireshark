@@ -81,12 +81,13 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
 		if (pinfo->match_port == pinfo->destport) {
-			proto_tree_add_boolean_hidden(nntp_tree,
+			ti = proto_tree_add_boolean(nntp_tree,
 			    hf_nntp_request, tvb, 0, 0, TRUE);
 		} else {
-			proto_tree_add_boolean_hidden(nntp_tree,
+			ti = proto_tree_add_boolean(nntp_tree,
 			    hf_nntp_response, tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(ti);
 
 		/*
 		 * Show the request or response as text, a line at a time.
