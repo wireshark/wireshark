@@ -937,11 +937,11 @@ cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
     length =  tvb_get_guint8(tvb, offset+4) + tvb_get_guint8(tvb, offset+5)
 	+ tvb_get_ntohs(tvb, offset+6);
     if (flag)
-       strncpy (mode, "Pass", 10);
+       g_strlcpy (mode, "Pass", 30);
     else
-       strncpy (mode, "Block", 10);
+       g_strlcpy (mode, "Block", 30);
     if (length == 0)
-       strncat (mode, " all", 10);
+       g_strlcat (mode, " all", 30);
     proto_tree_add_text(pt, tvb, offset, 4, "Pass/Block flag: %s", mode);
     proto_tree_add_text(pt, tvb, offset+4, 4, "Length of Pattern & Mask: %d", length);
     offset += 8;

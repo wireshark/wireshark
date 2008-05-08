@@ -8,7 +8,7 @@ include ..\config.nmake
 
 ## To add a plugin: Add entry to process-plugins and to install-plugins
 
-all:
+all: checkapi
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake PLUGIN_TARGET= process-plugins
 
 clean: clean-local

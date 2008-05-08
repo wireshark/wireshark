@@ -54,4 +54,4 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi: 
-	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)
+	$(PERL) ../../tools/checkAPIs.pl $(TAP_SRC)

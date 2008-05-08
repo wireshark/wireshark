@@ -70,12 +70,6 @@ my @prohibitedAPIs=
 	'g_strdown',
 	'g_string_up',
 	'g_string_down',
-	# Depreciated glib functions
-	'g_string_sprintf',
-	# use g_string_printf().
-	'g_string_sprintfa',
-	# use g_string_append_print
-	'g_tree_traverse',
 	# Use the eth_* version of these:
 	# (Necessary because on Windows we use UTF8 for throughout the code
 	# so we must tweak that to UTF16 before operating on the file.  Code
@@ -94,6 +88,30 @@ my @prohibitedAPIs=
 # APIs that SHOULD NOT be used in Wireshark (any more)
 my @deprecatedAPIs=
 (
+	# Depreciated glib functions
+	'g_string_sprintf',
+	# use g_string_printf().
+	'g_string_sprintfa',
+	# use g_string_append_printf
+	'g_tree_traverse',
+	'g_basename',
+	'g_dirname',
+	'g_hash_table_freeze',
+	'g_hash_table_thaw',
+	'G_HAVE_GINT64',
+	'g_io_channel_close',
+	'g_io_channel_read',
+	'g_io_channel_seek',
+	'g_io_channel_write',
+	'g_main_new',
+	'g_main_destroy',
+	'g_main_run',
+	'g_main_set_poll_func',
+	'g_scanner_add_symbol',
+	'g_scanner_remove_symbol',
+	'g_scanner_foreach_symbol',
+	'g_scanner_freeze_symbol_table',
+	'g_scanner_thaw_symbol_table',
 	# Wireshark should not write to stdout (?)
 	# (Of course tshark should!)
 	'printf',
