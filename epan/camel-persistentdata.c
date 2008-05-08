@@ -452,7 +452,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 {
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
   dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
@@ -523,8 +523,10 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 	  dbg(21,"Display_duplicate with req %d ", p_camelsrt_call->category[srt_type].req_num);
 #endif
 	  p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
-	  if (gcamel_DisplaySRT)
-	    proto_tree_add_uint_hidden(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+	  if (gcamel_DisplaySRT){
+	    hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+	  }
 
 	} else {
 	  /* Ignore duplicate frame */
@@ -571,7 +573,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
   struct camelsrt_call_t *p_camelsrt_call;
   struct camelsrt_call_info_key_t camelsrt_call_key;
   nstime_t delta;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
 
 #ifdef DEBUG_CAMELSRT
   dbg(10,"\n %s #%u\n", val_to_str(srt_type, camelSRTtype_naming, "Unk"),pinfo->fd->num);
@@ -630,8 +632,10 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
 	dbg(21,"Display_duplicate rsp=%d ", p_camelsrt_call->category[srt_type].rsp_num);
 #endif
 	p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
-	if ( gcamel_DisplaySRT )
-	  proto_tree_add_uint_hidden(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+	if ( gcamel_DisplaySRT ){
+	  hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
       }
     } /* rsp_num != 0 */
 
