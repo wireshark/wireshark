@@ -37,6 +37,7 @@
 #define MAX_FIRST_LINE_LENGTH      200
 #define MAX_TIMESTAMP_LINE_LENGTH  100
 #define MAX_LINE_LENGTH            32000
+#define MAX_TIMESTAMP_LEN          32
 #define MAX_SECONDS_CHARS          16
 #define MAX_SUBSECOND_DECIMALS     4
 #define MAX_CONTEXT_NAME           64
@@ -142,7 +143,7 @@ static gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
                            packet_direction_t *direction,
                            int *encap);
 static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
-                      packet_direction_t direction, int encap);
+                             packet_direction_t direction, int encap);
 static guchar hex_from_char(gchar c);
 static gchar char_from_hex(guchar hex);
 
@@ -214,7 +215,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
 
     /* Copy this first line into buffer so could write out later */
-    strncpy(file_externals->firstline, linebuff, firstline_length);
+    g_strlcpy(file_externals->firstline, linebuff, firstline_length);
     file_externals->firstline_length = firstline_length;
 
 
@@ -237,7 +238,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->capture.catapult_dct2000->start_usecs = usecs;
 
     /* Copy this second line into buffer so could write out later */
-    strncpy(file_externals->secondline, linebuff, file_externals->secondline_length);
+    g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length);
 
 
     /************************************************************/
@@ -328,7 +329,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             int n;
             int stub_offset = 0;
             line_prefix_info_t *line_prefix_info;
-            char timestamp_string[32];
+            char timestamp_string[MAX_TIMESTAMP_LEN+1];
             gint64 *pkey = NULL;
 
             g_snprintf(timestamp_string, 32, "%d.%04d", seconds, useconds/100);
@@ -391,7 +392,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 
             /* Create and use buffer for contents before time */
             line_prefix_info->before_time = g_malloc(before_time_offset+1);
-            strncpy(line_prefix_info->before_time, linebuff, before_time_offset);
+            g_strlcpy(line_prefix_info->before_time, linebuff, before_time_offset);
             line_prefix_info->before_time[before_time_offset] = '\0';
 
             /* Create and use buffer for contents before time.
@@ -406,8 +407,8 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             {
                 /* Allocate & write buffer for line between timestamp and data */
                 line_prefix_info->after_time = g_malloc(dollar_offset - after_time_offset);
-                strncpy(line_prefix_info->after_time, linebuff+after_time_offset,
-                        dollar_offset - after_time_offset);
+                g_strlcpy(line_prefix_info->after_time, linebuff+after_time_offset,
+                          dollar_offset - after_time_offset);
                 line_prefix_info->after_time[dollar_offset - after_time_offset-1] = '\0';
             }
 
@@ -944,7 +945,7 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     }
     else
     {
-        strcpy(variant_name, "1");
+        g_strlcpy(variant_name, "1", MAX_VARIANT_DIGITS+1);
     }
 
 
@@ -1238,8 +1239,8 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
                       packet_direction_t direction, int encap)
 {
     int stub_offset = 0;
-    
-    strcpy((char*)frame_buffer, context_name);
+
+    g_strlcpy((char*)frame_buffer, context_name, MAX_CONTEXT_NAME+1);
     stub_offset += (strlen(context_name) + 1);
 
     /* Context port number */
@@ -1247,19 +1248,19 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     stub_offset++;
 
     /* Timestamp within file */
-    strcpy((char*)&frame_buffer[stub_offset], timestamp_string);
+    g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
     stub_offset += (strlen(timestamp_string) + 1);
 
     /* Protocol name */
-    strcpy((char*)&frame_buffer[stub_offset], protocol_name);
+    g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
     stub_offset += (strlen(protocol_name) + 1);
 
     /* Protocol variant number (as string) */
-    strcpy((void*)&frame_buffer[stub_offset], variant_name);
+    g_strlcpy((void*)&frame_buffer[stub_offset], variant_name, MAX_VARIANT_DIGITS+1);
     stub_offset += (strlen(variant_name) + 1);
 
     /* Outhdr */
-    strcpy((char*)&frame_buffer[stub_offset], outhdr_name);
+    g_strlcpy((char*)&frame_buffer[stub_offset], outhdr_name, MAX_OUTHDR_NAME+1);
     stub_offset += (strlen(outhdr_name) + 1);
 
     /* Direction */
