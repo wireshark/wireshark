@@ -2583,7 +2583,7 @@ mgcp_calls_init_tap(void)
 	{
 		/* don't register tap listener, if we have it already */
 		/* we send an empty filter, to force a non null "tree" in the mgcp dissector */
-		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), strdup(""),
+		error_string = register_tap_listener("mgcp", &(the_tapinfo_struct.mgcp_dummy), g_strdup(""),
 			voip_calls_dlg_reset, 
 			MGCPcalls_packet, 
 			voip_calls_dlg_draw

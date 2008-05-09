@@ -213,7 +213,7 @@ dissect_xml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		colinfo_str = "/XML";
 	} else {
 		colinfo_str = ep_strdup_printf("/%s",root_ns->name);
-		g_strup(colinfo_str);
+		g_ascii_strup(colinfo_str,strlen(colinfo_str));
 	}
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -270,7 +270,7 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	int hf_tag;
 	gint ett;
 
-	g_strdown(name);
+	g_ascii_strdown(name,strl(name));
 	if (!ns) {
 		hf_tag = hf_xmlpi;
 		ett = ett_xmpli;
@@ -343,7 +343,7 @@ static void before_tag(void* tvbparse_data, const void* wanted_data _U_, tvbpars
 
     } else {
         name = (gchar*)tvb_get_ephemeral_string(name_tok->tvb,name_tok->offset,name_tok->len);
-        g_strdown(name);
+        g_ascii_strdown(name,strlen(name));
 
         if(current_frame->ns) {
 			ns = g_hash_table_lookup(current_frame->ns->elements,name);
@@ -467,7 +467,7 @@ static void after_attrib(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	int* hfidp;
 	int hfid;
 
-	g_strdown(name);
+	g_ascii_strdown(name,strlen(name));
 	if(current_frame->ns && (hfidp = g_hash_table_lookup(current_frame->ns->attributes,name) )) {
 		hfid = *hfidp;
 	} else {

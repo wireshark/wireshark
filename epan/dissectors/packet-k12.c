@@ -366,7 +366,7 @@ protos_chk_cb(void* r _U_, const char* p, unsigned len, void* u1 _U_, void* u2 _
 	guint num_protos, i;
 
 	g_strstrip(line);
-	g_strdown(line);
+	g_ascii_strdown(line,len);
 
 	protos = ep_strsplit(line,":",0);
 

@@ -1450,7 +1450,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					
 					if (msg_info->orig_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->orig_nsap,leg->sugr);
-                        g_strdown(key);
+                        g_ascii_strdown(key,strlen(key));
 						
                         leg->orig_nsap = se_strdup(msg_info->orig_nsap);
                         
@@ -1461,7 +1461,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					
                     if (msg_info->dest_nsap) {
                         gchar* key = se_strdup_printf("%s:%.8X",msg_info->dest_nsap,leg->sugr);
-                        g_strdown(key);
+                        g_ascii_strdown(key,strlen(key));
 						
                         leg->dest_nsap = se_strdup(msg_info->dest_nsap);
 						
