@@ -1144,41 +1144,86 @@ static gint
 compute_ascii_key(gchar **ascii_key, gchar *key)
 {
   guint key_len = 0;
-  gchar key_char[5];
-  guint i = 0;
+  gint hex_digit;
+  guchar key_byte;
+  guint i, j;
 
   if(key != NULL)
     {
       if((strlen(key) > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
 	{
+	  /*
+	   * Key begins with "0x" or "0X"; skip that and treat the rest
+	   * as a sequence of hex digits.
+	   */
 	  if(strlen(key) %2  == 0)
 	    {
+	      /*
+	       * Key has an even number of characters, so we treat each
+	       * pair of hex digits as a single byte value.
+	       */
 	      key_len = (strlen(key) - 2) / 2;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      for(i = 2; i < (strlen(key) -1) ; i+=2)
+	      for(i = 2, j = 0; i < (strlen(key) -1) ; i+=2, j++)
 		{
-		  key_char[0] = key[i];
-		  key_char[1] = key[i+1];
-		  key_char[2] = '\0';
-		  sprintf(*ascii_key + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));
+		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  if (hex_digit == -1)
+		    {
+		      g_free(*ascii_key);
+		      *ascii_key = NULL;
+		      return -1;	/* not a valid hex digit */
+		    }
+		  key_byte = ((guchar)hex_digit) << 8;
+		  hex_digit = g_ascii_xdigit_value(key[i+1]);
+		  if (hex_digit == -1)
+		    {
+		      g_free(*ascii_key);
+		      *ascii_key = NULL;
+		      return -1;	/* not a valid hex digit */
+		    }
+		  key_byte |= (guchar)hex_digit;
+		  (*ascii_key)[j] = key_byte;
 		}
 	    }
 
 	  else
-	    /* give a chance to omit the first 0, in order to have a key in 8-bit unit  */
 	    {
+	      /*
+	       * Key has an odd number of characters; we act as if the
+	       * first character had a 0 in front of it, making the
+	       * number of characters even.
+	       */
 	      key_len = (strlen(key) - 2) / 2 + 1;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      key_char[0] = '0';
-	      key_char[1] = key[2];
-	      key_char[2] = '\0';
-	      sprintf(*ascii_key, "%c", (int)strtoul(key_char,(char **)NULL,16));
-	      for(i = 3; i < (strlen(key) -1) ; i+=2)
+	      hex_digit = g_ascii_xdigit_value(key[i]);
+	      if (hex_digit == -1)
 		{
-		  key_char[0] = key[i];
-		  key_char[1] = key[i+1];
-		  key_char[2] = '\0';
-		  sprintf(*ascii_key + 1 + (i - 2)/2, "%c", (int)strtoul(key_char,(char **)NULL,16));
+		  g_free(*ascii_key);
+		  *ascii_key = NULL;
+		  return -1;	/* not a valid hex digit */
+		}
+	      j = 0;
+	      (*ascii_key)[j] = (guchar)hex_digit;
+	      j++;
+	      for(i = 3; i < (strlen(key) -1) ; i+=2, j++)
+		{
+		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  if (hex_digit == -1)
+		    {
+		      g_free(*ascii_key);
+		      *ascii_key = NULL;
+		      return -1;	/* not a valid hex digit */
+		    }
+		  key_byte = ((guchar)hex_digit) << 8;
+		  hex_digit = g_ascii_xdigit_value(key[i+1]);
+		  if (hex_digit == -1)
+		    {
+		      g_free(*ascii_key);
+		      *ascii_key = NULL;
+		      return -1;	/* not a valid hex digit */
+		    }
+		  key_byte |= (guchar)hex_digit;
+		  (*ascii_key)[j] = key_byte;
 		}
 	    }
 	}
@@ -1243,6 +1288,8 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
   gboolean found = FALSE;
   gint i = 0;
   gchar spi_string[IPSEC_SPI_LEN_MAX];
+  gint key_len;
+
   *entry_index = -1;
 
   g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"%i", spi);
@@ -1265,13 +1312,29 @@ get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  
 	     && filter_address_match(dst,sad -> table[i].dst, sad -> table[i].dst_len, protocol_typ)
 	     && filter_spi_match(spi_string, sad -> table[i].spi))
 	    {
+	      found = TRUE;
+
 	      *entry_index = i;
 	      *encryption_algo = sad -> table[i].encryption_algo;
 	      *authentication_algo = sad -> table[i].authentication_algo;
-	      *authentication_key_len = compute_ascii_key(authentication_key, (gchar *)sad -> table[i].authentication_key);
-	      *encryption_key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);
-
-	      found = TRUE;
+	      key_len = compute_ascii_key(authentication_key, (gchar *)sad -> table[i].authentication_key);
+	      if (key_len == -1)
+		{
+		  /* Bad key; XXX - report this */
+		  *authentication_key_len = 0;
+		  found = FALSE;
+		}
+	      else
+		*authentication_key_len = (guint)key_len;
+	      key_len = compute_ascii_key(encryption_key, (gchar *)sad -> table[i].encryption_key);
+	      if (key_len == -1)
+		{
+		  /* Bad key; XXX - report this */
+		  *encryption_key_len = 0;
+		  found = FALSE;
+		}
+	      else
+		*encryption_key_len = key_len;
 
 	      /* Debugging Purpose */
 	      /*
