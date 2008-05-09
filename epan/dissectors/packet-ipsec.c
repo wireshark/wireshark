@@ -1156,6 +1156,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	   * Key begins with "0x" or "0X"; skip that and treat the rest
 	   * as a sequence of hex digits.
 	   */
+	  i = 2;	/* first character after "0[Xx]" */
 	  if(strlen(key) %2  == 0)
 	    {
 	      /*
@@ -1164,9 +1165,11 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	       */
 	      key_len = (strlen(key) - 2) / 2;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      for(i = 2, j = 0; i < (strlen(key) -1) ; i+=2, j++)
+	      j = 0;
+	      while(i < (strlen(key) -1))
 		{
 		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  i++;
 		  if (hex_digit == -1)
 		    {
 		      g_free(*ascii_key);
@@ -1174,7 +1177,8 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		      return -1;	/* not a valid hex digit */
 		    }
 		  key_byte = ((guchar)hex_digit) << 8;
-		  hex_digit = g_ascii_xdigit_value(key[i+1]);
+		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  i++;
 		  if (hex_digit == -1)
 		    {
 		      g_free(*ascii_key);
@@ -1183,6 +1187,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		    }
 		  key_byte |= (guchar)hex_digit;
 		  (*ascii_key)[j] = key_byte;
+		  j++;
 		}
 	      (*ascii_key)[j] = '\0';
 	    }
@@ -1196,19 +1201,21 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 	       */
 	      key_len = (strlen(key) - 2) / 2 + 1;
 	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
+	      j = 0;
 	      hex_digit = g_ascii_xdigit_value(key[i]);
+	      i++;
 	      if (hex_digit == -1)
 		{
 		  g_free(*ascii_key);
 		  *ascii_key = NULL;
 		  return -1;	/* not a valid hex digit */
 		}
-	      j = 0;
 	      (*ascii_key)[j] = (guchar)hex_digit;
 	      j++;
-	      for(i = 3; i < (strlen(key) -1) ; i+=2, j++)
+	      while(i < (strlen(key) -1))
 		{
 		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  i++;
 		  if (hex_digit == -1)
 		    {
 		      g_free(*ascii_key);
@@ -1216,7 +1223,8 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		      return -1;	/* not a valid hex digit */
 		    }
 		  key_byte = ((guchar)hex_digit) << 8;
-		  hex_digit = g_ascii_xdigit_value(key[i+1]);
+		  hex_digit = g_ascii_xdigit_value(key[i]);
+		  i++;
 		  if (hex_digit == -1)
 		    {
 		      g_free(*ascii_key);
@@ -1225,6 +1233,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		    }
 		  key_byte |= (guchar)hex_digit;
 		  (*ascii_key)[j] = key_byte;
+		  j++;
 		}
 	      (*ascii_key)[j] = '\0';
 	    }
