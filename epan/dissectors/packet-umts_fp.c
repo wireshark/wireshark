@@ -82,6 +82,8 @@ static int hf_fp_edch_number_of_mac_d_pdus = -1;
 static int hf_fp_edch_pdu_padding = -1;
 static int hf_fp_edch_tsn = -1;
 static int hf_fp_edch_mac_es_pdu = -1;
+static int hf_fp_frame_seq_nr = -1;
+static int hf_fp_flush = -1;
 static int hf_fp_cmch_pi = -1;
 static int hf_fp_user_buffer_size = -1;
 static int hf_fp_hsdsch_credits = -1;
@@ -1137,7 +1139,8 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset = dissect_crci_bits(tvb, pinfo, tree, num_tbs, offset);
 
         /* Info introduced in R6 */
-        if (p_fp_info->release == 6)
+        if ((p_fp_info->release == 6) ||
+            (p_fp_info->release == 7))
         {
             int n;
             guint8 flags;
@@ -2268,6 +2271,19 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         /* HS-DCH data here             */
         /* TODO: handle type 2 frames (will know from config) */
 
+        /* Frame Seq Nr */
+        if ((p_fp_info->release == 6) ||
+            (p_fp_info->release == 7))
+        {
+            guint8 frame_seq_no = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
+
+            if (check_col(pinfo->cinfo, COL_INFO))
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  seqno=%u", frame_seq_no);
+            }
+        }
+
         /* CmCH-PI */
         proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
         offset++;
@@ -2276,6 +2292,14 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         pdu_length = (tvb_get_ntohs(tvb, offset) >> 3);
         proto_tree_add_item(tree, hf_fp_mac_d_pdu_len, tvb, offset, 2, FALSE);
         offset += 2;
+
+        /* Flush bit */
+        if ((p_fp_info->release == 6) ||
+            (p_fp_info->release == 7))
+        {
+            proto_tree_add_item(tree, hf_fp_flush, tvb, offset-1, 1, FALSE);
+        }
+
 
         /* Num of PDU */
         number_of_pdus = tvb_get_guint8(tvb, offset);
@@ -2297,7 +2321,8 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
 
         /* Extra R6 stuff */
-        if (p_fp_info->release == 6)
+        if ((p_fp_info->release == 6) ||
+            (p_fp_info->release == 7))
         {
             int n;
             guint8 flags;
@@ -2765,6 +2790,18 @@ void proto_register_fp(void)
             { "MAC-es PDU",
               "fp.edch.mac-es-pdu", FT_NONE, BASE_NONE, NULL, 0x0,
               "MAC-es PDU", HFILL
+            }
+        },
+        { &hf_fp_frame_seq_nr,
+            { "Frame Seq Nr",
+              "fp.frame-seq-nr", FT_UINT8, BASE_DEC, 0, 0xf0,
+              "Frame Sequence Number", HFILL
+            }
+        },
+        { &hf_fp_flush,
+            { "Flush",
+              "fp.flush", FT_UINT8, BASE_DEC, 0, 0x04,
+              "Flush", HFILL
             }
         },
         { &hf_fp_cmch_pi,
