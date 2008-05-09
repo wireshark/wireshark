@@ -270,7 +270,7 @@ static void before_xmpli(void* tvbparse_data, const void* wanted_data _U_, tvbpa
 	int hf_tag;
 	gint ett;
 
-	g_ascii_strdown(name,strl(name));
+	g_ascii_strdown(name,strlen(name));
 	if (!ns) {
 		hf_tag = hf_xmlpi;
 		ett = ett_xmpli;
