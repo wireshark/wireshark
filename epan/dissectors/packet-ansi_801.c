@@ -2080,6 +2080,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
     guint8	oct, num_req, num_rsp, pd_msg_type;
     guint	rem_len;
     const gchar	*str = NULL;
+	proto_item *hidden_item;
 
     offset = 0;
     oct = tvb_get_guint8(tvb, offset);
@@ -2106,8 +2107,9 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, proto_tree *tree)
 	bigbuf,
 	oct & 0x1f);
 
-    proto_tree_add_uint_hidden(tree, hf_ansi_801_sess_tag, tvb, offset,
+    hidden_item = proto_tree_add_uint(tree, hf_ansi_801_sess_tag, tvb, offset,
 	1, oct & 0x1f);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);
@@ -2265,6 +2267,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
     guint8	oct, num_req, num_rsp, pd_msg_type;
     guint	rem_len;
     const gchar	*str = NULL;
+	proto_item *hidden_item;
 
     offset = 0;
     oct = tvb_get_guint8(tvb, offset);
@@ -2291,8 +2294,9 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, proto_tree *tree)
 	bigbuf,
 	oct & 0x1f);
 
-    proto_tree_add_uint_hidden(tree, hf_ansi_801_sess_tag, tvb, offset,
+    hidden_item = proto_tree_add_uint(tree, hf_ansi_801_sess_tag, tvb, offset,
 	1, oct & 0x1f);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     offset++;
     oct = tvb_get_guint8(tvb, offset);

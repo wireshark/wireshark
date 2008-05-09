@@ -213,6 +213,7 @@ static int
 dissect_beep_more(tvbuff_t *tvb, int offset,
 		  proto_tree *tree)
 {
+  proto_item *hidden_item;
   int ret = 0;
 
   switch (beep_get_more(tvb_get_guint8(tvb, offset))) {
@@ -220,7 +221,8 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
   case BEEP_COMPLETE:
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_complete, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_complete, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
       proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
     }
 
@@ -231,7 +233,8 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
   case BEEP_INTERMEDIATE:
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_intermediate, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_intermediate, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
       proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
     }
 
@@ -242,7 +245,8 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
   default:
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
       proto_tree_add_text(tree, tvb, offset, 1, "PROTOCOL VIOLATION: Expected More Flag (* or .)");
     }
 
@@ -258,6 +262,7 @@ dissect_beep_more(tvbuff_t *tvb, int offset,
 static void dissect_beep_status(tvbuff_t *tvb, int offset,
 				proto_tree *tree)
 {
+	proto_item *hidden_item;
 
   /* FIXME: We should return a value to indicate all OK. */
 
@@ -266,7 +271,8 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
   case '+':
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_positive, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_positive, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
       proto_tree_add_text(tree, tvb, offset, 1, "Status: Positive");
     }
 
@@ -275,7 +281,8 @@ static void dissect_beep_status(tvbuff_t *tvb, int offset,
   case '-':
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_negative, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_negative, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
       proto_tree_add_text(tree, tvb, offset, 1, "Status: Negative");
     }
 
@@ -310,6 +317,7 @@ static int num_len(tvbuff_t *tvb, int offset)
 static int
 check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	proto_item  *hidden_item;
 
   /* First, check for CRLF, or, if global_beep_strict_term is false,
    * one of CR or LF ... If neither of these hold, we add an element
@@ -332,7 +340,8 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: CR");
-      proto_tree_add_boolean_hidden(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     return 1;
 
@@ -341,7 +350,8 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: LF");
-      proto_tree_add_boolean_hidden(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_proto_viol, tvb, offset, 1, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     return 1;
 
@@ -350,7 +360,8 @@ check_term(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, 2, "PROTOCOL VIOLATION, Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
-      proto_tree_add_boolean_hidden(tree, hf_beep_proto_viol, tvb, offset, 2, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_proto_viol, tvb, offset, 2, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     return -1;
 
@@ -438,6 +449,7 @@ static int
 dissect_beep_int(tvbuff_t *tvb, int offset,
 		    proto_tree *tree, int hf, int *val, int *hfa[])
 {
+  proto_item  *hidden_item;
   int ival, ind = 0;
   unsigned int i = num_len(tvb, offset);
   guint8 int_buff[100];
@@ -456,7 +468,8 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
   while (hfa[ind]) {
 
-    proto_tree_add_uint_hidden(tree, *hfa[ind], tvb, offset, i, ival);
+    hidden_item = proto_tree_add_uint(tree, *hfa[ind], tvb, offset, i, ival);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     ind++;
 
   }
@@ -527,6 +540,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  struct beep_proto_data *frame_data)
 {
   proto_tree     *ti = NULL, *hdr = NULL;
+  proto_item	 *hidden_item;
   int            st_offset, msgno, ansno, seqno, size, channel, ackno, window, cc,
                  more;
 
@@ -554,7 +568,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       hdr = proto_item_add_subtree(ti, ett_header);
 
-      proto_tree_add_boolean_hidden(hdr, hf_beep_req, tvb, offset, 3, TRUE);
+      hidden_item = proto_tree_add_boolean(hdr, hf_beep_req, tvb, offset, 3, TRUE);
       proto_tree_add_text(hdr, tvb, offset, 3, cmd_temp);
     }
 
@@ -674,7 +688,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     if (tree) {
-      proto_tree_add_boolean_hidden(tree, hf_beep_seq, tvb, offset, 3, TRUE);
+      hidden_item = proto_tree_add_boolean(tree, hf_beep_seq, tvb, offset, 3, TRUE);
       proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
     }
 
@@ -727,7 +741,7 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       tr = proto_item_add_subtree(ti, ett_trailer);
 
-      proto_tree_add_boolean_hidden(tr, hf_beep_end, tvb, offset, 3, TRUE);
+      hidden_item = proto_tree_add_boolean(tr, hf_beep_end, tvb, offset, 3, TRUE);
       proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
 
     }

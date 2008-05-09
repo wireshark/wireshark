@@ -1421,6 +1421,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct afs_request_key request_key, *new_request_key;
 	struct afs_request_val *request_val=NULL;
 	proto_tree      *afs_tree, *afs_op_tree, *ti;
+	proto_item		*hidden_item;
 	int port, node, typenode, opcode;
 	value_string const *vals;
 	int offset = 0;
@@ -1656,7 +1657,8 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
-				proto_tree_add_boolean_hidden(afs_tree, typenode, tvb, offset, 0, 1);
+				hidden_item = proto_tree_add_boolean(afs_tree, typenode, tvb, offset, 0, 1);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 			}
 
 			/* Process the packet according to what service it is */

@@ -2748,6 +2748,7 @@ static void
 dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
+  proto_item *hidden_item;
 
   if (chunk_length < INIT_CHUNK_FIXED_PARAMTERS_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
@@ -2758,7 +2759,8 @@ dissect_init_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo
   if (chunk_tree) {
     /* handle fixed parameters */
     proto_tree_add_item(chunk_tree, hf_init_chunk_initiate_tag,               chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
-    proto_tree_add_item_hidden(chunk_tree, hf_initiate_tag,                   chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
+    hidden_item = proto_tree_add_item(chunk_tree, hf_initiate_tag,                   chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(chunk_tree, hf_init_chunk_adv_rec_window_credit,      chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET,      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,      NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_init_chunk_number_of_outbound_streams, chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_init_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -2778,6 +2780,7 @@ static void
 dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t *parameters_tvb;
+  proto_item *hidden_item;
 
   if (chunk_length < INIT_CHUNK_FIXED_PARAMTERS_LENGTH) {
     proto_item_append_text(chunk_item, ", bogus chunk length %u < %u)",
@@ -2788,7 +2791,8 @@ dissect_init_ack_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *p
   if (chunk_tree) {
     /* handle fixed parameters */
     proto_tree_add_item(chunk_tree, hf_initack_chunk_initiate_tag,               chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
-    proto_tree_add_item_hidden(chunk_tree, hf_initiate_tag,                      chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
+    hidden_item = proto_tree_add_item(chunk_tree, hf_initiate_tag,                      chunk_tvb, INIT_CHUNK_INITIATE_TAG_OFFSET,               INIT_CHUNK_INITIATE_TAG_LENGTH,               NETWORK_BYTE_ORDER);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_adv_rec_window_credit,      chunk_tvb, INIT_CHUNK_ADV_REC_WINDOW_CREDIT_OFFSET,      INIT_CHUNK_ADV_REC_WINDOW_CREDIT_LENGTH,      NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_number_of_outbound_streams, chunk_tvb, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_OFFSET, INIT_CHUNK_NUMBER_OF_OUTBOUND_STREAMS_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(chunk_tree, hf_initack_chunk_number_of_inbound_streams,  chunk_tvb, INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_OFFSET,  INIT_CHUNK_NUMBER_OF_INBOUND_STREAMS_LENGTH,  NETWORK_BYTE_ORDER);
@@ -3467,7 +3471,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   guint16 source_port, destination_port;
   guint length, reported_length;
   gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
-  proto_item *sctp_item;
+  proto_item *sctp_item, *hidden_item;
   proto_tree *sctp_tree;
   guint32 vtag;
   sctp_half_assoc_t* ha = NULL;
@@ -3532,8 +3536,10 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     proto_tree_add_item(sctp_tree, hf_source_port,      tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      NETWORK_BYTE_ORDER);
     proto_tree_add_item(sctp_tree, hf_destination_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(sctp_tree, hf_verification_tag, tvb, VERIFICATION_TAG_OFFSET, VERIFICATION_TAG_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item_hidden(sctp_tree, hf_port, tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      NETWORK_BYTE_ORDER);
-    proto_tree_add_item_hidden(sctp_tree, hf_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, NETWORK_BYTE_ORDER);
+    hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, SOURCE_PORT_OFFSET,      SOURCE_PORT_LENGTH,      NETWORK_BYTE_ORDER);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, NETWORK_BYTE_ORDER);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (tvb_bytes_exist(tvb, 0, reported_length)) {
       /* We have the whole packet */
@@ -3549,7 +3555,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 	else
 	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
 				     checksum, "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]", checksum, calculated_adler32);
-	proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
+	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
        break;
       case SCTP_CHECKSUM_CRC32C:
 	if (crc32c_correct)
@@ -3558,7 +3565,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 	else
 	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
 				     checksum, "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]", checksum, calculated_crc32c);
-	proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
+	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
       case SCTP_CHECKSUM_AUTOMATIC:
 	if ((adler32_correct) && !(crc32c_correct))
@@ -3574,7 +3582,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
 	  proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
 				     checksum, "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
 				     checksum, calculated_adler32, calculated_crc32c);
-	proto_tree_add_boolean_hidden(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
+	hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
       }
     } else {

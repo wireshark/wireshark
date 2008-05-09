@@ -111,5 +111,6 @@ maintainer-clean: distclean
 	rm -f $(GENERATED_FILES)
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC) \
-	$(CLEAN_DISSECTOR_SRC)
+	$(PERL) ../../tools/checkAPIs.pl \
+	$(ALL_DISSECTORS_SRC) \
+	packet-dcerpc-nt.c

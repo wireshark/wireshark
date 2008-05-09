@@ -1004,7 +1004,7 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 {
   guint offset = 0;
   guint8 odd_signal, even_signal = 0x0f;
-  proto_item *digits_item;
+  proto_item *digits_item, *hidden_item;
   char gt_digits[GT_MAX_SIGNALS+1] = { 0 };
 
   while(offset < length)
@@ -1037,8 +1037,9 @@ dissect_sccp_gt_address_information(tvbuff_t *tvb, proto_tree *tree,
 					     "Address information (digits): %s",
 					     gt_digits);
 
-  proto_tree_add_string_hidden(tree, hf_sccp_gt_digits, tvb, 0, length,
+  hidden_item = proto_tree_add_string(tree, hf_sccp_gt_digits, tvb, 0, length,
 			       gt_digits);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   return digits_item;
 }
@@ -1204,7 +1205,7 @@ static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 				  guint length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0, *item;
+  proto_item *call_item = 0, *call_ai_item = 0, *item, *hidden_item;
   proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint offset;
   guint8 national = 0xFFU, routing_ind, gti, pci, ssni, ssn;
@@ -1305,8 +1306,10 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
       proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-      proto_tree_add_uint_hidden(call_tree, hf_sccp_ssn, tvb, offset,
+      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
 				 ADDRESS_SSN_LENGTH, ssn);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
+
       offset += ADDRESS_SSN_LENGTH;
 
       /* Get the dissector handle of the dissector registered for this ssn
@@ -1383,8 +1386,10 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 	proto_tree_add_uint(call_tree, called ? hf_sccp_called_ssn
 					    : hf_sccp_calling_ssn,
 			  tvb, offset, ADDRESS_SSN_LENGTH, ssn);
-      proto_tree_add_uint_hidden(call_tree, hf_sccp_ssn, tvb, offset,
+      hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
 				 ADDRESS_SSN_LENGTH, ssn);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
+
       offset += ADDRESS_SSN_LENGTH;
     }
 

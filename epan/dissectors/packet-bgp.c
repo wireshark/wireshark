@@ -1504,12 +1504,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
+		proto_item *hidden_item;
 	    const char *msg;
 	    int     off;
 	    gint    k;
 	    guint16 alen, tlen, aoff, aoff_save; 
 	    guint16 af;
-            guint8  saf, snpa;
+        guint8  saf, snpa;
 	    guint8  nexthop_len;
 	    guint8  asn_len = 0;
 
@@ -1936,8 +1937,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			as_path_item = (asn_len == 2) ? 
 				tvb_get_ntohs(tvb, q) : tvb_get_ntohl(tvb, q);
 			proto_item_append_text(ti, " %u", as_path_item);
-			proto_tree_add_uint_hidden(as_path_tree, hf_bgp_as_path, tvb,
+			hidden_item = proto_tree_add_uint(as_path_tree, hf_bgp_as_path, tvb,
 			    q, asn_len, as_path_item);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
                         q += asn_len;
                     }
                 }
@@ -2326,6 +2328,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		end = o + i + aoff + tlen ;
 
 		while(q < end) {
+			proto_item *hidden_item;
+
 		    ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
 		    ssa_len = tvb_get_ntohs(tvb, q + 2);
 
@@ -2336,8 +2340,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 
 		    proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
 			    q, 1, FALSE);
-		    proto_tree_add_item_hidden(subtree3, hf_bgp_ssa_type, tvb,
+		    hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
 			    q, 2, FALSE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		    proto_tree_add_text(subtree3, tvb, q, 2,
 			    "Type: %s", val_to_str(ssa_type, bgp_ssa_type, "Unknown"));
 		    if ((ssa_len == 0) || (q + ssa_len > end)) {

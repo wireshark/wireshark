@@ -52,7 +52,7 @@ static void
 dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree			*fh_tree;
-  proto_item			*ti;
+  proto_item			*ti, *hidden_item;
   union wtap_pseudo_header	*pseudo_header = pinfo->pseudo_header;
 
   /* load the top pane info. This should be overwritten by
@@ -91,13 +91,15 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  pseudo_header->ascend.call_num);
       proto_tree_add_uint(fh_tree, hf_chunk, tvb, 0, 0,
 			  pseudo_header->ascend.chunk);
-      proto_tree_add_uint_hidden(fh_tree, hf_session_id, tvb, 0, 0, 0);
+      hidden_item = proto_tree_add_uint(fh_tree, hf_session_id, tvb, 0, 0, 0);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     } else {  /* It's wandsession data */
       proto_tree_add_string(fh_tree, hf_user_name, tvb, 0, 0,
 			  pseudo_header->ascend.user);
       proto_tree_add_uint(fh_tree, hf_session_id, tvb, 0, 0,
 			  pseudo_header->ascend.sess);
-      proto_tree_add_uint_hidden(fh_tree, hf_chunk, tvb, 0, 0, 0);
+      hidden_item = proto_tree_add_uint(fh_tree, hf_chunk, tvb, 0, 0, 0);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     proto_tree_add_uint(fh_tree, hf_task, tvb, 0, 0, pseudo_header->ascend.task);
   }

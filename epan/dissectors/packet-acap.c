@@ -49,14 +49,14 @@ static gint ett_acap_reqresp = -1;
 static void
 dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request;
-        proto_tree      *acap_tree, *reqresp_tree;
-        proto_item      *ti;
-	gint		offset = 0;
+    gboolean        is_request;
+    proto_tree      *acap_tree, *reqresp_tree;
+    proto_item      *ti, *hidden_item;
+	gint			offset = 0;
 	const guchar	*line;
-	gint		next_offset;
-	int		linelen;
-	int		tokenlen;
+	gint			next_offset;
+	int				linelen;
+	int				tokenlen;
 	const guchar	*next_token;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -93,11 +93,13 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		acap_tree = proto_item_add_subtree(ti, ett_acap);
 
 		if (is_request) {
-			proto_tree_add_boolean_hidden(acap_tree,
+			hidden_item = proto_tree_add_boolean(acap_tree,
 			    hf_acap_request, tvb, 0, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		} else {
-			proto_tree_add_boolean_hidden(acap_tree,
+			hidden_item = proto_tree_add_boolean(acap_tree,
 			    hf_acap_response, tvb, 0, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 
 		/*

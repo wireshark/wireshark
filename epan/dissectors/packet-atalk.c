@@ -1683,7 +1683,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   guint8  sport;
   guint8  type;
   proto_tree *ddp_tree = NULL;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   static struct atalk_ddp_addr src, dst;
   tvbuff_t   *new_tvb;
 
@@ -1726,10 +1726,12 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
       val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
   }
   if (tree) {
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb,
+    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
 				 4, 3, atalk_addr_to_str(&src));
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb,
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
 				 6, 3, atalk_addr_to_str(&dst));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_type, tvb, 4, 1, type);
   }
@@ -1744,7 +1746,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   e_ddp       ddp;
   proto_tree *ddp_tree;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   static struct atalk_ddp_addr src, dst;
   tvbuff_t   *new_tvb;
 
@@ -1781,10 +1783,13 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     FALSE);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_src, tvb,
+    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
 				 4, 3, atalk_addr_to_str(&src));
-    proto_tree_add_string_hidden(ddp_tree, hf_ddp_dst, tvb,
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+    hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_dst, tvb,
 				 6, 3, atalk_addr_to_str(&dst));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint(ddp_tree, hf_ddp_hopcount,   tvb, 0, 1,
 			ddp_hops(ddp.hops_len));
