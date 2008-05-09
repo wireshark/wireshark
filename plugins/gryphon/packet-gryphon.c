@@ -204,7 +204,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree	    *gryphon_tree;
     proto_item	    *ti;
     proto_tree	    *header_tree, *body_tree, *localTree;
-    proto_item	    *header_item, *body_item, *localItem;
+    proto_item	    *header_item, *body_item, *localItem, *hiddenItem;
     int		    start_offset, msgend;
     int		    msglen, msgpad;
     unsigned int    src, dest, i, frmtyp;
@@ -264,25 +264,34 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	"Source: %s, channel %u",
 	val_to_str(src, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 1));
-    proto_tree_add_uint_hidden(header_tree, hf_gryphon_src, tvb,
+    
+	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_src, tvb,
 	offset, 1, src);
-    proto_tree_add_uint_hidden(header_tree, hf_gryphon_srcchan, tvb,
+	PROTO_ITEM_SET_HIDDEN(hiddenItem);
+    
+	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_srcchan, tvb,
 	offset+1, 1, tvb_get_guint8(tvb, offset + 1));
+	PROTO_ITEM_SET_HIDDEN(hiddenItem);
 
     proto_tree_add_text(header_tree, tvb, offset+2, 2,
 	"Destination: %s, channel %u",
 	val_to_str(dest, src_dest, "Unknown (0x%02x)"),
 	tvb_get_guint8(tvb, offset + 3));
-    proto_tree_add_uint_hidden(header_tree, hf_gryphon_dest, tvb,
+    
+	hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_dest, tvb,
 	offset+2, 1, dest);
-    proto_tree_add_uint_hidden(header_tree, hf_gryphon_destchan, tvb,
+	PROTO_ITEM_SET_HIDDEN(hiddenItem);
+
+    hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_destchan, tvb,
 	offset+3, 1, tvb_get_guint8(tvb, offset + 3));
+	PROTO_ITEM_SET_HIDDEN(hiddenItem);
 
     proto_tree_add_text(header_tree, tvb, offset+4, 2,
 	"Data length: %u byte%s", msglen, msglen == 1 ? "" : "s");
     proto_tree_add_text(header_tree, tvb, offset+6, 1,
 	"Frame type: %s", frame_type[frmtyp]);
-    if (is_msgresp_add) {
+    
+	if (is_msgresp_add) {
 	localItem = proto_tree_add_text(header_tree, tvb, offset+6, 1, "Flags");
 	localTree = proto_item_add_subtree (localItem, ett_gryphon_flags);
 	proto_tree_add_text(localTree, tvb, offset+6, 1, "%s",
@@ -296,8 +305,10 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     proto_tree_add_text(header_tree, tvb, offset+7, 1, "reserved");
 
-    proto_tree_add_uint_hidden(header_tree, hf_gryphon_type, tvb,
+    hiddenItem = proto_tree_add_uint(header_tree, hf_gryphon_type, tvb,
 	offset+6, 1, frmtyp);
+	PROTO_ITEM_SET_HIDDEN(hiddenItem);
+
     msgpad = 3 - (msglen + 3) % 4;
     msgend = offset + msglen + msgpad + MSG_HDR_SZ;
 
@@ -635,10 +646,12 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     unsigned int    i;
     proto_tree	    *ft;
     proto_item	    *ti;
+    proto_item	    *hi;
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     cmd = tvb_get_guint8(tvb, offset);
-    proto_tree_add_uint_hidden(pt, hf_gryphon_cmd, tvb, offset, 1, cmd);
+    hi = proto_tree_add_uint(pt, hf_gryphon_cmd, tvb, offset, 1, cmd);
+	PROTO_ITEM_SET_HIDDEN(hi);
     if (cmd > 0x3F)
     	cmd += dst * 256;
 

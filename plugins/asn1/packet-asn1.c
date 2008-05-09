@@ -74,6 +74,7 @@
 #include <string.h>
 
 #include <glib.h>
+#include <glib/gprintf.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -447,13 +448,13 @@ static char *showtaglist(guint level)
 		case BER_CLASS_PRI: *p++ = 'P'; break;
 		default:       *p++ = 'x'; break;
 		}
-		p += sprintf(p, "%d.", taglist[i].tag);
+		p += g_sprintf(p, "%d.", taglist[i].tag);
 	}
 #else /* only context tags */
         *p++ = 'C';
 	for(i=0; i<= level; i++) {
 		if (taglist[i].cls == BER_CLASS_CON) {
-			p += sprintf(p, "%d.", taglist[i].tag);
+			p += g_sprintf(p, "%d.", taglist[i].tag);
 		}
 	}
 #endif
@@ -515,7 +516,7 @@ showbitnames(guchar *val, guint count, PDUprops *props, guint offset)
 	if (val != NULL) {
 		for(i=0; i<count; i++) {
 			if (val[i>>3] & (0x80 >> (i & 7))) { /* bit i is set */
-				p += sprintf(p,"%s,", getPDUenum(props, offset, 0, 0, i));
+				p += g_sprintf(p,"%s,", getPDUenum(props, offset, 0, 0, i));
 			}
 		}
 		if (p > str)
@@ -539,7 +540,7 @@ static char *showoid(subid_t *oid, guint len)
 	if (oid != NULL) {
 		for(i=0; i<len; i++) {
 			if (i) *p++ = '.';
-			p += sprintf(p, "%lu", (unsigned long)oid[i]);
+			p += g_sprintf(p, "%lu", (unsigned long)oid[i]);
 		}
 	}
 	*p = 0;
@@ -570,14 +571,14 @@ showoctets(guchar *octets, guint len, guint hexlen) /* if len <= hexlen, always 
 		if (dohex) {
 			str = p = g_malloc(len*2 + 5);
 			for (i=0; i<len; i++) {
-				p += sprintf(p, "%2.2X", octets[i]);
+				p += g_sprintf(p, "%2.2X", octets[i]);
 			}
 			strncpy(p, endstr, len*2 + 5);
 		} else {
 			if (len <= hexlen) { /* show both hex and ascii, assume hexlen < MAX_OTSLEN */
 				str = p = g_malloc(len*3+2);
 				for (i=0; i<len; i++) {
-					p += sprintf(p, "%2.2X", octets[i]);
+					p += g_sprintf(p, "%2.2X", octets[i]);
 				}
 				*p++ = ' '; /* insert space */
 				strncpy(p, octets, len);
@@ -976,7 +977,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 	  if (asn1_full)
 		  name = &props.fullname[pabbrev_pdu_len];	/* no abbrev.pduname */
 	  if (asn1_debug) {	/* show both names */
-		  sprintf(fieldname, "%s[%s]", props.name, props.fullname);
+		  g_sprintf(fieldname, "%s[%s]", props.name, props.fullname);
 		  name = fieldname;
 	  }
 
@@ -1014,7 +1015,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 		cls = BER_CLASS_UNI;
 		tag = BER_UNI_TAG_GeneralString;
 		oname = g_malloc(strlen(name) + 32);
-		sprintf(oname, "%s ** nesting cut off **", name);
+		g_sprintf(oname, "%s ** nesting cut off **", name);
 		name = oname;
 	  }
 	  switch(cls) {
@@ -3277,31 +3278,31 @@ PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 		tn = info->typename;
 		fn = info->fullname;
 		if (info->flags & PDU_NAMEDNUM)
-			txt += sprintf(txt, "name: %2d %s", info->tag, nn);
+			txt += g_sprintf(txt, "name: %2d %s", info->tag, nn);
 		else {
 			if (info->flags & PDU_TYPEDEF)
-				txt += sprintf(txt, "def %d: ", info->typenum);
+				txt += g_sprintf(txt, "def %d: ", info->typenum);
 			else
-				txt += sprintf(txt, "  ");
+				txt += g_sprintf(txt, "  ");
 			ty = (info->flags & PDU_TYPETREE) ? "typ" : "val";
-			txt += sprintf(txt, "%s %s (%s)%s [%s] tag %c%d hf=%d tf=%d",ty,tt, tn, nn, fn,
+			txt += g_sprintf(txt, "%s %s (%s)%s [%s] tag %c%d hf=%d tf=%d",ty,tt, tn, nn, fn,
 				     tag_class[info->tclass], info->tag, info->value_id, info->type_id);
-			txt += sprintf(txt, ", mt=%d, bt=%d", info->mytype, info->basetype);
+			txt += g_sprintf(txt, ", mt=%d, bt=%d", info->mytype, info->basetype);
 			oo = (info->flags & PDU_OPTIONAL) ?  ", optional"  : empty;
 			ii = (info->flags & PDU_IMPLICIT) ?  ", implicit"  : empty;
 			nn = (info->flags & PDU_NAMEDNUM) ?  ", namednum"  : empty;
 			an = (info->flags & PDU_ANONYMOUS) ? ", anonymous" : empty;
-			txt += sprintf(txt, "%s%s%s%s", oo, ii, nn, an);
+			txt += g_sprintf(txt, "%s%s%s%s", oo, ii, nn, an);
 			if (info->flags & PDU_REFERENCE) {
 				rinfo = (PDUinfo *)((GNode *)(info->reference))->data;
 				tt = TBLTYPE(rinfo->type);
 				nn = rinfo->name;
 				tn = rinfo->typename;
 				fn = rinfo->fullname;
-				txt += sprintf(txt, ", reference to %s (%s)%s [%s]", tt, tn, nn, fn);
+				txt += g_sprintf(txt, ", reference to %s (%s)%s [%s]", tt, tn, nn, fn);
 				if (rinfo->flags & PDU_TYPEDEF)
-					txt += sprintf(txt, " T%d", rinfo->typenum);
-				txt += sprintf(txt, " tag %c%d", tag_class[rinfo->tclass], rinfo->tag);
+					txt += g_sprintf(txt, " T%d", rinfo->typenum);
+				txt += g_sprintf(txt, " tag %c%d", tag_class[rinfo->tclass], rinfo->tag);
 				oo = (rinfo->flags & PDU_OPTIONAL) ?  ", optional"  : empty;
 				ii = (rinfo->flags & PDU_IMPLICIT) ?  ", implicit"  : empty;
 				nn = (rinfo->flags & PDU_NAMEDNUM) ?  ", namednum"  : empty;
@@ -3309,7 +3310,7 @@ PDUtext(char *txt, PDUinfo *info) /* say everything we know about this entry */
 				tt = (rinfo->flags & PDU_TYPEDEF) ?   ", typedef"   : empty;
 				an = (rinfo->flags & PDU_ANONYMOUS) ? ", anonymous" : empty;
 				tr = (rinfo->flags & PDU_TYPETREE) ?  ", typetree"  : empty;
-				txt += sprintf(txt, "%s%s%s%s%s%s%s", oo, ii, nn, tn, tt, an, tr);
+				txt += g_sprintf(txt, "%s%s%s%s%s%s%s", oo, ii, nn, tn, tt, an, tr);
 			}
 		}
 	} else {
@@ -3401,7 +3402,7 @@ build_pdu_tree(const char *pduname)
 	anonCount = 0; /* anonymous types counter */
 
 	PDUtree = g_node_new(info);
-	pabbrev_pdu_len = sprintf(fieldname, "%s.%s.", pabbrev, pduname);
+	pabbrev_pdu_len = g_sprintf(fieldname, "%s.%s.", pabbrev, pduname);
 	sav_len = pabbrev_pdu_len;
 
 	/* Now build the tree for this top level PDU */
@@ -3447,7 +3448,7 @@ build_pdu_tree(const char *pduname)
 			info->value_hf.hfinfo.blurb = info->fullname;
 
 			tr->typetree = g_node_new(info);
-			pabbrev_pdu_len = sprintf(fieldname, "%s.--.%s.", pabbrev, tr->name);
+			pabbrev_pdu_len = g_sprintf(fieldname, "%s.--.%s.", pabbrev, tr->name);
 			tbl_typeref(0, tr->typetree, tr->type, pabbrev_pdu_len-1);
 		}
 	}
@@ -4070,7 +4071,7 @@ showstack(statestack *pos, char *txt, int n)
 	if (typef & TBL_SEQUENCE_choice)sch  = "[seq-chs]";
 	if (typef & TBL_CONSTRUCTED)    con  = "[constr]";
 
-	i = sprintf(buf, "%s sp=%d,pos=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", txt, PDUstatec,
+	i = g_sprintf(buf, "%s sp=%d,pos=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", txt, PDUstatec,
 		    pos->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 		    pos->name, pos->offset);
 
@@ -4088,7 +4089,7 @@ showstack(statestack *pos, char *txt, int n)
 	        sch  = (typef & TBL_SEQUENCE_choice)? "[seq-chs]" : empty;
 		con  = (typef & TBL_CONSTRUCTED)    ? "[constr]"  : empty;
 
-		i += sprintf(&buf[i], "| sp=%d,st=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", PDUstatec-j,
+		i += g_sprintf(&buf[i], "| sp=%d,st=%p,%s%s%s%s%s%s%s%s%s%s:%s,%d", PDUstatec-j,
 			p->node, stype, rep, chs, done, ref, pop, chr, rch, sch, con,
 			p->name, p->offset);
 	}
@@ -4244,7 +4245,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 	/* a very simple, too simple??, way to handle constructed entities */
 	if ((PDUstatec > 0) && (pos.type & TBL_CONSTRUCTED)) {
 	       		/* unexpectedly constructed, return same info as last time */
-		sprintf(posstr, "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
+		g_sprintf(posstr, "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
 		showstack(&pos, posstr, 3);
 		pos.offset = offset;
 		pos.type &= ~TBL_CONSTRUCTED; /* remove the flag */
@@ -4282,7 +4283,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 		PDUerrcount++;
 		return out;
 	}
-	sprintf(posstr, "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
+	g_sprintf(posstr, "==off=%d %c%d%c", offset, tag_class[class], tag, cons?'c':'p');
 
 	showstack(&pos, posstr, 3);
 
@@ -4611,7 +4612,7 @@ getPDUprops(PDUprops *out, guint offset, guint class, guint tag, guint cons)
 				out->type = (pos.type & TBL_TYPEmask);
 				out->flags |= OUT_FLAG_type;
 
-				sprintf(namestr, "%s!%s", ret, getname(pos.node));
+				g_sprintf(namestr, "%s!%s", ret, getname(pos.node));
 				ret = namestr;
 				if (asn1_verbose)
 					g_message("    %s:%s will be used", TBLTYPE(pos.type), ret);

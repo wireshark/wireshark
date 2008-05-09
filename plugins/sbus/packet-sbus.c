@@ -553,7 +553,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-       proto_item *ti, *et, *dt;
+       proto_item *ti, *et, *dt, *hi;
        proto_tree *sbus_tree, *ethsbus_tree, *sbusdata_tree;
        
        gint i;        /*for CRC calculation*/
@@ -1310,8 +1310,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      proto_tree_add_uint_format(sbus_tree,
                          hf_sbus_crc, tvb, offset, 2, sbus_helper, 
                          "Checksum: 0x%04x (NOT correct)", sbus_helper);
-                     proto_tree_add_boolean_hidden(sbus_tree, 
+                     hi = proto_tree_add_boolean(sbus_tree, 
                          hf_sbus_crc_bad, tvb, offset + 2, 2, TRUE);
+					 PROTO_ITEM_SET_HIDDEN(hi);
               }
               offset += 2; /*now at the end of the telegram*/
        }
