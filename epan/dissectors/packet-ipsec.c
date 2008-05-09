@@ -1184,6 +1184,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		  key_byte |= (guchar)hex_digit;
 		  (*ascii_key)[j] = key_byte;
 		}
+	      (*ascii_key)[j] = '\0';
 	    }
 
 	  else
@@ -1225,6 +1226,7 @@ compute_ascii_key(gchar **ascii_key, gchar *key)
 		  key_byte |= (guchar)hex_digit;
 		  (*ascii_key)[j] = key_byte;
 		}
+	      (*ascii_key)[j] = '\0';
 	    }
 	}
 
