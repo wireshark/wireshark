@@ -922,6 +922,7 @@ install-generated-files:
 	xcopy ".\plugins\rtnet\rtnet.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\rudp\rudp.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\sbus\sbus.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
+	xcopy ".\plugins\sercosiii\sercosiii.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\stats_tree\stats_tree.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\unistim\unistim.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d
 	xcopy ".\plugins\v5ua\v5ua.dll" $(INSTALL_DIR)\plugins\$(VERSION) /d

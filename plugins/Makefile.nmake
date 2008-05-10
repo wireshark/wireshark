@@ -98,6 +98,9 @@ process-plugins:
 	cd sbus
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
+	cd sercosiii
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
+	cd ..
 	cd stats_tree
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake $(PLUGIN_TARGET)
 	cd ..
@@ -146,6 +149,7 @@ install-plugins:
 	xcopy rtnet\*.dll $(VERSION) /d
 	xcopy rudp\*.dll $(VERSION) /d
 	xcopy sbus\*.dll $(VERSION) /d
+	xcopy sercosiii\*.dll $(VERSION) /d
 	xcopy stats_tree\*.dll $(VERSION) /d
 	xcopy unistim\*.dll $(VERSION) /d
 	xcopy v5ua\*.dll $(VERSION) /d

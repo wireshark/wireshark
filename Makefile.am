@@ -259,6 +259,7 @@ plugin_ldadd = \
 	-dlopen plugins/rtnet/rtnet.la \
 	-dlopen plugins/rudp/rudp.la \
 	-dlopen plugins/sbus/sbus.la \
+	-dlopen plugins/sercosiii/sercosiii.la \
 	-dlopen plugins/stats_tree/stats_tree.la \
 	-dlopen plugins/unistim/unistim.la \
 	-dlopen plugins/v5ua/v5ua.la \

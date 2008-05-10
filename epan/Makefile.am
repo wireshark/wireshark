@@ -219,6 +219,14 @@ plugin_src = \
 	../plugins/pcli/packet-pcli.c \
 	../plugins/rdm/packet-rdm.c \
 	../plugins/rtnet/packet-rtnet.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_at.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_at_devstat.c \
+	../plugins/sercosiii/packet-sercosiii_1v1.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_hp.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_mdt.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_mdt_devctrl.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_mst.c \
+	../plugins/sercosiii/packet-sercosiii_1v1_svc.c \
 	../plugins/v5ua/packet-v5ua.c \
         ../plugins/wimax/crc.c \
         ../plugins/wimax/crc_data.c \
