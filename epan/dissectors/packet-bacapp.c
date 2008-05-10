@@ -5080,31 +5080,33 @@ fReadRangeRequest (tvbuff_t *tvb, proto_tree *tree, guint offset)
 
 	offset = fBACnetObjectPropertyReference(tvb, subtree, offset);
 
-	fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
-	/* optional range choice */
-	if (tag_is_opening(tag_info)) {
-		tt = proto_tree_add_text(subtree, tvb, offset, 1, val_to_str(tag_no, BACnetReadRangeOptions, "unknown range option"));
-		subtree = proto_item_add_subtree(tt, ett_bacapp_value);
-		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
-		switch (tag_no) {
-		case 3:	/* range byPosition */
-		case 6: /* range bySequenceNumber, 2004 spec */
-			offset = fApplicationTypes (tvb, subtree, offset, "reference Index: ");
-			offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
-			break;
-		case 4:	/* range byTime - deprecated in 2004 */
-		case 7: /* 2004 spec */
-			offset = fDateTime(tvb, subtree, offset, "reference Date/Time: ");
-			offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
-			break;
-		case 5:	/* range timeRange - deprecated in 2004 */
-			offset = fDateTime(tvb, subtree, offset, "beginning Time: ");
-			offset = fDateTime(tvb, subtree, offset, "ending Time: ");
-			break;
-		default:
-			break;
+	if (tvb_length_remaining(tvb, offset) > 0) {
+		/* optional range choice */
+		fTagHeader (tvb, offset, &tag_no, &tag_info, &lvt);
+		if (tag_is_opening(tag_info)) {
+			tt = proto_tree_add_text(subtree, tvb, offset, 1, val_to_str(tag_no, BACnetReadRangeOptions, "unknown range option"));
+			subtree = proto_item_add_subtree(tt, ett_bacapp_value);
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
+			switch (tag_no) {
+			case 3:	/* range byPosition */
+			case 6: /* range bySequenceNumber, 2004 spec */
+				offset = fApplicationTypes (tvb, subtree, offset, "reference Index: ");
+				offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
+				break;
+			case 4:	/* range byTime - deprecated in 2004 */
+			case 7: /* 2004 spec */
+				offset = fDateTime(tvb, subtree, offset, "reference Date/Time: ");
+				offset = fApplicationTypes (tvb, subtree, offset, "reference Count: ");
+				break;
+			case 5:	/* range timeRange - deprecated in 2004 */
+				offset = fDateTime(tvb, subtree, offset, "beginning Time: ");
+				offset = fDateTime(tvb, subtree, offset, "ending Time: ");
+				break;
+			default:
+				break;
+			}
+			offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 		}
-		offset += fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	}
 	return offset;
 }
