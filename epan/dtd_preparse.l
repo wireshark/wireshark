@@ -122,7 +122,7 @@ newline    \n
 %%
 
 
-{entity}						if (current) g_string_sprintfa(current,"%s\n%s\n",replace_entity(yytext),location());
+{entity}						if (current) g_string_append_printf(current,"%s\n%s\n",replace_entity(yytext),location());
 
 {whitespace}					if (current) g_string_append(current," ");
 
@@ -138,7 +138,7 @@ newline    \n
 	
 {newline}						{
 	linenum++;
-	if (current) g_string_sprintfa(current,"%s\n",location());
+	if (current) g_string_append_printf(current,"%s\n",location());
 }
 
 
@@ -150,7 +150,7 @@ newline    \n
 <IN_QUOTE>{non_quote}			|
 <IN_QUOTE>{escaped_quote}		g_string_append(current,yytext);
 <NAMED_ENTITY>{system}			{
-    g_string_sprintfa(error,"at %s:%u: file inclusion is not supported!", filename, linenum);
+    g_string_append_printf(error,"at %s:%u: file inclusion is not supported!", filename, linenum);
     yyterminate();
 }
 <ENTITY_DONE>{special_stop}		{ current = output; g_string_append(current,"\n"); BEGIN OUTSIDE; }
@@ -167,7 +167,7 @@ static gchar* replace_entity(gchar* entity) {
 	if (replacement) {
 		return replacement->str;
 	} else {
-		g_string_sprintfa(error,"dtd_preparse: in file '%s': entity %s does not exists\n", filename, entity);
+		g_string_append_printf(error,"dtd_preparse: in file '%s': entity %s does not exists\n", filename, entity);
 		return "";
 	}
 	
@@ -200,7 +200,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 	
 	if (!yyin) {
 		if (err)
-			g_string_sprintfa(err, "Could not open file: '%s', error: %s",fullname,strerror(errno));
+			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,strerror(errno));
 			
 		return NULL;
 	}

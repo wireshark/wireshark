@@ -343,7 +343,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
 
         g_free(name);
 
-        g_string_sprintfa(fake_tap_filter," || %s",(*f)->abbrev);
+        g_string_append_printf(fake_tap_filter," || %s",(*f)->abbrev);
         fake_tap = TRUE;
     }
 

@@ -218,7 +218,7 @@ squoted        ['][^\']*[']
 <GET_ATTR_QUOTE>{get_attr_quote} { BEGIN GET_ATTR_VAL; }
 
 <GET_ATTR_QUOTE>. {
-	g_string_sprintfa(build_data->error,
+	g_string_append_printf(build_data->error,
 					"error in wireshark:protocol xmpli at %s : could not find attribute value!",
 					location);
 	yyterminate();
@@ -238,7 +238,7 @@ squoted        ['][^\']*[']
 	}
 	
 	if (! got_it) {
-		g_string_sprintfa(build_data->error,
+		g_string_append_printf(build_data->error,
 						"error in wireshark:protocol xmpli at %s : no such parameter %s!",
 						location, attr_name);
 		g_free(attr_name);

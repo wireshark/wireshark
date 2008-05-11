@@ -98,10 +98,10 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 		
 		current_frame = g_ptr_array_index(mc->config_stack,(guint)i);
 		
-		g_string_sprintfa(mc->config_error,"%s%s at line %u",incl, current_frame->filename, current_frame->linenum);
+		g_string_append_printf(mc->config_error,"%s%s at line %u",incl, current_frame->filename, current_frame->linenum);
 	}
 	
-	g_string_sprintfa(mc->config_error,": %s\n",error_buffer);
+	g_string_append_printf(mc->config_error,": %s\n",error_buffer);
 	
 	THROW(MateConfigError);
 
@@ -157,7 +157,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 			configuration_error(mc,"bad token %s",s);
 		}
 		
-		g_string_sprintfa(str,":%.2X",v);					
+		g_string_append_printf(str,":%.2X",v);					
 	}
 	
 	g_strfreev(vec);
@@ -425,7 +425,7 @@ pdu_decl ::=
 	cfg->discard = DistcardPduData;
 	cfg->drop_unassigned = DropUnassigned;
 	
-	g_string_sprintfa(mc->protos_filter,"||%s",Field->abbrev);
+	g_string_append_printf(mc->protos_filter,"||%s",Field->abbrev);
 
 	/* flip the transport_stack */
 	for (i = Stack->len - 1; Stack->len; i--) {
@@ -494,7 +494,7 @@ last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 	int* hfidp = g_malloc(sizeof(int));
 
-	g_string_sprintfa(mc->fields_filter,"||%s",C->abbrev);
+	g_string_append_printf(mc->fields_filter,"||%s",C->abbrev);
 	
 	*hfidp = C->id;
 	g_ptr_array_add(B,hfidp);
@@ -505,7 +505,7 @@ proto_stack(A) ::= field(B). {
 	int* hfidp = g_malloc(sizeof(int));
 	*hfidp = B->id;
 	
-	g_string_sprintfa(mc->fields_filter,"||%s",B->abbrev);
+	g_string_append_printf(mc->fields_filter,"||%s",B->abbrev);
 
 	A = g_ptr_array_new();
 	g_ptr_array_add(A,hfidp);

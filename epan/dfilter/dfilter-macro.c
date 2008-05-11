@@ -202,9 +202,9 @@ static gchar* dfilter_macro_resolve(gchar* name, gchar** args, const gchar** err
 
 	if (args) {
 		while (*parts) {
-			g_string_sprintfa(text,"%s%s",
-						  args[*(arg_pos_p++)],
-						  *(parts++));
+			g_string_append_printf(text,"%s%s",
+					       args[*(arg_pos_p++)],
+					       *(parts++));
 		}
 	}
 

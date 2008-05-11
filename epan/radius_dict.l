@@ -189,7 +189,7 @@
 
 <INCLUDE>[^[:blank:]\n]+   {
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH ) {
-		g_string_sprintfa(error, "$INCLUDE files nested to deeply\n");
+		g_string_append_printf(error, "$INCLUDE files nested to deeply\n");
 		yyterminate();
 	}
 
@@ -202,7 +202,7 @@
 
 	if (!yyin) {
 		if (errno) {
-			g_string_sprintfa(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
+			g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
 			yyterminate();
 		}
 	} else {
@@ -258,7 +258,7 @@ void add_attribute(const gchar* name, const  gchar* code, radius_attr_dissector_
 		v = g_hash_table_lookup(dict->vendors_by_name,vendor_name);
 
 		if (! v) {
-			g_string_sprintfa(error, "Vendor: '%s', does not exist in %s:%i \n", vendor_name, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
+			g_string_append_printf(error, "Vendor: '%s', does not exist in %s:%i \n", vendor_name, fullpaths[include_stack_ptr], linenums[include_stack_ptr] );
 			BEGIN JUNK;
 			return;
 		} else {
@@ -385,7 +385,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 	yyin = eth_fopen(fullpaths[include_stack_ptr],"r");
 
 	if (!yyin) {
-		g_string_sprintfa(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
+		g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
 		g_free(fullpaths[include_stack_ptr]);
 		*err_str = error->str;
 		g_string_free(error,FALSE);

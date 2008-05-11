@@ -69,13 +69,13 @@ static GPtrArray* g_ptr_array_join(GPtrArray* a, GPtrArray* b){
 
 %syntax_error {
 	if (!TOKEN)
-		g_string_sprintfa(bd->error,"syntax error at end of file");
+		g_string_append_printf(bd->error,"syntax error at end of file");
 	else 
-		g_string_sprintfa(bd->error,"syntax error in %s at or before '%s': \n", TOKEN->location,TOKEN->text);
+		g_string_append_printf(bd->error,"syntax error in %s at or before '%s': \n", TOKEN->location,TOKEN->text);
 }
 
 %parse_failure {
-	g_string_sprintfa(bd->error,"DTD parsing failure\n");
+	g_string_append_printf(bd->error,"DTD parsing failure\n");
 }
 
 %token_prefix TOKEN_

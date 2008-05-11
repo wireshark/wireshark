@@ -203,7 +203,7 @@ extern gchar* add_ranges(gchar* range,GPtrArray* range_ptr_arr) {
 				hfidp = g_malloc(sizeof(int));
 				*hfidp = hfi->id;
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
-				g_string_sprintfa(matecfg->fields_filter, "||%s",ranges[i]);
+				g_string_append_printf(matecfg->fields_filter, "||%s",ranges[i]);
 			} else {
 				g_strfreev(ranges);
 				return g_strdup_printf("no such proto: '%s'",ranges[i]);;
@@ -249,7 +249,7 @@ static void analyze_pdu_hfids(gpointer k, gpointer v, gpointer p) {
 	mate_cfg_pdu* cfg = p;
 	new_attr_hfri(cfg->name,cfg->my_hfids,(gchar*) v);
 
-	g_string_sprintfa(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
+	g_string_append_printf(matecfg->fields_filter,"||%s",my_protoname(*(int*)k));
 }
 
 static void analyze_transform_hfrs(gchar* name, GPtrArray* transforms, GHashTable* hfids) {

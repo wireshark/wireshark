@@ -1604,7 +1604,7 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
     switch(type) {
         case FT_STRING:
         {
-            g_string_sprintfa(s,"%s String:\n",dt->name);
+            g_string_append_printf(s,"%s String:\n",dt->name);
             break;
         }
         case FT_UINT8:
@@ -1613,7 +1613,7 @@ WSLUA_METAMETHOD DissectorTable_tostring(lua_State* L) {
         case FT_UINT32:
         {
             int base = get_dissector_table_base(dt->name);
-            g_string_sprintfa(s,"%s Integer(%i):\n",dt->name,base);
+            g_string_append_printf(s,"%s Integer(%i):\n",dt->name,base);
             break;
         }
         default:

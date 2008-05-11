@@ -182,7 +182,7 @@ blk_cmnt_stop  "*/"
 		yy_switch_to_buffer(include_stack[--include_stack_ptr] );
 		
 		if (errno)
-			g_string_sprintfa(mc->config_error, "Mate parser: Could not open file: '%s': %s", yytext, strerror(errno) );
+			g_string_append_printf(mc->config_error, "Mate parser: Could not open file: '%s': %s", yytext, strerror(errno) );
 		
 	} else {
 		
@@ -292,7 +292,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 	yyin = eth_fopen(filename,"r");
 	
 	if (!yyin) {
-		g_string_sprintfa(mc->config_error,"Mate parser: Could not open file: '%s', error: %s", filename, strerror(errno) );
+		g_string_append_printf(mc->config_error,"Mate parser: Could not open file: '%s', error: %s", filename, strerror(errno) );
 		return FALSE;
 	}
 	
@@ -327,7 +327,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 		state = FALSE;
 	} CATCH_ALL {
 		state = FALSE;		
-		g_string_sprintfa(mc->config_error,"An unexpected error occurred");
+		g_string_append_printf(mc->config_error,"An unexpected error occurred");
 	}
 	ENDTRY;
 	

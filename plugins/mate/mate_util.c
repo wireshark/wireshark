@@ -771,7 +771,7 @@ gchar* avpl_to_str(AVPL* avpl) {
 
 	for(c=avpl->null.next; c->avp; c = c->next) {
 		avp_s = avp_to_str(c->avp);
-		g_string_sprintfa(s," %s;",avp_s);
+		g_string_append_printf(s," %s;",avp_s);
 		g_free(avp_s);
 	}
 
@@ -790,7 +790,7 @@ extern gchar* avpl_to_dotstr(AVPL* avpl) {
 
 	for(c=avpl->null.next; c->avp; c = c->next) {
 		avp_s = avp_to_str(c->avp);
-		g_string_sprintfa(s," .%s;",avp_s);
+		g_string_append_printf(s," .%s;",avp_s);
 		g_free(avp_s);
 	}
 

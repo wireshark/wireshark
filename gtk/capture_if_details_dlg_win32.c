@@ -952,9 +952,9 @@ rates_details(unsigned char *values, int length) {
                 /* reduce the screen estate by showing fractions only where required */
                 int_value = (int)float_value;
                 if(float_value == (float)int_value) {
-                    g_string_sprintfa(Rates, "%.0f", float_value);
+                    g_string_append_printf(Rates, "%.0f", float_value);
                 } else {
-                    g_string_sprintfa(Rates, "%.1f", float_value);
+                    g_string_append_printf(Rates, "%.1f", float_value);
                 }
             }
             i++;
