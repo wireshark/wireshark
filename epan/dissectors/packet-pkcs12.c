@@ -457,7 +457,7 @@ int PBE_decrypt_data(const char *object_identifier_id _U_, tvbuff_t *encrypted_t
 
 	name = g_string_new("");
 	oidname = oid_resolved_from_string(object_identifier_id);
-	g_string_sprintf(name, "Decrypted %s", oidname ? oidname : object_identifier_id);
+	g_string_printf(name, "Decrypted %s", oidname ? oidname : object_identifier_id);
 
 	/* add it as a new source */
 	add_new_data_source(actx->pinfo, clear_tvb, name->str);

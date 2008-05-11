@@ -1499,7 +1499,7 @@ msg_protocap_rsp(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset)
 
     proto_tree_add_none_format(tree, hf_ansi_683_none,
 	tvb, offset, 1,
-	"Mobile station manufacturer’s model number (%d)",
+	"Mobile station manufacturer's model number (%d)",
 	oct);
 
     offset++;

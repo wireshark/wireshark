@@ -2730,8 +2730,8 @@ proto_register_ipsec(void)
 	}
 
       PREF_STR_INIT();
-      g_string_sprintf(name_str,"sa_%d", i + 1);
-      g_string_sprintf(title_str,"SA #%d", i + 1);
+      g_string_printf(name_str,"sa_%d", i + 1);
+      g_string_printf(title_str,"SA #%d", i + 1);
 
       prefs_register_string_preference(esp_module, name_str->str, title_str->str,
 			"SA identifier.  Must have the form "
@@ -2745,8 +2745,8 @@ proto_register_ipsec(void)
 
 
       PREF_STR_INIT();
-      g_string_sprintf(name_str, "encryption_algorithm_%d", i + 1);
-      g_string_sprintf(title_str, "Encryption Algorithm #%d", i + 1);
+      g_string_printf(name_str, "encryption_algorithm_%d", i + 1);
+      g_string_printf(title_str, "Encryption Algorithm #%d", i + 1);
 
       prefs_register_enum_preference(esp_module, name_str->str, title_str->str,
 			"Encryption algorithm",
@@ -2754,8 +2754,8 @@ proto_register_ipsec(void)
       PREF_STR_FREE();
 
       PREF_STR_INIT();
-      g_string_sprintf(name_str, "authentication_algorithm_%d", i + 1);
-      g_string_sprintf(title_str, "Authentication Algorithm #%d", i + 1);
+      g_string_printf(name_str, "authentication_algorithm_%d", i + 1);
+      g_string_printf(title_str, "Authentication Algorithm #%d", i + 1);
 
       prefs_register_enum_preference(esp_module, name_str->str, title_str->str,
 			"Authentication algorithm",
@@ -2764,8 +2764,8 @@ proto_register_ipsec(void)
 
 
       PREF_STR_INIT();
-      g_string_sprintf(name_str, "encryption_key_%d", i + 1);
-      g_string_sprintf(title_str, "Encryption Key #%d", i + 1);
+      g_string_printf(name_str, "encryption_key_%d", i + 1);
+      g_string_printf(title_str, "Encryption Key #%d", i + 1);
 
       prefs_register_string_preference(esp_module, name_str->str, title_str->str,
 			"Encryption key. May be ASCII or hexadecimal (if "
@@ -2778,8 +2778,8 @@ proto_register_ipsec(void)
 
 
       PREF_STR_INIT();
-      g_string_sprintf(name_str, "authentication_key_%d", i + 1);
-      g_string_sprintf(title_str, "Authentication Key #%d", i + 1);
+      g_string_printf(name_str, "authentication_key_%d", i + 1);
+      g_string_printf(title_str, "Authentication Key #%d", i + 1);
 
       prefs_register_string_preference(esp_module, name_str->str, title_str->str,
 			"Authentication key. May be ASCII or hexadecimal (if "
