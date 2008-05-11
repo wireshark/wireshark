@@ -143,7 +143,7 @@ static gint ett_erf_eth = -1;
 /* Default subdissector, display raw hex data */
 static dissector_handle_t data_handle;
 
-// Possible there will be more in the future
+/* Possible there will be more in the future */
 #define ERF_INFINIBAND 1
 gint erf_infiniband_default = ERF_INFINIBAND;
 static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
@@ -615,8 +615,10 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
   switch(erf_type) {
 
   case ERF_TYPE_INFINIBAND:
-    //if(data_handle) // no infiniband header but there might be later on
-    //	call_dissector(data_handle, tvb, pinfo, tree);
+#if 0
+      if(data_handle) /* no infiniband header but there might be later on */
+          call_dissector(data_handle, tvb, pinfo, tree);
+#endif
     break;
   case ERF_TYPE_LEGACY:
   case ERF_TYPE_IP_COUNTER:
