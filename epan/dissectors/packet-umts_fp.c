@@ -84,6 +84,16 @@ static int hf_fp_edch_tsn = -1;
 static int hf_fp_edch_mac_es_pdu = -1;
 static int hf_fp_frame_seq_nr = -1;
 static int hf_fp_flush = -1;
+static int hf_fp_fsn_drt_reset = -1;
+static int hf_fp_drt_indicator = -1;
+static int hf_fp_fach_indicator = -1;
+static int hf_fp_total_pdu_blocks = -1;
+static int hf_fp_drt = -1;
+static int hf_fp_hrnti = -1;
+static int hf_fp_rach_measurement_result = -1;
+static int hf_fp_lchid = -1;
+static int hf_fp_pdu_length_in_block = -1;
+static int hf_fp_pdus_in_block = -1;
 static int hf_fp_cmch_pi = -1;
 static int hf_fp_user_buffer_size = -1;
 static int hf_fp_hsdsch_credits = -1;
@@ -170,6 +180,7 @@ static const value_string channel_type_vals[] =
     { CHANNEL_IUR_DSCH,     "IUR DSCH" },
     { CHANNEL_EDCH,         "EDCH" },
     { CHANNEL_RACH_TDD_128, "RACH_TDD_128" },
+    { CHANNEL_HSDSCH_TYPE_2, "HSDSCH_Type_2" },
     { 0, NULL }
 };
 
@@ -286,7 +297,7 @@ static const value_string common_control_frame_type_vals[] = {
 static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, struct fp_info *p_fp_info, int *num_tbs);
 static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                 int offset, guint16 length, guint8 number_of_pdus);
+                                 int offset, guint16 length, guint16 number_of_pdus);
 static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              int num_tbs, int offset);
 static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
@@ -338,6 +349,8 @@ static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, pro
                                           int offset, struct fp_info *p_fp_info _U_);
 static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         int offset, struct fp_info *p_fp_info);
+static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                               int offset, struct fp_info *p_fp_info);
 
 
 /* Dissect DCH control messages */
@@ -468,7 +481,7 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Dissect the MAC-d PDUs of an HS-DSCH frame */
 int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                          int offset, guint16 length, guint8 number_of_pdus)
+                          int offset, guint16 length, guint16 number_of_pdus)
 {
     int pdu;
     int bit_offset = 0;
@@ -2267,9 +2280,8 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         guint16 pdu_length;
         guint16 user_buffer_size;
 
-        /********************************/
-        /* HS-DCH data here             */
-        /* TODO: handle type 2 frames (will know from config) */
+        /**************************************/
+        /* HS-DCH data here (type 1 in R7)    */
 
         /* Frame Seq Nr */
         if ((p_fp_info->release == 6) ||
@@ -2293,11 +2305,14 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         proto_tree_add_item(tree, hf_fp_mac_d_pdu_len, tvb, offset, 2, FALSE);
         offset += 2;
 
-        /* Flush bit */
         if ((p_fp_info->release == 6) ||
             (p_fp_info->release == 7))
         {
+            /* Flush bit */
             proto_tree_add_item(tree, hf_fp_flush, tvb, offset-1, 1, FALSE);
+
+            /* FSN/DRT reset bit */
+            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset-1, 1, FALSE);
         }
 
 
@@ -2376,6 +2391,172 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 }
 
+
+/******************************************/
+/* Dissect an HSDSCH type 2 channel       */
+void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                        int offset, struct fp_info *p_fp_info)
+{
+    gboolean is_control_frame;
+
+    /* Header CRC */
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+
+    /* Frame Type */
+    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    }
+
+    if (is_control_frame)
+    {
+        dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
+    }
+    else
+    {
+        guint8 number_of_pdu_blocks;
+        gboolean drt_present = FALSE;
+        gboolean fach_present = FALSE;
+        guint16 user_buffer_size;
+        int n;
+
+        #define MAX_PDU_BLOCKS 31
+        guint64 pdu_length[MAX_PDU_BLOCKS];
+        guint64 no_of_pdus[MAX_PDU_BLOCKS];
+
+        /********************************/
+        /* HS-DCH type 2 data here      */
+
+        /* Frame Seq Nr (4 bits) */
+        if ((p_fp_info->release == 6) ||
+            (p_fp_info->release == 7))
+        {
+            guint8 frame_seq_no = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
+
+            if (check_col(pinfo->cinfo, COL_INFO))
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, "  seqno=%u", frame_seq_no);
+            }
+        }
+
+        /* CmCH-PI (4 bits) */
+        proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* Total number of PDU blocks (5 bits) */
+        number_of_pdu_blocks = (tvb_get_guint8(tvb, offset) >> 3);
+        proto_tree_add_item(tree, hf_fp_total_pdu_blocks, tvb, offset, 1, FALSE);
+
+        if (p_fp_info->release == 7)
+        {
+            /* Flush bit */
+            proto_tree_add_item(tree, hf_fp_flush, tvb, offset, 1, FALSE);
+
+            /* FSN/DRT reset bit */
+            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset, 1, FALSE);
+
+            /* DRT Indicator */
+            drt_present = tvb_get_guint8(tvb, offset) & 0x01;
+            proto_tree_add_item(tree, hf_fp_drt_indicator, tvb, offset, 1, FALSE);
+        }
+        offset++;
+
+        /* FACH Indicator flag */
+        fach_present = tvb_get_guint8(tvb, offset) & 0x02;
+        proto_tree_add_item(tree, hf_fp_fach_indicator, tvb, offset, 1, FALSE);
+        offset++;
+
+        /* User buffer size */
+        user_buffer_size = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, FALSE);
+        offset += 2;
+
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "  User-Buffer-Size=%u", user_buffer_size);
+        }
+
+
+        /********************************************************************/
+        /* Now read number_of_pdu_blocks header entries                     */
+        /* TODO:  Group each one under its own subtree                      */
+        for (n=0; n < number_of_pdu_blocks; n++)
+        {
+            guint64 lchid;
+
+            /* MAC-d/c PDU length in this block (11 bits) */
+            proto_tree_add_bits_ret_val(tree, hf_fp_pdu_length_in_block, tvb,
+                                        (offset*8) + ((n % 2) ? 4 : 0), 11,
+                                        &pdu_length[n], FALSE);
+            if ((n % 2) == 0)
+            {
+                offset++;
+            }
+            else
+            {
+                offset += 2;
+            }
+
+
+            /* # PDUs in this block (4 bits) */
+            proto_tree_add_bits_ret_val(tree, hf_fp_pdus_in_block, tvb,
+                                        (offset*8) + ((n % 2) ? 4 : 0), 4,
+                                        &no_of_pdus[n], FALSE);
+            if ((n % 2) == 1)
+            {
+                offset++;
+            }
+
+            /* Logical channel ID in block (4 bits) */
+            proto_tree_add_bits_ret_val(tree, hf_fp_lchid, tvb,
+                                        (offset*8) + ((n % 2) ? 0 : 4), 4,
+                                        &lchid, FALSE);
+            if ((n % 2) == 0)
+            {
+                offset++;
+            }
+        }
+
+
+        /**********************************************/
+        /* Optional fields indicated by earlier flags */
+        if (drt_present)
+        {
+            /* DRT */
+            proto_tree_add_item(tree, hf_fp_drt, tvb, offset, 2, FALSE);
+            offset += 2;
+        }
+
+        if (fach_present)
+        {
+            /* H-RNTI: */
+            proto_tree_add_item(tree, hf_fp_hrnti, tvb, offset, 2, FALSE);
+            offset += 2;
+
+            /* RACH Measurement Result */
+            proto_tree_add_item(tree, hf_fp_rach_measurement_result, tvb, offset, 2, FALSE);
+            offset++;
+        }
+
+
+        /********************************************************************/
+        /* Now read the MAC-d/c PDUs for each block using info from headers */
+        for (n=0; n < number_of_pdu_blocks; n++)
+        {
+            offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset,
+                                           (guint16)pdu_length[n],
+                                           (guint16)no_of_pdus[n]);
+        }
+
+        /* Spare Extension and Payload CRC */
+        dissect_spare_extension_and_crc(tvb, pinfo, tree, 1, offset);
+    }
+}
 
 
 
@@ -2468,6 +2649,9 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case CHANNEL_HSDSCH:
             dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+            break;
+        case CHANNEL_HSDSCH_TYPE_2:
+            dissect_hsdsch_type_2_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_IUR_CPCHF:
             /* TODO: */
@@ -2802,6 +2986,66 @@ void proto_register_fp(void)
             { "Flush",
               "fp.flush", FT_UINT8, BASE_DEC, 0, 0x04,
               "Flush", HFILL
+            }
+        },
+        { &hf_fp_fsn_drt_reset,
+            { "FSN-DRT reset",
+              "fp.fsn-drt-reset", FT_UINT8, BASE_DEC, 0, 0x02,
+              "FSN/DRT Reset", HFILL
+            }
+        },
+        { &hf_fp_drt_indicator,
+            { "DRT Indicator",
+              "fp.drt-indicator", FT_UINT8, BASE_DEC, 0, 0x01,
+              "DRT Indicator", HFILL
+            }
+        },
+        { &hf_fp_fach_indicator,
+            { "FACH Indicator",
+              "fp.fach-indicator", FT_UINT8, BASE_DEC, 0, 0x08,
+              "FACH Indicator", HFILL
+            }
+        },
+        { &hf_fp_total_pdu_blocks,
+            { "PDU Blocks",
+              "fp.pdu_blocks", FT_UINT8, BASE_DEC, 0, 0xf8,
+              "Total number of PDU blocks", HFILL
+            }
+        },
+        { &hf_fp_drt,
+            { "DRT",
+              "fp.drt", FT_UINT16, BASE_DEC, 0, 0x0,
+              "DRT", HFILL
+            }
+        },
+        { &hf_fp_hrnti,
+            { "DRT",
+              "fp.hrnti", FT_UINT16, BASE_DEC, 0, 0x0,
+              "DRT", HFILL
+            }
+        },
+        { &hf_fp_rach_measurement_result,
+            { "RACH Measurement Result",
+              "fp.rach-meansurement-result", FT_UINT16, BASE_DEC, 0, 0x0,
+              "RACH Measurement Result", HFILL
+            }
+        },
+        { &hf_fp_lchid,
+            { "Logical Channel ID",
+              "fp.lchid", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Logical Channel ID", HFILL
+            }
+        },
+        { &hf_fp_pdu_length_in_block,
+            { "PDU length in block",
+              "fp.pdu-length-in-block", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Length of each PDU in this block", HFILL
+            }
+        },
+        { &hf_fp_pdus_in_block,
+            { "PDUs in block",
+              "fp.no-pdus-in-block", FT_UINT8, BASE_DEC, 0, 0x0,
+              "Number of PDUs in block", HFILL
             }
         },
         { &hf_fp_cmch_pi,
