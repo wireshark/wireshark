@@ -73,6 +73,7 @@
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE "gui.geometry_main_lower_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT  "gui.geometry_status_pane"
 #define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT "gui.geometry_status_pane_right"
+#define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE "gui.geometry_status_wlan_stats_pane"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
@@ -209,6 +210,11 @@ write_recent(void)
     fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
 		  recent.gui_geometry_status_pane_right);
   }
+
+  fprintf(rf, "\n# WLAN statistics upper pane size.\n");
+  fprintf(rf, "# Decimal number.\n");
+  fprintf(rf, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE ": %d\n",
+	  recent.gui_geometry_wlan_stats_pane);
 
   fprintf(rf, "\n# Warn if running with elevated permissions (e.g. as root).\n");
   fprintf(rf, "# TRUE or FALSE (case-insensitive).\n");
@@ -455,6 +461,13 @@ read_set_recent_common_pair_static(gchar *key, gchar *value, void *private_data 
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_status_pane_left = num;
     recent.has_gui_geometry_status_pane = TRUE;
+  } else if (strcmp(key, RECENT_GUI_GEOMETRY_WLAN_STATS_PANE) == 0) {
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_wlan_stats_pane = num;
   } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
     /* now have something like "gui.geom.main.x", split it into win and sub_key */
     char *win = &key[sizeof(RECENT_GUI_GEOMETRY)-1];
@@ -742,6 +755,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   recent.gui_geometry_status_pane_left  = (DEF_WIDTH/3);
   recent.gui_geometry_status_pane_right = (DEF_WIDTH/3);
+  recent.gui_geometry_wlan_stats_pane = 200;
 
   recent.privs_warn_if_elevated = TRUE;
   recent.privs_warn_if_no_npf = TRUE;

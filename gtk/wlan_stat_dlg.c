@@ -54,6 +54,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/gui_utils.h"
+#include "gtk/recent.h"
 #include "gtk/help_dlg.h"
 
 #include "image/clist_ascend.xpm"
@@ -96,6 +97,7 @@ typedef struct wlan_ep {
 } wlan_ep_t;
 
 static GtkWidget  *wlanstat_dlg_w = NULL;
+static GtkWidget  *wlanstat_pane = NULL;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _wlan_stat_t {
@@ -415,9 +417,9 @@ wlan_click_column_cb(GtkCList *clist, gint column, gpointer data)
 		gtk_widget_show(col_arrows[column].ascend_pm);
 		gtk_clist_set_sort_column(clist, column);
 	}
-	gtk_clist_thaw(clist);
 
 	gtk_clist_sort(clist);
+	gtk_clist_thaw(clist);
 }
 
 static void
@@ -446,9 +448,9 @@ wlan_detail_click_column_cb(GtkCList *clist, gint column, gpointer data)
 		gtk_widget_show(col_arrows[column].ascend_pm);
 		gtk_clist_set_sort_column(clist, column);
 	}
-	gtk_clist_thaw(clist);
 
 	gtk_clist_sort(clist);
+	gtk_clist_thaw(clist);
 }
 
 static gint
@@ -533,8 +535,8 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep)
 	}
 
 	/* clear list before printing */
-	gtk_clist_clear (GTK_CLIST(hs->details));
 	gtk_clist_freeze(GTK_CLIST(hs->details));
+	gtk_clist_clear (GTK_CLIST(hs->details));
 	hs->num_details = 0;
 
 	for(tmp = wlan_ep->details; tmp; tmp=tmp->next) {
@@ -581,9 +583,8 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep)
 		hs->num_details++;
 	}
 
-	gtk_clist_thaw(GTK_CLIST(hs->details));
 	gtk_clist_sort(GTK_CLIST(hs->details));
-	gtk_widget_show (GTK_WIDGET(hs->details));
+	gtk_clist_thaw(GTK_CLIST(hs->details));
 }
 
 static void
@@ -602,8 +603,8 @@ wlanstat_draw(void *phs)
 	}
 
 	/* clear list before printing */
-	gtk_clist_clear (GTK_CLIST(hs->table));
 	gtk_clist_freeze(GTK_CLIST(hs->table));
+	gtk_clist_clear (GTK_CLIST(hs->table));
 	hs->num_entries = 0;
 
 	for(tmp = list; tmp; tmp=tmp->next) {
@@ -662,9 +663,8 @@ wlanstat_draw(void *phs)
 		wlanstat_details (hs, ep);
 	}
 
-	gtk_clist_thaw(GTK_CLIST(hs->table));
 	gtk_clist_sort(GTK_CLIST(hs->table));
-	gtk_widget_show (GTK_WIDGET(hs->table));
+	gtk_clist_thaw(GTK_CLIST(hs->table));
 
 }
 
@@ -772,6 +772,9 @@ win_destroy_cb (GtkWindow *win _U_, gpointer data)
 	}
 	wlanstat_reset (hs);
 	g_free (hs);
+
+	recent.gui_geometry_wlan_stats_pane = 
+	  gtk_paned_get_position(GTK_PANED(wlanstat_pane));
 }
 
 /* Filter actions */
@@ -1097,7 +1100,6 @@ wlanstat_dlg_create (void)
 	wlanstat_t *hs;
 	GString *error_string;
 	GtkWidget *top_label;
-	GtkWidget *pane;
 	GtkWidget  *scrolled_window;
 	GtkWidget *bbox;
 	GtkWidget  *vbox;
@@ -1132,14 +1134,14 @@ wlanstat_dlg_create (void)
 	top_label = gtk_label_new ("WLAN Traffic Statistics");
 	gtk_box_pack_start (GTK_BOX (vbox), top_label, FALSE, FALSE, 0);
 
-	pane = gtk_vpaned_new();
-	gtk_box_pack_start (GTK_BOX (vbox), pane,TRUE, TRUE, 0);
-	gtk_widget_show(pane);
+	wlanstat_pane = gtk_vpaned_new();
+	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_pane, TRUE, TRUE, 0);
+	gtk_widget_show(wlanstat_pane);
 
 	/* init a scrolled window for overview */
 	scrolled_window = scrolled_window_new (NULL, NULL);
-	gtk_paned_pack1(GTK_PANED(pane), scrolled_window, TRUE, TRUE);
-	gtk_paned_set_position(GTK_PANED(pane), 200);
+	gtk_paned_pack1(GTK_PANED(wlanstat_pane), scrolled_window, TRUE, TRUE);
+	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 
 	hs->table = gtk_clist_new (NUM_COLS);
 	gtk_container_add (GTK_CONTAINER (scrolled_window), hs->table);
@@ -1187,7 +1189,7 @@ wlanstat_dlg_create (void)
 
 	/* init a scrolled window for details */
 	scrolled_window = scrolled_window_new (NULL, NULL);
-	gtk_paned_pack2(GTK_PANED(pane), scrolled_window, FALSE, TRUE);
+	gtk_paned_pack2(GTK_PANED(wlanstat_pane), scrolled_window, FALSE, TRUE);
 
 	hs->details = gtk_clist_new (NUM_DETAIL_COLS);
 	gtk_container_add (GTK_CONTAINER (scrolled_window), hs->details);

@@ -74,6 +74,7 @@ typedef struct recent_settings_tag {
     gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
     gint        gui_geometry_status_pane_left;
     gint        gui_geometry_status_pane_right;
+    gint        gui_geometry_wlan_stats_pane;
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
     gboolean    has_recent_common;
