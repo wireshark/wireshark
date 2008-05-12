@@ -672,7 +672,7 @@ process_libs:
 !ENDIF
 !IFDEF PCAP_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. WpdPack_3_1.zip
+		. WpdPack_4_0_2.zip
 !ENDIF
 !IFDEF AIRPCAP_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -776,7 +776,7 @@ process_libs:
 !ENDIF
 !IFDEF NASM
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. nasm-2.00-win32.zip
+		. nasm-2.02-win32.zip
 !ENDIF
 	@echo.
 	@echo Wireshark is ready to build.
@@ -801,6 +801,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.8
     rm -r -f $(WIRESHARK_LIBS)/nasm-2.00
+    rm -r -f $(WIRESHARK_LIBS)/nasm-2.02
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
