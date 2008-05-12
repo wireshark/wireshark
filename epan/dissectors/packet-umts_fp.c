@@ -83,6 +83,8 @@ static int hf_fp_edch_pdu_padding = -1;
 static int hf_fp_edch_tsn = -1;
 static int hf_fp_edch_mac_es_pdu = -1;
 static int hf_fp_frame_seq_nr = -1;
+static int hf_fp_hsdsch_pdu_block_header = -1;
+static int hf_fp_hsdsch_pdu_block = -1;
 static int hf_fp_flush = -1;
 static int hf_fp_fsn_drt_reset = -1;
 static int hf_fp_drt_indicator = -1;
@@ -148,6 +150,8 @@ static int ett_fp_edch_subframe_header = -1;
 static int ett_fp_edch_subframe = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
+static int ett_fp_hsdsch_pdu_block_header = -1;
+static int ett_fp_hsdsch_pdu_block = -1;
 
 
 /* E-DCH channel header information */
@@ -2425,6 +2429,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         int n;
 
         #define MAX_PDU_BLOCKS 31
+        guint64 lchid[MAX_PDU_BLOCKS];
         guint64 pdu_length[MAX_PDU_BLOCKS];
         guint64 no_of_pdus[MAX_PDU_BLOCKS];
 
@@ -2484,42 +2489,55 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
         /********************************************************************/
         /* Now read number_of_pdu_blocks header entries                     */
-        /* TODO:  Group each one under its own subtree                      */
         for (n=0; n < number_of_pdu_blocks; n++)
         {
-            guint64 lchid;
+            proto_item *pdu_block_header_ti;
+            proto_tree *pdu_block_header_tree;
+
+            /* Add PDU block header subtree */
+            pdu_block_header_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_pdu_block_header,
+                                                               tvb, offset, 0,
+                                                               "",
+                                                               "PDU Block");
+            pdu_block_header_tree = proto_item_add_subtree(pdu_block_header_ti,
+                                                           ett_fp_hsdsch_pdu_block_header);
 
             /* MAC-d/c PDU length in this block (11 bits) */
-            proto_tree_add_bits_ret_val(tree, hf_fp_pdu_length_in_block, tvb,
+            proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdu_length_in_block, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 11,
                                         &pdu_length[n], FALSE);
             if ((n % 2) == 0)
-            {
                 offset++;
-            }
             else
-            {
                 offset += 2;
-            }
 
 
             /* # PDUs in this block (4 bits) */
-            proto_tree_add_bits_ret_val(tree, hf_fp_pdus_in_block, tvb,
+            proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdus_in_block, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 4,
                                         &no_of_pdus[n], FALSE);
             if ((n % 2) == 1)
-            {
                 offset++;
-            }
 
             /* Logical channel ID in block (4 bits) */
-            proto_tree_add_bits_ret_val(tree, hf_fp_lchid, tvb,
+            proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_lchid, tvb,
                                         (offset*8) + ((n % 2) ? 0 : 4), 4,
-                                        &lchid, FALSE);
-            if ((n % 2) == 0)
-            {
+                                        &lchid[n], FALSE);
+            if ((n % 2) == 1)
                 offset++;
+            else {
+                if (n == (number_of_pdu_blocks-1)) {
+                    /* Byte is padded out for last block */
+                    offset++;
+                }
             }
+
+            /* Append summary to header tree root */
+            proto_item_append_text(pdu_block_header_ti,
+                                   " (lch:%u, %u pdus of %u bits)",
+                                   (guint16)lchid[n],
+                                   (guint16)no_of_pdus[n],
+                                   (guint16)pdu_length[n]);
         }
 
 
@@ -2548,9 +2566,26 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /* Now read the MAC-d/c PDUs for each block using info from headers */
         for (n=0; n < number_of_pdu_blocks; n++)
         {
-            offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset,
+            proto_item *pdu_block_ti;
+            proto_tree *pdu_block_tree;
+
+            /* Add PDU block header subtree */
+            pdu_block_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_pdu_block,
+                                                               tvb, offset, 0,
+                                                               "",
+                                                               "PDU Block");
+            pdu_block_tree = proto_item_add_subtree(pdu_block_ti,
+                                                    ett_fp_hsdsch_pdu_block);
+
+            offset = dissect_macd_pdu_data(tvb, pinfo, pdu_block_tree, offset,
                                            (guint16)pdu_length[n],
                                            (guint16)no_of_pdus[n]);
+
+            /* Append summary to PDU block */
+            proto_item_append_text(pdu_block_ti, " (lch:%u - %u bits in %u PDUs)",
+                                   (guint16)lchid[n],
+                                   (guint16)pdu_length[n] * (guint16)no_of_pdus[n],
+                                   (guint16)no_of_pdus[n]);
         }
 
         /* Spare Extension and Payload CRC */
@@ -2980,6 +3015,18 @@ void proto_register_fp(void)
             { "Frame Seq Nr",
               "fp.frame-seq-nr", FT_UINT8, BASE_DEC, 0, 0xf0,
               "Frame Sequence Number", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_pdu_block_header,
+            { "PDU block header",
+              "fp.hsdsch.pdu-block-header", FT_STRING, BASE_NONE, NULL, 0x0,
+              "HS-DSCH type 2 PDU block header", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_pdu_block,
+            { "PDU block",
+              "fp.hsdsch.pdu-block", FT_STRING, BASE_NONE, NULL, 0x0,
+              "HS-DSCH type 2 PDU block data", HFILL
             }
         },
         { &hf_fp_flush,
@@ -3428,7 +3475,9 @@ void proto_register_fp(void)
         &ett_fp_edch_subframe_header,
         &ett_fp_edch_subframe,
         &ett_fp_hsdsch_new_ie_flags,
-        &ett_fp_rach_new_ie_flags
+        &ett_fp_rach_new_ie_flags,
+        &ett_fp_hsdsch_pdu_block_header,
+        &ett_fp_hsdsch_pdu_block
     };
 
     /* Register protocol. */
