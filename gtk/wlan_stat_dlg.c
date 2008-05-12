@@ -98,6 +98,7 @@ typedef struct wlan_ep {
 
 static GtkWidget  *wlanstat_dlg_w = NULL;
 static GtkWidget  *wlanstat_pane = NULL;
+static GtkWidget  *wlanstat_name_lb = NULL;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _wlan_stat_t {
@@ -109,6 +110,7 @@ typedef struct _wlan_stat_t {
 	guint32    num_entries;
 	guint32    num_details;
 	gboolean   resolve_names;
+	gboolean   use_dfilter;
 	gboolean   show_only_existing;
 	address    selected_bssid;
 	gboolean   selected_bssid_valid;
@@ -136,13 +138,37 @@ wlanstat_reset (void *phs)
 	wlanstat_t* wlan_stat = (wlanstat_t *)phs;
 	wlan_ep_t* list = wlan_stat->ep_list;
 	wlan_ep_t* tmp = NULL;
+	char title[256];
+	GString *error_string;
+	const char *filter = NULL;
 
 	if (wlanstat_dlg_w != NULL) {
-		char title[256];
 		g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
 			    cf_get_display_name(&cfile));
 		gtk_window_set_title(GTK_WINDOW(wlanstat_dlg_w), title);
 	}
+
+	if (wlan_stat->use_dfilter) {
+		filter = gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	}
+
+	error_string = set_tap_dfilter (wlan_stat, filter);
+	if (error_string) {
+		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str);
+		g_string_free(error_string, TRUE);
+		return;
+	}
+
+	if (wlan_stat->use_dfilter) {
+		if (filter && strlen(filter)) {
+			g_snprintf(title, 255, "WLAN Traffic Statistics - Filter: %s", filter);
+		} else {
+			g_snprintf(title, 255, "WLAN Traffic Statistics - No Filter");
+		}
+	} else {
+		g_snprintf(title, 255, "WLAN Traffic Statistics");
+	}
+	gtk_label_set_text(GTK_LABEL(wlanstat_name_lb), title);
 
 	/* remove all entries from the clist */
 	gtk_clist_clear (GTK_CLIST(wlan_stat->table));
@@ -711,6 +737,16 @@ wlan_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 }
 
 static void
+wlan_filter_toggle_dest(GtkWidget *widget, gpointer data)
+{
+	wlanstat_t *hs = (wlanstat_t *)data;
+
+	hs->use_dfilter = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
+
+	cf_retap_packets(&cfile, FALSE);
+}
+
+static void
 wlan_existing_toggle_dest(GtkWidget *widget, gpointer data)
 {
 	wlanstat_t *hs = (wlanstat_t *)data;
@@ -1099,12 +1135,12 @@ wlanstat_dlg_create (void)
 {
 	wlanstat_t *hs;
 	GString *error_string;
-	GtkWidget *top_label;
 	GtkWidget  *scrolled_window;
 	GtkWidget *bbox;
 	GtkWidget  *vbox;
 	GtkWidget  *hbox;
 	GtkWidget *resolv_cb;
+	GtkWidget *filter_cb;
 	GtkWidget *existing_cb;
 	GtkWidget *close_bt;
 	GtkWidget *help_bt;
@@ -1120,6 +1156,7 @@ wlanstat_dlg_create (void)
 	hs->ep_list = NULL;
 	hs->number_of_packets = 0;
 	hs->resolve_names = TRUE;
+	hs->use_dfilter = FALSE;
 	hs->show_only_existing = FALSE;
 
 	g_snprintf (title, 255, "Wireshark: WLAN Traffic Statistics: %s", 
@@ -1131,8 +1168,8 @@ wlanstat_dlg_create (void)
 	gtk_container_add(GTK_CONTAINER(wlanstat_dlg_w), vbox);
 	gtk_container_set_border_width (GTK_CONTAINER(vbox), 12);
 
-	top_label = gtk_label_new ("WLAN Traffic Statistics");
-	gtk_box_pack_start (GTK_BOX (vbox), top_label, FALSE, FALSE, 0);
+	wlanstat_name_lb = gtk_label_new ("WLAN Traffic Statistics");
+	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_name_lb, FALSE, FALSE, 0);
 
 	wlanstat_pane = gtk_vpaned_new();
 	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_pane, TRUE, TRUE, 0);
@@ -1256,6 +1293,12 @@ wlanstat_dlg_create (void)
 			     "Please note: The corresponding name resolution must be enabled.", NULL);
 
 	g_signal_connect(resolv_cb, "toggled", G_CALLBACK(wlan_resolve_toggle_dest), hs);
+
+	filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
+	gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
+	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+	gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to entries matching the current display filter.", NULL);
+	g_signal_connect(filter_cb, "toggled", G_CALLBACK(wlan_filter_toggle_dest), hs);
 
 	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
