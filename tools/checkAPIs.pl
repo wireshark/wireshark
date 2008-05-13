@@ -61,7 +61,8 @@ my @prohibitedAPIs=
 	# Locale-unsafe APIs
 	# These may have unexpected behaviors in some locales (e.g.,
 	# "I" isn't always the upper-case form of "i", and "i" isn't
-	# always the lower-case form of "I").
+	# always the lower-case form of "I").  Use the g_ascii_* version
+	# instead.
 	'strcasecmp',
 	'strncasecmp',
 	'g_strcasecmp',
@@ -88,11 +89,11 @@ my @prohibitedAPIs=
 # APIs that SHOULD NOT be used in Wireshark (any more)
 my @deprecatedAPIs=
 (
-	# Depreciated glib functions
+	### Depreciated glib functions
+	# use g_string_printf() instead of:
 	'g_string_sprintf',
-	# use g_string_printf().
+	# use g_string_append_printf instead of:
 	'g_string_sprintfa',
-	# use g_string_append_printf
 	'g_tree_traverse',
 	'g_basename',
 	'g_dirname',
