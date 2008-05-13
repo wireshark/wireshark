@@ -207,7 +207,7 @@ get_interface_list(int *err, char **err_str)
 		 * Get the interface flags.
 		 */
 		memset(&ifrflags, 0, sizeof ifrflags);
-		strncpy(ifrflags.ifr_name, ifr->ifr_name,
+		g_strlcpy(ifrflags.ifr_name, ifr->ifr_name,
 		    sizeof ifrflags.ifr_name);
 		if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifrflags) < 0) {
 			if (errno == ENXIO)

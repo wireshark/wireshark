@@ -70,8 +70,7 @@ condition* cnd_new(const char* class_id, ...){
     g_free(cnd_ref);
     return NULL;
   }
-  strncpy(id, class_id, strlen(class_id));
-  id[strlen(class_id)] = '\0';
+  g_strlcpy(id, class_id, strlen(class_id));
   cnd_ref->class_id = id;
   /* perform class specific initialization */
   va_start(ap, class_id);
@@ -147,8 +146,7 @@ gboolean cnd_register_class(const char* class_id,
   /* GHashTable keys need to be persistent for the lifetime of the hash
      table. Allocate memory and copy the class id which we use as key. */
   if((key = (char*)g_malloc(strlen(class_id)+1)) == NULL) return FALSE;
-  strncpy(key, class_id, strlen(class_id));
-  key[strlen(class_id)] = '\0';
+  g_strlcpy(key, class_id, strlen(class_id));
   /* initialize class structure */
   if((cls = (_cnd_class*)g_malloc(sizeof(_cnd_class))) == NULL){
     g_free(key);

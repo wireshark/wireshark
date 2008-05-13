@@ -110,9 +110,9 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		iui->next=iu->items;
 		iu->items=iui;
 /*		iui->addr1=NULL;*/
-		iui->name1=strdup(name1);
+		iui->name1=g_strdup(name1);
 /*		iui->addr2=NULL;*/
-		iui->name2=strdup(name2);
+		iui->name2=g_strdup(name2);
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -169,9 +169,9 @@ iousers_sctp_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
                 iui->next=iu->items;
                 iu->items=iui;
 /*              iui->addr1=NULL;*/
-                iui->name1=strdup(name1);
+                iui->name1=g_strdup(name1);
 /*              iui->addr2=NULL;*/
-                iui->name2=strdup(name2);
+                iui->name2=g_strdup(name2);
                 iui->frames1=0;
                 iui->frames2=0;
                 iui->bytes1=0;
@@ -229,9 +229,9 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		iui->next=iu->items;
 		iu->items=iui;
 /*		iui->addr1=NULL;*/
-		iui->name1=strdup(name1);
+		iui->name1=g_strdup(name1);
 /*		iui->addr2=NULL;*/
-		iui->name2=strdup(name2);
+		iui->name2=g_strdup(name2);
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -278,9 +278,9 @@ iousers_ip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -326,9 +326,9 @@ iousers_ipx_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -374,9 +374,9 @@ iousers_fc_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -422,9 +422,9 @@ iousers_eth_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -470,9 +470,9 @@ iousers_fddi_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -518,9 +518,9 @@ iousers_tr_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		iui->next=iu->items;
 		iu->items=iui;
 		COPY_ADDRESS(&iui->addr1, addr1);
-		iui->name1=strdup(address_to_str(addr1));
+		iui->name1=g_strdup(address_to_str(addr1));
 		COPY_ADDRESS(&iui->addr2, addr2);
-		iui->name2=strdup(address_to_str(addr2));
+		iui->name2=g_strdup(address_to_str(addr2));
 		iui->frames1=0;
 		iui->frames2=0;
 		iui->bytes1=0;
@@ -691,7 +691,7 @@ iousers_init(const char *optarg, void* userdata _U_)
 	iu->items=NULL;
 	iu->type=tap_type_name;
 	if(filter){
-		iu->filter=strdup(filter);
+		iu->filter=g_strdup(filter);
 	} else {
 		iu->filter=NULL;
 	}
