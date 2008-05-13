@@ -323,6 +323,42 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
   if( current ) {
     lowest_seq = current->seq;
     while( current ) {
+      if( (glong)(lowest_seq - current->seq) > 0 ) {
+        lowest_seq = current->seq;
+      }
+
+      if( current->seq < seq[index] ) {
+        gulong newseq;
+        /* this sequence number seems dated, but
+           check the end to make sure it has no more
+           info than we have already seen */
+        newseq = current->seq + current->len;
+        if( newseq > seq[index] ) {
+          gulong new_pos;
+
+          /* this one has more than we have seen. let's get the
+             payload that we have not seen. This happens when 
+             part of this frame has been retransmitted */
+
+          new_pos = seq[index] - current->seq;
+
+          if ( current->data_len > new_pos ) {
+            sc->dlen = current->data_len - new_pos;
+            write_packet_data( index, sc, current->data + new_pos );
+          }
+
+          seq[index] += (current->len - new_pos);
+          if( prev ) {
+            prev->next = current->next;
+          } else {
+            frags[index] = current->next;
+          }
+          g_free( current->data );
+          g_free( current );
+          return 1;
+        }
+      }
+
       if( current->seq == seq[index] ) {
         /* this fragment fits the stream */
         if( current->data ) {
@@ -342,7 +378,7 @@ check_fragments( int index, tcp_stream_chunk *sc, gulong acknowledged ) {
       prev = current;
       current = current->next;
     }
-    if( acknowledged - lowest_seq > 0 ) {
+    if( (glong)(acknowledged - lowest_seq) > 0 ) {
       /* There are frames missing in the capture file that were seen
        * by the receiving host. Add dummy stream chunk with the data
        * "[xxx bytes missing in capture file]".
