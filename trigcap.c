@@ -131,11 +131,11 @@ int main(int argc, char** argv) {
 		switch (opt) {
 			case 'i':
 				if (interface) panic(1,"interface already given");
-				interface = strdup(optarg);
+				interface = g_strdup(optarg);
 				break;
 			case 'w':
 				if (outfile) panic(3,"output file already given");
-				outfile = strdup(optarg);
+				outfile = g_strdup(optarg);
 				break;
 			case 's':
 				snaplen = strtoul(optarg,NULL,10);
@@ -144,15 +144,15 @@ int main(int argc, char** argv) {
 				break;
 			case 'b':
 				if (start_filter_str) panic(5,"start filter already given");
-				start_filter_str = strdup(optarg);
+				start_filter_str = g_strdup(optarg);
 				break;
 			case 'e':
 				if (stop_filter_str) panic(6,"stop filter already given");
-				stop_filter_str = strdup(optarg);
+				stop_filter_str = g_strdup(optarg);
 				break;
 			case 'f':
 				if (capture_filter_str) panic(7,"capture filter already given");
-				capture_filter_str = strdup(optarg);
+				capture_filter_str = g_strdup(optarg);
 				break;
 			case 'p':
 				promisc = 1;

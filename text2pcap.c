@@ -704,12 +704,12 @@ append_to_preamble(char *str)
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
             return;	/* no room to add the token to the preamble */
-        strncpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN - packet_preamble_len);
+        g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += toklen;
 	if (debug >= 2) {
 		char *c;
 		char xs[PACKET_PREAMBLE_MAX_LEN];
-		strncpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
+		g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
 		while ((c = strchr(xs, '\r')) != NULL) *c=' ';
 		fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
 	}
@@ -1263,7 +1263,7 @@ parse_options (int argc, char *argv[])
     }
 
     if (strcmp(argv[optind], "-")) {
-        input_filename = strdup(argv[optind]);
+        input_filename = g_strdup(argv[optind]);
         input_file = eth_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
@@ -1276,7 +1276,7 @@ parse_options (int argc, char *argv[])
     }
 
     if (strcmp(argv[optind+1], "-")) {
-        output_filename = strdup(argv[optind+1]);
+        output_filename = g_strdup(argv[optind+1]);
         output_file = eth_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
