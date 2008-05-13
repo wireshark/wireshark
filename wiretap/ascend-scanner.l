@@ -170,7 +170,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_wds_user>[^:]+ {
-  char *atcopy = strdup(ascendtext);
+  char *atcopy = g_strdup(ascendtext);
   char colon = input();
   char after = input();
   int retval = STRING;
@@ -180,18 +180,17 @@ WDD_TYPE    "type "[^\n\r\t ]+
   if (after != '(' && after != ' ') {
     BEGIN(sc_wds_sess);
     if (pseudo_header != NULL) {
-      strncpy(pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
-      pseudo_header->user[ASCEND_MAX_STR_LEN - 1] = '\0';
+      g_strlcpy(pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
     }
   } else {	/* We have a version 7 file */
     BEGIN(sc_gen_task);
     if (pseudo_header != NULL) {
-      strncpy(pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
+      g_strlcpy(pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
     }
     ascendlval.d = strtol(ascendtext, NULL, 10);
     retval = DECNUM;
   }
-  free (atcopy);
+  g_free (atcopy);
   return retval;
 }
 
@@ -218,13 +217,13 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_gen_time_u>{D}+ {
-  char *atcopy = strdup(ascendtext);
+  char *atcopy = g_strdup(ascendtext);
   BEGIN(sc_gen_octets);
   /* only want the most significant 2 digits. convert to usecs */
   if (strlen(atcopy) > 2)
     atcopy[2] = '\0';
   ascendlval.d = strtol(atcopy, NULL, 10) * 10000;
-  free(atcopy);
+  g_free(atcopy);
   return DECNUM;
 }
 
@@ -306,8 +305,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 <sc_wdd_callnum>{WDD_CALLNUM} {
   BEGIN(sc_wdd_chunk);
   if (pseudo_header != NULL) {
-    strncpy(pseudo_header->call_num, ascendtext, ASCEND_MAX_STR_LEN);
-    pseudo_header->call_num[ASCEND_MAX_STR_LEN - 1] = '\0';
+    g_strlcpy(pseudo_header->call_num, ascendtext, ASCEND_MAX_STR_LEN);
   }
   return STRING;
 }
