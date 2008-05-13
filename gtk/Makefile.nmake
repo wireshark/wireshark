@@ -45,6 +45,7 @@ WIRESHARK_WIN32_GTK_SRC = \
 	pa_win_util.c \
 	pa_win_hostapis.c \
 	pa_x86_plain_converters.c \
+	pa_win_waveformat.c \
 !ENDIF
 	pa_win_wmme.c 
 !ENDIF
@@ -109,6 +110,9 @@ pa_win_hostapis.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_hostapis.c
 
 pa_x86_plain_converters.obj: $(PORTAUDIO_DIR)\src\os\win\pa_x86_plain_converters.c
 	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) $(PORTAUDIO_DIR)\src\os\win\pa_x86_plain_converters.c -o $@
+
+pa_win_waveformat.obj: $(PORTAUDIO_DIR)\src\os\win\pa_win_waveformat.c
+	$(CC) -c /Zi /W1 /Od $(PORTAUDIO_CFLAGS) -o $@ $?
 
 !ENDIF
 

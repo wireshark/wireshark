@@ -703,7 +703,7 @@ process_libs:
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. portaudio_v19.zip
+		. portaudio_v19_2.zip
 !ENDIF
 !IFDEF SMI_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -804,8 +804,8 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/nasm-2.02
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
-    rm -r -f $(WIRESHARK_LIBS)/portaudio_v18_1
     rm -r -f $(WIRESHARK_LIBS)/portaudio_v19
+    rm -r -f $(WIRESHARK_LIBS)/portaudio_v19_2
     rm -r -f $(WIRESHARK_LIBS)/user-guide
     rm -r -f $(WIRESHARK_LIBS)/WpdPack
     rm -r -f $(WIRESHARK_LIBS)/AirPcap_Devpack_1_0_0_594
