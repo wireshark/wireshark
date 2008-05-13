@@ -259,6 +259,8 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
                          const union wtap_pseudo_header *pseudo_header _U_,
                          const guchar *pd, int *err _U_) {
 	char buf[196808];
+	size_t left = 196808;
+	gint wl;
 	char* p=buf;
 	const char* str_enc = "";
 	guint i;
@@ -274,17 +276,24 @@ static gboolean k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phd
 	}
 
 	strftime(p,90,"+---------+---------------+----------+\r\n%H:%M:%S,",gmtime(&phdr->ts.secs));
-	p+= strlen(p);
-	sprintf(p,"%.3d,%.3d   %s\r\n|0   |",ms,ns,str_enc);
-	p+= strlen(p);
+       wl = strlen(p);
+       p += wl;
+       left -= wl;
+       
+       wl = g_snprintf(p,left,"%.3d,%.3d   %s\r\n|0   |",ms,ns,str_enc);
+       p+= wl;
+       left -= wl;
 
-	for(i=0;i < phdr->caplen; i++) {
-		sprintf(p,"%.2x|",pd[i]);
-		p+= 3;
-	}
+       for(i=0;i < phdr->caplen && left > 2; i++) {
+               wl = g_snprintf(p,left,"%.2x|",pd[i]);
+               p += wl;
+               left -= wl;
+		}
 
-	sprintf(p,"\r\n\r\n");
-
+       wl = g_snprintf(p,left,"\r\n\r\n");
+       p+= wl;
+       left -= wl;
+       
 	fwrite(buf, 1, strlen(buf), wdh->fh);
 
 	return TRUE;
