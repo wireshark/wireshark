@@ -359,6 +359,7 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 	int i;
 	guint32 p;
 	proto_item *dccp_item = NULL;
+	proto_item *hidden_item;
 
 	while( offset < offset_end ) {
 
@@ -372,7 +373,8 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 			if(!tvb_bytes_exist(tvb, offset, 1)) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				hidden_item = proto_tree_add_boolean(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				THROW(ReportedBoundsError);
 			}
 
@@ -380,13 +382,15 @@ static void dissect_options(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *d
 
 			if (option_len < 2) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				hidden_item = proto_tree_add_boolean(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				THROW(ReportedBoundsError);
 			}
 
 			if(!tvb_bytes_exist(tvb, offset, option_len)) {
 				/* DBG("malformed\n"); */
-				proto_tree_add_boolean_hidden(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				hidden_item = proto_tree_add_boolean(dccp_options_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				THROW(ReportedBoundsError);
 			}
 
@@ -560,6 +564,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *dccp_tree = NULL;
 	proto_tree *dccp_options_tree = NULL;
 	proto_item *dccp_item = NULL;
+	proto_item *hidden_item;
 
 	vec_t      cksum_vec[4];
 	guint32    phdr[2];
@@ -574,8 +579,10 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* get at least a full message header */
 	if(tvb_length(tvb) < DCCP_HDR_LEN_MIN) {
 		/* DBG("malformed\n"); */
-		if (tree)
-			proto_tree_add_boolean_hidden(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+		if (tree) {
+			hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+		}
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_set_str(pinfo->cinfo, COL_INFO, "Packet too short");
 		THROW(ReportedBoundsError);
@@ -624,7 +631,8 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if(dccph->x) {
 		if(tvb_length(tvb) < DCCP_HDR_LEN) { /* at least 16 bytes */
 			/* DBG("malformed\n"); */
-			proto_tree_add_boolean_hidden(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			THROW(ReportedBoundsError);
 		}
 		dccph->reserved2=tvb_get_guint8(tvb, offset+9);
@@ -720,7 +728,8 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									 offset + 6, 2, dccph->checksum,
 									 "0x%04x [correct]", dccph->checksum);
 				} else {
-					proto_tree_add_boolean_hidden(dccp_tree, hf_dccp_checksum_bad, tvb, offset + 6, 2, TRUE);
+					hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_checksum_bad, tvb, offset + 6, 2, TRUE);;
+					PROTO_ITEM_SET_HIDDEN(hidden_item);
 					proto_tree_add_uint_format_value(dccp_tree, hf_dccp_checksum, tvb, offset + 6, 2, dccph->checksum,
 									 "0x%04x [incorrect, should be 0x%04x]", dccph->checksum,
 									 in_cksum_shouldbe(dccph->checksum, computed_cksum));
@@ -938,8 +947,10 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(options_len > DCCP_OPT_LEN_MAX) {
 		/* DBG("malformed\n"); */
-		if(tree)
-			proto_tree_add_boolean_hidden(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+		if(tree) {
+			hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+		}
 		THROW(ReportedBoundsError);
 	}
 
@@ -952,7 +963,8 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(dccp_tree, tvb, 4, 2,
 					    "bogus data offset, advertised header length (%d) is shorter than expected",
 					    advertised_dccp_header_len);
-			proto_tree_add_boolean_hidden(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(dccp_tree, hf_dccp_malformed, tvb, offset, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 		THROW(ReportedBoundsError);
 	} else {

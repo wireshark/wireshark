@@ -11016,6 +11016,7 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
 	packet_info *pinfo, proto_tree *tree,
 	guint8 ProtocolAndType, guint8 Service, guint32 FDAAddress)
 {
+	proto_item *hidden_item;
 	guint16 message = 0;
 
 	message = ((guint16)ProtocolAndType) << 8;
@@ -11023,1644 +11024,2055 @@ dissect_ff_msg_body(tvbuff_t *tvb, gint offset, guint32 length,
 
 	switch(message) {
 		case FDA_MSG_SESSION_OPEN_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_open_sess_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case FDA_MSG_SESSION_OPEN_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_open_sess_rsp(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case FDA_MSG_SESSION_OPEN_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_open_sess_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_open_sess_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_open_sess_err(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case FDA_MSG_SESSION_IDLE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_idle_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case FDA_MSG_SESSION_IDLE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_idle_rsp(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case FDA_MSG_SESSION_IDLE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fda_idle_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fda_idle_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fda_idle_err(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_FIND_TAG_QUERY_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_find_tag_query, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_find_tag_query_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_find_tag_query, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_find_tag_query_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_find_tag_query_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_FIND_TAG_REPLY_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_find_tag_reply, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_find_tag_reply_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_find_tag_reply, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_find_tag_reply_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_find_tag_reply_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_IDENTIFY_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_id_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_IDENTIFY_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_id_rsp(tvb, offset, length,
 				pinfo, tree, FDAAddress);
 			break;
 
 		case SM_MSG_IDENTIFY_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_id_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_id_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_id_err(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ADDRESS_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_addr_req(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ADDRESS_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_addr_rsp(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ADDRESS_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_addr_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_addr_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_addr_err(tvb, offset, length,
 				pinfo, tree);
 			break;
 
 		case SM_MSG_SET_ASSIGNMENT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_set_assign_info_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_SET_ASSIGNMENT_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_set_assign_info_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_SET_ASSIGNMENT_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_set_assign_info_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_set_assign_info_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_set_assign_info_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ASSIGNMENT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_assign_info_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ASSIGNMENT_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_assign_info_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_CLEAR_ASSIGNMENT_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_clear_assign_info_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_clear_assign_info_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_clear_assign_info_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case SM_MSG_DEVICE_ANNUNCIATION_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_dev_annunc, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_sm_dev_annunc_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_dev_annunc, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_sm_dev_annunc_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_sm_dev_annunc_req(tvb, offset,
 				length, pinfo, tree, FDAAddress);
 			break;
 
 		case FMS_MSG_INITIATE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ABORT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_abort, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_abort_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_abort, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_abort_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_abort_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STATUS_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_status_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STATUS_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_status_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STATUS_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_status_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_status_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_status_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_UNSOLICITED_STATUS_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_unsolicited_status, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_unsolicited_status_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_unsolicited_status, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_unsolicited_status_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_unsolicited_status_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_IDENTIFY_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_id_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_IDENTIFY_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_id_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_IDENTIFY_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_id_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_id_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_id_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GET_OD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_get_od_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GET_OD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_get_od_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GET_OD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_get_od_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_get_od_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_get_od_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_PUT_OD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_put_od_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_PUT_OD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_put_od_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_PUT_OD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_put_od_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_put_od_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_put_od_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_PUT_OD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_put_od_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_PUT_OD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_put_od_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_PUT_OD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_put_od_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_put_od_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_put_od_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_PUT_OD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_put_od_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_PUT_OD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_put_od_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_PUT_OD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_put_od_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_put_od_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_put_od_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_INITIATE_DOWNLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_init_download_sequence_req(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_INITIATE_DOWNLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_init_download_sequence_rsp(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_INITIATE_DOWNLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_init_download_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_init_download_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_init_download_sequence_err(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_DOWNLOAD_SEGMENT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_download_segment_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_DOWNLOAD_SEGMENT_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_download_segment_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_DOWNLOAD_SEGMENT_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_download_seg_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_download_seg_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_download_segment_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_TERMINATE_DOWNLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_terminate_download_sequence_req(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_TERMINATE_DOWNLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_terminate_download_sequence_rsp(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_GENERIC_TERMINATE_DOWNLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_gen_terminate_download_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_gen_terminate_download_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_generic_terminate_download_sequence_err(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_DOWNLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_download_sequence_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_DOWNLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_download_sequence_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_DOWNLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_download_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_download_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_download_sequence_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DOWNLOAD_SEGMENT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_download_segment_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DOWNLOAD_SEGMENT_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_download_segment_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DOWNLOAD_SEGMENT_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_download_seg_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_download_seg_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_download_segment_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_DOWNLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_download_sequence_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_DOWNLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_download_sequence_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_DOWNLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_download_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_download_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_download_sequence_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_UPLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_upload_seq_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_UPLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_upload_seq_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INITIATE_UPLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_init_upload_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_init_upload_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_init_upload_seq_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_UPLOAD_SEGMENT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_upload_segment_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_UPLOAD_SEGMENT_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_upload_segment_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_UPLOAD_SEGMENT_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_upload_seg_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_upload_seg_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_upload_segment_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_UPLOAD_SEQUENCE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_upload_seq_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_UPLOAD_SEQUENCE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_upload_seq_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_TERMINATE_UPLOAD_SEQUENCE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_terminate_upload_seq_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_terminate_upload_seq_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_terminate_upload_seq_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_DOWNLOAD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_download_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_DOWNLOAD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_download_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_DOWNLOAD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_download_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_download_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_download_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_UPLOAD_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_upload_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_UPLOAD_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_upload_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_REQUEST_DOMAIN_UPLOAD_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_req_dom_upload_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_req_dom_upload_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_req_dom_upload_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_CREATE_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_create_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_CREATE_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_create_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_CREATE_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_create_pi_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_create_pi_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_create_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_pi_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_pi_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_START_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_start_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_START_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_start_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_START_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_start_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_start_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_start_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STOP_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_stop_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STOP_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_stop_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_STOP_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_stop_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_stop_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_stop_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESUME_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_resume_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESUME_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_resume_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESUME_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_resume_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_resume_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_resume_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESET_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_reset_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESET_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_reset_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_RESET_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_reset_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_reset_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_reset_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_KILL_PI_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_kill_pi_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_KILL_PI_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_kill_pi_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_KILL_PI_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_kill_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_kill_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_kill_pi_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_SUBINDEX_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_subindex_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_SUBINDEX_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_subindex_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_READ_SUBINDEX_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_read_with_subidx_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_read_with_subidx_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_read_subindex_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_SUBINDEX_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_subindex_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_SUBINDEX_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_subindex_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_WRITE_SUBINDEX_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_write_with_subidx_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_write_with_subidx_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_write_subindex_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DEFINE_VARIABLE_LIST_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_def_variable_list_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DEFINE_VARIABLE_LIST_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_def_variable_list_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DEFINE_VARIABLE_LIST_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_def_variable_list_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_def_variable_list_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_def_variable_list_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_VARIABLE_LIST_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_variable_list_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_VARIABLE_LIST_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_variable_list_rsp(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_DELETE_VARIABLE_LIST_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_del_variable_list_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_del_variable_list_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_del_variable_list_err(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INFO_REPORT_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_info_report_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INFO_REPORT_SUBINDEX_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_with_subidx_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_with_subidx_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_info_report_subindex_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INFO_REPORT_CHANGE_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_on_change, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_on_change_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_on_change, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_on_change_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_info_report_change_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_INFO_REPORT_CHANGE_SUBINDEX_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_on_change_with_subidx, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_info_report_on_change_with_subidx_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_on_change_with_subidx, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_info_report_on_change_with_subidx_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_info_report_change_subindex_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_EVENT_NOTIFICATION_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ev_notification, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ev_notification_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ev_notification, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ev_notification_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_ev_notification_req(tvb, offset,
 				length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ALTER_EVENT_CONDITION_MONITORING_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_req(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ALTER_EVENT_CONDITION_MONITORING_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_rsp(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ALTER_EVENT_CONDITION_MONITORING_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_alter_ev_condition_monitoring_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_alter_ev_condition_monitoring_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_alter_alter_ev_condition_monitoring_err(
 				tvb, offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ACKNOWLEDGE_EVENT_NOTIFICATION_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_ack_ev_notification_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ACKNOWLEDGE_EVENT_NOTIFICATION_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_ack_ev_notification_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case FMS_MSG_ACKNOWLEDGE_EVENT_NOTIFICATION_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_fms_ack_ev_notification_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_fms_ack_ev_notification_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_fms_ack_ev_notification_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_INFO_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_info_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_INFO_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_info_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_INFO_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_info_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_info_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_info_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_PUT_INFO_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_put_info_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_PUT_INFO_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_put_info_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_PUT_INFO_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_put_info_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_put_info_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_put_info_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_STATISTICS_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_statistics_req(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_STATISTICS_RSP:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics_rsp, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics_rsp, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_statistics_rsp(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_GET_STATISTICS_ERR:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_get_statistics_err, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_get_statistics_err, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_lr_get_statistics_err(tvb,
 				offset, length, pinfo, tree);
 			break;
 
 		case LAN_MSG_DIAG_REQ:
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_diagnostic_msg, tvb, 0, 0, 1);
-			proto_tree_add_boolean_hidden(tree,
-				hf_ff_lr_diagnostic_msg_req, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_diagnostic_msg, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(tree,
+					hf_ff_lr_diagnostic_msg_req, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			dissect_ff_msg_diagnostic_msg_req(tvb,
 				offset, length, pinfo, tree);
@@ -12699,12 +13111,14 @@ dissect_ff_msg_trailer(tvbuff_t *tvb,
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
+	proto_item *hidden_item;
 
 	if(!tree) {
 		return;
 	}
 
-	proto_tree_add_boolean_hidden(tree, hf_ff_fda_msg_trailer, tvb, 0, 0, 1);
+	hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_trailer, tvb, 0, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	ti = proto_tree_add_text(tree,
 		tvb, offset, length, "FDA Message Trailer");
@@ -12968,13 +13382,15 @@ dissect_ff_msg_hdr(tvbuff_t *tvb,
 {
 	proto_tree *sub_tree	= NULL;
 	proto_item *ti	= NULL;
+	proto_item *hidden_item;
 	gint offset	= 0;
 
 	if(!tree) {
 		return;
 	}
 
-	proto_tree_add_boolean_hidden(tree, hf_ff_fda_msg_hdr, tvb, 0, 0, 1);
+	hidden_item = proto_tree_add_boolean(tree, hf_ff_fda_msg_hdr, tvb, 0, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	ti = proto_tree_add_text(tree,
 		tvb, offset, 12, "FDA Message Header");

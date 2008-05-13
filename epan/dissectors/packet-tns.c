@@ -244,6 +244,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *data_tree = NULL, *ti;
+	proto_item *hidden_item;
 	int is_sns = 0;
 
 	if ( tvb_bytes_exist(tvb, offset+2, 4) )
@@ -271,8 +272,9 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		data_tree = proto_item_add_subtree(ti, ett_tns_data);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_data, tvb, 0, 0,
-				TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_data, tvb, 0, 0,
+					TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( tree )
@@ -319,6 +321,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *connect_tree = NULL, *ti;
+	proto_item *hidden_item;
 	int cd_offset;
 	int cd_len;
 	int tns_offset = offset-8;
@@ -329,8 +332,9 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Connect");
 		connect_tree = proto_item_add_subtree(ti, ett_tns_connect);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_connect, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_connect, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -512,6 +516,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *accept_tree = NULL, *ti;
+	proto_item *hidden_item;
 	int accept_offset;
 	int accept_len;
 	int tns_offset = offset-8;
@@ -522,8 +527,9 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Accept");
 		accept_tree = proto_item_add_subtree(ti, ett_tns_accept);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_accept, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_accept, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -630,6 +636,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *refuse_tree = NULL, *ti;
+	proto_item *hidden_item;
 
 	if ( tree )
 	{
@@ -637,8 +644,9 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Refuse");
 		refuse_tree = proto_item_add_subtree(ti, ett_tns_refuse);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_refuse, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_refuse, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -680,6 +688,7 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *abort_tree = NULL, *ti;
+	proto_item *hidden_item;
 
 	if ( tree )
 	{
@@ -687,8 +696,9 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Abort");
 		abort_tree = proto_item_add_subtree(ti, ett_tns_abort);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_abort, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_abort, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -723,6 +733,7 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree, int is_attention)
 {
 	proto_tree *marker_tree = NULL, *ti;
+	proto_item *hidden_item;
 
 	if ( tree )
 	{
@@ -738,8 +749,9 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		marker_tree = proto_item_add_subtree(ti, ett_tns_marker);
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_marker, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_marker, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -782,6 +794,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *redirect_tree = NULL, *ti;
+	proto_item *hidden_item;
 
 	if ( tree )
 	{
@@ -789,8 +802,9 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Redirect");
 		redirect_tree = proto_item_add_subtree(ti, ett_tns_redirect);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_redirect, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_redirect, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -817,6 +831,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
 	proto_tree *control_tree = NULL, *ti;
+	proto_item *hidden_item;
 
 	if ( tree )
 	{
@@ -824,8 +839,9 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "Control");
 		control_tree = proto_item_add_subtree(ti, ett_tns_control);
 
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_control, tvb,
-		    0, 0, TRUE);
+		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_control, tvb,
+				    0, 0, TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	if ( check_col(pinfo->cinfo, COL_INFO) )
@@ -885,6 +901,7 @@ static void
 dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tns_tree = NULL, *ti;
+	proto_item *hidden_item;
 	int offset = 0;
 	guint16 length;
 	guint16 type;
@@ -910,8 +927,9 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		else
 		{
-			proto_tree_add_boolean_hidden(tns_tree, hf_tns_response,
-			    tvb, offset, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_response,
+					    tvb, offset, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 	}
 

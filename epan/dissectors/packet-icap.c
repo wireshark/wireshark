@@ -62,6 +62,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*icap_tree = NULL;
 	proto_item	*ti = NULL;
+	proto_item	*hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -231,23 +232,27 @@ is_icap_header:
 		switch (icap_type) {
 
 		case ICAP_OPTIONS:
-			proto_tree_add_boolean_hidden(icap_tree,
-			    hf_icap_options, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(icap_tree,
+					    hf_icap_options, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case ICAP_REQMOD:
-			proto_tree_add_boolean_hidden(icap_tree,
-			    hf_icap_reqmod, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(icap_tree,
+					    hf_icap_reqmod, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case ICAP_RESPMOD:
-			proto_tree_add_boolean_hidden(icap_tree,
-			    hf_icap_respmod, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(icap_tree,
+					    hf_icap_respmod, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case ICAP_RESPONSE:
-			proto_tree_add_boolean_hidden(icap_tree,
-			    hf_icap_response, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(icap_tree,
+					    hf_icap_response, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case ICAP_OTHER:

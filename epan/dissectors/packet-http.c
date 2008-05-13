@@ -528,6 +528,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const char	*proto_tag;
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
+	proto_item	*hidden_item;
 	const guchar	*line;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
@@ -842,18 +843,21 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		switch (http_type) {
 
 		case HTTP_NOTIFICATION:
-			proto_tree_add_boolean_hidden(http_tree,
-			    hf_http_notification, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(http_tree,
+					    hf_http_notification, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case HTTP_RESPONSE:
-			proto_tree_add_boolean_hidden(http_tree,
-			    hf_http_response, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(http_tree,
+					    hf_http_response, tvb, 0, 0, 1);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case HTTP_REQUEST:
-			proto_tree_add_boolean_hidden(http_tree,
-			    hf_http_request, tvb, 0, 0, 1);
+			hidden_item = proto_tree_add_boolean(http_tree,
+					    hf_http_request, tvb, 0, 0, 1);
+                        PROTO_ITEM_SET_HIDDEN(hidden_item);
 			break;
 
 		case HTTP_OTHERS:

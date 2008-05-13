@@ -2017,11 +2017,13 @@ static void
 dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
+  proto_item *hidden_item;
   guint16 mss;
 
   mss = tvb_get_ntohs(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_mss, tvb, offset,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_mss, tvb, offset,
 				optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_uint_format(opt_tree, hf_tcp_option_mss_val, tvb, offset,
 			     optlen, mss, "%s: %u bytes", optp->name, mss);
   tcp_info_append_uint(pinfo, "MSS", mss);
@@ -2031,14 +2033,16 @@ static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
+  proto_item *hidden_item;
   guint8 ws;
   struct tcp_analysis *tcpd=NULL;
 
   tcpd=get_tcp_conversation_data(pinfo);
 
   ws = tvb_get_guint8(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_wscale, tvb,
 				offset, optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_uint_format(opt_tree, hf_tcp_option_wscale_val, tvb,
 			     offset, optlen, ws, "%s: %u (multiply by %u)",
 			     optp->name, ws, 1 << ws);
@@ -2054,6 +2058,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
 {
   proto_tree *field_tree = NULL;
   proto_item *tf=NULL;
+  proto_item *hidden_item;
   guint32 leftedge, rightedge;
   struct tcp_analysis *tcpd=NULL;
   guint32 base_ack=0;
@@ -2074,8 +2079,9 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
       field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
-      proto_tree_add_boolean_hidden(field_tree, hf_tcp_option_sack, tvb,
+      hidden_item = proto_tree_add_boolean(field_tree, hf_tcp_option_sack, tvb,
 				    offset, optlen, TRUE);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     if (optlen < 4) {
       proto_tree_add_text(field_tree, tvb, offset,      optlen,
@@ -2112,11 +2118,13 @@ static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
+  proto_item *hidden_item;
   guint32 echo;
 
   echo = tvb_get_ntohl(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_echo, tvb, offset,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_echo, tvb, offset,
 				optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, echo);
   tcp_info_append_uint(pinfo, "ECHO", echo);
@@ -2126,12 +2134,14 @@ static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
+  proto_item *hidden_item;
   guint32 tsv, tser;
 
   tsv = tvb_get_ntohl(tvb, offset + 2);
   tser = tvb_get_ntohl(tvb, offset + 6);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_time_stamp, tvb,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_time_stamp, tvb,
 				offset, optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: TSval %u, TSecr %u", optp->name, tsv, tser);
   tcp_info_append_uint(pinfo, "TSV", tsv);
@@ -2142,11 +2152,13 @@ static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
+  proto_item *hidden_item;
   guint32 cc;
 
   cc = tvb_get_ntohl(tvb, offset + 2);
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_cc, tvb, offset,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_cc, tvb, offset,
 				optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, cc);
   tcp_info_append_uint(pinfo, "CC", cc);
@@ -2176,11 +2188,13 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     {15, "1.31072 Gbit/s"},
     {0, NULL}
   };
+  proto_item *hidden_item;
 
   guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
 
-  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_qs, tvb, offset,
+  hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
 				optlen, TRUE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 		      "%s: Rate response, %s, TTL diff %u ", optp->name,
 		      val_to_str(rate, qs_rates, "Unknown"),
