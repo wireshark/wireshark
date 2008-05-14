@@ -1044,10 +1044,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						        offset - boffset, value, textfmt_d, boffset,
 						       	clsstr,	constr, tagstr,	tname, name, value,
 							matchind);
-					if (props.type_id != -1)
+					if (props.type_id != -1) {
 						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, value);
-					PROTO_ITEM_SET_HIDDEN(hidden_item);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
