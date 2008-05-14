@@ -219,7 +219,7 @@ welcome_button(const gchar *stock_item,
     /* title */
     w = gtk_label_new(title);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
-    formatted_text = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", title);
+    formatted_text = g_strdup_printf("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">%s</span>", title);
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
     gtk_box_pack_start(GTK_BOX(text_vb), w, FALSE, FALSE, 1);
@@ -227,7 +227,7 @@ welcome_button(const gchar *stock_item,
     /* subtitle */
     w = gtk_label_new(subtitle);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
-    formatted_text = g_strdup_printf("<span size=\"small\">%s</span>", subtitle);
+    formatted_text = g_strdup_printf("<span size=\"small\" foreground=\"black\">%s</span>", subtitle);
     gtk_label_set_markup(GTK_LABEL(w), formatted_text);
     g_free(formatted_text);
     gtk_box_pack_start(GTK_BOX(text_vb), w, FALSE, FALSE, 1);
@@ -265,9 +265,9 @@ welcome_header_new(void)
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
     if ((now->tm_mon == 3 && now->tm_mday == 1) || (now->tm_mon == 6 && now->tm_mday == 14)) {
-        message = "<span weight=\"bold\" size=\"x-large\">" "Sniffing the glue that holds the Internet together" "</span>";
+        message = "<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" "Sniffing the glue that holds the Internet together" "</span>";
     } else {
-        message = "<span weight=\"bold\" size=\"x-large\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
+        message = "<span weight=\"bold\" size=\"x-large\" foreground=\"black\">" "The World's Most Popular Network Protocol Analyzer" "</span>";
     }
     w = gtk_label_new(message);
     gtk_label_set_markup(GTK_LABEL(w), message);
@@ -290,7 +290,7 @@ welcome_topic_header_new(const char *header)
 
 
     w = gtk_label_new(header);
-    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\">%s</span>", header);
+    formatted_message = g_strdup_printf("<span weight=\"bold\" size=\"x-large\" foreground=\"black\">%s</span>", header);
     gtk_label_set_markup(GTK_LABEL(w), formatted_message);
     g_free(formatted_message);
 
@@ -608,6 +608,7 @@ welcome_new(void)
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
     GtkWidget *file_child_box;
+    gchar *label_text;
 
 
     /* prepare colors */
@@ -625,14 +626,14 @@ welcome_new(void)
     topic_header_bg.blue = 192 * 255;
     get_color(&topic_header_bg);
 
-	/* topic content background color */
+    /* topic content background color */
     topic_content_bg.pixel = 0;
     topic_content_bg.red = 221 * 255;
     topic_content_bg.green = 226 * 255;
     topic_content_bg.blue = 228 * 255;
     get_color(&topic_content_bg);
 
-	/* topic item idle background color */
+    /* topic item idle background color */
     /*topic_item_idle_bg.pixel = 0;
     topic_item_idle_bg.red = 216 * 255;
     topic_item_idle_bg.green = 221 * 255;
@@ -641,7 +642,7 @@ welcome_new(void)
 
     topic_item_idle_bg = topic_content_bg;
 
-	/* topic item entered color */
+    /* topic item entered color */
     topic_item_entered_bg.pixel = 0;
     topic_item_entered_bg.red = 211 * 255;
     topic_item_entered_bg.green = 216 * 255;
@@ -691,7 +692,10 @@ welcome_new(void)
         GTK_SIGNAL_FUNC(capture_if_cb), NULL);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
-    w = gtk_label_new("Start capture on interface:");
+    label_text =  g_strdup_printf("<span foreground=\"black\">Start capture on interface:</span>");
+    w = gtk_label_new(label_text);
+    gtk_label_set_markup(GTK_LABEL(w), label_text);
+    g_free (label_text);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
@@ -723,7 +727,10 @@ welcome_new(void)
         GTK_SIGNAL_FUNC(topic_menu_cb), GINT_TO_POINTER(ONLINEPAGE_NETWORK_MEDIA));
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 #else
-    w = gtk_label_new("Capturing is not compiled into this version of Wireshark!");
+    label_text =  g_strdup_printf("<span foreground=\"black\">Capturing is not compiled into this version of Wireshark!</span>");
+    w = gtk_label_new(label_text);
+    gtk_label_set_markup(GTK_LABEL(w), label_text);
+    g_free (label_text);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 #endif  /* HAVE_LIBPCAP */
@@ -745,7 +752,10 @@ welcome_new(void)
     gtk_box_pack_start(GTK_BOX(topic_to_fill), item_hb, FALSE, FALSE, 5);
 
     /* prepare list of recent files (will be filled in later) */
-    w = gtk_label_new("Open Recent:");
+    label_text =  g_strdup_printf("<span foreground=\"black\">Open Recent:</span>");
+    w = gtk_label_new(label_text);
+    gtk_label_set_markup(GTK_LABEL(w), label_text);
+    g_free (label_text);
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
@@ -802,7 +812,10 @@ welcome_new(void)
     topic_vb = welcome_topic_new("Updates", &topic_to_fill);
     gtk_box_pack_start(GTK_BOX(column_vb), topic_vb, TRUE, TRUE, 0);
 
-    w = gtk_label_new("No updates available!");
+    label_text =  g_strdup_printf("<span foreground=\"black\">No updates available!</span>");
+    w = gtk_label_new(label_text);
+    gtk_label_set_markup(GTK_LABEL(w), label_text);
+    g_free (label_text);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, TRUE, TRUE, 0);
 #endif
 
