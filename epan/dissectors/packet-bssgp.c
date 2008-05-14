@@ -1261,6 +1261,7 @@ bssgp_proto_handoff(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset, disse
 
 static void
 decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
+  proto_item *hidden_item;
   const guint32 LOCAL_TLLI_MASK = 0xc0000000;
   const guint32 FOREIGN_TLLI_MASK = 0x80000000;
   guint16 nri;
@@ -1270,8 +1271,9 @@ decode_nri(proto_tree *tf, build_info_t *bi, guint32 tmsi_tlli) {
      ((tmsi_tlli & FOREIGN_TLLI_MASK) == FOREIGN_TLLI_MASK))) {
     nri = get_masked_guint32(tmsi_tlli, make_mask32( (guint8) bssgp_nri_length, 8));
     if (tf) {
-      proto_tree_add_uint_hidden(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4,
+      hidden_item = proto_tree_add_uint(tf, hf_bssgp_nri, bi->tvb, bi->offset, 4,
       nri);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     if (check_col(bi->pinfo->cinfo, COL_INFO)) {
       col_append_sep_fstr(bi->pinfo->cinfo, COL_INFO, BSSGP_SEP,
@@ -1702,7 +1704,7 @@ decode_iei_alignment_octets(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
 
 static void
 decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   guint16 bvci;
 
   bvci = tvb_get_ntohs(bi->tvb, bi->offset);
@@ -1710,9 +1712,10 @@ decode_iei_bvci(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", bvci);
-    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_bvci,
+    hidden_item = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_bvci,
 			       bi->tvb, bi->offset, ie->value_length,
 			       BSSGP_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
   bi->offset += ie->value_length;
 
@@ -3418,7 +3421,7 @@ decode_iei_service_utran_cco(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offs
 
 static void
 decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   guint16 nsei;
 
   nsei = tvb_get_ntohs(bi->tvb, bi->offset);
@@ -3426,8 +3429,9 @@ decode_iei_nsei(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   if (bi->bssgp_tree) {
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     proto_item_append_text(ti, ": %u", nsei);
-    proto_tree_add_item_hidden(bi->bssgp_tree, hf_bssgp_nsei,
+    hidden_item = proto_tree_add_item(bi->bssgp_tree, hf_bssgp_nsei,
 			       bi->tvb, bi->offset, 2, BSSGP_LITTLE_ENDIAN);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
   bi->offset += ie->value_length;
 

@@ -236,6 +236,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *mstp_item, *msti_item;
   proto_tree *flags_tree;
   proto_item *flags_item;
+  proto_item *hidden_item;
   const char *sep;
 
   /* GARP application frames require special interpretation of the
@@ -442,9 +443,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item_append_text(flags_item, ")");
     }
 
-    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_root_mac, tvb,
+    hidden_item = proto_tree_add_ether(bpdu_tree, hf_bpdu_root_mac, tvb,
                                 BPDU_ROOT_IDENTIFIER + 2, 6,
                                 root_identifier_mac);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_IDENTIFIER, 8,
                         "Root Identifier: %d / %s",
                         root_identifier_bridge_priority,
@@ -455,9 +457,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         "Bridge Identifier: %d / %s",
                         bridge_identifier_bridge_priority,
                         bridge_identifier_mac_str);
-    proto_tree_add_ether_hidden(bpdu_tree, hf_bpdu_bridge_mac, tvb,
+    hidden_item= proto_tree_add_ether(bpdu_tree, hf_bpdu_bridge_mac, tvb,
                                 BPDU_BRIDGE_IDENTIFIER + 2, 6,
                                 bridge_identifier_mac);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
                         BPDU_PORT_IDENTIFIER, 2, port_identifier);
     message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;
@@ -578,9 +581,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "CIST Bridge Identifier: %d / %s",
 			    cist_bridge_identifier_bridge_priority,
 			    cist_bridge_identifier_mac_str);
-	proto_tree_add_ether_hidden(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
+	hidden_item = proto_tree_add_ether(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
 				    BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
 				    cist_bridge_identifier_mac);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
 
       case MSTI_FORMAT_ALTERNATIVE:
@@ -591,9 +595,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    "CIST Bridge Identifier: %d / %s",
 			    cist_bridge_identifier_bridge_priority,
 			    cist_bridge_identifier_mac_str);
-	proto_tree_add_ether_hidden(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
+	hidden_item = proto_tree_add_ether(mstp_tree, hf_bpdu_cist_bridge_identifier_mac, tvb,
 				    ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
 				    cist_bridge_identifier_mac);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
 			    ALT_BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
@@ -664,9 +669,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 
 	  /* pri, MSTID, Regional root */
-	  proto_tree_add_ether_hidden(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+	  hidden_item = proto_tree_add_ether(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
 				      offset + MSTI_REGIONAL_ROOT + 2, 6,
 				      msti_regional_root_mac);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
 	  proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
 			      "MSTID %d, priority %d Root Identifier %s",
 			      msti_regional_root_mstid,
@@ -753,9 +759,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 
 	  /* pri, MSTID, Regional root */
-	  proto_tree_add_ether_hidden(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
+	  hidden_item = proto_tree_add_ether(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
 				      offset + ALT_MSTI_REGIONAL_ROOT + 2, 6,
 				      msti_regional_root_mac);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
 	  proto_tree_add_text(msti_tree, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 8,
 			      "MSTI Regional Root Identifier: %d / %d / %s",
 			      msti_regional_root_mstid,

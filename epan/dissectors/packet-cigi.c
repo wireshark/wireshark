@@ -2266,7 +2266,7 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Set up structures needed to add the protocol subtree and manage it */
     guint8 packet_id = 0;
 
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *cigi_tree;
 
     const char* src_str;
@@ -2318,13 +2318,18 @@ dissect_cigi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         cigi_tree = proto_item_add_subtree(ti, ett_cigi);
 
         /* Ports */
-        proto_tree_add_uint_hidden(cigi_tree, hf_cigi_src_port, tvb, 0, 0, pinfo->srcport);
-        proto_tree_add_uint_hidden(cigi_tree, hf_cigi_dest_port, tvb, 0, 0, pinfo->destport);
-        proto_tree_add_uint_hidden(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->srcport);
-        proto_tree_add_uint_hidden(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->destport);
+        hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_src_port, tvb, 0, 0, pinfo->srcport);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_dest_port, tvb, 0, 0, pinfo->destport);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->srcport);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_port, tvb, 0, 0, pinfo->destport);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Frame Size */
-        proto_tree_add_uint_hidden(cigi_tree, hf_cigi_frame_size, tvb, 0, 0, tvb_reported_length(tvb));
+        hidden_item = proto_tree_add_uint(cigi_tree, hf_cigi_frame_size, tvb, 0, 0, tvb_reported_length(tvb));
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         /* Since the versions of CIGI are not backwards compatible,
          * dissection is different for each version.

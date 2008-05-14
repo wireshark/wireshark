@@ -570,7 +570,7 @@ dissect_bssap_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bssap_tree,
 static void
 dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item	*bssap_item;
+    proto_item	*bssap_item, *hidden_item;
     proto_tree	*bssap_tree = NULL;
 
     /*
@@ -587,7 +587,8 @@ dissect_bssap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * create the bssap protocol tree
      */
-    proto_tree_add_item_hidden(tree, proto_bssap, tvb, 0, -1, FALSE);
+    hidden_item = proto_tree_add_item(tree, proto_bssap, tvb, 0, -1, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
     bssap_item = proto_tree_add_text(tree, tvb, 0, -1, (bssap_or_bsap_global == BSSAP) ? "BSSAP" : "BSAP");
     bssap_tree = proto_item_add_subtree(bssap_item, ett_bssap);
 
