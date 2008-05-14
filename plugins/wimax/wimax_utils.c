@@ -2712,9 +2712,11 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 			proto_tree_add_item(tlv_tree, hf_snp_pn_window_size, tvb, offset, tlv_len, FALSE);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_PKM_FLOW_CONTROL:
+			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_max_conc_transactions, tvb, offset, tlv_len, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_max_conc_transactions, tvb, offset, 1, FALSE);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_MAX_SUPPT_SECURITY_ASSNS:
+			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_max_suppt_sec_assns, tvb, offset, tlv_len, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_max_suppt_sec_assns, tvb, offset, 1, FALSE);
 		break;
 		default:
