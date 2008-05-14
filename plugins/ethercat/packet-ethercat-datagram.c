@@ -499,6 +499,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       proto_tree *ecat_datagram_tree = NULL, *ecat_header_tree = NULL, *ecat_fmmu_tree = NULL,
                  *ecat_fmmu_active_tree = NULL, *ecat_fmmu_type_tree = NULL, *ecat_syncman_tree = NULL,
                  *ecat_syncflag_tree = NULL, *ecat_dc_tree = NULL;
+	  proto_item *hidden_item;
 
       gint bMBox = FALSE;
       guint32 subsize;
@@ -749,39 +750,50 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             {
                proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_da, tvb, suboffset, 4, pDC[3] - pDC[0]);
                if( subCount < 10 ){
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_da[subCount], tvb, suboffset, 4, pDC[3] - pDC[0]);
+                  hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_da[subCount], tvb, suboffset, 4, pDC[3] - pDC[0]);
+				  PROTO_ITEM_SET_HIDDEN(aitem);
 			   }
 
                if ( pDC[1] != 0 )
                {
                   proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_bd, tvb, suboffset, 4, pDC[1] - pDC[3]);
-                  if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_bd[subCount], tvb, suboffset, 4, pDC[1] - pDC[3]);
+                  if( subCount < 10 ){
+					  hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_bd[subCount], tvb, suboffset, 4, pDC[1] - pDC[3]);
+					  PROTO_ITEM_SET_HIDDEN(aitem);
+				  }
                }
                else if ( pDC[2] != 0 )
                {
                   proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cd, tvb, suboffset, 4, pDC[2] - pDC[3]);
-                  if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cd[subCount], tvb, suboffset, 4, pDC[2] - pDC[3]);
+                  if( subCount < 10 ){
+                     hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_cd[subCount], tvb, suboffset, 4, pDC[2] - pDC[3]);
+					 PROTO_ITEM_SET_HIDDEN(aitem);
+				  }
                }
             }
             if ( pDC[1] != 0 )
             {
                proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ba, tvb, suboffset, 4, pDC[1] - pDC[0]);
-               if( subCount < 10 )
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ba[subCount], tvb, suboffset, 4, pDC[1] - pDC[0]);
+               if( subCount < 10 ){
+                  hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_ba[subCount], tvb, suboffset, 4, pDC[1] - pDC[0]);
+				  PROTO_ITEM_SET_HIDDEN(aitem);
+			   }
                if ( pDC[2] != 0 )
                {
                   proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_cb, tvb, suboffset, 4, pDC[2] - pDC[1]);
-                  if( subCount < 10 )
-                     proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_cb[subCount], tvb, suboffset, 4, pDC[2] - pDC[1]);
+                  if( subCount < 10 ){
+                     hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_cb[subCount], tvb, suboffset, 4, pDC[2] - pDC[1]);
+					 PROTO_ITEM_SET_HIDDEN(aitem);
+				  }
                }
             }
             else if ( pDC[2] != 0 )
             {
                proto_tree_add_uint(ecat_dc_tree, hf_ecat_dc_diff_ca, tvb, suboffset, 4, pDC[2] - pDC[0]);
-               if( subCount < 10 )
-                  proto_tree_add_uint_hidden(ecat_dc_tree, hf_ecat_sub_dc_diff_ca[subCount], tvb, suboffset, 4, pDC[2] - pDC[0]);
+               if( subCount < 10 ){
+                  hidden_item = proto_tree_add_uint(ecat_dc_tree, hf_ecat_sub_dc_diff_ca[subCount], tvb, suboffset, 4, pDC[2] - pDC[0]);
+				  PROTO_ITEM_SET_HIDDEN(aitem);
+			   }
             }
          }
       }

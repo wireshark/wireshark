@@ -98,6 +98,7 @@ unescape_data(tvbuff_t *tvb, packet_info *pinfo)
 static tvbuff_t *
 checksum_data(tvbuff_t *tvb, proto_tree *tree)
 {
+	proto_item *hidden_item;
 	int len = tvb_length(tvb) - 2;
 	if (len < 0)
 		return tvb;
@@ -110,8 +111,9 @@ checksum_data(tvbuff_t *tvb, proto_tree *tree)
 					"Frame check sequence: 0x%04x (correct)",
 					actual_fcs);
 		} else {
-			proto_tree_add_boolean_hidden(tree,
+			hidden_item = proto_tree_add_boolean(tree,
 					hf_sir_fcs_bad, tvb, len, 2, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			proto_tree_add_uint_format(tree, hf_sir_fcs,
 					tvb, len, 2, actual_fcs,
 					"Frame check sequence: 0x%04x "

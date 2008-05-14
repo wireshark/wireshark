@@ -715,6 +715,7 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   volatile guint boffset;
   volatile int i = 0;		/* PDU counter */
   proto_tree * volatile ti = 0, * volatile ti2 = 0, *asn1_tree, *tree2;
+  proto_item *hidden_item;
   PDUprops props;
   static guint lastseq;
   struct tcpinfo *info;
@@ -813,8 +814,9 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	tree2 = proto_item_add_subtree(ti, ett_asn1);
 
-	proto_tree_add_item_hidden(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
+	hidden_item = proto_tree_add_item(tree2, ((PDUinfo *)PDUtree->data)->value_id, tvb, boffset,
 				   def? (int) (offset - boffset + len) :  -1, TRUE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	offset = boffset; /* the first packet */
         while((i < MAXPDU) && (tvb_length_remaining(tvb, offset) > 0)) {
@@ -858,9 +860,11 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 						      "%s: (%s)%s %d-%d %s ~", current_pduname,
 						      tname, name, pcount, i+1, headstr);
 
-			     if (props.type_id != -1)
-			         proto_tree_add_item_hidden(tree2, props.type_id, tvb, boffset,
+				if (props.type_id != -1){
+			         hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
 			     			      def? (int) (offset - boffset + len) :  -1, TRUE);
+					 PROTO_ITEM_SET_HIDDEN(hidden_item);
+				}
 
 	 	    }
 	    } else {
@@ -876,9 +880,11 @@ dissect_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			    ti2 = proto_tree_add_none_format(tree2, props.value_id, tvb, boffset,
 						      def? (int) (offset - boffset + len) :  -1,
 						      "%s: (%s)%s ~", current_pduname, tname, name);
-			    if (props.type_id != -1)
-			  	proto_tree_add_item_hidden(tree2, props.type_id, tvb, boffset,
+				if (props.type_id != -1){
+			  	hidden_item = proto_tree_add_item(tree2, props.type_id, tvb, boffset,
 			   			      def? (int) (offset - boffset + len) :  -1, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				}
 		    }
 	    }
 	    asn1_tree = proto_item_add_subtree(ti2, ett_pdu[i]);
@@ -944,6 +950,7 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
   char lenbuf[BUFLM];
   char nnbuf[BUFLS];
   proto_tree *ti, *pt2;
+  proto_item *hidden_item;
   guchar *octets, *bits, unused;
   subid_t *oid;
   /* the debugging formats */
@@ -1038,8 +1045,9 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						       	clsstr,	constr, tagstr,	tname, name, value,
 							matchind);
 					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, value);
+					PROTO_ITEM_SET_HIDDEN(hidden_item);
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1052,9 +1060,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					proto_tree_add_uint_format(pt, props.value_id, tvb, boffset,
 							offset - boffset, value,
 							"(%s)%s: %d ~", tname, name, value);
-					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, value);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      break;
@@ -1076,9 +1086,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							offset - boffset, value,
 							textfmt_e, boffset, clsstr, constr, tagstr,
 							tname, name, value, ename, matchind);
-					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, value);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1091,9 +1103,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					proto_tree_add_uint_format(pt, props.value_id, tvb, boffset,
 							offset - boffset, value,
 							"(%s)%s: %d:%s ~", tname, name, value, ename);
-					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, value);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      break;
@@ -1114,9 +1128,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							offset - boffset, value != 0,
 							textfmt_s, boffset, clsstr, constr, tagstr,
 							tname, name, value? "true" : "false", matchind);
-					if (props.type_id != -1)
-						proto_tree_add_boolean_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_boolean(pt, props.type_id, tvb,
 								boffset, offset - boffset, value != 0);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1131,9 +1147,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							offset - boffset, value != 0,
 							"(%s)%s: %s ~", tname, name,
 							value? "true" : "false");
-					if (props.type_id != -1)
-						proto_tree_add_boolean_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_boolean(pt, props.type_id, tvb,
 								boffset, offset - boffset, value != 0);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      break;
@@ -1163,9 +1181,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							offset - boffset, octets, /* \0 termnated */
 							textfmt_s, boffset, clsstr, constr, tagstr,
 							tname, name, ename, matchind);
-					if (props.type_id != -1)
-						proto_tree_add_string_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_string(pt, props.type_id, tvb,
 								boffset, offset - boffset, octets);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1178,9 +1198,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					proto_tree_add_string_format(pt, props.value_id, tvb, boffset,
 							offset - boffset, octets, /* \0 terminated */
 							"(%s)%s: %s ~", tname, name, ename);
-					if (props.type_id != -1)
-						proto_tree_add_string_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_string(pt, props.type_id, tvb,
 								boffset, offset - boffset, octets);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      g_free(octets);
@@ -1206,9 +1228,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							textfmt_b, boffset, clsstr, constr, tagstr,
 							tname, name,
 							showbits(bits, (con*8)-unused),ename, matchind);
-					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, *bits);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 
 		      } else {
@@ -1224,9 +1248,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							offset - boffset, *bits, /* XXX length ? XXX */
 							"(%s)%s: %s:%s ~", tname, name,
 							showbits(bits, (con*8)-unused), ename);
-					if (props.type_id != -1)
-						proto_tree_add_uint_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_uint(pt, props.type_id, tvb,
 								boffset, offset - boffset, *bits);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      g_free(bits);
@@ -1252,9 +1278,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				      /* change te text to to what I really want */
 				      proto_item_set_text(ti, textfmt_c, boffset, clsstr, constr,
 							     tagstr, tname, name, ename, matchind);
-				      if (props.type_id != -1)
-					      proto_tree_add_item_hidden(pt, props.type_id, tvb,
+					  if (props.type_id != -1){
+					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
 							      boffset, 1, TRUE);
+						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					  }
 			      }
 		      } else {
 			      if (props.value_id == -1) {
@@ -1269,12 +1297,15 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 								       "(%s)%s ~", tname, name);
 				      else {
 					      /* don't care about the text */
-					      ti = proto_tree_add_item_hidden(pt, props.value_id, tvb,
+					      ti = hidden_item = proto_tree_add_item(pt, props.value_id, tvb,
 						    	  boffset, 1, TRUE);
+						  PROTO_ITEM_SET_HIDDEN(hidden_item);
 				      }
-				      if (props.type_id != -1)
-					      proto_tree_add_item_hidden(pt, props.type_id, tvb,
+					  if (props.type_id != -1){
+					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
 						    	  boffset, 1, TRUE);
+						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					  }
 			      }
 		      }
 		      if (len == 0) return offset; /* don't recurse if offset isn't going to change */
@@ -1315,9 +1346,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				      proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
 								 offset - boffset, ename,/* XXX length?*/
 								 "(%s)%s: %s ~", tname, name, ename);
-					if (props.type_id != -1)
-						proto_tree_add_bytes_hidden(pt, props.type_id, tvb,
+					  if (props.type_id != -1){
+						  hidden_item = proto_tree_add_bytes(pt, props.type_id, tvb,
 								boffset, offset - boffset, ename);
+						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					  }
 			      }
 		      } else {
 			      if ( (props.value_id == -1) ||
@@ -1330,9 +1363,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 					proto_tree_add_bytes_format(pt, props.value_id, tvb, boffset,
 							offset - boffset, ename, /* XXX length ? */
 							"(%s)%s: %s ~", tname, name, ename);
-					if (props.type_id != -1)
-						proto_tree_add_bytes_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_bytes(pt, props.type_id, tvb,
 								boffset, offset - boffset, ename);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 			      }
 		      }
 		      g_free(oid);
@@ -1399,9 +1434,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    boffset, offset - boffset, value,
 							    textfmt_d, boffset, clsstr, constr,
 							    tagstr, tname, name, value, matchind);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								tvb, boffset, offset - boffset, value);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1414,9 +1451,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						proto_tree_add_uint_format(pt, props.value_id, tvb,
 							    boffset, offset - boffset, value,
 							    "(%s)%s: %d ~", tname, name, value);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								tvb, boffset, offset - boffset, value);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				}
 				break;
@@ -1440,9 +1479,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							   boffset, offset - boffset, value,
 							   textfmt_e, boffset, clsstr, constr,
 							   tagstr, tname, name, value, ename, matchind);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								tvb, boffset, offset - boffset, value);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1455,9 +1496,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						proto_tree_add_uint_format(pt, props.value_id, tvb,
 							  boffset, offset - boffset, value,
 							  "(%s)%s: %d:%s ~", tname, name, value, ename);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								tvb, boffset, offset - boffset, value);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				}
 				break;
@@ -1485,9 +1528,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    tagstr, tname, name,
 							    showbits(bits, (con*8)-unused), ename,
 							    matchind);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								 tvb, boffset, offset - boffset, *bits);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1501,9 +1546,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    boffset, offset - boffset, *bits,
 							    "(%s)%s: %s:%s ~", tname, name,
 							    showbits(bits, (con*8)-unused), ename);
-						if (props.type_id != -1)
-							proto_tree_add_uint_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_uint(pt, props.type_id,
 								tvb, boffset, offset - boffset, *bits);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				}
 				g_free(bits);
@@ -1528,9 +1575,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    textfmt_s, boffset, clsstr, constr,
 							    tagstr, tname, name,
 							    value? "true" : "false", matchind);
-						if (props.type_id != -1)
-							proto_tree_add_boolean_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_boolean(pt, props.type_id,
 							  tvb, boffset, offset - boffset, value != 0);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1545,9 +1594,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    boffset, offset - boffset, value != 0,
 							    "(%s)%s: %s ~", tname, name,
 							    value? "true" : "false");
-						if (props.type_id != -1)
-							proto_tree_add_boolean_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_boolean(pt, props.type_id,
 							  tvb, boffset, offset - boffset, value != 0);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				}
 				break;
@@ -1586,9 +1637,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 							    boffset, offset - boffset, (gchar *)octets, /* XXX */
 							    textfmt_s, boffset, clsstr, constr,
 							    tagstr, tname, name, ename, matchind);
-						if (props.type_id != -1)
-							proto_tree_add_string_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_string(pt, props.type_id,
 								tvb, boffset, offset - boffset, (gchar *)octets);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				} else {
 					if ( (props.value_id == -1) ||
@@ -1600,9 +1653,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						proto_tree_add_string_format(pt, props.value_id, tvb,
 							    boffset, offset - boffset, (gchar *)octets, /* XXX */
 							    "(%s)%s: %s ~", tname, name, ename);
-						if (props.type_id != -1)
-							proto_tree_add_string_hidden(pt, props.type_id,
+						if (props.type_id != -1){
+							hidden_item = proto_tree_add_string(pt, props.type_id,
 								tvb, boffset, offset - boffset, (gchar *)octets);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
+						}
 					}
 				}
 				g_free(octets);
@@ -1630,9 +1685,11 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 				      if (ti) {
 					proto_item_set_text(ti, textfmt_c, boffset, clsstr, constr,
 							     tagstr, tname, name, ename, matchind);
-					if (props.type_id != -1)
-					      proto_tree_add_item_hidden(pt, props.type_id, tvb,
+					if (props.type_id != -1){
+					      hidden_item = proto_tree_add_item(pt, props.type_id, tvb,
 							      boffset, 1, TRUE);
+						  PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 				      } else {
 					ti = proto_tree_add_text(pt, tvb, boffset,
 								 offset - boffset + len,
@@ -1652,12 +1709,15 @@ decode_asn1_sequence(tvbuff_t *tvb, guint offset, guint tlen, proto_tree *pt, in
 						       		"(%s)%s ~", tname, name);
 					else {
 						/* don't care about the text */
-						ti = proto_tree_add_item_hidden(pt, props.value_id,
+						ti = proto_tree_add_item(pt, props.value_id,
 						             tvb,  boffset, 1, TRUE);
+						PROTO_ITEM_SET_HIDDEN(ti);
 					}
-					if (props.type_id != -1)
-						proto_tree_add_item_hidden(pt, props.type_id,
+					if (props.type_id != -1){
+						hidden_item = proto_tree_add_item(pt, props.type_id,
 						             tvb,  boffset, 1, TRUE);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
+					}
 				}
 			}
 
