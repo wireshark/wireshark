@@ -193,6 +193,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_PROFINET,			"PROFIBUS Nutzerorganisation e.V." },
 	{ OUI_SONY_ERICSSON_3,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_CATENA,			"Catena Networks" },
+	{ OUI_CIMETRICS,		"Cimetrics" },
 	{ OUI_IEEE_802_3,		"IEEE 802.3" },
 	{ OUI_MEDIA_ENDPOINT,	"Media (TIA TR-41 Committee)" },
 	{ OUI_SONY_ERICSSON_4,	"Sony Ericsson Mobile Communications AB" },

@@ -249,6 +249,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-chdlc.c		\
 	packet-cigi.c   	\
 	packet-cimd.c		\
+	packet-cimetrics.c	\
 	packet-cip.c		\
 	packet-cisco-erspan.c	\
 	packet-cisco-oui.c	\
@@ -557,6 +558,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-msnip.c		\
 	packet-msproxy.c	\
 	packet-msrp.c		\
+	packet-mstp.c		\
 	packet-mtp2.c		\
 	packet-mtp3.c		\
 	packet-mtp3mg.c		\
@@ -972,6 +974,7 @@ DISSECTOR_INCLUDES =	\
 	packet-mrdisc.h	\
 	packet-msnip.h	\
 	packet-msrp.h	\
+	packet-mstp.h	\
 	packet-mtp3.h	\
 	packet-nbap.h	\
 	packet-ncp-int.h	\

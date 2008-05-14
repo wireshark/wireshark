@@ -46,6 +46,7 @@
 #define OUI_SONY_ERICSSON_2	0x000E07	/* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET		0x000ECF	/* PROFIBUS Nutzerorganisation e.V. */
 #define OUI_SONY_ERICSSON_3	0x000FDE	/* Sony Ericsson Mobile Communications AB */
+#define OUI_CIMETRICS		0x001090	/* Cimetrics, Inc. */
 #define OUI_IEEE_802_3		0x00120F	/* IEEE 802.3 */
 #define OUI_MEDIA_ENDPOINT	0x0012BB	/* Media (TIA TR-41 Committee) */
 #define OUI_SONY_ERICSSON_4	0x0012EE	/* Sony Ericsson Mobile Communications AB */
