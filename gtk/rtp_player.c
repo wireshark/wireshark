@@ -113,6 +113,7 @@ static GtkWidget *rtp_player_dlg_w;
 static GtkWidget *channels_vb;
 static GtkWidget *main_scrolled_window = NULL;
 static GtkWidget *jitter_spinner;
+static GtkWidget *cb_use_rtp_timestamp;
 static GtkWidget *bt_decode;
 static GtkWidget *bt_play;
 static GtkWidget *bt_pause;
@@ -311,7 +312,12 @@ bt_state(gboolean decode, gboolean play, gboolean pause, gboolean stop)
 	gboolean false_val = FALSE;
 
 	gtk_widget_set_sensitive(bt_decode, decode);
-	gtk_widget_set_sensitive(jitter_spinner, decode);
+	gtk_widget_set_sensitive(cb_use_rtp_timestamp, decode);
+	if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+		gtk_widget_set_sensitive(jitter_spinner, FALSE);
+	} else {
+		gtk_widget_set_sensitive(jitter_spinner, decode);
+	}
 		
 	if (new_jitter_buff != (int) gtk_spin_button_get_value((GtkSpinButton * )jitter_spinner)) {
 		new_jitter_value = TRUE;
@@ -715,7 +721,12 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr _U_)
 		}
 
 		rtp_time = (double)(rp->info->info_timestamp-start_timestamp)/SAMPLE_RATE - start_rtp_time;
-		arrive_time = (double)rp->arrive_offset/1000 - start_time;
+
+		if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+			arrive_time = rtp_time;
+		} else {
+			arrive_time = (double)rp->arrive_offset/1000 - start_time;
+		}
 
 		if (rp->info->info_seq_num != seq+1){
 			rci->out_of_seq++;
@@ -1510,10 +1521,16 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 
 
 	label = g_string_new("");
-	g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Drop by Jitter Buff:%d(%.1f%%)   Out of Seq: %d(%.1f%%)", get_addr_name(&(rci->first_stream->src_addr)), 
+	if (GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp)->active) {
+		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)", get_addr_name(&(rci->first_stream->src_addr)), 
+		rci->first_stream->src_port, get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port, 
+		(double)rci->samples->len/SAMPLE_RATE, rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets);
+	} else {
+		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Drop by Jitter Buff:%d(%.1f%%)   Out of Seq: %d(%.1f%%)", get_addr_name(&(rci->first_stream->src_addr)), 
 		rci->first_stream->src_port, get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port, 
 		(double)rci->samples->len/SAMPLE_RATE, rci->drop_by_jitter_buff, (double)rci->drop_by_jitter_buff * 100 / (double)rci->num_packets
 		, rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets);
+	}
 
 	rci->check_bt = gtk_check_button_new_with_label(label->str);
 	gtk_box_pack_start(GTK_BOX (channels_vb), rci->check_bt, FALSE, FALSE, 1);
@@ -1783,6 +1800,14 @@ decode_streams(void)
 
 /****************************************************************************/
 static void 
+on_cb_use_rtp_clicked(GtkToggleButton  *button _U_, gpointer user_data _U_)
+{
+	/* set the sensitive state of the buttons (decode, play, pause, stop) */
+	bt_state(TRUE, FALSE, FALSE, FALSE);
+}
+
+/****************************************************************************/
+static void 
 on_bt_decode_clicked(GtkButton *button _U_, gpointer user_data _U_)
 {
 	decode_streams();
@@ -1890,11 +1915,18 @@ rtp_player_dlg_create(void)
 	gtk_tooltips_set_tip (tooltips, jitter_spinner, "The simulated jitter buffer in [ms]", NULL);
 	g_signal_connect(GTK_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
 
+
+	cb_use_rtp_timestamp = gtk_check_button_new_with_label("Use RTP timestamp");
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp), FALSE);
+	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), cb_use_rtp_timestamp, FALSE, FALSE, 10);
+	g_signal_connect(cb_use_rtp_timestamp, "toggled", G_CALLBACK(on_cb_use_rtp_clicked), NULL);
+	gtk_tooltips_set_tip (tooltips, cb_use_rtp_timestamp, "Use RTP Timestamp instead of the arriving packet time. This will not reproduce the RTP stream as the user heard it, but is useful when the RTP is being tunneled and the original packet timing is missing", NULL);
+
 	/* button row */
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (h_jitter_buttons_box), hbuttonbox, TRUE, TRUE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
+	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 10);
 
 	bt_decode = gtk_button_new_with_label("Decode");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
