@@ -2672,7 +2672,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_AUTHORIZATION_POLICY_SUPPORT:
 			/* add TLV subtree */
-			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_pkm_version_support, tvb, offset, tlv_len, FALSE);
+			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_auth_policy_support, tvb, offset, tlv_len, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit0, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit2, tvb, offset, 1, FALSE);
