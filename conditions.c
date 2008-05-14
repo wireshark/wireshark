@@ -55,27 +55,29 @@ condition* cnd_new(const char* class_id, ...){
   condition *cnd = NULL, *cnd_ref = NULL;
   _cnd_class *cls = NULL;
   char* id = NULL;
+
   /* check if hash table is already initialized */
   _cnd_init();
+
   /* get class structure for this id */
-  if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) == NULL)
+  if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) == NULL) {
+    g_warning("cnd_new: Couldn't find class ID \"%s\"", class_id);
     return NULL;
+  }
+
   /* initialize the basic structure */
   if((cnd_ref = (condition*)g_malloc(sizeof(condition))) == NULL) return NULL;
   cnd_ref->user_data = NULL;
   cnd_ref->eval_func = cls->eval_func;
   cnd_ref->reset_func = cls->reset_func;
-  /* copy the class id */
-  if((id = (char*)g_malloc(strlen(class_id)+1)) == NULL){
-    g_free(cnd_ref);
-    return NULL;
-  }
-  g_strlcpy(id, class_id, strlen(class_id));
-  cnd_ref->class_id = id;
+
+  cnd_ref->class_id = g_strdup(class_id);
+
   /* perform class specific initialization */
   va_start(ap, class_id);
   cnd = (cls->constr_func)(cnd_ref, ap);
   va_end(ap);
+
   /* check for successful construction */
   if(cnd == NULL){
     g_free(cnd_ref);
@@ -141,12 +143,13 @@ gboolean cnd_register_class(const char* class_id,
   /* check if hash table is already initialized */
   _cnd_init();
   /* check for unique class id */
-  if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) != NULL)
+  if((cls = (_cnd_class*)g_hash_table_lookup(classes, class_id)) != NULL) {
+    g_warning("cnd_register_class: Duplicate class ID \"%s\"", class_id);
     return FALSE;
+  }
   /* GHashTable keys need to be persistent for the lifetime of the hash
      table. Allocate memory and copy the class id which we use as key. */
-  if((key = (char*)g_malloc(strlen(class_id)+1)) == NULL) return FALSE;
-  g_strlcpy(key, class_id, strlen(class_id));
+  key = g_strdup(class_id);
   /* initialize class structure */
   if((cls = (_cnd_class*)g_malloc(sizeof(_cnd_class))) == NULL){
     g_free(key);
@@ -205,3 +208,16 @@ void _cnd_find_hash_key_for_class_id(gpointer key,
   char* key_value = (char*)key;
   if(strcmp(class_id, key_value) == 0) pkey = key;
 } /* END _cnd_find_hash_key_for_class_id() */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 2
+ * tab-width: 2
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=2 tabstop=2 expandtab
+ * :indentSize=2:tabSize=2:noTabs=true:
+ */
