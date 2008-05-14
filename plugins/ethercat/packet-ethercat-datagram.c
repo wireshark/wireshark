@@ -440,7 +440,7 @@ static void EcSubFormatter(tvbuff_t *tvb, gint offset, char *szText, gint nMax)
 static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    tvbuff_t *next_tvb;
-   proto_item *ti, *aitem;
+   proto_item *ti, *aitem = NULL;
    proto_tree *ecat_datagrams_tree = NULL;
    guint offset = 0;
    char szText[200];
