@@ -392,7 +392,7 @@ static const value_string vals_tek_encryption_ids[] =
 	{1, "3-DES EDE with 128-bit key"},
 	{2, "RSA with 1024-bit key"},
 	{3, "ECB mode AES with 128-bit key"},
-	{3, "AES key wrap with 128-bit key"},
+	{4, "AES key wrap with 128-bit key"},
 	{0,  NULL}
 };
 
@@ -2787,8 +2787,8 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_cryptographic_suite_list_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
 				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_cryptographic_suite_list_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -2915,8 +2915,8 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
 				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
 			break;
 			case PKM_ATTR_CRYPTO_LIST:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Cryptographic-Suite List (%u bytes)", tlv_len);
@@ -3285,8 +3285,8 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
 				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
