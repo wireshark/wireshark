@@ -73,5 +73,4 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl $(NONGENERATED_C_FILES) \
-	*.l
+	$(PERL) ../tools/checkAPIs.pl $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
