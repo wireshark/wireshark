@@ -50,7 +50,7 @@ static void
 dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*lpd_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	enum lpr_type	lpr_packet_type;
 	guint8		code;
 	gint		printer_len;
@@ -111,12 +111,13 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
-		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_response,
+		  hidden_item = proto_tree_add_boolean(lpd_tree, hf_lpd_response,
 		  				tvb, 0, 0, TRUE);
 		} else {
-		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_request,
+		  hidden_item = proto_tree_add_boolean(lpd_tree, hf_lpd_request,
 		  				tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		if (lpr_packet_type == request) {
 			printer_len = find_printer_string(tvb, 1);

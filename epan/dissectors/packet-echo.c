@@ -50,7 +50,7 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   
   proto_tree   *echo_tree = NULL;
-  proto_item   *ti;
+  proto_item   *ti, *hidden_item;
   int           offset = 0;
   gboolean      request = FALSE;
   const guint8 *data = tvb_get_ptr(tvb, offset, -1);
@@ -74,11 +74,11 @@ static void dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     echo_tree = proto_item_add_subtree(ti, ett_echo);
 
     if (request) {
-      proto_tree_add_boolean_hidden(echo_tree, hf_echo_request, tvb, 0, 0, 1);
-      
+      hidden_item = proto_tree_add_boolean(echo_tree, hf_echo_request, tvb, 0, 0, 1);
     } else {
-      proto_tree_add_boolean_hidden(echo_tree, hf_echo_response, tvb, 0, 0, 1);
+      hidden_item = proto_tree_add_boolean(echo_tree, hf_echo_response, tvb, 0, 0, 1);
     }
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_bytes(echo_tree, hf_echo_data, tvb, offset, -1, data);
 

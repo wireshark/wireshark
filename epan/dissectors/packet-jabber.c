@@ -53,7 +53,7 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
         proto_tree      *jabber_tree;
-        proto_item      *ti;
+        proto_item      *ti, *hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -94,12 +94,13 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		jabber_tree = proto_item_add_subtree(ti, ett_jabber);
 
 		if (is_request) {
-			proto_tree_add_boolean_hidden(jabber_tree,
+			hidden_item = proto_tree_add_boolean(jabber_tree,
 			    hf_jabber_request, tvb, 0, 0, TRUE);
 		} else {
-			proto_tree_add_boolean_hidden(jabber_tree,
+			hidden_item = proto_tree_add_boolean(jabber_tree,
 			    hf_jabber_response, tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		xmltvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);

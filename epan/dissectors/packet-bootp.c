@@ -3305,7 +3305,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*bp_tree;
 	proto_item	*ti;
 	proto_tree	*flag_tree;
-	proto_item	*fi;
+	proto_item	*fi, *hidden_item;
 	guint8		op;
 	guint8		htype, hlen;
 	const guint8	*haddr;
@@ -3520,8 +3520,10 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	voff = VENDOR_INFO_OFFSET;
-	if (dhcp_type != NULL)
-		proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp, tvb, 0, 0, 1);
+	if (dhcp_type != NULL) {
+		hidden_item = proto_tree_add_boolean(bp_tree, hf_bootp_dhcp, tvb, 0, 0, 1);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
 	if (tvb_bytes_exist(tvb, voff, 4) &&
 	    (tvb_get_ntohl(tvb, voff) == 0x63825363)) {
 		ip_addr = tvb_get_ipv4(tvb, voff);

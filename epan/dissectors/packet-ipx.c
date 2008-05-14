@@ -239,7 +239,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 
 	proto_tree	*ipx_tree = NULL;
-	proto_item	*ti = NULL;
+	proto_item	*ti = NULL, *hidden_item;
 
 	const guint8	*src_net_node, *dst_net_node;
 
@@ -298,11 +298,15 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	str=address_to_str(&pinfo->net_src);
-	proto_tree_add_string_hidden(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
-	proto_tree_add_string_hidden(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
+	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	str=address_to_str(&pinfo->net_dst);
-	proto_tree_add_string_hidden(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
-	proto_tree_add_string_hidden(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
+	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
@@ -316,33 +320,39 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ipx_dnet = tvb_get_ntohl(tvb, 6);
 	proto_tree_add_ipxnet(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
 		ipx_dnet);
-	proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
+	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 6, 4,
 		ipx_dnet);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	ipx_dnode = tvb_get_ptr(tvb, 10,  6);
 	proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
 		ipx_dnode);
-	proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 10, 6,
+	hidden_item = proto_tree_add_ether(ipx_tree, hf_ipx_node, tvb, 10, 6,
 		ipx_dnode);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
 		ipxh->ipx_dsocket);
-	proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 16, 2,
+	hidden_item = proto_tree_add_uint(ipx_tree, hf_ipx_socket, tvb, 16, 2,
 		ipxh->ipx_dsocket);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Source */
 	ipx_snet = tvb_get_ntohl(tvb, 18);
 	proto_tree_add_ipxnet(ipx_tree, hf_ipx_snet, tvb, 18, 4,
 		ipx_snet);
-	proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
+	hidden_item = proto_tree_add_ipxnet(ipx_tree, hf_ipx_net, tvb, 18, 4,
 		ipx_snet);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	ipx_snode = tvb_get_ptr(tvb, 22, 6);
 	proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
 		ipx_snode);
-	proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 22, 6,
+	hidden_item = proto_tree_add_ether(ipx_tree, hf_ipx_node, tvb, 22, 6,
 		ipx_snode);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
 		ipxh->ipx_ssocket);
-	proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 28, 2,
+	hidden_item = proto_tree_add_uint(ipx_tree, hf_ipx_socket, tvb, 28, 2,
 		ipxh->ipx_ssocket);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Make the next tvbuff */
 	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN, -1, -1);
@@ -859,7 +869,7 @@ static void
 dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*rip_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	guint16		operation;
 	struct ipx_rt_def route;
 	int		cursor;
@@ -888,14 +898,15 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			"RIP packet type: %s", rip_type[operation]);
 
 			if (operation == 0) {
-			  proto_tree_add_boolean_hidden(rip_tree,
+			  hidden_item = proto_tree_add_boolean(rip_tree,
 						     hf_ipxrip_request,
 						     tvb, 0, 2, 1);
 			} else {
-			  proto_tree_add_boolean_hidden(rip_tree,
+			  hidden_item = proto_tree_add_boolean(rip_tree,
 						     hf_ipxrip_response,
 						     tvb, 0, 2, 1);
 			}
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		}
 		else {
@@ -1198,7 +1209,7 @@ static void
 dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sap_tree, *s_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	int		cursor;
 	struct sap_query query;
 	guint16		server_type;
@@ -1233,14 +1244,15 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (query.query_type >= 1 && query.query_type <= 4) {
 			proto_tree_add_text(sap_tree, tvb, 0, 2, sap_type[query.query_type - 1]);
 			if ((query.query_type - 1) % 2) {
-			  proto_tree_add_boolean_hidden(sap_tree,
+			  hidden_item = proto_tree_add_boolean(sap_tree,
 						     hf_sap_response,
 						     tvb, 0, 2, 1);
 			} else {
-			  proto_tree_add_boolean_hidden(sap_tree,
+			  hidden_item = proto_tree_add_boolean(sap_tree,
 						     hf_sap_request,
 						     tvb, 0, 2, 1);
 			}
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 		else {
 			proto_tree_add_text(sap_tree, tvb, 0, 2,

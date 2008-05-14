@@ -922,15 +922,15 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (pinfo->match_port == pinfo->destport)
 		{
-			proto_tree_add_boolean_hidden(tns_tree, hf_tns_request,
-			   tvb, offset, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_request,
+					   tvb, offset, 0, TRUE);
 		}
 		else
 		{
 			hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_response,
 					    tvb, offset, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
 	length = tvb_get_ntohs(tvb, offset);

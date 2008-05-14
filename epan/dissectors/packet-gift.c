@@ -48,7 +48,7 @@ static gint ett_gift_cmd = -1;
 static void
 dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	proto_tree	*gift_tree, *cmd_tree;
 	gboolean	is_request;
 	gint            offset = 0;
@@ -87,10 +87,11 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		gift_tree = proto_item_add_subtree(ti, ett_gift);
 
 		if (is_request) {
-			proto_tree_add_boolean_hidden(gift_tree, hf_gift_request, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_request, tvb, 0, 0, TRUE);
 		} else {
-			proto_tree_add_boolean_hidden(gift_tree, hf_gift_response, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_response, tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		ti = proto_tree_add_text(gift_tree, tvb, offset, next_offset - offset, "%s", 
 					 tvb_format_text(tvb, offset, next_offset - offset));

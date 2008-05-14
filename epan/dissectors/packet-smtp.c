@@ -160,7 +160,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct smtp_proto_data  *frame_data;
     proto_tree              *smtp_tree;
     proto_tree              *cmdresp_tree;
-    proto_item              *ti;
+    proto_item              *ti, *hidden_item;
     int                     offset = 0;
     int                     request = 0;
     conversation_t          *conversation;
@@ -644,8 +644,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cmdlen = 4;
 	  else
 	    cmdlen = linelen;
-	  proto_tree_add_boolean_hidden(smtp_tree, hf_smtp_req, tvb,
+	  hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_req, tvb,
 					0, 0, TRUE);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
 	  /*
 	   * Put the command line into the protocol tree.
 	   */
@@ -706,8 +707,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Process the response, a line at a time, until we hit a line
 	 * that doesn't have a continuation indication on it.
 	 */
-	proto_tree_add_boolean_hidden(smtp_tree, hf_smtp_rsp, tvb,
+	hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
 					0, 0, TRUE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	while (tvb_offset_exists(tvb, offset)) {
 

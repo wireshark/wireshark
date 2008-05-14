@@ -918,7 +918,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t	*new_tvb=NULL;
 	proto_tree      *tacplus_tree;
-	proto_item      *ti;
+	proto_item      *ti, *hidden_item;
 	guint8		version,flags;
 	proto_tree      *flags_tree;
 	proto_item      *tf;
@@ -960,14 +960,16 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tacplus_tree = proto_item_add_subtree(ti, ett_tacplus);
 		if (pinfo->match_port == pinfo->destport)
 		{
-			proto_tree_add_boolean_hidden(tacplus_tree,
+			hidden_item = proto_tree_add_boolean(tacplus_tree,
 			    hf_tacplus_request, tvb, 0, 0, TRUE);
 		}
 		else
 		{
-			proto_tree_add_boolean_hidden(tacplus_tree,
+			hidden_item = proto_tree_add_boolean(tacplus_tree,
 			    hf_tacplus_response, tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+
 		version = tvb_get_guint8(tvb,0);
 		proto_tree_add_uint_format(tacplus_tree, hf_tacplus_majvers, tvb, 0, 1,
 		    version,

@@ -122,6 +122,7 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
     proto_item *srp_item = NULL;
     proto_tree *srp_tree = NULL;
+    proto_item *hidden_item;
 
     guint8 header = tvb_get_guint8(tvb,0);
     
@@ -162,8 +163,9 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				       crc_offset, 2, crc,
 				       "CRC: 0x%04x (correct)", crc);
 	} else {
-	    proto_tree_add_boolean_hidden(srp_tree, hf_srp_crc_bad, tvb,
+	    hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
 					  crc_offset, 2, TRUE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_uint_format(srp_tree, hf_srp_crc, tvb,
 				       crc_offset, 2, crc,
 				       "CRC: 0x%04x (incorrect, should be 0x%04x)",

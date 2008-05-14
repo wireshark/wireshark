@@ -177,7 +177,7 @@ static void
 dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 {
   proto_tree *udp_tree = NULL;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   guint      len;
   guint      reported_len;
   vec_t      cksum_vec[4];
@@ -225,8 +225,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     proto_tree_add_uint_format(udp_tree, hf_udp_dstport, tvb, offset + 2, 2, udph->uh_dport,
 	"Destination port: %s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
 
-    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
-    proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, udph->uh_dport);
+    hidden_item = proto_tree_add_uint(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_uint(udp_tree, hf_udp_port, tvb, offset+2, 2, udph->uh_dport);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
 
   if (ip_proto == IP_PROTO_UDP) {
@@ -252,8 +254,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       if (tree) {
         proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
         /* XXX - why is this here, given that this is UDP, not Lightweight UDP? */
-        proto_tree_add_uint_hidden(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4,
-          0, udph->uh_sum_cov);
+        hidden_item = proto_tree_add_uint(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4,
+                                          0, udph->uh_sum_cov);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
       }
     }
   } else {
@@ -262,8 +265,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     if (((udph->uh_sum_cov > 0) && (udph->uh_sum_cov < 8)) || (udph->uh_sum_cov > udph->uh_ulen)) {
       /* Bogus length - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
       if (tree) {
-        proto_tree_add_boolean_hidden(udp_tree, hf_udplite_checksum_coverage_bad, tvb, offset + 4, 2, TRUE);
-        proto_tree_add_uint_hidden(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+        hidden_item = proto_tree_add_boolean(udp_tree, hf_udplite_checksum_coverage_bad, tvb, offset + 4, 2, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
       }
       item = proto_tree_add_uint_format(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2,
           udph->uh_sum_cov, "Checksum coverage: %u (bogus, must be >= 8 and <= %u (ip.len-ip.hdr_len))",
@@ -277,7 +282,8 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
         return;
     } else {
       if (tree) {
-        proto_tree_add_uint_hidden(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+        hidden_item = proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_uint(udp_tree, hf_udplite_checksum_coverage, tvb, offset + 4, 2, udph->uh_sum_cov);
       }
     }

@@ -12512,8 +12512,10 @@ dissect_quota_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			tvb, offset, 1, mask);
 
 		if(mask && (!(mask&0x01))){
-			proto_tree_add_boolean_hidden(tree, hf_smb_quota_flags_enabled,
+			proto_item *hidden_item;
+			hidden_item = proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
 				tvb, offset, 1, 0x01);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		} else {
 			proto_tree_add_boolean(tree, hf_smb_quota_flags_enabled,
 				tvb, offset, 1, mask);

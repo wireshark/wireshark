@@ -1311,6 +1311,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *lmp_object_header_tree;
     proto_tree *lmp_flags_tree;
     proto_tree *lmp_subobj_tree;
+    proto_item *hidden_item;
 
     guint8 version;
     guint8 flags;
@@ -1371,9 +1372,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((message_type >= LMP_MSG_CONFIG && message_type <= LMP_MSG_CHANNEL_STATUS_RESP) ||
         (message_type >= LMP_MSG_SERVICE_CONFIG && message_type <= LMP_MSG_SERVICE_CONFIG_NACK) ||
         (message_type >= LMP_MSG_DISCOVERY_RESP && message_type <= LMP_MSG_DISCOVERY_RESP_NACK) ) {
-	    proto_tree_add_boolean_hidden(lmp_header_tree,
+	    hidden_item = proto_tree_add_boolean(lmp_header_tree,
                                           lmp_filter[lmp_msg_to_filter_num(message_type)],
                                           tvb, offset+3, 1, 1);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	} else {
 	    proto_tree_add_protocol_format(lmp_header_tree, proto_malformed, tvb, offset+3, 1,
 					   "Invalid message type: %u", message_type);
@@ -1417,8 +1419,9 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  type = tvb_get_guint8(tvb, offset);
 	  negotiable = (type >> 7); type &= 0x7f;
 	  object_type = val_to_str(class, lmp_class_vals, "Unknown");
-	  proto_tree_add_uint_hidden(lmp_tree, lmp_filter[LMPF_OBJECT], tvb,
+	  hidden_item = proto_tree_add_uint(lmp_tree, lmp_filter[LMPF_OBJECT], tvb,
 				     offset, 1, class);
+	  PROTO_ITEM_SET_HIDDEN(hidden_item);
 	  if (lmp_valid_class(class)) {
 
 	      ti = proto_tree_add_item(lmp_tree, 

@@ -222,7 +222,7 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
 /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *brdwlk_tree = NULL;
     tvbuff_t *next_tvb;
     guint8 error, eof, sof;
@@ -334,8 +334,9 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
 
             if (tree) {
-                proto_tree_add_boolean_hidden (brdwlk_tree, hf_brdwlk_drop,
+                hidden_item = proto_tree_add_boolean (brdwlk_tree, hf_brdwlk_drop,
                                                tvb, offset, 0, dropped_packets);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
         }
         packet_count = pkt_cnt;

@@ -624,7 +624,7 @@ static void
 dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_ifcp)
 {
    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti=NULL;
+    proto_item *ti=NULL, *hidden_item;
     proto_tree *fc_tree = NULL;
     tvbuff_t *next_tvb;
     int offset = 0, next_offset;
@@ -906,24 +906,27 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                     fchdr.r_ctl & 0x0F);
         break;
     }
-  
-    proto_tree_add_uint_hidden (fc_tree, hf_fc_ftype, tvb, offset, 1,
-                           ftype); 
+
+    hidden_item = proto_tree_add_uint (fc_tree, hf_fc_ftype, tvb, offset, 1,
+                                       ftype); 
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
                            fc_to_str (fchdr.d_id.data));
-    proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                           fc_to_str (fchdr.d_id.data));
+    hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+1, 3,
+                                         fc_to_str (fchdr.d_id.data));
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
                            fc_to_str (fchdr.s_id.data));
-    proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                           fc_to_str (fchdr.s_id.data));
-        
+    hidden_item = proto_tree_add_string (fc_tree, hf_fc_id, tvb, offset+5, 3,
+                                         fc_to_str (fchdr.s_id.data));
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     if (ftype == FC_FTYPE_LINKCTL) {
         if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
             ((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYL)) {
@@ -1127,17 +1130,19 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                   tvb_set_child_real_data_tvbuff(tvb, next_tvb);
                   
                   /* Add the defragmented data to the data source list. */
-            add_new_data_source(pinfo, next_tvb, "Reassembled FC");
+                  add_new_data_source(pinfo, next_tvb, "Reassembled FC");
             
-            if (tree) {
-                 proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
-                                                tvb, offset+9, 1, 1);
-            }
+                  if (tree) {
+                      hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                                                            tvb, offset+9, 1, 1);
+                      PROTO_ITEM_SET_HIDDEN(hidden_item);
+                  }
              }
              else {
                   if (tree) {
-                       proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
-                                                      tvb, offset+9, 1, 0);
+                       hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                                                             tvb, offset+9, 1, 0);
+                       PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
                   next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
                   call_dissector (data_handle, next_tvb, pinfo, tree);
@@ -1146,8 +1151,9 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
         }
     } else {
         if (tree) {
-            proto_tree_add_boolean_hidden (fc_tree, hf_fc_reassembled,
-                                           tvb, offset+9, 1, 0);
+            hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
+                                                  tvb, offset+9, 1, 0);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
         next_tvb = tvb_new_subset (tvb, next_offset, -1, -1);
     }

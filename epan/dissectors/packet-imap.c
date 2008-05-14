@@ -50,7 +50,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
         proto_tree      *imap_tree, *reqresp_tree;
-        proto_item      *ti;
+        proto_item      *ti, *hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
 	gint		next_offset;
@@ -86,12 +86,13 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		imap_tree = proto_item_add_subtree(ti, ett_imap);
 
 		if (is_request) {
-			proto_tree_add_boolean_hidden(imap_tree,
+			hidden_item = proto_tree_add_boolean(imap_tree,
 						      hf_imap_request, tvb, 0, 0, TRUE);
 		} else {
-			proto_tree_add_boolean_hidden(imap_tree,
+			hidden_item = proto_tree_add_boolean(imap_tree,
 						      hf_imap_response, tvb, 0, 0, TRUE);
 		}
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		while(tvb_length_remaining(tvb, offset) > 2) {
 

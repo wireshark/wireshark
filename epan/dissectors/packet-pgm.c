@@ -882,7 +882,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree *pgm_tree = NULL;
 		proto_tree *opt_tree = NULL;
 		proto_tree *type_tree = NULL;
-		proto_item *tf;
+		proto_item *tf, *hidden_item;
 		ptvcursor_t* cursor;
 
 		ti = proto_tree_add_protocol_format(tree, proto_pgm,
@@ -895,8 +895,10 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		cursor = ptvcursor_new(pgm_tree, tvb, 0);
 
-		proto_tree_add_item_hidden(pgm_tree, hf_pgm_port, tvb, 0, 2, FALSE);
-		proto_tree_add_item_hidden(pgm_tree, hf_pgm_port, tvb, 2, 2, FALSE);
+		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 0, 2, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		hidden_item = proto_tree_add_item(pgm_tree, hf_pgm_port, tvb, 2, 2, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		ptvcursor_add(cursor, hf_pgm_main_sport, 2, FALSE);
 		ptvcursor_add(cursor, hf_pgm_main_dport, 2, FALSE);
 		ptvcursor_add(cursor, hf_pgm_main_type, 1, FALSE);
@@ -933,8 +935,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
 						ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "Checksum: 0x%04x [correct]", pgmhdr_cksum);
 				} else {
-					proto_tree_add_boolean_hidden(pgm_tree, hf_pgm_main_cksum_bad, tvb,
+					hidden_item = proto_tree_add_boolean(pgm_tree, hf_pgm_main_cksum_bad, tvb,
 					    ptvcursor_current_offset(cursor), 2, TRUE);
+					PROTO_ITEM_SET_HIDDEN(hidden_item);
 					proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
 					    ptvcursor_current_offset(cursor), 2, pgmhdr_cksum, "Checksum: 0x%04x [incorrect, should be 0x%04x]",
 						pgmhdr_cksum, in_cksum_shouldbe(pgmhdr_cksum, computed_cksum));

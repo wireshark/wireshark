@@ -298,7 +298,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean        is_request;
 	proto_tree      *ftp_tree = NULL;
 	proto_tree      *reqresp_tree = NULL;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	gint		offset = 0;
 	const guchar	*line;
 	guint32		code;
@@ -353,15 +353,19 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
 		if (is_request) {
-			proto_tree_add_boolean_hidden(ftp_tree,
+			hidden_item = proto_tree_add_boolean(ftp_tree,
 			    hf_ftp_request, tvb, 0, 0, TRUE);
-			proto_tree_add_boolean_hidden(ftp_tree,
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(ftp_tree,
 			    hf_ftp_response, tvb, 0, 0, FALSE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		} else {
-			proto_tree_add_boolean_hidden(ftp_tree,
+			hidden_item = proto_tree_add_boolean(ftp_tree,
 			    hf_ftp_request, tvb, 0, 0, FALSE);
-			proto_tree_add_boolean_hidden(ftp_tree,
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_boolean(ftp_tree,
 			    hf_ftp_response, tvb, 0, 0, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 
 		/*

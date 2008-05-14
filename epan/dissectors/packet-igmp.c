@@ -330,6 +330,7 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 {
 	guint16 cksum, hdrcksum;
 	vec_t cksum_vec[1];
+	proto_item *hidden_item;
 
 	if (len == 0) {
 		/*
@@ -354,8 +355,9 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 			    tvb, 2, 2, hdrcksum,
 			    "Header checksum: 0x%04x [correct]", hdrcksum);
 		} else {
-			proto_tree_add_boolean_hidden(tree, hf_index_bad,
+			hidden_item = proto_tree_add_boolean(tree, hf_index_bad,
 			    tvb, 2, 2, TRUE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			proto_tree_add_uint_format(tree, hf_index,
 			    tvb, 2, 2, hdrcksum,
 			    "Header checksum: 0x%04x [incorrect, should be 0x%04x]", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));

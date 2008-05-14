@@ -2190,7 +2190,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     volatile guint auth_pad_len;
     volatile int auth_pad_offset;
     proto_item *sub_item=NULL;
-    proto_item *pi;
+    proto_item *pi, *hidden_item;
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -2203,8 +2203,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          * for that UUID is disabled.
          */
 
-	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
-					  tvb, offset, 0, TRUE);
+	hidden_item = proto_tree_add_boolean(dcerpc_tree, hf_dcerpc_unknown_if_id,
+						  tvb, offset, 0, TRUE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	if (check_col (pinfo->cinfo, COL_INFO)) {
 		col_append_fstr (pinfo->cinfo, COL_INFO, " %s V%u",
 			guids_resolve_uuid_to_str(&info->call_data->uuid), info->call_data->ver);

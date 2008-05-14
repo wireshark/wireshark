@@ -1426,7 +1426,7 @@ static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
-    proto_item *ti, *tf = NULL;
+    proto_item *ti, *hidden_item, *tf = NULL;
     struct icmp6_hdr icmp6_hdr, *dp;
     struct icmp6_nodeinfo *ni = NULL;
     const char *codename, *typename;
@@ -1724,10 +1724,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			cksum,
 			"Checksum: 0x%04x [correct]", cksum);
 	    } else {
-		proto_tree_add_boolean_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
+		hidden_item = proto_tree_add_boolean(icmp6_tree, hf_icmpv6_checksum_bad,
 			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			TRUE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		proto_tree_add_uint_format(icmp6_tree, hf_icmpv6_checksum,
 			tvb,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,

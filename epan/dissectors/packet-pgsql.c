@@ -410,7 +410,7 @@ pgsql_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static void
 dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *ptree;
 
     gint n;
@@ -468,9 +468,11 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (type == '\0')
             n = 0;
         proto_tree_add_text(ptree, tvb, 0, n, "Type: %s", typestr);
-        proto_tree_add_item_hidden(ptree, hf_type, tvb, 0, n, FALSE);
+        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, FALSE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item(ptree, hf_length, tvb, n, 4, FALSE);
-        proto_tree_add_boolean_hidden(ptree, hf_frontend, tvb, 0, 0, fe);
+        hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         n += 4;
 
         if (fe)
@@ -487,7 +489,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     guchar c;
     gint i, l;
     char *s, *t;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *shrub;
 
     switch (type) {
@@ -594,7 +596,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         if (i != 0) {
             n += 1;
             s = tvb_get_ephemeral_stringz(tvb, n, &l);
-            proto_tree_add_string_hidden(tree, i, tvb, n, l, s);
+            hidden_item = proto_tree_add_string(tree, i, tvb, n, l, s);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_text(
                 tree, tvb, n-1, l, "%s: %s",
                 (c == 'P' ? "Portal" : "Statement"), s
@@ -690,7 +693,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     guchar c;
     gint i, l;
     char *s, *t;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *shrub;
 
     switch (type) {
@@ -715,10 +718,12 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Parameter status */
     case 'S':
         s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string_hidden(tree, hf_parameter_name, tvb, n, l, s);
+        hidden_item = proto_tree_add_string(tree, hf_parameter_name, tvb, n, l, s);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         n += l;
         t = tvb_get_ephemeral_stringz(tvb, n, &i);
-        proto_tree_add_string_hidden(tree, hf_parameter_value, tvb, n, i, t);
+        hidden_item = proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_text(tree, tvb, n-l, l+i, "%s: %s", s, t);
         break;
 

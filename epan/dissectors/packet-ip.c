@@ -1749,7 +1749,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
     guint16         reserved;
     guint16         cksum, computed_cksum;
     guint16         obj_length, obj_trunc_length;
-    proto_item      *ti, *tf_object, *tf_entry;
+    proto_item      *ti, *tf_object, *tf_entry, *hidden_item;
     proto_tree      *mpls_tree=NULL, *mpls_object_tree, *mpls_stack_object_tree;
     guint           obj_end_offset;
     guint           reported_length;
@@ -1798,8 +1798,9 @@ dissect_mpls_extensions(tvbuff_t *tvb, size_t offset, proto_tree *tree)
     }
     else
     {
-        proto_tree_add_boolean_hidden(mpls_tree, hf_icmp_mpls_checksum_bad, tvb,
+        hidden_item = proto_tree_add_boolean(mpls_tree, hf_icmp_mpls_checksum_bad, tvb,
                                             offset + 2, 2, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
         proto_tree_add_uint_format(mpls_tree, hf_icmp_mpls_checksum, tvb, offset + 2, 2,
                                     cksum,

@@ -2224,6 +2224,7 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
     proto_tree *pcep_header_tree;
     proto_tree *ti;
     proto_tree *pcep_header_msg_flags;
+    proto_item *hidden_item;
 
     int offset = 0;
     int len=0;
@@ -2263,7 +2264,8 @@ dissect_pcep_msg_tree(tvbuff_t *tvb, proto_tree *tree, guint tree_mode, packet_i
     case PCEPF_NOTIFICATION:
     case PCEPF_ERROR:
     case PCEPF_CLOSE:
-	proto_tree_add_boolean_hidden(pcep_header_tree, pcep_filter[PCEPF_MSG + message_type], tvb, offset+1, 1, 1);
+	hidden_item = proto_tree_add_boolean(pcep_header_tree, pcep_filter[PCEPF_MSG + message_type], tvb, offset+1, 1, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
 
     default:

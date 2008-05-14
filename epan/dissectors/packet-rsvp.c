@@ -1743,6 +1743,7 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 		      int class _U_, int type,
 		      rsvp_conversation_info *rsvph)
 {
+    proto_item *hidden_item;
     int offset2 = offset + 4;
 
     proto_item_set_text(ti, "%s", summary_session(tvb, offset));
@@ -1816,9 +1817,10 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 			    "Extended Tunnel ID: %u (%s)",
 			    tvb_get_ntohl(tvb, offset2+8),
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
-	proto_tree_add_item_hidden(rsvp_object_tree,
+	hidden_item = proto_tree_add_item(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/*
 	 * Save this information to build the conversation request key
@@ -1868,9 +1870,10 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 			    "Extended IPv4 Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
-	proto_tree_add_item_hidden(rsvp_object_tree,
+	hidden_item = proto_tree_add_item(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/*
 	 * Save this information to build the conversation request key
@@ -1898,9 +1901,10 @@ dissect_rsvp_session (proto_item *ti, proto_tree *rsvp_object_tree,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
 			    "Extended IPv4 Address: %s",
 			    ip_to_str(tvb_get_ptr(tvb, offset2+8, 4)));
-	proto_tree_add_item_hidden(rsvp_object_tree,
+	hidden_item = proto_tree_add_item(rsvp_object_tree,
 				   rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
 				   tvb, offset2+8, 4, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/*
 	 * Save this information to build the conversation request key
@@ -5397,12 +5401,15 @@ dissect_rsvp_diffserv_aware_te(proto_tree *ti, proto_tree *rsvp_object_tree,
 			       int offset, int obj_length,
 			       int class _U_, int type)
 {
+    proto_item *hidden_item;
     int offset2 = offset + 4;
     guint8 ct = 0;
 
-    proto_tree_add_item_hidden(rsvp_object_tree,
+    hidden_item = proto_tree_add_item(rsvp_object_tree,
 			       rsvp_filter[RSVPF_DSTE],
 			       tvb, offset, 8, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     switch(type) {
     case 1:
 	ct = tvb_get_guint8(tvb, offset2+3);
@@ -5433,6 +5440,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *rsvp_header_tree;
     proto_tree *rsvp_object_tree;
     proto_tree *ti;
+    proto_item *hidden_item;
     guint16 cksum, computed_cksum;
     vec_t cksum_vec[1];
     int offset = 0;
@@ -5491,9 +5499,10 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSVPF_ACK:
     case RSVPF_SREFRESH:
     case RSVPF_HELLO:
-	case RSVPF_NOTIFY:
-	proto_tree_add_boolean_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb,
+    case RSVPF_NOTIFY:
+	hidden_item = proto_tree_add_boolean(rsvp_header_tree, rsvp_filter[RSVPF_MSG + message_type], tvb,
 				      offset+1, 1, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	break;
 
     default:

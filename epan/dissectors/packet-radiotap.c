@@ -793,7 +793,7 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *radiotap_tree = NULL;
     proto_tree *pt, *present_tree = NULL;
     proto_tree *ft, *flags_tree = NULL;
-    proto_item *ti = NULL;
+    proto_item *ti = NULL, *hidden_item;
     proto_item *hdr_fcs_ti = NULL;
     int hdr_fcs_offset = 0;
     int align_offset, offset;
@@ -1263,8 +1263,9 @@ dissect_radiotap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else {
                 proto_item_append_text(hdr_fcs_ti,
                         " [incorrect, should be 0x%08x]", calc_fcs);
-                proto_tree_add_boolean_hidden(radiotap_tree, hf_radiotap_fcs_bad,
+                hidden_item = proto_tree_add_boolean(radiotap_tree, hf_radiotap_fcs_bad,
                         tvb, hdr_fcs_offset, 4, TRUE);
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
         }
         else {

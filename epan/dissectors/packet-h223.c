@@ -620,7 +620,7 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
                                 h223_lc_params* lc_params )
 {
     proto_tree *al_tree = NULL;
-    proto_item *al_item;
+    proto_item *al_item, *hidden_item;
     proto_tree *al_subtree;
     proto_item *al_subitem = NULL;
     proto_item *tmp_item;
@@ -639,8 +639,10 @@ static void dissect_mux_al_pdu( tvbuff_t *tvb,
         al_item = proto_tree_add_none_format(vc_tree, hf_h223_al1, tvb, 0, -1, "H.223 AL1 (%sframed)",
                 (lc_params->al_type==al1Framed)?"":"not ");
         al_tree = proto_item_add_subtree (al_item, ett_h223_al1);
-        if(lc_params->al_type == al1Framed)
-            proto_tree_add_boolean_hidden(al_tree, hf_h223_al1_framed, tvb, 0, 1, TRUE );
+        if(lc_params->al_type == al1Framed) {
+            hidden_item = proto_tree_add_boolean(al_tree, hf_h223_al1_framed, tvb, 0, 1, TRUE );
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
+        }
         next_tvb = tvb;
         al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
         break;

@@ -44,7 +44,7 @@ static void
 dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*rsh_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	gint		offset = 0;
 	gint		next_offset;
 	int		linelen;
@@ -90,12 +90,14 @@ dissect_rsh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = next_offset;
 		}
 
-		if (pinfo->match_port == pinfo->destport)
-			proto_tree_add_boolean_hidden(rsh_tree,
+		if (pinfo->match_port == pinfo->destport) {
+			hidden_item = proto_tree_add_boolean(rsh_tree,
 			    hf_rsh_request, tvb, 0, 0, 1);
-		else
-			proto_tree_add_boolean_hidden(rsh_tree,
+                } else {
+			hidden_item = proto_tree_add_boolean(rsh_tree,
 			    hf_rsh_response, tvb, 0, 0, 1);
+                }
+                PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 }
 

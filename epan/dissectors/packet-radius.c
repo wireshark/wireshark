@@ -918,7 +918,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *radius_tree = NULL;
 	proto_tree *avptree = NULL;
-	proto_item *ti;
+	proto_item *ti, *hidden_item;
 	proto_item *avptf;
 	guint avplength;
 	e_radiushdr rh;
@@ -1022,7 +1022,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
 			case RADIUS_DISCONNECT_REQUEST:
 			case RADIUS_CHANGE_FILTER_REQUEST:
-				proto_tree_add_boolean_hidden(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
+				hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				/* Keep track of the address and port whence the call came
 				 *  so that we can match up requests with replies.
 				 *
@@ -1075,7 +1076,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						if (tree)
 						{
 							proto_item* item;
-							proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+							hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
 							item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0,0, rh.rh_ident);
 							PROTO_ITEM_SET_GENERATED(item);
 						}
@@ -1121,7 +1123,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case RADIUS_DISCONNECT_REQUEST_NAK:
 			case RADIUS_CHANGE_FILTER_REQUEST_ACK:
 			case RADIUS_CHANGE_FILTER_REQUEST_NAK:
-				proto_tree_add_boolean_hidden(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
+				hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
+				PROTO_ITEM_SET_HIDDEN(hidden_item);
 				/* Check for RADIUS response.  A response must match a call that
 				 * we've seen, and the response must be sent to the same
 				 * port and address that the call came from.
@@ -1195,7 +1198,8 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								if (tree)
 								{
 									proto_item* item;
-									proto_tree_add_uint_hidden(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+									hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0,0, rh.rh_ident);
+									PROTO_ITEM_SET_HIDDEN(hidden_item);
 									item = proto_tree_add_uint(radius_tree, hf_radius_rsp_dup,
 									                           tvb, 0, 0, rh.rh_ident);
 									PROTO_ITEM_SET_GENERATED(item);
