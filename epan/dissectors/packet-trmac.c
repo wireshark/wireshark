@@ -110,7 +110,7 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 	};
 
 	proto_tree	*sv_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 
 	guchar		errors[6];	/* isolating or non-isolating */
 
@@ -127,7 +127,8 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 	proto_tree_add_text(tree, tvb, svoff, 1,
 		"Subvector Length: %d bytes", sv_length);*/
 
-	proto_tree_add_uint_hidden(tree, hf_trmac_sv, tvb, svoff+1, 1, tvb_get_guint8(tvb, svoff+1));
+	hidden_item = proto_tree_add_uint(tree, hf_trmac_sv, tvb, svoff+1, 1, tvb_get_guint8(tvb, svoff+1));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	switch(tvb_get_guint8(tvb, svoff+1)) {
 		case 0x01: /* Beacon Type */

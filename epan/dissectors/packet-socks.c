@@ -456,6 +456,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* so messy.								*/
 
 
+	proto_item *hidden_item;
 	guint command;
 	unsigned char ipaddr[4];
 	guint username_len, domainname_len;
@@ -513,7 +514,8 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		++offset;
 						/* Do results code	*/
 		proto_tree_add_item( tree, hf_socks_results_4, tvb, offset, 1, FALSE);
-		proto_tree_add_item_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+		hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		++offset;
 
@@ -623,8 +625,10 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    command);
 
 		else {
+			proto_item *hidden_item;
 			proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, FALSE);
-			proto_tree_add_item_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+			hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, FALSE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 
 		++offset;

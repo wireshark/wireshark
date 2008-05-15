@@ -325,7 +325,7 @@ static void
 dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*tr_tree, *bf_tree;
-	proto_item	*ti;
+	proto_item	*ti, *hidden_item;
 	int		frame_type;
 	guint8		rcf1, rcf2;
 	tvbuff_t	*next_tvb;
@@ -520,13 +520,16 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trh->fc);
 		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trh->dst.data);
 		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trh->src.data);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trh->dst.data);
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trh->src.data);
+		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trh->dst.data);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trh->src.data);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
-		proto_tree_add_ether_hidden(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
+		hidden_item = proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
@@ -590,6 +593,7 @@ ring-bridge pairs in the /proc/net/tr_rif virtual file. */
 static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 {
+	proto_item *hidden_item;
 	int 	j, size;
 	int 	segment, brdgnmb, unprocessed_rif;
 	int	buff_offset=0;
@@ -614,15 +618,18 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
 			size = g_snprintf(buffer, MAX_BUF_LEN, "%03X",segment);
 			size = MIN(size, MAX_BUF_LEN - 1);
-			proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
+			hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 			buff_offset += size;
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
 		size = g_snprintf(buffer+buff_offset, MAX_BUF_LEN-buff_offset, "-%01X-%03X",brdgnmb,segment);
 		size = MIN(size, MAX_BUF_LEN-buff_offset-1);
-		proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
-		proto_tree_add_uint_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
+		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		buff_offset += size;
 	}
 	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);

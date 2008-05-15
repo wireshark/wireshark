@@ -2551,7 +2551,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 th_sum;
   guint16 th_urp;
   proto_tree *tcp_tree = NULL, *field_tree = NULL;
-  proto_item *ti = NULL, *tf;
+  proto_item *ti = NULL, *tf, *hidden_item;
   int        offset = 0;
   gchar      *flags = "<None>";
   const gchar *fstr[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR" };
@@ -2611,8 +2611,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	"Source port: %s (%u)", get_tcp_port(tcph->th_sport), tcph->th_sport);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
 	"Destination port: %s (%u)", get_tcp_port(tcph->th_dport), tcph->th_dport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
-    proto_tree_add_uint_hidden(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
+    hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /*  If we're dissecting the headers of a TCP packet in an ICMP packet
      *  then go ahead and put the sequence numbers in the tree now (because

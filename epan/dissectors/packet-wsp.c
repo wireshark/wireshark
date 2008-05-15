@@ -1740,7 +1740,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 	gint32 val_len, val_start;
 	gchar *hdr_str, *val_str;
 	proto_tree *wsp_headers;
-	proto_item *ti;
+	proto_item *ti, *hidden_item;
 	guint8 ok;
 	guint32 val = 0;
 	nstime_t tv;
@@ -1828,8 +1828,9 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 				offset = tvb_len;
 			}
 			tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
-			proto_tree_add_string_hidden(wsp_headers, hf_hdr_name,
+			hidden_item = proto_tree_add_string(wsp_headers, hf_hdr_name,
 					tvb, hdr_start, offset - hdr_start, hdr_str);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		} else if (hdr_id > 0) { /* Shorthand HCP switch */
 			codepage = hdr_id;
 			proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code,
