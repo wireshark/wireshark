@@ -850,13 +850,14 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <String> ::= <String length (guint16)> DATA */
     const gchar * tagname;
     const gchar * tag_full_name = NULL;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
 
     guint16 string_length = tvb_get_letohs(tvb, offset);
 
     proto_tree_add_uint(tree, hf_kademlia_tag_name_length, tvb, offset, 2, string_length);
 
-    proto_tree_add_uint_hidden(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
+    hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tagname = tvb_get_ephemeral_string( tvb, offset + 2, string_length );
 
@@ -957,8 +958,11 @@ static int dissect_kademlia_hash(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
                                  int offset, proto_tree *tree)
 {
+    proto_item *hidden_item;
+
     /* <File hash> ::= HASH (16 word MD4 digest) */
-    proto_tree_add_item_hidden(tree, hf_kademlia_hash, tvb, offset, 16, FALSE);
+    hidden_item = proto_tree_add_item(tree, hf_kademlia_hash, tvb, offset, 16, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     return offset+16;
 }
 
@@ -1014,10 +1018,13 @@ static int dissect_kademlia_tag_bsob(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
                                  int offset, proto_tree *tree, const gchar** string_value)
 {
+    proto_item *hidden_item;
     guint16 string_length = tvb_get_letohs(tvb, offset);
 
-    proto_tree_add_uint_hidden(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
-    proto_tree_add_item_hidden(tree, hf_edonkey_string, tvb, offset+2, string_length, FALSE);
+    hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(tree, hf_edonkey_string, tvb, offset+2, string_length, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     *string_value = tvb_get_ephemeral_string(tvb, offset + 2, string_length);
 
     proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, FALSE);
@@ -2475,8 +2482,10 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
                                          int offset, int length, proto_tree *tree)
 {
     int msg_start, msg_end, bytes_remaining;
+    proto_item *hidden_item;
 
-    proto_tree_add_item_hidden(tree, hf_kademlia, tvb, offset, 1, FALSE);
+    hidden_item = proto_tree_add_item(tree, hf_kademlia, tvb, offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     bytes_remaining = tvb_reported_length_remaining(tvb, offset);
     if ((length < 0) || (length > bytes_remaining)) length = bytes_remaining;

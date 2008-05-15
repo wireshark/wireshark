@@ -148,7 +148,7 @@ void
 dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 {
   proto_tree *volatile fh_tree = NULL;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   guint8 type;
   volatile guint16 length;
   gint captured_length;
@@ -169,7 +169,8 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
     proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 5, FALSE);
-    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, tvb, 0, 6, FALSE);
+    hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 0, 6, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item(fh_tree, hf_isl_type, tvb, 5, 1, FALSE);
     switch (type) {
 
@@ -184,7 +185,8 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
       break;
     }
     proto_tree_add_item(fh_tree, hf_isl_src, tvb, 6, 6, FALSE);
-    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, tvb, 6, 6, FALSE);
+    hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 6, 6, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
   length = tvb_get_ntohs(tvb, 12);
   if (tree)

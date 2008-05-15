@@ -267,7 +267,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
   proto_tree *fh_tree = NULL;
-  proto_item *ti;
+  proto_item *ti, *hidden_item;
   const gchar *fc_str;
   proto_tree *fc_tree;
   static guchar src[6], dst[6];
@@ -333,11 +333,14 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (fh_tree) {
     proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
+    hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
-    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
+    hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST + FDDI_PADDING, 6, dst_swapped);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
 
   /* Extract the source address, possibly bit-swapping it. */
@@ -355,11 +358,14 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (fh_tree) {
       proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
+      hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
-      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
+      hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      hidden_item = proto_tree_add_ether(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST + FDDI_PADDING, 6, src_swapped);
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
   }
 
   next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE + FDDI_PADDING, -1, -1);

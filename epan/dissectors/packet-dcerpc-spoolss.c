@@ -623,7 +623,7 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 				    packet_info *pinfo, proto_tree *tree,
 				    guint8 *drep _U_, guint32 type)
 {
-	proto_item *item;
+	proto_item *item, *hidden_item;
 	proto_tree *subtree;
 	guint32 size;
 
@@ -650,9 +650,10 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO, " = %s", data);
 
-			proto_tree_add_string_hidden(
+			hidden_item = proto_tree_add_string(
 				tree, hf_printerdata_data_sz, tvb,
 				offset - size, size, data);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			g_free(data);
 
@@ -668,9 +669,10 @@ static int dissect_printerdata_data(tvbuff_t *tvb, int offset,
 					pinfo->cinfo, COL_INFO, " = 0x%08x", 
 					data);
 
-			proto_tree_add_uint_hidden(
+			hidden_item = proto_tree_add_uint(
 				tree, hf_printerdata_data_dword, tvb,
 				offset - size, 4, data);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 			break;
 		}
@@ -702,9 +704,11 @@ static int SpoolssGetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -742,9 +746,11 @@ static int SpoolssGetPrinterData_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 type;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -780,9 +786,11 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *key_name, *value_name;
+        proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -826,9 +834,11 @@ static int SpoolssGetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 size, type;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -868,9 +878,11 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name;
 	guint32 type;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -912,8 +924,11 @@ static int SpoolssSetPrinterData_r(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree,
 				   guint8 *drep _U_)
 {
-	proto_tree_add_uint_hidden(
+	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -937,9 +952,11 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 {
 	char *key_name, *value_name;
 	guint32 max_len;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -986,8 +1003,11 @@ static int SpoolssSetPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     guint8 *drep _U_)
 {
-	proto_tree_add_uint_hidden(
+	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -1318,9 +1338,11 @@ dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree;
 	guint32 fields;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_devmode, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
 				    hf_devmode_fields, &fields);
@@ -3596,9 +3618,11 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -3634,9 +3658,11 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	BUFFER buffer;
 	guint32 level = GPOINTER_TO_UINT(dcv->se_data), i, count;
 	int buffer_offset;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -3760,9 +3786,11 @@ static int SpoolssEnumPrinterData_q(tvbuff_t *tvb, int offset,
 				    guint8 *drep _U_)
 {
 	guint32 ndx;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -3796,9 +3824,11 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 	char *value;
 	proto_item *value_item;
 	proto_tree *value_subtree;
+        proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -3823,8 +3853,9 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 		proto_item_append_text(value_item, ": %s", value);
 
-		proto_tree_add_string_hidden(
+		hidden_item = proto_tree_add_string(
 			tree, hf_printerdata_value, tvb, offset, 0, value);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		g_free(value);
 	}
@@ -4137,9 +4168,11 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
+        proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4166,8 +4199,11 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, guint8 *drep _U_)
 {
-	proto_tree_add_uint_hidden(
+	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4184,10 +4220,12 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			       proto_tree *tree, guint8 *drep _U_)
 {
+	proto_item *hidden_item;
 	char *name = NULL;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4210,8 +4248,11 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, guint8 *drep _U_)
 {
-	proto_tree_add_uint_hidden(
+	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4230,9 +4271,11 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	char *name = NULL;
 	guint32 level;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4263,8 +4306,11 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, guint8 *drep _U_)
 {
-	proto_tree_add_uint_hidden(
+	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4283,11 +4329,13 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	proto_item *hidden_item;
 	guint32 level;
 	char *name;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -4329,9 +4377,11 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	BUFFER buffer;
 	guint32 level = GPOINTER_TO_UINT(dcv->se_data);
+     	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_form, tvb, offset, 0, 1);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -5168,9 +5218,11 @@ static int SpoolssDeletePrinterData_q(tvbuff_t *tvb, int offset,
 				      guint8 *drep)
 {
 	char *value_name;
+     	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -5194,8 +5246,11 @@ static int SpoolssDeletePrinterData_r(tvbuff_t *tvb, int offset,
 				      packet_info *pinfo, proto_tree *tree,
 				      guint8 *drep)
 {
-	proto_tree_add_uint_hidden(
+     	proto_item *hidden_item;
+
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -5724,6 +5779,7 @@ static void cb_notify_str_postprocess(packet_info *pinfo _U_,
 	gint levels, hf_index = GPOINTER_TO_INT(callback_args);
 	guint32 len;
 	char *s;
+	proto_item *hidden_item;
 
 	/* Align start_offset on 4-byte boundary. */
 
@@ -5759,9 +5815,11 @@ static void cb_notify_str_postprocess(packet_info *pinfo _U_,
 
 	/* Add hidden field so filter brings up any notify data */
 
-	if (hf_index != -1)
-		proto_tree_add_string_hidden(
+	if (hf_index != -1) {
+		hidden_item = proto_tree_add_string(
 			tree, hf_index, tvb, start_offset, len, s);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
 
 	g_free(s);
 }
@@ -5996,6 +6054,7 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     guint16 field)
 {
 	guint32 value1;
+     	proto_item *hidden_item;
 
 	switch (field) {
 
@@ -6070,9 +6129,10 @@ dissect_NOTIFY_INFO_DATA_job(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		proto_item_append_text(item, ": %d", value);
 
-		proto_tree_add_uint_hidden(
+		hidden_item = proto_tree_add_uint(
 			tree, job_notify_hf_index(field), tvb,
 			offset, 4, value);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		break;
 	}
@@ -6516,9 +6576,11 @@ static int SpoolssEnumPrinterDataEx_q(tvbuff_t *tvb, int offset,
 				      guint8 *drep)
 {
 	char *key_name;
+     	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 
@@ -6678,9 +6740,11 @@ static int SpoolssEnumPrinterDataEx_r(tvbuff_t *tvb, int offset,
 				   guint8 *drep)
 {
 	guint32 size, num_values;
+	proto_item *hidden_item;
 
-	proto_tree_add_uint_hidden(
+	hidden_item = proto_tree_add_uint(
 		tree, hf_printerdata, tvb, offset, 0, 1);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	/* Parse packet */
 

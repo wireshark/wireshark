@@ -900,7 +900,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   if ((protocol_data_1_global == PROTOCOL_DATA_1_DRAFT_7) &&
       (tag == PROTOCOL_DATA_1_DRAFT_7))
   {
-     proto_tree_add_uint_hidden(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
+     proto_item *hidden_item;
+     hidden_item = proto_tree_add_uint(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, tag);
+     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
      /* add tag and length to the m2ua tree */
      proto_tree_add_text(parameter_tree, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH,

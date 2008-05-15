@@ -2327,6 +2327,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
 {
   proto_tree *ack_tree = NULL, *recip_tree = NULL;
   proto_item *en = NULL, *rt = NULL;
+  proto_item *hidden_item;
   guint       prev_rec_no = 0;
   gint        rec_len, rec_no = 0;
   gint        boffset = offset;
@@ -2351,7 +2352,8 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   /* Subject Message Identifier */
   dmp.subj_id = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (ack_tree, hf_message_subj_id, tvb, offset, 2, FALSE);
-  proto_tree_add_item_hidden (ack_tree, hf_dmp_id, tvb, offset, 2, FALSE);
+  hidden_item = proto_tree_add_item (ack_tree, hf_dmp_id, tvb, offset, 2, FALSE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   offset += 2;
 
   if (use_seq_ack_analysis) {
@@ -2389,6 +2391,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *envelope_tree = NULL;
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL, *vf = NULL;
+  proto_item *hidden_item;
   guint8      envelope, prot_id, time_diff;
   guint16     subm_time, no_rec, value16;
   gint32      secs = 0;
@@ -2504,8 +2507,9 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   dmp.msg_id = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (envelope_tree, hf_envelope_msg_id, tvb, offset,
 		       2, FALSE);
-  proto_tree_add_item_hidden (envelope_tree, hf_dmp_id, tvb, offset,
+  hidden_item = proto_tree_add_item (envelope_tree, hf_dmp_id, tvb, offset,
 			      2, FALSE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   offset += 2;
 
   /* Submission Time */
@@ -3097,6 +3101,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *message_tree = NULL;
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL, *tr = NULL;
+  proto_item *hidden_item;
   guint8      message, dmp_sec_pol, dmp_sec_class, exp_time, dtg;
   gint32      secs = 0;
   gchar      *sec_cat = NULL;
@@ -3425,8 +3430,9 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     dmp.subj_id = tvb_get_ntohs (tvb, offset);
     proto_tree_add_item (message_tree, hf_message_subj_id, tvb, offset,
 			 2, FALSE);
-    proto_tree_add_item_hidden (message_tree, hf_dmp_id, tvb, offset,
+    hidden_item = proto_tree_add_item (message_tree, hf_dmp_id, tvb, offset,
 				2, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     offset += 2;
   }
 

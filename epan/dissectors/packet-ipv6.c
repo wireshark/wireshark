@@ -1414,7 +1414,8 @@ again:
     }
 
 #ifdef TEST_FINALHDR
-  proto_tree_add_uint_hidden(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
+  ti = proto_tree_add_uint(ipv6_tree, hf_ipv6_final, tvb, poffset, 1, nxt);
+  PROTO_ITEM_SET_HIDDEN(ti);
 #endif
 
   /* collect packet info */

@@ -332,6 +332,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 ctx_id = 0;
 	gcp_cmd_type_t cmd_type = GCP_CMD_NONE;
 	gcp_wildcard_t wild_term = GCP_WILDCARD_NONE;
+	proto_item *hidden_item;
 
 	top_tree=tree;
 	/* Initialize variables */
@@ -464,8 +465,10 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(message_tree, hf_megaco_version,tvb, ver_offset, ver_length, FALSE);
 			proto_tree_add_item(message_tree, hf_megaco_mId,tvb, mId_offset, mId_length, FALSE);
 		}else{
-			proto_tree_add_item_hidden(message_tree, hf_megaco_version,tvb, ver_offset, ver_length, FALSE);
-			proto_tree_add_item_hidden(message_tree, hf_megaco_mId,tvb, mId_offset, mId_length, FALSE);
+			hidden_item = proto_tree_add_item(message_tree, hf_megaco_version,tvb, ver_offset, ver_length, FALSE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			hidden_item = proto_tree_add_item(message_tree, hf_megaco_mId,tvb, mId_offset, mId_length, FALSE);
+			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 	}
 
@@ -2810,21 +2813,23 @@ dissect_megaco_errordescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
 	guint8				error[4];
 	gint 				tvb_next_offset, tvb_current_offset,tvb_len;
 	proto_item*			item;
+	proto_item*			hidden_item;
 
 	tvb_len				= tvb_length(tvb);
 	tokenlen			= 0;
-	tvb_next_offset		= 0;
-	tvb_current_offset	= 0;
+	tvb_next_offset			= 0;
+	tvb_current_offset		= 0;
 	tvb_len				= 0;
 
 	tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset , tvb_RBRKT, '=');
 	tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_current_offset +1);
 	tvb_get_nstringz0(tvb,tvb_current_offset,4,error);
 	error_code = atoi(error);
-	proto_tree_add_string_hidden(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
+	hidden_item = proto_tree_add_string(megaco_tree_command_line, hf_megaco_error_descriptor, tvb,
 					 		tvb_current_offset, 3,
 							tvb_format_text(tvb, tvb_current_offset,
 							3));
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	tokenlen =  (tvb_RBRKT) - tvb_previous_offset+1;
 

@@ -747,9 +747,12 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * Yes, we got a match.  Add the NLPID as a hidden item,
 	 * so you can, at least, filter on it.
 	 */
-	if (tree)
-		proto_tree_add_uint_hidden(fr_tree, hf_fr_nlpid,
-		    tvb, offset, 1, fr_nlpid );
+	if (tree) {
+		proto_item *hidden_item;
+		hidden_item = proto_tree_add_uint(fr_tree, hf_fr_nlpid,
+				    tvb, offset, 1, fr_nlpid );
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
+	}
 	return;
   }
 

@@ -158,6 +158,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti_main, *ti_hdr, *ti_trlr;
+    proto_item *hidden_item; 
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
     int offset = 0;
     guint    pktlen;
@@ -228,8 +229,9 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       MDSHDR_HEADER_SIZE, "MDS Header");
 
         mdshdr_tree_hdr = proto_item_add_subtree (ti_hdr, ett_mdshdr_hdr);
-        proto_tree_add_item_hidden (mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
+        hidden_item = proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
                                     MDSHDR_SIZE_BYTE, 0);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET, 
                              MDSHDR_SIZE_INT16, 0);
         proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_dstidx, tvb, MDSHDR_DIDX_OFFSET,
@@ -238,9 +240,10 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              MDSHDR_SIZE_INT16, 0);
         proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_vsan, tvb, MDSHDR_VSAN_OFFSET,
                              MDSHDR_SIZE_INT16, 0);
-        proto_tree_add_uint_hidden(mdshdr_tree_hdr, hf_mdshdr_span,
+        hidden_item = proto_tree_add_uint(mdshdr_tree_hdr, hf_mdshdr_span,
                                    tvb, MDSHDR_VSAN_OFFSET,
                                    MDSHDR_SIZE_BYTE, span_id);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         
         /* Add Mdshdr Trailer part */
         if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen) {

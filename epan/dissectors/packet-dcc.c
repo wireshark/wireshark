@@ -107,8 +107,9 @@ static gint ett_dcc_trace = -1;
 
 
 #define D_TARGET() \
-	proto_tree_add_item_hidden(dcc_tree, hf_dcc_target, tvb, \
+	hidden_item = proto_tree_add_item(dcc_tree, hf_dcc_target, tvb, \
 		offset, sizeof(DCC_TGTS), FALSE); \
+	PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), \
 		val_to_str(tvb_get_ntohl(tvb,offset), dcc_target_vals, "Targets (%u)")); \
 	offset += sizeof(DCC_TGTS); \
@@ -212,6 +213,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *dcc_tree, *dcc_optree, *dcc_opnumtree, *ti;
 	proto_tree *dcc_tracetree;
+	proto_item *hidden_item;
 	int offset = 0;
 	int client_is_le = 0;
 	int op = 0;

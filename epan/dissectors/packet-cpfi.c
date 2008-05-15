@@ -167,6 +167,7 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 dst_port = 0;
   proto_item *extra_item = NULL;
   proto_tree *extra_tree = NULL;
+  proto_item *hidden_item;
 
   /* add a tree for the header */
   if ( tree != NULL)
@@ -241,21 +242,33 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* For "real" TDAs (i.e. not for microTDAs), add hidden addresses to allow filtering */
     if ( src != 0 )
     {
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &src_instance);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_src_instance, tvb, 0, 1, &src_instance);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &src_board);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_src_board, tvb, 0, 1, &src_board);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &src_port);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_src_port, tvb, 0, 1, &src_port);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &src_instance);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_instance, tvb, 0, 1, &src_instance);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &src_board);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_board, tvb, 0, 1, &src_board);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &src_port);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_src_port, tvb, 0, 1, &src_port);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
     if ( dst != 0 )
     {
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &dst_instance);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_dst_instance, tvb, 0, 1, &dst_instance);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &dst_board);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_dst_board, tvb, 0, 1, &dst_board);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &dst_port);
-        proto_tree_add_bytes_hidden(extra_tree, hf_cpfi_t_dst_port, tvb, 0, 1, &dst_port);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_instance, tvb, 0, 1, &dst_instance);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_instance, tvb, 0, 1, &dst_instance);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_board, tvb, 0, 1, &dst_board);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_board, tvb, 0, 1, &dst_board);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_port, tvb, 0, 1, &dst_port);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        hidden_item = proto_tree_add_bytes(extra_tree, hf_cpfi_t_dst_port, tvb, 0, 1, &dst_port);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
     }
 
     /* add word 1 components to the protocol tree */

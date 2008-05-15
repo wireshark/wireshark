@@ -449,12 +449,14 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
    proto_tree *e_key_tree, *cia_tree, *ds_tree;
    proto_item *mcpi, *port_item, *net_item;
    proto_tree *mc_tree;
+   proto_item *hidden_item;
 
    /* Create a sub tree for the epath */
    path_tree = proto_item_add_subtree( epath_item, ett_path );
 
-   proto_tree_add_item_hidden(path_tree, hf_cip_epath,
-							   tvb, offset, path_length, TRUE );
+   hidden_item = proto_tree_add_item(path_tree, hf_cip_epath,
+				   tvb, offset, path_length, TRUE );
+   PROTO_ITEM_SET_HIDDEN(hidden_item);
 
    pathpos = 0;
 
@@ -904,7 +906,8 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
 
                   proto_item_append_text(epath_item, "%s", tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
-                  proto_tree_add_item_hidden( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, FALSE );
+                  hidden_item = proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, FALSE );
+                  PROTO_ITEM_SET_HIDDEN(hidden_item);
 
                   if( seg_size %2 )
                   {

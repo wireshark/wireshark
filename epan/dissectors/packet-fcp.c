@@ -399,10 +399,11 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     int len,
         add_len = 0;
     guint8 flags, rwflags, lun0;
-        guint16 lun=0xffff;
+    guint16 lun=0xffff;
     tvbuff_t *cdb_tvb;
     int tvb_len, tvb_rlen;
     itl_nexus_t *itl=NULL;
+    proto_item *hidden_item;
 
     /* Determine the length of the FCP part of the packet */
     flags = tvb_get_guint8 (tvb, offset+10);
@@ -416,7 +417,8 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         len = FCP_DEF_CMND_LEN;
     }
 
-    proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
+    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     lun0 = tvb_get_guint8 (tvb, offset);
 
@@ -500,15 +502,15 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
 static void
 dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-	/* 2 reserved bytes */
-	offset+=2;
+    /* 2 reserved bytes */
+    offset+=2;
 
-        /* rsp code */
-	proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, 0);
-	offset++;
+    /* rsp code */
+    proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, 0);
+    offset++;
 
-        /* 4 reserved bytes */
-	offset+=4;
+    /* 4 reserved bytes */
+    offset+=4;
 }
 
 static void
@@ -519,6 +521,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
            rsplen = 0;
     guint8 flags;
     guint8 status;
+    proto_item *hidden_item;
 
     status = tvb_get_guint8 (tvb, offset+11);
 
@@ -527,86 +530,87 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
                          val_to_str (status, scsi_status_val, "0x%x"));
     }
 
-    proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
+    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
+    /* 8 reserved bytes */
+    offset+=8;
 
-        /* 8 reserved bytes */
-        offset+=8;
+    /* retry delay timer */
+    proto_tree_add_item(tree, hf_fcp_retry_delay_timer, tvb, offset, 2, 0);
+    offset+=2;
 
-        /* retry delay timer */
-        proto_tree_add_item(tree, hf_fcp_retry_delay_timer, tvb, offset, 2, 0);
-        offset+=2;
+    /* flags */
+    flags = tvb_get_guint8 (tvb, offset);
+    dissect_rsp_flags(tree, tvb, offset);
+    offset++;
 
-        /* flags */
-        flags = tvb_get_guint8 (tvb, offset);
-        dissect_rsp_flags(tree, tvb, offset);
-        offset++;
+    /* scsi status code */
+    proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
+    dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, itl, tvb_get_guint8(tvb, offset));
+    offset++;
 
-        /* scsi status code */
-        proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
-        dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, itl, tvb_get_guint8(tvb, offset));
-        offset++;
+    /* residual count */
+    if(flags & 0x0e){
+        proto_tree_add_item(tree, hf_fcp_resid, tvb, offset, 4, 0);
+    }
+    offset+=4;
 
-        /* residual count */
-        if(flags & 0x0e){
-            proto_tree_add_item(tree, hf_fcp_resid, tvb, offset, 4, 0);
+    /* sense length */
+    if (flags & 0x2) {
+        snslen=tvb_get_ntohl(tvb, offset);
+        proto_tree_add_uint(tree, hf_fcp_snslen, tvb, offset, 4,
+                            snslen);
+    }
+    offset+=4;
+
+    /* response length */
+    if (flags & 0x1) {
+        rsplen=tvb_get_ntohl(tvb, offset);
+        proto_tree_add_uint(tree, hf_fcp_rsplen, tvb, offset, 4,
+                            rsplen);
+    }
+    offset+=4;
+
+    /* rsp_info */
+    if(rsplen){
+        tvbuff_t *rspinfo_tvb;
+
+        rspinfo_tvb=tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
+        dissect_fcp_rspinfo(tvb, tree, 0);
+
+        offset+=rsplen;
+    }
+
+    /* sense info */
+    if(snslen){
+        tvbuff_t *sns_tvb;
+
+        sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
+        dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
+                              snslen,
+                              fchdr->itlq, itl);
+
+        offset+=snslen;
+    }
+
+    /* bidir read resid (only present for bidirectional responses) */
+    if(flags&0x80){
+        if(flags&0x60){
+            proto_tree_add_item(tree, hf_fcp_bidir_resid, tvb, offset, 4, 0);
         }
         offset+=4;
-
-        /* sense length */
-        if (flags & 0x2) {
-            snslen=tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_fcp_snslen, tvb, offset, 4,
-                                 snslen);
-        }
-        offset+=4;
-
-        /* response length */
-        if (flags & 0x1) {
-            rsplen=tvb_get_ntohl(tvb, offset);
-            proto_tree_add_uint(tree, hf_fcp_rsplen, tvb, offset, 4,
-                                 rsplen);
-        }
-        offset+=4;
-
-        /* rsp_info */
-        if(rsplen){
-            tvbuff_t *rspinfo_tvb;
-
-            rspinfo_tvb=tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
-            dissect_fcp_rspinfo(tvb, tree, 0);
-
-            offset+=rsplen;
-        }
-
-        /* sense info */
-        if(snslen){
-            tvbuff_t *sns_tvb;
-
-            sns_tvb=tvb_new_subset(tvb, offset, MIN(snslen, tvb_length_remaining(tvb, offset)), snslen);
-            dissect_scsi_snsinfo (sns_tvb, pinfo, parent_tree, 0,
-                                  snslen,
-				  fchdr->itlq, itl);
-
-            offset+=snslen;
-        }
-
-        /* bidir read resid (only present for bidirectional responses) */
-        if(flags&0x80){
-            if(flags&0x60){
-                proto_tree_add_item(tree, hf_fcp_bidir_resid, tvb, offset, 4, 0);
-            }
-            offset+=4;
-        }
+    }
 }
 
 static void
 dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
 {
     int offset = 0;
+    proto_item *hidden_item;
 
-
-    proto_tree_add_uint_hidden(tree, hf_fcp_type, tvb, offset, 0, 0);
+    hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     proto_tree_add_item(tree, hf_fcp_data_ro, tvb, offset, 4, 0);
     proto_tree_add_item(tree, hf_fcp_burstlen, tvb, offset+4, 4, 0);

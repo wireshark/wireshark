@@ -446,7 +446,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hidden_item = proto_tree_add_ether(bpdu_tree, hf_bpdu_root_mac, tvb,
                                 BPDU_ROOT_IDENTIFIER + 2, 6,
                                 root_identifier_mac);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_text(bpdu_tree, tvb, BPDU_ROOT_IDENTIFIER, 8,
                         "Root Identifier: %d / %s",
                         root_identifier_bridge_priority,
@@ -460,7 +460,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     hidden_item= proto_tree_add_ether(bpdu_tree, hf_bpdu_bridge_mac, tvb,
                                 BPDU_BRIDGE_IDENTIFIER + 2, 6,
                                 bridge_identifier_mac);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_uint(bpdu_tree, hf_bpdu_port_id, tvb,
                         BPDU_PORT_IDENTIFIER, 2, port_identifier);
     message_age = tvb_get_ntohs(tvb, BPDU_MESSAGE_AGE) / 256.0;

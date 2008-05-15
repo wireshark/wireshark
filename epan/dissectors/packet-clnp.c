@@ -465,6 +465,7 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
   guint16 s, s1,s2,s3,s4;
   guint32 t1, t2, t3, t4;
   guint32 pref_max_tpdu_size;
+  proto_item *hidden_item;
 
   while (vp_length != 0) {
     code = tvb_get_guint8(tvb, offset);
@@ -664,13 +665,15 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 	 TSAP is not printable, add as bytes and hidden as string;
          otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
-	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
-     	proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
-		print_tsap(tvb_get_ptr(tvb, offset, length),length));
-        proto_tree_add_item_hidden(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
+          (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
+        proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
+                print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
       } else {
-     	proto_tree_add_string_hidden(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
-		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
+                print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, TRUE);
       }
       offset += length;
@@ -682,13 +685,15 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
 	 TSAP is not printable, add as bytes and hidden as string;
          otherwise vice-versa */
       if (tsap_display==TSAP_DISPLAY_STRING ||
-	 (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
-     	proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
-		print_tsap(tvb_get_ptr(tvb, offset, length),length));
-        proto_tree_add_item_hidden(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
+          (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
+        proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
+                print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
       } else {
-     	proto_tree_add_string_hidden(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
-		print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
+                print_tsap(tvb_get_ptr(tvb, offset, length),length));
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, TRUE);
       }
       offset += length;
