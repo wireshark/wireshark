@@ -309,6 +309,7 @@ static void
 dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
         proto_tree *ti = NULL, *tlv_fec_tree = NULL;
+        proto_item *hidden_item;
         guint16 index = 1, nil_index = 1, type, saved_type;
         int length, nil_length, pad;
         guint32 label;
@@ -377,8 +378,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
 		    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
 		    ip_to_str(tvb_get_ptr(tvb, offset + 12, 4)));
-		proto_tree_add_item_hidden(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
+		hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
 		    tvb, offset + 12, 4, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
 		    tvb, offset + 16, 4, FALSE);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
@@ -402,8 +404,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     "Extended Tunnel ID: 0x%s (%s)",
 		    tvb_bytes_to_str(tvb, offset + 24, 16),
                     ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset + 24, 16)));
-                proto_tree_add_item_hidden(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
+                hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
                     tvb, offset + 24, 16, FALSE);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
                     tvb, offset + 40, 16, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,

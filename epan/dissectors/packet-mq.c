@@ -2248,7 +2248,9 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									}
 									if (tree)
 									{
-										proto_tree_add_string_hidden(tree, hf_mq_md_hidden_lastformat, tvb, tMsgProps.iOffsetFormat, 8, (const char*)sFormat);
+										proto_item *hidden_item;
+										hidden_item = proto_tree_add_string(tree, hf_mq_md_hidden_lastformat, tvb, tMsgProps.iOffsetFormat, 8, (const char*)sFormat);
+										PROTO_ITEM_SET_HIDDEN(hidden_item);
 									}
 							}
 							if (check_col(pinfo->cinfo, COL_INFO))

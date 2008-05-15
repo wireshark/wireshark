@@ -400,7 +400,7 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
 		      int hf_pc_cluster, int hf_pc_member, int hf_dpc, int hf_pc)
 {
     guint32 pc;
-    proto_item *pc_item;
+    proto_item *pc_item, *hidden_item;
     proto_tree *pc_tree;
     char pc_string[MAX_STRUCTURED_PC_LENGTH];
 
@@ -415,10 +415,12 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
      */
     g_snprintf(pc_string, sizeof(pc_string), "%u", pc);
     proto_item_append_text(pc_item, " (%s)", pc_string);
-    proto_tree_add_string_hidden(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+    hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     g_snprintf(pc_string, sizeof(pc_string), "0x%x", pc);
     proto_item_append_text(pc_item, " (%s)", pc_string);
-    proto_tree_add_string_hidden(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+    hidden_item = proto_tree_add_string(tree, hf_pc_string, tvb, offset, ANSI_PC_LENGTH, pc_string);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     pc_tree = proto_item_add_subtree(pc_item, ett_pc);
 
@@ -427,11 +429,14 @@ dissect_mtp3_3byte_pc(tvbuff_t *tvb, guint offset, proto_tree *tree, gint ett_pc
     proto_tree_add_uint(pc_tree, hf_pc_member,  tvb, offset + ANSI_MEMBER_OFFSET,  ANSI_NCM_LENGTH, pc);
 
     /* add full integer values of DPC as hidden for filtering purposes */
-    if (hf_dpc)
-	proto_tree_add_uint_hidden(pc_tree, hf_dpc, tvb, offset, ANSI_PC_LENGTH, pc);
-    if (hf_pc)
-	proto_tree_add_uint_hidden(pc_tree, hf_pc,  tvb, offset, ANSI_PC_LENGTH, pc);
-
+    if (hf_dpc) {
+	hidden_item = proto_tree_add_uint(pc_tree, hf_dpc, tvb, offset, ANSI_PC_LENGTH, pc);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
+    if (hf_pc) {
+	hidden_item = proto_tree_add_uint(pc_tree, hf_pc,  tvb, offset, ANSI_PC_LENGTH, pc);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
 }
 
 static void
@@ -480,6 +485,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
 {
   guint32 label, dpc, opc;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
+  proto_item *hidden_item;
   proto_tree *label_tree;
   int *hf_dpc_string;
   int *hf_opc_string;
@@ -495,8 +501,10 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     opc = (label & ITU_OPC_MASK) >> 14;
     dpc =  label & ITU_DPC_MASK;
 
-    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
-    proto_tree_add_uint_hidden(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
+    hidden_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, opc);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_pc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     label_dpc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_dpc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
@@ -564,8 +572,10 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
     }
 
-    proto_tree_add_item_hidden(label_tree, hf_mtp3_japan_pc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, TRUE);
-    proto_tree_add_item_hidden(label_tree, hf_mtp3_japan_pc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    hidden_item = proto_tree_add_item(label_tree, hf_mtp3_japan_pc, tvb, ROUTING_LABEL_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(label_tree, hf_mtp3_japan_pc, tvb, JAPAN_OPC_OFFSET, JAPAN_PC_LENGTH, TRUE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (mtp3_use_japan_5_bit_sls) {
 	proto_tree_add_item(label_tree, hf_mtp3_japan_5_bit_sls, tvb, JAPAN_SLS_OFFSET, JAPAN_SLS_SPARE_LENGTH, TRUE);
