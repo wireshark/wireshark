@@ -228,7 +228,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     const char		*opcode_str;
     proto_tree		*slimp3_tree = NULL;
-    proto_item		*ti = NULL;
+    proto_item		*ti = NULL, *hidden_item;
     gint		i1;
     gint		offset = 0;
     guint16		opcode;
@@ -309,7 +309,8 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	* [12..17]   reserved
 	*/
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, FALSE);
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	    i1 = tvb_get_ntohl(tvb, offset+2);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4, "Uptime: %u sec (%u ticks)",
@@ -361,8 +362,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_DISPLAY:
 	if (tree) {
 
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_display,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_display,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	    /* Loop through the commands */
 	    i1 = 18;
@@ -461,8 +463,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_CONTROL:
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_control,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_control,
 				       tvb, offset+1, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Command: %s",
 				val_to_str(tvb_get_guint8(tvb, offset+1),
 					   slimp3_stream_control, "Unknown (0x%0x)"));
@@ -477,8 +480,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_HELLO:
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_hello,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_hello,
 				       tvb, offset+1, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (to_server) {
 		guint8 fw_ver = 0;
 		/* Hello response; client->server */
@@ -497,8 +501,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_I2C:
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_i2c,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_i2c,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (to_server) {
 		/* Hello response; client->server */
 		proto_tree_add_text(slimp3_tree, tvb, offset, -1,
@@ -521,8 +526,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_DATA_REQ:
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data_request,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data_request,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
 				"Requested offset: %d bytes.",
 				tvb_get_ntohs(tvb, offset+2)*2);
@@ -546,8 +552,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*  [18..]    MPEG data
 	*/
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (old_protocol) {
 	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
 				    "Length: %d bytes", 
@@ -594,8 +601,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_DISC_REQ:
 	if (tree) {
 	    guint8 fw_ver;
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_discover_request,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_discover_request,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1,
 				"Device ID: %d.", tvb_get_guint8(tvb, offset+1));
 	    fw_ver = tvb_get_guint8(tvb, offset+2);
@@ -612,8 +620,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case SLIMP3_DISC_RSP:
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_discover_response,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_discover_response,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4,
 				"Server Address: %s.",
 				ip_to_str(tvb_get_ptr(tvb, offset+2, 4)));
@@ -639,8 +648,9 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*  [12..17]  client MAC address (v1.3 and later)
 	*/
 	if (tree) {
-	    proto_tree_add_item_hidden(slimp3_tree, hf_slimp3_data_ack,
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data_ack,
 				       tvb, offset, 1, FALSE);
+	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
 				"Write Pointer: %d",
 				tvb_get_ntohs(tvb, offset+6) * 2);

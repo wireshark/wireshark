@@ -2734,8 +2734,10 @@ dissect_scsi_spc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              (flags & 0x10) >> 4, (flags & 0x08) >> 3,
                              (flags & 0x04) >> 2, (flags & 0x01));
         if (!((flags & 0x10) >> 4) && ((flags & 0x08) >> 3)) {
-            proto_tree_add_item_hidden (tree, hf_scsi_modesns_errrep, tvb,
+            proto_item *hidden_item;
+            hidden_item = proto_tree_add_item (tree, hf_scsi_modesns_errrep, tvb,
                                         offset+3, 1, 0);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
         else {
             proto_tree_add_item (tree, hf_scsi_modesns_errrep, tvb, offset+3, 1, 0);
@@ -4054,6 +4056,7 @@ dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
 static void
 dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
 {
+    proto_item *hidden_item;
     guint8 flags;
 
     flags = tvb_get_guint8 (tvb, offset);
@@ -4072,9 +4075,10 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
                              "Command-Specific Information: %s",
                              tvb_bytes_to_str (tvb, offset+8, 4));
     proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
-    proto_tree_add_item_hidden (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
-    proto_tree_add_item_hidden (sns_tree, hf_scsi_ascq, tvb, offset+13,
-                                    1, 0);
+    hidden_item = proto_tree_add_item (sns_tree, hf_scsi_asc, tvb, offset+12, 1, 0);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item (sns_tree, hf_scsi_ascq, tvb, offset+13, 1, 0);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, 0);
     proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
     proto_tree_add_text (sns_tree, tvb, offset+15, 3,

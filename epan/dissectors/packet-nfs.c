@@ -989,9 +989,10 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		proto_item *fh_item;
 
 		if(hidden){
-			fh_item=proto_tree_add_string_hidden(tree, hf_nfs_name, tvb,
+			fh_item=proto_tree_add_string(tree, hf_nfs_name, tvb,
 				fh_offset, 0, nns->name);
-		}else {
+			PROTO_ITEM_SET_HIDDEN(fh_item);
+		} else {
 			fh_item=proto_tree_add_string_format(tree, hf_nfs_name, tvb,
 				fh_offset, 0, nns->name, "Name: %s", nns->name);
 		}
@@ -999,8 +1000,9 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 		if(nns->full_name){
 			if(hidden){
-				fh_item=proto_tree_add_string_hidden(tree, hf_nfs_full_name, tvb,
+				fh_item=proto_tree_add_string(tree, hf_nfs_full_name, tvb,
 					fh_offset, 0, nns->name);
+				PROTO_ITEM_SET_HIDDEN(fh_item);
 			} else {
 				fh_item=proto_tree_add_string_format(tree, hf_nfs_full_name, tvb,
 					fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
@@ -1928,8 +1930,9 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			fhhash ^= (val >> 16) ^ val;
 		}
 		if(hidden){
-			fh_item=proto_tree_add_uint_hidden(tree, hf_nfs_fh_hash, tvb, offset,
+			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);
+			PROTO_ITEM_SET_HIDDEN(fh_item);
 		} else {
 			fh_item=proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);

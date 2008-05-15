@@ -257,7 +257,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
 {
     int old_offset=offset;
     proto_tree *tree = NULL;
-    proto_item *item = NULL;
+    proto_item *item = NULL, *hidden_item;
     guint8 len, i;
 
     if (parent_tree) {
@@ -271,7 +271,8 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     if (len>0) {
       proto_item_append_text(tree, " (%d):", len);
     }
-    proto_tree_add_uint_hidden(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
+    hidden_item = proto_tree_add_uint(tree, hf_pktc_list_of_ciphersuites_len, tvb, offset, 1, len);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     offset+=1;
 
     switch(doi){
@@ -582,7 +583,7 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 kmmid, doi, version;
     int offset=0;
     proto_tree *pktc_tree = NULL;
-    proto_item *item = NULL;
+    proto_item *item = NULL, *hidden_item;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");
@@ -605,8 +606,10 @@ dissect_pktc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* version */
     version=tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pktc_tree, tvb, offset, 1, "Version: %d.%d", (version>>4)&0x0f, (version)&0x0f);
-    proto_tree_add_uint_hidden(pktc_tree, hf_pktc_version_major, tvb, offset, 1, (version>>4)&0x0f);
-    proto_tree_add_uint_hidden(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
+    hidden_item = proto_tree_add_uint(pktc_tree, hf_pktc_version_major, tvb, offset, 1, (version>>4)&0x0f);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_uint(pktc_tree, hf_pktc_version_minor, tvb, offset, 1, (version)&0x0f);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     offset+=1;
 
     /* fill COL_INFO */

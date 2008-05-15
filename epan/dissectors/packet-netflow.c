@@ -2107,6 +2107,7 @@ v9_template_get(guint16 id, address * net_src, guint32 src_id)
 static int
 dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinfo)
 {
+	proto_item     *hidden_item;
 	int             startoffset = offset;
 	guint32         srcaddr, dstaddr;
 	guint8          mask;
@@ -2187,16 +2188,18 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinf
 				    "SrcMask: %u (prefix: %s/%u)",
 				    mask, getprefix(&srcaddr, mask),
 				    mask != 0 ? mask : 32);
-		proto_tree_add_uint_hidden(pdutree, hf_cflow_srcmask, tvb,
+		hidden_item = proto_tree_add_uint(pdutree, hf_cflow_srcmask, tvb,
 					   offset++, 1, mask);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		mask = tvb_get_guint8(tvb, offset);
 		proto_tree_add_text(pdutree, tvb, offset, 1,
 				    "DstMask: %u (prefix: %s/%u)",
 				    mask, getprefix(&dstaddr, mask),
 				    mask != 0 ? mask : 32);
-		proto_tree_add_uint_hidden(pdutree, hf_cflow_dstmask, tvb,
+		hidden_item = proto_tree_add_uint(pdutree, hf_cflow_dstmask, tvb,
 					   offset++, 1, mask);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		offset =
 		    flow_process_textfield(pdutree, tvb, offset, 2, "padding");

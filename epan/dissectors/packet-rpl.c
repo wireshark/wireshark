@@ -266,7 +266,7 @@ static void
 dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 rpl_len, rpl_type;
-	proto_item *ti;
+	proto_item *ti, *hidden_item;
 	proto_tree *rpl_tree;
 	tvbuff_t *next_tvb;
 
@@ -284,8 +284,9 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0, 
 			rpl_len, FALSE);
 		rpl_tree = proto_item_add_subtree(ti, ett_rpl);
-		proto_tree_add_uint_hidden(rpl_tree, hf_rpl_type, tvb, 2, 2,
+		hidden_item = proto_tree_add_uint(rpl_tree, hf_rpl_type, tvb, 2, 2,
 			rpl_type);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		next_tvb = tvb_new_subset(tvb, 0, -1, -1);
 		set_actual_length(next_tvb, rpl_len);
 		dissect_rpl_container(next_tvb, pinfo, rpl_tree);

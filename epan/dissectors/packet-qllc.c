@@ -140,8 +140,10 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Add the field for filtering purposes */
         if (tree) {
-            proto_tree_add_uint_hidden(qllc_tree, hf_qllc_control, tvb,
+            proto_item *hidden_item;
+            hidden_item = proto_tree_add_uint(qllc_tree, hf_qllc_control, tvb,
                     1, 1, ctrl);
+            PROTO_ITEM_SET_HIDDEN(hidden_item);
         }
     }
     else {

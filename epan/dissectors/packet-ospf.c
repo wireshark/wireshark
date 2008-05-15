@@ -990,7 +990,7 @@ static void
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ospf_tree = NULL;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *ospf_header_tree;
     guint8  version;
     guint8  packet_type;
@@ -1047,9 +1047,10 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    version);
 	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_MSG_TYPE],
 			    tvb, 1, 1, FALSE);
-	proto_tree_add_item_hidden(ospf_header_tree,
+	hidden_item = proto_tree_add_item(ospf_header_tree,
 				   ospf_filter[ospf_msg_type_to_filter(packet_type)],
 				   tvb, 1, 1, FALSE);
+	PROTO_ITEM_SET_HIDDEN(hidden_item);
  	proto_tree_add_text(ospf_header_tree, tvb, 2, 2, "Packet Length: %u",
 			    ospflen);
 	proto_tree_add_item(ospf_header_tree, ospf_filter[OSPFF_SRC_ROUTER],
@@ -1616,7 +1617,7 @@ static void
 dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		      guint32 length)
 {
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
     proto_tree *mpls_tree;
     proto_tree *tlv_tree;
     proto_tree *stlv_tree;
@@ -1637,8 +1638,9 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     
     ti = proto_tree_add_text(tree, tvb, offset, length,
 			     "MPLS Traffic Engineering LSA");
-    proto_tree_add_item_hidden(tree, ospf_filter[OSPFF_LS_MPLS],
+    hidden_item = proto_tree_add_item(tree, ospf_filter[OSPFF_LS_MPLS],
 			       tvb, offset, 2, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
     mpls_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls);
 
     while (length != 0) {
@@ -2211,7 +2213,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 		 gboolean disassemble_body)
 {
     proto_tree *ospf_lsa_tree;
-    proto_item *ti;
+    proto_item *ti, *hidden_item;
 
     guint8		 ls_type;
     guint16		 ls_length;
@@ -2254,9 +2256,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, ospf_filter[OSPFF_LS_TYPE], tvb,
 			offset + 3, 1, FALSE);
-    proto_tree_add_item_hidden(ospf_lsa_tree,
+    hidden_item = proto_tree_add_item(ospf_lsa_tree,
 			       ospf_filter[ospf_ls_type_to_filter(ls_type)], tvb,
 			       offset + 3, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     if (is_opaque(ls_type)) {
     	ls_id_type = tvb_get_guint8(tvb, offset + 4);

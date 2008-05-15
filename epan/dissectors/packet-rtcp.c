@@ -737,9 +737,10 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 											16, strbuf, ""));
 						if (rtcp_rtpfb_nack_blp & (1<<i)) {
 							proto_item *hidden_ti;
-							hidden_ti = proto_tree_add_uint_hidden(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
+							hidden_ti = proto_tree_add_uint(bitfield_tree, hf_rtcp_rtpfb_nack_pid,
 																   tvb, offset, 2,
 																   rtcp_rtpfb_nack_pid + i + 1);
+							PROTO_ITEM_SET_HIDDEN(hidden_ti);
 							proto_item_append_text(ti, "%d ", rtcp_rtpfb_nack_pid + i + 1);
 							nack_num_frames_lost ++;
 						}
