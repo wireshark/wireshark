@@ -317,9 +317,9 @@ File "${KFW_DIR}\bin\krb5_32.dll"
 !endif
 !ifdef GNUTLS_DIR
 File "${GNUTLS_DIR}\bin\libgcrypt-11.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-13.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-extra-13.dll"
-File "${GNUTLS_DIR}\bin\libgnutls-openssl-13.dll"
+File "${GNUTLS_DIR}\bin\libgnutls-26.dll"
+File "${GNUTLS_DIR}\bin\libgnutls-extra-26.dll"
+File "${GNUTLS_DIR}\bin\libgnutls-openssl-26.dll"
 File "${GNUTLS_DIR}\bin\libgpg-error-0.dll"
 File "${GNUTLS_DIR}\bin\libtasn1-3.dll"
 !endif

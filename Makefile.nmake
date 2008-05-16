@@ -699,7 +699,7 @@ process_libs:
 
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. gnutls-1.6.1-1.zip
+		. gnutls-2.3.8-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -792,6 +792,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/gettext-runtime-0.17-1
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.3.8-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
@@ -1001,9 +1002,9 @@ install-all: install-generated-files
 !ENDIF
 !IFDEF GNUTLS_DIR
 	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-13.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-13.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-13.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-26.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-26.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-26.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 !ENDIF
