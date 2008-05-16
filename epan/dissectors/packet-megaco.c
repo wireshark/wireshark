@@ -232,6 +232,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t sdp_handle;
 static dissector_handle_t h245_handle;
 static dissector_handle_t h248_handle;
+static dissector_handle_t h248_otp_handle;
 
 static gboolean keep_persistent_data = FALSE;
 
@@ -321,6 +322,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		tempchar;
 	gint		tvb_RBRKT, tvb_LBRKT,  RBRKT_counter, LBRKT_counter;
 	guint		token_index=0;
+	guint32		dword;
 
 	gcp_msg_t* msg = NULL;
 	gcp_trx_t* trx = NULL;
@@ -349,6 +351,19 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvb_LBRKT					= 0;
 	RBRKT_counter				= 0;
 	LBRKT_counter				= 0;
+
+	/* Check if H.248 in otp(Erlang) internal format 
+	 * XXX Needs improvment?
+	 * Ref:
+	 * http://www.erlang.org/doc/apps/megaco/part_frame.html 
+	 * 4.1 Internal form of messages
+	 * 4.2 The different encodings 
+	 */
+	dword = tvb_get_ntoh24(tvb,0);
+	if ((dword == 0x836803)&&(h248_otp_handle)){
+		call_dissector(h248_otp_handle, tvb, pinfo, tree); 
+		return;
+	}
 
 	msg = gcp_msg(pinfo, TVB_RAW_OFFSET(tvb), keep_persistent_data);
 
@@ -3288,6 +3303,7 @@ proto_reg_handoff_megaco(void)
 	sdp_handle = find_dissector("sdp");
 	h245_handle = find_dissector("h245dg");
 	h248_handle = find_dissector("h248");
+	h248_otp_handle = find_dissector("h248_otp");
 	data_handle = find_dissector("data");
 
 	if (!megaco_prefs_initialized) {
