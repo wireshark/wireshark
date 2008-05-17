@@ -113,13 +113,18 @@ static const value_string oicq_command_vals[] = {
  * pinfo - packet info
  * proto_tree - resolved protocol tree
  */
-static void
+static int
 dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *oicq_tree;
 	proto_item	*ti;
 	int offset = 0;
-	
+
+	/* Make sure this packet is for us */
+	if(match_strval(tvb_get_guint8(tvb, 0), oicq_flag_vals) == NULL &&
+	   match_strval(tvb_get_ntohs(tvb, 3), oicq_command_vals) == NULL)
+		return 0;
+
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "OICQ");
 
@@ -155,6 +160,8 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		
 		
 	}
+	
+	return tvb_length(tvb);
 }
 
 void
@@ -195,7 +202,7 @@ proto_reg_handoff_oicq(void)
 {
 	dissector_handle_t oicq_handle;
 
-	oicq_handle = create_dissector_handle(dissect_oicq, proto_oicq);
+	oicq_handle = new_create_dissector_handle(dissect_oicq, proto_oicq);
 	dissector_add("udp.port", UDP_PORT_OICQ, oicq_handle);
 }
 
