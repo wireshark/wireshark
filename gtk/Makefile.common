@@ -59,6 +59,7 @@ WIRESHARK_GTK_SRC = \
 	file_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
+	filter_utils.c	\
 	find_dlg.c	\
 	firewall_dlg.c	\
 	follow_ssl.c	\
@@ -222,6 +223,7 @@ noinst_HEADERS = \
 	file_dlg.h	\
 	fileset_dlg.h	\
 	filter_dlg.h	\
+	filter_utils.h	\
 	find_dlg.h	\
 	firewall_dlg.h	\
 	follow_ssl.h	\
