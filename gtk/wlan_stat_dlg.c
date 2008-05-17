@@ -47,32 +47,53 @@
 #include "../stat_menu.h"
 #include "../isprint.h"
 
-#include "gtk/main.h"
 #include "gtk/gtkglobals.h"
-#include "gtk/find_dlg.h"
-#include "gtk/color_dlg.h"
 #include "gtk/dlg_utils.h"
+#include "gtk/filter_utils.h"
 #include "gtk/gui_stat_menu.h"
 #include "gtk/gui_utils.h"
 #include "gtk/recent.h"
 #include "gtk/help_dlg.h"
 
-#include "image/clist_ascend.xpm"
-#include "image/clist_descend.xpm"
+enum {
+	BSSID_COLUMN,
+	CHANNEL_COLUMN,
+	SSID_COLUMN,
+	PERCENT_COLUMN,
+	BEACONS_COLUMN,
+	DATA_COLUMN,
+	PROBE_REQ_COLUMN,
+	PROBE_RESP_COLUMN,
+	AUTH_COLUMN,
+	DEAUTH_COLUMN,
+	OTHER_COLUMN,
+	PROTECTION_COLUMN,
+	PERCENT_TEXT_COLUMN,
+	TABLE_COLUMN,
+	NUM_COLUMNS
+};
 
-#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
+static const gchar *titles[] = { "BSSID", "Ch.", "SSID", "% Packets", "Beacons", "Data Packets", 
+				 "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Protection" };
 
-#define NUM_COLS 12
-static const gchar *titles[] = { "BSSID", "Channel", "SSID", "Beacons", "Data Packets", "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Percent", "Protection" };
+enum {
+	ADDRESS_COLUMN,
+	PERCENT_2_COLUMN,
+	DATA_SENT_COLUMN,
+	DATA_REC_COLUMN,
+	PROBE_REQ_2_COLUMN,
+	PROBE_RESP_2_COLUMN,
+	AUTH_2_COLUMN,
+	DEAUTH_2_COLUMN,
+	OTHER_2_COLUMN,
+	COMMENT_COLUMN,
+	PERCENT_TEXT_2_COLUMN,
+	DETAILS_COLUMN,
+	NUM_DETAIL_COLUMNS
+};
 
-#define NUM_DETAIL_COLS 10
-static const gchar *detail_titles[] = { "Address", "Data Sent", "Data Received", "Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Percent", "Comment" };
-
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
+static const gchar *detail_titles[] = { "Address", "% Packets", "Data Sent", "Data Received", 
+					"Probe Req", "Probe Resp", "Auth", "Deauth", "Other", "Comment" };
 
 typedef struct wlan_details_ep {
 	struct wlan_details_ep *next;
@@ -85,6 +106,8 @@ typedef struct wlan_details_ep {
 	guint32 data_received;
 	guint32 other;
 	guint32 number_of_packets;
+	GtkTreeIter iter;
+	gboolean iter_valid;
 } wlan_details_ep_t;
 
 typedef struct wlan_ep {
@@ -93,6 +116,8 @@ typedef struct wlan_ep {
 	struct _wlan_stats stats;
 	guint32 type[256];
 	guint32 number_of_packets;
+	GtkTreeIter iter;
+	gboolean iter_valid;
 	struct wlan_details_ep *details;
 } wlan_ep_t;
 
@@ -102,8 +127,8 @@ static GtkWidget  *wlanstat_name_lb = NULL;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _wlan_stat_t {
-	GtkWidget  *table;
-	GtkWidget  *details;
+	GtkTreeView  *table;
+	GtkTreeView  *details;
 	GtkWidget  *menu;
 	GtkWidget  *details_menu;
 	guint32    number_of_packets;
@@ -112,11 +137,6 @@ typedef struct _wlan_stat_t {
 	gboolean   resolve_names;
 	gboolean   use_dfilter;
 	gboolean   show_only_existing;
-	address    selected_bssid;
-	gboolean   selected_bssid_valid;
-	guint8     selected_ssid_len;
-	guchar     selected_ssid[MAX_SSID_LEN];
-	gboolean   selected_ssid_valid;
 	wlan_ep_t* ep_list;
 } wlanstat_t;
 
@@ -140,6 +160,7 @@ wlanstat_reset (void *phs)
 	wlan_ep_t* tmp = NULL;
 	char title[256];
 	GString *error_string;
+	GtkListStore *store;
 	const char *filter = NULL;
 
 	if (wlanstat_dlg_w != NULL) {
@@ -161,18 +182,20 @@ wlanstat_reset (void *phs)
 
 	if (wlan_stat->use_dfilter) {
 		if (filter && strlen(filter)) {
-			g_snprintf(title, 255, "WLAN Traffic Statistics - Filter: %s", filter);
+			g_snprintf(title, 255, "Network Overview  (filter: %s)", filter);
 		} else {
-			g_snprintf(title, 255, "WLAN Traffic Statistics - No Filter");
+			g_snprintf(title, 255, "Network Overview  (no filter)");
 		}
 	} else {
-		g_snprintf(title, 255, "WLAN Traffic Statistics");
+		g_snprintf(title, 255, "Network Overview");
 	}
-	gtk_label_set_text(GTK_LABEL(wlanstat_name_lb), title);
+	gtk_frame_set_label(GTK_FRAME(wlanstat_name_lb), title);
 
-	/* remove all entries from the clist */
-	gtk_clist_clear (GTK_CLIST(wlan_stat->table));
-	gtk_clist_clear (GTK_CLIST(wlan_stat->details));
+	/* remove all entries from the list */
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(wlan_stat->table));
+	gtk_list_store_clear(store);
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(wlan_stat->details));
+	gtk_list_store_clear(store);
 
 	if (!list)
 		return;
@@ -186,6 +209,22 @@ wlanstat_reset (void *phs)
 
 	wlan_stat->ep_list = NULL;
 	wlan_stat->number_of_packets = 0;
+}
+
+static void
+invalidate_detail_iters (wlanstat_t *hs)
+{
+	wlan_ep_t *ep = hs->ep_list;
+	wlan_details_ep_t *d_ep;
+
+	while (ep) {
+		d_ep = ep->details;
+		while (d_ep) {
+			d_ep->iter_valid = FALSE;
+			d_ep = d_ep->next;
+		}
+		ep = ep->next;
+	}
 }
 
 static wlan_ep_t* 
@@ -207,6 +246,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	memset(&ep->type, 0, sizeof (int) * 256);
 	ep->number_of_packets = 0;
 	ep->details = NULL;
+	ep->iter_valid = FALSE;
 	ep->next = NULL;
 
 	return ep;
@@ -232,6 +272,7 @@ alloc_wlan_details_ep (address *address)
 	d_ep->data_received = 0;
 	d_ep->other = 0;
 	d_ep->number_of_packets = 0;
+	d_ep->iter_valid = FALSE;
 	d_ep->next = NULL;
 
 	return d_ep;
@@ -240,29 +281,30 @@ alloc_wlan_details_ep (address *address)
 wlan_details_ep_t *
 get_details_ep (wlan_ep_t *te, address *address)
 {
-  wlan_details_ep_t *tmp, *d_te = NULL;
+	wlan_details_ep_t *tmp, *d_te = NULL;
 
-  if (!te->details) {
-    te->details = alloc_wlan_details_ep (address);
-    d_te = te->details;
-  } else {
-    for (tmp = te->details; tmp; tmp = tmp->next) {
-      if (!CMP_ADDRESS (&tmp->address, address)) {
-	d_te = tmp;
-	break;
-      }
-    }
+	if (!te->details) {
+		te->details = alloc_wlan_details_ep (address);
+		d_te = te->details;
+	} else {
+		for (tmp = te->details; tmp; tmp = tmp->next) {
+			if (!CMP_ADDRESS (&tmp->address, address)) {
+				d_te = tmp;
+				break;
+			}
+		}
     
-    if (!d_te) {
-      if ((d_te = alloc_wlan_details_ep (address)) != NULL) {
-	d_te->next = te->details;
-	te->details = d_te;
-      }
-    }
-  }
+		if (!d_te) {
+			if ((d_te = alloc_wlan_details_ep (address)) != NULL) {
+				d_te->next = te->details;
+				te->details = d_te;
+			}
+		}
+	}
 
-  g_assert (d_te != NULL);
-  return d_te;
+	g_assert (d_te != NULL);
+
+	return d_te;
 }
 
 static void
@@ -351,7 +393,7 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 			 * before we have a Beacon.
 			 */
 		 	wlan_ep_t *prev = NULL;
-
+			GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
 			for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
 				if (te->stats.ssid_len &&
 				    (te->stats.ssid_len == tmp->stats.ssid_len) &&
@@ -380,6 +422,9 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 						hs->ep_list = tmp->next;
 					}
 					dealloc_wlan_details_ep (tmp->details);
+					if (tmp->iter_valid) {
+						gtk_list_store_remove(store, &tmp->iter);
+					}
 					g_free (tmp);
 					break;
 				}
@@ -418,152 +463,20 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 }
 
 static void
-wlan_click_column_cb(GtkCList *clist, gint column, gpointer data)
-{
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
-
-	gtk_clist_freeze(clist);
-
-	for (i=0; i<NUM_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
-
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		clist->sort_type = GTK_SORT_ASCENDING;
-		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist, column);
-	}
-
-	gtk_clist_sort(clist);
-	gtk_clist_thaw(clist);
-}
-
-static void
-wlan_detail_click_column_cb(GtkCList *clist, gint column, gpointer data)
-{
-	column_arrows *col_arrows = (column_arrows *) data;
-	int i;
-
-	gtk_clist_freeze(clist);
-
-	for (i=0; i<NUM_DETAIL_COLS; i++) {
-		gtk_widget_hide(col_arrows[i].ascend_pm);
-		gtk_widget_hide(col_arrows[i].descend_pm);
-	}
-
-	if (column == clist->sort_column) {
-		if (clist->sort_type == GTK_SORT_ASCENDING) {
-			clist->sort_type = GTK_SORT_DESCENDING;
-			gtk_widget_show(col_arrows[column].descend_pm);
-		} else {
-			clist->sort_type = GTK_SORT_ASCENDING;
-			gtk_widget_show(col_arrows[column].ascend_pm);
-		}
-	} else {
-		clist->sort_type = GTK_SORT_ASCENDING;
-		gtk_widget_show(col_arrows[column].ascend_pm);
-		gtk_clist_set_sort_column(clist, column);
-	}
-
-	gtk_clist_sort(clist);
-	gtk_clist_thaw(clist);
-}
-
-static gint
-wlan_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-
-	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
-	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
-
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
-
-	switch(clist->sort_column){
-	case 0:
-	case 2:
-	case 11:
-		return g_ascii_strcasecmp (text1, text2);
-	case 1:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-	case 9:
-	case 10:
-		i1=atoi(text1);
-		i2=atoi(text2);
-		return i1-i2;
-	}
-	g_assert_not_reached();
-	return 0;
-}
-
-static gint
-wlan_detail_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
-{
-	char *text1 = NULL;
-	char *text2 = NULL;
-	int i1, i2;
-
-	const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
-	const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
-
-	text1 = GTK_CELL_TEXT (row1->cell[clist->sort_column])->text;
-	text2 = GTK_CELL_TEXT (row2->cell[clist->sort_column])->text;
-
-	switch(clist->sort_column){
-	case 0:
-	case 9:
-		return g_ascii_strcasecmp (text1, text2);
-	case 1:
-	case 2:
-	case 3:
-	case 4:
-	case 5:
-	case 6:
-	case 7:
-	case 8:
-		i1=atoi(&text1[(text1[0] == '(' ? 1 : 0)]);
-		i2=atoi(&text2[(text2[0] == '(' ? 1 : 0)]);
-		return i1-i2;
-	}
-	g_assert_not_reached();
-	return 0;
-}
-
-static void
-wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep)
+wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 {
 	wlan_details_ep_t *tmp = NULL;
-	char *str[NUM_DETAIL_COLS];
+	char address[256], comment[256], percent[256];
 	gboolean broadcast, basestation;
 	float f;
-	int row, i=0;
+	GtkListStore *store;
 
-	for (i = 0; i < NUM_DETAIL_COLS; i++) {
-		str[i] = g_malloc (sizeof(char[256]));
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->details));
+	if (clear) {
+		gtk_list_store_clear(store);
+		invalidate_detail_iters(hs);
 	}
-
-	/* clear list before printing */
-	gtk_clist_freeze(GTK_CLIST(hs->details));
-	gtk_clist_clear (GTK_CLIST(hs->details));
-	hs->num_details = 0;
+ 	hs->num_details = 0;
 
 	for(tmp = wlan_ep->details; tmp; tmp=tmp->next) {
 		broadcast = !(strcmp (get_addr_name(&tmp->address), "Broadcast"));
@@ -576,41 +489,38 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep)
 		}
 
 		if (hs->resolve_names) {
-			g_snprintf (str[0],  sizeof(char[256]),"%s", get_addr_name(&tmp->address));
+			g_snprintf (address, sizeof(address), "%s", get_addr_name(&tmp->address));
 		} else {
-			g_snprintf (str[0],  sizeof(char[256]),"%s", address_to_str(&tmp->address));
-		}
-		g_snprintf (str[1],  sizeof(char[256]),"%u", tmp->data_sent);
-		g_snprintf (str[2],  sizeof(char[256]),"%u", tmp->data_received);
-		if (broadcast) {
-			g_snprintf (str[3],  sizeof(char[256]),"(%u)", tmp->probe_req);
-		} else {
-			g_snprintf (str[3],  sizeof(char[256]),"%u", tmp->probe_req);
+			g_snprintf (address, sizeof(address), "%s", address_to_str(&tmp->address));
 		}
 		if (basestation) {
-			g_snprintf (str[4],  sizeof(char[256]),"(%u)", tmp->probe_rsp);
-			g_snprintf (str[5],  sizeof(char[256]),"(%u)", tmp->auth);
-			g_snprintf (str[6],  sizeof(char[256]),"(%u)", tmp->deauth);
-			g_snprintf (str[7],  sizeof(char[256]),"(%u)", tmp->other);
+			g_snprintf (comment, sizeof(comment), "Base station");
 		} else {
-			g_snprintf (str[4],  sizeof(char[256]),"%u", tmp->probe_rsp);
-			g_snprintf (str[5],  sizeof(char[256]),"%u", tmp->auth);
-			g_snprintf (str[6],  sizeof(char[256]),"%u", tmp->deauth);
-			g_snprintf (str[7],  sizeof(char[256]),"%u", tmp->other);
+			g_snprintf (comment, sizeof(comment), " ");
 		}
-		g_snprintf (str[8], sizeof(char[256]),"%.2f%%", f);
-		if (basestation) {
-			g_snprintf (str[9], sizeof(char[256]),"Base station");
-		} else {
-			g_snprintf (str[9], sizeof(char[256])," ");
+		g_snprintf (percent, sizeof(percent), "%.2f %%", f);
+
+		if (!tmp->iter_valid) {
+			gtk_list_store_append(store, &tmp->iter);
+			tmp->iter_valid = TRUE;
 		}
-		row = gtk_clist_append (GTK_CLIST(hs->details), str);
-		gtk_clist_set_row_data (GTK_CLIST(hs->details), row, tmp);
+		gtk_list_store_set(store, &tmp->iter,
+				   ADDRESS_COLUMN, address,
+				   PERCENT_2_COLUMN, f,
+				   DATA_SENT_COLUMN, tmp->data_sent,
+				   DATA_REC_COLUMN, tmp->data_received,
+				   PROBE_REQ_2_COLUMN, tmp->probe_req,
+				   PROBE_RESP_2_COLUMN, tmp->probe_rsp,
+				   AUTH_2_COLUMN, tmp->auth,
+				   DEAUTH_2_COLUMN, tmp->deauth,
+				   OTHER_2_COLUMN, tmp->other,
+				   COMMENT_COLUMN, comment,
+				   PERCENT_TEXT_2_COLUMN, percent,
+				   DETAILS_COLUMN, tmp,
+				   -1);
+
 		hs->num_details++;
 	}
-
-	gtk_clist_sort(GTK_CLIST(hs->details));
-	gtk_clist_thaw(GTK_CLIST(hs->details));
 }
 
 static void
@@ -619,24 +529,25 @@ wlanstat_draw(void *phs)
 	wlanstat_t *hs = (wlanstat_t *)phs;
 	wlan_ep_t* list = hs->ep_list, *tmp = 0;
 	guint32 data = 0, other = 0;
-	char *str[NUM_COLS];
+	char bssid[256], channel[256], ssid[256], percent[256];
 	gboolean broadcast;
 	float f;
-	int row, selected_row = -1, i;
+	GtkListStore *store;
+	GtkTreeSelection *sel;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
-	for (i = 0; i < NUM_COLS; i++) {
-		str[i] = g_malloc (sizeof(char[256]));
-	}
-
-	/* clear list before printing */
-	gtk_clist_freeze(GTK_CLIST(hs->table));
-	gtk_clist_clear (GTK_CLIST(hs->table));
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
 	hs->num_entries = 0;
 
 	for(tmp = list; tmp; tmp=tmp->next) {
 		broadcast = !(strcmp (get_addr_name(&tmp->bssid), "Broadcast"));
 
 		if (hs->show_only_existing && broadcast) {
+			if (tmp->iter_valid) {
+				gtk_list_store_remove(store, &tmp->iter);
+				tmp->iter_valid = FALSE;
+			}
 			continue;
 		}
 
@@ -647,83 +558,72 @@ wlanstat_draw(void *phs)
 		f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
 		if (hs->resolve_names) {
-			g_snprintf (str[0],  sizeof(char[256]),"%s", get_addr_name(&tmp->bssid));
+			g_snprintf (bssid, sizeof(bssid), "%s", get_addr_name(&tmp->bssid));
 		} else {
-			g_snprintf (str[0],  sizeof(char[256]),"%s", address_to_str(&tmp->bssid));
+			g_snprintf (bssid, sizeof(bssid), "%s", address_to_str(&tmp->bssid));
 		}
 		if (tmp->stats.channel) {
-			g_snprintf (str[1],  sizeof(char[256]),"%u", tmp->stats.channel);
+			g_snprintf (channel, sizeof(channel), "%u", tmp->stats.channel);
 		} else {
-			str[1][0] = '\0';
+			channel[0] = '\0';
 		}
 		if (tmp->stats.ssid_len == 0) {
-			g_snprintf (str[2],  sizeof(char[256]),"<Broadcast>");
+			g_snprintf (ssid, sizeof(ssid), "<Broadcast>");
 		} else if (tmp->stats.ssid_len == 1 && tmp->stats.ssid[0] == 0) {
-			g_snprintf (str[2],  sizeof(char[256]),"<Hidden>");
+			g_snprintf (ssid, sizeof(ssid), "<Hidden>");
 		} else {
-			g_snprintf (str[2],  sizeof(char[256]),"%s", format_text(tmp->stats.ssid, tmp->stats.ssid_len));
+			g_snprintf (ssid, sizeof(ssid), "%s", format_text(tmp->stats.ssid, tmp->stats.ssid_len));
 		}
-		g_snprintf (str[3],  sizeof(char[256]),"%u", tmp->type[0x08]);
-		g_snprintf (str[4],  sizeof(char[256]),"%u", data);
-		g_snprintf (str[5],  sizeof(char[256]),"%u", tmp->type[0x04]);
-		g_snprintf (str[6],  sizeof(char[256]),"%u", tmp->type[0x05]);
-		g_snprintf (str[7],  sizeof(char[256]),"%u", tmp->type[0x0B]);
-		g_snprintf (str[8],  sizeof(char[256]),"%u", tmp->type[0x0C]);
-		g_snprintf (str[9],  sizeof(char[256]),"%u", other);
-		g_snprintf (str[10], sizeof(char[256]),"%.2f%%", f);
-		g_snprintf (str[11], sizeof(char[256]),"%s", tmp->stats.protection);
-		row = gtk_clist_append (GTK_CLIST(hs->table), str);
-		if ((hs->selected_ssid_valid && 
-		     (hs->selected_ssid_len == tmp->stats.ssid_len) && 
-		     (memcmp(hs->selected_ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0)) ||
-		    (hs->selected_bssid_valid && !CMP_ADDRESS(&hs->selected_bssid, &tmp->bssid))) {
-			selected_row = row;
+		g_snprintf (percent, sizeof(percent), "%.2f %%", f);
+
+		if (!tmp->iter_valid) {
+			gtk_list_store_append(store, &tmp->iter);
+			tmp->iter_valid = TRUE;
 		}
-		gtk_clist_set_row_data (GTK_CLIST(hs->table), row, tmp);
+		gtk_list_store_set (store, &tmp->iter,
+				    BSSID_COLUMN, bssid,
+				    CHANNEL_COLUMN, channel,
+				    SSID_COLUMN, ssid,
+				    PERCENT_COLUMN, f,
+				    BEACONS_COLUMN, tmp->type[0x08],
+				    DATA_COLUMN, data,
+				    PROBE_REQ_COLUMN, tmp->type[0x04],
+				    PROBE_RESP_COLUMN, tmp->type[0x05],
+				    AUTH_COLUMN, tmp->type[0x0B],
+				    DEAUTH_COLUMN, tmp->type[0x0C],
+				    OTHER_COLUMN, other,
+				    PROTECTION_COLUMN, tmp->stats.protection,
+				    PERCENT_TEXT_COLUMN, percent,
+				    TABLE_COLUMN, tmp,
+				    -1);
+
 		hs->num_entries++;
 	}
 
-	if (selected_row != -1) {
-		wlan_ep_t *ep = gtk_clist_get_row_data (GTK_CLIST(hs->table), selected_row);
-		gtk_clist_select_row(GTK_CLIST(hs->table), selected_row, 0);
-		wlanstat_details (hs, ep);
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
+	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
+		wlan_ep_t *ep;
+	  
+		gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
+		wlanstat_details (hs, ep, FALSE);
 	}
-
-	gtk_clist_sort(GTK_CLIST(hs->table));
-	gtk_clist_thaw(GTK_CLIST(hs->table));
-
 }
 
 /* What to do when a list item is selected/unselected */
 static void
-wlan_select_cb(GtkWidget *w, gint row, gint col _U_, GdkEventButton *event _U_, gpointer data)
+wlan_select_cb(GtkTreeSelection *sel, gpointer data)
 {
 	wlanstat_t *hs = (wlanstat_t *)data;
-	wlan_ep_t *ep = gtk_clist_get_row_data (GTK_CLIST(w), row);
+	wlan_ep_t *ep;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
-	if (strcmp (get_addr_name(&ep->bssid), "Broadcast") == 0) {
-		memcpy (hs->selected_ssid, ep->stats.ssid, MAX_SSID_LEN);
-		hs->selected_ssid_len = ep->stats.ssid_len;
-		hs->selected_bssid_valid = FALSE;
-		hs->selected_ssid_valid = TRUE;
-	} else {
-		SE_COPY_ADDRESS (&hs->selected_bssid, &ep->bssid);
-		hs->selected_bssid_valid = TRUE;
-		hs->selected_ssid_valid = FALSE;
+	if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
+		gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
+		wlanstat_details (hs, ep, TRUE);
 	}
-
-	wlanstat_details (hs, ep);
 }
 
-static void
-wlan_unselect_cb(GtkWidget *w _U_, gint row _U_, gint col _U_, GdkEventButton *event _U_, gpointer data)
-{
-	wlanstat_t *hs = (wlanstat_t *)data;
-	hs->selected_bssid_valid = FALSE;
-	hs->selected_ssid_valid = FALSE;
-
-	gtk_clist_clear (GTK_CLIST(hs->details));
-}
 
 static void
 wlan_resolve_toggle_dest(GtkWidget *widget, gpointer data)
@@ -731,7 +631,6 @@ wlan_resolve_toggle_dest(GtkWidget *widget, gpointer data)
 	wlanstat_t *hs = (wlanstat_t *)data;
 
 	hs->resolve_names = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
-	gtk_clist_clear (GTK_CLIST(hs->details));
 
 	wlanstat_draw(hs);
 }
@@ -752,38 +651,59 @@ wlan_existing_toggle_dest(GtkWidget *widget, gpointer data)
 	wlanstat_t *hs = (wlanstat_t *)data;
 
 	hs->show_only_existing = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget));
-	gtk_clist_clear (GTK_CLIST(hs->details));
 
 	wlanstat_draw(hs);
+}
+
+static gboolean
+csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
+              gpointer data)
+{
+	GString *CSV_str = (GString *)data;
+	gchar   *table_text;
+	gint     table_value;
+	float    table_float;
+	int      i;
+
+	for (i=0; i<=PROTECTION_COLUMN; i++) {
+		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN || i == PROTECTION_COLUMN) {
+			gtk_tree_model_get(model, iter, i, &table_text, -1);
+			g_string_append(CSV_str, table_text);
+		} else if (i == PERCENT_COLUMN) {
+			gtk_tree_model_get(model, iter, i, &table_float, -1);
+			g_string_append_printf(CSV_str, "%.2f%%", table_float);
+		} else {
+			gtk_tree_model_get(model, iter, i, &table_value, -1);
+			g_string_append_printf(CSV_str, "%u", table_value);
+		}
+		if (i != PROTECTION_COLUMN)
+			g_string_append(CSV_str,",");
+	}
+	g_string_append(CSV_str,"\n");
+	
+	return FALSE;
 }
 
 static void
 wlan_copy_as_csv(GtkWindow *win _U_, gpointer data)
 {
-	int             i,j;
-	gchar           *table_entry;
+	int             i;
 	GString         *CSV_str = g_string_new("");
 	GtkClipboard    *cb;
-	GtkCList       *clist = GTK_CLIST(data);
+	GtkTreeView     *tree_view = GTK_TREE_VIEW(data);
+	GtkListStore    *store;
 
 	/* Add the column headers to the CSV data */
-	for (j=0; j<NUM_COLS; j++) {
-		g_string_append(CSV_str, titles[j]);
-		if (j != (NUM_COLS - 1))
+	for (i=0; i<=PROTECTION_COLUMN; i++) {
+		g_string_append(CSV_str, titles[i]);
+		if (i != PROTECTION_COLUMN)
 			g_string_append(CSV_str, ",");
 	}
 	g_string_append(CSV_str,"\n");
 
 	/* Add the column values to the CSV data */
-	for (i=0; i<clist->rows; i++) {
-		for (j=0; j<NUM_COLS; j++) {
-			gtk_clist_get_text(clist,i,j,&table_entry);
-			g_string_append(CSV_str,table_entry);
-			if (j != (NUM_COLS - 1))
-				g_string_append(CSV_str,",");
-		} 
-		g_string_append(CSV_str,"\n");
-	}
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(tree_view));
+	gtk_tree_model_foreach(GTK_TREE_MODEL(store), csv_handle, CSV_str);
 
 	/* Now that we have the CSV data, copy it into the default clipboard */
 	cb = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
@@ -813,167 +733,86 @@ win_destroy_cb (GtkWindow *win _U_, gpointer data)
 	  gtk_paned_get_position(GTK_PANED(wlanstat_pane));
 }
 
-/* Filter actions */
-#define ACTION_MATCH		0
-#define ACTION_PREPARE		1
-#define ACTION_FIND_FRAME	2
-#define ACTION_FIND_NEXT	3
-#define ACTION_FIND_PREVIOUS	4
-#define ACTION_COLORIZE		5
-
-/* Action type - says what to do with the filter */
-#define ACTYPE_SELECTED		0
-#define ACTYPE_NOT_SELECTED	1
-#define ACTYPE_AND_SELECTED	2
-#define ACTYPE_OR_SELECTED	3
-#define ACTYPE_AND_NOT_SELECTED	4
-#define ACTYPE_OR_NOT_SELECTED	5
-
-/* Encoded callback arguments */
-#define CALLBACK_MATCH(type)		((ACTION_MATCH<<8) | (type))
-#define CALLBACK_PREPARE(type)		((ACTION_PREPARE<<8) | (type))
-#define CALLBACK_FIND_FRAME(type)	((ACTION_FIND_FRAME<<8) | (type))
-#define CALLBACK_FIND_NEXT(type)	((ACTION_FIND_NEXT<<8) | (type))
-#define CALLBACK_FIND_PREVIOUS(type)	((ACTION_FIND_PREVIOUS<<8) | (type))
-#define CALLBACK_COLORIZE(type)		((ACTION_COLORIZE<<8) | (type))
-
-/* Extract components of callback argument */
-#define FILTER_ACTION(cb_arg)		(((cb_arg)>>8) & 0xff)
-#define FILTER_ACTYPE(cb_arg)		((cb_arg) & 0xff)
-
-static void
-wlan_apply_filter (guint callback_action, char *dirstr)
-{
- 	int action, type;
-	char str[256];
-	const char *current_filter;
-
-	action = FILTER_ACTION(callback_action);
-	type = FILTER_ACTYPE(callback_action);
-
-
-	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	switch(type){
-	case ACTYPE_SELECTED:
-		g_snprintf(str, 255, "%s", dirstr);
-		break;
-	case ACTYPE_NOT_SELECTED:
-		g_snprintf(str, 255, "!(%s)", dirstr);
-		break;
-	case ACTYPE_AND_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "%s", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_OR_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "%s", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_AND_NOT_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "!(%s)", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_OR_NOT_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "!(%s)", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
-		break;
-	}
-
-	switch(action){
-	case ACTION_MATCH:
-		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		main_filter_packets(&cfile, str, FALSE);
-		gdk_window_raise(top_level->window);
-		break;
-	case ACTION_PREPARE:
-		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		break;
-	case ACTION_FIND_FRAME:
-		find_frame_with_filter(str);
-		break;
-	case ACTION_FIND_NEXT:
-		find_previous_next_frame_with_filter(str, FALSE);
-		break;
-	case ACTION_FIND_PREVIOUS:
-		find_previous_next_frame_with_filter(str, TRUE);
-		break;
-	case ACTION_COLORIZE:
-		color_display_with_filter(str);
-		break;
-	}
-}
+/* Filter value */
+#define VALUE_BSSID_ONLY       0
+#define VALUE_SSID_ONLY        1
+#define VALUE_BSSID_AND_SSID   2
+#define VALUE_BSSID_OR_SSID    3
 
 static void
 wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int selection;
+	int value;
 	wlanstat_t *hs=(wlanstat_t *)callback_data;
-	char dirstr[128];
+	char *str = NULL;
 	wlan_ep_t *ep;
+	GtkTreeSelection *sel;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hs->table)->selection, 0));
-	if(selection>=(int)hs->num_entries){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No entry selected");
-		return;
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->table));
+	gtk_tree_selection_get_selected (sel, &model, &iter);
+	gtk_tree_model_get (model, &iter, TABLE_COLUMN, &ep, -1);
+
+	value = FILTER_EXTRA(callback_action);
+	
+	switch (value) {
+	case VALUE_BSSID_ONLY:
+		str = g_strdup_printf("wlan.bssid==%s", address_to_str(&ep->bssid));
+		break;
+	case VALUE_SSID_ONLY:
+		str = g_strdup_printf("wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
+		break;
+	case VALUE_BSSID_AND_SSID:
+		str = g_strdup_printf("wlan.bssid=%s && wlan_mgt.ssid==\"%s\"",
+				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+		break;
+	case VALUE_BSSID_OR_SSID:
+		str = g_strdup_printf("wlan.bssid=%s || wlan_mgt.ssid==\"%s\"",
+				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
+		break;
 	}
 
-	ep = gtk_clist_get_row_data (GTK_CLIST(hs->table), selection);
+	apply_selected_filter (callback_action, str);
 
-	if (strcmp (get_addr_name(&ep->bssid), "Broadcast") == 0) {
-		g_snprintf(dirstr, 127, "wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
-	} else {
-		g_snprintf(dirstr, 127, "wlan.bssid==%s", address_to_str(&ep->bssid));
-	}
-
-	wlan_apply_filter (callback_action, dirstr);
+	g_free (str);
 }
 
 static void
 wlan_details_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int selection;
 	wlanstat_t *hs=(wlanstat_t *)callback_data;
-	char dirstr[128];
+	char *str = NULL;
 	wlan_details_ep_t *ep;
+	GtkTreeSelection *sel;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
-	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(hs->details)->selection, 0));
-	if(selection>=(int)hs->num_details){
-		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No entry selected");
-		return;
-	}
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(hs->details));
+	gtk_tree_selection_get_selected (sel, &model, &iter);
+	gtk_tree_model_get (model, &iter, DETAILS_COLUMN, &ep, -1);
 
-	ep = gtk_clist_get_row_data (GTK_CLIST(hs->details), selection);
+	str = g_strdup_printf("wlan.addr==%s", address_to_str(&ep->address));
 
-	g_snprintf(dirstr, 127, "wlan.addr==%s", address_to_str(&ep->address));
+	apply_selected_filter (callback_action, str);
 
-	wlan_apply_filter (callback_action, dirstr);
+	g_free (str);
 }
 
 static gint
 wlan_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
-	gint row;
-	gint column;
+	GtkTreeSelection *sel;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
 	/* To qoute the "Gdk Event Structures" doc:
 	 * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		/* if this is a right click on one of our columns, select it and popup the context menu */
-		if(gtk_clist_get_selection_info(GTK_CLIST(et->table),
-						(gint) (((GdkEventButton *)event)->x),
-						(gint) (((GdkEventButton *)event)->y),
-						&row, &column)) {
-			gtk_clist_unselect_all(GTK_CLIST(et->table));
-			gtk_clist_select_row(GTK_CLIST(et->table), row, -1);
-		  
+		/* If this is a right click on one of our columns, popup the context menu */
+		sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(et->table));
+		if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
 			gtk_menu_popup(GTK_MENU(et->menu), NULL, NULL, NULL, NULL,
 				       bevent->button, bevent->time);
 		}
@@ -986,47 +825,160 @@ static GtkItemFactoryEntry wlan_list_menu_items[] =
 {
 	/* Match */
 	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED), NULL, NULL,},
-	{"/Apply as Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED), NULL, NULL,},
-	{"/Apply as Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED), NULL, NULL,},
-	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED), NULL, NULL,},
-	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED), NULL, NULL,},
-	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED), NULL, NULL,},
+	{"/Apply as Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Apply as Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/Not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/Not Selected/SID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/Not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/Not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Apply as Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/... and Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... and Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... and Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/... and Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Apply as Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/... or Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... or Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... or Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/... or Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Apply as Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/... and not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... and not Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... and not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/... and not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Apply as Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Apply as Filter/... or not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... or not Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Apply as Filter/... or not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Apply as Filter/... or not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 
 	/* Prepare */
 	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED), NULL, NULL,},
-	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED), NULL, NULL,},
-	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED), NULL, NULL,},
-	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED), NULL, NULL,},
-	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED), NULL, NULL,},
-	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED), NULL, NULL,},
+	{"/Prepare a Filter/Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Prepare a Filter/Not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/Not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/Not Selected/SID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/Not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/Not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... and Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/... and Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... and Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... and Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... and Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... or Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/... or Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... or Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... or Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... or Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... and not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/... and not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... and not Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... and not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... and not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... or not Selected", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Prepare a Filter/... or not Selected/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... or not Selected/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Prepare a Filter/... or not Selected/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Prepare a Filter/... or not Selected/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 
 	/* Find Frame */
 	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
-	{"/Find Frame/Find Frame", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED), NULL, NULL,},
+	{"/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Find Frame/Find Frame/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Frame/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Frame/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Find Frame/Find Frame/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 	/* Find Next */
-	{"/Find Frame/Find Next", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED), NULL, NULL,},
+	{"/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Find Frame/Find Next/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Next/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Next/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Find Frame/Find Next/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 	/* Find Previous */
-	{"/Find Frame/Find Previous", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED), NULL, NULL,},
-	/* Colorize Host Traffic */
-	{"/Colorize Host Traffic", NULL,
-		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED), NULL, NULL,}
+	{"/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Find Frame/Find Previous/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Previous/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Find Frame/Find Previous/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Find Frame/Find Previous/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
+
+	/* Colorize */
+	{"/Colorize", NULL, NULL, 0, "<Branch>", NULL,},
+	{"/Colorize/BSSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_ONLY), NULL, NULL,},
+	{"/Colorize/SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_SSID_ONLY), NULL, NULL,},
+	{"/Colorize/BSSID and SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_AND_SSID), NULL, NULL,},
+	{"/Colorize/BSSID or SSID", NULL,
+		GTK_MENU_FUNC(wlan_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, VALUE_BSSID_OR_SSID), NULL, NULL,},
 
 };
 
@@ -1047,20 +999,16 @@ static gint
 wlan_details_show_popup_menu_cb(void *widg _U_, GdkEvent *event, wlanstat_t *et)
 {
 	GdkEventButton *bevent = (GdkEventButton *)event;
-	gint row;
-	gint column;
+	GtkTreeSelection *sel;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
 	/* To qoute the "Gdk Event Structures" doc:
 	 * "Normally button 1 is the left mouse button, 2 is the middle button, and 3 is the right button" */
 	if(event->type==GDK_BUTTON_PRESS && bevent->button==3){
-		/* if this is a right click on one of our columns, select it and popup the context menu */
-		if(gtk_clist_get_selection_info(GTK_CLIST(et->details),
-						(gint) (((GdkEventButton *)event)->x),
-						(gint) (((GdkEventButton *)event)->y),
-						&row, &column)) {
-			gtk_clist_unselect_all(GTK_CLIST(et->details));
-			gtk_clist_select_row(GTK_CLIST(et->details), row, -1);
-
+		/* if this is a right click on one of our columns, popup the context menu */
+		sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(et->details));
+		if (gtk_tree_selection_get_selected (sel, &model, &iter)) {
 			gtk_menu_popup(GTK_MENU(et->details_menu), NULL, NULL, NULL, NULL,
 				       bevent->button, bevent->time);
 		}
@@ -1074,46 +1022,47 @@ static GtkItemFactoryEntry wlan_details_list_menu_items[] =
 	/* Match */
 	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0), NULL, NULL,},
 	{"/Apply as Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
 	{"/Apply as Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
 	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
 	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
 	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
 	/* Prepare */
 	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0), NULL, NULL,},
 	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0), NULL, NULL,},
 	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0), NULL, NULL,},
 	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0), NULL, NULL,},
 	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0), NULL, NULL,},
 	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0), NULL, NULL,},
 
 	/* Find Frame */
 	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Find Frame/Find Frame", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0), NULL, NULL,},
 	/* Find Next */
 	{"/Find Frame/Find Next", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED), NULL, NULL,},
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0), NULL, NULL,},
 	/* Find Previous */
 	{"/Find Frame/Find Previous", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED), NULL, NULL,},
-	/* Colorize Host Traffic */
-	{"/Colorize Host Traffic", NULL,
-		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED), NULL, NULL,}
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0), NULL, NULL,},
+
+	/* Colorize WLAN Address */
+	{"/Colorize WLAN Address", NULL,
+		GTK_MENU_FUNC(wlan_details_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0), NULL, NULL,}
 
 };
 
@@ -1133,23 +1082,28 @@ wlan_details_create_popup_menu(wlanstat_t *hs)
 static void
 wlanstat_dlg_create (void)
 {
-	wlanstat_t *hs;
-	GString *error_string;
-	GtkWidget  *scrolled_window;
-	GtkWidget *bbox;
-	GtkWidget  *vbox;
-	GtkWidget  *hbox;
-	GtkWidget *resolv_cb;
-	GtkWidget *filter_cb;
-	GtkWidget *existing_cb;
-	GtkWidget *close_bt;
-	GtkWidget *help_bt;
-	GtkTooltips *tooltips = gtk_tooltips_new();
-	GtkWidget *copy_bt;
-	column_arrows *col_arrows;
-	GtkWidget *column_lb;
+	wlanstat_t    *hs;
+	GString       *error_string;
+	GtkWidget     *scrolled_window;
+	GtkWidget     *bbox;
+	GtkWidget     *vbox;
+	GtkWidget     *hbox;
+	GtkWidget     *frame;
+	GtkWidget     *selected_vb;
+	GtkWidget     *resolv_cb;
+	GtkWidget     *filter_cb;
+	GtkWidget     *existing_cb;
+	GtkWidget     *close_bt;
+	GtkWidget     *help_bt;
+	GtkWidget     *copy_bt;
+	GtkTooltips   *tooltips = gtk_tooltips_new();
+	GtkListStore  *store;
+	GtkTreeView       *tree_view;
+	GtkCellRenderer   *renderer;
+	GtkTreeViewColumn *column;
+	GtkTreeSelection  *sel;
 	char title[256];
-	int i;
+	gint i;
 
 	hs=g_malloc (sizeof(wlanstat_t));
 	hs->num_entries = 0;
@@ -1166,109 +1120,127 @@ wlanstat_dlg_create (void)
 
 	vbox=gtk_vbox_new (FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(wlanstat_dlg_w), vbox);
-	gtk_container_set_border_width (GTK_CONTAINER(vbox), 12);
-
-	wlanstat_name_lb = gtk_label_new ("WLAN Traffic Statistics");
-	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_name_lb, FALSE, FALSE, 0);
+	gtk_container_set_border_width (GTK_CONTAINER(vbox), 6);
 
 	wlanstat_pane = gtk_vpaned_new();
 	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_pane, TRUE, TRUE, 0);
 	gtk_widget_show(wlanstat_pane);
 
 	/* init a scrolled window for overview */
+	wlanstat_name_lb = gtk_frame_new("Network Overview");
+	gtk_paned_pack1(GTK_PANED(wlanstat_pane), wlanstat_name_lb, FALSE, TRUE);
+	selected_vb = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(wlanstat_name_lb), selected_vb);
+	gtk_container_border_width(GTK_CONTAINER(selected_vb), 5);
+
 	scrolled_window = scrolled_window_new (NULL, NULL);
-	gtk_paned_pack1(GTK_PANED(wlanstat_pane), scrolled_window, TRUE, TRUE);
+	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
+					    GTK_SHADOW_IN);
 	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 
-	hs->table = gtk_clist_new (NUM_COLS);
-	gtk_container_add (GTK_CONTAINER (scrolled_window), hs->table);
+	store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+				   G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, 
+				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
+				   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+	hs->table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+	gtk_container_add(GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->table));
+	g_object_unref(G_OBJECT(store));
 
-	gtk_clist_column_titles_show (GTK_CLIST (hs->table));
+	tree_view = hs->table;
+	gtk_tree_view_set_headers_visible(tree_view, TRUE);
+	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
-	gtk_clist_set_compare_func(GTK_CLIST(hs->table), wlan_sort_column);
-	gtk_clist_set_sort_column(GTK_CLIST(hs->table), 2);
-	gtk_clist_set_sort_type(GTK_CLIST(hs->table), GTK_SORT_ASCENDING);
-
-	/* sort by column feature */
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_COLS);
-
-	for (i=0; i<NUM_COLS; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, 
-				 GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-
-		col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 
-				 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 
-				 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		/* make ssid be the default sort order */
-		if (i == 2) {
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
-		if (i == 0 || i == 2 || i == 11) {
-			gtk_clist_set_column_justification(GTK_CLIST(hs->table), i, GTK_JUSTIFY_LEFT);
+	for (i = 0; i <= PROTECTION_COLUMN; i++) {
+		if (i == PERCENT_COLUMN) {
+			renderer = gtk_cell_renderer_progress_new();
+			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
+									  "value", i,
+									  "text", PERCENT_TEXT_COLUMN,
+									  NULL);
+			gtk_tree_view_column_set_expand(column, TRUE);
 		} else {
-			gtk_clist_set_column_justification(GTK_CLIST(hs->table), i, GTK_JUSTIFY_RIGHT);
+			renderer = gtk_cell_renderer_text_new();
+			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
+									  "text", i, 
+									  NULL);
 		}
-		gtk_clist_set_column_auto_resize(GTK_CLIST(hs->table), i, TRUE);
-		gtk_clist_set_column_widget(GTK_CLIST(hs->table), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
+
+		if (i != BSSID_COLUMN && i != SSID_COLUMN && i != PERCENT_COLUMN && i != PROTECTION_COLUMN) {
+			/* Align all number columns */
+			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+		}
+		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_column_set_resizable(column, TRUE);
+		gtk_tree_view_column_set_sort_column_id(column, i);
+		gtk_tree_view_append_column(tree_view, column);
+
+		if (i == SSID_COLUMN) {
+			/* Sort the SSID column */
+			gtk_tree_view_column_clicked(column);
+		}
 	}
 
-	g_signal_connect(GTK_CLIST(hs->table), "click-column", G_CALLBACK(wlan_click_column_cb), col_arrows);
-	g_signal_connect(GTK_CLIST(hs->table), "select-row", G_CALLBACK(wlan_select_cb), hs);
-	g_signal_connect(GTK_CLIST(hs->table), "unselect-row", G_CALLBACK(wlan_unselect_cb), hs);
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->table));
+	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
+	g_signal_connect(sel, "changed", G_CALLBACK(wlan_select_cb), hs);
 
 	/* init a scrolled window for details */
+	frame = gtk_frame_new("Selected Network");
+	gtk_paned_pack2(GTK_PANED(wlanstat_pane), frame, FALSE, TRUE);
+	selected_vb = gtk_vbox_new(FALSE, 0);
+	gtk_container_add(GTK_CONTAINER(frame), selected_vb);
+	gtk_container_border_width(GTK_CONTAINER(selected_vb), 5);
+
 	scrolled_window = scrolled_window_new (NULL, NULL);
-	gtk_paned_pack2(GTK_PANED(wlanstat_pane), scrolled_window, FALSE, TRUE);
+	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
+					    GTK_SHADOW_IN);
+	store = gtk_list_store_new(NUM_DETAIL_COLUMNS, G_TYPE_STRING, G_TYPE_FLOAT,
+				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
+				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING,
+				   G_TYPE_STRING, G_TYPE_POINTER);
+	hs->details = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+	gtk_container_add (GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->details));
+	g_object_unref(G_OBJECT(store));
 
-	hs->details = gtk_clist_new (NUM_DETAIL_COLS);
-	gtk_container_add (GTK_CONTAINER (scrolled_window), hs->details);
+	tree_view = hs->details;
 
-	gtk_clist_column_titles_show (GTK_CLIST (hs->details));
+	gtk_tree_view_set_headers_visible(tree_view, TRUE);
+	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
-	gtk_clist_set_compare_func(GTK_CLIST(hs->details), wlan_detail_sort_column);
-	gtk_clist_set_sort_column(GTK_CLIST(hs->details), 0);
-	gtk_clist_set_sort_type(GTK_CLIST(hs->details), GTK_SORT_ASCENDING);
-
-	/* sort by column feature */
-	col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * NUM_DETAIL_COLS);
-
-	for (i=0; i<NUM_DETAIL_COLS; i++) {
-		col_arrows[i].table = gtk_table_new(2, 2, FALSE);
-		gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
-		column_lb = gtk_label_new(detail_titles[i]);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2, 
-				 GTK_SHRINK, GTK_SHRINK, 0, 0);
-		gtk_widget_show(column_lb);
-
-		col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 
-				 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
-		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 
-				 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		/* make ssid be the default sort order */
-		if (i == 0) {
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
-		if (i == 0 || i == 9) {
-			gtk_clist_set_column_justification(GTK_CLIST(hs->details), i, GTK_JUSTIFY_LEFT);
+	for (i = 0; i <= COMMENT_COLUMN; i++) {
+		if (i == PERCENT_2_COLUMN) {
+			renderer = gtk_cell_renderer_progress_new();
+			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
+									  "value", i,
+									  "text", PERCENT_TEXT_2_COLUMN,
+									  NULL);
+			gtk_tree_view_column_set_expand(column, TRUE);
 		} else {
-			gtk_clist_set_column_justification(GTK_CLIST(hs->details), i, GTK_JUSTIFY_RIGHT);
+			renderer = gtk_cell_renderer_text_new();
+			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
+									  "text", i, 
+									  NULL);
 		}
-		gtk_clist_set_column_auto_resize(GTK_CLIST(hs->details), i, TRUE);
-		gtk_clist_set_column_widget(GTK_CLIST(hs->details), i, col_arrows[i].table);
-		gtk_widget_show(col_arrows[i].table);
+
+		if (i != ADDRESS_COLUMN && i != PERCENT_2_COLUMN && i != COMMENT_COLUMN) {
+			/* Align all number columns */
+			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+		}
+		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_column_set_resizable(column, TRUE);
+		gtk_tree_view_column_set_sort_column_id(column, i);
+		gtk_tree_view_append_column(tree_view, column);
+
+		if (i == ADDRESS_COLUMN) {
+			/* Sort the Address column */
+			gtk_tree_view_column_clicked(column);
+		}
 	}
 
-	g_signal_connect(GTK_CLIST(hs->details), "click-column", G_CALLBACK(wlan_detail_click_column_cb), col_arrows);
+	sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(hs->table));
+	gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 
 	/* create popup menu for this table */
 	wlan_create_popup_menu(hs);
@@ -1320,6 +1292,7 @@ wlanstat_dlg_create (void)
 	window_set_cancel_button (wlanstat_dlg_w, close_bt, window_cancel_button_cb);
 
 	copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
+/* 	gtk_button_set_label(GTK_BUTTON(copy_bt), "Copy Overview"); */
 	gtk_tooltips_set_tip(tooltips, copy_bt, 
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
