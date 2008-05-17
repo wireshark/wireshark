@@ -45,6 +45,7 @@
 #include "../color.h"
 
 #include "gtk/expert_comp_table.h"
+#include "gtk/filter_utils.h"
 #include "gtk/find_dlg.h"
 #include "gtk/color_dlg.h"
 #include "gtk/main.h"
@@ -52,8 +53,6 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/webbrowser.h"
 
-
-#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define SORT_ALPHABETICAL 0
 
@@ -117,36 +116,6 @@ static gint find_summary_data(error_equiv_table *err, const expert_info_t *exper
     }
     return -1;
 }
-
-/* Filter actions */
-#define ACTION_MATCH		0
-#define ACTION_PREPARE		1
-#define ACTION_FIND_FRAME	2
-#define ACTION_FIND_NEXT	3
-#define ACTION_FIND_PREVIOUS	4
-#define ACTION_COLORIZE		5
-#define ACTION_WEB_LOOKUP	6
-
-/* Action type - says what to do with the filter */
-#define	ACTYPE_SELECTED		0
-#define ACTYPE_NOT_SELECTED	1
-#define ACTYPE_AND_SELECTED	2
-#define ACTYPE_OR_SELECTED	3
-#define ACTYPE_AND_NOT_SELECTED	4
-#define ACTYPE_OR_NOT_SELECTED	5
-
-/* Encoded callback arguments */
-#define CALLBACK_MATCH(type)		((ACTION_MATCH<<8) | (type))
-#define CALLBACK_PREPARE(type)		((ACTION_PREPARE<<8) | (type))
-#define CALLBACK_FIND_FRAME(type)	((ACTION_FIND_FRAME<<8) | (type))
-#define CALLBACK_FIND_NEXT(type)	((ACTION_FIND_NEXT<<8) | (type))
-#define CALLBACK_FIND_PREVIOUS(type)	((ACTION_FIND_PREVIOUS<<8) | (type))
-#define CALLBACK_COLORIZE(type)		((ACTION_COLORIZE<<8) | (type))
-#define CALLBACK_WEB_LOOKUP		(ACTION_WEB_LOOKUP<<8)
-
-/* Extract components of callback argument */
-#define FILTER_ACTION(cb_arg)		(((cb_arg)>>8) & 0xff)
-#define FILTER_ACTYPE(cb_arg)		((cb_arg) & 0xff)
 
 static void
 error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
@@ -217,16 +186,28 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
             break;
             /* the remaining cases will only exist if the expert item exists so no need to check */
         case ACTYPE_AND_SELECTED:
-            g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
+            if ((!current_filter) || (0 == strlen(current_filter)))
+                g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
+            else
+                g_snprintf(str, 255, "(%s) && (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_OR_SELECTED:
-            g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
+            if ((!current_filter) || (0 == strlen(current_filter)))
+                g_snprintf(str, 255, "%s", err->procedures[selection].fvalue_value);
+            else
+                g_snprintf(str, 255, "(%s) || (%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_AND_NOT_SELECTED:
-            g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            if ((!current_filter) || (0 == strlen(current_filter)))
+                g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
+            else
+                g_snprintf(str, 255, "(%s) && !(%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         case ACTYPE_OR_NOT_SELECTED:
-            g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
+            if ((!current_filter) || (0 == strlen(current_filter)))
+                g_snprintf(str, 255, "!(%s)", err->procedures[selection].fvalue_value);
+            else
+                g_snprintf(str, 255, "(%s) || !(%s)", current_filter, err->procedures[selection].fvalue_value);
             break;
         default:
             simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Can't find menu type - %u", type);
@@ -316,79 +297,79 @@ static GtkItemFactoryEntry error_list_menu_items[] =
 	/* Match */
 	{"/Apply as Filter", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Apply as Filter/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Apply as Filter/... not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 	{"/Apply as Filter/.. and Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0),
 		NULL, NULL,},
 	{"/Apply as Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0),
 		NULL, NULL,},
 	{"/Apply as Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0),
 		NULL, NULL,},
 	{"/Apply as Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0),
 		NULL, NULL,},
 
 	/* Prepare */
 	{"/Prepare a Filter", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Prepare a Filter/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Prepare a Filter/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 	{"/Prepare a Filter/... and Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0),
 		NULL, NULL,},
 	{"/Prepare a Filter/... or Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0),
 		NULL, NULL,},
 	{"/Prepare a Filter/... and not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0),
 		NULL, NULL,},
 	{"/Prepare a Filter/... or not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0),
 		NULL, NULL,},
 
 	/* Find Frame */
 	{"/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Find Frame/Find Frame", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Find Frame/Find Frame/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Find Frame/Find Frame/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 	/* Find Next */
 	{"/Find Frame/Find Next", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Find Frame/Find Next/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Find Frame/Find Next/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 
 	/* Find Previous */
 	{"/Find Frame/Find Previous", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Find Frame/Find Previous/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Find Frame/Find Previous/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 
 	/* Colorize Procedure */
 	{"/Colorize Procedure", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Colorize Procedure/Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_SELECTED, 0),
 		NULL, NULL,},
 	{"/Colorize Procedure/Not Selected", NULL,
-		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_NOT_SELECTED),
+		GTK_MENU_FUNC(error_select_filter_cb), CALLBACK_COLORIZE(ACTYPE_NOT_SELECTED, 0),
 		NULL, NULL,},
 
 	/* Search Internet */
