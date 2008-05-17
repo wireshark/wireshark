@@ -50,10 +50,8 @@
 
 #include "gtk/sat.h"
 #include "gtk/conversations_table.h"
-#include "gtk/find_dlg.h"
-#include "gtk/color_dlg.h"
+#include "gtk/filter_utils.h"
 #include "gtk/gtkglobals.h"
-#include "gtk/main.h"
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/help_dlg.h"
@@ -61,8 +59,6 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 
-
-#define GTK_MENU_FUNC(a) ((GtkItemFactoryCallback)(a))
 
 #define NUM_COLS 14
 #define COL_STR_LEN 16
@@ -479,22 +475,6 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 }
 
 
-/* Filter actions */
-#define ACTION_MATCH		0
-#define ACTION_PREPARE		1
-#define ACTION_FIND_FRAME	2
-#define ACTION_FIND_NEXT	3
-#define ACTION_FIND_PREVIOUS	4
-#define ACTION_COLORIZE		5
-
-/* Action type - says what to do with the filter */
-#define	ACTYPE_SELECTED		0
-#define ACTYPE_NOT_SELECTED	1
-#define ACTYPE_AND_SELECTED	2
-#define ACTYPE_OR_SELECTED	3
-#define ACTYPE_AND_NOT_SELECTED	4
-#define ACTYPE_OR_NOT_SELECTED	5
-
 /* Filter direction */
 #define DIR_A_TO_FROM_B		0
 #define DIR_A_TO_B		1
@@ -506,34 +486,16 @@ ct_click_column_cb(GtkCList *clist, gint column, gpointer data)
 #define DIR_ANY_FROM_B		7
 #define DIR_ANY_TO_B		8
 
-/* Encoded callback arguments */
-#define CALLBACK_MATCH(type, direction)		((ACTION_MATCH<<16) | ((type)<<8) | (direction))
-#define CALLBACK_PREPARE(type, direction)	((ACTION_PREPARE<<16) | ((type)<<8) | (direction))
-#define CALLBACK_FIND_FRAME(type, direction)	((ACTION_FIND_FRAME<<16) | ((type)<<8) | (direction))
-#define CALLBACK_FIND_NEXT(type, direction)	((ACTION_FIND_NEXT<<16) | ((type)<<8) | (direction))
-#define CALLBACK_FIND_PREVIOUS(type, direction)	((ACTION_FIND_PREVIOUS<<16) | ((type)<<8) | (direction))
-#define CALLBACK_COLORIZE(type, direction)	((ACTION_COLORIZE<<16) | ((type)<<8) | (direction))
-
-/* Extract components of callback argument */
-#define FILTER_ACTION(cb_arg)		(((cb_arg)>>16) & 0xff)
-#define FILTER_ACTYPE(cb_arg)		(((cb_arg)>>8) & 0xff)
-#define FILTER_DIRECTION(cb_arg)	((cb_arg) & 0xff)
-
 static void
 ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-	int action, type, direction;
+	int direction;
 	int selection;
 	conversations_table *ct = (conversations_table *)callback_data;
-	char dirstr[128];
-	char str[256];
-	const char *current_filter;
+	char *str = NULL;
 	char *sport, *dport;
 
-	action=FILTER_ACTION(callback_action);
-	type=FILTER_ACTYPE(callback_action);
-	direction=FILTER_DIRECTION(callback_action);
-
+	direction=FILTER_EXTRA(callback_action);
 
 	selection=GPOINTER_TO_INT(g_list_nth_data(GTK_CLIST(ct->table)->selection, 0));
 	if(selection>=(int)ct->num_conversations){
@@ -549,7 +511,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 	switch(direction){
 	case DIR_A_TO_FROM_B:
 		/* A <-> B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -566,7 +528,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_B:
 		/* A --> B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -583,7 +545,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_FROM_B:
 		/* A <-- B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s && %s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -600,7 +562,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_FROM_ANY:
 		/* A <-> ANY */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -611,7 +573,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_TO_ANY:
 		/* A --> ANY */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -622,7 +584,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_A_FROM_ANY:
 		/* A <-- ANY */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].src_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].src_address),
 			sport?" && ":"",
@@ -633,7 +595,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_TO_FROM_B:
 		/* ANY <-> B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_ANY_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
@@ -644,7 +606,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_FROM_B:
 		/* ANY <-- B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_SRC_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
@@ -655,7 +617,7 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		break;
 	case DIR_ANY_TO_B:
 		/* ANY --> B */
-		g_snprintf(dirstr, 127, "%s==%s%s%s%s%s",
+		str = g_strdup_printf("%s==%s%s%s%s%s",
 			ct_get_filter_name(&ct->conversations[selection].dst_address, ct->conversations[selection].sat, ct->conversations[selection].port_type,  FN_DST_ADDRESS),
 			address_to_str(&ct->conversations[selection].dst_address),
 			dport?" && ":"",
@@ -668,63 +630,9 @@ ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callbac
 		g_assert_not_reached();
 	}
 
-	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
-	switch(type){
-	case ACTYPE_SELECTED:
-		g_snprintf(str, 255, "%s", dirstr);
-		break;
-	case ACTYPE_NOT_SELECTED:
-		g_snprintf(str, 255, "!(%s)", dirstr);
-		break;
-	case ACTYPE_AND_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "%s", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) && (%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_OR_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "%s", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) || (%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_AND_NOT_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "!(%s)", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) && !(%s)", current_filter, dirstr);
-		break;
-	case ACTYPE_OR_NOT_SELECTED:
-		if ((!current_filter) || (0 == strlen(current_filter)))
-			g_snprintf(str, 255, "!(%s)", dirstr);
-		else
-			g_snprintf(str, 255, "(%s) || !(%s)", current_filter, dirstr);
-		break;
-	}
+        apply_selected_filter (callback_action, str);
 
-	switch(action){
-	case ACTION_MATCH:
-		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		main_filter_packets(&cfile, str, FALSE);
-		gdk_window_raise(top_level->window);
-		break;
-	case ACTION_PREPARE:
-		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
-		break;
-	case ACTION_FIND_FRAME:
-		find_frame_with_filter(str);
-		break;
-	case ACTION_FIND_NEXT:
-		find_previous_next_frame_with_filter(str, FALSE);
-		break;
-	case ACTION_FIND_PREVIOUS:
-		find_previous_next_frame_with_filter(str, TRUE);
-		break;
-	case ACTION_COLORIZE:
-		color_display_with_filter(str);
-		break;
-	}
-
+        g_free (str);
 }
 
 static gint
@@ -1062,6 +970,7 @@ static GtkItemFactoryEntry ct_list_menu_items[] =
 		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_FROM_B), NULL, NULL,},
 	{"/Find Packet/Find Previous/ANY --> B", NULL,
 		GTK_MENU_FUNC(ct_select_filter_cb), CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, DIR_ANY_TO_B), NULL, NULL,},
+
 	/* Colorize Conversation */
 	{"/Colorize Conversation", NULL, NULL, 0, "<Branch>", NULL,},
 	{"/Colorize Conversation/A <-> B", NULL,
