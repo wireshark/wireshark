@@ -51,7 +51,7 @@ enum {
     END_BYTES_COLUMN,
     END_BANDWIDTH_COLUMN,
     FILTER_NAME,
-    PRCT_PKTS_TEXT_COLUMN,
+    PRCT_PKTS_VALUE_COLUMN,
     NUM_STAT_COLUMNS /* must be the last */
 };
 
@@ -187,7 +187,7 @@ fill_in_tree_node(GNode *node, gpointer data)
     gtk_tree_store_append(store, &new_iter, iter);
     gtk_tree_store_set(store, &new_iter,
                        PROTOCOL_COLUMN, text[0],
-                       PRCT_PKTS_COLUMN, percent,
+                       PRCT_PKTS_COLUMN, text[1],
                        PKTS_COLUMN, text[2],
                        BYTES_COLUMN, text[3],
 		       BANDWIDTH_COLUMN, text[4],
@@ -195,7 +195,7 @@ fill_in_tree_node(GNode *node, gpointer data)
                        END_BYTES_COLUMN, text[6],
 		       END_BANDWIDTH_COLUMN, text[7],
 		       FILTER_NAME, stats->hfinfo->abbrev,
-		       PRCT_PKTS_TEXT_COLUMN, text[1],
+		       PRCT_PKTS_VALUE_COLUMN, percent,
                        -1);
 
     g_free(text[1]);
@@ -272,9 +272,9 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
     gtk_container_add(GTK_CONTAINER(container), sw);
 
     store = gtk_tree_store_new(NUM_STAT_COLUMNS, G_TYPE_STRING,
-                               G_TYPE_FLOAT, G_TYPE_STRING, G_TYPE_STRING,
+                               G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, 
-			       G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_STRING);
+			       G_TYPE_STRING, G_TYPE_POINTER, G_TYPE_FLOAT);
     tree = tree_view_new(GTK_TREE_MODEL(store));
     g_object_unref(G_OBJECT(store));
     tree_view = GTK_TREE_VIEW(tree);
@@ -286,13 +286,22 @@ create_tree(GtkWidget *container, ph_stats_t *ps)
                                                       NULL);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
     gtk_tree_view_append_column(tree_view, column);
+#if GTK_CHECK_VERSION(2,6,0)
     renderer = gtk_cell_renderer_progress_new();
     column = gtk_tree_view_column_new_with_attributes("% Packets", renderer,
-						      "value", PRCT_PKTS_COLUMN,
-                                                      "text", PRCT_PKTS_TEXT_COLUMN,
+                                                      "text", PRCT_PKTS_COLUMN,
+						      "value", PRCT_PKTS_VALUE_COLUMN,
                                                       NULL);
+    gtk_tree_view_column_set_expand(column, TRUE); /* Expand % Packets column */
+#else
+    gtk_tree_view_column_set_expand(column, TRUE); /* Expand Protocol column */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("% Packets", renderer,
+                                                      "text", PRCT_PKTS_COLUMN,
+                                                      NULL);
+    g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
+#endif
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-    gtk_tree_view_column_set_expand(column, TRUE);
     gtk_tree_view_append_column(tree_view, column);
     renderer = gtk_cell_renderer_text_new();
     column = gtk_tree_view_column_new_with_attributes("Packets", renderer,
