@@ -68,7 +68,7 @@ enum {
 	DEAUTH_COLUMN,
 	OTHER_COLUMN,
 	PROTECTION_COLUMN,
-	PERCENT_TEXT_COLUMN,
+	PERCENT_VALUE_COLUMN,
 	TABLE_COLUMN,
 	NUM_COLUMNS
 };
@@ -87,7 +87,7 @@ enum {
 	DEAUTH_2_COLUMN,
 	OTHER_2_COLUMN,
 	COMMENT_COLUMN,
-	PERCENT_TEXT_2_COLUMN,
+	PERCENT_VALUE_2_COLUMN,
 	DETAILS_COLUMN,
 	NUM_DETAIL_COLUMNS
 };
@@ -118,6 +118,7 @@ typedef struct wlan_ep {
 	guint32 number_of_packets;
 	GtkTreeIter iter;
 	gboolean iter_valid;
+	gboolean probe_req_searched;
 	struct wlan_details_ep *details;
 } wlan_ep_t;
 
@@ -182,9 +183,9 @@ wlanstat_reset (void *phs)
 
 	if (wlan_stat->use_dfilter) {
 		if (filter && strlen(filter)) {
-			g_snprintf(title, 255, "Network Overview  (filter: %s)", filter);
+			g_snprintf(title, 255, "Network Overview - Filter: %s", filter);
 		} else {
-			g_snprintf(title, 255, "Network Overview  (no filter)");
+			g_snprintf(title, 255, "Network Overview - No Filter");
 		}
 	} else {
 		g_snprintf(title, 255, "Network Overview");
@@ -247,6 +248,7 @@ alloc_wlan_ep (struct _wlan_hdr *si, packet_info *pinfo _U_)
 	ep->number_of_packets = 0;
 	ep->details = NULL;
 	ep->iter_valid = FALSE;
+	ep->probe_req_searched = FALSE;
 	ep->next = NULL;
 
 	return ep;
@@ -383,21 +385,29 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 			}
 		}
 
-		if (te && si->type != 0x04 && te->type[0x04] == 0 && te->stats.ssid_len != 0) {
+		if (!te) {
+			if ((te = alloc_wlan_ep (si, pinfo))) {
+				te->next = hs->ep_list;
+				hs->ep_list = te;
+			}
+		}
+
+		if (!te->probe_req_searched && (si->type != 0x04) && (te->type[0x04] == 0) && 
+		    (si->stats.ssid_len > 1 || si->stats.ssid[0] != 0)) {
 			/* 
 			 * We have found a matching entry without Probe Requests.  
 			 * Search the rest of the entries for a corresponding entry 
 			 * matching the SSID and BSSID == Broadcast.
 			 *
 			 * This is because we can have a hidden SSID or Probe Request
-			 * before we have a Beacon.
+			 * before we have a Beacon, Association Request, etc.
 			 */
 		 	wlan_ep_t *prev = NULL;
 			GtkListStore *store = GTK_LIST_STORE(gtk_tree_view_get_model(hs->table));
+			te->probe_req_searched = TRUE;
 			for (tmp = hs->ep_list; tmp; tmp = tmp->next) {
-				if (te->stats.ssid_len &&
-				    (te->stats.ssid_len == tmp->stats.ssid_len) &&
-				    (memcmp (te->stats.ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0) &&
+				if ((si->stats.ssid_len == tmp->stats.ssid_len) &&
+				    (memcmp (si->stats.ssid, tmp->stats.ssid, tmp->stats.ssid_len) == 0) &&
 				    (strcmp (get_addr_name(&tmp->bssid), "Broadcast") == 0)) {
 					/* 
 					 * Found a matching entry. Merge with the previous
@@ -429,13 +439,6 @@ wlanstat_packet (void *phs, packet_info *pinfo, epan_dissect_t *edt _U_, const v
 					break;
 				}
 				prev = tmp;
-			}
-		}
-
-		if (!te) {
-			if ((te = alloc_wlan_ep (si, pinfo))) {
-				te->next = hs->ep_list;
-				hs->ep_list = te;
 			}
 		}
 	}
@@ -506,7 +509,7 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 		}
 		gtk_list_store_set(store, &tmp->iter,
 				   ADDRESS_COLUMN, address,
-				   PERCENT_2_COLUMN, f,
+				   PERCENT_2_COLUMN, percent,
 				   DATA_SENT_COLUMN, tmp->data_sent,
 				   DATA_REC_COLUMN, tmp->data_received,
 				   PROBE_REQ_2_COLUMN, tmp->probe_req,
@@ -515,7 +518,7 @@ wlanstat_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
 				   DEAUTH_2_COLUMN, tmp->deauth,
 				   OTHER_2_COLUMN, tmp->other,
 				   COMMENT_COLUMN, comment,
-				   PERCENT_TEXT_2_COLUMN, percent,
+				   PERCENT_VALUE_2_COLUMN, f,
 				   DETAILS_COLUMN, tmp,
 				   -1);
 
@@ -584,7 +587,7 @@ wlanstat_draw(void *phs)
 				    BSSID_COLUMN, bssid,
 				    CHANNEL_COLUMN, channel,
 				    SSID_COLUMN, ssid,
-				    PERCENT_COLUMN, f,
+				    PERCENT_COLUMN, percent,
 				    BEACONS_COLUMN, tmp->type[0x08],
 				    DATA_COLUMN, data,
 				    PROBE_REQ_COLUMN, tmp->type[0x04],
@@ -593,7 +596,7 @@ wlanstat_draw(void *phs)
 				    DEAUTH_COLUMN, tmp->type[0x0C],
 				    OTHER_COLUMN, other,
 				    PROTECTION_COLUMN, tmp->stats.protection,
-				    PERCENT_TEXT_COLUMN, percent,
+				    PERCENT_VALUE_COLUMN, f,
 				    TABLE_COLUMN, tmp,
 				    -1);
 
@@ -764,11 +767,11 @@ wlan_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callb
 		str = g_strdup_printf("wlan_mgt.ssid==\"%s\"", format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	case VALUE_BSSID_AND_SSID:
-		str = g_strdup_printf("wlan.bssid=%s && wlan_mgt.ssid==\"%s\"",
+		str = g_strdup_printf("wlan.bssid==%s && wlan_mgt.ssid==\"%s\"",
 				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	case VALUE_BSSID_OR_SSID:
-		str = g_strdup_printf("wlan.bssid=%s || wlan_mgt.ssid==\"%s\"",
+		str = g_strdup_printf("wlan.bssid==%s || wlan_mgt.ssid==\"%s\"",
 				      address_to_str(&ep->bssid), format_text(ep->stats.ssid, ep->stats.ssid_len));
 		break;
 	}
@@ -1140,9 +1143,9 @@ wlanstat_dlg_create (void)
 	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 
 	store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-				   G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, 
+				   G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, 
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
-				   G_TYPE_STRING, G_TYPE_STRING, G_TYPE_POINTER);
+				   G_TYPE_STRING, G_TYPE_FLOAT, G_TYPE_POINTER);
 	hs->table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
 	gtk_container_add(GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->table));
 	g_object_unref(G_OBJECT(store));
@@ -1152,21 +1155,24 @@ wlanstat_dlg_create (void)
 	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
 	for (i = 0; i <= PROTECTION_COLUMN; i++) {
+#if GTK_CHECK_VERSION(2,6,0)
 		if (i == PERCENT_COLUMN) {
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
-									  "value", i,
-									  "text", PERCENT_TEXT_COLUMN,
+									  "text", i,
+									  "value", PERCENT_VALUE_COLUMN,
 									  NULL);
 			gtk_tree_view_column_set_expand(column, TRUE);
 		} else {
+#else
+		{
+#endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
 									  "text", i, 
 									  NULL);
 		}
-
-		if (i != BSSID_COLUMN && i != SSID_COLUMN && i != PERCENT_COLUMN && i != PROTECTION_COLUMN) {
+		if (i != BSSID_COLUMN && i != SSID_COLUMN && i != PROTECTION_COLUMN) {
 			/* Align all number columns */
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
 		}
@@ -1196,10 +1202,10 @@ wlanstat_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_SHADOW_IN);
-	store = gtk_list_store_new(NUM_DETAIL_COLUMNS, G_TYPE_STRING, G_TYPE_FLOAT,
+	store = gtk_list_store_new(NUM_DETAIL_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING,
-				   G_TYPE_STRING, G_TYPE_POINTER);
+				   G_TYPE_FLOAT, G_TYPE_POINTER);
 	hs->details = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
 	gtk_container_add (GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->details));
 	g_object_unref(G_OBJECT(store));
@@ -1210,21 +1216,25 @@ wlanstat_dlg_create (void)
 	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
 	for (i = 0; i <= COMMENT_COLUMN; i++) {
+#if GTK_CHECK_VERSION(2,6,0)
 		if (i == PERCENT_2_COLUMN) {
 			renderer = gtk_cell_renderer_progress_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
-									  "value", i,
-									  "text", PERCENT_TEXT_2_COLUMN,
+									  "text", i,
+									  "value", PERCENT_VALUE_2_COLUMN,
 									  NULL);
 			gtk_tree_view_column_set_expand(column, TRUE);
 		} else {
+#else
+		{
+#endif
 			renderer = gtk_cell_renderer_text_new();
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
 									  "text", i, 
 									  NULL);
 		}
 
-		if (i != ADDRESS_COLUMN && i != PERCENT_2_COLUMN && i != COMMENT_COLUMN) {
+		if (i != ADDRESS_COLUMN && i != COMMENT_COLUMN) {
 			/* Align all number columns */
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
 		}
