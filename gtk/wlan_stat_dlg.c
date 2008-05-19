@@ -665,16 +665,13 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 	GString *CSV_str = (GString *)data;
 	gchar   *table_text;
 	gint     table_value;
-	float    table_float;
 	int      i;
 
 	for (i=0; i<=PROTECTION_COLUMN; i++) {
-		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN || i == PROTECTION_COLUMN) {
+		if (i == BSSID_COLUMN || i == CHANNEL_COLUMN || i == SSID_COLUMN || 
+		    i == PERCENT_COLUMN || i == PROTECTION_COLUMN) {
 			gtk_tree_model_get(model, iter, i, &table_text, -1);
 			g_string_append(CSV_str, table_text);
-		} else if (i == PERCENT_COLUMN) {
-			gtk_tree_model_get(model, iter, i, &table_float, -1);
-			g_string_append_printf(CSV_str, "%.2f%%", table_float);
 		} else {
 			gtk_tree_model_get(model, iter, i, &table_value, -1);
 			g_string_append_printf(CSV_str, "%u", table_value);
@@ -1163,6 +1160,7 @@ wlanstat_dlg_create (void)
 									  "value", PERCENT_VALUE_COLUMN,
 									  NULL);
 			gtk_tree_view_column_set_expand(column, TRUE);
+			gtk_tree_view_column_set_sort_column_id(column, PERCENT_VALUE_COLUMN);
 		} else {
 #else
 		{
@@ -1171,6 +1169,7 @@ wlanstat_dlg_create (void)
 			column = gtk_tree_view_column_new_with_attributes(titles[i], renderer,
 									  "text", i, 
 									  NULL);
+			gtk_tree_view_column_set_sort_column_id(column, i);
 		}
 		if (i != BSSID_COLUMN && i != SSID_COLUMN && i != PROTECTION_COLUMN) {
 			/* Align all number columns */
@@ -1178,7 +1177,6 @@ wlanstat_dlg_create (void)
 		}
 		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_append_column(tree_view, column);
 
 		if (i == SSID_COLUMN) {
@@ -1224,6 +1222,7 @@ wlanstat_dlg_create (void)
 									  "value", PERCENT_VALUE_2_COLUMN,
 									  NULL);
 			gtk_tree_view_column_set_expand(column, TRUE);
+			gtk_tree_view_column_set_sort_column_id(column, PERCENT_VALUE_2_COLUMN);
 		} else {
 #else
 		{
@@ -1232,6 +1231,7 @@ wlanstat_dlg_create (void)
 			column = gtk_tree_view_column_new_with_attributes(detail_titles[i], renderer,
 									  "text", i, 
 									  NULL);
+			gtk_tree_view_column_set_sort_column_id(column, i);
 		}
 
 		if (i != ADDRESS_COLUMN && i != COMMENT_COLUMN) {
@@ -1240,7 +1240,6 @@ wlanstat_dlg_create (void)
 		}
 		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_column_set_resizable(column, TRUE);
-		gtk_tree_view_column_set_sort_column_id(column, i);
 		gtk_tree_view_append_column(tree_view, column);
 
 		if (i == ADDRESS_COLUMN) {
