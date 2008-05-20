@@ -46,6 +46,14 @@
 #endif
 
 /**
+ * Returns a value string for the BACnet MS/TP Frame Type.
+ * @param val
+ * @return constant C String with MS/TP Frame Type
+ */
+const gchar *
+mstp_frame_type_text(guint32 val);
+
+/**
  * Dissects the BACnet MS/TP packet after the preamble,
  * starting with the MS/TP Frame type octet.  Passes
  * the PDU, if there is one, to the BACnet dissector.

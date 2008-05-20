@@ -39,6 +39,9 @@
 #include "packet-llc.h"
 #include "packet-mstp.h"
 
+/* Probably should be a preference, but here for now */
+#define BACNET_MSTP_SUMMARY_IN_TREE
+
 /* MS/TP Frame Type */
 /* Frame Types 8 through 127 are reserved by ASHRAE. */
 #define MSTP_TOKEN 0
@@ -123,6 +126,14 @@ static guint16 CRC_Calc_Data(
 }
 #endif
 
+/* Common frame type text */
+const gchar *mstp_frame_type_text(guint32 val)
+{
+	return val_to_str(val,
+		bacnet_mstp_frame_type_name,
+		"Unknown Frame Type (%u)");
+}
+
 /* dissects a BACnet MS/TP frame */
 /* preamble 0x55 0xFF is not included in Cimetrics U+4 output */
 void
@@ -153,13 +164,10 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	mstp_frame_source = tvb_get_guint8(tvb, offset+2);
 	mstp_frame_pdu_len = tvb_get_ntohs(tvb, offset+3);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [%02x>%02x] %s",
-			mstp_frame_source,
-			mstp_frame_destination,
-			val_to_str(mstp_frame_type,
-				bacnet_mstp_frame_type_name,
-				"Unknown Frame Type"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+			mstp_frame_type_text(mstp_frame_type));
 	}
+	/* Add the items to the tree */
 	proto_tree_add_item(subtree, hf_mstp_frame_type, tvb,
 			offset, 1, TRUE);
 	proto_tree_add_item(subtree, hf_mstp_frame_destination, tvb,
@@ -241,10 +249,31 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *subtree;
-	
 	gint offset = 0;
+#ifdef BACNET_MSTP_SUMMARY_IN_TREE
+	guint8 mstp_frame_type = 0;
+	guint8 mstp_frame_source = 0;
+	guint8 mstp_frame_destination = 0;
+#endif
+
+	/* set the MS/TP MAC address in the source/destination */
+	/* Use AT_ARCNET since it is similar to BACnet MS/TP */
+	SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+3, 1));
+	SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+3, 1));
+	SET_ADDRESS(&pinfo->dl_src,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+4, 1));
+	SET_ADDRESS(&pinfo->src,	AT_ARCNET, 1, tvb_get_ptr(tvb, offset+4, 1));
 	
+#ifdef BACNET_MSTP_SUMMARY_IN_TREE
+	mstp_frame_type = tvb_get_guint8(tvb, offset+2);
+	mstp_frame_destination = tvb_get_guint8(tvb, offset+3);
+	mstp_frame_source = tvb_get_guint8(tvb, offset+4);
+	ti = proto_tree_add_protocol_format(tree, proto_mstp, tvb, offset, 8,
+		"BACnet MS/TP, Src (%u), Dst (%u), %s",
+		mstp_frame_source, mstp_frame_destination,
+		mstp_frame_type_text(mstp_frame_type));
+#else
 	ti = proto_tree_add_item(tree, proto_mstp, tvb, offset, 8, FALSE);
+#endif
 	subtree = proto_item_add_subtree(ti, ett_bacnet_mstp);
 	proto_tree_add_item(subtree, hf_mstp_preamble_55, tvb,
 			offset, 1, TRUE);
@@ -273,22 +302,22 @@ proto_register_mstp(void)
 			"MS/TP Frame Type", HFILL }
 		},
 		{ &hf_mstp_frame_destination,
-			{ "Destination Address", "mstp.destination",
+			{ "Destination Address", "mstp.dst",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"Destination MS/TP MAC Address", HFILL }
 		},
 		{ &hf_mstp_frame_source,
-			{ "Source Address", "mstp.source",
+			{ "Source Address", "mstp.src",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			"Source MS/TP MAC Address", HFILL }
 		},
 		{ &hf_mstp_frame_pdu_len,
-			{ "Length", "mstp.length",
+			{ "Length", "mstp.len",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			"MS/TP Frame Data Length", HFILL }
+			"MS/TP Data Length", HFILL }
 		},
 		{ &hf_mstp_frame_crc8,
-			{ "Header CRC",  "mstp.header_crc",
+			{ "Header CRC",  "mstp.hdr_crc",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"MS/TP Header CRC", HFILL }
 		},

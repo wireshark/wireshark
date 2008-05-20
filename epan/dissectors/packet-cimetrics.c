@@ -32,6 +32,9 @@
 #include <epan/oui.h>
 #include "packet-mstp.h"
 
+/* Probably should be a preference, but here for now */
+#define BACNET_MSTP_SUMMARY_IN_TREE
+
 /* the U+4 device does MS/TP, uLAN, Modbus */
 static const value_string cimetrics_pid_vals[] = {
 	{ 0x0001,	"U+4 MS/TP" },
@@ -54,10 +57,25 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *subtree;
-
 	gint offset = 0;
+#ifdef BACNET_MSTP_SUMMARY_IN_TREE
+	guint8 mstp_frame_type = 0;
+	guint8 mstp_frame_source = 0;
+	guint8 mstp_frame_destination = 0;
+#endif
 
+#ifdef BACNET_MSTP_SUMMARY_IN_TREE
+	mstp_frame_type = tvb_get_guint8(tvb, offset+3);
+	mstp_frame_destination = tvb_get_guint8(tvb, offset+4);
+	mstp_frame_source = tvb_get_guint8(tvb, offset+5);
+	ti = proto_tree_add_protocol_format(tree,
+		proto_cimetrics_mstp, tvb, offset, 9,
+		"BACnet MS/TP, Src (%u), Dst (%u), %s",
+		mstp_frame_source, mstp_frame_destination,
+		mstp_frame_type_text(mstp_frame_type));
+#else
 	ti = proto_tree_add_item(tree, proto_cimetrics_mstp, tvb, offset, 9, FALSE);
+#endif
 	subtree = proto_item_add_subtree(ti, ett_cimetrics_mstp);
 	proto_tree_add_item(subtree, hf_cimetrics_mstp_timer, tvb,
 			offset++, 2, TRUE);
