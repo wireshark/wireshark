@@ -3,7 +3,7 @@
    description="watcherinfo XML doc (RFC 3858)"
    hierarchy="yes" ?>
 <!--
-$Id:$
+$Id$
 -->
 
 
@@ -19,7 +19,7 @@ $Id:$
 <!ELEMENT watcher (#PCDATA)>
 <!ATTLIST watcher    display-name        CDATA #IMPLIED
                      status              CDATA #REQUIRED
-                     event              CDATA #REQUIRED
+                     event               CDATA #REQUIRED
                      expiration          CDATA #IMPLIED
                      id                  CDATA #REQUIRED
                      duration-subscribed CDATA #IMPLIED>
