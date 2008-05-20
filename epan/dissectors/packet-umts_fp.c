@@ -1111,10 +1111,10 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
         int num_tbs = 0;
         guint8 cfn;
-		guint32 propagation_delay = 0;
-		proto_item *propagation_delay_ti = NULL;
-		guint32 received_sync_ul_timing_deviation = 0;
-		proto_item *received_sync_ul_timing_deviation_ti = NULL;
+        guint32 propagation_delay = 0;
+        proto_item *propagation_delay_ti = NULL;
+        guint32 received_sync_ul_timing_deviation = 0;
+        proto_item *received_sync_ul_timing_deviation_ti = NULL;
 
         /* DATA */
 
@@ -1135,13 +1135,13 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_FDD)
         {
             /* Propagation delay */
-		    propagation_delay = tvb_get_guint8(tvb, offset);
+            propagation_delay = tvb_get_guint8(tvb, offset);
             propagation_delay_ti = proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
                                                        propagation_delay*3);
             offset++;
         }
 
-		/* Should be TDD 3.84 or 7.68 */
+        /* Should be TDD 3.84 or 7.68 */
         if (p_fp_info->channel == CHANNEL_RACH_TDD)
         {
             /* Rx Timing Deviation */
@@ -1152,9 +1152,9 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_TDD_128)
         {
             /* Received SYNC UL Timing Deviation */
-			received_sync_ul_timing_deviation = tvb_get_guint8(tvb, offset);
+            received_sync_ul_timing_deviation = tvb_get_guint8(tvb, offset);
             received_sync_ul_timing_deviation_ti =
- 			    proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, FALSE);
+                 proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, FALSE);
             offset++;
         }
 
@@ -1172,7 +1172,7 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             guint8 flags;
             guint8 flag_bytes = 0;
 
-            /* New IE flags */
+            /* New IE flags (assume mandatory for now) */
             do
             {
                 proto_item *new_ie_flags_ti;
@@ -1210,12 +1210,15 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset++;
             }
 
-            /* Bit 1 indicates Ext propagation delay */
+            /* Bit 1 indicates Ext propagation delay.
+               TODO: add expert info item if flag set but a TDD channel... */
             if ((flags & 0x20) & (propagation_delay_ti != NULL)) {
                 guint16 extra_bits = tvb_get_ntohs(tvb, offset) & 0x03ff;
                 proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 1, FALSE);
-				proto_item_append_text(propagation_delay_ti, " (extended to %u)",
-                                       ((propagation_delay << 10) & extra_bits) * 3);
+
+                /* Adding 10 bits to original 8 */
+                proto_item_append_text(propagation_delay_ti, " (extended to %u)",
+                                       ((extra_bits << 8) | propagation_delay) * 3);
                 offset += 2;
             }
 
@@ -1227,10 +1230,12 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset += 2;
 
                 /* Ext received Sync UL Timing Deviation */
-				extra_bits = tvb_get_ntohs(tvb, offset) & 0x1fff;
+                extra_bits = tvb_get_ntohs(tvb, offset) & 0x1fff;
                 proto_tree_add_item(tree, hf_fp_ext_received_sync_ul_timing_deviation, tvb, offset, 2, FALSE);
-				proto_item_append_text(received_sync_ul_timing_deviation_ti, " (extended to %u)",
-                                       ((received_sync_ul_timing_deviation << 13) & extra_bits));
+
+                /* Adding 13 bits to original 8 */
+                proto_item_append_text(received_sync_ul_timing_deviation_ti, " (extended to %u)",
+                                       (extra_bits << 8) | received_sync_ul_timing_deviation);
                 offset += 2;
             }
         }
@@ -1723,19 +1728,29 @@ int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
         /* Optional E-RUCCH */
         if (e_rucch_present)
         {
+            /* TODO: 6 for 3.84, 5 for 7.68 */
+            int bit_offset = 6;
             proto_tree_add_item(tree, hf_fp_dch_e_rucch_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_bits_item(tree, hf_fp_dch_e_rucch_flag, tvb,
+                                     offset*8 + bit_offset, 1, FALSE);
         }
 
-        /* Timing deviation may be extended by another 2 bits */
+        /* Timing deviation may be extended by another:
+           - 1 bits (3.84 TDD)    OR
+           - 2 bits (7.68 TDD)
+        */
         if (extended_bits_present)
         {
-            guint8 extra_bits = tvb_get_guint8(tvb, offset) & 0x03;
+            /* TODO: 1 for 3.84, 2 for 7.68,  */
+            guint bits_to_extend = 1;
+            guint8 extra_bits = tvb_get_guint8(tvb, offset) &
+                                    (bits_to_extend == 1) ? 0x01 : 0x3;
             timing_deviation = (timing_deviation) | (extra_bits << 8);
             proto_item_append_text(timing_deviation_ti,
                                    " (extended to 0x%x)",
                                    timing_deviation);
             proto_tree_add_bits_item(tree, hf_fp_extended_bits, tvb,
-                                     offset*8 + 6, 2, FALSE);
+                                     offset*8 + (8-bits_to_extend), bits_to_extend, FALSE);
             offset++;
         }
     }
@@ -2958,7 +2973,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_dch_e_rucch_flag,
             { "E-RUCCH Flag",
-              "fp.common.control.e-rucch-flag", FT_UINT8, BASE_DEC, VALS(e_rucch_flag_vals), 0x04,
+              "fp.common.control.e-rucch-flag", FT_UINT8, BASE_DEC, VALS(e_rucch_flag_vals), 0x0,
               "E-RUCCH Flag", HFILL
             }
         },
