@@ -728,7 +728,21 @@ proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
 protocols_module                DATA
-q850_cause_code_vals           DATA		
+ptvcursor_new
+ptvcursor_add
+ptvcursor_add_no_advance
+ptvcursor_advance
+ptvcursor_free
+ptvcursor_tvbuff
+ptvcursor_current_offset
+ptvcursor_tree
+ptvcursor_set_tree
+ptvcursor_push_subtree
+ptvcursor_pop_subtree
+ptvcursor_add_with_subtree
+ptvcursor_add_text_with_subtree
+ptvcursor_set_subtree
+q850_cause_code_vals           DATA
 q931_cause_code_vals           DATA
 q931_message_type_vals         DATA
 range_convert_range
