@@ -290,8 +290,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     transport_info.media_port[n]=NULL;
     transport_info.media_proto[n]=NULL;
     transport_info.media[n].pt_count = 0;
-    transport_info.media[n].rtp_dyn_payload = g_hash_table_new_full( g_int_hash, 
-	g_int_equal, g_free, g_free);
+    transport_info.media[n].rtp_dyn_payload =
+        g_hash_table_new_full( g_int_hash, g_int_equal, g_free, g_free);
   }
   transport_info.media_count = 0;
 
@@ -423,8 +423,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
                                          linelen-tokenoffset,
                                          linelen-tokenoffset),
-						  pinfo,
-                          hf,sub_ti,&transport_info),
+                                         pinfo,
+                                         hf,sub_ti,&transport_info),
     offset = next_offset;
   }
 
@@ -450,7 +450,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* Check if media protocol is SRTP */
             is_srtp = (strcmp(transport_info.media_proto[n],"RTP/SAVP")==0);
             /* Check if media protocol is T38 */
-            is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) || (strcmp(transport_info.media_proto[n],"udptl")==0) );
+            is_t38 = ( (strcmp(transport_info.media_proto[n],"UDPTL")==0) ||
+                       (strcmp(transport_info.media_proto[n],"udptl")==0) );
             /* Check if media protocol is MSRP/TCP */
             is_msrp = (strcmp(transport_info.media_proto[n],"msrp/tcp")==0);
        }
