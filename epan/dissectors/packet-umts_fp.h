@@ -40,13 +40,18 @@
 #define CHANNEL_IUR_FACH      15
 #define CHANNEL_IUR_DSCH      16
 #define CHANNEL_EDCH          17
-#define CHANNEL_RACH_TDD_128  18
-#define CHANNEL_HSDSCH_TYPE_2 19
+#define CHANNEL_RACH_TDD_128  65
 
 enum fp_interface_type
 {
     IuB_Interface,
     IuR_Interface
+};
+
+enum fp_hsdsch_entity
+{
+    hs=1,
+    ehs=2
 };
 
 /* Info attached to each FP packet */
@@ -69,5 +74,7 @@ typedef struct fp_info
     gint   no_ddi_entries;
     guint8 edch_ddi[MAX_EDCH_DDIS];
     guint  edch_macd_pdu_size[MAX_EDCH_DDIS];
+
+    enum   fp_hsdsch_entity hsdsch_entity;
 } fp_info;
 

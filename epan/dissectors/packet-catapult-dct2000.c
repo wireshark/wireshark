@@ -700,7 +700,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
         return;
     }
 
-    /* 3gpp release (99, 4, 5, 6) */
+    /* 3gpp release (99, 4, 5, 6, 7) */
     if (strcmp(protocol_name, "fp") == 0)
     {
         p_fp_info->release = 99;
@@ -717,6 +717,10 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     {
         p_fp_info->release = 6;
     }
+    else if (strcmp(protocol_name, "fp_r7") == 0)
+    {
+        p_fp_info->release = 7;
+    }
     else if (strcmp(protocol_name, "fpiur_r5") == 0)
     {
         p_fp_info->release = 5;
@@ -729,7 +733,7 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     }
 
     /* Release date is derived from variant number */
-    /* Only R6 sub-versions currently influence format with a release */
+    /* Only R6 sub-versions currently influence format within a release */
     switch (p_fp_info->release)
     {
         case 6:
@@ -766,6 +770,21 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     p_fp_info->is_uplink = (( received  && (node_type == 2)) ||
                             (!received  && (node_type == 1)));
 
+    /* HS-DSCH config */
+    if (p_fp_info->channel == CHANNEL_HSDSCH)
+    {
+        if (p_fp_info->release == 7)
+        {
+            p_fp_info->hsdsch_entity = outhdr_values[i++];
+        }
+        else
+        {
+            /* This is the pre-R7 default */
+            p_fp_info->hsdsch_entity = hs;
+        }
+    }
+    
+    
     /* IUR only uses the above... */
     if (strcmp(protocol_name, "fpiur_r5") == 0)
     {
@@ -1025,6 +1044,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
+        (strcmp(protocol_name, "fp_r7") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0))
     {
         parse_outhdr_string(tvb_get_ephemeral_string(tvb, outhdr_start, outhdr_length));

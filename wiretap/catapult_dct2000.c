@@ -995,7 +995,8 @@ gboolean parse_line(gint line_length, gint *seconds, gint *useconds,
     if ((strcmp(protocol_name, "fp") == 0) ||
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
-        (strcmp(protocol_name, "fp_r6") == 0))
+        (strcmp(protocol_name, "fp_r6") == 0) ||
+        (strcmp(protocol_name, "fp_r7") == 0))
     {
         if ((variant > 256) && (variant % 256 == 3))
         {

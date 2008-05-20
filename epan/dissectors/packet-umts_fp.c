@@ -35,7 +35,6 @@
 /* TODO:
    - IUR interface-specific formats
    - verify header & payload CRCs
-   - R7?
 */
 
 /* Initialize the protocol and registered fields. */
@@ -140,6 +139,9 @@ static int hf_fp_tpc_po = -1;
 static int hf_fp_multiple_rl_set_indicator = -1;
 static int hf_fp_max_ue_tx_pow = -1;
 static int hf_fp_congestion_status = -1;
+static int hf_fp_e_rucch_present = -1;
+static int hf_fp_extended_bits_present = -1;
+static int hf_fp_extended_bits = -1;
 static int hf_fp_spare_extension = -1;
 
 /* Subtrees. */
@@ -184,7 +186,6 @@ static const value_string channel_type_vals[] =
     { CHANNEL_IUR_DSCH,     "IUR DSCH" },
     { CHANNEL_EDCH,         "EDCH" },
     { CHANNEL_RACH_TDD_128, "RACH_TDD_128" },
-    { CHANNEL_HSDSCH_TYPE_2, "HSDSCH_Type_2" },
     { 0, NULL }
 };
 
@@ -360,7 +361,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
 /* Dissect DCH control messages */
 static int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo,
                                          tvbuff_t *tvb, int offset);
-static int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset,
+static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
                                            struct fp_info *p_fp_info);
 static int dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo,
                                           tvbuff_t *tvb, int offset);
@@ -1110,6 +1111,10 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
         int num_tbs = 0;
         guint8 cfn;
+		guint32 propagation_delay = 0;
+		proto_item *propagation_delay_ti = NULL;
+		guint32 received_sync_ul_timing_deviation = 0;
+		proto_item *received_sync_ul_timing_deviation_ti = NULL;
 
         /* DATA */
 
@@ -1130,11 +1135,13 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_FDD)
         {
             /* Propagation delay */
-            proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
-                                tvb_get_guint8(tvb, offset) * 3);
+		    propagation_delay = tvb_get_guint8(tvb, offset);
+            propagation_delay_ti = proto_tree_add_uint(tree, hf_fp_propagation_delay, tvb, offset, 1,
+                                                       propagation_delay*3);
             offset++;
         }
 
+		/* Should be TDD 3.84 or 7.68 */
         if (p_fp_info->channel == CHANNEL_RACH_TDD)
         {
             /* Rx Timing Deviation */
@@ -1145,7 +1152,9 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_TDD_128)
         {
             /* Received SYNC UL Timing Deviation */
-            proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, FALSE);
+			received_sync_ul_timing_deviation = tvb_get_guint8(tvb, offset);
+            received_sync_ul_timing_deviation_ti =
+ 			    proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, FALSE);
             offset++;
         }
 
@@ -1202,21 +1211,28 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             }
 
             /* Bit 1 indicates Ext propagation delay */
-            if (flags & 0x40) {
+            if ((flags & 0x20) & (propagation_delay_ti != NULL)) {
+                guint16 extra_bits = tvb_get_ntohs(tvb, offset) & 0x03ff;
                 proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 1, FALSE);
-                offset++;
+				proto_item_append_text(propagation_delay_ti, " (extended to %u)",
+                                       ((propagation_delay << 10) & extra_bits) * 3);
+                offset += 2;
             }
 
             if (p_fp_info->channel == CHANNEL_RACH_TDD_128) {
+                guint16 extra_bits;
+
                 /* Angle of Arrival (AOA) */
                 proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
                 offset += 2;
 
                 /* Ext received Sync UL Timing Deviation */
+				extra_bits = tvb_get_ntohs(tvb, offset) & 0x1fff;
                 proto_tree_add_item(tree, hf_fp_ext_received_sync_ul_timing_deviation, tvb, offset, 2, FALSE);
+				proto_item_append_text(received_sync_ul_timing_deviation_ti, " (extended to %u)",
+                                       ((received_sync_ul_timing_deviation << 13) & extra_bits));
                 offset += 2;
             }
-
         }
 
         /* Spare Extension and Payload CRC */
@@ -1278,7 +1294,7 @@ void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, &num_tbs);
 
-        /* New IE flags */
+        /* New IE flags (if it looks as though they are present) */
         if ((p_fp_info->release == 7) &&
             (tvb_length_remaining(tvb, offset) > 2))
         {
@@ -1672,10 +1688,12 @@ int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, tvbuff_t
     return offset;
 }
 
-int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset,
+int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
+                                    tvbuff_t *tvb, int offset,
                                     struct fp_info *p_fp_info)
 {
     guint16 timing_deviation = 0;
+    gint timing_deviation_chips = 0;
     proto_item *timing_deviation_ti = NULL;
 
     /* CFN control */
@@ -1687,13 +1705,19 @@ int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset,
     timing_deviation_ti = proto_tree_add_item(tree, hf_fp_dch_rx_timing_deviation, tvb, offset, 1, FALSE);
     offset++;
 
+    /* May be extended in R7, but in this case there are at least 2 bytes remaining */
     if ((p_fp_info->release == 7) &&
-        (tvb_length_remaining(tvb, offset) > 0))
+        (tvb_length_remaining(tvb, offset) >= 2))
     {
         /* New IE flags */
-        guint8 flags = tvb_get_guint8(tvb, offset);
-        guint8 extended_bits = flags & 0x01;
-        guint8 e_rucch_present = flags & 0x02;
+        guint64 extended_bits_present;
+        guint64 e_rucch_present;
+
+        /* Read flags */
+        proto_tree_add_bits_ret_val(tree, hf_fp_e_rucch_present, tvb,
+                                    offset*8 + 6, 1, &e_rucch_present, FALSE);
+        proto_tree_add_bits_ret_val(tree, hf_fp_extended_bits_present, tvb,
+                                    offset*8 + 7, 1, &extended_bits_present, FALSE);
         offset++;
 
         /* Optional E-RUCCH */
@@ -1703,14 +1727,27 @@ int dissect_dch_rx_timing_deviation(proto_tree *tree, tvbuff_t *tvb, int offset,
         }
 
         /* Timing deviation may be extended by another 2 bits */
-        if (extended_bits)
+        if (extended_bits_present)
         {
             guint8 extra_bits = tvb_get_guint8(tvb, offset) & 0x03;
+            timing_deviation = (timing_deviation) | (extra_bits << 8);
             proto_item_append_text(timing_deviation_ti,
-                                   " (extended to %u)",
-                                   (timing_deviation << 2) | extra_bits);
+                                   " (extended to 0x%x)",
+                                   timing_deviation);
+            proto_tree_add_bits_item(tree, hf_fp_extended_bits, tvb,
+                                     offset*8 + 6, 2, FALSE);
             offset++;
         }
+    }
+
+    timing_deviation_chips = (timing_deviation*4) - 1024;
+    proto_item_append_text(timing_deviation_ti, " (%d chips)",
+                           timing_deviation_chips);
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " deviation = %u (%d chips)",
+                        timing_deviation, timing_deviation_chips);
     }
 
     return offset;
@@ -1903,7 +1940,7 @@ void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *t
             offset = dissect_dch_timing_adjustment(tree, pinfo, tvb, offset);
             break;
         case DCH_RX_TIMING_DEVIATION:
-            offset = dissect_dch_rx_timing_deviation(tree, tvb, offset, p_fp_info);
+            offset = dissect_dch_rx_timing_deviation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case DCH_DL_SYNCHRONISATION:
             offset = dissect_dch_dl_synchronisation(tree, pinfo, tvb, offset);
@@ -2254,8 +2291,8 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 
-/***********************************/
-/* Dissect an HSDSCH channel       */
+/****************************************************/
+/* Dissect an HSDSCH channel (frame type 1, in R7)  */
 void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  int offset, struct fp_info *p_fp_info)
 {
@@ -2339,9 +2376,10 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             col_append_fstr(pinfo->cinfo, COL_INFO, "  User-Buffer-Size=%u", user_buffer_size);
         }
 
-        /* Extra R6 stuff */
-        if ((p_fp_info->release == 6) ||
-            (p_fp_info->release == 7))
+        /* Extra IEs (if there is room for them) */
+        if (((p_fp_info->release == 6) ||
+             (p_fp_info->release == 7)) &&
+            (tvb_length_remaining(tvb, offset) > 2))
         {
             int n;
             guint8 flags;
@@ -2472,7 +2510,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         offset++;
 
         /* FACH Indicator flag */
-        fach_present = tvb_get_guint8(tvb, offset) & 0x02;
+        fach_present = (tvb_get_guint8(tvb, offset) & 0x08) >> 7;
         proto_tree_add_item(tree, hf_fp_fach_indicator, tvb, offset, 1, FALSE);
         offset++;
 
@@ -2498,7 +2536,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             pdu_block_header_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_pdu_block_header,
                                                                tvb, offset, 0,
                                                                "",
-                                                               "PDU Block");
+                                                               "PDU Block Header");
             pdu_block_header_tree = proto_item_add_subtree(pdu_block_header_ti,
                                                            ett_fp_hsdsch_pdu_block_header);
 
@@ -2514,14 +2552,14 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
             /* # PDUs in this block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdus_in_block, tvb,
-                                        (offset*8) + ((n % 2) ? 4 : 0), 4,
+                                        (offset*8) + ((n % 2) ? 0 : 4), 4,
                                         &no_of_pdus[n], FALSE);
-            if ((n % 2) == 1)
+            if ((n % 2) == 0)
                 offset++;
 
             /* Logical channel ID in block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_lchid, tvb,
-                                        (offset*8) + ((n % 2) ? 0 : 4), 4,
+                                        (offset*8) + ((n % 2) ? 4 : 0), 4,
                                         &lchid[n], FALSE);
             if ((n % 2) == 1)
                 offset++;
@@ -2566,26 +2604,10 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /* Now read the MAC-d/c PDUs for each block using info from headers */
         for (n=0; n < number_of_pdu_blocks; n++)
         {
-            proto_item *pdu_block_ti;
-            proto_tree *pdu_block_tree;
-
             /* Add PDU block header subtree */
-            pdu_block_ti = proto_tree_add_string_format(tree, hf_fp_hsdsch_pdu_block,
-                                                               tvb, offset, 0,
-                                                               "",
-                                                               "PDU Block");
-            pdu_block_tree = proto_item_add_subtree(pdu_block_ti,
-                                                    ett_fp_hsdsch_pdu_block);
-
-            offset = dissect_macd_pdu_data(tvb, pinfo, pdu_block_tree, offset,
+            offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset,
                                            (guint16)pdu_length[n],
                                            (guint16)no_of_pdus[n]);
-
-            /* Append summary to PDU block */
-            proto_item_append_text(pdu_block_ti, " (lch:%u - %u bits in %u PDUs)",
-                                   (guint16)lchid[n],
-                                   (guint16)pdu_length[n] * (guint16)no_of_pdus[n],
-                                   (guint16)no_of_pdus[n]);
         }
 
         /* Spare Extension and Payload CRC */
@@ -2656,7 +2678,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case CHANNEL_RACH_TDD:
         case CHANNEL_RACH_TDD_128:
         case CHANNEL_RACH_FDD:
-            dissect_rach_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+             dissect_rach_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_DCH:
             dissect_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
@@ -2683,10 +2705,17 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* TODO? */
             break;
         case CHANNEL_HSDSCH:
-            dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
-            break;
-        case CHANNEL_HSDSCH_TYPE_2:
-            dissect_hsdsch_type_2_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+            switch (p_fp_info->hsdsch_entity) {
+                case hs:
+                    dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+                    break;
+                case ehs:
+                    dissect_hsdsch_type_2_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
+                    break;
+                default:
+                    /* ERROR */
+                    break;
+            }
             break;
         case CHANNEL_IUR_CPCHF:
             /* TODO: */
@@ -2929,7 +2958,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_dch_e_rucch_flag,
             { "E-RUCCH Flag",
-              "fp.common.control.e-rucch-flag", FT_UINT8, BASE_DEC, VALS(e_rucch_flag_vals), 0x80,
+              "fp.common.control.e-rucch-flag", FT_UINT8, BASE_DEC, VALS(e_rucch_flag_vals), 0x04,
               "E-RUCCH Flag", HFILL
             }
         },
@@ -3049,7 +3078,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_fach_indicator,
             { "FACH Indicator",
-              "fp.fach-indicator", FT_UINT8, BASE_DEC, 0, 0x08,
+              "fp.fach-indicator", FT_UINT8, BASE_DEC, 0, 0x80,
               "FACH Indicator", HFILL
             }
         },
@@ -3360,15 +3389,15 @@ void proto_register_fp(void)
             }
         },
         { &hf_fp_rach_new_ie_flag[6],
-            { "New IE present",
-              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
-              "New IE present", HFILL
+            { "Ext Propagation Delay Present",
+              "fp.rach.ext-propagation-delay-present", FT_UINT8, BASE_DEC, 0, 0x02,
+              "Ext Propagation Delay Present", HFILL
             }
         },
         { &hf_fp_rach_new_ie_flag[7],
-            { "Another new IE flags byte",
-              "fp.rach.new-ie-flags-byte", FT_UINT8, BASE_DEC, 0, 0x01,
-              "Another new IE flags byte", HFILL
+            { "Cell portion ID present",
+              "fp.rach.cell-portion-id-present", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Cell portion ID present", HFILL
             }
         },
         { &hf_fp_cell_portion_id,
@@ -3455,6 +3484,24 @@ void proto_register_fp(void)
             { "Congestion Status",
               "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x03,
               "Congestion Status", HFILL
+            }
+        },
+        { &hf_fp_e_rucch_present,
+            { "E-RUCCH Present",
+              "fp.erucch-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "E-RUCCH Present", HFILL
+            }
+        },
+        { &hf_fp_extended_bits_present,
+            { "Extended Bits Present",
+              "fp.extended-bits-present", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Extended Bits Present", HFILL
+            }
+        },
+        { &hf_fp_extended_bits,
+            { "Extended Bits",
+              "fp.extended-bits", FT_UINT8, BASE_HEX, NULL, 0x0,
+              "Extended Bits", HFILL
             }
         },
         { &hf_fp_spare_extension,
