@@ -28,13 +28,6 @@ file_seek
 file_tell
 file_error
 
-mpa_bitrate
-mpa_frequency
-mpa_layer
-mpa_padding
-mpa_samples
-mpa_version
-
 wtap_buf_ptr
 wtap_close
 wtap_dump

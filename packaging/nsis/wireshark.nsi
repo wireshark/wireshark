@@ -294,6 +294,7 @@ File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
 !ifdef ENABLE_LIBWIRESHARK
 File "..\..\epan\libwireshark.dll"
 !endif
+File "..\..\wsutil\libwsutil.dll"
 File "${GLIB_DIR}\bin\libglib-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgobject-2.0-0.dll"
 File "${GLIB_DIR}\bin\libgmodule-2.0-0.dll"

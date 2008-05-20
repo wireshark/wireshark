@@ -156,10 +156,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mpeg-audio.c"
-				>
-			</File>
-			<File
 				RelativePath=".\mpeg.c"
 				>
 			</File>
@@ -319,10 +315,6 @@
 			</File>
 			<File
 				RelativePath=".\libpcap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\mpeg-audio.h"
 				>
 			</File>
 			<File

@@ -35,7 +35,7 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
-#include <wiretap/mpeg-audio.h>
+#include <wsutil/mpeg-audio.h>
 
 #include "packet-per.h"
 

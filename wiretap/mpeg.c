@@ -35,7 +35,7 @@
 #endif
 
 #include "mpeg.h"
-#include "mpeg-audio.h"
+#include "wsutil/mpeg-audio.h"
 
 #include "wtap-int.h"
 #include "buffer.h"

@@ -1594,6 +1594,7 @@ AC_OUTPUT(
   tools/idl2wrs.sh
   tools/lemon/Makefile
   wiretap/Makefile
+  wsutil/Makefile
   ,)
 dnl AC_CONFIG_FILES([tools/setuid-root.pl], [chmod +x tools/setuid-root.pl])
 

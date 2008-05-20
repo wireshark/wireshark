@@ -310,6 +310,7 @@ wireshark_LDADD = \
 	codecs/libcodec.a		\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
@@ -332,6 +333,7 @@ tshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
@@ -355,6 +357,7 @@ rawshark_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
+	wsutil/libwsutil.la		\
 	@INET_PTON_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
@@ -375,26 +378,31 @@ text2pcap_optional_objects = @STRERROR_O@ @STRPTIME_O@
 text2pcap_LDADD = \
 	$(text2pcap_optional_objects)	\
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm
 
 # Libraries with which to link mergecap.
 mergecap_LDADD = \
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link capinfos.
 capinfos_LDADD = \
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link editcap.
 editcap_LDADD = \
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@GLIB_LIBS@
 
 # Libraries with which to link randpkt.
 randpkt_LDADD = \
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
@@ -402,6 +410,7 @@ randpkt_LDADD = \
 dftest_LDADD = \
 	$(wireshark_optional_objects)	\
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	epan/libwireshark.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
@@ -416,6 +425,7 @@ dftest_LDADD = \
 # Libraries with which to link dumpcap.
 dumpcap_LDADD = \
 	wiretap/libwiretap.la		\
+	wsutil/libwsutil.la		\
 	@INET_NTOP_LO@			\
 	@GLIB_LIBS@			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @FRAMEWORKS@ \
@@ -764,12 +774,12 @@ else
 install-exec-hook:
 endif
 
-DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap
+DIST_SUBDIRS = asn1 codecs doc epan gtk help packaging plugins tools wiretap wsutil
 
 if HAVE_PLUGINS
-SUBDIRS = tools wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan plugins packaging help @wireshark_SUBDIRS@
 else
-SUBDIRS = tools wiretap doc epan packaging help @wireshark_SUBDIRS@
+SUBDIRS = tools wsutil wiretap doc epan packaging help @wireshark_SUBDIRS@
 endif
 
 wireshark.1: doc/wireshark.pod AUTHORS-SHORT-FORMAT

@@ -1,0 +1,17 @@
+; wsutil.def
+; $Id$
+
+; Add symbols that should be exported out of libwsutil.dll
+;
+; DATA symbols must be declared WS_VAR_IMPORT in the header file!
+;
+; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
+;
+EXPORTS
+
+mpa_bitrate
+mpa_frequency
+mpa_layer
+mpa_padding
+mpa_samples
+mpa_version

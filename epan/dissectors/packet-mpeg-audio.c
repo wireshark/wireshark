@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-mpeg-audio.c                                                        */
-/* ../../../tools/asn2wrs.py -p mpeg-audio -c ../../../asn1/mpeg-audio/mpeg-audio.cnf -s ../../../asn1/mpeg-audio/packet-mpeg-audio-template -D ../../../asn1/mpeg-audio mpeg-audio.asn */
+/* ../../tools/asn2wrs.py -p mpeg-audio -c ./mpeg-audio.cnf -s ./packet-mpeg-audio-template -D . mpeg-audio.asn */
 
 /* Input file: packet-mpeg-audio-template.c */
 
@@ -43,7 +43,7 @@
 #include <epan/prefs.h>
 #include <epan/asn1.h>
 
-#include <wiretap/mpeg-audio.h>
+#include <wsutil/mpeg-audio.h>
 
 #include "packet-per.h"
 
@@ -153,7 +153,7 @@ dissect_mpeg_audio_T_protection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_mpeg_audio_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 15U, NULL, FALSE);
+                                                            0U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -163,7 +163,7 @@ dissect_mpeg_audio_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_mpeg_audio_INTEGER_0_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 3U, NULL, FALSE);
+                                                            0U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -284,7 +284,7 @@ dissect_mpeg_audio_OCTET_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_mpeg_audio_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -424,7 +424,7 @@ static const value_string mpeg_audio_T_genre_vals[] = {
 static int
 dissect_mpeg_audio_T_genre(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
