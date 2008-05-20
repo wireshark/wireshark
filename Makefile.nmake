@@ -1045,8 +1045,21 @@ clean-deps:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean-deps
 	cd ..
 
-checkapi:
+checkapi_local:
 	$(PERL) tools/checkAPIs.pl *.c
 #	$(wireshark_SOURCES) \
 #	$(TSHARK_TAP_SRC)
 # EXTRA_wireshark_SOURCES
+
+checkapi: # checkapi_local
+##	cd wiretap
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+##	cd ../codecs
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+##	cd ../gtk
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+##	cd ../epan
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+##	cd ../plugins
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+##	cd ..
