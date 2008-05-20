@@ -3530,13 +3530,13 @@ instead, the API description here should be good enough.
 2.8.1 ptvcursor API.
 
 ptvcursor_t*
-ptvcursor_new(proto_tree*, tvbuff_t*, gint offset)
+ptvcursor_new(proto_tree* tree, tvbuff_t* tvb, gint offset)
     This creates a new ptvcursor_t object for iterating over a tvbuff.
 You must call this and use this ptvcursor_t object so you can use the
 ptvcursor API.
 
 proto_item*
-ptvcursor_add(ptvcursor_t*, int hf, gint length, gboolean endianness)
+ptvcursor_add(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
     This will extract 'length' bytes from the tvbuff and place it in
 the proto_tree as field 'hf', which is a registered header_field. The
 pointer to the proto_item that is created is passed back to you. Internally,
@@ -3545,60 +3545,63 @@ starts where this call finished. The 'endianness' parameter matters for
 FT_UINT* and FT_INT* fields.
 
 proto_item*
-ptvcursor_add_no_advance(ptvcursor_t*, int hf, gint length, gboolean endianness)
+ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, gboolean endianness)
     Like ptvcursor_add, but does not advance the internal cursor.
 
 void
-ptvcursor_advance(ptvcursor_t*, gint length)
+ptvcursor_advance(ptvcursor_t* ptvc, gint length)
     Advances the internal cursor without adding anything to the proto_tree.
 
 void
-ptvcursor_free(ptvcursor_t*)
+ptvcursor_free(ptvcursor_t* ptvc)
     Frees the memory associated with the ptvcursor. You must call this
 after your dissection with the ptvcursor API is completed.
 
 
 proto_tree*
-ptvcursor_push_subtree(ptvcursor_t *ptvc, proto_item *it, gint ett_subtree)
+ptvcursor_push_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree)
     Pushes the current subtree in the tree stack of the cursor, creates a new
-    one and sets this one as the working tree.
+one and sets this one as the working tree.
 
 void
-ptvcursor_pop_subtree(ptvcursor_t *ptvc);
+ptvcursor_pop_subtree(ptvcursor_t* ptvc);
     Pops a subtree in the tree stack of the cursor
 
 proto_tree*
-ptvcursor_add_with_subtree(ptvcursor_t * ptvc, int hfindex, gint length,
+ptvcursor_add_with_subtree(ptvcursor_t* ptvc, int hfindex, gint length,
 			    gboolean little_endian, gint ett_subtree);
     Adds an item to the tree and creates a subtree.
-    If the length is unknown, length may be defined as
-    SUBTREE_UNDEFINED_LENGTH.  In this case, at the next pop, the item length
-    will be equal to the advancement of the cursor since the creation of the
-    subtree.
+If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
+In this case, at the next pop, the item length will be equal to the advancement
+of the cursor since the creation of the subtree.
 
-proto_tree *
-ptvcursor_add_text_with_subtree(ptvcursor_t * ptvc, gint length,
-				gint ett_subtree, const char *format, ...);
-    Add a text node to the tree and create a subtree
-    If the length is unknown, length may be defined as
-    SUBTREE_UNDEFINED_LENGTH.  In this case, at the next pop, the item length
-    will be equal to the advancement of the cursor since the creation of the
-    subtree.
+proto_tree*
+ptvcursor_add_text_with_subtree(ptvcursor_t* ptvc, gint length,
+				gint ett_subtree, const char* format, ...);
+    Add a text node to the tree and create a subtree.
+If the length is unknown, length may be defined as SUBTREE_UNDEFINED_LENGTH.
+In this case, at the next pop, the item length will be equal to the advancement
+of the cursor since the creation of the subtree.
 
 2.8.2 Miscellaneous functions.
 
 tvbuff_t*
-ptvcursor_tvbuff(ptvcursor_t*)
-    returns the tvbuff associated with the ptvcursor
+ptvcursor_tvbuff(ptvcursor_t* ptvc)
+    Returns the tvbuff associated with the ptvcursor.
 
 gint
-ptvcursor_current_offset(ptvcursor_t*)
-    returns the current offset
+ptvcursor_current_offset(ptvcursor_t* ptvc)
+    Returns the current offset.
 
 proto_tree*
-ptvcursor_tree(ptvcursor_t*)
-    returns the proto_tree associated with the ptvcursor
+ptvcursor_tree(ptvcursor_t* ptvc)
+    Returns the proto_tree associated with the ptvcursor.
 
 void
-ptvcursor_set_tree(ptvcursor_t*, proto_tree *)
-    sets a new proto_tree for the ptvcursor
+ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree)
+    Sets a new proto_tree for the ptvcursor.
+
+proto_tree*
+ptvcursor_set_subtree(ptvcursor_t* ptvc, proto_item* it, gint ett_subtree);
+    Creates a subtree and adds it to the cursor as the working tree but does
+not save the old working tree.
