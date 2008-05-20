@@ -52,7 +52,7 @@ libftypes_la_SOURCES =	\
 	ftype-time.c	\
 	ftype-tvbuff.c
 
-libftypes_la_LIBADD = @PCRE_LIBS@
+libftypes_la_LIBADD = @GLIB_LIBS@ @PCRE_LIBS@
 
 EXTRA_DIST = \
 	Makefile.nmake
