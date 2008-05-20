@@ -36,7 +36,7 @@ libwireshark_LIBS = \
 	$(GNUTLS_LIBS) \
 	$(LUA_LIBS) \
 	$(SMI_LIBS) \
-	..\wsutil\wsutil.lib \
+	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
 !IFDEF ICONV_DIR
 	$(ICONV_DIR)\lib\iconv.lib \
