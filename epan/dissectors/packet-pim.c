@@ -593,13 +593,14 @@ static const value_string type2vals[] = {
     { 6, "Graft" },
     { 7, "Graft-Ack" },
     { 8, "Candidate-RP-Advertisement" },
-    { 0, NULL },
+    { 9, "State-Refresh" },
+    { 0, NULL }
 };
 
 /*
- * For PIM v2, see RFC 2362, and draft-ietf-pim-sm-v2-new-03 (when PIM
- * is run over IPv6, the rules for computing the PIM checksum from the
- * draft in question, not from RFC 2362, should be used).
+ * For PIM v2, see RFC 4601, RFC 3973 and draft-ietf-pim-sm-v2-new-03
+ * (when PIM is run over IPv6, the rules for computing the PIM checksum
+ * from the draft in question, not from RFC 2362, should be used).
  */
 static void
 dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
@@ -1159,6 +1160,69 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset += advance;
 	    }
     breakbreak8:
+	    break;
+	  }
+
+	case 9:	/* State-Refresh */
+	  {
+	    const char *s;
+	    int advance;
+
+	    s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
+	    if (s == NULL)
+		break;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance,
+		"Group: %s", s);
+	    offset += advance;
+
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
+	    if (s == NULL)
+		break;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance,
+		"Source: %s", s);
+	    offset += advance;
+
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
+	    if (s == NULL)
+		break;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance,
+		"Originator: %s", s);
+	    offset += advance;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Rendezvous Point Tree %s",
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 1, 1,
+		    "set", "clear"));
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 4,
+		"Metric Preference: %u", tvb_get_ntohl(tvb, offset) & 0x7FFFFFFF);
+	    offset += 4;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 4,
+		"Metric: %u", tvb_get_ntohl(tvb, offset));
+	    offset += 4;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Masklen: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"TTL: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Prune indicator %s",
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x80, 8,
+		    "set", "clear"));
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Prune now %s",
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x40, 8,
+		    "set", "clear"));
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1, "Assert override %s",
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x20, 8,
+		    "set", "clear"));
+	    offset += 1;
+
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Interval: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
+
 	    break;
 	  }
 
