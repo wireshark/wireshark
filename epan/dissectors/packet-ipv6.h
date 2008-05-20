@@ -34,7 +34,8 @@
 
 #include <epan/ipv6-utils.h>
 
-#define INET6_ADDRSTRLEN	46
+/* this definition makes trouble with Microsoft Platform SDK: ws2tcpip.h and is used nowhere */
+/*#define INET6_ADDRSTRLEN	46*/
 
 /*
  * Definition for internet protocol version 6.
