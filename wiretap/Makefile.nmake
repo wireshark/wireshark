@@ -21,7 +21,7 @@ OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj) file_util.o
 
 wiretap_LIBS = \
 	$(GLIB_LIBS)	\
-	..\wsutil\wsutil.lib \
+	..\wsutil\libwsutil.lib \
 	$(ZLIB_LIBS)
 
 all: checkapi wiretap-$(WTAP_VERSION).dll
