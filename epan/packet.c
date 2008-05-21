@@ -1865,7 +1865,7 @@ void register_postdissector(dissector_handle_t handle) {
     num_of_postdissectors++;
 }
 
-boolean
+gboolean
 have_postdissector() {
     return (num_of_postdissectors > 0);
 }

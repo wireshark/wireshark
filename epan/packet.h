@@ -405,7 +405,7 @@ extern void dissector_dump_decodes(void);
  * dissector has been called.
  */
 extern void register_postdissector(dissector_handle_t);
-extern boolean have_postdissector();
+extern gboolean have_postdissector();
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 #ifdef __cplusplus
