@@ -2600,7 +2600,7 @@ compile).
 
 1.11 Submitting code for your new dissector.
 
-  - VERIFY that your dissecor code does not use prohibited or deprecated APIs
+  - VERIFY that your dissector code does not use prohibited or deprecated APIs
     as follows:
     perl <wireshark_root>/tools/checkAPIs.pl <source-filename(s)>
 
