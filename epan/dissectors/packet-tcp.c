@@ -2729,7 +2729,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       if (tree) { /* Add the seglen as an invisible field */
 
-        proto_tree_add_uint_hidden(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
+        hidden_item = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset, 4, tcph->th_seglen);
+		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
       }
 
