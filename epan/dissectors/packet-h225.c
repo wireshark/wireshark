@@ -1203,7 +1203,7 @@ dissect_h225_T_h245Ip(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_h225_T_h245IpPort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &ipv4_port, FALSE);
+                                                            0U, 65535U, &ipv4_port, FALSE);
 
   return offset;
 }
@@ -1238,7 +1238,7 @@ dissect_h225_OCTET_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_h225_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -1389,7 +1389,7 @@ dissect_h225_T_nsiOID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 static int
 dissect_h225_T_t35CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, &t35CountryCode, FALSE);
+                                                            0U, 255U, &t35CountryCode, FALSE);
 
   return offset;
 }
@@ -1399,7 +1399,7 @@ dissect_h225_T_t35CountryCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_h225_T_t35Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, &t35Extension, FALSE);
+                                                            0U, 255U, &t35Extension, FALSE);
 
   return offset;
 }
@@ -1409,7 +1409,7 @@ dissect_h225_T_t35Extension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_h225_T_manufacturerCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, &manufacturerCode, FALSE);
+                                                            0U, 65535U, &manufacturerCode, FALSE);
 
   return offset;
 }
@@ -2261,7 +2261,7 @@ dissect_h225_GatekeeperInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 int
 dissect_h225_BandWidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 4294967295U, NULL, FALSE);
+                                                            0U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -2271,7 +2271,7 @@ dissect_h225_BandWidth(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_h225_INTEGER_1_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 256U, NULL, FALSE);
+                                                            1U, 256U, NULL, FALSE);
 
   return offset;
 }
@@ -2747,7 +2747,7 @@ dissect_h225_EndpointType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 int
 dissect_h225_CallReferenceValue(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -3283,7 +3283,7 @@ dissect_h225_ScreeningIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_h225_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -3345,7 +3345,7 @@ dissect_h225_T_billingMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h225_INTEGER_1_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 4294967295U, NULL, FALSE);
+                                                            1U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3474,7 +3474,7 @@ dissect_h225_SEQUENCE_OF_ServiceControlSession(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_h225_INTEGER_0_4294967295(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 4294967295U, NULL, FALSE);
+                                                            0U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -3684,7 +3684,7 @@ dissect_h225_T_standard(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   gef_ctx_t *gefx;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 16383U, &value_int, TRUE);
+                                                            0U, 16383U, &value_int, TRUE);
 
   gefx = gef_ctx_get(actx->private_data);
   if (gefx) gefx->id = ep_strdup_printf("%d", value_int);
@@ -4045,7 +4045,7 @@ dissect_h225_SEQUENCE_OF_ExtendedAliasAddress(tvbuff_t *tvb _U_, int offset _U_,
 static int
 dissect_h225_INTEGER_1_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 31U, NULL, FALSE);
+                                                            1U, 31U, NULL, FALSE);
 
   return offset;
 }
@@ -5010,7 +5010,7 @@ dissect_h225_SEQUENCE_OF_TransportAddress(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_h225_INTEGER_0_127(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 127U, NULL, FALSE);
+                                                            0U, 127U, NULL, FALSE);
 
   return offset;
 }
@@ -5160,7 +5160,7 @@ dissect_h225_SecurityErrors2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_h225_RequestSeqNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 65535U, &(h225_pi->requestSeqNum), FALSE);
+                                                            1U, 65535U, &(h225_pi->requestSeqNum), FALSE);
 
   return offset;
 }
@@ -5170,7 +5170,7 @@ dissect_h225_RequestSeqNum(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 int
 dissect_h225_TimeToLive(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 4294967295U, NULL, FALSE);
+                                                            1U, 4294967295U, NULL, FALSE);
 
   return offset;
 }
@@ -5511,7 +5511,7 @@ dissect_h225_PrintableString(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_h225_INTEGER_1_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 255U, NULL, FALSE);
+                                                            1U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -5871,7 +5871,7 @@ dissect_h225_RegistrationRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_h225_INTEGER_1_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 65535U, NULL, FALSE);
+                                                            1U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -11029,6 +11029,7 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi)
 {
+	proto_item *hidden_item;
 	conversation_t* conversation = NULL;
 	h225ras_call_info_key h225ras_call_key;
 	h225ras_call_t *h225ras_call = NULL;
@@ -11090,7 +11091,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							/* No, so it's a duplicate request.
 							   Mark it as such. */
 							pi->is_duplicate = TRUE;
-							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
 						}
 						break;
 					}
@@ -11140,7 +11142,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
 					if (msg_category == 3 || msg_category == 5) {
 						pi->guid = h225ras_call->guid;
-						proto_tree_add_guid_hidden(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
+						hidden_item = proto_tree_add_guid(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
 					}
 
 					if (h225ras_call->rsp_num == 0) {
@@ -11156,7 +11159,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							/* No, so it's a duplicate response.
 							   Mark it as such. */
 							pi->is_duplicate = TRUE;
-							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
 						}
 					}
 

@@ -1,6 +1,6 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake 23131 2007-10-10 10:25:09Z kukosa $
+# $Id$
 #
 #
 # Wireshark - Network traffic analyzer
@@ -26,4 +26,9 @@ include ../../config.nmake
 include ../Makefile.preinc.nmake
 include Makefile.common
 include ../Makefile.inc.nmake
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl \
+	$(PROTOCOL_NAME).cnf \
+	packet-$(PROTOCOL_NAME)-template.c
 

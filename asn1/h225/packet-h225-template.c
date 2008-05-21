@@ -382,6 +382,7 @@ static void reset_h225_packet_info(h225_packet_info *pi)
 
 static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, h225_packet_info *pi)
 {
+	proto_item *hidden_item;
 	conversation_t* conversation = NULL;
 	h225ras_call_info_key h225ras_call_key;
 	h225ras_call_t *h225ras_call = NULL;
@@ -443,7 +444,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							/* No, so it's a duplicate request.
 							   Mark it as such. */
 							pi->is_duplicate = TRUE;
-							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
 						}
 						break;
 					}
@@ -493,7 +495,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					/* if this is an ACF, ARJ or DCF, DRJ, give guid to tap and make it filterable */
 					if (msg_category == 3 || msg_category == 5) {
 						pi->guid = h225ras_call->guid;
-						proto_tree_add_guid_hidden(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
+						hidden_item = proto_tree_add_guid(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
+						PROTO_ITEM_SET_HIDDEN(hidden_item);
 					}
 
 					if (h225ras_call->rsp_num == 0) {
@@ -509,7 +512,8 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 							/* No, so it's a duplicate response.
 							   Mark it as such. */
 							pi->is_duplicate = TRUE;
-							proto_tree_add_uint_hidden(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
+							PROTO_ITEM_SET_HIDDEN(hidden_item);
 						}
 					}
 

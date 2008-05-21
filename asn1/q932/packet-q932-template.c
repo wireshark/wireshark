@@ -241,7 +241,8 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   offset = 0;
 
-  ti = proto_tree_add_item_hidden(tree, proto_q932, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_q932, tvb, offset, -1, FALSE);
+  PROTO_ITEM_SET_HIDDEN(ti);
 
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);

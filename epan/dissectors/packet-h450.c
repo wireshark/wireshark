@@ -942,7 +942,7 @@ dissect_h450_InterpretationApdu(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_h450_T_rosApdus_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "h450.cnf"
+#line 50 "h450.cnf"
   h450_rose_ctx.apdu_depth = 1;
   actx->rose_ctx = &h450_rose_ctx;
 
@@ -996,7 +996,10 @@ static const per_sequence_t h450_H4501SupplementaryService_sequence[] = {
 static int
 dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 43 "h450.cnf"
-  proto_tree_add_item_hidden(tree, proto_h450, tvb, offset, -1, FALSE);
+  proto_item *hidden_item;
+
+  hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_H4501SupplementaryService, h450_H4501SupplementaryService_sequence);
@@ -1009,7 +1012,7 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_h450_InvokeIDs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -2109,7 +2112,7 @@ dissect_h450_3_DiversionReason(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_h450_3_INTEGER_1_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 15U, NULL, FALSE);
+                                                            1U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -2821,7 +2824,7 @@ static int dissect_h450_4_PAR_undefined_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int
 dissect_h450_5_ParkedToPosition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -3294,7 +3297,7 @@ static int dissect_h450_5_PAR_undefined_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 static int
 dissect_h450_6_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 255U, NULL, FALSE);
+                                                            0U, 255U, NULL, FALSE);
 
   return offset;
 }
@@ -3402,7 +3405,7 @@ dissect_h450_7_BasicService(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_h450_7_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -3446,7 +3449,7 @@ dissect_h450_7_MsgCentreId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_h450_7_NbOfMessages(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 65535U, NULL, FALSE);
+                                                            0U, 65535U, NULL, FALSE);
 
   return offset;
 }
@@ -3466,7 +3469,7 @@ dissect_h450_7_TimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_h450_7_INTEGER_0_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 9U, NULL, FALSE);
+                                                            0U, 9U, NULL, FALSE);
 
   return offset;
 }
@@ -4127,7 +4130,7 @@ static const value_string h450_11_CICapabilityLevel_vals[] = {
 static int
 dissect_h450_11_CICapabilityLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              1U, 3U, NULL, FALSE);
+                                                            1U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -4242,7 +4245,7 @@ static const value_string h450_11_CIProtectionLevel_vals[] = {
 static int
 dissect_h450_11_CIProtectionLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 3U, NULL, FALSE);
+                                                            0U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -4561,7 +4564,7 @@ dissect_h450_12_PartyCategory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_h450_12_SSCIProtectionLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                              0U, 3U, NULL, FALSE);
+                                                            0U, 3U, NULL, FALSE);
 
   return offset;
 }
@@ -4891,6 +4894,7 @@ static const h450_err_t *get_err(gint32 errcode) {
 /*--- dissect_h450_arg ------------------------------------------------------*/
 static int   
 dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
   gint32 opcode;
@@ -4909,7 +4913,8 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (!op_ptr)
     return offset; 
 
-  proto_tree_add_uint_hidden(tree, hf_h450_operation, tvb, 0, 0, opcode);
+  hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   p = match_strval(opcode, VALS(h450_str_operation));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -4931,6 +4936,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*--- dissect_h450_res ------------------------------------------------------*/
 static int   
 dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
   gint32 opcode;
@@ -4949,7 +4955,8 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (!op_ptr)
     return offset; 
 
-  proto_tree_add_uint_hidden(tree, hf_h450_operation, tvb, 0, 0, opcode);
+  hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   p = match_strval(opcode, VALS(h450_str_operation));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -4971,6 +4978,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*--- dissect_h450_err ------------------------------------------------------*/
 static int   
 dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  proto_item *hidden_item;
   int offset;
   rose_ctx_t *rctx;
   gint32 errcode;
@@ -4989,7 +4997,8 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   if (!err_ptr)
     return offset; 
 
-  proto_tree_add_uint_hidden(tree, hf_h450_error, tvb, 0, 0, errcode);
+  hidden_item = proto_tree_add_uint(tree, hf_h450_error, tvb, 0, 0, errcode);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   p = match_strval(errcode, VALS(h450_str_error));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -6504,7 +6513,7 @@ void proto_register_h450(void) {
         "h450_12.NULL", HFILL }},
 
 /*--- End of included file: packet-h450-hfarr.c ---*/
-#line 252 "packet-h450-template.c"
+#line 258 "packet-h450-template.c"
   };
 
   /* List of subtrees */
@@ -6691,7 +6700,7 @@ void proto_register_h450(void) {
     &ett_h450_12_FeatureControl,
 
 /*--- End of included file: packet-h450-ettarr.c ---*/
-#line 257 "packet-h450-template.c"
+#line 263 "packet-h450-template.c"
   };
 
 

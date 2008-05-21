@@ -578,7 +578,7 @@ static const value_string q932_NetworkProtocolProfile_U_vals[] = {
 static int
 dissect_q932_NetworkProtocolProfile_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
+                                                NULL);
 
   return offset;
 }
@@ -755,7 +755,8 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   offset = 0;
 
-  ti = proto_tree_add_item_hidden(tree, proto_q932, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_q932, tvb, offset, -1, FALSE);
+  PROTO_ITEM_SET_HIDDEN(ti);
 
   ie_type = tvb_get_guint8(tvb, offset);
   ie_len = tvb_get_guint8(tvb, offset + 1);
@@ -961,7 +962,7 @@ void proto_register_q932(void) {
         "q932.AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 298 "packet-q932-template.c"
+#line 299 "packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -986,7 +987,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 305 "packet-q932-template.c"
+#line 306 "packet-q932-template.c"
   };
 
   /* Register protocol and dissector */

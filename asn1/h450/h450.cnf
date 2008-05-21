@@ -40,7 +40,10 @@ OPERATION.&ResultType
 ERROR.&ParameterType
 
 #.FN_HDR H4501SupplementaryService
-  proto_tree_add_item_hidden(tree, proto_h450, tvb, offset, -1, FALSE);
+  proto_item *hidden_item;
+
+  hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, FALSE);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
 #.END
 
 #.FN_HDR ServiceApdus/rosApdus/_item
