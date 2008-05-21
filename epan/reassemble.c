@@ -800,9 +800,9 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 			/* overflowing, for example? */
 			/*  Actually: there is at least one pathological case wherein there can be fragments
 			    on the list which are for offsets greater than max (i.e.: following a gap after max).
-			    (Something related to "defrag_until_fin" where the fin packet has an offset less than
-			    the highestfragment  offset seen ? [Seen from a fuzz-test: bug #2470]).
-                            So: the "overlap" compare must only be done for fragments with (offset+len) <= max
+			    (Apparently a "DESEGMENT_UNTIL_FIN" was involved wherein the FIN packet had an offset
+			    less than the highest fragment offset seen. [Seen from a fuzz-test: bug #2470]).
+                            Note that the "overlap" compare must only be done for fragments with (offset+len) <= max
 			    and thus within the newly g_malloc'd buffer.
 			*/
 			    
