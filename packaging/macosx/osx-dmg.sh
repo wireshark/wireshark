@@ -116,7 +116,7 @@ case `uname -p` in
 esac
 
 # Set the version
-version=`grep '^AM_INIT_AUTOMAKE' ../../configure.in | sed -e 's/.*, //' -e 's/)//'`
+version=`grep '^AC_INIT' ../../configure.in | sed -e 's/.*, //' -e 's/)//'`
 if [ -z "$version" ] ; then
 	echo "Cannot find VERSION in ../../configure.in"
 	exit 1
