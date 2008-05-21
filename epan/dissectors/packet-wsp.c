@@ -1886,6 +1886,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 #define wkh_0_Declarations					/* Declarations for Parsing */ \
 	gboolean ok = FALSE; /* Triggers error notification code at end */ \
 	proto_item *ti = NULL; /* Needed for error notification at end */ \
+	proto_item *hidden_item = NULL; \
 	guint32 val_start = hdr_start + 1; \
 	guint8 hdr_id = tvb_get_guint8 (tvb, hdr_start) & 0x7F; \
 	guint8 val_id = tvb_get_guint8 (tvb, val_start); \
@@ -1895,10 +1896,11 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 	const gchar *val_str = NULL
 
 #define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
-	proto_tree_add_string_hidden(tree, hf_hdr_name, \
+	hidden_item = proto_tree_add_string(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
 			val_to_str (hdr_id, vals_field_names, \
 				"<Unknown WSP header field 0x%02X>")); \
+				PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	if (val_id & 0x80) { /* Well-known value */ \
 		offset++; \
 		/* Well-known value processing starts HERE \
@@ -2107,6 +2109,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	guint8 peek;
 	gboolean ok = FALSE;
 	proto_item *ti = NULL;
+	proto_item *hidden_item = NULL;
 	proto_tree *parameter_tree = NULL;
 
 	/* this function will call proto_item_append_string() which
@@ -3865,10 +3868,11 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 #undef wkh_1_WellKnownValue
 #define wkh_1_WellKnownValue			/* Parse Well Known Value */ \
 	tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
-	proto_tree_add_string_hidden(tree, hf_hdr_name, \
+	hidden_item = proto_tree_add_string(tree, hf_hdr_name, \
 			tvb, hdr_start, offset - hdr_start, \
 			val_to_str (hdr_id, vals_openwave_field_names, \
 					"<Unknown WSP header field 0x%02X>")); \
+					PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	if (val_id & 0x80) { /* Well-known value */ \
 		offset++; \
 		/* Well-known value processing starts HERE \
