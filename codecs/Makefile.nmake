@@ -34,4 +34,7 @@ distclean: clean
 
 maintainer-clean: distclean
 
-
+checkapi: 
+	$(PERL) ../tools/checkAPIs.pl \
+	G711a/G711adecode.c \
+	G711u/G711udecode.c

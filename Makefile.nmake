@@ -1051,15 +1051,19 @@ checkapi_local:
 #	$(TSHARK_TAP_SRC)
 # EXTRA_wireshark_SOURCES
 
-checkapi: # checkapi_local
-##	cd wiretap
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-##	cd ../codecs
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+checkapi: 
+# checkapi_local
+	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../codecs
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 ##	cd ../gtk
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-##	cd ../epan
+	cd ../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-##	cd ../plugins
-##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-##	cd ..
+	cd ../epan/dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ..
+	cd ../plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ..
