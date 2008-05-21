@@ -318,7 +318,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.sccp_info = NULL;
 	edt->pi.clnp_srcref = 0;
 	edt->pi.clnp_dstref = 0;
-	
+
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
@@ -1515,7 +1515,7 @@ void heur_dissector_delete(const char *name, heur_dissector_t dissector, int pro
 	heur_dissector_list_t *sub_dissectors = find_heur_dissector_list(name);
 	heur_dtbl_entry_t dtbl_entry;
 	GSList* found_entry;
-	
+
 	/* sanity check */
 	g_assert(sub_dissectors != NULL);
 
@@ -1850,14 +1850,17 @@ dissector_dump_decodes_display(const gchar *table_name,
 }
 
 void
-dissector_dump_decodes() {
+dissector_dump_decodes()
+{
 	dissector_all_tables_foreach(dissector_dump_decodes_display, NULL);
 }
 
 static GPtrArray* post_dissectors = NULL;
 static guint num_of_postdissectors = 0;
 
-void register_postdissector(dissector_handle_t handle) {
+void
+register_postdissector(dissector_handle_t handle)
+{
     if (!post_dissectors)
         post_dissectors = g_ptr_array_new();
 
@@ -1866,15 +1869,30 @@ void register_postdissector(dissector_handle_t handle) {
 }
 
 gboolean
-have_postdissector() {
-    return (num_of_postdissectors > 0);
+have_postdissector()
+{
+    guint i;
+    dissector_handle_t handle;
+
+    for(i = 0; i < num_of_postdissectors; i++) {
+	handle = (dissector_handle_t) g_ptr_array_index(post_dissectors,i);
+
+	if (handle->protocol != NULL
+	    && proto_is_protocol_enabled(handle->protocol)) {
+	    /* We have at least one enabled postdissector */
+	    return TRUE;
+	}
+    }
+    return FALSE;
 }
 
-extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+void
+call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
     guint i;
-    for(i=0;i<num_of_postdissectors;i++) {
+
+    for(i = 0; i < num_of_postdissectors; i++) {
         call_dissector_only((dissector_handle_t) g_ptr_array_index(post_dissectors,i),
-                       tvb,pinfo,tree);
+			    tvb,pinfo,tree);
     }
 }
-
