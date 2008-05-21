@@ -52,6 +52,11 @@ my @prohibitedAPIs=
 	'htons',
 	'strdup',
 	'strndup',
+	### non-ANSI C
+	# use memset, memcpy, memcmp instead of these:
+	'bzero',
+	'bcopy',
+	'bcmp',
 	# use ep_*, se_*, or g_* functions instead of these:
 	# (One thing to be aware of is that space allocated with malloc()
 	# may not be freeable--at least on Windows--with g_free() and
@@ -83,7 +88,9 @@ my @prohibitedAPIs=
 	'unlink',
 	'remove',
 	'fopen',
-	'freopen'
+	'freopen',
+	# Misc
+	'tmpnam'            # use mkstemp
 );
 
 # APIs that SHOULD NOT be used in Wireshark (any more)
