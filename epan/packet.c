@@ -1865,6 +1865,11 @@ void register_postdissector(dissector_handle_t handle) {
     num_of_postdissectors++;
 }
 
+boolean
+have_postdissector() {
+    return (num_of_postdissectors > 0);
+}
+
 extern void call_all_postdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     guint i;
     for(i=0;i<num_of_postdissectors;i++) {
