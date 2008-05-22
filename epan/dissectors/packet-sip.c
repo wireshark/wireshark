@@ -1530,7 +1530,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
 	guint request_for_response = 0;
-	guint32 response_time;
+	guint32 response_time = 0;
 	int strlen_to_copy;
 
 
