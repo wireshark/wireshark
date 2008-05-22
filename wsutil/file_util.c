@@ -2,7 +2,8 @@
  *
  * $Id$
  *
- * Wiretap Library
+ * (Originally part of the Wiretap Library, now part of the Wireshark
+ *  utility library)
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * This program is free software; you can redistribute it and/or
@@ -24,9 +25,9 @@
 /* file wrapper functions to prevent the file functions from GLib like g_open(),
  * as code compiled with MSVC 7 and above will collide with libs linked with msvcrt.dll (MSVC 6), lib GLib is
  *
- * DO NOT USE THESE FUNCTIONS DIRECTLY, USE eth_open() AND ALIKE FUNCTIONS FROM file_util.h INSTEAD!!!
+ * DO NOT USE THESE FUNCTIONS DIRECTLY, USE ws_open() AND ALIKE FUNCTIONS FROM file_util.h INSTEAD!!!
  *
- * the following code is stripped down code copied from the GLib file glib/gstdio.h 
+ * the following code is stripped down code copied from the GLib file glib/gstdio.h
  * stipped down, because this is used on _WIN32 only and we use only wide char functions */
 
 #ifdef HAVE_CONFIG_H
@@ -65,11 +66,11 @@
  *
  * Returns: a new file descriptor, or -1 if an error occurred. The
  * return value can be used exactly like the return value from open().
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_open (const gchar *filename,
+ws_stdio_open (const gchar *filename,
 	int          flags,
 	int          mode)
 {
@@ -78,7 +79,7 @@ eth_stdio_open (const gchar *filename,
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
-      
+
       if (wfilename == NULL)
 	{
 	  errno = EINVAL;
@@ -104,20 +105,20 @@ eth_stdio_open (const gchar *filename,
  * @oldfilename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @newfilename: a pathname in the GLib file name encoding
  *
- * A wrapper for the POSIX rename() function. The rename() function 
+ * A wrapper for the POSIX rename() function. The rename() function
  * renames a file, moving it between directories if required.
- * 
+ *
  * See your C library manual for more details about how rename() works
  * on your system. Note in particular that on Win9x it is not possible
  * to rename a file if a file with the new name already exists. Also
  * it is not possible in general on Windows to rename an open file.
  *
  * Returns: 0 if the renaming succeeded, -1 if an error occurred
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_rename (const gchar *oldfilename,
+ws_stdio_rename (const gchar *oldfilename,
 	  const gchar *newfilename)
 {
 #ifdef _WIN32
@@ -164,7 +165,7 @@ eth_stdio_rename (const gchar *oldfilename,
 
       g_free (woldfilename);
       g_free (wnewfilename);
-      
+
       errno = save_errno;
       return retval;
 #else
@@ -173,22 +174,22 @@ eth_stdio_rename (const gchar *oldfilename,
 }
 
 /**
- * g_mkdir: 
+ * g_mkdir:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @mode: permissions to use for the newly created directory
  *
- * A wrapper for the POSIX mkdir() function. The mkdir() function 
+ * A wrapper for the POSIX mkdir() function. The mkdir() function
  * attempts to create a directory with the given name and permissions.
- * 
+ *
  * See the C library manual for more details about mkdir().
  *
- * Returns: 0 if the directory was successfully created, -1 if an error 
+ * Returns: 0 if the directory was successfully created, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_mkdir (const gchar *filename,
+ws_stdio_mkdir (const gchar *filename,
 	 int          mode)
 {
 #ifdef _WIN32
@@ -206,7 +207,7 @@ eth_stdio_mkdir (const gchar *filename,
       save_errno = errno;
 
       g_free (wfilename);
-      
+
       errno = save_errno;
       return retval;
 #else
@@ -215,23 +216,23 @@ eth_stdio_mkdir (const gchar *filename,
 }
 
 /**
- * g_stat: 
+ * g_stat:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  * @buf: a pointer to a <structname>stat</structname> struct, which
  *    will be filled with the file information
  *
- * A wrapper for the POSIX stat() function. The stat() function 
+ * A wrapper for the POSIX stat() function. The stat() function
  * returns information about a file.
- * 
+ *
  * See the C library manual for more details about stat().
  *
- * Returns: 0 if the information was successfully retrieved, -1 if an error 
+ * Returns: 0 if the information was successfully retrieved, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_stat (const gchar *filename,
+ws_stdio_stat (const gchar *filename,
 	struct stat *buf)
 {
 #ifdef _WIN32
@@ -269,22 +270,22 @@ eth_stdio_stat (const gchar *filename,
  * g_unlink:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
  *
- * A wrapper for the POSIX unlink() function. The unlink() function 
- * deletes a name from the filesystem. If this was the last link to the 
+ * A wrapper for the POSIX unlink() function. The unlink() function
+ * deletes a name from the filesystem. If this was the last link to the
  * file and no processes have it opened, the diskspace occupied by the
  * file is freed.
- * 
+ *
  * See your C library manual for more details about unlink(). Note
  * that on Windows, it is in general not possible to delete files that
  * are open to some process, or mapped into memory.
  *
- * Returns: 0 if the name was successfully deleted, -1 if an error 
+ * Returns: 0 if the name was successfully deleted, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_unlink (const gchar *filename)
+ws_stdio_unlink (const gchar *filename)
 {
 #ifdef _WIN32
       gchar *cp_filename = g_locale_from_utf8 (filename, -1, NULL, NULL, NULL);
@@ -315,7 +316,7 @@ eth_stdio_unlink (const gchar *filename)
  *
  * A wrapper for the POSIX remove() function. The remove() function
  * deletes a name from the filesystem.
- * 
+ *
  * See your C library manual for more details about how remove() works
  * on your system. On Unix, remove() removes also directories, as it
  * calls unlink() for files and rmdir() for directories. On Windows,
@@ -330,13 +331,13 @@ eth_stdio_unlink (const gchar *filename)
  * fail. Any errno value set by remove() will be overwritten by that
  * set by rmdir().
  *
- * Returns: 0 if the file was successfully removed, -1 if an error 
+ * Returns: 0 if the file was successfully removed, -1 if an error
  *    occurred
- * 
+ *
  * Since: 2.6
  */
 int
-eth_stdio_remove (const gchar *filename)
+ws_stdio_remove (const gchar *filename)
 {
 #ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
@@ -366,21 +367,21 @@ eth_stdio_remove (const gchar *filename)
 /**
  * g_fopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  *
  * A wrapper for the POSIX fopen() function. The fopen() function opens
- * a file and associates a new stream with it. 
- * 
+ * a file and associates a new stream with it.
+ *
  * See the C library manual for more details about fopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred
- * 
+ *
  * Since: 2.6
  */
 FILE *
-eth_stdio_fopen (const gchar *filename,
+ws_stdio_fopen (const gchar *filename,
 	 const gchar *mode)
 {
 #ifdef _WIN32
@@ -403,7 +404,7 @@ eth_stdio_fopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-	
+
       retval = _wfopen (wfilename, wmode);
       save_errno = errno;
 
@@ -420,22 +421,22 @@ eth_stdio_fopen (const gchar *filename,
 /**
  * g_freopen:
  * @filename: a pathname in the GLib file name encoding (UTF-8 on Windows)
- * @mode: a string describing the mode in which the file should be 
+ * @mode: a string describing the mode in which the file should be
  *   opened
  * @stream: an existing stream which will be reused, or %NULL
  *
  * A wrapper for the POSIX freopen() function. The freopen() function
  * opens a file and associates it with an existing stream.
- * 
+ *
  * See the C library manual for more details about freopen().
  *
  * Returns: A <type>FILE</type> pointer if the file was successfully
  *    opened, or %NULL if an error occurred.
- * 
+ *
  * Since: 2.6
  */
 FILE *
-eth_stdio_freopen (const gchar *filename,
+ws_stdio_freopen (const gchar *filename,
 	   const gchar *mode,
 	   FILE        *stream)
 {
@@ -450,7 +451,7 @@ eth_stdio_freopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-      
+
       wmode = g_utf8_to_utf16 (mode, -1, NULL, NULL, NULL);
 
       if (wmode == NULL)
@@ -459,7 +460,7 @@ eth_stdio_freopen (const gchar *filename,
 	  errno = EINVAL;
 	  return NULL;
 	}
-      
+
       retval = _wfreopen (wfilename, wmode, stream);
       save_errno = errno;
 

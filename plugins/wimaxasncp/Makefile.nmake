@@ -10,16 +10,16 @@ include ..\..\Makefile.nmake.inc
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
-	
+
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
-LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
 CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
@@ -100,12 +100,12 @@ wimaxasncp_dict.obj :   wimaxasncp_dict.c
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
-	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
+	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
 distclean: clean
 	rm -f wimaxasncp_dict.c wimaxasncp_dict_lex.h
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

@@ -40,7 +40,7 @@
 #include "../simple_dialog.h"
 #include "../tempfile.h"
 #include "../util.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/keys.h"
@@ -456,7 +456,7 @@ export_carrays_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   /* init the printing range */
   packet_range_init(&args->range);
 
-  export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File", 
+  export_carrays_win = open_print_dialog("Wireshark: Export as \"C Arrays\" File",
 					 output_action_export_carrays, args);
   g_signal_connect(export_carrays_win, "destroy", G_CALLBACK(print_destroy_cb), &export_carrays_win);
 }
@@ -970,7 +970,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     /* remember to restore these values later! */
     tmp_oldfile = args->file;
     args->file = g_strdup(tmp_namebuf);
-    eth_unlink(args->file);
+    ws_unlink(args->file);
     args->to_file = TRUE;
 #else
     g_free(args->cmd);
@@ -1104,7 +1104,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     print_mswin(args->file);
 
     /* trash temp file */
-    eth_remove(args->file);
+    ws_remove(args->file);
 
     /* restore old settings */
     args->to_file = FALSE;

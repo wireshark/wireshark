@@ -9,12 +9,12 @@ include moduleinfo.nmake
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../wimax /I../../wiretap $(GLIB_CFLAGS) \
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../wimax $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fd.\ -c $<
-	
+
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
@@ -93,11 +93,11 @@ plugin.c: $(DISSECTOR_SRC) moduleinfo.h ../../tools/make-dissector-reg
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
-	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
+	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
 distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

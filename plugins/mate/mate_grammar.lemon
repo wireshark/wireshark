@@ -1,7 +1,7 @@
 %include {
 
 /* mate_grammar.lemon
-* MATE's configuration language grammar 
+* MATE's configuration language grammar
 *
 * Copyright 2005, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
 *
@@ -15,12 +15,12 @@
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
 * of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -28,7 +28,7 @@
 
 #include "mate.h"
 #include "mate_grammar.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #define DUMMY void*
 
@@ -68,7 +68,7 @@ typedef struct _gog_statements {
 typedef struct _transf_match_t {
     avpl_match_mode match_mode;
     AVPL* avpl;
-} transf_match_t; 
+} transf_match_t;
 
 typedef struct _transf_action_t {
     avpl_replace_mode replace_mode;
@@ -81,13 +81,13 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 	gint i;
 	mate_config_frame* current_frame;
 	va_list list;
-	
+
 	va_start( list, fmt );
 	g_vsnprintf(error_buffer,sizeof(error_buffer),fmt,list);
 	va_end( list );
 
 	i = (gint) mc->config_stack->len;
-	
+
 	while (i--) {
 
 		if (i>0) {
@@ -95,30 +95,30 @@ static void configuration_error(mate_config* mc, const gchar* fmt, ...) {
 		} else {
 			incl = " ";
 		}
-		
+
 		current_frame = g_ptr_array_index(mc->config_stack,(guint)i);
-		
+
 		g_string_append_printf(mc->config_error,"%s%s at line %u",incl, current_frame->filename, current_frame->linenum);
 	}
-	
+
 	g_string_append_printf(mc->config_error,": %s\n",error_buffer);
-	
+
 	THROW(MateConfigError);
 
 }
 
 static AVPL_Transf* new_transform_elem(AVPL* match, AVPL* replace, avpl_match_mode match_mode, avpl_replace_mode replace_mode) {
 	 AVPL_Transf* t = g_malloc(sizeof(AVPL_Transf));
-	 
+
 	 t->name = NULL;
 	 t->match = match;
 	 t->replace = replace;
 	 t->match_mode = match_mode;
 	 t->replace_mode = replace_mode;
-	 
+
 	 t->map = NULL;
 	 t->next = NULL;
-	 
+
 	 return t;
 }
 
@@ -128,12 +128,12 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 	gchar* r;
 	guint i,v;
 	gchar c;
-	
+
 	vec = g_strsplit(s,":",0);
-	
+
 	for (i = 0; vec[i]; i++) {
 		g_strdown(vec[i]);
-		
+
 		v = 0;
 		switch ( strlen(vec[i]) ) {
 		 case 2:
@@ -156,16 +156,16 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 		  default:
 			configuration_error(mc,"bad token %s",s);
 		}
-		
-		g_string_append_printf(str,":%.2X",v);					
+
+		g_string_append_printf(str,":%.2X",v);
 	}
-	
+
 	g_strfreev(vec);
-	
+
 	g_string_erase(str,0,1);
-	
+
 	r = str->str;
-	
+
 	g_string_free(str,FALSE);
 
 	return r;
@@ -207,9 +207,9 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 
 %type criteria_statement { pdu_criteria_t* }
 %type accept_mode { accept_mode_t }
-%type pdu_drop_unassigned_statement { gboolean } 
-%type discard_pdu_data_statement { gboolean } 
-%type last_extracted_statement { gboolean } 
+%type pdu_drop_unassigned_statement { gboolean }
+%type discard_pdu_data_statement { gboolean }
+%type last_extracted_statement { gboolean }
 
 %type extraction_statement {extraction_t*}
 %type extraction_statements {extraction_t*}
@@ -264,8 +264,8 @@ decl ::= DONE_KW SEMICOLON.
 
 debug_decl ::= DEBUG_KW OPEN_BRACE dbgfile_default dbglevel_default pdu_dbglevel_default gop_dbglevel_default gog_dbglevel_default CLOSE_BRACE SEMICOLON.
 
-dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = eth_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE); }
-dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = eth_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE);  }
+dbgfile_default ::= FILENAME_KW QUOTED(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE); }
+dbgfile_default ::= FILENAME_KW NAME(Filename) SEMICOLON. { mc->dbg_facility = ws_fopen(Filename,"w"); if (mc->dbg_facility == NULL) report_open_failure(Filename,errno,TRUE);  }
 dbgfile_default ::= .
 
 dbglevel_default ::= LEVEL_KW INTEGER(LevelString) SEMICOLON. { mc->dbg_lvl = (int) strtol(LevelString,NULL,10); }
@@ -341,9 +341,9 @@ transform_decl(A) ::= TRANSFORM_KW NAME(B) transform_body(C) SEMICOLON. {
 
 	for ( c = C; c; c = c->next )
 		c->name = g_strdup(B);
-	
+
 	g_hash_table_insert(mc->transfs,C->name,C);
-	
+
 	A = NULL;
 }
 
@@ -351,7 +351,7 @@ transform_body(A) ::= OPEN_BRACE transform_statements(B) CLOSE_BRACE. { A = B; }
 
 transform_statements(A) ::= transform_statements(C) transform_statement(B). {
     AVPL_Transf* c;
-	
+
 	for ( c = C; c->next; c = c->next ) ;
 	c->next = B;
 	A = C;
@@ -411,12 +411,12 @@ pdu_decl ::=
             last_extracted_statement(LastExtracted)
         CLOSE_BRACE SEMICOLON.
 {
-    
+
 	mate_cfg_pdu* cfg  = new_pducfg(Name);
 	extraction_t *extraction, *next_extraction;
 	GPtrArray* transport_stack = g_ptr_array_new();
 	int i;
-	
+
 	if (! cfg ) configuration_error(mc,"could not create Pdu %s.",Name);
 
 	cfg->hfid_proto = Field->id;
@@ -424,34 +424,34 @@ pdu_decl ::=
 	cfg->last_extracted = LastExtracted;
 	cfg->discard = DistcardPduData;
 	cfg->drop_unassigned = DropUnassigned;
-	
+
 	g_string_append_printf(mc->protos_filter,"||%s",Field->abbrev);
 
 	/* flip the transport_stack */
 	for (i = Stack->len - 1; Stack->len; i--) {
 		g_ptr_array_add(transport_stack,g_ptr_array_remove_index(Stack,i));
 	}
-	
+
 	g_ptr_array_free(Stack,FALSE);
-	
+
 	cfg->transport_ranges = transport_stack;
 	cfg->payload_ranges = Payload;
-	
+
 	if (Criteria) {
 		cfg->criterium = Criteria->criterium_avpl;
 		cfg->criterium_match_mode = Criteria->criterium_match_mode;
 		cfg->criterium_accept_mode = Criteria->criterium_accept_mode;
 	}
-	
+
 	cfg->transforms = Transform;
-	
+
 	for (extraction = Extraction; extraction; extraction = next_extraction) {
 		next_extraction = extraction->next;
-		
+
 		if ( ! add_hfid(extraction->hfi, extraction->as, cfg->hfids_attr) ) {
 			configuration_error(mc,"MATE: failed to create extraction rule '%s'",extraction->as);
 		}
-		
+
 		g_free(extraction);
 	}
 }
@@ -482,20 +482,20 @@ extraction_statement(A) ::= EXTRACT_KW NAME(NAME) FROM_KW field(FIELD) SEMICOLON
 }
 
 
-pdu_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; } 
+pdu_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; }
 pdu_drop_unassigned_statement(A) ::= . { A =  mc->defaults.pdu.drop_unassigned; }
 
-discard_pdu_data_statement(A) ::=  DISCARD_PDU_DATA_KW true_false(B) SEMICOLON. { A = B; }  
-discard_pdu_data_statement(A) ::=  . { A =  mc->defaults.pdu.discard; } 
+discard_pdu_data_statement(A) ::=  DISCARD_PDU_DATA_KW true_false(B) SEMICOLON. { A = B; }
+discard_pdu_data_statement(A) ::=  . { A =  mc->defaults.pdu.discard; }
 
-last_extracted_statement(A) ::= LAST_PDU_KW true_false(B) SEMICOLON. { A = B; }  
-last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }  
+last_extracted_statement(A) ::= LAST_PDU_KW true_false(B) SEMICOLON. { A = B; }
+last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }
 
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 	int* hfidp = g_malloc(sizeof(int));
 
 	g_string_append_printf(mc->fields_filter,"||%s",C->abbrev);
-	
+
 	*hfidp = C->id;
 	g_ptr_array_add(B,hfidp);
 	A = B;
@@ -504,7 +504,7 @@ proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 proto_stack(A) ::= field(B). {
 	int* hfidp = g_malloc(sizeof(int));
 	*hfidp = B->id;
-	
+
 	g_string_append_printf(mc->fields_filter,"||%s",B->abbrev);
 
 	A = g_ptr_array_new();
@@ -518,7 +518,7 @@ field(A) ::= NAME(B). {
 /******************************************* GOP
 */
 
-gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPEN_BRACE 
+gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPEN_BRACE
         gop_start_statement(Start)
         gop_stop_statement(Stop)
         extra_statement(Extra)
@@ -531,14 +531,14 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
         show_times_statement(ShowTimes)
     CLOSE_BRACE SEMICOLON. {
 	mate_cfg_gop* cfg;
-	
+
 	if (g_hash_table_lookup(mc->gopcfgs,Name)) configuration_error(mc,"A Gop Named '%s' exists already.",Name);
 	if (g_hash_table_lookup(mc->gops_by_pduname,PduName) ) configuration_error(mc,"Gop for Pdu '%s' exists already",PduName);
 
 	cfg = new_gopcfg(Name);
 	g_hash_table_insert(mc->gops_by_pduname,PduName,cfg);
 	g_hash_table_insert(mc->gopcfgs,cfg->name,cfg);
-    
+
 	cfg->on_pdu = PduName;
 	cfg->key = Key;
     cfg->drop_unassigned = DropUnassigned;
@@ -550,12 +550,12 @@ gop_decl(A) ::= GOP_KW NAME(Name) ON_KW pdu_name(PduName) MATCH_KW avpl(Key) OPE
     cfg->start = Start;
     cfg->stop = Stop;
     cfg->transforms = Transform;
-    
+
     merge_avpl(cfg->extra,Extra,TRUE);
     delete_avpl(Extra,TRUE);
 }
 
-gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; } 
+gop_drop_unassigned_statement(A) ::= DROP_UNASSIGNED_KW true_false(B) SEMICOLON. { A = B; }
 gop_drop_unassigned_statement(A) ::= . { A =  mc->defaults.gop.drop_unassigned; }
 
 gop_start_statement(A) ::= START_KW avpl(B) SEMICOLON. { A = B; }
@@ -608,7 +608,7 @@ time_value(A) ::= INTEGER(B). {
 /************* GOG
 */
 
-gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE 
+gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
     gog_key_statements(Keys)
     extra_statement(Extra)
     transform_list_statement(Transforms)
@@ -616,18 +616,18 @@ gog_decl ::= GOG_KW NAME(Name) OPEN_BRACE
     gog_goptree_statement(Tree)
  CLOSE_BRACE SEMICOLON. {
 	mate_cfg_gog* cfg = NULL;
-	
+
 	if ( g_hash_table_lookup(mc->gogcfgs,Name) ) {
 		configuration_error(mc,"Gog '%s' exists already ",Name);
 	}
-	
+
 	cfg = new_gogcfg(Name);
 
 	cfg->expiration = Expiration;
 	cfg->gop_tree_mode = Tree;
 	cfg->transforms = Transforms;
 	cfg->keys = Keys;
-	
+
     merge_avpl(cfg->extra,Extra,TRUE);
     delete_avpl(Extra,TRUE);
 }
@@ -676,7 +676,7 @@ extra_statement(A) ::= . { A = new_avpl(""); }
 transform_list_statement(A) ::= TRANSFORM_KW transform_list(B) SEMICOLON. { A = B; }
 transform_list_statement(A) ::= . { A = g_ptr_array_new(); }
 
-transform_list(A) ::= transform_list(B) COMMA transform(C). { 
+transform_list(A) ::= transform_list(B) COMMA transform(C). {
 	A = B;
 	g_ptr_array_add(B,C);
 }
@@ -688,12 +688,12 @@ transform_list(A) ::= transform(B). {
 
 transform(A) ::= NAME(B). {
 	AVPL_Transf* t;
-	
+
 	if (( t = g_hash_table_lookup(mc->transfs,B) )) {
 		A = t;
 	} else {
 		configuration_error(mc,"There's no such Transformation: %s",B);
-	}	
+	}
 }
 
 avpl(A) ::= OPEN_PARENS avps(B) CLOSE_PARENS. { A = B; }
@@ -706,7 +706,7 @@ avp(A) ::= NAME(B) AVP_OPERATOR(C) value(D). { A = new_avp(B,D,*C); }
 avp(A) ::= NAME(B). { A = new_avp(B,"",'?'); }
 avp(A) ::= NAME(B) OPEN_BRACE avp_oneoff(C) CLOSE_BRACE. { A = new_avp(B,C,'|'); }
 
-avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). { A = g_strdup_printf("%s|%s",B,C); } 
+avp_oneoff(A) ::= avp_oneoff(B) PIPE value(C). { A = g_strdup_printf("%s|%s",B,C); }
 avp_oneoff(A) ::= value(B). { A = g_strdup(B); }
 
 value(A) ::= QUOTED(B). { A = g_strdup(B); }

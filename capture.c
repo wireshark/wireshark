@@ -90,7 +90,7 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
-#include "file_util.h"
+#include "wsutil/file_util.h"
 #include "log.h"
 
 typedef struct if_stat_cache_item_s {
@@ -580,7 +580,7 @@ capture_input_closed(capture_options *capture_opts)
     if(capture_opts->restart) {
         capture_opts->restart = FALSE;
 
-        eth_unlink(capture_opts->save_file);
+        ws_unlink(capture_opts->save_file);
 
         /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
         if(cf_is_tempfile(capture_opts->cf)) {

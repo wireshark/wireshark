@@ -66,7 +66,7 @@
 #include <../alert_box.h>
 #include <../simple_dialog.h>
 #include <../util.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <gtk/main.h>
 #include <gtk/dlg_utils.h>
@@ -747,7 +747,7 @@ firewall_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     }
 
     rule_info = g_object_get_data(G_OBJECT(fs), WS_RULE_INFO_KEY);
-    fh = eth_fopen(to_name, "w");
+    fh = ws_fopen(to_name, "w");
     if (fh == NULL) {
         open_failure_alert_box(to_name, errno, TRUE);
         g_free(to_name);

@@ -76,7 +76,7 @@ my @prohibitedAPIs=
 	'g_strdown',
 	'g_string_up',
 	'g_string_down',
-	# Use the eth_* version of these:
+	# Use the ws_* version of these:
 	# (Necessary because on Windows we use UTF8 for throughout the code
 	# so we must tweak that to UTF16 before operating on the file.  Code
 	# using these functions will work unless the file/path name contains

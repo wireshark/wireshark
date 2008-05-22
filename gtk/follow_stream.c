@@ -45,7 +45,7 @@
 #include <../isprint.h>
 #include <../print.h>
 #include <../simple_dialog.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <gtk/color_utils.h>
 #include <gtk/stock_icons.h>
@@ -476,7 +476,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 		print_mswin(print_dest);
 
 		/* trash temp file */
-		eth_remove(print_dest);
+		ws_remove(print_dest);
 	}
 #endif
 	return;
@@ -495,7 +495,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 #ifdef _WIN32
 	if (win_printer) {
 		/* trash temp file */
-		eth_remove(print_dest);
+		ws_remove(print_dest);
 	}
 #endif
 }
@@ -562,10 +562,10 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	follow_info = g_object_get_data(G_OBJECT(fs), E_FOLLOW_INFO_KEY);
 	if (follow_info->show_type == SHOW_RAW) {
 		/* Write the data out as raw binary data */
-		fh = eth_fopen(to_name, "wb");
+		fh = ws_fopen(to_name, "wb");
 	} else {
 		/* Write it out as text */
-		fh = eth_fopen(to_name, "w");
+		fh = ws_fopen(to_name, "w");
 	}
 	if (fh == NULL) {
 		open_failure_alert_box(to_name, errno, TRUE);
@@ -895,7 +895,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	switch(follow_info->follow_type) {
 
 	case FOLLOW_TCP :
-		i = eth_unlink(follow_info->data_out_filename);
+		i = ws_unlink(follow_info->data_out_filename);
 		if(i != 0) {
 			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, strerror(errno), errno);
 		}

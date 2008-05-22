@@ -36,7 +36,7 @@
 #include <winspool.h>
 
 #include "gtk/print_win32.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 /*
 Some thoughts about a GTK win32 printer dialog:
@@ -44,14 +44,14 @@ Some thoughts about a GTK win32 printer dialog:
 "EnumPrinters()", asking for information level 2 - the PRINTER_INFO_2
 structure contains a pLocation string pointer, along with other
 information.
- 
+
 "PrinterProperties", could be used to show a native printer property page?!?
 
 See
- 
+
  	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/gdi/prntspol_62ia.asp
- 
-for information on printer APIs. 
+
+for information on printer APIs.
 
 */
 BOOL CALLBACK abort_proc( HDC hDC, int Error );
@@ -123,15 +123,15 @@ void print_mswin(char *file_name)
        memset( &pdlg, 0, sizeof( PRINTDLG ) );
        pdlg.lStructSize = sizeof( PRINTDLG );
        /* Set the flag to return printer DC. */
-       pdlg.Flags =  
+       pdlg.Flags =
            /* return the device context we need */
-           PD_RETURNDC |        
+           PD_RETURNDC |
            /* disable the "Pages" radio button */
-           PD_NOPAGENUMS |      
+           PD_NOPAGENUMS |
            /* disable the "Selection" radio button */
-           PD_NOSELECTION |     
+           PD_NOSELECTION |
            /* let device print multiple pages (if requested) */
-           PD_USEDEVMODECOPIESANDCOLLATE; 
+           PD_USEDEVMODECOPIESANDCOLLATE;
 
        /* Invoke the printer dialog box. */
        PrintDlg( &pdlg );
@@ -186,7 +186,7 @@ void print_file( char *file_name, HDC hdc) {
     SetMapMode (hdc, MM_TEXT);
 
 
-    fh1 = eth_fopen( file_name, "r" );
+    fh1 = ws_fopen( file_name, "r" );
     if( !fh1 ) {
         perror( "open failed on input file" );
         return;

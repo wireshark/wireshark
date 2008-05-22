@@ -40,7 +40,7 @@
 #include <epan/filesystem.h>
 
 #include "filters.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 /*
  * Old filter file name.
@@ -146,7 +146,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
 
   /* try to open personal "cfilters"/"dfilters" file */
   ff_path = get_persconffile_path(ff_name, TRUE, FALSE);
-  if ((ff = eth_fopen(ff_path, "r")) == NULL) {
+  if ((ff = ws_fopen(ff_path, "r")) == NULL) {
     /*
      * Did that fail because the file didn't exist?
      */
@@ -169,7 +169,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
      */
     g_free(ff_path);
     ff_path = get_persconffile_path(FILTER_FILE_NAME, FALSE, FALSE);
-    if ((ff = eth_fopen(ff_path, "r")) == NULL) {
+    if ((ff = ws_fopen(ff_path, "r")) == NULL) {
       /*
        * Did that fail because the file didn't exist?
        */
@@ -186,7 +186,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
        * Try to open the global "cfilters/dfilters" file */
       g_free(ff_path);
       ff_path = get_datafile_path(ff_name);
-      if ((ff = eth_fopen(ff_path, "r")) == NULL) {
+      if ((ff = ws_fopen(ff_path, "r")) == NULL) {
 
 	/*
 	 * Well, that didn't work, either.  Just give up.
@@ -206,7 +206,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   /* If we already have a list of filters, discard it. */
   /* this should never happen - this function is called only once for each list! */
   while(*flpp) {
-    *flpp = remove_filter_entry(*flpp, g_list_first(*flpp));        
+    *flpp = remove_filter_entry(*flpp, g_list_first(*flpp));
   }
 
   /* Allocate the filter name buffer. */
@@ -363,7 +363,7 @@ read_filter_list(filter_list_type_t list_type, char **pref_path_return,
   fclose(ff);
   g_free(filt_name);
   g_free(filt_expr);
-  
+
   /* init the corresponding edited list */
   switch (list_type) {
   case CFILTER_LIST:
@@ -497,7 +497,7 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
      completely. */
   ff_path_new = g_strdup_printf("%s.new", ff_path);
 
-  if ((ff = eth_fopen(ff_path_new, "w")) == NULL) {
+  if ((ff = ws_fopen(ff_path_new, "w")) == NULL) {
     *pref_path_return = ff_path;
     *errno_return = errno;
     g_free(ff_path_new);
@@ -526,7 +526,7 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
       *pref_path_return = ff_path;
       *errno_return = errno;
       fclose(ff);
-      eth_unlink(ff_path_new);
+      ws_unlink(ff_path_new);
       g_free(ff_path_new);
       return;
     }
@@ -535,7 +535,7 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
   if (fclose(ff) == EOF) {
     *pref_path_return = ff_path;
     *errno_return = errno;
-    eth_unlink(ff_path_new);
+    ws_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }
@@ -545,22 +545,22 @@ save_filter_list(filter_list_type_t list_type, char **pref_path_return,
      exists; the Win32 call to rename files doesn't do so, which I
      infer is the reason why the MSVC++ "rename()" doesn't do so.
      We must therefore remove the target file first, on Windows. */
-  if (eth_remove(ff_path) < 0 && errno != ENOENT) {
+  if (ws_remove(ff_path) < 0 && errno != ENOENT) {
     /* It failed for some reason other than "it's not there"; if
        it's not there, we don't need to remove it, so we just
        drive on. */
     *pref_path_return = ff_path;
     *errno_return = errno;
-    eth_unlink(ff_path_new);
+    ws_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }
 #endif
 
-  if (eth_rename(ff_path_new, ff_path) < 0) {
+  if (ws_rename(ff_path_new, ff_path) < 0) {
     *pref_path_return = ff_path;
     *errno_return = errno;
-    eth_unlink(ff_path_new);
+    ws_unlink(ff_path_new);
     g_free(ff_path_new);
     return;
   }
@@ -586,7 +586,7 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 
     /* throw away the "old" destination list - a NULL list is ok here */
     while(*flpp_dest) {
-        *flpp_dest = remove_filter_entry(*flpp_dest, g_list_first(*flpp_dest));        
+        *flpp_dest = remove_filter_entry(*flpp_dest, g_list_first(*flpp_dest));
     }
     g_assert(g_list_length(*flpp_dest) == 0);
 

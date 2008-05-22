@@ -43,7 +43,7 @@
 #include <epan/filesystem.h>
 #include <epan/packet.h>
 #include <epan/range.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include "uat-int.h"
 
@@ -240,7 +240,7 @@ gboolean uat_save(uat_t* uat, char** error) {
 
 	if (! fname ) return FALSE;
 
-	fp = eth_fopen(fname,"w");
+	fp = ws_fopen(fname,"w");
 
 	if (!fp) {
 		*error = ep_strdup_printf("uat_save: error opening '%s': %s",fname,strerror(errno));

@@ -113,7 +113,7 @@
 #endif /* HAVE_LIBZ */
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 
 #ifdef HAVE_LIBZ
@@ -149,13 +149,13 @@ file_open(const char *path, const char *mode)
 		oflag |= O_BINARY;
 #endif
 	/* open file and do correct filename conversions */
-	if ((fd = eth_open(path, oflag, 0666)) == -1)
+	if ((fd = ws_open(path, oflag, 0666)) == -1)
 		return NULL;
 
 	/* open zlib file handle */
 	ft = gzdopen(fd, mode);
 	if (ft == NULL) {
-		eth_close(fd);
+		ws_close(fd);
 		return NULL;
 	}
 

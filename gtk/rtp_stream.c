@@ -50,7 +50,7 @@
 #include "../alert_box.h"
 #include "../simple_dialog.h"
 #include "../tap-rtp-common.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/rtp_stream.h"
 #include "gtk/rtp_stream_dlg.h"
@@ -90,7 +90,7 @@ gboolean rtpstream_save(rtp_stream_info_t* stream, const gchar *filename)
 {
 	gboolean was_registered = the_tapinfo_struct.is_registered;
 	/* open file for saving */
-	the_tapinfo_struct.save_file = eth_fopen(filename, "wb");
+	the_tapinfo_struct.save_file = ws_fopen(filename, "wb");
 	if (the_tapinfo_struct.save_file==NULL) {
 		open_failure_alert_box(filename, errno, TRUE);
 		return FALSE;

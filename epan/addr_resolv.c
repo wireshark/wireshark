@@ -122,7 +122,7 @@
 #include "filesystem.h"
 
 #include <epan/strutil.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 
@@ -356,7 +356,7 @@ static void add_service_name(hashport_t **proto_table, guint port, const char *s
 {
   int hash_idx;
   hashport_t *tp;
-  
+
 
   hash_idx = HASH_PORT(port);
   tp = proto_table[hash_idx];
@@ -465,7 +465,7 @@ static void parse_services_file(const char * path)
   static char   *buf = NULL;
 
   /* services hash table initialization */
-  serv_p = eth_fopen(path, "r");
+  serv_p = ws_fopen(path, "r");
 
   if (serv_p == NULL)
     return;
@@ -610,7 +610,7 @@ static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
        * If length of mask is 32, we chomp the whole address.
        * If the address string starts '.' (should not happen?),
        * we skip that '.'.
-       */      
+       */
       i = subnet_entry.mask_length / 8;
       while(*(paddr) != '\0' && i > 0) {
         if(*(++paddr) == '.') {
@@ -618,11 +618,11 @@ static void fill_dummy_ip4(guint addr, hashipv4_t* volatile tp)
         }
       }
 
-      /* There are more efficient ways to do this, but this is safe if we 
+      /* There are more efficient ways to do this, but this is safe if we
        * trust g_snprintf and MAXNAMELEN
        */
-      g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);  
-  } else {  
+      g_snprintf(tp->name, MAXNAMELEN, "%s%s", subnet_entry.name, paddr);
+  } else {
       ip_to_str_buf((guint8 *)&addr, tp->name, MAXNAMELEN);
   }
 }
@@ -991,7 +991,7 @@ static void set_ethent(char *path)
   if (eth_p)
     rewind(eth_p);
   else
-    eth_p = eth_fopen(path, "r");
+    eth_p = ws_fopen(path, "r");
 }
 
 static void end_ethent(void)
@@ -1573,7 +1573,7 @@ static void set_ipxnetent(char *path)
   if (ipxnet_p)
     rewind(ipxnet_p);
   else
-    ipxnet_p = eth_fopen(path, "r");
+    ipxnet_p = ws_fopen(path, "r");
 }
 
 static void end_ipxnetent(void)
@@ -1798,7 +1798,7 @@ read_hosts_file (const char *hostspath)
    *  See the hosts(4) or hosts(5) man page for hosts file format
    *  (not available on all systems).
    */
-  if ((hf = eth_fopen(hostspath, "r")) == NULL)
+  if ((hf = ws_fopen(hostspath, "r")) == NULL)
     return FALSE;
 
   while (fgetline(&line, &size, hf) >= 0) {
@@ -1852,7 +1852,7 @@ read_hosts_file (const char *hostspath)
 /* Read in a list of subnet definition - name pairs.
  * <line> = <comment> | <entry> | <whitespace>
  * <comment> = <whitespace>#<any>
- * <entry> = <subnet_definition> <whitespace> <subnet_name> [<comment>|<whitespace><any>] 
+ * <entry> = <subnet_definition> <whitespace> <subnet_name> [<comment>|<whitespace><any>]
  * <subnet_definition> = <ipv4_address> / <subnet_mask_length>
  * <ipv4_address> is a full address; it will be masked to get the subnet-ID.
  * <subnet_mask_length> is a decimal 1-31
@@ -1873,7 +1873,7 @@ read_subnets_file (const char *subnetspath)
   guint32 host_addr; /* IPv4 ONLY */
   int mask_length;
 
-  if ((hf = eth_fopen(subnetspath, "r")) == NULL)
+  if ((hf = ws_fopen(subnetspath, "r")) == NULL)
     return FALSE;
 
   while (fgetline(&line, &size, hf) >= 0) {
@@ -1892,7 +1892,7 @@ read_subnets_file (const char *subnetspath)
     }
     *cp2 = '\0'; /* Cut token */
     ++cp2    ;
-    
+
     /* Check if this is a valid IPv4 address */
     if (inet_pton(AF_INET, cp, &host_addr) != 1) {
         continue; /* no */
@@ -1901,7 +1901,7 @@ read_subnets_file (const char *subnetspath)
     mask_length = atoi(cp2);
     if(0 >= mask_length || mask_length > 31) {
         continue; /* invalid mask length */
-    }    
+    }
 
     if ((cp = strtok(NULL, " \t")) == NULL)
       continue; /* no subnet name */
@@ -1926,7 +1926,7 @@ static subnet_entry_t subnet_lookup(const guint32 addr)
     while(have_subnet_entry && i > 0) {
         guint32 masked_addr;
         subnet_length_entry_t* length_entry;
-        
+
         /* Note that we run from 31 (length 32)  to 0 (length 1)  */
         --i;
         g_assert(i < SUBNETLENGTHSIZE);
@@ -1937,7 +1937,7 @@ static subnet_entry_t subnet_lookup(const guint32 addr)
         if(NULL != length_entry->subnet_addresses) {
             hashipv4_t * tp;
             guint32 hash_idx;
-    
+
             masked_addr = addr & length_entry->mask;
             hash_idx = HASH_IPV4_ADDRESS(masked_addr);
 
@@ -1954,7 +1954,7 @@ static subnet_entry_t subnet_lookup(const guint32 addr)
             }
         }
     }
-    
+
     subnet_entry.mask = 0;
     subnet_entry.mask_length = 0;
     subnet_entry.name = NULL;
@@ -2013,7 +2013,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
 
         initialised = TRUE;
 
-        /* XXX There must be a better way to do this than 
+        /* XXX There must be a better way to do this than
          * hand-coding the values, but I can't seem to
          * come up with one!
          */
@@ -2026,7 +2026,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
         inet_pton(AF_INET, "252.0.0.0", &masks[5]);
         inet_pton(AF_INET, "254.0.0.0", &masks[6]);
         inet_pton(AF_INET, "255.0.0.0", &masks[7]);
-		
+
         inet_pton(AF_INET, "255.128.0.0", &masks[8]);
         inet_pton(AF_INET, "255.192.0.0", &masks[9]);
         inet_pton(AF_INET, "255.224.0.0", &masks[10]);
@@ -2035,7 +2035,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
         inet_pton(AF_INET, "255.252.0.0", &masks[13]);
         inet_pton(AF_INET, "255.254.0.0", &masks[14]);
         inet_pton(AF_INET, "255.255.0.0", &masks[15]);
-		
+
         inet_pton(AF_INET, "255.255.128.0", &masks[16]);
         inet_pton(AF_INET, "255.255.192.0", &masks[17]);
         inet_pton(AF_INET, "255.255.224.0", &masks[18]);
@@ -2044,7 +2044,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
         inet_pton(AF_INET, "255.255.252.0", &masks[21]);
         inet_pton(AF_INET, "255.255.254.0", &masks[22]);
         inet_pton(AF_INET, "255.255.255.0", &masks[23]);
-		
+
         inet_pton(AF_INET, "255.255.255.128", &masks[24]);
         inet_pton(AF_INET, "255.255.255.192", &masks[25]);
         inet_pton(AF_INET, "255.255.255.224", &masks[26]);
@@ -2054,7 +2054,7 @@ static guint32 get_subnet_mask(guint32 mask_length) {
         inet_pton(AF_INET, "255.255.255.254", &masks[30]);
         inet_pton(AF_INET, "255.255.255.255", &masks[31]);
     }
-    
+
     if(mask_length == 0 || mask_length > SUBNETLENGTHSIZE) {
         g_assert_not_reached();
         return 0;
@@ -2070,7 +2070,7 @@ static void subnet_name_lookup_init()
     guint32 i;
     for(i = 0; i < SUBNETLENGTHSIZE; ++i) {
         guint32 length = i + 1;
-        
+
         subnet_length_entries[i].subnet_addresses  = NULL;
         subnet_length_entries[i].mask_length  = length;
         subnet_length_entries[i].mask = get_subnet_mask(length);
@@ -2373,9 +2373,9 @@ extern void add_ipv6_name(struct e_in6_addr *addrp, const gchar *name)
 static gchar *ep_utoa(guint port)
 {
   gchar *bp = ep_alloc(MAXNAMELEN);
-  
+
   bp = &bp[MAXNAMELEN -1];
-  
+
   *bp = 0;
   do {
       *--bp = (port % 10) +'0';

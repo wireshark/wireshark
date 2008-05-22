@@ -46,7 +46,7 @@
 #include <process.h>    /* getpid */
 #endif
 
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <epan/filesystem.h>
 
@@ -61,7 +61,7 @@ static gchar *newpath = NULL;
 
 static char *u3_change_path(char *path, const char *old, const char *new);
 
-gboolean u3_active() 
+gboolean u3_active()
 {
 
   return (
@@ -69,7 +69,7 @@ gboolean u3_active()
       getenv_utf8
 #else
       getenv
-#endif 
+#endif
       ("U3_HOST_EXEC_PATH") != NULL);
 
 }
@@ -80,12 +80,12 @@ void u3_runtime_info(GString *str)
   char *u3devicepath = NULL;
   char *u3deviceproduct = NULL;
 
-  if((u3deviceproduct = 
+  if((u3deviceproduct =
 #ifdef _WIN32
       getenv_utf8
 #else
       getenv
-#endif 
+#endif
       ("U3_DEVICE_PRODUCT")) != NULL) {
     g_string_append(str, " from the ");
     g_string_append(str, u3deviceproduct);
@@ -95,12 +95,12 @@ void u3_runtime_info(GString *str)
 
   g_string_append(str, " U3 device");
 
-  if((u3devicepath = 
+  if((u3devicepath =
 #ifdef _WIN32
       getenv_utf8
 #else
       getenv
-#endif 
+#endif
       ("U3_DEVICE_PATH")) != NULL) {
     g_string_append(str, " in drive ");
     g_string_append(str, u3devicepath);
@@ -114,13 +114,13 @@ void u3_register_pid()
   int   pid_fd;
   char *u3hostexecpath;
   int   pf_size;
-    
-  if((u3hostexecpath = 
+
+  if((u3hostexecpath =
 #ifdef _WIN32
       getenv_utf8
 #else
       getenv
-#endif 
+#endif
       ("U3_HOST_EXEC_PATH")) != NULL) {
 
     pid = getpid();
@@ -130,10 +130,10 @@ void u3_register_pid()
 
     g_snprintf(pid_file, pf_size, "%s\\%d.pid", u3hostexecpath, pid);
 
-    pid_fd = eth_open(pid_file, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    pid_fd = ws_open(pid_file, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
 
     if(pid_fd != -1)
-      eth_close(pid_fd);
+      ws_close(pid_fd);
     else {
       g_free(pid_file);
       pid_file = NULL;
@@ -146,8 +146,8 @@ void u3_deregister_pid()
 {
   if(pid_file) {
     /* we don't care if we succeed or fail - u3utils may have deleted the file */
-    eth_unlink(pid_file);
-    
+    ws_unlink(pid_file);
+
     g_free(pid_file);
 
     pid_file = NULL;
@@ -166,20 +166,20 @@ char *u3_contract_device_path(char *path)
   return u3_change_path(path, NULL, U3_DEVICE_PATH_VAR);
 }
 
-static char *u3_change_path(char *path, const char *old, const char *new) 
+static char *u3_change_path(char *path, const char *old, const char *new)
 {
 
   if(u3devicepath == (char*)-1) {
     /* cache the device path */
-    u3devicepath = 
+    u3devicepath =
 #ifdef _WIN32
       getenv_utf8
 #else
       getenv
-#endif 
+#endif
       ("U3_DEVICE_PATH");
   }
-  
+
   if(new == NULL)
     new = u3devicepath;
   if(old == NULL)
@@ -191,7 +191,7 @@ static char *u3_change_path(char *path, const char *old, const char *new)
   }
 
   if((path != NULL) && (u3devicepath != NULL) && (strncmp(path, old, strlen(old)) == 0)) {
-    
+
     newpath = g_strconcat(new, path + strlen(old), NULL);
 
     return newpath;

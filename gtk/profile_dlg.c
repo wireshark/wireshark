@@ -36,7 +36,7 @@
 #include <epan/prefs.h>
 
 #include "../simple_dialog.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include "gtk/main.h"
 #include "gtk/profile_dlg.h"
@@ -116,16 +116,16 @@ empty_profile_list(gboolean edit_list)
     while(*flpp) {
       *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
     }
-    
+
     g_assert(g_list_length(*flpp) == 0);
-  } 
+  }
 
   flpp = &current_profiles;
 
   while(*flpp) {
     *flpp = remove_profile_entry(*flpp, g_list_first(*flpp));
   }
-  
+
   g_assert(g_list_length(*flpp) == 0);
 }
 
@@ -144,7 +144,7 @@ copy_profile_list(void)
     while(flp_src) {
         profile = (flp_src)->data;
 
-        current_profiles = add_profile_entry(current_profiles, profile->name, 
+        current_profiles = add_profile_entry(current_profiles, profile->name,
 					     profile->reference, profile->status);
         flp_src = g_list_next(flp_src);
     }
@@ -164,22 +164,22 @@ fill_list(GtkWidget *main_w)
   const gchar   *profile_name = get_profile_name ();
   const gchar   *profiles_dir, *name;
   gchar         *filename;
-  
+
   profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
   store = GTK_LIST_STORE(gtk_tree_view_get_model(profile_l));
-  
+
   fl_entry = add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT);
   gtk_list_store_append(store, &iter);
   gtk_list_store_set(store, &iter, 0, DEFAULT_PROFILE, 1, fl_entry, -1);
   if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
     l_select = g_memdup(&iter, sizeof(iter));
   }
-  
+
   /* fill in data */
   profiles_dir = get_profiles_dir();
-  if ((dir = eth_dir_open(profiles_dir, 0, NULL)) != NULL) {
-    while ((file = eth_dir_read_name(dir)) != NULL) {
-      name = eth_dir_get_name(file);
+  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+    while ((file = ws_dir_read_name(dir)) != NULL) {
+      name = ws_dir_get_name(file);
       filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
       if (test_for_directory(filename) == EISDIR) {
@@ -187,7 +187,7 @@ fill_list(GtkWidget *main_w)
 	profile    = (profile_def *) fl_entry->data;
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter, 0, profile->name, 1, fl_entry, -1);
-	
+
 	if (profile->name) {
 	  if (strcmp(profile_name, profile->name) == 0) {
 	    /*
@@ -201,12 +201,12 @@ fill_list(GtkWidget *main_w)
       }
       g_free (filename);
     }
-    eth_dir_close (dir);
+    ws_dir_close (dir);
   }
 
   /* Make the current list an the edited list equal */
   copy_profile_list ();
-  
+
   return l_select;
 }
 
@@ -269,7 +269,7 @@ profile_select(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	/* The new profile exists, change */
 	change_configuration_profile (profile->name);
       } else if (!profile_exists (get_profile_name())) {
-	/* The new profile does not exist, and the previous profile has 
+	/* The new profile does not exist, and the previous profile has
 	   been deleted.  Change to the default profile */
 	change_configuration_profile (NULL);
       }
@@ -318,7 +318,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't create directory\n\"%s\":\n%s.",
 			pf_dir_path, strerror(errno));
-	  
+
 	  g_free(pf_dir_path);
 	}
 	profile1->status = PROF_STAT_EXISTS;
@@ -335,7 +335,7 @@ profile_apply(GtkWidget *main_w, GtkTreeView *profile_l, gboolean destroy)
 	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			"Can't rename directory\n\"%s\" to\n\"%s\":\n%s.",
 			pf_dir_path, pf_dir_path2, strerror(errno));
-	  
+
 	  g_free(pf_dir_path);
 	}
 	profile1->status = PROF_STAT_EXISTS;
@@ -385,7 +385,7 @@ profile_dlg_ok_cb(GtkWidget *ok_bt, gpointer data _U_)
 {
   GtkWidget    *main_w = gtk_widget_get_toplevel(ok_bt);
   GtkTreeView  *profile_l = GTK_TREE_VIEW(g_object_get_data(G_OBJECT(main_w), E_PROF_PROFILE_L_KEY));
-  
+
   /*
    * Apply the profile and destroy the dialog box.
    */
@@ -587,7 +587,7 @@ profile_name_te_changed_cb(GtkWidget *w, gpointer data _U_)
     gtk_tree_model_get(model, &iter, 1, &fl_entry, -1);
     if (fl_entry != NULL) {
       profile = (profile_def *) fl_entry->data;
-      
+
       if (strlen(name) > 0 && profile) {
 	if (profile->status != PROF_STAT_DEFAULT) {
 	  g_free(profile->name);
@@ -662,16 +662,16 @@ profile_dialog_new(void)
   GtkTreeViewColumn *column;
   GtkTreeSelection  *sel;
   GtkTreeIter       *l_select;
-  
+
   /* Get a pointer to a static variable holding the type of profile on
      which we're working, so we can pass that pointer to callback
      routines. */
-  
+
   tooltips = gtk_tooltips_new ();
-  
+
   main_w = dlg_conf_window_new("Wireshark: Configuration Profiles");
   gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
-  
+
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(main_w), main_vb);

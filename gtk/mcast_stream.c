@@ -1,7 +1,7 @@
 /* mcast_stream.c
  *
  * Copyright 2006, Iskratel , Slovenia
- * By Jakob Bratkovic <j.bratkovic@iskratel.si> and 
+ * By Jakob Bratkovic <j.bratkovic@iskratel.si> and
  * Miha Jemec <m.jemec@iskratel.si>
  *
  * $Id$
@@ -54,7 +54,6 @@
 #include "../register.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
-#include "wiretap/file_util.h"
 
 #include "gtk/mcast_stream.h"
 #include "gtk/mcast_stream_dlg.h"
@@ -192,7 +191,7 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 
 	/* not in the list? then create a new entry */
 	if (!strinfo) {
-		/*printf("nov sip %s sp %d dip %s dp %d\n", g_strdup(get_addr_name(&(pinfo->src))), 
+		/*printf("nov sip %s sp %d dip %s dp %d\n", g_strdup(get_addr_name(&(pinfo->src))),
 			pinfo->srcport, g_strdup(get_addr_name(&(pinfo->dst))), pinfo->destport);*/
 		tmp_strinfo.npackets = 0;
 		tmp_strinfo.apackets = 0;
@@ -230,7 +229,7 @@ static int mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt
 		/* set time with the first packet */
 		if (tapinfo->npackets == 0) {
 			tapinfo->allstreams = g_malloc(sizeof(mcast_stream_info_t));
-			tapinfo->allstreams->element.buff = 
+			tapinfo->allstreams->element.buff =
 					(struct timeval *)g_malloc(buffsize * sizeof(struct timeval));
 			tapinfo->allstreams->start_rel_sec = (guint32) pinfo->fd->rel_ts.secs;
 			tapinfo->allstreams->start_rel_usec = pinfo->fd->rel_ts.nsecs/1000;
@@ -399,7 +398,7 @@ void buffusagecalc(mcast_stream_info_t *strinfo, packet_info *pinfo, double empt
     strinfo->element.buffusage-= (guint32) (timeelapsed * emptyspeed / 8);
 
     if(strinfo->element.buffusage < 0) strinfo->element.buffusage=0;
-    if(strinfo->element.buffusage > strinfo->element.topbuffusage) 
+    if(strinfo->element.buffusage > strinfo->element.topbuffusage)
 				strinfo->element.topbuffusage = strinfo->element.buffusage;
     /* check for buffer losses */
     if((strinfo->element.buffusage >= bufferalarm) && (strinfo->element.buffstatus == 0)){
@@ -433,7 +432,7 @@ void slidingwindow(mcast_stream_info_t *strinfo, packet_info *pinfo)
     /* burst count */
     buffer[strinfo->element.last].tv_sec = (guint32) pinfo->fd->rel_ts.secs;
     buffer[strinfo->element.last].tv_usec = pinfo->fd->rel_ts.nsecs/1000;
-    while(comparetimes((struct timeval *)&(buffer[strinfo->element.first]), 
+    while(comparetimes((struct timeval *)&(buffer[strinfo->element.first]),
 						(struct timeval *)&(buffer[strinfo->element.last]), burstint)){
         strinfo->element.first++;
         if(strinfo->element.first >= buffsize) strinfo->element.first = strinfo->element.first % buffsize;

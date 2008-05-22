@@ -38,7 +38,7 @@
 
 #include <errno.h>
 
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -131,7 +131,7 @@ static wtap_open_routine_t open_routines_base[] = {
 	/* I put NetScreen *before* erf, because there were some
 	 * false positives with my test-files (Sake Blok, July 2007)
 	 */
-	netscreen_open, 
+	netscreen_open,
 	erf_open,
 	k12text_open,
 	etherpeek_open,
@@ -157,13 +157,13 @@ static GArray* open_routines_arr = NULL;
 
 /* initialize the open routines array if it has not being initialized yet */
 static void init_open_routines(void) {
-	
+
 	if (open_routines_arr) return;
 
 	open_routines_arr = g_array_new(FALSE,TRUE,sizeof(wtap_open_routine_t));
-	
+
 	g_array_append_vals(open_routines_arr,open_routines_base,N_FILE_TYPES);
-	
+
 	open_routines = (void*)open_routines_arr->data;
 }
 
@@ -174,7 +174,7 @@ void wtap_register_open_routine(wtap_open_routine_t open_routine, gboolean has_m
 		g_array_prepend_val(open_routines_arr,open_routine);
 	else
 		g_array_append_val(open_routines_arr,open_routine);
-	
+
 	open_routines = (void*)open_routines_arr->data;
 }
 
@@ -223,7 +223,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 	} else {
-		if (eth_stat(filename, &statb) < 0) {
+		if (ws_stat(filename, &statb) < 0) {
 			*err = errno;
 			return NULL;
 		}
@@ -285,12 +285,12 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		 * an fclose or gzclose of wth->fh closing the standard
 		 * input of the process.
 		 */
-		wth->fd = eth_dup(0);
+		wth->fd = ws_dup(0);
 #ifdef _WIN32
 		_setmode(wth->fd, O_BINARY);
 #endif
 	} else
-		wth->fd = eth_open(filename, O_RDONLY|O_BINARY, 0000 /* no creation so don't matter */);
+		wth->fd = ws_open(filename, O_RDONLY|O_BINARY, 0000 /* no creation so don't matter */);
 	if (wth->fd < 0) {
 		*err = errno;
 		g_free(wth);
@@ -298,7 +298,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 	if (!(wth->fh = filed_open(wth->fd, "rb"))) {
 		*err = errno;
-		eth_close(wth->fd);
+		ws_close(wth->fd);
 		g_free(wth);
 		return NULL;
 	}
@@ -319,9 +319,9 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	
+
 	init_open_routines();
-	
+
 	/* Try all file types */
 	for (i = 0; i < open_routines_arr->len; i++) {
 		/* Seek back to the beginning of the file; the open routine
@@ -340,7 +340,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 			return NULL;
 		}
 		wth->data_offset = 0;
-		
+
 		switch ((*open_routines[i])(wth, err, err_info)) {
 
 		case -1:
@@ -464,7 +464,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_EYESDN */
 	{ "EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "*.*", NULL, FALSE,
 		NULL, NULL },
-    
+
 	/* WTAP_FILE_NETTL */
 	{ "HP-UX nettl trace", "nettl", "*.TRC0;*.TRC1", ".TRC0", FALSE,
 	  nettl_dump_can_write_encap, nettl_dump_open },
@@ -560,7 +560,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_ETHERPEEK_V9 */
 	{ "Wildpacket Ether/AiroPeek (V9)", "peek9", "*.tpc;*.apc;*.pkt;*.wpz", ".pkt", FALSE,
 	  NULL, NULL },
-    
+
 	/* WTAP_FILE_MPEG */
 	{ "MPEG", "mpeg", "*.mpeg;*.mpg;*.mp3", ".mpeg", FALSE,
 	  NULL, NULL },
@@ -576,7 +576,7 @@ static const struct file_type_info dump_open_table_base[] = {
 	/* WTAP_FILE_COMMVIEW */
 	{ "TamoSoft CommView", "commview", "*.ncf", ".ncf", TRUE,
 	  commview_dump_can_write_encap, commview_dump_open },
-	  
+
 	/* WTAP_FILE_PCAPNG */
 	{ "Wireshark - pcapng (experimental)", "pcapng", "*.pcapng", NULL, FALSE,
 	  pcapng_dump_can_write_encap, pcapng_dump_open },
@@ -592,13 +592,13 @@ static const struct file_type_info* dump_open_table = dump_open_table_base;
 
 /* initialize the open routines array if it has not being initialized yet */
 static void init_file_types(void) {
-	
+
 	if (dump_open_table_arr) return;
 
 	dump_open_table_arr = g_array_new(FALSE,TRUE,sizeof(struct file_type_info));
-	
+
 	g_array_append_vals(dump_open_table_arr,dump_open_table_base,wtap_num_file_types);
-	
+
 	dump_open_table = (void*)dump_open_table_arr->data;
 }
 
@@ -606,9 +606,9 @@ int wtap_register_file_type(const struct file_type_info* fi) {
 	init_file_types();
 
 	g_array_append_val(dump_open_table_arr,*fi);
-	
+
 	dump_open_table = (void*)dump_open_table_arr->data;
-	
+
 	return wtap_num_file_types++;
 }
 
@@ -755,7 +755,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 		   opening it. */
 		if (wdh->fh != stdout) {
 			wtap_dump_file_close(wdh);
-			eth_unlink(filename);
+			ws_unlink(filename);
 		}
 		g_free(wdh);
 		return NULL;
@@ -894,7 +894,7 @@ void wtap_dump_flush(wtap_dumper *wdh)
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		gzflush(wdh->fh, Z_SYNC_FLUSH);	/* XXX - is Z_SYNC_FLUSH the right one? */
-	} else 
+	} else
 #endif
 	{
 		fflush(wdh->fh);
@@ -950,10 +950,10 @@ static FILE *wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzopen(filename, "wb");
-	} else 
+	} else
 #endif
 	{
-		return eth_fopen(filename, "wb");
+		return ws_fopen(filename, "wb");
 	}
 }
 
@@ -963,7 +963,7 @@ static FILE *wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzdopen(fd, "wb");
-	} else 
+	} else
 #endif
 	{
 		return fdopen(fd, "wb");
@@ -976,7 +976,7 @@ size_t wtap_dump_file_write(wtap_dumper *wdh, const void *buf, unsigned bufsize)
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzwrite(wdh->fh, buf, bufsize);
-	} else 
+	} else
 #endif
 	{
 		return fwrite(buf, 1, bufsize, wdh->fh);
@@ -989,7 +989,7 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
 		return gzclose(wdh->fh);
-	} else 
+	} else
 #endif
 	{
 		return fclose(wdh->fh);
@@ -1010,7 +1010,7 @@ int wtap_dump_file_ferror(wtap_dumper *wdh)
 			/* XXX - what to do with this zlib specific number? */
 			return errnum;
 		}
-	} else 
+	} else
 #endif
 	{
 		return ferror(wdh->fh);

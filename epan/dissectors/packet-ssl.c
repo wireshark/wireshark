@@ -120,7 +120,7 @@
 #include "packet-x509if.h"
 #include "packet-ssl.h"
 #include "packet-ssl-utils.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 
 static gboolean ssl_desegment = TRUE;
@@ -334,7 +334,7 @@ ssl_parse(void)
     if (ssl_keys_list && (ssl_keys_list[0] != 0))
     {
         if (file_exists(ssl_keys_list)) {
-            if ((ssl_keys_file = eth_fopen(ssl_keys_list, "r"))) {
+            if ((ssl_keys_file = ws_fopen(ssl_keys_list, "r"))) {
                 read_failed = FALSE;
                 fstat(fileno(ssl_keys_file), &statb);
                 size = statb.st_size;
@@ -548,7 +548,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         SslService dummy;
         char ip_addr_any[] = {0,0,0,0};
-        
+
         ssl_session = se_alloc0(sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
         ssl_session->version = SSL_VER_UNKNOWN;
@@ -570,37 +570,37 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * is not always available
          * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
          * and thus decryption never engaged*/
-        
-        
+
+
         ssl_session->private_key = 0;
         private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
 
         if (!private_key) {
             ssl_debug_printf("dissect_ssl can't find private key for this server! Try it again with universal port 0\n");
- 
+
             dummy.port = 0;
             private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
 	}
 
         if (!private_key) {
             ssl_debug_printf("dissect_ssl can't find private key for this server (universal port)! Try it again with universal address 0.0.0.0\n");
- 
+
             dummy.addr.type = AT_IPv4;
             dummy.addr.len = 4;
             dummy.addr.data = ip_addr_any;
-            
+
 	    dummy.port = port;
 
             private_key = g_hash_table_lookup(ssl_key_hash, &dummy);
 	}
-         
+
 	if (!private_key) {
 	  ssl_debug_printf("dissect_ssl can't find any private key!\n");
-	}	
-	else {
-	  ssl_session->private_key = private_key->sexp_pkey;	
 	}
-        
+	else {
+	  ssl_session->private_key = private_key->sexp_pkey;
+	}
+
     }
     conv_version= & ssl_session->version;
 
@@ -1274,7 +1274,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     process_ssl_payload(next_tvb, 0, pinfo, tree, association);
     pinfo->fragmented = save_fragmented;
   }
-  
+
   /* restore desegmentation ability */
   pinfo->can_desegment = save_can_desegment;
 }

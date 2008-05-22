@@ -51,7 +51,7 @@
 
 #include <glib.h>
 
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 #include "globals.h"
 
 #include <epan/filesystem.h>
@@ -77,7 +77,7 @@ fileset_filename_match_pattern(const char *fname)
     int         baselen;
     int         minlen = strlen("_00001_20050418010750");
     char        *filename;
-  
+
 
     /* d:\dir1\test_00001_20050418010750.cap */
     filename = g_strdup(get_basename(fname));
@@ -183,7 +183,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
     path = g_strdup_printf("%s%s", dirname, fname);
 
-    fh = eth_open( path, O_RDONLY, 0000 /* no creation so don't matter */);
+    fh = ws_open( path, O_RDONLY, 0000 /* no creation so don't matter */);
     if(fh !=  -1) {
 
         /* Get statistics */
@@ -203,7 +203,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
             set.entries = g_list_append(set.entries, entry);
         }
 
-        eth_close(fh);
+        ws_close(fh);
     }
 
     g_free(path);
@@ -255,22 +255,22 @@ fileset_add_dir(const char *fname)
     dirname = g_string_new(fname_dup);
     g_free(fname_dup);
 
-    set.dirname = g_strdup(dirname->str);    
-    
+    set.dirname = g_strdup(dirname->str);
+
     dirname = g_string_append_c(dirname, G_DIR_SEPARATOR);
 
     /* is the current file probably a part of any fileset? */
     if(fileset_filename_match_pattern(fname)) {
         /* yes, go through the files in the directory and check if the file in question is part of the current file set */
-        if ((dir = eth_dir_open(dirname->str, 0, NULL)) != NULL) {
-	        while ((file = eth_dir_read_name(dir)) != NULL) {
-	            name = eth_dir_get_name(file);
+        if ((dir = ws_dir_open(dirname->str, 0, NULL)) != NULL) {
+	        while ((file = ws_dir_read_name(dir)) != NULL) {
+	            name = ws_dir_get_name(file);
                 if(fileset_filename_match_pattern(name) && fileset_is_file_in_set(name, get_basename(fname))) {
                     fileset_add_file(dirname->str, name, strcmp(name, get_basename(fname))== 0 /* current */);
                 }
             } /* while */
 
-            eth_dir_close(dir);
+            ws_dir_close(dir);
         } /* if */
     } else {
         /* no, this is a "standalone file", just add this one */

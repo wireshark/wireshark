@@ -1,7 +1,7 @@
 /*
  * We don't use unput, so don't generate code for it.
  */
-%option nounput 
+%option nounput
 
 /*
  * We don't read from the terminal.
@@ -31,20 +31,20 @@
 	* modify it under the terms of the GNU General Public License
 	* as published by the Free Software Foundation; either version 2
 	* of the License, or (at your option) any later version.
-	* 
+	*
 	* This program is distributed in the hope that it will be useful,
 	* but WITHOUT ANY WARRANTY; without even the implied warranty of
 	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	* GNU General Public License for more details.
-	* 
+	*
 	* You should have received a copy of the GNU General Public License
 	* along with this program; if not, write to the Free Software
 	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
-	
-#include <wiretap/file_util.h>
 
-#include "mate.h"	
+#include <wsutil/file_util.h>
+
+#include "mate.h"
 #include "mate_grammar.h"
 #include "mate_parser_lex.h"
 
@@ -62,16 +62,16 @@
 #endif
 	void MateParserFree( void*, void(*)(void*) );
 	void MateParseTrace(FILE*,char*);
-	
+
 #define MAX_INCLUDE_DEPTH 10
 	static YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 	static int include_stack_ptr = 0;
-	
+
 	static void* pParser;
 	static mate_config_frame* current_frame;
-	
+
 	static mate_config* mc;
-	
+
 #define MATE_PARSE(token_type) MateParser(pParser, (token_type), g_strdup(yytext), mc );
 
 /*
@@ -159,11 +159,11 @@ comment			"//"[^\n]*\n
 blk_cmnt_start  "/*"
 cmnt_char		.
 blk_cmnt_stop  "*/"
- 
+
 %START OUTSIDE QUOTED INCLUDING COMMENT
 %%
 
-{newline}						current_frame->linenum++; 
+{newline}						current_frame->linenum++;
 {whitespace}					;
 
 <OUTSIDE>{include}					BEGIN INCLUDING;
@@ -171,46 +171,46 @@ blk_cmnt_stop  "*/"
 <INCLUDING>{filename}			{
 	if ( include_stack_ptr >= MAX_INCLUDE_DEPTH )
 		g_error("dtd_preparse: include files nested to deeply");
-	
+
 	include_stack[include_stack_ptr++] = YY_CURRENT_BUFFER;
-	yyin = eth_fopen( yytext, "r" );
+	yyin = ws_fopen( yytext, "r" );
 
 	if (!yyin) {
 		yy_delete_buffer( YY_CURRENT_BUFFER );
-		
+
 		/* coverity[negative_sink] */
 		yy_switch_to_buffer(include_stack[--include_stack_ptr] );
-		
+
 		if (errno)
 			g_string_append_printf(mc->config_error, "Mate parser: Could not open file: '%s': %s", yytext, strerror(errno) );
-		
+
 	} else {
-		
+
 		current_frame = g_malloc(sizeof(mate_config_frame));
 		current_frame->filename = g_strdup(yytext);
 		current_frame->linenum = 1;
-		
+
 		g_ptr_array_add(mc->config_stack,current_frame);
 
 		yy_switch_to_buffer(yy_create_buffer( yyin, YY_BUF_SIZE ) );
 	}
-	
+
 	BEGIN OUTSIDE;
 }
 
-<<EOF>>	{	
+<<EOF>>	{
 	/* coverity[check_after_sink] */
 	if ( --include_stack_ptr < 0 ) {
 		yyterminate();
 	} else {
 		yy_delete_buffer( YY_CURRENT_BUFFER );
 		yy_switch_to_buffer( include_stack[include_stack_ptr] );
-		
+
 		g_free(current_frame->filename);
 		g_free(current_frame);
 		current_frame = g_ptr_array_remove_index(mc->config_stack,mc->config_stack->len-1);
 	}
-}				
+}
 
 <OUTSIDE>{comment}					;
 
@@ -289,25 +289,25 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 	volatile gboolean state = TRUE;
 	mc = matecfg;
 
-	yyin = eth_fopen(filename,"r");
-	
+	yyin = ws_fopen(filename,"r");
+
 	if (!yyin) {
 		g_string_append_printf(mc->config_error,"Mate parser: Could not open file: '%s', error: %s", filename, strerror(errno) );
 		return FALSE;
 	}
-	
+
 	mc->config_stack = g_ptr_array_new();
-	
+
 	current_frame = g_malloc(sizeof(mate_config_frame));
 	current_frame->filename = g_strdup(filename);
 	current_frame->linenum = 1;
-	
+
 	g_ptr_array_add(mc->config_stack,current_frame);
 
 	pParser = MateParserAlloc(g_malloc);
-	
+
 	/* MateParserTrace(stdout,""); */
-	
+
 	TRY {
 		BEGIN OUTSIDE;
 
@@ -316,27 +316,27 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* matecfg) {
 		MateParser(pParser, 0, NULL,mc);
 
 		yyrestart(NULL);
-	
+
 		MateParserFree(pParser, g_free );
-	
+
 		g_free(current_frame->filename);
 		g_free(current_frame);
-	
+
 		g_ptr_array_free(mc->config_stack,FALSE);
 	} CATCH(MateConfigError) {
 		state = FALSE;
 	} CATCH_ALL {
-		state = FALSE;		
+		state = FALSE;
 		g_string_append_printf(mc->config_error,"An unexpected error occurred");
 	}
 	ENDTRY;
-	
+
 	return state;
 }
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

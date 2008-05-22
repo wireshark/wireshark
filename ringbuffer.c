@@ -26,18 +26,18 @@
  * <laurent.deniel@free.fr>
  *
  * Almost completely rewritten in order to:
- * 
+ *
  * - be able to use a unlimited number of ringbuffer files
  * - close the current file and open (truncating) the next file at switch
  * - set the final file name once open (or reopen)
  * - avoid the deletion of files that could not be truncated (can't arise now)
  *   and do not erase empty files
  *
- * The idea behind that is to remove the limitation of the maximum # of 
+ * The idea behind that is to remove the limitation of the maximum # of
  * ringbuffer files being less than the maximum # of open fd per process
  * and to be able to reduce the amount of virtual memory usage (having only
  * one file open at most) or the amount of file system usage (by truncating
- * the files at switch and not the capture stop, and by closing them which 
+ * the files at switch and not the capture stop, and by closing them which
  * makes possible their move or deletion after a switch).
  *
  */
@@ -67,7 +67,7 @@
 
 #include "pcapio.h"
 #include "ringbuffer.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 
 /* Ringbuffer file structure */
@@ -94,7 +94,7 @@ static ringbuf_data rb_data;
 
 
 /*
- * create the next filename and open a new binary file with that name 
+ * create the next filename and open a new binary file with that name
  */
 static int ringbuf_open_file(rb_file *rfile, int *err)
 {
@@ -105,7 +105,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   if (rfile->name != NULL) {
     if (rb_data.unlimited == FALSE) {
       /* remove old file (if any, so ignore error) */
-      eth_unlink(rfile->name);
+      ws_unlink(rfile->name);
     }
     g_free(rfile->name);
   }
@@ -125,7 +125,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     return -1;
   }
 
-  rb_data.fd = eth_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
+  rb_data.fd = ws_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 0600);
 
   if (rb_data.fd == -1 && err != NULL) {
     *err = errno;
@@ -246,7 +246,7 @@ ringbuf_init_libpcap_fdopen(int linktype, int snaplen,
  * Switches to the next ringbuffer file
  */
 gboolean
-ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd, 
+ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
                     long *bytes_written, int *err)
 {
   int     next_file_index;
@@ -255,7 +255,7 @@ ringbuf_switch_file(FILE **pdh, gchar **save_file, int *save_file_fd,
   /* close current file */
 
   if (!libpcap_dump_close(rb_data.pdh, err)) {
-    eth_close(rb_data.fd);	/* XXX - the above should have closed this already */
+    ws_close(rb_data.fd);	/* XXX - the above should have closed this already */
     rb_data.pdh = NULL;	/* it's still closed, we just got an error while closing */
     rb_data.fd = -1;
     return FALSE;
@@ -298,7 +298,7 @@ ringbuf_libpcap_dump_close(gchar **save_file, int *err)
   /* close current file, if it's open */
   if (rb_data.pdh != NULL) {
     if (!libpcap_dump_close(rb_data.pdh, err)) {
-      eth_close(rb_data.fd);
+      ws_close(rb_data.fd);
       ret_val = FALSE;
     }
 
@@ -359,14 +359,14 @@ ringbuf_error_cleanup(void)
   /* XXX - it shouldn't still be open; "libpcap_dump_close()" should leave the
      file closed even if it fails */
   if (rb_data.fd != -1) {
-    eth_close(rb_data.fd);
+    ws_close(rb_data.fd);
     rb_data.fd = -1;
   }
 
   if (rb_data.files != NULL) {
     for (i=0; i < rb_data.num_files; i++) {
       if (rb_data.files[i].name != NULL) {
-        eth_unlink(rb_data.files[i].name);
+        ws_unlink(rb_data.files[i].name);
       }
     }
   }

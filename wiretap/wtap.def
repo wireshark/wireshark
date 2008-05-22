@@ -15,15 +15,6 @@ buffer_free
 buffer_init
 buffer_remove_start
 
-eth_stdio_open
-eth_stdio_rename
-eth_stdio_mkdir
-eth_stdio_stat
-eth_stdio_unlink
-eth_stdio_remove
-eth_stdio_fopen
-eth_stdio_freopen
-
 file_seek
 file_tell
 file_error

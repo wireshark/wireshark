@@ -98,7 +98,7 @@
 #include "capture-wpcap.h"
 #endif
 #include "ui_util.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 #include "log.h"
 
 #ifdef _WIN32
@@ -291,7 +291,7 @@ sync_pipe_start(capture_options *capture_opts) {
         report_failure("We don't know where to find dumpcap.");
         return FALSE;
     }
-    
+
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "argv[0]: %s", argv[0]);
 
     argv = sync_pipe_add_arg(argv, &argc, "-i");
@@ -506,7 +506,7 @@ sync_pipe_start(capture_options *capture_opts) {
        * it just capture with the specified capture parameters
        */
       dup2(sync_pipe[PIPE_WRITE], 2);
-      eth_close(sync_pipe[PIPE_READ]);
+      ws_close(sync_pipe[PIPE_READ]);
       execv(argv[0], (gpointer)argv);
       g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		argv[0], strerror(errno));
@@ -538,15 +538,15 @@ sync_pipe_start(capture_options *capture_opts) {
 #ifdef _WIN32
     CloseHandle(sync_pipe_write);
 #else
-    eth_close(sync_pipe[PIPE_WRITE]);
+    ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
     if (capture_opts->fork_child == -1) {
       /* We couldn't even create the child process. */
       report_failure("Couldn't create child process: %s", strerror(errno));
-      eth_close(sync_pipe_read_fd);
+      ws_close(sync_pipe_read_fd);
 #ifdef _WIN32
-      eth_close(capture_opts->signal_pipe_write_fd);
+      ws_close(capture_opts->signal_pipe_write_fd);
 #endif
       return FALSE;
     }
@@ -679,7 +679,7 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
          * it just capture with the specified capture parameters
          */
         dup2(sync_pipe[PIPE_WRITE], 1);
-        eth_close(sync_pipe[PIPE_READ]);
+        ws_close(sync_pipe[PIPE_READ]);
         execv(argv[0], (gpointer)argv);
         g_snprintf(errmsg, sizeof errmsg, "Couldn't run %s in child process: %s",
 		   argv[0], strerror(errno));
@@ -711,13 +711,13 @@ sync_pipe_open_command(const char** argv, int *read_fd, int *fork_child, gchar *
 #ifdef _WIN32
     CloseHandle(sync_pipe_write);
 #else
-    eth_close(sync_pipe[PIPE_WRITE]);
+    ws_close(sync_pipe[PIPE_WRITE]);
 #endif
 
     if (*fork_child == -1) {
         /* We couldn't even create the child process. */
         *msg = g_strdup_printf("Couldn't create child process: %s", strerror(errno));
-        eth_close(*read_fd);
+        ws_close(*read_fd);
         return CANT_RUN_DUMPCAP;
     }
 
@@ -734,7 +734,7 @@ sync_pipe_close_command(int *read_fd, gchar **msg) {
 #endif
     int fork_child_status;
 
-    eth_close(*read_fd);
+    ws_close(*read_fd);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_close_command: wait till child closed");
 
@@ -801,7 +801,7 @@ sync_pipe_run_command(const char** argv, gchar **msg) {
     /* We were able to set up to read dumpcap's output.  Do so and
        return its exit value. */
     msg_buf = g_string_new("");
-    while ((count = eth_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
+    while ((count = ws_read(sync_pipe_read_fd, buf, PIPE_BUF_SIZE)) > 0) {
         buf[count] = '\0';
         g_string_append(msg_buf, buf);
     }
@@ -862,7 +862,7 @@ sync_interface_list_open(gchar **msg) {
     /*           currently be sent as is to stderr resulting in garbled output.           */
     /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
     /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
@@ -914,7 +914,7 @@ sync_linktype_list_open(const gchar *ifname, gchar **msg) {
     /*           currently be sent as is to stderr resulting in garbled output.           */
     /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
     /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
@@ -963,7 +963,7 @@ sync_interface_stats_open(int *read_fd, int *fork_child, gchar **msg) {
     /*           currently be sent as is to stderr resulting in garbled output.           */
     /*     ToDo: Revise this code to be similar to sync_pipe_start so that 'dumpcap -Z'   */
     /*     special format error messages to stderr are captured and returned to caller    */
-    /*     (eg: so can be processed and displayed in a pop-up box).                       */ 
+    /*     (eg: so can be processed and displayed in a pop-up box).                       */
 #ifndef DEBUG_CHILD
     argv = sync_pipe_add_arg(argv, &argc, "-Z");
     argv = sync_pipe_add_arg(argv, &argc, SIGNAL_PIPE_CTRL_ID_NONE);
@@ -1181,7 +1181,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     sync_pipe_wait_for_child(capture_opts);
 
 #ifdef _WIN32
-    eth_close(capture_opts->signal_pipe_write_fd);
+    ws_close(capture_opts->signal_pipe_write_fd);
 #endif
     capture_input_closed(capture_opts);
     return FALSE;
@@ -1195,7 +1195,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 
       /* We weren't able to open the new capture file; user has been
          alerted. Close the sync pipe. */
-      eth_close(source);
+      ws_close(source);
 
       /* the child has send us a filename which we couldn't open.
          this probably means, the child is creating files faster than we can handle it.

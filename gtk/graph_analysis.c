@@ -50,7 +50,7 @@
 #include "../register.h"
 #include "../color.h"
 #include "../simple_dialog.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/file_dlg.h"
@@ -276,7 +276,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t* user_data)
 
 	FILE *of;
 
-	of = eth_fopen(user_data->dlg.save_file,"w");
+	of = ws_fopen(user_data->dlg.save_file,"w");
 	if (of==NULL){
 		return FALSE;
 	}
@@ -509,7 +509,7 @@ static void save_to_file_ok_cb(GtkWidget *ok_bt _U_, gpointer user_data _U_)
 
 
 	/* check whether the file exists */
-	file_test = eth_fopen(user_data_p->dlg.save_file,"r");
+	file_test = ws_fopen(user_data_p->dlg.save_file,"r");
 	if (file_test!=NULL){
 
 		dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_YES_NO,
@@ -1216,7 +1216,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap);
 	gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
 	}
-		
+
 		dialog_graph_redraw(user_data);
 
         return TRUE;
@@ -1505,13 +1505,13 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 /****************************************************************************/
 static gint add_or_get_node(graph_analysis_data_t* user_data, address* node) {
 	guint i;
-	
+
 	if (node->type == AT_NONE) return NODE_OVERFLOW;
-		
+
 	for (i=0; i<MAX_NUM_NODES && i < user_data->num_nodes ; i++){
 		if ( CMP_ADDRESS(&(user_data->nodes[i]), node) == 0 ) return i;	/* it is in the array */
 	}
-	
+
 	if (i == MAX_NUM_NODES) {
 		return  NODE_OVERFLOW;
 	} else {
@@ -1613,14 +1613,14 @@ void graph_analysis_redraw(graph_analysis_data_t* user_data)
 
 	user_data->dlg.pixmap_width = user_data->num_nodes * NODE_WIDTH;
     gtk_widget_set_size_request(user_data->dlg.draw_area, user_data->dlg.pixmap_width, user_data->dlg.pixmap_height);
-	if ( user_data->num_nodes < 6)  
+	if ( user_data->num_nodes < 6)
 			gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*user_data->num_nodes, user_data->dlg.pixmap_height);
 		else
 			gtk_widget_set_size_request(user_data->dlg.scroll_window, NODE_WIDTH*5, user_data->dlg.pixmap_height);
 
 
 	/* redraw the graph */
-	dialog_graph_redraw(user_data); 
+	dialog_graph_redraw(user_data);
 
     window_present(user_data->dlg.window);
 	return;

@@ -28,7 +28,7 @@
 #include "ascend.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 #include <errno.h>
 
@@ -57,7 +57,7 @@
 
 typedef struct _ascend_magic_string {
   guint        type;
-  const gchar   *strptr; 
+  const gchar   *strptr;
 } ascend_magic_string;
 
 #define ASCEND_MAGIC_STRINGS	11
@@ -100,7 +100,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
 
   while (((byte = file_getc(wth->fh)) != EOF)) {
     excessive_read_count--;
-  
+
     if (!excessive_read_count) {
       return -1;
     }
@@ -124,7 +124,7 @@ static gint64 ascend_seek(wtap *wth, int *err)
 	  if (strcmp(strptr, ASCEND_DATE) == 0) {
             date_off = cur_off - len;
           } else {
-            if (date_off == -1) { 
+            if (date_off == -1) {
               /* Back up over the header we just read; that's where a read
                  of this packet should start. */
               packet_off = cur_off - len;

@@ -33,7 +33,7 @@
 
 #include "svnversion.h"
 #include "merge.h"
-#include "file_util.h"
+#include "wsutil/file_util.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -308,19 +308,19 @@ main(int argc, char *argv[])
   }
 
   /* open the outfile */
-  if (strncmp(out_filename, "-", 2) == 0) {  
+  if (strncmp(out_filename, "-", 2) == 0) {
     /* use stdout as the outfile */
     out_fd = 1 /*stdout*/;
   } else {
     /* open the outfile */
-    out_fd = eth_open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    out_fd = ws_open(out_filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (out_fd == -1) {
       fprintf(stderr, "mergecap: Couldn't open output file %s: %s\n",
               out_filename, strerror(errno));
       exit(1);
     }
-  }  
-    
+  }
+
   /* prepare the outfile */
   pdh = wtap_dump_fdopen(out_fd, file_type, frame_type, snaplen, FALSE /* compressed */, &open_err);
   if (pdh == NULL) {

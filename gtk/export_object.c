@@ -44,7 +44,7 @@
 
 #include <../alert_box.h>
 #include <../simple_dialog.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <gtk/dlg_utils.h>
 #include <gtk/file_dlg.h>
@@ -125,7 +125,7 @@ eo_save_entry(gchar *save_as_filename, export_object_entry_t *entry, gboolean sh
 {
 	int to_fd;
 
-	to_fd = eth_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL |
+	to_fd = ws_open(save_as_filename, O_WRONLY | O_CREAT | O_EXCL |
 			 O_BINARY, 0644);
 	if(to_fd == -1) { /* An error occurred */
 		if (show_err)
@@ -134,15 +134,15 @@ eo_save_entry(gchar *save_as_filename, export_object_entry_t *entry, gboolean sh
 		return FALSE;
 	}
 
-	if(eth_write(to_fd, entry->payload_data, entry->payload_len) < 0) {
+	if(ws_write(to_fd, entry->payload_data, entry->payload_len) < 0) {
 		if (show_err)
 			write_failure_alert_box(save_as_filename, errno);
-		eth_close(to_fd);
+		ws_close(to_fd);
 		g_free(save_as_filename);
 		return FALSE;
 	}
 
-	if (eth_close(to_fd) < 0) {
+	if (ws_close(to_fd) < 0) {
 		if (show_err)
 			write_failure_alert_box(save_as_filename, errno);
 		g_free(save_as_filename);

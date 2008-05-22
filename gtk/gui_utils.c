@@ -37,7 +37,7 @@
 #include "epan/epan.h"
 
 #include "../ui_util.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"

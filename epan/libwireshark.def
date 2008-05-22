@@ -254,10 +254,10 @@ dissect_per_sequence_of
 dissect_per_sequence
 dissect_per_set_of
 dissect_per_VisibleString
-dissect_q932_PartyNumber              
-dissect_q932_PartySubaddress        
+dissect_q932_PartyNumber
+dissect_q932_PartySubaddress
 dissect_q932_PresentedNumberUnscreened
-dissect_q932_PresentedNumberScreened  
+dissect_q932_PresentedNumberScreened
 dissect_qsig_na_Name
 dissect_rpc_array
 dissect_rpc_bool
@@ -335,7 +335,6 @@ epan_dissect_run
 epan_get_version
 epan_init
 epan_strcasestr
-eth_stdio_fopen
 ether_to_str
 ex_opt_add
 ex_opt_count
@@ -634,7 +633,7 @@ proto_find_finfo
 proto_frame                     DATA
 proto_get_finfo_ptr_array
 proto_get_first_protocol_field
-proto_get_first_protocol 
+proto_get_first_protocol
 proto_get_id
 proto_get_id_by_filter_name
 proto_get_next_protocol

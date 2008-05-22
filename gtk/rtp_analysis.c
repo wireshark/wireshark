@@ -69,7 +69,7 @@
 #include "../progress_dlg.h"
 #include "../color.h"
 #include "../tempfile.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/dlg_utils.h"
@@ -350,10 +350,10 @@ rtp_reset(void *user_data_arg)
 		fclose(user_data->forward.saveinfo.fp);
 	if (user_data->reversed.saveinfo.fp != NULL)
 		fclose(user_data->reversed.saveinfo.fp);
-	user_data->forward.saveinfo.fp = eth_fopen(user_data->f_tempname, "wb");
+	user_data->forward.saveinfo.fp = ws_fopen(user_data->f_tempname, "wb");
 	if (user_data->forward.saveinfo.fp == NULL)
 		user_data->forward.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
-	user_data->reversed.saveinfo.fp = eth_fopen(user_data->r_tempname, "wb");
+	user_data->reversed.saveinfo.fp = ws_fopen(user_data->r_tempname, "wb");
 	if (user_data->reversed.saveinfo.fp == NULL)
 		user_data->reversed.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
 	return;
@@ -712,8 +712,8 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	if (user_data->reversed.saveinfo.fp != NULL)
 		fclose(user_data->reversed.saveinfo.fp);
 	/*XXX: test for error **/
-	eth_remove(user_data->f_tempname);
-	eth_remove(user_data->r_tempname);
+	ws_remove(user_data->f_tempname);
+	ws_remove(user_data->r_tempname);
 
 	/* destroy save_voice_as window if open */
 	if (user_data->dlg.save_voice_as_w != NULL)
@@ -1869,7 +1869,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	user_data = (user_data_t*)g_object_get_data(G_OBJECT(bt), "user_data");
 
 	if (GTK_TOGGLE_BUTTON(forw)->active || GTK_TOGGLE_BUTTON(both)->active) {
-		fp = eth_fopen(g_dest, "w");
+		fp = ws_fopen(g_dest, "w");
 		if (fp == NULL) {
 			open_failure_alert_box(g_dest, errno, TRUE);
 			return;
@@ -1923,7 +1923,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 	if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
 
 		if (GTK_TOGGLE_BUTTON(both)->active) {
-			fp = eth_fopen(g_dest, "a");
+			fp = ws_fopen(g_dest, "a");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
@@ -1935,7 +1935,7 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				return;
 			}
 		} else {
-			fp = eth_fopen(g_dest, "w");
+			fp = ws_fopen(g_dest, "w");
 			if (fp == NULL) {
 				open_failure_alert_box(g_dest, errno, TRUE);
 				return;
@@ -2099,20 +2099,20 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	gboolean stop_flag = FALSE;
 	size_t nchars;
 
-	forw_fd = eth_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
+	forw_fd = ws_open(user_data->f_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (forw_fd < 0)
 		return FALSE;
-	rev_fd = eth_open(user_data->r_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
+	rev_fd = ws_open(user_data->r_tempname, O_RDONLY | O_BINARY, 0000 /* no creation so don't matter */);
 	if (rev_fd < 0) {
-		eth_close(forw_fd);
+		ws_close(forw_fd);
 		return FALSE;
 	}
 
 	/* open file for saving */
-	to_fd = eth_open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+	to_fd = ws_open(dest, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
 	if (to_fd < 0) {
-		eth_close(forw_fd);
-		eth_close(rev_fd);
+		ws_close(forw_fd);
+		ws_close(rev_fd);
 		return FALSE;
 	}
 
@@ -2123,22 +2123,22 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 		/* First we write the .au header. XXX Hope this is endian independant */
 		/* the magic word 0x2e736e64 == .snd */
 		phtonl(pd, 0x2e736e64);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 		/* total length, it is permited to set this to 0xffffffff */
 		phtonl(pd, -1);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 		/* channels == 1 */
 		phtonl(pd, 1);
-		nchars=eth_write(to_fd, pd, 4);
+		nchars=ws_write(to_fd, pd, 4);
 
 
 		switch (channels) {
@@ -2165,18 +2165,18 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						phtons(pd, sample);
 					}
 					else{
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
-					fwritten = eth_write(to_fd, pd, 2);
+					fwritten = ws_write(to_fd, pd, 2);
 					if ((fwritten < 2) || (fwritten < 0) || (fread < 0)) {
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2206,18 +2206,18 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						phtons(pd, sample);
 					}
 					else{
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
-					rwritten = eth_write(to_fd, pd, 2);
+					rwritten = ws_write(to_fd, pd, 2);
 					if ((rwritten < 2) || (rwritten < 0) || (rread < 0)) {
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2291,19 +2291,19 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					else
 					{
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
 
 
-					rwritten = eth_write(to_fd, pd, 2);
+					rwritten = ws_write(to_fd, pd, 2);
 					if ((rwritten < 2) || (rread < 0) || (fread < 0)) {
-						eth_close(forw_fd);
-						eth_close(rev_fd);
-						eth_close(to_fd);
+						ws_close(forw_fd);
+						ws_close(rev_fd);
+						ws_close(to_fd);
 						destroy_progress_dlg(progbar);
 						return FALSE;
 					}
@@ -2330,9 +2330,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				break;
 			}
 			default: {
-				eth_close(forw_fd);
-				eth_close(rev_fd);
-				eth_close(to_fd);
+				ws_close(forw_fd);
+				ws_close(rev_fd);
+				ws_close(to_fd);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2351,12 +2351,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			}
 			count++;
 
-			rwritten = eth_write(to_fd, pd, 1);
+			rwritten = ws_write(to_fd, pd, 1);
 
 			if ((rwritten < rread) || (rwritten < 0) || (rread < 0)) {
-				eth_close(forw_fd);
-				eth_close(rev_fd);
-				eth_close(to_fd);
+				ws_close(forw_fd);
+				ws_close(rev_fd);
+				ws_close(to_fd);
 				destroy_progress_dlg(progbar);
 				return FALSE;
 			}
@@ -2364,9 +2364,9 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	}
 
 	destroy_progress_dlg(progbar);
-	eth_close(forw_fd);
-	eth_close(rev_fd);
-	eth_close(to_fd);
+	ws_close(forw_fd);
+	ws_close(rev_fd);
+	ws_close(to_fd);
 	return TRUE;
 }
 
@@ -3026,7 +3026,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
 	g_object_set_data(G_OBJECT(window), "notebook", notebook);
 
-	user_data->dlg.notebook_signal_id = 
+	user_data->dlg.notebook_signal_id =
         g_signal_connect(notebook, "switch_page", G_CALLBACK(on_notebook_switch_page), user_data);
 
 	/* page for forward connection */
@@ -3276,10 +3276,10 @@ void rtp_analysis(
 	/*XXX: check for errors*/
 	fd = create_tempfile(user_data->f_tempname, sizeof(user_data->f_tempname),
 		"ether_rtp_f");
-	eth_close(fd);
+	ws_close(fd);
 	fd = create_tempfile(user_data->r_tempname, sizeof(user_data->r_tempname),
 		"ether_rtp_r");
-	eth_close(fd);
+	ws_close(fd);
 	user_data->forward.saveinfo.fp = NULL;
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;

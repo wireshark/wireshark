@@ -87,7 +87,6 @@ NONGENERATED_HEADER_FILES = \
 	erf.h			\
 	etherpeek.h             \
 	eyesdn.h		\
-	file_util.h		\
 	file_wrappers.h		\
 	hcidump.h		\
 	i4btrace.h		\

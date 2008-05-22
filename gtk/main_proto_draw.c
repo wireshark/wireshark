@@ -55,7 +55,7 @@
 #include "../simple_dialog.h"
 #include "../progress_dlg.h"
 #include "../ui_util.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/keys.h"
 #include "gtk/color_utils.h"
@@ -695,7 +695,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
         byte_line_part_length = (++i) % byte_line_length;
         if(i == data_len){
             /* End of data - need to fill in spaces in hex string and then do "end of line".
-             * 
+             *
              */
             for(j = 0; append_text && (j < (byte_line_length - byte_line_part_length)); ++j) {
                 g_string_append(hex_str,"   "); /* Three spaces for each missing byte */
@@ -704,7 +704,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
         } else {
             end_of_line = (byte_line_part_length == 0 ? TRUE : FALSE);
         }
-        
+
 
         if (end_of_line){
             /* End of line */
@@ -725,7 +725,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
 	g_string_free(char_str, TRUE);
 }
 
-static 
+static
 int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
 
@@ -742,7 +742,7 @@ int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int dat
     return 1;
 }
 
-static 
+static
 int copy_hex_bytes_hex(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
     g_string_append_printf(copy_buffer, "%02x", *data_p);
@@ -777,7 +777,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
     if(flags & CD_FLAGS_SELECTEDONLY) {
         int start, end;
-        
+
         /* Get the start and end of the highlighted bytes.
          * XXX The keys appear to be REVERSED start <-> end throughout this file!
          * Should this be fixed? There is one exception - packet_hex_reprint,
@@ -826,12 +826,12 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         }
         break;
     }
-    
+
     if(copy_buffer->len > 0) {
         copy_to_clipboard(copy_buffer);
     }
 
-	g_string_free(copy_buffer, TRUE);  
+	g_string_free(copy_buffer, TRUE);
 }
 
 /* save the current highlighted hex data */
@@ -872,17 +872,17 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 		return;
 	}
 
-	fd = eth_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
+	fd = ws_open(file, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
 	if (fd == -1) {
 		open_failure_alert_box(file, errno, TRUE);
 		return;
 	}
-	if (eth_write(fd, data_p + start, end - start) < 0) {
+	if (ws_write(fd, data_p + start, end - start) < 0) {
 		write_failure_alert_box(file, errno);
-		eth_close(fd);
+		ws_close(fd);
 		return;
 	}
-	if (eth_close(fd) < 0) {
+	if (ws_close(fd) < 0) {
 		write_failure_alert_box(file, errno);
 		return;
 	}
@@ -998,7 +998,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
-  g_object_ref(buf);  
+  g_object_ref(buf);
   gtk_text_view_set_buffer( bv_text_view, NULL);
 
   /*
@@ -1172,7 +1172,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       if (reverse && (reverse != newreverse)) {
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  revstyle, NULL);
-        
+
         cur = 0;
       }
       if (i < k) {
@@ -1214,12 +1214,12 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                                              "plain", NULL);
   }
   gtk_text_view_set_buffer( bv_text_view, buf);
-  
+
   if (mark) {
     gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
     gtk_text_buffer_delete_mark(buf, mark);
   }
-  g_object_unref(buf);  
+  g_object_unref(buf);
 }
 
 void

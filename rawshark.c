@@ -73,7 +73,7 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/privileges.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include "globals.h"
 #include <epan/packet.h>
@@ -268,7 +268,7 @@ raw_pipe_open(const char *pipe_name)
 #endif  /* _WIN32 */
   } else {
 #ifndef _WIN32
-    if (eth_stat(pipe_name, &pipe_stat) < 0) {
+    if (ws_stat(pipe_name, &pipe_stat) < 0) {
       g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
         "The capture session could not be initiated "
         "due to error on pipe: %s", strerror(errno));
@@ -288,7 +288,7 @@ raw_pipe_open(const char *pipe_name)
       }
       return -1;
     }
-    rfd = eth_open(pipe_name, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
+    rfd = ws_open(pipe_name, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
     if (rfd == -1) {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG,
           "The capture session could not be initiated "

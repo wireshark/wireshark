@@ -94,7 +94,7 @@
 
 #include "tempfile.h"
 #include "log.h"
-#include "file_util.h"
+#include "wsutil/file_util.h"
 
 /*
  * Get information about libpcap format from "wiretap/libpcap.h".
@@ -689,7 +689,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 #endif  /* _WIN32 */
   } else {
 #ifndef _WIN32
-    if (eth_stat(pipename, &pipe_stat) < 0) {
+    if (ws_stat(pipename, &pipe_stat) < 0) {
       if (errno == ENOENT || errno == ENOTDIR)
         ld->cap_pipe_err = PIPNEXIST;
       else {
@@ -716,7 +716,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
       }
       return -1;
     }
-    fd = eth_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
+    fd = ws_open(pipename, O_RDONLY | O_NONBLOCK, 0000 /* no creation so don't matter */);
     if (fd == -1) {
       g_snprintf(errmsg, errmsgl,
           "The capture session could not be initiated "
@@ -891,7 +891,7 @@ cap_pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
 error:
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "cap_pipe_open_live: error %s", errmsg);
   ld->cap_pipe_err = PIPERR;
-  eth_close(fd);
+  ws_close(fd);
   return -1;
 
 }
@@ -1288,7 +1288,7 @@ static void capture_loop_close_input(loop_data *ld) {
   /* if open, close the capture pipe "input file" */
   if (ld->cap_pipe_fd >= 0) {
     g_assert(ld->from_cap_pipe);
-    eth_close(ld->cap_pipe_fd);
+    ws_close(ld->cap_pipe_fd);
     ld->cap_pipe_fd = 0;
   }
 
@@ -1644,7 +1644,7 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         }
       } else {
         /* Try to open/create the specified file for use as a capture buffer. */
-        *save_file_fd = eth_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+        *save_file_fd = ws_open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
                              0600);
       }
     }
@@ -2094,13 +2094,13 @@ error:
     /* We can't use the save file, and we have no FILE * for the stream
        to close in order to close it, so close the FD directly. */
     if(save_file_fd != -1) {
-      eth_close(save_file_fd);
+      ws_close(save_file_fd);
     }
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */
     if(capture_opts->save_file != NULL) {
-      eth_unlink(capture_opts->save_file);
+      ws_unlink(capture_opts->save_file);
       g_free(capture_opts->save_file);
     }
   }

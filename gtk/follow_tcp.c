@@ -55,7 +55,7 @@
 #include "../alert_box.h"
 #include "../simple_dialog.h"
 #include "../tempfile.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/color_utils.h"
 #include "gtk/follow_tcp.h"
@@ -142,8 +142,8 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Could not create temporary file %s: %s",
 			  follow_info->data_out_filename, strerror(errno));
-	    eth_close(tmp_fd);
-	    eth_unlink(follow_info->data_out_filename);
+	    ws_close(tmp_fd);
+	    ws_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}
@@ -190,8 +190,8 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 	if (empty_tcp_stream) {
 	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "The packets in the capture file for that stream have no data.");
-	    eth_close(tmp_fd);
-	    eth_unlink(follow_info->data_out_filename);
+	    ws_close(tmp_fd);
+	    ws_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}
@@ -220,8 +220,8 @@ follow_tcp_stream_cb(GtkWidget * w, gpointer data _U_)
 			      (unsigned long)sizeof(sc),
 			      (unsigned long)nchars);
 	    }
-	    eth_close(tmp_fd);
-	    eth_unlink(follow_info->data_out_filename);
+	    ws_close(tmp_fd);
+	    ws_unlink(follow_info->data_out_filename);
 	    g_free(follow_info);
 	    return;
 	}
@@ -335,7 +335,7 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
-    data_out_file = eth_fopen(follow_info->data_out_filename, "rb");
+    data_out_file = ws_fopen(follow_info->data_out_filename, "rb");
     if (data_out_file == NULL) {
 	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
@@ -385,14 +385,14 @@ follow_read_tcp_stream(follow_info_t *follow_info,
 
 	    if (!skip) {
 		    frs_return = follow_show(follow_info, print_line, buffer,
-					     nchars, is_server, arg, global_pos, 
+					     nchars, is_server, arg, global_pos,
 					     &server_packet_count,
 					     &client_packet_count);
 		    if(frs_return == FRS_PRINT_ERROR) {
 			    fclose(data_out_file);
 			    data_out_file = NULL;
 			    return frs_return;
-		
+
 		    }
 	    }
 	}

@@ -100,7 +100,7 @@
 #include "../alert_box.h"
 #include "../capture_ui_utils.h"
 #include "../log.h"
-#include "../wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 
 #ifdef HAVE_LIBPCAP
@@ -1458,7 +1458,7 @@ main_cf_cb_file_safe_reload_finished(gpointer data _U_)
     set_menus_for_capture_file(&cfile);
 }
 
-static void 
+static void
 main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
 {
     switch(event) {
@@ -2046,13 +2046,13 @@ main(int argc, char *argv[])
   recent_read_static(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open common recent file\n\"%s\": %s.", 
+		  "Could not open common recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
   }
   recent_read_profile_static(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open recent file\n\"%s\": %s.", 
+		  "Could not open recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
   }
 
@@ -2398,7 +2398,7 @@ main(int argc, char *argv[])
   recent_read_dynamic(&rf_path, &rf_open_errno);
   if (rf_path != NULL && rf_open_errno != 0) {
     simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open recent file\n\"%s\": %s.", 
+		  "Could not open recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
   }
 
@@ -2663,9 +2663,9 @@ create_console(void)
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
       return;   /* couldn't create console */
-    eth_freopen("CONIN$", "r", stdin);
-    eth_freopen("CONOUT$", "w", stdout);
-    eth_freopen("CONOUT$", "w", stderr);
+    ws_freopen("CONIN$", "r", stdin);
+    ws_freopen("CONOUT$", "w", stdout);
+    ws_freopen("CONOUT$", "w", stderr);
 
     /* Well, we have a console now. */
     has_console = TRUE;
@@ -3241,7 +3241,7 @@ void change_configuration_profile (const gchar *profile_name)
    recent_read_profile_static(&rf_path, &rf_open_errno);
    if (rf_path != NULL && rf_open_errno != 0) {
      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		  "Could not open common recent file\n\"%s\": %s.", 
+		  "Could not open common recent file\n\"%s\": %s.",
 		  rf_path, strerror(rf_open_errno));
    }
    timestamp_set_type (recent.gui_time_format);

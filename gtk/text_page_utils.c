@@ -36,7 +36,7 @@
 #include "epan/filesystem.h"
 
 #include "../simple_dialog.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/text_page_utils.h"
 #include "gtk/gui_utils.h"
@@ -59,7 +59,7 @@ GtkWidget * text_page_new(const char *absolute_path)
   page_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
   gtk_box_pack_start(GTK_BOX(page_vb), txt_scrollw, TRUE, TRUE, 0);
 
@@ -113,7 +113,7 @@ static void text_page_set_text(GtkWidget *page, const char *absolute_path)
   FILE *text_file;
   char line[4096+1];	/* XXX - size? */
 
-  text_file = eth_fopen(absolute_path, "r");
+  text_file = ws_fopen(absolute_path, "r");
   if (text_file != NULL) {
     while (fgets(line, sizeof line, text_file) != NULL) {
       text_page_insert(page, line, strlen(line));

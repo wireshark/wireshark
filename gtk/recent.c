@@ -40,7 +40,7 @@
 #include <epan/column.h>
 
 #include "../simple_dialog.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/recent.h"
 #include "gtk/main.h"
@@ -154,7 +154,7 @@ write_recent(void)
   }
 
   rf_path = get_persconffile_path(RECENT_COMMON_FILE_NAME, FALSE, TRUE);
-  if ((rf = eth_fopen(rf_path, "w")) == NULL) {
+  if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
       strerror(errno));
@@ -265,7 +265,7 @@ write_profile_recent(void)
   }
 
   rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE, TRUE);
-  if ((rf = eth_fopen(rf_path, "w")) == NULL) {
+  if ((rf = ws_fopen(rf_path, "w")) == NULL) {
      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
       "Can't open recent file\n\"%s\": %s.", rf_path,
       strerror(errno));
@@ -768,7 +768,7 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
-  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
+  if ((rf = ws_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
 
@@ -826,13 +826,13 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
-  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
+  if ((rf = ws_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_static, NULL);
     fclose(rf);
     if (!recent.has_recent_common) {
       /* Read older common settings from recent file */
-      rf = eth_fopen(rf_path, "r");
+      rf = ws_fopen(rf_path, "r");
       read_prefs_file(rf_path, rf, read_set_recent_common_pair_static, NULL);
       fclose(rf);
     }
@@ -866,7 +866,7 @@ recent_read_dynamic(char **rf_path_return, int *rf_errno_return)
 
   /* Read the user's recent file, if it exists. */
   *rf_path_return = NULL;
-  if ((rf = eth_fopen(rf_path, "r")) != NULL) {
+  if ((rf = ws_fopen(rf_path, "r")) != NULL) {
     /* We succeeded in opening it; read it. */
     read_prefs_file(rf_path, rf, read_set_recent_pair_dynamic, NULL);
     /* set dfilter combobox to have an empty line */

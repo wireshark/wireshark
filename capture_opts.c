@@ -69,7 +69,7 @@
 #include "cmdarg_err.h"
 
 #include "capture-pcap-util.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 typedef struct {
     char *name;
@@ -877,7 +877,7 @@ static int capture_opts_test_for_fifo(const char *path)
 {
 	struct stat statb;
 
-	if (eth_stat(path, &statb) < 0)
+	if (ws_stat(path, &statb) < 0)
 		return errno;
 
 	if (S_ISFIFO(statb.st_mode))

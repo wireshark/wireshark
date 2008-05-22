@@ -102,7 +102,7 @@
 
 #include <epan/dissectors/packet-gssapi.h>
 
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #define UDP_PORT_KERBEROS		88
 #define TCP_PORT_KERBEROS		88
@@ -731,7 +731,7 @@ read_keytab_file(const char *service_key_file)
 	unsigned char buf[SERVICE_KEY_SIZE];
 	int newline_skip = 0, count = 0;
 
-	if (service_key_file != NULL && eth_stat (service_key_file, &st) == 0) {
+	if (service_key_file != NULL && ws_stat (service_key_file, &st) == 0) {
 
 		/* The service key file contains raw 192-bit (24 byte) 3DES keys.
 		 * There can be zero, one (\n), or two (\r\n) characters between
@@ -749,7 +749,7 @@ read_keytab_file(const char *service_key_file)
 			}
 		}
 
-		skf = eth_fopen(service_key_file, "rb");
+		skf = ws_fopen(service_key_file, "rb");
 		if (! skf) return;
 
 		while (fread(buf, SERVICE_KEY_SIZE, 1, skf) == 1) {
@@ -838,7 +838,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 		ENDTRY;
 
 		if (do_continue) continue;
-		
+
 		data_len = item_len + offset - CONFOUNDER_PLUS_CHECKSUM;
 		if ((int) item_len + offset > length) {
 			tvb_free(encr_tvb);

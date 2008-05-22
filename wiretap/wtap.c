@@ -39,7 +39,7 @@
 #include "wtap.h"
 
 #include "file_wrappers.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 #include "buffer.h"
 
 /*
@@ -628,7 +628,7 @@ wtap_read_so_far(wtap *wth, int *err)
 {
 	off_t file_pos;
 
-	file_pos = eth_lseek(wth->fd, 0, SEEK_CUR);
+	file_pos = ws_lseek(wth->fd, 0, SEEK_CUR);
 	if (file_pos == -1) {
 		if (err != NULL)
 			*err = errno;

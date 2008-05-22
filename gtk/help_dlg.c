@@ -36,7 +36,6 @@
 #include <epan/prefs.h>
 
 #include "../simple_dialog.h"
-#include "wiretap/file_util.h"
 
 #include "gtk/help_dlg.h"
 #include "gtk/text_page_utils.h"

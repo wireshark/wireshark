@@ -9,12 +9,12 @@ include <win32.mak>
 
 LEMON=..\..\tools\lemon
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
-	
+
 .c.obj::
 	$(CC) $(CFLAGS) -Fdmate.pdb -c $<
-	
+
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
@@ -57,12 +57,12 @@ mate_parser.c : mate_parser.l
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
-	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon 
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon
 
 $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../plugins/mate
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

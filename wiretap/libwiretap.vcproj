@@ -120,10 +120,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\file_util.c"
-				>
-			</File>
-			<File
 				RelativePath=".\file_wrappers.c"
 				>
 			</File>
@@ -275,10 +271,6 @@
 			</File>
 			<File
 				RelativePath=".\eyesdn.h"
-				>
-			</File>
-			<File
-				RelativePath=".\file_util.h"
 				>
 			</File>
 			<File

@@ -9,14 +9,14 @@ include moduleinfo.nmake
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 CPPFLAGS = $(CFLAGS) -TP
 
 .c.obj::
 	$(CC) $(CPPFLAGS) -Fd$(PLUGIN_NAME).pdb -c $<
-	
+
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
@@ -50,8 +50,8 @@ $(PLUGIN_NAME).dll $(PLUGIN_NAME).exp $(PLUGIN_NAME).lib : $(OBJECTS) $(LINK_PLU
 	link -dll /out:$(PLUGIN_NAME).dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS) $(CODEC_LIBS) $(RESOURCE)
 
-easy_codec_plugin.obj : easy_codec_plugin.c 
-	$(CC) $(CFLAGS) -Fd$(PLUGIN_NAME).pdb -c easy_codec_plugin.c 
+easy_codec_plugin.obj : easy_codec_plugin.c
+	$(CC) $(CFLAGS) -Fd$(PLUGIN_NAME).pdb -c easy_codec_plugin.c
 
 !ENDIF
 
@@ -63,5 +63,5 @@ distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

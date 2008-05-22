@@ -38,7 +38,7 @@
 #include <epan/uat.h>
 #include <epan/report_err.h>
 #include <epan/proto.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 typedef struct {
 	const char* name;
@@ -112,7 +112,7 @@ static void macro_fprint(dfilter_macro_t* m, void* ud) {
 }
 
 void dfilter_macro_save(const gchar* filename, gchar** error) {
-	FILE* f = eth_fopen(filename,"w");
+	FILE* f = ws_fopen(filename,"w");
 
 	if (!f) {
 		*error = ep_strdup_printf("Could not open file: '%s', error: %s\n", filename, strerror(errno) );
@@ -515,12 +515,12 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 		/*
 		 * Copy the contents of m->priv (a "cooked" version
 		 * of m->text) into d->priv.
-		 * 
+		 *
 		 * First we clone m->text into d->priv, this gets
 		 * us a NUL terminated string of the proper length.
 		 *
-		 * Then we loop copying bytes from m->priv into 
-		 * d-priv.  Since m->priv contains internal ACSII NULs 
+		 * Then we loop copying bytes from m->priv into
+		 * d-priv.  Since m->priv contains internal ACSII NULs
 		 * we use the length of m->text to stop the copy.
                  */
 
@@ -531,7 +531,7 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 			gchar* newPriv = d->priv;
 			while(oldText && *oldText) {
 				*(newPriv++) = *(oldPriv++);
-				oldText++; 
+				oldText++;
 			}
 		}
 
@@ -543,8 +543,8 @@ static void* macro_copy(void* dest, const void* orig, unsigned len _U_) {
 		 * to hold the final NULL terminator.
 		 *
 		 * The following copy clones the original m->parts
-		 * array into d->parts but then fixes-up the pointers 
-		 * so that they point into the appropriate sections 
+		 * array into d->parts but then fixes-up the pointers
+		 * so that they point into the appropriate sections
 		 * of the d->priv.
                  */
 
@@ -623,26 +623,26 @@ void dfilter_macro_get_uat(void** p) {
 #ifdef DUMP_DFILTER_MACRO
 /*
  * The dfilter_macro_t has several characteristics that are
- * not immediattly obvious. The dump_dfilter_filter_macro_t() 
- * function can be used to help "visualize" the contents of 
+ * not immediattly obvious. The dump_dfilter_filter_macro_t()
+ * function can be used to help "visualize" the contents of
  * a dfilter_macro_t.
  *
  * Some non-obvious components of this struct include:
  *
  *    m->parts is an argv style array of pointers into the
- *    m->priv string.  
+ *    m->priv string.
  *
  *    The last pointer of an m->parts array should contain
  *    NULL to indicate the end of the parts pointer array.
  *
  *    m->priv is a "cooked" copy of the m->text string.
- *    Any variable substitution indicators within m->text 
- *    ("$1", "$2", ...) will have been replaced with ASCII 
+ *    Any variable substitution indicators within m->text
+ *    ("$1", "$2", ...) will have been replaced with ASCII
  *    NUL characters within m->priv.
  *
- *    The first element of m->parts array (m-parts[0]) will 
- *    usually have the same pointer value as m->priv (unless 
- *    the dfilter-macro starts off with a variable 
+ *    The first element of m->parts array (m-parts[0]) will
+ *    usually have the same pointer value as m->priv (unless
+ *    the dfilter-macro starts off with a variable
  *    substitution indicator (e.g. "$1").
  */
 

@@ -301,7 +301,7 @@
 
 #include "packet-giop.h"
 #include "packet-tcp.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 
 /*
@@ -1291,7 +1291,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   gboolean stream_is_big_endian;
 
 
-  fp = eth_fopen(name,"r");	/* open read only */
+  fp = ws_fopen(name,"r");	/* open read only */
 
   if (fp == NULL) {
     if (errno == EACCES)
@@ -3785,17 +3785,17 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       if (fragment_tree == NULL)
         {
           fragment_tree = proto_item_add_subtree (tf, ett_giop_fragment);
-      
+
         }
     }
-        
+
     request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
     if (check_col(pinfo->cinfo, COL_INFO))
     {
       col_append_fstr(pinfo->cinfo, COL_INFO, " id=%u", request_id);
-    }   
+    }
     if (fragment_tree )
-    {   
+    {
       proto_tree_add_uint (fragment_tree, hf_giop_req_id, tvb, offset-4, 4,request_id);
     }
 

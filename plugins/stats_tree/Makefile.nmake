@@ -9,12 +9,12 @@ include moduleinfo.nmake
 
 include Makefile.common
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
 	$(CC) $(CFLAGS) -Fdstats_tree.pdb -c $<
-	
+
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
@@ -53,5 +53,5 @@ distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(TAP_SRC)

@@ -27,7 +27,7 @@
 
 #include "mate.h"
 #include "mate_util.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 /***************************************************************************
 *  dbg_print
@@ -81,7 +81,7 @@ void dbg_print(const gint* which, gint how, FILE* where, const gchar* fmt, ... )
 struct _scs_collection {
 	GHashTable* hash;	/* key: a string value: guint number of subscribers */
 	GMemChunk* ctrs;
-	GMemChunk* mate_small;	
+	GMemChunk* mate_small;
 	GMemChunk* mate_medium;
 	GMemChunk* mate_large;
 	GMemChunk* mate_huge;
@@ -93,7 +93,7 @@ extern void destroy_scs_collection(SCS_collection* c) {
 	if ( c->mate_medium ) g_mem_chunk_destroy(c->mate_medium);
 	if ( c->mate_large ) g_mem_chunk_destroy(c->mate_large);
 	if ( c->mate_huge ) g_mem_chunk_destroy(c->mate_huge);
-	
+
 	if (c->hash) g_hash_table_destroy(c->hash);
 }
 
@@ -101,19 +101,19 @@ extern SCS_collection* scs_init(void) {
 	SCS_collection* c = g_malloc(sizeof(SCS_collection));
 
 	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
-	
+
 	c->ctrs = g_mem_chunk_new("ints_scs_chunk", sizeof(guint),
 							   sizeof(guint) * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
-	
+
 	c->mate_small = g_mem_chunk_new("small_scs_chunk", SCS_SMALL_SIZE,
 							   SCS_SMALL_SIZE * SCS_SMALL_CHUNK_SIZE, G_ALLOC_AND_FREE);
-	
+
 	c->mate_medium = g_mem_chunk_new("medium_scs_chunk", SCS_MEDIUM_SIZE,
 							   SCS_MEDIUM_SIZE * SCS_MEDIUM_CHUNK_SIZE, G_ALLOC_AND_FREE);
-	
+
 	c->mate_large = g_mem_chunk_new("large_scs_chunk", SCS_LARGE_SIZE,
 							   SCS_LARGE_SIZE * SCS_LARGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
-	
+
 	c->mate_huge = g_mem_chunk_new("huge_scs_chunk", SCS_HUGE_SIZE,
 							   SCS_HUGE_SIZE * SCS_HUGE_CHUNK_SIZE, G_ALLOC_AND_FREE);
 	return c;
@@ -137,7 +137,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	guint* ip = NULL;
 	size_t len = 0;
 	GMemChunk* chunk = NULL;
-	
+
 	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
 
 	if (ip) {
@@ -145,9 +145,9 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 	} else {
 		ip = g_mem_chunk_alloc(c->ctrs);
 		*ip = 0;
-		
+
 		len = strlen(s) + 1;
-		
+
 		if (len <= SCS_SMALL_SIZE) {
 			chunk = c->mate_small;
 			len = SCS_SMALL_SIZE;
@@ -165,10 +165,10 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 			len = SCS_HUGE_SIZE;
 			g_warning("mate SCS: string truncated to huge size");
 		}
-		
+
 		orig = g_mem_chunk_alloc(chunk);
 		strncpy(orig,s,len);
-		
+
 		g_hash_table_insert(c->hash,orig,ip);
 	}
 
@@ -188,15 +188,15 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 	guint* ip = NULL;
 	size_t len = 0xffff;
 	GMemChunk* chunk = NULL;
-	
+
 	g_hash_table_lookup_extended(c->hash,(gconstpointer)s,(gpointer)&orig,(gpointer)&ip);
 
 	if (ip) {
 		if (*ip == 0) {
 			g_hash_table_remove(c->hash,orig);
-			
+
 			len = strlen(orig);
-			
+
 			if (len < SCS_SMALL_SIZE) {
 				chunk = c->mate_small;
 			} else if (len < SCS_MEDIUM_SIZE) {
@@ -205,8 +205,8 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 				chunk = c->mate_large;
 			} else {
 				chunk = c->mate_huge;
-			} 
-			
+			}
+
 			g_mem_chunk_free(chunk,orig);
 			g_mem_chunk_free(c->ctrs,ip);
 		}
@@ -230,7 +230,7 @@ void scs_unsubscribe(SCS_collection* c, gchar* s) {
 gchar* scs_subscribe_printf(SCS_collection* c, gchar* fmt, ...) {
 	va_list list;
 	static gchar buf[SCS_HUGE_SIZE];
-	
+
 	va_start( list, fmt );
 	g_vsnprintf(buf, SCS_HUGE_SIZE-1 ,fmt, list);
 	va_end( list );
@@ -335,7 +335,7 @@ extern void avp_init(void) {
 extern AVP* new_avp_from_finfo(const gchar* name, field_info* finfo) {
 	AVP* new = g_mem_chunk_alloc(avp_chunk);
 	gchar* value;
-	
+
 	new->n = scs_subscribe(avp_strings, name);
 
 	if (finfo->value.ftype->val_to_string_repr) {
@@ -1098,17 +1098,17 @@ extern AVPL* new_avpl_every_match(const gchar* name, AVPL* src, AVPL* op, gboole
 	AVP* m;
 	AVP* copy;
 	gboolean matches;
-	
+
 #ifdef _AVP_DEBUGGING
 	dbg_print(dbg_avpl_op,3,dbg_fp,"new_avpl_every_match: %X src=%X op=%X name='%s'",newavpl,src,op,name);
 #endif
 	if (src->len == 0) return NULL;
-	
+
 	newavpl = new_avpl(scs_subscribe(avp_strings, name));
-	
+
 	if (op->len == 0)
 		return newavpl;
-	
+
 	matches = TRUE;
 
 	cs = src->null.next;
@@ -1195,7 +1195,7 @@ extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolea
 
 	if (op->len == 0)
 		return newavpl;
-	
+
 	if (src->len == 0) {
 		delete_avpl(newavpl,FALSE);
 		return NULL;
@@ -1254,7 +1254,7 @@ extern AVPL* new_avpl_exact_match(const gchar* name,AVPL* src, AVPL* op, gboolea
 
 extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* src, AVPL* op, gboolean copy_avps) {
 	AVPL* avpl = NULL;
-	
+
 	switch (mode) {
 		case AVPL_STRICT:
 			avpl = new_avpl_exact_match(name,src,op,copy_avps);
@@ -1270,7 +1270,7 @@ extern AVPL* new_avpl_from_match(avpl_match_mode mode, const gchar* name,AVPL* s
 			merge_avpl(avpl, op, copy_avps);
 			break;
 	}
-	
+
 	return avpl;
 }
 
@@ -1325,7 +1325,7 @@ extern void avpl_transform(AVPL* src, AVPL_Transf* op) {
 #endif
 
 	for ( ; op ; op = op->next) {
-		
+
 		avpl = new_avpl_from_match(op->match_mode, src->name,src, op->match, TRUE);
 
 		if (avpl) {
@@ -1556,7 +1556,7 @@ static LoAL* load_loal_error(FILE* fp, LoAL* loal, AVPL* curr, int linenum, cons
 	gchar* desc;
 	LoAL* ret = NULL;
 	gchar* err;
-	
+
 	va_start( list, fmt );
 	desc = g_strdup_vprintf(fmt, list);
 	va_end( list );
@@ -1630,7 +1630,7 @@ extern LoAL* loal_from_file(gchar* filename) {
 
 	state = START;
 
-	if (( fp = eth_fopen(filename,"r") )) {
+	if (( fp = ws_fopen(filename,"r") )) {
 		while(( c = (gchar) fgetc(fp) )){
 
 			if ( feof(fp) ) {

@@ -13,7 +13,7 @@ include Makefile.common
 
 LEMON=..\..\tools\lemon
 
-CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
+CFLAGS=/WX /DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) /I$(LEMON)\
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 .c.obj::
@@ -22,7 +22,7 @@ CFLAGS=/WX /DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) /I$(LEMON)\
 LDFLAGS = $(PLUGIN_LDFLAGS)
 
 !IFDEF ENABLE_LIBWIRESHARK
-LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wiretap\wiretap-$(WTAP_VERSION).lib
+LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib ..\..\wsutil\libwsutil.lib
 CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
 DISSECTOR_OBJECTS = $(DISSECTOR_SRC:.c=.obj)
@@ -97,7 +97,7 @@ plugin.c: $(DISSECTOR_SRC) moduleinfo.h ../../tools/make-dissector-reg
 clean:
 	rm -f $(OBJECTS) $(RESOURCE) plugin.c *.pdb \
 	    $(PLUGIN_NAME).dll $(PLUGIN_NAME).dll.manifest $(PLUGIN_NAME).lib \
-	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc 
+	    $(PLUGIN_NAME).exp $(PLUGIN_NAME).rc
 
 # We remove the generated files with "distclean" because one of them,
 # "mate_parser.c", needs different #includes for UN*X and Windows
@@ -120,12 +120,12 @@ mate_parser.obj : mate_parser.c
 
 mate_grammar.h : mate_grammar.c
 mate_grammar.c : mate_grammar.lemon $(LEMON)\lemon.exe
-	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon 
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c mate_grammar.lemon
 
 $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../plugins/mate
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl $(DISSECTOR_SRC)

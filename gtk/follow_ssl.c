@@ -52,7 +52,6 @@
 #include <../alert_box.h>
 #include <../simple_dialog.h>
 #include <../util.h>
-#include <wiretap/file_util.h>
 
 #include <gtk/color_utils.h>
 #include <gtk/main.h>
@@ -87,7 +86,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     int proto_ssl = (long) ssl;
     SslPacketInfo* pi = p_get_proto_data(pinfo->fd, proto_ssl);
 
-    /* skip packet without decrypted data payload*/    
+    /* skip packet without decrypted data payload*/
     if (!pi || !pi->appl_data)
         return 0;
 
@@ -95,10 +94,10 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     total_len = 0;
     appl_data = pi->appl_data;
     do {
-      total_len += appl_data->plain_data.data_len; 
+      total_len += appl_data->plain_data.data_len;
       appl_data = appl_data->next;
     } while (appl_data);
-    
+
     /* compute packet direction */
     rec = g_malloc(sizeof(SslDecryptedRecord) + total_len);
 
@@ -109,20 +108,20 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     if (ADDRESSES_EQUAL(&follow_info->client_ip, &pinfo->src) &&
         follow_info->client_port == pinfo->srcport)
         rec->is_server = 0;
-    else 
+    else
         rec->is_server = 1;
 
     /* update stream counter */
     follow_info->bytes_written[rec->is_server] += total_len;
-    
-    /* extract decrypted data and queue it locally */    
+
+    /* extract decrypted data and queue it locally */
     rec->data.data = (guchar*)(rec + 1);
     rec->data.data_len = total_len;
     appl_data = pi->appl_data;
     p = rec->data.data;
     do {
       memcpy(p, appl_data->plain_data.data, appl_data->plain_data.data_len);
-      p += appl_data->plain_data.data_len; 
+      p += appl_data->plain_data.data_len;
       appl_data = appl_data->next;
     } while (appl_data);
     follow_info->payload = g_list_append(
@@ -131,7 +130,7 @@ ssl_queue_packet_data(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_
     return 0;
 }
 
-extern gboolean 
+extern gboolean
 packet_is_ssl(epan_dissect_t* edt);
 
 
@@ -238,22 +237,22 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 	    memcpy(&ipaddr, stats.ip_address[1], 4);
 	    hostname1 = get_hostname(ipaddr);
     }
-    
+
     port0 = get_tcp_port(stats.port[0]);
     port1 = get_tcp_port(stats.port[1]);
-    
+
     follow_info->is_ipv6 = stats.is_ipv6;
 
    /* Both Stream Directions */
     both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
-    
+
     if(follow_info->client_port == stats.port[0]) {
 	    server_to_client_string =
 		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
 				    hostname0, port0,
 				    hostname1, port1,
 				    follow_info->bytes_written[0]);
-	    
+
 	    client_to_server_string =
 		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
 				    hostname1, port1,
@@ -265,14 +264,14 @@ follow_ssl_stream_cb(GtkWidget * w, gpointer data _U_)
 				    hostname1, port1,
 				    hostname0, port0,
 				    follow_info->bytes_written[0]);
-	    
+
 	    client_to_server_string =
 		    g_strdup_printf("%s:%s --> %s:%s (%u bytes)",
 				    hostname0, port0,
 				    hostname1, port1,
 				    follow_info->bytes_written[1]);
     }
-    
+
     follow_stream("Follow SSL Stream", follow_info, both_directions_string,
 		  server_to_client_string, client_to_server_string);
 
@@ -315,7 +314,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
     frs_return_t        frs_return;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
-    
+
     for (cur = follow_info->payload; cur; cur = g_list_next(cur)) {
         SslDecryptedRecord* rec = cur->data;
 	skip = FALSE;
@@ -334,7 +333,7 @@ follow_read_ssl_stream(follow_info_t *follow_info,
         if (!skip) {
             size_t nchars = rec->data.data_len;
             gchar *buffer = g_memdup(rec->data.data, nchars);
-            
+
 	    frs_return = follow_show(follow_info, print_line, buffer, nchars,
 				     rec->is_server, arg, global_pos,
 				     &server_packet_count, &client_packet_count);

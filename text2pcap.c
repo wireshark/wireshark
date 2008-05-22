@@ -97,7 +97,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <time.h>
 #include <glib.h>
@@ -1264,7 +1264,7 @@ parse_options (int argc, char *argv[])
 
     if (strcmp(argv[optind], "-")) {
         input_filename = g_strdup(argv[optind]);
-        input_file = eth_fopen(input_filename, "rb");
+        input_file = ws_fopen(input_filename, "rb");
         if (!input_file) {
             fprintf(stderr, "Cannot open file [%s] for reading: %s\n",
                     input_filename, strerror(errno));
@@ -1277,7 +1277,7 @@ parse_options (int argc, char *argv[])
 
     if (strcmp(argv[optind+1], "-")) {
         output_filename = g_strdup(argv[optind+1]);
-        output_file = eth_fopen(output_filename, "wb");
+        output_file = ws_fopen(output_filename, "wb");
         if (!output_file) {
             fprintf(stderr, "Cannot open file [%s] for writing: %s\n",
                     output_filename, strerror(errno));

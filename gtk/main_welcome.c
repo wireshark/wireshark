@@ -40,7 +40,7 @@
 #include "capture_opts.h"
 #include "capture_ui_utils.h"
 #include "simple_dialog.h"
-#include "wiretap/file_util.h"
+#include <wsutil/file_util.h>
 
 #include "gtk/gui_utils.h"
 #include "gtk/color_utils.h"
@@ -113,7 +113,7 @@ scroll_box_dynamic_add(GtkWidget *parent_box)
 
     child_box = g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_CHILD_BOX);
     max_cnt = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(parent_box), SCROLL_BOX_MAX_CHILDS));
-    
+
     /* get the current number of children */
     childs = gtk_container_get_children(GTK_CONTAINER(child_box));
     curr_cnt = g_list_length(childs);
@@ -204,7 +204,7 @@ welcome_button(const gchar *stock_item,
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
     if(tooltip != NULL) {
         gtk_tooltips_set_tip(tooltips, eb, tooltip, "");
-    }   
+    }
 
     g_signal_connect(eb, "enter-notify-event", G_CALLBACK(welcome_item_enter_cb), NULL);
     g_signal_connect(eb, "leave-notify-event", G_CALLBACK(welcome_item_leave_cb), NULL);
@@ -367,7 +367,7 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label)
     }
 
     /* add file size */
-    err = eth_stat(filename, &stat_buf);
+    err = ws_stat(filename, &stat_buf);
     if(err == 0) {
         if (stat_buf.st_size/1024/1024 > 10) {
             g_string_append_printf(str, " %" G_GINT64_MODIFIER "dMB", (gint64) (stat_buf.st_size/1024/1024));

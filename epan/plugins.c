@@ -50,7 +50,7 @@
 
 #include "filesystem.h"
 #include "privileges.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 #include "report_err.h"
 
 /* linked list of all plugins */
@@ -148,12 +148,12 @@ plugins_scan_dir(const char *dirname)
     gchar         *dot;
     int            cr;
 
-    if ((dir = eth_dir_open(dirname, 0, NULL)) != NULL)
+    if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL)
     {
 
-    while ((file = eth_dir_read_name(dir)) != NULL)
+    while ((file = ws_dir_read_name(dir)) != NULL)
 	{
-	    name = eth_dir_get_name(file);
+	    name = ws_dir_get_name(file);
 
 	    /*
 	     * GLib 2.x defines G_MODULE_SUFFIX as the extension used on
@@ -180,7 +180,7 @@ plugins_scan_dir(const char *dirname)
 		continue;
 	    }
 	    version = gp;
-	    
+
 	    /*
 	     * Do we have a register routine?
 	     */
@@ -263,7 +263,7 @@ plugins_scan_dir(const char *dirname)
 			g_module_close(handle);
 			continue;
 	    }
-	    
+
 	    /*
 		 * Do we have a register_wtap_module routine?
 		 */
@@ -273,7 +273,7 @@ plugins_scan_dir(const char *dirname)
            } else {
                register_wtap_module = NULL;
            }
-           
+
 	    /*
 		 * Do we have a register_codec_module routine?
 		 */
@@ -288,7 +288,7 @@ plugins_scan_dir(const char *dirname)
 		* Does this dissector do anything useful?
 		*/
 	    if (register_protoinfo == NULL &&
-		    register_tap_listener == NULL && 
+		    register_tap_listener == NULL &&
 		    register_wtap_module == NULL &&
 		    register_codec_module == NULL )
 	    {
@@ -319,9 +319,9 @@ plugins_scan_dir(const char *dirname)
 		g_module_close(handle);
 		continue;
 	    }
-		
+
 	}
-	eth_dir_close(dir);
+	ws_dir_close(dir);
 	}
 }
 
@@ -357,9 +357,9 @@ init_plugins(void)
 	 */
 	plugin_dir = get_plugin_dir();
 	if (running_in_build_directory()) {
-	    if ((dir = eth_dir_open(plugin_dir, 0, NULL)) != NULL) {
-		while ((file = eth_dir_read_name(dir)) != NULL)	{
-		    name = eth_dir_get_name(file);
+	    if ((dir = ws_dir_open(plugin_dir, 0, NULL)) != NULL) {
+		while ((file = ws_dir_read_name(dir)) != NULL)	{
+		    name = ws_dir_get_name(file);
 		    if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
 			continue;	/* skip "." and ".." */
 		    /*
@@ -411,7 +411,7 @@ void
 register_all_plugin_registrations(void)
 {
     plugin *pt_plug;
-	
+
     /*
      * For all plugins with register-handoff routines, call the routines.
      * This is called from "proto_init()"; it must be called after

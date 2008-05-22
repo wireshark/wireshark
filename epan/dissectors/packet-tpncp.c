@@ -36,7 +36,7 @@
 
 #include <glib.h>
 
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -123,7 +123,7 @@ static value_string tpncp_enums_id_vals[MAX_ENUMS_NUM][MAX_ENUM_ENTRIES];
 static gchar *tpncp_enums_name_vals[MAX_ENUMS_NUM];
 
 static gint hf_size = 1;
-static gint hf_allocated = 0; 
+static gint hf_allocated = 0;
 static hf_register_info *hf = NULL;
 static hf_register_info hf_tpncp[] = {
     {
@@ -618,8 +618,8 @@ static gint init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info,
             current_data_id = data_id;
         }
         else {
-            if ((current_tpncp_data_field_info->p_next = 
-                (tpncp_data_field_info *)g_malloc0(sizeof(tpncp_data_field_info))) 
+            if ((current_tpncp_data_field_info->p_next =
+                (tpncp_data_field_info *)g_malloc0(sizeof(tpncp_data_field_info)))
                 == NULL)
                 return (-1);
             current_tpncp_data_field_info = current_tpncp_data_field_info->p_next;
@@ -684,7 +684,7 @@ static gint init_tpncp_db(void) {
     g_snprintf(tpncp_dat_file_path, MAX_TPNCP_DAT_FILE_PATH_LEN, "%s" G_DIR_SEPARATOR_S"tpncp" G_DIR_SEPARATOR_S "tpncp.dat", get_datafile_dir());
 
     /* Open file with TPNCP data. */
-    if ((file = eth_fopen(tpncp_dat_file_path, "r")) == NULL)
+    if ((file = ws_fopen(tpncp_dat_file_path, "r")) == NULL)
         return (-1);
 
     fill_tpncp_id_vals(tpncp_events_id_vals, file);

@@ -59,7 +59,7 @@
 #include <epan/packet.h>
 #include <epan/dissectors/packet-radius.h>
 #include "radius_dict_lex.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #ifdef _WIN32
 /* disable Windows VC compiler warning "signed/unsigned mismatch" associated  */
@@ -198,7 +198,7 @@
 	fullpaths[include_stack_ptr] = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s",
 	    directory,yytext);
 
-	yyin = eth_fopen( fullpaths[include_stack_ptr], "r" );
+	yyin = ws_fopen( fullpaths[include_stack_ptr], "r" );
 
 	if (!yyin) {
 		if (errno) {
@@ -382,7 +382,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 
 	error = g_string_new("");
 
-	yyin = eth_fopen(fullpaths[include_stack_ptr],"r");
+	yyin = ws_fopen(fullpaths[include_stack_ptr],"r");
 
 	if (!yyin) {
 		g_string_append_printf(error, "Could not open file: '%s', error: %s\n", fullpaths[include_stack_ptr], strerror(errno) );
@@ -423,7 +423,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

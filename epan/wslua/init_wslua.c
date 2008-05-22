@@ -32,7 +32,7 @@
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
 #include <epan/privileges.h>
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 static lua_State* L = NULL;
 
@@ -192,7 +192,7 @@ static int lua_main_error_handler(lua_State* LS) {
 void lua_load_script(const gchar* filename) {
     FILE* file;
 
-    if (! ( file = eth_fopen(filename,"r")) ) {
+    if (! ( file = ws_fopen(filename,"r")) ) {
         report_open_failure(filename,errno,FALSE);
         return;
     }

@@ -47,7 +47,7 @@
 #include "../color_filters.h"
 #include "../merge.h"
 #include "../util.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #include "gtk/gtkglobals.h"
 #include "gtk/keys.h"
@@ -1350,7 +1350,7 @@ static void file_save_as_exists_answered_cb(gpointer dialog _U_, gint btn, gpoin
     switch(btn) {
     case(ESD_BTN_OK):
         /* save file */
-        eth_unlink(cf_name);
+        ws_unlink(cf_name);
         file_save_as_cb(NULL, data);
         break;
     case(ESD_BTN_CANCEL):
@@ -1435,7 +1435,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, gpointer fs) {
   /* the file exists, ask the user to remove it first */
   dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
       "%sA file named \"%s\" already exists.%s\n\n"
-      "Do you want to replace it with the capture you are saving?", 
+      "Do you want to replace it with the capture you are saving?",
       simple_dialog_primary_start(), cf_name, simple_dialog_primary_end());
   simple_dialog_set_cb(dialog, file_save_as_exists_answered_cb, fs);
 

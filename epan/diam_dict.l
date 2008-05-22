@@ -59,7 +59,7 @@
 #include "emem.h"
 #include "diam_dict.h"
 #include "diam_dict_lex.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 typedef struct entity_t {
 	char* name;
@@ -615,7 +615,7 @@ static FILE* ddict_open(const char* system_directory, const char* filename) {
 		fname = strdup(filename);
 	}
 
-	fh = eth_fopen(fname,"r");
+	fh = ws_fopen(fname,"r");
 
 	D(("fname: %s fh: %p\n",fname,fh));
 
@@ -798,7 +798,7 @@ void ddict_print(FILE* fh, ddict_t* d) {
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

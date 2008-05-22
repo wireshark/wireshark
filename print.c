@@ -40,7 +40,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "ps.h"
-#include "file_util.h"
+#include <wsutil/file_util.h>
 #include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
@@ -103,7 +103,7 @@ open_print_dest(int to_file, const char *dest)
 
 	/* Open the file or command for output */
 	if (to_file)
-		fh = eth_fopen(dest, "w");
+		fh = ws_fopen(dest, "w");
 	else
 		fh = popen(dest, "w");
 
@@ -334,7 +334,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 		print_escaped_xml(pdata->fh, fi->hfinfo->abbrev);
 
 #if 0
-	/* PDML spec, see: 
+	/* PDML spec, see:
 	 * http://analyzer.polito.it/30alpha/docs/dissectors/PDMLSpec.htm
 	 *
 	 * the show fields contains things in 'human readable' format
@@ -343,9 +343,9 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
 	 * showdtl: contains additional details of the field data
 	 * showmap: contains mappings of the field data (e.g. the hostname to an IP address)
 	 *
-	 * XXX - the showname shouldn't contain the field data itself 
-	 * (like it's contained in the fi->rep->representation). 
-	 * Unfortunately, we don't have the field data representation for 
+	 * XXX - the showname shouldn't contain the field data itself
+	 * (like it's contained in the fi->rep->representation).
+	 * Unfortunately, we don't have the field data representation for
 	 * all fields, so this isn't currently possible */
 		fputs("\" showname=\"", pdata->fh);
 		print_escaped_xml(pdata->fh, fi->hfinfo->name);
@@ -1240,7 +1240,7 @@ output_fields_t* output_fields_new()
     fields->fields = NULL; /*Do lazy initialisation */
     fields->field_indicies = NULL;
     fields->field_values = NULL;
-    fields->quote='\0'; 
+    fields->quote='\0';
     return fields;
 }
 
@@ -1274,7 +1274,7 @@ void output_fields_free(output_fields_t* fields)
         g_ptr_array_free(fields->fields, TRUE);
     }
 
-    g_free(fields);    
+    g_free(fields);
 }
 
 void output_fields_add(output_fields_t* fields, const gchar* field)
@@ -1341,7 +1341,7 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
             info->separator = *option_value;
             break;
         }
-        return TRUE;       
+        return TRUE;
     }
 
     if(0 == strcmp(option_name, "quote")) {
@@ -1360,7 +1360,7 @@ gboolean output_fields_set_option(output_fields_t* info, gchar* option)
             info->quote='\0';
             break;
         }
-        return TRUE;        
+        return TRUE;
     }
 
     return FALSE;
@@ -1392,11 +1392,11 @@ void write_fields_preamble(output_fields_t* fields, FILE *fh)
             fputc(fields->separator, fh);
         }
     	fputs(field, fh);
-    }    
+    }
     fputc('\n', fh);
 }
 
-static void proto_tree_get_node_field_values(proto_node *node, gpointer data) 
+static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
 {
     write_field_data_t *call_data;
     field_info *fi;
@@ -1418,7 +1418,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
             call_data->fields->field_values[actual_index - 1] = value;
         }
     }
-    
+
     /* Recurse here. */
     if (node->first_child != NULL) {
         proto_tree_children_foreach(node, proto_tree_get_node_field_values,
@@ -1446,17 +1446,17 @@ void proto_tree_write_fields(output_fields_t* fields, epan_dissect_t *edt, FILE 
         i = 0;
         while( i < fields->fields->len) {
             gchar* field = g_ptr_array_index(fields->fields, i);
-             /* Store field indicies +1 so that zero is not a valid value, 
+             /* Store field indicies +1 so that zero is not a valid value,
               * and can be distinguished from NULL as a pointer.
               */
             ++i;
-            g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));            
+            g_hash_table_insert(fields->field_indicies, field, GUINT_TO_POINTER(i));
         }
     }
 
     /* Buffer to store values for this packet */
     fields->field_values = ep_alloc_array0(const gchar*, fields->fields->len);
-    
+
     proto_tree_children_foreach(edt->tree, proto_tree_get_node_field_values,
                                 &data);
 

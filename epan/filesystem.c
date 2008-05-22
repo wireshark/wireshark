@@ -57,7 +57,7 @@
 
 #include "filesystem.h"
 #include "privileges.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #define PROFILES_DIR    "profiles"
 #define U3_MY_CAPTURES  "\\My Captures"
@@ -195,7 +195,7 @@ test_for_directory(const char *path)
 {
 	struct stat statb;
 
-	if (eth_stat(path, &statb) < 0)
+	if (ws_stat(path, &statb) < 0)
 		return errno;
 
 	if (S_ISDIR(statb.st_mode))
@@ -209,7 +209,7 @@ test_for_fifo(const char *path)
 {
 	struct stat statb;
 
-	if (eth_stat(path, &statb) < 0)
+	if (ws_stat(path, &statb) < 0)
 		return errno;
 
 	if (S_ISFIFO(statb.st_mode))
@@ -975,12 +975,12 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 	gchar *filename;
 	int ret = 0;
 
-	if ((dir = eth_dir_open(directory, 0, NULL)) != NULL) {
-		while ((file = eth_dir_read_name(dir)) != NULL) {
+	if ((dir = ws_dir_open(directory, 0, NULL)) != NULL) {
+		while ((file = ws_dir_read_name(dir)) != NULL) {
 			filename = g_strdup_printf ("%s%s%s", directory, G_DIR_SEPARATOR_S,
-						    eth_dir_get_name(file));
+						    ws_dir_get_name(file));
 			if (test_for_directory(filename) != EISDIR) {
-				ret = eth_remove(filename);
+				ret = ws_remove(filename);
 #if 0
 			} else {
 				/* The user has manually created a directory in the profile directory */
@@ -994,10 +994,10 @@ delete_directory (const char *directory, char **pf_dir_path_return)
 			}
 			g_free (filename);
 		}
-		eth_dir_close(dir);
+		ws_dir_close(dir);
 	}
 
-	if (ret == 0 && (ret = eth_remove(directory)) != 0) {
+	if (ret == 0 && (ret = ws_remove(directory)) != 0) {
 		*pf_dir_path_return = g_strdup (directory);
 	}
 
@@ -1025,7 +1025,7 @@ rename_persconffile_profile(const char *fromname, const char *toname,
 	char *to_dir = g_strdup (get_persconffile_dir(toname));
 	int ret = 0;
 
-	ret = eth_rename (from_dir, to_dir);
+	ret = ws_rename (from_dir, to_dir);
 	if (ret != 0) {
 		*pf_from_dir_path_return = g_strdup (from_dir);
 		*pf_to_dir_path_return = g_strdup (to_dir);
@@ -1061,8 +1061,8 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 		 * If not then create it.
 		 */
 		pf_dir_path = get_profiles_dir ();
-		if (eth_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
-			ret = eth_mkdir(pf_dir_path, 0755);
+		if (ws_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+			ret = ws_mkdir(pf_dir_path, 0755);
 			if (ret == -1) {
 				*pf_dir_path_return = g_strdup(pf_dir_path);
 				return ret;
@@ -1071,7 +1071,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 	}
 
 	pf_dir_path = get_persconffile_dir(profilename);
-	if (eth_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
+	if (ws_stat(pf_dir_path, &s_buf) != 0 && errno == ENOENT) {
 #ifdef _WIN32
 		/*
 		 * Does the parent directory of that directory
@@ -1089,20 +1089,20 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
 		pf_dir_parent_path_len = strlen(pf_dir_parent_path);
 		if (pf_dir_parent_path_len > 0
 		    && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
-		    && eth_stat(pf_dir_parent_path, &s_buf) != 0) {
+		    && ws_stat(pf_dir_parent_path, &s_buf) != 0) {
 			/*
 			 * No, it doesn't exist - make it first.
 			 */
-			ret = eth_mkdir(pf_dir_parent_path, 0755);
+			ret = ws_mkdir(pf_dir_parent_path, 0755);
 			if (ret == -1) {
 				*pf_dir_path_return = pf_dir_parent_path;
 				return -1;
 			}
 		}
 		g_free(pf_dir_path_copy);
-		ret = eth_mkdir(pf_dir_path, 0755);
+		ret = ws_mkdir(pf_dir_path, 0755);
 #else
-		ret = eth_mkdir(pf_dir_path, 0755);
+		ret = ws_mkdir(pf_dir_path, 0755);
 #endif
 	} else {
 		/*
@@ -1268,7 +1268,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 	}
 #ifdef _WIN32
 	if (!for_writing) {
-		if (eth_stat(path, &s_buf) != 0 && errno == ENOENT) {
+		if (ws_stat(path, &s_buf) != 0 && errno == ENOENT) {
 			/*
 			 * OK, it's not in the personal configuration file
 			 * directory; is it in the ".wireshark" subdirectory
@@ -1277,7 +1277,7 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
 			old_path = g_strdup_printf(
 			    "%s" G_DIR_SEPARATOR_S ".wireshark" G_DIR_SEPARATOR_S "%s",
 			    get_home_dir(), filename);
-			if (eth_stat(old_path, &s_buf) == 0) {
+			if (ws_stat(old_path, &s_buf) == 0) {
 				/*
 				 * OK, it exists; return it instead.
 				 */
@@ -1368,7 +1368,7 @@ get_datafile_path(const char *filename)
 gboolean
 deletefile(const char *path)
 {
-	return eth_unlink(path) == 0;
+	return ws_unlink(path) == 0;
 }
 
 /*
@@ -1481,14 +1481,14 @@ file_exists(const char *fname)
 	 * so this is working, but maybe not quite the way expected. ULFL
 	 */
 	file_stat.st_ino = 1;   /* this will make things work if an error occured */
-	eth_stat(fname, &file_stat);
+	ws_stat(fname, &file_stat);
 	if (file_stat.st_ino == 0) {
 		return TRUE;
 	} else {
 		return FALSE;
 	}
 #else
-	if (eth_stat(fname, &file_stat) != 0 && errno == ENOENT) {
+	if (ws_stat(fname, &file_stat) != 0 && errno == ENOENT) {
 		return FALSE;
 	} else {
 		return TRUE;
@@ -1543,9 +1543,9 @@ files_identical(const char *fname1, const char *fname2)
 	/*
 	 * Compare st_dev and st_ino.
 	 */
-	if (eth_stat(fname1, &filestat1) == -1)
+	if (ws_stat(fname1, &filestat1) == -1)
 		return FALSE;	/* can't get info about the first file */
-	if (eth_stat(fname2, &filestat2) == -1)
+	if (ws_stat(fname2, &filestat2) == -1)
 		return FALSE;	/* can't get info about the second file */
 	return (filestat1.st_dev == filestat2.st_dev &&
 		filestat1.st_ino == filestat2.st_ino);

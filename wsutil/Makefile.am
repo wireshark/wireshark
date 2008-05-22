@@ -27,13 +27,7 @@ endif
 
 lib_LTLIBRARIES = libwsutil.la
 
-CLEANFILES = \
-	libwsutil.a	\
-	libwsutil.la	\
-	*~
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
+INCLUDES = -I$(srcdir)/..
 
 libwsutil_la_SOURCES =	\
 	mpeg-audio.c	\
@@ -42,5 +36,14 @@ libwsutil_la_SOURCES =	\
 libwsutil_la_LIBADD = @GLIB_LIBS@
 
 EXTRA_DIST = \
-	Makefile.nmake
+	Makefile.nmake	\
+	file_util.c
+
+CLEANFILES = \
+	libwsutil.a	\
+	libwsutil.la	\
+	*~
+
+MAINTAINERCLEANFILES = \
+	Makefile.in
 

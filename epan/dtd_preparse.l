@@ -25,12 +25,12 @@
 	/*
 	 * dtd_preparser.l
 	 *
-	 * an XML dissector for wireshark 
+	 * an XML dissector for wireshark
 	 *
 	 * DTD Preparser -  import a dtd file into a GString
 	 *					including files, removing comments
 	 *                  and resolving %entities;
-	 * 
+	 *
 	 * Copyright 2004, Luis E. Garcia Ontanon <luis.ontanon@gmail.com>
 	 *
 	 * $Id$
@@ -43,24 +43,24 @@
 	 * modify it under the terms of the GNU General Public License
 	 * as published by the Free Software Foundation; either version 2
 	 * of the License, or (at your option) any later version.
-	 * 
+	 *
 	 * This program is distributed in the hope that it will be useful,
 	 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 	 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	 * GNU General Public License for more details.
-	 * 
+	 *
 	 * You should have received a copy of the GNU General Public License
 	 * along with this program; if not, write to the Free Software
 	 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	 */
-			
+
 #include <glib.h>
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
 #include "dtd.h"
 #include "dtd_preparse_lex.h"
-#include <wiretap/file_util.h>
+#include <wsutil/file_util.h>
 
 #define ECHO g_string_append(current,yytext);
 
@@ -135,7 +135,7 @@ newline    \n
 <IN_COMMENT>[^-]?				|
 <IN_COMMENT>[-]					;
 <IN_COMMENT>{comment_stop}		{ current = output; BEGIN OUTSIDE; }
-	
+
 {newline}						{
 	linenum++;
 	if (current) g_string_append_printf(current,"%s\n",location());
@@ -159,27 +159,27 @@ newline    \n
 
 static gchar* replace_entity(gchar* entity) {
 	GString* replacement;
-	
+
 	*entity = '%';
-	
+
 	replacement = g_hash_table_lookup(entities,entity);
-	
+
 	if (replacement) {
 		return replacement->str;
 	} else {
 		g_string_append_printf(error,"dtd_preparse: in file '%s': entity %s does not exists\n", filename, entity);
 		return "";
 	}
-	
+
 }
 
 static const gchar* location(void) {
 	static gchar* loc = NULL;
-    
+
 	if (loc) g_free(loc);
-    
+
 	loc = g_strdup_printf("<? wireshark:location %s:%u ?>", filename, linenum);
-	
+
 	return loc;
 }
 
@@ -191,31 +191,31 @@ static gboolean free_gstring_hash_items(gpointer k,gpointer v,gpointer p _U_) {
 
 extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* err) {
 	gchar* fullname = g_strdup_printf("%s%c%s",dname,G_DIR_SEPARATOR,fname);
-    
+
 	dtd_dirname = dname;
 	filename = fname;
 	linenum = 1;
 
-	yyin = eth_fopen(fullname,"r");
-	
+	yyin = ws_fopen(fullname,"r");
+
 	if (!yyin) {
 		if (err)
 			g_string_append_printf(err, "Could not open file: '%s', error: %s",fullname,strerror(errno));
-			
+
 		return NULL;
 	}
-	
+
 	error = err;
-	
+
 	entities = g_hash_table_new(g_str_hash,g_str_equal);
 	current = output = g_string_new(location());
-	
+
 	BEGIN OUTSIDE;
 
 	yylex();
-	
+
 	fclose(yyin);
-	
+
 	yyrestart(NULL);
 
 	g_hash_table_foreach_remove(entities,free_gstring_hash_items,NULL);
@@ -228,7 +228,7 @@ extern GString* dtd_preparse(const gchar* dname,const  gchar* fname, GString* er
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */

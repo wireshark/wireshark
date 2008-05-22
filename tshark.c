@@ -63,7 +63,6 @@
 #include <epan/epan.h>
 #include <epan/filesystem.h>
 #include <epan/privileges.h>
-#include <wiretap/file_util.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>
@@ -863,7 +862,7 @@ main(int argc, char *argv[])
      we can just process it with the other arguments. */
   if (argc >= 2 && strcmp(argv[1], "-G") == 0) {
 	  proto_initialize_all_prefixes();
-	  
+
     if (argc == 2)
       proto_registrar_dump_fields(1);
     else {

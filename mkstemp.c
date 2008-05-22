@@ -39,7 +39,7 @@
 
 #include <glib.h>
 
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 #ifndef __set_errno
 #define __set_errno(x) errno=(x)
@@ -76,7 +76,7 @@ mkstemp (template)
 
       template[len - 6] = letters[i];
 
-      fd = eth_open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
+      fd = ws_open (template, O_RDWR|O_BINARY|O_CREAT|O_EXCL, 0600);
       if (fd >= 0)
 	return fd;
     }

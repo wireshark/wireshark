@@ -47,43 +47,43 @@ extern "C" {
 #if defined _WIN32 && GLIB_CHECK_VERSION(2,6,0)
 #include <stdio.h>
 
-extern int eth_stdio_open (const gchar *filename, int flags, int mode);
-extern int eth_stdio_rename (const gchar *oldfilename, const gchar *newfilename);
-extern int eth_stdio_mkdir (const gchar *filename, int mode);
-extern int eth_stdio_stat (const gchar *filename, struct stat *buf);
-extern int eth_stdio_unlink (const gchar *filename);
-extern int eth_stdio_remove (const gchar *filename);
-extern FILE * eth_stdio_fopen (const gchar *filename, const gchar *mode);
-extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream);
+extern int ws_stdio_open (const gchar *filename, int flags, int mode);
+extern int ws_stdio_rename (const gchar *oldfilename, const gchar *newfilename);
+extern int ws_stdio_mkdir (const gchar *filename, int mode);
+extern int ws_stdio_stat (const gchar *filename, struct stat *buf);
+extern int ws_stdio_unlink (const gchar *filename);
+extern int ws_stdio_remove (const gchar *filename);
+extern FILE * ws_stdio_fopen (const gchar *filename, const gchar *mode);
+extern FILE * ws_stdio_freopen (const gchar *filename, const gchar *mode, FILE *stream);
 
-#define eth_open	eth_stdio_open
-#define eth_rename	eth_stdio_rename
-#define eth_mkdir	eth_stdio_mkdir
-#define eth_stat	eth_stdio_stat
-#define eth_unlink	eth_stdio_unlink
-#define eth_remove	eth_stdio_remove
-#define eth_fopen	eth_stdio_fopen
-#define eth_freopen	eth_stdio_freopen
+#define ws_open	ws_stdio_open
+#define ws_rename	ws_stdio_rename
+#define ws_mkdir	ws_stdio_mkdir
+#define ws_stat	ws_stdio_stat
+#define ws_unlink	ws_stdio_unlink
+#define ws_remove	ws_stdio_remove
+#define ws_fopen	ws_stdio_fopen
+#define ws_freopen	ws_stdio_freopen
 
 #else	/* _WIN32 && GLIB_CHECK_VERSION */
 
 /* GLib 2.4 or below, using "old school" functions */
 #ifdef _WIN32
-#define eth_open	_open
-#define eth_stat	_stat
-#define eth_unlink	_unlink
-#define eth_mkdir(dir,mode)	_mkdir(dir)
+#define ws_open		_open
+#define ws_stat		_stat
+#define ws_unlink	_unlink
+#define ws_mkdir(dir,mode)	_mkdir(dir)
 #else
-#define eth_open	open
-#define eth_stat	stat
-#define eth_unlink	unlink
-#define eth_mkdir(dir,mode)	mkdir(dir,mode)
+#define ws_open		open
+#define ws_stat		stat
+#define ws_unlink	unlink
+#define ws_mkdir(dir,mode)	mkdir(dir,mode)
 #endif /* _WIN32 */
 
-#define eth_rename	rename
-#define eth_remove	remove
-#define eth_fopen	fopen
-#define eth_freopen	freopen
+#define ws_rename	rename
+#define ws_remove	remove
+#define ws_fopen	fopen
+#define ws_freopen	freopen
 
 #endif	/* _WIN32 && GLIB_CHECK_VERSION */
 
@@ -91,28 +91,28 @@ extern FILE * eth_stdio_freopen (const gchar *filename, const gchar *mode, FILE 
 /* some common file function differences between UNIX and WIN32 */
 #ifdef _WIN32
 /* the Win32 API prepends underscores for whatever reasons */
-#define eth_read  _read
-#define eth_write _write
-#define eth_close _close
-#define eth_dup   _dup
-#define eth_lseek _lseek
+#define ws_read  _read
+#define ws_write _write
+#define ws_close _close
+#define ws_dup   _dup
+#define ws_lseek _lseek
 #else
-#define eth_read  read
-#define eth_write write
-#define eth_close close
-#define eth_dup   dup
-#define eth_lseek lseek
+#define ws_read  read
+#define ws_write write
+#define ws_close close
+#define ws_dup   dup
+#define ws_lseek lseek
 #define O_BINARY	0		/* Win32 needs the O_BINARY flag for open() */
 #endif /* _WIN32 */
 
 /* directory handling */
 #define ETH_DIR				GDir
 #define ETH_DIRENT			const char
-#define eth_dir_open			g_dir_open
-#define eth_dir_read_name		g_dir_read_name
-#define eth_dir_get_name(dirent)	dirent
-#define eth_dir_rewind			g_dir_rewind
-#define eth_dir_close			g_dir_close
+#define ws_dir_open			g_dir_open
+#define ws_dir_read_name		g_dir_read_name
+#define ws_dir_get_name(dirent)	dirent
+#define ws_dir_rewind			g_dir_rewind
+#define ws_dir_close			g_dir_close
 
 /* XXX - remove include "dirent.h" */
 /* XXX - remove include "direct.h" */

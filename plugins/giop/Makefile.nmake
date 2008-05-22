@@ -6,7 +6,7 @@ include ..\..\config.nmake
 
 ############### no need to modify below this line #########
 
-CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+CFLAGS=/DHAVE_CONFIG_H /I../.. $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
@@ -15,9 +15,9 @@ LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 LINK_PLUGIN_WITH=..\..\epan\libwireshark.lib
 CFLAGS=/DHAVE_WIN32_LIBWIRESHARK_LIB /D_NEED_VAR_IMPORT_ $(CFLAGS)
 
-OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj packet-tango.obj packet-parlay.obj 
+OBJECTS=packet-cosnaming.obj  packet-coseventcomm.obj packet-tango.obj packet-parlay.obj
 
-all : cosnaming.dll coseventcomm.dll tango.dll parlay.dll 
+all : cosnaming.dll coseventcomm.dll tango.dll parlay.dll
 
 cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj $(LINK_PLUGIN_WITH)
 	link -dll /out:cosnaming.dll $(LDFLAGS) packet-cosnaming.obj $(LINK_PLUGIN_WITH) \
@@ -44,16 +44,16 @@ clean:
 		parlay.dll parlay.exp parlay.lib *.pdb \
 		cosnaming.dll.manifest coseventcomm.dll.manifest \
 		parlay.dll.manifest tango.dll.manifest
-         
+
 
 distclean: clean
 
 maintainer-clean: distclean
 
-checkapi: 
+checkapi:
 	$(PERL) ../../tools/checkAPIs.pl \
 	packet-cosnaming.c \
 	packet-coseventcomm.c \
 	packet-tango.c \
-	packet-parlay.c 
+	packet-parlay.c
 

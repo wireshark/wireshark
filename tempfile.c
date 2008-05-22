@@ -37,14 +37,13 @@
 #include <unistd.h>
 #endif
 
-#include "file_util.h"
-
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #endif
 
 #include "tempfile.h"
 #include "mkstemp.h"
+#include <wsutil/file_util.h>
 
 static const char *
 setup_tmpdir(const char *dir)

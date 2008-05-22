@@ -41,7 +41,7 @@
 #include "capture-pcap-util.h"
 #endif
 
-#include "file_util.h"
+#include <wsutil/file_util.h>
 
 #include <wininet.h>
 #include "nio-ie5.h"
@@ -74,7 +74,7 @@ download_file(const char *url, const char *filename) {
 
 
     /* open output file */
-    fd = eth_open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+    fd = ws_open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if(fd == -1) {
         g_warning("Couldn't open output file %s!", filename);
         return -1;
@@ -89,12 +89,12 @@ download_file(const char *url, const char *filename) {
 
     do {
 		/* XXX - maybe add a progress bar here */
-		
+
         /* read some bytes from the url */
         chunk_len = netio_ie5_read (conn, buf, sizeof(buf));
 
         /* write bytes to the output file */
-        stream_len = eth_write( fd, buf, chunk_len);
+        stream_len = ws_write( fd, buf, chunk_len);
         if(stream_len != chunk_len) {
             g_warning("output failed: stream_len %u != chunk_len %u", stream_len, chunk_len);
             ret = -1;
@@ -104,7 +104,7 @@ download_file(const char *url, const char *filename) {
 
     netio_ie5_disconnect(conn);
 
-    eth_close(fd);
+    ws_close(fd);
 
     return ret;
 }
@@ -144,7 +144,7 @@ static void
 update_pref_check(gchar *pref_name, gchar *value, char *check_prefix, char *check_name, char **check_value)
 {
     GString *check = g_string_new(check_prefix);
-    
+
     g_string_append(check, check_name);
 
     if(strcmp(pref_name, check->str) == 0) {
@@ -163,7 +163,7 @@ static prefs_set_pref_e
 update_pref(gchar *pref_name, gchar *value, void *private_data)
 {
     update_info_t *update_info = private_data;
-    
+
     update_pref_check(pref_name, value, update_info->prefix, "title",       &update_info->title);
     update_pref_check(pref_name, value, update_info->prefix, "description", &update_info->description);
     update_pref_check(pref_name, value, update_info->prefix, "version",     &update_info->version_recommended);
@@ -226,7 +226,7 @@ update_check_wireshark(const char *local_file)
     update_info->version_installed = g_strdup(VERSION);
     update_info->prefix = "wireshark.setup.";
 
-    pf = eth_fopen(local_file, "r");
+    pf = ws_fopen(local_file, "r");
     if(pf != NULL) {
         /* read in update_info of Wireshark */
         read_prefs_file(local_file, pf, update_pref, update_info);
@@ -256,10 +256,10 @@ update_check_winpcap(const char *local_file)
     char *pcap_vstart;
     char *pcap_vend;
 
-    
+
     update_info->prefix = "winpcap.";
 
-    pf = eth_fopen(local_file, "r");
+    pf = ws_fopen(local_file, "r");
     if(pf != NULL) {
         /* read in update_info of WinPcap */
         read_prefs_file(local_file, pf, update_pref, update_info);
@@ -317,7 +317,7 @@ update_check(gboolean interactive)
         g_warning("Couldn't create output path!");
         return;
     }
-    
+
     /* download update file */
     if(download_file(url_file, local_file) == -1) {
         g_warning("Couldn't download update file: %s", local_file);
@@ -330,7 +330,7 @@ update_check(gboolean interactive)
 
     /* check winpcap */
     update_info_winpcap = update_check_winpcap(local_file);
-    
+
     /* display results */
     if(update_info_wireshark->needs_update || update_info_winpcap->needs_update) {
         if(update_info_wireshark->needs_update)
