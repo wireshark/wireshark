@@ -301,6 +301,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Development;
 		};
@@ -312,6 +313,7 @@
 					i386,
 				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Deployment;
 		};
@@ -319,6 +321,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SYMROOT = "$(PROJECT_DIR)/build";
 			};
 			name = Default;
 		};
