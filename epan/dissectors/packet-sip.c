@@ -2,18 +2,10 @@
  * Routines for the Session Initiation Protocol (SIP) dissection.
  * RFCs 3261-3264
  *
- * TODO: Pay attention to Content-Type: It might not always be SDP.
- *	Content-Type is fixed, mixed/mode is not handled though.
- *       hf_ display filters for headers of SIP extension RFCs:
- *		Done for RFC 3265, RFC 3262
- *		Use hash table for list of headers
- *       Add sip msg body dissection based on Content-Type for:
- *                SDP, MIME, and other types
- *       Align SIP methods with recent Internet Drafts or RFC
- *               (SIP INFO, rfc2976 - done)
- *               (SIP SUBSCRIBE-NOTIFY - done)
- *               (SIP REFER - done)
- *               check for other
+ * TODO: 
+ *      hf_ display filters for headers of SIP extension RFCs (ongoing)
+ *      Use hash table for list of headers
+ *      Align SIP methods with recent Internet Drafts or RFCs
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
@@ -97,6 +89,7 @@ static gint hf_sip_contact_item		= -1;
 static gint hf_sip_resend			= -1;
 static gint hf_sip_original_frame	= -1;
 static gint hf_sip_matching_request_frame = -1;
+static gint hf_sip_response_time = -1;
 
 static gint hf_sip_auth                  = -1;
 static gint hf_sip_auth_scheme           = -1;
@@ -580,7 +573,8 @@ static guint sip_is_packet_resend(packet_info *pinfo,
 static guint sip_find_request(packet_info *pinfo,
 				gchar* cseq_method,
 				gchar* call_id,
-				guchar cseq_number_set, guint32 cseq_number);
+				guchar cseq_number_set, guint32 cseq_number,
+				guint32 *response_time);
 
 
 /* SIP content type and internet media type used by other dissectors
@@ -624,6 +618,8 @@ static GHashTable *sip_hash = NULL;           /* Hash table */
 
 /* Types for hash table keys and values */
 #define MAX_CALL_ID_SIZE 128
+
+/* Conversation-type key */
 typedef struct
 {
 	char call_id[MAX_CALL_ID_SIZE];
@@ -642,22 +638,23 @@ typedef enum
 	final_response_seen
 } transaction_state_t;
 
-/* TODO: store nstime_t time of request */
+/* Current conversation-type value */
 typedef struct
 {
-	guint32 cseq;
+	guint32             cseq;
 	transaction_state_t transaction_state;
-	gchar method[MAX_CSEQ_METHOD_SIZE];
-	guint32 response_code;
-	gint frame_number;
+	gchar               method[MAX_CSEQ_METHOD_SIZE];
+	nstime_t            request_time;
+	guint32             response_code;
+	gint                frame_number;
 } sip_hash_value;
 
-
-/* TODO: store response_request_ts for working out time difference */
+/* Result to be stored in per-packet info */
 typedef struct
 {
 	gint       original_frame_num;
 	gint       response_request_frame_num;
+	gint       response_time;
 } sip_frame_result_value;
 
 
@@ -1533,6 +1530,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	char *content_type_parameter_str = NULL;
 	guint resend_for_packet = 0;
 	guint request_for_response = 0;
+	guint32 response_time;
 	int strlen_to_copy;
 
 
@@ -2459,7 +2457,8 @@ separator_found2:
 	if (line_type == STATUS_LINE)
 	{
 		request_for_response = sip_find_request(pinfo, cseq_method, call_id,
-		                                        cseq_number_set, cseq_number);
+		                                        cseq_number_set, cseq_number,
+		                                        &response_time);
 	}
 
 	if (reqresp_tree)
@@ -2469,6 +2468,9 @@ separator_found2:
 		{
 			item = proto_tree_add_uint(reqresp_tree, hf_sip_matching_request_frame,
 			                           tvb, orig_offset, 0, request_for_response);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_uint(reqresp_tree, hf_sip_response_time,
+			                           tvb, orig_offset, 0, response_time);
 			PROTO_ITEM_SET_GENERATED(item);
 		}
 	}
@@ -2841,6 +2843,10 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
 		p_val->transaction_state = nothing_seen;
 		p_val->frame_number = 0;
+		if (line_type == REQUEST_LINE)
+		{
+			p_val->request_time = pinfo->fd->abs_ts;
+		}
 
 		/* Add entry */
 		g_hash_table_insert(sip_hash, p_key, p_val);
@@ -2928,13 +2934,16 @@ guint sip_find_request(packet_info *pinfo,
 			gchar *cseq_method,
 			gchar *call_id,
 			guchar cseq_number_set,
-			guint32 cseq_number)
+			guint32 cseq_number,
+			guint32 *response_time)
 {
 	guint32 cseq_to_compare = 0;
 	sip_hash_key   key;
 	sip_hash_value *p_val = 0;
 	sip_frame_result_value *sip_frame_result = NULL;
 	guint result = 0;
+	gint seconds_between_packets;
+	gint nseconds_between_packets;
 
 	/* Only consider UDP */
 	if (pinfo->ptype != PT_UDP)
@@ -2960,6 +2969,7 @@ guint sip_find_request(packet_info *pinfo,
 		sip_frame_result = (sip_frame_result_value*)p_get_proto_data(pinfo->fd, proto_sip);
 		if (sip_frame_result != NULL)
 		{
+			*response_time = sip_frame_result->response_time;
 			return sip_frame_result->response_request_frame_num;
 		}
 		else
@@ -3014,6 +3024,16 @@ guint sip_find_request(packet_info *pinfo,
 	}
 
 	sip_frame_result->response_request_frame_num = result;
+
+	/* Work out response time */
+	seconds_between_packets = (gint)
+	    (pinfo->fd->abs_ts.secs - p_val->request_time.secs);
+	nseconds_between_packets =
+	     pinfo->fd->abs_ts.nsecs - p_val->request_time.nsecs;
+	sip_frame_result->response_time = (seconds_between_packets*1000) +
+	                                  (nseconds_between_packets / 1000000);
+	*response_time = sip_frame_result->response_time;
+
 	p_add_proto_data(pinfo->fd, proto_sip, sip_frame_result);
 
 	return result;
@@ -3590,6 +3610,12 @@ void proto_register_sip(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    	"Request Frame", HFILL}
 		},
+		{ &hf_sip_response_time,
+			{ "Response Time (ms)",  "sip.response-time",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+		    	"Response time since original request (in milliseconds)", HFILL}
+		},
+
 		{ &hf_sip_auth,
 			{ "Authentication",  "sip.auth",
 			FT_STRING, BASE_NONE, NULL, 0x0,
