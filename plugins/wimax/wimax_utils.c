@@ -388,7 +388,7 @@ static const value_string vals_data_authentication_ids[] =
 
 static const value_string vals_tek_encryption_ids[] =
 {	/* table 377 */
-	{0, "Reserved"},
+	{0, "No TEK encryption"},
 	{1, "3-DES EDE with 128-bit key"},
 	{2, "RSA with 1024-bit key"},
 	{3, "ECB mode AES with 128-bit key"},
