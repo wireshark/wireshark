@@ -493,9 +493,9 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
 }
 
 /*
- * Keep a static pointer to the current "Save TCP Follow Stream As" window, if
+ * Keep a static pointer to the current "Save Follow Stream As" window, if
  * any, so that if somebody tries to do "Save"
- * while there's already a "Save TCP Follow Stream" window up, we just pop
+ * while there's already a "Save Follow Stream" window up, we just pop
  * up the existing one, rather than creating a new one.
  */
 void
@@ -849,7 +849,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	if(topic_available(HELP_FILESET_DIALOG)) {
             button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
 		g_signal_connect(button, "clicked", G_CALLBACK(topic_cb),
-			       (gpointer)HELP_FOLLOW_TCP_STREAM_DIALOG);
+			       (gpointer)HELP_FOLLOW_STREAM_DIALOG);
 	}
 
 	/* Tuck away the follow_info object into the window */

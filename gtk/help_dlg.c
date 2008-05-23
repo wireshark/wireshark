@@ -275,7 +275,7 @@ topic_action(topic_action_e action)
     case(HELP_DECODE_AS_SHOW_DIALOG):
         help_topic_html("ChCustProtocolDissectionSection.html");
         break;
-    case(HELP_FOLLOW_TCP_STREAM_DIALOG):
+    case(HELP_FOLLOW_STREAM_DIALOG):
         help_topic_html("ChAdvFollowTCPSection.html");
         break;
     case(HELP_EXPERT_INFO_DIALOG):
