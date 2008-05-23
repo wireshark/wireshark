@@ -226,6 +226,7 @@ static int hf_smb2_channel_info_offset = -1;
 static int hf_smb2_channel_info_length = -1;
 static int hf_smb2_ioctl_flags = -1;
 static int hf_smb2_ioctl_is_fsctl = -1;
+static int hf_smb2_close_pq_attrib = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -274,6 +275,7 @@ static gint ett_smb2_ses_flags = -1;
 static gint ett_smb2_share_flags = -1;
 static gint ett_smb2_share_caps = -1;
 static gint ett_smb2_ioctl_flags = -1;
+static gint ett_smb2_close_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -2819,11 +2821,18 @@ dissect_smb2_getinfo_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	proto_tree *flags_tree = NULL;
+	proto_item *flags_item = NULL;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* close flags */
-	proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
+	if (tree) {
+		flags_item = proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_close_flags);
+	}
+	proto_tree_add_item(flags_tree, hf_smb2_close_pq_attrib, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* padding */
@@ -2838,6 +2847,9 @@ dissect_smb2_close_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
+	proto_tree *flags_tree = NULL;
+	proto_item *flags_item = NULL;
+
 	switch (si->status) {
 	case 0x00000000: break;
 	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
@@ -2847,8 +2859,14 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
 	/* close flags */
-	proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
+	if (tree) {
+		flags_item = proto_tree_add_item(tree, hf_smb2_close_flags, tvb, offset, 2, TRUE);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_close_flags);
+	}
 	offset += 2;
+
+	/* reserved */
+	offset += 4;
 
 	/* create time */
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_create_timestamp);
@@ -5578,6 +5596,10 @@ proto_register_smb2(void)
 		{ "Is FSCTL", "smb2.ioctl.is_fsctl", FT_BOOLEAN, 32,
 		NULL, 0x00000001, "", HFILL }},
 
+	{ &hf_smb2_close_pq_attrib,
+		{ "PostQuery Attrib", "smb2.close.pq_attrib", FT_BOOLEAN, 16,
+		NULL, 0x0001, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -5628,6 +5650,7 @@ proto_register_smb2(void)
 		&ett_smb2_share_flags,
 		&ett_smb2_share_caps,
 		&ett_smb2_ioctl_flags,
+		&ett_smb2_close_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
