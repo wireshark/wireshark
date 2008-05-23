@@ -208,7 +208,7 @@ ep_init_chunk(void)
 #elif defined(USE_GUARD_PAGES)
 	pagesize = sysconf(_SC_PAGESIZE);
 #ifdef NEED_DEV_ZERO
-	dev_zero_fd = open("/dev/zero", O_RDWR);
+	dev_zero_fd = ws_open("/dev/zero", O_RDWR);
 	g_assert(dev_zero_fd != -1);
 #endif
 #endif /* _WIN32 / USE_GUARD_PAGES */

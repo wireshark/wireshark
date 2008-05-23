@@ -2264,7 +2264,7 @@ main(int argc, char *argv[])
     OPTSTRING_INIT OPTSTRING_WIN32;
 
 #ifdef DEBUG_CHILD_DUMPCAP
-  if ((debug_log = fopen("dumpcap_debug_log.tmp","w")) == NULL) {
+  if ((debug_log = ws_fopen("dumpcap_debug_log.tmp","w")) == NULL) {
           fprintf (stderr, "Unable to open debug log file !\n");
           exit (1);
   }

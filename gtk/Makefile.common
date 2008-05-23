@@ -122,8 +122,7 @@ WIRESHARK_GTK_SRC = \
 	u3.c		\
 	uat_gui.c	\
 	voip_calls.c	\
-	webbrowser.c	\
-	wireshark-tap-register.c
+	webbrowser.c
 
 about_dlg.c: ../image/wssplash.xpm
 

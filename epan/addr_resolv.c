@@ -1999,7 +1999,7 @@ static void subnet_entry_set(guint32 subnet_addr, guint32 mask_length, const gch
     tp->next = NULL;
     tp->addr = subnet_addr;
     tp->is_dummy_entry = FALSE; /*Never used again...*/
-    strncpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
+    g_strlcpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
     have_subnet_entry = TRUE;
 }
 

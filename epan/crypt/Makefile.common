@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.1 2006/12/18 18:09:51 davides Exp $
+# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>

@@ -1046,9 +1046,9 @@ clean-deps:
 	cd ..
 
 checkapi_local:
-	$(PERL) tools/checkAPIs.pl *.c
+	$(PERL) tools/checkAPIs.pl \
 #	$(wireshark_SOURCES) \
-#	$(TSHARK_TAP_SRC)
+	$(TSHARK_TAP_SRC)
 # EXTRA_wireshark_SOURCES
 
 checkapi:
