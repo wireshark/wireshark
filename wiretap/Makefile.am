@@ -65,7 +65,6 @@ EXTRA_DIST = \
 	Makefile.common		\
 	Makefile.nmake		\
 	wtap.def		\
-	file_util.c		\
 	$(GENERATOR_FILES) 	\
 	$(GENERATED_FILES)
 
