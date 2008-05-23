@@ -150,41 +150,40 @@ static gint ett_generic_rateinfo_classes = -1;
 static gint ett_generic_rateinfo_groups = -1;
 static gint ett_generic_rateinfo_group = -1;
 
-static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
-							  proto_tree *class_tree) 
+static int dissect_rate_class(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *class_tree)
 {
 	proto_tree_add_uint(class_tree, hf_generic_rateinfo_classid, tvb, offset, 2, tvb_get_ntohs(tvb, offset));offset+=2;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_windowsize, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_clearlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_alertlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_limitlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_disconnectlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_currentlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_maxlevel, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
-	proto_tree_add_uint(class_tree, hf_generic_rateinfo_lasttime, tvb, offset, 4, tvb_get_ntoh24(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_windowsize, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_clearlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_alertlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_limitlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_disconnectlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_currentlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_maxlevel, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
+	proto_tree_add_uint(class_tree, hf_generic_rateinfo_lasttime, tvb, offset, 4, tvb_get_ntohl(tvb, offset));offset+=4;
 	proto_tree_add_uint(class_tree, hf_generic_rateinfo_curstate, tvb, offset, 1, tvb_get_guint8(tvb, offset));offset+=1;
 	return offset;
 }
 
-static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, 
-									proto_tree *tree) 
+static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	guint16 i;
 	proto_item *ti;
-	guint16 numclasses = tvb_get_ntohs(tvb, 0);	
+	guint16 numclasses = tvb_get_ntohs(tvb, 0);
 	proto_tree *classes_tree = NULL, *groups_tree, *group_tree;
 	proto_tree_add_uint(tree, hf_generic_rateinfo_numclasses, tvb, 0, 2, numclasses );
 	offset+=2;
 
 	if(tree) {
-		ti = proto_tree_add_text(tree, tvb, offset, 33*numclasses, "Available Rate Classes");
+		/* sizeof(rate_class_struct) = 35 ! */
+		ti = proto_tree_add_text(tree, tvb, offset, 35 * numclasses, "Available Rate Classes");
 		classes_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_classes);
 	}
 
 	for(i = 0; i < numclasses; i++) {
-		guint16 myid = tvb_get_ntohs(tvb, offset); 
-		proto_item *ti = proto_tree_add_text(classes_tree, tvb, offset, 33,"Rate Class 0x%02x", myid);
+		guint16 myid = tvb_get_ntohs(tvb, offset);
+		proto_item *ti = proto_tree_add_text(classes_tree, tvb, offset, 35, "Rate Class 0x%02x", myid);
 		proto_tree *class_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_class);
 		offset = dissect_rate_class(tvb, pinfo, offset, class_tree);
 	}
@@ -193,17 +192,19 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 	groups_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_groups);
 
 	for(i = 0; i < numclasses; i++) {
-		guint16 myid = tvb_get_ntohs(tvb, offset); 
 		guint16 j;
-		guint16 numpairs;
-
-		proto_item *ti = proto_tree_add_text(groups_tree, tvb, offset, 33,"Rate Group 0x%02x", myid);
+		guint16 myid = tvb_get_ntohs(tvb, offset);
+		guint16 numpairs = tvb_get_ntohs(tvb, offset + 2);
+		/*
+		 * sizeof(rate_group) = sizeof(class_id) + sizeof(numpairs) + numpairs * 2 * sizeof(uint16_t)
+		 *                    = 2 + 2 + numpairs * 4
+		 */
+		proto_item *ti = proto_tree_add_text(groups_tree, tvb, offset, 4 + 4 * numpairs, "Rate Group 0x%02x", myid);
 		group_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_group);
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_classid, tvb, offset, 2, myid);offset+=2;
-		numpairs = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_numpairs, tvb, offset, 2, numpairs); offset+=2;
 		for(j = 0; j < numpairs; j++) {
-			guint16 family_id; 
+			guint16 family_id;
 			guint16 subtype_id;
 			const aim_family *family;
 			const aim_subtype *subtype;
