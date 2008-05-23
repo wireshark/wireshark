@@ -264,13 +264,13 @@ to include it explicitly - in order to get "open()", "close()",
 "_write()", etc..
 
 Do not use "open()", "rename()", "mkdir()", "stat()", "unlink()", "remove()",
-"fopen()", "freopen()" directly.  Instead use "eth_open()", "eth_rename()",
-"eth_mkdir()", "eth_stat()", "eth_unlink()", "eth_remove()", "eth_fopen()",
-"eth_freopen()": these wrapper functions change the path and file name from
+"fopen()", "freopen()" directly.  Instead use "ws_open()", "ws_rename()",
+"ws_mkdir()", "ws_stat()", "ws_unlink()", "ws_remove()", "ws_fopen()",
+"ws_freopen()": these wrapper functions change the path and file name from
 UTF8 to UTF16 on Windows allowing the functions to work correctly when the
 path or file name contain non-ASCII characters.
 
-When opening a file with "eth_fopen()", "eth_freopen()", or "eth_fdopen()", if
+When opening a file with "ws_fopen()", "ws_freopen()", or "ws_fdopen()", if
 the file contains ASCII text, use "r", "w", "a", and so on as the open mode
 - but if it contains binary data, use "rb", "wb", and so on.  On
 Windows, if a file is opened in a text mode, writing a byte with the
@@ -282,7 +282,7 @@ lines that end with newline and Windows' DEC-style lines that end with
 carriage return/line feed).
 
 In addition, that also means that when opening or creating a binary
-file, you must use "eth_open()" (with O_CREAT and possibly O_TRUNC if the
+file, you must use "ws_open()" (with O_CREAT and possibly O_TRUNC if the
 file is to be created if it doesn't exist), and OR in the O_BINARY flag.
 That flag is not present on most, if not all, UNIX systems, so you must
 also do
