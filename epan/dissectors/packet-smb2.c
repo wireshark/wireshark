@@ -109,6 +109,7 @@ static int hf_smb2_infolevel_file_info = -1;
 static int hf_smb2_infolevel_fs_info = -1;
 static int hf_smb2_infolevel_sec_info = -1;
 static int hf_smb2_max_response_size = -1;
+static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
 static int hf_smb2_required_buffer_size = -1;
 static int hf_smb2_response_size = -1;
@@ -223,6 +224,8 @@ static int hf_smb2_min_count = -1;
 static int hf_smb2_remaining_bytes = -1;
 static int hf_smb2_channel_info_offset = -1;
 static int hf_smb2_channel_info_length = -1;
+static int hf_smb2_ioctl_flags = -1;
+static int hf_smb2_ioctl_is_fsctl = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -270,6 +273,7 @@ static gint ett_smb2_capabilities = -1;
 static gint ett_smb2_ses_flags = -1;
 static gint ett_smb2_share_flags = -1;
 static gint ett_smb2_share_caps = -1;
+static gint ett_smb2_ioctl_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -3292,12 +3296,13 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
+	proto_tree *flags_tree = NULL;
+	proto_item *flags_item = NULL;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* reserved */
 	offset += 2;
 
 	/* ioctl function */
@@ -3309,8 +3314,8 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* in buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &i_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_in_data);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* max ioctl in size */
+	proto_tree_add_item(tree, hf_smb2_max_ioctl_in_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* out buffer offset/length */
@@ -3320,9 +3325,16 @@ dissect_smb2_ioctl_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_max_ioctl_out_size, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* flags */
+	if(tree){
+		flags_item = proto_tree_add_item(tree, hf_smb2_ioctl_flags, tvb, offset, 4, TRUE);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_ioctl_flags);
+	}
+	proto_tree_add_item(flags_tree, hf_smb2_ioctl_is_fsctl, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* reserved */
+	offset += 4;
 
 	/* try to decode these blobs in the order they were encoded
 	 * so that for "short" packets we will dissect as much as possible
@@ -3351,6 +3363,8 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	offset_length_buffer_t o_olb;
 	offset_length_buffer_t i_olb;
+	proto_tree *flags_tree = NULL;
+	proto_item *flags_item = NULL;
 
 	switch (si->status) {
 	case 0x00000000: break;
@@ -3376,9 +3390,16 @@ dissect_smb2_ioctl_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* out buffer offset/length */
 	offset = dissect_smb2_olb_length_offset(tvb, offset, &o_olb, OLB_O_UINT32_S_UINT32, hf_smb2_ioctl_out_data);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+
+	/* flags */
+	if(tree){
+		flags_item = proto_tree_add_item(tree, hf_smb2_ioctl_flags, tvb, offset, 4, TRUE);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_ioctl_flags);
+	}
+	offset += 4;
+
+	/* reserved */
+	offset += 4;
 
 	/* try to decode these blobs in the order they were encoded
 	 * so that for "short" packets we will dissect as much as possible
@@ -4944,6 +4965,9 @@ proto_register_smb2(void)
 	{ &hf_smb2_max_ioctl_out_size,
 		{ "Max Ioctl Out Size", "smb2.max_ioctl_out_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum ioctl out size", HFILL }},
+	{ &hf_smb2_max_ioctl_in_size,
+		{ "Max Ioctl In Size", "smb2.max_ioctl_in_size", FT_UINT32, BASE_DEC,
+		NULL, 0, "SMB2 Maximum ioctl out size", HFILL }},
 	{ &hf_smb2_response_size,
 		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 response size", HFILL }},
@@ -5527,6 +5551,10 @@ proto_register_smb2(void)
 		{ "Share Capabilities", "smb2.share_caps", FT_UINT32, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
+	{ &hf_smb2_ioctl_flags,
+		{ "Flags", "smb2.ioctl.flags", FT_UINT32, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_min_count,
 		{ "Min Count", "smb2.min_count", FT_UINT32, BASE_DEC,
 		NULL, 0, "", HFILL }},
@@ -5545,6 +5573,10 @@ proto_register_smb2(void)
 	{ &hf_smb2_share_caps_dfs,
 		{ "dfs", "smb2.share_caps.dfs", FT_BOOLEAN, 32,
 		NULL, SHARE_CAPS_DFS, "", HFILL }},
+
+	{ &hf_smb2_ioctl_is_fsctl,
+		{ "Is FSCTL", "smb2.ioctl.is_fsctl", FT_BOOLEAN, 32,
+		NULL, 0x00000001, "", HFILL }},
 
 	};
 
@@ -5595,6 +5627,7 @@ proto_register_smb2(void)
 		&ett_smb2_ses_flags,
 		&ett_smb2_share_flags,
 		&ett_smb2_share_caps,
+		&ett_smb2_ioctl_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
