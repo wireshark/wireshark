@@ -30,19 +30,21 @@
  * the following code is stripped down code copied from the GLib file glib/gstdio.h
  * stipped down, because this is used on _WIN32 only and we use only wide char functions */
 
+#ifndef _WIN32
+#error "This is only for Windows"
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 #include <glib.h>
 
-#ifdef _WIN32
 #include <windows.h>
 #include <errno.h>
 #include <wchar.h>
 /*#include <direct.h>*/
 #include <io.h>
-#endif
 
 #include "file_util.h"
 
@@ -74,8 +76,6 @@ ws_stdio_open (const gchar *filename,
 	int          flags,
 	int          mode)
 {
-#ifdef _WIN32
-    {
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
@@ -93,10 +93,6 @@ ws_stdio_open (const gchar *filename,
 
       errno = save_errno;
       return retval;
-    }
-#else
-  return open (filename, flags, mode);
-#endif
 }
 
 
@@ -121,7 +117,6 @@ int
 ws_stdio_rename (const gchar *oldfilename,
 	  const gchar *newfilename)
 {
-#ifdef _WIN32
       wchar_t *woldfilename = g_utf8_to_utf16 (oldfilename, -1, NULL, NULL, NULL);
       wchar_t *wnewfilename;
       int retval;
@@ -168,9 +163,6 @@ ws_stdio_rename (const gchar *oldfilename,
 
       errno = save_errno;
       return retval;
-#else
-  return rename (oldfilename, newfilename);
-#endif
 }
 
 /**
@@ -192,7 +184,6 @@ int
 ws_stdio_mkdir (const gchar *filename,
 	 int          mode)
 {
-#ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
@@ -210,9 +201,6 @@ ws_stdio_mkdir (const gchar *filename,
 
       errno = save_errno;
       return retval;
-#else
-  return mkdir (filename, mode);
-#endif
 }
 
 /**
@@ -235,7 +223,6 @@ int
 ws_stdio_stat (const gchar *filename,
 	struct stat *buf)
 {
-#ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
@@ -261,9 +248,6 @@ ws_stdio_stat (const gchar *filename,
 
       errno = save_errno;
       return retval;
-#else
-  return stat (filename, buf);
-#endif
 }
 
 /**
@@ -287,7 +271,6 @@ ws_stdio_stat (const gchar *filename,
 int
 ws_stdio_unlink (const gchar *filename)
 {
-#ifdef _WIN32
       gchar *cp_filename = g_locale_from_utf8 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
@@ -305,9 +288,6 @@ ws_stdio_unlink (const gchar *filename)
 
       errno = save_errno;
       return retval;
-#else
-  return unlink (filename);
-#endif
 }
 
 /**
@@ -339,7 +319,6 @@ ws_stdio_unlink (const gchar *filename)
 int
 ws_stdio_remove (const gchar *filename)
 {
-#ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       int retval;
       int save_errno;
@@ -359,9 +338,6 @@ ws_stdio_remove (const gchar *filename)
 
       errno = save_errno;
       return retval;
-#else
-  return remove (filename);
-#endif
 }
 
 /**
@@ -384,7 +360,6 @@ FILE *
 ws_stdio_fopen (const gchar *filename,
 	 const gchar *mode)
 {
-#ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       wchar_t *wmode;
       FILE *retval;
@@ -413,9 +388,6 @@ ws_stdio_fopen (const gchar *filename,
 
       errno = save_errno;
       return retval;
-#else
-  return fopen (filename, mode);
-#endif
 }
 
 /**
@@ -440,7 +412,6 @@ ws_stdio_freopen (const gchar *filename,
 	   const gchar *mode,
 	   FILE        *stream)
 {
-#ifdef _WIN32
       wchar_t *wfilename = g_utf8_to_utf16 (filename, -1, NULL, NULL, NULL);
       wchar_t *wmode;
       FILE *retval;
@@ -469,8 +440,4 @@ ws_stdio_freopen (const gchar *filename,
 
       errno = save_errno;
       return retval;
-#else
-  return freopen (filename, mode, stream);
-#endif
 }
-

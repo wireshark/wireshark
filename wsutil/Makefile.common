@@ -29,10 +29,8 @@
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
 LIBWSUTIL_SRC = \
-	file_util.c	\
 	mpeg-audio.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = \
-	file_util.h	\
 	mpeg-audio.h

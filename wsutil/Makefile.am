@@ -39,8 +39,10 @@ libwsutil_la_SOURCES =	\
 libwsutil_la_LIBADD = @GLIB_LIBS@
 
 EXTRA_DIST = \
-	Makefile.common		\
-	Makefile.nmake
+	Makefile.common	\
+	Makefile.nmake	\
+	file_util.c	\
+	file_util.h 
 
 CLEANFILES = \
 	libwsutil.a	\
