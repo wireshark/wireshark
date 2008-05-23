@@ -64,8 +64,9 @@ void aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length
 int aim_get_buddyname( guchar *name, tvbuff_t *tvb, int len_offset, int name_offset);
 int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 
-int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
-                 proto_tree *aim_tree);
+int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree);
+
+int dissect_aim_ssi_result(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aim_tree);
 
 int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);
 int dissect_aim_tlv_list(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree *tree, const aim_tlv *);

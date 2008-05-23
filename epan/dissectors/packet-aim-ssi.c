@@ -194,7 +194,7 @@ static const aim_subtype aim_fnac_family_ssi[] = {
 	{ 0x0008, "Add Buddy", dissect_ssi_ssi_item },
 	{ 0x0009, "Modify Buddy", dissect_ssi_ssi_item },
 	{ 0x000a, "Delete Buddy", dissect_ssi_ssi_item },
-	{ 0x000e, "Server Ack", NULL },
+	{ 0x000e, "Server Ack", dissect_aim_ssi_result },
 	{ 0x000f, "No List", NULL },
 	{ 0x0011, "Edit Start", NULL },
 	{ 0x0012, "Edit Stop", NULL },

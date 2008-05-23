@@ -328,6 +328,40 @@ static const aim_tlv fnac_tlvs[] = {
   { 0, NULL, NULL }
 };
 
+#define SSI_OP_RESULT_SUCCESS            0
+#define SSI_OP_RESULT_DB_ERROR           1
+#define SSI_OP_RESULT_NOT_FOUND          2
+#define SSI_OP_RESULT_ALREADY_EXISTS     3
+#define SSI_OP_RESULT_UNAVAILABLE        5
+#define SSI_OP_RESULT_BAD_REQUEST        10
+#define SSI_OP_RESULT_DB_TIME_OUT        11
+#define SSI_OP_RESULT_OVER_ROW_LIMIT     12
+#define SSI_OP_RESULT_NOT_EXECUTED       13
+#define SSI_OP_RESULT_AUTH_REQUIRED      14
+#define SSI_OP_RESULT_BAD_LOGINID        16
+#define SSI_OP_RESULT_OVER_BUDDY_LIMIT   17
+#define SSI_OP_RESULT_INSERT_SMART_GROUP 20
+#define SSI_OP_RESULT_TIMEOUT            26
+
+static const value_string aim_ssi_result_codes[] = {
+  { SSI_OP_RESULT_SUCCESS, "Success" },
+  { SSI_OP_RESULT_DB_ERROR, "Some kind of database error" },
+  { SSI_OP_RESULT_NOT_FOUND, "Item was not found for an update or delete" },
+  { SSI_OP_RESULT_ALREADY_EXISTS, "Item already exists for an insert" },
+  { SSI_OP_RESULT_UNAVAILABLE, "Server or database is not available" },
+  { SSI_OP_RESULT_BAD_REQUEST, "Request was not formed well" },
+  { SSI_OP_RESULT_DB_TIME_OUT, "Database timed out" },
+  { SSI_OP_RESULT_OVER_ROW_LIMIT, "Too many items of this class for an insert" },
+  { SSI_OP_RESULT_NOT_EXECUTED, "Not executed due to other error in same request" },
+  { SSI_OP_RESULT_AUTH_REQUIRED, "Buddy List authorization required" },
+  { SSI_OP_RESULT_BAD_LOGINID, "Bad loginId" },
+  { SSI_OP_RESULT_OVER_BUDDY_LIMIT, "Too many buddies" },
+  { SSI_OP_RESULT_INSERT_SMART_GROUP, "Attempt to added a Buddy to a smart group" },
+  { SSI_OP_RESULT_TIMEOUT, "General timeout" },
+  { 0, NULL }
+};
+
+
 static int dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_aim_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -366,6 +400,7 @@ static int hf_aim_buddyname_len = -1;
 static int hf_aim_buddyname = -1;
 static int hf_aim_userinfo_warninglevel = -1;
 static int hf_aim_snac_error = -1;
+static int hf_aim_ssi_result_code = -1;
 static int hf_aim_tlvcount = -1;
 static int hf_aim_version = -1;
 static int hf_aim_userclass_unconfirmed = -1;
@@ -676,6 +711,22 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 			   tvb, 0, 2, FALSE);
   
   return dissect_aim_tlv_sequence(tvb, pinfo, 2, aim_tree, client_tlvs);
+}
+
+int dissect_aim_ssi_result(tvbuff_t *tvb, packet_info *pinfo,
+			     proto_tree *aim_tree)
+{
+  const char *name;
+
+  if ((name = match_strval(tvb_get_ntohs(tvb, 0), aim_ssi_result_codes)) != NULL) {
+     if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, name);
+  }
+
+  proto_tree_add_item (aim_tree, hf_aim_ssi_result_code,
+			   tvb, 0, 2, FALSE);
+
+  return 2;
 }
 
 int dissect_aim_userinfo(tvbuff_t *tvb, packet_info *pinfo, 
@@ -1470,7 +1521,10 @@ proto_register_aim(void)
 	{ &hf_aim_dcinfo_unknown,
 		{ "Unknown", "aim.dcinfo.unknown", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL },
 	},
-
+	{ &hf_aim_ssi_result_code,
+	  { "Last SSI operation result code", "aim.ssi.code", FT_UINT16,
+		  BASE_HEX, VALS(aim_ssi_result_codes), 0x0, "", HFILL },
+	},
   };
 
   /* Setup protocol subtree array */
