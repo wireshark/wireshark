@@ -381,7 +381,7 @@ gboolean uat_fld_chk_str(void* u1 _U_, const char* strptr, unsigned len _U_, voi
 gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, unsigned len, void* u2 _U_, void* u3 _U_, const char** err) {
 	if (len) {
 		char* name = ep_strndup(strptr,len);
-		g_strdown(name);
+		g_ascii_strdown(name,len);
 		g_strchug(name);
 
 		if (find_dissector(name)) {
