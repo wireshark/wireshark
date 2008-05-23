@@ -147,6 +147,7 @@ static int hf_smb2_write_length = -1;
 static int hf_smb2_write_offset = -1;
 static int hf_smb2_write_data = -1;
 static int hf_smb2_read_length = -1;
+static int hf_smb2_read_remaining = -1;
 static int hf_smb2_read_offset = -1;
 static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
@@ -217,6 +218,11 @@ static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
 static int hf_smb2_create_flags = -1;
+static int hf_smb2_lock_count = -1;
+static int hf_smb2_min_count = -1;
+static int hf_smb2_remaining_bytes = -1;
+static int hf_smb2_channel_info_offset = -1;
+static int hf_smb2_channel_info_length = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -2904,11 +2910,14 @@ dissect_smb2_flush_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 static int
 dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	guint16 lock_count;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+	/* lock count */
+	lock_count = tvb_get_letohs(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_lock_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
 	/* some unknown bytes */
@@ -3402,8 +3411,8 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+
+	/* padding and reserved */
 	offset += 2;
 
 	/* length */
@@ -3423,13 +3432,26 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 16, TRUE);
-	offset += 16;
+	/* minimum count */
+	proto_tree_add_item(tree, hf_smb2_min_count, tvb, offset, 4, TRUE);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 1, TRUE);
-	offset += 1;
+	/* channel */
+	proto_tree_add_item(tree, hf_smb2_channel, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* remaining bytes */
+	proto_tree_add_item(tree, hf_smb2_remaining_bytes, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* channel info offset */
+	proto_tree_add_item(tree, hf_smb2_channel_info_offset, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* channel info length */
+	proto_tree_add_item(tree, hf_smb2_channel_info_length, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* there is a buffer here   but it is never used (yet) */
 
 	return offset;
 }
@@ -3457,9 +3479,12 @@ dissect_smb2_read_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb2_read_length, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	/* remaining */
+	proto_tree_add_item(tree, hf_smb2_read_remaining, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* reserved */
+	offset += 4;
 
 	/* data or dcerpc ?
 	 * If the pidvalid flag is set we assume it is a deferred
@@ -5021,6 +5046,10 @@ proto_register_smb2(void)
 		{ "Read Length", "smb2.read_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Amount of data to read", HFILL }},
 
+	{ &hf_smb2_read_remaining,
+		{ "Read Remaining", "smb2.read_remaining", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_create_flags,
 		{ "Create Flags", "smb2.create_flags", FT_UINT64, BASE_HEX,
 		NULL, 0, "", HFILL }},
@@ -5374,6 +5403,10 @@ proto_register_smb2(void)
 		{ "Session Flags", "smb2.session_flags", FT_UINT16, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
+	{ &hf_smb2_lock_count,
+		{ "Lock Count", "smb2.lock_count", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_capabilities,
 		{ "Capabilities", "smb2.capabilities", FT_UINT32, BASE_HEX,
 		NULL, 0, "", HFILL }},
@@ -5492,6 +5525,21 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_share_caps,
 		{ "Share Capabilities", "smb2.share_caps", FT_UINT32, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_min_count,
+		{ "Min Count", "smb2.min_count", FT_UINT32, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_remaining_bytes,
+		{ "Remaning Bytes", "smb2.remaining_bytes", FT_UINT32, BASE_DEC,		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_channel_info_offset,
+		{ "Channel Info Offset", "smb2.channel_info_offset", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_channel_info_length,
+		{ "Channel Info Length", "smb2.channel_info_length", FT_UINT16, BASE_DEC,
 		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_share_caps_dfs,
