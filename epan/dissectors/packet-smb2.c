@@ -79,6 +79,7 @@ static int hf_smb2_unknown_timestamp = -1;
 static int hf_smb2_create_timestamp = -1;
 static int hf_smb2_oplock = -1;
 static int hf_smb2_close_flags = -1;
+static int hf_smb2_notify_flags = -1;
 static int hf_smb2_last_access_timestamp = -1;
 static int hf_smb2_last_write_timestamp = -1;
 static int hf_smb2_last_change_timestamp = -1;
@@ -227,6 +228,9 @@ static int hf_smb2_channel_info_length = -1;
 static int hf_smb2_ioctl_flags = -1;
 static int hf_smb2_ioctl_is_fsctl = -1;
 static int hf_smb2_close_pq_attrib = -1;
+static int hf_smb2_notify_watch_tree = -1;
+static int hf_smb2_notify_output_buffer_len = -1;
+static int hf_smb2_notify_out_data = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -276,6 +280,7 @@ static gint ett_smb2_share_flags = -1;
 static gint ett_smb2_share_caps = -1;
 static gint ett_smb2_ioctl_flags = -1;
 static gint ett_smb2_close_flags = -1;
+static gint ett_smb2_notify_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -2250,14 +2255,22 @@ dissect_smb2_keepalive_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static int
 dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	proto_tree *flags_tree = NULL;
+	proto_item *flags_item = NULL;
+
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
+
+	/* notify flags */
+	if (tree) {
+		flags_item = proto_tree_add_item(tree, hf_smb2_notify_flags, tvb, offset, 2, TRUE);
+		flags_tree = proto_item_add_subtree(flags_item, ett_smb2_notify_flags);
+	}
+	proto_tree_add_item(flags_tree, hf_smb2_notify_watch_tree, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* output buffer length */
+	proto_tree_add_item(tree, hf_smb2_notify_output_buffer_len, tvb, offset, 4, TRUE);
 	offset += 4;
 
 	/* fid */
@@ -2266,16 +2279,23 @@ dissect_smb2_notify_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* completion filter */
 	offset = dissect_nt_notify_completion_filter(tvb, tree, offset);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* reserved */
 	offset += 4;
 
 	return offset;
 }
 
+static void
+dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, smb2_info_t *si _U_)
+{
+	proto_tree_add_item(tree, hf_smb2_unknown, tvb, 0, tvb_length(tvb), TRUE);
+}
+
 static int
 dissect_smb2_notify_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si)
 {
+	offset_length_buffer_t olb;
+
 	switch (si->status) {
 	case 0x00000000: break;
 	default: return dissect_smb2_error_response(tvb, pinfo, tree, offset, si);
@@ -2284,14 +2304,13 @@ dissect_smb2_notify_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 2, TRUE);
-	offset += 2;
+	/* out buffer offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &olb, OLB_O_UINT16_S_UINT32, hf_smb2_notify_out_data);
 
-	/* we dont know what this is */
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
-	offset += tvb_length_remaining(tvb, offset);
+	/* out buffer */
+	dissect_smb2_olb_buffer(pinfo, tree, tvb, &olb, si, dissect_smb2_notify_data_out);
+	offset = dissect_smb2_olb_tvb_max_offset(offset, &olb);
+
 	return offset;
 }
 
@@ -5349,6 +5368,10 @@ proto_register_smb2(void)
 		{ "Close Flags", "smb2.close.flags", FT_UINT16, BASE_HEX,
 		NULL, 0, "close flags", HFILL }},
 
+	{ &hf_smb2_notify_flags,
+		{ "Notify Flags", "smb2.notify.flags", FT_UINT16, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_buffer_code_len,
 		{ "Length", "smb2.buffer_code.length", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of fixed portion of PDU", HFILL }},
@@ -5596,9 +5619,21 @@ proto_register_smb2(void)
 		{ "Is FSCTL", "smb2.ioctl.is_fsctl", FT_BOOLEAN, 32,
 		NULL, 0x00000001, "", HFILL }},
 
+	{ &hf_smb2_notify_output_buffer_len,
+		{ "Output Buffer Length", "smb2.notify.output_buffer_len", FT_UINT16, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
 	{ &hf_smb2_close_pq_attrib,
 		{ "PostQuery Attrib", "smb2.close.pq_attrib", FT_BOOLEAN, 16,
 		NULL, 0x0001, "", HFILL }},
+
+	{ &hf_smb2_notify_watch_tree,
+		{ "Watch Tree", "smb2.notify.watch_tree", FT_BOOLEAN, 16,
+		NULL, 0x0001, "", HFILL }},
+
+	{ &hf_smb2_notify_out_data,
+		{ "Out Data", "smb2.notify.out", FT_NONE, BASE_NONE,
+		NULL, 0, "", HFILL }},
 
 	};
 
@@ -5651,6 +5686,7 @@ proto_register_smb2(void)
 		&ett_smb2_share_caps,
 		&ett_smb2_ioctl_flags,
 		&ett_smb2_close_flags,
+		&ett_smb2_notify_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
