@@ -672,6 +672,8 @@ proto_registrar_n
 proto_set_cant_toggle
 proto_set_decoding
 proto_tree_add_bitmask
+proto_tree_add_bits_item
+proto_tree_add_bits_ret_val
 proto_tree_add_boolean_format
 proto_tree_add_boolean_format_value
 proto_tree_add_boolean
