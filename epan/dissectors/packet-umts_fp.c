@@ -32,10 +32,14 @@
 
 #include "packet-umts_fp.h"
 
-/* TODO:
-   - IUR interface-specific formats
-   - verify header & payload CRCs
-*/
+/* The Frame Protocol (FP) is described in:
+ * 3GPP TS 25.427 (for dedicated channels)
+ * 3GPP TS 25.435 (for common/shared channels)
+ *
+ * TODO:
+ *  - IUR interface-specific formats
+ *  - verify header & payload CRCs
+ */
 
 /* Initialize the protocol and registered fields. */
 int proto_fp = -1;
@@ -153,7 +157,6 @@ static int ett_fp_edch_subframe = -1;
 static int ett_fp_hsdsch_new_ie_flags = -1;
 static int ett_fp_rach_new_ie_flags = -1;
 static int ett_fp_hsdsch_pdu_block_header = -1;
-static int ett_fp_hsdsch_pdu_block = -1;
 
 
 /* E-DCH channel header information */
@@ -329,7 +332,8 @@ static int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree,
 static int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
                                           tvbuff_t *tvb, int offset);
 static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
-                                             tvbuff_t *tvb, int offset);
+                                             tvbuff_t *tvb, int offset,
+                                             struct fp_info *p_fp_info);
 static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
                                                     tvbuff_t *tvb, int offset);
 static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -820,7 +824,8 @@ int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
 }
 
 int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
-                                      tvbuff_t *tvb, int offset)
+                                      tvbuff_t *tvb, int offset,
+                                      struct fp_info *p_fp_info)
 {
     proto_item *ti;
     proto_item *rate_ti;
@@ -828,6 +833,13 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     guint8  repetition_period;
     guint8  interval;
     guint64 credits;
+
+    /* Congestion status (introduced sometime during R6...) */
+    if ((p_fp_info->release == 6) || (p_fp_info->release == 7))
+    {
+        proto_tree_add_bits_item(tree, hf_fp_congestion_status, tvb,
+                                 offset*8 + 2, 2, FALSE);
+    }
 
     /* CmCH-PI */
     proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
@@ -841,8 +853,9 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     /* HS-DSCH credits (11 bits) */
     ti = proto_tree_add_bits_ret_val(tree, hf_fp_hsdsch_credits, tvb,
                                      offset*8 + 5, 11, &credits, FALSE);
-
     offset += 2;
+
+    /* Interesting values */
     if (credits == 0)
     {
         proto_item_append_text(ti, " (stop transmission)");
@@ -905,10 +918,14 @@ int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tre
 {
     proto_item *ti;
     proto_item *rate_ti;
-    guint16 max_pdu_length;
-    guint8 repetition_period;
-    guint8 interval;
-    guint16 credits;
+    guint16    max_pdu_length;
+    guint8     repetition_period;
+    guint8     interval;
+    guint16    credits;
+
+    /* Congestion status */
+    proto_tree_add_bits_item(tree, hf_fp_congestion_status, tvb,
+                            offset*8 + 2, 2, FALSE);
 
     /* CmCH-PI */
     proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
@@ -925,8 +942,9 @@ int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tre
     credits = (tvb_get_ntohs(tvb, offset));
     ti = proto_tree_add_uint(tree, hf_fp_hsdsch_credits, tvb,
                              offset, 2, credits);
-
     offset += 2;
+
+    /* Interesting values */
     if (credits == 0)
     {
         proto_item_append_text(ti, " (stop transmission)");
@@ -1067,7 +1085,7 @@ void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset = dissect_hsdpa_capacity_request(pinfo, tree, tvb, offset);
             break;
         case COMMON_HS_DSCH_Capacity_Allocation:
-            offset = dissect_hsdpa_capacity_allocation(pinfo, tree, tvb, offset);
+            offset = dissect_hsdpa_capacity_allocation(pinfo, tree, tvb, offset, p_fp_info);
             break;
         case COMMON_HS_DSCH_Capacity_Allocation_Type_2:
             offset = dissect_hsdpa_capacity_allocation_type_2(pinfo, tree, tvb, offset);
@@ -1915,16 +1933,17 @@ int dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
 
 int dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-    guint8 status = (tvb_get_guint8(tvb, offset) & 0x03);
+    guint64 status;
 
     /* Congestion status */
-    proto_tree_add_item(tree, hf_fp_congestion_status, tvb, offset, 1, FALSE);
+    proto_tree_add_bits_ret_val(tree, hf_fp_congestion_status, tvb,
+                                offset*8 + 6, 2, &status, FALSE);
     offset++;
 
     if (check_col(pinfo->cinfo, COL_INFO))
     {
         col_append_fstr(pinfo->cinfo, COL_INFO, " status = %s",
-                        val_to_str(status, congestion_status_vals, "unknown"));
+                        val_to_str((guint16)status, congestion_status_vals, "unknown"));
     }
 
     return offset;
@@ -2306,8 +2325,10 @@ void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 
-/****************************************************/
-/* Dissect an HSDSCH channel (frame type 1, in R7)  */
+/**********************************************************/
+/* Dissect an HSDSCH channel                              */
+/* The data format corresponds to the format              */
+/* described in R5 and R6, and frame type 1 in Release 7. */
 void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  int offset, struct fp_info *p_fp_info)
 {
@@ -2451,6 +2472,9 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 /******************************************/
 /* Dissect an HSDSCH type 2 channel       */
+/* (introduced in Release 7)              */
+/* N.B. there is currently no support for */
+/* frame type 3 (IuR only?)               */
 void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         int offset, struct fp_info *p_fp_info)
 {
@@ -2655,6 +2679,10 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Can't dissect anything without it... */
     if (p_fp_info == NULL)
     {
+        proto_item *ti =
+            proto_tree_add_text(fp_tree, tvb, offset, -1,
+                                "Can't dissect FP frame because no per-frame info was attached!");
+        PROTO_ITEM_SET_GENERATED(ti);
         return;
     }
 
@@ -2721,7 +2749,9 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case CHANNEL_HSDSCH:
             switch (p_fp_info->hsdsch_entity) {
+                case entity_not_specified:
                 case hs:
+                    /* This is the pre-R7 default */
                     dissect_hsdsch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
                     break;
                 case ehs:
@@ -3076,13 +3106,13 @@ void proto_register_fp(void)
         { &hf_fp_flush,
             { "Flush",
               "fp.flush", FT_UINT8, BASE_DEC, 0, 0x04,
-              "Flush", HFILL
+              "Whether all PDUs for this priority queue should be removed", HFILL
             }
         },
         { &hf_fp_fsn_drt_reset,
             { "FSN-DRT reset",
               "fp.fsn-drt-reset", FT_UINT8, BASE_DEC, 0, 0x02,
-              "FSN/DRT Reset", HFILL
+              "FSN/DRT Reset Flag", HFILL
             }
         },
         { &hf_fp_drt_indicator,
@@ -3110,9 +3140,9 @@ void proto_register_fp(void)
             }
         },
         { &hf_fp_hrnti,
-            { "DRT",
+            { "HRNTI",
               "fp.hrnti", FT_UINT16, BASE_DEC, 0, 0x0,
-              "DRT", HFILL
+              "HRNTI", HFILL
             }
         },
         { &hf_fp_rach_measurement_result,
@@ -3462,7 +3492,7 @@ void proto_register_fp(void)
         { &hf_fp_radio_interface_parameter_update_flag[3],
             { "RL sets indicator valid",
               "fp.radio-interface_param.rl-sets-indicator-valid", FT_UINT16, BASE_DEC, 0, 0x0020,
-              "RI valid", HFILL
+              "RL sets indicator valid", HFILL
             }
         },
         { &hf_fp_radio_interface_parameter_update_flag[4],
@@ -3497,7 +3527,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_congestion_status,
             { "Congestion Status",
-              "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x03,
+              "fp.congestion-status", FT_UINT8, BASE_DEC, VALS(congestion_status_vals), 0x0,
               "Congestion Status", HFILL
             }
         },
@@ -3538,8 +3568,7 @@ void proto_register_fp(void)
         &ett_fp_edch_subframe,
         &ett_fp_hsdsch_new_ie_flags,
         &ett_fp_rach_new_ie_flags,
-        &ett_fp_hsdsch_pdu_block_header,
-        &ett_fp_hsdsch_pdu_block
+        &ett_fp_hsdsch_pdu_block_header
     };
 
     /* Register protocol. */

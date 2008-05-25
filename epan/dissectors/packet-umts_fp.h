@@ -50,6 +50,7 @@ enum fp_interface_type
 
 enum fp_hsdsch_entity
 {
+    entity_not_specified=0,
     hs=1,
     ehs=2
 };
