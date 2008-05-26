@@ -27,10 +27,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
- /* TODO:
-   - if !tree (no filters or colour rules), op doesn't appear in info column...
- */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -2031,14 +2027,14 @@ dissect_wimaxasncp(
 
     offset = 0;
 
+    /* Register protocol fields, etc if haven't done yet. */
+    if (wimaxasncp_dict == NULL)
+    {
+        register_wimaxasncp_fields(NULL);
+    }
+
     if (tree)
     {
-        /* Register protocol fields, etc if haven't done yet. */
-        if (wimaxasncp_dict == NULL)
-        {
-            register_wimaxasncp_fields(NULL);
-        }
-
         packet_item = proto_tree_add_item(
             tree, proto_wimaxasncp,
             tvb, 0, MIN(WIMAXASNCP_HEADER_LENGTH_END, tvb_length(tvb)), FALSE);
@@ -3294,10 +3290,8 @@ void
 proto_reg_handoff_wimaxasncp(void)
 {
     static gboolean inited = FALSE;
-    dissector_handle_t wimaxasncp_handle;
+    static dissector_handle_t wimaxasncp_handle;
     static int currentPort = -1;
-
-    memset(&wimaxasncp_handle, 0, sizeof(dissector_handle_t));
 
     if (!inited)
     {
