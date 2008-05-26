@@ -145,11 +145,10 @@ static int hf_smb2_fs_objectid_info = -1;
 static int hf_smb2_sec_info_00 = -1;
 static int hf_smb2_fid = -1;
 static int hf_smb2_write_length = -1;
-static int hf_smb2_write_offset = -1;
 static int hf_smb2_write_data = -1;
 static int hf_smb2_read_length = -1;
 static int hf_smb2_read_remaining = -1;
-static int hf_smb2_read_offset = -1;
+static int hf_smb2_file_offset = -1;
 static int hf_smb2_read_data = -1;
 static int hf_smb2_disposition_delete_on_close = -1;
 static int hf_smb2_create_disposition = -1;
@@ -243,6 +242,13 @@ static int hf_smb2_short_name = -1;
 static int hf_smb2_id_both_directory_info = -1;
 static int hf_smb2_full_directory_info = -1;
 static int hf_smb2_file_name_info = -1;
+static int hf_smb2_lock_info = -1;
+static int hf_smb2_lock_length = -1;
+static int hf_smb2_lock_flags = -1;
+static int hf_smb2_lock_flags_shared = -1;
+static int hf_smb2_lock_flags_exclusive = -1;
+static int hf_smb2_lock_flags_unlock = -1;
+static int hf_smb2_lock_flags_fail_immediately = -1;
 
 static gint ett_smb2 = -1;
 static gint ett_smb2_olb = -1;
@@ -299,6 +305,8 @@ static gint ett_smb2_both_directory_info = -1;
 static gint ett_smb2_id_both_directory_info = -1;
 static gint ett_smb2_full_directory_info = -1;
 static gint ett_smb2_file_name_info = -1;
+static gint ett_smb2_lock_info = -1;
+static gint ett_smb2_lock_flags = -1;
 
 static int smb2_tap = -1;
 
@@ -3479,28 +3487,43 @@ dissect_smb2_lock_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb2_lock_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
+	/* reserved */
 	offset += 4;
 
 	/* fid */
 	offset = dissect_smb2_fid(tvb, pinfo, tree, offset, si, FID_MODE_USE);
 
-	/* offset */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+	while (lock_count--) {
+		proto_item *lock_item=NULL;
+		proto_tree *lock_tree=NULL;
+		static const int *lf_fields[] = {	
+			&hf_smb2_lock_flags_shared,
+			&hf_smb2_lock_flags_exclusive,
+			&hf_smb2_lock_flags_unlock,
+			&hf_smb2_lock_flags_fail_immediately,
+			NULL
+		};
 
-	/* count */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 8, TRUE);
-	offset += 8;
+		if(tree){
+			lock_item = proto_tree_add_item(tree, hf_smb2_lock_info, tvb, offset, 24, TRUE);
+			lock_tree = proto_item_add_subtree(lock_item, ett_smb2_lock_info);
+		}
 
-	/* some unknown bytes */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+		/* offset */
+		proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, TRUE);
+		offset += 8;
 
-	/* flags */
-	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, TRUE);
-	offset += 4;
+		/* count */
+		proto_tree_add_item(lock_tree, hf_smb2_lock_length, tvb, offset, 8, TRUE);
+		offset += 8;
+
+		/* flags */
+		proto_tree_add_bitmask(lock_tree, tvb, offset, hf_smb2_lock_flags, ett_smb2_lock_flags, lf_fields, TRUE);
+		offset += 4;
+
+		/* reserved */
+		offset += 4;
+	}
 
 	return offset;
 }
@@ -3576,7 +3599,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* offset */
 	off=tvb_get_letoh64(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_write_offset, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, TRUE);
 	offset += 8;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -3998,7 +4021,7 @@ dissect_smb2_read_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* offset */
 	off=tvb_get_letoh64(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_read_offset, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb2_file_offset, tvb, offset, 8, TRUE);
 	offset += 8;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
@@ -5618,10 +5641,6 @@ proto_register_smb2(void)
 		{ "Write Length", "smb2.write_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Amount of data to write", HFILL }},
 
-	{ &hf_smb2_write_offset,
-		{ "Write Offset", "smb2.write_offset", FT_UINT64, BASE_DEC,
-		NULL, 0, "At which offset to write the data", HFILL }},
-
 	{ &hf_smb2_read_length,
 		{ "Read Length", "smb2.read_length", FT_UINT32, BASE_DEC,
 		NULL, 0, "Amount of data to read", HFILL }},
@@ -5634,9 +5653,9 @@ proto_register_smb2(void)
 		{ "Create Flags", "smb2.create_flags", FT_UINT64, BASE_HEX,
 		NULL, 0, "", HFILL }},
 
-	{ &hf_smb2_read_offset,
-		{ "Read Offset", "smb2.read_offset", FT_UINT64, BASE_DEC,
-		NULL, 0, "At which offset to read the data", HFILL }},
+	{ &hf_smb2_file_offset,
+		{ "File Offset", "smb2.file_offset", FT_UINT64, BASE_DEC,
+		NULL, 0, "", HFILL }},
 
 	{ &hf_smb2_security_blob,
 		{ "Security Blob", "smb2.security_blob", FT_BYTES, BASE_HEX,
@@ -6201,6 +6220,34 @@ proto_register_smb2(void)
 		{ "FileNameInfo", "smb2.find.name_info", FT_NONE, BASE_NONE,
 		NULL, 0, "", HFILL }},
 
+	{ &hf_smb2_lock_info,
+		{ "Lock Info", "smb2.lock_info", FT_NONE, BASE_NONE,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_lock_length,
+		{ "Length", "smb2.lock_length", FT_UINT64, BASE_DEC,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_lock_flags,
+		{ "Flags", "smb2.lock_flags", FT_UINT32, BASE_HEX,
+		NULL, 0, "", HFILL }},
+
+	{ &hf_smb2_lock_flags_shared,
+		{ "Shared", "smb2.lock_flags.shared", FT_BOOLEAN, 32,
+		NULL, 0x00000001, "", HFILL }},
+
+	{ &hf_smb2_lock_flags_exclusive,
+		{ "Exclusive", "smb2.lock_flags.exclusive", FT_BOOLEAN, 32,
+		NULL, 0x00000002, "", HFILL }},
+
+	{ &hf_smb2_lock_flags_unlock,
+		{ "Unlock", "smb2.lock_flags.unlock", FT_BOOLEAN, 32,
+		NULL, 0x00000004, "", HFILL }},
+
+	{ &hf_smb2_lock_flags_fail_immediately,
+		{ "Fail Immediately", "smb2.lock_flags.fail_immediately", FT_BOOLEAN, 32,
+		NULL, 0x00000010, "", HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -6259,6 +6306,8 @@ proto_register_smb2(void)
 		&ett_smb2_id_both_directory_info,
 		&ett_smb2_full_directory_info,
 		&ett_smb2_file_name_info,
+		&ett_smb2_lock_info,
+		&ett_smb2_lock_flags,
 	};
 
 	proto_smb2 = proto_register_protocol("SMB2 (Server Message Block Protocol version 2)",
