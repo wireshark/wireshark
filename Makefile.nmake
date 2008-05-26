@@ -1048,11 +1048,10 @@ clean-deps:
 checkapi_local:
 	$(PERL) tools/checkAPIs.pl \
 #	$(wireshark_SOURCES) \
-	$(TSHARK_TAP_SRC)
-# EXTRA_wireshark_SOURCES
+	$(TSHARK_TAP_SRC) \
+#	$(EXTRA_wireshark_SOURCES)
 
-checkapi:
-# checkapi_local
+checkapi: checkapi_local
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
