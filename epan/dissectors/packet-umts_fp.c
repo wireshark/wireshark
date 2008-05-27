@@ -306,6 +306,8 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, struct fp_info *p_fp_info, int *num_tbs);
 static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  int offset, guint16 length, guint16 number_of_pdus);
+static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                        int offset, guint16 length, guint16 number_of_pdus);
 static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                              int num_tbs, int offset);
 static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
@@ -488,7 +490,8 @@ int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-/* Dissect the MAC-d PDUs of an HS-DSCH frame */
+/* Dissect the MAC-d PDUs of an HS-DSCH (type 1) frame.
+   Length is in bits, and payload is offset by 4 bits of padding */
 int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           int offset, guint16 length, guint16 number_of_pdus)
 {
@@ -552,6 +555,56 @@ int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     return offset;
 }
+
+
+/* Dissect the MAC-d PDUs of an HS-DSCH (type 2) frame.
+   Length is in bytes, and payload is byte-aligned (no padding) */
+int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                 int offset, guint16 length, guint16 number_of_pdus)
+{
+    int pdu;
+    proto_item *pdus_ti = NULL;
+    proto_tree *data_tree = NULL;
+    int first_offset = offset;
+
+    /* Add data subtree */
+    if (tree)
+    {
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
+        proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bytes", number_of_pdus, length);
+        data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
+    }
+
+    /* Now for the PDUs */
+    for (pdu=0; pdu < number_of_pdus; pdu++)
+    {
+        proto_item *pdu_ti;
+
+        /* Data bytes! */
+        if (data_tree)
+        {
+            pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
+                                         offset, length, FALSE);
+            proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
+        }
+
+        /* Advance offset */
+        offset += length;
+    }
+
+    /* Data tree should cover entire length */
+    proto_item_set_len(pdus_ti, offset-first_offset);
+
+    /* Show summary in info column */
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_fstr(pinfo->cinfo, COL_INFO, "   %u PDUs of %u bits",
+                        number_of_pdus, length*8);
+    }
+
+    return offset;
+}
+
 
 
 /* Dissect CRCI bits (uplink) */
@@ -2644,9 +2697,9 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         for (n=0; n < number_of_pdu_blocks; n++)
         {
             /* Add PDU block header subtree */
-            offset = dissect_macd_pdu_data(tvb, pinfo, tree, offset,
-                                           (guint16)pdu_length[n],
-                                           (guint16)no_of_pdus[n]);
+            offset = dissect_macd_pdu_data_type_2(tvb, pinfo, tree, offset,
+                                                  (guint16)pdu_length[n],
+                                                  (guint16)no_of_pdus[n]);
         }
 
         /* Spare Extension and Payload CRC */
