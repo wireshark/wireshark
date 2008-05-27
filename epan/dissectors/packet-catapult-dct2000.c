@@ -582,6 +582,7 @@ dissector_handle_t look_for_dissector(char *protocol_name)
         (strcmp(protocol_name, "fp_r4") == 0) ||
         (strcmp(protocol_name, "fp_r5") == 0) ||
         (strcmp(protocol_name, "fp_r6") == 0) ||
+        (strcmp(protocol_name, "fp_r7") == 0) ||
         (strcmp(protocol_name, "fpiur_r5") == 0))
     {
         return find_dissector("fp");
@@ -775,7 +776,10 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     {
         if (p_fp_info->release == 7)
         {
-            p_fp_info->hsdsch_entity = outhdr_values[i++];
+            if (outhdr_values[i++])
+            {
+                p_fp_info->hsdsch_entity = ehs;
+            }
         }
         else
         {
@@ -783,8 +787,8 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
             p_fp_info->hsdsch_entity = hs;
         }
     }
-    
-    
+
+
     /* IUR only uses the above... */
     if (strcmp(protocol_name, "fpiur_r5") == 0)
     {
