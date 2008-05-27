@@ -2664,7 +2664,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
 
             /* Append summary to header tree root */
             proto_item_append_text(pdu_block_header_ti,
-                                   " (lch:%u, %u pdus of %u bits)",
+                                   " (lch:%u, %u pdus of %u bytes)",
                                    (guint16)lchid[n],
                                    (guint16)no_of_pdus[n],
                                    (guint16)pdu_length[n]);
@@ -3213,7 +3213,7 @@ void proto_register_fp(void)
         { &hf_fp_pdu_length_in_block,
             { "PDU length in block",
               "fp.pdu-length-in-block", FT_UINT8, BASE_DEC, 0, 0x0,
-              "Length of each PDU in this block", HFILL
+              "Length of each PDU in this block in bytes", HFILL
             }
         },
         { &hf_fp_pdus_in_block,
