@@ -846,7 +846,7 @@ int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     offset++;
 
     /* Max MAC-d PDU length (13 bits) */
-    max_pdu_length = (tvb_get_ntohs(tvb, offset) >> 3);
+    max_pdu_length = tvb_get_ntohs(tvb, offset) >> 3;
     proto_tree_add_item(tree, hf_fp_hsdsch_max_macd_pdu_len, tvb, offset, 2, FALSE);
     offset++;
 
@@ -934,7 +934,7 @@ int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tre
     /* 5 spare bits follow here */
 
     /* Max MAC-d/c PDU length (11 bits) */
-    max_pdu_length = (tvb_get_ntohs(tvb, offset) >> 3);
+    max_pdu_length = tvb_get_ntohs(tvb, offset) & 0x7ff;
     proto_tree_add_item(tree, hf_fp_hsdsch_max_macdc_pdu_len, tvb, offset, 2, FALSE);
     offset += 2;
 
