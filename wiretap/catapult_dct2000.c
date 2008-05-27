@@ -215,7 +215,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     memset((void*)file_externals, '\0', sizeof(dct2000_file_externals_t));
 
     /* Copy this first line into buffer so could write out later */
-    g_strlcpy(file_externals->firstline, linebuff, firstline_length);
+    g_strlcpy(file_externals->firstline, linebuff, firstline_length+1);
     file_externals->firstline_length = firstline_length;
 
 
@@ -238,7 +238,7 @@ int catapult_dct2000_open(wtap *wth, int *err, gchar **err_info _U_)
     wth->capture.catapult_dct2000->start_usecs = usecs;
 
     /* Copy this second line into buffer so could write out later */
-    g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length);
+    g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length+1);
 
 
     /************************************************************/
