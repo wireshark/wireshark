@@ -126,10 +126,23 @@ while [ $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 ] ; do
         fi
 	echo -n "    $CF: "
 
-	"$CAPINFOS" "$CF" > /dev/null 2>&1
-	if [ $? -ne 0 ] ; then
+	"$CAPINFOS" "$CF" > /dev/null 2> $TMP_DIR/$ERR_FILE
+	RETVAL=$?
+	if [ $RETVAL -eq 0 ] ; then
+	    # have a valid file
+	    rm -f $TMP_DIR/$ERR_FILE
+	elif [ $RETVAL -eq 1 ] ; then
 	    echo "Not a valid capture file"
+	    rm -f $TMP_DIR/$ERR_FILE
 	    continue
+	else
+            echo ""
+	    echo " ERROR"
+	    echo -e "Processing failed.  Capture info follows:\n"
+	    echo "  Input file: $CF"
+	    echo -e "stderr follows:\n"
+	    cat $TMP_DIR/$ERR_FILE
+	    exit 1
 	fi
 
 	DISSECTOR_BUG=0
