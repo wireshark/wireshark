@@ -195,7 +195,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
 	    return -1;
 	}
       wth->data_offset = 0;
-      wth->file_encap = WTAP_ENCAP_PER_PACKET;
+      wth->file_encap = WTAP_ENCAP_ETHERNET;
       wth->file_type = WTAP_FILE_ISERIES;
       wth->snapshot_length = 0;
       wth->subtype_read = iseries_read;
@@ -227,7 +227,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info _U_)
 	    return -1;
 	}
       wth->data_offset = 0;
-      wth->file_encap = WTAP_ENCAP_PER_PACKET;
+      wth->file_encap = WTAP_ENCAP_ETHERNET;
       wth->file_type = WTAP_FILE_ISERIES_UNICODE;
       wth->snapshot_length = 0;
       wth->subtype_read = iseries_read;
@@ -570,10 +570,11 @@ iseries_parse_packet (wtap * wth, FILE_T fh,
 	{
 	  wth->phdr.ts.nsecs = csec * 10000;
 	}
-      wth->phdr.caplen = cap_len;
-      wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
-      pseudo_header->eth.fcs_len = -1;
     }
+
+    wth->phdr.caplen = cap_len;
+    wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
+    pseudo_header->eth.fcs_len = -1;
 
   /*
    * Start Reading packet contents
