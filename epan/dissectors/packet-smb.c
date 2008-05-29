@@ -1229,8 +1229,10 @@ TimeZoneFaster(time_t t)
 
 			/* no entry will cover more than 6 months */
 			low = t - MAX_DST_WIDTH/2;
+			/* XXX - what if t < MAX_DST_WIDTH/2? */
 
 			high = t + MAX_DST_WIDTH/2;
+			/* XXX - what if this overflows? */
 
 			/*
 			 * Widen the new entry using two bisection searches.
