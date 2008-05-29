@@ -148,7 +148,7 @@ static int iseries_parse_packet (wtap * wth, FILE_T fh,
 				 union wtap_pseudo_header *pseudo_header,
 				 guint8 * pd, int *err, gchar ** err_info);
 static int iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes);
-static gboolean iseries_parse_hex_string (guint8 * ascii, guint8 * buf,
+static gboolean iseries_parse_hex_string (const char * ascii, guint8 * buf,
 					  int len);
 
 int
@@ -817,18 +817,31 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
  * Requires ASCII hex data and buffer to populate with binary data
  */
 static gboolean
-iseries_parse_hex_string (guint8 * ascii, guint8 * buf, int len)
+iseries_parse_hex_string (const char * ascii, guint8 * buf, int len)
 {
   int i, byte;
-  char hexvalue[3] = { 0, 0, 0 };
+  gint hexvalue;
+  guint8 bytevalue;
 
   byte = 0;
-  for (i = 0; i < len; i++)
+  i = 0;
+  for (;;)
     {
-      hexvalue[0] = ascii[i];
+      if (i >= len)
+        break;
+      hexvalue = g_ascii_xdigit_value(ascii[i]);
       i++;
-      hexvalue[1] = ascii[i];
-      buf[byte] = (guint8) strtoul (hexvalue, NULL, 16);
+      if (hexvalue == -1)
+        return FALSE;	/* not a valid hex digit */
+      bytevalue = (guint8)(hexvalue << 4);
+      if (i >= len)
+        return FALSE;	/* only one hex digit of the byte is present */
+      hexvalue = g_ascii_xdigit_value(ascii[i]);
+      i++;
+      if (hexvalue == -1)
+        return FALSE;	/* not a valid hex digit */
+      bytevalue |= (guint8) hexvalue;
+      buf[byte] = bytevalue;
       byte++;
     }
   return TRUE;
