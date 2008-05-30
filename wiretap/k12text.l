@@ -71,14 +71,14 @@ static gboolean is_k12text;
 static gboolean at_eof;
 static guint junk_chars = 0;
 static void finalize_frame(void);
-static const gchar* error_str;
+static gchar* error_str;
 static gint64 cum_offset;
 static gboolean ok_frame;
 static FILE_T yy_fh;
 
 #define RESET() do { ok_frame = FALSE; h=0; m=0; s=0; ns=0; ms=0; i=0; is_k12text=FALSE; junk_chars = 0; error_str = NULL; } while(0)
 
-#define KERROR(text) do { error_str = (text); yyterminate(); } while(0)
+#define KERROR(text) do { error_str = g_strdup(text); yyterminate(); } while(0)
 #define START_PACKET RESET
 #define SET_HOURS(text) h = strtoul(text,NULL,10)
 #define SET_MINUTES(text) m = strtoul(text,NULL,10)
