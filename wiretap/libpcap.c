@@ -190,9 +190,9 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * add a new encapsulation type by changing an existing entry;
  * leave the existing entries alone.
  *
- * Instead, send mail to tcpdump-workers@tcpdump.org, asking for a new
- * DLT_ value, and specifying the purpose of the new value.  When you
- * get the new DLT_ value, use that numerical value in the "dlt_value"
+ * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking for
+ * a new DLT_ value, and specifying the purpose of the new value.  When
+ * you get the new DLT_ value, use that numerical value in the "dlt_value"
  * field of "pcap_to_wtap_map[]".
  */
 
@@ -474,8 +474,8 @@ static const struct {
 	 * add a new encapsulation type by changing an existing entry;
 	 * leave the existing entries alone.
 	 *
-	 * Instead, send mail to tcpdump-workers@tcpdump.org, asking for
-	 * a new DLT_ value, and specifying the purpose of the new value.
+	 * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking
+	 * for a new DLT_ value, and specifying the purpose of the new value.
 	 * When you get the new DLT_ value, use that numerical value in
 	 * the "dlt_value" field of "pcap_to_wtap_map[]".
 	 */
@@ -659,8 +659,8 @@ static const struct {
 	 * add a new encapsulation type by changing an existing entry;
 	 * leave the existing entries alone.
 	 *
-	 * Instead, send mail to tcpdump-workers@tcpdump.org, asking for
-	 * a new DLT_ value, and specifying the purpose of the new value.
+	 * Instead, send mail to tcpdump-workers@lists.tcpdump.org, asking
+	 * for a new DLT_ value, and specifying the purpose of the new value.
 	 * When you get the new DLT_ value, use that numerical value in
 	 * the "dlt_value" field of "pcap_to_wtap_map[]".
 	 */
