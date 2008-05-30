@@ -421,7 +421,7 @@ static gint address_equal_func(gconstpointer v, gconstpointer v2)
    the same IP address - report if found (+ return TRUE and set out param) */
 static gboolean check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                                               tvbuff_t *tvb,
-                                              const gchar *mac, guint32 ip,
+                                              const guint8 *mac, guint32 ip,
                                               guint32 *duplicate_ip)
 {
     struct   address_hash_value *value;
