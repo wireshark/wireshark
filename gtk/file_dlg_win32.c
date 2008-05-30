@@ -333,12 +333,12 @@ win32_merge_file (HWND h_wnd) {
     char       *in_filenames[2];
     int         err;
     char       *tmpname;
-    dfilter_t *dfp;
-	int    ofnsize;
+    dfilter_t  *dfp;
+    int         ofnsize;
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
     ofnsize = sizeof(OPENFILENAME) + 12;
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -368,59 +368,59 @@ win32_merge_file (HWND h_wnd) {
     ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
 
     if (GetOpenFileName(ofn)) {
-	filetype = cfile.cd_t;
-    g_free( (void *) ofn->lpstrFilter);
-    g_free( (void *) ofn);
+        filetype = cfile.cd_t;
+        g_free( (void *) ofn->lpstrFilter);
+        g_free( (void *) ofn);
 
-	/* merge or append the two files */
+        /* merge or append the two files */
 
         tmpname = NULL;
-	switch (merge_action) {
-	    case merge_append:
-		/* append file */
-		in_filenames[0] = cfile.filename;
-		in_filenames[1] = utf_16to8(file_name);
-		merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
-		break;
-	    case merge_chrono:
-		/* chonological order */
-		in_filenames[0] = cfile.filename;
-		in_filenames[1] = utf_16to8(file_name);
+        switch (merge_action) {
+            case merge_append:
+                /* append file */
+                in_filenames[0] = cfile.filename;
+                in_filenames[1] = utf_16to8(file_name);
+                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
+                break;
+            case merge_chrono:
+                /* chonological order */
+                in_filenames[0] = cfile.filename;
+                in_filenames[1] = utf_16to8(file_name);
                 merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, FALSE);
-		break;
-	    case merge_prepend:
-		/* prepend file */
-		in_filenames[0] = utf_16to8(file_name);
-		in_filenames[1] = cfile.filename;
-		merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
-		break;
-	    default:
-		g_assert_not_reached();
-	}
+                break;
+            case merge_prepend:
+                /* prepend file */
+                in_filenames[0] = utf_16to8(file_name);
+                in_filenames[1] = cfile.filename;
+                merge_status = cf_merge_files(&tmpname, 2, in_filenames, filetype, TRUE);
+                break;
+            default:
+                g_assert_not_reached();
+        }
 
-	if(merge_status != CF_OK) {
-	    /* merge failed */
+        if(merge_status != CF_OK) {
+            /* merge failed */
             g_free(tmpname);
-	    return;
-	}
-
-	cf_close(&cfile);
-
-	/* Try to open the merged capture file. */
-	if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
-	    /* We couldn't open it; don't dismiss the open dialog box,
-	       just leave it around so that the user can, after they
-	       dismiss the alert box popped up for the open error,
-	       try again. */
             return;
-	}
+        }
+
+        cf_close(&cfile);
+
+        /* Try to open the merged capture file. */
+        if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
+            /* We couldn't open it; don't dismiss the open dialog box,
+               just leave it around so that the user can, after they
+               dismiss the alert box popped up for the open error,
+               try again. */
+            return;
+        }
 
         /* apply our filter */
         if (dfilter_compile(dfilter_merge_str, &dfp)) {
             cf_set_rfcode(&cfile, dfp);
         }
 
-	switch (cf_read(&cfile)) {
+        switch (cf_read(&cfile)) {
             case CF_READ_OK:
             case CF_READ_ERROR:
                 dirname = get_dirname(utf_16to8(file_name));
@@ -430,10 +430,10 @@ win32_merge_file (HWND h_wnd) {
             case CF_READ_ABORTED:
                 break;
         }
-	} else {
-	g_free( (void *) ofn->lpstrFilter);
-	g_free( (void *) ofn);
-	}
+    } else {
+        g_free( (void *) ofn->lpstrFilter);
+        g_free( (void *) ofn);
+    }
 }
 
 void
@@ -442,11 +442,11 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     TCHAR             file_name[MAX_PATH] = _T("");
     char             *dirname;
     cf_print_status_t status;
-	int    ofnsize;
+    int               ofnsize;
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
     ofnsize = sizeof(OPENFILENAME) + 12;
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -459,11 +459,11 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export File");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
         ofn->Flags |= OFN_SHOWHELP;
     }
@@ -529,12 +529,12 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 		write_failure_alert_box(print_args.file, errno);
 		break;
 	}
-	/* Save the directory name for future file dialogs. */
+        /* Save the directory name for future file dialogs. */
 	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
 	set_last_open_dir(dirname);
-	}
+    }
 
-	g_free( (void *) ofn);
+    g_free( (void *) ofn);
 }
 
 void
@@ -545,7 +545,7 @@ win32_export_raw_file(HWND h_wnd) {
     const guint8 *data_p = NULL;
     const char   *file = NULL;
     int           fd;
-	int           ofnsize;
+    int           ofnsize;
 
     if (!cfile.finfo_selected) {
 	/* This shouldn't happen */
@@ -553,9 +553,9 @@ win32_export_raw_file(HWND h_wnd) {
 	return;
     }
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
     ofnsize = sizeof(OPENFILENAME) + 12;
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -568,11 +568,11 @@ win32_export_raw_file(HWND h_wnd) {
     ofn->nMaxFile = MAX_PATH;
     ofn->lpstrFileTitle = NULL;
     ofn->nMaxFileTitle = 0;
-	ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
+    ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Raw Data");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     if(topic_available(HELP_EXPORT_BYTES_WIN32_DIALOG)) {
         ofn->Flags |= OFN_SHOWHELP;
     }
@@ -587,30 +587,30 @@ win32_export_raw_file(HWND h_wnd) {
      */
 
     if (GetSaveFileName(ofn)) {
-		g_free( (void *) ofn);
-	data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
-		cfile.finfo_selected->start;
+        g_free( (void *) ofn);
+        data_p = tvb_get_ptr(cfile.finfo_selected->ds_tvb, 0, -1) +
+                cfile.finfo_selected->start;
         fd = open(utf_16to8(file_name), O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666);
         if (fd == -1) {
-	    open_failure_alert_box(file, errno, TRUE);
-	    return;
+            open_failure_alert_box(file, errno, TRUE);
+            return;
         }
         if (write(fd, data_p, cfile.finfo_selected->length) < 0) {
-	    write_failure_alert_box(file, errno);
-	    close(fd);
-	    return;
+            write_failure_alert_box(file, errno);
+            close(fd);
+            return;
         }
         if (close(fd) < 0) {
-	    write_failure_alert_box(file, errno);
-	    return;
+            write_failure_alert_box(file, errno);
+            return;
         }
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
-	set_last_open_dir(dirname);
-	} else {
-		g_free( (void *) ofn);
-	}
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
+    } else {
+        g_free( (void *) ofn);
+    }
 }
 
 void
@@ -618,11 +618,11 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
-	int    ofnsize;
+    int    ofnsize;
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
     ofnsize = sizeof(OPENFILENAME) + 12;
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -638,8 +638,8 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Export Color Filters");
     ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = NULL;
     ofn->lpTemplateName = NULL;
@@ -648,16 +648,16 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
 
     /* XXX - Support marked filters */
     if (GetSaveFileName(ofn)) {
-		g_free( (void *) ofn);
-	if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */))
-	    return;
+        g_free( (void *) ofn);
+        if (!color_filters_export(utf_16to8(file_name), filter_list, FALSE /* all filters */))
+            return;
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
-	set_last_open_dir(dirname);
-	} else {
-		g_free( (void *) ofn);
-	}
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
+    } else {
+        g_free( (void *) ofn);
+    }
 }
 
 void
@@ -665,11 +665,11 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     OPENFILENAME *ofn;
     TCHAR  file_name[MAX_PATH] = _T("");
     gchar *dirname;
-	int    ofnsize;
+    int    ofnsize;
 
-	/* see OPENFILENAME comment in win32_open_file */
+    /* see OPENFILENAME comment in win32_open_file */
     ofnsize = sizeof(OPENFILENAME) + 12;
-	ofn = g_malloc0(ofnsize);
+    ofn = g_malloc0(ofnsize);
 
     ofn->lStructSize = ofnsize;
     ofn->hwndOwner = h_wnd;
@@ -685,24 +685,24 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
     ofn->lpstrInitialDir = utf_8to16(get_last_open_dir());
     ofn->lpstrTitle = _T("Wireshark: Import Color Filters");
     ofn->Flags = OFN_ENABLESIZING | OFN_EXPLORER |
-	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
+                 OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = NULL;
     ofn->lpTemplateName = NULL;
 
     /* XXX - Support export limited to selected filters */
     if (GetOpenFileName(ofn)) {
-		g_free( (void *) ofn);
-	if (!color_filters_import(utf_16to8(file_name), color_filters))
-	    return;
+        g_free( (void *) ofn);
+        if (!color_filters_import(utf_16to8(file_name), color_filters))
+            return;
 
-	/* Save the directory name for future file dialogs. */
-	dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
-	set_last_open_dir(dirname);
-	} else {
-		g_free( (void *) ofn);
-	}
+        /* Save the directory name for future file dialogs. */
+        dirname = get_dirname(utf_16to8(file_name));  /* Overwrites cf_name */
+        set_last_open_dir(dirname);
+    } else {
+        g_free( (void *) ofn);
+    }
 }
 
 
@@ -829,123 +829,123 @@ preview_set_filename(HWND of_hwnd, gchar *preview_file) {
     gboolean    is_breaked = FALSE;
 
     if (preview_file != NULL && strlen(preview_file) > 0) {
-	enable = TRUE;
+        enable = TRUE;
     }
 
     for (i = EWFD_PT_FILENAME; i <= EWFD_PTX_ELAPSED; i++) {
-	cur_ctrl = GetDlgItem(of_hwnd, i);
-	if (cur_ctrl) {
-	    EnableWindow(cur_ctrl, enable);
-	}
+        cur_ctrl = GetDlgItem(of_hwnd, i);
+        if (cur_ctrl) {
+            EnableWindow(cur_ctrl, enable);
+        }
     }
 
     for (i = EWFD_PTX_FILENAME; i <= EWFD_PTX_ELAPSED; i++) {
-	cur_ctrl = GetDlgItem(of_hwnd, i);
-	if (cur_ctrl) {
-	    SetWindowText(cur_ctrl, _T("-"));
-	}
+        cur_ctrl = GetDlgItem(of_hwnd, i);
+        if (cur_ctrl) {
+            SetWindowText(cur_ctrl, _T("-"));
+        }
     }
 
     if (enable) {
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FILENAME);
-	SetWindowText(cur_ctrl, utf_8to16(get_basename(preview_file)));
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FILENAME);
+        SetWindowText(cur_ctrl, utf_8to16(get_basename(preview_file)));
 
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-	wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
-	if (cur_ctrl && wth == NULL) {
-	    if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
-		SetWindowText(cur_ctrl, _T("unknown file format"));
-	    } else {
-		SetWindowText(cur_ctrl, _T("error opening file"));
-	    }
-	    return FALSE;
-	}
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
+        wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
+        if (cur_ctrl && wth == NULL) {
+            if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
+                SetWindowText(cur_ctrl, _T("unknown file format"));
+            } else {
+                SetWindowText(cur_ctrl, _T("error opening file"));
+            }
+            return FALSE;
+        }
 
-	/* size */
+        /* size */
         filesize = wtap_file_size(wth, &err);
-	_snwprintf(string_buff, PREVIEW_STR_MAX, _T("%") _T(PRIu64) _T(" bytes"), filesize);
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
-	SetWindowText(cur_ctrl, string_buff);
+        _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%") _T(PRIu64) _T(" bytes"), filesize);
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
+        SetWindowText(cur_ctrl, string_buff);
 
-	/* type */
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-	SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
+        /* type */
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
+        SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_string(wtap_file_type(wth))));
 
-	time(&time_preview);
-	while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-	    phdr = wtap_phdr(wth);
+        time(&time_preview);
+        while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+            phdr = wtap_phdr(wth);
             cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
-	    if(packet == 0) {
-		start_time  = cur_time;
-		stop_time = cur_time;
-	    }
-	    if (cur_time < start_time) {
-		start_time = cur_time;
-	    }
-	    if (cur_time > stop_time){
-		stop_time = cur_time;
-	    }
-	    packet++;
-	    if(packet%100) {
-		time(&time_current);
-		if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
-		    is_breaked = TRUE;
-		    break;
-		}
-	    }
-	}
+            if(packet == 0) {
+                start_time  = cur_time;
+                stop_time = cur_time;
+            }
+            if (cur_time < start_time) {
+                start_time = cur_time;
+            }
+            if (cur_time > stop_time){
+                stop_time = cur_time;
+            }
+            packet++;
+            if(packet%100) {
+                time(&time_current);
+                if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
+                    is_breaked = TRUE;
+                    break;
+                }
+            }
+        }
 
-	if(err != 0) {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
-	    cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
-	    SetWindowText(cur_ctrl, string_buff);
-	    wtap_close(wth);
-	    return TRUE;
-	}
+        if(err != 0) {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
+            SetWindowText(cur_ctrl, string_buff);
+            wtap_close(wth);
+            return TRUE;
+        }
 
-	/* packet count */
-	if(is_breaked) {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
-	} else {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
-	}
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
-	SetWindowText(cur_ctrl, string_buff);
+        /* packet count */
+        if(is_breaked) {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
+        } else {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
+        }
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
+        SetWindowText(cur_ctrl, string_buff);
 
-	/* first packet */
-	ti_time = (long)start_time;
-	ti_tm = localtime( &ti_time );
-	if(ti_tm) {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX,
-		     _T("%04d-%02d-%02d %02d:%02d:%02d"),
-		     ti_tm->tm_year + 1900,
-		     ti_tm->tm_mon + 1,
-		     ti_tm->tm_mday,
-		     ti_tm->tm_hour,
-		     ti_tm->tm_min,
-		     ti_tm->tm_sec);
-	} else {
-		_snwprintf(string_buff, PREVIEW_STR_MAX, _T("?"));
-    }
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
-	SetWindowText(cur_ctrl, string_buff);
+        /* first packet */
+        ti_time = (long)start_time;
+        ti_tm = localtime( &ti_time );
+        if(ti_tm) {
+            _snwprintf(string_buff, PREVIEW_STR_MAX,
+                     _T("%04d-%02d-%02d %02d:%02d:%02d"),
+                     ti_tm->tm_year + 1900,
+                     ti_tm->tm_mon + 1,
+                     ti_tm->tm_mday,
+                     ti_tm->tm_hour,
+                     ti_tm->tm_min,
+                     ti_tm->tm_sec);
+        } else {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("?"));
+        }
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FIRST_PKT);
+        SetWindowText(cur_ctrl, string_buff);
 
-	/* elapsed time */
-	elapsed_time = (unsigned int)(stop_time-start_time);
-	if(elapsed_time/86400) {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
-	    elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-	} else {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
-	    elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
-	}
-	if(is_breaked) {
-	    _snwprintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
-	}
-	cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
-	SetWindowText(cur_ctrl, string_buff);
+        /* elapsed time */
+        elapsed_time = (unsigned int)(stop_time-start_time);
+        if(elapsed_time/86400) {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u days %02u:%02u:%02u"),
+            elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        } else {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("%02u:%02u:%02u"),
+            elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+        }
+        if(is_breaked) {
+            _snwprintf(string_buff, PREVIEW_STR_MAX, _T("unknown"));
+        }
+        cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_ELAPSED);
+        SetWindowText(cur_ctrl, string_buff);
 
-	wtap_close(wth);
+        wtap_close(wth);
     }
 
     return TRUE;
@@ -1136,21 +1136,21 @@ file_type_from_list_index(gboolean save, int index) {
     /* Check all file types. */
     curr_index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-	if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
-	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-	    if (!can_save_with_wiretap(ft))
-		continue;       /* We can't. */
-	}
+        if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
+            if (!can_save_with_wiretap(ft))
+                continue;       /* We can't. */
+        }
 
-	/* OK, we can write it out in this type. */
-    if(wtap_file_type_string(ft) == NULL) {
-        continue;
-    }
+        /* OK, we can write it out in this type. */
+        if(wtap_file_type_string(ft) == NULL) {
+            continue;
+        }
 
-    curr_index++;
-    if(curr_index == index) {
-        return ft;
-    }
+        curr_index++;
+        if(curr_index == index) {
+            return ft;
+        }
     }
 
     return -1;
@@ -1178,7 +1178,7 @@ build_file_type_list(gboolean save, int *item_to_select) {
     }
 
     /* append the "All Files" entry */
-	if (!save) {
+    if (!save) {
         str16 = utf_8to16("All Files (*.*)");
         sa = g_array_append_vals(sa, str16, strlen("All Files (*.*)"));
         sa = g_array_append_val(sa, zero);
@@ -1190,26 +1190,26 @@ build_file_type_list(gboolean save, int *item_to_select) {
     /* Check all file types. */
     index = 1;  /* the index is one based! */
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-	if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
-	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-	    if (!can_save_with_wiretap(ft))
-		continue;       /* We can't. */
-	}
+        if (save && (!packet_range_process_all(&range) || ft != cfile.cd_t)) {
+            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
+            if (!can_save_with_wiretap(ft))
+                continue;       /* We can't. */
+        }
 
-	/* OK, we can write it out in this type. */
-    if(wtap_file_type_string(ft) != NULL) {
-        g_string_printf(str, "%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
-    } else {
-        continue;
-    }
-    str16 = utf_8to16(str->str);
-    sa = g_array_append_vals(sa, str16, strlen(str->str));
-    sa = g_array_append_val(sa, zero);
+        /* OK, we can write it out in this type. */
+        if(wtap_file_type_string(ft) != NULL) {
+            g_string_printf(str, "%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
+        } else {
+            continue;
+        }
+        str16 = utf_8to16(str->str);
+        sa = g_array_append_vals(sa, str16, strlen(str->str));
+        sa = g_array_append_val(sa, zero);
 
-    g_string_printf(str, "%s", wtap_file_extensions_string(ft));
-    str16 = utf_8to16(str->str);
-    sa = g_array_append_vals(sa, str16, strlen(str->str));
-    sa = g_array_append_val(sa, zero);
+        g_string_printf(str, "%s", wtap_file_extensions_string(ft));
+        str16 = utf_8to16(str->str);
+        sa = g_array_append_vals(sa, str16, strlen(str->str));
+        sa = g_array_append_val(sa, zero);
 
 	if (ft == cfile.cd_t && item_to_select != NULL) {
 	    /* Default to the same format as the file, if it's supported. */
@@ -1244,26 +1244,26 @@ build_file_format_list(HWND sf_hwnd) {
     /* Check all file types. */
     index = 0;
     for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-	if (!packet_range_process_all(&range) || ft != cfile.cd_t) {
-	    /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
-	    if (!can_save_with_wiretap(ft))
-		continue;       /* We can't. */
-	}
+        if (!packet_range_process_all(&range) || ft != cfile.cd_t) {
+            /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
+            if (!can_save_with_wiretap(ft))
+                continue;       /* We can't. */
+        }
 
-	/* OK, we can write it out in this type. */
-    if(wtap_file_extensions_string(ft) != NULL) {
-        s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
-    } else {
-        s = g_strdup_printf("%s (*.*)", wtap_file_type_string(ft));
-    }
-	SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
-    g_free(s);
-	SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
-	if (ft == filetype) {
-	    /* Default to the same format as the file, if it's supported. */
-	    item_to_select = index;
-	}
-	index++;
+        /* OK, we can write it out in this type. */
+        if(wtap_file_extensions_string(ft) != NULL) {
+            s = g_strdup_printf("%s (%s)", wtap_file_type_string(ft), wtap_file_extensions_string(ft));
+        } else {
+            s = g_strdup_printf("%s (*.*)", wtap_file_type_string(ft));
+        }
+        SendMessage(format_cb, CB_ADDSTRING, 0, (LPARAM) utf_8to16(s));
+        g_free(s);
+        SendMessage(format_cb, CB_SETITEMDATA, (LPARAM) index, (WPARAM) ft);
+        if (ft == filetype) {
+            /* Default to the same format as the file, if it's supported. */
+            item_to_select = index;
+        }
+        index++;
     }
 
     SendMessage(format_cb, CB_SETCURSEL, (WPARAM) item_to_select, 0);
