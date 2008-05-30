@@ -38,6 +38,7 @@
 #if HAVE_STDLIB_H
 #include <stdlib.h>
 #endif
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
