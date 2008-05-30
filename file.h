@@ -461,10 +461,10 @@ void cf_unmark_frame(capture_file *cf, frame_data *frame);
  * Convert error number and info to a complete message.
  *
  * @param err the error number
- * @param err_info the additional info about this error (e.g. filename)
+ * @param err_info a string with additional details about this error
  * @return statically allocated error message
  */
-char *cf_read_error_message(int err, const gchar *err_info);
+char *cf_read_error_message(int err, gchar *err_info);
 
 /**
  * Merge two (or more) capture files into one.

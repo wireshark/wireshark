@@ -3787,7 +3787,7 @@ file_rename_error_message(int err)
 }
 
 char *
-cf_read_error_message(int err, const gchar *err_info)
+cf_read_error_message(int err, gchar *err_info)
 {
   static char errmsg_errno[1024+1];
 
