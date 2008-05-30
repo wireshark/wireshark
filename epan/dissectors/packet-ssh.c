@@ -862,13 +862,13 @@ ssh_set_mac_length(struct ssh_flow_data *global_data, gchar *mac_name)
 	if ((size_str=g_strrstr(mac_name,"-")) && ((size=atoi(size_str+1)))) {
 		global_data->mac_length = size;
 	}
-	else if (!g_strcmp0(mac_name,"hmac-sha1")) {
+	else if (strcmp(mac_name,"hmac-sha1") == 0) {
 		global_data->mac_length = 20;
 	}
-	else if (!g_strcmp0(mac_name,"hmac-md5")) {
+	else if (strcmp(mac_name,"hmac-md5") == 0) {
 		global_data->mac_length = 12;
 	}
-	else if (!g_strcmp0(mac_name,"none")) {
+	else if (strcmp(mac_name,"none") == 0) {
 		global_data->mac_length = 0;
 	}
 }
@@ -876,7 +876,13 @@ ssh_set_mac_length(struct ssh_flow_data *global_data, gchar *mac_name)
 static gint
 ssh_gslist_compare_strings(gconstpointer a, gconstpointer b)
 {
-	return g_strcmp0((char*)a,(char*)b);
+	if (a == NULL && b == NULL)
+		return 0;
+	if (a == NULL)
+		return -1;
+	if (b == NULL)
+		return 1;
+	return strcmp((char*)a,(char*)b);
 }
 
 /* expects that *result is NULL */
