@@ -2258,6 +2258,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       cmdarg_err("\"%s\" has a packet with a network type that TShark doesn't support.\n(%s)",
                  cf->filename, err_info);
+      g_free(err_info);
       break;
 
     case WTAP_ERR_CANT_READ:
@@ -2273,6 +2274,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     case WTAP_ERR_BAD_RECORD:
       cmdarg_err("\"%s\" appears to be damaged or corrupt.\n(%s)",
                  cf->filename, err_info);
+      g_free(err_info);
       break;
 
     default:
