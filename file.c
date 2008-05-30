@@ -1363,7 +1363,7 @@ cf_merge_files(char **out_filenamep, int in_file_count,
        have to. */
     return CF_ERROR;
   } else
-    return CF_READ_OK;
+    return CF_OK;
 }
 
 cf_status_t
@@ -1904,7 +1904,7 @@ cf_retap_packets(capture_file *cf, gboolean do_columns)
                                     do_columns ? &cf->cinfo : NULL)) {
   case PSP_FINISHED:
     /* Completed successfully. */
-    return CF_OK;
+    return CF_READ_OK;
 
   case PSP_STOPPED:
     /* Well, the user decided to abort the refiltering.
