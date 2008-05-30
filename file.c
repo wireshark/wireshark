@@ -3794,15 +3794,17 @@ cf_read_error_message(int err, const gchar *err_info)
   switch (err) {
 
   case WTAP_ERR_UNSUPPORTED_ENCAP:
-      g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+    g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                "The file \"%%s\" has a packet with a network type that Wireshark doesn't support.\n(%s)",
                err_info);
-      break;
+    g_free(err_info);
+    break;
 
   case WTAP_ERR_BAD_RECORD:
     g_snprintf(errmsg_errno, sizeof(errmsg_errno),
 	     "An error occurred while reading from the file \"%%s\": %s.\n(%s)",
 	     wtap_strerror(err), err_info);
+    g_free(err_info);
     break;
 
   default:
