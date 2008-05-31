@@ -12,3 +12,4 @@ dpkg --listfiles $PACKAGE |
 	xargs rm -f >&2
 
 #DEBHELPER#
+

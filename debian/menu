@@ -1,2 +1,0 @@
-?package(ethereal):needs=X11 section=Apps/Net title="Ethereal" \
-	command="/usr/bin/ethereal"

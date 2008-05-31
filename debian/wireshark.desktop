@@ -5,7 +5,7 @@
 # The entries are in the order they are listed in version 0.9.4
 Type=Application
 Version=1.0
-Name=Wireshark (as root)
+Name=Wireshark
 GenericName=Network Analyzer
 GenericName[af]=Netwerk Analiseerder
 GenericName[az]=Şəbəkə Analiz Proqramı
@@ -68,14 +68,13 @@ Comment[fr]=Analyseur de trafic réseau
 Comment[fi]=Verkkoliikenne analysaattori
 Comment[sv]=Nätverkstrafikanalysator
 Icon=hi48-app-wireshark.png
-TryExec=su-to-root
-Exec=su-to-root -X -c /usr/bin/wireshark
+Exec=/usr/bin/wireshark
 Path=
 Terminal=false
 MimeType=
 Categories=GNOME;Network;
 # Found in Suse 9.1:
-X-KDE-SubstituteUID=true
+# X-KDE-SubstituteUID=true
 # Deprecated:
 # TerminalOptions=
 # BinaryPattern=wireshark

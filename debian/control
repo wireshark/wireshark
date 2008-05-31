@@ -1,9 +1,11 @@
 Source: wireshark
 Section: net
 Priority: optional
-Maintainer: Frederic Peters <fpeters@debian.org>
-Standards-Version: 3.7.2.0
-Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 5.0.37.2), libtool, python, automake1.9, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], bison, libgnutls-dev, python-support (>= 0.3), libportaudio-dev | portaudio19-dev, libkrb5-dev
+Maintainer: Wireshark Self-made package <wireshark@example.com>
+X-Orig-Maintainer: Frederic Peters <fpeters@debian.org>
+X-Orig-Uploaders: Joost Yervante Damad <andete@debian.org>
+Standards-Version: 3.7.3.0
+Build-Depends: libgtk2.0-dev (>=2.4.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 6), libtool, python, automake1.9, autoconf, autotools-dev, libadns1-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libpcre3-dev, libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], bison, libgnutls-dev, python-support (>= 0.3), portaudio19-dev, libkrb5-dev, liblua5.1-0-dev, libsmi2-dev
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
 XS-Python-Version: all
 
@@ -65,57 +67,4 @@ Description: network traffic analyser (development tools)
  .
  This package provides idl2wrs and other necessary files to develop
  new packet dissectors.
-
-Package: ethereal-common
-Architecture: any
-Depends: wireshark-common (= ${binary:Version})
-Description: dummy upgrade package for ethereal -> wireshark
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
- .
- It was previously named ethereal.  This is a transitional package
- so ethereal users get wireshark on upgrades.  This package handles
- ethereal-common -> wireshark-common.  It can be safely removed.
-
-Package: ethereal-dev
-Architecture: any
-Section: devel
-Depends: wireshark-dev (= ${binary:Version})
-Description: dummy upgrade package for ethereal -> wireshark
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
- .
- It was previously named ethereal.  This is a transitional package
- so ethereal users get wireshark on upgrades.  This package handles
- ethereal-dev -> wireshark-dev.  It can be safely removed.
-
-Package: ethereal
-Architecture: any
-Depends: wireshark (= ${binary:Version})
-Description: dummy upgrade package for ethereal -> wireshark
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
- .
- It was previously named ethereal.  This is a transitional package
- so ethereal users get wireshark on upgrades.  This package handles
- ethereal -> wireshark.  It can be safely removed.
-
-Package: tethereal
-Architecture: any
-Depends: tshark (= ${binary:Version})
-Description: dummy upgrade package for ethereal -> wireshark
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
- .
- It was previously named ethereal.  This is a transitional package
- so ethereal users get wireshark on upgrades.  This package handles
- tethereal -> tshark.  It can be safely removed.
 
