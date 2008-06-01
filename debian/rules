@@ -1,5 +1,5 @@
 #!/usr/bin/make -f
-# MAde with the aid of dh_make, by Craig Small
+# Made with the aid of dh_make, by Craig Small
 # Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
 # Some lines taken from debmake, by Cristoph Lameter.
 
