@@ -96,6 +96,32 @@ capture_dev_user_descr_find(const gchar *if_name)
 		return NULL;
 }
 
+gint
+capture_dev_user_linktype_find(const gchar *if_name)
+{
+	gchar *p, *next;
+	gint linktype;
+
+	if (prefs.capture_devices_linktypes == NULL) {
+		/* There are no link-layer header types */
+		return -1;
+	}
+
+	if ((p = strstr(prefs.capture_devices_linktypes, if_name)) == NULL) {
+	  	/* There are, but there isn't one for this interface. */
+		return -1;
+	}
+
+	p += strlen(if_name) + 1;
+	linktype = strtol(p, &next, 10);
+	if (next == p || *next != ')' || linktype < 0) {
+		/* Syntax error */
+		return -1;
+	}
+
+	return linktype;
+}
+
 /*
  * Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,

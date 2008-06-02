@@ -1178,6 +1178,7 @@ init_prefs(void) {
 
 /* set the default values for the capture dialog box */
   prefs.capture_device           = NULL;
+  prefs.capture_devices_linktypes= NULL;
   prefs.capture_devices_descr    = NULL;
   prefs.capture_devices_hide     = NULL;
   prefs.capture_prom_mode        = TRUE;
@@ -1222,6 +1223,8 @@ prefs_reset(void)
     g_free(prefs.gui_window_title);
   if (prefs.capture_device)
     g_free(prefs.capture_device);
+  if (prefs.capture_devices_linktypes)
+    g_free(prefs.capture_devices_linktypes);
   if (prefs.capture_devices_descr)
     g_free(prefs.capture_devices_descr);
   if (prefs.capture_devices_hide)
@@ -1661,6 +1664,7 @@ prefs_is_capture_device_hidden(const char *name)
 
 /*  values for the capture dialog box */
 #define PRS_CAP_DEVICE        "capture.device"
+#define PRS_CAP_DEVICES_LINKTYPES "capture.devices_linktypes"
 #define PRS_CAP_DEVICES_DESCR "capture.devices_descr"
 #define PRS_CAP_DEVICES_HIDE  "capture.devices_hide"
 #define PRS_CAP_PROM_MODE     "capture.prom_mode"
@@ -2045,6 +2049,10 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_)
     if (prefs.capture_device != NULL)
       g_free(prefs.capture_device);
     prefs.capture_device = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_CAP_DEVICES_LINKTYPES) == 0) {
+    if (prefs.capture_devices_linktypes != NULL)
+      g_free(prefs.capture_devices_linktypes);
+    prefs.capture_devices_linktypes = g_strdup(value);
   } else if (strcmp(pref_name, PRS_CAP_DEVICES_DESCR) == 0) {
     if (prefs.capture_devices_descr != NULL)
       g_free(prefs.capture_devices_descr);
@@ -2798,6 +2806,13 @@ write_prefs(char **pf_path_return)
     fprintf(pf, PRS_CAP_DEVICE ": %s\n", prefs.capture_device);
   }
 
+  if (prefs.capture_devices_linktypes != NULL) {
+    fprintf(pf, "\n# Interface link-layer header types.\n");
+    fprintf(pf, "# A decimal number for the DLT.\n");
+    fprintf(pf, "# Ex: en0(1),en1(143),...\n");
+    fprintf(pf, PRS_CAP_DEVICES_LINKTYPES ": %s\n", prefs.capture_devices_linktypes);
+  }
+
   if (prefs.capture_devices_descr != NULL) {
     fprintf(pf, "\n# Interface descriptions.\n");
     fprintf(pf, "# Ex: eth0(eth0 descr),eth1(eth1 descr),...\n");
@@ -2948,6 +2963,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->console_log_level = src->console_log_level;
 /*  values for the capture dialog box */
   dest->capture_device = g_strdup(src->capture_device);
+  dest->capture_devices_linktypes = g_strdup(src->capture_devices_linktypes);
   dest->capture_devices_descr = g_strdup(src->capture_devices_descr);
   dest->capture_devices_hide = g_strdup(src->capture_devices_hide);
   dest->capture_prom_mode = src->capture_prom_mode;
@@ -2990,6 +3006,10 @@ free_prefs(e_prefs *pr)
   if (pr->capture_device != NULL) {
     g_free(pr->capture_device);
     pr->capture_device = NULL;
+  }
+  if (pr->capture_devices_linktypes != NULL) {
+    g_free(pr->capture_devices_linktypes);
+    pr->capture_devices_linktypes = NULL;
   }
   if (pr->capture_devices_descr != NULL) {
     g_free(pr->capture_devices_descr);

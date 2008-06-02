@@ -159,7 +159,7 @@
  */
 static GtkWidget *cap_open_w;
 static GtkWidget * dl_hdr_menu=NULL;
-static guint linktype_history=0;
+static GHashTable *linktype_history=NULL;
 
 static void
 capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
@@ -225,6 +225,8 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   int err;
   GtkWidget *lt_menu, *lt_menu_item;
   GList *lt_entry;
+  gint linktype, linktype_select, linktype_count;
+  gint *linktype_p;
   data_link_info_t *data_link_info;
   gchar *linktype_menu_label;
   guint num_supported_link_types;
@@ -248,20 +250,24 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   if_text = g_strstrip(entry_text);
   if_name = g_strdup(get_if_name(if_text));
 
+  linktype_p = g_hash_table_lookup (linktype_history, if_name);
+  if (linktype_p) {
+    linktype = *linktype_p;
+  } else {
+    linktype = capture_dev_user_linktype_find(if_name);
+  }
+
 #ifdef HAVE_AIRPCAP
   /* is it an airpcap interface??? */
   /* retrieve the advanced button pointer */
   advanced_bt = g_object_get_data(G_OBJECT(entry),AIRPCAP_OPTIONS_ADVANCED_KEY);
   airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,if_name);
   airpcap_enable_toolbar_widgets(airpcap_tb,FALSE);
-  if( airpcap_if_selected != NULL)
-	{
-	gtk_widget_set_sensitive(advanced_bt,TRUE);
-	}
-  else
-	{
-	gtk_widget_set_sensitive(advanced_bt,FALSE);
-	}
+  if (airpcap_if_selected != NULL) {
+    gtk_widget_set_sensitive(advanced_bt,TRUE);
+  } else {
+    gtk_widget_set_sensitive(advanced_bt,FALSE);
+  }
 #endif
 
   /*
@@ -328,7 +334,10 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
   }
   g_free(entry_text);
   g_free(if_name);
+
   num_supported_link_types = 0;
+  linktype_select = 0;
+  linktype_count = 0;
   for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
     data_link_info = lt_entry->data;
     if (data_link_info->description != NULL) {
@@ -340,21 +349,34 @@ set_link_type_list(GtkWidget *linktype_om, GtkWidget *entry)
     } else {
       /* Not supported - tell them about it but don't let them select it. */
       linktype_menu_label = g_strdup_printf("%s (not supported)",
-                                            data_link_info->name);
+					    data_link_info->name);
       lt_menu_item = gtk_menu_item_new_with_label(linktype_menu_label);
       g_free(linktype_menu_label);
-      gtk_widget_set_sensitive(lt_menu_item, FALSE);
+    }
+    if (data_link_info->dlt == linktype) {
+      /* Found a matching dlt, selecth this */
+      linktype_select = linktype_count;
     }
     gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
     gtk_widget_show(lt_menu_item);
+    linktype_count++;
   }
-  if (lt_list != NULL)
+  if (lt_list == NULL) {
+    lt_menu_item = gtk_menu_item_new_with_label("(not supported)");
+    gtk_menu_append(GTK_MENU(lt_menu), lt_menu_item);
+    gtk_widget_show(lt_menu_item);
+  } else {
     free_pcap_linktype_list(lt_list);
+  }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(linktype_om), lt_menu);
   gtk_widget_set_sensitive(linktype_lb, num_supported_link_types >= 2);
   gtk_widget_set_sensitive(linktype_om, num_supported_link_types >= 2);
+
+  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(linktype));
+  capture_opts->linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
+
   /* Restore the menu to the last index used */
-  gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_history);
+  gtk_option_menu_set_history(GTK_OPTION_MENU(linktype_om),linktype_select);
   if_ip_lb = g_object_get_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY);
   if(ips == 0) {
     g_string_append(ip_str, "unknown");
@@ -413,7 +435,7 @@ static GtkWidget *time_unit_option_menu_new(guint32 value) {
         }
     }
 
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
 
     return unit_om;
 }
@@ -509,7 +531,7 @@ static GtkWidget *size_unit_option_menu_new(guint32 value) {
         }
     }
 
-	gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
+    gtk_option_menu_set_menu(GTK_OPTION_MENU(unit_om), menu);
 
     return unit_om;
 }
@@ -951,7 +973,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   guint32       value;
   gchar         *cap_title;
   gchar         *if_device;
-
 #ifdef HAVE_AIRPCAP
   GtkWidget		*decryption_cm;
 #endif
@@ -1107,6 +1128,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1)); */
   g_object_set_data(G_OBJECT(linktype_om), E_CAP_IFACE_KEY, if_ip_lb);
   dl_hdr_menu=NULL;
+  if (linktype_history == NULL) {
+    linktype_history = g_hash_table_new(g_str_hash, g_str_equal);
+  }
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
   /*
    * XXX - in some cases, this is "multiple link-layer header types", e.g.
@@ -1260,15 +1284,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb),airpcap_tb);
   g_object_set_data(G_OBJECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry)),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
 
-  if(airpcap_if_selected != NULL)
-	{
-	/* It is an airpcap interface */
-	gtk_widget_set_sensitive(advanced_bt,TRUE);
-	}
-  else
-	{
-	gtk_widget_set_sensitive(advanced_bt,FALSE);
-	}
+  if(airpcap_if_selected != NULL) {
+    /* It is an airpcap interface */
+    gtk_widget_set_sensitive(advanced_bt,TRUE);
+  } else {
+    gtk_widget_set_sensitive(advanced_bt,FALSE);
+  }
 
   gtk_box_pack_start(GTK_BOX(linktype_hb),advanced_bt,FALSE,FALSE,0);
   gtk_widget_show(advanced_bt);
@@ -1822,6 +1843,8 @@ void
 capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   gpointer  dialog;
+  gchar *if_name;
+  gint *linktype_p = NULL;
 
 #ifdef HAVE_AIRPCAP
   airpcap_if_active = airpcap_if_selected;
@@ -1831,12 +1854,11 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef _WIN32
   /* Is WPcap loaded? */
   if (!has_wpcap) {
-      char * err_msg = cant_load_winpcap_err("Wireshark");
+    char * err_msg = cant_load_winpcap_err("Wireshark");
 
-	  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-          err_msg);
-      g_free(err_msg);
-	  return;
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, err_msg);
+    g_free(err_msg);
+    return;
   }
 #endif
 
@@ -1844,6 +1866,28 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
   if(cap_open_w) {
     capture_dlg_prep(cap_open_w);
     window_destroy(GTK_WIDGET(cap_open_w));
+  }
+
+  if (capture_opts->iface == NULL) {
+    gchar *if_device = g_strdup(prefs.capture_device);
+    if_name = g_strdup(get_if_name(if_device));
+    g_free (if_device);
+  } else {
+    if_name = g_strdup(capture_opts->iface);
+  }
+
+  if (linktype_history != NULL) {
+    linktype_p = g_hash_table_lookup(linktype_history, if_name);
+    if (linktype_p == NULL) {
+      linktype_p = g_malloc(sizeof (int));
+      g_hash_table_insert(linktype_history, if_name, linktype_p);
+    } else {
+      g_free(if_name);
+    }
+    *linktype_p = capture_opts->linktype;
+  } else {
+    capture_opts->linktype = capture_dev_user_linktype_find(if_name);
+    g_free(if_name);
   }
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
@@ -1872,10 +1916,8 @@ select_link_type_cb(GtkWidget *w, gpointer data)
   if (old_linktype != new_linktype) {
     g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(new_linktype));
     capture_opts->linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
-    linktype_history=MAX(gtk_option_menu_get_history(GTK_OPTION_MENU(linktype_om)), 0);
-
   }
- }
+}
 
 #ifdef HAVE_PCAP_REMOTE
 /* user selected an interface type (local/remote), convert to internal value) */
@@ -2247,11 +2289,8 @@ static void
 capture_prep_interface_changed_cb(GtkWidget *entry, gpointer argp)
 {
   GtkWidget *linktype_om = argp;
+
   set_link_type_list(linktype_om, entry);
-  /* Default to "use the default" */
-  g_object_set_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
-  capture_opts->linktype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(linktype_om), E_CAP_OM_LT_VALUE_KEY));
-  linktype_history=0;
 }
 
 /*

@@ -59,24 +59,28 @@
 #define IFOPTS_CALLER_PTR_KEY	"ifopts_caller_ptr"
 #define IFOPTS_DIALOG_PTR_KEY	"ifopts_dialog_ptr"
 #define IFOPTS_TABLE_ROWS 2
-#define IFOPTS_CLIST_COLS 4
+#define IFOPTS_CLIST_COLS 5
 #define IFOPTS_MAX_DESCR_LEN 128
 #define IFOPTS_IF_NOSEL -1
 
 /* interface options dialog */
-static GtkWidget *cur_clist, *if_dev_lb, *if_name_lb, *if_descr_te, *if_hide_cb;
+static GtkWidget *cur_clist, *if_dev_lb, *if_name_lb, *if_linktype_cb, *if_descr_te, *if_hide_cb;
 static gint ifrow;						/* current interface row selected */
+static int num_linktypes;
+static gboolean linktypes_nochange;
 
 static void ifopts_edit_cb(GtkWidget *w, gpointer data);
 static void ifopts_edit_ok_cb(GtkWidget *w, gpointer parent_w);
 static void ifopts_edit_destroy_cb(GtkWidget *win, gpointer data);
 static void ifopts_edit_ifsel_cb(GtkWidget *clist, gint row, gint column,
     GdkEventButton *event, gpointer data);
+static void ifopts_edit_linktype_changed_cb(GtkComboBox *ed, gpointer udata);
 static void ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata);
 static void ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata);
 static void ifopts_options_add(GtkCList *clist, if_info_t *if_info);
 static void ifopts_options_free(gchar *text[]);
 static void ifopts_if_clist_add(void);
+static void ifopts_write_new_linklayer(void);
 static void ifopts_write_new_descr(void);
 static void ifopts_write_new_hide(void);
 
@@ -89,7 +93,7 @@ capture_prefs_show(void)
 	GList		*if_list, *combo_list;
 	int		err;
 	int		row = 0;
-	GtkTooltips *tooltips = gtk_tooltips_new();
+	GtkTooltips	*tooltips = gtk_tooltips_new();
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
@@ -217,7 +221,7 @@ capture_prefs_fetch(GtkWidget *w)
 
 	prefs.capture_auto_scroll = GTK_TOGGLE_BUTTON (auto_scroll_cb)->active;
 
-    prefs.capture_show_info = !(GTK_TOGGLE_BUTTON (show_info_cb)->active);
+	prefs.capture_show_info = !(GTK_TOGGLE_BUTTON (show_info_cb)->active);
 }
 
 void
@@ -249,9 +253,9 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 {
 	GtkWidget	*ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
 				*cur_opts_fr, *ed_opts_fr, *main_vb,
-				*if_descr_lb, *if_hide_lb,
+				*if_linktype_lb, *if_descr_lb, *if_hide_lb,
 				*bbox, *ok_bt, *cancel_bt;
-	const gchar *cur_titles[] = { "Device", "Description", "Comment", "Hide?" };
+	const gchar *cur_titles[] = { "Device", "Description", "Default link-layer", "Comment", "Hide?", "" };
 	int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
@@ -267,9 +271,9 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create a new dialog */
 	ifopts_edit_dlg = dlg_conf_window_new("Wireshark: Preferences: Interface Options");
-    gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 300);
+	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 340);
 
-    main_vb = gtk_vbox_new(FALSE, 1);
+	main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
 	gtk_widget_show(main_vb);
@@ -291,7 +295,8 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	cur_clist = gtk_clist_new_with_titles(IFOPTS_CLIST_COLS, (gchar **) cur_titles);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 1, 230);
 	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 2, 260);
-	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 40);
+	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 3, 260);
+	gtk_clist_set_column_width(GTK_CLIST(cur_clist), 4, 40);
 	gtk_clist_column_titles_passive(GTK_CLIST(cur_clist));
 	gtk_container_add(GTK_CONTAINER(cur_scr_win), cur_clist);
 	g_signal_connect(cur_clist, "select_row", G_CALLBACK(ifopts_edit_ifsel_cb), NULL);
@@ -299,7 +304,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* add interface names to cell */
 	ifopts_if_clist_add();
-    gtk_clist_columns_autosize(GTK_CLIST(cur_clist));
+	gtk_clist_columns_autosize(GTK_CLIST(cur_clist));
 
 	/* initialize variable that saves currently selected row in "if_clist" */
 	ifrow = IFOPTS_IF_NOSEL;
@@ -330,7 +335,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_dev_lb, 1, 2, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_dev_lb), 0.0, 0.5);
 	gtk_widget_show(if_dev_lb);
-    row++;
+	row++;
 
 	if_name_lb = gtk_label_new("Description:");
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 0, 1, row, row+1);
@@ -341,7 +346,21 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_name_lb, 1, 2, row, row+1);
 	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 0.0, 0.5);
 	gtk_widget_show(if_name_lb);
-    row++;
+	row++;
+
+	if_linktype_lb = gtk_label_new("Default link-layer header type:");
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_lb, 0, 1, row, row+1);
+	gtk_misc_set_alignment(GTK_MISC(if_name_lb), 1.0, 0.5);
+	gtk_widget_show(if_linktype_lb);
+
+	if_linktype_cb = gtk_combo_box_new_text();
+	num_linktypes = 0;
+	linktypes_nochange = FALSE;
+	g_signal_connect(if_linktype_cb, "changed", G_CALLBACK(ifopts_edit_linktype_changed_cb),
+			cur_clist);
+	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_linktype_cb, 1, 2, row, row+1);
+	gtk_widget_show(if_linktype_cb);
+	row++;
 
 	/* create interface description label and text entry */
 	if_descr_lb = gtk_label_new("Comment:");
@@ -355,7 +374,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_entry_set_max_length(GTK_ENTRY(if_descr_te), IFOPTS_MAX_DESCR_LEN);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), if_descr_te, 1, 2, row, row+1);
 	gtk_widget_show(if_descr_te);
-    row++;
+	row++;
 
 	/* create hide interface label and button */
 	if_hide_lb = gtk_label_new("Hide interface?:");
@@ -394,11 +413,11 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	/* Set the key for the caller to point to us */
 	g_object_set_data(G_OBJECT(caller), IFOPTS_DIALOG_PTR_KEY, ifopts_edit_dlg);
 
-    /* select the first row in if list, all option fields must exist for this */
+	/* select the first row in if list, all option fields must exist for this */
 	gtk_clist_select_row(GTK_CLIST(cur_clist), 0, -1);
 
 	gtk_widget_show(ifopts_edit_dlg);
-    window_present(ifopts_edit_dlg);
+	window_present(ifopts_edit_dlg);
 }
 
 /*
@@ -408,6 +427,9 @@ static void
 ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 {
 	if (ifrow != IFOPTS_IF_NOSEL) {
+		/* create/write new interfaces link-layer string */
+		ifopts_write_new_linklayer();
+
 		/* create/write new interfaces description string */
 		ifopts_write_new_descr();
 
@@ -436,6 +458,34 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 	}
 }
 
+static int
+ifopts_description_to_val (const char *if_name, const char *descr) 
+{
+	data_link_info_t *data_link_info;
+	GList *lt_list, *lt_entry;
+	int dlt = -1;
+
+	lt_list = capture_pcap_linktype_list(if_name, NULL);
+	for (lt_entry = g_list_next(lt_list); lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+		data_link_info = lt_entry->data;
+		if (data_link_info->description) {
+			if (strcmp(data_link_info->description, descr) == 0) {
+				dlt = data_link_info->dlt;
+				break;
+			}
+		} else {
+			if (strcmp(data_link_info->name, descr) == 0) {
+				dlt = data_link_info->dlt;
+				break;
+			}
+		}
+	}
+	if (lt_list)
+	  free_pcap_linktype_list(lt_list);
+
+	return dlt;
+}
+
 /*
  * Interface selected callback; update displayed widgets.
  */
@@ -447,37 +497,96 @@ ifopts_edit_ifsel_cb(GtkWidget		*clist _U_,
 					 gpointer		data _U_)
 {
 	gchar *text;
+	gchar *if_name, *linktype;
+	data_link_info_t *data_link_info;
+	GList *lt_list, *lt_entry;
+	gint selected = 0;
 
 	/* save currently selected row */
 	ifrow = row;
 
 	/* get/display the interface device from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 0, &text);
-    /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = g_strdup(text);
-	gtk_label_set_text(GTK_LABEL(if_dev_lb), text);
-    g_free(text);
+	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
+	if_name = g_strdup(text);
+	gtk_label_set_text(GTK_LABEL(if_dev_lb), if_name);
 
 	/* get/display the interface name from current CList */
 	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 1, &text);
-    /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = g_strdup(text);
+	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
+	text = g_strdup(text);
 	gtk_label_set_text(GTK_LABEL(if_name_lb), text);
-    g_free(text);
+	g_free(text);
 
+	/* get/display the link-layer header type from current CList */
+	linktypes_nochange = TRUE;
+	while (num_linktypes > 0) {
+		num_linktypes--;
+		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
+	}
+	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 2, &linktype);
+	lt_list = capture_pcap_linktype_list(if_name, NULL);
+	for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+		data_link_info = lt_entry->data;
+		if (data_link_info->description) {
+			text = g_strdup(data_link_info->description);
+		} else {
+			text = g_strdup(data_link_info->name);
+		}
+		if (strcmp(linktype, text) == 0) {
+			selected = num_linktypes;
+		}
+		gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
+		g_free(text);
+		num_linktypes++;
+	}
+	gtk_widget_set_sensitive(if_linktype_cb, num_linktypes >= 2);
+	gtk_combo_box_set_active(GTK_COMBO_BOX(if_linktype_cb), selected);
+	if (lt_list)
+		free_pcap_linktype_list(lt_list);
+	linktypes_nochange = FALSE;
+    
 	/* get/display the interface description from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 2, &text);
-    /* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
-    text = g_strdup(text);
+	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 3, &text);
+	/* is needed, as gtk_entry_set_text() will change text again (bug in GTK?) */
+	text = g_strdup(text);
 	gtk_entry_set_text(GTK_ENTRY(if_descr_te), text);
-    g_free(text);
+	g_free(text);
 
 	/* get/display the "hidden" button state from current CList */
-	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 3, &text);
+	gtk_clist_get_text(GTK_CLIST(cur_clist), row, 4, &text);
 	if (strcmp("Yes", text) == 0)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), TRUE);
 	else
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(if_hide_cb), FALSE);
+
+	g_free(if_name);
+}
+
+/*
+ * Link-layer entry changed callback; update current CList.
+ */
+static void
+ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
+{
+	gchar *ifnm, *text;
+	int linktype;
+
+	if (ifrow == IFOPTS_IF_NOSEL)
+		return;
+
+	if (linktypes_nochange)
+		return;
+
+	gtk_clist_get_text(GTK_CLIST(udata), ifrow, 0, &ifnm);
+
+	/* get current description text and set value in current CList */
+	text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
+	gtk_clist_set_text(GTK_CLIST(udata), ifrow, 2, text);
+	linktype = ifopts_description_to_val(ifnm, text);
+	gtk_clist_set_row_data(GTK_CLIST(udata), ifrow, GINT_TO_POINTER(linktype));
+
+	g_free(text);
 }
 
 /*
@@ -495,7 +604,7 @@ ifopts_edit_descr_changed_cb(GtkEditable *ed, gpointer udata)
 	text = gtk_editable_get_chars(GTK_EDITABLE(ed), 0, -1);
 	/* replace any reserved formatting characters "()," with spaces */
 	g_strdelimit(text, "(),", ' ');
-	gtk_clist_set_text(GTK_CLIST(udata), ifrow, 2, text);
+	gtk_clist_set_text(GTK_CLIST(udata), ifrow, 3, text);
 	g_free(text);
 }
 
@@ -510,9 +619,9 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 
 	/* get "hidden" button state and set text in current CList */
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(tbt)) == TRUE)
-		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 3, "Yes");
+		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 4, "Yes");
 	else
-		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 3, "No");
+		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 4, "No");
 }
 
 /*
@@ -527,12 +636,38 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 static void
 ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 {
-	gint	row;
+	gint	row = -1;
 	gchar	*p;
 	gchar	*ifnm;
 	gchar	*desc;
 	gchar	*pr_descr;
-	gchar	*text[] = { NULL, NULL, NULL, NULL };
+	gchar	*text[] = { NULL, NULL, NULL, NULL, NULL };
+	GList   *lt_list, *lt_entry;
+	data_link_info_t *data_link_info;
+	gint     linktype;
+
+	/* find default link-layer header type */
+	linktype = capture_dev_user_linktype_find(if_info->name);
+
+	lt_list = capture_pcap_linktype_list(if_info->name, NULL);
+	for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+		data_link_info = lt_entry->data;
+		/* If we have no previous link-layer header type we use the first one */
+		if (linktype == -1 || linktype == data_link_info->dlt) {
+			if (data_link_info->description) {
+				text[2] = g_strdup(data_link_info->description);
+			} else {
+				text[2] = g_strdup(data_link_info->name);
+			}
+			break;
+		}
+	}
+	if (text[2] == NULL) {
+		text[2] = g_strdup("");
+	}
+	if (lt_list) {
+		free_pcap_linktype_list(lt_list);
+	}
 
 	/* add interface descriptions and "hidden" flag */
 	if (prefs.capture_devices_descr != NULL) {
@@ -555,12 +690,12 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 					/* check if interface is "hidden" */
 					if (prefs.capture_devices_hide != NULL) {
 						if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-							text[3] = g_strdup("Yes");
+							text[4] = g_strdup("Yes");
 						else
-							text[3] = g_strdup("No");
+							text[4] = g_strdup("No");
 					}
 					else
-						text[3] = g_strdup("No");
+						text[4] = g_strdup("No");
 					p++;
 					/* if syntax error */
 					if ((*p == '\0') || (*p == ',') || (*p == '(') || (*p == ')')) {
@@ -581,7 +716,7 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 						if (*p == ')') {
 							/* terminate and set description text */
 							*p = '\0';
-							text[2] = g_strdup(desc);
+							text[3] = g_strdup(desc);
 							/* add row to CList */
 							row = gtk_clist_append(GTK_CLIST(clist), text);
 							gtk_clist_set_selectable(GTK_CLIST(clist), row,
@@ -608,16 +743,16 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			else
 				text[1] = g_strdup("");
 			/* set empty description */
-			text[2] = g_strdup("");
+			text[3] = g_strdup("");
 			/* check if interface is "hidden" */
 			if (prefs.capture_devices_hide != NULL) {
 				if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-					text[3] = g_strdup("Yes");
+					text[4] = g_strdup("Yes");
 				else
-					text[3] = g_strdup("No");
+					text[4] = g_strdup("No");
 			}
 			else
-				text[3] = g_strdup("No");
+				text[4] = g_strdup("No");
 
 			/* add row to CList */
 			row = gtk_clist_append(GTK_CLIST(clist), text);
@@ -639,12 +774,12 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		else
 			text[1] = g_strdup("");
 		/* set empty description */
-		text[2] = g_strdup("");
+		text[3] = g_strdup("");
 		/* check if interface is "hidden" */
 		if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-			text[3] = g_strdup("Yes");
+			text[4] = g_strdup("Yes");
 		else
-			text[3] = g_strdup("No");
+			text[4] = g_strdup("No");
 
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
@@ -663,15 +798,18 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 		else
 			text[1] = g_strdup("");
 		/* set empty description */
-		text[2] = g_strdup("");
+		text[3] = g_strdup("");
 		/* interface is not "hidden" */
-		text[3] = g_strdup("No");
+		text[4] = g_strdup("No");
 
 		/* add row to CList */
 		row = gtk_clist_append(GTK_CLIST(clist), text);
 		gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
 		ifopts_options_free(text);
 	}
+
+	if (row != -1) 
+	  gtk_clist_set_row_data(GTK_CLIST(clist), row, GINT_TO_POINTER(linktype));
 }
 
 static void
@@ -726,6 +864,67 @@ ifopts_if_clist_add(void)
 }
 
 /*
+ * Create/write new interfaces link-layer string based on current CList.
+ * Put it into the preferences value.
+ */
+static void
+ifopts_write_new_linklayer(void)
+{
+	gint	i;
+	gboolean	first_if = TRUE;				/* flag to check if first in list */
+	gchar	*ifnm;
+	gint     linktype;
+	gpointer linktype_p;
+	gchar	*tmp_linklayer;
+	gchar	*new_linklayer;
+
+	/* new preferences interfaces link-layer string */
+	new_linklayer = g_malloc0(MAX_VAL_LEN);
+
+	/* get link-layer for each row (interface) */
+	for (i = 0; ;i++) {
+		linktype_p = gtk_clist_get_row_data(GTK_CLIST(cur_clist), i);
+		if (!linktype_p)
+			break;
+		linktype = GPOINTER_TO_INT(linktype_p);
+		
+		/* if no link-layer, skip this interface */
+		if (linktype == -1)
+			continue;
+
+		/* get interface name */
+		gtk_clist_get_text(GTK_CLIST(cur_clist), i, 0, &ifnm);
+
+		/*
+		 * create/cat interface link-layer to new string
+		 * (leave space for parens, comma and terminator)
+		 */
+		if (first_if != TRUE) {
+			g_strlcat (new_linklayer, ",", MAX_VAL_LEN);
+		}
+
+		tmp_linklayer = g_strdup_printf("%s(%d)", ifnm, linktype);
+		g_strlcat(new_linklayer, tmp_linklayer, MAX_VAL_LEN);
+		g_free(tmp_linklayer);
+
+		/* set first-in-list flag to false */
+		first_if = FALSE;
+	}
+
+	/* write new link-layer string to preferences */
+	if (strlen(new_linklayer) > 0) {
+		g_free(prefs.capture_devices_linktypes);
+		prefs.capture_devices_linktypes = new_linklayer;
+	}
+	/* no link-layers */
+	else {
+		g_free(prefs.capture_devices_linktypes);
+		g_free(new_linklayer);
+		prefs.capture_devices_linktypes = NULL;
+	}
+}
+
+/*
  * Create/write new interfaces description string based on current CList.
  * Put it into the preferences value.
  */
@@ -745,7 +944,7 @@ ifopts_write_new_descr(void)
 	/* get description for each row (interface) */
 	for (i = 0; ;i++) {
 		/* get description */
-		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 2, &desc) != 1)
+		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 3, &desc) != 1)
 			break;
 		/* if no description, skip this interface */
 		if (strlen(desc) == 0)
@@ -802,7 +1001,7 @@ ifopts_write_new_hide(void)
 	/* get "hidden" flag text for each row (interface) */
 	for (i = 0; ;i++) {
 		/* get flag */
-		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 3, &hide) != 1)
+		if (gtk_clist_get_text(GTK_CLIST(cur_clist), i, 4, &hide) != 1)
 			break;
 		/* if flag text is "No", skip this interface */
 		if (strcmp("No", hide) == 0)

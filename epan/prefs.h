@@ -142,6 +142,7 @@ typedef struct _e_prefs {
   guint32  name_resolve;
   gint     name_resolve_concurrency;
   gchar   *capture_device;
+  gchar   *capture_devices_linktypes;
   gchar   *capture_devices_descr;
   gchar   *capture_devices_hide;
   gboolean capture_prom_mode;
