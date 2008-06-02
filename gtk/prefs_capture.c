@@ -639,7 +639,7 @@ ifopts_edit_hide_changed_cb(GtkToggleButton *tbt, gpointer udata)
 static void
 ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 {
-	gint	row = -1;
+	gint	row;
 	gchar	*p;
 	gchar	*ifnm;
 	gchar	*desc;
@@ -649,9 +649,17 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 	data_link_info_t *data_link_info;
 	gint     linktype;
 
-	/* find default link-layer header type */
-	linktype = capture_dev_user_linktype_find(if_info->name);
+	/* set device name text */
+	text[0] = g_strdup(if_info->name);
 
+	/* set OS description */
+	if (if_info->description != NULL)
+		text[1] = g_strdup(if_info->description);
+	else
+		text[1] = g_strdup("");
+
+	/* set default link-layer header type */
+	linktype = capture_dev_user_linktype_find(if_info->name);
 	lt_list = capture_pcap_linktype_list(if_info->name, NULL);
 	for (lt_entry = lt_list; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
 		data_link_info = lt_entry->data;
@@ -665,14 +673,14 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			break;
 		}
 	}
-	if (text[2] == NULL) {
-		text[2] = g_strdup("");
-	}
-	if (lt_list) {
+	if (lt_list)
 		free_pcap_linktype_list(lt_list);
-	}
 
-	/* add interface descriptions and "hidden" flag */
+	/* if we have no link-layer */
+	if (text[2] == NULL)
+		text[2] = g_strdup("");
+
+	/* add interface descriptions */
 	if (prefs.capture_devices_descr != NULL) {
 		/* create working copy of device descriptions */
 		pr_descr = g_strdup(prefs.capture_devices_descr);
@@ -683,136 +691,56 @@ ifopts_options_add(GtkCList *clist, if_info_t *if_info)
 			while (*p != '\0') {
 				/* found left parenthesis, start of description */
 				if (*p == '(') {
-					/* set device name text */
-					text[0] = g_strdup(if_info->name);
-					/* set OS description + device name text */
-					if (if_info->description != NULL)
-						text[1] = g_strdup(if_info->description);
-					else
-						text[1] = g_strdup("");
-					/* check if interface is "hidden" */
-					if (prefs.capture_devices_hide != NULL) {
-						if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-							text[4] = g_strdup("Yes");
-						else
-							text[4] = g_strdup("No");
-					}
-					else
-						text[4] = g_strdup("No");
 					p++;
 					/* if syntax error */
-					if ((*p == '\0') || (*p == ',') || (*p == '(') || (*p == ')')) {
-						ifopts_options_free(text);
+					if ((*p == '\0') || (*p == ',') || (*p == '(') || (*p == ')'))
 						break;
-					}
+
 					/* save pointer to beginning of description */
 					desc = p;
 					p++;
-					/* if syntax error */
-					if ((*p == '\0') || (*p == ',') || (*p == '(') || (*p == ')')) {
-						ifopts_options_free(text);
-						break;
-					}
 					/* skip to end of description */
 					while (*p != '\0') {
+						/* if syntax error */
+						if ((*p == ',') || (*p == '('))
+							break;
+
 						/* end of description */
-						if (*p == ')') {
+						else if (*p == ')') {
 							/* terminate and set description text */
 							*p = '\0';
 							text[3] = g_strdup(desc);
-							/* add row to CList */
-							row = gtk_clist_append(GTK_CLIST(clist), text);
-							gtk_clist_set_selectable(GTK_CLIST(clist), row,
-									TRUE);
-							ifopts_options_free(text);
 							break;
 						}
 						p++;
 					}
 					/* get out */
 					break;
-				}
-				else
+				} else
 					p++;
 			}
-		}
-		/* if there's no description for this interface */
-		else {
-			/* set device name text */
-			text[0] = g_strdup(if_info->name);
-			/* set OS description + device name text */
-			if (if_info->description != NULL)
-				text[1] = g_strdup(if_info->description);
-			else
-				text[1] = g_strdup("");
-			/* set empty description */
-			text[3] = g_strdup("");
-			/* check if interface is "hidden" */
-			if (prefs.capture_devices_hide != NULL) {
-				if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-					text[4] = g_strdup("Yes");
-				else
-					text[4] = g_strdup("No");
-			}
-			else
-				text[4] = g_strdup("No");
-
-			/* add row to CList */
-			row = gtk_clist_append(GTK_CLIST(clist), text);
-			gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
-			ifopts_options_free(text);
 		}
 
 		g_free(pr_descr);
 	}
-	/*
-	 * If we do not have any descriptions, but have "hidden" interfaces.
-	 */
-	else if (prefs.capture_devices_hide != NULL) {
-		/* set device name text */
-		text[0] = g_strdup(if_info->name);
-		/* set OS description + device name text */
-		if (if_info->description != NULL)
-			text[1] = g_strdup(if_info->description);
-		else
-			text[1] = g_strdup("");
-		/* set empty description */
-		text[3] = g_strdup("");
-		/* check if interface is "hidden" */
-		if (strstr(prefs.capture_devices_hide, if_info->name) != NULL)
-			text[4] = g_strdup("Yes");
-		else
-			text[4] = g_strdup("No");
 
-		/* add row to CList */
-		row = gtk_clist_append(GTK_CLIST(clist), text);
-		gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
-		ifopts_options_free(text);
-	}
-	/*
-	 * If we have no descriptions and no "hidden" interfaces.
-	 */
-	else {
-		/* set device name text */
-		text[0] = g_strdup(if_info->name);
-		/* set OS description + device name text */
-		if (if_info->description != NULL)
-			text[1] = g_strdup(if_info->description);
-		else
-			text[1] = g_strdup("");
-		/* set empty description */
+	/* if we have no description */
+	if (text[3] == NULL)
 		text[3] = g_strdup("");
-		/* interface is not "hidden" */
+
+	/* check if interface is "hidden" */
+	if ((prefs.capture_devices_hide != NULL) &&
+	    (strstr(prefs.capture_devices_hide, if_info->name) != NULL))
+		text[4] = g_strdup("Yes");
+	else
 		text[4] = g_strdup("No");
 
-		/* add row to CList */
-		row = gtk_clist_append(GTK_CLIST(clist), text);
-		gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
-		ifopts_options_free(text);
-	}
+	/* add row to CList */
+	row = gtk_clist_append(GTK_CLIST(clist), text);
+	gtk_clist_set_selectable(GTK_CLIST(clist), row, TRUE);
+	gtk_clist_set_row_data(GTK_CLIST(clist), row, GINT_TO_POINTER(linktype));
 
-	if (row != -1) 
-	  gtk_clist_set_row_data(GTK_CLIST(clist), row, GINT_TO_POINTER(linktype));
+	ifopts_options_free(text);
 }
 
 static void
