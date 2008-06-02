@@ -1,8 +1,8 @@
 [Desktop Entry]
 # $Id$
 # The format of this file is specified at
-# http://freedesktop.org/Standards/desktop-entry-spec/
-# The entries are in the order they are listed in version 0.9.4
+# http://freedesktop.org/Standards/desktop-entry-spec
+# The entries are in the order they are listed in version 1.0
 Type=Application
 Version=1.0
 Name=Wireshark
@@ -38,9 +38,9 @@ GenericName[lv]=Tīkla Analizators
 GenericName[mk]=Анализатор на мрежи
 GenericName[mn]=Сүлжээ-шинжлэлийн програм
 GenericName[mt]=Analizzatur tan-network
-GenericName[nb]=Nettverksanalyse
+GenericName[nb]=Nettverksanalysator
 GenericName[nl]=netwerkanalyseprogramma
-GenericName[nn]=Nettverksanalyse
+GenericName[nn]=Nettverksanalysator
 GenericName[nso]=Moahlaahli wa Kgokagano
 GenericName[pl]=Analizator sieci
 GenericName[pt]=Analisador de Redes
@@ -64,19 +64,12 @@ GenericName[zh_CN]=网络分析程序
 GenericName[zh_TW]=網路分析程式
 GenericName[zu]=Umhloli Woxhumano olusakazekile
 Comment=Network traffic analyzer
-Comment[fr]=Analyseur de trafic réseau
 Comment[fi]=Verkkoliikenne analysaattori
+Comment[fr]=Analyseur de trafic réseau
 Comment[sv]=Nätverkstrafikanalysator
 Icon=hi48-app-wireshark.png
-Exec=/usr/bin/wireshark
-Path=
+Exec=wireshark
 Terminal=false
-MimeType=
-Categories=GNOME;Network;
-# Found in Suse 9.1:
-# X-KDE-SubstituteUID=true
-# Deprecated:
-# TerminalOptions=
-# BinaryPattern=wireshark
-# MapNotify=true
-# Protocols=
+# Categorie entry according to version 1.0 of
+# http://www.freedesktop.org/wiki/Specifications/menu-spec
+Categories=System;Monitor;GTK;
