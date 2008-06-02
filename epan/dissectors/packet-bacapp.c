@@ -3616,7 +3616,7 @@ fNotificationParameters (tvbuff_t *tvb, proto_tree *tree, guint offset)
 				break;
 			case 1:
 				offset = fEnumeratedTagSplit (tvb, subtree, offset,
-					"new-mode: ", BACnetLifeSafetyState, 256);
+					"new-mode: ", BACnetLifeSafetyMode, 256);
 				break;
 			case 2:
 				offset = fBitStringTagVS (tvb, subtree, offset,
