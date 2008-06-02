@@ -458,7 +458,7 @@ ifopts_edit_destroy_cb(GtkWidget *win, gpointer data _U_)
 	}
 }
 
-static int
+static gint
 ifopts_description_to_val (const char *if_name, const char *descr) 
 {
 	data_link_info_t *data_link_info;
@@ -570,7 +570,9 @@ static void
 ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 {
 	gchar *ifnm, *text;
-	int linktype;
+	gint linktype;
+	GtkTreeModel *model;
+	GtkTreeIter iter;
 
 	if (ifrow == IFOPTS_IF_NOSEL)
 		return;
@@ -581,12 +583,13 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 	gtk_clist_get_text(GTK_CLIST(udata), ifrow, 0, &ifnm);
 
 	/* get current description text and set value in current CList */
-	text = gtk_combo_box_get_active_text(GTK_COMBO_BOX(cb));
-	gtk_clist_set_text(GTK_CLIST(udata), ifrow, 2, text);
-	linktype = ifopts_description_to_val(ifnm, text);
-	gtk_clist_set_row_data(GTK_CLIST(udata), ifrow, GINT_TO_POINTER(linktype));
-
-	g_free(text);
+	if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(cb), &iter)) {
+		model = gtk_combo_box_get_model(GTK_COMBO_BOX(cb));
+		gtk_tree_model_get(model, &iter, 0, &text, -1);
+		gtk_clist_set_text(GTK_CLIST(udata), ifrow, 2, text);
+		linktype = ifopts_description_to_val(ifnm, text);
+		gtk_clist_set_row_data(GTK_CLIST(udata), ifrow, GINT_TO_POINTER(linktype));
+	}
 }
 
 /*
