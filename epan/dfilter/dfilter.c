@@ -254,7 +254,7 @@ dfilter_compile(const gchar *text, dfilter_t **dfp)
 
 		if (depr_test) {
 			for (i = 0; i < deprecated->len; i++) {
-				if (strcasecmp(depr_test, g_ptr_array_index(deprecated, i)) == 0) {
+				if (g_ascii_strcasecmp(depr_test, g_ptr_array_index(deprecated, i)) == 0) {
 					/* It's already in our list */
 					depr_test = NULL;
 				}

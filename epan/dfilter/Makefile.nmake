@@ -75,3 +75,24 @@ $(LEMON)\lemon.exe:
 	cd ../../tools/lemon
 	$(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 	cd ../../epan/dfilter
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl \
+	scanner.l \
+	grammar.lemon		\
+	dfilter.c		\
+	dfilter-macro.c \
+	dfunctions.c	\
+	dfvm.c		\
+	drange.c		\
+	gencode.c		\
+	glib-util.c		\
+	semcheck.c		\
+	sttype-function.c	\
+	sttype-integer.c	\
+	sttype-pointer.c	\
+	sttype-range.c	\
+	sttype-string.c	\
+	sttype-test.c		\
+	syntax-tree.c
+

@@ -51,3 +51,8 @@ clean :
 distclean: clean
 
 maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl \
+	$(LIBWSUTIL_SRC) \
+#	file_util.c

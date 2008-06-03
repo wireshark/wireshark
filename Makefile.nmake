@@ -1060,9 +1060,18 @@ checkapi: checkapi_local
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ../epan/dissectors
+	cd ../epan/crypt
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../ftypes
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../wslua
+##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
+	cd ../dissectors
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ..
 	cd ../plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-	cd ..
+	cd ../wsutil
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
