@@ -122,7 +122,7 @@ static print_args_t   print_args;
  *       However, the save file dialog hogs the foreground, so
  *       this may not be necessary (and, in fact, the file dialogs
  *       should arguably be modal to the window for the file
- *       being opened/saved/etc., even on GTK+ 1.2[.x]).
+ *       being opened/saved/etc.).
  */
 static HWND           g_sf_hwnd = NULL;
 char *dfilter_open_str = NULL;
