@@ -106,9 +106,12 @@ static const value_string fcencap_proto_vals[] = {
     {0, NULL},
 };
 
-static const guint8 ifcp_header_8_bytes[8] = {
-    0x02, 0x01, 0xFD, 0xFE,
-    0x00, 0x00, 0x00, 0x00
+/* RFC 4172 section 5.3.1 shows a chart of the iFCP encapsulated Header Format. 
+ * It says that bytes 4-7 MUST be zeros.  In reality most vendors are putting 
+ * some information in these 4 bytes, particularly Nishon. 
+ */
+static const guint8 ifcp_header_4_bytes[4] = {
+    0x02, 0x01, 0xFD, 0xFE
 };
 
 static int proto_ifcp          = -1;
@@ -202,7 +205,7 @@ ifcp_header_test(tvbuff_t *tvb, int offset)
 	/*
 	 * Tests a, b and c
 	 */
-	if(tvb_memeql(tvb, offset, ifcp_header_8_bytes, 8) != 0){
+	if(tvb_memeql(tvb, offset, ifcp_header_4_bytes, 4) != 0){
 		return FALSE;
         }
 
