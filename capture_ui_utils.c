@@ -101,7 +101,7 @@ gint
 capture_dev_user_linktype_find(const gchar *if_name)
 {
 	gchar *p, *next;
-	gint linktype;
+	long linktype;
 
 	if (prefs.capture_devices_linktypes == NULL) {
 		/* There are no link-layer header types */
@@ -119,8 +119,12 @@ capture_dev_user_linktype_find(const gchar *if_name)
 		/* Syntax error */
 		return -1;
 	}
+	if (linktype > G_MAXINT) {
+		/* Value doesn't fit in a gint */
+		return -1;
+	}
 
-	return linktype;
+	return (gint)linktype;
 }
 
 /*
