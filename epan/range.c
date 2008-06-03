@@ -42,14 +42,6 @@
 #include <stdio.h>
 
 /*
- * GLib 1.2[.x] doesn't define G_MAXUINT32; if it's not defined, we define
- * it as the maximum 32-bit unsigned number.
- */
-#ifndef G_MAXUINT32
-#define G_MAXUINT32	((guint32)0xFFFFFFFFU)
-#endif
-
-/*
  * Size of the header of a range_t.
  */
 #define RANGE_HDR_SIZE (sizeof (range_t) - sizeof (range_admin_t))

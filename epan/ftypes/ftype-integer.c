@@ -33,18 +33,6 @@
 #include "g_ascii_strtoull.h"
 #endif
 
-/*
- * GLib 1.2[.x] doesn't define G_MAXUINT32 or G_MAXUINT64; if they're
- * not defined, we define them as the maximum 32-bit and 64-bit
- * unsigned numbers.
- */
-#ifndef G_MAXUINT32
-#define G_MAXUINT32	((guint32)0xFFFFFFFFU)
-#endif
-#ifndef G_MAXUINT64
-#define G_MAXUINT64	((guint64)G_GINT64_CONSTANT(0xFFFFFFFFFFFFFFFFU))
-#endif
-
 static void
 int_fvalue_new(fvalue_t *fv)
 {
