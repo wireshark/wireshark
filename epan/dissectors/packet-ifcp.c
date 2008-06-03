@@ -515,7 +515,7 @@ get_ifcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 		return 0;
 	}
 
-	pdu_len=tvb_get_ntohs(tvb, offset+12)*4;
+	pdu_len=(tvb_get_ntohs(tvb, offset+12)&0x03FF)*4;
 	return pdu_len;
 }
 
