@@ -93,6 +93,22 @@
 #  define _XOPEN_SOURCE
 #endif
 
+/*
+ * Defining _XOPEN_SOURCE is needed on some platforms, e.g. platforms
+ * using glibc, to expand the set of things system header files define.
+ *
+ * Unfortunately, on other platforms, such as some versions of Solaris
+ * (including Solaris 10), it *reduces* that set as well, causing
+ * strptime() not to be declared, presumably because the version of the
+ * X/Open spec that _XOPEN_SOURCE implies doesn't include strptime() and
+ * blah blah blah namespace pollution blah blah blah.
+ *
+ * So we define __EXTENSIONS__ so that "strptime()" is declared.
+ */
+#ifndef __EXTENSIONS__
+#  define __EXTENSIONS__
+#endif
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
