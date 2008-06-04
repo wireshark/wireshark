@@ -438,7 +438,7 @@ static int yy_find_reduce_action(
 /*
 ** The following routine is called if the stack overflows.
 */
-static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor){
+static void yyStackOverflow(yyParser *yypParser, YYMINORTYPE *yypMinor _U_){
    ParseARG_FETCH;
    yypParser->yyidx--;
 #ifndef NDEBUG
