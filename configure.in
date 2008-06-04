@@ -1280,28 +1280,6 @@ fi
 AC_SUBST(MKSTEMP_C)
 AC_SUBST(MKSTEMP_O)
 
-ac_save_LIBS="$LIBS"
-LIBS="$GLIB_LIBS $LIBS"
-G_ASCII_STRTOULL_C=""
-G_ASCII_STRTOULL_O=""
-G_ASCII_STRTOULL_LO=""
-AC_CHECK_FUNC(g_ascii_strtoull,
-  [G_ASCII_STRTOULL_O=""
-   G_ASCII_STRTOULL_LO=""],
-  [G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
-   G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
-   AC_DEFINE(NEED_G_ASCII_STRTOULL_H, 1, [Define if g_ascii_strtoull.h needs to be included])
-])
-LIBS="$ac_save_LIBS"
-if test "$ac_cv_func_g_ascii_strtoull" = no ; then
-  G_ASCII_STRTOULL_C="g_ascii_strtoull.c"
-  G_ASCII_STRTOULL_O="g_ascii_strtoull.o"
-  G_ASCII_STRTOULL_LO="g_ascii_strtoull.lo"
-fi
-AC_SUBST(G_ASCII_STRTOULL_C)
-AC_SUBST(G_ASCII_STRTOULL_O)
-AC_SUBST(G_ASCII_STRTOULL_LO)
-
 AC_CHECK_FUNC(inet_aton,
   [INET_ATON_O=""
    INET_ATON_LO=""],

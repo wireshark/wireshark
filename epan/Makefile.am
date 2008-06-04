@@ -76,8 +76,6 @@ libwireshark_asmopt_la_SOURCES = \
 	asm_utils_win32_x86.asm
 
 EXTRA_libwireshark_la_SOURCES =	\
-	g_ascii_strtoull.c	\
-	g_ascii_strtoull.h	\
 	inet_aton.c		\
 	inet_aton.h
 

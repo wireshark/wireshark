@@ -29,10 +29,6 @@
 #include "ftypes-int.h"
 #include <epan/addr_resolv.h>
 
-#ifdef NEED_G_ASCII_STRTOULL_H
-#include "g_ascii_strtoull.h"
-#endif
-
 static void
 int_fvalue_new(fvalue_t *fv)
 {
