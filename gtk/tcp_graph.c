@@ -263,10 +263,10 @@ struct magnify {
 	int width, height;
 	struct zoom zoom;
 	struct graph *g;
-#define MAGZOOMS_SAME		(1 << 0)
-#define MAGZOOMS_SAME_RATIO	(1 << 1)
-#define MAGZOOMS_IGNORE		(1 << 31)
-	int flags;
+#define MAGZOOMS_SAME		(1U << 0)
+#define MAGZOOMS_SAME_RATIO	(1U << 1)
+#define MAGZOOMS_IGNORE		(1U << 31)
+	guint flags;
 	struct {
 		GtkSpinButton *h_zoom, *v_zoom;
 	} widget;
