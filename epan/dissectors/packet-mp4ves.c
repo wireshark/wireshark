@@ -132,7 +132,6 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int offset = 0;
 	int bit_offset = 0;
 	proto_item *item;
 	proto_tree *mp4ves_tree;
