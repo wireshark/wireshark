@@ -546,6 +546,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-mmse.c		\
 	packet-mount.c		\
 	packet-mp2t.c		\
+	packet-mp4ves.c		\
 	packet-mpeg1.c		\
 	packet-mpls.c		\
 	packet-mpls-echo.c   	\
