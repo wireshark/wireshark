@@ -765,11 +765,16 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
     /* Channel type */
     p_fp_info->channel = outhdr_values[i++];
 
-    /* Node type */
+    /* Derive direction from node type/side */
     node_type = outhdr_values[i++];
-
     p_fp_info->is_uplink = (( received  && (node_type == 2)) ||
                             (!received  && (node_type == 1)));
+
+    /* Division type introduced for R7 */
+    if (p_fp_info->release == 7)
+    {
+        p_fp_info->division = outhdr_values[i++];
+    }
 
     /* HS-DSCH config */
     if (p_fp_info->channel == CHANNEL_HSDSCH)

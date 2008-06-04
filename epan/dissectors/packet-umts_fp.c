@@ -45,6 +45,7 @@
 int proto_fp = -1;
 
 static int hf_fp_channel_type = -1;
+static int hf_fp_division = -1;
 static int hf_fp_direction = -1;
 static int hf_fp_header_crc = -1;
 static int hf_fp_ft = -1;
@@ -191,6 +192,16 @@ static const value_string channel_type_vals[] =
     { CHANNEL_RACH_TDD_128, "RACH_TDD_128" },
     { 0, NULL }
 };
+
+static const value_string division_vals[] =
+{
+    { Division_FDD,      "FDD"},
+    { Division_TDD_384,  "TDD-384"},
+    { Division_TDD_128,  "TDD-128"},
+    { Division_TDD_768,  "TDD-768"},
+    { 0, NULL }
+};
+
 
 static const value_string data_control_vals[] = {
     { 0,   "Data" },
@@ -1277,15 +1288,27 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
             /* Bit 0 indicates Cell Portion ID */
             if (flags & 0x01) {
-                proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
-                offset++;
+                if (p_fp_info->division == Division_FDD)
+                {
+                    proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
+                    offset++;
+                }
+                else
+                {
+                    /* Wrong mode - warn + expert item. */
+                    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0, "Error: Cell Portion ID indicated, but not in FDD mode");
+                    PROTO_ITEM_SET_GENERATED(ti);
+                    expert_add_info_format(pinfo, ti,
+                                           PI_MALFORMED, PI_WARN,
+                                           "Cell Portion ID indicated, but not in FDD mode");
+                }
             }
 
             /* Bit 1 indicates Ext propagation delay.
                TODO: add expert info item if flag set but a TDD channel... */
-            if ((flags & 0x20) & (propagation_delay_ti != NULL)) {
+            if ((flags & 0x02) && (propagation_delay_ti != NULL)) {
                 guint16 extra_bits = tvb_get_ntohs(tvb, offset) & 0x03ff;
-                proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 2, FALSE);
 
                 /* Adding 10 bits to original 8 */
                 proto_item_append_text(propagation_delay_ti, " (extended to %u)",
@@ -1799,8 +1822,30 @@ int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
         /* Optional E-RUCCH */
         if (e_rucch_present)
         {
-            /* TODO: 6 for 3.84, 5 for 7.68 */
-            int bit_offset = 6;
+            /* Value of bit_offset depends upon division type */
+            int bit_offset;
+
+            switch (p_fp_info->division)
+            {
+                case Division_TDD_384:
+                    bit_offset = 6;
+                    break;
+                case Division_TDD_768:
+                    bit_offset = 5;
+                    break;
+                default:
+                    {
+                        proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0,
+                                                             "Error: expecting TDD-384 or TDD-768");
+                        PROTO_ITEM_SET_GENERATED(ti);
+                        expert_add_info_format(pinfo, ti,
+                                               PI_MALFORMED, PI_NOTE,
+                                               "Error: expecting TDD-384 or TDD-768");
+                        bit_offset = 6;
+                    }
+                    
+            }
+
             proto_tree_add_item(tree, hf_fp_dch_e_rucch_flag, tvb, offset, 1, FALSE);
             proto_tree_add_bits_item(tree, hf_fp_dch_e_rucch_flag, tvb,
                                      offset*8 + bit_offset, 1, FALSE);
@@ -1812,11 +1857,25 @@ int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
         */
         if (extended_bits_present)
         {
-            /* TODO: 1 for 3.84, 2 for 7.68,  */
-            guint bits_to_extend = 1;
-            guint8 extra_bits = tvb_get_guint8(tvb, offset) &
-                                    (bits_to_extend == 1) ? 0x01 : 0x3;
-            timing_deviation = (timing_deviation) | (extra_bits << 8);
+            guint8 extra_bits;
+            guint bits_to_extend;
+            switch (p_fp_info->division)
+            {
+                case Division_TDD_384:
+                    bits_to_extend = 1;
+                    break;
+                case Division_TDD_768:
+                    bits_to_extend = 2;
+                    break;
+
+                default:
+                    /* TODO: report unexpected division type */
+                    bits_to_extend = 1;
+                    break;
+            }
+            extra_bits = tvb_get_guint8(tvb, offset) &
+                             (bits_to_extend == 1) ? 0x01 : 0x3;
+            timing_deviation = (extra_bits << 8) | (timing_deviation);
             proto_item_append_text(timing_deviation_ti,
                                    " (extended to 0x%x)",
                                    timing_deviation);
@@ -2756,6 +2815,13 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_uint(fp_tree, hf_fp_channel_type, tvb, 0, 0, p_fp_info->channel);
     PROTO_ITEM_SET_GENERATED(ti);
 
+    /* Add division type as a generated field */
+    if (p_fp_info->release == 7)
+    {
+        ti = proto_tree_add_uint(fp_tree, hf_fp_division, tvb, 0, 0, p_fp_info->division);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
     /* Add link direction as a generated field */
     ti = proto_tree_add_uint(fp_tree, hf_fp_direction, tvb, 0, 0, p_fp_info->is_uplink);
     PROTO_ITEM_SET_GENERATED(ti);
@@ -2842,6 +2908,12 @@ void proto_register_fp(void)
             { "Channel Type",
               "fp.channel-type", FT_UINT8, BASE_HEX, VALS(channel_type_vals), 0x0,
               "Channel Type", HFILL
+            }
+        },
+        { &hf_fp_division,
+            { "Division",
+              "fp.division", FT_UINT8, BASE_HEX, VALS(division_vals), 0x0,
+              "Radio division type", HFILL
             }
         },
         { &hf_fp_direction,
@@ -3506,7 +3578,7 @@ void proto_register_fp(void)
         },
         { &hf_fp_ext_propagation_delay,
             { "Ext Propagation Delay",
-              "fp.ext-propagation-delay", FT_UINT8, BASE_DEC, NULL, 0x0,
+              "fp.ext-propagation-delay", FT_UINT16, BASE_DEC, NULL, 0x03ff,
               "Ext Propagation Delay", HFILL
             }
         },

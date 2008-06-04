@@ -40,12 +40,20 @@
 #define CHANNEL_IUR_FACH      15
 #define CHANNEL_IUR_DSCH      16
 #define CHANNEL_EDCH          17
-#define CHANNEL_RACH_TDD_128  65
+#define CHANNEL_RACH_TDD_128  66
 
 enum fp_interface_type
 {
     IuB_Interface,
     IuR_Interface
+};
+
+enum division_type
+{
+    Division_FDD=1,
+    Division_TDD_384=2,
+    Division_TDD_128=3,
+    Division_TDD_768=4
 };
 
 enum fp_hsdsch_entity
@@ -59,7 +67,8 @@ enum fp_hsdsch_entity
 typedef struct fp_info
 {
     enum fp_interface_type iface_type;
-    guint8  release;                     /* e.g. 99, 4, 5, 6 */
+    enum division_type     division;
+    guint8  release;                     /* e.g. 99, 4, 5, 6, 7 */
     guint16 release_year;                /* e.g. 2001 */
     guint8  release_month;               /* e.g. 12 for December */
     gboolean is_uplink;

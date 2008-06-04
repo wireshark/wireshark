@@ -98,6 +98,9 @@ fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
 	if (!p_fp_info || length < 22)
 		return;
 
+	/* Store division type */
+	p_fp_info->division = radio_mode;
+
 	/* Format used by K15, later fields are shifted by 8 bytes. */
 	if (pntohs(extra_info+2) == 5)
 		adj = 8;
@@ -165,9 +168,12 @@ fill_fp_info(fp_info *p_fp_info, guchar *extra_info, guint32 length)
 
 	if (info_type == 0x30) { /* data frame */
 		p_fp_info->num_chans = extra_info[23 + adj];
+		/* For each channel */
 		for (i = 0; i < (guint)p_fp_info->num_chans && (36+i*104+adj) <= length; ++i) {
+			/* Read TB size */
 			p_fp_info->chan_tf_size[i] = pntohl(extra_info+28+i*104+adj);
 			if (p_fp_info->chan_tf_size[i])
+				/* Work out number of TBs on this channel */
 				p_fp_info->chan_num_tbs[i] = pntohl(extra_info+32+i*104+adj)
 							     / p_fp_info->chan_tf_size[i];
 		}
