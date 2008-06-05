@@ -428,6 +428,10 @@
 #define AL_OBJ_IIN         0x5001   /* 80 01 Internal Indications */
 
 /***************************************************************************/
+/* Octet String Objects */
+#define AL_OBJ_OCT         0x6E00   /* 110 xx Octet string */
+
+/***************************************************************************/
 /* End of Application Layer Data Object Definitions */
 /***************************************************************************/
 
@@ -774,6 +778,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_CLASS2,     "Class 2 Data (Obj:60, Var:03)" },
   { AL_OBJ_CLASS3,     "Class 3 Data (Obj:60, Var:04)" },
   { AL_OBJ_IIN,        "Internal Indications (Obj:80, Var:01)" },
+  { AL_OBJ_OCT,        "Octet String (Obj:110)" },
   { 0, NULL }
 };
 
@@ -1243,7 +1248,7 @@ static int
 dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *robj_tree, gboolean header_only, guint16 *al_objtype)
 {
 
-  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code,
+  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code, al_oct_len,
                 al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count, al_bi_val, bitindex=0;
   guint16       al_obj, al_val16=0, al_ctlobj_stat, al_relms;
   guint32       al_val32, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off;
@@ -1263,6 +1268,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
   /* Application Layer Objects in this Message */
   *al_objtype =
   al_obj = tvb_get_ntohs(tvb, offset);
+
+  /* Special handling for Octet string objects as the variation is the length of the string */
+  if ((al_obj & 0xFF00) == AL_OBJ_OCT) {
+    al_oct_len = al_obj & 0xFF;
+    al_obj = AL_OBJ_OCT;
+  }
 
   /* Create Data Objects Detail Tree */
   object_item = proto_tree_add_uint_format(robj_tree, hf_dnp3_al_obj, tvb, offset, 2, al_obj,
@@ -1379,7 +1390,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
     for (item_num = 0; item_num < num_items; item_num++)
     {
       /* Create Point item and Process Index */
-      point_item = proto_tree_add_text(object_tree, tvb, offset, -1, "Point Number");
+      point_item = proto_tree_add_text(object_tree, tvb, offset, 0, "Point Number");
       point_tree = proto_item_add_subtree(point_item, ett_dnp3_al_obj_point);
 
       data_pos = offset;
@@ -1658,7 +1669,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_DCTR_16NF:  /* 16-Bit Binary Delta Counter Without Flag (Obj:20, Var:08) */
           case AL_OBJ_FCTR_32:    /* 32-Bit Frozen Counter (Obj:21, Var:01) */
           case AL_OBJ_FCTR_16:    /* 16-Bit Frozen Counter (Obj:21, Var:02) */
-          case AL_OBJ_FDCTR_32:	  /* 21 03 32-Bit Frozen Delta Counter */
+          case AL_OBJ_FDCTR_32:   /* 21 03 32-Bit Frozen Delta Counter */
           case AL_OBJ_FDCTR_16:   /* 21 04 16-Bit Frozen Delta Counter */
           case AL_OBJ_FCTR_32T:   /* 21 05 32-Bit Frozen Counter w/ Time of Freeze */
           case AL_OBJ_FCTR_16T:   /* 21 06 16-Bit Frozen Counter w/ Time of Freeze */
@@ -1983,6 +1994,18 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             offset = data_pos;
             break;
 
+          case AL_OBJ_OCT:    /* Octet string */
+
+            /* read the number of bytes defined by the variation */
+            if (al_oct_len > 0) {
+              proto_tree_add_text(object_tree, tvb, data_pos, al_oct_len, "Octet String (%u bytes)", al_oct_len);
+              data_pos += al_oct_len;
+              proto_item_set_len(point_item, data_pos - offset);
+            }
+
+            offset = data_pos;
+            break;
+
           default:             /* In case of unknown object */
 
             proto_tree_add_text(object_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
@@ -1997,8 +2020,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
         al_ptaddr++;
       }
       if (start_offset > offset) {
-	expert_add_info_format(pinfo, point_item, PI_MALFORMED, PI_ERROR, "Invalid length");
-	offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
+        expert_add_info_format(pinfo, point_item, PI_MALFORMED, PI_ERROR, "Invalid length");
+        offset = tvb_length(tvb); /* Finish decoding if unknown object is encountered... */
       }
     }
   }
@@ -2351,15 +2374,15 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   calc_dl_crc = calculateCRC(tvb_get_ptr(tvb, 0, DNP_HDR_LEN - 2), DNP_HDR_LEN - 2);
   if (dl_crc == calc_dl_crc)
     proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
-             dl_crc, "CRC: 0x%04x [correct]", dl_crc);
+                               dl_crc, "CRC: 0x%04x [correct]", dl_crc);
   else
   {
     hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
-					 offset, 2, TRUE);
+                                         offset, 2, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb,
-             offset, 2, dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
-                   dl_crc, calc_dl_crc);
+    proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
+                               dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
+                               dl_crc, calc_dl_crc);
   }
   offset += 2;
 
@@ -2417,16 +2440,16 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       crc_OK = calc_crc == act_crc;
       if (crc_OK)
       {
-	  	proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-			  "Application Chunk %u Len: %u CRC 0x%04x",
-			  i, chk_size, act_crc);
+        proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
+                            "Application Chunk %u Len: %u CRC 0x%04x",
+                            i, chk_size, act_crc);
         data_len -= chk_size;
       }
       else
       {
         proto_tree_add_text(al_tree, tvb, offset - (chk_size + 2), chk_size + 2,
-                "Application Chunk %u Len: %u Bad CRC got 0x%04x expected 0x%04x",
-                i, chk_size, act_crc, calc_crc);
+                            "Application Chunk %u Len: %u Bad CRC got 0x%04x expected 0x%04x",
+                            i, chk_size, act_crc, calc_crc);
         data_len = 0;
         break;
       }
@@ -2455,7 +2478,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           /* No conversation yet, so make one */
           conversation = conversation_new(pinfo->fd->num,  &pinfo->src, &pinfo->dst, pinfo->ptype,
             pinfo->srcport, pinfo->destport, 0);
-	}
+        }
 
         conv_data_ptr = (dnp3_conv_t*)conversation_get_proto_data(conversation, proto_dnp3);
 
@@ -2470,17 +2493,17 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         conv_seq_number = conv_data_ptr->conv_seq_number;
 
-	/*
-	* Add the frame to
-	* whatever reassembly is in progress, if any, and see
-	* if it's done.
-	*/
-	frag_msg = fragment_add_seq_check(al_tvb, 0, pinfo, conv_seq_number,
-			 al_fragment_table,
-			 al_reassembled_table,
-			 tr_seq,
-			 tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
-			 !tr_fin);
+        /*
+        * Add the frame to
+        * whatever reassembly is in progress, if any, and see
+        * if it's done.
+        */
+
+        frag_msg = fragment_add_seq_next(al_tvb, 0, pinfo, conv_seq_number,
+            al_fragment_table,
+            al_reassembled_table,
+            tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
+            !tr_fin);
 
         next_tvb = process_reassembled_data(al_tvb, 0, pinfo,
             "Reassembled DNP 3.0 Application Layer message", frag_msg, &dnp3_frag_items,
