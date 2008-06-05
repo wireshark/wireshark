@@ -184,12 +184,12 @@ dissect_mp4ves(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	Otherwies it's a VOP fragment.
 
 	visual_object_sequence_start_code: The visual_object_sequence_start_code is 
-	the bit string ‘000001B0’ in hexadecimal. It initiates a visual session.
+	the bit string '000001B0' in hexadecimal. It initiates a visual session.
 
-	group_of_vop_start_code: The group_of_vop_start_code is the bit string ‘000001B3’ in hexadecimal. It identifies 
+	group_of_vop_start_code: The group_of_vop_start_code is the bit string '000001B3' in hexadecimal. It identifies 
 	the beginning of a GOV header.
 
-	vop_start_code: This is the bit string ‘000001B6’ in hexadecimal.
+	vop_start_code: This is the bit string '000001B6' in hexadecimal.
 
 
 	*/
