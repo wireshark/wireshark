@@ -220,31 +220,28 @@
 	</section>
   </section>
   
-  <section id="ChLibsSNMP">
-	<title>Net-SNMP (optional)</title>
+  <section id="ChLibsSMI">
+	<title>SMI (optional)</title>
 	<para>
-	"Various tools relating to the Simple Network Management Protocol"
+	"Various tools relating to the SMI MIB Information"
 	</para>
 	
-	<section id="ChLibsUnixSNMP">
+	<section id="ChLibsUnixSMI">
 	<title>Unix</title>
 	<para>
 	If this library isn't already installed or available as a 
 	package for your platform, you can get it at: 
-	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
+	<ulink url="http://www.ibr.cs.tu-bs.de/projects/libsmi/"/>.
 	</para>
 	</section>
 
-	<section id="ChLibsWin32SNMP">
+	<section id="ChLibsWin32SMI">
 	<title>Win32 MSVC</title>
 	<para>
-	Wireshark uses the source Net-SNMP distribution at 
-	<ulink url="http://sourceforge.net/projects/net-snmp/"/>.
-	libsnmp is compiled with the "libsnmp - Win32 Release" project 
-	using MSVC++ 6.0. A file called "README.wireshark" has been placed in the 
-	net-snmp zip archive at <ulink 
-	url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
-	describing the changes in more detail.
+	Wireshark uses the source libSMI distribution at 
+	<ulink url="http://www.ibr.cs.tu-bs.de/projects/libsmi/"/>.
+	libSMI is compiled using MSVC++ 6.0. It's stored in the libsmi zip archive at
+	<ulink url="http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/"/>
 	</para>
 	</section>
 		
