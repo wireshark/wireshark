@@ -2885,7 +2885,7 @@ dissect_sack_chunk(packet_info* pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
     sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
     gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
 
-    tsns_gap_acked += (end - start);
+    tsns_gap_acked += (end+1 - start);
   }
 
   if (tsns_gap_acked) {
