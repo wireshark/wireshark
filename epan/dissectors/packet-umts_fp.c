@@ -1874,7 +1874,7 @@ int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
                     break;
             }
             extra_bits = tvb_get_guint8(tvb, offset) &
-                             (bits_to_extend == 1) ? 0x01 : 0x3;
+                             ((bits_to_extend == 1) ? 0x01 : 0x03);
             timing_deviation = (extra_bits << 8) | (timing_deviation);
             proto_item_append_text(timing_deviation_ti,
                                    " (extended to 0x%x)",
