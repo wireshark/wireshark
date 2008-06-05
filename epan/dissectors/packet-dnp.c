@@ -1248,7 +1248,7 @@ static int
 dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *robj_tree, gboolean header_only, guint16 *al_objtype)
 {
 
-  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code, al_oct_len,
+  guint8        al_2bit, al_objq, al_objq_index, al_objq_code, al_ptflags, al_ctlobj_code, al_oct_len=0,
                 al_ctlobj_code_c, al_ctlobj_code_m, al_ctlobj_code_tc, al_ctlobj_count, al_bi_val, bitindex=0;
   guint16       al_obj, al_val16=0, al_ctlobj_stat, al_relms;
   guint32       al_val32, al_ptaddr=0, al_ctlobj_on, al_ctlobj_off;
