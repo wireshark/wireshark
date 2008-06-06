@@ -755,6 +755,10 @@ void attach_fp_info(packet_info *pinfo, gboolean received, const char *protocol_
                     break;
             }
             break;
+        case 7:
+            p_fp_info->release_year = 2007;
+            p_fp_info->release_month = 3;
+            break;
 
         default:
             p_fp_info->release_year = 0;
