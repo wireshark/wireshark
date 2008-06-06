@@ -132,12 +132,20 @@ static int hf_fp_power_offset = -1;
 static int hf_fp_code_number = -1;
 static int hf_fp_spreading_factor = -1;
 static int hf_fp_mc_info = -1;
+
 static int hf_fp_rach_new_ie_flags = -1;
-static int hf_fp_rach_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
+static int hf_fp_rach_new_ie_flag_unused[7] = {-1, -1, -1, -1, -1, -1, -1 };
+static int hf_fp_rach_ext_propagation_delay_present = -1;
+static int hf_fp_rach_cell_portion_id_present = -1;
+static int hf_fp_rach_angle_of_arrival_present = -1;
+static int hf_fp_rach_ext_rx_sync_ul_timing_deviation_present = -1;
+static int hf_fp_rach_ext_rx_timing_deviation_present = -1;
+
 static int hf_fp_cell_portion_id = -1;
 static int hf_fp_ext_propagation_delay = -1;
 static int hf_fp_angle_of_arrival = -1;
 static int hf_fp_ext_received_sync_ul_timing_deviation = -1;
+
 static int hf_fp_radio_interface_parameter_update_flag[5] = {-1, -1, -1, -1, -1};
 static int hf_fp_dpc_mode = -1;
 static int hf_fp_tpc_po = -1;
@@ -1197,6 +1205,8 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         proto_item *propagation_delay_ti = NULL;
         guint32 received_sync_ul_timing_deviation = 0;
         proto_item *received_sync_ul_timing_deviation_ti = NULL;
+        proto_item *rx_timing_deviation_ti = NULL;
+        guint16     rx_timing_deviation = 0;
 
         /* DATA */
 
@@ -1227,7 +1237,8 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         if (p_fp_info->channel == CHANNEL_RACH_TDD)
         {
             /* Rx Timing Deviation */
-            proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, FALSE);
+            rx_timing_deviation = tvb_get_guint8(tvb, offset);
+            rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, FALSE);
             offset++;
         }
 
@@ -1254,6 +1265,12 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             guint8 flags;
             guint8 flag_bytes = 0;
 
+            gboolean cell_portion_id_present = FALSE;
+            gboolean ext_propagation_delay_present = FALSE;
+            gboolean angle_of_arrival_present = FALSE;
+            gboolean ext_rx_sync_ul_timing_deviation_present = FALSE;
+            gboolean ext_rx_timing_deviation_present = FALSE;
+
             /* New IE flags (assume mandatory for now) */
             do
             {
@@ -1273,7 +1290,61 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 /* Dissect individual bits */
                 for (n=0; n < 8; n++)
                 {
-                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag[n], tvb, offset, 1, FALSE);
+                    switch (n) {
+                        case 6:
+                            switch (p_fp_info->division)
+                            {
+                                case Division_FDD:
+                                    /* Ext propagation delay */
+                                    ext_propagation_delay_present = TRUE;
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_propagation_delay_present,
+                                                        tvb, offset, 1, FALSE);
+                                    break;
+                                case Division_TDD_128:
+                                    /* Ext Rx Sync UL Timing */
+                                    ext_rx_sync_ul_timing_deviation_present = TRUE;
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
+                                                        tvb, offset, 1, FALSE);
+        
+                                    break;
+                                default:
+                                    /* Not defined */
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[n],
+                                                        tvb, offset, 1, FALSE);
+                                    break;
+                            }
+                            break;
+                        case 7:
+                            switch (p_fp_info->division)
+                            {
+                                case Division_FDD:
+                                    /* Cell Portion ID */
+                                    cell_portion_id_present = TRUE;
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_cell_portion_id_present,
+                                                        tvb, offset, 1, FALSE);
+                                    break;
+                                case Division_TDD_128:
+                                    /* AOA */
+                                    angle_of_arrival_present = TRUE;
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_angle_of_arrival_present,
+                                                        tvb, offset, 1, FALSE);
+                                    break;
+                                case Division_TDD_384:
+                                case Division_TDD_768:
+                                    /* Extended Rx Timing Deviation */
+                                    ext_rx_timing_deviation_present = TRUE;
+                                    proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_timing_deviation_present,
+                                                        tvb, offset, 1, FALSE);
+                                    break;
+                            }
+                            break;
+
+                        default:
+                            /* No defined meanings */
+                            proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[n],
+                                                tvb, offset, 1, FALSE);
+                            break;
+                    }
                     if ((flags >> (7-n)) & 0x01)
                     {
                         ies_found++;
@@ -1286,27 +1357,45 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 /* Last bit set will indicate another flags byte follows... */
             } while (0); /*((flags & 0x01) && (flag_bytes < 31));*/
 
-            /* Bit 0 indicates Cell Portion ID */
-            if (flags & 0x01) {
-                if (p_fp_info->division == Division_FDD)
-                {
+            /* Cell Portion ID */
+            if (cell_portion_id_present) {
                     proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
                     offset++;
-                }
-                else
-                {
-                    /* Wrong mode - warn + expert item. */
-                    proto_item *ti = proto_tree_add_text(tree, tvb, 0, 0, "Error: Cell Portion ID indicated, but not in FDD mode");
-                    PROTO_ITEM_SET_GENERATED(ti);
-                    expert_add_info_format(pinfo, ti,
-                                           PI_MALFORMED, PI_WARN,
-                                           "Cell Portion ID indicated, but not in FDD mode");
-                }
             }
 
-            /* Bit 1 indicates Ext propagation delay.
-               TODO: add expert info item if flag set but a TDD channel... */
-            if ((flags & 0x02) && (propagation_delay_ti != NULL)) {
+            /* Ext Rx Timing Deviation */
+            if (ext_rx_timing_deviation_present)
+            {
+                guint8 extra_bits;
+                guint bits_to_extend;
+                switch (p_fp_info->division)
+                {
+                    case Division_TDD_384:
+                        bits_to_extend = 1;
+                        break;
+                    case Division_TDD_768:
+                        bits_to_extend = 2;
+                        break;
+    
+                    default:
+                        /* TODO: report unexpected division type */
+                        bits_to_extend = 1;
+                        break;
+                }
+                extra_bits = tvb_get_guint8(tvb, offset) &
+                                 ((bits_to_extend == 1) ? 0x01 : 0x03);
+                rx_timing_deviation = (extra_bits << 8) | (rx_timing_deviation);
+                proto_item_append_text(rx_timing_deviation_ti,
+                                       " (extended to 0x%x)",
+                                       rx_timing_deviation);
+                proto_tree_add_bits_item(tree, hf_fp_extended_bits, tvb,
+                                         offset*8 + (8-bits_to_extend), bits_to_extend, FALSE);
+                offset++;
+            }
+
+            /* Ext propagation delay. */
+            if (ext_propagation_delay_present)
+            {
                 guint16 extra_bits = tvb_get_ntohs(tvb, offset) & 0x03ff;
                 proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 2, FALSE);
 
@@ -1316,12 +1405,16 @@ void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                 offset += 2;
             }
 
-            if (p_fp_info->channel == CHANNEL_RACH_TDD_128) {
-                guint16 extra_bits;
-
-                /* Angle of Arrival (AOA) */
+            /* Angle of Arrival (AOA) */
+            if (angle_of_arrival_present)
+            {
                 proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
                 offset += 2;
+            }
+
+            /* Ext. Rx Sync UL Timing Deviation */
+            if (ext_rx_sync_ul_timing_deviation_present) {
+                guint16 extra_bits;
 
                 /* Ext received Sync UL Timing Deviation */
                 extra_bits = tvb_get_ntohs(tvb, offset) & 0x1fff;
@@ -3522,52 +3615,76 @@ void proto_register_fp(void)
               "New IEs flags", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[0],
+        { &hf_fp_rach_new_ie_flag_unused[0],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x80,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[1],
+        { &hf_fp_rach_new_ie_flag_unused[1],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x40,
               "New IE present", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[2],
+        { &hf_fp_rach_new_ie_flag_unused[2],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x20,
-              "New IE present", HFILL
+              "New IE present (unused)", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[3],
+        { &hf_fp_rach_new_ie_flag_unused[3],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x10,
-              "New IE present", HFILL
+              "New IE present (unused)", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[4],
+        { &hf_fp_rach_new_ie_flag_unused[4],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x08,
-              "New IE present", HFILL
+              "New IE present (unused)", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[5],
+        { &hf_fp_rach_new_ie_flag_unused[5],
             { "New IE present",
               "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x04,
-              "New IE present", HFILL
+              "New IE present (unused)", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[6],
+        { &hf_fp_rach_new_ie_flag_unused[6],
+            { "New IE present",
+              "fp.rach.new-ie-flag", FT_UINT8, BASE_DEC, 0, 0x02,
+              "New IE present (unused)", HFILL
+            }
+        },
+        { &hf_fp_rach_cell_portion_id_present,
+            { "Cell portion ID present",
+              "fp.rach.cell-portion-id-present", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Cell portion ID present", HFILL
+            }
+        },
+        { &hf_fp_rach_angle_of_arrival_present,
+            { "Angle of arrival present",
+              "fp.rach.angle-of-arrival-present", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Angle of arrival present", HFILL
+            }
+        },
+        { &hf_fp_rach_ext_propagation_delay_present,
             { "Ext Propagation Delay Present",
               "fp.rach.ext-propagation-delay-present", FT_UINT8, BASE_DEC, 0, 0x02,
               "Ext Propagation Delay Present", HFILL
             }
         },
-        { &hf_fp_rach_new_ie_flag[7],
-            { "Cell portion ID present",
-              "fp.rach.cell-portion-id-present", FT_UINT8, BASE_DEC, 0, 0x01,
-              "Cell portion ID present", HFILL
+        { &hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
+            { "Ext Received Sync UL Timing Deviation present",
+              "fp.rach.ext-rx-sync-ul-timing-deviation-present", FT_UINT8, BASE_DEC, 0, 0x02,
+              "Ext Received Sync UL Timing Deviation present", HFILL
+            }
+        },
+        { &hf_fp_rach_ext_rx_timing_deviation_present,
+            { "Ext Rx Timing Deviation present",
+              "fp.rach.ext-rx-timing-deviation-present", FT_UINT8, BASE_DEC, 0, 0x01,
+              "Ext Rx Timing Deviation present", HFILL
             }
         },
         { &hf_fp_cell_portion_id,
