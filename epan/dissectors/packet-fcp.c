@@ -502,8 +502,8 @@ dissect_fcp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, con
 static void
 dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    /* 2 reserved bytes */
-    offset+=2;
+    /* 3 reserved bytes */
+    offset+=3;
 
     /* rsp code */
     proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, 0);
@@ -577,7 +577,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
         tvbuff_t *rspinfo_tvb;
 
         rspinfo_tvb=tvb_new_subset(tvb, offset, MIN(rsplen, tvb_length_remaining(tvb, offset)), rsplen);
-        dissect_fcp_rspinfo(tvb, tree, 0);
+        dissect_fcp_rspinfo(rspinfo_tvb, tree, 0);
 
         offset+=rsplen;
     }
