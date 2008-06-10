@@ -733,19 +733,19 @@ process_libs:
 !IFDEF GTK_DIR
 !IF "$(GTK_INST_VERSION)" == "2.12"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-2.12.9.zip
+		gtk2 gtk2.12/gtk+-2.12.10.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/gtk+-dev-2.12.9.zip
+		gtk2 gtk2.12/gtk+-dev-2.12.10.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/cairo-1.6.4-1.zip
+		gtk2 gtk2.12/cairo-1.6.4-2.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/cairo-dev-1.6.4-1.zip
+		gtk2 gtk2.12/cairo-dev-1.6.4-2.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/atk-1.22.0.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/atk-dev-1.22.0.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/libpng-1.2.8-bin.zip
+		gtk2 gtk2.12/libpng-1.2.29.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.12/tiff-3.8.2-1-bin.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -770,9 +770,9 @@ process_libs:
 !ENDIF
 !IF "$(PANGO_INST_VERSION)" == "1.20"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-1.20.2.zip
+		gtk2 gtk2.12/pango-1.20.3.zip
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk2 gtk2.12/pango-dev-1.20.2.zip
+		gtk2 gtk2.12/pango-dev-1.20.3.zip
 !ELSEIF "$(PANGO_INST_VERSION)" == "1.16"
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		gtk2 gtk2.10/pango-1.16.4.zip
@@ -982,7 +982,8 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules\im-*.dll $(INSTALL_DIR)\lib\gtk-2.0\$(GTK_LIB_DIR)\immodules /d
 #	xcopy $(GTK_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules\pango-*.dll $(INSTALL_DIR)\lib\pango\$(PANGO_LIB_DIR)\modules /d
 !IFDEF NEED_LIBPNG_DLL
-	xcopy $(GTK_DIR)\bin\libpng13.dll $(INSTALL_DIR) /d
+#	xcopy $(GTK_DIR)\bin\libpng13.dll $(INSTALL_DIR) /d
+	xcopy $(GTK_DIR)\bin\libpng12-0.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_LIBTIFF_DLL
 	xcopy $(GTK_DIR)\bin\libtiff3.dll $(INSTALL_DIR) /d
@@ -1056,7 +1057,7 @@ checkapi: checkapi_local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../codecs
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
-##	cd ../gtk
+	cd ../gtk
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
 	cd ../epan
 ##	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake checkapi
