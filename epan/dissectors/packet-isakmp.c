@@ -45,16 +45,11 @@
 
 #include <glib.h>
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
 #ifdef _WIN32
-#include <hmac.h>
-#include <des.h>
-#include <cbc.h>
-#else
-#include <nettle/hmac.h>
-#include <nettle/des.h>
-#include <nettle/cbc.h>
-#endif
+#include <winposixtype.h>
+#endif /* _WIN32 */
+#include <gcrypt.h>
 #include <epan/strutil.h>
 #include <wsutil/file_util.h>
 #endif
@@ -220,7 +215,7 @@ typedef struct isakmp_hdr {
 #define HMAC_SHA2_384	5
 #define HMAC_SHA2_512	6
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
 
 #define MAIN_MODE 2
 #define AGGRESSIVE_MODE 4
@@ -352,13 +347,12 @@ set_transform_vals(decrypt_data_t *decr, int ike_p1, guint16 type, guint32 val) 
 }
 
 static tvbuff_t *
-decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr) {
+decrypt_payload(tvbuff_t *tvb, packet_info *pinfo, const guint8 *buf, guint buf_len, isakmp_hdr_t *hdr) {
   decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
   gchar *decrypted_data = NULL;
-  struct md5_ctx m_ctx;
-  struct sha1_ctx s_ctx;
-  struct des3_ctx d3_ctx;
-  struct des_ctx d_ctx;
+  gint gcry_md_algo, gcry_cipher_algo;
+  gcry_md_hd_t md_ctx;
+  gcry_cipher_hd_t decr_ctx;
   tvbuff_t *encr_tvb;
   iv_data_t *ivd = NULL;
   GList *ivl;
@@ -374,29 +368,31 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
 
   switch(decr->encr_alg) {
     case ENC_3DES_CBC:
-      if (decr->secret_len < DES3_KEY_SIZE) return NULL;
-      cbc_block_size = DES_BLOCK_SIZE;
+      gcry_cipher_algo = GCRY_CIPHER_3DES;
       break;
     case ENC_DES_CBC:
-      if (decr->secret_len < DES_KEY_SIZE) return NULL;
-      cbc_block_size = DES_BLOCK_SIZE;
+      gcry_cipher_algo = GCRY_CIPHER_DES;
       break;
     default:
       return NULL;
       break;
   }
+  if (decr->secret_len < gcry_cipher_get_algo_keylen(gcry_cipher_algo))
+    return NULL;
+  cbc_block_size = gcry_cipher_get_algo_blklen(gcry_cipher_algo);
 
   switch(decr->hash_alg) {
     case HMAC_MD5:
-      digest_size = MD5_DIGEST_SIZE;
+      gcry_md_algo = GCRY_MD_MD5;
       break;
     case HMAC_SHA:
-      digest_size = SHA1_DIGEST_SIZE;
+      gcry_md_algo = GCRY_MD_SHA1;
       break;
     default:
       return NULL;
       break;
   }
+  digest_size = gcry_md_get_algo_dlen(gcry_md_algo);
 
   for (ivl = g_list_first(decr->iv_list); ivl != NULL; ivl = g_list_next(ivl)) {
     ivd = (iv_data_t *) ivl->data;
@@ -415,23 +411,19 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
    * - Otherwise, use the last CBC.
    */
   if (iv_len == 0) {
+    if (gcry_md_open(&md_ctx, gcry_md_algo, 0) != GPG_ERR_NO_ERROR)
+      return NULL;
     if (decr->iv_list == NULL) {
       /* First packet */
       ivd = g_malloc(sizeof(iv_data_t));
       ivd->frame_num = pinfo->fd->num;
       ivd->iv_len = digest_size;
       decr->last_message_id = hdr->message_id;
-      if (decr->hash_alg == HMAC_MD5) {
-        md5_init(&m_ctx);
-        md5_update(&m_ctx, decr->gi_len, decr->gi);
-        md5_update(&m_ctx, decr->gr_len, decr->gr);
-        md5_digest(&m_ctx, MD5_DIGEST_SIZE, ivd->iv);
-      } else {
-        sha1_init(&s_ctx);
-        sha1_update(&s_ctx, decr->gi_len, decr->gi);
-        sha1_update(&s_ctx, decr->gr_len, decr->gr);
-        sha1_digest(&s_ctx, SHA1_DIGEST_SIZE, ivd->iv);
-      }
+      gcry_md_reset(md_ctx);
+      gcry_md_write(md_ctx, decr->gi, decr->gi_len);
+      gcry_md_write(md_ctx, decr->gr, decr->gr_len);
+      gcry_md_final(md_ctx);
+      memcpy(ivd->iv, gcry_md_read(md_ctx, gcry_md_algo), digest_size);
       decr->iv_list = g_list_append(decr->iv_list, ivd);
       iv_len = ivd->iv_len;
       memcpy(iv, ivd->iv, iv_len);
@@ -446,17 +438,10 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
         ivd->iv_len = digest_size;
 	decr->last_message_id = hdr->message_id;
 	message_id = g_htonl(decr->last_message_id);
-	if (decr->hash_alg == HMAC_MD5) {
-          md5_init(&m_ctx);
-          md5_update(&m_ctx, cbc_block_size, decr->last_p1_cbc);
-          md5_update(&m_ctx, sizeof(message_id), (unsigned char *) &message_id);
-          md5_digest(&m_ctx, MD5_DIGEST_SIZE, ivd->iv);
-	} else {
-          sha1_init(&s_ctx);
-          sha1_update(&s_ctx, cbc_block_size, decr->last_p1_cbc);
-          sha1_update(&s_ctx, sizeof(message_id), (unsigned char *) &message_id);
-          sha1_digest(&s_ctx, SHA1_DIGEST_SIZE, ivd->iv);
-	}
+        gcry_md_reset(md_ctx);
+        gcry_md_write(md_ctx, decr->last_p1_cbc, cbc_block_size);
+        gcry_md_write(md_ctx, &message_id, sizeof(message_id));
+        memcpy(ivd->iv, gcry_md_read(md_ctx, gcry_md_algo), digest_size);
       } else {
         ivd->iv_len = cbc_block_size;
         memcpy(ivd->iv, decr->last_cbc, ivd->iv_len);
@@ -465,23 +450,27 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
       iv_len = ivd->iv_len;
       memcpy(iv, ivd->iv, iv_len);
     }
+    gcry_md_close(md_ctx);
   }
 
   if (ivd == NULL) return NULL;
 
+  if (gcry_cipher_open(&decr_ctx, gcry_cipher_algo, GCRY_CIPHER_MODE_CBC, 0) != GPG_ERR_NO_ERROR)
+    return NULL;
+  if (iv_len > cbc_block_size)
+      iv_len = cbc_block_size; /* gcry warns otherwise */
+  if (gcry_cipher_setiv(decr_ctx, iv, iv_len))
+    return NULL;
+  if (gcry_cipher_setkey(decr_ctx, decr->secret, decr->secret_len))
+    return NULL;
+      
   decrypted_data = g_malloc(buf_len);
 
-  if (decr->encr_alg = ENC_3DES_CBC) {
-    des_fix_parity(decr->secret_len, decr->secret, decr->secret);
-    des3_set_key(&d3_ctx, decr->secret);
-    cbc_decrypt(&d3_ctx, des3_decrypt, DES_BLOCK_SIZE, iv,
-	buf_len, decrypted_data, buf);
-  } else {
-    des_fix_parity(decr->secret_len, decr->secret, decr->secret);
-    des_set_key(&d_ctx, decr->secret);
-    cbc_decrypt(&d_ctx, des_decrypt, DES_BLOCK_SIZE, iv,
-	buf_len, decrypted_data, buf);
+  if (gcry_cipher_decrypt(decr_ctx, decrypted_data, buf_len, buf, buf_len) != GPG_ERR_NO_ERROR) {
+      g_free(decrypted_data);
+      return NULL;
   }
+  gcry_cipher_close(decr_ctx);
 
   encr_tvb = tvb_new_real_data(decrypted_data, buf_len, buf_len);
 
@@ -493,7 +482,7 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
   /* Fill in the next IV */
   if (tvb_length(tvb) > cbc_block_size) {
     decr->last_cbc_len = cbc_block_size;
-    memcpy(decr->last_cbc, iv, cbc_block_size);
+    memcpy(decr->last_cbc, buf + buf_len - cbc_block_size, cbc_block_size);
   } else {
     decr->last_cbc_len = 0;
   }
@@ -501,7 +490,7 @@ decrypt_payload(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const guint
   return encr_tvb;
 }
 
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 
 static const char* vid_to_str(tvbuff_t *, int, int);
 static proto_tree *dissect_payload_header(tvbuff_t *, int, int, int, guint8,
@@ -848,15 +837,13 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *		ti;
   proto_tree *		isakmp_tree = NULL;
   int			isakmp_version;
-#ifdef HAVE_LIBNETTLE
-  guint8                zeroes[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+#ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t       *decr = NULL;
   tvbuff_t             *decr_tvb;
   proto_tree           *decr_tree;
-  void                 *pd = pinfo->private_data;
   address               null_addr;
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
@@ -887,7 +874,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO,
                 exchtype2str(isakmp_version, hdr.exch_type));
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
   tvb_memcpy(tvb, i_cookie, offset, COOKIE_SIZE);
@@ -910,7 +897,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   pinfo->private_data = decr;
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 
   if (tree) {
     proto_tree_add_item(isakmp_tree, hf_isakmp_icookie, tvb, offset, COOKIE_SIZE, FALSE);
@@ -1000,17 +987,17 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text(isakmp_tree, tvb, offset, len,
 			"Encrypted payload (%d byte%s)",
 			len, plurality(len, "", "s"));
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
 
 	if (decr) {
-	  decr_tvb = decrypt_payload(isakmp_tree, tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr);
+	  decr_tvb = decrypt_payload(tvb, pinfo, tvb_get_ptr(tvb, offset, len), len, &hdr);
 	  if (decr_tvb) {
             decr_tree = proto_item_add_subtree(ti, ett_isakmp);
             dissect_payloads(decr_tvb, decr_tree, tree, isakmp_version,
                    hdr.next_payload, 0, tvb_length(decr_tvb), pinfo);
 	  }
 	}
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
       }
     } else
       dissect_payloads(tvb, isakmp_tree, tree, isakmp_version, hdr.next_payload,
@@ -1268,9 +1255,9 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
   guint8		transform_id;
   guint8		transform_num;
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 
   transform_num = tvb_get_guint8(tvb, offset);
   proto_item_append_text(tree," # %d",transform_num);
@@ -1331,7 +1318,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			  "%s (%u): %s (%u)",
 			  str, type,
 			  v1_attrval2str(ike_phase1, type, val), val);
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
       set_transform_vals(decr, ike_phase1, type, val);
 #endif
       offset += 4;
@@ -1349,7 +1336,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			    "%s (%u): %s (%u)",
 			    str, type,
 			    v1_attrval2str(ike_phase1, type, val), val);
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
         set_transform_vals(decr, ike_phase1, type, val);
 #endif
       }
@@ -1594,9 +1581,9 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     proto_tree *p _U_, packet_info *pinfo _U_, int isakmp_version, int unused _U_)
 {
   guint16 dhgroup;
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   decrypt_data_t *decr = (decrypt_data_t *) pinfo->private_data;
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 
   if (isakmp_version == 2) {
     dhgroup = tvb_get_ntohs(tvb, offset);
@@ -1609,7 +1596,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data (%d bytes / %d bits)",
 	length, length * 8);
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   if (decr && decr->gi_len == 0 && ADDRESSES_EQUAL(&decr->initiator, &pinfo->src)) {
     decr->gi = g_malloc(length);
     tvb_memcpy(tvb, decr->gi, offset, length);
@@ -1619,7 +1606,7 @@ dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     tvb_memcpy(tvb, decr->gr, offset, length);
     decr->gr_len = length;
   }
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
@@ -3169,7 +3156,7 @@ get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p)
  * Protocol initialization
  */
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
 static guint
 isakmp_hash_func(gconstpointer c) {
   guint8 *i_cookie = (guint8 *) c;
@@ -3200,7 +3187,7 @@ isakmp_init_protocol(void) {
   fragment_table_init (&isakmp_fragment_table);
   reassembled_table_init(&isakmp_reassembled_table);
 
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   if (isakmp_hash) {
     g_hash_table_destroy(isakmp_hash);
   }
@@ -3221,14 +3208,14 @@ isakmp_init_protocol(void) {
   logf = ws_fopen(pluto_log_path, "r");
 
   scan_pluto_log();
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 }
 
 static void
 isakmp_prefs_apply_cb(void) {
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   isakmp_init_protocol();
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 }
 
 void
@@ -3400,12 +3387,12 @@ proto_register_isakmp(void)
   register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
   isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
-#ifdef HAVE_LIBNETTLE
+#ifdef HAVE_LIBGCRYPT
   prefs_register_string_preference(isakmp_module, "log",
     "Log Filename",
     "Path to a pluto log file containing DH secret information",
     &pluto_log_path);
-#endif /* HAVE_LIBNETTLE */
+#endif /* HAVE_LIBGCRYPT */
 }
 
 void
