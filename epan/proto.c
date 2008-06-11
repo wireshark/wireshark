@@ -828,7 +828,8 @@ ptvcursor_pop_subtree(ptvcursor_t *ptvc)
 }
 
 /* saves the current tvb offset and the item in the current subtree level */
-void ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
+static void
+ptvcursor_subtree_set_item(ptvcursor_t * ptvc, proto_item * it)
 {
   subtree_lvl * subtree;
 
