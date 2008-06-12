@@ -19182,6 +19182,8 @@ proto_register_smb(void)
 
 	register_init_routine(smb_trans_reassembly_init);
 	smb_tap = register_tap("smb");
+
+	register_dissector("smb", dissect_smb, proto_smb);
 }
 
 void
