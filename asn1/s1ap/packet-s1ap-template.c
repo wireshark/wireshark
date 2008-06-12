@@ -1,6 +1,6 @@
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2008, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *

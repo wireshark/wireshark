@@ -1,4 +1,5 @@
 -- $Id$
+-- 3GPP TS 36.413 V8.2.0 (2008-06)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -59,7 +60,14 @@ id-UECapabilityInfoIndication		ProcedureCode ::= 22
 id-UEContextRelease					ProcedureCode ::= 23
 id-eNBStatusTransfer				ProcedureCode ::= 24
 id-MMEStatusTransfer				ProcedureCode ::= 25
-
+id-DeactivateTrace					ProcedureCode ::= 26
+id-TraceStart						ProcedureCode ::= 27
+id-TraceFailureIndication			ProcedureCode ::= 28
+id-ENBConfigurationUpdate			ProcedureCode ::= 29
+id-MMEConfigurationUpdate			ProcedureCode ::= 30
+id-LocationReportingControl			ProcedureCode ::= 31
+id-LocationReportingFailureIndication	ProcedureCode ::= 32
+id-LocationReport					ProcedureCode ::= 33
 
 -- **************************************************************
 --
@@ -79,14 +87,16 @@ maxProtocolIEs						INTEGER ::= 65535
 maxNrOfSAEBs							INTEGER ::= 256
 maxNrOfInterfaces						INTEGER ::= 3   --FFS
 maxnoofTAI								INTEGER ::= 256 --FFS
+maxnoofTACs								INTEGER ::= 256 --FFS
 maxNrOfErrors							INTEGER ::= 256
 maxnoofBPLMNs							INTEGER ::= 6
 maxnoofPLMNsPerMME						INTEGER ::= 32 -- FFS
-maxnoofTAIs								INTEGER ::= 256  -- FFS 
 maxnoofEPLMNs							INTEGER ::= 15
 maxnoofEPLMNsPlusOne					INTEGER ::= 16
 maxnoofForbLACs							INTEGER ::= 256		-- FFS Value to be checked
-maxnoofForbTAIs							INTEGER ::= 256		-- FFS Value to be checked
+maxnoofForbTACs							INTEGER ::= 256		-- FFS Value to be checked
+maxNrOfIndividualS1ConnectionsToReset	INTEGER ::= 256
+
 
 
 
@@ -141,8 +151,8 @@ id-HandoverRestrictionList						ProtocolIE-ID ::= 41
 id-UEPagingID 									ProtocolIE-ID ::= 43
 id-pagingDRX 									ProtocolIE-ID ::= 44
 id-pagingCause									ProtocolIE-ID ::= 45
-id-TAIdList										ProtocolIE-ID ::= 46
-id-TAIdItem										ProtocolIE-ID ::= 47
+id-TAIList										ProtocolIE-ID ::= 46
+id-TAIItem										ProtocolIE-ID ::= 47
 id-SAEBearerFailedToSetupListCtxtSURes			ProtocolIE-ID ::= 48
 id-SAEBearerReleaseItemHOCmd					ProtocolIE-ID ::= 49
 id-SAEBearerSetupItemCtxtSURes					ProtocolIE-ID ::= 50
@@ -158,11 +168,10 @@ id-ENB-Global-ID								ProtocolIE-ID ::= 59
 id-eNBname										ProtocolIE-ID ::= 60
 id-MMEname										ProtocolIE-ID ::= 61
 id-ServedPLMNs									ProtocolIE-ID ::= 63
-id-SupportedTAIs								ProtocolIE-ID ::= 64
+id-SupportedTAs									ProtocolIE-ID ::= 64
 id-TimeToWait									ProtocolIE-ID ::= 65
 id-aggregateMaximumBitrate						ProtocolIE-ID ::= 66
-id-TAId											ProtocolIE-ID ::= 67
-id-ServingPLMN									ProtocolIE-ID ::= 68
+id-TAI											ProtocolIE-ID ::= 67
 id-SAEBearerReleaseListBearerRelComp			ProtocolIE-ID ::= 69
 id-cdma2000PDU									ProtocolIE-ID ::= 70
 id-cdma2000RATType								ProtocolIE-ID ::= 71
@@ -170,13 +179,28 @@ id-cdma2000SectorID								ProtocolIE-ID ::= 72
 id-SecurityInfo									ProtocolIE-ID ::= 73
 id-UERadioCapability							ProtocolIE-ID ::= 74
 id-GUMMEI-ID									ProtocolIE-ID ::= 75
-id-Bearers-SubjectToStatusTransferENB-List		ProtocolIE-ID ::= 76
-id-Bearers-SubjectToStatusTransferENB-Item		ProtocolIE-ID ::= 77
 id-SAEBearerInformationListItem					ProtocolIE-ID ::= 78
 id-Direct-Forwarding-Path-Availability			ProtocolIE-ID ::= 79
 id-UEIdentityIndexValue							ProtocolIE-ID ::= 80
-id-Bearers-SubjectToStatusTransferMME-List		ProtocolIE-ID ::= 80
-id-Bearers-SubjectToStatusTransferMME-Item		ProtocolIE-ID ::= 81
+id-cdma2000HOStatus								ProtocolIE-ID ::= 83
+id-cdma2000HORequiredIndication					ProtocolIE-ID ::= 84
+id-cdma2000OneXMEID								ProtocolIE-ID ::= 85
+id-TraceReference								ProtocolIE-ID ::= 86
+id-RelativeMMECapacity							ProtocolIE-ID ::= 87
+id-SourceMME-UE-S1AP-ID							ProtocolIE-ID ::= 88
+id-Bearers-SubjectToStatusTransfer-Item			ProtocolIE-ID ::= 89
+id-eNB-StatusTransfer-TransparentContainer		ProtocolIE-ID ::= 90
+id-UE-associatedLogicalS1-ConnectionItem		ProtocolIE-ID ::= 91
+id-ResetType									ProtocolIE-ID ::= 92
+id-UE-associatedLogicalS1-ConnectionListResAck	ProtocolIE-ID ::= 93
+id-SAEBearerToBeSwitchedULItem					ProtocolIE-ID ::= 94
+id-SAEBearerToBeSwitchedULList					ProtocolIE-ID ::= 95
+id-S-TMSI										ProtocolIE-ID ::= 96
+id-cdma2000OneXRAND								ProtocolIE-ID ::= 97
+id-RequestType									ProtocolIE-ID ::= 98
+id-UE-S1AP-IDs									ProtocolIE-ID ::= 99
+id-EUTRAN-CGI-ID								ProtocolIE-ID ::= 100
 
 END
+
 

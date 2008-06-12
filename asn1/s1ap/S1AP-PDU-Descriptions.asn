@@ -1,4 +1,5 @@
 -- $Id$
+-- 3GPP TS 36.413 V8.2.0 (2008-06)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -25,79 +26,100 @@ IMPORTS
 	ProcedureCode
 FROM S1AP-CommonDataTypes
 
-	HandoverRequired,
+	DeactivateTrace,
+	DownlinkNASTransport,
+	DownlinkS1cdma2000tunneling,
+	ENBStatusTransfer,
+	ENBConfigurationUpdate,
+	ENBConfigurationUpdateAcknowledge,
+	ENBConfigurationUpdateFailure,
+	ErrorIndication,
+	HandoverCancel,
+	HandoverCancelAcknowledge,
 	HandoverCommand,
+	HandoverFailure,
+	HandoverNotify,
 	HandoverPreparationFailure,
 	HandoverRequest,
 	HandoverRequestAcknowledge,
-	HandoverFailure,
-	HandoverNotify,
+	HandoverRequired,
+	InitialContextSetupFailure,
+	InitialContextSetupRequest,
+	InitialContextSetupResponse,
+	InitialUEMessage,
+	LocationReportingControl,
+	LocationReportingFailureIndication,
+	LocationReport,
+
+	MMEConfigurationUpdate,
+	MMEConfigurationUpdateAcknowledge,
+	MMEConfigurationUpdateFailure,
+	MMEStatusTransfer,
+	NASNonDeliveryIndication,
+	Paging,
 	PathSwitchRequest,
 	PathSwitchRequestAcknowledge,
 	PathSwitchRequestFailure,	
-	SAEBearerSetupRequest,
-	SAEBearerSetupResponse,
+	Reset,
+	ResetAcknowledge,
+	S1SetupFailure,
+	S1SetupRequest,
+	S1SetupResponse,
 	SAEBearerModifyRequest,
 	SAEBearerModifyResponse,
 	SAEBearerReleaseCommand,
-	SAEBearerReleaseComplete,
+	SAEBearerReleaseResponse,
 	SAEBearerReleaseRequest,
-	InitialContextSetupRequest,
-	InitialContextSetupResponse,
-	InitialContextSetupFailure,
-	Paging,
-	DownlinkNASTransport,
-	InitialUEMessage,
-	UplinkNASTransport,
-	HandoverCancel,
-	HandoverCancelAcknowledge,
-	Reset,
-	ResetAcknowledge,
-	ErrorIndication,
-	NASNonDeliveryIndication,
-	S1SetupRequest,
-	S1SetupResponse,
-	S1SetupFailure,
-	UEContextReleaseRequest,
-	UplinkS1cdma2000tunneling,
-	DownlinkS1cdma2000tunneling,
+	SAEBearerSetupRequest,
+	SAEBearerSetupResponse,
+	TraceFailureIndication,
+	TraceStart,
+	UECapabilityInfoIndication,
+	UEContextModificationFailure,
 	UEContextModificationRequest,
 	UEContextModificationResponse,
-	UEContextModificationFailure,
-	UECapabilityInfoIndication,
 	UEContextReleaseCommand,
 	UEContextReleaseComplete,
-	ENBStatusTransfer,
-	MMEStatusTransfer
+	UEContextReleaseRequest,
+	UplinkNASTransport,
+	UplinkS1cdma2000tunneling
 
 FROM S1AP-PDU-Contents
 	
+	id-DeactivateTrace,
+	id-downlinkNASTransport,
+	id-DownlinkS1cdma2000tunneling,
+	id-eNBStatusTransfer,
+	id-ErrorIndication,
+	id-HandoverCancel,
+	id-HandoverNotification,
 	id-HandoverPreparation,
 	id-HandoverResourceAllocation,
-	id-HandoverNotification,
+	id-InitialContextSetup,
+	id-initialUEMessage,
+	id-ENBConfigurationUpdate,
+	id-LocationReportingControl,
+	id-LocationReportingFailureIndication,
+	id-LocationReport,
+	id-MMEConfigurationUpdate,
+	id-MMEStatusTransfer,
+	id-NASNonDeliveryIndication,
+	id-Paging,
 	id-PathSwitchRequest,
-	id-SAEBearerSetup,
+	id-Reset,
+	id-S1Setup,
 	id-SAEBearerModify,
 	id-SAEBearerRelease,
 	id-SAEBearerReleaseRequest,
-	id-InitialContextSetup,
-	id-Paging,
-	id-downlinkNASTransport,
-	id-initialUEMessage,
-	id-uplinkNASTransport,
-	id-HandoverCancel,
-	id-Reset,
-	id-ErrorIndication,
-	id-NASNonDeliveryIndication,
-	id-S1Setup,
-	id-UEContextReleaseRequest,
-	id-UplinkS1cdma2000tunneling,
-	id-DownlinkS1cdma2000tunneling,
-	id-UEContextModification,
+	id-SAEBearerSetup,
+	id-TraceFailureIndication,
+	id-TraceStart,
 	id-UECapabilityInfoIndication,
+	id-UEContextModification,
 	id-UEContextRelease,
-	id-eNBStatusTransfer,
-	id-MMEStatusTransfer
+	id-UEContextReleaseRequest,
+	id-uplinkNASTransport,
+	id-UplinkS1cdma2000tunneling
 FROM S1AP-Constants;
 
 
@@ -178,7 +200,9 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	reset							|
 	s1Setup							|
 	uEContextModification			|
-	uEContextRelease				,
+	uEContextRelease				|
+	eNBConfigurationUpdate			|
+	mMEConfigurationUpdate			,
 	...
 }
 
@@ -196,7 +220,13 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 	uplinkS1cdma2000tunneling		|
 	uECapabilityInfoIndication		|
 	eNBStatusTransfer				|
-	mMEStatusTransfer				,
+	mMEStatusTransfer				|
+	deactivateTrace					|
+	traceStart						|
+	traceFailureIndication			|
+	locationReportingControl		|
+	locationReportingFailureIndication		|
+	locationReport					,
 	...
 }
 
@@ -252,7 +282,7 @@ sAEbearerModify S1AP-ELEMENTARY-PROCEDURE ::= {
 
 sAEbearerRelease S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE	SAEBearerReleaseCommand
-	SUCCESSFUL OUTCOME	SAEBearerReleaseComplete
+	SUCCESSFUL OUTCOME	SAEBearerReleaseResponse
 	PROCEDURE CODE		id-SAEBearerRelease
 	CRITICALITY		reject
 }
@@ -334,6 +364,22 @@ s1Setup S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				reject
 }
 
+eNBConfigurationUpdate S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENBConfigurationUpdate
+	SUCCESSFUL OUTCOME		ENBConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME 	ENBConfigurationUpdateFailure
+	PROCEDURE CODE			id-ENBConfigurationUpdate
+	CRITICALITY				reject
+}
+
+mMEConfigurationUpdate S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MMEConfigurationUpdate
+	SUCCESSFUL OUTCOME		MMEConfigurationUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME 	MMEConfigurationUpdateFailure
+	PROCEDURE CODE			id-MMEConfigurationUpdate
+	CRITICALITY				reject
+}
+
 downlinkS1cdma2000tunneling S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		DownlinkS1cdma2000tunneling
 	PROCEDURE CODE			id-DownlinkS1cdma2000tunneling
@@ -380,4 +426,39 @@ mMEStatusTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+deactivateTrace S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DeactivateTrace
+	PROCEDURE CODE			id-DeactivateTrace
+	CRITICALITY				ignore
+}
+
+traceStart S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	TraceStart
+	PROCEDURE CODE		id-TraceStart
+	CRITICALITY			ignore
+}
+
+traceFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE	TraceFailureIndication
+	PROCEDURE CODE		id-TraceFailureIndication
+	CRITICALITY			ignore
+}
+
+locationReportingControl S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		LocationReportingControl
+	PROCEDURE CODE			id-LocationReportingControl
+	CRITICALITY				ignore
+}
+
+locationReportingFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		LocationReportingFailureIndication
+	PROCEDURE CODE			id-LocationReportingFailureIndication
+	CRITICALITY				ignore
+}
+
+locationReport S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		LocationReport
+	PROCEDURE CODE			id-LocationReport
+	CRITICALITY				ignore
+}
 END

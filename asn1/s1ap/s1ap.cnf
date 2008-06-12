@@ -150,32 +150,40 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(s1ap_Prot
 #.ASSIGN_VALUE_TO_TYPE  # S1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-HandoverPreparation 				ProcedureCode
-id-HandoverResourceAllocation 		ProcedureCode
-id-HandoverNotification 			ProcedureCode
-id-PathSwitchRequest 				ProcedureCode
-id-HandoverCancel 					ProcedureCode
-id-SAEBearerSetup					ProcedureCode
-id-SAEBearerModify 					ProcedureCode
-id-SAEBearerRelease					ProcedureCode
-id-SAEBearerReleaseRequest			ProcedureCode
-id-InitialContextSetup				ProcedureCode
-id-Paging							ProcedureCode
-id-downlinkNASTransport				ProcedureCode
-id-initialUEMessage					ProcedureCode
-id-uplinkNASTransport				ProcedureCode
-id-Reset							ProcedureCode
-id-ErrorIndication					ProcedureCode
-id-NASNonDeliveryIndication			ProcedureCode
-id-S1Setup							ProcedureCode
-id-UEContextReleaseRequest			ProcedureCode
-id-DownlinkS1cdma2000tunneling		ProcedureCode
-id-UplinkS1cdma2000tunneling		ProcedureCode
-id-UEContextModification			ProcedureCode
-id-UECapabilityInfoIndication		ProcedureCode
-id-UEContextRelease					ProcedureCode
-id-eNBStatusTransfer				ProcedureCode
-id-MMEStatusTransfer				ProcedureCode
+id-HandoverPreparation 					ProcedureCode
+id-HandoverResourceAllocation 			ProcedureCode
+id-HandoverNotification 				ProcedureCode
+id-PathSwitchRequest 					ProcedureCode
+id-HandoverCancel 						ProcedureCode
+id-SAEBearerSetup						ProcedureCode
+id-SAEBearerModify 						ProcedureCode
+id-SAEBearerRelease						ProcedureCode
+id-SAEBearerReleaseRequest				ProcedureCode
+id-InitialContextSetup					ProcedureCode
+id-Paging								ProcedureCode
+id-downlinkNASTransport					ProcedureCode
+id-initialUEMessage						ProcedureCode
+id-uplinkNASTransport					ProcedureCode
+id-Reset								ProcedureCode
+id-ErrorIndication						ProcedureCode
+id-NASNonDeliveryIndication				ProcedureCode
+id-S1Setup								ProcedureCode
+id-UEContextReleaseRequest				ProcedureCode
+id-DownlinkS1cdma2000tunneling			ProcedureCode
+id-UplinkS1cdma2000tunneling			ProcedureCode
+id-UEContextModification				ProcedureCode
+id-UECapabilityInfoIndication			ProcedureCode
+id-UEContextRelease						ProcedureCode
+id-eNBStatusTransfer					ProcedureCode
+id-MMEStatusTransfer					ProcedureCode
+id-DeactivateTrace						ProcedureCode
+id-TraceStart							ProcedureCode
+id-TraceFailureIndication				ProcedureCode
+id-ENBConfigurationUpdate				ProcedureCode
+id-MMEConfigurationUpdate				ProcedureCode
+id-LocationReportingControl				ProcedureCode
+id-LocationReportingFailureIndication	ProcedureCode
+id-LocationReport						ProcedureCode
 
 # ProtocolIE-ID
 id-MME-UE-S1AP-ID									ProtocolIE-ID
@@ -222,8 +230,8 @@ id-Security-Information								ProtocolIE-ID
 id-HandoverRestrictionList							ProtocolIE-ID
 id-pagingDRX 										ProtocolIE-ID
 id-pagingCause										ProtocolIE-ID
-id-TAIdList											ProtocolIE-ID
-id-TAIdItem											ProtocolIE-ID
+id-TAIList											ProtocolIE-ID
+id-TAIItem											ProtocolIE-ID
 id-SAEBearerFailedToSetupListCtxtSURes				ProtocolIE-ID
 id-SAEBearerReleaseItemHOCmd						ProtocolIE-ID
 id-SAEBearerSetupItemCtxtSURes						ProtocolIE-ID
@@ -238,11 +246,10 @@ id-CriticalityDiagnostics 							ProtocolIE-ID
 id-eNBname											ProtocolIE-ID
 id-MMEname											ProtocolIE-ID
 id-ServedPLMNs										ProtocolIE-ID
-id-SupportedTAIs									ProtocolIE-ID
+id-SupportedTAs										ProtocolIE-ID
 id-TimeToWait										ProtocolIE-ID
 id-aggregateMaximumBitrate							ProtocolIE-ID
-id-TAId												ProtocolIE-ID
-id-ServingPLMN										ProtocolIE-ID
+id-TAI												ProtocolIE-ID
 id-SAEBearerReleaseListBearerRelComp				ProtocolIE-ID
 id-cdma2000PDU										ProtocolIE-ID
 id-cdma2000RATType									ProtocolIE-ID
@@ -250,13 +257,27 @@ id-cdma2000SectorID									ProtocolIE-ID
 id-SecurityInfo										ProtocolIE-ID
 id-UERadioCapability								ProtocolIE-ID
 id-GUMMEI-ID										ProtocolIE-ID
-id-Bearers-SubjectToStatusTransferENB-List			ProtocolIE-ID
-id-Bearers-SubjectToStatusTransferENB-Item			ProtocolIE-ID
 id-SAEBearerInformationListItem						ProtocolIE-ID
 id-Direct-Forwarding-Path-Availability				ProtocolIE-ID
 id-UEIdentityIndexValue								ProtocolIE-ID
-id-Bearers-SubjectToStatusTransferMME-List			ProtocolIE-ID
-id-Bearers-SubjectToStatusTransferMME-Item			ProtocolIE-ID
+id-cdma2000HOStatus									ProtocolIE-ID
+id-cdma2000HORequiredIndication						ProtocolIE-ID
+id-cdma2000OneXMEID									ProtocolIE-ID
+id-TraceReference									ProtocolIE-ID
+id-RelativeMMECapacity								ProtocolIE-ID
+id-SourceMME-UE-S1AP-ID								ProtocolIE-ID
+id-Bearers-SubjectToStatusTransfer-Item				ProtocolIE-ID
+id-eNB-StatusTransfer-TransparentContainer			ProtocolIE-ID
+id-UE-associatedLogicalS1-ConnectionItem			ProtocolIE-ID
+id-ResetType										ProtocolIE-ID
+id-UE-associatedLogicalS1-ConnectionListResAck		ProtocolIE-ID
+id-SAEBearerToBeSwitchedULItem						ProtocolIE-ID
+id-SAEBearerToBeSwitchedULList						ProtocolIE-ID
+id-S-TMSI											ProtocolIE-ID
+id-cdma2000OneXRAND									ProtocolIE-ID
+id-RequestType										ProtocolIE-ID
+id-UE-S1AP-IDs										ProtocolIE-ID
+id-EUTRAN-CGI-ID									ProtocolIE-ID 
 
 #.END
 
@@ -307,8 +328,8 @@ SecurityInformation						N s1ap.ies id-Security-Information
 HandoverRestrictionList					N s1ap.ies id-HandoverRestrictionList
 PagingDRX								N s1ap.ies id-pagingDRX
 PagingCause								N s1ap.ies id-pagingCause
-TAIdList								N s1ap.ies id-TAIdList
-TAIdItem								N s1ap.ies id-TAIdItem
+TAIList									N s1ap.ies id-TAIList
+TAIItem									N s1ap.ies id-TAIItem
 SAEBearerList							N s1ap.ies id-SAEBearerFailedToSetupListCtxtSURes
 SAEBearerReleaseItemHOCmd				N s1ap.ies id-SAEBearerReleaseItemHOCmd
 SAEBearerSetupItemCtxtSURes				N s1ap.ies id-SAEBearerSetupItemCtxtSURes
@@ -323,11 +344,10 @@ CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
 ENBname									N s1ap.ies id-eNBname
 MMEname									N s1ap.ies id-MMEname
 ServedPLMNs								N s1ap.ies id-ServedPLMNs
-SupportedTAIs							N s1ap.ies id-SupportedTAIs
+SupportedTAs							N s1ap.ies id-SupportedTAs
 TimeToWait								N s1ap.ies id-TimeToWait
 AggregateMaximumBitrate					N s1ap.ies id-aggregateMaximumBitrate
-TAId									N s1ap.ies id-TAId
-PLMNidentity							N s1ap.ies id-ServingPLMN
+TAI										N s1ap.ies id-TAI
 SAEBearerReleaseListBearerRelComp		N s1ap.ies id-SAEBearerReleaseListBearerRelComp				
 Cdma2000PDU								N s1ap.ies id-cdma2000PDU										
 Cdma2000RATType							N s1ap.ies id-cdma2000RATType									
@@ -335,13 +355,27 @@ Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID
 SecurityInfo							N s1ap.ies id-SecurityInfo										
 UERadioCapability						N s1ap.ies id-UERadioCapability								
 GUMMEI									N s1ap.ies id-GUMMEI-ID										
-Bearers-SubjectToStatusTransferENB-List	N s1ap.ies id-Bearers-SubjectToStatusTransferENB-List			
-Bearers-SubjectToStatusTransferENB-Item	N s1ap.ies id-Bearers-SubjectToStatusTransferENB-Item			
 #N s1ap.ies id-SAEBearerInformationListItem						
 Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability				
 UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
-Bearers-SubjectToStatusTransferMME-List	N s1ap.ies id-Bearers-SubjectToStatusTransferMME-List			
-Bearers-SubjectToStatusTransferMME-Item	N s1ap.ies id-Bearers-SubjectToStatusTransferMME-Item			
+Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
+Cdma2000HORequiredIndication			N s1ap.ies id-cdma2000HORequiredIndication
+Cdma2000OneXMEID						N s1ap.ies id-cdma2000OneXMEID
+TraceReference							N s1ap.ies id-TraceReference
+RelativeMMECapacity						N s1ap.ies id-RelativeMMECapacity
+MME-UE-S1AP-ID							N s1ap.ies id-SourceMME-UE-S1AP-ID
+Bearers-SubjectToStatusTransfer-Item	N s1ap.ies id-Bearers-SubjectToStatusTransfer-Item
+ENB-StatusTransfer-TransparentContainer	N s1ap.ies id-eNB-StatusTransfer-TransparentContainer
+UE-associatedLogicalS1-ConnectionItem	N s1ap.ies id-UE-associatedLogicalS1-ConnectionItem
+ResetType								N s1ap.ies id-ResetType
+UE-associatedLogicalS1-ConnectionListResAck	N s1ap.ies id-UE-associatedLogicalS1-ConnectionListResAck
+SAEBearerToBeSwitchedULItem				N s1ap.ies id-SAEBearerToBeSwitchedULItem
+SAEBearerToBeSwitchedULList				N s1ap.ies id-SAEBearerToBeSwitchedULList
+S-TMSI									N s1ap.ies id-S-TMSI
+Cdma2000OneXRAND						N s1ap.ies id-cdma2000OneXRAND
+RequestType								N s1ap.ies id-RequestType
+UE-S1AP-IDs								N s1ap.ies id-UE-S1AP-IDs
+EUTRAN-CGI-ID							N s1ap.ies id-EUTRAN-CGI-ID 
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst         N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -373,7 +407,7 @@ SAEBearerModifyRequest					N s1ap.proc.imsg id-SAEBearerModify
 SAEBearerModifyResponse					N s1ap.proc.sout id-SAEBearerModify
 
 SAEBearerReleaseCommand					N s1ap.proc.imsg id-SAEBearerRelease
-SAEBearerReleaseComplete				N s1ap.proc.sout id-SAEBearerRelease
+SAEBearerReleaseResponse				N s1ap.proc.sout id-SAEBearerRelease
 
 SAEBearerReleaseRequest					N s1ap.proc.imsg id-SAEBearerReleaseRequest
 
@@ -407,6 +441,14 @@ S1SetupFailure							N s1ap.proc.uout id-S1Setup
 
 DownlinkS1cdma2000tunneling				N s1ap.proc.imsg id-DownlinkS1cdma2000tunneling
 
+ENBConfigurationUpdate					N s1ap.proc.imsg id-ENBConfigurationUpdate
+ENBConfigurationUpdateAcknowledge		N s1ap.proc.sout id-ENBConfigurationUpdate
+ENBConfigurationUpdateFailure			N s1ap.proc.uout id-ENBConfigurationUpdate
+
+MMEConfigurationUpdate					N s1ap.proc.imsg id-MMEConfigurationUpdate
+MMEConfigurationUpdateAcknowledge		N s1ap.proc.sout id-MMEConfigurationUpdate
+MMEConfigurationUpdateFailure			N s1ap.proc.uout id-MMEConfigurationUpdate
+
 UplinkS1cdma2000tunneling				N s1ap.proc.imsg id-UplinkS1cdma2000tunneling
 
 UEContextModificationRequest			N s1ap.proc.imsg id-UEContextModification 
@@ -421,4 +463,16 @@ UEContextReleaseComplete				N s1ap.proc.sout id-UEContextRelease
 ENBStatusTransfer						N s1ap.proc.imsg id-eNBStatusTransfer
 
 MMEStatusTransfer						N s1ap.proc.imsg id-MMEStatusTransfer
+
+DeactivateTrace							N s1ap.proc.imsg id-DeactivateTrace
+
+TraceStart								N s1ap.proc.imsg id-TraceStart
+
+TraceFailureIndication					N s1ap.proc.imsg id-TraceFailureIndication
+
+LocationReportingControl				N s1ap.proc.imsg id-LocationReportingControl
+
+LocationReportingFailureIndication		N s1ap.proc.imsg id-LocationReportingFailureIndication
+
+LocationReport							N s1ap.proc.imsg id-LocationReport
 #.END
