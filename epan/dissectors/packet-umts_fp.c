@@ -2599,7 +2599,7 @@ void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         if ((p_fp_info->release == 6) ||
             (p_fp_info->release == 7))
         {
-            guint8 frame_seq_no = tvb_get_guint8(tvb, offset);
+            guint8 frame_seq_no = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
             proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
 
             if (check_col(pinfo->cinfo, COL_INFO))
@@ -2752,7 +2752,7 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         if ((p_fp_info->release == 6) ||
             (p_fp_info->release == 7))
         {
-            guint8 frame_seq_no = tvb_get_guint8(tvb, offset);
+            guint8 frame_seq_no = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
             proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
 
             if (check_col(pinfo->cinfo, COL_INFO))
