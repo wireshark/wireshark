@@ -375,6 +375,8 @@ static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
                                      int offset, struct fp_info *p_fp_info);
 static void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                       int offset, struct fp_info *p_fp_info);
+static void dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                     int offset, struct fp_info *p_fp_info);
 static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                           int offset, struct fp_info *p_fp_info _U_);
 static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1820,6 +1822,34 @@ void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 }
 
+
+/**************************/
+/* Dissect a BCH channel  */
+void dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                              int offset, struct fp_info *p_fp_info)
+{
+    gboolean is_control_frame;
+
+    /* Header CRC */
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+
+    /* Frame Type */
+    is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    offset++;
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
+    }
+
+    if (is_control_frame)
+    {
+        dissect_common_control(tvb, pinfo, tree, offset, p_fp_info);
+    }
+}
+
+
 /********************************/
 /* Dissect an IUR DSCH channel  */
 void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -2957,7 +2987,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_cpch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_BCH:
-            /* TODO? */
+            dissect_bch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_HSDSCH:
             switch (p_fp_info->hsdsch_entity) {
