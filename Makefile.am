@@ -561,16 +561,34 @@ EXTRA_DIST = \
 	colorfilters 		\
 	config.h.win32		\
 	config.nmake		\
-	debian/README.debian	\
 	debian/changelog	\
+	debian/compat		\
 	debian/control		\
 	debian/copyright	\
 	debian/dirs		\
-	debian/docs		\
-	debian/menu		\
+	debian/headers-check.c	\
+	debian/patches/00list	\
+	debian/patches/03_preferences.dpatch \
 	debian/postinst		\
-	debian/prerm		\
+	debian/pycompat		\
+	debian/pyversions	\
 	debian/rules		\
+	debian/tshark.files	\
+	debian/tshark.manpages	\
+	debian/watch		\
+	debian/wireshark-common.files \
+	debian/wireshark-common.manpages \
+	debian/wireshark-common.shlibs \
+	debian/wireshark-dev.docs \
+	debian/wireshark-dev.files \
+	debian/wireshark-dev.header-files \
+	debian/wireshark-dev.manpages \
+	debian/wireshark-dev.prerm \
+	debian/wireshark-root.desktop \
+	debian/wireshark.desktop \
+	debian/wireshark.files \
+	debian/wireshark.manpages \
+	debian/wireshark.menu	\
 	dfilters 		\
 	doc/Makefile.am		\
 	doc/Makefile.nmake	\
