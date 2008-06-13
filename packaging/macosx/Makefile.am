@@ -1,10 +1,12 @@
 #
-# This is currently disabled, since the contents of the 
+# This was disabled at one point, since the contents of the 
 # Clearlooks-Quicksilver-OSX directory exceed the 99-character file
-# name limit imposed by tar.
+# name limit imposed by the old tar format.  We now use ustar format,
+# which doesn't have that limitation.
 #
-# To reenable this file, add "macosx" to SUBDIRS in ../Makefile.am and
-# add an entry for this Makefile.am to AC_SUBST in ../../configure.in.
+# To re-disable this file, remove "macosx" to SUBDIRS in ../Makefile.am and
+# remove the entries for this Makefile.am and Info.plist from AC_OUTPUT
+# in ../../configure.in.
 #
 MAINTAINERCLEANFILES = \
 	Makefile.in
