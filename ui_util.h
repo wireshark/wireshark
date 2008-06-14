@@ -64,7 +64,7 @@ gint packet_list_append(const gchar *text[], gpointer data);
 void packet_list_set_colors(gint, color_t *, color_t *);
 gint packet_list_find_row_from_data(gpointer);
 void packet_list_set_text(gint, gint, const gchar *);
-void packet_list_set_cls_time_width(gint);
+void packet_list_set_time_width(gint, gint);
 gpointer packet_list_get_row_data(gint);
 void packet_list_set_selected_row(gint);
 gint packet_list_get_sort_column(void);

@@ -341,6 +341,17 @@ have_custom_cols(column_info *cinfo)
     return FALSE;
 }
 
+gboolean
+col_has_time_fmt(column_info *cinfo, gint col)
+{
+  return ((cinfo->fmt_matx[col][COL_CLS_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_TIME]) ||
+          (cinfo->fmt_matx[col][COL_ABS_DATE_TIME]) ||
+          (cinfo->fmt_matx[col][COL_REL_TIME]) ||
+          (cinfo->fmt_matx[col][COL_DELTA_TIME]) ||
+          (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
+}
+
 static void
 col_do_append_sep_va_fstr(column_info *cinfo, gint el, const gchar *separator,
 			  const gchar *format, va_list ap)
@@ -936,14 +947,8 @@ col_set_epoch_time(frame_data *fd, column_info *cinfo, int col)
   g_strlcpy(cinfo->col_expr.col_expr[col],"frame.time_delta",COL_MAX_LEN);
   g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
 }
-/* Set the format of the variable time format.
-   XXX - this is called from "file.c" when the user changes the time
-   format they want for "command-line-specified" time; it's a bit ugly
-   that we have to export it, but if we go to a CList-like widget that
-   invokes callbacks to get the text for the columns rather than
-   requiring us to stuff the text into the widget from outside, we
-   might be able to clean this up. */
-void
+
+static void
 col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
 {
   switch (timestamp_get_type()) {
@@ -972,9 +977,55 @@ col_set_cls_time(frame_data *fd, column_info *cinfo, gint col)
       break;
 
     case TS_NOT_SET:
-	/* code is missing for this case, but I don't know which [jmayer20051219] */
-	g_assert(FALSE);
-        break;
+      /* code is missing for this case, but I don't know which [jmayer20051219] */
+      g_assert(FALSE);
+      break;
+  }
+}
+
+/* Set the format of the variable time format.
+   XXX - this is called from "file.c" when the user changes the time
+   format they want for "command-line-specified" time; it's a bit ugly
+   that we have to export it, but if we go to a CList-like widget that
+   invokes callbacks to get the text for the columns rather than
+   requiring us to stuff the text into the widget from outside, we
+   might be able to clean this up. */
+void
+col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col)
+{
+  switch (fmt) {
+    case COL_CLS_TIME:
+       col_set_cls_time(fd, cinfo, col);
+      break;
+
+    case COL_ABS_TIME:
+      col_set_abs_time(fd, cinfo, col);
+      break;
+
+    case COL_ABS_DATE_TIME:
+      col_set_abs_date_time(fd, cinfo, col);
+      break;
+
+    case COL_REL_TIME:
+      col_set_rel_time(fd, cinfo, col);
+      break;
+
+    case COL_DELTA_TIME:
+      col_set_delta_time(fd, cinfo, col);
+      break;
+
+    case COL_DELTA_TIME_DIS:
+      col_set_delta_time_dis(fd, cinfo, col);
+      break;
+
+    case COL_REL_CONV_TIME:
+    case COL_DELTA_CONV_TIME:
+      /* Will be set by various dissectors */
+      break;
+
+    default:
+      g_assert_not_reached();
+      break;
   }
 }
 

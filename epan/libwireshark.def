@@ -82,10 +82,11 @@ col_custom_set_fstr
 col_format_desc
 col_format_to_string
 col_get_writable
+col_has_time_fmt
 col_prepend_fence_fstr
 col_prepend_fstr
-col_set_cls_time
 col_set_fence
+col_set_fmt_time
 col_set_str
 col_set_time
 col_set_writable

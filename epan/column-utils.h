@@ -64,7 +64,7 @@ extern void	col_init(column_info *cinfo);
  *
  * Internal, don't use this in dissectors!
  */
-extern void	col_set_cls_time(frame_data *, column_info *cinfo, gint col);
+extern void	col_set_fmt_time(frame_data *fd, column_info *cinfo, gint fmt, gint col);
 
 /** Fill in all columns of the given packet.
  *
@@ -152,6 +152,7 @@ void col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo);
 
 /* For internal Wireshark use only.  Not to be called from dissectors. */
 gboolean have_custom_cols(column_info *cinfo);
+gboolean col_has_time_fmt(column_info *cinfo, gint col);
 
 /** Append the given text to a column element, the text will be copied.
  *

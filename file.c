@@ -2504,7 +2504,6 @@ cf_change_time_formats(capture_file *cf)
   gchar       status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
-  int         first, last;
   gboolean    sorted_by_frame_column;
 
 
@@ -2517,14 +2516,16 @@ cf_change_time_formats(capture_file *cf)
      XXX - we have to force the "column is writable" flag on, as it
      might be off from the last frame that was dissected. */
   col_set_writable(&cf->cinfo, TRUE);
-  if (!check_col(&cf->cinfo, COL_CLS_TIME)) {
+  if (!check_col(&cf->cinfo, COL_CLS_TIME) &&
+      !check_col(&cf->cinfo, COL_ABS_TIME) &&
+      !check_col(&cf->cinfo, COL_ABS_DATE_TIME) &&
+      !check_col(&cf->cinfo, COL_REL_TIME) &&
+      !check_col(&cf->cinfo, COL_DELTA_TIME) &&
+      !check_col(&cf->cinfo, COL_DELTA_TIME_DIS)) {
     /* No, there aren't any columns in that format, so we have no work
        to do. */
     return;
   }
-  first = cf->cinfo.col_first[COL_CLS_TIME];
-  g_assert(first >= 0);
-  last = cf->cinfo.col_last[COL_CLS_TIME];
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
@@ -2630,12 +2631,12 @@ cf_change_time_formats(capture_file *cf)
     if (row != -1) {
       /* This packet is in the summary list, on row "row". */
 
-      for (i = first; i <= last; i++) {
-        if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
+      for (i = 0; i < cf->cinfo.num_cols; i++) {
+        if (col_has_time_fmt(&cf->cinfo, i)) {
           /* This is one of the columns that shows the time in
              "command-line-specified" format; update it. */
           cf->cinfo.col_buf[i][0] = '\0';
-          col_set_cls_time(fdata, &cf->cinfo, i);
+          col_set_fmt_time(fdata, &cf->cinfo, cf->cinfo.col_fmt[i], i);
           packet_list_set_text(row, i, cf->cinfo.col_data[i]);
         }
       }
@@ -2649,9 +2650,9 @@ cf_change_time_formats(capture_file *cf)
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
-  for (i = first; i <= last; i++) {
-    if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
-      packet_list_set_cls_time_width(i);
+  for (i = 0; i < cf->cinfo.num_cols; i++) {
+    if (col_has_time_fmt(&cf->cinfo, i)) {
+      packet_list_set_time_width(cf->cinfo.col_fmt[i], i);
     }
   }
 

@@ -808,7 +808,7 @@ packet_list_set_text(gint row, gint column, const gchar *text)
 /* Set the column widths of those columns that show the time in
  * "command-line-specified" format. */
 void
-packet_list_set_cls_time_width(gint column)
+packet_list_set_time_width(gint col_fmt, gint column)
 {
     gint      width = -1;
     PangoLayout  *layout;
@@ -818,7 +818,7 @@ packet_list_set_cls_time_width(gint column)
     }
     if (width == -1) {
         layout = gtk_widget_create_pango_layout(packet_list,
-                     get_column_longest_string(COL_CLS_TIME));
+                     get_column_longest_string(col_fmt));
 	pango_layout_get_pixel_size(layout, &width, NULL);
 	g_object_unref(G_OBJECT(layout));
     }
