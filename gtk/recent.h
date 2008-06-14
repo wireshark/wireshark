@@ -142,4 +142,11 @@ extern int recent_set_arg(char *prefarg);
  */
 extern gint recent_get_column_width(gint col);
 
+/** Set the column width for the given column
+ * 
+ * @param col column number
+ * @param width column width
+ */
+extern void recent_set_column_width(gint col, gint width);
+
 #endif /* recent.h */

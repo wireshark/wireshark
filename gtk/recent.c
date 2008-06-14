@@ -911,3 +911,43 @@ recent_get_column_width(gint col)
 
   return -1;
 }
+
+void
+recent_set_column_width(gint col, gint width)
+{
+  GList *col_l;
+  col_width_data *col_w;
+  gint cfmt;
+  const gchar *cfield = NULL;
+  gboolean found = FALSE;
+
+  cfmt = get_column_format(col);
+  if (cfmt == COL_CUSTOM) {
+    cfield = get_column_custom_field(col);
+  }
+
+  col_l = g_list_first(recent.col_width_list);
+  while (col_l) {
+    col_w = (col_width_data *) col_l->data;
+    if (col_w->cfmt == cfmt) {
+      if (cfmt != COL_CUSTOM || strcmp (cfield, col_w->cfield) == 0) {
+	col_w->width = width;
+	found = TRUE;
+	break;
+      }
+    }
+    col_l = col_l->next;
+  }
+
+  if (!found) {
+    col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
+    col_w->cfmt = cfmt;
+    if (cfield) {
+      col_w->cfield = g_strdup(cfield);
+    } else {
+      col_w->cfield = NULL;
+    }
+    col_w->width = width;
+    recent.col_width_list = g_list_append(recent.col_width_list, col_w);
+  }
+}

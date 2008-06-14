@@ -255,6 +255,12 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
   gtk_clist_sort(clist);
 }
 
+static void
+packet_list_resize_column_cb(GtkCList *clist _U_, gint column, gint width, gpointer data _U_)
+{
+  recent_set_column_width (column, width);
+}
+
 /* What to do when a list item is selected/unselected */
 static void
 packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, GdkEventButton *event _U_, gpointer evt _U_) {
@@ -598,7 +604,9 @@ packet_list_set_column_titles(void)
     }
     gtk_clist_column_titles_show(GTK_CLIST(packet_list));
     g_signal_connect(packet_list, "click-column", G_CALLBACK(packet_list_click_column_cb),
-                   col_arrows);
+		     col_arrows);
+    g_signal_connect(packet_list, "resize-column", G_CALLBACK(packet_list_resize_column_cb),
+		     NULL);
 }
 
 void
