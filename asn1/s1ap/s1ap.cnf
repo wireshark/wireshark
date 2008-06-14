@@ -129,6 +129,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
  #.END
 
+
 # following construction is not supported by asn2wrs
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 # TBCD-STRING ::= OCTET STRING
@@ -245,6 +246,7 @@ id-UTRANtoLTEHOInformationRes						ProtocolIE-ID
 id-CriticalityDiagnostics 							ProtocolIE-ID
 id-eNBname											ProtocolIE-ID
 id-MMEname											ProtocolIE-ID
+id-ENB-Global-ID									ProtocolIE-ID
 id-ServedPLMNs										ProtocolIE-ID
 id-SupportedTAs										ProtocolIE-ID
 id-TimeToWait										ProtocolIE-ID
@@ -341,6 +343,7 @@ GERANtoLTEHOInformationRes				N s1ap.ies id-GERANtoLTEHOInformationRes
 UTRANtoLTEHOInformationReq				N s1ap.ies id-UTRANtoLTEHOInformationReq
 UTRANtoLTEHOInformationRes				N s1ap.ies id-UTRANtoLTEHOInformationRes
 CriticalityDiagnostics					N s1ap.ies id-CriticalityDiagnostics
+ENB-Global-ID							N s1ap.ies id-ENB-Global-ID
 ENBname									N s1ap.ies id-eNBname
 MMEname									N s1ap.ies id-MMEname
 ServedPLMNs								N s1ap.ies id-ServedPLMNs

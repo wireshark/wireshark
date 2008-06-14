@@ -8,7 +8,7 @@
 #line 1 "packet-s1ap-template.c"
 /* packet-s1ap.c
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
- * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2007-2008, Anders Broman <anders.broman@ericsson.com>
  *
  * $Id$
  *
@@ -241,6 +241,7 @@ static int hf_s1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics *
 static int hf_s1ap_Direct_Forwarding_Path_Availability_PDU = -1;  /* Direct_Forwarding_Path_Availability */
 static int hf_s1ap_ENB_StatusTransfer_TransparentContainer_PDU = -1;  /* ENB_StatusTransfer_TransparentContainer */
 static int hf_s1ap_ENB_UE_S1AP_ID_PDU = -1;       /* ENB_UE_S1AP_ID */
+static int hf_s1ap_ENB_Global_ID_PDU = -1;        /* ENB_Global_ID */
 static int hf_s1ap_ENBname_PDU = -1;              /* ENBname */
 static int hf_s1ap_EUTRAN_CGI_ID_PDU = -1;        /* EUTRAN_CGI_ID */
 static int hf_s1ap_GUMMEI_PDU = -1;               /* GUMMEI */
@@ -1338,7 +1339,7 @@ dissect_s1ap_TBCD_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_s1ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "s1ap.cnf"
+#line 138 "s1ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4510,6 +4511,14 @@ static int dissect_ENB_UE_S1AP_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_ENB_Global_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_s1ap_ENB_Global_ID(tvb, offset, &asn1_ctx, tree, hf_s1ap_ENB_Global_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_ENBname_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -5662,6 +5671,10 @@ void proto_register_s1ap(void) {
       { "ENB-UE-S1AP-ID", "s1ap.ENB_UE_S1AP_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         "s1ap.ENB_UE_S1AP_ID", HFILL }},
+    { &hf_s1ap_ENB_Global_ID_PDU,
+      { "ENB-Global-ID", "s1ap.ENB_Global_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "s1ap.ENB_Global_ID", HFILL }},
     { &hf_s1ap_ENBname_PDU,
       { "ENBname", "s1ap.ENBname",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -6996,6 +7009,7 @@ proto_reg_handoff_s1ap(void)
   dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationReq, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationReq_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationRes, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationRes_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_ENB_Global_ID, new_create_dissector_handle(dissect_ENB_Global_ID_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_eNBname, new_create_dissector_handle(dissect_ENBname_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_MMEname, new_create_dissector_handle(dissect_MMEname_PDU, proto_s1ap));
   dissector_add("s1ap.ies", id_ServedPLMNs, new_create_dissector_handle(dissect_ServedPLMNs_PDU, proto_s1ap));
