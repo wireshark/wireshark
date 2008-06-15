@@ -50,6 +50,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
 #include "gtk/expert_comp_dlg.h"
+#include "gtk/profile_dlg.h"
 
 #include "../image/expert_error.xpm"
 #include "../image/expert_warn.xpm"
@@ -77,7 +78,7 @@ typedef enum {
 
 
 GtkWidget    *status_pane_left, *status_pane_right;
-GtkWidget    *info_bar, *packets_bar, *profile_bar;
+GtkWidget    *info_bar, *packets_bar, *profile_bar, *profile_bar_event;
 GtkWidget    *expert_info_error, *expert_info_warn, *expert_info_note;
 GtkWidget    *expert_info_chat, *expert_info_none;
 
@@ -89,7 +90,7 @@ static gchar        *profile_str = NULL;
 
 static GtkWidget *info_bar_new(void);
 static GtkWidget *packets_bar_new(void);
-static GtkWidget *profile_bar_new(void);
+static void profile_bar_new(void);
 static void status_expert_new(void);
 
 
@@ -201,8 +202,7 @@ statusbar_new(void)
     gtk_widget_show(packets_bar);
 
     /* profile statusbar */
-    profile_bar = profile_bar_new();
-    gtk_widget_show(profile_bar);
+    profile_bar_new();
 
     /* expert info indicator */
     status_expert_new();
@@ -247,6 +247,7 @@ statusbar_widgets_emptying(GtkWidget *statusbar)
     gtk_widget_ref(info_bar);
     gtk_widget_ref(packets_bar);
     gtk_widget_ref(profile_bar);
+    gtk_widget_ref(profile_bar_event);
     gtk_widget_ref(status_pane_left);
     gtk_widget_ref(status_pane_right);
     gtk_widget_ref(expert_info_error);
@@ -273,7 +274,7 @@ statusbar_widgets_pack(GtkWidget *statusbar)
     gtk_paned_pack1(GTK_PANED(status_pane_left), info_bar, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(status_pane_left), status_pane_right, TRUE, FALSE);
     gtk_paned_pack1(GTK_PANED(status_pane_right), packets_bar, TRUE, FALSE);
-    gtk_paned_pack2(GTK_PANED(status_pane_right), profile_bar, FALSE, FALSE);
+    gtk_paned_pack2(GTK_PANED(status_pane_right), profile_bar_event, FALSE, FALSE);
 }
 
 void
@@ -337,15 +338,24 @@ packets_bar_new(void)
     return packets_bar;
 }
 
-static GtkWidget *
+void
 profile_bar_new(void)
 {
-    /* tip: tooltips don't work on statusbars! */
+    GtkTooltips   *tooltips;
+
+    tooltips = gtk_tooltips_new();
+
+    profile_bar_event = gtk_event_box_new();
     profile_bar = gtk_statusbar_new();
+    gtk_container_add(GTK_CONTAINER(profile_bar_event), profile_bar);
+    g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_dialog_cb), NULL);
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
+    gtk_tooltips_set_tip (tooltips, profile_bar_event,
+			  "Click to change configuration profile.", NULL);
     profile_bar_update();
 
-    return profile_bar;
+    gtk_widget_show(profile_bar);
+    gtk_widget_show(profile_bar_event);
 }
 
 
