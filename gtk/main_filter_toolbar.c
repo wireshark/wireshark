@@ -210,7 +210,6 @@ GtkWidget *filter_toolbar_new()
                          filter_te);
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
-    g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
 
     return filter_tb;
 }

@@ -534,6 +534,7 @@ packet_list_new(e_prefs *prefs)
                    g_object_get_data(G_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
     g_signal_connect(packet_list, "button_press_event",
                    G_CALLBACK(packet_list_button_pressed_cb), NULL);
+    g_object_set_data(G_OBJECT(popup_menu_object), E_MPACKET_LIST_KEY, packet_list);
     gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
     gtk_widget_show(packet_list);
 
