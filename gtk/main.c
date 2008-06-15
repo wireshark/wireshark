@@ -3119,7 +3119,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     main_tb = toolbar_new();
     gtk_widget_show (main_tb);
 
-    /* filter toolbar */
+    /* Filter toolbar */
     filter_tb = filter_toolbar_new();
 
     /* Packet list */
@@ -3249,6 +3249,7 @@ void change_configuration_profile (const gchar *profile_name)
    menu_recent_read_finished();
    main_pane_load_window_geometry();
    recent.gui_time_format = timestamp_get_type ();
+   recent.gui_time_precision = timestamp_get_precision ();
 
    prefs_to_capture_opts();
    prefs_apply_all();
