@@ -88,8 +88,8 @@ static gchar        *packets_str = NULL;
 static gchar        *profile_str = NULL;
 
 
-static GtkWidget *info_bar_new(void);
-static GtkWidget *packets_bar_new(void);
+static void info_bar_new(void);
+static void packets_bar_new(void);
 static void profile_bar_new(void);
 static void status_expert_new(void);
 
@@ -194,12 +194,10 @@ statusbar_new(void)
     gtk_container_border_width(GTK_CONTAINER(status_hbox), 0);
 
     /* info (main) statusbar */
-    info_bar = info_bar_new();
-    gtk_widget_show(info_bar);
+    info_bar_new();
 
     /* packets statusbar */
-    packets_bar = packets_bar_new();
-    gtk_widget_show(packets_bar);
+    packets_bar_new();
 
     /* profile statusbar */
     profile_bar_new();
@@ -305,7 +303,7 @@ statusbar_widgets_show_or_hide(GtkWidget *statusbar)
 }
 
 
-static GtkWidget *
+static void
 info_bar_new(void)
 {
     int i;
@@ -323,10 +321,10 @@ info_bar_new(void)
         status_levels[i] = 0;
     }
 
-    return info_bar;
+    gtk_widget_show(info_bar);
 }
 
-static GtkWidget *
+static void
 packets_bar_new(void)
 {
     /* tip: tooltips don't work on statusbars! */
@@ -335,10 +333,10 @@ packets_bar_new(void)
     packets_bar_update();
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
 
-    return packets_bar;
+    gtk_widget_show(packets_bar);
 }
 
-void
+static void
 profile_bar_new(void)
 {
     GtkTooltips   *tooltips;
