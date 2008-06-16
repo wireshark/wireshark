@@ -306,7 +306,7 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, proto_tree *tree, int offset){
 	mcc = 100 * mcc1 + 10 * mcc2 + mcc3;
 	mnc = 10 * mnc1 + mnc2;
 	if (mnc3 != 0xf) {
-		mnc += 10 * mnc + mnc3;
+		mnc = 10 * mnc + mnc3;
 	}
 	proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc );
 	proto_tree_add_uint(tree, hf_E212_mnc , tvb, start_offset + 1, 2, mnc );

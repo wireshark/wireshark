@@ -412,7 +412,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
             }
 
             /* Add packet entry into table */
-            pkey = g_malloc(sizeof(pkey));
+            pkey = g_malloc(sizeof(*pkey));
             *pkey = this_offset;
             g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 

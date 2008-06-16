@@ -4024,7 +4024,7 @@ ldap_reinit(void)
 
   /* Free up state attached to the ldap_info structures */
   for (ldap_info = ldap_info_items; ldap_info != NULL; ) {
-    ldap_conv_info_t *last;
+    ldap_conv_info_t *next;
 
     if (ldap_info->auth_mech != NULL) {
       g_free(ldap_info->auth_mech);
@@ -4035,9 +4035,9 @@ ldap_reinit(void)
     g_hash_table_destroy(ldap_info->unmatched);
     ldap_info->unmatched=NULL;
 
-    last = ldap_info;
-    ldap_info = ldap_info->next;
+    next = ldap_info->next;
     g_free(ldap_info);
+    ldap_info = next;
   }
 
   ldap_info_items = NULL;

@@ -221,16 +221,11 @@ process_tcp_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
 
 struct tcp_analysis *
-new_tcp_conversation(packet_info *pinfo)
+init_tcp_conversation(packet_info *pinfo)
 {
-	int direction;
-	conversation_t *conv=NULL;
 	struct tcp_analysis *tcpd=NULL;
 
-	/* Create a new conversation. */
-	conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-
-	/* No no such data yet. Allocate and init it */
+	/* Initialize the tcp protocol datat structure to add to the tcp conversation */
 	tcpd=se_alloc(sizeof(struct tcp_analysis));
 	tcpd->flow1.segments=NULL;
 	tcpd->flow1.base_seq=0;
@@ -266,7 +261,19 @@ new_tcp_conversation(packet_info *pinfo)
 	tcpd->ts_prev.secs=pinfo->fd->abs_ts.secs;
 	tcpd->ts_prev.nsecs=pinfo->fd->abs_ts.nsecs;
 
+        return tcpd;
+}
 
+struct tcp_analysis *
+new_tcp_conversation(packet_info *pinfo)
+{
+	int direction;
+	conversation_t *conv=NULL;
+	struct tcp_analysis *tcpd=NULL;
+
+	/* Create a new conversation. */
+	conv=conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+        tcpd = init_tcp_conversation(pinfo);
 	conversation_add_proto_data(conv, proto_tcp, tcpd);
 
 	/* check direction and get ua lists */
@@ -301,6 +308,15 @@ get_tcp_conversation_data(packet_info *pinfo)
 	} else {
 		/* Get the data for this conversation */
 		tcpd=conversation_get_proto_data(conv, proto_tcp);
+
+                /* If the conversation matched a conversation with template
+                 * options, tcpd will not have been initialized. So, initialize
+                 * a new tcpd structure for the conversation.
+                 */
+                if (!tcpd) {
+                        tcpd = init_tcp_conversation(pinfo);
+                        conversation_add_proto_data(conv, proto_tcp, tcpd);
+                }
 	}
 
 	if (!tcpd) {

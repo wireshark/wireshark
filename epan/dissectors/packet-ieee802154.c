@@ -1559,7 +1559,7 @@ void proto_register_ieee802154(void)
             /*  Association response fields */
         { &hf_ieee802154_cmd_asrsp_addr,
         { "Short Address",              "wpan.cmd.asrsp.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "The short address that the device should assume.\nAn address of 0xfffe indicates that the device should use its IEEE 64-bit long address.", HFILL }},
+            "The short address that the device should assume. An address of 0xfffe indicates that the device should use its IEEE 64-bit long address.", HFILL }},
 
         { &hf_ieee802154_cmd_asrsp_status,
         { "Association Status",         "wpan.cmd.asrsp.status", FT_UINT8, BASE_HEX, NULL, 0x0,

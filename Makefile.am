@@ -926,7 +926,7 @@ srpm-package: dist
 	fi
 
 debian-package: debian/rules
-	@if test x$(HAVE_DPKG_BUILDPAKCAGE) = xyes ; then \
+	@if test x$(HAVE_DPKG_BUILDPACKAGE) = xyes ; then \
 		dpkg-buildpackage -rfakeroot -us -uc ; \
 	else \
 		echo "Error: Debian packaging tools not found." ; \
