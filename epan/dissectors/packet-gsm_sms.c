@@ -215,6 +215,7 @@ static gint ett_udh_ieis[NUM_UDH_IEIS];
 	oct); \
 }
 
+#define ADDRBUF_MAX_MESSAGE_SIZE 20
 static void
 dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
@@ -227,7 +228,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint32		numdigocts;
     guint32		length;
     guint32		i, j;
-    char                addrbuf[20];
+    char                addrbuf[ADDRBUF_MAX_MESSAGE_SIZE+1];
 
     offset = *offset_p;
 
@@ -1804,6 +1805,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
 /* 9.2.3.24 */
 #define NUM_FILL_BITS_MASKS 6
+#define SMS_MAX_MESSAGE_SIZE 160
 static void
 dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
@@ -1818,7 +1820,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint	fill_bits;
     guint32	out_len;
     char	*ustr;
-    char        messagebuf[160];
+    char        messagebuf[SMS_MAX_MESSAGE_SIZE+1];
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
     GIConv cd;

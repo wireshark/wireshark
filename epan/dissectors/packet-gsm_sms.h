@@ -24,6 +24,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+/* Convert a 7-bit GSM SMS packed string into an unpacked string.
+ *
+ * @param offset Bit offset of the start of the string.
+ * @param in_length Length of the packed string in bytes.
+ * @param out_length Length of the output string in bytes.
+ * @param input The string to unpack
+ * @param output The buffer for the output string. This buffer must
+ *               be pre-allocated and be at least out_length characters
+ *               long, or out_length + 1 if you're planning on adding a
+ *               terminating '\0'.
+ * @return The number of unpacked characters.
+ */
+
 extern int gsm_sms_char_7bit_unpack(unsigned int offset, unsigned int in_length, unsigned int out_length,
 		     const guint8 *input, unsigned char *output);
 extern void gsm_sms_char_ascii_decode(unsigned char* dest, const unsigned char* src, int len);
