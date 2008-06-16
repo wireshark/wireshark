@@ -77,6 +77,7 @@ static int hf_server_type_domainmasterb = -1;
 static int hf_server_type_osf = -1;
 static int hf_server_type_vms = -1;
 static int hf_server_type_w95 = -1;
+static int hf_server_type_dfs = -1;
 static int hf_server_type_local = -1;
 static int hf_server_type_domainenum = -1;
 static int hf_election_version = -1;
@@ -134,6 +135,7 @@ static gint ett_browse_reset_cmd_flags = -1;
 #define SERVER_OSF			20
 #define SERVER_VMS			21
 #define SERVER_WINDOWS_95		22
+#define SERVER_DFS_SERVER		23
 #define SERVER_LOCAL_LIST_ONLY		30
 #define SERVER_DOMAIN_ENUM		31
 
@@ -160,6 +162,7 @@ static const value_string server_types[] = {
 	{SERVER_OSF,			"OSF"},
 	{SERVER_VMS,			"VMS"},
 	{SERVER_WINDOWS_95,		"Windows 95 or above"},
+	{SERVER_DFS_SERVER,		"DFS server"},
 	{SERVER_LOCAL_LIST_ONLY,	"Local List Only"},
 	{SERVER_DOMAIN_ENUM,		"Domain Enum"},
 	{0,	NULL}
@@ -274,6 +277,10 @@ static const true_false_string tfs_vms = {
 static const true_false_string tfs_w95 = {
 	"This is a Windows 95 or above host",
 	"This is NOT a Windows 95 or above host"
+};
+static const true_false_string tfs_dfs = {
+	"This is a DFS server",
+	"THis is NOT a DFS server"
 };
 static const true_false_string tfs_local = {
 	"This is a local list only request",
@@ -539,6 +546,8 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_boolean(tree, hf_server_type_vms,
 		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_w95,
+		tvb, offset-4, 4, flags);
+	proto_tree_add_boolean(tree, hf_server_type_dfs,
 		tvb, offset-4, 4, flags);
 	proto_tree_add_boolean(tree, hf_server_type_local,
 		tvb, offset-4, 4, flags);
@@ -1019,6 +1028,10 @@ proto_register_smb_browse(void)
 		{ &hf_server_type_w95,
 			{ "Windows 95+", "browser.server_type.w95", FT_BOOLEAN, 32,
 			TFS(&tfs_w95), 1<<SERVER_WINDOWS_95, "Is This A Windows 95 or above server?", HFILL }},
+
+		{ &hf_server_type_dfs,
+			{ "DFS", "browser.server_type.dfs", FT_BOOLEAN, 32,
+			TFS(&tfs_dfs), 1<<SERVER_DFS_SERVER, "Is This A DFS server?", HFILL }},
 
 		{ &hf_server_type_local,
 			{ "Local", "browser.server_type.local", FT_BOOLEAN, 32,
