@@ -29,6 +29,14 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>           /* needed to define AF_ values on Windows */
+#endif
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
@@ -356,7 +364,7 @@ static const value_string dplay_command_val[] = {
 
 static const value_string dplay_af_val[] = {
     { 0x0002, "AF_INET" },
-    { 0x0006, "AF_IPX" },
+    { 0x0006, "AF_IPX" },  /* XXX - sys/socket.h: AF_IPX is 4 ? */
     { 0     , NULL},
 };
 
@@ -1197,8 +1205,16 @@ static gboolean heur_dissect_dplay(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     token = tvb_get_letohl(tvb, 0);
     token = (token & 0xfff00000) >> 20;
     if (token == 0xfab || token == 0xbab || token == 0xcab) {
+      /* Check the s_addr_in structure */
+      if (tvb_get_letohs(tvb, 4) == AF_INET) {
+        int offset;
+        for (offset = 12; offset <= 20; offset++)
+          if (tvb_get_guint8(tvb, offset) != 0)
+            return FALSE;
+
         dissect_dplay_player_msg(tvb, pinfo, tree);
         return TRUE;
+      }
     }
 
     return FALSE;

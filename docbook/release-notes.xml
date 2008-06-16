@@ -57,6 +57,12 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
+          Failure to detect/open valid ERF files.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2359">Bug
+          2359</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Window scaling bug.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2378">Bug
           2378</ulink>)
@@ -90,6 +96,24 @@ Wireshark Info
           Statistics > Multicast Streams are broken.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2414">Bug
           2414</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Failed tshark PDML export to file.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2432">Bug
+          2432</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RTCP MOS fields display wrong values.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2440">Bug
+          2440</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Ports incorrectly decoded as DPLAY instead of RTP.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2452">Bug
+          2452</ulink>)
         </para></listitem>
 
       </itemizedlist>

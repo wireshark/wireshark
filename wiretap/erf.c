@@ -56,8 +56,11 @@
 #include "atm.h"
 #include "erf.h"
 
-static int erf_read_header(
-			   FILE_T fh,
+#ifndef min
+#define min(a, b) ((a) > (b) ? (b) : (a))
+#endif
+
+static int erf_read_header(FILE_T fh,
 			   struct wtap_pkthdr *phdr,
 			   union wtap_pseudo_header *pseudo_header,
 			   erf_header_t *erf_header,
@@ -71,7 +74,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 			      union wtap_pseudo_header *pseudo_header, guchar *pd,
 			      int length, int *err, gchar **err_info);
 
-int erf_open(wtap *wth, int *err, gchar **err_info _U_)
+extern int erf_open(wtap *wth, int *err, gchar **err_info _U_)
 {
   int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   char *s;
@@ -123,6 +126,13 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
     wlen=g_ntohs(header.wlen);
     packet_size = rlen - sizeof(header);
 
+    /* fail on invalid record type, invalid rlen, timestamps decreasing, or incrementing too far */
+    
+    /* Test valid rlen >= 16 */
+    if (rlen < 16) {
+      return 0;
+    }
+    
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
        * Probably a corrupt capture file; don't blow up trying
@@ -139,43 +149,29 @@ int erf_open(wtap *wth, int *err, gchar **err_info _U_)
       continue;
     }
 
-    if (rlen < wlen) {
-      /* record length must be greater than wire length */
-      switch(header.type) {
-      case ERF_TYPE_ETH:
-      case ERF_TYPE_COLOR_ETH:
-      case ERF_TYPE_DSM_COLOR_ETH:
-	/* skip the test, we have a file with truncated snaplen */
-	break;
-      default:
-	return 0;
-      }
-    }
-
     /* fail on invalid record type, decreasing timestamps or non-zero pad-bits */
     /* Not all types within this range are decoded, but it is a first filter */
     if (header.type == 0 || header.type > ERF_TYPE_MAX ) {
       return 0;
     }
-
-    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_AAL2 */
-	if (header.type > ERF_TYPE_INFINIBAND) {
+    
+    /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_INFINIBAND */
+    if (header.type > ERF_TYPE_INFINIBAND) {
       return 0;
     }
-
+    
     if ((ts = pletohll(&header.ts)) < prevts) {
-      /* reassembled AAL5 records may not be in time order, so allow 1 sec fudge */
-      if (header.type == ERF_TYPE_AAL5) {
-	if ( ((prevts-ts)>>32) > 1 ) {
-	  return 0;
-	}
-      } else {
-	/* For other records, allow 1/256 sec fudge */
-	if ( (prevts-ts)>>24 > 1) {
-	  return 0;
-	}
+      /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
+      if ( ((prevts-ts)>>32) > 1 ) {
+	return 0;
       }
     }
+    
+    /* Check to see if timestamp increment is > 1 week */
+    if ( (i) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
+      return 0;
+    }
+    
     memcpy(&prevts, &ts, sizeof(prevts));
 
     /* Read over MC or ETH subheader */
@@ -273,12 +269,10 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 			      union wtap_pseudo_header *pseudo_header, guchar *pd,
-			      int length, int *err, gchar **err_info)
+			      int length _U_, int *err, gchar **err_info)
 {
   erf_header_t erf_header;
   guint32 packet_size;
-
-  if (length) {};
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
@@ -292,8 +286,7 @@ static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
   return TRUE;
 }
 
-static int erf_read_header(
-			   FILE_T fh,
+static int erf_read_header(FILE_T fh,
 			   struct wtap_pkthdr *phdr,
 			   union wtap_pseudo_header *pseudo_header,
 			   erf_header_t *erf_header,
@@ -302,17 +295,15 @@ static int erf_read_header(
 			   guint32 *bytes_read,
 			   guint32 *packet_size)
 {
-  guint32 rec_size;
   guint32 mc_hdr;
-  guint16 eth_hdr;
+  guint16 eth_hdr,skiplen=0;
 
   wtap_file_read_expected_bytes(erf_header, sizeof(*erf_header), fh, err);
   if (bytes_read != NULL) {
     *bytes_read = sizeof(*erf_header);
   }
 
-  rec_size = g_ntohs(erf_header->rlen);
-  *packet_size = rec_size - sizeof(*erf_header);
+  *packet_size =  g_ntohs(erf_header->rlen) - sizeof(*erf_header);
 
   if (*packet_size > WTAP_MAX_PACKET_SIZE) {
     /*
@@ -349,11 +340,13 @@ static int erf_read_header(
   switch (erf_header->type) {
   
   case ERF_TYPE_INFINIBAND:
-	if (phdr != NULL) 
-	{
+    /***
+    if (phdr != NULL) {
       phdr->len =  g_htons(erf_header->wlen);
       phdr->caplen = g_htons(erf_header->wlen); 
     }  
+    return TRUE;
+    ***/
     break;
   case ERF_TYPE_HDLC_POS:
   case ERF_TYPE_COLOR_HDLC_POS:
@@ -370,6 +363,7 @@ static int erf_read_header(
     if (bytes_read != NULL)
       *bytes_read += sizeof(eth_hdr);
     *packet_size -=  sizeof(eth_hdr);
+    skiplen = sizeof(eth_hdr);
     pseudo_header->erf.subhdr.eth_hdr = g_htons(eth_hdr);
     break;
 
@@ -384,6 +378,7 @@ static int erf_read_header(
     if (bytes_read != NULL)
       *bytes_read += sizeof(mc_hdr);
     *packet_size -=  sizeof(mc_hdr);
+    skiplen = sizeof(mc_hdr);
     pseudo_header->erf.subhdr.mc_hdr = g_htonl(mc_hdr);
     break;
 
@@ -398,8 +393,9 @@ static int erf_read_header(
   }
 
   if (phdr != NULL) {
-    phdr->len =  g_htons(erf_header->wlen);
-    phdr->caplen = g_htons(erf_header->rlen);
+    phdr->len = g_htons(erf_header->wlen);
+    phdr->caplen = min( g_htons(erf_header->wlen),
+			g_htons(erf_header->rlen) - sizeof(*erf_header) - skiplen );
   }
   return TRUE;
 }
