@@ -1528,9 +1528,10 @@ The type of value this field holds. The current field types are:
 				The data from the packet is converted from
 				EBCDIC to ASCII before displaying to the user.
 	FT_UINT_STRING		A counted string of characters, consisting
-				of a count (represented as an integral
-				value) followed immediately by the
-				specified number of characters.
+				of a count (represented as an integral value,
+				of width given in the proto_tree_add_item()
+				call) followed immediately by that number of
+				characters.
 	FT_ETHER		A six octet string displayed in
 				Ethernet-address format.
 	FT_BYTES		A string of bytes with arbitrary values;
