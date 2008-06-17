@@ -2488,6 +2488,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return TRUE;
 	}
 
+	/* we must queue this packet to the tap system before we actually
+	   call the subdissectors since short packets (i.e. nfs read reply)
+	   will cause an exception and execution would never reach the call
+	   to tap_queue_packet() in that case
+	*/
+	tap_queue_packet(rpc_tap, pinfo, rpc_call);
+
 	/* create here the program specific sub-tree */
 	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
 		pitem = proto_tree_add_item(tree, proto_id, tvb, offset, -1,
@@ -2523,17 +2530,17 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	/* we must queue this packet to the tap system before we actually
-	   call the subdissectors since short packets (i.e. nfs read reply)
-	   will cause an exception and execution would never reach the call
-	   to tap_queue_packet() in that case
-	*/
-	tap_queue_packet(rpc_tap, pinfo, rpc_call);
-
 	/* proto==0 if this is an unknown program */
 	if( (proto==0) || !proto_is_protocol_enabled(proto)){
 		dissect_function = NULL;
 	}
+
+        /*
+         * Don't call any subdissector if we have no more date to dissect.
+         */
+        if (tvb_length_remaining(tvb, offset) == 0) {
+                return TRUE;
+        }
 
 	/*
 	 * Handle RPCSEC_GSS and AUTH_GSSAPI specially.
@@ -2728,6 +2735,7 @@ typedef struct _rpc_fragment_key {
 	guint32 conv_id;
 	guint32 seq;
 	guint32 offset;
+	guint32 port;
 	/* xxx */
 	guint32 start_seq;
 } rpc_fragment_key;
@@ -2747,7 +2755,7 @@ rpc_fragment_equal(gconstpointer k1, gconstpointer k2)
 	const rpc_fragment_key *key2 = (const rpc_fragment_key *)k2;
 
 	return key1->conv_id == key2->conv_id &&
-	    key1->seq == key2->seq;
+	    key1->seq == key2->seq && key1->port == key2->port;
 }
 
 static void
@@ -3028,6 +3036,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	old_rfk.conv_id = conversation->index;
 	old_rfk.seq = seq;
+        old_rfk.port = pinfo->srcport;
 	rfk = g_hash_table_lookup(rpc_reassembly_table, &old_rfk);
 
 	if (rfk == NULL) {
@@ -3068,6 +3077,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			rfk = se_alloc(sizeof(rpc_fragment_key));
 			rfk->conv_id = conversation->index;
 			rfk->seq = seq;
+			rfk->port = pinfo->srcport;
 			rfk->offset = 0;
 			rfk->start_seq = seq;
 			g_hash_table_insert(rpc_reassembly_table, rfk, rfk);
@@ -3089,6 +3099,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				new_rfk = se_alloc(sizeof(rpc_fragment_key));
 				new_rfk->conv_id = rfk->conv_id;
 				new_rfk->seq = seq + len;
+				new_rfk->port = pinfo->srcport;
 				new_rfk->offset = rfk->offset + len - 4;
 				new_rfk->start_seq = rfk->start_seq;
 				g_hash_table_insert(rpc_reassembly_table, new_rfk,
@@ -3154,6 +3165,7 @@ dissect_rpc_fragment(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			new_rfk = se_alloc(sizeof(rpc_fragment_key));
 			new_rfk->conv_id = rfk->conv_id;
 			new_rfk->seq = seq + len;
+                        new_rfk->port = pinfo->srcport;
 			new_rfk->offset = rfk->offset + len - 4;
 			new_rfk->start_seq = rfk->start_seq;
 			g_hash_table_insert(rpc_reassembly_table, new_rfk,

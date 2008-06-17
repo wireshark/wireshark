@@ -2685,7 +2685,7 @@
 00:0A:6F	ZyflexTech             # ZyFLEX Technologies Inc
 00:0A:70	MplsForum              # MPLS Forum
 00:0A:71	AvrioTechn             # Avrio Technologies, Inc
-00:0A:72	Simpletech             # SimpleTech, Inc.
+00:0A:72	Stec                   # STEC, INC.
 00:0A:73	Scientific             # Scientific Atlanta
 00:0A:74	ManticomNe             # Manticom Networks Inc.
 00:0A:75	Caterpilla             # Caterpillar, Inc
@@ -3752,7 +3752,7 @@
 00:0E:9A	BoeTechnol             # BOE TECHNOLOGY GROUP CO.,LTD
 00:0E:9B	AmbitMicro             # Ambit Microsystems Corporation
 00:0E:9C	Pemstar
-00:0E:9D	VideoNetwo             # Video Networks Ltd
+00:0E:9D	TiscaliUk              # Tiscali UK Ltd
 00:0E:9E	Topfield               # Topfield Co., Ltd
 00:0E:9F	TemicSds               # TEMIC SDS GmbH
 00:0E:A0	NetklassTe             # NetKlass Technology Inc.
@@ -4241,7 +4241,7 @@
 00:10:83	Hewlett-Pa             # HEWLETT-PACKARD COMPANY
 00:10:84	K-BotCommu             # K-BOT COMMUNICATIONS
 00:10:85	PolarisCom             # POLARIS COMMUNICATIONS, INC.
-00:10:86	AttoTechno             # ATTO TECHNOLOGY, INC.
+00:10:86	AttoTechno             # ATTO Technology, Inc.
 00:10:87	Xstreamis              # Xstreamis PLC
 00:10:88	AmericanNe             # AMERICAN NETWORKS INC.
 00:10:89	Websonic
@@ -6567,7 +6567,7 @@
 00:19:9A	Edo-Evi
 00:19:9B	Diversifie             # Diversified Technical Systems, Inc.
 00:19:9C	Ctring
-00:19:9D	V                      # V, Inc.
+00:19:9D	Vizio                  # VIZIO, Inc.
 00:19:9E	Showadensh             # SHOWADENSHI ELECTRONICS,INC.
 00:19:9F	Dkt                    # DKT A/S
 00:19:A0	NihonDataS             # NIHON DATA SYSTENS, INC.
@@ -7150,7 +7150,7 @@
 00:1B:E1	Vialogy
 00:1B:E2	Ahnlab                 # AhnLab,Inc.
 00:1B:E3	HealthHero             # Health Hero Network, Inc.
-00:1B:E4	Retematica             # RETEMATICA SNC
+00:1B:E4	TownetSrl              # TOWNET SRL
 00:1B:E5	802automat             # 802automation Limited
 00:1B:E6	Vr                     # VR AG
 00:1B:E7	PostekElec             # Postek Electronics Co., Ltd.
@@ -7433,7 +7433,7 @@
 00:1C:FC	SuminetCom             # Suminet Communication Technologies (Shanghai) Co., Ltd.
 00:1C:FD	UniversalE             # Universal Electronics
 00:1C:FE	Quartics               # Quartics Inc
-00:1C:FF	AltusNetwo             # Altus Networks
+00:1C:FF	NaperaNetw             # Napera Networks Inc
 00:1D:00	BrivoLlc               # Brivo Systems, LLC
 00:1D:01	NeptuneDig             # Neptune Digital
 00:1D:02	CybertechT             # Cybertech Telecom Development
@@ -8064,7 +8064,7 @@
 00:1F:73	TeraviewTe             # Teraview Technology Co., Ltd.
 00:1F:74	EigenDevel             # Eigen Development
 00:1F:75	GibahnMedi             # GiBahn Media
-00:1F:76	Airlogic               # AirLogic Systems
+00:1F:76	Airlogic               # AirLogic Systems Inc.
 00:1F:77	HeolDesign             # HEOL DESIGN
 00:1F:78	BlueFoxPor             # Blue Fox Porini Textile
 00:1F:79	LodamElect             # Lodam Electronics A/S
@@ -8200,6 +8200,8 @@
 00:1F:FB	GreenPacke             # Green Packet Bhd
 00:1F:FC	Riccius+So             # Riccius+Sohn GmbH
 00:1F:FD	IndigoMobi             # Indigo Mobile Technologies Corp.
+00:1F:FE	ProcurveNe             # ProCurve Networking by HP
+00:1F:FF	Respironic             # Respironics, Inc.
 00:20:00	LexmarkInt             # LEXMARK INTERNATIONAL, INC.
 00:20:01	DspSolutio             # DSP SOLUTIONS, INC.
 00:20:02	SeritechEn             # SERITECH ENTERPRISE CO., LTD.
@@ -8456,6 +8458,65 @@
 00:20:FD	ItvTechnol             # ITV TECHNOLOGIES, INC.
 00:20:FE	Topware/Gr             # TOPWARE INC. / GRAND COMPUTER
 00:20:FF	Symmetrica             # SYMMETRICAL TECHNOLOGIES
+00:21:00	GemtekTech             # GemTek Technology Co., Ltd.
+00:21:01	Aplicacion             # Aplicaciones Electronicas Quasar (AEQ)
+00:21:02	Updatelogi             # UpdateLogic Inc.
+00:21:03	GhiElectro             # GHI Electronics, LLC
+00:21:04	SiemensHom             # Siemens Home and Office Communication Devices GmbH&Co. KG
+00:21:05	Alcatel-Lu             # Alcatel-Lucent
+00:21:06	RimTesting             # RIM Testing Services
+00:21:07	Seowoninte             # Seowonintech Co Ltd.
+00:21:08	NokiaDanma             # Nokia Danmark A/S
+00:21:09	NokiaDanma             # Nokia Danmark A/S
+00:21:0A	Byd:Sign               # byd:sign Corporation
+00:21:0B	GeminiTraz             # GEMINI TRAZE RFID PVT. LTD.
+00:21:0C	Cymtec                 # Cymtec Systems, Inc.
+00:21:0D	Private
+00:21:0E	OrpakLTD               # Orpak Systems L.T.D.
+00:21:0F	Cernium                # Cernium Corp
+00:21:10	Clearbox               # Clearbox Systems
+00:21:11	Uniphone               # Uniphone Inc.
+00:21:12	WiscomSyst             # WISCOM SYSTEM CO.,LTD
+00:21:13	Padtec                 # Padtec S/A
+00:21:14	HylabTechn             # Hylab Technology Inc.
+00:21:15	PhyweSyste             # PHYWE Systeme GmbH & Co. KG
+00:21:16	TransconEl             # Transcon Electronic Systems, spol. s r. o.
+00:21:17	Tellord
+00:21:18	AthenaTech             # Athena Tech, Inc.
+00:21:19	SamsungEle             # Samsung Electro-Mechanics
+00:21:1A	Lintech                # LInTech Corporation
+00:21:1B	Cisco                  # Cisco Systems
+00:21:1C	Cisco                  # Cisco Systems
+00:21:1D	Dataline               # Dataline AB
+00:21:1E	MotorolaCh             # Motorola CHS
+00:21:1F	ShinsungDe             # SHINSUNG DELTATECH CO.,LTD.
+00:21:20	SequelTech             # Sequel Technologies, LLC
+00:21:21	Vrmagic                # VRmagic GmbH
+00:21:22	Chip-Pro               # Chip-pro Ltd.
+00:21:23	AerosatAvi             # Aerosat Avionics
+00:21:24	Optos                  # Optos Plc
+00:21:25	KukJeTongS             # KUK JE TONG SHIN Co.,LTD
+00:21:26	ShenzhenTo             # Shenzhen Torch Equipment Co., Ltd.
+00:21:27	Tp-LinkTec             # TP-LINK Technology Co., Ltd.
+00:21:28	SunMicrosy             # Sun Microsystems Inc
+00:21:29	Cisco-Link             # Cisco-Linksys, LLC
+00:21:2A	Audiovox               # Audiovox Corporation
+00:21:2B	MsaAuer                # MSA Auer
+00:21:2C	SemindiaSy             # SemIndia System Private Limited
+00:21:2D	Scimolex               # SCIMOLEX CORPORATION
+00:21:2E	Dresden-El             # dresden-elektronik
+00:21:2F	Phoebemicr             # Phoebemicro Inc.
+00:21:30	KeicoHight             # Keico Hightech Inc.
+00:21:31	Blynke                 # Blynke Inc.
+00:21:32	Mastercloc             # Masterclock, Inc.
+00:21:33	BuildingB              # Building B, Inc
+00:21:34	Brandywine             # Brandywine Communications
+00:21:35	Alcatel-Lu             # ALCATEL-LUCENT
+00:21:36	MotorolaMo             # Motorola Mobile Devices business (MDb)
+00:21:37	BayControl             # Bay Controls, LLC
+00:21:38	Cepheid
+00:21:39	Escherlogi             # Escherlogic Inc.
+00:21:3A	Winchester             # Winchester Systems Inc.
 00:26:54	3com                   # 3Com Corporation
 00:30:00	AllwellTec             # ALLWELL TECHNOLOGY CORP.
 00:30:01	Smp
@@ -9281,7 +9342,7 @@
 00:60:40	Netro                  # NETRO CORP.
 00:60:41	YokogawaEl             # Yokogawa Electric Corporation
 00:60:42	TksUsa                 # TKS (USA), INC.
-00:60:43	Comsoft                # ComSoft Systems, Inc.
+00:60:43	Idirect                # iDirect, INC.
 00:60:44	Litton/Pol             # LITTON/POLY-SCIENTIFIC
 00:60:45	PathlightT             # PATHLIGHT TECHNOLOGIES
 00:60:46	Vmetro                 # VMETRO, INC.
@@ -9399,7 +9460,7 @@
 00:60:B6	LandComput             # LAND COMPUTER CO., LTD.
 00:60:B7	Channelmat             # CHANNELMATIC, INC.
 00:60:B8	Corelis                # CORELIS Inc.
-00:60:B9	Nitsuko                # NITSUKO CORPORATION
+00:60:B9	NecInfront             # NEC Infrontia Corporation
 00:60:BA	SaharaNetw             # SAHARA NETWORKS, INC.
 00:60:BB	Cabletron-             # CABLETRON - NETLINK, INC.
 00:60:BC	KeunyoungE             # KeunYoung Electronics & Communication Co., Ltd.
@@ -11480,7 +11541,8 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 0D-1E-15-BA-DD-06	HP
 20-52-45-43-56-00/40	Receive
 20-53-45-4E-44-00/40	Send
-33-33-00-00-00-00/16	IPv6-Neighbor-Discovery
+33-33-00-00-00-00	IPv6-Neighbor-Discovery
+33-33-00-00-00-00/16	IPv6mcast
 AA-00-03-00-00-00/32	DEC-UNA	
 AA-00-03-01-00-00/32	DEC-PROM-AA
 AA-00-03-03-00-00/32	DEC-NI20

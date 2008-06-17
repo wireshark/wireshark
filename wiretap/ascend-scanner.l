@@ -1,9 +1,4 @@
 /*
- * We want to stop processing when we get to the end of the input.
- */
-%option noyywrap
-
-/*
  * We don't read from the terminal.
  */
 %option never-interactive
@@ -352,4 +347,15 @@ void ascend_init_lexer(FILE_T fh)
   yyrestart(0);
   yy_fh = fh;
   BEGIN(INITIAL);
+}
+
+/*
+ * We want to stop processing when we get to the end of the input.
+ * (%option noyywrap is not used because if used then 
+ * some flex versions (eg: 2.5.35) generate code which causes
+ * warnings by the Windows VC compiler).
+ */
+
+int yywrap(void) {
+    return 1;
 }

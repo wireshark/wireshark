@@ -46,6 +46,19 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The PANA and KISMET dissectors could assert and force Wireshark to 
+	    exit unexpectedly.
+            <!-- Fixed in r25068, r25069 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2464">2464</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.3 to 1.0.0</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -55,6 +68,24 @@ Wireshark Info
     The following bugs have been fixed:
 
       <itemizedlist>
+
+        <listitem><para>
+          RPC portmap classification switched to TCP after filtering.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1392">Bug
+          1392</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          RPC stream shows malformed packets.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2148">Bug
+          2148</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          SNMP trap dissection fails.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2253">Bug
+          2253</ulink>)
+        </para></listitem>
 
         <listitem><para>
           Failure to detect/open valid ERF files.
@@ -78,6 +109,12 @@ Wireshark Info
           The BOOTP dissector fails to initialize and display some values.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2395">Bug
           2395</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Data string filter crash.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2402">Bug
+          2402</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -111,11 +148,71 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          SNMP trap parse error.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2442">Bug
+          2442</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
           Ports incorrectly decoded as DPLAY instead of RTP.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2452">Bug
           2452</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          Incorrect decoding of DST MAC address of frame containing ICMPv6 Echo Request.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2456">Bug
+          2456</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Fix wireshark-filter man page for packet-diameter_3gpp.c fields.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2457">Bug
+          2457</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Dissector bug, protocol SNMP: proto.c:932: failed assertion.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2468">Bug
+          2468</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          UDP not decoded as UNIStim.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2475">Bug
+          2475</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          Debug text output from MIKEY dissector.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2481">Bug
+          2481</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          Windows compilation errors with flex 2.5.35.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
+          2493</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          RTP heuristic interferes with STUN/T38 portion of heuristic.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
+          2497</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          WiMAX dissector assertion.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2501">Bug
+          2501</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          RTP header extensions with length>4 bytes dissected incorrectly.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2505">Bug
+          2505</ulink>)
+        </para></listitem>
+	
       </itemizedlist>
 
     </para>

@@ -322,6 +322,7 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					} else {
 						proto_item_append_text(tlv_item, " (multiple of 100 milliseconds)");
 					}
+					break;
 				case DSx_UPLINK_FLOW:
 					/* display Uplink Service Flow Encodings info */
 					/* add subtree */

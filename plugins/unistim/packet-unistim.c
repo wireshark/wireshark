@@ -34,6 +34,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include <epan/address.h>
+#include <epan/prefs.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
 #include <string.h>
@@ -54,6 +55,7 @@ static int global_unistim_port = 0;
 static unistim_info_t *uinfo;
 static int unistim_tap = -1;
 
+void proto_reg_handoff_unistim(void);
 static void dissect_payload(proto_tree *unistim_tree,tvbuff_t *tvb,gint offset, packet_info *pinfo);
 static void dissect_unistim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static dissector_handle_t unistim_handle;
@@ -168,33 +170,42 @@ static const value_string command_address[]={
 void
 proto_register_unistim(void){
 
+   module_t* unistim_module;
+
 /* Setup protocol subtree array */
 
    static gint *ett[] = {
          &ett_unistim
    };
 
-   if(proto_unistim==-1){
-      proto_unistim=proto_register_protocol(
-            "UNISTIM Protocol",
-            "UNISTIM",
-            "unistim");
-   }
+   proto_unistim=proto_register_protocol("UNISTIM Protocol", "UNISTIM", "unistim");
 
    proto_register_subtree_array(ett,array_length(ett));
    proto_register_field_array(proto_unistim,hf,array_length(hf));
 
    unistim_tap = register_tap("unistim");
+
+   unistim_module = prefs_register_protocol(proto_unistim, proto_reg_handoff_unistim);
+
+   prefs_register_uint_preference(unistim_module, "udp.port", "UNISTIM UDP port",
+                                  "UNISTIM port (default 5000)", 10, &global_unistim_port);
 }
 
 void 
 proto_reg_handoff_unistim(void) {
    static gboolean initialized=FALSE;
+   static int unistim_port = 0;
+
    if(initialized!=TRUE){
       unistim_handle=create_dissector_handle(dissect_unistim,proto_unistim);
-      dissector_add("udp.port",global_unistim_port,unistim_handle);
       initialized=TRUE;
+   } else {
+      dissector_delete("udp.port",unistim_port,unistim_handle);
    }
+
+   unistim_port = global_unistim_port;
+
+   dissector_add("udp.port",global_unistim_port,unistim_handle);
 }
 
 

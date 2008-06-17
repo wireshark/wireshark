@@ -42,7 +42,7 @@ int	MODNAME_wrap(void);
  * as the text to scan
  */
 void
-TEXT_FUNC (const char *text)
+TEXT_FUNC (char *text)
 {
 	yy_scan_string(text);
 }
