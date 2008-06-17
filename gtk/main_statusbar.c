@@ -346,10 +346,10 @@ profile_bar_new(void)
     profile_bar_event = gtk_event_box_new();
     profile_bar = gtk_statusbar_new();
     gtk_container_add(GTK_CONTAINER(profile_bar_event), profile_bar);
-    g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_dialog_cb), NULL);
+    g_signal_connect(profile_bar_event, "button_press_event", G_CALLBACK(profile_show_popup_cb), NULL);
     profile_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(profile_bar), "profile");
     gtk_tooltips_set_tip (tooltips, profile_bar_event,
-			  "Click to change configuration profile.", NULL);
+			  "Click to change configuration profile", NULL);
     profile_bar_update();
 
     gtk_widget_show(profile_bar);

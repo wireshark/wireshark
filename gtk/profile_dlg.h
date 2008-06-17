@@ -31,6 +31,12 @@
  * @ingroup dialog_group
  */
 
+/** User requested the "Configuration Profiles" popup menu.
+ *
+ * @param widget parent widget
+ * @param event button event
+ */
+gboolean profile_show_popup_cb(GtkWidget *w _U_, GdkEvent *event);
 
 /** User requested the "Configuration Profiles" dialog box by menu or toolbar.
  *

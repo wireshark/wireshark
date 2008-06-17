@@ -841,6 +841,64 @@ profile_dialog_new(void)
 }
 
 
+static void 
+select_profile_cb (GtkWidget *w _U_, gpointer data)
+{
+  const gchar *current_profile = get_profile_name ();
+  gchar       *selected_profile = (gchar *) data;
+
+  if (strcmp (selected_profile, current_profile) != 0) {
+    change_configuration_profile (selected_profile);
+  }
+}
+
+gboolean
+profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
+{
+  GdkEventButton *bevent = (GdkEventButton *)event;
+  const gchar    *profile_name = get_profile_name ();
+  const gchar    *profiles_dir, *name;
+  ETH_DIR        *dir;             /* scanned directory */
+  ETH_DIRENT     *file;            /* current file */
+  GtkWidget      *menu;
+  GtkWidget      *menu_item;
+
+  menu = gtk_menu_new ();
+
+  /* Add a menu item for the Default profile */
+  menu_item = gtk_check_menu_item_new_with_label (DEFAULT_PROFILE);
+  if (strcmp (profile_name, DEFAULT_PROFILE)==0) {
+    /* Check current profile */
+    gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+  }
+  g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (DEFAULT_PROFILE));
+  gtk_menu_append (menu, menu_item);
+  gtk_widget_show (menu_item);
+
+  profiles_dir = get_profiles_dir();
+  if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
+    while ((file = ws_dir_read_name(dir)) != NULL) {
+      name = ws_dir_get_name(file);
+
+      if (profile_exists(name)) {
+	menu_item = gtk_check_menu_item_new_with_label (name);
+	if (strcmp (name, profile_name)==0) {
+	  /* Check current profile */
+	  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
+	}
+	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
+	gtk_menu_append (menu, menu_item);
+	gtk_widget_show (menu_item);
+      }
+    }
+  }
+
+  gtk_menu_popup (GTK_MENU(menu), NULL, NULL, NULL, NULL,
+		  bevent->button, bevent->time);
+    
+  return TRUE;
+}
+
 /* Create a profile dialog for editing display profiles; this is to be used
    as a callback for menu items, toolbars, etc.. */
 void
