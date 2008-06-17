@@ -5,7 +5,7 @@
 # The entries are in the order they are listed in version 1.0
 Type=Application
 Version=1.0
-Name=Wireshark (as root)
+Name=Wireshark
 GenericName=Network Analyzer
 GenericName[af]=Netwerk Analiseerder
 GenericName[az]=Şəbəkə Analiz Proqramı
@@ -68,8 +68,7 @@ Comment[fi]=Verkkoliikenne analysaattori
 Comment[fr]=Analyseur de trafic réseau
 Comment[sv]=Nätverkstrafikanalysator
 Icon=hi48-app-wireshark.png
-TryExec=su-to-root
-Exec=su-to-root -X -c /usr/bin/wireshark
+Exec=wireshark
 Terminal=false
 # Categorie entry according to version 1.0 of
 # http://www.freedesktop.org/wiki/Specifications/menu-spec

@@ -244,5 +244,6 @@ extern GdkColor	expert_color_chat;
 extern GdkColor	expert_color_note;
 extern GdkColor	expert_color_warn;
 extern GdkColor	expert_color_error;
+extern GdkColor	expert_color_foreground;
 
 #endif

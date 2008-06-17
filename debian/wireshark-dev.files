@@ -1,6 +1,4 @@
 /usr/bin/idl2wrs
-/usr/bin/idl2deb
-/usr/bin/asn2deb
 /usr/lib/wireshark/libwireshark.so
 /usr/lib/wireshark/libwireshark.la
 /usr/lib/wireshark/libwiretap.so

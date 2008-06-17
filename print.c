@@ -1569,9 +1569,8 @@ get_field_hex_value(GSList* src_list, field_info *fi)
         p = buffer;
         /* Print a simple hex dump */
         for (i = 0 ; i < fi->length; i++) {
-            g_snprintf(p, len, "%02x", pd[i]);
+            g_snprintf(p, chars_per_byte+1, "%02x", pd[i]);
             p += chars_per_byte;
-            len -= chars_per_byte;
         }
         return buffer;
     } else {

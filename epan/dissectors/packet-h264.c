@@ -500,7 +500,7 @@ dissect_h264_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 		 * mapping process for signed Exp-Golomb codes as specified in 
 		 * subclause 9.1.1 with codeNum as the input.
 		 *		k+1 
-		 * (-1)    Ceil( k÷2 )
+		 * (-1)    Ceil( k/2 )
 		 */
 		se_value = (codenum + 1) >> 1;
 		if (!(se_value & 1)){

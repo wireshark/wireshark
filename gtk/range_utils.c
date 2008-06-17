@@ -99,7 +99,7 @@ range_update_dynamics(gpointer data)
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
 
-  
+
   range_displayed_bt = OBJECT_GET_DATA(data, RANGE_DISPLAYED_BT_KEY);
   filtered_active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(range_displayed_bt));
 
@@ -196,10 +196,10 @@ range_update_dynamics(gpointer data)
     gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_C_KEY), FALSE);
     gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_D_KEY), FALSE);
   }
+  g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt);
   gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_C_KEY)), label_text);
   g_snprintf(label_text, sizeof(label_text), "%u", range->displayed_mark_range_cnt);
   gtk_label_set_text(GTK_LABEL(OBJECT_GET_DATA(data, RANGE_SELECT_MARKED_RANGE_D_KEY)), label_text);
-  g_snprintf(label_text, sizeof(label_text), "%u", range->mark_range_cnt);
 
   gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_KEY), TRUE);
   gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_C_KEY), !filtered_active);
@@ -242,7 +242,7 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process_filtered = TRUE;
@@ -250,7 +250,7 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), FALSE);
     bt = OBJECT_GET_DATA(data, RANGE_DISPLAYED_BT_KEY);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(bt), TRUE);
-    
+
     range_update_dynamics(data);
   }
 }
@@ -262,7 +262,7 @@ toggle_select_all(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process = range_process_all;
@@ -277,7 +277,7 @@ toggle_select_selected(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process = range_process_selected;
@@ -292,7 +292,7 @@ toggle_select_marked_only(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process = range_process_marked;
@@ -307,7 +307,7 @@ toggle_select_marked_range(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process = range_process_marked_range;
@@ -322,13 +322,13 @@ toggle_select_user_range(GtkWidget *widget, gpointer data)
 
 
   range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
-  
+
   /* is the button now active? */
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (widget))) {
     range->process = range_process_user_range;
     range_update_dynamics(data);
   }
-	
+
   /* Make the entry widget sensitive or insensitive */
   gtk_widget_set_sensitive(OBJECT_GET_DATA(data, RANGE_SELECT_USER_ENTRY_KEY), range->process == range_process_user_range);
 
@@ -347,7 +347,7 @@ range_entry(GtkWidget *widget _U_, gpointer data)
   packet_range_t *range;
 
 
-  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);  
+  range = OBJECT_GET_DATA(data, RANGE_VALUES_KEY);
   entry = OBJECT_GET_DATA(data, RANGE_SELECT_USER_ENTRY_KEY);
 
   gtk_toggle_button_set_active(OBJECT_GET_DATA(data, RANGE_SELECT_USER_KEY), TRUE);
@@ -402,7 +402,7 @@ GtkWidget *range_new(packet_range_t *range
   GtkWidget     *select_user_range_c_lb;
   GtkWidget     *select_user_range_d_lb;
   GtkWidget     *select_user_range_entry;
- 
+
   GtkTooltips   *tooltips;
 
 
@@ -429,7 +429,7 @@ GtkWidget *range_new(packet_range_t *range
   /* Process all packets */
   select_all_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(NULL, "_All packets", accel_group);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_all_rb, 0, 1, 1, 2);
-  gtk_tooltips_set_tip (tooltips, select_all_rb, 
+  gtk_tooltips_set_tip (tooltips, select_all_rb,
       ("Process all packets"), NULL);
   SIGNAL_CONNECT(select_all_rb, "toggled", toggle_select_all, range_tb);
 
@@ -491,7 +491,7 @@ GtkWidget *range_new(packet_range_t *range
   select_user_range_entry = gtk_entry_new();
   gtk_entry_set_max_length (GTK_ENTRY (select_user_range_entry), 254);
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_user_range_entry, 0, 1, 6, 7);
-  gtk_tooltips_set_tip (tooltips,select_user_range_entry, 
+  gtk_tooltips_set_tip (tooltips,select_user_range_entry,
 	("Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-"), NULL);
   SIGNAL_CONNECT(select_user_range_entry,"changed", range_entry, range_tb);
   SIGNAL_CONNECT(select_user_range_entry,"activate", range_entry_in_event, range_tb);

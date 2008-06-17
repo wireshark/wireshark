@@ -855,7 +855,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
         byte_line_part_length = (++i) % byte_line_length;
         if(i == data_len){
             /* End of data - need to fill in spaces in hex string and then do "end of line".
-             * 
+             *
              */
             for(j = 0; append_text && (j < (byte_line_length - byte_line_part_length)); ++j) {
                 g_string_append(hex_str,"   "); /* Three spaces for each missing byte */
@@ -864,7 +864,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
         } else {
             end_of_line = (byte_line_part_length == 0 ? TRUE : FALSE);
         }
-        
+
 
         if (end_of_line){
             /* End of line */
@@ -885,7 +885,7 @@ static void copy_hex_all_info(GString* copy_buffer, const guint8* data_p, int da
 	g_string_free(char_str, TRUE);
 }
 
-static 
+static
 int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
 
@@ -902,7 +902,7 @@ int copy_hex_bytes_text_only(GString* copy_buffer, const guint8* data_p, int dat
     return 1;
 }
 
-static 
+static
 int copy_hex_bytes_hex(GString* copy_buffer, const guint8* data_p, int data_len _U_)
 {
     g_string_sprintfa(copy_buffer, "%02x", *data_p);
@@ -937,7 +937,7 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
 
     if(flags & CD_FLAGS_SELECTEDONLY) {
         int start, end;
-        
+
         /* Get the start and end of the highlighted bytes.
          * XXX The keys appear to be REVERSED start <-> end throughout this file!
          * Should this be fixed? There is one exception - packet_hex_reprint,
@@ -988,12 +988,12 @@ copy_hex_cb(GtkWidget * w _U_, gpointer data _U_, copy_data_type data_type)
         }
         break;
     }
-    
+
     if(copy_buffer->len > 0) {
         copy_to_clipboard(copy_buffer);
     }
 
-	g_string_free(copy_buffer, TRUE);  
+	g_string_free(copy_buffer, TRUE);
 }
 
 /* save the current highlighted hex data */
@@ -1200,7 +1200,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
 #else
   gtk_text_buffer_set_text(buf, "", 0);
   gtk_text_buffer_get_start_iter(buf, &iter);
-  g_object_ref(buf);  
+  g_object_ref(buf);
   gtk_text_view_set_buffer( bv_text_view, NULL);
 #endif
 
@@ -1542,7 +1542,7 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
       if (reverse && (reverse != newreverse)) {
         gtk_text_buffer_insert_with_tags_by_name(buf, &iter, line, cur,
                                                  revstyle, NULL);
-        
+
         cur = 0;
       }
       if (i < k) {
@@ -1598,12 +1598,12 @@ packet_hex_print_common(GtkWidget *bv, const guint8 *pd, int len, int bstart,
                                              "plain", NULL);
   }
   gtk_text_view_set_buffer( bv_text_view, buf);
-  
+
   if (mark) {
     gtk_text_view_scroll_to_mark(bv_text_view, mark, 0.0, TRUE, 1.0, 0.0);
     gtk_text_buffer_delete_mark(buf, mark);
   }
-  g_object_unref(buf);  
+  g_object_unref(buf);
 #endif
 }
 
@@ -1774,6 +1774,7 @@ GdkColor	expert_color_chat	= { 0, 0xcc00, 0xcc00, 0xe000 };	/* a pale bluegrey *
 GdkColor	expert_color_note	= { 0, 0xa000, 0xff00, 0xff00 };	/* a bright turquoise */
 GdkColor	expert_color_warn	= { 0, 0xff00, 0xff00, 0 };			/* yellow */
 GdkColor	expert_color_error	= { 0, 0xff00, 0x5c00, 0x5c00 };	/* pale red */
+GdkColor        expert_color_foreground = { 0, 0x0000, 0x0000, 0x0000 };        /* black */
 
 void proto_draw_colors_init(void)
 {
@@ -1785,6 +1786,7 @@ void proto_draw_colors_init(void)
 	get_color(&expert_color_note);
 	get_color(&expert_color_warn);
 	get_color(&expert_color_error);
+        get_color(&expert_color_foreground);
 
 	colors_ok = TRUE;
 }
@@ -1845,6 +1847,8 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
     if(fi->hfinfo->type == FT_PROTOCOL) {
         g_object_set (cell, "background", "gray90", NULL);
         g_object_set (cell, "background-set", TRUE, NULL);
+        g_object_set (cell, "foreground", "black", NULL);
+        g_object_set (cell, "foreground-set", TRUE, NULL);
         /*g_object_set (cell, "weight", PANGO_WEIGHT_BOLD, NULL);
         g_object_set (cell, "weight-set", TRUE, NULL);*/
 	}
@@ -1879,6 +1883,8 @@ static void tree_cell_renderer(GtkTreeViewColumn *tree_column _U_,
 		default:
 			g_assert_not_reached();
 		}
+		g_object_set (cell, "foreground", "black", NULL);
+		g_object_set (cell, "foreground-set", TRUE, NULL);
 	}
 }
 #endif

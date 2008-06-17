@@ -361,7 +361,7 @@
 #endif
 
 #ifndef ETHERTYPE_IEEE_802_1AH
-#define ETHERTYPE_IEEE_802_1AH  0x88F0 /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
+#define ETHERTYPE_IEEE_802_1AH  0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
 #ifndef ETHERTYPE_PTP

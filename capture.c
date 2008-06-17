@@ -635,7 +635,11 @@ capture_interface_list(int *err, char **err_str)
     }
 
     /* Split our lines */
+#ifdef _WIN32
+    raw_list = g_strsplit(msg, "\r\n", 0);
+#else
     raw_list = g_strsplit(msg, "\n", 0);
+#endif
     g_free(msg);
 
     for (i = 0; raw_list[i] != NULL; i++) {
@@ -718,7 +722,11 @@ capture_pcap_linktype_list(const gchar *ifname, char **err_str)
     }
 
     /* Split our lines */
+#ifdef _WIN32
+    raw_list = g_strsplit(msg, "\r\n", 0);
+#else
     raw_list = g_strsplit(msg, "\n", 0);
+#endif
     g_free(msg);
 
     for (i = 0; raw_list[i] != NULL; i++) {

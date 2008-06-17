@@ -38,7 +38,7 @@ Wireshark Info
         <listitem>
           <para>
             The GSM SMS dissector could crash.
-            <!-- Fixed in r25462 -->
+            <!-- Fixed in r25462, r25466 -->
           </para>
           <para>Versions affected: 0.99.2 to 1.0.0</para>
           <para>
@@ -73,6 +73,12 @@ Wireshark Info
           RPC portmap classification switched to TCP after filtering.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1392">Bug
           1392</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Force the foreground color when the background is forced.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1735">Bug
+	  1735</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -211,6 +217,24 @@ Wireshark Info
           RTP header extensions with length>4 bytes dissected incorrectly.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2505">Bug
           2505</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          Compilation failure on non-european Windows systems.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2513">Bug
+          2513</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          BACnet BVLC NAK decoding.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2517">Bug
+          2517</ulink>)
+        </para></listitem>
+	
+        <listitem><para>
+          'tshark -Tfields -e data' omits last character of data.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2518">Bug
+          2518</ulink>)
         </para></listitem>
 	
       </itemizedlist>

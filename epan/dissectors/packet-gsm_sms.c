@@ -217,6 +217,7 @@ static gint ett_udh_ieis[NUM_UDH_IEIS];
 	oct); \
 }
 
+#define MAX_ADDR_SIZE 20
 static void
 dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
@@ -229,7 +230,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     guint32		numdigocts;
     guint32		length;
     guint32		i, j;
-    char                addrbuf[20];
+    char                addrbuf[MAX_ADDR_SIZE+1];
 
     offset = *offset_p;
 
@@ -321,7 +322,7 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, const gchar *
     switch ((oct & 0x70) >> 4)
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
-	i = gsm_sms_char_7bit_unpack(0, numdigocts, sizeof(addrbuf), tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
+	i = gsm_sms_char_7bit_unpack(0, numdigocts, MAX_ADDR_SIZE, tvb_get_ptr(tvb, offset, numdigocts), addrbuf);
 	addrbuf[i] = '\0';
 	gsm_sms_char_ascii_decode(bigbuf, addrbuf, i);
 	break;
@@ -1815,6 +1816,7 @@ dis_field_ud_iei(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 length)
 
 /* 9.2.3.24 */
 #define NUM_FILL_BITS_MASKS 6
+#define SMS_MAX_MESSAGE_SIZE 160
 static void
 dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gboolean udhi, guint8 udl,
     gboolean seven_bit, gboolean eight_bit, gboolean ucs2, gboolean compressed)
@@ -1829,7 +1831,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint	fill_bits;
     guint32	out_len;
     char	*ustr;
-    char        messagebuf[160];
+    char        messagebuf[SMS_MAX_MESSAGE_SIZE+1];
 #if GLIB_MAJOR_VERSION >= 2
     proto_item *ucs2_item;
     gchar *utf8_text = NULL;
@@ -1904,7 +1906,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 		if (seven_bit)
 		{
 		    out_len =
-			gsm_sms_char_7bit_unpack(fill_bits, length, sizeof(messagebuf),
+			gsm_sms_char_7bit_unpack(fill_bits, length, SMS_MAX_MESSAGE_SIZE,
 		    tvb_get_ptr(tvb, offset, length), messagebuf);
 		    messagebuf[out_len] = '\0';
 		    gsm_sms_char_ascii_decode(bigbuf, messagebuf, out_len);

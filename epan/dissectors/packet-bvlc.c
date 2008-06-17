@@ -203,7 +203,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 	* packet to dissect, see README.developer, 1.6.2, FID */
 			proto_tree_add_uint_format_value(bvlc_tree, hf_bvlc_result, tvb,
 				offset, 2, bvlc_result,"0x%04x (%s)",
-				bvlc_result, val_to_str(bvlc_result << 4,
+				bvlc_result, val_to_str(bvlc_result,
 					bvlc_result_names, "Unknown"));
 			offset += 2;
 			break;

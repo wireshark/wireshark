@@ -237,6 +237,7 @@ expert_dlg_draw(void *data)
 		default:
 			g_assert_not_reached();
 		}
+		gtk_clist_set_foreground(etd->table, row, &expert_color_foreground);
 	}
 
 	gtk_clist_sort(etd->table);

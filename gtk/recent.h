@@ -114,4 +114,11 @@ extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
  */
 extern int recent_set_arg(char *prefarg);
 
+/** Set the column width for the given column
+ * 
+ * @param col column number
+ * @param width column width
+ */
+extern void recent_set_column_width(gint col, gint width);
+
 #endif /* recent.h */
