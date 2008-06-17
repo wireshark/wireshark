@@ -3249,7 +3249,6 @@ void change_configuration_profile (const gchar *profile_name)
    menu_recent_read_finished();
    main_pane_load_window_geometry();
    recent.gui_time_format = timestamp_get_type ();
-   recent.gui_time_precision = timestamp_get_precision ();
 
    prefs_to_capture_opts();
    prefs_apply_all();
