@@ -1666,13 +1666,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 
 	    return FALSE;
 	}
-	/* exactly one of the T and C bits must be set
+	/* both the T and C bits can not be set
 	 * and the two reserved bits in byte 1 must be 0
 	 */
 	tmpbyte=tvb_get_guint8(tvb, offset+1);
 	switch(tmpbyte&0xf0){
 	case 0x80:
 	case 0x40:
+	case 0x00:
 	    break;
 	default:
 	    return FALSE;
