@@ -624,7 +624,9 @@ welcome_new(void)
     GtkWidget *header;
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
+#ifdef HAVE_LIBPCAP
     GtkWidget *if_child_box;
+#endif  /* HAVE_LIBPCAP */
     GtkWidget *file_child_box;
     gchar *label_text;
 
