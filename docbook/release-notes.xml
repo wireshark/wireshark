@@ -249,6 +249,12 @@ Wireshark Info
           2616</ulink>)
         </para></listitem>
 
+        <listitem><para>
+          URL and encoding for OUI listings in make-manuf.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2619">Bug
+          2619</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>

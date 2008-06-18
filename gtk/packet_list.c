@@ -216,7 +216,7 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
                 (hfi->type == FT_DOUBLE) || (hfi->type == FT_FLOAT) ||
                 (hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
                 (hfi->type == FT_RELATIVE_TIME))) {
-
+      
       /* Compare numeric column */
       custom_numeric = TRUE;
     }
@@ -225,9 +225,9 @@ packet_list_compare(EthCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
     num1 = atof(text1);
     num2 = atof(text2);
     if ((col_fmt == COL_UNRES_SRC_PORT) || (col_fmt == COL_UNRES_DST_PORT) ||
-	(custom_numeric) ||
+	(custom_numeric) || 
         ((num1 != 0) && (num2 != 0) && ((col_fmt == COL_DEF_SRC_PORT) ||
-                                        (col_fmt == COL_RES_SRC_PORT) ||
+                                        (col_fmt == COL_RES_SRC_PORT) || 
                                         (col_fmt == COL_DEF_DST_PORT) ||
                                         (col_fmt == COL_RES_DST_PORT)))) {
 
@@ -294,12 +294,6 @@ packet_list_click_column_cb(EthCList *clist, gint column, gpointer data)
   eth_clist_thaw(clist);
 
   eth_clist_sort(clist);
-}
-
-static void
-packet_list_resize_column_cb(GtkCList *clist _U_, gint column, gint width, gpointer data _U_)
-{
-  recent_set_column_width (column, width);
 }
 
 /* What to do when a list item is selected/unselected */
@@ -585,10 +579,10 @@ packet_list_new(e_prefs *prefs)
         custom_right_justify = FALSE;
         if (cfile.cinfo.col_fmt[i] == COL_CUSTOM) {
           hfi = proto_registrar_get_byname(cfile.cinfo.col_custom_field[i]);
-          if ((hfi != NULL) && (hfi->strings == NULL) &&
+          if ((hfi != NULL) && (hfi->strings == NULL) && 
 	      ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) ||
 	       (((hfi->display == BASE_DEC) || (hfi->display == BASE_OCT)) &&
-		(IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  ||
+		(IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)  || 
 		 (hfi->type == FT_INT64) || (hfi->type == FT_UINT64))))) {
             custom_right_justify = TRUE;
           }
@@ -679,8 +673,6 @@ packet_list_set_column_titles(void)
     eth_clist_column_titles_show(ETH_CLIST(packet_list));
     SIGNAL_CONNECT(packet_list, "click-column", packet_list_click_column_cb,
                    col_arrows);
-    SIGNAL_CONNECT(packet_list, "resize-column", packet_list_resize_column_cb,
-                   NULL);
 }
 
 void
