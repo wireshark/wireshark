@@ -48,8 +48,8 @@ Wireshark Info
 
         <listitem>
           <para>
-            The PANA and KISMET dissectors could assert and force Wireshark to 
-	    exit unexpectedly.
+            The PANA and KISMET dissectors could force Wireshark to quit
+	    unexpectedly.
             <!-- Fixed in r25068, r25069 -->
 	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2464">2464</ulink>) -->
           </para>
@@ -142,6 +142,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          "Read me first" file is empty in the OS X .dmg.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2425">Bug
+          2425</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Failed tshark PDML export to file.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2432">Bug
           2432</ulink>)
@@ -158,7 +164,7 @@ Wireshark Info
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2442">Bug
           2442</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           Ports incorrectly decoded as DPLAY instead of RTP.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2452">Bug
@@ -182,61 +188,67 @@ Wireshark Info
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2468">Bug
           2468</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           UDP not decoded as UNIStim.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2475">Bug
           2475</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           Debug text output from MIKEY dissector.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2481">Bug
           2481</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           Windows compilation errors with flex 2.5.35.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
           2493</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           RTP heuristic interferes with STUN/T38 portion of heuristic.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
           2497</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           WiMAX dissector assertion.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2501">Bug
           2501</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           RTP header extensions with length>4 bytes dissected incorrectly.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2505">Bug
           2505</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           Compilation failure on non-european Windows systems.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2513">Bug
           2513</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           BACnet BVLC NAK decoding.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2517">Bug
           2517</ulink>)
         </para></listitem>
-	
+
         <listitem><para>
           'tshark -Tfields -e data' omits last character of data.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2518">Bug
           2518</ulink>)
         </para></listitem>
-	
+
+        <listitem><para>
+          Wireshark doest not parse iSCSI login PDU.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2616">Bug
+          2616</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -286,7 +298,7 @@ There are no new protocols in this release.
 BOOTP,
 E212,
 LDAP,
-    
+
     </para>
     </section>
 
