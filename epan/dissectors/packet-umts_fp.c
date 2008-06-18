@@ -113,6 +113,7 @@ static int hf_fp_hsdsch_data_padding = -1;
 static int hf_fp_hsdsch_new_ie_flags = -1;
 static int hf_fp_hsdsch_new_ie_flag[8] = {-1, -1, -1, -1, -1, -1, -1, -1};
 static int hf_fp_hsdsch_drt = -1;
+static int hf_fp_hsdsch_entity = -1;
 static int hf_fp_timing_advance = -1;
 static int hf_fp_num_of_pdu = -1;
 static int hf_fp_mac_d_pdu_len = -1;
@@ -257,7 +258,14 @@ static const value_string congestion_status_vals[] = {
 static const value_string e_rucch_flag_vals[] = {
     { 0,   "Conventional E-RUCCH reception" },
     { 1,   "TA Request reception" },
-    { 0,   NULL },
+    { 0,   NULL }
+};
+
+static const value_string hsdshc_mac_entity_vals[] = {
+    { entity_not_specified,    "Unspecified (assume MAC-hs)" },
+    { hs,                      "MAC-hs" },
+    { ehs,                     "MAC-ehs" },
+    { 0,   NULL }
 };
 
 
@@ -2748,6 +2756,11 @@ void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
         /********************************/
         /* HS-DCH type 2 data here      */
 
+        if (check_col(pinfo->cinfo, COL_INFO))
+        {
+            col_append_str(pinfo->cinfo, COL_INFO, "(ehs)");
+        }
+
         /* Frame Seq Nr (4 bits) */
         if ((p_fp_info->release == 6) ||
             (p_fp_info->release == 7))
@@ -2990,6 +3003,15 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_bch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
             break;
         case CHANNEL_HSDSCH:
+            /* Show configured MAC HS-DSCH entity in use */
+            if (fp_tree)
+            {
+                proto_item *entity_ti;
+                entity_ti = proto_tree_add_uint(fp_tree, hf_fp_hsdsch_entity,
+                                                tvb, 0, 0,
+                                                p_fp_info->hsdsch_entity);
+                PROTO_ITEM_SET_GENERATED(entity_ti);
+            }
             switch (p_fp_info->hsdsch_entity) {
                 case entity_not_specified:
                 case hs:
@@ -3000,7 +3022,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     dissect_hsdsch_type_2_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info);
                     break;
                 default:
-                    /* ERROR */
+                    /* TODO: dissector error */
                     break;
             }
             break;
@@ -3535,6 +3557,12 @@ void proto_register_fp(void)
             { "DRT",
               "fp.hsdsch.drt", FT_UINT8, BASE_DEC, 0, 0xf0,
               "Delay Reference Time", HFILL
+            }
+        },
+        { &hf_fp_hsdsch_entity,
+            { "HS-DSCH Entity",
+              "fp.hsdsch.entity", FT_UINT8, BASE_DEC, VALS(hsdshc_mac_entity_vals), 0x0,
+              "Type of MAC entity for this HS-DSCH channel", HFILL
             }
         },
         { &hf_fp_timing_advance,
