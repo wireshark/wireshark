@@ -4831,6 +4831,15 @@ decode_gtp_usr_loc_inf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
  }
 
+static const value_string daylight_saving_time_vals[] =
+{
+  { 0, "No adjustment" },
+  { 1, "+1 hour adjustment for Daylight Saving Time" },
+  { 2, "+2 hours adjustment for Daylight Saving Time" },
+  { 3, "Reserved" },
+  { 0, NULL }
+};
+
 /* GPRS:	?
  * UMTS:	29.060 v6.11.0, chapter 7.7.52 
  * MS Time Zone
@@ -4842,19 +4851,18 @@ decode_gtp_ms_time_zone(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	guint16		length;
 	proto_tree	*ext_tree;
 	proto_item	*te;
-	/*guint8		data;*/
-	/*char		sign;*/
+	guint8		data;
+	char		sign;
 
 	length = tvb_get_ntohs(tvb, offset+1);
-	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s : ", val_to_str(GTP_EXT_MS_TIME_ZONE, gtp_val, "Unknown"));
+	te = proto_tree_add_text(tree, tvb, offset, 3+length, "%s: ", val_to_str(GTP_EXT_MS_TIME_ZONE, gtp_val, "Unknown"));
 	ext_tree = proto_item_add_subtree(te, ett_gtp_ext_ms_time_zone);
 	
 	offset++;
 	proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, FALSE);
 	offset = offset +2;
 
-	proto_tree_add_text(ext_tree, tvb, offset, length, "Data not decoded yet");
-	/* 3GPP TS 23.040 version 6.6.0 Release 6 
+	/* 3GPP TS 23.040 version 6.6.0 Release 6
 	 * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
 	 * :
 	 * The Time Zone indicates the difference, expressed in quarters of an hour, 
@@ -4862,15 +4870,20 @@ decode_gtp_ms_time_zone(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	 * the first bit (bit 3 of the seventh octet of the TP-Service-Centre-Time-Stamp field)
 	 * represents the algebraic sign of this difference (0: positive, 1: negative).
 	 */
-	/*
+
     data = tvb_get_guint8(tvb, offset);
     sign = (data & 0x08)?'-':'+';
     data = (data >> 4) + (data & 0x07) * 10;
 
-    proto_tree_add_text(tree, tvb, offset, 1,"Timezone: GMT %c %d hours %d minutes",
+    proto_tree_add_text(ext_tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes",
 		sign, data / 4, data % 4 * 15);
+    proto_item_append_text(te, "GMT %c %d hours %d minutes",
+		sign, data / 4, data % 4 * 15);
+    offset++;
 
-	*/
+    data = tvb_get_guint8(tvb, offset) & 0x3;
+    proto_tree_add_text(ext_tree, tvb, offset, 1, "%s", val_to_str(data, daylight_saving_time_vals, "Unknown"));
+
 	return 3 + length;
 
  }
