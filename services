@@ -5084,8 +5084,11 @@ dls		2047/udp
 dls-monitor	2048/tcp
 dls-monitor	2048/udp
 #                         <== NOTE Conflict on 2049 !
-shilp		2049/tcp
-shilp		2049/udp
+# We resolve the conflict by commenting out the "shilp" entry; I can't
+# find much about "shilp" with Google, and there's no reference for it,
+# but NFS is a very well-known protocol and used a lot.
+#shilp		2049/tcp
+#shilp		2049/udp
 nfs             2049/tcp   Network File System - Sun Microsystems
 nfs             2049/udp   Network File System - Sun Microsystems
 #                          Brent Callaghan <brent&terra.eng.sun.com>
