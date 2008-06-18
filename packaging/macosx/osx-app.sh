@@ -302,7 +302,7 @@ lib_dep_search_list="
 while $endl; do
 	echo -e "Looking for dependencies. Round" $a
 	libs="`otool -L $lib_dep_search_list 2>/dev/null | fgrep compatibility | cut -d\( -f1 | grep $LIBPREFIX | sort | uniq`"
-	cp -f $libs "$pkglib"
+	cp -vn $libs "$pkglib"
 	let "a+=1"
 	nnfiles=`ls "$pkglib" | wc -l`
 	if [ $nnfiles = $nfiles ]; then
