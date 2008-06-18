@@ -804,6 +804,19 @@ Index: file.h
 	  </para>
 	  </listitem>
 	  <listitem><para>
+	  <command>Submit dissectors as build-in whenever possible.</command>
+	  Developing a new dissector as a plugin is a good idea because compiling is
+	  quicker, but it's best to convert dissectors to the build-in style before
+	  submitting for checkin. This reduces the number of files that must be installed
+	  with Wireshark and ensures your dissector will be available on all platforms.
+	  </para><para>
+	  This is no hard-n-fast rule though. Many dissectors are straightforward so they
+	  can easily be put into 'the big pile', while some are ASN.1 based which takes a
+	  different approach, and some multiple sourcefile dissectors are more suitable to
+	  be placed separate as plugin.
+	  </para>
+	  </listitem>
+	  <listitem><para>
 	  <command>Fuzz test your changes!</command> Fuzz testing is a very
 	  effective way to automatically find a lot of dissector related bugs.
 	  You'll take a capture file containing packets affecting your dissector
