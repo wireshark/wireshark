@@ -871,6 +871,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
     /* Check current profile */
     gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
   }
+  g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
   g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (DEFAULT_PROFILE));
   gtk_menu_append (menu, menu_item);
   gtk_widget_show (menu_item);
@@ -886,6 +887,7 @@ profile_show_popup_cb (GtkWidget *w _U_, GdkEvent *event)
 	  /* Check current profile */
 	  gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM(menu_item), TRUE);
 	}
+	g_object_set (G_OBJECT(menu_item), "draw-as-radio", TRUE, NULL);
 	g_signal_connect (menu_item, "activate", G_CALLBACK(select_profile_cb), g_strdup (name));
 	gtk_menu_append (menu, menu_item);
 	gtk_widget_show (menu_item);
