@@ -3266,6 +3266,9 @@ void change_configuration_profile (const gchar *profile_name)
    /* Reload color filters */
    color_filters_reload();
 
+   /* Reload list of interfaces on welcome page */
+   welcome_if_panel_reload();
+
    /* Recreate the packet list according to new preferences */
    packet_list_recreate ();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */

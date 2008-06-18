@@ -44,6 +44,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
+#include "gtk/main_welcome.h"
 #include "gtk/stock_icons.h"
 #include <epan/strutil.h>
 
@@ -436,6 +437,9 @@ ifopts_edit_ok_cb(GtkWidget *w _U_, gpointer parent_w)
 		/* create/write new "hidden" interfaces string */
 		ifopts_write_new_hide();
 	}
+
+	/* Update welcome page */
+	welcome_if_panel_reload ();
 
 	/* Now nuke this window. */
 	gtk_grab_remove(GTK_WIDGET(parent_w));

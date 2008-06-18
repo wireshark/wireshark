@@ -60,16 +60,14 @@
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
 
-GdkColor header_bar_bg;
-GdkColor topic_header_bg;
-GdkColor topic_content_bg;
-GdkColor topic_item_idle_bg;
-GdkColor topic_item_entered_bg;
+static GdkColor header_bar_bg;
+static GdkColor topic_header_bg;
+static GdkColor topic_content_bg;
+static GdkColor topic_item_idle_bg;
+static GdkColor topic_item_entered_bg;
 
-
-GtkWidget *welcome_file_panel_vb = NULL;
-
-
+static GtkWidget *welcome_file_panel_vb = NULL;
+static GtkWidget *welcome_if_panel_vb = NULL;
 
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
@@ -184,7 +182,7 @@ welcome_item_leave_cb(GtkWidget *eb, GdkEvent *event _U_, gpointer user_data _U_
 
 
 /* create a "button widget" */
-GtkWidget *
+static GtkWidget *
 welcome_button(const gchar *stock_item,
                const gchar * title, const gchar * subtitle, const gchar *tooltip,
 			   GtkSignalFunc callback, void *callback_data)
@@ -239,7 +237,7 @@ welcome_button(const gchar *stock_item,
 
 
 /* create the banner "above our heads" */
-GtkWidget *
+static GtkWidget *
 welcome_header_new(void)
 {
     GtkWidget *item_vb;
@@ -281,7 +279,7 @@ welcome_header_new(void)
 
 
 /* create a "topic header widget" */
-GtkWidget *
+static GtkWidget *
 welcome_topic_header_new(const char *header)
 {
     GtkWidget *w;
@@ -304,7 +302,7 @@ welcome_topic_header_new(const char *header)
 
 
 /* create a "topic widget" */
-GtkWidget *
+static GtkWidget *
 welcome_topic_new(const char *header, GtkWidget **to_fill)
 {
     GtkWidget *topic_vb;
@@ -343,7 +341,7 @@ welcome_filename_link_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpoin
 
 
 /* create a "file link widget" */
-GtkWidget *
+static GtkWidget *
 welcome_filename_link_new(const gchar *filename, GtkWidget **label)
 {
     GtkWidget *w;
@@ -526,12 +524,10 @@ welcome_if_new(const char *if_name, GdkColor *topic_bg _U_, gpointer interf)
 }
 
 
-/* create the list of interfaces */
-GtkWidget *
-welcome_if_panel_new(void)
+/* load the list of interfaces */
+static void
+welcome_if_panel_load(void)
 {
-  GtkWidget *panel_vb;
-  GtkWidget *parent_box;
   GtkWidget *child_box;
   GtkWidget *interface_hb;
 
@@ -544,18 +540,13 @@ welcome_if_panel_new(void)
   gchar         *descr;
 
 
-  panel_vb = gtk_vbox_new(FALSE, 0);
-  /* 8 capture interfaces or 150 pixels height is about the size */
-  /* that still fits on a screen of about 1000*700 */
-  parent_box = scroll_box_dynamic_new(GTK_BOX(panel_vb), 8, 150);
-
   /* LOAD THE INTERFACES */
   if_list = capture_interface_list(&err, &err_str);
   if_list = g_list_sort (if_list, if_list_comparator_alph);
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
-    return NULL;
+    return;
   }
 
   /* List the interfaces */
@@ -583,15 +574,41 @@ welcome_if_panel_new(void)
         interface_hb = welcome_if_new(if_info->name, &topic_content_bg, g_strdup(if_info->name));
       }
 
-      child_box = scroll_box_dynamic_add(parent_box);
+      child_box = scroll_box_dynamic_add(welcome_if_panel_vb);
       gtk_box_pack_start(GTK_BOX(child_box), interface_hb, FALSE, FALSE, 1);
   }
 
   free_interface_list(if_list);
-
-  return parent_box;
 }
 #endif  /* HAVE_LIBPCAP */
+
+/* reload the list of interfaces */
+void
+welcome_if_panel_reload(void)
+{
+#ifdef HAVE_LIBPCAP
+    GtkWidget *child_box;
+    GList* child_list;
+    GList* child_list_item;
+
+
+    if(welcome_if_panel_vb) {
+        child_box = scroll_box_dynamic_reset(welcome_if_panel_vb);
+        child_list = gtk_container_get_children(GTK_CONTAINER(child_box));
+        child_list_item = child_list;
+
+        while(child_list_item) {
+            gtk_container_remove(GTK_CONTAINER(child_box), child_list_item->data);
+            child_list_item = g_list_next(child_list_item);
+        }
+
+        g_list_free(child_list);
+
+	welcome_if_panel_load();
+	gtk_widget_show_all(welcome_if_panel_vb);
+    }
+#endif  /* HAVE_LIBPCAP */
+}
 
 
 /* create the welcome page */
@@ -607,6 +624,7 @@ welcome_new(void)
     GtkWidget *header;
     GtkWidget *topic_vb;
     GtkWidget *topic_to_fill;
+    GtkWidget *if_child_box;
     GtkWidget *file_child_box;
     gchar *label_text;
 
@@ -699,8 +717,12 @@ welcome_new(void)
     gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
     gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 5);
 
-    w = welcome_if_panel_new();
-    gtk_box_pack_start(GTK_BOX(topic_to_fill), w, FALSE, FALSE, 0);
+    if_child_box = gtk_vbox_new(FALSE, 0);
+    /* 8 capture interfaces or 150 pixels height is about the size */
+    /* that still fits on a screen of about 1000*700 */
+    welcome_if_panel_vb = scroll_box_dynamic_new(GTK_BOX(if_child_box), 8, 150);
+    gtk_box_pack_start(GTK_BOX(topic_to_fill), welcome_if_panel_vb, FALSE, FALSE, 0);
+    welcome_if_panel_load();
 
     item_hb = welcome_button(WIRESHARK_STOCK_CAPTURE_OPTIONS,
         "Capture Options",

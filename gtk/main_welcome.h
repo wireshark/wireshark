@@ -34,5 +34,8 @@ void main_welcome_reset_recent_capture_files();
 /* add a new file to the list of recently used files */
 void main_welcome_add_recent_capture_files(const char *widget_cf_name);
 
+/* reload the list of interfaces */
+void welcome_if_panel_reload(void);
+
 
 #endif /* __MAIN_WELCOME_H__ */
