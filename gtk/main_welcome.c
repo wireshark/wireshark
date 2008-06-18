@@ -67,7 +67,9 @@ static GdkColor topic_item_idle_bg;
 static GdkColor topic_item_entered_bg;
 
 static GtkWidget *welcome_file_panel_vb = NULL;
+#ifdef HAVE_LIBPCAP
 static GtkWidget *welcome_if_panel_vb = NULL;
+#endif
 
 
 /* The "scroll box dynamic" is a (complicated) pseudo widget to */
