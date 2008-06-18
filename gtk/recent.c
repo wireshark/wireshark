@@ -39,6 +39,7 @@
 #include "main.h"
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
+#include <epan/column.h>
 #include "gui_utils.h"
 #if 0
 #include "dlg_utils.h"

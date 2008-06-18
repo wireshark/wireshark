@@ -39,6 +39,12 @@
 /** ???. */
 #define RECENT_KEY_DISPLAY_FILTER       "recent.display_filter"
 
+typedef struct _col_width_data {
+  gint   cfmt;
+  gchar *cfield;
+  gint   width;
+} col_width_data;
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
@@ -70,6 +76,7 @@ typedef struct recent_settings_tag {
     gint        gui_geometry_status_pane_right;      /* this is autodetected in GTK2 only */
     gboolean    privs_warn_if_elevated;
     gboolean    privs_warn_if_no_npf;
+    GList      *col_width_list;                     /* column widths */
 } recent_settings_t;
 
 /** Global recent settings. */
@@ -115,7 +122,7 @@ extern void write_recent_geom(gpointer key, gpointer value, gpointer rf);
 extern int recent_set_arg(char *prefarg);
 
 /** Set the column width for the given column
- * 
+ *
  * @param col column number
  * @param width column width
  */
