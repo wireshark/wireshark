@@ -1864,21 +1864,20 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
+				offset+=length*8;
+				difference = offset - new_offset;
+				/* A difference of 7 or less might be byte aligning */
+				if(difference > 7){
+					cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3, 
+						"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
+					proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+					expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, 
+						"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
+				}
 			} else {
-				new_offset=0;
 				PER_NOT_DECODED_YET(index_get_field_name(sequence, extension_index));
+				offset+=length*8;
 			}
-			offset+=length*8;
-			difference = offset - new_offset;
-			/* A difference of 7 or less might be byte aligning */
-			if(difference > 7){
-				cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3, 
-					"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
-				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, 
-					"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
-			}
-
 		}
 	}
 
