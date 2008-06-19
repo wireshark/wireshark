@@ -46,6 +46,7 @@ proper helper routines
 #include <epan/emem.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 #include "packet-per.h"
 
 
@@ -1829,8 +1830,10 @@ DEBUG_ENTRY("dissect_per_sequence");
 
 		/* decode the extensions one by one */
 		for(i=0;i<num_extensions;i++){
+			proto_item *cause;
 			guint32 length;
 			guint32 new_offset;
+			guint32 difference;
 			guint32 extension_index;
 			guint32 j,k;
 
@@ -1865,6 +1868,15 @@ DEBUG_ENTRY("dissect_per_sequence");
 				PER_NOT_DECODED_YET(index_get_field_name(sequence, extension_index));
 			}
 			offset+=length*8;
+			difference = offset - new_offset;
+			/* A difference of 7 or less might be byte aligning */
+			if(difference > 7){
+				cause=proto_tree_add_text(tree, tvb, new_offset>>3, (offset-new_offset)>>3, 
+					"[Possible encoding error full length not decoded. Open type length %u ,decoded %u]",length, length - (difference>>3));
+				proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+				expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, 
+					"Possible encoding error full length not decoded. Open type length %u ,decoded %u",length, length - (difference>>3));
+			}
 
 		}
 	}
