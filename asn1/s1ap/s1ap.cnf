@@ -134,7 +134,7 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 # PLMNidentity ::= TBCD-STRING (SIZE (3))
 # TBCD-STRING ::= OCTET STRING
 
-#.FN_BODY PLMNidentity  VAL_PTR = 
+#.FN_BODY PLMNidentity  VAL_PTR = parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -143,6 +143,32 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	 if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+#.END
+
+#.FN_BODY ENBname VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  int length;
+  int p_offset;
+  gboolean is_ascii;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
+if (!parameter_tvb)
+ return offset;
+
+ length = tvb_length(parameter_tvb);
+ 
+ for (p_offset=0; p_offset < length; p_offset++){
+	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
+		is_ascii = FALSE;
+		break;
+	 }
+	 is_ascii = TRUE;
+ }
+ if (is_ascii)
+  		proto_item_append_text(actx->created_item,"(%%s)",tvb_format_text(parameter_tvb, 0, length));
+
 #.END
 
 #.TYPE_ATTR
