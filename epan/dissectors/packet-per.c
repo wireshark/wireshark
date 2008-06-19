@@ -1865,6 +1865,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			if(sequence[extension_index].func){
 				new_offset=sequence[extension_index].func(tvb, offset, actx, tree, *sequence[extension_index].p_id);
 			} else {
+				new_offset=0;
 				PER_NOT_DECODED_YET(index_get_field_name(sequence, extension_index));
 			}
 			offset+=length*8;
