@@ -27,6 +27,7 @@
 
 void profile_bar_update(void);
 void packets_bar_update(void);
+void status_expert_update(void);
 
 /** Push a message referring to the currently-selected field onto the statusbar.
  *

@@ -3271,6 +3271,7 @@ void change_configuration_profile (const gchar *profile_name)
 
    /* Recreate the packet list according to new preferences */
    packet_list_recreate ();
+   status_expert_update();
    cfile.cinfo.columns_changed = FALSE; /* Reset value */
    user_font_apply(prefs.gui_geometry_save_column_width);
 }

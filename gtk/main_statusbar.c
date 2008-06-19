@@ -463,7 +463,7 @@ status_expert_hide(void)
     gtk_widget_hide(expert_info_none);
 }
 
-static void
+void
 status_expert_update(void)
 {
     status_expert_hide();
