@@ -1349,7 +1349,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Ring buffer filesize row */
   ring_filesize_cb = gtk_check_button_new_with_label("Next file every");
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(ring_filesize_cb),
-		capture_opts->has_autostop_filesize);
+		capture_opts->has_autostop_filesize || !capture_opts->has_file_duration);
   g_signal_connect(ring_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_tooltips_set_tip(tooltips, ring_filesize_cb,
     "If the selected file size is exceeded, capturing switches to the next file.\n"
@@ -2390,7 +2390,10 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
     /* Force at least one of the "file switch" conditions (we need at least one) */
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ring_filesize_cb)) == FALSE &&
         gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(file_duration_cb)) == FALSE) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
+      if (tb == ring_filesize_cb)
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(file_duration_cb), TRUE);
+      else
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ring_filesize_cb), TRUE);
     }
 
     gtk_widget_set_sensitive(GTK_WIDGET(ringbuffer_nbf_cb), TRUE);
