@@ -395,6 +395,100 @@ cmdarg_err_cont(const char *fmt, ...)
   }
 }
 
+typedef struct {
+    char *name;
+    pcap_t *pch;
+} if_stat_t;
+
+/* Print the number of packets captured for each interface until we're killed. */
+static int
+print_statistics_loop(gboolean machine_readable)
+{
+    GList       *if_list, *if_entry, *stat_list = NULL, *stat_entry;
+    if_info_t   *if_info;
+    if_stat_t   *if_stat;
+    int         err;
+    gchar       *err_str;
+    pcap_t      *pch;
+    char        errbuf[PCAP_ERRBUF_SIZE];
+    struct pcap_stat ps;
+
+    if_list = get_interface_list(&err, &err_str);
+    if (if_list == NULL) {
+        switch (err) {
+        case CANT_GET_INTERFACE_LIST:
+            cmdarg_err("%s", err_str);
+            g_free(err_str);
+            break;
+
+        case NO_INTERFACES_FOUND:
+            cmdarg_err("There are no interfaces on which a capture can be done");
+            break;
+        }
+        return err;
+    }
+
+    for (if_entry = g_list_first(if_list); if_entry != NULL; if_entry = g_list_next(if_entry)) {
+        if_info = if_entry->data;
+#ifdef HAVE_PCAP_OPEN
+        pch = pcap_open(if_info->name, MIN_PACKET_SIZE, 0, 0, NULL, errbuf);
+#else
+        pch = pcap_open_live(if_info->name, MIN_PACKET_SIZE, 0, 0, errbuf);
+#endif
+
+        if (pch) {
+            if_stat = g_malloc(sizeof(if_stat_t));
+            if_stat->name = g_strdup(if_info->name);
+            if_stat->pch = pch;
+            stat_list = g_list_append(stat_list, if_stat);
+        }
+    }
+
+    if (!stat_list) {
+        cmdarg_err("There are no interfaces on which a capture can be done");
+        return 2;
+    }
+
+    if (!machine_readable) {
+        printf("%-15s  %10s  %10s\n", "Interface", "Received",
+            "Dropped");
+    }
+
+    ld.go = TRUE;
+    while (ld.go) {
+        for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
+            if_stat = stat_entry->data;
+            pcap_stats(if_stat->pch, &ps);
+
+            if (!machine_readable) {
+                printf("%-15s  %10d  %10d\n", if_stat->name,
+                    ps.ps_recv, ps.ps_drop);
+            } else {
+                printf("%s\t%d\t%d\n", if_stat->name,
+                    ps.ps_recv, ps.ps_drop);
+                fflush(stdout);
+            }
+        }
+#ifdef _WIN32
+        Sleep(1 * 1000);
+#else
+        sleep(1);
+#endif
+    }
+
+    /* XXX - Not reached.  Should we look for 'q' in stdin? */
+    for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
+        if_stat = stat_entry->data;
+        pcap_close(if_stat->pch);
+        g_free(if_stat->name);
+        g_free(if_stat);
+    }
+    g_list_free(stat_list);
+    free_interface_list(if_list);
+
+    return 0;
+}
+
 
 #ifdef _WIN32
 static BOOL WINAPI
@@ -2612,7 +2706,7 @@ main(int argc, char *argv[])
     status = capture_opts_list_link_layer_types(capture_opts, machine_readable);
     exit_main(status);
   } else if (print_statistics) {
-    status = capture_opts_print_statistics(machine_readable);
+    status = print_statistics_loop(machine_readable);
     exit_main(status);
   }
 
