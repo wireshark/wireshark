@@ -268,9 +268,10 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case REG_TLV_T_41_MS_HO_CONNECTIONS_PARAM_PROCESSING_TIME:
 				case REG_TLV_T_42_MS_HO_TEK_PROCESSING_TIME:
 				case REG_TLV_T_43_MAC_HEADER_AND_EXTENDED_SUBHEADER_SUPPORT:
+				case REG_POWER_SAVING_CLASS_CAPABILITY:
+#endif
 					dissect_extended_tlv(reg_rsp_tree, tlv_type, tvb, tlv_offset, tlv_len, pinfo, offset, proto_mac_mgmt_msg_reg_rsp_decoder);
 					break;
-#endif
 				case REG_RSP_SECONDARY_MGMT_CID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
 					proto_tree_add_item(tlv_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);

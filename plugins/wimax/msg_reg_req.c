@@ -158,6 +158,12 @@ static gint hf_reg_encap_packet_ip_ecrtp_header_compression_2        = -1;
 static gint hf_reg_encap_rsvd_2                                     = -1;
 static gint hf_tlv_type                                            = -1;
 static gint hf_reg_invalid_tlv                                     = -1;
+static gint hf_reg_power_saving_class_type_i                       = -1;
+static gint hf_reg_power_saving_class_type_ii                      = -1;
+static gint hf_reg_power_saving_class_type_iii                     = -1;
+static gint hf_reg_multi_active_power_saving_classes               = -1;
+static gint hf_reg_total_power_saving_class_instances              = -1;
+static gint hf_reg_power_saving_class_reserved                     = -1;
 
 static gint hf_reg_req_message_type                                = -1;
 
@@ -909,6 +915,48 @@ static hf_register_info hf[] =
 			"Frames required for the MS to switch from sleep to awake-mode", "wmx.reg_req.sleep_recovery",
 			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
+	},
+	{
+		&hf_reg_power_saving_class_type_i,
+		{
+			"Power saving class type I supported", "wmx.reg.power_saving_class_type_i",
+			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x01, "", HFILL
+		}
+	},
+	{
+		&hf_reg_power_saving_class_type_ii,
+		{
+			"Power saving class type II supported", "wmx.reg.power_saving_class_type_ii",
+			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x02, "", HFILL
+		}
+	},
+	{
+		&hf_reg_power_saving_class_type_iii,
+		{
+			"Power saving class type III supported", "wmx.reg.power_saving_class_type_iii",
+			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x04, "", HFILL
+		}
+	},
+	{
+		&hf_reg_multi_active_power_saving_classes,
+		{
+			"Multiple active power saving classes supported", "wmx.reg.multi_active_power_saving_classes",
+			FT_BOOLEAN, 8, TFS(&tfs_supported), 0x08, "", HFILL
+		}
+	},
+	{
+		&hf_reg_total_power_saving_class_instances,
+		{
+			"Total number of power saving class instances of all", "wmx.reg_req.total_power_saving_class_instances",
+			FT_UINT16, BASE_DEC, NULL, 0x1F0, "", HFILL
+		}
+	},
+	{
+		&hf_reg_power_saving_class_reserved,
+		{
+			"Reserved", "wmx.reg.reserved",
+			FT_UINT16, BASE_DEC, NULL, 0xFE00, "", HFILL
+		}
 	}
 };
 
@@ -954,6 +1002,17 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_UL_TRANSPORT_CIDS_SUPPORTED:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_ul_cids, tvb, tlv_offset, tlv_len, FALSE);
 			proto_tree_add_item(tlv_tree, hf_reg_ul_cids, tvb, tlv_offset, tlv_len, FALSE);
+			break;
+			
+		case REG_POWER_SAVING_CLASS_CAPABILITY:
+			/* add TLV subtree */
+			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "Power saving class capability (%d)", tvb_get_ntohs(tvb, tlv_offset));
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_i, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_ii, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_iii, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_multi_active_power_saving_classes, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_total_power_saving_class_instances, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_reserved, tvb, tlv_offset, 2, FALSE);
 			break;
 		case REG_IP_PHS_SDU_ENCAP:
 			/* add TLV subtree */
@@ -1302,10 +1361,11 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case REG_TLV_T_42_MS_HO_TEK_PROCESSING_TIME:
 				case REG_TLV_T_43_MAC_HEADER_AND_EXTENDED_SUBHEADER_SUPPORT:
 				case REG_REQ_BS_SWITCHING_TIMER:
+				case REG_POWER_SAVING_CLASS_CAPABILITY:
+#endif
 					/* Decode REG-REQ sub-TLV's. */
 					dissect_extended_tlv(reg_req_tree, tlv_type, tvb, tlv_offset, tlv_len, pinfo, offset, proto_mac_mgmt_msg_reg_req_decoder);
 					break;
-#endif
 				case REG_REQ_SECONDARY_MGMT_CID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_reg_req_secondary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
