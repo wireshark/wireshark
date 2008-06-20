@@ -80,6 +80,7 @@ static gint hf_reg_invalid_tlv                           = -1;
 static gint hf_reg_rsp_new_cid_after_ho                  = -1;
 static gint hf_reg_rsp_service_flow_id                   = -1;
 static gint hf_reg_rsp_system_resource_retain_time	 = -1;
+static gint hf_reg_total_provisioned_sf			= -1;
 
 /* STRING RESOURCES */
 
@@ -126,6 +127,13 @@ static hf_register_info hf[] =
 		{
 			"Secondary Management CID", "wmx.reg_rsp.secondary_mgmt_cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL
+		}
+	},
+	{
+		&hf_reg_total_provisioned_sf,
+		{
+			"Total Number of Provisional Service Flow", "wmx.reg_rsp.total_provisional_sf",
+			FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL
 		}
 	},
 	{
@@ -266,6 +274,11 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case REG_RSP_SECONDARY_MGMT_CID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
 					proto_tree_add_item(tlv_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
+					break;
+
+				case REG_RSP_TLV_T_36_TOTAL_PROVISIONED_SERVICE_FLOW_DSAs:
+					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, FALSE);
 					break;
 
 				case REG_RSP_TLV_T_24_CID_UPDATE_ENCODINGS:
