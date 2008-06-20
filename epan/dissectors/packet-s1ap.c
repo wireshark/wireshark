@@ -48,6 +48,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -62,6 +63,9 @@
 #define PNAME  "S1 Application Protocol "
 #define PSNAME "S1AP"
 #define PFNAME "s1ap"
+
+/* No SCTP port registered with IANA for S1AP yet */
+#define SCTP_PORT_S1AP	0
 
 
 /*--- Included file: packet-s1ap-val.h ---*/
@@ -217,7 +221,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 59 "packet-s1ap-template.c"
+#line 63 "packet-s1ap-template.c"
 
 static dissector_handle_t s1ap_handle = NULL;
 
@@ -511,7 +515,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 66 "packet-s1ap-template.c"
+#line 70 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -680,12 +684,13 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 71 "packet-s1ap-template.c"
+#line 75 "packet-s1ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -5569,7 +5574,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 97 "packet-s1ap-template.c"
+#line 102 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5626,6 +5631,178 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	s1ap_tree = proto_item_add_subtree(s1ap_item, ett_s1ap);
 	
 	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree);
+}
+
+/*--- proto_reg_handoff_s1ap ---------------------------------------*/
+void
+proto_reg_handoff_s1ap(void)
+{
+	static int Initialized=FALSE;
+	static int SctpPort=0;
+
+	if (!Initialized) {
+		Initialized=TRUE;
+	} else {
+		dissector_delete("sctp.port", SctpPort, s1ap_handle);
+	}
+
+	SctpPort=gbl_s1apSctpPort;
+	dissector_add("sctp.port", SctpPort, s1ap_handle);
+
+
+/*--- Included file: packet-s1ap-dis-tab.c ---*/
+#line 1 "packet-s1ap-dis-tab.c"
+  dissector_add("s1ap.ies", id_MME_UE_S1AP_ID, new_create_dissector_handle(dissect_MME_UE_S1AP_ID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_HandoverType, new_create_dissector_handle(dissect_HandoverType_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SourceID, new_create_dissector_handle(dissect_SourceID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TargetID, new_create_dissector_handle(dissect_TargetID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Intra_LTEHOInformationReq, new_create_dissector_handle(dissect_Intra_LTEHOInformationReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_LTEtoUTRANHOInformationReq, new_create_dissector_handle(dissect_LTEtoUTRANHOInformationReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_LTEtoGERANHOInformationReq, new_create_dissector_handle(dissect_LTEtoGERANHOInformationReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_eNB_UE_S1AP_ID, new_create_dissector_handle(dissect_ENB_UE_S1AP_ID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Intra_LTEHOInformationRes, new_create_dissector_handle(dissect_Intra_LTEHOInformationRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_LTEtoUTRANHOInformationRes, new_create_dissector_handle(dissect_LTEtoUTRANHOInformationRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_LTEtoGERANHOInformationRes, new_create_dissector_handle(dissect_LTEtoGERANHOInformationRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerSubjecttoDataForwardingList, new_create_dissector_handle(dissect_SAEBearerSubjecttoDataForwardingList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearertoReleaseListHOCmd, new_create_dissector_handle(dissect_SAEBearertoReleaseListHOCmd_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerDataForwardingItem, new_create_dissector_handle(dissect_SAEBearerDataForwardingItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerReleaseItemBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseItemBearerRelComp_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListBearerSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListBearerSUReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemBearerSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemBearerSUReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerAdmittedList, new_create_dissector_handle(dissect_SAEBearerAdmittedList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListHOReqAck, new_create_dissector_handle(dissect_SAEBearerFailedtoSetupListHOReqAck_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerAdmittedItem, new_create_dissector_handle(dissect_SAEBearerAdmittedItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedtoSetupItemHOReqAck, new_create_dissector_handle(dissect_SAEBearerFailedToSetupItemHOReqAck_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedDLList, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedDLList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedDLItem, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedDLItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListCtxtSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListCtxtSUReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TraceActivation, new_create_dissector_handle(dissect_TraceActivation_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_NAS_PDU, new_create_dissector_handle(dissect_NAS_PDU_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemHOReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemHOReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerSetupListBearerSURes, new_create_dissector_handle(dissect_SAEBearerSetupListBearerSURes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListBearerSURes, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeModifiedListBearerModReq, new_create_dissector_handle(dissect_SAEBearerToBeModifiedListBearerModReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerModifyListBearerModRes, new_create_dissector_handle(dissect_SAEBearerModifyListBearerModRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedToModifyList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeReleasedList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedToReleaseList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerItem, new_create_dissector_handle(dissect_SAEBearerItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeModifiedItemBearerModReq, new_create_dissector_handle(dissect_SAEBearerToBeModifiedItemBearerModReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerModifyItemBearerModRes, new_create_dissector_handle(dissect_SAEBearerModifyItemBearerModRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerSetupItemBearerSURes, new_create_dissector_handle(dissect_SAEBearerSetupItemBearerSURes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Security_Information, new_create_dissector_handle(dissect_SecurityInformation_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_HandoverRestrictionList, new_create_dissector_handle(dissect_HandoverRestrictionList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_pagingDRX, new_create_dissector_handle(dissect_PagingDRX_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_pagingCause, new_create_dissector_handle(dissect_PagingCause_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TAIList, new_create_dissector_handle(dissect_TAIList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TAIItem, new_create_dissector_handle(dissect_TAIItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListCtxtSURes, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerReleaseItemHOCmd, new_create_dissector_handle(dissect_SAEBearerReleaseItemHOCmd_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerSetupItemCtxtSURes, new_create_dissector_handle(dissect_SAEBearerSetupItemCtxtSURes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerSetupListCtxtSURes, new_create_dissector_handle(dissect_SAEBearerSetupListCtxtSURes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemCtxtSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemCtxtSUReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListHOReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListHOReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_GERANtoLTEHOInformationReq, new_create_dissector_handle(dissect_GERANtoLTEHOInformationReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_GERANtoLTEHOInformationRes, new_create_dissector_handle(dissect_GERANtoLTEHOInformationRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationReq, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationReq_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationRes, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationRes_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_ENB_Global_ID, new_create_dissector_handle(dissect_ENB_Global_ID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_eNBname, new_create_dissector_handle(dissect_ENBname_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_MMEname, new_create_dissector_handle(dissect_MMEname_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_ServedPLMNs, new_create_dissector_handle(dissect_ServedPLMNs_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SupportedTAs, new_create_dissector_handle(dissect_SupportedTAs_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TimeToWait, new_create_dissector_handle(dissect_TimeToWait_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_aggregateMaximumBitrate, new_create_dissector_handle(dissect_AggregateMaximumBitrate_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TAI, new_create_dissector_handle(dissect_TAI_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerReleaseListBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseListBearerRelComp_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000PDU, new_create_dissector_handle(dissect_Cdma2000PDU_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000RATType, new_create_dissector_handle(dissect_Cdma2000RATType_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000SectorID, new_create_dissector_handle(dissect_Cdma2000SectorID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SecurityInfo, new_create_dissector_handle(dissect_SecurityInfo_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UERadioCapability, new_create_dissector_handle(dissect_UERadioCapability_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_GUMMEI_ID, new_create_dissector_handle(dissect_GUMMEI_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Direct_Forwarding_Path_Availability, new_create_dissector_handle(dissect_Direct_Forwarding_Path_Availability_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UEIdentityIndexValue, new_create_dissector_handle(dissect_UEIdentityIndexValue_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000HOStatus, new_create_dissector_handle(dissect_Cdma2000HOStatus_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000HORequiredIndication, new_create_dissector_handle(dissect_Cdma2000HORequiredIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000OneXMEID, new_create_dissector_handle(dissect_Cdma2000OneXMEID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_TraceReference, new_create_dissector_handle(dissect_TraceReference_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_RelativeMMECapacity, new_create_dissector_handle(dissect_RelativeMMECapacity_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SourceMME_UE_S1AP_ID, new_create_dissector_handle(dissect_MME_UE_S1AP_ID_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransfer_Item, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransfer_Item_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_eNB_StatusTransfer_TransparentContainer, new_create_dissector_handle(dissect_ENB_StatusTransfer_TransparentContainer_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UE_associatedLogicalS1_ConnectionItem, new_create_dissector_handle(dissect_UE_associatedLogicalS1_ConnectionItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_ResetType, new_create_dissector_handle(dissect_ResetType_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UE_associatedLogicalS1_ConnectionListResAck, new_create_dissector_handle(dissect_UE_associatedLogicalS1_ConnectionListResAck_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedULItem, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedULItem_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedULList, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedULList_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_S_TMSI, new_create_dissector_handle(dissect_S_TMSI_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_cdma2000OneXRAND, new_create_dissector_handle(dissect_Cdma2000OneXRAND_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_RequestType, new_create_dissector_handle(dissect_RequestType_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_UE_S1AP_IDs, new_create_dissector_handle(dissect_UE_S1AP_IDs_PDU, proto_s1ap));
+  dissector_add("s1ap.ies", id_EUTRAN_CGI_ID, new_create_dissector_handle(dissect_EUTRAN_CGI_ID_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_HandoverNotification, new_create_dissector_handle(dissect_HandoverNotify_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequestAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequestFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_SAEBearerSetup, new_create_dissector_handle(dissect_SAEBearerSetupRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_SAEBearerSetup, new_create_dissector_handle(dissect_SAEBearerSetupResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_SAEBearerModify, new_create_dissector_handle(dissect_SAEBearerModifyRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_SAEBearerModify, new_create_dissector_handle(dissect_SAEBearerModifyResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_SAEBearerRelease, new_create_dissector_handle(dissect_SAEBearerReleaseCommand_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_SAEBearerRelease, new_create_dissector_handle(dissect_SAEBearerReleaseResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_SAEBearerReleaseRequest, new_create_dissector_handle(dissect_SAEBearerReleaseRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UEContextReleaseRequest, new_create_dissector_handle(dissect_UEContextReleaseRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_Paging, new_create_dissector_handle(dissect_Paging_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_downlinkNASTransport, new_create_dissector_handle(dissect_DownlinkNASTransport_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_initialUEMessage, new_create_dissector_handle(dissect_InitialUEMessage_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_uplinkNASTransport, new_create_dissector_handle(dissect_UplinkNASTransport_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_NASNonDeliveryIndication, new_create_dissector_handle(dissect_NASNonDeliveryIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_HandoverCancel, new_create_dissector_handle(dissect_HandoverCancel_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_HandoverCancel, new_create_dissector_handle(dissect_HandoverCancelAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_Reset, new_create_dissector_handle(dissect_Reset_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_Reset, new_create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_S1Setup, new_create_dissector_handle(dissect_S1SetupRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_DownlinkS1cdma2000tunneling, new_create_dissector_handle(dissect_DownlinkS1cdma2000tunneling_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdate_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdate_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdateAcknowledge_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdateFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UplinkS1cdma2000tunneling, new_create_dissector_handle(dissect_UplinkS1cdma2000tunneling_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationRequest_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationResponse_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.uout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationFailure_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UECapabilityInfoIndication, new_create_dissector_handle(dissect_UECapabilityInfoIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseCommand_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.sout", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseComplete_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_eNBStatusTransfer, new_create_dissector_handle(dissect_ENBStatusTransfer_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_MMEStatusTransfer, new_create_dissector_handle(dissect_MMEStatusTransfer_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_DeactivateTrace, new_create_dissector_handle(dissect_DeactivateTrace_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_TraceStart, new_create_dissector_handle(dissect_TraceStart_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_TraceFailureIndication, new_create_dissector_handle(dissect_TraceFailureIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_LocationReportingControl, new_create_dissector_handle(dissect_LocationReportingControl_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_LocationReportingFailureIndication, new_create_dissector_handle(dissect_LocationReportingFailureIndication_PDU, proto_s1ap));
+  dissector_add("s1ap.proc.imsg", id_LocationReport, new_create_dissector_handle(dissect_LocationReport_PDU, proto_s1ap));
+
+
+/*--- End of included file: packet-s1ap-dis-tab.c ---*/
+#line 177 "packet-s1ap-template.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -6768,7 +6945,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 163 "packet-s1ap-template.c"
+#line 187 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -6938,9 +7115,10 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 169 "packet-s1ap-template.c"
+#line 193 "packet-s1ap-template.c"
   };
 
+  module_t *s1ap_module;
 
   /* Register protocol */
   proto_s1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -6962,171 +7140,19 @@ void proto_register_s1ap(void) {
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_out_dissector_table = register_dissector_table("s1ap.proc.out", "S1AP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC);
 
+	/* Register configuration options for ports */
+	s1ap_module = prefs_register_protocol(proto_s1ap,
+											  proto_reg_handoff_s1ap);
+
+	prefs_register_uint_preference(s1ap_module, "sctp.port",
+								   "S1AP SCTP Port",
+								   "Set the SCTP port for S1AP messages",
+								   10,
+								   &gbl_s1apSctpPort);
 
 }
 
 
-/*--- proto_reg_handoff_s1ap ---------------------------------------*/
-void
-proto_reg_handoff_s1ap(void)
-{
 
-	dissector_add("sctp.port", 0, s1ap_handle);
-
-
-/*--- Included file: packet-s1ap-dis-tab.c ---*/
-#line 1 "packet-s1ap-dis-tab.c"
-  dissector_add("s1ap.ies", id_MME_UE_S1AP_ID, new_create_dissector_handle(dissect_MME_UE_S1AP_ID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_HandoverType, new_create_dissector_handle(dissect_HandoverType_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Cause, new_create_dissector_handle(dissect_Cause_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SourceID, new_create_dissector_handle(dissect_SourceID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TargetID, new_create_dissector_handle(dissect_TargetID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Intra_LTEHOInformationReq, new_create_dissector_handle(dissect_Intra_LTEHOInformationReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_LTEtoUTRANHOInformationReq, new_create_dissector_handle(dissect_LTEtoUTRANHOInformationReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_LTEtoGERANHOInformationReq, new_create_dissector_handle(dissect_LTEtoGERANHOInformationReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_eNB_UE_S1AP_ID, new_create_dissector_handle(dissect_ENB_UE_S1AP_ID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Intra_LTEHOInformationRes, new_create_dissector_handle(dissect_Intra_LTEHOInformationRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_LTEtoUTRANHOInformationRes, new_create_dissector_handle(dissect_LTEtoUTRANHOInformationRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_LTEtoGERANHOInformationRes, new_create_dissector_handle(dissect_LTEtoGERANHOInformationRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerSubjecttoDataForwardingList, new_create_dissector_handle(dissect_SAEBearerSubjecttoDataForwardingList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearertoReleaseListHOCmd, new_create_dissector_handle(dissect_SAEBearertoReleaseListHOCmd_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerDataForwardingItem, new_create_dissector_handle(dissect_SAEBearerDataForwardingItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerReleaseItemBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseItemBearerRelComp_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListBearerSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListBearerSUReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemBearerSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemBearerSUReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerAdmittedList, new_create_dissector_handle(dissect_SAEBearerAdmittedList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListHOReqAck, new_create_dissector_handle(dissect_SAEBearerFailedtoSetupListHOReqAck_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerAdmittedItem, new_create_dissector_handle(dissect_SAEBearerAdmittedItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedtoSetupItemHOReqAck, new_create_dissector_handle(dissect_SAEBearerFailedToSetupItemHOReqAck_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedDLList, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedDLList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedDLItem, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedDLItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListCtxtSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListCtxtSUReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TraceActivation, new_create_dissector_handle(dissect_TraceActivation_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_NAS_PDU, new_create_dissector_handle(dissect_NAS_PDU_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemHOReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemHOReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerSetupListBearerSURes, new_create_dissector_handle(dissect_SAEBearerSetupListBearerSURes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListBearerSURes, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeModifiedListBearerModReq, new_create_dissector_handle(dissect_SAEBearerToBeModifiedListBearerModReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerModifyListBearerModRes, new_create_dissector_handle(dissect_SAEBearerModifyListBearerModRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedToModifyList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeReleasedList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedToReleaseList, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerItem, new_create_dissector_handle(dissect_SAEBearerItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeModifiedItemBearerModReq, new_create_dissector_handle(dissect_SAEBearerToBeModifiedItemBearerModReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerModifyItemBearerModRes, new_create_dissector_handle(dissect_SAEBearerModifyItemBearerModRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerSetupItemBearerSURes, new_create_dissector_handle(dissect_SAEBearerSetupItemBearerSURes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Security_Information, new_create_dissector_handle(dissect_SecurityInformation_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_HandoverRestrictionList, new_create_dissector_handle(dissect_HandoverRestrictionList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_pagingDRX, new_create_dissector_handle(dissect_PagingDRX_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_pagingCause, new_create_dissector_handle(dissect_PagingCause_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TAIList, new_create_dissector_handle(dissect_TAIList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TAIItem, new_create_dissector_handle(dissect_TAIItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerFailedToSetupListCtxtSURes, new_create_dissector_handle(dissect_SAEBearerList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerReleaseItemHOCmd, new_create_dissector_handle(dissect_SAEBearerReleaseItemHOCmd_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerSetupItemCtxtSURes, new_create_dissector_handle(dissect_SAEBearerSetupItemCtxtSURes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerSetupListCtxtSURes, new_create_dissector_handle(dissect_SAEBearerSetupListCtxtSURes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupItemCtxtSUReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupItemCtxtSUReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSetupListHOReq, new_create_dissector_handle(dissect_SAEBearerToBeSetupListHOReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_GERANtoLTEHOInformationReq, new_create_dissector_handle(dissect_GERANtoLTEHOInformationReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_GERANtoLTEHOInformationRes, new_create_dissector_handle(dissect_GERANtoLTEHOInformationRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationReq, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationReq_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UTRANtoLTEHOInformationRes, new_create_dissector_handle(dissect_UTRANtoLTEHOInformationRes_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_CriticalityDiagnostics, new_create_dissector_handle(dissect_CriticalityDiagnostics_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_ENB_Global_ID, new_create_dissector_handle(dissect_ENB_Global_ID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_eNBname, new_create_dissector_handle(dissect_ENBname_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_MMEname, new_create_dissector_handle(dissect_MMEname_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_ServedPLMNs, new_create_dissector_handle(dissect_ServedPLMNs_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SupportedTAs, new_create_dissector_handle(dissect_SupportedTAs_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TimeToWait, new_create_dissector_handle(dissect_TimeToWait_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_aggregateMaximumBitrate, new_create_dissector_handle(dissect_AggregateMaximumBitrate_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TAI, new_create_dissector_handle(dissect_TAI_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerReleaseListBearerRelComp, new_create_dissector_handle(dissect_SAEBearerReleaseListBearerRelComp_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000PDU, new_create_dissector_handle(dissect_Cdma2000PDU_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000RATType, new_create_dissector_handle(dissect_Cdma2000RATType_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000SectorID, new_create_dissector_handle(dissect_Cdma2000SectorID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SecurityInfo, new_create_dissector_handle(dissect_SecurityInfo_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UERadioCapability, new_create_dissector_handle(dissect_UERadioCapability_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_GUMMEI_ID, new_create_dissector_handle(dissect_GUMMEI_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Direct_Forwarding_Path_Availability, new_create_dissector_handle(dissect_Direct_Forwarding_Path_Availability_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UEIdentityIndexValue, new_create_dissector_handle(dissect_UEIdentityIndexValue_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000HOStatus, new_create_dissector_handle(dissect_Cdma2000HOStatus_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000HORequiredIndication, new_create_dissector_handle(dissect_Cdma2000HORequiredIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000OneXMEID, new_create_dissector_handle(dissect_Cdma2000OneXMEID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_TraceReference, new_create_dissector_handle(dissect_TraceReference_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_RelativeMMECapacity, new_create_dissector_handle(dissect_RelativeMMECapacity_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SourceMME_UE_S1AP_ID, new_create_dissector_handle(dissect_MME_UE_S1AP_ID_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_Bearers_SubjectToStatusTransfer_Item, new_create_dissector_handle(dissect_Bearers_SubjectToStatusTransfer_Item_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_eNB_StatusTransfer_TransparentContainer, new_create_dissector_handle(dissect_ENB_StatusTransfer_TransparentContainer_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UE_associatedLogicalS1_ConnectionItem, new_create_dissector_handle(dissect_UE_associatedLogicalS1_ConnectionItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_ResetType, new_create_dissector_handle(dissect_ResetType_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UE_associatedLogicalS1_ConnectionListResAck, new_create_dissector_handle(dissect_UE_associatedLogicalS1_ConnectionListResAck_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedULItem, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedULItem_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_SAEBearerToBeSwitchedULList, new_create_dissector_handle(dissect_SAEBearerToBeSwitchedULList_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_S_TMSI, new_create_dissector_handle(dissect_S_TMSI_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_cdma2000OneXRAND, new_create_dissector_handle(dissect_Cdma2000OneXRAND_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_RequestType, new_create_dissector_handle(dissect_RequestType_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_UE_S1AP_IDs, new_create_dissector_handle(dissect_UE_S1AP_IDs_PDU, proto_s1ap));
-  dissector_add("s1ap.ies", id_EUTRAN_CGI_ID, new_create_dissector_handle(dissect_EUTRAN_CGI_ID_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverRequired_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverCommand_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_HandoverPreparation, new_create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_HandoverResourceAllocation, new_create_dissector_handle(dissect_HandoverFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_HandoverNotification, new_create_dissector_handle(dissect_HandoverNotify_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequestAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_PathSwitchRequest, new_create_dissector_handle(dissect_PathSwitchRequestFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_SAEBearerSetup, new_create_dissector_handle(dissect_SAEBearerSetupRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_SAEBearerSetup, new_create_dissector_handle(dissect_SAEBearerSetupResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_SAEBearerModify, new_create_dissector_handle(dissect_SAEBearerModifyRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_SAEBearerModify, new_create_dissector_handle(dissect_SAEBearerModifyResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_SAEBearerRelease, new_create_dissector_handle(dissect_SAEBearerReleaseCommand_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_SAEBearerRelease, new_create_dissector_handle(dissect_SAEBearerReleaseResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_SAEBearerReleaseRequest, new_create_dissector_handle(dissect_SAEBearerReleaseRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_InitialContextSetup, new_create_dissector_handle(dissect_InitialContextSetupFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_UEContextReleaseRequest, new_create_dissector_handle(dissect_UEContextReleaseRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_Paging, new_create_dissector_handle(dissect_Paging_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_downlinkNASTransport, new_create_dissector_handle(dissect_DownlinkNASTransport_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_initialUEMessage, new_create_dissector_handle(dissect_InitialUEMessage_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_uplinkNASTransport, new_create_dissector_handle(dissect_UplinkNASTransport_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_NASNonDeliveryIndication, new_create_dissector_handle(dissect_NASNonDeliveryIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_HandoverCancel, new_create_dissector_handle(dissect_HandoverCancel_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_HandoverCancel, new_create_dissector_handle(dissect_HandoverCancelAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_Reset, new_create_dissector_handle(dissect_Reset_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_Reset, new_create_dissector_handle(dissect_ResetAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_ErrorIndication, new_create_dissector_handle(dissect_ErrorIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_S1Setup, new_create_dissector_handle(dissect_S1SetupRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_S1Setup, new_create_dissector_handle(dissect_S1SetupFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_DownlinkS1cdma2000tunneling, new_create_dissector_handle(dissect_DownlinkS1cdma2000tunneling_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdate_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_ENBConfigurationUpdate, new_create_dissector_handle(dissect_ENBConfigurationUpdateFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdate_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdateAcknowledge_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_MMEConfigurationUpdate, new_create_dissector_handle(dissect_MMEConfigurationUpdateFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_UplinkS1cdma2000tunneling, new_create_dissector_handle(dissect_UplinkS1cdma2000tunneling_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationRequest_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationResponse_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.uout", id_UEContextModification, new_create_dissector_handle(dissect_UEContextModificationFailure_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_UECapabilityInfoIndication, new_create_dissector_handle(dissect_UECapabilityInfoIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseCommand_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.sout", id_UEContextRelease, new_create_dissector_handle(dissect_UEContextReleaseComplete_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_eNBStatusTransfer, new_create_dissector_handle(dissect_ENBStatusTransfer_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_MMEStatusTransfer, new_create_dissector_handle(dissect_MMEStatusTransfer_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_DeactivateTrace, new_create_dissector_handle(dissect_DeactivateTrace_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_TraceStart, new_create_dissector_handle(dissect_TraceStart_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_TraceFailureIndication, new_create_dissector_handle(dissect_TraceFailureIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_LocationReportingControl, new_create_dissector_handle(dissect_LocationReportingControl_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_LocationReportingFailureIndication, new_create_dissector_handle(dissect_LocationReportingFailureIndication_PDU, proto_s1ap));
-  dissector_add("s1ap.proc.imsg", id_LocationReport, new_create_dissector_handle(dissect_LocationReport_PDU, proto_s1ap));
-
-
-/*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 204 "packet-s1ap-template.c"
-}
 
 

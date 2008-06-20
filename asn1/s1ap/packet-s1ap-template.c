@@ -40,6 +40,7 @@
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -54,6 +55,9 @@
 #define PNAME  "S1 Application Protocol "
 #define PSNAME "S1AP"
 #define PFNAME "s1ap"
+
+/* No SCTP port registered with IANA for S1AP yet */
+#define SCTP_PORT_S1AP	0
 
 #include "packet-s1ap-val.h"
 
@@ -73,6 +77,7 @@ static int ett_s1ap = -1;
 static guint32 ProcedureCode;
 static guint32 ProtocolIE_ID;
 static guint32 ProtocolExtensionID;
+static guint gbl_s1apSctpPort=SCTP_PORT_S1AP;
 
 /* Dissector tables */
 static dissector_table_t s1ap_ies_dissector_table;
@@ -152,6 +157,25 @@ dissect_s1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissect_S1AP_PDU_PDU(tvb, pinfo, s1ap_tree);
 }
 
+/*--- proto_reg_handoff_s1ap ---------------------------------------*/
+void
+proto_reg_handoff_s1ap(void)
+{
+	static int Initialized=FALSE;
+	static int SctpPort=0;
+
+	if (!Initialized) {
+		Initialized=TRUE;
+	} else {
+		dissector_delete("sctp.port", SctpPort, s1ap_handle);
+	}
+
+	SctpPort=gbl_s1apSctpPort;
+	dissector_add("sctp.port", SctpPort, s1ap_handle);
+
+#include "packet-s1ap-dis-tab.c"
+}
+
 /*--- proto_register_s1ap -------------------------------------------*/
 void proto_register_s1ap(void) {
 
@@ -168,6 +192,7 @@ void proto_register_s1ap(void) {
 #include "packet-s1ap-ettarr.c"
   };
 
+  module_t *s1ap_module;
 
   /* Register protocol */
   proto_s1ap = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -189,18 +214,19 @@ void proto_register_s1ap(void) {
   s1ap_proc_uout_dissector_table = register_dissector_table("s1ap.proc.uout", "S1AP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", FT_UINT32, BASE_DEC);
   s1ap_proc_out_dissector_table = register_dissector_table("s1ap.proc.out", "S1AP-ELEMENTARY-PROCEDURE Outcome", FT_UINT32, BASE_DEC);
 
+	/* Register configuration options for ports */
+	s1ap_module = prefs_register_protocol(proto_s1ap,
+											  proto_reg_handoff_s1ap);
+
+	prefs_register_uint_preference(s1ap_module, "sctp.port",
+								   "S1AP SCTP Port",
+								   "Set the SCTP port for S1AP messages",
+								   10,
+								   &gbl_s1apSctpPort);
 
 }
 
 
-/*--- proto_reg_handoff_s1ap ---------------------------------------*/
-void
-proto_reg_handoff_s1ap(void)
-{
 
-	dissector_add("sctp.port", 0, s1ap_handle);
-
-#include "packet-s1ap-dis-tab.c"
-}
 
 
