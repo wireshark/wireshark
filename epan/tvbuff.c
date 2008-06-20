@@ -522,9 +522,10 @@ tvb_composite_append(tvbuff_t* tvb, tvbuff_t* member)
 	tvb_comp_t	*composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
+	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_append( composite->tvbs, member );
-	add_to_used_in_list(member, tvb);
+	add_to_used_in_list(tvb, member);
 }
 
 void
@@ -533,9 +534,10 @@ tvb_composite_prepend(tvbuff_t* tvb, tvbuff_t* member)
 	tvb_comp_t	*composite;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
+	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	composite = &tvb->tvbuffs.composite;
 	composite->tvbs = g_slist_prepend( composite->tvbs, member );
-	add_to_used_in_list(member, tvb);
+	add_to_used_in_list(tvb, member);
 }
 
 tvbuff_t*
@@ -554,6 +556,7 @@ tvb_composite_finalize(tvbuff_t* tvb)
 	int		i = 0;
 
 	DISSECTOR_ASSERT(tvb && !tvb->initialized);
+	DISSECTOR_ASSERT(tvb->type == TVBUFF_COMPOSITE);
 	DISSECTOR_ASSERT(tvb->length == 0);
 
 	composite = &tvb->tvbuffs.composite;
@@ -874,7 +877,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	if (end_offset <= tvb->length) {
 		return tvb->real_data + u_offset;
 	}
-	
+
 	if (end_offset > tvb->reported_length) {
 		THROW(ReportedBoundsError);
 	}
@@ -1575,7 +1578,7 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, gint no_of_bits,gboolean little_e
 	 */
 	bit_offset = bit_offset & 0x7;
 	tot_no_bits = bit_offset+no_of_bits;
-	
+
 	/* Read four octets, mask off bit_offset bits and left shift out the unused bits */
 	value = tvb_get_ntohl(tvb,offset) & bit_mask32[bit_offset];
 	value = value >> (32 - tot_no_bits);

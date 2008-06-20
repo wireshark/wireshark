@@ -59,6 +59,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The RTMTP dissector could crash.
+            <!-- Fixed in r25497 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2620">2620</ulink>) -->
+          </para>
+          <para>Versions affected: 0.99.8 to 1.0.0</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
