@@ -1812,9 +1812,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			/* defragment first if it is fragmented */
 			if (frag_type == NO_FRAG)
 			{	/* not fragmented payload */
-				payload_tvb =  tvb_new_subset(tvb, offset, length, length);
-				payload_length = length;
-				new_payload_len = length;
+				payload_tvb =  tvb_new_subset(tvb, offset, frag_len, frag_len);
+				payload_length = frag_len;
+				new_payload_len = frag_len;
 			}
 			else	/* fragmented payload */
 			{	/* add the frag */
