@@ -261,7 +261,12 @@ wireshark -i eth0 -k
 	</variablelist>
 	</para>
   </section>
-  
+
+  <section id="ChCapInterfaceDetailsSection">
+    <title>The "Capture Interface Details" dialog box</title>
+    <para></para>
+  </section>
+
     <section id="ChCapCaptureOptions">
       <title>The "Capture Options" dialog box</title>
       <para>

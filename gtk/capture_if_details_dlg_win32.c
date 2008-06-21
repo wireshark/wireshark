@@ -2356,7 +2356,7 @@ capture_if_details_open_win(char *iface)
     window_set_cancel_button(details_open_w, close_bt, window_cancel_button_cb);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer) (HELP_CAPTURE_INTERFACES_DETAILS_DIALOG));
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer) (HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG));
 
     gtk_widget_grab_focus(close_bt);
 

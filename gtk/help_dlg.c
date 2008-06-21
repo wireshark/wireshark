@@ -292,6 +292,9 @@ topic_action(topic_action_e action)
     case(HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG):
         help_topic_html("ChCustInterfaceOptionsSection.html");
         break;
+    case(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG):
+        help_topic_html("ChCapInterfaceDetailsSection.html");
+        break;
     case(HELP_PREFERENCES_DIALOG):
         help_topic_html("ChCustPreferencesSection.html");
         break;
