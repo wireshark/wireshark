@@ -75,12 +75,16 @@ static int hf_aim_fnac_subtype_ssi_version = -1;
 static int hf_aim_fnac_subtype_ssi_numitems = -1;
 static int hf_aim_fnac_subtype_ssi_last_change_time = -1;
 static int hf_aim_fnac_subtype_ssi_buddyname_len = -1;
+static int hf_aim_fnac_subtype_ssi_buddyname_len8 = -1;
 static int hf_aim_fnac_subtype_ssi_buddyname = -1;
 static int hf_aim_fnac_subtype_ssi_gid = -1;
 static int hf_aim_fnac_subtype_ssi_bid = -1;
 static int hf_aim_fnac_subtype_ssi_type = -1;
 static int hf_aim_fnac_subtype_ssi_tlvlen = -1;
 static int hf_aim_fnac_subtype_ssi_data = -1;
+static int hf_aim_fnac_subtype_ssi_reason_str_len = -1;
+static int hf_aim_fnac_subtype_ssi_reason_str = -1;
+static int hf_aim_fnac_subtype_ssi_grant_ft_auth_unkn = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_ssi      = -1;
@@ -154,9 +158,24 @@ static int dissect_aim_ssi_was_added(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	return dissect_aim_buddyname(tvb, pinfo, 0, ssi_tree);
 }
 
-static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, 
-									 proto_tree *tree)
 
+static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+
+	/* get timestamp */
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_last_change_time, tvb, offset, 4, FALSE);
+	offset += 4;
+
+	/* get number of SSI items */
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2,     FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+
+static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	int offset = 0;
 	proto_item *ti;
@@ -183,23 +202,56 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_,
 	return offset;
 }
 
+static int dissect_aim_snac_ssi_future_auth(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	int offset = 0;
+	guint16 reason_length;
+	guint16 unknown;
+
+	/* get buddy length (1 byte) */
+	guint8 buddyname_length = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, FALSE);
+	offset += 1;
+	/* show buddy name */
+	if (buddyname_length > 0) {
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, FALSE);
+		offset += buddyname_length;
+	}
+
+	/* get reason message length (2 bytes) */
+	reason_length = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str_len, tvb, offset, 2, FALSE);
+	offset += 2;
+	/* show reason message if present */
+	if (reason_length > 0) {
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, FALSE);
+		offset += reason_length;
+	}
+	/* unknown (always 0x0000 ???) */
+	unknown = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_grant_ft_auth_unkn, tvb, offset, 2, FALSE);
+	offset += 2;
+
+	return offset;
+}
+
 static const aim_subtype aim_fnac_family_ssi[] = {
 	{ 0x0001, "Error", dissect_aim_snac_error },
 	{ 0x0002, "Request Rights", NULL },
 	{ 0x0003, "Rights Info", dissect_aim_ssi_rightsinfo },
 	{ 0x0004, "Request List (first time)", NULL },
-	{ 0x0005, "Request List", NULL },
+	{ 0x0005, "Request List", dissect_aim_snac_ssi_time_and_items_num },
 	{ 0x0006, "List", dissect_aim_snac_ssi_list },
 	{ 0x0007, "Activate", NULL },
 	{ 0x0008, "Add Buddy", dissect_ssi_ssi_item },
 	{ 0x0009, "Modify Buddy", dissect_ssi_ssi_item },
 	{ 0x000a, "Delete Buddy", dissect_ssi_ssi_item },
 	{ 0x000e, "Server Ack", dissect_aim_ssi_result },
-	{ 0x000f, "No List", NULL },
+	{ 0x000f, "No List", dissect_aim_snac_ssi_time_and_items_num },
 	{ 0x0011, "Edit Start", NULL },
 	{ 0x0012, "Edit Stop", NULL },
-	{ 0x0014, "Grant Future Authorization to Buddy", NULL },
-	{ 0x0015, "Future Authorization Granted", NULL },
+	{ 0x0014, "Grant Future Authorization to Buddy", dissect_aim_snac_ssi_future_auth },
+	{ 0x0015, "Future Authorization Granted", dissect_aim_snac_ssi_future_auth },
 	{ 0x0018, "Send Authentication Request", NULL },
 	{ 0x0019, "Authentication Request", NULL },
 	{ 0x001a, "Send Authentication Reply", NULL },
@@ -245,6 +297,18 @@ proto_register_aim_ssi(void)
 		},
 		{ &hf_aim_fnac_subtype_ssi_data,
 			{ "SSI Buddy Data", "aim_ssi.fnac.data", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_buddyname_len8,
+			{ "SSI Buddy Name length", "aim_ssi.fnac.buddyname_len8", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_reason_str_len,
+			{ "Reason Message length", "aim_ssi.fnac.reason_len", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_reason_str,
+			{ "Reason Message", "aim_ssi.fnac.reason", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }
+		},
+		{ &hf_aim_fnac_subtype_ssi_grant_ft_auth_unkn,
+			{ "Unknown", "aim_ssi.fnac.grant_ft_auth_unkn", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }
 		},
 	};
 
