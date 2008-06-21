@@ -45,6 +45,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 #include "gtk/main_welcome.h"
+#include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
 #include <epan/strutil.h>
 
@@ -255,11 +256,12 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	GtkWidget	*ifopts_edit_dlg, *cur_scr_win, *main_hb, *main_tb,
 				*cur_opts_fr, *ed_opts_fr, *main_vb,
 				*if_linktype_lb, *if_descr_lb, *if_hide_lb,
-				*bbox, *ok_bt, *cancel_bt;
+				*bbox, *ok_bt, *cancel_bt, *help_bt;
 	const gchar *cur_titles[] = { "Device", "Description", "Default link-layer", "Comment", "Hide?", "" };
 	int row = 0;
 
 	GtkWidget *caller = gtk_widget_get_toplevel(w);
+	GtkTooltips	*tooltips = gtk_tooltips_new();
 
 	/* Has an edit dialog box already been opened for that top-level
 	   widget? */
@@ -391,15 +393,24 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
         row++;
 
 	/* button row: OK and Cancel buttons */
-	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
 	gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
+	gtk_tooltips_set_tip(tooltips, ok_bt,
+			     "Save changes and exit dialog", NULL);
 	g_signal_connect(ok_bt, "clicked", G_CALLBACK(ifopts_edit_ok_cb), ifopts_edit_dlg);
 
 	cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
+	gtk_tooltips_set_tip(tooltips, cancel_bt,
+			     "Cancel and exit dialog", NULL);
         window_set_cancel_button(ifopts_edit_dlg, cancel_bt, window_cancel_button_cb);
+
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), 
+			 (gpointer)HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG);
+	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
 	gtk_widget_grab_default(ok_bt);
 

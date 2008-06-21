@@ -173,6 +173,7 @@ FILE SECTION
   <!ENTITY WiresharkFindPacket SYSTEM "./wsug_graphics/ws-find-packet.png" NDATA PNG>  
   <!ENTITY WiresharkGoToPacket SYSTEM "./wsug_graphics/ws-goto-packet.png" NDATA PNG>  
   <!ENTITY WiresharkGUIPreferences SYSTEM "./wsug_graphics/ws-gui-preferences.png" NDATA PNG>
+  <!ENTITY WiresharkGUIInterfaceOptions SYSTEM "./wsug_graphics/ws-gui-interface-options.png" NDATA PNG>
   <!ENTITY WiresharkGUILayoutPreferences SYSTEM "./wsug_graphics/ws-gui-layout-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIColumnsPreferences SYSTEM "./wsug_graphics/ws-gui-columns-preferences.png" NDATA PNG>
   <!ENTITY WiresharkGUIFontPreferences SYSTEM "./wsug_graphics/ws-gui-font-preferences.png" NDATA PNG>

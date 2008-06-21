@@ -78,14 +78,9 @@ static GSList *help_text_pages = NULL;
 
 
 
-gboolean topic_available(topic_action_e action) {
+gboolean topic_available(topic_action_e action _U_) {
 
-    if(action == HELP_CAPTURE_INTERFACES_DETAILS_DIALOG) {
-        /* XXX - add the page HELP_CAPTURE_INTERFACES_DETAILS_DIALOG and remove this if */
-        /* page currently not existing in user's guide */
-        return FALSE;
-    }
-    /* online: we have almost all possible pages available */
+    /* online: we have all possible pages available */
     return TRUE;
 }
 
@@ -302,8 +297,8 @@ topic_action(topic_action_e action)
     case(HELP_FILESET_DIALOG):
         help_topic_html("ChIOFileSetSection.html");
         break;
-    case(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG):
-        help_topic_html("ChCapInterfaceDetailsSection.html");
+    case(HELP_CAPTURE_INTERFACE_OPTIONS_DIALOG):
+        help_topic_html("ChCustInterfaceOptionsSection.html");
         break;
     case(HELP_PREFERENCES_DIALOG):
         help_topic_html("ChCustPreferencesSection.html");

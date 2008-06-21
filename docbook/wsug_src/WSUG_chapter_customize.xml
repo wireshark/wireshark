@@ -940,7 +940,46 @@ standard libpcap format.
       <title>The preferences dialog box</title>
       <graphic entityref="WiresharkGUIPreferences" format="PNG"/>
     </figure>
+
+    <section id="ChCustInterfaceOptionsSection"><title>Interface Options</title>
+    <para>
+      In the Capture preferences it is possible to configure several options for the interfaces
+      available on your computer. Select the <command>Capture</command> phane and press the 
+      Interfaces: <command>Edit</command> button.  In this window it is possible to change the
+      default link-layer header type for the interface, add a comment or choose to hide a 
+      interface from other parts of the program.
+    </para>
+    <figure id="ChCustInterfaceOptionsPage">
+      <title>The interface options dialog box</title>
+      <graphic entityref="WiresharkGUIInterfaceOptions" format="PNG"/>
+    </figure>
+    <para>Each row contains options for each interface available on your computer.</para>
+    <itemizedlist>
+      <listitem>
+	<para><command>Device</command>: the device name provided by the operating system.</para>
+      </listitem>
+      <listitem>
+	<para><command>Description</command>: provided by the operating system.</para>
+      </listitem>
+      <listitem>
+	<para><command>Default link-layer</command>: each interface may provide several 
+	link-layer header types. The default link-layer choosen here is the one used when you 
+	first start Wireshark.  It is also possible to change this value in 
+	<xref linkend="ChCapCaptureOptions"/> when you start a capture.</para>
+      </listitem>
+      <listitem>
+	<para><command>Comment</command>: a user provided description of the interface. 
+	This comment will be used as a description instead of the operating system 
+	description.</para>
+      </listitem>
+      <listitem>
+	<para><command>Hide?</command>: enable this option to hide the interface from other
+	parts of the program.</para>
+      </listitem>
+    </itemizedlist>
+    </section>
   </section>
+
   <section id="ChCustConfigProfilesSection"><title>Configuration Profiles</title>
     <para>
       Configuration Profiles can be used to configure and use more than one set of preferences
