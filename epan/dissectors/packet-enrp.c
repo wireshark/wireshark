@@ -1,9 +1,9 @@
 /* packet-enrp.c
  * Routines for Endpoint Handlespace Redundancy Protocol (ENRP)
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-15.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-04.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-12.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-17.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-08.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-enrp-20.txt
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.
@@ -13,6 +13,7 @@
  *   - check message lengths
  *
  * Copyright 2004, 2005, 2006, 2007 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2008 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * $Id$
  *
@@ -408,7 +409,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
 {
   guint32 type;
   guint length;
-  
+
   proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
   type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
   switch (type) {
@@ -572,21 +573,21 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define PE_CHECKSUM_PARAMETER_TYPE                  0x0f
 
 static const value_string parameter_type_values[] = {
-  { IPV4_ADDRESS_PARAMETER_TYPE,                 "IPV4 address" },
-  { IPV6_ADDRESS_PARAMETER_TYPE,                 "IPV6 address" },
-  { DCCP_TRANSPORT_PARAMETER_TYPE,               "DCCP transport address" },
-  { SCTP_TRANSPORT_PARAMETER_TYPE,               "SCTP transport address" },
-  { TCP_TRANSPORT_PARAMETER_TYPE,                "TCP transport address" },
-  { UDP_TRANSPORT_PARAMETER_TYPE,                "UDP transport address" },
-  { UDP_LITE_TRANSPORT_PARAMETER_TYPE,           "UDP-Lite transport address" },
-  { POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE, "Pool member selection policy" },
-  { POOL_HANDLE_PARAMETER_TYPE,                  "Pool handle" },
-  { POOL_ELEMENT_PARAMETER_TYPE,                 "Pool element" },
-  { SERVER_INFORMATION_PARAMETER_TYPE,           "Server Information" },
-  { OPERATION_ERROR_PARAMETER_TYPE,              "Operation error" },
-  { COOKIE_PARAMETER_TYPE,                       "Cookie" },
-  { PE_IDENTIFIER_PARAMETER_TYPE,                "Pool Element identifier" },
-  { PE_CHECKSUM_PARAMETER_TYPE,                  "PE checksum" },
+  { IPV4_ADDRESS_PARAMETER_TYPE,                 "IPV4 Address Parameter" },
+  { IPV6_ADDRESS_PARAMETER_TYPE,                 "IPV6 Address Parameter" },
+  { DCCP_TRANSPORT_PARAMETER_TYPE,               "DCCP Transport Address Parameter" },
+  { SCTP_TRANSPORT_PARAMETER_TYPE,               "SCTP Transport Address Parameter" },
+  { TCP_TRANSPORT_PARAMETER_TYPE,                "TCP Transport Address Parameter" },
+  { UDP_TRANSPORT_PARAMETER_TYPE,                "UDP Transport Address Parameter" },
+  { UDP_LITE_TRANSPORT_PARAMETER_TYPE,           "UDP-Lite Transport Address Parameter" },
+  { POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE, "Pool Member Selection Policy Parameter" },
+  { POOL_HANDLE_PARAMETER_TYPE,                  "Pool Handle Parameter" },
+  { POOL_ELEMENT_PARAMETER_TYPE,                 "Pool Element Parameter" },
+  { SERVER_INFORMATION_PARAMETER_TYPE,           "Server Information Parameter" },
+  { OPERATION_ERROR_PARAMETER_TYPE,              "Operation Error Parameter" },
+  { COOKIE_PARAMETER_TYPE,                       "Cookie Parameter" },
+  { PE_IDENTIFIER_PARAMETER_TYPE,                "Pool Element Identifier Parameter" },
+  { PE_CHECKSUM_PARAMETER_TYPE,                  "PE Checksum Parameter" },
   { 0,                                           NULL } };
 
 
@@ -603,7 +604,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *enrp_tree)
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(type, parameter_type_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(enrp_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(type, parameter_type_values, "Unknown Parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_enrp_parameter);
 
   /* add tag and length to the enrp tree */
@@ -892,7 +893,7 @@ dissect_enrp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *enrp
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_enrp_message is called via dissect_error cause */
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO)))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ENRP type"));
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown ENRP Type"));
 
   if (enrp_tree) {
     proto_tree_add_item(enrp_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
@@ -971,49 +972,49 @@ proto_register_enrp(void)
     { &hf_message_flags,          { "Flags",                       "enrp.message_flags",                            FT_UINT8,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_message_length,         { "Length",                      "enrp.message_length",                           FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_message_value,          { "Value",                       "enrp.message_value",                            FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
-    { &hf_cause_code,             { "Cause code",                  "enrp.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),           0x0,                        "", HFILL } },
-    { &hf_cause_length,           { "Cause length",                "enrp.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_cause_info,             { "Cause info",                  "enrp.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
+    { &hf_cause_code,             { "Cause Code",                  "enrp.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),           0x0,                        "", HFILL } },
+    { &hf_cause_length,           { "Cause Length",                "enrp.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_cause_info,             { "Cause Info",                  "enrp.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_cause_padding,          { "Padding",                     "enrp.cause_padding",                            FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_parameter_type,         { "Parameter Type",              "enrp.parameter_type",                           FT_UINT16,  BASE_HEX,  VALS(parameter_type_values),       0x0,                        "", HFILL } },
-    { &hf_parameter_length,       { "Parameter length",            "enrp.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_parameter_value,        { "Parameter value",             "enrp.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
+    { &hf_parameter_length,       { "Parameter Length",            "enrp.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_parameter_value,        { "Parameter Value",             "enrp.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_parameter_padding,      { "Padding",                     "enrp.parameter_padding",                        FT_BYTES,   BASE_NONE, NULL,                              0x0,                        "", HFILL } },
-    { &hf_parameter_ipv4_address, { "IP Version 4 address",        "enrp.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
-    { &hf_parameter_ipv6_address, { "IP Version 6 address",        "enrp.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
+    { &hf_parameter_ipv4_address, { "IP Version 4 Address",        "enrp.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
+    { &hf_parameter_ipv6_address, { "IP Version 6 Address",        "enrp.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                              0x0,                        "", HFILL } },
     { &hf_dccp_port,              { "Port",                        "enrp.dccp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_dccp_reserved,          { "Reserved",                    "enrp.dccp_transport_reserved",                  FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_dccp_service_code,      { "Service code",                "enrp.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_dccp_service_code,      { "Service Code",                "enrp.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_sctp_port,              { "Port",                        "enrp.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_transport_use,          { "Transport use",               "enrp.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),        0x0,                        "", HFILL } },
+    { &hf_transport_use,          { "Transport Use",               "enrp.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),        0x0,                        "", HFILL } },
     { &hf_tcp_port,               { "Port",                        "enrp.tcp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_port,               { "Port",                        "enrp.udp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_reserved,           { "Reserved",                    "enrp.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_lite_port,          { "Port",                        "enrp.udp_lite_transport_port",                  FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
     { &hf_udp_lite_reserved,      { "Reserved",                    "enrp.udp_lite_transport_reserved",              FT_UINT16,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),          0x0,                        "", HFILL } },
-    { &hf_policy_weight,          { "Policy weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_priority,        { "Policy priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_load,            { "Policy load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_degradation,     { "Policy degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pool_handle,            { "Pool handle",                 "enrp.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_pe_identifier,       { "PE identifier",               "enrp.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_home_enrp_id,           { "Home ENRP server identifier", "enrp.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_reg_life,               { "Registration life",           "enrp.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_server_identifier,      { "Server identifier",           "enrp.server_information_server_identifier",     FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_type,            { "Policy Type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),          0x0,                        "", HFILL } },
+    { &hf_policy_weight,          { "Policy Weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_priority,        { "Policy Priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_load,            { "Policy Load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_degradation,     { "Policy Degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_policy_value,           { "Policy Value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_pool_handle,            { "Pool Handle",                 "enrp.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_pe_pe_identifier,       { "PE Identifier",               "enrp.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_home_enrp_id,           { "Home ENRP Server Identifier", "enrp.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_reg_life,               { "Registration Life",           "enrp.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_server_identifier,      { "Server Identifier",           "enrp.server_information_server_identifier",     FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
     { &hf_cookie,                 { "Cookie",                      "enrp.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_identifier,          { "PE identifier",               "enrp.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_pe_checksum,            { "PE checksum",                 "enrp.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_sender_servers_id,      { "Sender server's ID",          "enrp.sender_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_receiver_servers_id,    { "Receiver server's ID",        "enrp.receiver_servers_id",                      FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_target_servers_id,      { "Target server's ID",          "enrp.target_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_update_action,          { "Update action",               "enrp.update_action",                            FT_UINT16,  BASE_DEC,  VALS(update_action_values),        0x0,                        "", HFILL } },
+    { &hf_pe_identifier,          { "PE Identifier",               "enrp.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_pe_checksum,            { "PE Checksum",                 "enrp.pe_checksum",                              FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_sender_servers_id,      { "Sender Server's ID",          "enrp.sender_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_receiver_servers_id,    { "Receiver Server's ID",        "enrp.receiver_servers_id",                      FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_target_servers_id,      { "Target Server's ID",          "enrp.target_servers_id",                        FT_UINT32,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
+    { &hf_update_action,          { "Update Action",               "enrp.update_action",                            FT_UINT16,  BASE_DEC,  VALS(update_action_values),        0x0,                        "", HFILL } },
     { &hf_pmu_reserved,           { "Reserved",                    "enrp.reserved",                                 FT_UINT16,  BASE_HEX,  NULL,                              0x0,                        "", HFILL } },
-    { &hf_reply_required_bit,     { "R bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reply_required_bit_value),    REPLY_REQUIRED_BIT_MASK,    "", HFILL } },
-    { &hf_own_children_only_bit,  { "W bit",                       "enrp.w_bit",                                    FT_BOOLEAN, 8,         TFS(&own_children_only_bit_value), OWN_CHILDREN_ONLY_BIT_MASK, "", HFILL } },
-    { &hf_more_to_send_bit,       { "M bit",                       "enrp.m_bit",                                    FT_BOOLEAN, 8,         TFS(&more_to_send_bit_value),      MORE_TO_SEND_BIT_MASK,      "", HFILL } },
-    { &hf_reject_bit,             { "R bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),            REJECT_BIT_MASK,            "", HFILL } },
+    { &hf_reply_required_bit,     { "R Bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reply_required_bit_value),    REPLY_REQUIRED_BIT_MASK,    "", HFILL } },
+    { &hf_own_children_only_bit,  { "W Bit",                       "enrp.w_bit",                                    FT_BOOLEAN, 8,         TFS(&own_children_only_bit_value), OWN_CHILDREN_ONLY_BIT_MASK, "", HFILL } },
+    { &hf_more_to_send_bit,       { "M Bit",                       "enrp.m_bit",                                    FT_BOOLEAN, 8,         TFS(&more_to_send_bit_value),      MORE_TO_SEND_BIT_MASK,      "", HFILL } },
+    { &hf_reject_bit,             { "R Bit",                       "enrp.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),            REJECT_BIT_MASK,            "", HFILL } },
   };
 
   /* Setup protocol subtree array */
