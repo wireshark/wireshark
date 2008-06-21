@@ -2282,56 +2282,106 @@
       The statusbar displays informational messages.
     </para>
     <para>
-	In general, the left side will show context related information, while the
-	right side will show the current number of packets.
+      In general, the left side will show context related information, the
+      middle part will show the current number of packets, and the right side will
+      show the selected configuration profile.  Drag the handles between the text
+      areas to change the size.
     </para>
     <para>
-    <figure id="ChUseWiresharkStatusbarEmpty">
-      <title>The initial Statusbar</title>
-      <graphic entityref="WiresharkStatusbarEmpty" format="PNG"/>
-    </figure>
-	This statusbar is shown while no capture file is loaded, e.g. when
-	Wireshark is started.
-	</para>
+      <figure id="ChUseWiresharkStatusbarEmpty">
+	<title>The initial Statusbar</title>
+	<graphic entityref="WiresharkStatusbarEmpty" format="PNG"/>
+      </figure>
+      This statusbar is shown while no capture file is loaded, e.g. when
+      Wireshark is started.
+    </para>
+    <para>
+      <figure id="ChUseWiresharkStatusbarLoaded">
+	<title>The Statusbar with a loaded capture file</title>
+	<graphic entityref="WiresharkStatusbarLoaded" format="PNG"/>
+      </figure>
+    </para>
+    <itemizedlist>
+      <listitem>
 	<para>
-		<figure id="ChUseWiresharkStatusbarLoaded">
-		  <title>The Statusbar with a loaded capture file</title>
-		  <graphic entityref="WiresharkStatusbarLoaded" format="PNG"/>
-		</figure>
-		The left side shows information about the capture file, its
-		name, its size and the elapsed time while it was being captured.
+	  <command>The colorized bullet</command> on the left shows the highest expert
+	  info level found in the currently loaded capture file.  Hovering the mouse
+	  over this icon will show a textual description of the expert info level, 
+	  and clicking the icon will bring up the Expert Infos dialog box. 
+	  For a detailed description of expert info, see <xref linkend="ChAdvExpert"/>.
 	</para>
+      </listitem>
+      <listitem>
 	<para>
-		The right side shows the current number of packets in the
-		capture file. The following values are displayed:
-	    <itemizedlist mark="bullet">
+	  <command>The left side</command> shows information about the capture file, its
+	  name, its size and the elapsed time while it was being captured.
+	</para>
+      </listitem>
+      <listitem>
+	<para>
+	  <command>The middle part</command> shows the current number of packets in the capture file. 
+	  The following values are displayed:
+	  <itemizedlist mark="bullet">
 	    <listitem>
-		<para><emphasis>P:</emphasis> the number of captured packets</para>
+	      <para><emphasis>Packets:</emphasis> the number of captured packets</para>
 	    </listitem>
 	    <listitem>
-		<para><emphasis>D:</emphasis> the number of packets currently being
-		displayed</para>
+	      <para><emphasis>Displayed:</emphasis> the number of packets currently being
+	      displayed</para>
 	    </listitem>
 	    <listitem>
-		<para><emphasis>M:</emphasis> the number of marked packets</para>
+	      <para><emphasis>Marked:</emphasis> the number of marked packets</para>
 	    </listitem>
-	    </itemizedlist>
+	  </itemizedlist>
+	  If Wireshark was unable to capture all packets the following value is also displayed:
+	  <itemizedlist mark="bullet">
+	    <listitem>
+	      <para><emphasis>Dropped:</emphasis> the number of dropped packets</para>
+	    </listitem>
+	  </itemizedlist>
 	</para>
+      </listitem>
+      <listitem>
 	<para>
-    <figure id="ChUseWiresharkStatusbarSelected">
-      <title>The Statusbar with a selected protocol field</title>
-      <graphic entityref="WiresharkStatusbarSelected" format="PNG"/>
-    </figure>
-		This is displayed if you have selected a protocol field from the
-		"Packet Details" pane.
+	  <command>The left side</command> shows the selected configuration profile.  
+	  Clicking in this part of the statusbar will bring up a menu with all available
+	  configuration profiles, and selecting from this list will change configuration profile.
+	</para>
+      </listitem>
+    </itemizedlist>
+    <para>
+      <figure id="ChUseWiresharkStatusbarProfile">
+	<title>The Statusbar with a configuration profile menu</title>
+	<graphic entityref="WiresharkStatusbarProfile" format="PNG"/>
+      </figure>
+      For a detailed description of configuration profiles, see 
+      <xref linkend="ChCustConfigProfilesSection"/>.
+    </para>
+    <para>
+      <figure id="ChUseWiresharkStatusbarSelected">
+	<title>The Statusbar with a selected protocol field</title>
+	<graphic entityref="WiresharkStatusbarSelected" format="PNG"/>
+      </figure>
+      This is displayed if you have selected a protocol field from the
+      "Packet Details" pane.
     </para>
     <tip><title>Tip!</title>
-	<para>
-		The value between the brackets (in this example
-		<command>arp.opcode</command>) can be used as a display filter string,
-		representing the selected protocol field.
-	</para>
+    <para>
+      The value between the brackets (in this example
+      <command>arp.opcode</command>) can be used as a display filter string,
+      representing the selected protocol field.
+    </para>
     </tip>
+    <para>
+      <figure id="ChUseWiresharkStatusbarFilter">
+	<title>The Statusbar with a display filter message</title>
+	<graphic entityref="WiresharkStatusbarFilter" format="PNG"/>
+      </figure>
+      This is displayed if you are trying to use a display filter with
+      unexpected results.  For a detailed description of the display filter,
+      see <xref linkend="ChWorkBuildDisplayFilterSection"/>.
+    </para>
+
   </section>
 
 </chapter>

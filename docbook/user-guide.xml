@@ -158,7 +158,9 @@ FILE SECTION
   <!ENTITY WiresharkBytesPaneTabs SYSTEM "./wsug_graphics/ws-bytes-pane-tabs.png" NDATA PNG>
   <!ENTITY WiresharkStatusbarEmpty SYSTEM "./wsug_graphics/ws-statusbar-empty.png" NDATA PNG>
   <!ENTITY WiresharkStatusbarLoaded SYSTEM "./wsug_graphics/ws-statusbar-loaded.png" NDATA PNG>
+  <!ENTITY WiresharkStatusbarProfile SYSTEM "./wsug_graphics/ws-statusbar-profile.png" NDATA PNG>
   <!ENTITY WiresharkStatusbarSelected SYSTEM "./wsug_graphics/ws-statusbar-selected.png" NDATA PNG>
+  <!ENTITY WiresharkStatusbarFilter SYSTEM "./wsug_graphics/ws-statusbar-filter.png" NDATA PNG>
   <!ENTITY WiresharkPacketSelected1 SYSTEM "./wsug_graphics/ws-packet-selected.png" NDATA PNG>
   <!ENTITY WiresharkPacketSepView SYSTEM "./wsug_graphics/ws-packet-sep-win.png" NDATA PNG>
   <!ENTITY WiresharkFilterTCP SYSTEM "./wsug_graphics/ws-display-filter-tcp.png" NDATA PNG>  
