@@ -26,6 +26,21 @@
  * \plug-ins\common\webbrowser.c
  *
  * It was modified to suit the Wireshark environment (#if 0)!
+ *
+ * For the UNIX+X11 launcher, see this blog post:
+ *
+ * http://blogs.gnome.org/timj/2006/11/24/24112006-how-to-start-a-web-browser/
+ *
+ * for a discussion of how Beast launches a browser, a link that shows
+ * the rather complicated code it uses, and some information on why it
+ * goes through all that pain.  We might want to do something similar to
+ * that.
+ *
+ * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer
+ * the ability to build a GNOMEified Wireshark as well as a GTK+-only
+ * Wireshark).  However, GNOME might be moving towards running one of
+ * the launchers listed in the Beast code, or might have moved there
+ * already.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,13 +56,6 @@
 #include "../simple_dialog.h"
 
 #include "gtk/webbrowser.h"
-
-
-/*
- * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer
- * the ability to build a GNOMEified Wireshark as well as a GTK+-only
- * Wireshark).
- */
 
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
