@@ -61,6 +61,8 @@
 /* Mac OS X - use Launch Services to start a browser */
 #include <CoreFoundation/CoreFoundation.h>
 #include <ApplicationServices/ApplicationServices.h>
+#elif defined(HAVE_XDG_OPEN)
+/* UNIX+X11 desktop with Portland Group stuff - use xdg-open to start a browser */
 #else
 /* Everything else - launch the browser ourselves */
 #define MUST_LAUNCH_BROWSER_OURSELVES
@@ -124,6 +126,38 @@ browser_open_url (const gchar *url)
   status = LSOpenCFURLRef(url_CFURL, NULL);
   CFRelease(url_CFURL);
   return (status == 0);
+
+#elif defined(HAVE_XDG_OPEN)
+
+  GError   *error = NULL;
+  gchar    *argv[3];
+  gboolean  retval;
+
+  g_return_val_if_fail (url != NULL, FALSE);
+
+  argv[0] = "xdg-open";
+  argv[1] = (char *)url;	/* Grr - g_spawn_async() shouldn't modify this */
+  argv[2] = NULL;
+
+  /*
+   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * the same screen?
+   */
+  retval = g_spawn_async (NULL, argv, NULL,
+                          G_SPAWN_SEARCH_PATH,
+                          NULL, NULL,
+                          NULL, &error);
+
+  if (! retval)
+    {
+      simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+          "%sCould not execute xdg-open: %s\n\n\"%s\"",
+          simple_dialog_primary_start(), simple_dialog_primary_end(),
+          error->message);
+      g_error_free (error);
+    }
+
+  return retval;
 
 #elif defined(MUST_LAUNCH_BROWSER_OURSELVES)
 
@@ -307,7 +341,7 @@ filemanager_open_directory (const gchar *path)
   argv[2] = NULL;
 
   /*
-   * XXX - use g_spawn_on_screen() so the browser window shows up on
+   * XXX - use g_spawn_on_screen() so the file managaer window shows up on
    * the same screen?
    */
   retval = g_spawn_async (NULL, argv, NULL,

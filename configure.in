@@ -53,9 +53,22 @@ then
 	#
 	AC_MSG_ERROR(I couldn't find pod2html; make sure it's installed and in your path)
 fi
+
+#
+# XXX - this looks for various HTML viewers on the host, not the target;
+# we really want to know what's available on the target, for cross-builds.
+# That would probably require us to, at run time, look for xdg-open and,
+# if we don't find it, look for mozilla, htmlview, etc.
+#
 AC_PATH_PROG(HTML_VIEWER, xdg-open)
-if test "x$HTML_VIEWER" = x
+if test "x$HTML_VIEWER" != x
 then
+	#
+	# HTML_VIEWER is the full path of xdg-open, so we use that.
+	# just run that?
+	#
+	AC_DEFINE(HAVE_XDG_OPEN, 1, [Define if we have xdg-open])
+else
 	AC_PATH_PROG(HTML_VIEWER, htmlview)
 	if test "x$HTML_VIEWER" = x
 	then
@@ -63,13 +76,6 @@ then
 	else
 		AC_DEFINE_UNQUOTED(HTML_VIEWER, "htmlview", [HTML viewer, e.g. mozilla])
 	fi
-else
-	#
-	# XXX - define something to be the full path of xdg-open, so we
-	# just run that?
-	#
-	AC_DEFINE(HAVE_XDG_OPEN, 1, [Define if we have xdg-open])
-	AC_DEFINE_UNQUOTED(HTML_VIEWER, "xdg-open", [HTML viewer, e.g. mozilla])
 fi
 
 AC_PATH_PROG(LEX, flex)
