@@ -965,7 +965,8 @@ standard libpcap format.
 	<para><command>Default link-layer</command>: each interface may provide several 
 	link-layer header types. The default link-layer choosen here is the one used when you 
 	first start Wireshark.  It is also possible to change this value in 
-	<xref linkend="ChCapCaptureOptions"/> when you start a capture.</para>
+	<xref linkend="ChCapCaptureOptions"/> when you start a capture.
+	For a detailed description, see <xref linkend="ChCapLinkLayerHeader"/>.</para>
       </listitem>
       <listitem>
 	<para><command>Comment</command>: a user provided description of the interface. 
