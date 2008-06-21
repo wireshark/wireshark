@@ -7,7 +7,7 @@
 # This macro sets/substitutes the following:
 # AC_DEFINE(HAVE_LIBSMI)
 # AC_SUBST(LIBSMI_CFLAGS)
-# AC_SUBST(LIBSMI_LDLAGS)
+# AC_SUBST(LIBSMI_LDFLAGS)
 # AC_SUBST(LIBSMI_VERSION)
 # $libsmi_message is set to "yes" or "no"
 
@@ -53,7 +53,7 @@ AC_DEFUN([AX_LIBSMI],
                 if test -f "$ac_libsmi_path_tmp/include/$ac_libsmi_header" \
                     && test -r "$ac_libsmi_path_tmp/include/$ac_libsmi_header"; then
                     ac_libsmi_path=$ac_libsmi_path_tmp
-                    ac_libsmi_ldlags="-L$ac_libsmi_path_tmp/lib"
+                    ac_libsmi_ldflags="-L$ac_libsmi_path_tmp/lib"
                     ac_libsmi_cflags="-I$ac_libsmi_path_tmp/include"
                     break;
                 fi
