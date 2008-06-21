@@ -204,11 +204,12 @@ mergecap_SOURCES = \
 	svnversion.h
 
 # editcap specifics
-editcap_SOURCES = \
-	editcap.c	\
-	epan/crypt/crypt-md5.c \
-	epan/nstime.c \
-	$(WTAP_PLUGIN_SOURCES)
+### XXX: Apparently not used ??
+###editcap_SOURCES = \
+###	editcap.c	\
+###	epan/crypt/crypt-md5.c \
+###	epan/nstime.c \
+###	$(WTAP_PLUGIN_SOURCES)
 
 capinfos_SOURCES = \
 	capinfos.c \
