@@ -237,10 +237,11 @@ wireshark -i eth0 -k
 	      </para>
 	    </listitem>
 	  </varlistentry>
-	  <varlistentry><term><command>Details (Win32 only)</command></term>
+	  <varlistentry><term><command>Details (Microsoft Windows only)</command></term>
 	    <listitem>
 	      <para>
-		  Open a dialog with detailed information about the interface.
+		  Open a dialog with detailed information about the interface, see
+		  <xref linkend="ChCapInterfaceDetailsSection"/>.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -260,11 +261,6 @@ wireshark -i eth0 -k
 	  </varlistentry>
 	</variablelist>
 	</para>
-  </section>
-
-  <section id="ChCapInterfaceDetailsSection">
-    <title>The "Capture Interface Details" dialog box</title>
-    <para></para>
   </section>
 
     <section id="ChCapCaptureOptions">
@@ -611,6 +607,23 @@ wireshark -i eth0 -k
     </section>
     </section>
 	
+    <section id="ChCapInterfaceDetailsSection">
+      <title>The "Interface Details" dialog box</title>
+      <para>
+	When you select Details from the Capture Interface menu, Wireshark pops 
+	up the "Interface Details" dialog box as shown in 
+	<xref linkend="ChCapInterfaceDetailsDialog"/>. This dialog shows various 
+	characteristics and statistics for the selected interface.
+      </para>
+      <note><title>Microsoft Windows only</title>
+      <para>This dialog is only available on Microsoft Windows</para>
+      </note>
+      <figure id="ChCapInterfaceDetailsDialog">
+	<title>The "Interface Details" dialog box</title>
+	<graphic entityref="WiresharkCaptureInterfaceDetailsDialog" format="JPG"/>
+      </figure>
+    </section>
+
     <section id="ChCapCaptureFiles"><title>Capture files and file modes</title>
 	<para>
 	While capturing, the underlying libpcap capturing engine will grab the 
