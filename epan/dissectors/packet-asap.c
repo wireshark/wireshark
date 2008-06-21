@@ -1,9 +1,10 @@
 /* packet-asap.c
  * Routines for Aggregate Server Access Protocol (ASAP)
  * It is hopefully (needs testing) compilant to
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-15.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-04.txt
- * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-12.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-17.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-policies-08.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-20.txt
+ * http://www.ietf.org/internet-drafts/draft-dreibholz-asap-hropt-01.txt
  *
  * The code is not as simple as possible for the current protocol
  * but allows to be easily adopted to future versions of the protocol.
@@ -13,6 +14,7 @@
  *   - check message lengths
  *
  * Copyright 2004, 2005, 2006, 2007 Michael Tuexen <tuexen [AT] fh-muenster.de>
+ * Copyright 2008 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * $Id$
  *
@@ -83,6 +85,7 @@ static int hf_server_identifier = -1;
 static int hf_cookie = -1;
 static int hf_pe_identifier = -1;
 static int hf_pe_checksum = -1;
+static int hf_hropt_items = -1;
 static int hf_home_enrp_server_bit = -1;
 static int hf_reject_bit = -1;
 
@@ -402,7 +405,7 @@ dissect_pool_member_selection_policy_parameter(tvbuff_t *parameter_tvb, proto_tr
 {
   guint32 type;
   guint length;
-  
+
   proto_tree_add_item(parameter_tree, hf_policy_type,  parameter_tvb, POLICY_TYPE_OFFSET,  POLICY_TYPE_LENGTH,  NETWORK_BYTE_ORDER);
   type = tvb_get_ntohl(parameter_tvb, POLICY_TYPE_OFFSET);
   switch (type) {
@@ -525,7 +528,6 @@ dissect_pe_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 }
 
 #define PE_CHECKSUM_LENGTH 2
-
 #define PE_CHECKSUM_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
@@ -533,6 +535,15 @@ dissect_pe_checksum_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 {
   proto_tree_add_item(parameter_tree, hf_pe_checksum, parameter_tvb, PE_CHECKSUM_OFFSET, PE_CHECKSUM_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (0x%x)", tvb_get_ntohs(parameter_tvb, PE_CHECKSUM_OFFSET));
+}
+
+#define HROPT_ITEMS_LENGTH 4
+#define HROPT_ITEMS_OFFSET PARAMETER_VALUE_OFFSET
+
+static void
+dissect_handle_resolution_option_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
+{
+  proto_tree_add_item(parameter_tree, hf_hropt_items, parameter_tvb, HROPT_ITEMS_OFFSET, HROPT_ITEMS_LENGTH, NETWORK_BYTE_ORDER);
 }
 
 static void
@@ -564,23 +575,25 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
 #define COOKIE_PARAMETER_TYPE                       0x0d
 #define PE_IDENTIFIER_PARAMETER_TYPE                0x0e
 #define PE_CHECKSUM_PARAMETER_TYPE                  0x0f
+#define HANDLE_RESOLUTION_OPTION_PARAMETER_TYPE     0x803f
 
 static const value_string parameter_type_values[] = {
-  { IPV4_ADDRESS_PARAMETER_TYPE,                 "IPV4 address" },
-  { IPV6_ADDRESS_PARAMETER_TYPE,                 "IPV6 address" },
-  { DCCP_TRANSPORT_PARAMETER_TYPE,               "DCCP transport address" },
-  { SCTP_TRANSPORT_PARAMETER_TYPE,               "SCTP transport address" },
-  { TCP_TRANSPORT_PARAMETER_TYPE,                "TCP transport address" },
-  { UDP_TRANSPORT_PARAMETER_TYPE,                "UDP transport address" },
-  { UDP_LITE_TRANSPORT_PARAMETER_TYPE,           "UDP-Lite transport address" },
-  { POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE, "Pool member selection policy" },
-  { POOL_HANDLE_PARAMETER_TYPE,                  "Pool handle" },
-  { POOL_ELEMENT_PARAMETER_TYPE,                 "Pool element" },
-  { SERVER_INFORMATION_PARAMETER_TYPE,           "Server Information" },
-  { OPERATION_ERROR_PARAMETER_TYPE,              "Operation error" },
-  { COOKIE_PARAMETER_TYPE,                       "Cookie" },
-  { PE_IDENTIFIER_PARAMETER_TYPE,                "Pool Element identifier" },
-  { PE_CHECKSUM_PARAMETER_TYPE,                  "PE checksum" },
+  { IPV4_ADDRESS_PARAMETER_TYPE,                 "IPV4 Address Parameter" },
+  { IPV6_ADDRESS_PARAMETER_TYPE,                 "IPV6 Address Parameter" },
+  { DCCP_TRANSPORT_PARAMETER_TYPE,               "DCCP Transport Address Parameter" },
+  { SCTP_TRANSPORT_PARAMETER_TYPE,               "SCTP Transport Address Parameter" },
+  { TCP_TRANSPORT_PARAMETER_TYPE,                "TCP Transport Address Parameter" },
+  { UDP_TRANSPORT_PARAMETER_TYPE,                "UDP Transport Address Parameter" },
+  { UDP_LITE_TRANSPORT_PARAMETER_TYPE,           "UDP-Lite Transport Address Parameter" },
+  { POOL_MEMBER_SELECTION_POLICY_PARAMETER_TYPE, "Pool Member Selection Policy Parameter" },
+  { POOL_HANDLE_PARAMETER_TYPE,                  "Pool Handle Parameter" },
+  { POOL_ELEMENT_PARAMETER_TYPE,                 "Pool Element Parameter" },
+  { SERVER_INFORMATION_PARAMETER_TYPE,           "Server Information Parameter" },
+  { OPERATION_ERROR_PARAMETER_TYPE,              "Operation Error Parameter" },
+  { COOKIE_PARAMETER_TYPE,                       "Cookie Parameter" },
+  { PE_IDENTIFIER_PARAMETER_TYPE,                "Pool Element Identifier Parameter" },
+  { PE_CHECKSUM_PARAMETER_TYPE,                  "PE Checksum Parameter" },
+  { HANDLE_RESOLUTION_OPTION_PARAMETER_TYPE,     "Handle Resolution Option Parameter" },
   { 0,                                           NULL } };
 
 
@@ -597,7 +610,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
   padding_length = tvb_length(parameter_tvb) - length;
 
   /* create proto_tree stuff */
-  parameter_item   = proto_tree_add_text(asap_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(type, parameter_type_values, "Unknown parameter"));
+  parameter_item   = proto_tree_add_text(asap_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(type, parameter_type_values, "Unknown Parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_asap_parameter);
 
   /* add tag and length to the asap tree */
@@ -649,6 +662,9 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *asap_tree)
     break;
   case PE_CHECKSUM_PARAMETER_TYPE:
     dissect_pe_checksum_parameter(parameter_tvb, parameter_tree, parameter_item);
+    break;
+  case HANDLE_RESOLUTION_OPTION_PARAMETER_TYPE:
+    dissect_handle_resolution_option_parameter(parameter_tvb, parameter_tree);
     break;
   default:
     dissect_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -712,8 +728,8 @@ static const value_string message_type_values[] = {
   { DEREGISTRATION_RESPONSE_MESSAGE_TYPE,    "ASAP Deregistration Response" },
   { HANDLE_RESOLUTION_MESSAGE_TYPE,          "ASAP Handle Resolution" },
   { HANDLE_RESOLUTION_RESPONSE_MESSAGE_TYPE, "ASAP Handle Resolution Response" },
-  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,        "ASAP Endpoint Keep Alive" },
-  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,    "ASAP Endpoint Keep Alive Acknowledgement" },
+  { ENDPOINT_KEEP_ALIVE_MESSAGE_TYPE,        "ASAP Endpoint Keep-Alive" },
+  { ENDPOINT_KEEP_ALIVE_ACK_MESSAGE_TYPE,    "ASAP Endpoint Keep-Alive Acknowledgement" },
   { ENDPOINT_UNREACHABLE_MESSAGE_TYPE,       "ASAP Endpoint Unreachable" },
   { SERVER_ANNOUNCE_MESSAGE_TYPE,            "ASAP Server Announce" },
   { COOKIE_MESSAGE_TYPE,                     "ASAP Cookie" },
@@ -806,42 +822,43 @@ proto_register_asap(void)
     { &hf_message_type,           { "Type",                        "asap.message_type",                             FT_UINT8,   BASE_DEC,  VALS(message_type_values),        0x0,                       "", HFILL } },
     { &hf_message_flags,          { "Flags",                       "asap.message_flags",                            FT_UINT8,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
     { &hf_message_length,         { "Length",                      "asap.message_length",                           FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_cause_code,             { "Cause code",                  "asap.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),          0x0,                       "", HFILL } },
-    { &hf_cause_length,           { "Cause length",                "asap.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_cause_info,             { "Cause info",                  "asap.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_cause_code,             { "Cause Code",                  "asap.cause_code",                               FT_UINT16,  BASE_HEX,  VALS(cause_code_values),          0x0,                       "", HFILL } },
+    { &hf_cause_length,           { "Cause Length",                "asap.cause_length",                             FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_cause_info,             { "Cause Info",                  "asap.cause_info",                               FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
     { &hf_cause_padding,          { "Padding",                     "asap.cause_padding",                            FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
     { &hf_parameter_type,         { "Parameter Type",              "asap.parameter_type",                           FT_UINT16,  BASE_HEX,  VALS(parameter_type_values),      0x0,                       "", HFILL } },
-    { &hf_parameter_length,       { "Parameter length",            "asap.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_parameter_value,        { "Parameter value",             "asap.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_length,       { "Parameter Length",            "asap.parameter_length",                         FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_value,        { "Parameter Value",             "asap.parameter_value",                          FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
     { &hf_parameter_padding,      { "Padding",                     "asap.parameter_padding",                        FT_BYTES,   BASE_NONE, NULL,                             0x0,                       "", HFILL } },
-    { &hf_parameter_ipv4_address, { "IP Version 4 address",        "asap.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
-    { &hf_parameter_ipv6_address, { "IP Version 6 address",        "asap.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_ipv4_address, { "IP Version 4 Address",        "asap.ipv4_address",                             FT_IPv4,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
+    { &hf_parameter_ipv6_address, { "IP Version 6 Address",        "asap.ipv6_address",                             FT_IPv6,    BASE_NONE, NULL,                             0x0,                       "", HFILL } },
     { &hf_dccp_port,              { "Port",                        "enrp.dccp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_dccp_reserved,          { "Reserved",                    "enrp.dccp_transport_reserved",                  FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_dccp_service_code,      { "Service code",                "enrp.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_dccp_service_code,      { "Service Code",                "enrp.dccp_transport_service_code",              FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_sctp_port,              { "Port",                        "asap.sctp_transport_port",                      FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_transport_use,          { "Transport use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),       0x0,                       "", HFILL } },
+    { &hf_transport_use,          { "Transport Use",               "asap.transport_use",                            FT_UINT16,  BASE_DEC,  VALS(transport_use_values),       0x0,                       "", HFILL } },
     { &hf_tcp_port,               { "Port",                        "asap.tcp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_udp_port,               { "Port",                        "asap.udp_transport_port",                       FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_udp_reserved,           { "Reserved",                    "asap.udp_transport_reserved",                   FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_udp_lite_port,          { "Port",                        "enrp.udp_lite_transport_port",                  FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_udp_lite_reserved,      { "Reserved",                    "enrp.udp_lite_transport_reserved",              FT_UINT16,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_type,            { "Policy type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),         0x0,                       "", HFILL } },
-    { &hf_policy_weight,          { "Policy weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_priority,        { "Policy priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_load,            { "Policy load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_degradation,     { "Policy degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_policy_value,           { "Policy value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_pool_handle,            { "Pool handle",                 "asap.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_pe_pe_identifier,       { "PE identifier",               "asap.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_home_enrp_id,           { "Home ENRP server identifier", "asap.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_reg_life,               { "Registration life",           "asap.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_type,            { "Policy Type",                 "asap.pool_member_slection_policy_type",         FT_UINT32,  BASE_DEC,  VALS(policy_type_values),         0x0,                       "", HFILL } },
+    { &hf_policy_weight,          { "Policy Weight",               "asap.pool_member_slection_policy_weight",       FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_priority,        { "Policy Priority",             "asap.pool_member_slection_policy_priority",     FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_load,            { "Policy Load",                 "asap.pool_member_slection_policy_load",         FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_degradation,     { "Policy Degradation",          "asap.pool_member_slection_policy_degradation",  FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_policy_value,           { "Policy Value",                "asap.pool_member_slection_policy_value",        FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pool_handle,            { "Pool Handle",                 "asap.pool_handle_pool_handle",                  FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_pe_identifier,       { "PE Identifier",               "asap.pool_element_pe_identifier",               FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_home_enrp_id,           { "Home ENRP Server Identifier", "asap.pool_element_home_enrp_server_identifier", FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_reg_life,               { "Registration Life",           "asap.pool_element_registration_life",           FT_INT32,   BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
     { &hf_cookie,                 { "Cookie",                      "asap.cookie",                                   FT_BYTES,   BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_pe_identifier,          { "PE identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_pe_checksum,            { "PE checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_server_identifier,      { "Server identifier",           "asap.server_identifier",                        FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
-    { &hf_home_enrp_server_bit,   { "H bit",                       "asap.h_bit",                                    FT_BOOLEAN, 8,         TFS(&home_enrp_server_bit_value), HOME_ENRP_SERVER_BIT_MASK, "", HFILL } },
-    { &hf_reject_bit,             { "R bit",                       "asap.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),           REJECT_BIT_MASK,           "", HFILL } },
+    { &hf_pe_identifier,          { "PE Identifier",               "asap.pe_identifier",                            FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_pe_checksum,            { "PE Checksum",                 "asap.pe_checksum",                              FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_hropt_items,            { "Items",                       "asap.hropt_items",                              FT_UINT32,  BASE_DEC,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_server_identifier,      { "Server Identifier",           "asap.server_identifier",                        FT_UINT32,  BASE_HEX,  NULL,                             0x0,                       "", HFILL } },
+    { &hf_home_enrp_server_bit,   { "H Bit",                       "asap.h_bit",                                    FT_BOOLEAN, 8,         TFS(&home_enrp_server_bit_value), HOME_ENRP_SERVER_BIT_MASK, "", HFILL } },
+    { &hf_reject_bit,             { "R Bit",                       "asap.r_bit",                                    FT_BOOLEAN, 8,         TFS(&reject_bit_value),           REJECT_BIT_MASK,           "", HFILL } },
   };
 
   /* Setup protocol subtree array */
