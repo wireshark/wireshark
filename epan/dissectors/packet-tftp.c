@@ -81,6 +81,7 @@ static dissector_handle_t tftp_handle;
 #define	TFTP_ACK	4
 #define	TFTP_ERROR	5
 #define	TFTP_OACK	6
+#define	TFTP_INFO	255
 
 static const value_string tftp_opcode_vals[] = {
   { TFTP_RRQ,   "Read Request" },
@@ -89,6 +90,7 @@ static const value_string tftp_opcode_vals[] = {
   { TFTP_ACK,   "Acknowledgement" },
   { TFTP_ERROR, "Error Code" },
   { TFTP_OACK,  "Option Acknowledgement" },
+  { TFTP_INFO,  "Information (MSDP)" },
   { 0,          NULL }
 };
 
@@ -284,6 +286,12 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	  offset += i1;
 
+	  if (tree)
+	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
+		opcode,  tftp_info);
+	  break;
+
+	case TFTP_INFO:
 	  if (tree)
 	    tftp_dissect_options(tvb, pinfo, offset, tftp_tree,
 		opcode,  tftp_info);
