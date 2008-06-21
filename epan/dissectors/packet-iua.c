@@ -82,10 +82,15 @@ static int hf_message_length        = -1;
 static gint ett_iua                 = -1;
 static gint ett_iua_parameter       = -1;
 
+/* stores the current SAPI value */
+static guint8 sapi_val;
+static gboolean sapi_val_assigned   = FALSE;
+
 /* option setable via preferences, default is plain RFC 3057 */
 static gboolean support_IG          = FALSE;
 
 static dissector_handle_t q931_handle;
+static dissector_handle_t x25_handle;
 
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
 
@@ -146,15 +151,37 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tre
 #define ZERO_BIT_MASK     0x01
 #define SPARE_BIT_MASK    0x02
 #define SAPI_MASK         0xfc
+#define SAPI_SHIFT        2
 #define ONE_BIT_MASK      0x01
 #define TEI_MASK          0xfe
+
+/* SAPI values taken from Q.921 */
+#define SAPI_VAL_CALL_CONTROL 0
+#define SAPI_VAL_TELACTION    12
+#define SAPI_VAL_X25          16
+#define SAPI_VAL_LAYER_2      63
+static const value_string sapi_values[] = {
+  { SAPI_VAL_CALL_CONTROL,    "Call control procedures" },
+  { SAPI_VAL_TELACTION,       "Teleaction communication" },
+  { SAPI_VAL_X25,             "X.25 packet communication" },
+  { SAPI_VAL_LAYER_2,         "Layer 2 management procedures" },
+  { 0,                        NULL }
+};
+
 
 static void
 dissect_dlci_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
+  proto_item *sapi_item;
   proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_dlci_sapi,      parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
+  /* Add the SAPI + some explanatory text, store the SAPI value so that we can later how to
+   * dissect the protocol data */ 
+  sapi_item = proto_tree_add_item(parameter_tree, hf_dlci_sapi, parameter_tvb, DLCI_SAPI_OFFSET,  DLCI_SAPI_LENGTH,  NETWORK_BYTE_ORDER);
+  sapi_val = (tvb_get_guint8(parameter_tvb, DLCI_SAPI_OFFSET) & SAPI_MASK) >> SAPI_SHIFT;
+  proto_item_append_text(sapi_item, " (%s)", val_to_str( sapi_val, sapi_values, "Unknown/reserved"));
+  sapi_val_assigned = TRUE;
+
   proto_tree_add_item(parameter_tree, hf_dlci_one_bit,   parameter_tvb, DLCI_TEI_OFFSET,   DLCI_TEI_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dlci_tei,       parameter_tvb, DLCI_TEI_OFFSET,   DLCI_TEI_LENGTH,   NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_dlci_spare,     parameter_tvb, DLCI_SPARE_OFFSET, DLCI_SPARE_LENGTH, NETWORK_BYTE_ORDER);
@@ -366,9 +393,26 @@ dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, proto_item *parameter_i
 
   protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   protocol_data_tvb    = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
-  call_dissector(q931_handle, protocol_data_tvb, pinfo, tree);
-
   proto_item_append_text(parameter_item, " (%u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
+
+  if(sapi_val_assigned == FALSE)
+  {
+    return;
+  }
+
+  switch(sapi_val)
+  {
+    case SAPI_VAL_CALL_CONTROL:
+      call_dissector(q931_handle, protocol_data_tvb, pinfo, tree);
+      break;
+
+    case SAPI_VAL_X25:
+      call_dissector(x25_handle, protocol_data_tvb, pinfo, tree);
+      break;
+
+    default:
+      break;
+  }
 }
 
 #define RELEASE_MGMT_REASON   0
@@ -809,6 +853,8 @@ dissect_iua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree,
 {
   tvbuff_t *common_header_tvb, *parameters_tvb;
 
+  sapi_val_assigned = FALSE;
+
   common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, PARAMETERS_OFFSET, -1, -1);
   dissect_common_header(common_header_tvb, pinfo, iua_tree);
@@ -906,6 +952,7 @@ proto_reg_handoff_iua(void)
 
   iua_handle  = create_dissector_handle(dissect_iua, proto_iua);
   q931_handle = find_dissector("q931");
+  x25_handle  = find_dissector("x.25");
 
   dissector_add("sctp.port", SCTP_PORT_IUA,           iua_handle);
   dissector_add("sctp.ppi",  IUA_PAYLOAD_PROTOCOL_ID, iua_handle);
