@@ -59,6 +59,7 @@
 #include "epan/report_err.h"
 #include "epan/filesystem.h"
 #include <epan/privileges.h>
+#include "epan/nstime.h"
 
 #include "svnversion.h"
 
@@ -325,7 +326,11 @@ usage(void)
   fprintf(stderr, "\n");
   fprintf(stderr, "Output File(s):\n");
   fprintf(stderr, "  -c <packets per file>  split the packet output to different files,\n");
+  fprintf(stderr, "                         based on uniform packet counts \n");
   fprintf(stderr, "                         with a maximum of <packets per file> each\n");
+  fprintf(stderr, "  -i <seconds per file>  split the packet output to different files,\n");
+  fprintf(stderr, "                         based on uniform time intervals \n");
+  fprintf(stderr, "                         with a maximum of <seconds per file> each\n");
   fprintf(stderr, "  -F <capture type>      set the output file type, default is libpcap\n");
   fprintf(stderr, "                         an empty \"-F\" option will list the file types\n");
   fprintf(stderr, "  -T <encap type>        set the output file encapsulation type,\n");
@@ -399,6 +404,10 @@ main(int argc, char *argv[])
   char *filename;
   size_t filenamelen = 0;
   gboolean check_ts;
+  int secs_per_block = 0;
+  int block_cnt = 0;
+  nstime_t block_start;
+
 #ifdef HAVE_PLUGINS
   char* init_progfile_dir_error;
 #endif
@@ -420,7 +429,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Process the options */
-  while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:t:T:v")) !=-1) {
+  while ((opt = getopt(argc, argv, "A:B:c:C:dE:F:hrs:i:t:T:v")) !=-1) {
 
     switch (opt) {
 
@@ -525,6 +534,15 @@ main(int argc, char *argv[])
       verbose = !verbose;  /* Just invert */
       break;
 
+    case 'i': /* break capture file based on time interval */
+      secs_per_block = atoi(optarg);
+      nstime_set_unset(&block_start);
+      if(secs_per_block <= 0) {
+        fprintf(stderr, "editcap: \"%s\" isn't a valid time interval\n\n", optarg);
+        exit(1);
+        }
+      break;
+
     case 'A':
     {
       struct tm starttm;
@@ -589,6 +607,12 @@ main(int argc, char *argv[])
     exit(1);
   }
 
+  if (split_packet_count > 0 && secs_per_block > 0) {
+    fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
+    fprintf(stderr, "editcap: at the same time\n");
+    exit(1);
+  }
+
   wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
 
   if (!wth) {
@@ -630,8 +654,18 @@ main(int argc, char *argv[])
       }
       g_snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], 0);
     } else {
-      filename = argv[optind+1];
-    }
+      if (secs_per_block > 0) {
+        filenamelen = strlen(argv[optind+1]) + 7;
+        filename = (char *) g_malloc(filenamelen);
+        if (!filename) {
+          exit(5);
+          }
+        g_snprintf(filename, filenamelen, "%s-%05d", argv[optind+1], block_cnt);
+        }
+      else {
+        filename = argv[optind+1];
+        }
+      }
 
     pdh = wtap_dump_open(filename, out_file_type,
         out_frame_type, wtap_snapshot_length(wth),
@@ -648,6 +682,41 @@ main(int argc, char *argv[])
         break;
 
     while (wtap_read(wth, &err, &err_info, &data_offset)) {
+
+      if (secs_per_block > 0) {
+        phdr = wtap_phdr(wth);
+
+        if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
+          block_start.secs = phdr->ts.secs;
+          block_start.nsecs = phdr->ts.nsecs; 
+          } 
+
+        while ((phdr->ts.secs - block_start.secs >  secs_per_block) || 
+            (phdr->ts.secs - block_start.secs == secs_per_block && 
+                phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
+
+          if (!wtap_dump_close(pdh, &err)) {
+            fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
+                wtap_strerror(err));
+            exit(1);
+            }
+          block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
+          g_snprintf(filename, filenamelen, "%s-%05d",argv[optind+1], ++block_cnt);
+
+          if (verbose) {
+            fprintf(stderr, "Continuing writing in file %s\n", filename);
+            }
+
+          pdh = wtap_dump_open(filename, out_file_type,
+             out_frame_type, wtap_snapshot_length(wth), FALSE /* compressed */, &err);
+
+          if (pdh == NULL) {
+            fprintf(stderr, "editcap: Can't open or create %s: %s\n", filename,
+              wtap_strerror(err));
+            exit(1);
+          }
+        }
+      }
 
       if (split_packet_count > 0 && (written_count % split_packet_count == 0)) {
         if (!wtap_dump_close(pdh, &err)) {
