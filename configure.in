@@ -64,10 +64,17 @@ AC_PATH_PROG(HTML_VIEWER, xdg-open)
 if test "x$HTML_VIEWER" != x
 then
 	#
-	# HTML_VIEWER is the full path of xdg-open, so we use that.
-	# just run that?
+	# XXX - the HTML_VIEWER shell variable is the full path of xdg-open.
+	# Define some variable to be that, so we just run that?
 	#
 	AC_DEFINE(HAVE_XDG_OPEN, 1, [Define if we have xdg-open])
+
+	#
+	# XXX - we have to define HTML_VIEWER for the prefs.c code that
+	# sets the default value of the Web browser preference, even
+	# though that preference won't be offered.
+	#
+	AC_DEFINE_UNQUOTED(HTML_VIEWER, "xdg-open", [HTML viewer, e.g. mozilla])
 else
 	AC_PATH_PROG(HTML_VIEWER, htmlview)
 	if test "x$HTML_VIEWER" = x
