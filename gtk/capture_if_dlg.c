@@ -629,22 +629,16 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   g_string_free(if_tool_str, TRUE);
 
-  /* Button row: close button */
-  if(topic_available(HELP_CAPTURE_INTERFACES_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-  }
+  /* Button row: close and help button */
+  bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(cap_if_w, close_bt, window_cancel_button_cb);
   gtk_tooltips_set_tip(tooltips, close_bt, "Close this window.", NULL);
 
-  if(topic_available(HELP_CAPTURE_INTERFACES_DIALOG)) {
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
   /* height + static offset + what GTK-Wimp needs in addition per interface */

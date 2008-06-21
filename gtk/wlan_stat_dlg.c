@@ -1124,6 +1124,7 @@ wlanstat_dlg_create (void)
 
 	wlanstat_pane = gtk_vpaned_new();
 	gtk_box_pack_start (GTK_BOX (vbox), wlanstat_pane, TRUE, TRUE, 0);
+	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 	gtk_widget_show(wlanstat_pane);
 
 	/* init a scrolled window for overview */
@@ -1137,7 +1138,6 @@ wlanstat_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_SHADOW_IN);
-	gtk_paned_set_position(GTK_PANED(wlanstat_pane), recent.gui_geometry_wlan_stats_pane);
 
 	store = gtk_list_store_new(NUM_COLUMNS, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
 				   G_TYPE_STRING, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, 
@@ -1171,6 +1171,7 @@ wlanstat_dlg_create (void)
 									  NULL);
 			gtk_tree_view_column_set_sort_column_id(column, i);
 		}
+
 		if (i != BSSID_COLUMN && i != SSID_COLUMN && i != PROTECTION_COLUMN) {
 			/* Align all number columns */
 			g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
@@ -1200,16 +1201,16 @@ wlanstat_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolled_window),
 					    GTK_SHADOW_IN);
+
 	store = gtk_list_store_new(NUM_DETAIL_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,
 				   G_TYPE_INT, G_TYPE_INT, G_TYPE_INT, G_TYPE_STRING,
 				   G_TYPE_FLOAT, G_TYPE_POINTER);
 	hs->details = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
-	gtk_container_add (GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->details));
+	gtk_container_add(GTK_CONTAINER (scrolled_window), GTK_WIDGET(hs->details));
 	g_object_unref(G_OBJECT(store));
 
 	tree_view = hs->details;
-
 	gtk_tree_view_set_headers_visible(tree_view, TRUE);
 	gtk_tree_view_set_headers_clickable(tree_view, TRUE);
 
@@ -1289,11 +1290,7 @@ wlanstat_dlg_create (void)
 	g_signal_connect(existing_cb, "toggled", G_CALLBACK(wlan_existing_toggle_dest), hs);
 
 	/* Button row. */
-	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
-		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
-	} else {
-		bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
-	}
+	bbox = dlg_button_row_new (GTK_STOCK_CLOSE, GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 
 	gtk_box_pack_end (GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
@@ -1306,10 +1303,8 @@ wlanstat_dlg_create (void)
 			     "Copy all statistical values of this page to the clipboard in CSV (Comma Seperated Values) format.", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(wlan_copy_as_csv), hs->table);
 
-	if (topic_available (HELP_STATS_WLAN_TRAFFIC_DIALOG)) {
-                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_WLAN_TRAFFIC_DIALOG);
-	}
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_WLAN_TRAFFIC_DIALOG);
 
 	g_signal_connect (wlanstat_dlg_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 	g_signal_connect (wlanstat_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), hs);

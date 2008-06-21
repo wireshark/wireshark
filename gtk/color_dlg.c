@@ -359,12 +359,8 @@ colorize_dialog_new (char *filter)
   gtk_widget_set_sensitive (color_filter_down, FALSE);
 
 
-  /* Button row: OK and cancel buttons */
-  if(topic_available(HELP_COLORING_RULES_DIALOG)) {
-    button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  } else {
-    button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-  }
+  /* Button row: OK, cancel and help buttons */
+  button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
 
   color_ok = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_OK);
@@ -380,11 +376,9 @@ colorize_dialog_new (char *filter)
   window_set_cancel_button(color_win, color_cancel, color_cancel_cb);
   gtk_tooltips_set_tip (tooltips, color_cancel, ("Cancel changes done (since last \"Apply\") and close this dialog"), NULL);
 
-  if(topic_available(HELP_COLORING_RULES_DIALOG)) {
-      color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
-      gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
-      g_signal_connect(color_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_COLORING_RULES_DIALOG);
-  }
+  color_help = g_object_get_data(G_OBJECT(button_ok_hbox), GTK_STOCK_HELP);
+  gtk_tooltips_set_tip (tooltips, color_help, ("Get help about this dialog"), NULL);
+  g_signal_connect(color_help, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_COLORING_RULES_DIALOG);
 
   gtk_widget_grab_default(color_ok);
 

@@ -574,11 +574,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Button row */
-    if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, NULL);
-    }
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -588,10 +584,8 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
     g_signal_connect(clear_bt, "clicked", G_CALLBACK(decode_show_clear_cb), decode_show_w);
 
-    if(topic_available(HELP_DECODE_AS_SHOW_DIALOG)) {
-        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_SHOW_DIALOG);
-    }
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_SHOW_DIALOG);
 
     /* set ok as default, this button won't change anything */
     window_set_cancel_button(decode_show_w, ok_bt, NULL);
@@ -1767,11 +1761,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     /* Button row */
-    if(topic_available(HELP_DECODE_AS_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, NULL);
-    }
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -1791,10 +1781,8 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_tooltips_set_tip(tooltips, close_bt, 
         "Close the dialog, don't redissect packets.", NULL);
 
-    if(topic_available(HELP_DECODE_AS_DIALOG)) {
-        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_DIALOG);
-    }
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_DIALOG);
 
     gtk_widget_grab_default(ok_bt);
 

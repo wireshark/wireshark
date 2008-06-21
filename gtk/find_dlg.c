@@ -312,11 +312,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
   /* Button row */
-  if(topic_available(HELP_FIND_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, NULL);
-  }
+  bbox = dlg_button_row_new(GTK_STOCK_FIND, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -326,10 +322,8 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   g_signal_connect(cancel_bt, "clicked", G_CALLBACK(find_frame_close_cb), find_frame_w);
 
-  if(topic_available(HELP_FIND_DIALOG)) {
-      help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIND_DIALOG);
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIND_DIALOG);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   g_object_set_data(G_OBJECT(find_frame_w), E_FIND_FILT_KEY, filter_text_box);

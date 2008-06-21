@@ -598,12 +598,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_modules_foreach_submodules(NULL, module_prefs_show, &cts);
 
   /* Button row: OK and alike buttons */
-
-  if(topic_available(HELP_PREFERENCES_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-  }
+  bbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
   gtk_box_pack_start(GTK_BOX(cts.main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -623,10 +618,8 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   gtk_widget_grab_default(ok_bt);
 
-  if(topic_available(HELP_PREFERENCES_DIALOG)) {
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PREFERENCES_DIALOG);
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PREFERENCES_DIALOG);
 
   g_signal_connect(prefs_w, "delete_event", G_CALLBACK(prefs_main_delete_event_cb), prefs_w);
   g_signal_connect(prefs_w, "destroy", G_CALLBACK(prefs_main_destroy_cb), prefs_w);

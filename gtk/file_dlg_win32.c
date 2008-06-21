@@ -177,10 +177,7 @@ win32_open_file (HWND h_wnd) {
     ofn->lpstrTitle = _T("Wireshark: Open Capture File");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
-	    OFN_ENABLEHOOK;
-    if(topic_available(HELP_OPEN_WIN32_DIALOG)) {
-        ofn->Flags |= OFN_SHOWHELP;
-    }
+	    OFN_ENABLEHOOK | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = open_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_OPENFILENAME_TEMPLATE");
@@ -243,10 +240,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn->lpstrTitle = _T("Wireshark: Save file as");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    if(topic_available(HELP_SAVE_WIN32_DIALOG)) {
-        ofn->Flags |= OFN_SHOWHELP;
-    }
+	    OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = save_as_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_SAVEFILENAME_TEMPLATE");
@@ -359,10 +353,7 @@ win32_merge_file (HWND h_wnd) {
     ofn->lpstrTitle = _T("Wireshark: Merge with capture file");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
 	    OFN_NOCHANGEDIR | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY |
-	    OFN_ENABLEHOOK;
-    if(topic_available(HELP_MERGE_WIN32_DIALOG)) {
-        ofn->Flags |= OFN_SHOWHELP;
-    }
+	    OFN_ENABLEHOOK | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = merge_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_MERGEFILENAME_TEMPLATE");
@@ -463,10 +454,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
     ofn->lpstrTitle = _T("Wireshark: Export File");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
                  OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
-        ofn->Flags |= OFN_SHOWHELP;
-    }
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lpfnHook = export_file_hook_proc;
     ofn->lpTemplateName = _T("WIRESHARK_EXPORTFILENAME_TEMPLATE");
@@ -572,10 +560,7 @@ win32_export_raw_file(HWND h_wnd) {
     ofn->lpstrTitle = _T("Wireshark: Export Raw Data");
     ofn->Flags = OFN_ENABLESIZING | OFN_ENABLETEMPLATE | OFN_EXPLORER |
                  OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY |
-                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK;
-    if(topic_available(HELP_EXPORT_BYTES_WIN32_DIALOG)) {
-        ofn->Flags |= OFN_SHOWHELP;
-    }
+                 OFN_PATHMUSTEXIST | OFN_ENABLEHOOK | OFN_SHOWHELP;
     ofn->lpstrDefExt = NULL;
     ofn->lCustData = cfile.finfo_selected->length;
     ofn->lpfnHook = export_raw_file_hook_proc;

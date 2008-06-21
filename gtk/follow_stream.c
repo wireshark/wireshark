@@ -822,15 +822,10 @@ follow_stream(gchar *title, follow_info_t *follow_info,
                        follow_info);
 	follow_info->raw_bt = radio_bt;
 
-	/* Button row: (help), filter out, close button */
-	if(topic_available(HELP_FILESET_DIALOG)) {
-		bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM,
-					  GTK_STOCK_CLOSE, GTK_STOCK_HELP,
-					  NULL);
-	} else {
-		bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM,
-					  GTK_STOCK_CLOSE, NULL);
-	}
+	/* Button row: help, filter out, close button */
+	bbox = dlg_button_row_new(WIRESHARK_STOCK_FILTER_OUT_STREAM,
+				  GTK_STOCK_CLOSE, GTK_STOCK_HELP,
+				  NULL);
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 5);
 
 
@@ -846,11 +841,9 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 			      "Close the dialog and keep the current display filter", NULL);
 	gtk_widget_grab_default(button);
 
-	if(topic_available(HELP_FILESET_DIALOG)) {
-            button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		g_signal_connect(button, "clicked", G_CALLBACK(topic_cb),
-			       (gpointer)HELP_FOLLOW_STREAM_DIALOG);
-	}
+	button = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(button, "clicked", G_CALLBACK(topic_cb),
+			 (gpointer)HELP_FOLLOW_STREAM_DIALOG);
 
 	/* Tuck away the follow_info object into the window */
 	g_object_set_data(G_OBJECT(streamwindow), E_FOLLOW_INFO_KEY, follow_info);

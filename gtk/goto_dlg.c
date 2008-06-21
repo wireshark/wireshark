@@ -74,11 +74,7 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(fnumber_te);
 
   /* Button row: OK and cancel buttons */
-  if(topic_available(HELP_GOTO_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, NULL);
-  }
+  bbox = dlg_button_row_new(GTK_STOCK_JUMP_TO, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
@@ -88,10 +84,8 @@ goto_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(goto_frame_w, cancel_bt, window_cancel_button_cb);
 
-  if(topic_available(HELP_GOTO_DIALOG)) {
-      help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_GOTO_DIALOG);
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_GOTO_DIALOG);
 
   gtk_widget_grab_default(ok_bt);
 

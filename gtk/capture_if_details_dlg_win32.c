@@ -2349,20 +2349,14 @@ capture_if_details_open_win(char *iface)
     gtk_box_pack_start(GTK_BOX(main_vb), label, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     /* Button row. */
-    if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    }
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE /*expand*/, FALSE /*fill*/, 0 /*padding*/);
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(details_open_w, close_bt, window_cancel_button_cb);
 
-    if(topic_available(HELP_CAPTURE_INTERFACES_DETAILS_DIALOG)) {
-        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer) (HELP_CAPTURE_INTERFACES_DETAILS_DIALOG));
-    }
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer) (HELP_CAPTURE_INTERFACES_DETAILS_DIALOG));
 
     gtk_widget_grab_focus(close_bt);
 

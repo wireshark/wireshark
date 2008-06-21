@@ -2086,22 +2086,13 @@ init_io_stat_window(io_stat_t *io)
 
 	io_stat_set_title(io);
 
-	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
 #if GTK_CHECK_VERSION(2,6,0)
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
-					  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE,
+				  GTK_STOCK_COPY, GTK_STOCK_HELP, NULL);
 #else
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, 
-					  GTK_STOCK_HELP, NULL);
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, 
+				  GTK_STOCK_HELP, NULL);
 #endif
-	} else {
-#if GTK_CHECK_VERSION(2,6,0)
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_SAVE, 
-					  GTK_STOCK_COPY, NULL);
-#else
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_COPY, NULL);
-#endif
-	}
 	gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
@@ -2122,11 +2113,9 @@ init_io_stat_window(io_stat_t *io)
 			     "Copy values from selected graphs to the clipboard in CSV (Comma Seperated Values) format", NULL);
 	g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), io);
 
-	if(topic_available(HELP_STATS_IO_GRAPH_DIALOG)) {
-                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_IO_GRAPH_DIALOG);
-		gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
-	}
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_IO_GRAPH_DIALOG);
+	gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
 	g_signal_connect(io->window, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 

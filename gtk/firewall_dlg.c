@@ -285,11 +285,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     rule_info->text = text;
 
     /* Button row */
-    if(topic_available(HELP_FIREWALL_DIALOG)) {
-        button_hbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_COPY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-    } else {
-        button_hbox = dlg_button_row_new(GTK_STOCK_COPY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-    }
+    button_hbox = dlg_button_row_new(GTK_STOCK_HELP, GTK_STOCK_COPY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
     gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
 
     /* Create Copy Button */
@@ -306,10 +302,8 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     gtk_tooltips_set_tip (tooltips, button, "Cancel the dialog", NULL);
     window_set_cancel_button(rule_w, button, window_cancel_button_cb);
 
-    if(topic_available(HELP_FIND_DIALOG)) {
-        button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
-        g_signal_connect(button, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIREWALL_DIALOG);
-    }
+    button = g_object_get_data(G_OBJECT(button_hbox), GTK_STOCK_HELP);
+    g_signal_connect(button, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_FIREWALL_DIALOG);
 
     /* Tuck away the rule_info object into the window */
     g_object_set_data(G_OBJECT(rule_w), WS_RULE_INFO_KEY, rule_info);

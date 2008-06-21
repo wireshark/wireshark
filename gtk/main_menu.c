@@ -1959,8 +1959,8 @@ static void
 timestamp_precision_cb(GtkWidget *w _U_, gpointer d _U_, gint action)
 {
     if (recent.gui_time_precision != action) {
-		/* the actual precision will be set in cf_change_time_formats() below */
-        if(action == TS_PREC_AUTO) {
+        /* the actual precision will be set in cf_change_time_formats() below */
+        if (action == TS_PREC_AUTO) {
             timestamp_set_precision(TS_PREC_AUTO_SEC);
         } else {
             timestamp_set_precision(action);

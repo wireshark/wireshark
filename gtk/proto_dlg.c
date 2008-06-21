@@ -187,11 +187,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
 
   /* Button row */
-  if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, NULL);
-  }
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -208,10 +204,8 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   window_set_cancel_button(proto_w, cancel_bt, proto_cancel_cb);
 
-  if(topic_available(HELP_ENABLED_PROTOCOLS_DIALOG)) {
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_ENABLED_PROTOCOLS_DIALOG);
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_ENABLED_PROTOCOLS_DIALOG);
 
   g_signal_connect(proto_w, "delete_event", G_CALLBACK(proto_delete_event_cb), NULL);
   g_signal_connect(proto_w, "destroy", G_CALLBACK(proto_destroy_cb), NULL);

@@ -398,21 +398,15 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	ph_stats_free(ps);
 
 	/* Button row. */
-	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-	} else {
-		bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-	}
+	bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 	gtk_widget_show(bbox);
 
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(dlg, close_bt, window_cancel_button_cb);
 
-	if(topic_available(HELP_STATS_PROTO_HIERARCHY_DIALOG)) {
-                help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-		g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
-	}
+	help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+	g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_PROTO_HIERARCHY_DIALOG);
 
 	g_signal_connect(dlg, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
 

@@ -77,14 +77,6 @@ typedef struct {
 static GSList *help_text_pages = NULL;
 
 
-
-gboolean topic_available(topic_action_e action _U_) {
-
-    /* online: we have all possible pages available */
-    return TRUE;
-}
-
-
 /*
  * Open the help dialog and show a specific HTML help page.
  */

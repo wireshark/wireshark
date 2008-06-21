@@ -267,21 +267,15 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     }
 
     /* Button row. */
-    if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-    } else {
-        bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-    }
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
     window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
-    if(topic_available(HELP_EXPERT_INFO_DIALOG)) {
-        help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-        g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
-        gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
-    }
+    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPERT_INFO_DIALOG);
+    gtk_tooltips_set_tip (tooltips, help_bt, "Show topic specific help", NULL);
 
     g_signal_connect(ss->win, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
     g_signal_connect(ss->win, "destroy", G_CALLBACK(win_destroy_cb), ss);

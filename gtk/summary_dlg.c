@@ -407,20 +407,14 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
 
   /* Button row. */
-  if(topic_available(HELP_STATS_SUMMARY_DIALOG)) {
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
-  }
+  bbox = dlg_button_row_new(GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
 
-  if(topic_available(HELP_STATS_SUMMARY_DIALOG)) {
-    help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_SUMMARY_DIALOG);
-  }
+  help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+  g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_STATS_SUMMARY_DIALOG);
 
   gtk_widget_grab_focus(close_bt);
 

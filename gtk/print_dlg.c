@@ -769,11 +769,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
 
 
   /* Button row */
-  if(topic_available(HELP_PRINT_DIALOG)) {
-    bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
-  } else {
-    bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-  }
+  bbox = dlg_button_row_new(action == output_action_print ? GTK_STOCK_PRINT : GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
@@ -808,21 +804,15 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
   gtk_tooltips_set_tip (tooltips, cancel_bt, "Cancel and exit dialog", NULL);
 
   if(action == output_action_print) {
-    if(topic_available(HELP_PRINT_DIALOG)) {
-        help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PRINT_DIALOG);
-    }
+    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_PRINT_DIALOG);
   } else {
 #if _WIN32
-    if(topic_available(HELP_EXPORT_FILE_WIN32_DIALOG)) {
-        help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_WIN32_DIALOG);
-    }
+    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_WIN32_DIALOG);
 #else
-    if(topic_available(HELP_EXPORT_FILE_DIALOG)) {
-        help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
-      g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_DIALOG);
-    }
+    help_bt  = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
+    g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_EXPORT_FILE_DIALOG);
 #endif
   }
 
