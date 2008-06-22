@@ -987,33 +987,35 @@ standard libpcap format.
       and configurations. Select the <command>Configuration Profiles...</command> menu item from
       the <command>Edit</command> menu, or simply press Shift-Ctrl-A; and Wireshark will pop up the 
       Configuration Profiles dialog box as shown in <xref linkend="ChCustGUIConfigProfilesPage"/>.
+      It is also possible to click in the "Profile" part of the statusbar to popup a menu with
+      available Configuration Profiles (<xref linkend="ChUseWiresharkStatusbarProfile"/>).
     </para>
     <para>
       Configuration files stored in the Profiles:
       <itemizedlist>
 	<listitem>
 	  <para>
-	    Preferences (preferences)
+	    Preferences (preferences) (<xref linkend="ChCustPreferencesSection"/>)
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Capture Filters (cfilters)
+	    Capture Filters (cfilters) (<xref linkend="ChWorkDefineFilterSection"/>)
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Display Filters (dfilters)
+	    Display Filters (dfilters) (<xref linkend="ChWorkDefineFilterSection"/>)
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Coloring Rules (colorfilters)
+	    Coloring Rules (colorfilters) (<xref linkend="ChCustColorizationSection"/>)
 	  </para>
 	</listitem>
 	<listitem>
 	  <para>
-	    Disabled Protocols (disabled_protos)
+	    Disabled Protocols (disabled_protos) (<xref linkend="ChAdvEnabledProtocols"/>)
 	  </para>
 	</listitem>
 	<listitem>
@@ -1022,34 +1024,43 @@ standard libpcap format.
 	    <itemizedlist>
 	      <listitem>
 		<para>
-		  Display Filter Macros (dfilter_macros)
+		  Display Filter Macros (dfilter_macros) (<xref linkend="ChDisplayFilterMacrosSection"/>)
 		</para>
 	      </listitem>
 	      <listitem>
 		<para>
-		  K12 Protocols (k12_protos)
+		  K12 Protocols (k12_protos) (<xref linkend="ChK12ProtocolsSection"/>)
 		</para>
 	      </listitem>
 	      <listitem>
 		<para>
-		  SCCP Users Table (sccp_users)
+		  User DLTs Table (user_dlts) (<xref linkend="ChUserDLTsSection"/>)
 		</para>
 	      </listitem>
 	      <listitem>
 		<para>
-		  SNMP Users (snmp_users)
+		  SNMP Users (snmp_users) (<xref linkend="ChSNMPUsersSection"/>)
 		</para>
 	      </listitem>
 	      <listitem>
 		<para>
-		  User DLTs Table (user_dlts)
+		  SCCP Users Table (sccp_users) (<xref linkend="ChSccpUsers"/>)
 		</para>
 	      </listitem>
 	    </itemizedlist>
 	  </para>
 	</listitem>
+	<listitem>
+	  <para>
+	    Some recent settings (recent), such as phane sizes in the Main window 
+	    (<xref linkend="ChUseMainWindowSection"/>), column widths in the packet list
+	    (<xref linkend="ChUsePacketListPaneSection"/>), all selections in the "View" menu
+	    (<xref linkend="ChUseViewMenuSection"/>) and the last directory navigated to in the
+	    File Open dialog.
+	  </para>
+	</listitem>
       </itemizedlist>
-      <note><title>Note!</title>
+      <note><title>Other configurations</title>
       <para>
 	All other configurations are stored in the personal configuration folder,
 	and are common to all profiles.
@@ -1065,14 +1076,16 @@ standard libpcap format.
 	<varlistentry><term><command>New</command></term>
 	<listitem>
 	  <para>
-	    This button adds a new profile to the profiles list. 
+	    This button adds a new profile to the profiles list.  The name of the
+	    created profile is "New profile" and can be changed in the Properties field.
 	  </para>
 	</listitem>
 	</varlistentry>
 	<varlistentry><term><command>Delete</command></term>
 	<listitem>
 	  <para>
-	    This button deletes the selected profile.
+	    This button deletes the selected profile, including all configuration 
+	    files used in this profile.
 	  </para>
 	</listitem>
 	</varlistentry>
@@ -1089,14 +1102,14 @@ standard libpcap format.
 	  <para>
 	    You can change the name of the currently selected profile here.
 	  </para>
-	  <note><title>Note!</title>
+	  <note><title>Used as a folder name</title>
 	  <para>
 	    The profile name will be used as a folder name in the configured 
 	    "Personal configurations" folder. If adding multiple profiles with the
 	    same name, only one profile will be created.
 	  </para>
 	  </note>
-	  <note><title>Note!</title>
+	  <note><title>Illegal characters</title>
 	  <para>
 	    On Windows the profile name cannot start or end with a period (.), and cannot contain
 	    any of the following characters: <command>\ / : * ? " &lt; &gt; |</command>
@@ -1124,7 +1137,15 @@ standard libpcap format.
 	<varlistentry><term><command>Cancel</command></term>
 	<listitem>
 	  <para>
-	    Close this dialog. This will discard unsaved settings.
+	    Close this dialog. This will discard unsaved settings, new profiles will not be added
+	    and deleted profiles will not be deleted.
+	  </para>
+	</listitem>
+	</varlistentry>
+	<varlistentry><term><command>Help</command></term>
+	<listitem>
+	  <para>
+	    Show this help page.
 	  </para>
 	</listitem>
 	</varlistentry>
