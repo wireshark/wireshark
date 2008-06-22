@@ -338,7 +338,7 @@ static guint mgcp_call_hash(gconstpointer k)
 /************************************************************************
  * dissect_mgcp - The dissector for the Media Gateway Control Protocol
  ************************************************************************/
-static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint sectionlen;
 	guint32 num_messages;
@@ -357,21 +357,21 @@ static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = NULL;
 
 	/*
-	 * Set the columns now, so that they'll be set correctly if we throw
-	 * an exception.  We can set them later as well....
-	 */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	/*
 	 * Check to see whether we're really dealing with MGCP by looking
 	 * for a valid MGCP verb or response code.  This isn't infallible,
 	 * but its cheap and its better than nothing.
 	 */
 	if (is_mgcp_verb(tvb,0,tvb_len, &verb_name) || is_mgcp_rspcode(tvb,0,tvb_len))
 	{
+		/*
+		 * Set the columns now, so that they'll be set correctly if we throw
+		 * an exception.  We can set them later as well....
+		 */
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_clear(pinfo->cinfo, COL_INFO);
+
 		/*
 		 * Loop through however many mgcp messages may be stuck in
 		 * this packet using piggybacking
@@ -435,35 +435,43 @@ static void dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
 			                 tvb_format_text(tvb, tvb_sectionbegin, sectionlen));
 		}
+
+		return tvb_len;
 	}
+
+	return 0;
 }
 /************************************************************************
  * dissect_tpkt_mgcp - The dissector for the ASCII TPKT Media Gateway Control Protocol
  ************************************************************************/
-static void dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_tpkt_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint16 ascii_tpkt;
+	guint16 ascii_tpkt;
+	int     offset = 0;
 
-     /* Check whether this looks like a ASCII TPKT-encapsulated
-      *  MGCP packet.
-      */
-    ascii_tpkt = is_asciitpkt(tvb);
+	/* Check whether this looks like a ASCII TPKT-encapsulated
+	 *  MGCP packet.
+	 */
+	ascii_tpkt = is_asciitpkt(tvb);
 
-    if (ascii_tpkt == 0 )
-       {
-         /*
-          * It's not a ASCII TPKT packet
-          * in MGCP
-          */
-           dissect_mgcp(tvb, pinfo, tree);
-        }
-     else
-        {
-           /*
-            * Dissect ASCII TPKT header
-            */
-           dissect_asciitpkt(tvb, pinfo, tree, mgcp_handle);
-        }
+	if (ascii_tpkt != 1 )
+	{
+		/*
+		 * It's not a ASCII TPKT packet
+		 * in MGCP
+		 */
+		offset = dissect_mgcp(tvb, pinfo, tree);
+	}
+	else
+	{
+		/*
+		 * Dissect ASCII TPKT header
+		 */
+		dissect_asciitpkt(tvb, pinfo, tree, mgcp_handle);
+		offset = tvb_length(tvb);
+	}
+
+	return offset;
 }
 
 #define MAX_MGCP_MESSAGES_IN_PACKET 5
@@ -889,7 +897,7 @@ void proto_register_mgcp(void)
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&mgcp_init_protocol);
 
-	register_dissector("mgcp", dissect_mgcp, proto_mgcp);
+    new_register_dissector("mgcp", dissect_mgcp, proto_mgcp);
 
     /* Register our configuration options */
     mgcp_module = prefs_register_protocol(proto_mgcp, proto_reg_handoff_mgcp);
@@ -948,8 +956,8 @@ void proto_reg_handoff_mgcp(void)
 
 	if (!mgcp_prefs_initialized)
 	{
-		mgcp_handle = create_dissector_handle(dissect_mgcp, proto_mgcp);
-		mgcp_tpkt_handle = create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
+		mgcp_handle = new_create_dissector_handle(dissect_mgcp, proto_mgcp);
+		mgcp_tpkt_handle = new_create_dissector_handle(dissect_tpkt_mgcp, proto_mgcp);
 		mgcp_prefs_initialized = TRUE;
 	}
 	else
