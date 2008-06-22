@@ -8,7 +8,6 @@ HF_FIELD hf_eventlog_Record_computer_name "Computer Name" "eventlog.Record.compu
 HF_FIELD hf_eventlog_Record_string "string" "eventlog.Record.string" FT_STRING BASE_NONE NULL 0 "" "" ""
 
 MANUAL eventlog_dissect_element_ReadEventLogW_data_
-MANUAL eventlog_dissect_element_ReadEventLogW_data__
 MANUAL eventlog_dissect_element_Record_sid_length
 MANUAL eventlog_dissect_element_Record_sid_offset
 MANUAL eventlog_dissect_element_Record_source_name
