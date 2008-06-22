@@ -26,11 +26,21 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
 PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
 
+WTAP_PLUGIN_SOURCES = \
+       epan/plugins.c \
+       epan/report_err.c \
+       epan/privileges.c \
+       epan/filesystem.c
+
 include Makefile.common
 
 wireshark_OBJECTS = $(wireshark_SOURCES:.c=.obj)
 tshark_OBJECTS = $(tshark_SOURCES:.c=.obj)
 rawshark_OBJECTS = $(rawshark_SOURCES:.c=.obj)
+###text2pcap_OBJECTS = $(text2pcap_SOURCES:.c=.obj)
+###mergecap_OBJECTS = $(mergecap_SOURCES:.c=.obj)
+editcap_OBJECTS = $(editcap_SOURCES:.c=.obj)
+capinfos_OBJECTS = $(capinfos_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 dumpcap_OBJECTS = $(dumpcap_SOURCES:.c=.obj)
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
@@ -221,19 +231,23 @@ rawshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(rawshark_OBJECTS) getopt.ob
 		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) getopt.obj inet_ntop.obj image\rawshark.res
 <<
 
-capinfos.exe	: $(LIBS_CHECK) config.h capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+# XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
+#      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
+capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) getopt.obj epan/unicode-utils.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console capinfos.obj getopt.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj $(capinfos_LIBS) image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) getopt.obj epan/unicode-utils.obj $(capinfos_LIBS) image\capinfos.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
 !ENDIF
 
-editcap.exe	: $(LIBS_CHECK) config.h editcap.obj getopt.obj strptime.obj epan\crypt\crypt-md5.obj epan/unicode-utils.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj epan/nstime.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+# XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
+#      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
+editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) getopt.obj strptime.obj epan/unicode-utils.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console editcap.obj getopt.obj strptime.obj epan/unicode-utils.obj epan\crypt\crypt-md5.obj epan/plugins.obj epan/report_err.obj epan/privileges.obj epan/filesystem.obj epan/nstime.obj $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) getopt.obj strptime.obj epan/unicode-utils.obj $(editcap_LIBS) image\editcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
