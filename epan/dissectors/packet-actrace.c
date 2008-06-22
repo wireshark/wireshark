@@ -453,7 +453,7 @@ static void dissect_actrace_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 /************************************************************************
  * dissect_actrace - The dissector for the AudioCodes Trace prtocol
  ************************************************************************/
-static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *actrace_tree;
 	proto_item *ti;
@@ -463,15 +463,6 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	actrace_tree = NULL;
 
 	/*
-	 * Set the columns now, so that they'll be set correctly if we throw
-	 * an exception.  We can set them later as well....
-	 */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	/*
 	 * Check to see whether we're really dealing with AC trace by looking
 	 * for a valid "source" and fixed len for CAS; and the direction for ISDN.
 	 * This isn't infallible, but its cheap and its better than nothing.
@@ -479,6 +470,15 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	actrace_protocol = is_actrace(tvb, 0);
 	if (actrace_protocol != NOT_ACTRACE)
 	{
+		/*
+		 * Set the columns now, so that they'll be set correctly if we throw
+		 * an exception.  We can set them later as well....
+		 */
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "AC_TRACE");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_clear(pinfo->cinfo, COL_INFO);
+
 		if (tree)
 		{
 			/* Create our actrace subtree */
@@ -495,10 +495,10 @@ static void dissect_actrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_actrace_isdn(tvb, pinfo, tree, actrace_tree);
 				break;
 		}
-	} else {
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_set_str(pinfo->cinfo, COL_INFO, "Non CAS or ISDN AudioCodes trace message");
+		return tvb_length(tvb);
 	}
+
+	return 0;
 }
 
 /* Dissect an individual actrace CAS message */
@@ -815,7 +815,7 @@ void proto_reg_handoff_actrace(void)
 
 	if (!actrace_prefs_initialized)
 	{
-		actrace_handle = create_dissector_handle(dissect_actrace, proto_actrace);
+		actrace_handle = new_create_dissector_handle(dissect_actrace, proto_actrace);
 		actrace_prefs_initialized = TRUE;
 	}
 	else
