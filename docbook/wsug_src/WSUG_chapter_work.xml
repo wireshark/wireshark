@@ -1219,6 +1219,17 @@ eth.src[1-2] == 00:83
     </para>
   </section>
   
+  <section id="ChWorkDefineFilterMacrosSection"><title>Defining and saving filter macros</title>
+    <para>
+      You can define filter macros with Wireshark and give them labels for 
+      later use.  This can save time in remembering and retyping some of 
+      the more complex filters you use.
+    </para>
+    <para>
+      XXX - add an explanation of this.
+    </para>
+  </section>
+
   <section id="ChWorkFindPacketSection"><title>Finding packets</title>
     <para>
       You can easily find packets once you have captured some packets or 
@@ -1439,6 +1450,9 @@ eth.src[1-2] == 00:83
 	</listitem>
 	<listitem><para><command>Seconds Since Previous Displayed Packet:  1.123456</command>
 		The time relative to the previous displayed packet.</para>
+	</listitem>
+	<listitem><para><command>Seconds Since Epoch (1970-01-01):  1234567890.123456</command>
+		The time relative to epoch (midnight UTC of January 1, 1970).</para>
 	</listitem>
 	</itemizedlist>
 	</para>

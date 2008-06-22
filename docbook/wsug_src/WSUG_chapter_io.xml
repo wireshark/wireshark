@@ -859,6 +859,30 @@
 	</itemizedlist>	
 	  </para>
     </section>
+    <section id="ChIOExportCArraysDialog">
+      <title>The "Export as C Arrays (packet bytes) file" dialog box</title>
+      <para>XXX - add screenshot</para>
+      <para>
+	Export packet bytes into C arrays so you can import the stream data
+	into your own C program.
+	<!--
+	    <figure>
+	    <title>The "Export as C Arrays (packet bytes) file" dialog box</title>
+	    <graphic entityref="WiresharkExportCArraysDialog" format="PNG"/>
+	    </figure>
+	-->
+	<itemizedlist>
+	  <listitem><para>
+	    <command>Export to file:</command> frame chooses the file to export 
+	    the packet data to.
+	  </para></listitem>
+	  <listitem><para>
+	    The <command>Packet Range</command> frame is described in <xref 
+	    linkend="ChIOPacketRangeSection"/>.
+	  </para></listitem>
+	</itemizedlist>	
+      </para>
+    </section>
 	<section id="ChIOExportPSMLDialog">
 	<title>The "Export as PSML File" dialog box</title>
 	  <para>

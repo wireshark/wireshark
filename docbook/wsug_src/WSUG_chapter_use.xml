@@ -319,6 +319,15 @@
 	    </para>
 	  </listitem>
 	</varlistentry>
+	<varlistentry><term><command>Tools</command></term>
+	  <listitem>
+	    <para>
+	      This menu contains various tools available in Wireshark, such as
+	          creating Firewall ACL Rules.
+		  See <xref linkend="ChUseToolsMenuSection"/>.
+	    </para>
+	  </listitem>
+	</varlistentry>
 	<varlistentry><term><command>Help</command></term>
 	  <listitem>
 	    <para>
@@ -507,6 +516,22 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Export > as "C Arrays" (packet bytes) file...</command></entry>
+		<entry></entry>
+		<entry><para>
+		      This menu item allows you to export all (or some) of the packet bytes in 
+		      the capture file to a .c file so you can import the stream data into your
+		      own C program.
+			It pops up the Wireshark Export dialog box (which is discussed further in
+		    <xref linkend="ChIOExportCArraysDialog"/>).
+		</para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Export > as "PSML" file...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -527,6 +552,11 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Export > Selected Packet Bytes...</command></entry>
 		<entry>Ctrl+H</entry>
 		<entry><para>
@@ -535,6 +565,15 @@
 			Wireshark Export dialog box (which is discussed further in
 		    <xref linkend="ChIOExportSelectedDialog"/>)
 		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Objects > HTTP</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item allows you to export all or some of the captured HTTP objects
+		    into local files. It pops up the Wireshark HTTP object list (which is discussed
+		    further in <xref linkend="ChIOExportObjectsDialog"/>)
+		</para></entry>
 	      </row>
 	      <row>
 		<entry><command>------</command></entry>
@@ -706,6 +745,15 @@
 		<entry></entry>
 	      </row>
 	      <row>
+		<entry><command>Configuration Profiles...</command></entry>
+		<entry>Shift-Ctrl-A</entry>
+		<entry><para>
+		    This menu item brings up a dialog box for handling configuration
+		    profiles.  More detail is provided in
+		    <xref linkend="ChCustConfigProfilesSection"/>.
+		</para></entry>
+	      </row>
+	      <row>
 		<entry><command>Preferences...</command></entry>
 		<entry>Shift+Ctrl+P</entry>
 		<entry><para>
@@ -851,6 +899,15 @@
 		<entry><para>
 	      Selecting this tells Wireshark to display time stamps in
 	      seconds since previous displayed packet format, see
+		  <xref linkend="ChWorkTimeFormatsSection"/>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Time Display Format > Seconds Since Epoch (1970-01-01):  1234567890.123456</command></entry>
+		<entry></entry>
+		<entry><para>
+	      Selecting this tells Wireshark to display time stamps in
+	      seconds since 1970-01-01 00:00:00, see
 		  <xref linkend="ChWorkTimeFormatsSection"/>.
 		  </para></entry>
 	      </row>
@@ -1308,6 +1365,17 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>Display Filter Macros...</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box that allows you
+		    to create and edit display filter macros. You can name
+		    filter macros, and you can save them for future use. More
+		    detail on this subject is provided in
+		    <xref linkend="ChWorkDefineFilterMacrosSection"/>
+		  </para></entry>
+	      </row>
+	      <row>
 		<entry><command>Apply as Filter > ...</command></entry>
 		<entry></entry>
 		<entry><para>
@@ -1325,19 +1393,6 @@
 			apply the changed filter. Depending on the chosen menu item,
 			the current display filter string will be replaced or appended to
 			by the selected protocol field in the packet details pane.
-		  </para></entry>
-	      </row>
-	      <row>
-		<entry><command>Firewall ACL Rules</command></entry>
-		<entry></entry>
-		<entry><para>
-		  This allows you to create command-line ACL rules for many different
-			firewall products, including Cisco IOS, Linux Netfilter (iptables),
-			OpenBSD pf and Windows Firewall (via netsh).  Rules for MAC addresses,
-			IPv4 addresses, TCP and UDP ports, and IPv4+port combinations are
-			supported.
-			</para><para>
-			It is assumed that the rules will be applied to an outside interface.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1419,6 +1474,14 @@
 		<entry><para>
 			Same information as in "Expert Info" but trying to group items
 			together for faster analysis.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>Conversation Filter > ...</command></entry>
+		<entry></entry>
+		<entry><para>
+			In this menu you will find conversation filter for various
+			protocols.
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -1534,17 +1597,17 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
+		<entry><command>Fax T38 Analysis...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>GSM</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>H.225...</command></entry>
-		<entry></entry>
-		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
-	      </row>
-	      <row>
-		<entry><command>ISUP Message Types</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1584,7 +1647,12 @@
 		<entry></entry>
 	      </row>
 	      <row>
-		<entry><command>BOOTP-DHCP</command></entry>
+		<entry><command>BOOTP-DHCP...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>Flow Graph...</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
@@ -1592,6 +1660,21 @@
 		<entry><command>HTTP</command></entry>
 		<entry></entry>
 		<entry><para>HTTP request/response statistics, see <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>IP Addresses...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>IP Destinations...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>IP Protocol Types...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
 		<entry><command>ISUP Messages</command></entry>
@@ -1604,9 +1687,76 @@
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
 	      </row>
 	      <row>
+		<entry><command>Packet Lengths...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>SMPP Operations...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
 		<entry><command>TCP Stream Graph</command></entry>
 		<entry></entry>
 		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>UCP Messages...</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>UDP Multicast Streams</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatXXX"/></para></entry>
+	      </row>
+	      <row>
+		<entry><command>WLAN Traffic</command></entry>
+		<entry></entry>
+		<entry><para>See <xref linkend="ChStatWLANTraffic"/></para></entry>
+	      </row>
+	    </tbody>
+      </tgroup>
+    </table>
+  </section>
+
+  <section id="ChUseToolsMenuSection"><title>The "Tools" menu</title>
+    <para>
+      The Wireshark Tools menu contains the fields shown in
+      <xref linkend="ChUseTools"/>.
+    </para>
+<!--
+    <figure id="ChUseWiresharkToolsMenu">
+      <title>The "Tools" Menu</title>
+      <graphic entityref="WiresharkToolsMenu" format="PNG"/>
+    </figure>
+-->
+    <table id="ChUseTools" frame="none">
+      <title>Tools menu items</title>
+      <tgroup cols="3">
+	<colspec colnum="1" colwidth="72pt"/>
+	  <colspec colnum="2" colwidth="80pt"/>
+	    <thead>
+	      <row>
+		<entry>Menu Item</entry>
+		<entry>Accelerator</entry>
+		<entry>Description</entry>
+	      </row>
+	    </thead>
+	    <tbody>
+	      <row>
+		<entry><command>Firewall ACL Rules</command></entry>
+		<entry></entry>
+		<entry><para>
+		  This allows you to create command-line ACL rules for many different
+			firewall products, including Cisco IOS, Linux Netfilter (iptables),
+			OpenBSD pf and Windows Firewall (via netsh).  Rules for MAC addresses,
+			IPv4 addresses, TCP and UDP ports, and IPv4+port combinations are
+			supported.
+			</para><para>
+			It is assumed that the rules will be applied to an outside interface.
+		  </para></entry>
 	      </row>
 	    </tbody>
       </tgroup>
@@ -1643,11 +1793,10 @@
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Supported Protocols</command></entry>
+		<entry><command>FAQ's</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item brings up a dialog box showing the supported
-			protocols and protocol fields.
+		    This menu item starts a Web browser showing various FAQ's.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -1659,12 +1808,30 @@
 		  </para></entry>
 	      </row>
 	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
 		<entry><command>Wireshark Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item starts a Web browser showing the chosen
 			webpage from:
 			<ulink url="&WiresharkWebSite;">&WiresharkWebSite;</ulink>.
+		  </para></entry>
+	      </row>
+	      <row>
+		<entry><command>------</command></entry>
+		<entry></entry>
+		<entry></entry>
+	      </row>
+	      <row>
+		<entry><command>Supported Protocols (slow!)</command></entry>
+		<entry></entry>
+		<entry><para>
+		    This menu item brings up a dialog box showing the supported
+			protocols and protocol fields.
 		  </para></entry>
 	      </row>
 	      <row>
@@ -2332,11 +2499,9 @@
 	    <listitem>
 	      <para><emphasis>Marked:</emphasis> the number of marked packets</para>
 	    </listitem>
-	  </itemizedlist>
-	  If Wireshark was unable to capture all packets the following value is also displayed:
-	  <itemizedlist mark="bullet">
 	    <listitem>
-	      <para><emphasis>Dropped:</emphasis> the number of dropped packets</para>
+	      <para><emphasis>Dropped:</emphasis> the number of dropped packets (only displayed
+	      if Wireshark was unable to capture all packets)</para>
 	    </listitem>
 	  </itemizedlist>
 	</para>
