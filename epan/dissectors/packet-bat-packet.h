@@ -42,12 +42,12 @@ struct batman_packet_v5 {
 	address old_orig;
 	guint8 tq;
 	guint8 hna_len;
-} __attribute__((packed));
+};
 #define BATMAN_PACKET_V5_SIZE 18
 
 struct gw_packet {
 	guint8  type;
-} __attribute__((packed));
+};
 #define GW_PACKET_SIZE 1
 
 #define TUNNEL_DATA 0x01
@@ -67,14 +67,14 @@ struct vis_packet_v22 {
 	guint8 version;
 	guint8 gw_class;
 	guint16 tq_max;
-} __attribute__((packed));
+};
 #define VIS_PACKET_V22_SIZE 8
 
 struct vis_data_v22 {
 	guint8 type;
 	guint16 data;
 	address ip;
-} __attribute__((packed));
+};
 #define VIS_PACKET_V22_DATA_SIZE 7
 
 struct vis_packet_v23 {
@@ -82,14 +82,14 @@ struct vis_packet_v23 {
 	guint8 version;
 	guint8 gw_class;
 	guint8 tq_max;
-} __attribute__((packed));
+};
 #define VIS_PACKET_V23_SIZE 7
 
 struct vis_data_v23 {
 	guint8 type;
 	guint8 data;
 	address ip;
-} __attribute__((packed));
+};
 #define VIS_PACKET_V23_DATA_SIZE 6
 
 #endif /* _PACKET_BAT_PACKET_H */

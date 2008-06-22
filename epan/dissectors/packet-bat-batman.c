@@ -54,6 +54,9 @@ static const gchar *fstr[] = {NULL, NULL, NULL, NULL, NULL, NULL, "DIRECTLINK", 
 /* gwflags */
 /* unknown */
 
+static guint global_bat_batman_udp_port = BAT_BATMAN_PORT;
+static guint udp_port = 0;
+
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -64,9 +67,9 @@ void register_bat_batman(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_bat_batman_version,
-			{ "Version", "bat.batman.version",
-				FT_UINT8, BASE_DEC, NULL, 0x0,
-				"", HFILL }
+		  { "Version", "bat.batman.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    "", HFILL }
 		},
 		{ &hf_bat_batman_flags,
 		  { "Flags", "bat.batman.flags",
@@ -145,19 +148,27 @@ void register_bat_batman(void)
 
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	prefs_register_uint_preference(bat_module, "batman.bat.port", "BAT UDP Port",
+	                               "Set the port for B.A.T.M.A.N. BAT "
+	                               "messages (if other than the default of 4305)",
+	                               10, &global_bat_batman_udp_port);
 }
 
 void reg_handoff_bat_batman(void)
 {
 	static gboolean inited = FALSE;
+	static dissector_handle_t batman_handle;
 
 	if (!inited) {
-		static dissector_handle_t batman_handle;
-
 		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
-		dissector_add("udp.port", BAT_BATMAN_PORT, batman_handle);
 		data_handle = find_dissector("data");
+	} else {
+		dissector_delete("udp.port", udp_port, batman_handle);
 	}
+
+	udp_port = global_bat_batman_udp_port;
+	dissector_add("udp.port", udp_port, batman_handle);
 }
 
 static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -180,6 +191,7 @@ static void dissect_bat_batman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		}
 		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
 	}
 }
 
@@ -296,7 +308,7 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		flags[0] = 0;
 		for (i = 0; i < 8; i++) {
 			bpos = 1 << i;
-			if ((batman_packeth->flags & bpos) && (fstr[bpos] != NULL)) {
+			if ((batman_packeth->flags & bpos) && (fstr[i] != NULL)) {
 				returned_length = g_snprintf(&flags[fpos], MAX_FLAGS_LEN - fpos, "%s%s",
 				                             fpos ? ", " : "",
 				                             fstr[i]);

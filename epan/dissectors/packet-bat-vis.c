@@ -55,16 +55,16 @@ static const value_string packettypenames[] = {
 	{ DATA_TYPE_NEIGH, "NEIGH" },
 	{ DATA_TYPE_SEC_IF, "SEC_IF" },
 	{ DATA_TYPE_HNA, "HNA" },
-	{ 3, NULL }
+	{ 0, NULL }
 };
 
 void register_bat_vis(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_bat_vis_vis_orig,
-			{ "Originator", "bat.vis.sender_ip",
-				FT_IPv4, BASE_NONE, NULL, 0x0,
-				"", HFILL }
+		  { "Originator", "bat.vis.sender_ip",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "", HFILL }
 		},
 		{ &hf_bat_vis_version,
 		  { "Version", "bat.vis.version",
@@ -122,7 +122,7 @@ void register_bat_vis(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 
-	prefs_register_uint_preference(bat_module, "udp.vis.port", "VIS UDP Port",
+	prefs_register_uint_preference(bat_module, "batman.vis.port", "VIS UDP Port",
 	                               "Set the port for B.A.T.M.A.N. VIS "
 	                               "messages (if other than the default of 4307)",
 	                               10, &global_bat_vis_udp_port);
@@ -167,6 +167,7 @@ static void dissect_bat_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d", version);
 		}
 		call_dissector(data_handle, tvb, pinfo, tree);
+		break;
 	}
 }
 
@@ -298,10 +299,9 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, FALSE);
 			break;
 		case DATA_TYPE_SEC_IF:
-		default: {
-			;
+		default:
+			break;
 		}
-		};
 		proto_tree_add_ipv4(bat_vis_entry_tree, hf_bat_vis_data_ip, tvb, 3, 4,  ip);
 	}
 }
@@ -434,10 +434,9 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, FALSE);
 			break;
 		case DATA_TYPE_SEC_IF:
-		default: {
-			;
+		default:
+			break;
 		}
-		};
 		proto_tree_add_ipv4(bat_vis_entry_tree, hf_bat_vis_data_ip, tvb, 2, 4,  ip);
 	}
 }

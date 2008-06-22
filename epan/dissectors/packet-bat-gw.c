@@ -45,16 +45,16 @@ static const value_string packettypenames[] = {
 	{ TUNNEL_IP_INVALID, "IP_INVALID" },
 	{ TUNNEL_KEEPALIVE_REQUEST, "KEEPALIVE_REQUEST" },
 	{ TUNNEL_KEEPALIVE_REPLY, "KEEPALIVE_REPLY" },
-	{ 6, NULL }
+	{ 0, NULL }
 };
 
 void register_bat_gw()
 {
 	static hf_register_info hf[] = {
 		{ &hf_bat_gw_type,
-			{ "Type", "bat.gw.type",
-				FT_UINT8, BASE_DEC, VALS(packettypenames), 0x0,
-				"", HFILL }
+		  { "Type", "bat.gw.type",
+		    FT_UINT8, BASE_DEC, VALS(packettypenames), 0x0,
+		    "", HFILL }
 		},
 		{ &hf_bat_gw_ip,
 		  { "IP", "bat.gw.ip",
@@ -71,7 +71,7 @@ void register_bat_gw()
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_bat_plugin, hf, array_length(hf));
 
-	prefs_register_uint_preference(bat_module, "udp.gw.port", "GW UDP Port",
+	prefs_register_uint_preference(bat_module, "batman.gw.port", "GW UDP Port",
 	                               "Set the port for B.A.T.M.A.N. Gateway "
 	                               "messages (if other than the default of 4306)",
 	                               10, &global_bat_gw_udp_port);

@@ -26,11 +26,11 @@
 #include "packet-bat.h"
 
 /* forward declaration */
-void proto_register_bat();
-void proto_reg_handoff_bat();
+void proto_register_bat(void);
+void proto_reg_handoff_bat(void);
 
 int proto_bat_plugin = -1;
-module_t *bat_module;
+module_t *bat_module = NULL;
 
 /* tap */
 int bat_tap = -1;
