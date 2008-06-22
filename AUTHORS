@@ -2741,8 +2741,12 @@ Philip Frey		<frey.philip [AT] gmail.com> {
 	iWARP dissectors (MPA, DDP and RDMAP)
 }
 
-Shigeo Nakamura		<naka_shigeo@yahoo.co.jp> {
+Shigeo Nakamura		<naka_shigeo [AT] yahoo.co.jp> {
 	Xpress Transport Protocol dissector
+}
+
+Sven Eckelmann		<lazhur [AT] gmx.de> {
+	B.A.T.M.A.N. dissector
 }
 
 and by:

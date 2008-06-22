@@ -218,6 +218,10 @@ CLEAN_DISSECTOR_SRC = \
 	packet-auto_rp.c	\
 	packet-ax4000.c		\
 	packet-bacnet.c		\
+	packet-bat-batman.c	\
+	packet-bat.c		\
+	packet-bat-gw.c		\
+	packet-bat-vis.c	\
 	packet-bctp.c		\
 	packet-beep.c		\
 	packet-ber.c		\
@@ -828,6 +832,8 @@ DISSECTOR_INCLUDES =	\
 	packet-atalk.h	\
 	packet-atm.h	\
 	packet-bacapp.h	\
+	packet-bat.h	\
+	packet-bat-packet.h \
 	packet-ber.h	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
