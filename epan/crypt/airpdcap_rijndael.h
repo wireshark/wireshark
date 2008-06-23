@@ -82,10 +82,10 @@ void rijndael_set_key(
 /*	Block XOR macro definition																*/
 /*																										*/
 #define XOR_BLOCK(b, a, len) \
-	{						\
-		INT i;					\
-		for (i = 0; i < (INT)(len); i++)	\
-			(b)[i] ^= (a)[i];		\
+	{							\
+		INT __i__;					\
+		for (__i__ = 0; __i__ < (INT)(len); __i__++)	\
+			(b)[__i__] ^= (a)[__i__];		\
 	}
 /*																										*/
 /******************************************************************************/
