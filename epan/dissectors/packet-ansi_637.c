@@ -1537,7 +1537,7 @@ static gint ett_ansi_637_trans_msg[NUM_TRANS_MSG_TYPE];
 static gboolean
 dissect_ansi_637_tele_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 {
-    void (*param_fcn)(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset) = NULL;
+    void (*param_fcn)(tvbuff_t *, proto_tree *, guint, guint32) = NULL;
     guint8	oct;
     guint8	len;
     guint32	curr_offset;
@@ -1727,7 +1727,7 @@ dissect_ansi_637_tele(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 dissect_ansi_637_trans_param(tvbuff_t *tvb, proto_tree *tree, guint32 *offset)
 {
-    void (*param_fcn)(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset, gchar *add_string, int string_len) = NULL;
+    void (*param_fcn)(tvbuff_t *, proto_tree *, guint, guint32, gchar *, int) = NULL;
     guint8	oct;
     guint8	len;
     guint32	curr_offset;
