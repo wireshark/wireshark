@@ -623,27 +623,27 @@ static struct opt_info bootp_opt[] = {
 };
 
 static const char *
-bootp_get_opt_text(unsigned int index)
+bootp_get_opt_text(unsigned int idx)
 {
-	if(index>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
 		return "unknown";
-	return bootp_opt[index].text;
+	return bootp_opt[idx].text;
 }
 
 static const void *
-bootp_get_opt_data(unsigned int index)
+bootp_get_opt_data(unsigned int idx)
 {
-	if(index>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
 		return NULL;
-	return bootp_opt[index].data;
+	return bootp_opt[idx].data;
 }
 
 static enum field_type
-bootp_get_opt_ftype(unsigned int index)
+bootp_get_opt_ftype(unsigned int idx)
 {
-	if(index>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
+	if(idx>=(sizeof(bootp_opt)/sizeof(struct opt_info)))
 		return none;
-	return bootp_opt[index].ftype;
+	return bootp_opt[idx].ftype;
 }
 
 
@@ -3097,7 +3097,7 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 {
 	int suboptoff = optoff;
 	guint8 subopt, subopt_len;
-	guint32 ipv4_addr;
+	guint32 ipv4addr;
 	guint8 prov_type, fetch_tgt, timer_val;
 	guint16 sec_tcm;
 	proto_tree *pkt_s_tree;
@@ -3130,9 +3130,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 				    "no room left in option for suboption value");
 			 	return (optend);
 			}
-			ipv4_addr = tvb_get_ipv4(tvb, suboptoff);
+			ipv4addr = tvb_get_ipv4(tvb, suboptoff);
 			proto_item_append_text(vti, "%s (%u byte%s%s)",
-					ip_to_str((guint8 *)&ipv4_addr),
+					ip_to_str((guint8 *)&ipv4addr),
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 4 ? " [Invalid]" : "");
@@ -3160,9 +3160,9 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
 						    "no room left in option for suboption value");
 					 	return (optend);
 					}
-					ipv4_addr = tvb_get_ipv4(tvb, suboptoff);
+					ipv4addr = tvb_get_ipv4(tvb, suboptoff);
 					proto_item_append_text(vti, "%s (%u byte%s%s)",
-							ip_to_str((guint8 *)&ipv4_addr),
+							ip_to_str((guint8 *)&ipv4addr),
 							subopt_len,
 							plurality(subopt_len, "", "s"),
 							subopt_len != 5 ? " [Invalid]" : "");
