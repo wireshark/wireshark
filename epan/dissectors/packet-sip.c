@@ -2817,6 +2817,10 @@ guint sip_is_packet_resend(packet_info *pinfo,
 			g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
 			p_val->transaction_state = nothing_seen;
 			p_val->frame_number = 0;
+			if (line_type == REQUEST_LINE)
+			{
+				p_val->request_time = pinfo->fd->abs_ts;
+			}
 		}
 	}
 	else
