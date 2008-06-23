@@ -167,7 +167,7 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     proto_tree *tree=NULL;
     int old_offset=offset;
     guint32 len;
-    gint strlen;
+    gint slen;
     dcerpc_info *di;
     const char *str;
     
@@ -193,19 +193,19 @@ epm_dissect_ept_entry_t(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                  hf_epm_ann_len, &len);
     str=(const char *)tvb_get_ptr(tvb, offset, -1);
-    strlen=len;
-    strlen=MIN(strlen,tvb_length_remaining(tvb, offset));
+    slen=len;
+    slen=MIN(slen,tvb_length_remaining(tvb, offset));
     tvb_ensure_bytes_exist(tvb, offset, len);
     proto_tree_add_item(tree, hf_epm_annotation, tvb, offset, len, TRUE);
     offset += len;
 
     if(str&&str[0]){
         if(parent_tree) {
-            proto_item_append_text(item, " Service:%*s ", strlen, str);
-            proto_item_append_text(tree->parent, " Service:%*s ", strlen, str);
+            proto_item_append_text(item, " Service:%*s ", slen, str);
+            proto_item_append_text(tree->parent, " Service:%*s ", slen, str);
         }
         if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", Service:%*s", strlen, str);
+            col_append_fstr(pinfo->cinfo, COL_INFO, ", Service:%*s", slen, str);
         }
     }
 

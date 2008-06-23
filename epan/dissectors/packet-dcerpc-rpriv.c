@@ -74,7 +74,7 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	 */                                 
 
    guint32 authn_svc, authz_svc, key_size, key_size2, var1;
-   const char *key_t = NULL;
+   const char *key_t1 = NULL;
    const char *key_t2 = NULL;
 
    offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_authn_svc, &authn_svc);
@@ -85,7 +85,7 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
    /* advance to get size of cell, and princ */
 
    proto_tree_add_string (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, hf_rpriv_get_eptgt_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-   key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
+   key_t1 = (const char *)tvb_get_ptr(tvb,offset,key_size);
    offset += key_size;
 
    offset += 8;
@@ -97,7 +97,7 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 
    if (check_col(pinfo->cinfo, COL_INFO)) {
                col_append_fstr(pinfo->cinfo, COL_INFO,
-                   " Request for: %s in %s ", key_t2, key_t);
+                   " Request for: %s in %s ", key_t2, key_t1);
    }
 
    return offset;

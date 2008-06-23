@@ -603,7 +603,7 @@ static void
 dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 checksum, guint8 last1,guint8 OC, guint8 PN)
 {
   guint PC = 0;         /* Parameter code */
-  gint index;
+  gint idx;
   gint offset = 0;
   gint endOffset = 0;
   proto_item *cimd_item = NULL;
@@ -626,10 +626,10 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
       break;
 
     PC = decimal_int_value(tvb, offset + 1, CIMD_PC_LENGTH);
-    match_strval_idx(PC, cimd_vals_PC, &index);
-    if (index != -1 && tree)
+    match_strval_idx(PC, cimd_vals_PC, &idx);
+    if (idx != -1 && tree)
     {
-      (vals_hdr_PC[index].diss)(tvb, cimd_tree, index, offset, endOffset);
+      (vals_hdr_PC[idx].diss)(tvb, cimd_tree, idx, offset, endOffset);
     }
     offset = endOffset;
   }

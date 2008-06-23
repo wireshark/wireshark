@@ -124,12 +124,12 @@ static gint ett_dcc_trace = -1;
 
 
 #define D_CHECKSUM() { \
-	proto_tree *cktree, *ti; \
-	ti = proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_CK), \
+	proto_tree *cktree, *ckti; \
+	ckti = proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_CK), \
 		"Checksum - %s", val_to_str(tvb_get_guint8(tvb,offset), \
 		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
-	cktree = proto_item_add_subtree(ti, ett_dcc_ck); \
+	cktree = proto_item_add_subtree(ckti, ett_dcc_ck); \
 	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, FALSE); \
 	offset += 1; \
 	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, FALSE); \
