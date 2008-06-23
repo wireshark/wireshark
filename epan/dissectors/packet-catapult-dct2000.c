@@ -1183,7 +1183,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                             &conn_id_offset))
                 {
                     proto_tree *ipprim_tree;
-                    proto_item *ti;
+                    proto_item *ipprim_ti;
 
                     /* Will use this dissector then. */
                     protocol_handle = heur_protocol_handle;
@@ -1192,7 +1192,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* Unfortunately can't automatically create a conversation filter for this...
                        I *could* create a fake IP header from these details, but then it would be tricky
                        to get the FP dissector called as it has no well-known ports or heuristics... */
-                    ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_ipprim_addresses,
+                    ipprim_ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_ipprim_addresses,
                                                        tvb, offset_before_ipprim_header, 0,
                                                        "", "IPPrim transport (%s): %s:%u -> %s:%u",
                                                        (type_of_port == PT_UDP) ? "UDP" : "TCP",
@@ -1215,11 +1215,11 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                            tvb_get_ntohs(tvb, dest_port_offset) :
                                                            0);
                     if ((type_of_port == PT_TCP) && (conn_id_offset != 0)) {
-                        proto_item_append_text(ti, " (conn_id=%u)", tvb_get_ntohs(tvb, conn_id_offset));
+                        proto_item_append_text(ipprim_ti, " (conn_id=%u)", tvb_get_ntohs(tvb, conn_id_offset));
                     }
 
                     /* Add these IPPRIM fields inside an IPPRIM subtree */
-                    ipprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_ipprim);
+                    ipprim_tree = proto_item_add_subtree(ipprim_ti, ett_catapult_dct2000_ipprim);
 
                     /* Try to add right stuff to pinfo so conversation stuff works... */
                     pinfo->ptype = type_of_port;
