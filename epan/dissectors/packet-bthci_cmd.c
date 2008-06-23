@@ -942,7 +942,7 @@ static void
 dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
 {
 	proto_item *item;
-	guint32 clock;
+	guint32 clock_value;
 
 	switch(cmd_ocf) {
 		case 0x0001: /* Inquiry */  
@@ -999,8 +999,8 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			offset++;
 
 			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, TRUE);
-			clock = tvb_get_letohs(tvb, 13) & 32767; /* only bit0-14 are valid  */
-			proto_item_append_text(item, " (%g ms)", 1.25*clock);
+			clock_value = tvb_get_letohs(tvb, 13) & 32767; /* only bit0-14 are valid  */
+			proto_item_append_text(item, " (%g ms)", 1.25*clock_value);
 			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, TRUE);
 			offset+=2;
 
@@ -1111,8 +1111,8 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			offset++;
 
 			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, TRUE);
-			clock = tvb_get_letohs(tvb, offset) & 32767; /* only bit0-14 are valid  */
-			proto_item_append_text(item, " (%g ms)", 1.25*clock);
+			clock_value = tvb_get_letohs(tvb, offset) & 32767; /* only bit0-14 are valid  */
+			proto_item_append_text(item, " (%g ms)", 1.25*clock_value);
 			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, TRUE);
 			offset+=2;
 			break;
