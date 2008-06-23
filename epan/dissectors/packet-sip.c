@@ -2209,11 +2209,12 @@ separator_found2:
 					case POS_CONTENT_LENGTH :
 						content_length = atoi(value);
 						if(hdr_tree) {
-							proto_tree_add_uint(hdr_tree,
-							                    hf_header_array[hf_index], tvb,
-							                    offset, next_offset - offset,
-							                    content_length);
-						}
+							proto_tree_add_uint_format(hdr_tree,
+							                   hf_header_array[hf_index], tvb,
+							                   offset, next_offset - offset,
+							                   content_length, "%s",
+							                   tvb_format_text(tvb, offset, linelen));
+                        }
 						break;
 
 					case POS_MAX_FORWARDS :
