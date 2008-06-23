@@ -33,14 +33,34 @@
  *
  * for a discussion of how Beast launches a browser, a link that shows
  * the rather complicated code it uses, and some information on why it
- * goes through all that pain.  We might want to do something similar to
- * that.
+ * goes through all that pain.  See also Kevin Krammer's comment, which
+ * notes that the problem might be that the GNOME, KDE, and XFCE
+ * launcher programs always cause the window to be opened in the background,
+ * regardless of whether an instance of the app is running or not (the
+ * app gets launched - in the background - if it's not already running,
+ * and is told to open a new window/tab if it's already running), while
+ * launchers such as sensible-browser, which xdg-open falls back to,
+ * launch the app in the foreground if it's not already running, leading
+ * to the "first window is in the foreground, subsequent windows are in
+ * the background" behavior in non-GNOME/KDE/XFCE environments.
  *
- * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer
- * the ability to build a GNOMEified Wireshark as well as a GTK+-only
- * Wireshark).  However, GNOME might be moving towards running one of
- * the launchers listed in the Beast code, or might have moved there
- * already.
+ * Perhaps the right strategy is to:
+ *
+ *	Check whether we're in a GNOME/KDE/XFCE session and, if
+ *	we are, try xdg-open, as it works around, among other things,
+ *	some kfmclient bugs, and run it synchronously (that will fail
+ *	if we detect a GNOME/KDE/XFCE session but the launcher is
+ *	missing, but so it goes).  If we don't have xdg-open, try
+ *	the appropriate launcher for the environment, but ignore
+ *	the return code from kfmclient, as it might be bogus (that's
+ *	the bug xdg-open works around).
+ *
+ *	Otherwise, try the "broken/unpredictable browser launchers",
+ *	but run them in the background and leave them running, and
+ *	ignore the exit code, and then try x-www-browser, and then
+ *	try directly launching a user-specified browser.  (Beast tries
+ *	a bunch of browsers, with the user not being allowed to
+ *	specify which one they want.)
  */
 
 #ifdef HAVE_CONFIG_H
