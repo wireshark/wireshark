@@ -34,8 +34,8 @@ typedef struct _epan_dissect_t epan_dissect_t;
 #include "dfilter/dfilter.h"
 
 /* init the whole epan module, this is used to be called only once in a program */
-void epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
-	       void (*register_all_handoffs)(register_cb cb, gpointer client_data),
+void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
+	       void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	       register_cb cb,
 	       void *client_data,
 	       void (*report_failure)(const char *, va_list),

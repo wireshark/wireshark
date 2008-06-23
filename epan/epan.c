@@ -65,8 +65,8 @@ epan_get_version(void) {
 }
 
 void
-epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
-	  void (*register_all_handoffs)(register_cb cb, gpointer client_data),
+epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
+	  void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	  register_cb cb,
 	  gpointer client_data,
 	  void (*report_failure)(const char *, va_list),
@@ -91,7 +91,8 @@ epan_init(void (*register_all_protocols)(register_cb cb, gpointer client_data),
 	tvbuff_init();
 	tap_init();
 	prefs_init();
-	proto_init(register_all_protocols, register_all_handoffs, cb, client_data);
+	proto_init(register_all_protocols_func, register_all_handoffs_func,
+	    cb, client_data);
 	packet_init();
 	dfilter_init();
 	final_registration_all_protocols();
