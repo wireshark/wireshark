@@ -211,7 +211,6 @@ static void console_log_handler(const char *log_domain,
 
 #ifdef HAVE_LIBPCAP
 capture_options global_capture_opts;
-capture_options *capture_opts = &global_capture_opts;
 #endif
 
 
@@ -741,7 +740,7 @@ main_do_quit(void)
 
 #ifdef HAVE_LIBPCAP
 	/* Nuke any child capture in progress. */
-	capture_kill_child(capture_opts);
+	capture_kill_child(&global_capture_opts);
 #endif
 
 	/* Are we in the middle of reading a capture? */
@@ -1366,7 +1365,7 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
     }
     gtk_window_set_icon_list(GTK_WINDOW(top_level), icon_list);
 
-    if(capture_opts->quit_after_cap) {
+    if(global_capture_opts.quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1404,7 +1403,7 @@ main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
     /* We don't have loaded the capture file, this will be done later.
      * For now we still have simply a blank screen. */
 
-    if(capture_opts->quit_after_cap) {
+    if(global_capture_opts.quit_after_cap) {
         /* command line asked us to quit after the capture */
         /* don't pop up a dialog to ask for unsaved files etc. */
         main_do_quit();
@@ -1964,12 +1963,12 @@ main(int argc, char *argv[])
 		    log_flags,
 		    console_log_handler, NULL /* user_data */);
 
-  /* Set the initial values in the capture_opts. This might be overwritten
+  /* Set the initial values in the capture options. This might be overwritten
      by preference settings and then again by the command line parameters. */
-  capture_opts_init(capture_opts, &cfile);
+  capture_opts_init(&global_capture_opts, &cfile);
 
-  capture_opts->snaplen             = MIN_PACKET_SIZE;
-  capture_opts->has_ring_num_files  = TRUE;
+  global_capture_opts.snaplen             = MIN_PACKET_SIZE;
+  global_capture_opts.has_ring_num_files  = TRUE;
 #endif
 
   /* Initialize whatever we need to allocate colors for GTK+ */
@@ -2079,7 +2078,8 @@ main(int argc, char *argv[])
       case 'B':        /* Buffer size */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
+                                      &start_capture);
         if(status != 0) {
             exit(status);
         }
@@ -2303,7 +2303,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
-    if (capture_opts->multi_files_on) {
+    if (global_capture_opts.multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit(1);
     }
@@ -2318,47 +2318,47 @@ main(int argc, char *argv[])
 
     /* No - was the ring buffer option specified and, if so, does it make
        sense? */
-    if (capture_opts->multi_files_on) {
+    if (global_capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
 	 b) real_time_mode and multi_files_on are mutually exclusive -
 	    real_time_mode takes precedence;
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
-      if (capture_opts->save_file == NULL) {
+      if (global_capture_opts.save_file == NULL) {
 	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-	capture_opts->multi_files_on = FALSE;
+	global_capture_opts.multi_files_on = FALSE;
       }
-/*      if (capture_opts->real_time_mode) {
+/*      if (global_capture_opts.real_time_mode) {
 	cmdarg_err("Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.");
-	capture_opts->multi_files_on = FALSE;
+	global_capture_opts.multi_files_on = FALSE;
       }*/
-      if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
+      if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
 	cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
 /* XXX - this must be redesigned as the conditions changed */
-/*	capture_opts->multi_files_on = FALSE;*/
+/*	global_capture_opts.multi_files_on = FALSE;*/
       }
     }
   }
 
   if (start_capture || list_link_layer_types) {
     /* Did the user specify an interface to use? */
-    if (!capture_opts_trim_iface(capture_opts,
+    if (!capture_opts_trim_iface(&global_capture_opts,
         (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
         exit(2);
     }
   }
 
   if (list_link_layer_types) {
-    status = capture_opts_list_link_layer_types(capture_opts, FALSE);
+    status = capture_opts_list_link_layer_types(&global_capture_opts, FALSE);
     exit(status);
   }
 
   /* Fill in capture options with values from the preferences */
   prefs_to_capture_opts();
 
-  capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
-  capture_opts_trim_ring_num_files(capture_opts);
+  capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif /* HAVE_LIBPCAP */
 
   /* Notify all registered modules that have had any of their preferences
@@ -2538,16 +2538,16 @@ main(int argc, char *argv[])
   } else {
 #ifdef HAVE_LIBPCAP
     if (start_capture) {
-      if (capture_opts->save_file != NULL) {
+      if (global_capture_opts.save_file != NULL) {
         /* Save the directory name for future file dialogs. */
         /* (get_dirname overwrites filename) */
-        s = get_dirname(g_strdup(capture_opts->save_file));
+        s = get_dirname(g_strdup(global_capture_opts.save_file));
         set_last_open_dir(s);
         g_free(s);
       }
       /* "-k" was specified; start a capture. */
       show_main_window(TRUE);
-      if (capture_start(capture_opts)) {
+      if (capture_start(&global_capture_opts)) {
         /* The capture started.  Open stat windows; we do so after creating
 	   the main window, to avoid GTK warnings, and after successfully
 	   opening the capture file, so we know we have something to compute
@@ -2564,9 +2564,9 @@ main(int argc, char *argv[])
     }
 
     /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
-    if (!start_capture && strlen(capture_opts->cfilter) == 0) {
-      g_free(capture_opts->cfilter);
-      capture_opts->cfilter = g_strdup(get_conn_cfilter());
+    if (!start_capture && strlen(global_capture_opts.cfilter) == 0) {
+      g_free(global_capture_opts.cfilter);
+      global_capture_opts.cfilter = g_strdup(get_conn_cfilter());
     }
 #else /* HAVE_LIBPCAP */
     show_main_window(FALSE);
@@ -3201,9 +3201,9 @@ prefs_to_capture_opts(void)
 #ifdef HAVE_LIBPCAP
   /* Set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-    capture_opts->promisc_mode   = prefs.capture_prom_mode;
-    capture_opts->show_info      = prefs.capture_show_info;
-    capture_opts->real_time_mode = prefs.capture_real_time;
+    global_capture_opts.promisc_mode   = prefs.capture_prom_mode;
+    global_capture_opts.show_info      = prefs.capture_show_info;
+    global_capture_opts.real_time_mode = prefs.capture_real_time;
     auto_scroll_live             = prefs.capture_auto_scroll;
 #endif /* HAVE_LIBPCAP */
 
