@@ -81,12 +81,12 @@ extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 extern int nstime_cmp(nstime_t *a, const nstime_t *b );
 
 /* converts nstime to double, time base is milli seconds */
-extern double nstime_to_msec(const nstime_t *time);
+extern double nstime_to_msec(const nstime_t *nstime);
 
 /* converts nstime to double, time base is seconds */
-extern double nstime_to_sec(const nstime_t *time);
+extern double nstime_to_sec(const nstime_t *nstime);
 
 /* converts wtap_nstime to double, time base is seconds */
-extern double wtap_nstime_to_sec(const struct wtap_nstime *time);
+extern double wtap_nstime_to_sec(const struct wtap_nstime *nstime);
 
 #endif /* __NSTIME_H__  */

@@ -152,9 +152,9 @@ int nstime_cmp (nstime_t *a, const nstime_t *b )
  * converts nstime to double, time base is milli seconds
  */
 
-double nstime_to_msec(const nstime_t *time)
+double nstime_to_msec(const nstime_t *nstime)
 {
-    return ((double)time->secs*1000 + (double)time->nsecs/1000000);
+    return ((double)nstime->secs*1000 + (double)nstime->nsecs/1000000);
 }
 
 /*
@@ -162,9 +162,9 @@ double nstime_to_msec(const nstime_t *time)
  * converts nstime to double, time base is seconds
  */
 
-double nstime_to_sec(const nstime_t *time)
+double nstime_to_sec(const nstime_t *nstime)
 {
-    return ((double)time->secs + (double)time->nsecs/1000000000);
+    return ((double)nstime->secs + (double)nstime->nsecs/1000000000);
 }
 
 /*
@@ -172,9 +172,9 @@ double nstime_to_sec(const nstime_t *time)
  * converts wtap_nstime to double, time base is seconds
  */
 
-double wtap_nstime_to_sec(const struct wtap_nstime *time)
+double wtap_nstime_to_sec(const struct wtap_nstime *nstime)
 {
-    return ((double)time->secs + (double)time->nsecs/1000000000);
+    return ((double)nstime->secs + (double)nstime->nsecs/1000000000);
 }
 
 /*
