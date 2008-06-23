@@ -81,7 +81,7 @@ sync_interface_stats_close(int *read_fd, int *fork_child, gchar **msg);
 
 /** Read a line from a pipe, similar to fgets.  Non-blocking. */
 extern int
-sync_pipe_gets_nonblock(int pipe, char *bytes, int max);
+sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max);
 
 
 #endif /* capture_sync.h */

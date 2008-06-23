@@ -1047,22 +1047,22 @@ static gboolean pipe_data_available(int pipe) {
 
 /* Read a line from a pipe, similar to fgets */
 int
-sync_pipe_gets_nonblock(int pipe, char *bytes, int max) {
+sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
     int newly;
     int offset = -1;
 
     while(offset < max - 1) {
         offset++;
-        if (! pipe_data_available(pipe))
+        if (! pipe_data_available(pipe_fd))
             break;
-        newly = read(pipe, &bytes[offset], 1);
+        newly = read(pipe_fd, &bytes[offset], 1);
         if (newly == 0) {
             /* EOF - not necessarily an error */
             break;
         } else if (newly < 0) {
             /* error */
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-                  "read from pipe %d: error(%u): %s", pipe, errno, strerror(errno));
+                  "read from pipe %d: error(%u): %s", pipe_fd, errno, strerror(errno));
             return newly;
         } else if (bytes[offset] == '\n') {
             break;
