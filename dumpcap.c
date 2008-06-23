@@ -244,7 +244,6 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
 
 /* capture related options */
 static capture_options global_capture_opts;
-static capture_options *capture_opts = &global_capture_opts;
 
 static void capture_loop_packet_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd);
@@ -2526,17 +2525,17 @@ main(int argc, char *argv[])
   relinquish_privs_except_capture();
 #endif
 
-  /* Set the initial values in the capture_opts. This might be overwritten
+  /* Set the initial values in the capture options. This might be overwritten
      by the command line parameters. */
-  capture_opts_init(capture_opts, NULL);
+  capture_opts_init(&global_capture_opts, NULL);
 
   /* Default to capturing the entire packet. */
-  capture_opts->snaplen             = WTAP_MAX_PACKET_SIZE;
+  global_capture_opts.snaplen             = WTAP_MAX_PACKET_SIZE;
 
   /* We always save to a file - if no file was specified, we save to a
      temporary file. */
-  capture_opts->saving_to_file      = TRUE;
-  capture_opts->has_ring_num_files  = TRUE;
+  global_capture_opts.saving_to_file      = TRUE;
+  global_capture_opts.has_ring_num_files  = TRUE;
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -2583,7 +2582,7 @@ main(int argc, char *argv[])
 #ifdef _WIN32
       case 'B':        /* Buffer size */
 #endif /* _WIN32 */
-        status = capture_opts_add_opt(capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
           exit_main(status);
         }
@@ -2666,56 +2665,56 @@ main(int argc, char *argv[])
     /* We're supposed to list the link-layer types for an interface;
        did the user also specify a capture file to be read? */
     /* No - did they specify a ring buffer option? */
-    if (capture_opts->multi_files_on) {
+    if (global_capture_opts.multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit_main(1);
     }
   } else {
     /* No - was the ring buffer option specified and, if so, does it make
        sense? */
-    if (capture_opts->multi_files_on) {
+    if (global_capture_opts.multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
 	 b) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
-      if (capture_opts->save_file == NULL) {
+      if (global_capture_opts.save_file == NULL) {
 	cmdarg_err("Ring buffer requested, but capture isn't being saved to a permanent file.");
-	capture_opts->multi_files_on = FALSE;
+	global_capture_opts.multi_files_on = FALSE;
       }
-      if (!capture_opts->has_autostop_filesize && !capture_opts->has_file_duration) {
+      if (!global_capture_opts.has_autostop_filesize && !global_capture_opts.has_file_duration) {
 	cmdarg_err("Ring buffer requested, but no maximum capture file size or duration were specified.");
 /* XXX - this must be redesigned as the conditions changed */
-/*	capture_opts->multi_files_on = FALSE;*/
+/*	global_capture_opts.multi_files_on = FALSE;*/
       }
     }
   }
 
-  if (capture_opts_trim_iface(capture_opts, NULL) == FALSE) {
+  if (capture_opts_trim_iface(&global_capture_opts, NULL) == FALSE) {
     /* cmdarg_err() already called .... */
     exit_main(1);
   }
 
   /* Let the user know what interface was chosen. */
   /* get_interface_descriptive_name() is not available! */
-  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", capture_opts->iface);
+  g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "Interface: %s\n", global_capture_opts.iface);
 
   if (list_interfaces) {
     status = capture_opts_list_interfaces(machine_readable);
     exit_main(status);
   } else if (list_link_layer_types) {
-    status = capture_opts_list_link_layer_types(capture_opts, machine_readable);
+    status = capture_opts_list_link_layer_types(&global_capture_opts, machine_readable);
     exit_main(status);
   } else if (print_statistics) {
     status = print_statistics_loop(machine_readable);
     exit_main(status);
   }
 
-  capture_opts_trim_snaplen(capture_opts, MIN_PACKET_SIZE);
-  capture_opts_trim_ring_num_files(capture_opts);
+  capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_ring_num_files(&global_capture_opts);
 
   /* Now start the capture. */
 
-  if(capture_loop_start(capture_opts, &stats_known, &stats) == TRUE) {
+  if(capture_loop_start(&global_capture_opts, &stats_known, &stats) == TRUE) {
     /* capture ok */
     exit_main(0);
   } else {
