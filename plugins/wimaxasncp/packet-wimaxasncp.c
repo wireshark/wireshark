@@ -1863,40 +1863,37 @@ static guint dissect_wimaxasncp_backend(
     dbit_show = FALSE;
     ui16 = tvb_get_ntohs(tvb, offset);
 
-    if (tree)
+    if (show_transaction_id_d_bit)
     {
-        if (show_transaction_id_d_bit)
+        const guint16 mask = 0x7fff;
+
+        if (ui16 & 0x8000)
         {
-            const guint16 mask = 0x7fff;
+            proto_tree_add_uint_format(
+                tree, hf_wimaxasncp_transaction_id,
+                tvb, offset, 2, ui16,
+                "Transaction ID: D + 0x%04x (0x%04x)", mask & ui16, ui16);
 
-            if (ui16 & 0x8000)
-            {
-                proto_tree_add_uint_format(
-                    tree, hf_wimaxasncp_transaction_id,
-                    tvb, offset, 2, ui16,
-                    "Transaction ID: D + 0x%04x (0x%04x)", mask & ui16, ui16);
-
-                tid = ui16 & mask;
-                dbit_show = TRUE;
-            }
-            else
-            {
-                proto_tree_add_uint_format(
-                    tree, hf_wimaxasncp_transaction_id,
-                    tvb, offset, 2, ui16,
-                    "Transaction ID: 0x%04x", ui16);
-
-                tid = ui16;
-            }
+            tid = ui16 & mask;
+            dbit_show = TRUE;
         }
         else
         {
-            proto_tree_add_uint(
+            proto_tree_add_uint_format(
                 tree, hf_wimaxasncp_transaction_id,
-                tvb, offset, 2, ui16);
+                tvb, offset, 2, ui16,
+                "Transaction ID: 0x%04x", ui16);
 
             tid = ui16;
         }
+    }
+    else
+    {
+        proto_tree_add_uint(
+            tree, hf_wimaxasncp_transaction_id,
+            tvb, offset, 2, ui16);
+
+        tid = ui16;
     }
 
     offset += 2;
@@ -1973,7 +1970,12 @@ dissect_wimaxasncp(
     guint8 ui8;
 
     guint8 function_type;
+    proto_item *function_type_item;
     guint16 length;
+
+    const gchar *message_name;
+    const wimaxasncp_func_msg_t *p = NULL;
+    gsize i;
 
     /* ------------------------------------------------------------------------
      * First, we do some heuristics to check if the packet cannot be our
@@ -2133,24 +2135,20 @@ dissect_wimaxasncp(
 
     function_type = tvb_get_guint8(tvb, offset);
 
-    if (tree)
-    {
-        proto_item *function_type_item;
-        function_type_item = proto_tree_add_item(
-            wimaxasncp_tree, hf_wimaxasncp_function_type,
-            tvb, offset, 1, FALSE);
+    function_type_item = proto_tree_add_item(
+        wimaxasncp_tree, hf_wimaxasncp_function_type,
+        tvb, offset, 1, FALSE);
 
-        /* Add expert item if not matched */
-        if (strcmp(val_to_str(function_type,
-                              wimaxasncp_function_type_vals,
-                              unknown),
-                   unknown) == 0)
-        {
-                expert_add_info_format(pinfo, function_type_item,
-                                       PI_UNDECODED, PI_WARN,
-                                       "Unknown function type (%u)",
-                                       function_type);
-        }
+    /* Add expert item if not matched */
+    if (strcmp(val_to_str(function_type,
+                          wimaxasncp_function_type_vals,
+                          unknown),
+               unknown) == 0)
+    {
+            expert_add_info_format(pinfo, function_type_item,
+                                   PI_UNDECODED, PI_WARN,
+                                   "Unknown function type (%u)",
+                                   function_type);
     }
 
     offset += 1;
@@ -2162,65 +2160,59 @@ dissect_wimaxasncp(
 
     ui8 = tvb_get_guint8(tvb, offset);
 
-    if (tree)
+
+    /* --------------------------------------------------------------------
+     * OP ID
+     * --------------------------------------------------------------------
+     */
+
+    item = proto_tree_add_uint_format(
+        wimaxasncp_tree, hf_wimaxasncp_op_id,
+         tvb, offset, 1, ui8,
+        "OP ID: %s", val_to_str(ui8 >> 5, wimaxasncp_op_id_vals, unknown));
+
+    proto_item_append_text(
+        item, " (%s)", decode_numeric_bitfield(ui8, 0xe0, 8, "%u"));
+
+
+    /* use the function type to find the message vals */
+    for (i = 0; i < array_length(wimaxasncp_func_to_msg_vals_map); ++i)
     {
-        const gchar *message_name;
-        const wimaxasncp_func_msg_t *p = NULL;
-        gsize i;
+        p = &wimaxasncp_func_to_msg_vals_map[i];
 
-        /* --------------------------------------------------------------------
-         * OP ID
-         * --------------------------------------------------------------------
-         */
-
-        item = proto_tree_add_uint_format(
-            wimaxasncp_tree, hf_wimaxasncp_op_id,
-             tvb, offset, 1, ui8,
-            "OP ID: %s", val_to_str(ui8 >> 5, wimaxasncp_op_id_vals, unknown));
-
-        proto_item_append_text(
-            item, " (%s)", decode_numeric_bitfield(ui8, 0xe0, 8, "%u"));
-
-
-        /* use the function type to find the message vals */
-        for (i = 0; i < array_length(wimaxasncp_func_to_msg_vals_map); ++i)
+        if (function_type == p->function_type)
         {
-            p = &wimaxasncp_func_to_msg_vals_map[i];
-
-            if (function_type == p->function_type)
-            {
-                break;
-            }
+            break;
         }
+    }
 
-        /* --------------------------------------------------------------------
-         * message type
-         * --------------------------------------------------------------------
-         */
+    /* --------------------------------------------------------------------
+     * message type
+     * --------------------------------------------------------------------
+     */
 
-        message_name = p ? val_to_str(0x1f & ui8, p->vals, unknown) : unknown;
+    message_name = p ? val_to_str(0x1f & ui8, p->vals, unknown) : unknown;
 
-        item = proto_tree_add_uint_format(
-            wimaxasncp_tree, hf_wimaxasncp_op_id,
-            tvb, offset, 1, ui8,
-            "Message Type: %s", message_name);
+    item = proto_tree_add_uint_format(
+        wimaxasncp_tree, hf_wimaxasncp_op_id,
+        tvb, offset, 1, ui8,
+        "Message Type: %s", message_name);
 
-        proto_item_append_text(
-            item, " (%s)", decode_numeric_bitfield(ui8, 0x1f, 8, "%u"));
+    proto_item_append_text(
+        item, " (%s)", decode_numeric_bitfield(ui8, 0x1f, 8, "%u"));
 
-        /* Add expert item if not matched */
-        if (strcmp(message_name, unknown) == 0)
-        {
-            expert_add_info_format(pinfo, item,
-                                   PI_UNDECODED, PI_WARN,
-                                   "Unknown message op (%u)",
-                                   0x1f & ui8);
-        }
+    /* Add expert item if not matched */
+    if (strcmp(message_name, unknown) == 0)
+    {
+        expert_add_info_format(pinfo, item,
+                               PI_UNDECODED, PI_WARN,
+                               "Unknown message op (%u)",
+                               0x1f & ui8);
+    }
 
-        if (check_col(pinfo->cinfo, COL_INFO))
-        {
-            col_add_str(pinfo->cinfo, COL_INFO, message_name);
-        }
+    if (check_col(pinfo->cinfo, COL_INFO))
+    {
+        col_add_str(pinfo->cinfo, COL_INFO, message_name);
     }
 
     offset += 1;
