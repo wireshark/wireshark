@@ -53,15 +53,15 @@ mpeg_resync(wtap *wth, int *err, gchar **err_info _U_)
 {
 	gint64 offset = file_tell(wth->fh);
 	size_t count = 0;
-	int sync = file_getc(wth->fh);
+	int byte = file_getc(wth->fh);
 
-	while (sync != EOF) {
-		if (sync == 0xff && count > 0) {
-			sync = file_getc(wth->fh);
-			if (sync != EOF && (sync & 0xe0) == 0xe0)
+	while (byte != EOF) {
+		if (byte == 0xff && count > 0) {
+			byte = file_getc(wth->fh);
+			if (byte != EOF && (byte & 0xe0) == 0xe0)
 				break;
 		} else
-			sync = file_getc(wth->fh);
+			byte = file_getc(wth->fh);
 		count++;
 	}
 	file_seek(wth->fh, offset, SEEK_SET, err);
@@ -121,7 +121,6 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 	if (PES_VALID(n)) {
 		gint64 offset = file_tell(wth->fh);
 		guint8 stream;
-		int bytes_read;
 
 		if (offset == -1)
 			return -1;
@@ -171,12 +170,12 @@ mpeg_read(wtap *wth, int *err, gchar **err_info _U_,
 
 					{
 						guint64 bytes = pack >> 16;
-						guint64 ts =
+						guint64 ts_val =
 							(bytes >> 43 & 0x0007) << 30 |
 							(bytes >> 27 & 0x7fff) << 15 |
 							(bytes >> 11 & 0x7fff) << 0;
 						unsigned ext = (unsigned)((bytes >> 1) & 0x1ff);
-						guint64 cr = 300 * ts + ext;
+						guint64 cr = 300 * ts_val + ext;
 						unsigned rem = (unsigned)(cr % SCRHZ);
 						wth->capture.mpeg->now.secs
 							= wth->capture.mpeg->t0 + (time_t)(cr / SCRHZ);

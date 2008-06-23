@@ -210,9 +210,9 @@ typedef struct _k12_src_desc_t {
 static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	static guint8* buffer = NULL;
 	static guint buffer_len = 0x2000 ;
-    guint read;
+	guint bytes_read;
 	guint last_read;
-    guint actual_len, left;
+	guint actual_len, left;
 	guint8 junk[0x14];
 	guint8* writep;
 
@@ -231,12 +231,12 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 
 	if  ( junky_offset == 0x2000 ) {
 		/* the length of the record is 0x10 bytes ahead from we are reading */
-		read = file_read(junk,1,0x14,fh);
+		bytes_read = file_read(junk,1,0x14,fh);
 
-        if (read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
+        if (bytes_read == 2 && junk[0] == 0xff && junk[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
-        } else if ( read < 0x14 ){
+        } else if ( bytes_read < 0x14 ){
             K12_DBG(1,("get_record: SHORT READ"));
             return -1;
         }
@@ -244,12 +244,12 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 		memcpy(buffer,&(junk[0x10]),4);
 	} else {
 		/* the length of the record is right where we are reading */
-		read = file_read(buffer,1, 0x4, fh);
+		bytes_read = file_read(buffer,1, 0x4, fh);
 
-		if (read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
+		if (bytes_read == 2 && buffer[0] == 0xff && buffer[1] == 0xff) {
             K12_DBG(1,("get_record: EOF"));
             return 0;
-        } else if ( read != 0x4 ) {
+        } else if ( bytes_read != 0x4 ) {
             K12_DBG(1,("get_record: SHORT READ"));
             return -1;
         }
@@ -271,17 +271,17 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 		K12_DBG(6,("get_record: looping left=%d junky_offset=%" G_GINT64_MODIFIER "d",left,junky_offset));
 
 		if (junky_offset > left) {
-			read += last_read = file_read(writep,1, left, fh);
+			bytes_read += last_read = file_read(writep,1, left, fh);
 
 			if ( last_read != left ) {
 				K12_DBG(1,("get_record: SHORT READ"));
 				return -1;
 			} else {
 				K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
-				return read;
+				return bytes_read;
 			}
 		} else {
-			read += last_read = file_read(writep,1, junky_offset, fh);
+			bytes_read += last_read = file_read(writep,1, junky_offset, fh);
 
 			if ( last_read != junky_offset ) {
 				K12_DBG(1,("get_record: SHORT READ, read=%d expected=%d",last_read, junky_offset));
@@ -290,7 +290,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 
 			writep += last_read;
 
-			read += last_read = file_read(junk,1, 0x10, fh);
+			bytes_read += last_read = file_read(junk,1, 0x10, fh);
 
 			if ( last_read != 0x10 ) {
 				K12_DBG(1,("get_record: SHORT READ"));
@@ -304,7 +304,7 @@ static gint get_record(guint8** bufferp, FILE* fh, gint64 file_offset) {
 	} while(left);
 
 	K12_HEXDMP(5,file_offset, "GOT record", buffer, actual_len);
-	return read;
+	return bytes_read;
 }
 
 static gboolean k12_read(wtap *wth, int *err, gchar **err_info _U_, gint64 *data_offset) {
