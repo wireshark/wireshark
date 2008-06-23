@@ -46,7 +46,7 @@
 
 /* write a single message header to the recipient pipe */
 int
-pipe_write_header(int pipe, char indicator, int length)
+pipe_write_header(int pipe_fd, char indicator, int length)
 {
     guchar header[1+3]; /* indicator + 3-byte len */
 
@@ -60,7 +60,7 @@ pipe_write_header(int pipe, char indicator, int length)
     header[3] = (length >> 0) & 0xFF;
 
     /* write header */
-    return write(pipe, header, sizeof header);
+    return write(pipe_fd, header, sizeof header);
 }
 
 
@@ -69,12 +69,12 @@ pipe_write_header(int pipe, char indicator, int length)
    1 byte message indicator and the rest is the message).
    If msg is NULL, the message has only a length and indicator. */
 void
-pipe_write_block(int pipe, char indicator, const char *msg)
+pipe_write_block(int pipe_fd, char indicator, const char *msg)
 {
     int ret;
     size_t len;
 
-    /*g_warning("write %d enter", pipe);*/
+    /*g_warning("write %d enter", pipe_fd);*/
 
     if(msg != NULL) {
         len = strlen(msg) + 1;    /* including the terminating '\0'! */
@@ -83,33 +83,33 @@ pipe_write_block(int pipe, char indicator, const char *msg)
     }
 
     /* write header (indicator + 3-byte len) */
-    ret = pipe_write_header(pipe, indicator, len);
+    ret = pipe_write_header(pipe_fd, indicator, len);
     if(ret == -1) {
         return;
     }
 
     /* write value (if we have one) */
     if(len) {
-        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe, indicator, len, msg);*/
-        ret = write(pipe, msg, len);
+        /*g_warning("write %d indicator: %c value len: %u msg: %s", pipe_fd, indicator, len, msg);*/
+        ret = write(pipe_fd, msg, len);
         if(ret == -1) {
             return;
         }
     } else {
-        /*g_warning("write %d indicator: %c no value", pipe, indicator);*/
+        /*g_warning("write %d indicator: %c no value", pipe_fd, indicator);*/
     }
 
-    /*g_warning("write %d leave", pipe);*/
+    /*g_warning("write %d leave", pipe_fd);*/
 }
 
 
 void
-sync_pipe_errmsg_to_parent(int pipe, const char *error_msg,
+sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
                            const char *secondary_error_msg)
 {
 
     /* first write a "master header" with the length of the two messages plus their "slave headers" */
-    pipe_write_header(pipe, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
-    pipe_write_block(pipe, SP_ERROR_MSG, error_msg);
-    pipe_write_block(pipe, SP_ERROR_MSG, secondary_error_msg);
+    pipe_write_header(pipe_fd, SP_ERROR_MSG, strlen(error_msg) + 1 + 4 + strlen(secondary_error_msg) + 1 + 4);
+    pipe_write_block(pipe_fd, SP_ERROR_MSG, error_msg);
+    pipe_write_block(pipe_fd, SP_ERROR_MSG, secondary_error_msg);
 }

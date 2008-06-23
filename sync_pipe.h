@@ -63,18 +63,18 @@
 
 /* write a single message header to the recipient pipe */
 extern int
-pipe_write_header(int pipe, char indicator, int length);
+pipe_write_header(int pipe_fd, char indicator, int length);
 
 /* write a message to the recipient pipe in the standard format 
    (3 digit message length (excluding length and indicator field), 
    1 byte message indicator and the rest is the message).
    If msg is NULL, the message has only a length and indicator. */
 extern void
-pipe_write_block(int pipe, char indicator, const char *msg);
+pipe_write_block(int pipe_fd, char indicator, const char *msg);
 
 /** the child encountered an error, notify the parent */
 extern void 
-sync_pipe_errmsg_to_parent(int pipe, const char *error_msg,
+sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
                            const char *secondary_error_msg);
 
 #endif /* sync_pipe.h */
