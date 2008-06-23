@@ -265,7 +265,7 @@ INT AirPDcapPacketProcess(
 {
     const UCHAR *address;
     AIRPDCAP_SEC_ASSOCIATION_ID id;
-    int index;
+    int sa_index;
     PAIRPDCAP_SEC_ASSOCIATION sa;
     int offset = 0;
     guint bodyLength;
@@ -331,15 +331,15 @@ INT AirPDcapPacketProcess(
     }
 
     /* search for a cached Security Association for current BSSID and station MAC	*/
-    if ((index=AirPDcapGetSa(ctx, &id))==-1) {
+    if ((sa_index=AirPDcapGetSa(ctx, &id))==-1) {
         /* create a new Security Association	*/
-        if ((index=AirPDcapStoreSa(ctx, &id))==-1) {
+        if ((sa_index=AirPDcapStoreSa(ctx, &id))==-1) {
             return AIRPDCAP_RET_UNSUCCESS;
         }
     }
 
     /* get the Security Association structure	*/
-    sa=&ctx->sa[index];
+    sa=&ctx->sa[sa_index];
 
     /* cache offset in the packet data (to scan encryption data)	*/
     offset = mac_header_len;
