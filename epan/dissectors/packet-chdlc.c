@@ -123,7 +123,7 @@ capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
 }
 
 void
-chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
+chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
 	  packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
 	  int chdlctype_id)
 {
@@ -132,11 +132,11 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
 
   if (tree) {
     proto_tree_add_uint(fh_tree, chdlctype_id, tvb,
-			offset_after_chdlctype - 2, 2, chdlctype);
+			offset_after_chdlctype - 2, 2, chdlc_type);
   }
 
   padbyte = tvb_get_guint8(tvb, offset_after_chdlctype);
-  if (chdlctype == CHDLCTYPE_OSI &&
+  if (chdlc_type == CHDLCTYPE_OSI &&
     !( padbyte == NLPID_ISO8473_CLNP || /* older Juniper SW does not send a padbyte */
        padbyte == NLPID_ISO9542_ESIS ||
        padbyte == NLPID_ISO10589_ISIS)) {
@@ -149,9 +149,9 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
   }
 
   /* do lookup with the subdissector table */
-  if (!dissector_try_port(subdissector_table, chdlctype, next_tvb, pinfo, tree)) {
+  if (!dissector_try_port(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlctype);
+      col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
