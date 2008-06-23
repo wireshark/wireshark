@@ -28,7 +28,7 @@
 
 extern void register_stat_cmd_arg(const char *cmd,
     void (*func)(const char *arg,void* userdata), void* userdata);
-extern gboolean process_stat_cmd_arg(char *optarg);
+extern gboolean process_stat_cmd_arg(char *optstr);
 extern void list_stat_cmd_args(void);
 extern void start_requested_stats(void);
 

@@ -81,7 +81,7 @@ register_stat_cmd_arg(const char *cmd, void (*func)(const char*, void*),void* us
  * Function called for a stat command-line argument
  * ********************************************************************** */
 gboolean
-process_stat_cmd_arg(char *optarg)
+process_stat_cmd_arg(char *optstr)
 {
 	GSList *entry;
 	stat_cmd_arg *sca;
@@ -89,10 +89,10 @@ process_stat_cmd_arg(char *optarg)
 
 	for(entry=stat_cmd_arg_list;entry;entry=g_slist_next(entry)){
 		sca=entry->data;
-		if(!strncmp(sca->cmd,optarg,strlen(sca->cmd))){
+		if(!strncmp(sca->cmd,optstr,strlen(sca->cmd))){
 			tr=g_malloc(sizeof (stat_requested));
 			tr->sca = sca;
-			tr->arg=g_strdup(optarg);
+			tr->arg=g_strdup(optstr);
 			stats_requested=g_slist_append(stats_requested, tr);
 			return TRUE;
 		}
