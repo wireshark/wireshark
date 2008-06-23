@@ -77,7 +77,7 @@ static gboolean capture_opts_output_to_pipe(const char *save_file, gboolean *is_
 void
 capture_opts_init(capture_options *capture_opts, void *cf)
 {
-  capture_opts->cf                      = cfile;
+  capture_opts->cf                      = cf;
   capture_opts->cfilter                 = g_strdup("");     /* No capture filter string specified */
   capture_opts->iface                   = NULL;             /* Default is "pick the first interface" */
   capture_opts->iface_descr             = NULL;
