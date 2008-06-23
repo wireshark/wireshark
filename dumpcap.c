@@ -229,7 +229,7 @@ static const char please_report[] =
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
  * flag.
  */
-static loop_data   ld;
+static loop_data   global_ld;
 
 
 /*
@@ -453,8 +453,8 @@ print_statistics_loop(gboolean machine_readable)
             "Dropped");
     }
 
-    ld.go = TRUE;
-    while (ld.go) {
+    global_ld.go = TRUE;
+    while (global_ld.go) {
         for (stat_entry = g_list_first(stat_list); stat_entry != NULL; stat_entry = g_list_next(stat_entry)) {
             if_stat = stat_entry->data;
             pcap_stats(if_stat->pch, &ps);
@@ -1826,20 +1826,20 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   *secondary_errmsg = '\0';
 
   /* init the loop data */
-  ld.go                 = TRUE;
-  ld.packet_count       = 0;
+  global_ld.go                 = TRUE;
+  global_ld.packet_count       = 0;
   if (capture_opts->has_autostop_packets)
-    ld.packet_max       = capture_opts->autostop_packets;
+    global_ld.packet_max       = capture_opts->autostop_packets;
   else
-    ld.packet_max       = 0;	/* no limit */
-  ld.err                = 0;	/* no error seen yet */
-  ld.wtap_linktype      = WTAP_ENCAP_UNKNOWN;
-  ld.pcap_err           = FALSE;
-  ld.from_cap_pipe      = FALSE;
-  ld.pdh                = NULL;
-  ld.cap_pipe_fd        = -1;
+    global_ld.packet_max       = 0;	/* no limit */
+  global_ld.err                = 0;	/* no error seen yet */
+  global_ld.wtap_linktype      = WTAP_ENCAP_UNKNOWN;
+  global_ld.pcap_err           = FALSE;
+  global_ld.from_cap_pipe      = FALSE;
+  global_ld.pdh                = NULL;
+  global_ld.cap_pipe_fd        = -1;
 #ifdef MUST_DO_SELECT
-  ld.pcap_fd            = 0;
+  global_ld.pcap_fd            = 0;
 #endif
 
   /* We haven't yet gotten the capture statistics. */
@@ -1871,19 +1871,21 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  switch (capture_loop_init_filter(ld.pcap_h, ld.from_cap_pipe, capture_opts->iface, capture_opts->cfilter)) {
+  switch (capture_loop_init_filter(global_ld.pcap_h, global_ld.from_cap_pipe,
+                                   capture_opts->iface,
+				   capture_opts->cfilter)) {
 
   case INITFILTER_NO_ERROR:
     break;
 
   case INITFILTER_BAD_FILTER:
     cfilter_error = TRUE;
-    g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(ld.pcap_h));
+    g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(global_ld.pcap_h));
     goto error;
 
   case INITFILTER_OTHER_ERROR:
     g_snprintf(errmsg, sizeof(errmsg), "Can't install filter (%s).",
-               pcap_geterr(ld.pcap_h));
+               pcap_geterr(global_ld.pcap_h));
     g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
     goto error;
   }
@@ -1913,7 +1915,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        message to our parent so that they'll open the capture file and
        update its windows to indicate that we have a live capture in
        progress. */
-    libpcap_dump_flush(ld.pdh, NULL);
+    libpcap_dump_flush(global_ld.pdh, NULL);
     report_new_capture_file(capture_opts->save_file);
   }
 
@@ -1945,14 +1947,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   /* WOW, everything is prepared! */
   /* please fasten your seat belts, we will enter now the actual capture loop */
-  while (ld.go) {
+  while (global_ld.go) {
     /* dispatch incoming packets */
     inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
 
 #ifdef _WIN32
     /* any news from our parent (signal pipe)? -> just stop the capture */
     if (!signal_pipe_check_running()) {
-      ld.go = FALSE;
+      global_ld.go = FALSE;
     }
 #endif
 
@@ -1961,41 +1963,41 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
       /* check capture size condition */
       if (cnd_autostop_size != NULL &&
-          cnd_eval(cnd_autostop_size, (guint32)ld.bytes_written)){
+          cnd_eval(cnd_autostop_size, (guint32)global_ld.bytes_written)){
         /* Capture size limit reached, do we have another file? */
         if (capture_opts->multi_files_on) {
           if (cnd_autostop_files != NULL &&
               cnd_eval(cnd_autostop_files, ++autostop_files)) {
              /* no files left: stop here */
-            ld.go = FALSE;
+            global_ld.go = FALSE;
             continue;
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file,
-              &save_file_fd, &ld.bytes_written, &ld.err)) {
+          if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
+              &save_file_fd, &global_ld.bytes_written, &global_ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
               cnd_reset(cnd_file_duration);
             }
-            libpcap_dump_flush(ld.pdh, NULL);
+            libpcap_dump_flush(global_ld.pdh, NULL);
             report_packet_count(inpkts_to_sync_pipe);
             inpkts_to_sync_pipe = 0;
             report_new_capture_file(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
-            ld.go = FALSE;
+            global_ld.go = FALSE;
             continue;
           }
         } else {
           /* single file, stop now */
-          ld.go = FALSE;
+          global_ld.go = FALSE;
           continue;
         }
       } /* cnd_autostop_size */
       if (capture_opts->output_to_pipe) {
-        libpcap_dump_flush(ld.pdh, NULL);
+        libpcap_dump_flush(global_ld.pdh, NULL);
       }
     } /* inpkts */
 
@@ -2017,7 +2019,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /* Let the parent process know. */
       if (inpkts_to_sync_pipe) {
         /* do sync here */
-        libpcap_dump_flush(ld.pdh, NULL);
+        libpcap_dump_flush(global_ld.pdh, NULL);
 
         /* Send our parent a message saying we've written out "inpkts_to_sync_pipe"
            packets to the capture file. */
@@ -2029,7 +2031,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       /* check capture duration condition */
       if (cnd_autostop_duration != NULL && cnd_eval(cnd_autostop_duration)) {
         /* The maximum capture time has elapsed; stop the capture. */
-        ld.go = FALSE;
+        global_ld.go = FALSE;
         continue;
       }
 
@@ -2040,35 +2042,36 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           if (cnd_autostop_files != NULL &&
               cnd_eval(cnd_autostop_files, ++autostop_files)) {
             /* no files left: stop here */
-            ld.go = FALSE;
+            global_ld.go = FALSE;
             continue;
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.pdh, &capture_opts->save_file,
-                                  &save_file_fd, &ld.bytes_written, &ld.err)) {
+          if (ringbuf_switch_file(&global_ld.pdh, &capture_opts->save_file,
+                                  &save_file_fd, &global_ld.bytes_written,
+				  &global_ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
               cnd_reset(cnd_autostop_size);
-            libpcap_dump_flush(ld.pdh, NULL);
+            libpcap_dump_flush(global_ld.pdh, NULL);
             report_packet_count(inpkts_to_sync_pipe);
             inpkts_to_sync_pipe = 0;
             report_new_capture_file(capture_opts->save_file);
           } else {
             /* File switch failed: stop here */
-            ld.go = FALSE;
+            global_ld.go = FALSE;
             continue;
           }
         } else {
           /* single file, stop now */
-          ld.go = FALSE;
+          global_ld.go = FALSE;
           continue;
         }
       } /* cnd_file_duration */
     }
 
-  } /* while (ld.go) */
+  } /* while (global_ld.go) */
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopping ...");
 
@@ -2083,7 +2086,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     cnd_delete(cnd_autostop_duration);
 
   /* did we had a pcap (input) error? */
-  if (ld.pcap_err) {
+  if (global_ld.pcap_err) {
     /* On Linux, if an interface goes down while you're capturing on it,
        you'll get a "recvfrom: Network is down" error (ENETDOWN).
        (At least you will if strerror() doesn't show a local translation
@@ -2098,7 +2101,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
        These should *not* be reported to the Wireshark developers. */
     char *cap_err_str;
 
-    cap_err_str = pcap_geterr(ld.pcap_h);
+    cap_err_str = pcap_geterr(global_ld.pcap_h);
     if (strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
         strcmp(cap_err_str, "read: Device not configured") == 0 ||
         strcmp(cap_err_str, "read: I/O error") == 0) {
@@ -2111,15 +2114,15 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
       report_capture_error(errmsg, please_report);
     }
   }
-  else if (ld.from_cap_pipe && ld.cap_pipe_err == PIPERR)
+  else if (global_ld.from_cap_pipe && global_ld.cap_pipe_err == PIPERR)
     report_capture_error(errmsg, "");
 
   /* did we had an error while capturing? */
-  if (ld.err == 0) {
+  if (global_ld.err == 0) {
     write_ok = TRUE;
   } else {
-    capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file, ld.err,
-			      FALSE);
+    capture_loop_get_errmsg(errmsg, sizeof(errmsg), capture_opts->save_file,
+                            global_ld.err, FALSE);
     report_capture_error(errmsg, please_report);
     write_ok = FALSE;
   }
@@ -2155,18 +2158,18 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
    */
 
   /* get packet drop statistics from pcap */
-  if(ld.pcap_h != NULL) {
-    g_assert(!ld.from_cap_pipe);
+  if(global_ld.pcap_h != NULL) {
+    g_assert(!global_ld.from_cap_pipe);
     /* Get the capture statistics, so we know how many packets were
        dropped. */
-    if (pcap_stats(ld.pcap_h, stats) >= 0) {
+    if (pcap_stats(global_ld.pcap_h, stats) >= 0) {
       *stats_known = TRUE;
       /* Let the parent process know. */
       report_packet_drops(stats->ps_drop);
     } else {
       g_snprintf(errmsg, sizeof(errmsg),
 		"Can't get packet-drop statistics: %s",
-		pcap_geterr(ld.pcap_h));
+		pcap_geterr(global_ld.pcap_h));
       report_capture_error(errmsg, please_report);
     }
   }
@@ -2215,10 +2218,10 @@ error:
 static void capture_loop_stop(void)
 {
 #ifdef HAVE_PCAP_BREAKLOOP
-  if(ld.pcap_h != NULL)
-    pcap_breakloop(ld.pcap_h);
+  if(global_ld.pcap_h != NULL)
+    pcap_breakloop(global_ld.pcap_h);
 #endif
-  ld.go = FALSE;
+  global_ld.go = FALSE;
 }
 
 
