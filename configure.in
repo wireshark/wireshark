@@ -252,6 +252,7 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
