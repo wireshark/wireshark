@@ -40,6 +40,10 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ *
+ * Dustin Johnson - Dustin@Dustinj.us, Dustin.Johnson@cacetech.com
+ *     May 7, 2008 - Added 'Aggregation Extension' and '802.3 Extension'
  */
 
 #ifdef HAVE_CONFIG_H
@@ -102,6 +106,8 @@
 #define PPI_80211N_MAC_LEN 12
 #define PPI_80211N_MAC_PHY_OFF 9
 #define PPI_80211N_MAC_PHY_LEN 48
+#define PPI_AGGREGATION_EXTENSION_LEN 4
+#define PPI_8023_EXTENSION_LEN 8
 
 #define PPI_FLAG_ALIGN 0x01
 #define IS_PPI_FLAG_ALIGN(x) ((x) & PPI_FLAG_ALIGN)
@@ -153,15 +159,19 @@
 
 typedef enum {
     /* 0 - 29999: Public types */
-    PPI_80211_COMMON        =  2,
-    PPI_80211N_MAC          =  3,
-    PPI_80211N_MAC_PHY      =  4,
-    PPI_SPECTRUM_MAP        =  5,
-    PPI_PROCESS_INFO        =  6,
-    PPI_CAPTURE_INFO        =  7,
+    PPI_80211_COMMON          =  2,
+    PPI_80211N_MAC            =  3,
+    PPI_80211N_MAC_PHY        =  4,
+    PPI_SPECTRUM_MAP          =  5,
+    PPI_PROCESS_INFO          =  6,
+    PPI_CAPTURE_INFO          =  7,
+    PPI_AGGREGATION_EXTENSION =  8,
+    PPI_8023_EXTENSION        =  9,
     /* 11 - 29999: RESERVED */
 
     /* 30000 - 65535: Private types */
+    INTEL_CORP_PRIVATE          = 30000,
+    MOHAMED_THAGA_PRIVATE       = 30001,
     CACE_PRIVATE                = 0xCACE
     /* All others RESERVED.  Contact the WinPcap team for an assignment */
 } ppi_field_type;
@@ -215,7 +225,6 @@ static int hf_80211n_mac_flags_duplicate_rx = -1;
 static int hf_80211n_mac_flags_more_aggregates = -1;
 static int hf_80211n_mac_flags_aggregate = -1;
 static int hf_80211n_mac_flags_delimiter_crc_after = -1;
-static int hf_80211n_mac_flags_undocumented_debug_alpha = -1;
 static int hf_80211n_mac_ampdu_id = -1;
 static int hf_80211n_mac_num_delimiters = -1;
 static int hf_80211n_mac_reserved = -1;
@@ -270,6 +279,19 @@ static int hf_process_info = -1;
 /* Capture-Info */
 static int hf_capture_info = -1;
 
+/* Aggregation Extension */
+static int hf_aggregation_extension_interface_id = -1;
+
+/* 802.3 Extension */
+static int hf_8023_extension_flags = -1;
+static int hf_8023_extension_flags_fcs_present = -1;
+static int hf_8023_extension_flags_flag2 = -1;
+static int hf_8023_extension_flags_flag3 = -1;
+static int hf_8023_extension_errors = -1;
+static int hf_8023_extension_errors_error1 = -1;
+static int hf_8023_extension_errors_error2 = -1;
+static int hf_8023_extension_errors_error3 = -1;
+
 static gint ett_ppi_pph = -1;
 static gint ett_ppi_flags = -1;
 static gint ett_dot11_common = -1;
@@ -282,6 +304,10 @@ static gint ett_dot11n_mac_phy_ext_channel_flags = -1;
 static gint ett_ampdu_segments = -1;
 static gint ett_ampdu = -1;
 static gint ett_ampdu_segment  = -1;
+static gint ett_aggregation_extension = -1;
+static gint ett_8023_extension = -1;
+static gint ett_8023_extension_flags = -1;
+static gint ett_8023_extension_errors = -1;
 
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_ht_handle;
@@ -299,6 +325,8 @@ static const value_string vs_ppi_field_type[] = {
     {PPI_SPECTRUM_MAP, "Spectrum-Map"},
     {PPI_PROCESS_INFO, "Process-Info"},
     {PPI_CAPTURE_INFO, "Capture-Info"},
+    {PPI_AGGREGATION_EXTENSION, "Aggregation Extension"},
+    {PPI_8023_EXTENSION, "802.3 Extension"},
     {0, NULL}
 };
 
@@ -541,8 +569,7 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_duplicate_rx, 4, TRUE);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_aggregate, 4, TRUE);
     ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_more_aggregates, 4, TRUE);
-    ptvcursor_add_no_advance(csr, hf_80211n_mac_flags_delimiter_crc_after, 4, TRUE); /* Last */
-    ptvcursor_add(csr, hf_80211n_mac_flags_undocumented_debug_alpha, 4, TRUE);
+    ptvcursor_add(csr, hf_80211n_mac_flags_delimiter_crc_after, 4, TRUE); /* Last */
     ptvcursor_pop_subtree(csr);
 
     ptvcursor_add(csr, hf_80211n_mac_ampdu_id, 4, TRUE);
@@ -630,6 +657,68 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     ptvcursor_free(csr);
 }
+
+static void dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
+{
+    proto_tree *ftree = tree;
+    proto_item *ti = NULL;
+    ptvcursor_t *csr = NULL;
+
+    if (!tree)
+        return;
+
+    ti = proto_tree_add_text(tree, tvb, offset, data_len, "Aggregation Extension");
+    ftree = proto_item_add_subtree(ti, ett_aggregation_extension);
+	add_ppi_field_header(tvb, ftree, &offset);
+	data_len -= 4; /* Subtract field header length */
+
+    if (data_len != PPI_AGGREGATION_EXTENSION_LEN) {
+    	proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+    	THROW(ReportedBoundsError);
+    }
+
+    csr = ptvcursor_new(ftree, tvb, offset);
+
+    ptvcursor_add(csr, hf_aggregation_extension_interface_id, 4, TRUE); /* Last */
+    ptvcursor_free(csr);
+}
+
+static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
+{
+    proto_tree *ftree = tree;
+    proto_item *ti = NULL;
+    ptvcursor_t *csr = NULL;
+
+    if (!tree)
+        return;
+
+    ti = proto_tree_add_text(tree, tvb, offset, data_len, "802.3 Extension");
+    ftree = proto_item_add_subtree(ti, ett_8023_extension);
+	add_ppi_field_header(tvb, ftree, &offset);
+	data_len -= 4; /* Subtract field header length */
+
+    if (data_len != PPI_8023_EXTENSION_LEN) {
+    	proto_tree_add_text(ftree, tvb, offset, data_len, "Invalid length: %u", data_len);
+    	THROW(ReportedBoundsError);
+    }
+
+    csr = ptvcursor_new(ftree, tvb, offset);
+
+    ptvcursor_add_with_subtree(csr, hf_8023_extension_flags, 4, TRUE, ett_8023_extension_flags);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_flags_fcs_present, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_flags_flag2, 4, TRUE);
+    ptvcursor_add(csr, hf_8023_extension_flags_flag3, 4, TRUE);
+    ptvcursor_pop_subtree(csr);
+    
+    ptvcursor_add_with_subtree(csr, hf_8023_extension_errors, 4, TRUE, ett_8023_extension_errors);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error1, 4, TRUE);
+    ptvcursor_add_no_advance(csr, hf_8023_extension_errors_error2, 4, TRUE);
+    ptvcursor_add(csr, hf_8023_extension_errors_error3, 4, TRUE);
+    ptvcursor_pop_subtree(csr);
+    
+    ptvcursor_free(csr);
+}
+
 
 #define PADDING4(x) ((((x + 3) >> 2) << 2) - x)
 #define ADD_BASIC_TAG(hf_tag) \
@@ -730,6 +819,14 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             case PPI_CAPTURE_INFO:
                 ADD_BASIC_TAG(hf_capture_info);
+                break;
+                
+            case PPI_AGGREGATION_EXTENSION:
+                dissect_aggregation_extension(tvb, pinfo, ppi_tree, offset, data_len);
+                break;
+                
+            case PPI_8023_EXTENSION:
+                dissect_8023_extension(tvb, pinfo, ppi_tree, offset, data_len);
                 break;
 
             default:
@@ -997,10 +1094,6 @@ proto_register_ppi(void)
     { &hf_80211n_mac_flags_delimiter_crc_after,
        { "A-MPDU Delimiter CRC error after this frame flag", "ppi.80211n-mac.flags.delim_crc_error_after",
 	 FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0040, "PPI 802.11n MAC A-MPDU Delimiter CRC Error After This Frame Flag", HFILL } },
-    /* XXX - This should NOT be in the mainline trunk. */
-    { &hf_80211n_mac_flags_undocumented_debug_alpha,
-       { "Debug Flag (more desc)", "ppi.80211n-mac.flags.more_desc",
-	 FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x80000000, "PPI 802.11n MAC Debug Flag (more desc)", HFILL } },
     { &hf_80211n_mac_ampdu_id,
        { "AMPDU-ID", "ppi.80211n-mac.ampdu_id",
 	 FT_UINT32, BASE_HEX, NULL, 0x0, "PPI 802.11n MAC AMPDU-ID", HFILL } },
@@ -1130,13 +1223,45 @@ proto_register_ppi(void)
 
     { &hf_spectrum_map,
        { "Radio spectrum map", "ppi.spectrum-map",
-	 FT_BYTES, 0, NULL, 0x0, "PPI Radio spectrum map", HFILL } },
+            FT_BYTES, 0, NULL, 0x0, "PPI Radio spectrum map", HFILL } },
     { &hf_process_info,
        { "Process information", "ppi.proc-info",
-	 FT_BYTES, 0, NULL, 0x0, "PPI Process information", HFILL } },
+            FT_BYTES, 0, NULL, 0x0, "PPI Process information", HFILL } },
     { &hf_capture_info,
        { "Capture information", "ppi.cap-info",
-	 FT_BYTES, 0, NULL, 0x0, "PPI Capture information", HFILL } },
+            FT_BYTES, 0, NULL, 0x0, "PPI Capture information", HFILL } },
+
+    /* Aggregtion Extension */
+    { &hf_aggregation_extension_interface_id,
+       { "Interface ID", "ppi.aggregation_extension.interface_id",
+            FT_UINT32, BASE_DEC, NULL, 0x0, "Zero-based index of the physical interface the packet was captured from", HFILL } },
+    
+    /* 802.3 Extension */
+    { &hf_8023_extension_flags,
+       { "Flags", "ppi.8023_extension.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0, "PPI 802.3 Extension Flags", HFILL } },
+    { &hf_8023_extension_flags_fcs_present,
+       { "FCS Present Flag", "ppi.8023_extension.flags.fcs_present",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, "FCS (4 bytes) is present at the end of the packet", HFILL } },
+    { &hf_8023_extension_flags_flag2,
+       { "Flag 2", "ppi.8023_extension.flags.flag2",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, "Debug Flag 2", HFILL } },
+    { &hf_8023_extension_flags_flag3,
+       { "Flag 3", "ppi.8023_extension.flags.flag3",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004, "Debug Flag 3", HFILL } },
+    { &hf_8023_extension_errors,
+       { "Errors", "ppi.8023_extension.errors",
+            FT_UINT32, BASE_HEX, NULL, 0x0, "PPI 802.3 Extension Errors", HFILL } },
+    { &hf_8023_extension_errors_error1,
+       { "Error 1", "ppi.8023_extension.errors.error1",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0001, "Debug Error 1", HFILL } },
+    { &hf_8023_extension_errors_error2,
+       { "Error 2", "ppi.8023_extension.errors.error2",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0002, "Debug Error 2", HFILL } },
+    { &hf_8023_extension_errors_error3,
+       { "Error 3", "ppi.8023_extension.errors.error3",
+            FT_BOOLEAN, 32, TFS(&tfs_true_false), 0x0004, "Debug Error 3", HFILL } },
+    
     };
 
     static gint *ett[] = {
@@ -1151,7 +1276,11 @@ proto_register_ppi(void)
         &ett_dot11n_mac_phy_ext_channel_flags,
         &ett_ampdu_segments,
         &ett_ampdu,
-        &ett_ampdu_segment
+        &ett_ampdu_segment,
+        &ett_aggregation_extension,
+        &ett_8023_extension,
+        &ett_8023_extension_flags,
+        &ett_8023_extension_errors
     };
 
     module_t *ppi_module;
