@@ -387,7 +387,7 @@ slice_func(gpointer data, gpointer user_data)
 
 /* Returns a new FT_BYTES fvalue_t* if possible, otherwise NULL */
 fvalue_t*
-fvalue_slice(fvalue_t *fv, drange *drange)
+fvalue_slice(fvalue_t *fv, drange *d_range)
 {
 	slice_data_t	slice_data;
 	fvalue_t	*new_fv;
@@ -401,7 +401,7 @@ fvalue_slice(fvalue_t *fv, drange *drange)
 	 * drange_get_max_offset().
 	 */
 
-	drange_foreach_drange_node(drange, slice_func, &slice_data);
+	drange_foreach_drange_node(d_range, slice_func, &slice_data);
 
 	new_fv = fvalue_new(FT_BYTES);
 	fvalue_set(new_fv, slice_data.bytes, TRUE);

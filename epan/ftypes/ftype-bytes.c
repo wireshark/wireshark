@@ -476,7 +476,7 @@ static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	GString *a = fv_a->value.gstring;
-	pcre_tuple_t *pcre = fv_b->value.re;
+	pcre_tuple_t *pcre_t = fv_b->value.re;
 	int options = 0;
 	int rc;
 
@@ -487,12 +487,12 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
 		return FALSE;
 	}
-	if (! pcre) {
+	if (! pcre_t) {
 		return FALSE;
 	}
 	rc = pcre_exec(
-		pcre->re,	/* Compiled PCRE */
-		pcre->ex,	/* PCRE extra from pcre_study() */
+		pcre_t->re,	/* Compiled PCRE */
+		pcre_t->ex,	/* PCRE extra from pcre_study() */
 		a->str,		/* The data to check for the pattern... */
 		a->len,		/* ... and its length */
 		0,			/* Start offset within data */

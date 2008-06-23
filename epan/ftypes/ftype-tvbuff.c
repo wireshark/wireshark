@@ -315,7 +315,7 @@ static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	tvbuff_t *tvb = fv_a->value.tvb;
-	pcre_tuple_t *pcre = fv_b->value.re;
+	pcre_tuple_t *pcre_t = fv_b->value.re;
 	int options = 0;
 	volatile int rc = 1;
 	const char *data = NULL; /* tvb data */
@@ -328,15 +328,15 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
 		return FALSE;
 	}
-	if (! pcre) {
+	if (! pcre_t) {
 		return FALSE;
 	}
 	TRY {
 		tvb_len = tvb_length(tvb);
 		data = (const char *)tvb_get_ptr(tvb, 0, tvb_len);
 		rc = pcre_exec(
-			pcre->re,	/* Compiled PCRE */
-			pcre->ex,	/* PCRE extra from pcre_study() */
+			pcre_t->re,	/* Compiled PCRE */
+			pcre_t->ex,	/* PCRE extra from pcre_study() */
 			data,		/* The data to check for the pattern... */
 			tvb_len,	/* ... and its length */
 			0,		/* Start offset within data */
