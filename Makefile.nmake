@@ -725,7 +725,7 @@ process_libs:
 
 !IFDEF GNUTLS_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. gnutls-1.6.1-1.zip
+		. gnutls-2.3.8-1.zip
 !ENDIF
 !IFDEF PORTAUDIO_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
@@ -733,7 +733,7 @@ process_libs:
 !ENDIF
 !IFDEF SMI_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		. libsmi-0.4.5.zip
+		. libsmi-0.4.8.zip
 !ENDIF
 
 !IFDEF GTK2_DIR
@@ -819,6 +819,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/glib
     rm -r -f $(WIRESHARK_LIBS)/glib-gtk1-hack
     rm -r -f $(WIRESHARK_LIBS)/gnutls-1.6.1-1
+    rm -r -f $(WIRESHARK_LIBS)/gnutls-2.3.8-1
     rm -r -f $(WIRESHARK_LIBS)/gtk2
     rm -r -f $(WIRESHARK_LIBS)/gtk+
     rm -r -f $(WIRESHARK_LIBS)/gtk-wimp
@@ -826,6 +827,7 @@ clean_setup:
     rm -r -f $(WIRESHARK_LIBS)/libiconv-1.9.1.bin.woe32
     rm -r -f $(WIRESHARK_LIBS)/lua5.1
     rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.5
+    rm -r -f $(WIRESHARK_LIBS)/libsmi-0.4.8
     rm -r -f $(WIRESHARK_LIBS)/nasm-2.00
     rm -r -f $(WIRESHARK_LIBS)/pcre-6.4
     rm -r -f $(WIRESHARK_LIBS)/pcre-7.0
@@ -1080,9 +1082,9 @@ install-common-deps:
 !ENDIF
 !IFDEF GNUTLS_DIR
 	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-13.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-13.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-13.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-26.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-extra-26.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-openssl-26.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
 	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
 !ENDIF
