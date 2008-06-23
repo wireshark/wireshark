@@ -154,7 +154,7 @@
  * num ... length of bitfield
  */
 #define BIT_BITS16(bit, buf, num) \
-    (( pletohs(buf+ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
+    (( pntohs(buf+ADDR16(bit)) >> SHIFT16(bit,num) ) & MASK16(num))
 
 /* extract bitfield up to 24 bits
  * bit ... bit address
@@ -163,14 +163,14 @@
  */
 
 #define BIT_BITS32(bit, buf, num) \
-      ((pletohl(buf+ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
+      ((pntohl(buf+ADDR32(bit)) >> SHIFT32(bit,num) ) & MASK32(num))
 
 /* bitfield up to 32 bits */
 #define BIT_BITS64a(bit, buf, num) \
-      ((pletohl(buf+ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
+      ((pntohl(buf+ADDR32(bit)) & MASK64a(bit)) << SHIFT64a(bit,num))
 
 #define BIT_BITS64b(bit, buf, num) \
-      ((pletohl(buf+ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
+      ((pntohl(buf+ADDR32(bit)+4) >> SHIFT64b(bit,num) ) & MASK64b(bit,num))
 
 #define BIT_BITS64(bit, buf, num) \
       ( (OFFSET32(bit)+(num)) <= 32 \

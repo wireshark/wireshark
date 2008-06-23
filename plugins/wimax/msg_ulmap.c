@@ -1224,7 +1224,7 @@ gint UL_Zone_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gint l
 
     bit = NIB_TO_BIT(offset);
 
-    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "UL_ZONE_IE");
+    ti = proto_tree_add_text(uiuc_tree, tvb, NIBHI(offset, length), "CQICH_Alloc_IE");
     tree = proto_item_add_subtree(ti, ett_294);
 
     XBIT(data, 4, "Extended UIUC");
