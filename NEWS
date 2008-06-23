@@ -1,4 +1,4 @@
-Wireshark 1.0.0 Release Notes
+Wireshark 1.0.1 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,33 +12,98 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the [1]security
+   The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The X.509sat dissector could crash.
+     o The GSM SMS dissector could crash.
 
-       Versions affected: 0.99.5 to 0.99.8
+       Versions affected: 0.99.2 to 1.0.0
 
-     o The Roofnet dissector could crash on Windows, Solaris, and
-       possibly other platforms.
+     o The PANA and KISMET dissectors could force Wireshark to quit
+       unexpectedly.
 
-       Versions affected: 0.99.5 to 0.99.8
+       Versions affected: 0.99.3 to 1.0.0
 
-     o The LDAP dissector could crash on Windows and possibly other
-       platforms.
+     o The RTMTP dissector could crash.
 
-       Versions affected: 0.99.2 to 0.99.8
-
-     o The SCCP dissector could crash while using the "decode as"
-       feature.
-
-       Versions affected: 0.99.6 to 0.99.8
+       Versions affected: 0.99.8 to 1.0.0
 
    The following bugs have been fixed:
 
-     o Several SNMP-related bugs have been fixed.
+     o RPC portmap classification switched to TCP after filtering.
+       (Bug 1392)
 
-     o Several memory-related bugs have been fixed.
+     o Force the foreground color when the background is forced. (Bug
+       1735)
+
+     o RPC stream shows malformed packets. (Bug 2148)
+
+     o SNMP trap dissection fails. (Bug 2253)
+
+     o Failure to detect/open valid ERF files. (Bug 2359)
+
+     o Window scaling bug. (Bug 2378)
+
+     o E212 Mobile network code 3rd digit is not correctly decoded.
+       (Bug 2393)
+
+     o The BOOTP dissector fails to initialize and display some
+       values. (Bug 2395)
+
+     o Data string filter crash. (Bug 2402)
+
+     o Debian packaging problems. (Bug 2405)
+
+     o Expert info composite crash for LDAP. (Bug 2407)
+
+     o Statistics > Multicast Streams are broken. (Bug 2414)
+
+     o "Read me first" file is empty in the OS X .dmg. (Bug 2425)
+
+     o Failed tshark PDML export to file. (Bug 2432)
+
+     o RTCP MOS fields display wrong values. (Bug 2440)
+
+     o SNMP trap parse error. (Bug 2442)
+
+     o Ports incorrectly decoded as DPLAY instead of RTP. (Bug 2452)
+
+     o Incorrect decoding of DST MAC address of frame containing
+       ICMPv6 Echo Request. (Bug 2456)
+
+     o Fix wireshark-filter man page for packet-diameter_3gpp.c
+       fields. (Bug 2457)
+
+     o Dissector bug, protocol SNMP: proto.c:932: failed assertion.
+       (Bug 2468)
+
+     o UDP not decoded as UNIStim. (Bug 2475)
+
+     o Debug text output from MIKEY dissector. (Bug 2481)
+
+     o Windows compilation errors with flex 2.5.35. (Bug 2493)
+
+     o RTP heuristic interferes with STUN/T38 portion of heuristic.
+       (Bug 2497)
+
+     o WiMAX dissector assertion. (Bug 2501)
+
+     o RTP header extensions with length>4 bytes dissected
+       incorrectly. (Bug 2505)
+
+     o Compilation failure on non-european Windows systems. (Bug
+       2513)
+
+     o BACnet BVLC NAK decoding. (Bug 2517)
+
+     o 'tshark -Tfields -e data' omits last character of data. (Bug
+       2518)
+
+     o "Next file every" inconsistent behaviour. (Bug 2599)
+
+     o Wireshark doest not parse iSCSI login PDU. (Bug 2616)
+
+     o URL and encoding for OUI listings in make-manuf. (Bug 2619)
 
   New and Updated Features
 
@@ -47,37 +112,34 @@ What's New
 
      o The "About" box finally displays version 1.0.
 
-     o This release includes an experimental Mac OS X packge.
+     o Wireshark now supports custom columns.
+
+     o This release includes an experimental Mac OS X package.
 
   New Protocol Support
 
-   IEEE 802.15.4, Infiniband, Parallel Redundancy Protocol, RedBack
-   Lawful Intercept, Xcsl
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   AFS, ALCAP, ATM, BACapp, CIGI, DCC (renamed from DCCP), DCCP
-   (renamed from DCP), DCERPC SPOOLSS, DCERPC NT, DHCP, DirectPlay,
-   EtherCAT, FIX, GIOP, GTP, H.248, HTTP, ICMPv6, ICQ, IPv6, ISIS,
-   JXTA, NCP, P_Mul, PCAP, PKIX1Explicit, PTP, RADIUS, Roofnet, RTCP,
-   RTMPT, RTP, RX, SABP, SCSI OSD, sFlow, SMPP, SNMP, SSCOP, TAPA,
-   TIPC, TPNCP, UNISTIM, X.25, X.509sat, XML
+   ACTRACE, BACnet BVLC, BOOTP, E212, iSCSI, LDAP, MGCP, MIKEY,
+   MSMMS, RPC, RTCP, RTP, SNMP, TCP, UNIStim, WiMAX
 
   New and Updated Capture File Support
 
-   Hilscher Analyzer
+   Endace ERF
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   the [2]download page on the main web site.
+   the download page on the main web site.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages.
    You can usually install or upgrade Wireshark using the package
    management system specific to that platform. A list of third-party
-   packages can be found on the [3]download page on the Wireshark web
+   packages can be found on the download page on the Wireshark web
    site.
 
 File Locations
@@ -90,65 +152,40 @@ File Locations
 Known Problems
 
    Wireshark may appear offscreen on multi-monitor Windows systems.
-   ([4]Bug 553)
+   (Bug 553)
 
    Wireshark might make your system disassociate from a wireless
-   network on OS X. ([5]Bug 1315)
+   network on OS X. (Bug 1315)
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([6]Bug
-   1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419)
 
-   Wireshark is unable to decrypt WPA group keys. ([7]Bug 1420)
+   Wireshark is unable to decrypt WPA group keys. (Bug 1420)
 
-   Wireshark is unable to decrypt WPA group keys. ([8]Bug 1420)
-
-   The BER dissector might infinitely loop. ([9]Bug 1516)
+   The BER dissector might infinitely loop. (Bug 1516)
 
    Wireshark can't dynamically update the packet list. This means
    that host name resolutions above a certain response time threshold
-   won't show up in the packet list. ([10]Bug 1605)
+   won't show up in the packet list. (Bug 1605)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([11]Bug 1814)
+   (Bug 1814)
 
-   Wireshark might freeze when reading from a pipe. ([12]Bug 2082)
+   Wireshark might freeze when reading from a pipe. (Bug 2082)
 
-   Capturing from named pipes might be delayed on Windows. ([13]Bug
-   2200)
+   Capturing from named pipes might be delayed on Windows. (Bug 2200)
 
    Filtering tshark captures with display filters (-R) no longer
-   works. ([14]Bug 2234)
+   works. (Bug 2234)
 
 Getting Help
 
    Community support is available on the wireshark-users mailing
    list. Subscription information and archives for all of Wireshark's
-   mailing lists can be found on [15]the web site.
+   mailing lists can be found on the web site.
 
-   Commercial support, training, and development services are
-   available from [16]CACE Technologies.
+   Commercial support and development services are available from
+   CACE Technologies.
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [17]Wireshark web site.
-
-References
-
-   Visible links
-   1. http://www.wireshark.org/security/wnpa-sec-2008-02.html
-   2. http://www.wireshark.org/download.html
-   3. http://www.wireshark.org/download.html#otherplat
-   4. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553
-   5. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315
-   6. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   7. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420
-   8. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420
-   9. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  10. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605
-  11. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  12. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082
-  13. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200
-  14. http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  15. http://www.wireshark.org/lists/
-  16. http://www.cacetech.com/
-  17. http://www.wireshark.org/faq.html
+   A complete FAQ is available on the Wireshark web site.
