@@ -2837,7 +2837,7 @@ decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
   proto_item *ti;
   guint8 value;
 
-  static const value_string tab_cause[] = {
+  static const value_string tab_cause_value[] = {
     { 0x00, "OK, RA capability IE present" },
     { 0x01, "TLLI unknown in SGSN" },
     { 0x02, "No RA capabilities or IMSI available for this MS" },
@@ -2849,7 +2849,7 @@ decode_iei_ra_cap_upd_cause(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offse
     ti = bssgp_proto_tree_add_ie(ie, bi, ie_start_offset);
     value = tvb_get_guint8(bi->tvb, bi->offset);
     proto_item_append_text(ti, ": %s (%#2x)",
-			   val_to_str(value, tab_cause, "Reserved (TLLI unknown in SGSN)"),
+			   val_to_str(value, tab_cause_value, "Reserved (TLLI unknown in SGSN)"),
 			   value);
   }
   bi->offset += ie->value_length;
