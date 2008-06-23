@@ -1296,11 +1296,11 @@ get_persconffile_path(const char *filename, gboolean from_profile, gboolean for_
  * (move this e.g. to main.c and have set_persconffile_dir() instead in this file?)
  */
 int
-filesystem_opt(int opt _U_, const char *optarg)
+filesystem_opt(int opt _U_, const char *optstr)
 {
 	gchar *p, *colonp;
 
-	colonp = strchr(optarg, ':');
+	colonp = strchr(optstr, ':');
 	if (colonp == NULL) {
 		return 1;
 	}
@@ -1314,7 +1314,7 @@ filesystem_opt(int opt _U_, const char *optarg)
 	* allow it here).
 	*/
 	while (isspace((guchar)*p))
-	p++;
+		p++;
 	if (*p == '\0') {
 		/*
 		 * Put the colon back, so if our caller uses, in an
@@ -1337,9 +1337,9 @@ filesystem_opt(int opt _U_, const char *optarg)
 		return 1;
 	}
 
-	if (strcmp(optarg,"persconf") == 0) {
+	if (strcmp(optstr,"persconf") == 0) {
 		persconffile_dir = p;
-	} else if (strcmp(optarg,"persdata") == 0) {
+	} else if (strcmp(optstr,"persdata") == 0) {
 		persdatafile_dir = p;
 		/* XXX - might need to add the temp file path */
 	} else {
