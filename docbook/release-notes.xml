@@ -61,7 +61,7 @@ Wireshark Info
 
         <listitem>
           <para>
-            The RTMTP dissector could crash.
+            The RTMPT dissector could crash.
             <!-- Fixed in r25497 -->
 	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2620">2620</ulink>) -->
           </para>
