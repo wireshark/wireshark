@@ -32,7 +32,7 @@ extern "C" {
 /* Collect command-line arguments as a string consisting of the arguments,
  * separated by spaces.
  */
-char *get_args_as_string(int argc, char **argv, int optind);
+char *get_args_as_string(int argc, char **argv, int optindex);
 
 /* Compute the difference between two seconds/microseconds time stamps.
  * Beware: we're using nanosecond resolution now and function is currently unused

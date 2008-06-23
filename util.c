@@ -48,7 +48,7 @@
  * separated by spaces.
  */
 char *
-get_args_as_string(int argc, char **argv, int optind)
+get_args_as_string(int argc, char **argv, int optindex)
 {
 	int len;
 	int i;
@@ -58,7 +58,7 @@ get_args_as_string(int argc, char **argv, int optind)
 	 * Find out how long the string will be.
 	 */
 	len = 0;
-	for (i = optind; i < argc; i++) {
+	for (i = optindex; i < argc; i++) {
 		len += strlen(argv[i]);
 		len++;	/* space, or '\0' if this is the last argument */
 	}
@@ -72,7 +72,7 @@ get_args_as_string(int argc, char **argv, int optind)
 	 * Now construct the string.
 	 */
 	argstring[0] = '\0';
-	i = optind;
+	i = optindex;
 	for (;;) {
 		g_strlcat(argstring, argv[i], len);
 		i++;
