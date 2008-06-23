@@ -146,7 +146,7 @@ static const char please_report[] =
 static gboolean print_packet_counts;
 
 
-static capture_options capture_opts;
+static capture_options global_capture_opts;
 
 #ifdef SIGINFO
 static gboolean infodelay;	/* if TRUE, don't print capture info in SIGINFO handler */
@@ -824,7 +824,7 @@ main(int argc, char *argv[])
   initialize_funnel_ops();
 
 #ifdef HAVE_LIBPCAP
-  capture_opts_init(&capture_opts, NULL /* cfile */);
+  capture_opts_init(&global_capture_opts, NULL /* cfile */);
 #endif
 
   timestamp_set_type(TS_RELATIVE);
@@ -984,7 +984,7 @@ main(int argc, char *argv[])
       case 'B':        /* Buffer size */
 #endif /* _WIN32 */
 #ifdef HAVE_LIBPCAP
-        status = capture_opts_add_opt(&capture_opts, opt, optarg, &start_capture);
+        status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
         if(status != 0) {
             exit(status);
         }
@@ -1216,13 +1216,13 @@ main(int argc, char *argv[])
       rfilter = get_args_as_string(argc, argv, optind);
     } else {
 #ifdef HAVE_LIBPCAP
-      if (capture_opts.has_cfilter) {
+      if (global_capture_opts.has_cfilter) {
         cmdarg_err("Capture filters were specified both with \"-f\""
             " and with additional command-line arguments");
         exit(1);
       }
-      capture_opts.has_cfilter = TRUE;
-      capture_opts.cfilter = get_args_as_string(argc, argv, optind);
+      global_capture_opts.has_cfilter = TRUE;
+      global_capture_opts.cfilter = get_args_as_string(argc, argv, optind);
 #else
       capture_option_specified = TRUE;
 #endif
@@ -1230,7 +1230,7 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (!capture_opts.saving_to_file) {
+  if (!global_capture_opts.saving_to_file) {
     /* We're not saving the capture to a file; if "-q" wasn't specified,
        we should print packet information */
     if (!quiet)
@@ -1241,7 +1241,7 @@ main(int argc, char *argv[])
        output, reject the request.  At best, we could redirect that
        to the standard error; we *can't* write both to the standard
        output and have either of them be useful. */
-    if (strcmp(capture_opts.save_file, "-") == 0 && print_packet_info) {
+    if (strcmp(global_capture_opts.save_file, "-") == 0 && print_packet_info) {
       cmdarg_err("You can't write both raw packet data and dissected packets"
           " to the standard output.");
       exit(1);
@@ -1268,7 +1268,7 @@ main(int argc, char *argv[])
      support in capture files we read). */
 #ifdef HAVE_LIBPCAP
   if (cf_name != NULL) {
-    if (capture_opts.has_cfilter) {
+    if (global_capture_opts.has_cfilter) {
       cmdarg_err("Only read filters, not capture filters, "
           "can be specified when reading a capture file.");
       exit(1);
@@ -1293,7 +1293,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
-    if (capture_opts.multi_files_on) {
+    if (global_capture_opts.multi_files_on) {
       cmdarg_err("Ring buffer requested, but a capture isn't being done.");
       exit(1);
     }
@@ -1303,22 +1303,22 @@ main(int argc, char *argv[])
        * "-r" was specified, so we're reading a capture file.
        * Capture options don't apply here.
        */
-      if (capture_opts.multi_files_on) {
+      if (global_capture_opts.multi_files_on) {
         cmdarg_err("Multiple capture files requested, but "
                    "a capture isn't being done.");
         exit(1);
       }
-      if (capture_opts.has_file_duration) {
+      if (global_capture_opts.has_file_duration) {
         cmdarg_err("Switching capture files after a time interval was specified, but "
                    "a capture isn't being done.");
         exit(1);
       }
-      if (capture_opts.has_ring_num_files) {
+      if (global_capture_opts.has_ring_num_files) {
         cmdarg_err("A ring buffer of capture files was specified, but "
           "a capture isn't being done.");
         exit(1);
       }
-      if (capture_opts.has_autostop_files) {
+      if (global_capture_opts.has_autostop_files) {
         cmdarg_err("A maximum number of capture files was specified, but "
           "a capture isn't being done.");
         exit(1);
@@ -1328,7 +1328,7 @@ main(int argc, char *argv[])
        * and byte count as well as a write file. Other autostop options remain valid
        * only for a write file.
        */
-      if (capture_opts.has_autostop_duration) {
+      if (global_capture_opts.has_autostop_duration) {
         cmdarg_err("A maximum capture time was specified, but "
           "a capture isn't being done.");
         exit(1);
@@ -1337,7 +1337,7 @@ main(int argc, char *argv[])
       /*
        * "-r" wasn't specified, so we're doing a live capture.
        */
-      if (capture_opts.saving_to_file) {
+      if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
 
         /* When capturing, we only support writing libpcap format. */
@@ -1345,23 +1345,23 @@ main(int argc, char *argv[])
           cmdarg_err("Live captures can only be saved in libpcap format.");
           exit(1);
         }
-        if (capture_opts.multi_files_on) {
+        if (global_capture_opts.multi_files_on) {
           /* Multiple-file mode doesn't work under certain conditions:
              a) it doesn't work if you're writing to the standard output;
              b) it doesn't work if you're writing to a pipe;
 	  */
-          if (strcmp(capture_opts.save_file, "-") == 0) {
+          if (strcmp(global_capture_opts.save_file, "-") == 0) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture is being written to the standard output.");
             exit(1);
           }
-          if (capture_opts.output_to_pipe) {
+          if (global_capture_opts.output_to_pipe) {
             cmdarg_err("Multiple capture files requested, but "
               "the capture file is a pipe.");
             exit(1);
           }
-          if (!capture_opts.has_autostop_filesize &&
-	      !capture_opts.has_file_duration) {
+          if (!global_capture_opts.has_autostop_filesize &&
+	      !global_capture_opts.has_file_duration) {
             cmdarg_err("Multiple capture files requested, but "
               "no maximum capture file size or duration was specified.");
             exit(1);
@@ -1371,12 +1371,12 @@ main(int argc, char *argv[])
         /* They didn't specify a "-w" flag, so we won't be saving to a
            capture file.  Check for options that only make sense if
            we're saving to a file. */
-        if (capture_opts.has_autostop_filesize) {
+        if (global_capture_opts.has_autostop_filesize) {
           cmdarg_err("Maximum capture file size specified, but "
            "capture isn't being saved to a file.");
           exit(1);
         }
-        if (capture_opts.multi_files_on) {
+        if (global_capture_opts.multi_files_on) {
           cmdarg_err("Multiple capture files requested, but "
             "the capture isn't being saved to a file.");
           exit(1);
@@ -1443,8 +1443,8 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  capture_opts_trim_snaplen(&capture_opts, MIN_PACKET_SIZE);
-  capture_opts_trim_ring_num_files(&capture_opts);
+  capture_opts_trim_snaplen(&global_capture_opts, MIN_PACKET_SIZE);
+  capture_opts_trim_ring_num_files(&global_capture_opts);
 #endif
 
   if (rfilter != NULL) {
@@ -1546,9 +1546,9 @@ main(int argc, char *argv[])
 
     /* Process the packets in the file */
 #ifdef HAVE_LIBPCAP
-    err = load_cap_file(&cfile, capture_opts.save_file, out_file_type,
-        capture_opts.has_autostop_packets ? capture_opts.autostop_packets : 0,
-        capture_opts.has_autostop_filesize ? capture_opts.autostop_filesize : 0);
+    err = load_cap_file(&cfile, global_capture_opts.save_file, out_file_type,
+        global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
+        global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
     err = load_cap_file(&cfile, NULL, out_file_type, 0, 0);
 #endif
@@ -1576,14 +1576,14 @@ main(int argc, char *argv[])
 #endif
 
     /* trim the interface name and exit if that failed */
-    if (!capture_opts_trim_iface(&capture_opts,
+    if (!capture_opts_trim_iface(&global_capture_opts,
         (prefs->capture_device) ? get_if_name(prefs->capture_device) : NULL)) {
         exit(2);
     }
 
     /* if requested, list the link layer types and exit */
     if (list_link_layer_types) {
-        status = capture_opts_list_link_layer_types(&capture_opts, FALSE);
+        status = capture_opts_list_link_layer_types(&global_capture_opts, FALSE);
         exit(status);
     }
 
@@ -1811,13 +1811,13 @@ capture(void)
 #endif /* SIGINFO */
 #endif /* _WIN32 */
 
-  capture_opts.state = CAPTURE_PREPARING;
+  global_capture_opts.state = CAPTURE_PREPARING;
 
   /* Let the user know what interface was chosen. */
-  capture_opts.iface_descr = get_interface_descriptive_name(capture_opts.iface);
-  fprintf(stderr, "Capturing on %s\n", capture_opts.iface_descr);
+  global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
+  fprintf(stderr, "Capturing on %s\n", global_capture_opts.iface_descr);
 
-  ret = sync_pipe_start(&capture_opts);
+  ret = sync_pipe_start(&global_capture_opts);
 
   if (!ret)
     return FALSE;
@@ -2139,7 +2139,7 @@ capture_cleanup(DWORD ctrltype _U_)
      building it with Cygwin may make the problem go away). */
 
   /* tell the capture child to stop */
-  sync_pipe_stop(&capture_opts);
+  sync_pipe_stop(&global_capture_opts);
 
   /* don't stop our own loop already here, otherwise status messages and
    * cleanup wouldn't be done properly. The child will indicate the stop of
@@ -2152,7 +2152,7 @@ static void
 capture_cleanup(int signum _U_)
 {
   /* tell the capture child to stop */
-  sync_pipe_stop(&capture_opts);
+  sync_pipe_stop(&global_capture_opts);
 }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
@@ -2621,7 +2621,7 @@ print_columns(capture_file *cf)
        * the same time, sort of like an "Update list of packets
        * in real time" capture in Wireshark.)
        */
-      if (capture_opts.iface != NULL)
+      if (global_capture_opts.iface != NULL)
         continue;
 #endif
       column_len = strlen(cf->cinfo.col_data[i]);
