@@ -82,7 +82,7 @@ static proto_tree *g_tree;
 
 /* FUNCTIONS */
 
-static const guint8 bit_mask[] = {
+static const guint8 global_bit_mask[] = {
     0x01,
     0x03,
     0x07,
@@ -106,7 +106,7 @@ ansi_801_tvb_get_bits(tvbuff_t *tvb, guint32 *offset_p, guint8 *bit_offset_p, gu
     {
 	shift_bits = (*bit_offset_p) - num_bits;
 
-	bits = (tvb_get_guint8(tvb, *offset_p) & bit_mask[(*bit_offset_p)-1]) >> shift_bits;
+	bits = (tvb_get_guint8(tvb, *offset_p) & global_bit_mask[(*bit_offset_p)-1]) >> shift_bits;
 
 	if (shift_bits == 0)
 	{
@@ -124,7 +124,7 @@ ansi_801_tvb_get_bits(tvbuff_t *tvb, guint32 *offset_p, guint8 *bit_offset_p, gu
 
     shift_bits = (num_bits - *bit_offset_p);
 
-    bits = (tvb_get_guint8(tvb, *offset_p) & bit_mask[(*bit_offset_p)-1]) << shift_bits;
+    bits = (tvb_get_guint8(tvb, *offset_p) & global_bit_mask[(*bit_offset_p)-1]) << shift_bits;
 
     num_octs = (shift_bits / 8) + 1;
     remaining_bits = shift_bits % 8;
