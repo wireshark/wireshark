@@ -256,6 +256,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+          "Next file every" inconsistent behaviour.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2599">Bug
+          2599</ulink>)
+        </para></listitem>
+
+        <listitem><para>
           Wireshark doest not parse iSCSI login PDU.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2616">Bug
           2616</ulink>)
@@ -313,9 +319,22 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
+ACTRACE,
+BACnet BVLC,
 BOOTP,
 E212,
+iSCSI,
 LDAP,
+MGCP,
+MIKEY,
+MSMMS,
+RPC,
+RTCP,
+RTP,
+SNMP,
+TCP,
+UNIStim,
+WiMAX
 
     </para>
     </section>

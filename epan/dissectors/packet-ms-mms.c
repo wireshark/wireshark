@@ -375,8 +375,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (tvb_reported_length_remaining(tvb, offset) < 12)
     {
         pinfo->desegment_offset = 0;  /* Start at beginning next time */
-        pinfo->desegment_len = 1;     /* Need one more byte to try again */
-        return -1;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;     /* Need one more byte to try again */
+        return 0;
     }
 
     /* Read length field and see if we're short */
@@ -384,8 +384,8 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     if (tvb_reported_length_remaining(tvb, 16) < length_of_command)
     {
         pinfo->desegment_offset = 0; /* Start at beginning next time */
-        pinfo->desegment_len = -1;   /* Need one more byte to try again */
-        return (length_of_command - tvb_length_remaining(tvb, 16));
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;   /* Need one more byte to try again */
+        return 0;
     }
 
 
@@ -661,8 +661,8 @@ gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (packet_length_found < packet_length)
     {
         pinfo->desegment_offset = 0;  /* Start from beginning again next time */
-        pinfo->desegment_len = 1;     /* Try again with even one more byte */
-        return -1;
+        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;     /* Try again with even one more byte */
+        return 0;
     }
 
 
