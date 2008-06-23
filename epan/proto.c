@@ -315,8 +315,8 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 
 /* initialize data structures and register protocols and fields */
 void
-proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
-	   void (register_all_protocol_handoffs)(register_cb cb, gpointer client_data),
+proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_data),
+	   void (register_all_handoffs_func)(register_cb cb, gpointer client_data),
 	   register_cb cb,
 	   gpointer client_data)
 {
@@ -355,7 +355,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	   dissector tables, and dissectors to be called through a
 	   handle, and do whatever one-time initialization it needs to
 	   do. */
-	register_all_protocols(cb, client_data);
+	register_all_protocols_func(cb, client_data);
 
 #ifdef HAVE_PLUGINS
 	/* Now scan for plugins and load all the ones we find, calling
@@ -370,7 +370,7 @@ proto_init(void (register_all_protocols)(register_cb cb, gpointer client_data),
 	   dissectors; those routines register the dissector in other
 	   dissectors' handoff tables, and fetch any dissector handles
 	   they need. */
-	register_all_protocol_handoffs(cb, client_data);
+	register_all_handoffs_func(cb, client_data);
 
 #ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
