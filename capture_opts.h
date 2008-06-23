@@ -157,7 +157,7 @@ typedef struct capture_options_tag {
 
 /* initialize the capture_options with some reasonable values */
 extern void
-capture_opts_init(capture_options *capture_opts, void *cfile);
+capture_opts_init(capture_options *capture_opts, void *cf);
 
 /* set a command line option value */
 extern int
