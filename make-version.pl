@@ -190,12 +190,13 @@ sub update_config_nmake
 	my $line;
 	my $contents = "";
 	my $version = "";
+	my $update_ve = 0;
 	
-	return if ($package_string eq "");
+	if ($package_string eq "") { $update_ve = 1; };
 	
 	open(CFGIN, "< config.nmake") || die "Can't read config.nmake!";
 	while ($line = <CFGIN>) {
-		if ($line =~ /^VERSION_EXTRA=/) {
+		if ($update_ve && $line =~ /^VERSION_EXTRA=/) {
 			$line = "VERSION_EXTRA=$package_string\n";
 		}
 		if ($line =~ /^VERSION_BUILD=/ && int($revision) > 0) {
