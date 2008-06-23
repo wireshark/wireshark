@@ -358,7 +358,7 @@ free_register_overhead(dfilter_t* df)
  * to make a new list of fvalue_t's (which are ranges, or byte-slices),
  * and puts the new list into a new register. */
 static void
-mk_range(dfilter_t *df, int from_reg, int to_reg, drange *drange)
+mk_range(dfilter_t *df, int from_reg, int to_reg, drange *d_range)
 {
 	GList		*from_list, *to_list;
 	fvalue_t	*old_fv, *new_fv;
@@ -368,7 +368,7 @@ mk_range(dfilter_t *df, int from_reg, int to_reg, drange *drange)
 
 	while (from_list) {
 		old_fv = from_list->data;
-		new_fv = fvalue_slice(old_fv, drange);
+		new_fv = fvalue_slice(old_fv, d_range);
 		/* Assert here because semcheck.c should have
 		 * already caught the cases in which a slice
 		 * cannot be made. */
