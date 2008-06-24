@@ -6,7 +6,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -579,13 +578,13 @@ statusbar_cf_live_capture_update_started_cb(capture_options *capture_opts)
 
     statusbar_pop_file_msg();
 
-    if(capture_opts->iface) {
+    if(global_capture_opts.iface) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				      get_iface_description(capture_opts),
-				      (capture_opts->save_file) ? capture_opts->save_file : "");
+				      get_iface_description(&global_capture_opts),
+				      (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
     } else {
         capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
-            (capture_opts->save_file) ? capture_opts->save_file : "");
+            (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
     }
 
     statusbar_push_file_msg(capture_msg);
@@ -605,18 +604,18 @@ statusbar_cf_live_capture_update_continue_cb(capture_file *cf)
 
     if (cf->f_datalen/1024/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d MB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
+				      get_iface_description(&global_capture_opts),
+				      global_capture_opts.save_file,
 				      cf->f_datalen/1024/1024);
     } else if (cf->f_datalen/1024 > 10) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d KB",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
+				      get_iface_description(&global_capture_opts),
+				      global_capture_opts.save_file,
 				      cf->f_datalen/1024);
     } else {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> File: %s %" G_GINT64_MODIFIER "d Bytes",
-				      get_iface_description(capture_opts),
-				      capture_opts->save_file,
+				      get_iface_description(&global_capture_opts),
+				      global_capture_opts.save_file,
 				      cf->f_datalen);
     }
 
@@ -640,8 +639,8 @@ statusbar_cf_live_capture_fixed_started_cb(capture_options *capture_opts)
     statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				  get_iface_description(capture_opts),
-				  (capture_opts->save_file) ? capture_opts->save_file : "");
+				  get_iface_description(&global_capture_opts),
+				  (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
 
     statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");
