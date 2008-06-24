@@ -205,6 +205,7 @@ noinst_HEADERS = \
 	airpcap_gui_utils.h \
 	capture_dlg.h	\
 	capture_file_dlg.h	\
+	capture_globals.h	\
 	cfilter_combo_utils.h \
 	color_dlg.h	\
 	color_edit_dlg.h	\

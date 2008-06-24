@@ -53,6 +53,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
+#include "gtk/capture_globals.h"
 #include "../image/wssplash.xpm"
 
 
@@ -458,20 +459,20 @@ main_welcome_add_recent_capture_files(const char *widget_cf_name)
 static gboolean
 welcome_if_press_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data)
 {
-    if (capture_opts->iface)
-        g_free(capture_opts->iface);
-    if (capture_opts->iface_descr)
-        g_free(capture_opts->iface_descr);
+    if (global_capture_opts.iface)
+        g_free(global_capture_opts.iface);
+    if (global_capture_opts.iface_descr)
+        g_free(global_capture_opts.iface_descr);
 
-    capture_opts->iface = g_strdup(data);
-    capture_opts->iface_descr = NULL;
+    global_capture_opts.iface = g_strdup(data);
+    global_capture_opts.iface_descr = NULL;
     /* XXX - fix this */
-    /*capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);*/
+    /*global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);*/
 
     /* XXX - remove this? */
-    if (capture_opts->save_file) {
-    g_free(capture_opts->save_file);
-    capture_opts->save_file = NULL;
+    if (global_capture_opts.save_file) {
+        g_free(global_capture_opts.save_file);
+        global_capture_opts.save_file = NULL;
     }
 
     capture_start_cb(NULL, NULL);

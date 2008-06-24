@@ -32,6 +32,10 @@
 #ifndef __CAPTURE_OPTS_H__
 #define __CAPTURE_OPTS_H__
 
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>	    /* for gid_t */
+#endif
+
 
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {

@@ -67,6 +67,7 @@
 #include "gtk/capture_file_dlg.h"
 #include "gtk/help_dlg.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/capture_globals.h"
 #include "gtk/cfilter_combo_utils.h"
 
 #ifdef _WIN32

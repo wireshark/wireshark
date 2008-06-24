@@ -91,7 +91,7 @@ pct(gint num, gint denom) {
 
 static gboolean
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
-  capture_opts *capture_opts = data;
+  capture_options *capture_opts = data;
 #ifdef HAVE_AIRPCAP
   airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
@@ -119,7 +119,7 @@ capture_info_ui_update_cb(gpointer data)
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
 capture_info    *cinfo,
-capture_opts	*capture_opts)
+capture_options	*capture_opts)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;

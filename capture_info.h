@@ -32,9 +32,10 @@
 #ifndef __CAPTURE_INFO_H__
 #define __CAPTURE_INFO_H__
 
+#include "capture_opts.h"
 
 /* open the info - init values (wtap, counts), create dialog */
-extern void capture_info_open(capture_opts *capture_opts);
+extern void capture_info_open(capture_options *capture_opts);
 
 /* new file arrived - (eventually close old wtap), open wtap */
 extern gboolean capture_info_new_file(const char *new_filename);
@@ -62,7 +63,7 @@ typedef struct {
 /** Create the capture info dialog */
 extern void capture_info_ui_create(
 capture_info    *cinfo,
-capture_opts	*capture_opts);
+capture_options	*capture_opts);
 
 /** Update the capture info counters in the dialog */
 extern void capture_info_ui_update(

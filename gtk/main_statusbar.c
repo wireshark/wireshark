@@ -48,6 +48,7 @@
 #include "gtk/main_statusbar.h"
 #include "gtk/gui_utils.h"
 #include "gtk/gtkglobals.h"
+#include "gtk/capture_globals.h"
 #include "gtk/expert_comp_dlg.h"
 #include "gtk/profile_dlg.h"
 
@@ -578,13 +579,13 @@ statusbar_cf_live_capture_update_started_cb(capture_options *capture_opts)
 
     statusbar_pop_file_msg();
 
-    if(global_capture_opts.iface) {
+    if(capture_opts->iface) {
         capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				      get_iface_description(&global_capture_opts),
-				      (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
+				      get_iface_description(capture_opts),
+				      (capture_opts->save_file) ? capture_opts->save_file : "");
     } else {
         capture_msg = g_strdup_printf(" <live capture in progress> to file: %s",
-            (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
+            (capture_opts->save_file) ? capture_opts->save_file : "");
     }
 
     statusbar_push_file_msg(capture_msg);
@@ -639,8 +640,8 @@ statusbar_cf_live_capture_fixed_started_cb(capture_options *capture_opts)
     statusbar_pop_file_msg();
 
     capture_msg = g_strdup_printf(" %s: <live capture in progress> to file: %s",
-				  get_iface_description(&global_capture_opts),
-				  (global_capture_opts.save_file) ? global_capture_opts.save_file : "");
+				  get_iface_description(capture_opts),
+				  (capture_opts->save_file) ? capture_opts->save_file : "");
 
     statusbar_push_file_msg(capture_msg);
     gtk_statusbar_push(GTK_STATUSBAR(packets_bar), packets_ctx, " Packets: 0");

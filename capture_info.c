@@ -74,7 +74,7 @@ info_data_t info_data;
 
 
 /* open the info */
-void capture_info_open(capture_opts *capture_opts)
+void capture_info_open(capture_options *capture_opts)
 {
     info_data.counts.total      = 0;
     info_data.counts.sctp       = 0;

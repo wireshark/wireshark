@@ -60,6 +60,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/keys.h"
 #include "gtk/webbrowser.h"
+#include "gtk/capture_globals.h"
 
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"

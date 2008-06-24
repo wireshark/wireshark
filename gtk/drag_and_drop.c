@@ -49,6 +49,7 @@
 #include "gtk/drag_and_drop.h"
 #include "gtk/main.h"
 #include "gtk/main_menu.h"
+#include "gtk/capture_globals.h"
 
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
@@ -306,7 +307,7 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 {
     gpointer  dialog;
-	gchar *cf_names_freeme;
+    gchar *cf_names_freeme;
 
     if (info == DND_TARGET_URL) {
         /* Usually we block incoming events by disabling the corresponding menu/toolbar items.
@@ -316,7 +317,7 @@ GtkSelectionData *selection_data, guint info, guint t _U_, gpointer data _U_)
 
 #ifdef HAVE_LIBPCAP
         /* if a capture is running, do nothing but warn the user */
-        if((capture_opts->state != CAPTURE_STOPPED)) {
+        if((global_capture_opts.state != CAPTURE_STOPPED)) {
             dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                         ESD_BTN_OK,
                         "%sDrag and Drop currently not possible!%s\n\n"
