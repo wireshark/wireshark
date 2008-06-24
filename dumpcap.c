@@ -1865,7 +1865,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   capture_opts_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, capture_opts);
 
   /* open the "input file" from network interface or capture pipe */
-  if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg),
+  if (!capture_loop_open_input(capture_opts, &global_ld, errmsg, sizeof(errmsg),
                                secondary_errmsg, sizeof(secondary_errmsg))) {
     goto error;
   }
@@ -1898,7 +1898,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
     }
 
     /* set up to write to the already-opened capture output file/files */
-    if (!capture_loop_init_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
+    if (!capture_loop_init_output(capture_opts, save_file_fd, &global_ld,
+                                  errmsg, sizeof(errmsg))) {
       goto error;
     }
 
@@ -1949,7 +1950,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /* please fasten your seat belts, we will enter now the actual capture loop */
   while (global_ld.go) {
     /* dispatch incoming packets */
-    inpkts = capture_loop_dispatch(capture_opts, &ld, errmsg, sizeof(errmsg));
+    inpkts = capture_loop_dispatch(capture_opts, &global_ld, errmsg,
+                                   sizeof(errmsg));
 
 #ifdef _WIN32
     /* any news from our parent (signal pipe)? -> just stop the capture */
@@ -2129,7 +2131,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
   if (capture_opts->saving_to_file) {
     /* close the wiretap (output) file */
-    close_ok = capture_loop_close_output(capture_opts, &ld, &err_close);
+    close_ok = capture_loop_close_output(capture_opts, &global_ld, &err_close);
   } else
     close_ok = TRUE;
 
@@ -2175,7 +2177,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* close the input file (pcap or capture pipe) */
-  capture_loop_close_input(&ld);
+  capture_loop_close_input(&global_ld);
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped!");
 
@@ -2207,7 +2209,7 @@ error:
     report_capture_error(errmsg, secondary_errmsg);
 
   /* close the input file (pcap or cap_pipe) */
-  capture_loop_close_input(&ld);
+  capture_loop_close_input(&global_ld);
 
   g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO, "Capture loop stopped with error");
 
