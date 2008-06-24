@@ -401,7 +401,7 @@ void
 dfilter_dump(dfilter_t *df)
 {
 	guint i;
-	gchar *sep = "";
+	const gchar *sep = "";
 
 	dfvm_dump(stdout, df->insns);
 
