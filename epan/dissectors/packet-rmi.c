@@ -125,7 +125,8 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     rmi_type   rmitype;
 
-    char epid_hostname[256];
+    char *epid_hostname;
+	guint epid_len;
 
     offset     = 0;
     rmitype    = 0;
@@ -202,17 +203,14 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		len = tvb_get_ntohs(tvb, 1);
 		proto_tree_add_uint(rmi_tree, hf_rmi_epid_length,
 				       tvb, offset + 1, 2, len);
-		memset(epid_hostname, 0, sizeof(epid_hostname));
-		if (len < sizeof(epid_hostname)) {
-		    g_strlcpy(epid_hostname,tvb_get_ptr(tvb, offset + 3, len),
-			    sizeof(epid_hostname));
+		epid_len = len < ITEM_LABEL_LENGTH ? len : ITEM_LABEL_LENGTH;
+		if (epid_len > 0) {
+			epid_hostname = tvb_format_text(tvb, offset + 3, epid_len);
 		} else {
-		    g_strlcpy(epid_hostname,
-			    "<string too long>", sizeof(epid_hostname));
+			epid_hostname = "[Empty]";
 		}
 		proto_tree_add_string(rmi_tree, hf_rmi_epid_hostname,
-				      tvb, offset + 3, strlen(epid_hostname),
-				      epid_hostname);
+				      tvb, offset + 3, epid_len, epid_hostname);
 
 		port = tvb_get_ntohs(tvb, offset + len + 5);
   		proto_tree_add_uint(rmi_tree, hf_rmi_epid_port,
