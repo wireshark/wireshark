@@ -49,7 +49,9 @@
 #include "gtk/drag_and_drop.h"
 #include "gtk/main.h"
 #include "gtk/main_menu.h"
+#ifdef HAVE_LIBPCAP
 #include "gtk/capture_globals.h"
+#endif
 
 
 enum { DND_TARGET_STRING, DND_TARGET_ROOTWIN, DND_TARGET_URL };
