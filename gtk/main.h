@@ -64,11 +64,6 @@ extern GString *runtime_info_str;
 
 extern GtkWidget* airpcap_tb;
 
-/** Global capture options type. */
-typedef struct capture_options_tag * p_capture_options_t;
-/** Pointer to global capture options. */
-extern p_capture_options_t capture_opts;
-
 extern void protect_thread_critical_region(void);
 extern void unprotect_thread_critical_region(void);
 

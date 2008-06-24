@@ -90,7 +90,8 @@ pct(gint num, gint denom) {
 }
 
 static gboolean
-capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
+capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
+  capture_opts *capture_opts = data;
 #ifdef HAVE_AIRPCAP
   airpcap_set_toolbar_stop_capture(airpcap_if_active);
 #endif
@@ -118,7 +119,7 @@ capture_info_ui_update_cb(gpointer data)
 /* will keep pointers to the fields in the counts parameter */
 void capture_info_ui_create(
 capture_info    *cinfo,
-const gchar     *iface)
+capture_opts	*capture_opts)
 {
   unsigned int      i;
   GtkWidget         *main_vb, *stop_bt, *counts_tb;
@@ -167,7 +168,7 @@ const gchar     *iface)
    * it might be less cryptic, but if a more descriptive name is
    * available, we should still use that.
    */
-  descr = get_interface_descriptive_name(iface);
+  descr = get_interface_descriptive_name(capture_opts->iface);
   title_iface = g_strdup_printf("Wireshark: Capture from %s", descr);
   g_free(descr);
   cap_w_title = create_user_window_title(title_iface);

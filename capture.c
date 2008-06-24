@@ -142,7 +142,7 @@ capture_start(capture_options *capture_opts)
       cf_callback_invoke(cf_cb_live_capture_prepared, capture_opts);
 
       if(capture_opts->show_info)
-        capture_info_open(capture_opts->iface);
+        capture_info_open(capture_opts);
   }
 
   return ret;

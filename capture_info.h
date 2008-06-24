@@ -34,7 +34,7 @@
 
 
 /* open the info - init values (wtap, counts), create dialog */
-extern void capture_info_open(const char *iface);
+extern void capture_info_open(capture_opts *capture_opts);
 
 /* new file arrived - (eventually close old wtap), open wtap */
 extern gboolean capture_info_new_file(const char *new_filename);
@@ -62,7 +62,7 @@ typedef struct {
 /** Create the capture info dialog */
 extern void capture_info_ui_create(
 capture_info    *cinfo,
-const gchar     *iface);
+capture_opts	*capture_opts);
 
 /** Update the capture info counters in the dialog */
 extern void capture_info_ui_update(

@@ -74,7 +74,7 @@ info_data_t info_data;
 
 
 /* open the info */
-void capture_info_open(const char *iface)
+void capture_info_open(capture_opts *capture_opts)
 {
     info_data.counts.total      = 0;
     info_data.counts.sctp       = 0;
@@ -92,7 +92,7 @@ void capture_info_open(const char *iface)
     info_data.wtap = NULL;
     info_data.ui.counts = &info_data.counts;
 
-    capture_info_ui_create(&info_data.ui, iface);
+    capture_info_ui_create(&info_data.ui, capture_opts);
 }
 
 
