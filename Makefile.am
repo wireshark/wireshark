@@ -755,6 +755,7 @@ EXTRA_DIST = \
 	image/wslogo.eps	\
 	image/wslogo.svg	\
 	image/wssplash.xpm	\
+	image/wssplash-dev.xpm	\
 	make-authors-format.pl	\
 	make-authors-short.pl	\
 	make-manuf		\

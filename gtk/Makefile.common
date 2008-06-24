@@ -124,7 +124,7 @@ WIRESHARK_GTK_SRC = \
 	voip_calls.c	\
 	webbrowser.c
 
-about_dlg.c: ../image/wssplash.xpm
+about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\

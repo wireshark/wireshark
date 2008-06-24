@@ -54,7 +54,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
 #include "gtk/capture_globals.h"
-#include "../image/wssplash.xpm"
+#include "../image/wssplash-dev.xpm"
 
 
 /* XXX */

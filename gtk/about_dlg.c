@@ -49,7 +49,7 @@
 #include "gtk/main.h"
 #include "gtk/plugins_dlg.h"
 
-#include "../image/wssplash.xpm"
+#include "../image/wssplash-dev.xpm"
 #include "webbrowser.h"
 
 static void about_wireshark_destroy_cb(GtkWidget *, gpointer);
@@ -358,9 +358,9 @@ about_folders_page_new(void)
   const gchar *titles[] = { "Name", "Folder", "Typical Files"};
   GtkWidget *scrolledwindow;
 #ifdef HAVE_LIBSMI
-  gint i; 
+  gint i;
   gchar **resultArray;
-#endif 
+#endif
 
   scrolledwindow = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -370,7 +370,7 @@ about_folders_page_new(void)
   table = simple_list_new(3, titles);
 
   /* connect a callback so we can spot a double-click */
-  gtk_signal_connect(GTK_OBJECT(table), "button_press_event", 
+  gtk_signal_connect(GTK_OBJECT(table), "button_press_event",
 		     GTK_SIGNAL_FUNC(about_folders_callback), (gpointer)0);
 
   simple_list_url_col(table, 1);
@@ -430,7 +430,7 @@ about_folders_page_new(void)
   resultArray = g_strsplit(path, ":", 10);
 #endif
 
-  for(i = 0; resultArray[i]; i++) 
+  for(i = 0; resultArray[i]; i++)
     about_folders_row(table, "MIB/PIB path", g_strstrip(resultArray[i]),
 		      "SMI MIB/PIB search path");
   g_strfreev(resultArray);
