@@ -30,24 +30,28 @@
 #include "buffer.h"
 #include "atm.h"
 #include "btsnoop.h"
-/* See RFC 1761 for a description of the "snoop" file format. */
+
+/*
+ * Symbian's btsnoop format is derived from Sun's snoop format.
+ * See RFC 1761 for a description of the "snoop" file format.
+ */
 
 /* Magic number in "btsnoop" files. */
 static const char btsnoop_magic[] = {
 	'b', 't', 's', 'n', 'o', 'o', 'p', '\0'
 };
 
-/* "snoop" file header (minus magic number). */
+/* "btsnoop" file header (minus magic number). */
 struct btsnoop_hdr {
 	guint32	version;	/* version number (should be 1) */
 	guint32	datalink;	/* datalink type */
 };
 
-/* "snoop" record header. */
+/* "btsnoop" record header. */
 struct btsnooprec_hdr {
 	guint32	orig_len;	/* actual length of packet */
 	guint32	incl_len;	/* number of octets captured in file */
-	guint32	flags;	/* packet flags */
+	guint32	flags;		/* packet flags */
 	guint32	cum_drops;	/* cumulative number of dropped packets */
 	gint64	ts_usec;	/* timestamp microseconds */
 };
@@ -84,7 +88,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info _U_)
 
 	int file_encap=WTAP_ENCAP_UNKNOWN;
 
-	/* Read in the string that should be at the start of a "snoop" file */
+	/* Read in the string that should be at the start of a "btsnoop" file */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read(magic, 1, sizeof magic, wth->fh);
 	if (bytes_read != sizeof magic) {
@@ -173,11 +177,6 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 	}
 	wth->data_offset += sizeof hdr;
-	if(sizeof hdr!=24)
-	{
-		*err_info="wrong header size";
-		return FALSE;
-	}
 
 	packet_size = g_ntohl(hdr.incl_len);
 	orig_size = g_ntohl(hdr.orig_len);
@@ -188,7 +187,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_RECORD;
-		*err_info = g_strdup_printf("snoop: File has %u-byte packet, bigger than maximum of %u",
+		*err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
 		return FALSE;
 	}
