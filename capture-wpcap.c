@@ -103,6 +103,14 @@ static int     (*p_pcap_createsrcstr) (char *, int, const char *, const char *,
 static struct pcap_samp* (*p_pcap_setsampling)(pcap_t *);
 #endif
 
+#ifdef HAVE_PCAP_LIST_DATALINKS
+static int 	(*p_pcap_list_datalinks)(pcap_t *, int **);
+#endif
+
+#ifdef HAVE_PCAP_SET_DATALINK
+static int	(*p_pcap_set_datalink)(pcap_t *, int);
+#endif
+
 typedef struct {
 	const char	*name;
 	gpointer	*ptr;
@@ -160,6 +168,12 @@ load_wpcap(void)
 		SYM(pcap_lib_version, TRUE),
 		SYM(pcap_setbuff, TRUE),
 		SYM(pcap_next_ex, TRUE),
+#ifdef HAVE_PCAP_LIST_DATALINKS
+		SYM(pcap_list_datalinks, FALSE),
+#endif
+#ifdef HAVE_PCAP_SET_DATALINK
+		SYM(pcap_set_datalink, FALSE),
+#endif
 		{ NULL, NULL, FALSE }
 	};
 
@@ -236,6 +250,15 @@ pcap_datalink(pcap_t *a)
 	g_assert(has_wpcap);
 	return p_pcap_datalink(a);
 }
+
+#ifdef HAVE_PCAP_SET_DATALINK
+int
+pcap_set_datalink(pcap_t *p, int dlt)
+{
+	g_assert(has_wpcap);
+	return p_pcap_set_datalink(p, dlt);
+}
+#endif
 
 int
 pcap_setfilter(pcap_t *a, struct bpf_program *b)
@@ -468,6 +491,15 @@ pcap_datalink_name_to_val(const char *name)
 		}
 		return -1;
 	}
+}
+#endif
+
+#ifdef HAVE_PCAP_LIST_DATALINKS
+int
+pcap_list_datalinks(pcap_t *p, int **ddlt)
+{
+	g_assert(has_wpcap);
+	return p_pcap_list_datalinks(p, ddlt);
 }
 #endif
 
