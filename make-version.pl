@@ -192,7 +192,7 @@ sub update_config_nmake
 	my $version = "";
 	my $update_ve = 0;
 	
-	if ($package_string eq "") { $update_ve = 1; };
+	if ($package_string ne "") { $update_ve = 1; };
 	
 	open(CFGIN, "< config.nmake") || die "Can't read config.nmake!";
 	while ($line = <CFGIN>) {
