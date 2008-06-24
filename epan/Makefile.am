@@ -102,8 +102,10 @@ CLEANFILES = \
 	libwireshark.la			\
 	libwireshark_generated.a 	\
 	libwireshark_generated.la 	\
-	libwireshark_asmopt.a 	\
-	libwireshark_asmopt.la 	\
+	libwireshark_asmopt.a 		\
+	libwireshark_asmopt.la 		\
+	inet_ntop.c			\
+	inet_pton.c			\
 	*~
 
 DISTCLEANFILES = \
@@ -171,6 +173,12 @@ tvbtest.o exntest.o: exceptions.h
 
 sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) $(srcdir)/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
+
+inet_ntop.c:
+	ln -s ../inet_ntop.c .
+
+inet_pton.c:
+	ln -s ../inet_pton.c .
 
 if HAVE_PLUGINS
 
