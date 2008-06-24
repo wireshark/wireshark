@@ -49,7 +49,6 @@ static int hf_bat_batman_hna_netmask = -1;
 /* flags */
 static int hf_bat_batman_flags_unidirectional = -1;
 static int hf_bat_batman_flags_directlink = -1;
-static const gchar *fstr[] = {NULL, NULL, NULL, NULL, NULL, NULL, "DIRECTLINK", "UNIDIRECTIONAL" };
 
 /* gwflags */
 /* unknown */
