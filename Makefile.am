@@ -310,6 +310,7 @@ wireshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	@INET_PTON_LO@			\
+	@INET_NTOP_LO@			\
 	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -319,6 +320,10 @@ wireshark_LDADD = \
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@		\
 	@PORTAUDIO_LIBS@
+
+wireshark_DEPENDENCIES =		\
+	@INET_PTON_LO@			\
+	@INET_NTOP_LO@
 
 if ENABLE_STATIC
 tshark_LDFLAGS = -Wl,-static -all-static
@@ -332,6 +337,7 @@ tshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	@INET_PTON_LO@			\
+	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -342,6 +348,10 @@ tshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
+
+tshark_DEPENDENCIES =			\
+	@INET_PTON_LO@			\
+	@INET_NTOP_LO@
 
 if ENABLE_STATIC
 rawshark_LDFLAGS = -Wl,-static -all-static
@@ -355,6 +365,7 @@ rawshark_LDADD = \
 	wiretap/libwiretap.la		\
 	epan/libwireshark.la		\
 	@INET_PTON_LO@			\
+	@INET_NTOP_LO@			\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
 	@PCRE_LIBS@			\
@@ -365,6 +376,10 @@ rawshark_LDADD = \
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
 	@LIBSMI_LDFLAGS@
+
+rawshark_DEPENDENCIES =			\
+	@INET_PTON_LO@			\
+	@INET_NTOP_LO@
 
 # Optional objects that I know how to build, and that are needed by
 # text2pcap.
@@ -420,6 +435,9 @@ dumpcap_LDADD = \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @FRAMEWORKS@ \
 	@LIBGCRYPT_LIBS@		\
 	@LIBCAP_LIBS@
+
+dumpcap_DEPENDENCIES =			\
+	@INET_NTOP_LO@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \

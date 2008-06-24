@@ -174,10 +174,10 @@ load_wpcap(void)
 		SYM(pcap_setbuff, TRUE),
 		SYM(pcap_next_ex, TRUE),
 #ifdef HAVE_PCAP_LIST_DATALINKS
-		SYM(pcap_list_datalinks, TRUE),
-#endif			
+		SYM(pcap_list_datalinks, FALSE),
+#endif
 #ifdef HAVE_PCAP_SET_DATALINK
-		SYM(pcap_set_datalink, TRUE),
+		SYM(pcap_set_datalink, FALSE),
 #endif
 		{ NULL, NULL, FALSE }
 	};

@@ -71,6 +71,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The RMI dissector could disclose system memory. Discovered by
+	    Noam Rathus.
+            <!-- Fixed in r25584, r25586 -->
+          </para>
+          <para>Versions affected: 0.9.5 to 1.0.0</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -328,6 +340,7 @@ LDAP,
 MGCP,
 MIKEY,
 MSMMS,
+RMI,
 RPC,
 RTCP,
 RTP,

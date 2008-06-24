@@ -2264,9 +2264,12 @@ write_psml_packet(capture_file *cf, frame_data *fdata,
 {
   FILE *fh = argsp;
   epan_dissect_t *edt;
+  gboolean proto_tree_needed;
 
-  /* Fill in the column information, but don't create the protocol tree. */
-  edt = epan_dissect_new(FALSE, FALSE);
+  /* Fill in the column information, only create the protocol tree
+     if having custom columns. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo);
+  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(edt);
 
@@ -2335,9 +2338,12 @@ write_csv_packet(capture_file *cf, frame_data *fdata,
 {
   FILE *fh = argsp;
   epan_dissect_t *edt;
+  gboolean proto_tree_needed;
 
-  /* Fill in the column information, but don't create the protocol tree. */
-  edt = epan_dissect_new(FALSE, FALSE);
+  /* Fill in the column information, only create the protocol tree
+     if having custom columns. */
+  proto_tree_needed = have_custom_cols(&cf->cinfo);
+  edt = epan_dissect_new(proto_tree_needed, proto_tree_needed);
   epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(edt);
 
