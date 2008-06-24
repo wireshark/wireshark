@@ -33,6 +33,26 @@
 
 #include "capture_opts.h"
 
+typedef enum {
+    capture_cb_capture_prepared,
+    capture_cb_capture_update_started,
+    capture_cb_capture_update_continue,
+    capture_cb_capture_update_finished,
+    capture_cb_capture_fixed_started,
+    capture_cb_capture_fixed_continue,
+    capture_cb_capture_fixed_finished,
+    capture_cb_capture_stopping
+} capture_cbs;
+
+typedef void (*capture_callback_t) (gint event, capture_options *capture_opts,
+                                    gpointer user_data);
+
+extern void
+capture_callback_add(capture_callback_t func, gpointer user_data);
+
+extern void
+capture_callback_remove(capture_callback_t func);
+
 /**
  * Start a capture session.
  *

@@ -104,6 +104,62 @@ struct if_stat_cache_s {
     GList *cache_list;  /* List of if_stat_chache_entry_t */
 };
 
+/* this callback mechanism should possibly be replaced by the g_signal_...() stuff (if I only would know how :-) */
+typedef struct {
+    capture_callback_t cb_fct;
+    gpointer user_data;
+} capture_callback_data_t;
+
+static GList *capture_callbacks = NULL;
+
+static void
+capture_callback_invoke(int event, capture_options *capture_opts)
+{
+    capture_callback_data_t *cb;
+    GList *cb_item = capture_callbacks;
+
+    /* there should be at least one interested */
+    g_assert(cb_item != NULL);
+
+    while(cb_item != NULL) {
+        cb = cb_item->data;
+        cb->cb_fct(event, capture_opts, cb->user_data);
+        cb_item = g_list_next(cb_item);
+    }
+}
+
+
+void
+capture_callback_add(capture_callback_t func, gpointer user_data)
+{
+    capture_callback_data_t *cb;
+
+    cb = g_malloc(sizeof(capture_callback_data_t));
+    cb->cb_fct = func;
+    cb->user_data = user_data;
+
+    capture_callbacks = g_list_append(capture_callbacks, cb);
+}
+
+void
+capture_callback_remove(capture_callback_t func)
+{
+    capture_callback_data_t *cb;
+    GList *cb_item = capture_callbacks;
+
+    while(cb_item != NULL) {
+        cb = cb_item->data;
+        if(cb->cb_fct == func) {
+            capture_callbacks = g_list_remove(capture_callbacks, cb);
+            g_free(cb);
+            return;
+        }
+        cb_item = g_list_next(cb_item);
+    }
+
+    g_assert_not_reached();
+}
+
 /**
  * Start a capture.
  *
@@ -139,7 +195,7 @@ capture_start(capture_options *capture_opts)
 
       /* to prevent problems, bring the main GUI into "capture mode" right after successfully */
       /* spawn/exec the capture child, without waiting for any response from it */
-      cf_callback_invoke(cf_cb_live_capture_prepared, capture_opts);
+      capture_callback_invoke(capture_cb_capture_prepared, capture_opts);
 
       if(capture_opts->show_info)
         capture_info_open(capture_opts);
@@ -154,7 +210,7 @@ capture_stop(capture_options *capture_opts)
 {
   g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Stop ...");
 
-  cf_callback_invoke(cf_cb_live_capture_stopping, capture_opts);
+  capture_callback_invoke(capture_cb_capture_stopping, capture_opts);
 
   /* stop the capture child gracefully */
   sync_pipe_stop(capture_opts);
@@ -295,7 +351,7 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
     /* we start a new capture file, close the old one (if we had one before) */
     /* (we can only have an open capture file in real_time_mode!) */
     if( ((capture_file *) capture_opts->cf)->state != FILE_CLOSED) {
-        cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
+        capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
         cf_finish_tail(capture_opts->cf, &err);
         cf_close(capture_opts->cf);
     }
@@ -332,9 +388,9 @@ capture_input_new_file(capture_options *capture_opts, gchar *new_file)
   }
 
   if(capture_opts->real_time_mode) {
-    cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
+    capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
   } else {
-    cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
+    capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
   }
   capture_opts->state = CAPTURE_RUNNING;
 
@@ -362,7 +418,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
          file.
 
          XXX - abort on a read error? */
-         cf_callback_invoke(cf_cb_live_capture_update_continue, capture_opts->cf);
+         capture_callback_invoke(capture_cb_capture_update_continue, capture_opts);
       break;
 
     case CF_READ_ABORTED:
@@ -376,7 +432,7 @@ capture_input_new_packets(capture_options *capture_opts, int to_read)
     cf_set_packet_count(capture_opts->cf,
         cf_get_packet_count(capture_opts->cf) + to_read);
 
-    cf_callback_invoke(cf_cb_live_capture_fixed_continue, capture_opts->cf);
+    capture_callback_invoke(capture_cb_capture_fixed_continue, capture_opts);
   }
 
   /* update the main window, so we get events (e.g. from the stop toolbar button) */
@@ -498,9 +554,9 @@ capture_input_closed(capture_options *capture_opts)
     /* (happens if we got an error message - we won't get a filename then) */
     if(capture_opts->state == CAPTURE_PREPARING) {
         if(capture_opts->real_time_mode) {
-            cf_callback_invoke(cf_cb_live_capture_update_started, capture_opts);
+            capture_callback_invoke(capture_cb_capture_update_started, capture_opts);
         } else {
-            cf_callback_invoke(cf_cb_live_capture_fixed_started, capture_opts);
+            capture_callback_invoke(capture_cb_capture_fixed_started, capture_opts);
         }
     }
 
@@ -515,7 +571,7 @@ capture_input_closed(capture_options *capture_opts)
         /* Tell the GUI, we are not doing a capture any more.
 		   Must be done after the cf_finish_tail(), so file lengths are displayed
 		   correct. */
-        cf_callback_invoke(cf_cb_live_capture_update_finished, capture_opts->cf);
+        capture_callback_invoke(capture_cb_capture_update_finished, capture_opts);
 
         /* Finish the capture. */
         switch (status) {
@@ -556,7 +612,7 @@ capture_input_closed(capture_options *capture_opts)
 
     } else {
         /* first of all, we are not doing a capture any more */
-        cf_callback_invoke(cf_cb_live_capture_fixed_finished, capture_opts->cf);
+        capture_callback_invoke(capture_cb_capture_fixed_finished, capture_opts);
 
         /* this is a normal mode capture and if no error happened, read in the capture file data */
         if(capture_opts->save_file != NULL) {

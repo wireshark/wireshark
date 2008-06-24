@@ -131,6 +131,7 @@
 #include "gtk/main_menu.h"
 #include "gtk/main_packet_list.h"
 #include "gtk/main_statusbar.h"
+#include "gtk/main_statusbar_private.h"
 #include "gtk/main_toolbar.h"
 #include "gtk/main_welcome.h"
 #include "gtk/drag_and_drop.h"
@@ -1285,7 +1286,7 @@ GList *icon_list_create(
 
 #ifdef HAVE_LIBPCAP
 static void
-main_cf_cb_live_capture_prepared(capture_options *capture_opts)
+main_capture_cb_capture_prepared(capture_options *capture_opts)
 {
     gchar *title;
     static GList *icon_list = NULL;
@@ -1315,7 +1316,7 @@ main_cf_cb_live_capture_prepared(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_update_started(capture_options *capture_opts)
+main_capture_cb_capture_update_started(capture_options *capture_opts)
 {
     gchar *title;
 
@@ -1342,8 +1343,9 @@ main_cf_cb_live_capture_update_started(capture_options *capture_opts)
 }
 
 static void
-main_cf_cb_live_capture_update_finished(capture_file *cf)
+main_capture_cb_capture_update_finished(capture_options *capture_opts)
 {
+    capture_file *cf = capture_opts->cf;
     static GList *icon_list = NULL;
 
     set_display_filename(cf);
@@ -1373,15 +1375,18 @@ main_cf_cb_live_capture_update_finished(capture_file *cf)
 }
 
 static void
-main_cf_cb_live_capture_fixed_started(capture_options *capture_opts _U_)
+main_capture_cb_capture_fixed_started(capture_options *capture_opts _U_)
 {
     /* Don't set up main window for a capture file. */
     main_set_for_capture_file(FALSE);
 }
 
 static void
-main_cf_cb_live_capture_fixed_finished(capture_file *cf _U_)
+main_capture_cb_capture_fixed_finished(capture_options *capture_opts _U_)
 {
+#if 0
+    capture_file *cf = capture_opts->cf;
+#endif
     static GList *icon_list = NULL;
 
     /*set_display_filename(cf);*/
@@ -1477,39 +1482,6 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: Read finished");
         main_cf_cb_file_read_finished(data);
         break;
-#ifdef HAVE_LIBPCAP
-    case(cf_cb_live_capture_prepared):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
-        main_cf_cb_live_capture_prepared(data);
-        break;
-    case(cf_cb_live_capture_update_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
-        main_cf_cb_live_capture_update_started(data);
-        break;
-    case(cf_cb_live_capture_update_continue):
-        /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
-        break;
-    case(cf_cb_live_capture_update_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
-        main_cf_cb_live_capture_update_finished(data);
-        break;
-    case(cf_cb_live_capture_fixed_started):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
-        main_cf_cb_live_capture_fixed_started(data);
-        break;
-    case(cf_cb_live_capture_fixed_continue):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
-        break;
-    case(cf_cb_live_capture_fixed_finished):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
-        main_cf_cb_live_capture_fixed_finished(data);
-        break;
-    case(cf_cb_live_capture_stopping):
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
-        /* Beware: this state won't be called, if the capture child
-         * closes the capturing on it's own! */
-        break;
-#endif
     case(cf_cb_packet_selected):
         main_cf_cb_packet_selected(data);
         break;
@@ -1537,6 +1509,49 @@ main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         g_assert_not_reached();
     }
 }
+
+#ifdef HAVE_LIBPCAP
+static void
+main_capture_callback(gint event, capture_options *capture_opts, gpointer user_data _U_)
+{
+    switch(event) {
+    case(capture_cb_capture_prepared):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture prepared");
+        main_capture_cb_capture_prepared(capture_opts);
+        break;
+    case(capture_cb_capture_update_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update started");
+        main_capture_cb_capture_update_started(capture_opts);
+        break;
+    case(capture_cb_capture_update_continue):
+        /*g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update continue");*/
+        break;
+    case(capture_cb_capture_update_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture update finished");
+        main_capture_cb_capture_update_finished(capture_opts);
+        break;
+    case(capture_cb_capture_fixed_started):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed started");
+        main_capture_cb_capture_fixed_started(capture_opts);
+        break;
+    case(capture_cb_capture_fixed_continue):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed continue");
+        break;
+    case(capture_cb_capture_fixed_finished):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture fixed finished");
+        main_capture_cb_capture_fixed_finished(capture_opts);
+        break;
+    case(capture_cb_capture_stopping):
+        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Callback: capture stopping");
+        /* Beware: this state won't be called, if the capture child
+         * closes the capturing on it's own! */
+        break;
+    default:
+        g_warning("main_capture_callback: event %u unknown", event);
+        g_assert_not_reached();
+    }
+}
+#endif
 
 static void
 get_gui_compiled_info(GString *str)
@@ -1928,7 +1943,13 @@ main(int argc, char *argv[])
   gtk_init (&argc, &argv);
 
   cf_callback_add(main_cf_callback, NULL);
+#ifdef HAVE_LIBPCAP
+  capture_callback_add(main_capture_callback, NULL);
+#endif
   cf_callback_add(statusbar_cf_callback, NULL);
+#ifdef HAVE_LIBPCAP
+  capture_callback_add(statusbar_capture_callback, NULL);
+#endif
 
   /* Arrange that if we have no console window, and a GLib message logging
      routine is called to log a message, we pop up a console window.

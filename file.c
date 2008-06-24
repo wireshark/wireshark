@@ -135,9 +135,9 @@ typedef struct {
     gpointer user_data;
 } cf_callback_data_t;
 
-GList *cf_callbacks = NULL;
+static GList *cf_callbacks = NULL;
 
-void
+static void
 cf_callback_invoke(int event, gpointer data)
 {
     cf_callback_data_t *cb;

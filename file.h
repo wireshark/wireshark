@@ -60,16 +60,6 @@ typedef enum {
     cf_cb_file_closed,
     cf_cb_file_read_start,
     cf_cb_file_read_finished,
-#ifdef HAVE_LIBPCAP
-    cf_cb_live_capture_prepared,
-    cf_cb_live_capture_update_started,
-    cf_cb_live_capture_update_continue,
-    cf_cb_live_capture_update_finished,
-    cf_cb_live_capture_fixed_started,
-    cf_cb_live_capture_fixed_continue,
-    cf_cb_live_capture_fixed_finished,
-	cf_cb_live_capture_stopping,
-#endif
     cf_cb_packet_selected,
     cf_cb_packet_unselected,
     cf_cb_field_unselected,
@@ -80,9 +70,6 @@ typedef enum {
 } cf_cbs;
 
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
-
-extern void
-cf_callback_invoke(int event, gpointer data);
 
 extern void
 cf_callback_add(cf_callback_t func, gpointer user_data);
