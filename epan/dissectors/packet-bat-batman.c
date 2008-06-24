@@ -217,10 +217,7 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	struct batman_packet_v5 *batman_packeth;
 	const guint8  *old_orig_addr, *orig_addr;
 	guint32 old_orig, orig;
-	gchar      *flags = "<None>";
 	gint i;
-	guint      bpos;
-	size_t     fpos = 0, returned_length;
 
 	tvbuff_t *next_tvb;
 	guint length_remaining;
@@ -300,21 +297,6 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, FALSE);
 		offset += 1;
-	}
-
-	if (check_col(pinfo->cinfo, COL_INFO) || tree) {
-#define MAX_FLAGS_LEN 64
-		flags = ep_alloc(MAX_FLAGS_LEN);
-		flags[0] = 0;
-		for (i = 0; i < 8; i++) {
-			bpos = 1 << i;
-			if ((batman_packeth->flags & bpos) && (fstr[i] != NULL)) {
-				returned_length = g_snprintf(&flags[fpos], MAX_FLAGS_LEN - fpos, "%s%s",
-				                             fpos ? ", " : "",
-				                             fstr[i]);
-				fpos += MIN(returned_length, MAX_FLAGS_LEN - fpos);
-			}
-		}
 	}
 
 	tap_queue_packet(bat_tap, pinfo, batman_packeth);
