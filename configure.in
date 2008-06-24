@@ -235,17 +235,14 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-long-long)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshorten-64-to-32)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wstrict-prototypes)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wmissing-declarations)
 		#Temporarily put cast-align here waiting eradication of 'cast
 		#increases required alignment of target type' on the Solaris
 		#slave.
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 		#Temporarily put shadow here awaiting eradication of a pile
 		#of new warnings.
-		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
 	fi
 ],)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wall -W) /* -W is now known as -Wextra */
@@ -254,6 +251,9 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wendif-labels)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wpointer-arith)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-pointer-sign)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Warray-bounds)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
+AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wshadow)
 
 #
 # If we're running gcc add '-D_U_="__attribute__((unused))"' to CFLAGS as well,
