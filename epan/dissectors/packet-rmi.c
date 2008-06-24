@@ -210,7 +210,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			epid_hostname = "[Empty]";
 		}
 		proto_tree_add_string(rmi_tree, hf_rmi_epid_hostname,
-				      tvb, offset + 3, epid_len, epid_hostname);
+				      tvb, offset + 3, len, epid_hostname);
 
 		port = tvb_get_ntohs(tvb, offset + len + 5);
   		proto_tree_add_uint(rmi_tree, hf_rmi_epid_port,
