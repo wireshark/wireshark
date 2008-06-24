@@ -332,6 +332,10 @@ extern void prefs_to_capture_opts(void);
 /** Change configuration profile */
 extern void change_configuration_profile(const gchar *profile_name);
 
+#ifdef HAVE_LIBPCAP
+extern capture_opts global_capture_opts;
+#endif
+
 extern GtkWidget *pkt_scrollw;
 
 #endif /* __MAIN_H__ */

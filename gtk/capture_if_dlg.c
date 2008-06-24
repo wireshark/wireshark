@@ -133,18 +133,18 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
   airpcap_if_selected = airpcap_if_active;
 #endif
 
-  if (capture_opts->iface)
-    g_free(capture_opts->iface);
-  if (capture_opts->iface_descr)
-    g_free(capture_opts->iface_descr);
+  if (global_capture_opts.iface)
+    g_free(global_capture_opts.iface);
+  if (global_capture_opts.iface_descr)
+    g_free(global_capture_opts.iface_descr);
 
-  capture_opts->iface = g_strdup(if_dlg_data->device);
-  capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
+  global_capture_opts.iface = g_strdup(if_dlg_data->device);
+  global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
 
   /* XXX - remove this? */
-  if (capture_opts->save_file) {
-    g_free(capture_opts->save_file);
-    capture_opts->save_file = NULL;
+  if (global_capture_opts.save_file) {
+    g_free(global_capture_opts.save_file);
+    global_capture_opts.save_file = NULL;
   }
 
   /* stop capturing from all interfaces, we are going to do real work now ... */
@@ -160,13 +160,13 @@ capture_prepare_cb(GtkWidget *prepare_bt _U_, gpointer if_data)
 {
   if_dlg_data_t *if_dlg_data = if_data;
 
-  if (capture_opts->iface)
-    g_free(capture_opts->iface);
-  if (capture_opts->iface_descr)
-    g_free(capture_opts->iface_descr);
+  if (global_capture_opts.iface)
+    g_free(global_capture_opts.iface);
+  if (global_capture_opts.iface_descr)
+    g_free(global_capture_opts.iface_descr);
 
-  capture_opts->iface = g_strdup(if_dlg_data->device);
-  capture_opts->iface_descr = get_interface_descriptive_name(capture_opts->iface);
+  global_capture_opts.iface = g_strdup(if_dlg_data->device);
+  global_capture_opts.iface_descr = get_interface_descriptive_name(global_capture_opts.iface);
 
   /* stop capturing from all interfaces, we are going to do real work now ... */
   window_destroy(cap_if_w);
