@@ -175,10 +175,10 @@ sminmpec.c: enterprise-numbers make-sminmpec.pl
 	$(PERL) $(srcdir)/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
 
 inet_ntop.c:
-	ln -s ../inet_ntop.c .
+	ln -s $(srcdir)/../inet_ntop.c .
 
 inet_pton.c:
-	ln -s ../inet_pton.c .
+	ln -s $(srcdir)/../inet_pton.c .
 
 if HAVE_PLUGINS
 
