@@ -2562,7 +2562,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
 
 	length = BYTE_TO_NIB(mac_len - sizeof(mac_crc) - 1); /* convert length to nibbles */
 
-	while (nib < length) {
+	while (dl_ie_count--) {
 	    nib += dissect_dlmap_ie(ie_tree, bufptr, nib, tvb_len * 2, tvb);
 	}
 	pad = NIB_PADDING(nib);
