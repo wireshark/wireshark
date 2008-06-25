@@ -140,7 +140,7 @@ static int ett_imf_extension = -1;
 static int ett_imf_message_text = -1;
 
 struct imf_field {
-  char         *name;     /* field name - in lower case for matching purposes */
+  const char   *name;     /* field name - in lower case for matching purposes */
   int          *hf_id;       /* wireshark field */
   void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item);
   gboolean     add_to_col_info; /* add field to column info */

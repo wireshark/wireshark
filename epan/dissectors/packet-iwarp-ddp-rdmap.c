@@ -264,7 +264,7 @@ void
 ddp_rdma_packetlist(packet_info *pinfo, gboolean ddp_last_flag, 
 		guint8 rdma_msg_opcode)
 {
-	gchar *ddp_fragment_state;
+	const gchar *ddp_fragment_state;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP/RDMA");

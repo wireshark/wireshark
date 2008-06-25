@@ -131,11 +131,11 @@ extern gint host_name_lookup_process(gpointer data);
 extern void host_name_lookup_cleanup(void);
 
 /* get_hostname returns the host name or "%d.%d.%d.%d" if not found */
-extern gchar *get_hostname(guint addr);
+extern const gchar *get_hostname(guint addr);
 
 /* get_hostname6 returns the host name, or numeric addr if not found */
 struct e_in6_addr;
-const gchar* get_hostname6(struct e_in6_addr *ad);
+extern const gchar* get_hostname6(struct e_in6_addr *ad);
 
 /* get_ether_name returns the logical name if found in ethers files else
    "<vendor>_%02x:%02x:%02x" if the vendor code is known else

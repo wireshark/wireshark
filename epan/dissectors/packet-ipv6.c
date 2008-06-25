@@ -922,7 +922,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 }
 
 static void
-dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offset, guchar * label)
+dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offset, const guchar * label)
 {
   guint8 tmp[6];
   guchar * ct_str;
@@ -943,7 +943,8 @@ dissect_shim6_ct(proto_tree * shim_tree, gint hf_item, tvbuff_t * tvb, gint offs
 
 static void
 dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
-		      guchar * label, guint nbr_probe, gboolean probes_rcvd)
+                     const guchar * label, guint nbr_probe,
+		     gboolean probes_rcvd)
 {
   proto_tree * probes_tree;
   proto_tree * probe_tree;

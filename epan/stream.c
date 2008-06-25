@@ -488,7 +488,7 @@ stream_pdu_fragment_t *stream_add_frag( stream_t *stream, guint32 framenum, guin
 
 tvbuff_t *stream_process_reassembled(
     tvbuff_t *tvb, int offset, packet_info *pinfo,
-    char *name, const stream_pdu_fragment_t *frag,
+    const char *name, const stream_pdu_fragment_t *frag,
     const struct _fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree)
 {

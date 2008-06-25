@@ -898,7 +898,7 @@ dissect_address_tlv(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
     const char *protocol_str;
     guint16 address_length;
     const char *address_type_str;
-    char *address_str;
+    const char *address_str;
 
     if (length < 1)
         return -1;

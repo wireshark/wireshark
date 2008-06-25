@@ -1396,7 +1396,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   SET_ADDRESS(&pinfo->src, AT_IPv4, 4, src_addr);
   SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, src_addr);
   if (tree) {
-    char *src_host;
+    const char *src_host;
 
     memcpy(&addr, iph->ip_src.data, 4);
     src_host = get_hostname(addr);
@@ -1438,7 +1438,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   }
 
   if (tree) {
-    char *dst_host;
+    const char *dst_host;
 
     memcpy(&addr, iph->ip_dst.data, 4);
     dst_host = get_hostname(addr);

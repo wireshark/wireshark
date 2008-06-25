@@ -188,7 +188,7 @@ dissect_png_bkgd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 typedef struct _chunk_dissector_t {
 	guint32 type;
-	char *name;
+	const char *name;
 	void (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 } chunk_dissector_t;
 

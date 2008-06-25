@@ -398,7 +398,7 @@ static struct v9_template *v9_template_get(guint16 id, address  * net_src,
 					   guint32 src_id);
 static const char *   decode_v9_template_types(int type);
 
-static gchar   *getprefix(const guint32 * address, int prefix);
+static const gchar *getprefix(const guint32 * address, int prefix);
 
 static int      flow_process_ints(proto_tree * pdutree, tvbuff_t * tvb,
 				  int offset);
@@ -2214,7 +2214,7 @@ dissect_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, hdrinfo_t * hdrinf
 	return (offset - startoffset);
 }
 
-static gchar   *
+static const gchar   *
 getprefix(const guint32 * address, int prefix)
 {
 	guint32         gprefix;

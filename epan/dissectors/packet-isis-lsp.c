@@ -429,7 +429,7 @@ static void
 dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
 	int  mt_block, mt_id;
-	char *mt_desc="";
+	const char *mt_desc="";
 
 	/* fetch two bytes */
 	mt_block = tvb_get_ntohs(tvb, offset);

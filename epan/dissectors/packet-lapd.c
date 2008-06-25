@@ -396,8 +396,8 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		address, cr, sapi, tei;
 	gboolean	is_response = 0;
 	tvbuff_t	*next_tvb;
-	char		*srcname = "?";
-	char		*dstname = "?";
+	const char	*srcname = "?";
+	const char	*dstname = "?";
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPD");

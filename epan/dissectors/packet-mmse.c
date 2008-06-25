@@ -457,7 +457,7 @@ static const value_string vals_reply_charging[] = {
  * \return		The length in bytes of the entire field
  */
 static guint
-get_text_string(tvbuff_t *tvb, guint offset, char **strval)
+get_text_string(tvbuff_t *tvb, guint offset, const char **strval)
 {
     guint	 len;
 
@@ -466,9 +466,9 @@ get_text_string(tvbuff_t *tvb, guint offset, char **strval)
     len = tvb_strsize(tvb, offset);
     DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	*strval = (char *)tvb_memcpy(tvb, ep_alloc(len-1), offset+1, len-1);
+	*strval = ep_tvb_memdup(tvb, offset+1, len-1);
     else
-	*strval = (char *)tvb_memcpy(tvb, ep_alloc(len), offset, len);
+	*strval = ep_tvb_memdup(tvb, offset, len);
     DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
@@ -517,7 +517,7 @@ get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count)
  * \return		The length in bytes of the entire field
  */
 static guint
-get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
+get_encoded_strval(tvbuff_t *tvb, guint offset, const char **strval)
 {
     guint	 field;
     guint	 length;
@@ -709,7 +709,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 {
     guint	 offset;
     guint8	 field = 0;
-    char	 *strval;
+    const char	 *strval;
     guint	 length;
     guint	 count;
     guint8	 version = 0x80; /* Default to MMSE 1.0 */
@@ -771,16 +771,17 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 		    version = tvb_get_guint8(tvb, offset++);
 		    if (tree) {
 			guint8	 major, minor;
+			char    *vers_string;
 
 			major = (version & 0x70) >> 4;
 			minor = version & 0x0F;
 			if (minor == 0x0F)
-			    strval = g_strdup_printf("%u", major);
+			    vers_string = g_strdup_printf("%u", major);
 			else
-			    strval = g_strdup_printf("%u.%u", major, minor);
+			    vers_string = g_strdup_printf("%u.%u", major, minor);
 			proto_tree_add_string(mmse_tree, hf_mmse_mms_version,
-				tvb, offset - 2, 2, strval);
-			g_free(strval);
+				tvb, offset - 2, 2, vers_string);
+			g_free(vers_string);
 		    }
 		    break;
 		case MM_BCC_HDR:		/* Encoded-string-value	*/
@@ -1276,8 +1277,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			}
 			offset += length;
 		    } else { /* Literal WSP header encoding */
-			guint	 length2;
-			char	 *strval2;
+			guint		 length2;
+			const char	 *strval2;
 
 			--offset;
 			length = get_text_string(tvb, offset, &strval);

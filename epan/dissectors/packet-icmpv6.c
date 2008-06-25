@@ -734,7 +734,7 @@ dissect_icmpv6fmip6opt(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_item *ti;
 	struct fmip6_opt_hdr fmip6_opt_hdr, *opt;
 	int len;
-	char *typename;
+	const char *typename;
 
 	if (!tree)
 		return;

@@ -97,7 +97,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset;
     guint8 sync[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     guint8 *mac;
-    guint8 *passwd;
+    const guint8 *passwd;
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti;

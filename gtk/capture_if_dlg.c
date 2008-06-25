@@ -378,6 +378,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   GSList        *curr_ip;
   if_addr_t     *ip_addr;
   GString       *if_tool_str = g_string_new("");
+  const gchar   *addr_str;
   gchar         *tmp_str;
   if_stat_cache_t *sc;
 
@@ -563,20 +564,20 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
         switch (ip_addr->type) {
 
         case AT_IPv4:
-          tmp_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
+          addr_str = ip_to_str((guint8 *)&ip_addr->ip_addr.ip4_addr);
           break;
 
         case AT_IPv6:
-          tmp_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
+          addr_str = ip6_to_str((struct e_in6_addr *)&ip_addr->ip_addr.ip6_addr);
           break;
 
         default:
           g_assert_not_reached();
-          tmp_str = NULL;
+          addr_str = NULL;
         }
-        if_dlg_data->ip_lb = gtk_label_new(tmp_str);
+        if_dlg_data->ip_lb = gtk_label_new(addr_str);
         gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
-        g_string_append(if_tool_str, tmp_str);
+        g_string_append(if_tool_str, addr_str);
       } else {
         if_dlg_data->ip_lb = gtk_label_new("unknown");
         gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);

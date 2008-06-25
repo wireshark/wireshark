@@ -1233,7 +1233,7 @@ nextcontext:
 						wild_term = GCP_WILDCARD_CHOOSE;
 
 						term->len = 1;
-						term->buffer = (guint8*)(term->str = "$");
+						term->buffer = (term->str = "$");
 
 						term = gcp_cmd_add_term(msg, trx, cmd, term, wild_term, keep_persistent_data);
 

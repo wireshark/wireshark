@@ -2110,7 +2110,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
         guint16 nameID;
         proto_item *name_ti;
         guint64 content_len;
-        gchar *mediatype = NULL;
+        const gchar *mediatype = NULL;
         tvbuff_t *element_content_tvb;
         proto_item * jxta_elem_length_item = NULL;
 

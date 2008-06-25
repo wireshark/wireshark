@@ -263,7 +263,7 @@ isis_dissect_mt_clv(tvbuff_t *tvb, proto_tree *tree, int offset, int length,
 	int tree_id)
 {
 	guint16 mt_block;
-	char *mt_desc;
+	const char *mt_desc;
 
 	while (length>0) {
 	    /* length can only be a multiple of 2, otherwise there is

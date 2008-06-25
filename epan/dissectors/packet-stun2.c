@@ -427,7 +427,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 					proto_tree_add_item(att_tree, stun2_att_ipv4, tvb, offset+4, 4, FALSE);
 					{
-						gchar *ipstr;
+						const gchar *ipstr;
 						guint32 ip;
 						ip = tvb_get_ipv4(tvb,offset+4);
 						ipstr = ip_to_str((guint8*)&ip);
@@ -582,7 +582,7 @@ dissect_stun2_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					PROTO_ITEM_SET_GENERATED(ti);
 
 					{
-						gchar *ipstr;
+						const gchar *ipstr;
 						guint32 ip;
 						guint16 port;
 						ip = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ transaction_id_first_word);

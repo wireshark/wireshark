@@ -5644,7 +5644,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char out_buff[SHORT_STR];
   gint is_iv_bad;
   guchar iv_buff[4];
-  char *addr1_str = NULL;
+  const char *addr1_str = NULL;
   int addr1_hf = -1;
   guint offset;
   const gchar *fts_str;

@@ -385,7 +385,7 @@ static void dissect_ice_context(proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 	
 	guint32 Size = 0; /* number of key-value in the dictionary */
 	guint32 i = 0;
-	char *s = NULL;
+	const char *s = NULL;
 	
 	(*consumed) = 0;
 	

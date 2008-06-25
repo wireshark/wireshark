@@ -139,7 +139,7 @@ ether_to_str(const guint8 *ad)
  This function is very fast and this function is called a lot.
  XXX update the address_to_str stuff to use this function.
 */
-gchar *
+const gchar *
 ip_to_str(const guint8 *ad) {
   gchar *buf;
 

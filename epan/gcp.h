@@ -150,9 +150,9 @@ typedef enum _gcp_wildcard_t {
 } gcp_wildcard_t;
 
 typedef struct _gcp_term_t {
-    gchar* str;
+    const gchar* str;
     
-    guint8* buffer;
+    const guint8* buffer;
     guint len;
 
     guint type;

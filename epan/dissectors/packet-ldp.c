@@ -690,12 +690,12 @@ static const value_string tlv_status_data[] = {
 };
 
 /* Define storage class for a string handler function
- * with a const guint8 * argument, and returning a gchar *
+ * with a const guint8 * argument, and returning a const gchar *
  */
-typedef gchar *(string_handler_func)(const guint8 *);
+typedef const gchar *(string_handler_func)(const guint8 *);
 
 /* Default handler for address to string conversion */
-static gchar *
+static const gchar *
 default_str_handler(const guint8 * bytes _U_)
 {
 	return "<Support for this Address Family not implemented>";
@@ -712,7 +712,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	guint8	addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
 	guint8  intparam_len;
 	string_handler_func *str_handler = default_str_handler;
-	char *str;
+	const char *str;
 
 	if (tree) {
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "FEC Elements");
@@ -1054,7 +1054,7 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	guint16	family, ix;
 	guint8	addr_size, *addr;
 	string_handler_func *str_handler = default_str_handler;
-	char *str;
+	const char *str;
 
 	if (tree) {
 		if( rem < 2 ) {

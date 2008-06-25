@@ -367,7 +367,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 htype, reject_reason, message_digest_type;
 	const guint8 *chaddr;
 	guint8 binding_status;
-	gchar *assigned_ip_address_str, *sending_server_ip_address_str;
+	const gchar *assigned_ip_address_str, *sending_server_ip_address_str;
 	guint32 addresses_transferred;
 	guint8 *client_identifier_str, *vendor_class_str;
 	const gchar *htype_str;

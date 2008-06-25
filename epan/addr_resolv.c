@@ -2262,7 +2262,7 @@ host_name_lookup_cleanup(void) {
 
 #endif /* HAVE_GNU_ADNS */
 
-extern gchar *get_hostname(guint addr)
+extern const gchar *get_hostname(guint addr)
 {
   gboolean found;
 

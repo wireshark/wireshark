@@ -123,7 +123,7 @@ extern struct _fragment_data *stream_get_frag_data( const stream_pdu_fragment_t 
  */
 extern tvbuff_t *stream_process_reassembled(
     tvbuff_t *tvb, int offset, packet_info *pinfo,
-    char *name, const stream_pdu_fragment_t *frag,
+    const char *name, const stream_pdu_fragment_t *frag,
     const struct _fragment_items *fit,
     gboolean *update_col_infop, proto_tree *tree);
 

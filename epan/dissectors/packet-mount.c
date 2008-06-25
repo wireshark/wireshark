@@ -168,7 +168,8 @@ dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		rpc_call_info_value *civ=pinfo->private_data;
 
 		if(civ->request && (civ->proc==1)){
-			unsigned char *host, *name;
+			const gchar *host;
+			unsigned char *name;
 			unsigned const char *dir;
 			int len;
 
