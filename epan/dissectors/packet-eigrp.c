@@ -372,7 +372,7 @@ static void dissect_eigrp_ip_ext (tvbuff_t *tvb, proto_tree *tree, proto_item *t
 		} else {
 		    proto_tree_add_text (tree,tvb,offset,1,"Prefix Length = %u",length);
 		    proto_tree_add_text (tree,tvb,offset+1,addr_len,"Destination = %s",ip_to_str(ip_addr));
-		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==40?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,4)==0xffffffff)?" - Destination unreachable":""));
+		    proto_item_append_text (ti,"  %c   %s/%u%s",offset==40?'=':',',ip_to_str(ip_addr),length,((tvb_get_ntohl(tvb,24)==0xffffffff)?" - Destination unreachable":""));
 		}
 	}
 }
