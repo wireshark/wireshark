@@ -236,7 +236,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wbad-function-cast)
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-qual)
 		#
-		# epan/dissectors/packet-diameter.c blocks this one
+		# epan/dissectors/packet-fix.c blocks this one
 		# for now.
 		#
 		AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wwrite-strings)
