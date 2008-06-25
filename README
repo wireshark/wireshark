@@ -40,10 +40,15 @@ Wireshark is known to compile and run on the following systems:
   - Tru64 UNIX (formerly Digital UNIX) (3.2 and later)
   - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
-  - Win32 (NT 4.0, 2000, 2003, XP, Vista)
+  - Windows (2000, 2003, XP, Vista)
 
 and possibly on other versions of those OSes.  It should run on other
 Unix-ish systems without too much trouble.
+
+If you have an older version of the operating systems listed above, it
+might be supported by an older version of Wireshark. In particular,
+Windows NT 4.0 is supported by Wireshark 0.99.4, and Windows 95, 98, and
+ME are supported by Ethereal 0.99.0.
 
 NOTE: the Makefile appears to depend on GNU "make"; it doesn't appear to
 work with the "make" that comes with Solaris 7 nor the BSD "make".
