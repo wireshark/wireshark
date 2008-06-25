@@ -1667,7 +1667,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	offset = next_offset;
 	if (sip_tree) {
 		th = proto_tree_add_item(sip_tree, hf_msg_hdr, tvb, offset,
-                                 tvb_length_remaining(tvb, offset), FALSE);
+		                         tvb_length_remaining(tvb, offset), FALSE);
+		proto_item_set_text(th, "Message Header");
 		hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 	}
 
@@ -3060,7 +3061,7 @@ void proto_register_sip(void)
                 },
 		{ &hf_msg_hdr,
 				{ "Message Header",           "sip.msg_hdr",
-                        FT_NONE, 0, NULL, 0,
+                        FT_STRING, BASE_NONE, NULL, 0,
                         "Message Header in SIP message", HFILL }
                 },
 		{ &hf_Method,
