@@ -21,7 +21,7 @@ The official home of Wireshark is
 
 The latest distribution can be found in the subdirectory
 
-    http://www.wireshark.org/distribution
+    http://www.wireshark.org/download
 
 
 Installation
@@ -40,7 +40,7 @@ Wireshark is known to compile and run on the following systems:
   - Tru64 UNIX (formerly Digital UNIX) (3.2 and later)
   - Irix (6.5)
   - AIX (4.3.2, with a bit of work)
-  - Win32 (NT, 2000, 2003, XP)
+  - Win32 (NT, 2000, 2003, XP, Vista)
 
 and possibly on other versions of those OSes.  It should run on other
 Unix-ish systems without too much trouble.
@@ -72,9 +72,10 @@ Usage
 In order to capture packets from the network, you need to be running as
 root, or have access to the appropriate entry under /dev if your system
 is so inclined (BSD-derived systems, and systems such as Solaris and
-HP-UX that support DLPI, typically fall into this category).  Although
+HP-UX that support DLPI, typically fall into this category). Although
 it might be tempting to make the Wireshark executable setuid root, please
-don't - alpha code is by nature not very robust, and liable to contain
+don't. The capture process has been isolated in dumpcap, which can be
+installed setuid root. This simple program is less likely to contain
 security holes.
 
 Please consult the man page for a description of each command-line
@@ -207,7 +208,7 @@ option.
 How to Report a Bug
 -------------------
 Wireshark is still under constant development, so it is possible that you will
-encounter a bug while using it. Please report bugs to wireshark-dev@wireshark.org.
+encounter a bug while using it. Please report bugs to http://bugs.wireshark.org.
 Be sure you tell us:
 
 	1) Operating System and version (the command 'uname -sr' may
