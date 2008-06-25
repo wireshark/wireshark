@@ -980,7 +980,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
     {
       fragment_data *frag_msg = NULL;
       tvbuff_t *new_tvb = NULL;
-      gchar *frag_str = NULL;
+      const gchar *frag_str = NULL;
       gboolean fragmented;
 
       msg_type = tvb_get_guint8(tvb, offset);

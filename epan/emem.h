@@ -270,7 +270,7 @@ emem_tree_t *se_tree_create_non_persistent(int type, const char *name);
  * ******************************************************************* */
 /* These trees have PErmanent allocation scope and will never be released
  */
-emem_tree_t *pe_tree_create(int type, char *name);
+emem_tree_t *pe_tree_create(int type, const char *name);
 #define pe_tree_insert32 emem_tree_insert32
 #define pe_tree_lookup32 emem_tree_lookup32
 #define pe_tree_lookup32_le emem_tree_lookup32_le

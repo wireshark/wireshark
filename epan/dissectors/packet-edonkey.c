@@ -2392,7 +2392,7 @@ static int dissect_kademlia_search_expression_tree(tvbuff_t *tvb, packet_info *p
         case 0: /* Bool op */
             {
                 int boolop;
-                char* bool_op_label;
+                const char* bool_op_label;
 
                 proto_item_append_text( ti, "[BoolOp]" );
 

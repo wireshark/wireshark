@@ -120,14 +120,14 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint frame_len = 0;
     gint header_len = FCOE_HEADER_LEN;
     guint version;
-    char *ver;
+    const char *ver;
     guint16  len_sof;
     gint bytes_remaining;
     guint8 sof = 0;
     guint8 eof = 0;
     const char *eof_str;
-    char *crc_msg;
-    char *len_msg;
+    const char *crc_msg;
+    const char *len_msg;
     proto_item *ti;
     proto_item *item;
     proto_tree *fcoe_tree = NULL;
@@ -150,11 +150,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sof |= (sof < 8) ? 0x30 : 0x20;
         version = len_sof >> 14;
         ver = "pre-T11 ";
-        if (version != 0) {
-            int ver_buf_len = 24;
-            ver = ep_alloc(ver_buf_len);
-            g_snprintf(ver, ver_buf_len, "pre-T11 ver %d ", version);
-        }
+        if (version != 0)
+            ver = ep_strdup_printf(ver, "pre-T11 ver %d ", version);
     } else {
         frame_len = tvb_reported_length_remaining(tvb, 0) -
           FCOE_HEADER_LEN - FCOE_TRAILER_LEN;
@@ -166,11 +163,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         ver = "";
         version = tvb_get_guint8(tvb, 0) >> 4;
-        if (version != 0) {
-            int ver_buf_len = 16;
-            ver = ep_alloc(ver_buf_len);
-            g_snprintf(ver, ver_buf_len, "ver %d ", version);
-        }
+        if (version != 0)
+            ver = ep_strdup_printf(ver, "ver %d ", version);
     }
     if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "FCoE");

@@ -136,7 +136,7 @@ typedef struct _diam_dictionary_t {
 typedef diam_avp_t* (*avp_constructor_t)(const avp_type_t*, guint32, const diam_vnd_t*, const char*,  const value_string*, void*);
 
 struct _avp_type_t {
-	char* name;
+	const char* name;
 	diam_avp_dissector_t v16;
 	diam_avp_dissector_t rfc;
 	enum ftenum ft;
@@ -1066,11 +1066,11 @@ static int dictionary_load(void)
 	all_cmds = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 	pe_tree_insert32(dictionary.vnds,0,&no_vnd);
-	g_hash_table_insert(vendors,"None",&no_vnd);
+	g_hash_table_insert(vendors,(gchar *)"None",&no_vnd);
 
 	/* initialize the types hash with the known basic types */
 	for (type = basic_types; type->name; type++) {
-		g_hash_table_insert(build_dict.types,type->name,(void*)type);
+		g_hash_table_insert(build_dict.types,(gchar *)type->name,(void*)type);
 	}
 
 	/* load the dictionary */

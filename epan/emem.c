@@ -1319,7 +1319,7 @@ se_tree_create_non_persistent(int type, const char *name)
 /* This tree is PErmanent and will never be released
  */
 emem_tree_t *
-pe_tree_create(int type, char *name)
+pe_tree_create(int type, const char *name)
 {
 	emem_tree_t *tree_list;
 
@@ -1337,7 +1337,7 @@ pe_tree_create(int type, char *name)
  * as the parent tree.
  */
 static emem_tree_t *
-emem_tree_create_subtree(emem_tree_t *parent_tree, char *name)
+emem_tree_create_subtree(emem_tree_t *parent_tree, const char *name)
 {
 	emem_tree_t *tree_list;
 
