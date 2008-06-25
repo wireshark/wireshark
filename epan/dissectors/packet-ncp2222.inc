@@ -2732,40 +2732,42 @@ process_bitfield(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
  * and their associated values. Store results in passed buffer.
  */
 static void
-build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_lookup, gboolean search_structs)
+build_expert_data(proto_tree *ncp_tree, const char *hf_name, char *buffer,
+                  size_t buffer_size, int repeat_lookup,
+		  gboolean search_structs)
 {
-	proto_tree		*tree_pointer;
-	proto_tree		*tree_loc;
-	proto_tree		*struct_tree_pointer = NULL;
+    proto_tree     *tree_pointer;
+    proto_tree     *tree_loc;
+    proto_tree     *struct_tree_pointer = NULL;
     char            temp_buffer[256]="\0";
     gboolean        in_struct=FALSE;
 
     tree_loc = ncp_tree->first_child;
-	for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
-	{
+    for (tree_pointer=tree_loc; tree_pointer!=NULL; tree_pointer=tree_pointer->next)
+    {
         /* We currently only go one structure deep in our search for values */
         if (tree_pointer->first_child && !in_struct && search_structs) {
             struct_tree_pointer = tree_pointer;
             tree_pointer = tree_pointer->first_child;
             in_struct=TRUE;
         }
-		if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
-		{
-			switch (tree_pointer->finfo->hfinfo->type)
-			{
-            case 3:				/* uint8 */
-            case 4:				/* uint16 */
-                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)*4, "%d", get_finfo_value_integer(tree_pointer->finfo));
-				break;
+        if (strcmp(tree_pointer->finfo->hfinfo->abbrev, hf_name)==0)
+        {
+            switch (tree_pointer->finfo->hfinfo->type)
+            {
+            case 3:                /* uint8 */
+            case 4:                /* uint16 */
+                g_snprintf(buffer, buffer_size, "%d", get_finfo_value_integer(tree_pointer->finfo));
+                break;
 
             case 6:             /* uint32 */
-                g_snprintf(buffer, get_finfo_length(tree_pointer->finfo)*4, "%08x", get_finfo_value_integer(tree_pointer->finfo));
-				break;
+                g_snprintf(buffer, buffer_size, "%08x", get_finfo_value_integer(tree_pointer->finfo));
+                break;
             case 17:
             case 18:
             case 19:
-			case 20:			/* string */
-		        uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
+            case 20:            /* string */
+                uni_to_string(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo), buffer);
                 if (repeat_lookup > 0) {
                     if (strlen(temp_buffer) + strlen(buffer) < 250) {
                         g_strlcat(temp_buffer, buffer, 256);
@@ -2791,23 +2793,23 @@ build_expert_data(proto_tree *ncp_tree, char *hf_name, char *buffer, int repeat_
                 }
             case 21:
             case 22:             /* Bytes */
-                g_snprintf(buffer, (get_finfo_length(tree_pointer->finfo))*4, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
+                g_snprintf(buffer, buffer_size, "%s", bytes_to_str(get_finfo_value_string(tree_pointer->finfo), get_finfo_length(tree_pointer->finfo)));
                 break;
-			default:			/* Dont currently handle. Only need string, integers, and bytes */
-				buffer = "Unsupported Expert Type\0";
-				return;
-			}
+            default:             /* Dont currently handle. Only need string, integers, and bytes */
+                g_snprintf(buffer, buffer_size, "Unsupported Expert Type");
+                return;
+            }
             if (repeat_lookup ==0) {
                 break;
             }
-		}
+        }
         if (tree_pointer->next==NULL && in_struct && search_structs) {
                 tree_pointer = struct_tree_pointer;
                 in_struct=FALSE;
         }
-	}
+    }
     if (strlen(buffer)==0) {
-        buffer = "No Value\0";
+        g_snprintf(buffer, buffer_size, "No Value");
     }
     return;
 }
@@ -2832,7 +2834,8 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             if (ncp_rec->func == 66) {
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle,
+                                  sizeof p_filehandle, 0, FALSE);
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Close file handle %s", p_filehandle);
             }
@@ -2843,16 +2846,23 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char p_rights[2]="\0";
                 char p_path_count[2]="\0";
 
-                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.desired_access_rights", p_rights, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.path_count", p_path_count, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.open_create_mode", oaction,
+                                  sizeof oaction, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.desired_access_rights",
+                                  p_rights, sizeof p_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.path_count", p_path_count,
+                                  sizeof p_path_count, 0, FALSE);
 
                 if (ncp_rec->func == 87) {
-                    build_expert_data(ncp_tree, "ncp.path", p_filename, atoi(p_path_count), FALSE);
+                    build_expert_data(ncp_tree, "ncp.path", p_filename,
+                                      sizeof p_filename,  atoi(p_path_count),
+				      FALSE);
                 }
                 else
                 {
-                    build_expert_data(ncp_tree, "ncp.path16", p_filename, atoi(p_path_count), FALSE);
+                    build_expert_data(ncp_tree, "ncp.path16", p_filename,
+                                      sizeof p_filename,  atoi(p_path_count),
+                                      FALSE);
                 }
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "%s: %s, Rights:(%s)", match_strval((atoi(oaction) & 0xeb), open_create_mode_vals), p_filename, match_strval((atoi(p_rights) & 0x5f), ncp_rights_vals));
@@ -2862,8 +2872,10 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char cc_function[2]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.cc_file_handle", p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.cc_function", cc_function, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.cc_file_handle",
+                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.cc_function",
+                                  cc_function, sizeof cc_function, 0, FALSE);
 
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Op-lock on handle %s - %s", p_filehandle, match_strval(atoi(cc_function), ncp_cc_function_vals));
             }
@@ -2873,9 +2885,12 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char n_rights[20]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.access_rights_mask_word", p_rights, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.new_access_rights_mask", n_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.file_handle",
+                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.access_rights_mask_word",
+                                  p_rights, sizeof p_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.new_access_rights_mask",
+                                  n_rights, sizeof n_rights, 0, FALSE);
                 expert_add_info_format(pinfo, NULL, PI_REQUEST_CODE, PI_CHAT, "Change handle %s rights from:(%s) to:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals), match_strval((atoi(n_rights) & 0x1ff), access_rights_vals));
             }
         }
@@ -2890,15 +2905,18 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char oplockflg[2]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.open_create_action", oaction, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.open_create_action",
+                                  oaction, sizeof oaction, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.file_handle",
+                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
 
                 if (ncp_rec->subfunc == 1) {
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle);
                 }
                 else
                 {
-                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags", oplockflg, 0, FALSE);
+                    build_expert_data(ncp_tree, "ncp.o_c_ret_flags",
+                                      oplockflg, sizeof oplockflg, 0, FALSE);
                     expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "%s - File handle %s, %s", match_strval((atoi(oaction) & 0x8f), open_create_action_vals), p_filehandle, match_strval(atoi(oplockflg), ncp_o_c_ret_flags_vals));
                 }
             }
@@ -2907,8 +2925,10 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
                 char p_rights[20]="\0";
                 char p_filehandle[15]="\0";
 
-                build_expert_data(ncp_tree, "ncp.file_handle", p_filehandle, 0, FALSE);
-                build_expert_data(ncp_tree, "ncp.effective_rights", p_rights, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.file_handle",
+                                  p_filehandle, sizeof p_filehandle, 0, FALSE);
+                build_expert_data(ncp_tree, "ncp.effective_rights",
+                                  p_rights, sizeof p_rights, 0, FALSE);
                 expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Handle %s effective rights:(%s)", p_filehandle, match_strval((atoi(p_rights) & 0x1ff), access_rights_vals));
             }
         }
@@ -2921,11 +2941,16 @@ trap_for_expert_event(proto_tree *ncp_tree, packet_info *pinfo, const ncp_record
             char p_lang[3]="\0";
 
             /* Get Server name and version info */
-            build_expert_data(ncp_tree, "ncp.server_name", fsname, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_major_version", p_maj_ver, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_minor_version", p_min_ver, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.product_revision_version", p_rev, 0, FALSE);
-            build_expert_data(ncp_tree, "ncp.os_language_id", p_lang, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.server_name",
+                              fsname, sizeof fsname, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_major_version",
+                              p_maj_ver, sizeof p_maj_ver, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_minor_version",
+                              p_min_ver, sizeof p_min_ver, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.product_revision_version",
+                              p_rev, sizeof p_rev, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.os_language_id",
+                              p_lang, sizeof p_lang, 0, FALSE);
             expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server %s, version %s.%s, support pack %s, language %s", fsname,
                                    p_maj_ver, p_min_ver, p_rev, p_lang);
         }
@@ -2955,7 +2980,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
         guint16         rstate = 0;
         guint16         rnum = 0;
         guint16         revent = 0;
-	    gint		    length_remaining;
+        gint            length_remaining;
         nstime_t        ns;
         gboolean        entry_rights = FALSE;
         nds_val         temp_values;
@@ -3116,25 +3141,25 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                {
                                         case NDS_PTYPE_IPX:
                                                 proto_tree_add_item(nvtree, hf_nds_net, tvb, voffset, 4, FALSE);
-		                                        proto_tree_add_item(nvtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
-		                                        proto_tree_add_item(nvtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
+                                                proto_tree_add_item(nvtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
+                                                proto_tree_add_item(nvtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                 break;
                                         case NDS_PTYPE_IP:
                                             if (value3 > 4) {
                                                 proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 voffset += 2;
                                             }
-	                                        proto_tree_add_item(nvtree, hf_add_ref_ip, tvb, voffset, 4, FALSE);
+                                            proto_tree_add_item(nvtree, hf_add_ref_ip, tvb, voffset, 4, FALSE);
                                             break;
                                         case NDS_PTYPE_UDP:
                                             if (value3 > 4) {
                                                 proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 voffset += 2;
                                             }
-	                                        proto_tree_add_item(nvtree, hf_add_ref_udp, tvb, voffset, 4, FALSE);
+                                            proto_tree_add_item(nvtree, hf_add_ref_udp, tvb, voffset, 4, FALSE);
                                             break;
                                         case NDS_PTYPE_TCP:
-		                                proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
+                                        proto_tree_add_item(nvtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                 proto_tree_add_item(nvtree, hf_add_ref_tcp, tvb, voffset+2, 4, FALSE);
                                                 break;
                                         case NDS_PTYPE_URL:
@@ -3232,19 +3257,19 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
                                         {
                                                 case NDS_PTYPE_IPX:
                                                         proto_tree_add_item(adtree, hf_nds_net, tvb, voffset, 4, FALSE);
-		                                        proto_tree_add_item(adtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
-		                                        proto_tree_add_item(adtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
+                                                        proto_tree_add_item(adtree, hf_nds_node, tvb, voffset+4, 6, FALSE);
+                                                        proto_tree_add_item(adtree, hf_nds_socket, tvb, voffset+10, 2, FALSE);
                                                         break;
                                                 case NDS_PTYPE_IP:
-	        	                                proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
-	                                                proto_tree_add_item(adtree, hf_add_ref_ip, tvb, voffset+2, 4, FALSE);
+                                                        proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
+                                                        proto_tree_add_item(adtree, hf_add_ref_ip, tvb, voffset+2, 4, FALSE);
                                                         break;
                                                 case NDS_PTYPE_UDP:
-	        	                                proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
-	                                                proto_tree_add_item(adtree, hf_add_ref_udp, tvb, voffset+2, 4, FALSE);
+                                                        proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
+                                                        proto_tree_add_item(adtree, hf_add_ref_udp, tvb, voffset+2, 4, FALSE);
                                                         break;
                                                 case NDS_PTYPE_TCP:
-		                                        proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
+                                                        proto_tree_add_item(adtree, hf_nds_port, tvb, voffset, 2, FALSE);
                                                         proto_tree_add_item(adtree, hf_add_ref_tcp, tvb, voffset+2, 4, FALSE);
                                                         break;
                                                 case NDS_PTYPE_URL:
@@ -3538,11 +3563,11 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
         guint16         event_num;
         nw_uni_t        mval_buf;
         proto_tree      *nestree;
-	    proto_item      *nesitem;
+	proto_item      *nesitem;
         proto_tree      *sub1tree;
-	    proto_item      *sub1item;
+	proto_item      *sub1item;
         proto_tree      *sub2tree;
-	    proto_item      *sub2item;
+	proto_item      *sub2item;
         const char      *vstring="";
         nstime_t        ns;
 
@@ -7249,8 +7274,10 @@ dissect_ncp_123_62_reply(tvbuff_t *tvb, proto_tree *volatile ncp_tree)
     char value_format[2]="\0";
     char param_string[256]="\0";
 
-    build_expert_data(ncp_tree, "ncp.set_cmd_type", value_format, 0, FALSE);
-    build_expert_data(ncp_tree, "ncp.set_cmd_name", param_string, 0, FALSE);
+    build_expert_data(ncp_tree, "ncp.set_cmd_type",
+                      value_format, sizeof value_format, 0, FALSE);
+    build_expert_data(ncp_tree, "ncp.set_cmd_name",
+                      param_string, sizeof param_string, 0, FALSE);
     switch (atoi(value_format)) {
     case 0:   /* { 0x00,	"Numeric Value" }, */
     case 2:   /* { 0x02,	"Ticks Value" }, */
@@ -7941,9 +7968,12 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
             char ret_info_string[16];
             char ret_info_string_ext[16];
 
-            build_expert_data(ncp_tree, "ncp.ret_info_mask", ret_info_string, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.ret_info_mask",
+                              ret_info_string, sizeof ret_info_string, 0, FALSE);
             request_value->req_mask = atoi(ret_info_string);
-            build_expert_data(ncp_tree, "ncp.ext_info", ret_info_string_ext, 0, FALSE);
+            build_expert_data(ncp_tree, "ncp.ext_info",
+                              ret_info_string_ext, sizeof ret_info_string_ext,
+                              0, FALSE);
             request_value->req_mask_ext = atoi(ret_info_string_ext);
         }
         /* NCP function 89/6 passes either ASCII or UTF8 data */
@@ -9266,8 +9296,12 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                             char    eid_string[10];
                             char    global_object_name[256];
 
-                            build_expert_data(ncp_tree, "ncp.directory_services_object_id", eid_string, 0, TRUE);
-                            build_expert_data(ncp_tree, "ncp.volume_name_len", global_object_name, 0, FALSE);
+                            build_expert_data(ncp_tree, "ncp.directory_services_object_id",
+                                              eid_string, sizeof eid_string,
+                                              0, TRUE);
+                            build_expert_data(ncp_tree, "ncp.volume_name_len",
+                                              global_object_name, sizeof global_object_name,
+                                              0, FALSE);
 
                             /* Echo EID data to expert Chat window */
                             if (nds_echo_eid) {
