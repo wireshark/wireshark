@@ -613,12 +613,12 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 {
 	proto_item *pi;
 	proto_tree *pt;
-	proto_tree *tsn_tree = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
+	proto_tree *tsn_tree_pt = proto_item_add_subtree(tsn_item, ett_sctp_tsn);
 
 	if (t->first_transmit.framenum != framenum) {
 		nstime_t rto;
 
-		pi = proto_tree_add_uint(tsn_tree, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
+		pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_retransmission, tvb, 0, 0, t->first_transmit.framenum);
 		pt = proto_item_add_subtree(pi, ett_sctp_tsn_retransmission);
 		PROTO_ITEM_SET_GENERATED(pi);
 		expert_add_info_format(pinfo, pi, PI_SEQUENCE, PI_NOTE, "Retransmitted TSN");
@@ -648,7 +648,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 		else
 			ds[0] = 0;
 
-		pi = proto_tree_add_uint_format(tsn_tree,
+		pi = proto_tree_add_uint_format(tsn_tree_pt,
 						hf_sctp_retransmitted_count,
 						tvb, 0, 0, t->retransmit_count,
 						"This TSN was retransmitted %u time%s%s",
@@ -676,7 +676,7 @@ tsn_tree(sctp_tsn_t *t, proto_item *tsn_item, packet_info *pinfo,
 	if (t->ack.framenum) {
 		nstime_t rtt;
 
-		pi = proto_tree_add_uint(tsn_tree, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
+		pi = proto_tree_add_uint(tsn_tree_pt, hf_sctp_acked, tvb, 0 , 0, t->ack.framenum);
 		PROTO_ITEM_SET_GENERATED(pi);
 		pt = proto_item_add_subtree(pi, ett_sctp_ack);
 
@@ -1000,18 +1000,18 @@ static const value_string address_types_values[] = {
 static void
 dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 address_type, number_of_address_types, address_type_number;
+  guint16 addr_type, number_of_addr_types, addr_type_number;
   guint offset;
 
-  number_of_address_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH)
+  number_of_addr_types = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH)
                             / SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH;
 
   offset = PARAMETER_VALUE_OFFSET;
   proto_item_append_text(parameter_item, " (Supported types: ");
-  for(address_type_number = 1; address_type_number <= number_of_address_types; address_type_number++) {
+  for(addr_type_number = 1; addr_type_number <= number_of_addr_types; addr_type_number++) {
     proto_tree_add_item(parameter_tree, hf_supported_address_type, parameter_tvb, offset, SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH, NETWORK_BYTE_ORDER);
-    address_type = tvb_get_ntohs(parameter_tvb, offset);
-    switch (address_type) {
+    addr_type = tvb_get_ntohs(parameter_tvb, offset);
+    switch (addr_type) {
       case IPv4_ADDRESS_TYPE:
         proto_item_append_text(parameter_item, "IPv4");
         break;
@@ -1022,9 +1022,9 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
         proto_item_append_text(parameter_item, "hostname");
         break;
       default:
-        proto_item_append_text(parameter_item, "%u", address_type);
+        proto_item_append_text(parameter_item, "%u", addr_type);
     }
-    if (address_type_number < number_of_address_types)
+    if (addr_type_number < number_of_addr_types)
       proto_item_append_text(parameter_item, ", ");
     offset += SUPPORTED_ADDRESS_TYPE_PARAMETER_ADDRESS_TYPE_LENGTH;
   }

@@ -183,8 +183,8 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 	for(i = 0; i < numclasses; i++) {
 		guint16 myid = tvb_get_ntohs(tvb, offset);
-		proto_item *ti = proto_tree_add_text(classes_tree, tvb, offset, 35, "Rate Class 0x%02x", myid);
-		proto_tree *class_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_class);
+		proto_item *ti_local = proto_tree_add_text(classes_tree, tvb, offset, 35, "Rate Class 0x%02x", myid);
+		proto_tree *class_tree = proto_item_add_subtree(ti_local, ett_generic_rateinfo_class);
 		offset = dissect_rate_class(tvb, pinfo, offset, class_tree);
 	}
 
@@ -199,8 +199,8 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 		 * sizeof(rate_group) = sizeof(class_id) + sizeof(numpairs) + numpairs * 2 * sizeof(uint16_t)
 		 *                    = 2 + 2 + numpairs * 4
 		 */
-		proto_item *ti = proto_tree_add_text(groups_tree, tvb, offset, 4 + 4 * numpairs, "Rate Group 0x%02x", myid);
-		group_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_group);
+		proto_item *ti_local = proto_tree_add_text(groups_tree, tvb, offset, 4 + 4 * numpairs, "Rate Group 0x%02x", myid);
+		group_tree = proto_item_add_subtree(ti_local, ett_generic_rateinfo_group);
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_classid, tvb, offset, 2, myid);offset+=2;
 		proto_tree_add_uint(group_tree, hf_generic_rateinfo_numpairs, tvb, offset, 2, numpairs); offset+=2;
 		for(j = 0; j < numpairs; j++) {

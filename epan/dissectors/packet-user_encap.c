@@ -97,15 +97,15 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	if (!encap) {
 		char* msg = ep_strdup_printf("user encap not hanlded: DLT=%d, check you Preferences->Protocols->DLT_USER",
 									 pinfo->match_port + 147 - WTAP_ENCAP_USER0);
-		proto_item* i = proto_tree_add_text(tree, tvb, 0, 0, msg);
+		proto_item* item = proto_tree_add_text(tree, tvb, 0, 0, msg);
 		
-		expert_add_info_format(pinfo, i, PI_UNDECODED, PI_WARN, msg);
+		expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, msg);
 		
 		call_dissector(data_handle, tvb, pinfo, tree);
 		return;
 	} else {
-		proto_item* i = proto_tree_add_item(tree,proto_user_encap,tvb,0,0,FALSE);
-		proto_item_set_text(i,"DLT: %d",pinfo->match_port + 147 - WTAP_ENCAP_USER0);
+		proto_item* item = proto_tree_add_item(tree,proto_user_encap,tvb,0,0,FALSE);
+		proto_item_set_text(item,"DLT: %d",pinfo->match_port + 147 - WTAP_ENCAP_USER0);
 	}
 
 	len = tvb_reported_length(tvb) - (encap->header_size + encap->trailer_size);

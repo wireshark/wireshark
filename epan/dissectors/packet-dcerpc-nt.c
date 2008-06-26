@@ -887,18 +887,18 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			&close_frame, pinfo->fd->num)) {
 
 		if (open_frame) {
-			proto_item *item;
+			proto_item *item_local;
 			item=proto_tree_add_uint(
 				subtree, hf_nt_policy_open_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), open_frame);
-			PROTO_ITEM_SET_GENERATED(item);
+			PROTO_ITEM_SET_GENERATED(item_local);
 		}
 		if (close_frame) {
-			proto_item *item;
-			item=proto_tree_add_uint(
+			proto_item *item_local;
+			item_local=proto_tree_add_uint(
 				subtree, hf_nt_policy_close_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), close_frame);
-			PROTO_ITEM_SET_GENERATED(item);
+			PROTO_ITEM_SET_GENERATED(item_local);
 		}
 
 		/*

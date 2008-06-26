@@ -1644,7 +1644,7 @@ static void
 dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
 {
   guint8 first, class, remaining;
-  guint32 slr;
+  guint32 slrx;
   proto_item *param_item;
   proto_tree *param_tree;
 
@@ -1652,7 +1652,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   class = tvb_get_guint8(tvb, 0) & SEGMENTATION_CLASS_MASK;
   remaining = tvb_get_guint8(tvb, 0) & SEGMENTATION_REMAINING_MASK;
 
-  slr = tvb_get_letoh24(tvb, 1);
+  slrx = tvb_get_letoh24(tvb, 1);
 
   param_item = proto_tree_add_text(tree, tvb, 0, length,
 				   val_to_str(PARAMETER_SEGMENTATION,
@@ -1666,7 +1666,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint length)
   proto_tree_add_uint(param_tree, hf_sccp_segmentation_remaining, tvb, 0,
 		      length, remaining);
   proto_tree_add_uint(param_tree, hf_sccp_segmentation_slr, tvb, 1, length,
-		      slr);
+		      slrx);
 }
 
 static void

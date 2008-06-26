@@ -414,33 +414,33 @@ static gint ett_afs_vldb_flags = -1;
 /* Output a rx style string, up to a maximum length first
    4 bytes - length, then char data */
 #define OUT_RXString(field) \
-	{	guint32 i,len; \
-		char *tmp; \
-		const guint8 *p; \
-		i = tvb_get_ntohl(tvb, offset); \
+	{	guint32 i_orxs,len_orxs; \
+		char *tmp_orxs; \
+		const guint8 *p_orxs; \
+		i_orxs = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
-		p = tvb_get_ptr(tvb,offset,i); \
-		len = ((i+4-1)/4)*4; \
-		tmp = ep_alloc(i+1); \
-		memcpy(tmp, p, i); \
-		tmp[i] = '\0'; \
-		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \
-		(void *)tmp); \
-		offset += len; \
+		p_orxs = tvb_get_ptr(tvb,offset,i_orxs); \
+		len_orxs = ((i_orxs+4-1)/4)*4; \
+		tmp_orxs = ep_alloc(i_orxs+1); \
+		memcpy(tmp_orxs, p_orxs, i_orxs); \
+		tmp_orxs[i_orxs] = '\0'; \
+		proto_tree_add_string(tree, field, tvb, offset-4, len_orxs+4, \
+		(void *)tmp_orxs); \
+		offset += len_orxs; \
 	}
 
 /* Output a fixed length vectorized string (each char is a 32 bit int) */
 #define OUT_RXStringV(field, length) \
-	{ 	char tmp[length+1]; \
-		int i,soff; \
-		soff = offset;\
-		for (i=0; i<length; i++)\
+	{ 	char tmp_orxsv[length+1]; \
+		int i_orxsv,soff_orxsv; \
+		soff_orxsv = offset;\
+		for (i_orxsv=0; i_orxsv<length; i_orxsv++)\
 		{\
-			tmp[i] = (char) tvb_get_ntohl(tvb, offset);\
+			tmp_orxsv[i_orxsv] = (char) tvb_get_ntohl(tvb, offset);\
 			offset += sizeof(guint32);\
 		}\
-		tmp[length] = '\0';\
-		proto_tree_add_string(tree, field, tvb, soff, length*sizeof(guint32), tmp);\
+		tmp_orxsv[length] = '\0';\
+		proto_tree_add_string(tree, field, tvb, soff_orxsv, length*sizeof(guint32), tmp_orxsv);\
 	}
 
 
@@ -483,27 +483,27 @@ static gint ett_afs_vldb_flags = -1;
 
 /* Output a Status mask */
 #define OUT_FS_STATUSMASK() \
-	{ 	proto_tree *save, *ti; \
-		guint32 mask; \
-		mask = tvb_get_ntohl(tvb, offset); \
-		ti = proto_tree_add_uint(tree, hf_afs_fs_status_mask, tvb, offset, \
-			sizeof(guint32), mask); \
-		save = tree; \
-		tree = proto_item_add_subtree(ti, ett_afs_status_mask); \
+	{ 	proto_tree *save_ofsm, *ti_ofsm; \
+		guint32 mask_ofsm; \
+		mask_ofsm = tvb_get_ntohl(tvb, offset); \
+		ti_ofsm = proto_tree_add_uint(tree, hf_afs_fs_status_mask, tvb, offset, \
+			sizeof(guint32), mask_ofsm); \
+		save_ofsm = tree; \
+		tree = proto_item_add_subtree(ti_ofsm, ett_afs_status_mask); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmodtime, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setowner, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setgroup, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setmode, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_setsegsize, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		proto_tree_add_boolean(tree, hf_afs_fs_status_mask_fsync, \
-			tvb,offset,sizeof(guint32), mask); \
+			tvb,offset,sizeof(guint32), mask_ofsm); \
 		offset += 4; \
-		tree = save; \
+		tree = save_ofsm; \
 	}
 
 /* Output vldb flags */
