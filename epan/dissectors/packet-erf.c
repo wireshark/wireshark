@@ -145,7 +145,7 @@ static dissector_handle_t data_handle;
 
 /* Possible there will be more in the future */
 #define ERF_INFINIBAND 1
-gint erf_infiniband_default = ERF_INFINIBAND;
+static gint erf_infiniband_default = ERF_INFINIBAND;
 static dissector_handle_t erf_infiniband_dissector[ERF_INFINIBAND];
 
 typedef enum { 
@@ -155,24 +155,24 @@ typedef enum {
   ERF_HDLC_MTP2 = 4,
   ERF_HDLC_MAX = 5
 } erf_hdlc_type;
-gint erf_hdlc_default = ERF_HDLC_MTP2;
-static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX+1];
+static gint erf_hdlc_default = ERF_HDLC_MTP2;
+static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX];
 
 typedef enum {
   ERF_ATM_ATM = 1,
   ERF_ATM_LLC = 2,
   ERF_ATM_MAX = 3
 } erf_atm_type;
-gint erf_atm_default = ERF_ATM_MAX;
-static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX+1];
+static gint erf_atm_default = ERF_ATM_MAX;
+static dissector_handle_t erf_atm_dissector[ERF_ATM_MAX];
 
 typedef enum {   
   ERF_ETH_ETHFCS = 1,
   ERF_ETH_ETHNOFCS = 2,
   ERF_ETH_MAX = 3
 } erf_eth_type;
-gint erf_eth_default = ERF_ETH_MAX;
-static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX+1];
+static gint erf_eth_default = ERF_ETH_MAX;
+static dissector_handle_t erf_eth_dissector[ERF_ETH_MAX];
 
 /* Header for ATM trafic identification */
 #define ATM_HDR_LENGTH 4
@@ -583,20 +583,32 @@ dissect_erf_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, proto_tree *tree)
-{   
-  tvbuff_t *tvb, *new_tvb; 
-  gint new_tvb_length;
+dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint8 flags;
   guint8 erf_type;
   guint32 atm_hdr=0;
-  guint8 flags=0;
+  proto_item *erf_item = NULL;
+  proto_tree *erf_tree = NULL;
+  tvbuff_t *new_tvb;
+
+  erf_type=pinfo->pseudo_header->erf.phdr.type;
+
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
   
-  if (erf_tree) {  
-    dissect_erf_pseudo_header(erf_tvb, pinfo, erf_tree);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+       val_to_str(erf_type, erf_type_vals, "Unknown type %u"));
+  }  
+
+  if (tree) {
+    erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, FALSE);
+    erf_tree = proto_item_add_subtree(erf_item, ett_erf);
+  
+    dissect_erf_pseudo_header(tvb, pinfo, erf_tree);
   }
   
-  tvb=erf_tvb;
-  new_tvb=erf_tvb;
   flags = pinfo->pseudo_header->erf.phdr.flags;
   /*
    * Set if frame is Received or Sent.
@@ -610,16 +622,15 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
    */
   pinfo->p2p_dir = ( (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT);
   
-  erf_type=pinfo->pseudo_header->erf.phdr.type;
-
   switch(erf_type) {
 
   case ERF_TYPE_INFINIBAND:
-#if 0
-      if(data_handle) /* no infiniband header but there might be later on */
-          call_dissector(data_handle, tvb, pinfo, tree);
-#endif
+    if (erf_infiniband_dissector[erf_infiniband_default])
+      call_dissector(erf_infiniband_dissector[erf_infiniband_default], tvb, pinfo, erf_tree);
+    else
+      call_dissector(data_handle, tvb, pinfo, erf_tree);
     break;
+
   case ERF_TYPE_LEGACY:
   case ERF_TYPE_IP_COUNTER:
   case ERF_TYPE_TCP_FLOW_COUNTER:
@@ -658,13 +669,14 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
       
-    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
     /* Try to guess the type according to the first bytes */
     erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);
       
-    if (erf_atm_dissector[erf_atm_default])
+    if (erf_atm_default < ERF_ATM_MAX)
       call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    else
+      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
     break;
 
   case ERF_TYPE_MC_AAL5:
@@ -682,13 +694,14 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
-    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
     /* Try to guess the type according to the first bytes */
     erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
 
-    if (erf_atm_dissector[erf_atm_default])
+    if (erf_atm_default < ERF_ATM_MAX)
       call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    else
+      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
     break;
 
   case ERF_TYPE_MC_AAL2:
@@ -706,13 +719,14 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
     pinfo->pseudo_header->atm.type = TRAF_UNKNOWN;
     pinfo->pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
-    new_tvb_length = tvb_length(tvb) - ATM_HDR_LENGTH;
-    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, new_tvb_length, new_tvb_length);
+    new_tvb = tvb_new_subset(tvb, ATM_HDR_LENGTH, -1, -1);
     /* Try to guess the type according to the first bytes */
     erf_atm_guess_traffic_type(tvb->real_data, tvb->length, pinfo->pseudo_header);  
 
-    if (erf_atm_dissector[erf_atm_default])
+    if (erf_atm_default < ERF_ATM_MAX)
       call_dissector(erf_atm_dissector[erf_atm_default], new_tvb, pinfo, tree);
+    else
+      proto_tree_add_text(tree, new_tvb, 0, -1, "The ERF_ATM Layer 2 preference for ERF is set to \"Raw data\"");
     break;
 
   case ERF_TYPE_ETH:
@@ -728,8 +742,10 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
       break;
     }
       
-    if (erf_eth_dissector[erf_eth_default])
+    if (erf_eth_default < ERF_ETH_MAX)
       call_dissector(erf_eth_dissector[erf_eth_default], tvb, pinfo, tree);
+    else
+      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_ETH Layer 2 preference for ERF is set to \"Raw data\"");
     break;
 
   case ERF_TYPE_MC_HDLC:
@@ -756,43 +772,15 @@ dissect_erf_header(tvbuff_t *erf_tvb, packet_info *pinfo, proto_tree *erf_tree, 
     default:
       break;
     }
-    if (erf_hdlc_dissector[erf_hdlc_default])
+    if (erf_hdlc_default < ERF_HDLC_MAX)
       call_dissector(erf_hdlc_dissector[erf_hdlc_default], tvb, pinfo, tree);
+    else
+      proto_tree_add_text(tree, tvb, 0, -1, "The ERF_HDLC Layer 2 preference for ERF is set to \"Raw data\"");
     break;
       
   default:
     break;
   } /* erf type */
-}
-
-static void
-dissect_erf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  guint8 erf_type = 0;
-  dissector_handle_t infiniband_dissector = NULL;
-  proto_item *erf_item = NULL;
-  proto_tree *erf_tree = NULL;
-
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ERF");
-  
-  if (tree) {
-    erf_item = proto_tree_add_item(tree, proto_erf, tvb, 0, -1, FALSE);
-    erf_tree = proto_item_add_subtree(erf_item, ett_erf);
-  };
-  
-  dissect_erf_header(tvb, pinfo, erf_tree, tree);
-
-  if (pinfo->pseudo_header) 
-  {
-    erf_type = pinfo->pseudo_header->erf.phdr.type;
-  }
-  if(erf_type == ERF_TYPE_INFINIBAND)
-  {
-	  infiniband_dissector = find_dissector("infiniband");
-	  call_dissector(infiniband_dissector, tvb, pinfo, erf_tree);
-  }
-
 }
 
 void
@@ -959,24 +947,20 @@ proto_reg_handoff_erf(void)
   /* Dissector called to dump raw data, or unknown protocol */
   data_handle = find_dissector("data");
 	
-  /* Create ERF_INFINIBAND dissectors */
+  /* Create ERF_INFINIBAND dissectors table */
   erf_infiniband_dissector[ERF_INFINIBAND] = find_dissector("infiniband");
-
 
   /* Create ERF_HDLC dissectors table */
   erf_hdlc_dissector[ERF_HDLC_CHDLC] = find_dissector("chdlc");
   erf_hdlc_dissector[ERF_HDLC_PPP] = find_dissector("ppp_hdlc");
   erf_hdlc_dissector[ERF_HDLC_FRELAY] = find_dissector("fr");
   erf_hdlc_dissector[ERF_HDLC_MTP2] = find_dissector("mtp2");
-  erf_hdlc_dissector[ERF_HDLC_MAX] = data_handle;
 
   /* Create ERF_ATM dissectors table */  
   erf_atm_dissector[ERF_ATM_ATM] = find_dissector("atm_untruncated");
   erf_atm_dissector[ERF_ATM_LLC] = find_dissector("llc");
-  erf_atm_dissector[ERF_ATM_MAX] = data_handle;
 
   /* Create Ethernet dissectors table */
   erf_eth_dissector[ERF_ETH_ETHFCS] = find_dissector("eth_withfcs");  
   erf_eth_dissector[ERF_ETH_ETHNOFCS] = find_dissector("eth_withoutfcs");
-  erf_eth_dissector[ERF_ETH_MAX] = data_handle;
 }
