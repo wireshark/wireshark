@@ -155,7 +155,7 @@ typedef enum {
   ERF_HDLC_MTP2 = 4,
   ERF_HDLC_MAX = 5
 } erf_hdlc_type;
-static gint erf_hdlc_default = ERF_HDLC_MTP2;
+static gint erf_hdlc_default = ERF_HDLC_MAX;
 static dissector_handle_t erf_hdlc_dissector[ERF_HDLC_MAX];
 
 typedef enum {
