@@ -51,7 +51,7 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl \
+	$(PERL) ../../tools/checkAPIs.pl -g abort \
 	packet-cosnaming.c \
 	packet-coseventcomm.c \
 	packet-tango.c \
