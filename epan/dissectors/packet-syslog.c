@@ -180,7 +180,7 @@ static dissector_handle_t mtp_handle;
 static tvbuff_t *
 mtp3_msu_present(gint fac, gint level, const char *msg_str)
 {
-  size_t nbytes;
+  size_t nbytes, len;
   gchar **split_string, *msu_hex_dump;
   tvbuff_t *mtp3_tvb = NULL;
   guint8 *byte_array;
@@ -198,11 +198,22 @@ mtp3_msu_present(gint fac, gint level, const char *msg_str)
   split_string = g_strsplit(msg_str, "msu=", 2);
   msu_hex_dump = split_string[1];
 
-  if (msu_hex_dump && strlen(msu_hex_dump)) {
+  if (msu_hex_dump && (len = strlen(msu_hex_dump))) {
+
+    /*  convert_string_to_hex() will return NULL if it gets an incomplete
+     *  byte.  If we have an odd string length then chop off the remaining
+     *  nibble so we can get at least a partial MSU (chances are the
+     *  subdissector will assert out, of course).
+     */
+    if (len % 2)
+	msu_hex_dump[len - 1] = '\0';
+
     byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
 
-    mtp3_tvb = tvb_new_real_data(byte_array, nbytes, nbytes);
-    tvb_set_free_cb(mtp3_tvb, g_free);
+    if (byte_array) {
+	mtp3_tvb = tvb_new_real_data(byte_array, nbytes, nbytes);
+	tvb_set_free_cb(mtp3_tvb, g_free);
+    }
   }
 
   g_strfreev(split_string);
