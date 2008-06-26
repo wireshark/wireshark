@@ -199,10 +199,10 @@ update_if(if_dlg_data_t *if_dlg_data, if_stat_cache_t *sc)
 
   /*
    * Note that some versions of libpcap, on some versions of UN*X,
-   * pcap_stats() returns the number of packets since the last 
+   * pcap_stats() returns the number of packets since the last
    * pcap_stats call.
    *
-   * That's a bug, and should be fixed; "pcap_stats()" is supposed 
+   * That's a bug, and should be fixed; "pcap_stats()" is supposed
    * to work the same way on all platforms.
    */
   if (sc) {
@@ -643,7 +643,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)(HELP_CAPTURE_INTERFACES_DIALOG));
 
   gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
-  /* height + static offset + what GTK-Wimp needs in addition per interface */
+  /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 20 + ifs;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 

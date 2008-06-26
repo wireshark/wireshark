@@ -132,18 +132,6 @@ GTK_INST_VERSION=2.12
 PANGO_INST_VERSION=1.20
 
 #
-# If you have GTK-Wimp, set this to the pathname of the directory in
-# which the files are stored.
-#
-# If you don't have GTK-Wimp, comment this line out, so that GTK-Wimp isn't
-# defined.
-#
-# Please note: GTK 2.8 (and later?) includes GTK-Wimp
-# (in this case these GTK-Wimp related settings will have no effect)
-#
-GTK_WIMP_DIR=$(WIRESHARK_LIBS)\gtk-wimp\gtk-wimp-0.7.0-bin
-
-#
 # Optional: WinPcap developer's pack to capture network traffic.
 #
 # If you have the WinPcap developer's pack (at least version 3.0),
@@ -612,7 +600,6 @@ NEED_LIBPNG_DLL=USE
 NEED_LIBJPEG_DLL=USE
 NEED_LIBTIFF_DLL=USE
 NEED_CAIRO_DLL=USE
-GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
 GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0
@@ -621,7 +608,6 @@ GTK_WIMP_RCDST_DIR=etc\gtk-2.0
 GTK_LIB_DIR=2.10.0
 NEED_LIBPNG_DLL=USE
 NEED_CAIRO_DLL=USE
-GTK_WIMP_DIR=DUMMY_TO_USE_WIMP
 GTK_WIMP_DLLSRC_DIR=$(GTK_DIR)\lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_DLLDST_DIR=lib\gtk-2.0\2.10.0\engines
 GTK_WIMP_RCSRC_DIR=$(GTK_DIR)\share\themes\MS-Windows\gtk-2.0

@@ -798,10 +798,6 @@ process_libs:
 !ERROR ? Unknown or invalid PANGO_INST_VERSION
 !ENDIF
 !ENDIF
-!IFDEF GTK_WIMP_DIR
-	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
-		gtk-wimp gtk-wimp/gtk-wimp-0.7.0-bin.zip
-!ENDIF
 !IFDEF HHC_DIR
 	@$(SH) tools\win32-setup.sh "$(WIN32_SETUP_OPT)" "$(WIRESHARK_LIBS)" \
 		user-guide user-guide-24665.zip
@@ -1011,12 +1007,10 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libcairo-2.dll $(INSTALL_DIR)  /d
 	xcopy $(GTK_DIR)\bin\libpangocairo-1.0-0.dll $(INSTALL_DIR) /d
 !ENDIF
-!IFDEF GTK_WIMP_DIR
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR)
 	xcopy "$(GTK_WIMP_DLLSRC_DIR)\libwimp.dll" $(INSTALL_DIR)\$(GTK_WIMP_DLLDST_DIR) /d
 	if not exist $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) mkdir $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR)
 	xcopy "$(GTK_WIMP_RCSRC_DIR)\gtkrc" $(INSTALL_DIR)\$(GTK_WIMP_RCDST_DIR) /d
-!ENDIF
 	xcopy $(GLIB_DIR)\bin\libglib-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgobject-2.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GLIB_DIR)\bin\libgmodule-2.0-0.dll $(INSTALL_DIR) /d

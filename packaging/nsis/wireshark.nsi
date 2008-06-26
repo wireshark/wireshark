@@ -666,9 +666,6 @@ SetShellVarContext all
 
 SectionEnd ; "Required"
 
-
-SectionGroup "!Wireshark" SecWiresharkGroup
-
 !ifdef GTK_DIR
 Section "Wireshark" SecWireshark
 ;-------------------------------------------
@@ -705,21 +702,14 @@ File "${GTK_DIR}\lib\gtk-2.0\${GTK_LIB_DIR}\immodules\im-*.dll"
 #SetOutPath $INSTDIR\lib\pango\${PANGO_LIB_DIR}\modules
 #File "${GTK_DIR}\lib\pango\${PANGO_LIB_DIR}\modules\pango-*.dll"
 
-SectionEnd
-
-!ifdef GTK_WIMP_DIR
-Section "GTK MS Windows Engine" SecGTKWimp
-;-------------------------------------------
-SectionIn 1
+; GTK MS-Windows Engine (GTK-Wimp)
 SetOutPath $INSTDIR\${GTK_WIMP_DLLDST_DIR}
 File "${GTK_WIMP_DLLSRC_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\${GTK_WIMP_RCDST_DIR}
 File "${GTK_WIMP_RCSRC_DIR}\gtkrc"
-SectionEnd
-!endif
-!endif
 
-SectionGroupEnd	; "Wireshark"
+SectionEnd ; "Wireshark"
+!endif
 
 
 Section "TShark" SecTShark
@@ -727,13 +717,6 @@ Section "TShark" SecTShark
 SetOutPath $INSTDIR
 File "..\..\tshark.exe"
 File "..\..\doc\tshark.html"
-SectionEnd
-
-Section "Rawshark" SecRawshark
-;-------------------------------------------
-SetOutPath $INSTDIR
-File "..\..\rawshark.exe"
-File "..\..\doc\rawshark.html"
 SectionEnd
 
 SectionGroup "Plugins / Extensions" SecPluginsGroup
@@ -831,6 +814,13 @@ Section "Capinfos" SecCapinfos
 SetOutPath $INSTDIR
 File "..\..\capinfos.exe"
 File "..\..\doc\capinfos.html"
+SectionEnd
+
+Section "Rawshark" SecRawshark
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "..\..\rawshark.exe"
+File "..\..\doc\rawshark.html"
 SectionEnd
 
 SectionGroupEnd	; "Tools"
@@ -1067,15 +1057,10 @@ SectionEnd
 ; PLEASE MAKE SURE, THAT THE DESCRIPTIVE TEXT FITS INTO THE DESCRIPTION FIELD!
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGroup} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !ifdef GTK_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWireshark} "${PROGRAM_NAME} using the GTK user interface."
-!ifdef GTK_WIMP_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecGTKWimp} "GTK MS Windows Engine - native Win32 look and feel, for Win2000 and up."
-!endif
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWireshark} "${PROGRAM_NAME} is a GUI network protocol analyzer."
 !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Some plugins and extensions for both Wireshark and TShark."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecStatsTree} "Plugin for some extended statistics."
@@ -1091,6 +1076,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
 !ifdef HHC_DIR
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install the user's guide, so an internet connection is not required to read the help pages."
 !endif
@@ -1183,23 +1169,6 @@ lbl_winversion_unsupported_nt4:
 	Quit
 
 lbl_winversion_supported:
-!ifdef GTK_DIR
-	; Enable GTK-Wimp only for Windows 2000/XP/2003
-	; ...as Win9x/ME/NT known to have problems with it!
-
-	;DetailPrint 'Windows Version: $R0'
-	StrCmp $R0 '2000' lbl_select_wimp
-	StrCmp $R0 'XP' lbl_select_wimp
-	StrCmp $R0 '2003' lbl_select_wimp
-	DetailPrint "Windows $R0 doesn't support the GTK MS Windows Engine!"
-
-	Goto lbl_ignore_wimp
-lbl_select_wimp:
-	!insertmacro SelectSection ${SecGTKWimp}
-
-lbl_ignore_wimp:
-!endif
-
 
 	; detect if WinPcap should be installed
 	WriteINIStr "$PLUGINSDIR\WinPcapPage.ini" "Field 4" "Text" "Install WinPcap 4.0.2"
