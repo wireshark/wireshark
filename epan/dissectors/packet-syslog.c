@@ -203,7 +203,7 @@ mtp3_msu_present(gint fac, gint level, const char *msg_str)
     /*  convert_string_to_hex() will return NULL if it gets an incomplete
      *  byte.  If we have an odd string length then chop off the remaining
      *  nibble so we can get at least a partial MSU (chances are the
-     *  subdissector will assert out, of course).
+     *  subdissector will except out, of course).
      */
     if (len % 2)
 	msu_hex_dump[len - 1] = '\0';
