@@ -233,7 +233,7 @@ while ($_ = $ARGV[0])
 
 	if ($fileContents =~ m{[\x80-\xFF]})
 	{
-		print "Warning: found non-ASCII characters in " .$filename."\n";
+		print STDERR "Warning: Found non-ASCII characters in " .$filename."\n";
 #		Treat as warning
 #		$errorCount++;
 	}
@@ -241,13 +241,13 @@ while ($_ = $ARGV[0])
 	if ($fileContents =~ m{%ll})
 	{
 		# use G_GINT64_MODIFIER instead of ll
-		print "Error: found %ll in " .$filename."\n";
+		print STDERR "Error: Found %ll in " .$filename."\n";
 		$errorCount++;
 	}
 
 	if (! ($fileContents =~ m{\$Id.*\$}))
 	{
-		print "Warning: ".$filename." does not have an SVN Id tag.\n";
+		print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
 	}
 
 	# Remove all the C-comments and strings
@@ -255,7 +255,7 @@ while ($_ = $ARGV[0])
 
         if ($fileContents =~ m{//})
         {
-		print "Error: Found C++ style comments in " .$filename."\n";
+		print STDERR "Error: Found C++ style comments in " .$filename."\n";
 		$errorCount++;
         }
 
@@ -271,7 +271,7 @@ while ($_ = $ARGV[0])
 			$pfx = "Error";
 		}
 
-		print $pfx . ": Found " . $apiName . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n" if @foundAPIs;
+		print STDERR $pfx . ": Found " . $apiName . " APIs in ".$filename.": ".join(',', @foundAPIs)."\n" if @foundAPIs;
 	}
 
 }
