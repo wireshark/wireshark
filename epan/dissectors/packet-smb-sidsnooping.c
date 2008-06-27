@@ -282,7 +282,7 @@ sid_name_equal(gconstpointer k1, gconstpointer k2)
 {
 	const sid_name *sn1 = (const sid_name *)k1;
 	const sid_name *sn2 = (const sid_name *)k2;
-	
+
 	return !strcmp(sn1->sid, sn2->sid);
 }
 
@@ -310,7 +310,7 @@ ctx_handle_equal(gconstpointer k1, gconstpointer k2)
 {
 	int sn1 = GPOINTER_TO_INT(k1);
 	int sn2 = GPOINTER_TO_INT(k2);
-	
+
 	return sn1==sn2;
 }
 
@@ -357,10 +357,6 @@ sid_name_snooping=0;
 	if(!sid_name_snooping){
 		return;
 	}
-
-
-
-
 
 	sid_name_table=g_hash_table_new(sid_name_hash, sid_name_equal);
 
@@ -415,7 +411,7 @@ sid_name_snooping=0;
 		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/lsa_policy_information tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return;
 	}
 	lsa_policy_information_tap_installed=TRUE;
 
@@ -426,7 +422,7 @@ sid_name_snooping=0;
 		fprintf(stderr, "tshark: Couldn't register proto_reg_handoff_smb_sidsnooping()/samr_query_dispinfo tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
-		exit(1);
+		return;
 	}
 	samr_query_dispinfo_tap_installed=TRUE;
 }

@@ -6191,7 +6191,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	default: /* Impossible since we returned already earlier */
-		g_error("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
+		g_warning("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
 			"Please report this as a bug.\n", __FILE__, __LINE__, version);
 		DISSECTOR_ASSERT_NOT_REACHED();
 		break;

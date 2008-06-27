@@ -320,7 +320,7 @@ static void *my_malloc(int size) {
 
 	if (!p) {
 		perror("calloc()");
-		exit(1);
+		/* exit(1); */
 	}
 	return p;
 }

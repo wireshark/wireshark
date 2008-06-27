@@ -256,7 +256,7 @@ static const value_string package_name_vals[] = {
   {   0x0092, "Detailed Congestion Reporting Package" },			/* H.248.32 */
   {   0x0093, "Stimulus Analogue Lines Package" },					/* H.248.34 */
   {   0x0094, "icascgen" },											/* H.248.29 Annex B */
-  {   0x0095, "Coin Operated Phone Control Package" },				/* H.248.35 */ 
+  {   0x0095, "Coin Operated Phone Control Package" },				/* H.248.35 */
   {   0x0096, "Metering Pulse Detection Package" },					/* H.248.26 Amendment 1 */
   {   0x0097, "Trace Package" },									/* 3GPP TS 29.232 v6.3.0 */
   {   0x0098, "Hanging Termination Package" },						/* H.248.36 */
@@ -270,19 +270,19 @@ static const value_string package_name_vals[] = {
   {   0x00a0, "MGC Information Package" },							/* H.248.45 */
   {   0x00a1, "Text Overlay Package" },								/* H.248.19 Amendment 1 */
   {   0x00a2, "Border and Background Package" },					/* H.248.19 Amendment 1 */
-  {   0x00a3, "Segmentation Package" },								/* H.248.1v3 */ 
+  {   0x00a3, "Segmentation Package" },								/* H.248.1v3 */
   {   0x00a4, "ETSI notification behaviour package" },				/* ETSI ES 283 039-3 */
   {   0x00a5, "ETSI notification rate package" },					/* ETSI ES 283 039-4 */
-  {   0x00a6, "Automatic Speech Recognition Package" },				/* H.248.9 Amendment 1 */ 
+  {   0x00a6, "Automatic Speech Recognition Package" },				/* H.248.9 Amendment 1 */
   {   0x00a7, "Set extension to basic syntax for TTS enhancement Package" },/* H.248.9 Amendment 1 */
-  {   0x00a8, "Advanced audio server base package for TTS enhancement" },	/* H.248.9 Amendment 1 */ 
-  {   0x00a9, "Multimedia Play Package" },							/* H.248.9 Amendment 1 */ 
+  {   0x00a8, "Advanced audio server base package for TTS enhancement" },	/* H.248.9 Amendment 1 */
+  {   0x00a9, "Multimedia Play Package" },							/* H.248.9 Amendment 1 */
   {   0x00aa, "Floor Status Detection Package" },					/* H.248.19 Amendment 2 */
-  {   0x00ab, "Floor Control Policy Package" },						/* H.248.19 Amendment 2 */ 
-  {   0x00ac, "Address Reporting Package" },						/* H.248.37 Amendment 1 */ 
-  {   0x00ad, "Connection Capability Control Package" },			/* H.248.46 */ 
+  {   0x00ab, "Floor Control Policy Package" },						/* H.248.19 Amendment 2 */
+  {   0x00ac, "Address Reporting Package" },						/* H.248.37 Amendment 1 */
+  {   0x00ad, "Connection Capability Control Package" },			/* H.248.46 */
   {   0x00ae, "Statistic Conditional Reporting Package" },			/* H.248.47 Amendment 1 */
-  {   0x00af, "RTCP HR QoS Statistics Package" },					/* H.248.48 */ 
+  {   0x00af, "RTCP HR QoS Statistics Package" },					/* H.248.48 */
   {   0x00b0, "Received RTCP XR Package" },							/* H.248.30 (01/2007) */
   {   0x00b1, "Received RTCP XR Burst Metrics Package" },			/* H.248.30 (01/2007) */
   {   0x00b2, "ASCI Group call package" },							/* 3GPP TS 29.232 v7.4.0 */
@@ -633,10 +633,10 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
- 
+
 	old_offset=offset;
 	offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, offset, hfid , &new_tvb);
-  	
+
   if (new_tvb) {
     /* this field is always 4 bytes  so just read it into two integers */
     name_major=tvb_get_ntohs(new_tvb, 0);
@@ -648,7 +648,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
     if(tree){
 	proto_item* pi;
 	const gchar* strval;
-	    
+
 	package_tree = proto_item_add_subtree(asn1_ctx.created_item, ett_packagename);
 	proto_tree_add_uint(package_tree, hf_h248_pkg_name, tvb, offset-4, 2, name_major);
 
@@ -666,7 +666,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 
 	pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
-	
+
 	if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
 		strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 	} else {
@@ -675,7 +675,7 @@ extern void h248_param_PkgdName(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 	proto_item_set_text(pi,"Signal ID: %s", strval);
 	}
-	
+
   }
 }
 
@@ -770,8 +770,6 @@ static int dissect_h248_ctx_id(gboolean implicit_tag, packet_info *pinfo, proto_
 void h248_register_package(const h248_package_t* pkg) {
 	if (! packages) packages = g_ptr_array_new();
 
-	g_assert(pkg != NULL);
-
 	g_ptr_array_add(packages,(void*)pkg);
 }
 
@@ -813,17 +811,17 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
 	}
 
 	if (! pkg ) pkg = &no_package;
-		
+
 	{
 		proto_item* pi = proto_tree_add_uint(package_tree, hf_248_pkg_param, tvb, offset-2, 2, name_minor);
 		const gchar* strval;
-		
+
 		if (pkg->param_names && ( strval = match_strval(name_minor, pkg->param_names) )) {
 			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 		} else {
 			strval = ep_strdup_printf("Unknown (%d)",name_minor);
 		}
-	
+
 		proto_item_set_text(pi,"Parameter: %s", strval);
 	}
   } else {
@@ -892,13 +890,13 @@ static int dissect_h248_EventName(gboolean implicit_tag, tvbuff_t *tvb, int offs
 	{
 		proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_event_code, tvb, offset-2, 2, name_minor);
 		const gchar* strval;
-	
+
 		if (pkg->event_names && ( strval = match_strval(name_minor, pkg->event_names) )) {
 			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 		} else {
 			strval = ep_strdup_printf("Unknown (%d)",name_minor);
 		}
-	
+
 		proto_item_set_text(pi,"Event ID: %s", strval);
 	}
 
@@ -968,13 +966,13 @@ static int dissect_h248_SignalName(gboolean implicit_tag , tvbuff_t *tvb, int of
 	{
 		proto_item* pi = proto_tree_add_uint(package_tree, hf_h248_signal_code, tvb, offset-2, 2, name_minor);
 		const gchar* strval;
-	
+
 		if (pkg->signal_names && ( strval = match_strval(name_minor, pkg->signal_names) )) {
 			strval = ep_strdup_printf("%s (%d)",strval,name_minor);
 		} else {
 			strval = ep_strdup_printf("Unknown (%d)",name_minor);
 		}
-	
+
 		proto_item_set_text(pi,"Signal ID: %s", strval);
 	}
 
@@ -1042,10 +1040,10 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 	const h248_pkg_param_t* sigpar;
 	const gchar* strval;
 	proto_item* pi;
-	
+
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset,  hf_index, &next_tvb);
 	pi = actx->created_item;
-	
+
 	switch(tvb_length(next_tvb)) {
 		case 4: param_id = tvb_get_ntohl(next_tvb,0); break;
 		case 3: param_id = tvb_get_ntoh24(next_tvb,0); break;
@@ -1070,7 +1068,7 @@ static int dissect_h248_SigParameterName(gboolean implicit_tag _U_, tvbuff_t *tv
 	} else {
 		strval = ep_strdup_printf("Unknown (%d)",param_id);
 	}
-	
+
 	proto_item_set_text(pi,"Parameter: %s", strval);
 
 	return offset;
@@ -1138,16 +1136,16 @@ static int dissect_h248_EventParameterName(gboolean implicit_tag _U_, tvbuff_t *
 	} else {
 		curr_info.par = &no_param;
 	}
-	
+
 	if (curr_info.evt && curr_info.evt->param_names && ( strval = match_strval(param_id, curr_info.evt->param_names) )) {
 		strval = ep_strdup_printf("%s (%d)",strval,param_id);
 	} else {
 		strval = ep_strdup_printf("Unknown (%d)",param_id);
 	}
-	
+
 	proto_item_set_text(pi,"Parameter: %s", strval);
 
-	
+
 	return offset;
 }
 
@@ -1276,14 +1274,14 @@ static void h248_init(void)  {
     } else {
         if ( udp_port )
             dissector_delete("udp.port", udp_port, h248_handle);
-		
+
 		if ( tcp_port)
             dissector_delete("tcp.port", tcp_port, h248_tpkt_handle);
 	}
 
     udp_port = temp_udp_port;
     tcp_port = temp_tcp_port;
-	
+
     if ( udp_port ) {
 		dissector_add("udp.port", udp_port, h248_handle);
 	}
@@ -1291,7 +1289,7 @@ static void h248_init(void)  {
 	if ( tcp_port) {
 		dissector_add("tcp.port", tcp_port, h248_tpkt_handle);
 	}
-	
+
 	if (!h248_term_handle){
 		h248_term_handle = find_dissector("h248term");
 	}
@@ -1391,7 +1389,7 @@ void proto_register_h248(void) {
     &ett_h248_no_sig,
     &ett_h248_no_evt,
 	GCP_ETT_ARR_ELEMS(h248_arrel),
-	  
+
 #include "packet-h248-ettarr.c"
   };
 
@@ -1426,8 +1424,8 @@ void proto_register_h248(void) {
                                  "Desegment H.248 over TCP",
                                  "Desegment H.248 messages that span more TCP segments",
                                  &h248_desegment);
-  
-  
+
+
   register_init_routine( &h248_init );
 
   msgs = se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "h248_msgs");
