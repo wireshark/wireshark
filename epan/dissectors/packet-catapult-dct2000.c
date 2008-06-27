@@ -1377,12 +1377,12 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                         &dest_port_offset)))
                 {
                     proto_tree *sctpprim_tree;
-                    proto_item *ti;
+                    proto_item *ti_local;
 
                     /* Will use this dissector then. */
                     protocol_handle = heur_protocol_handle;
 
-                    ti =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_sctpprim_addresses,
+                    ti_local =  proto_tree_add_string_format(dct2000_tree, hf_catapult_dct2000_sctpprim_addresses,
                                                        tvb, offset_before_sctpprim_header, 0,
                                                        "", "SCTPPrim transport:  -> %s:%u",
                                                        (dest_addr_offset) ?
@@ -1396,7 +1396,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                          0);
 
                     /* Add these SCTPPRIM fields inside an SCTPPRIM subtree */
-                    sctpprim_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_sctpprim);
+                    sctpprim_tree = proto_item_add_subtree(ti_local, ett_catapult_dct2000_sctpprim);
 
                     pinfo->ipproto = IP_PROTO_SCTP;
 
@@ -1488,10 +1488,10 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     {
         /* Show number of dissected bytes */
         if (dct2000_tree) {
-            proto_item *ti = proto_tree_add_uint(dct2000_tree,
+            proto_item *ti_local = proto_tree_add_uint(dct2000_tree,
                                                  hf_catapult_dct2000_dissected_length,
                                                  tvb, 0, 0, tvb_reported_length(tvb)-offset);
-            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_GENERATED(ti_local);
         }
     }
 }

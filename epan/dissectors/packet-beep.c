@@ -397,13 +397,13 @@ static int header_len(tvbuff_t *tvb, int offset)
 
 static int
 dissect_beep_mime_header(tvbuff_t *tvb, int offset,
-			 struct beep_proto_data *frame_data,
+			 struct beep_proto_data *beep_frame_data,
 			 proto_tree *tree)
 {
   proto_tree    *ti = NULL, *mime_tree = NULL;
   int           mime_length = header_len(tvb, offset), cc = 0;
 
-  if (frame_data && !frame_data->mime_hdr) return 0;
+  if (beep_frame_data && !beep_frame_data->mime_hdr) return 0;
 
   if (tree) {
 
@@ -482,7 +482,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
 
 static void
 set_mime_hdr_flags(int more, struct beep_request_val *request_val,
-		   struct beep_proto_data *frame_data, packet_info *pinfo)
+		   struct beep_proto_data *beep_frame_data, packet_info *pinfo)
 {
 
   if (!request_val) return; /* Nothing to do ??? */
@@ -491,14 +491,14 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
     if (request_val->c_mime_hdr) {
 
-      frame_data->mime_hdr = 0;
+      beep_frame_data->mime_hdr = 0;
 
       if (!more) request_val->c_mime_hdr = 0;
 
     }
     else {
 
-      frame_data->mime_hdr = 1;
+      beep_frame_data->mime_hdr = 1;
 
       if (more) request_val->c_mime_hdr = 1;
 
@@ -509,14 +509,14 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 
     if (request_val->s_mime_hdr) {
 
-      frame_data->mime_hdr = 0;
+      beep_frame_data->mime_hdr = 0;
 
       if (!more) request_val->s_mime_hdr = 0;
 
     }
     else {
 
-      frame_data->mime_hdr = 1;
+      beep_frame_data->mime_hdr = 1;
 
       if (more) request_val->s_mime_hdr = 1;
 
@@ -537,7 +537,7 @@ set_mime_hdr_flags(int more, struct beep_request_val *request_val,
 static int
 dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		  proto_tree *tree, struct beep_request_val *request_val,
-		  struct beep_proto_data *frame_data)
+		  struct beep_proto_data *beep_frame_data)
 {
   proto_tree     *ti = NULL, *hdr = NULL;
   proto_item	 *hidden_item;
@@ -585,10 +585,10 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* Insert the more elements ... */
     if ((more = dissect_beep_more(tvb, offset, hdr)) >= 0) {
       /* Figure out which direction this is in and what mime_hdr flag to
-       * add to the frame_data. If there are missing segments, this code
+       * add to the beep_frame_data. If there are missing segments, this code
        * will get it wrong!
        */
-      set_mime_hdr_flags(more, request_val, frame_data, pinfo);
+      set_mime_hdr_flags(more, request_val, beep_frame_data, pinfo);
     }
     else {  /* Protocol violation, so dissect rest as undisectable */
       if (tree) {
@@ -614,8 +614,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (request_val)   /* FIXME, is this the right order ... */
       request_val -> size = size;  /* Stash this away */
     else {
-      frame_data->pl_size = size;
-      if (frame_data->pl_size < 0) frame_data->pl_size = 0; /* FIXME: OK? */
+      beep_frame_data->pl_size = size;
+      if (beep_frame_data->pl_size < 0) beep_frame_data->pl_size = 0; /* FIXME: OK? */
     }
     /* offset += 1; skip the space */
 
@@ -647,8 +647,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Insert MIME header ... */
 
-    if (frame_data && frame_data->mime_hdr)
-      offset += dissect_beep_mime_header(tvb, offset, frame_data, hdr);
+    if (beep_frame_data && beep_frame_data->mime_hdr)
+      offset += dissect_beep_mime_header(tvb, offset, beep_frame_data, hdr);
 
     /* Now for the payload, if any */
 
@@ -675,15 +675,15 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (request_val->size < 0) request_val->size = 0;
       }
       else {
-	frame_data->pl_size -= pl_size;
-	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+	beep_frame_data->pl_size -= pl_size;
+	if (beep_frame_data->pl_size < 0) beep_frame_data->pl_size = 0;
       }
     }
 
     /* If anything else left, dissect it ... */
 
     if (tvb_length_remaining(tvb, offset) > 0)
-      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, frame_data);
+      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, beep_frame_data);
 
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
@@ -783,8 +783,8 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
       }
 
-    } else if (frame_data) {
-      pl_size = MIN(frame_data->pl_size, tvb_length_remaining(tvb, offset));
+    } else if (beep_frame_data) {
+      pl_size = MIN(beep_frame_data->pl_size, tvb_length_remaining(tvb, offset));
     } else { /* Just in case */
       pl_size = tvb_length_remaining(tvb, offset);
     }
@@ -815,13 +815,13 @@ dissect_beep_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (request_val->size < 0) request_val->size = 0;
       }
       else {
-	frame_data->pl_size -= pl_size;
-	if (frame_data->pl_size < 0) frame_data->pl_size = 0;
+	beep_frame_data->pl_size -= pl_size;
+	if (beep_frame_data->pl_size < 0) beep_frame_data->pl_size = 0;
       }
     }
 
     if (tvb_length_remaining(tvb, offset) > 0) {
-      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, frame_data);
+      offset += dissect_beep_tree(tvb, offset, pinfo, tree, request_val, beep_frame_data);
     }
   }
 
@@ -833,7 +833,7 @@ static void
 dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset;
-  struct beep_proto_data  *frame_data = NULL;
+  struct beep_proto_data  *beep_frame_data = NULL;
   proto_tree              *beep_tree = NULL, *ti = NULL;
   conversation_t          *conversation = NULL;
   struct beep_request_key request_key, *new_request_key;
@@ -863,9 +863,9 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * info first.
    */
 
-  frame_data = p_get_proto_data(pinfo->fd, proto_beep);
+  beep_frame_data = p_get_proto_data(pinfo->fd, proto_beep);
 
-  if (!frame_data) {
+  if (!beep_frame_data) {
 
     conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, pinfo->ptype,
 				       pinfo->srcport, pinfo->destport, 0);
@@ -937,9 +937,9 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * We also depend on the first frame in a group having a pl_size of 0.
    */
 
-  if (frame_data && frame_data->pl_left > 0) {
+  if (beep_frame_data && beep_frame_data->pl_left > 0) {
 
-    int pl_left = frame_data->pl_left;
+    int pl_left = beep_frame_data->pl_left;
 
     pl_left = MIN(pl_left, tvb_length_remaining(tvb, offset));
 
@@ -960,13 +960,13 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * elsewhere for other frames
      */
 
-    frame_data = se_alloc(sizeof(struct beep_proto_data));
+    beep_frame_data = se_alloc(sizeof(struct beep_proto_data));
 
-    frame_data->pl_left = pl_left;
-    frame_data->pl_size = 0;
-    frame_data->mime_hdr = 0;
+    beep_frame_data->pl_left = pl_left;
+    beep_frame_data->pl_size = 0;
+    beep_frame_data->mime_hdr = 0;
 
-    p_add_proto_data(pinfo->fd, proto_beep, frame_data);
+    p_add_proto_data(pinfo->fd, proto_beep, beep_frame_data);
 
   }
 
@@ -974,21 +974,21 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * This _must_ come after the checks above ...
    */
 
-  if (frame_data == NULL) {
+  if (beep_frame_data == NULL) {
 
-    frame_data = se_alloc(sizeof(struct beep_proto_data));
+    beep_frame_data = se_alloc(sizeof(struct beep_proto_data));
 
-    frame_data->pl_left = 0;
-    frame_data->pl_size = 0;
-    frame_data->mime_hdr = 0;
+    beep_frame_data->pl_left = 0;
+    beep_frame_data->pl_size = 0;
+    beep_frame_data->mime_hdr = 0;
 
-    p_add_proto_data(pinfo->fd, proto_beep, frame_data);
+    p_add_proto_data(pinfo->fd, proto_beep, beep_frame_data);
 
   }
 
   if (tvb_length_remaining(tvb, offset) > 0) {
 
-    offset += dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, frame_data);
+    offset += dissect_beep_tree(tvb, offset, pinfo, beep_tree, request_val, beep_frame_data);
 
   }
 

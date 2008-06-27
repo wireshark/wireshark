@@ -1338,14 +1338,14 @@ static void alcap_leg_tree(proto_tree* tree, tvbuff_t* tvb, const alcap_leg_info
     
     if(leg->msgs) {
         alcap_msg_data_t* msg = leg->msgs;
-        proto_item* pi = proto_tree_add_text(tree,tvb,0,0,"[Messages in this leg]");
-        proto_tree* tree = proto_item_add_subtree(pi,ett_leg);
+        proto_item* pi_local = proto_tree_add_text(tree,tvb,0,0,"[Messages in this leg]");
+        proto_tree* tree_local = proto_item_add_subtree(pi_local,ett_leg);
         
         
         do {
-            pi = proto_tree_add_uint(tree,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
-            proto_item_set_text(pi,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
-            PROTO_ITEM_SET_GENERATED(pi);
+            pi_local = proto_tree_add_uint(tree_local,hf_alcap_leg_frame,tvb,0,0,msg->framenum);
+            proto_item_set_text(pi_local,"%s in frame %u", val_to_str(msg->msg_type,msg_type_strings,"Unknown message"),msg->framenum);
+            PROTO_ITEM_SET_GENERATED(pi_local);
         } while (( msg = msg->next));
         
     }

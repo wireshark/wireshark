@@ -469,10 +469,10 @@ static guint
 decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 {
     guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
-    gint        index;          /* index for the label stack */
+    gint        indx;          /* index for the label stack */
     char       *bufptr;
 
-    index = offset ;
+    indx = offset ;
     label_entry = 0x000000 ;
 
     buf[0] = '\0' ;
@@ -480,10 +480,10 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 
     while ((label_entry & 0x000001) == 0) {
 
-        label_entry = tvb_get_ntoh24(tvb, index) ;
+        label_entry = tvb_get_ntoh24(tvb, indx) ;
 
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
-        if((index-offset)==0&&(label_entry==0||label_entry==0x800000)) {
+        if((indx-offset)==0&&(label_entry==0||label_entry==0x800000)) {
             g_snprintf(bufptr, buflen-(bufptr-buf), "0 (withdrawn)");
             return (1);
         }
@@ -493,7 +493,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 			(label_entry >> 4), 
 			((label_entry & 0x000001) == 0) ? "," : " (bottom)"));
 	
-        index += 3 ;
+        indx += 3 ;
 
 	if ((label_entry & 0x000001) == 0) {
 	    /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
@@ -502,7 +502,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, size_t buflen)
 	}
     }
 
-    return((index - offset) / 3);
+    return((indx - offset) / 3);
 }
 
 /*
@@ -1504,13 +1504,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
-		proto_item *hidden_item;
+	    proto_item *hidden_item;
 	    const char *msg;
 	    int     off;
 	    gint    k;
 	    guint16 alen, tlen, aoff, aoff_save; 
 	    guint16 af;
-        guint8  saf, snpa;
+	    guint8  saf, snpa;
 	    guint8  nexthop_len;
 	    guint8  asn_len = 0;
 
@@ -2328,8 +2328,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 		end = o + i + aoff + tlen ;
 
 		while(q < end) {
-			proto_item *hidden_item;
-
 		    ssa_type = tvb_get_ntohs(tvb, q) & BGP_SSA_TYPE;
 		    ssa_len = tvb_get_ntohs(tvb, q + 2);
 
@@ -2342,7 +2340,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 			    q, 1, FALSE);
 		    hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
 			    q, 2, FALSE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+		    PROTO_ITEM_SET_HIDDEN(hidden_item);
 		    proto_tree_add_text(subtree3, tvb, q, 2,
 			    "Type: %s", val_to_str(ssa_type, bgp_ssa_type, "Unknown"));
 		    if ((ssa_len == 0) || (q + ssa_len > end)) {

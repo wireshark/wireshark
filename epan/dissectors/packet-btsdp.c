@@ -321,7 +321,6 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	guint8 byte0;
 	guint8 type;
 	guint8 size_index;
-	char *ptr;
 
 	str=ep_alloc(MAX_SDP_LEN+1);
 	*attr_val=str;
@@ -386,7 +385,7 @@ dissect_sdp_type(proto_tree *t, tvbuff_t *tvb, int offset, char **attr_val)
 	}
 	case 8:	/* fall through */
 	case 4: {
-		ptr = (gchar*)tvb_get_ephemeral_string(tvb, offset, size);
+		char *ptr = (gchar*)tvb_get_ephemeral_string(tvb, offset, size);
 
 		proto_tree_add_text(t, tvb, start_offset, type_size, "%s \"%s\"",
 				    type == 8 ? "URL" : "String", ptr);

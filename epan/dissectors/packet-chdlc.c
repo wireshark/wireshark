@@ -277,7 +277,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *slarp_tree = NULL;
   guint32 code;
-  guint32 address;
+  guint32 addr;
   guint32 mysequence;
   guint32 yoursequence;
 
@@ -298,10 +298,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_REQUEST:
   case SLARP_REPLY:
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	address = tvb_get_ipv4(tvb, 4);
+	addr = tvb_get_ipv4(tvb, 4);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
 		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
-		     get_hostname(address),
+		     get_hostname(addr),
         ip_to_str(tvb_get_ptr(tvb, 8, 4)));
     }
     if (tree) {
