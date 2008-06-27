@@ -6159,6 +6159,13 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	default:
+		/* Put some information here, so that the user knows what's going on. */
+
+		/* Add summary to INFO column if it is enabled */
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Unknown WBXML version 0x%02x)", version);
+		ti = proto_tree_add_item (tree, proto_wbxml, tvb, 0, -1, FALSE);
+		proto_item_append_text(ti, ", Unknown version 0x%02x", version);
 		return;
 	}
 
@@ -6191,8 +6198,6 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	default: /* Impossible since we returned already earlier */
-		g_warning("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
-			"Please report this as a bug.\n", __FILE__, __LINE__, version);
 		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
 	}
