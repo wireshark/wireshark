@@ -65,7 +65,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 key_size;
-	const char *key_t = NULL;
+	const char *keyx_t = NULL;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
 			hf_rs_acct_lookup_rqst_var, NULL);
@@ -74,12 +74,12 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 		proto_tree_add_string (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, hf_rs_acct_lookup_rqst_key_size, tvb_get_ptr (tvb, offset, key_size));
-		key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
+		keyx_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
 		offset += key_size;
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_append_fstr(pinfo->cinfo, COL_INFO,
-				" Request for: %s ", key_t);
+				" Request for: %s ", keyx_t);
 		}
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -98,7 +98,7 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint32 key_size;
-	const char *key_t = NULL;
+	const char *keyx_t = NULL;
 
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, 
 			hf_rs_acct_get_projlist_rqst_var1, NULL);
@@ -108,12 +108,12 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 	proto_tree_add_string (tree, hf_rs_acct_get_projlist_rqst_key_t, 
 			tvb, offset, hf_rs_acct_get_projlist_rqst_key_size, 
 			tvb_get_ptr (tvb, offset, key_size));
-	key_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
+	keyx_t = (const char *)tvb_get_ptr(tvb,offset,key_size);
 	offset += key_size;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, 
-			" Request for: %s", key_t);
+			" Request for: %s", keyx_t);
 	}
 
 	return offset;

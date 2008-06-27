@@ -209,7 +209,7 @@ void
 capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   guint8  fr_octet;
-  guint32 address;
+  guint32 addr;
   guint8  fr_ctrl;
   guint8  fr_nlpid;
 
@@ -234,7 +234,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
    * The first octet contains the upper 6 bits of the DLCI, as well
    * as the C/R bit.
    */
-  address = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
+  addr = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
   offset++;
 
   /*
@@ -246,7 +246,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
     return;
   }
   fr_octet = pd[offset];
-  address = (address << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
+  addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
   offset++;
 
   if (!(fr_octet & FRELAY_EA)) {
@@ -266,7 +266,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
       /*
        * 7 more bits of DLCI.
        */
-      address = (address << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
+      addr = (addr << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
       offset++;
       if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
         ld->other++;
@@ -298,7 +298,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
       /*
        * Last 6 bits of DLCI.
        */
-      address = (address << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
+      addr = (addr << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
     }
   }
 
@@ -356,7 +356,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
         break;
       }
     } else {
-      if (address == 0) {
+      if (addr == 0) {
 	/*
 	 * This must be some sort of LAPF on DLCI 0 for SVC
 	 * because DLCI 0 is reserved for LMI and SVC signaling
@@ -391,7 +391,7 @@ capture_fr(const guchar *pd, int offset, int len, packet_counts *ld)
     break;
 
   case RAW_ETHER:
-    if (address != 0)
+    if (addr != 0)
       capture_eth(pd, offset, len, ld);
     else
       ld->other++;
@@ -410,7 +410,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *octet_tree = NULL;
   guint8 fr_octet;
   int is_response = FALSE;
-  guint32 address;
+  guint32 addr;
   guint8  fr_ctrl;
   guint16 fr_type;
   tvbuff_t *next_tvb;
@@ -448,7 +448,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * XXX - is this FRF.12 frame relay fragmentation?  If so, we
      * should dissect it as such, if possible.
      */
-    address = 0;
+    addr = 0;
     if (tree) {
       proto_tree_add_text(fr_tree, tvb, offset, 1,
 			  "Bogus 1-octet address field");
@@ -459,7 +459,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * The first octet contains the upper 6 bits of the DLCI, as well
      * as the C/R bit.
      */
-    address = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
+    addr = (fr_octet & FRELAY_UPPER_DLCI) >> 2;
     is_response = (fr_octet & FRELAY_CR);
     if (tree) {
       octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
@@ -476,7 +476,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * BECN, and DE.
      */
     fr_octet = tvb_get_guint8(tvb, offset);
-    address = (address << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
+    addr = (addr << 4) | ((fr_octet & FRELAY_SECOND_DLCI) >> 4);
     if (tree) {
       octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
 				       "Second address octet: 0x%02x",
@@ -503,7 +503,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/*
 	 * 7 more bits of DLCI.
 	 */
-	address = (address << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
+	addr = (addr << 7) | ((fr_octet & FRELAY_THIRD_DLCI) >> 1);
 	if (tree) {
 	  octet_item = proto_tree_add_text(fr_tree, tvb, offset, 1,
 					   "Third address octet: 0x%02x",
@@ -546,7 +546,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       	/*
       	 * Last 6 bits of DLCI.
       	 */
-      	address = (address << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
+      	addr = (addr << 6) | ((fr_octet & FRELAY_LOWER_DLCI) >> 2);
 	proto_tree_add_uint(octet_tree, hf_fr_lower_dlci, tvb, offset, 1, fr_octet);
       }
       proto_tree_add_boolean(octet_tree, hf_fr_dc, tvb, offset, 1, fr_octet);
@@ -557,19 +557,19 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
   if (tree) {
     /* Put the full DLCI into the protocol tree. */
-    proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, address);
+    proto_tree_add_uint(fr_tree, hf_fr_dlci, tvb, 0, offset, addr);
   }
 
   pinfo->ctype = CT_DLCI;
-  pinfo->circuit_id = address;
+  pinfo->circuit_id = addr;
 
   /* Add DLCI to a collumn */
   if ( check_col(pinfo->cinfo, COL_FR_DLCI)) {
-      col_add_fstr(pinfo->cinfo, COL_FR_DLCI, "%u", address);
+      col_add_fstr(pinfo->cinfo, COL_FR_DLCI, "%u", addr);
   }
   
   if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", address);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", addr);
 
   switch (fr_encap) {
 
@@ -589,7 +589,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        */
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
     } else {
-      if (address == 0) {
+      if (addr == 0) {
 		/*
 		 * This must be some sort of LAPF on DLCI 0 for SVC
 		 * because DLCI 0 is reserved for LMI and SVC signaling
@@ -632,7 +632,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case GPRS_NS:
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-    if (address != 0)
+    if (addr != 0)
       call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
     else
       dissect_lapf(next_tvb, pinfo, tree);
@@ -640,7 +640,7 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case RAW_ETHER:
     next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-    if (address != 0)
+    if (addr != 0)
       call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
     else
       dissect_lapf(next_tvb, pinfo, tree);

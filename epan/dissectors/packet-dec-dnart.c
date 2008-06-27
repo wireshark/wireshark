@@ -540,21 +540,21 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!(msg_flags & RT_FLAGS_CTRL_MSG)) {
         /* It is not a routing control message */
         proto_tree *nsp_msg_tree;
-        proto_item *ti;
+        proto_item *ti_local;
         guint8     nsp_msg_type;
-        guint16    dst_node, src_node;
+        guint16    dst_node_local, src_node_local;
 
         nsp_msg_type = tvb_get_guint8(tvb, offset);
-           ti = proto_tree_add_uint(
+           ti_local = proto_tree_add_uint(
             tree, hf_dec_nsp_msgs, tvb, offset, 1, nsp_msg_type);
         if (nsp_msg_type == NOP_MSG) {
             /* Only test data in this msg */
             return;
         }
-        nsp_msg_tree = proto_item_add_subtree(ti, ett_dec_rt_nsp_msg);
+        nsp_msg_tree = proto_item_add_subtree(ti_local, ett_dec_rt_nsp_msg);
         /* Get past the nsp_msg_type */
         offset++;
-        dst_node = tvb_get_letohs(tvb, offset);
+        dst_node_local = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(
             nsp_msg_tree, hf_dec_rt_dst_node, tvb, offset, 2, TRUE);
         offset += 2;
@@ -567,7 +567,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         /* All other messages have a source node */
-        src_node = tvb_get_letohs(tvb, offset);
+        src_node_local = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(
             nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, TRUE);
         offset += 2;
@@ -842,20 +842,20 @@ do_hello_msg(
            up to 128 bytes of test data at the end.
            These data are left to be dissected as 'data'.
          */
-        proto_item  *ti, *ti_ether;
+        proto_item  *ti_locala, *ti_ether;
         proto_tree *list_tree, *list_ether;
         guint8 image_len;
         guint8 item_len;
 
-        ti = proto_tree_add_item(tree, hf_dec_rt_elist, tvb,
+        ti_locala = proto_tree_add_item(tree, hf_dec_rt_elist, tvb,
             my_offset, 7, TRUE);
         my_offset += 7;
         /* image field is preceded by count of remainder of field */
         image_len = tvb_get_guint8(tvb, my_offset);
         my_offset++;
-        ti = proto_tree_add_none_format(tree, hf_dec_rt_elist,
+        ti_locala = proto_tree_add_none_format(tree, hf_dec_rt_elist,
                     tvb, my_offset, 1, "Router States");
-        list_tree = proto_item_add_subtree(ti, ett_dec_rt_list);
+        list_tree = proto_item_add_subtree(ti_locala, ett_dec_rt_list);
         while (image_len > 0) {
             ti_ether = proto_tree_add_bytes(list_tree, hf_dec_rt_ename, tvb,
                 my_offset, 7, tvb_get_ptr(tvb, my_offset, 7));
@@ -870,17 +870,17 @@ do_hello_msg(
             while (item_len > 0)
             {
                 guint8  pristate;
-                proto_item  *ti;
+                proto_item  *ti_localb;
                 proto_tree *pstate_tree;
 
-                ti = proto_tree_add_item(list_ether, hf_dec_rt_router_id,
+                ti_localb = proto_tree_add_item(list_ether, hf_dec_rt_router_id,
                     tvb, my_offset, 6, TRUE);
                 addr = dnet_ntoa(ep_tvb_memdup(tvb, my_offset, 6));
                 if (addr != NULL) {
-                    proto_item_append_text(ti, " (%s)", addr);
+                    proto_item_append_text(ti_localb, " (%s)", addr);
                 }
                 my_offset += 6;
-                pstate_tree = proto_item_add_subtree(ti, ett_dec_rt_state);
+                pstate_tree = proto_item_add_subtree(ti_localb, ett_dec_rt_state);
                 pristate = tvb_get_guint8(tvb, my_offset);
                 proto_tree_add_string(list_ether, hf_dec_rt_router_state,
                     tvb, my_offset, 1,

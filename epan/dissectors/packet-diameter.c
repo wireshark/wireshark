@@ -499,9 +499,9 @@ static const char* time_avp(diam_ctx_t* c, diam_avp_t* a, tvbuff_t* tvb) {
 	proto_item* pi;
 
 	if ( len != 4 ) {
-		proto_item* pi = proto_tree_add_text(c->tree, tvb, 0, 4,
-											 "Error! AVP value MUST be 4 bytes");
-		expert_add_info_format(c->pinfo, pi, PI_MALFORMED, PI_NOTE,
+		proto_item* pi_local = proto_tree_add_text(c->tree, tvb, 0, 4,
+							"Error! AVP value MUST be 4 bytes");
+		expert_add_info_format(c->pinfo, pi_local, PI_MALFORMED, PI_NOTE,
 							   "Bad Timestamp Length (%u)", len);
 		return "[Malformed]";
 	}
@@ -681,8 +681,8 @@ static void dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 		default:
 		{
 			proto_tree* pt = proto_item_add_subtree(version_item,ett_err);
-			proto_item* pi = proto_tree_add_text(pt,tvb,0,1,"Unknown Diameter Version (decoding as RFC 3588)");
-			expert_add_info_format(pinfo, pi, PI_UNDECODED, PI_WARN, "Unknown Diameter Version");
+			proto_item* pi_local = proto_tree_add_text(pt,tvb,0,1,"Unknown Diameter Version (decoding as RFC 3588)");
+			expert_add_info_format(pinfo, pi_local, PI_UNDECODED, PI_WARN, "Unknown Diameter Version");
 			PROTO_ITEM_SET_GENERATED(pi);
 			c->version_rfc = TRUE;
 			cmd_vs = VND_CMD_VS(&no_vnd);

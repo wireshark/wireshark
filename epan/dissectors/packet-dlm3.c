@@ -1240,7 +1240,7 @@ proto_register_dlm3(void)
 void
 proto_reg_handoff_dlm3(void)
 {
-  static gboolean register_dissector = FALSE;
+  static gboolean dissector_registered = FALSE;
 
   static int tcp_port = 0;
   static int sctp_port = 0;
@@ -1248,7 +1248,7 @@ proto_reg_handoff_dlm3(void)
   static dissector_handle_t dlm3_tcp_handle;
   static dissector_handle_t dlm3_sctp_handle;
 
-  if (register_dissector) {
+  if (dissector_registered) {
     dissector_delete("tcp.port",  tcp_port,  dlm3_tcp_handle);
     dissector_delete("sctp.port", sctp_port, dlm3_sctp_handle);
   } else {
@@ -1256,7 +1256,7 @@ proto_reg_handoff_dlm3(void)
                                                    proto_dlm3);
     dlm3_tcp_handle = new_create_dissector_handle(dissect_dlm3,
                                                   proto_dlm3);
-    register_dissector = TRUE;
+    dissector_registered = TRUE;
   }
 
   tcp_port  = dlm3_tcp_port;

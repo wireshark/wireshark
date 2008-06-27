@@ -1444,15 +1444,15 @@ static void
 dissect_fcdns_gezn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    int strlen;
+    int str_len;
 
     if (isreq) {
         if (req_tree) {
-            strlen = tvb_get_guint8 (tvb, offset);
+            str_len = tvb_get_guint8 (tvb, offset);
             proto_tree_add_text (req_tree, tvb, offset, 1, "Name Length: %d",
-                                 strlen);
+                                 str_len);
             proto_tree_add_string (req_tree, hf_fcdns_zonenm, tvb, offset+3,
-                                   strlen, tvb_get_ptr (tvb, offset+3, strlen));
+                                   str_len, tvb_get_ptr (tvb, offset+3, str_len));
         }
     }
     else {

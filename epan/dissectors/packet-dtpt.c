@@ -361,16 +361,16 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				switch (family) {
 					case AF_INET: {
 						guint16 port;
-						guint32	address;
+						guint32	addr;
 
 						port = tvb_get_ntohs(tvb,offset+2);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
 						tvb, offset+2,2,port);
-						address = tvb_get_ipv4(tvb,offset+4);
+						addr = tvb_get_ipv4(tvb,offset+4);
 						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
-						tvb, offset+4,4,address);
+						tvb, offset+4,4,addr);
 						proto_tree_add_text(sockaddr_tree, tvb, offset+8, 8, "Padding");
-							proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&address), port);
+							proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
 					}
 					break;
 				}
@@ -385,17 +385,17 @@ dissect_dtpt_sockaddr(tvbuff_t *tvb, guint offset, proto_tree *tree, int hfindex
 				switch (family) {
 					case AF_INET: {
 						guint16 port;
-						guint32	address;
+						guint32	addr;
 
 						proto_tree_add_text(sockaddr_tree, tvb, offset+4, 4, "Padding");
 						port = tvb_get_ntohs(tvb,offset+8);
 						proto_tree_add_uint(sockaddr_tree, hf_dtpt_sockaddr_port,
 							tvb, offset+8,2,port);
-						address = tvb_get_ipv4(tvb,offset+10);
+						addr = tvb_get_ipv4(tvb,offset+10);
 						proto_tree_add_ipv4(sockaddr_tree, hf_dtpt_sockaddr_address,
-							tvb, offset+10,4,address);
+							tvb, offset+10,4,addr);
 						proto_tree_add_text(sockaddr_tree, tvb, offset+14, 16, "Padding");
-						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&address), port);
+						proto_item_append_text(sockaddr_item, ": %s:%d", ip_to_str((guint8*)&addr), port);
 					}
 					break;
 				}

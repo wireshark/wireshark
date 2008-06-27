@@ -333,9 +333,9 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case DCC_OP_ADMN:
 				if ( is_response )
 				{
-					int left = tvb_length_remaining(tvb, offset) -
+					int left_local = tvb_length_remaining(tvb, offset) -
 						sizeof(DCC_SIGNATURE);
-					if ( left == sizeof(DCC_ADMN_RESP_CLIENTS) )
+					if ( left_local == sizeof(DCC_ADMN_RESP_CLIENTS) )
 					{
 						D_LABEL("Addr", 16);
 						D_LABEL("Id", sizeof(DCC_CLNT_ID));

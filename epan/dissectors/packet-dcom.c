@@ -222,10 +222,10 @@ static e_uuid_t uuid_debug_ext =    { 0xf1f19680, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 
 static e_uuid_t uuid_ext_error_ext ={ 0xf1f19681, 0x4d2a, 0x11ce, { 0xa6, 0x6a, 0x00, 0x20, 0xaf, 0x6e, 0x72, 0xf4} };
 
 /* general DCOM UUIDs */
-static e_uuid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static e_uuid_t iid_unknown =       { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
-static e_uuid_t uuid_null =         { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
-static e_uuid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_uuid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 0xFE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_uuid_t iid_unknown =       { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_uuid_t uuid_null =         { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
+static const e_uuid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 
 GList *dcom_machines;
 GList *dcom_interfaces;
@@ -270,7 +270,6 @@ dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _
 {
     dcom_interface_t *interf;
     GList *interfaces;
-    static const e_uuid_t uuid_null = DCERPC_UUID_NULL;
 
 
     if(memcmp(ipid, &uuid_null, sizeof(uuid_null)) == 0)
@@ -292,7 +291,6 @@ dcom_interface_t *dcom_interface_find(packet_info *pinfo _U_, const guint8 *ip _
 
 dcom_interface_t *dcom_interface_new(packet_info *pinfo, const guint8 *ip, e_uuid_t *iid, guint64 oxid, guint64 oid, e_uuid_t *ipid)
 {
-    static const e_uuid_t uuid_null = DCERPC_UUID_NULL;
     GList *dcom_iter;
     dcom_machine_t *machine;
     dcom_object_t *object;
@@ -786,9 +784,8 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-    proto_item *pi;
-    dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
-    e_uuid_t uuid_null = DCERPC_UUID_NULL;
+	proto_item *pi;
+	dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
 	
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
@@ -807,19 +804,19 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_UUID(tvb, offset, pinfo, sub_tree, drep, 
                         hf_dcom_this_cid, &uuidCausality);
 
-    offset = dissect_dcom_extent(tvb, offset, pinfo, sub_tree, drep);
+	offset = dissect_dcom_extent(tvb, offset, pinfo, sub_tree, drep);
 
 	/* update subtree header */
 	proto_item_append_text(sub_item, ", V%u.%u, Causality ID: %s", 
 		u16VersionMajor, u16VersionMinor, guids_resolve_uuid_to_str(&uuidCausality));
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
-    if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
-        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
-                (e_guid_t *) &info->call_data->object_uuid,
-                "Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
+	if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
+		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
+                	(e_guid_t *) &info->call_data->object_uuid,
+                	"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         PROTO_ITEM_SET_GENERATED(pi);
-    }
+	}
 
 	return offset;
 }
@@ -833,9 +830,8 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-    proto_item *pi;
-    dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
-    e_uuid_t uuid_null = DCERPC_UUID_NULL;
+	proto_item *pi;
+	dcerpc_info *info = (dcerpc_info *)pinfo->private_data;
 
 
 	sub_item = proto_tree_add_protocol_format(tree, proto_dcom, tvb, offset, 0,
@@ -846,17 +842,17 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
                         hf_dcom_that_flags, &u32Flags);
 	u32SubStart = offset - 4;
 
-    offset = dissect_dcom_extent(tvb, offset, pinfo, sub_tree, drep);
+	offset = dissect_dcom_extent(tvb, offset, pinfo, sub_tree, drep);
 	
 	/* update subtree header */
 	proto_item_set_len(sub_item, offset - u32SubStart);
 
-    if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
-        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
-                (e_guid_t *) &info->call_data->object_uuid,
-                "Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
+	if(memcmp(&info->call_data->object_uuid, &uuid_null, sizeof(uuid_null)) != 0) {
+	        pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0, 
+        	        (e_guid_t *) &info->call_data->object_uuid,
+                	"Object UUID/IPID: %s", guids_resolve_uuid_to_str(&info->call_data->object_uuid));
         PROTO_ITEM_SET_GENERATED(pi);
-    }
+	}
 
 	return offset;
 }
@@ -2323,6 +2319,6 @@ proto_reg_handoff_dcom (void)
     guids_add_uuid(&uuid_null, "NULL");
     guids_add_uuid(&iid_class_factory, "IClassFactory");
 
-	/* Currently, we have nothing to register for DCOM */
+    /* Currently, we have nothing to register for DCOM */
 }
 

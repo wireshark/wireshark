@@ -227,7 +227,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   gboolean fec _U_,
   guint16 rsk,
   guint16 rsz,
-  fragment_data *fd
+  fragment_data *fdx
 )
 {
   guint16 decoded_size;
@@ -249,10 +249,10 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   rx_min = c_max*rsk/plen;
   if(rx_min*plen<c_max*rsk)
     rx_min++;
-  if (fd)
+  if (fdx)
     new_tvb = process_reassembled_data (tvb, offset, pinfo,
 					    "Reassembled Message",
-					    fd, &dcp_frag_items,
+					    fdx, &dcp_frag_items,
 					    NULL, tree);
   else {
     guint fragments=0;

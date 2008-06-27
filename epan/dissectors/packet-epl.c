@@ -1090,7 +1090,7 @@ gint
 dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
     guint8  segmented, command_id;
-    gboolean response, abort;
+    gboolean response, abort_flag;
     guint32 abort_code;
     guint16 segment_size;
 
@@ -1099,10 +1099,10 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
     command_id = tvb_get_guint8(tvb, offset + 2);
 
-    abort      = tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_ABORT_FILTER;
+    abort_flag      = tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_ABORT_FILTER;
 
     /* test if CommandField == empty */
-    if (command_id != 0 || abort)
+    if (command_id != 0 || abort_flag)
     {
         segmented  = (tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_SEGMENTATION_FILTER) >> 4;
         response   = tvb_get_guint8(tvb, offset + 1) & EPL_ASND_SDO_CMD_RESPONSE_FILTER;
@@ -1144,7 +1144,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             offset += 4;
         }
 
-        if (abort)
+        if (abort_flag)
         {
             abort_code = tvb_get_letohl(tvb, offset);
             /* if AbortBit is set then print AbortMessage */

@@ -2096,7 +2096,7 @@ packet_is_cigi(tvbuff_t *tvb)
 {
     guint8 packet_id;
     guint8 packet_size;
-    guint8 cigi_version;
+    guint8 cigi_version_local;
     guint8 ig_mode;
 
     /* CIGI 3 */
@@ -2108,14 +2108,14 @@ packet_is_cigi(tvbuff_t *tvb)
     }
     packet_id = tvb_get_guint8(tvb, 0);
     packet_size = tvb_get_guint8(tvb, 1);
-    cigi_version = tvb_get_guint8(tvb, 2);
+    cigi_version_local = tvb_get_guint8(tvb, 2);
 
     if ( packet_size > tvb_reported_length(tvb) ) {
         return FALSE;
     }
 
     /* Currently there are only 3 versions of CIGI */
-    switch ( cigi_version ) {
+    switch ( cigi_version_local ) {
 
         case CIGI_VERSION_1:
             /* CIGI 1 requires that the first packet is always the IG Control or SOF */

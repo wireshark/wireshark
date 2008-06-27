@@ -865,7 +865,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	case OPTION_LQ_QUERY:
 	    {
 		guint8 query_type;
-		struct e_in6_addr in6;
+		struct e_in6_addr in6_local;
 
 		if (optlen < 17) {
 		    proto_tree_add_text(subtree, tvb, off, optlen,
@@ -890,9 +890,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 					 "unknown?", query_type);
 		     break;
 		}
-		tvb_get_ipv6(tvb, off + 1, &in6);
+		tvb_get_ipv6(tvb, off + 1, &in6_local);
 		proto_tree_add_text(subtree, tvb, off + 1, 16,
-				    "Link address: %s", ip6_to_str(&in6));
+				    "Link address: %s", ip6_to_str(&in6_local));
 		temp_optlen = 17;
 		while ((optlen - temp_optlen) > 0) {
 		    temp_optlen += dhcpv6_option(tvb, pinfo, subtree,
@@ -956,7 +956,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 	    {
 		guint32 preferred_lifetime, valid_lifetime;
 		guint8  prefix_length;
-		struct e_in6_addr in6;
+		struct e_in6_addr in6_local;
 
                 if (optlen < 25) {
                    proto_tree_add_text(subtree, tvb, off,
@@ -983,10 +983,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 		}
 		proto_tree_add_text(subtree, tvb, off + 8, 1,
 				    "Prefix length: %d", prefix_length);
-		tvb_get_ipv6(tvb, off + 9, &in6);
+		tvb_get_ipv6(tvb, off + 9, &in6_local);
 		proto_tree_add_text(subtree, tvb, off + 9,
 				    16, "Prefix address: %s",
-				    ip6_to_str(&in6));
+				    ip6_to_str(&in6_local));
                 
                 temp_optlen = 25;
                 while ((optlen - temp_optlen) > 0) {

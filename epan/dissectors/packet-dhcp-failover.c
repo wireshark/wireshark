@@ -357,7 +357,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int poffset;
 	guint32 xid;
 	const gchar *tls_request_string;
-	nstime_t time;
+	nstime_t timex;
 	guint32 lease_expiration_time, grace_expiration_time;
 	guint32 potential_expiration_time, client_last_transaction_time;
 	guint32 start_time_of_state;
@@ -447,11 +447,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Also, we need a way to keep from displaying nanoseconds,
 		 * so as not to make it look as if it has higher
 		 */
-		time.secs = tvb_get_ntohl(tvb, offset);
-		time.nsecs = 0;
+		timex.secs = tvb_get_ntohl(tvb, offset);
+		timex.nsecs = 0;
 		proto_tree_add_time_format_value(dhcpfo_tree, hf_dhcpfo_time, tvb,
-		    offset, 4, &time, "%s",
-		    abs_time_secs_to_str(time.secs));
+		    offset, 4, &timex, "%s",
+		    abs_time_secs_to_str(timex.secs));
 	}
 	offset += 4;
 

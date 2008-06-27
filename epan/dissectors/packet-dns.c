@@ -995,7 +995,7 @@ compute_key_id(tvbuff_t *tvb, int offset, int size, guint8 algo)
 
 
 static int
-dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
+dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   column_info *cinfo, proto_tree *dns_tree, packet_info *pinfo,
   gboolean is_mdns)
 {
@@ -1016,10 +1016,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   proto_tree *rr_tree = NULL;
   proto_item *trr = NULL;
 
-  data_start = data_offset = offset;
-  cur_offset = offset;
+  data_start = data_offset = offsetx;
+  cur_offset = offsetx;
 
-  len = get_dns_name_type_class(tvb, offset, dns_data_offset, &name, &name_len,
+  len = get_dns_name_type_class(tvb, offsetx, dns_data_offset, &name, &name_len,
     &type, &class);
   data_offset += len;
   cur_offset += len;
@@ -1053,17 +1053,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
      */
     name_out = format_text(name, strlen(name));
     if (type != T_OPT) {
-      trr = proto_tree_add_text(dns_tree, tvb, offset,
+      trr = proto_tree_add_text(dns_tree, tvb, offsetx,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name_out, type_name, class_name);
-      rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
+      rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
 		     type, class, flush, ttl, data_len, is_mdns);
     } else  {
-      trr = proto_tree_add_text(dns_tree, tvb, offset,
+      trr = proto_tree_add_text(dns_tree, tvb, offsetx,
 		    (data_offset - data_start) + data_len,
 		    "%s: type %s", name_out, type_name);
-      rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
+      rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offsetx, name, name_len,
 		     type, class, flush, ttl, data_len, is_mdns);
     }
     if (is_mdns && flush)

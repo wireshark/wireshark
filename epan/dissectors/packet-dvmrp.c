@@ -248,7 +248,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		proto_tree *tree;
 		proto_item *item;
-		int old_offset = offset;
+		int old_offset_a = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_route,
 				tvb, offset, -1, FALSE);
@@ -270,7 +270,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 		/* read every srcnet, metric  pairs */
 		do {
-			int old_offset = offset;
+			int old_offset_b = offset;
 			m0 = 0xff;
 
 			s0 = 0;
@@ -303,7 +303,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			ip = (ip<<8)|s1;
 			ip = (ip<<8)|s0;
 			proto_tree_add_ipv4_format(tree, hf_saddr, tvb,
-				old_offset, offset-old_offset, ip,
+				old_offset_b, offset-old_offset_b, ip,
 				"%s %d.%d.%d.%d (netmask %d.%d.%d.%d)",
 				m0?"Source Network":"Default Route",
 				s0,s1,s2,s3,m0,m1,m2,m3);
@@ -316,7 +316,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 
 		} while (!(metric&0x80));
 
-		proto_item_set_len(item, offset-old_offset);
+		proto_item_set_len(item, offset-old_offset_a);
 	}
 
 	return offset;

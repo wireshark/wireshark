@@ -297,7 +297,7 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int 
 	guint32		codepage;
 	guint32		padding;
 	guint8		row;
-	guint16		strlen;
+	guint16		str_len;
 	gchar		*mailbox;
 
 	origin_offset = offset;
@@ -323,13 +323,13 @@ mapi_dissect_element_EcDoRpc_MAPI_REQ_UNION_OpenMsgStore(tvbuff_t *tvb _U_, int 
 	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "row: 0x%x", row);
 
 	old_offset = offset;
-	strlen = tvb_get_letohs(tvb, offset);
+	str_len = tvb_get_letohs(tvb, offset);
 	offset += 2;
-	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "str length: 0x%x", strlen);
+	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "str length: 0x%x", str_len);
 
 	old_offset = offset;
-	mailbox = tvb_format_text(tvb, offset, strlen - 1);
-	offset += strlen;
+	mailbox = tvb_format_text(tvb, offset, str_len - 1);
+	offset += str_len;
 	proto_tree_add_text(tree, tvb, old_offset, offset - old_offset, "mailbox: %s", mailbox);
 
 	proto_item_set_len(item, offset - origin_offset);

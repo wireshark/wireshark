@@ -1128,8 +1128,8 @@ static gboolean dmp_dec_xbyte_sic (guint64 bin, gchar *sic,
 
 static guint dmp_id_hash (gconstpointer k)
 {
-  dmp_id_key *dmp=(dmp_id_key *)k;
-  return dmp->id;
+  dmp_id_key *dmpx=(dmp_id_key *)k;
+  return dmpx->id;
 }
 
 static gint dmp_id_hash_equal (gconstpointer k1, gconstpointer k2)
@@ -2987,7 +2987,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *notif_tree = NULL;
   proto_tree *field_tree = NULL;
   proto_item *en = NULL, *tf = NULL;
-  guint8      notif, rec_time, on_type = 0xFF;
+  guint8      notif, rec_time, on_typex = 0xFF;
   gint        len, boffset = offset;
   gint32      secs = 0;
 
@@ -3024,7 +3024,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
 
     if (dmp.notif_type == ON) {
       /* ON Type */
-      on_type = tvb_get_guint8 (tvb, offset);
+      on_typex = tvb_get_guint8 (tvb, offset);
       proto_tree_add_item (notif_tree, hf_notif_on_type, tvb, offset,
 			   1, FALSE);
       offset += 1;
@@ -3047,7 +3047,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
     }
     offset += len;
 
-    if ((dmp.notif_type == ON) && (on_type < 0x03)) {
+    if ((dmp.notif_type == ON) && (on_typex < 0x03)) {
       /* ACP127 Receipient */
       len = tvb_strsize (tvb, offset);
       tf = proto_tree_add_uint_format (notif_tree, hf_notif_acp127,
