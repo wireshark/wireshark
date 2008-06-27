@@ -83,6 +83,18 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The syslog dissector could crash.
+            <!-- Fixed in r25612 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2647">2647</ulink>) -->
+          </para>
+          <para>Versions affected: 1.0.0</para>
+          <para>
+            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>
@@ -127,6 +139,12 @@ Wireshark Info
           Window scaling bug.
           (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2378">Bug
           2378</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+          Bugs in the EIGRP dissector.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2381">Bug
+          2381</ulink>)
         </para></listitem>
 
         <listitem><para>
