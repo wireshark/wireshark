@@ -66,8 +66,8 @@ enum ftenum {
 	FT_NUM_TYPES /* last item number plus one */
 };
 
-#define IS_FT_INT(ft)    ((ft)==FT_INT8||(ft)==FT_INT16||(ft)==FT_INT24||(ft)==FT_INT32)
-#define IS_FT_UINT(ft)   ((ft)==FT_UINT8||(ft)==FT_UINT16||(ft)==FT_UINT24||(ft)==FT_UINT32||(ft)==FT_FRAMENUM)
+#define IS_FT_INT(ft)    ((ft)==FT_INT8||(ft)==FT_INT16||(ft)==FT_INT24||(ft)==FT_INT32||(ft)==FT_INT64)
+#define IS_FT_UINT(ft)   ((ft)==FT_UINT8||(ft)==FT_UINT16||(ft)==FT_UINT24||(ft)==FT_UINT32||(ft)==FT_UINT64||(ft)==FT_FRAMENUM)
 #define IS_FT_TIME(ft)   ((ft)==FT_ABSOLUTE_TIME||(ft)==FT_RELATIVE_TIME)
 #define IS_FT_STRING(ft) ((ft)==FT_STRING||(ft)==FT_STRINGZ)
 
