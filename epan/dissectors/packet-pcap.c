@@ -223,15 +223,27 @@ static int proto_pcap = -1;
 static int hf_pcap_AccuracyFulfilmentIndicator_PDU = -1;  /* AccuracyFulfilmentIndicator */
 static int hf_pcap_Cause_PDU = -1;                /* Cause */
 static int hf_pcap_CellId_MeasuredResultsSets_PDU = -1;  /* CellId_MeasuredResultsSets */
+static int hf_pcap_RoundTripTimeInfoWithType1_PDU = -1;  /* RoundTripTimeInfoWithType1 */
+static int hf_pcap_ExtendedTimingAdvanceLCR_PDU = -1;  /* ExtendedTimingAdvanceLCR */
+static int hf_pcap_RxTimingDeviation768Info_PDU = -1;  /* RxTimingDeviation768Info */
+static int hf_pcap_RxTimingDeviation384extInfo_PDU = -1;  /* RxTimingDeviation384extInfo */
+static int hf_pcap_AddMeasurementInfo_PDU = -1;   /* AddMeasurementInfo */
+static int hf_pcap_AngleOfArrivalLCR_PDU = -1;    /* AngleOfArrivalLCR */
 static int hf_pcap_CellIDPositioning_PDU = -1;    /* CellIDPositioning */
 static int hf_pcap_ClientType_PDU = -1;           /* ClientType */
 static int hf_pcap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
 static int hf_pcap_UE_PositionEstimate_PDU = -1;  /* UE_PositionEstimate */
 static int hf_pcap_UE_PositionEstimateInfo_PDU = -1;  /* UE_PositionEstimateInfo */
 static int hf_pcap_PositionData_PDU = -1;         /* PositionData */
+static int hf_pcap_GANSS_PositioningDataSet_PDU = -1;  /* GANSS_PositioningDataSet */
+static int hf_pcap_GANSS_CommonAssistanceData_PDU = -1;  /* GANSS_CommonAssistanceData */
+static int hf_pcap_GANSS_GenericAssistanceDataList_PDU = -1;  /* GANSS_GenericAssistanceDataList */
 static int hf_pcap_GANSS_MeasuredResultsList_PDU = -1;  /* GANSS_MeasuredResultsList */
 static int hf_pcap_GANSS_UTRAN_TRU_PDU = -1;      /* GANSS_UTRAN_TRU */
 static int hf_pcap_MeasuredResultsList_PDU = -1;  /* MeasuredResultsList */
+static int hf_pcap_GPS_ReferenceLocation_PDU = -1;  /* GPS_ReferenceLocation */
+static int hf_pcap_UTRAN_GPS_DriftRate_PDU = -1;  /* UTRAN_GPS_DriftRate */
+static int hf_pcap_GPSReferenceTimeUncertainty_PDU = -1;  /* GPSReferenceTimeUncertainty */
 static int hf_pcap_GPS_UTRAN_TRU_PDU = -1;        /* GPS_UTRAN_TRU */
 static int hf_pcap_AdditionalGPSAssistDataRequired_PDU = -1;  /* AdditionalGPSAssistDataRequired */
 static int hf_pcap_AdditionalGanssAssistDataRequired_PDU = -1;  /* AdditionalGanssAssistDataRequired */
@@ -241,17 +253,22 @@ static int hf_pcap_InformationType_PDU = -1;      /* InformationType */
 static int hf_pcap_MeasInstructionsUsed_PDU = -1;  /* MeasInstructionsUsed */
 static int hf_pcap_OTDOA_MeasurementGroup_PDU = -1;  /* OTDOA_MeasurementGroup */
 static int hf_pcap_OTDOA_MeasuredResultsSets_PDU = -1;  /* OTDOA_MeasuredResultsSets */
+static int hf_pcap_OTDOA_AddMeasuredResultsInfo_PDU = -1;  /* OTDOA_AddMeasuredResultsInfo */
 static int hf_pcap_UC_ID_PDU = -1;                /* UC_ID */
+static int hf_pcap_Extended_RNC_ID_PDU = -1;      /* Extended_RNC_ID */
+static int hf_pcap_AdditionalMeasurementInforLCR_PDU = -1;  /* AdditionalMeasurementInforLCR */
 static int hf_pcap_PeriodicPosCalcInfo_PDU = -1;  /* PeriodicPosCalcInfo */
 static int hf_pcap_PeriodicLocationInfo_PDU = -1;  /* PeriodicLocationInfo */
 static int hf_pcap_PeriodicTerminationCause_PDU = -1;  /* PeriodicTerminationCause */
 static int hf_pcap_PositioningMethod_PDU = -1;    /* PositioningMethod */
+static int hf_pcap_GNSS_PositioningMethod_PDU = -1;  /* GNSS_PositioningMethod */
 static int hf_pcap_PositioningPriority_PDU = -1;  /* PositioningPriority */
 static int hf_pcap_RRCstateChange_PDU = -1;       /* RRCstateChange */
 static int hf_pcap_RequestType_PDU = -1;          /* RequestType */
 static int hf_pcap_ResponseTime_PDU = -1;         /* ResponseTime */
 static int hf_pcap_HorizontalAccuracyCode_PDU = -1;  /* HorizontalAccuracyCode */
 static int hf_pcap_UE_PositioningCapability_PDU = -1;  /* UE_PositioningCapability */
+static int hf_pcap_NetworkAssistedGANSSSupport_PDU = -1;  /* NetworkAssistedGANSSSupport */
 static int hf_pcap_UTDOAPositioning_PDU = -1;     /* UTDOAPositioning */
 static int hf_pcap_EnvironmentCharacterisation_PDU = -1;  /* EnvironmentCharacterisation */
 static int hf_pcap_GPSPositioning_PDU = -1;       /* GPSPositioning */
@@ -263,6 +280,7 @@ static int hf_pcap_Positioning_ResponseTime_PDU = -1;  /* Positioning_ResponseTi
 static int hf_pcap_AmountOfReporting_PDU = -1;    /* AmountOfReporting */
 static int hf_pcap_IncludeVelocity_PDU = -1;      /* IncludeVelocity */
 static int hf_pcap_VelocityEstimate_PDU = -1;     /* VelocityEstimate */
+static int hf_pcap_UTRAN_GPSReferenceTime_PDU = -1;  /* UTRAN_GPSReferenceTime */
 static int hf_pcap_PositionCalculationRequest_PDU = -1;  /* PositionCalculationRequest */
 static int hf_pcap_PositionCalculationResponse_PDU = -1;  /* PositionCalculationResponse */
 static int hf_pcap_PositionCalculationFailure_PDU = -1;  /* PositionCalculationFailure */
@@ -298,7 +316,6 @@ static int hf_pcap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_pcap_id = -1;                       /* ProtocolIE_ID */
 static int hf_pcap_criticality = -1;              /* Criticality */
 static int hf_pcap_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_pcap_ProtocolIE_ContainerList_item = -1;  /* ProtocolIE_Container */
 static int hf_pcap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
 static int hf_pcap_ext_id = -1;                   /* ProtocolIE_ID */
 static int hf_pcap_extensionValue = -1;           /* T_extensionValue */
@@ -1072,7 +1089,6 @@ static gint ett_pcap_PrivateIE_ID = -1;
 static gint ett_pcap_TransactionID = -1;
 static gint ett_pcap_ProtocolIE_Container = -1;
 static gint ett_pcap_ProtocolIE_Field = -1;
-static gint ett_pcap_ProtocolIE_ContainerList = -1;
 static gint ett_pcap_ProtocolExtensionContainer = -1;
 static gint ett_pcap_ProtocolExtensionField = -1;
 static gint ett_pcap_PrivateIE_Container = -1;
@@ -1440,23 +1456,6 @@ dissect_pcap_Criticality(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
-static const value_string pcap_Presence_vals[] = {
-  {   0, "optional" },
-  {   1, "conditional" },
-  {   2, "mandatory" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_pcap_Presence(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
 
 static int
 dissect_pcap_INTEGER_0_65535(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1728,26 +1727,6 @@ dissect_pcap_ProtocolIE_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_pcap_ProtocolIE_Single_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_pcap_ProtocolIE_Field(tvb, offset, actx, tree, hf_index);
-
-  return offset;
-}
-
-
-static const per_sequence_t ProtocolIE_ContainerList_sequence_of[1] = {
-  { &hf_pcap_ProtocolIE_ContainerList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_pcap_ProtocolIE_Container },
-};
-
-static int
-dissect_pcap_ProtocolIE_ContainerList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_pcap_ProtocolIE_ContainerList, ProtocolIE_ContainerList_sequence_of,
-                                                  asn1_param_get_integer(actx,"lowerBound"), asn1_param_get_integer(actx,"upperBound"));
 
   return offset;
 }
@@ -10390,6 +10369,54 @@ static int dissect_CellId_MeasuredResultsSets_PDU(tvbuff_t *tvb _U_, packet_info
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RoundTripTimeInfoWithType1_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_RoundTripTimeInfoWithType1(tvb, offset, &asn1_ctx, tree, hf_pcap_RoundTripTimeInfoWithType1_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_ExtendedTimingAdvanceLCR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_ExtendedTimingAdvanceLCR(tvb, offset, &asn1_ctx, tree, hf_pcap_ExtendedTimingAdvanceLCR_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RxTimingDeviation768Info_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_RxTimingDeviation768Info(tvb, offset, &asn1_ctx, tree, hf_pcap_RxTimingDeviation768Info_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_RxTimingDeviation384extInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_RxTimingDeviation384extInfo(tvb, offset, &asn1_ctx, tree, hf_pcap_RxTimingDeviation384extInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AddMeasurementInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_AddMeasurementInfo(tvb, offset, &asn1_ctx, tree, hf_pcap_AddMeasurementInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AngleOfArrivalLCR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_AngleOfArrivalLCR(tvb, offset, &asn1_ctx, tree, hf_pcap_AngleOfArrivalLCR_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_CellIDPositioning_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -10438,6 +10465,30 @@ static int dissect_PositionData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_GANSS_PositioningDataSet_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GANSS_PositioningDataSet(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_PositioningDataSet_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GANSS_CommonAssistanceData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GANSS_CommonAssistanceData(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_CommonAssistanceData_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GANSS_GenericAssistanceDataList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GANSS_GenericAssistanceDataList(tvb, offset, &asn1_ctx, tree, hf_pcap_GANSS_GenericAssistanceDataList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_GANSS_MeasuredResultsList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -10459,6 +10510,30 @@ static int dissect_MeasuredResultsList_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_MeasuredResultsList(tvb, offset, &asn1_ctx, tree, hf_pcap_MeasuredResultsList_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GPS_ReferenceLocation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GPS_ReferenceLocation(tvb, offset, &asn1_ctx, tree, hf_pcap_GPS_ReferenceLocation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UTRAN_GPS_DriftRate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_UTRAN_GPS_DriftRate(tvb, offset, &asn1_ctx, tree, hf_pcap_UTRAN_GPS_DriftRate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GPSReferenceTimeUncertainty_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GPSReferenceTimeUncertainty(tvb, offset, &asn1_ctx, tree, hf_pcap_GPSReferenceTimeUncertainty_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -10534,11 +10609,35 @@ static int dissect_OTDOA_MeasuredResultsSets_PDU(tvbuff_t *tvb _U_, packet_info 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_OTDOA_AddMeasuredResultsInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_OTDOA_AddMeasuredResultsInfo(tvb, offset, &asn1_ctx, tree, hf_pcap_OTDOA_AddMeasuredResultsInfo_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_UC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_UC_ID(tvb, offset, &asn1_ctx, tree, hf_pcap_UC_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Extended_RNC_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_Extended_RNC_ID(tvb, offset, &asn1_ctx, tree, hf_pcap_Extended_RNC_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_AdditionalMeasurementInforLCR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_AdditionalMeasurementInforLCR(tvb, offset, &asn1_ctx, tree, hf_pcap_AdditionalMeasurementInforLCR_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -10571,6 +10670,14 @@ static int dissect_PositioningMethod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_PositioningMethod(tvb, offset, &asn1_ctx, tree, hf_pcap_PositioningMethod_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_GNSS_PositioningMethod_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_GNSS_PositioningMethod(tvb, offset, &asn1_ctx, tree, hf_pcap_GNSS_PositioningMethod_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -10619,6 +10726,14 @@ static int dissect_UE_PositioningCapability_PDU(tvbuff_t *tvb _U_, packet_info *
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_UE_PositioningCapability(tvb, offset, &asn1_ctx, tree, hf_pcap_UE_PositioningCapability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_NetworkAssistedGANSSSupport_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_NetworkAssistedGANSSSupport(tvb, offset, &asn1_ctx, tree, hf_pcap_NetworkAssistedGANSSSupport_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -10707,6 +10822,14 @@ static int dissect_VelocityEstimate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_pcap_VelocityEstimate(tvb, offset, &asn1_ctx, tree, hf_pcap_VelocityEstimate_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_UTRAN_GPSReferenceTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_pcap_UTRAN_GPSReferenceTime(tvb, offset, &asn1_ctx, tree, hf_pcap_UTRAN_GPSReferenceTime_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -10936,16 +11059,6 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   return (dissector_try_port(pcap_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
 }
 
-static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return (dissector_try_port(pcap_ies_p1_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
-}
-
-static int dissect_ProtocolIEFieldPairSecondValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  return (dissector_try_port(pcap_ies_p2_dissector_table, ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
-}
-
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   return (dissector_try_port(pcap_extension_dissector_table, ProtocolExtensionID, tvb, pinfo, tree)) ? tvb_length(tvb) : 0;
@@ -11079,6 +11192,24 @@ proto_reg_handoff_pcap(void)
   dissector_add("pcap.extension", id_GANSS_UTRAN_TRU, new_create_dissector_handle(dissect_GANSS_UTRAN_TRU_PDU, proto_pcap));
   dissector_add("pcap.extension", id_AdditionalGPSAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGPSAssistDataRequired_PDU, proto_pcap));
   dissector_add("pcap.extension", id_AdditionalGanssAssistDataRequired, new_create_dissector_handle(dissect_AdditionalGanssAssistDataRequired_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_rxTimingDeviation768Info, new_create_dissector_handle(dissect_RxTimingDeviation768Info_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_rxTimingDeviation384extInfo, new_create_dissector_handle(dissect_RxTimingDeviation384extInfo_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_roundTripTimeInfoWithType1, new_create_dissector_handle(dissect_RoundTripTimeInfoWithType1_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_AddMeasurementInfo, new_create_dissector_handle(dissect_AddMeasurementInfo_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_angleOfArrivalLCR, new_create_dissector_handle(dissect_AngleOfArrivalLCR_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_extendedTimingAdvanceLCR, new_create_dissector_handle(dissect_ExtendedTimingAdvanceLCR_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GANSS_PositioningDataSet, new_create_dissector_handle(dissect_GANSS_PositioningDataSet_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GANSS_CommonAssistanceData, new_create_dissector_handle(dissect_GANSS_CommonAssistanceData_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GANSS_GenericAssistanceDataList, new_create_dissector_handle(dissect_GANSS_GenericAssistanceDataList_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GPS_ReferenceLocation, new_create_dissector_handle(dissect_GPS_ReferenceLocation_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_UTRAN_GPS_DriftRate, new_create_dissector_handle(dissect_UTRAN_GPS_DriftRate_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GPSReferenceTimeUncertainty, new_create_dissector_handle(dissect_GPSReferenceTimeUncertainty_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_OTDOA_AddMeasuredResultsInfo, new_create_dissector_handle(dissect_OTDOA_AddMeasuredResultsInfo_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_Extended_RNC_ID, new_create_dissector_handle(dissect_Extended_RNC_ID_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_additionalMeasurementInforLCR, new_create_dissector_handle(dissect_AdditionalMeasurementInforLCR_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_GNSS_PositioningMethod, new_create_dissector_handle(dissect_GNSS_PositioningMethod_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_NetworkAssistedGANSSSuport, new_create_dissector_handle(dissect_NetworkAssistedGANSSSupport_PDU, proto_pcap));
+  dissector_add("pcap.extension", id_UTRAN_GPSReferenceTime, new_create_dissector_handle(dissect_UTRAN_GPSReferenceTime_PDU, proto_pcap));
   dissector_add("pcap.proc.imsg", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationRequest_PDU, proto_pcap));
   dissector_add("pcap.proc.sout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationResponse_PDU, proto_pcap));
   dissector_add("pcap.proc.uout", id_PositionCalculation, new_create_dissector_handle(dissect_PositionCalculationFailure_PDU, proto_pcap));
@@ -11104,7 +11235,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 205 "packet-pcap-template.c"
+#line 195 "packet-pcap-template.c"
 }
 
 /*--- proto_register_pcap -------------------------------------------*/
@@ -11129,6 +11260,30 @@ void proto_register_pcap(void) {
       { "CellId-MeasuredResultsSets", "pcap.CellId_MeasuredResultsSets",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pcap.CellId_MeasuredResultsSets", HFILL }},
+    { &hf_pcap_RoundTripTimeInfoWithType1_PDU,
+      { "RoundTripTimeInfoWithType1", "pcap.RoundTripTimeInfoWithType1",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.RoundTripTimeInfoWithType1", HFILL }},
+    { &hf_pcap_ExtendedTimingAdvanceLCR_PDU,
+      { "ExtendedTimingAdvanceLCR", "pcap.ExtendedTimingAdvanceLCR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pcap.ExtendedTimingAdvanceLCR", HFILL }},
+    { &hf_pcap_RxTimingDeviation768Info_PDU,
+      { "RxTimingDeviation768Info", "pcap.RxTimingDeviation768Info",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.RxTimingDeviation768Info", HFILL }},
+    { &hf_pcap_RxTimingDeviation384extInfo_PDU,
+      { "RxTimingDeviation384extInfo", "pcap.RxTimingDeviation384extInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.RxTimingDeviation384extInfo", HFILL }},
+    { &hf_pcap_AddMeasurementInfo_PDU,
+      { "AddMeasurementInfo", "pcap.AddMeasurementInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.AddMeasurementInfo", HFILL }},
+    { &hf_pcap_AngleOfArrivalLCR_PDU,
+      { "AngleOfArrivalLCR", "pcap.AngleOfArrivalLCR",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.AngleOfArrivalLCR", HFILL }},
     { &hf_pcap_CellIDPositioning_PDU,
       { "CellIDPositioning", "pcap.CellIDPositioning",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11153,6 +11308,18 @@ void proto_register_pcap(void) {
       { "PositionData", "pcap.PositionData",
         FT_NONE, BASE_NONE, NULL, 0,
         "pcap.PositionData", HFILL }},
+    { &hf_pcap_GANSS_PositioningDataSet_PDU,
+      { "GANSS-PositioningDataSet", "pcap.GANSS_PositioningDataSet",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pcap.GANSS_PositioningDataSet", HFILL }},
+    { &hf_pcap_GANSS_CommonAssistanceData_PDU,
+      { "GANSS-CommonAssistanceData", "pcap.GANSS_CommonAssistanceData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.GANSS_CommonAssistanceData", HFILL }},
+    { &hf_pcap_GANSS_GenericAssistanceDataList_PDU,
+      { "GANSS-GenericAssistanceDataList", "pcap.GANSS_GenericAssistanceDataList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pcap.GANSS_GenericAssistanceDataList", HFILL }},
     { &hf_pcap_GANSS_MeasuredResultsList_PDU,
       { "GANSS-MeasuredResultsList", "pcap.GANSS_MeasuredResultsList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -11165,6 +11332,18 @@ void proto_register_pcap(void) {
       { "MeasuredResultsList", "pcap.MeasuredResultsList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pcap.MeasuredResultsList", HFILL }},
+    { &hf_pcap_GPS_ReferenceLocation_PDU,
+      { "GPS-ReferenceLocation", "pcap.GPS_ReferenceLocation",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.GPS_ReferenceLocation", HFILL }},
+    { &hf_pcap_UTRAN_GPS_DriftRate_PDU,
+      { "UTRAN-GPS-DriftRate", "pcap.UTRAN_GPS_DriftRate",
+        FT_UINT32, BASE_DEC, VALS(pcap_UTRAN_GPS_DriftRate_vals), 0,
+        "pcap.UTRAN_GPS_DriftRate", HFILL }},
+    { &hf_pcap_GPSReferenceTimeUncertainty_PDU,
+      { "GPSReferenceTimeUncertainty", "pcap.GPSReferenceTimeUncertainty",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.GPSReferenceTimeUncertainty", HFILL }},
     { &hf_pcap_GPS_UTRAN_TRU_PDU,
       { "GPS-UTRAN-TRU", "pcap.GPS_UTRAN_TRU",
         FT_UINT32, BASE_DEC, VALS(pcap_GPS_UTRAN_TRU_vals), 0,
@@ -11201,10 +11380,22 @@ void proto_register_pcap(void) {
       { "OTDOA-MeasuredResultsSets", "pcap.OTDOA_MeasuredResultsSets",
         FT_UINT32, BASE_DEC, NULL, 0,
         "pcap.OTDOA_MeasuredResultsSets", HFILL }},
+    { &hf_pcap_OTDOA_AddMeasuredResultsInfo_PDU,
+      { "OTDOA-AddMeasuredResultsInfo", "pcap.OTDOA_AddMeasuredResultsInfo",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.OTDOA_AddMeasuredResultsInfo", HFILL }},
     { &hf_pcap_UC_ID_PDU,
       { "UC-ID", "pcap.UC_ID",
         FT_NONE, BASE_NONE, NULL, 0,
         "pcap.UC_ID", HFILL }},
+    { &hf_pcap_Extended_RNC_ID_PDU,
+      { "Extended-RNC-ID", "pcap.Extended_RNC_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pcap.Extended_RNC_ID", HFILL }},
+    { &hf_pcap_AdditionalMeasurementInforLCR_PDU,
+      { "AdditionalMeasurementInforLCR", "pcap.AdditionalMeasurementInforLCR",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.AdditionalMeasurementInforLCR", HFILL }},
     { &hf_pcap_PeriodicPosCalcInfo_PDU,
       { "PeriodicPosCalcInfo", "pcap.PeriodicPosCalcInfo",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11221,6 +11412,10 @@ void proto_register_pcap(void) {
       { "PositioningMethod", "pcap.PositioningMethod",
         FT_NONE, BASE_NONE, NULL, 0,
         "pcap.PositioningMethod", HFILL }},
+    { &hf_pcap_GNSS_PositioningMethod_PDU,
+      { "GNSS-PositioningMethod", "pcap.GNSS_PositioningMethod",
+        FT_BYTES, BASE_HEX, NULL, 0,
+        "pcap.GNSS_PositioningMethod", HFILL }},
     { &hf_pcap_PositioningPriority_PDU,
       { "PositioningPriority", "pcap.PositioningPriority",
         FT_UINT32, BASE_DEC, VALS(pcap_PositioningPriority_vals), 0,
@@ -11245,6 +11440,10 @@ void proto_register_pcap(void) {
       { "UE-PositioningCapability", "pcap.UE_PositioningCapability",
         FT_NONE, BASE_NONE, NULL, 0,
         "pcap.UE_PositioningCapability", HFILL }},
+    { &hf_pcap_NetworkAssistedGANSSSupport_PDU,
+      { "NetworkAssistedGANSSSupport", "pcap.NetworkAssistedGANSSSupport",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "pcap.NetworkAssistedGANSSSupport", HFILL }},
     { &hf_pcap_UTDOAPositioning_PDU,
       { "UTDOAPositioning", "pcap.UTDOAPositioning",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11289,6 +11488,10 @@ void proto_register_pcap(void) {
       { "VelocityEstimate", "pcap.VelocityEstimate",
         FT_UINT32, BASE_DEC, VALS(pcap_VelocityEstimate_vals), 0,
         "pcap.VelocityEstimate", HFILL }},
+    { &hf_pcap_UTRAN_GPSReferenceTime_PDU,
+      { "UTRAN-GPSReferenceTime", "pcap.UTRAN_GPSReferenceTime",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "pcap.UTRAN_GPSReferenceTime", HFILL }},
     { &hf_pcap_PositionCalculationRequest_PDU,
       { "PositionCalculationRequest", "pcap.PositionCalculationRequest",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11429,10 +11632,6 @@ void proto_register_pcap(void) {
       { "value", "pcap.value",
         FT_NONE, BASE_NONE, NULL, 0,
         "pcap.T_ie_field_value", HFILL }},
-    { &hf_pcap_ProtocolIE_ContainerList_item,
-      { "Item", "pcap.ProtocolIE_ContainerList_item",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "pcap.ProtocolIE_Container", HFILL }},
     { &hf_pcap_ProtocolExtensionContainer_item,
       { "Item", "pcap.ProtocolExtensionContainer_item",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -14467,7 +14666,7 @@ void proto_register_pcap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 215 "packet-pcap-template.c"
+#line 205 "packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -14480,7 +14679,6 @@ void proto_register_pcap(void) {
     &ett_pcap_TransactionID,
     &ett_pcap_ProtocolIE_Container,
     &ett_pcap_ProtocolIE_Field,
-    &ett_pcap_ProtocolIE_ContainerList,
     &ett_pcap_ProtocolExtensionContainer,
     &ett_pcap_ProtocolExtensionField,
     &ett_pcap_PrivateIE_Container,
@@ -14801,7 +14999,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 221 "packet-pcap-template.c"
+#line 211 "packet-pcap-template.c"
   };
 
   module_t *pcap_module;

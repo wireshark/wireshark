@@ -20,6 +20,13 @@ ProtocolIE-ID
 
 #.NO_EMIT
 
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+ProtocolIE-ContainerList
+Presence
+#.END
+
+
 #.TYPE_RENAME
 
 InitiatingMessage/value InitiatingMessage_value
@@ -78,22 +85,22 @@ ProtocolIE-Field/value ie_field_value
 #.FN_PARS Outcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_OutcomeValue
 
 #--- Parameterization is not supported in asn2wrs ---
-
+# Not used yet in PCAP ASN.1
 #ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, PCAP-PROTOCOL-IES : IEsSetParam} ::=
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
 #	ProtocolIE-Container {{IEsSetParam}}
 
-#.FN_PARS ProtocolIE-ContainerList
-MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
-MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
-#.FN_HDR ProtocolIE-ContainerList
-  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
-    { "lowerBound", ASN1_PAR_INTEGER },
-    { "upperBound", ASN1_PAR_INTEGER },
-    { NULL, 0 }
-  };
-  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
-#.END
+# FN_PARS ProtocolIE-ContainerList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerList
+#  static const asn1_par_def_t ProtocolIE_ContainerList_pars[] = {
+#   { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerList", ProtocolIE_ContainerList_pars);
+# END
 
 #ProtocolIE-ContainerPairList {INTEGER : lowerBound, INTEGER : upperBound, PCAP-PROTOCOL-IES-PAIR : IEsSetParam} ::=
 #	SEQUENCE (SIZE (lowerBound..upperBound)) OF
@@ -269,6 +276,25 @@ GANSS-MeasuredResultsList						N pcap.extension id-GANSS-MeasuredResultsList
 GANSS-UTRAN-TRU									N pcap.extension id-GANSS-UTRAN-TRU
 AdditionalGPSAssistDataRequired					N pcap.extension id-AdditionalGPSAssistDataRequired
 AdditionalGanssAssistDataRequired				N pcap.extension id-AdditionalGanssAssistDataRequired
+RxTimingDeviation768Info						N pcap.extension id-rxTimingDeviation768Info
+RxTimingDeviation384extInfo						N pcap.extension id-rxTimingDeviation384extInfo
+RoundTripTimeInfoWithType1						N pcap.extension id-roundTripTimeInfoWithType1
+AddMeasurementInfo								N pcap.extension id-AddMeasurementInfo
+AngleOfArrivalLCR								N pcap.extension id-angleOfArrivalLCR
+ExtendedTimingAdvanceLCR						N pcap.extension id-extendedTimingAdvanceLCR
+GANSS-PositioningDataSet						N pcap.extension id-GANSS-PositioningDataSet
+GANSS-CommonAssistanceData						N pcap.extension id-GANSS-CommonAssistanceData
+GANSS-GenericAssistanceDataList					N pcap.extension id-GANSS-GenericAssistanceDataList
+GPS-ReferenceLocation							N pcap.extension id-GPS-ReferenceLocation
+UTRAN-GPS-DriftRate								N pcap.extension id-UTRAN-GPS-DriftRate
+GPSReferenceTimeUncertainty						N pcap.extension id-GPSReferenceTimeUncertainty
+OTDOA-AddMeasuredResultsInfo					N pcap.extension id-OTDOA-AddMeasuredResultsInfo
+Extended-RNC-ID									N pcap.extension id-Extended-RNC-ID
+AdditionalMeasurementInforLCR					N pcap.extension id-additionalMeasurementInforLCR
+GNSS-PositioningMethod							N pcap.extension id-GNSS-PositioningMethod
+NetworkAssistedGANSSSupport						N pcap.extension id-NetworkAssistedGANSSSuport
+UTRAN-GPSReferenceTime							N pcap.extension id-UTRAN-GPSReferenceTime
+
 
 #PCAP-ELEMENTARY-PROCEDURE
 
