@@ -19,6 +19,15 @@ ProtocolIE-ID
 
 #.NO_EMIT
 
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+ProtocolError-IE-ContainerList
+SAEB-IE-ContainerPairList
+
+Presence
+#.END
+
+
 #.TYPE_RENAME
 
 InitiatingMessage/value InitiatingMessage_value
@@ -112,22 +121,24 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #.END
 
 # SAEB-IE-ContainerPairList              { S1AP-PROTOCOL-IES-PAIR : IEsSetParam }	::= ProtocolIE-ContainerPairList { 1, maxNrOfSAEBs,   {IEsSetParam} }
-#.FN_BODY SAEB-IE-ContainerPairList
-  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerPairList");
-  asn1_param_push_integer(%(ACTX)s, 1);
-  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
-%(DEFAULT_BODY)s
-  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerPairList");
+# Currently not used
+# FN_BODY SAEB-IE-ContainerPairList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerPairList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerPairList");
 #.END
 
+# Currently not used
 # ProtocolError-IE-ContainerList        { S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfSAEBs,   {IEsSetParam} }
-#.FN_BODY ProtocolError-IE-ContainerList
-  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
-  asn1_param_push_integer(%(ACTX)s, 1);
-  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
-%(DEFAULT_BODY)s
-  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
- #.END
+# FN_BODY ProtocolError-IE-ContainerList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfSAEBs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+# END
 
 
 # following construction is not supported by asn2wrs
@@ -384,7 +395,7 @@ Cdma2000SectorID						N s1ap.ies id-cdma2000SectorID
 SecurityInfo							N s1ap.ies id-SecurityInfo										
 UERadioCapability						N s1ap.ies id-UERadioCapability								
 GUMMEI									N s1ap.ies id-GUMMEI-ID										
-#N s1ap.ies id-SAEBearerInformationListItem						
+SAEBearerInformationListItem			N s1ap.ies id-SAEBearerInformationListItem						
 Direct-Forwarding-Path-Availability		N s1ap.ies id-Direct-Forwarding-Path-Availability				
 UEIdentityIndexValue					N s1ap.ies id-UEIdentityIndexValue								
 Cdma2000HOStatus						N s1ap.ies id-cdma2000HOStatus
