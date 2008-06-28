@@ -1427,8 +1427,6 @@ static dissector_table_t pcap_proc_uout_dissector_table;
 static dissector_table_t pcap_proc_out_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_ProtocolIEFieldPairFirstValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static int dissect_ProtocolIEFieldPairSecondValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -11052,7 +11050,7 @@ static int dissect_PCAP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pcap-fn.c ---*/
-#line 105 "packet-pcap-template.c"
+#line 103 "packet-pcap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -11235,7 +11233,7 @@ proto_reg_handoff_pcap(void)
 
 
 /*--- End of included file: packet-pcap-dis-tab.c ---*/
-#line 195 "packet-pcap-template.c"
+#line 193 "packet-pcap-template.c"
 }
 
 /*--- proto_register_pcap -------------------------------------------*/
@@ -14666,7 +14664,7 @@ void proto_register_pcap(void) {
         "", HFILL }},
 
 /*--- End of included file: packet-pcap-hfarr.c ---*/
-#line 205 "packet-pcap-template.c"
+#line 203 "packet-pcap-template.c"
   };
 
   /* List of subtrees */
@@ -14999,7 +14997,7 @@ void proto_register_pcap(void) {
     &ett_pcap_Outcome,
 
 /*--- End of included file: packet-pcap-ettarr.c ---*/
-#line 211 "packet-pcap-template.c"
+#line 209 "packet-pcap-template.c"
   };
 
   module_t *pcap_module;
