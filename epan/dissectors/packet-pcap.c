@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pcap.c                                                              */
-/* ../../tools/asn2wrs.py -p pcap -c ./pcap.cnf -s ./packet-pcap-template -D . PCAP-CommonDataTypes.asn PCAP-Constants.asn PCAP-Containers.asn PCAP-IEs.asn PCAP-PDU-Contents.asn PCAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p pcap -c pcap.cnf -s packet-pcap-template PCAP-CommonDataTypes.asn PCAP-Constants.asn PCAP-Containers.asn PCAP-IEs.asn PCAP-PDU-Contents.asn PCAP-PDU-Descriptions.asn */
 
 /* Input file: packet-pcap-template.c */
 
@@ -12555,7 +12555,7 @@ void proto_register_pcap(void) {
         "pcap.INTEGER_0_4095", HFILL }},
     { &hf_pcap_ue_GANSSTimingOfCellFrames,
       { "ue-GANSSTimingOfCellFrames", "pcap.ue_GANSSTimingOfCellFrames",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "pcap.T_ue_GANSSTimingOfCellFrames", HFILL }},
     { &hf_pcap_gANSS_TimeId,
       { "gANSS-TimeId", "pcap.gANSS_TimeId",
@@ -14275,11 +14275,11 @@ void proto_register_pcap(void) {
         "pcap.VerticalSpeedDirection", HFILL }},
     { &hf_pcap_utran_GPSTimingOfCell,
       { "utran-GPSTimingOfCell", "pcap.utran_GPSTimingOfCell",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "pcap.T_utran_GPSTimingOfCell", HFILL }},
     { &hf_pcap_ue_GPSTimingOfCell,
       { "ue-GPSTimingOfCell", "pcap.ue_GPSTimingOfCell",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT64, BASE_DEC, NULL, 0,
         "pcap.T_ue_GPSTimingOfCell", HFILL }},
     { &hf_pcap_protocolIEs,
       { "protocolIEs", "pcap.protocolIEs",
