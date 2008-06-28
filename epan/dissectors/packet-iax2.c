@@ -505,7 +505,7 @@ static guint iax_circuit_hash (gconstpointer v)
 /* Find, or create, a circuit for the given
    {address,porttype,port,call} quadruplet
 */
-static guint iax_circuit_lookup(const address *address,
+static guint iax_circuit_lookup(const address *address_p,
 				port_type ptype,
 				guint32 port,
 				guint32 callno)
@@ -513,7 +513,7 @@ static guint iax_circuit_lookup(const address *address,
   iax_circuit_key key;
   guint32 *circuit_id_p;
 
-  key.addr = *address;
+  key.addr = *address_p;
   key.ptype = ptype;
   key.port = port;
   key.callno = callno;
@@ -523,10 +523,10 @@ static guint iax_circuit_lookup(const address *address,
     iax_circuit_key *new_key;
 
     new_key = se_alloc(sizeof(iax_circuit_key));
-    new_key->addr.type = address->type;
-    new_key->addr.len = MIN(address->len,MAX_ADDRESS);
+    new_key->addr.type = address_p->type;
+    new_key->addr.len = MIN(address_p->len,MAX_ADDRESS);
     new_key->addr.data = new_key->address_data;
-    memcpy(new_key->address_data,address->data,new_key->addr.len);
+    memcpy(new_key->address_data,address_p->data,new_key->addr.len);
     new_key->ptype = ptype;
     new_key->port = port;
     new_key->callno = callno;

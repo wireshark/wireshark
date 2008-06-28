@@ -9430,7 +9430,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
     	"Not specified", /* 62 */
     	"Not specified", /* 63 */
 	};
-    guint index = 0;
+    guint indx = 0;
     guchar dtm_gprs_mslot = 0;
     guchar dtm_egprs_mslot = 4;
     gboolean finished = TRUE;
@@ -9476,10 +9476,10 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
 		}
 	}
 
-	index++;
+	indx++;
 	tf = proto_tree_add_text(tree,
     		tvb, curr_offset, 1,
-	    	"MS RA capability %d",index);
+	    	"MS RA capability %d",indx);
 
 	tf_tree = proto_item_add_subtree(tf, ett_gmm_radio_cap );
 

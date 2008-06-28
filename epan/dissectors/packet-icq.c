@@ -708,44 +708,44 @@ icqv5_decode_msgType(proto_tree* tree, tvbuff_t *tvb, int offset, int size,
     case MSG_CONTACTS:
     {
 	gint sep_offset_prev;
-	int sz = 0;            /* Size of the current element */
-	int n = 0;             /* The nth element */
+	int sz_local = 0;            /* Size of the current element */
+	int n_local = 0;             /* The nth element */
 	gboolean last = FALSE;
 
 	while (!last) {
 	    sep_offset = tvb_find_guint8(tvb, offset, left, 0xfe);
 	    if (sep_offset != -1)
-		sz = sep_offset - offset + 1;
+		sz_local = sep_offset - offset + 1;
 	    else {
-		sz = left;
+		sz_local = left;
 		last = TRUE;
 	    }
-	    if (n == 0) {
+	    if (n_local == 0) {
 		/* The first element is the number of Nick/UIN pairs follow */
-		proto_tree_add_text(subtree, tvb, offset, sz,
-				    "Number of pairs: %.*s", sz - 1,
-				    tvb_get_ptr(tvb, offset, sz));
-		n++;
+		proto_tree_add_text(subtree, tvb, offset, sz_local,
+				    "Number of pairs: %.*s", sz_local - 1,
+				    tvb_get_ptr(tvb, offset, sz_local));
+		n_local++;
 	    } else if (!last) {
-		int svsz = sz;
+		int svsz = sz_local;
 
-		left -= sz;
+		left -= sz_local;
 		sep_offset_prev = sep_offset;
 		sep_offset = tvb_find_guint8(tvb, sep_offset_prev, left, 0xfe);
 		if (sep_offset != -1)
-		    sz = sep_offset - offset + 1;
+		    sz_local = sep_offset - offset + 1;
 		else {
-		    sz = left;
+		    sz_local = left;
 		    last = TRUE;
 		}
-		proto_tree_add_text(subtree, tvb, offset, sz + svsz,
+		proto_tree_add_text(subtree, tvb, offset, sz_local + svsz,
 				    "%.*s: %.*s", svsz - 1,
-				    tvb_get_ptr(tvb, offset, svsz), sz - 1,
-				    tvb_get_ptr(tvb, sep_offset_prev + 1, sz));
-		n += 2;
+				    tvb_get_ptr(tvb, offset, svsz), sz_local - 1,
+				    tvb_get_ptr(tvb, sep_offset_prev + 1, sz_local));
+		n_local += 2;
 	    }
 
-	    left -= (sz+1);
+	    left -= (sz_local+1);
 	    offset = sep_offset + 1;
 	}
 	break;
@@ -839,16 +839,16 @@ icqv5_cmd_keep_alive(proto_tree* tree, /* Tree to put the data in */
 		     tvbuff_t *tvb,    /* Decrypted packet content */
 		     int offset)       /* Offset from the start of the packet to the content */
 {
-    guint32 random;
+    guint32 randomx;
     proto_tree* subtree;
     proto_item* ti;
 
     if (tree){
 	ti = proto_tree_add_text(tree, tvb, offset, 4, "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
-	random = tvb_get_letohl(tvb, offset + CMD_KEEP_ALIVE_RANDOM);
+	randomx = tvb_get_letohl(tvb, offset + CMD_KEEP_ALIVE_RANDOM);
 	proto_tree_add_text(subtree, tvb, offset + CMD_KEEP_ALIVE_RANDOM,
-			    4, "Random: 0x%08x", random);
+			    4, "Random: 0x%08x", randomx);
     }
 }
 

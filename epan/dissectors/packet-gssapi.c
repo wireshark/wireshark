@@ -350,14 +350,14 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    return_offset = tvb_length(gss_tvb);
 		    goto done;
 		  } else {
-		    tvbuff_t *oid_tvb;
+		    tvbuff_t *oid_tvb_local;
 
-		    oid_tvb = tvb_new_subset(gss_tvb, start_offset, -1, -1);
+		    oid_tvb_local = tvb_new_subset(gss_tvb, start_offset, -1, -1);
 		    if (is_verifier)
 			handle = oidvalue->wrap_handle;
 		    else
 			handle = oidvalue->handle;
-		    len = call_dissector(handle, oid_tvb, pinfo, subtree);
+		    len = call_dissector(handle, oid_tvb_local, pinfo, subtree);
 		    if (len == 0)
 			return_offset = tvb_length(gss_tvb);
 		    else

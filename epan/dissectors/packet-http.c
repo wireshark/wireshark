@@ -1569,133 +1569,133 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 			*reqresp_dissector = basic_response_dissector;
 	} else {
 		const guchar * ptr = (const guchar *)data;
-		int		 index = 0;
+		int		 indx = 0;
 
 		/* Look for the space following the Method */
-		while (index < linelen) {
+		while (indx < linelen) {
 			if (*ptr == ' ')
 				break;
 			else {
 				ptr++;
-				index++;
+				indx++;
 			}
 		}
 
 		/* Check the methods that have same length */
-		switch (index) {
+		switch (indx) {
 
 		case 3:
-			if (strncmp(data, "GET", index) == 0 ||
-			    strncmp(data, "PUT", index) == 0) {
+			if (strncmp(data, "GET", indx) == 0 ||
+			    strncmp(data, "PUT", indx) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
-			else if (strncmp(data, "ICY", index) == 0) {
+			else if (strncmp(data, "ICY", indx) == 0) {
 				*type = HTTP_RESPONSE;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 4:
-			if (strncmp(data, "COPY", index) == 0 ||
-			    strncmp(data, "HEAD", index) == 0 ||
-			    strncmp(data, "LOCK", index) == 0 ||
-			    strncmp(data, "MOVE", index) == 0 ||
-			    strncmp(data, "POLL", index) == 0 ||
-			    strncmp(data, "POST", index) == 0) {
+			if (strncmp(data, "COPY", indx) == 0 ||
+			    strncmp(data, "HEAD", indx) == 0 ||
+			    strncmp(data, "LOCK", indx) == 0 ||
+			    strncmp(data, "MOVE", indx) == 0 ||
+			    strncmp(data, "POLL", indx) == 0 ||
+			    strncmp(data, "POST", indx) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 5:
-			if (strncmp(data, "BCOPY", index) == 0 ||
-				strncmp(data, "BMOVE", index) == 0 ||
-				strncmp(data, "MKCOL", index) == 0 ||
-				strncmp(data, "TRACE", index) == 0 ||
-				strncmp(data, "LABEL", index) == 0 ||  /* RFC 3253 8.2 */
-				strncmp(data, "MERGE", index) == 0) {  /* RFC 3253 11.2 */
+			if (strncmp(data, "BCOPY", indx) == 0 ||
+				strncmp(data, "BMOVE", indx) == 0 ||
+				strncmp(data, "MKCOL", indx) == 0 ||
+				strncmp(data, "TRACE", indx) == 0 ||
+				strncmp(data, "LABEL", indx) == 0 ||  /* RFC 3253 8.2 */
+				strncmp(data, "MERGE", indx) == 0) {  /* RFC 3253 11.2 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 6:
-			if (strncmp(data, "DELETE", index) == 0 ||
-				strncmp(data, "SEARCH", index) == 0 ||
-				strncmp(data, "UNLOCK", index) == 0 ||
-				strncmp(data, "REPORT", index) == 0 ||  /* RFC 3253 3.6 */
-				strncmp(data, "UPDATE", index) == 0) {  /* RFC 3253 7.1 */
+			if (strncmp(data, "DELETE", indx) == 0 ||
+				strncmp(data, "SEARCH", indx) == 0 ||
+				strncmp(data, "UNLOCK", indx) == 0 ||
+				strncmp(data, "REPORT", indx) == 0 ||  /* RFC 3253 3.6 */
+				strncmp(data, "UPDATE", indx) == 0) {  /* RFC 3253 7.1 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
-			else if (strncmp(data, "NOTIFY", index) == 0) {
+			else if (strncmp(data, "NOTIFY", indx) == 0) {
 				*type = HTTP_NOTIFICATION;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 7:
-			if (strncmp(data, "BDELETE", index) == 0 ||
-			    strncmp(data, "CONNECT", index) == 0 ||
-			    strncmp(data, "OPTIONS", index) == 0 ||
-			    strncmp(data, "CHECKIN", index) == 0) {  /* RFC 3253 4.4, 9.4 */
+			if (strncmp(data, "BDELETE", indx) == 0 ||
+			    strncmp(data, "CONNECT", indx) == 0 ||
+			    strncmp(data, "OPTIONS", indx) == 0 ||
+			    strncmp(data, "CHECKIN", indx) == 0) {  /* RFC 3253 4.4, 9.4 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 8:
-			if (strncmp(data, "PROPFIND", index) == 0 ||
-			    strncmp(data, "CHECKOUT", index) == 0 || /* RFC 3253 4.3, 9.3 */
-			    strncmp(data, "CCM_POST", index) == 0) {
+			if (strncmp(data, "PROPFIND", indx) == 0 ||
+			    strncmp(data, "CHECKOUT", indx) == 0 || /* RFC 3253 4.3, 9.3 */
+			    strncmp(data, "CCM_POST", indx) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 9:
-			if (strncmp(data, "SUBSCRIBE", index) == 0) {
+			if (strncmp(data, "SUBSCRIBE", indx) == 0) {
 				*type = HTTP_NOTIFICATION;
 				isHttpRequestOrReply = TRUE;
-			} else if (strncmp(data, "PROPPATCH", index) == 0 ||
-			    strncmp(data, "BPROPFIND", index) == 0) {
+			} else if (strncmp(data, "PROPPATCH", indx) == 0 ||
+			    strncmp(data, "BPROPFIND", indx) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 10:
-			if (strncmp(data, "BPROPPATCH", index) == 0 ||
-				strncmp(data, "UNCHECKOUT", index) == 0 ||  /* RFC 3253 4.5 */
-				strncmp(data, "MKACTIVITY", index) == 0) {  /* RFC 3253 13.5 */
+			if (strncmp(data, "BPROPPATCH", indx) == 0 ||
+				strncmp(data, "UNCHECKOUT", indx) == 0 ||  /* RFC 3253 4.5 */
+				strncmp(data, "MKACTIVITY", indx) == 0) {  /* RFC 3253 13.5 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 11:
-			if (strncmp(data, "MKWORKSPACE", index) == 0) {  /* RFC 3253 6.3 */
+			if (strncmp(data, "MKWORKSPACE", indx) == 0) {  /* RFC 3253 6.3 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
-			} else if (strncmp(data, "UNSUBSCRIBE", index) == 0) {
+			} else if (strncmp(data, "UNSUBSCRIBE", indx) == 0) {
 				*type = HTTP_NOTIFICATION;
 				isHttpRequestOrReply = TRUE;
-			} else if (strncmp(data, "RPC_CONNECT", index) == 0) {
+			} else if (strncmp(data, "RPC_CONNECT", indx) == 0) {
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 15:
-			if (strncmp(data, "VERSION-CONTROL", index) == 0) {  /* RFC 3253 3.5 */
+			if (strncmp(data, "VERSION-CONTROL", indx) == 0) {  /* RFC 3253 3.5 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
 			break;
 
 		case 16:
-			if (strncmp(data, "BASELINE-CONTROL", index) == 0) {  /* RFC 3253 12.6 */
+			if (strncmp(data, "BASELINE-CONTROL", indx) == 0) {  /* RFC 3253 12.6 */
 				*type = HTTP_REQUEST;
 				isHttpRequestOrReply = TRUE;
 			}
@@ -1708,8 +1708,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
 
-			stat_info->request_method = ep_strndup(data, index+1);
-			conv_data->request_method = se_strndup(data, index+1);
+			stat_info->request_method = ep_strndup(data, indx+1);
+			conv_data->request_method = se_strndup(data, indx+1);
 		}
 
 

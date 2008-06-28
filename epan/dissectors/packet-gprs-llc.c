@@ -470,7 +470,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if (tree)
 			{
-				guint32 tmp;
+				guint32 tmpx;
 
 				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, (offset-3),
 					3,"Information format: %s: N(S) = %u,  N(R) = %u",
@@ -478,16 +478,16 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ctrl_f_tree = proto_item_add_subtree(ctrl_field_item, ett_llcgprs_sframe);
 
 				/* retrieve the second octet */
-				tmp = tvb_get_ntohs(tvb, (offset-3))  << 16;
-				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ifmt, tvb, offset-3, 3, tmp);
-				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ia, tvb, offset-3, 3, tmp);
-				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_izerobit, tvb, offset-3, 3, tmp);
+				tmpx = tvb_get_ntohs(tvb, (offset-3))  << 16;
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ifmt, tvb, offset-3, 3, tmpx);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_ia, tvb, offset-3, 3, tmpx);
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_izerobit, tvb, offset-3, 3, tmpx);
 
-				tmp = ns << 12;
-				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_isack_ns, tvb, offset-3, 3, tmp);
+				tmpx = ns << 12;
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_isack_ns, tvb, offset-3, 3, tmpx);
 
-				tmp = nr << 2;
-				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_isack_nr, tvb, offset-3, 3, tmp);
+				tmpx = nr << 2;
+				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_isack_nr, tvb, offset-3, 3, tmpx);
 				proto_tree_add_uint(ctrl_f_tree, hf_llcgprs_isack_sfb, tvb, offset-3, 3, ctrl_fld_ui_s);
 			}
 

@@ -334,13 +334,13 @@ again:
     case ND_OPT_SOURCE_LINKADDR:
     case ND_OPT_TARGET_LINKADDR:
       {
-	int len, p;
+	int len_local, p;
 
 	p = offset + sizeof(*opt);
-	len = (opt->nd_opt_len << 3) - sizeof(*opt);
+	len_local = (opt->nd_opt_len << 3) - sizeof(*opt);
 	proto_tree_add_text(icmp6opt_tree, tvb,
-	    offset + sizeof(*opt), len, "Link-layer address: %s",
-	    bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+	    offset + sizeof(*opt), len_local, "Link-layer address: %s",
+	    bytestring_to_str(tvb_get_ptr(tvb, p, len_local), len_local, ':'));
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:
@@ -608,7 +608,7 @@ again:
 	struct nd_opt_route_info ribuf, *ri;
 	struct e_in6_addr in6;
 	int l;
-	guint32 lifetime;
+	guint32 lifetime_local;
 
 	ri = &ribuf;
 	tvb_memcpy(tvb, (guint8 *)ri, offset, sizeof *ri);
@@ -641,15 +641,15 @@ again:
 		decode_enumerated_bitfield(ri->nd_opt_rti_flags,
 		    ND_RA_FLAG_RTPREF_MASK, 8, names_router_pref,
 		    "Router preference: %s"));
-	    lifetime = pntohl(&ri->nd_opt_rti_lifetime);
-	    if (lifetime == 0xffffffff)
+	    lifetime_local = pntohl(&ri->nd_opt_rti_lifetime);
+	    if (lifetime_local == 0xffffffff)
 		proto_tree_add_text(icmp6opt_tree, tvb,
 		    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
 		    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: infinity");
 	    else
 		proto_tree_add_text(icmp6opt_tree, tvb,
 		    offset + offsetof(struct nd_opt_route_info, nd_opt_rti_lifetime),
-		    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime);
+		    sizeof(ri->nd_opt_rti_lifetime), "Lifetime: %u", lifetime_local);
 	    proto_tree_add_text(icmp6opt_tree, tvb,
 		offset + sizeof(*ri), l, "Prefix: %s", ip6_to_str(&in6));
 	} else {
@@ -827,16 +827,16 @@ again:
 			}
 		case FMIP6_OPT_LINK_LAYER_ADDRESS:
 			{
-				int len, p;
+				int len_local, p;
 
 				p = offset + sizeof(*opt);
 				proto_tree_add_text(icmp6opt_tree, tvb,
 						offset + offsetof(struct fmip6_opt_hdr, fmip6_opt_optcode), 1, "Option-Code: %s",
 						val_to_str(opt->fmip6_opt_optcode, names_fmip6_lla_opt_code, "Unknown"));
-				len = (opt->fmip6_opt_len << 3) - sizeof(*opt);
+				len_local = (opt->fmip6_opt_len << 3) - sizeof(*opt);
 				proto_tree_add_text(icmp6opt_tree, tvb,
-						offset + sizeof(*opt), len, "Link-layer address: %s",
-						bytestring_to_str(tvb_get_ptr(tvb, p, len), len, ':'));
+						offset + sizeof(*opt), len_local, "Link-layer address: %s",
+						bytestring_to_str(tvb_get_ptr(tvb, p, len_local), len_local, ':'));
 				break;
 			}
 	}

@@ -93,7 +93,7 @@ dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 {
 	proto_item  *ti        = NULL;
 	guint       gpio_num;
-	guint       gpio_edge;
+	guint       gpio_edgex;
 	guchar      *szInfo    = NULL;
 
 	#define MAX_BUFFER 60
@@ -116,9 +116,9 @@ dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset++;
 	if (tree)
 		ti = proto_tree_add_item (tree, hf_gpio_edge, tvb, offset, 1, FALSE);
-	gpio_edge = (tvb_get_guint8(tvb, offset) & 0x01);
+	gpio_edgex = (tvb_get_guint8(tvb, offset) & 0x01);
 
-	if (gpio_edge == 0x00)
+	if (gpio_edgex == 0x00)
 		g_snprintf(szInfo, MAX_BUFFER, "netANALYZER event on GPIO %d (positive edge)", gpio_num);
 	else
 		g_snprintf(szInfo, MAX_BUFFER, "netANALYZER event on GPIO %d (negative edge)", gpio_num);
