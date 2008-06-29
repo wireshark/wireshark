@@ -145,7 +145,7 @@ GtkWidget *filter_toolbar_new()
         "Add an expression to this filter string", "Private");
 
     /* Create the "Clear" button */
-    filter_reset = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
+    filter_reset = gtk_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
     g_signal_connect(filter_reset, "clicked", G_CALLBACK(filter_reset_cb), NULL);
     gtk_widget_show(filter_reset);
@@ -153,7 +153,7 @@ GtkWidget *filter_toolbar_new()
         "Clear this filter string and update the display", "Private");
 
     /* Create the "Apply" button */
-    filter_apply = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+    filter_apply = gtk_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
     g_signal_connect(filter_apply, "clicked", G_CALLBACK(filter_activate_cb), filter_te);
     gtk_widget_show(filter_apply);

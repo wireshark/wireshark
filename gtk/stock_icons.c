@@ -99,13 +99,15 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       "_Details",       0, 0, NULL },
 #endif
         { WIRESHARK_STOCK_DISPLAY_FILTER,        "_Filter",        0, 0, NULL },
-        { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  "_Filter:",  0, 0, NULL },
+        { WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY,  "F_ilter:",  0, 0, NULL },
         { WIRESHARK_STOCK_BROWSE,                "_Browse...",                0, 0, NULL },
         { WIRESHARK_STOCK_CREATE_STAT,           "Create _Stat",           0, 0, NULL },
         { WIRESHARK_STOCK_EXPORT,                "_Export...",                0, 0, NULL },
         { WIRESHARK_STOCK_IMPORT,                "_Import...",                0, 0, NULL },
         { WIRESHARK_STOCK_EDIT,                  "_Edit...",                  0, 0, NULL },
-        { WIRESHARK_STOCK_ADD_EXPRESSION,        "_Expression..." ,        0, 0, NULL }, /* plus sign coming from icon */
+        { WIRESHARK_STOCK_ADD_EXPRESSION,        "E_xpression..." ,        0, 0, NULL }, /* plus sign coming from icon */
+        { WIRESHARK_STOCK_CLEAR_EXPRESSION,      "Clea_r" ,                   0, 0, NULL },
+        { WIRESHARK_STOCK_APPLY_EXPRESSION,      "App_ly" ,                   0, 0, NULL },
         { WIRESHARK_STOCK_SAVE_ALL,              "Save A_ll",             0, 0, NULL },
         { WIRESHARK_STOCK_DONT_SAVE,             "Continue _without Saving",             0, 0, NULL },
         { WIRESHARK_STOCK_ABOUT,                 "_About",                 0, 0, NULL },
@@ -225,6 +227,10 @@ void stock_icons_init(void) {
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_EDIT, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_ADD);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_ADD_EXPRESSION, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLEAR);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_CLEAR_EXPRESSION, icon_set);
+    icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_APPLY);
+    gtk_icon_factory_add(factory, WIRESHARK_STOCK_APPLY_EXPRESSION, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_CLEAR);
     gtk_icon_factory_add(factory, WIRESHARK_STOCK_DONT_SAVE, icon_set);
     icon_set = gtk_icon_factory_lookup_default(GTK_STOCK_SAVE);
