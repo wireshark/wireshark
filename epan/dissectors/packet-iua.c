@@ -103,14 +103,24 @@ static dissector_handle_t x25_handle;
 #define PARAMETER_VALUE_OFFSET  (PARAMETER_LENGTH_OFFSET + PARAMETER_LENGTH_LENGTH)
 #define PARAMETER_HEADER_OFFSET PARAMETER_TAG_OFFSET
 
-#define INT_INTERFACE_ID_OFFSET PARAMETER_VALUE_OFFSET
 #define INT_INTERFACE_ID_LENGTH 4
 
 static void
 dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_int_interface_id, parameter_tvb, INT_INTERFACE_ID_OFFSET, INT_INTERFACE_ID_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%d)", tvb_get_ntohl(parameter_tvb, INT_INTERFACE_ID_OFFSET));
+  guint16 number_of_ids, id_number;
+  gint offset;
+
+  number_of_ids= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INT_INTERFACE_ID_LENGTH;
+  offset = PARAMETER_VALUE_OFFSET;
+
+  proto_item_append_text(parameter_item, " ("); 
+  for (id_number = 1; id_number <= number_of_ids; id_number++) {
+    proto_tree_add_item(parameter_tree, hf_int_interface_id, parameter_tvb, offset, INT_INTERFACE_ID_LENGTH, NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, (id_number > 1) ? ", %d" : "%d", tvb_get_ntohl(parameter_tvb, offset));
+    offset += INT_INTERFACE_ID_LENGTH;
+  }
+  proto_item_append_text(parameter_item, ")"); 
 }
 
 #define TEXT_INTERFACE_ID_OFFSET PARAMETER_VALUE_OFFSET
@@ -212,13 +222,15 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
 
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / INTERVAL_LENGTH;
   offset = PARAMETER_VALUE_OFFSET;
-  for(range_number = 1; range_number <= number_of_ranges; range_number++) {
+  proto_item_append_text(parameter_item, " ("); 
+  for (range_number = 1; range_number <= number_of_ranges; range_number++) {
     proto_tree_add_item(parameter_tree, hf_interface_range_start, parameter_tvb, offset + START_OFFSET, START_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_interface_range_end,   parameter_tvb, offset + END_OFFSET,   END_LENGTH,   NETWORK_BYTE_ORDER);
+    proto_item_append_text(parameter_item, (range_number > 1) ? ", %d-%d" : "%d-%d",
+                           tvb_get_ntohl(parameter_tvb, offset + START_OFFSET), tvb_get_ntohl(parameter_tvb, offset + END_OFFSET));
     offset += INTERVAL_LENGTH;
-  };
-
-  proto_item_append_text(parameter_item, " (%u range%s)", number_of_ranges, plurality(number_of_ranges, "", "s"));
+  }
+  proto_item_append_text(parameter_item, ")");
 }
 
 #define HEARTBEAT_DATA_OFFSET PARAMETER_VALUE_OFFSET
@@ -543,7 +555,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
 
   /* create proto_tree stuff */
   parameter_item   = proto_tree_add_text(iua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb),
-                                         val_to_str(tag, support_IG?parameter_tag_ig_values:parameter_tag_values, "Unknown parameter"));
+                                         "%s parameter", val_to_str(tag, support_IG?parameter_tag_ig_values:parameter_tag_values, "Unknown"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_iua_parameter);
 
   /* add tag and length to the iua tree */
