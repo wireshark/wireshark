@@ -299,7 +299,7 @@ export_object_window(const gchar *tapname, const gchar *name, tap_packet_cb tap_
 
 	vbox = gtk_vbox_new(FALSE, 5);
 
-        gtk_container_border_width(GTK_CONTAINER(vbox), 5);
+        gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
         gtk_container_add(GTK_CONTAINER(object_list->dlg), vbox);
 
 	sw = scrolled_window_new(NULL, NULL);

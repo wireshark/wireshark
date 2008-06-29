@@ -476,13 +476,13 @@ file_open_cmd(GtkWidget *w)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
 
   /* filter row */
   filter_hbox = gtk_hbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
+  gtk_container_set_border_width(GTK_CONTAINER(filter_hbox), 0);
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
@@ -766,7 +766,7 @@ file_merge_cmd(GtkWidget *w)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
 
@@ -788,7 +788,7 @@ file_merge_cmd(GtkWidget *w)
   gtk_widget_show(ft_om);
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
+  gtk_container_set_border_width(GTK_CONTAINER(filter_hbox), 0);
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
@@ -1106,7 +1106,7 @@ set_file_type_list(GtkWidget *option_menu)
       }
       g_signal_connect(ft_menu_item, "activate", G_CALLBACK(select_file_type_cb),
                      GINT_TO_POINTER(ft));
-      gtk_menu_append(GTK_MENU(ft_menu), ft_menu_item);
+      gtk_menu_shell_append(GTK_MENU_SHELL(ft_menu), ft_menu_item);
       gtk_widget_show(ft_menu_item);
       index++;
     }
@@ -1201,7 +1201,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
   /* Container for each row of widgets */
 
   main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   file_selection_set_extra_widget(file_save_as_w, main_vb);
   gtk_widget_show(main_vb);
 
@@ -1511,7 +1511,7 @@ file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   file_selection_set_extra_widget(file_color_import_w, main_vb);
   gtk_widget_show(main_vb);
 
@@ -1647,7 +1647,7 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   file_selection_set_extra_widget(file_color_export_w, main_vb);
   gtk_widget_show(main_vb);
 

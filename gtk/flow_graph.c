@@ -508,7 +508,7 @@ static void flow_graph_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
 
     range_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_border_width(GTK_CONTAINER(range_tb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
 	gtk_container_add(GTK_CONTAINER(range_fr), range_tb);
 
 	/* Process all packets */
@@ -542,7 +542,7 @@ static void flow_graph_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(main_vb), flow_type_fr, FALSE, FALSE, 0);
 
     flow_type_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_border_width(GTK_CONTAINER(flow_type_tb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(flow_type_tb), 5);
 	gtk_container_add(GTK_CONTAINER(flow_type_fr), flow_type_tb);
 
 	/* General information */
@@ -576,7 +576,7 @@ static void flow_graph_dlg_create (void)
 	gtk_box_pack_start(GTK_BOX(main_vb), node_addr_fr, FALSE, FALSE, 0);
 
     node_addr_tb = gtk_table_new(4, 4, FALSE);
-    gtk_container_border_width(GTK_CONTAINER(node_addr_tb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(node_addr_tb), 5);
 	gtk_container_add(GTK_CONTAINER(node_addr_fr), node_addr_tb);
 
 	/* Source / Dest address */

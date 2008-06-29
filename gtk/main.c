@@ -3127,7 +3127,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Vertical container for menu bar, toolbar(s), paned windows and progress/info box */
     main_vbox = gtk_vbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);
     gtk_container_add(GTK_CONTAINER(top_level), main_vbox);
     gtk_widget_show(main_vbox);
 

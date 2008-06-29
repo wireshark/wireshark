@@ -102,7 +102,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   /* Container for each row of widgets */
 
   main_vb = gtk_vbox_new(FALSE, 6);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(proto_w), main_vb);
   gtk_widget_show(main_vb);
 
@@ -116,7 +116,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   proto_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(proto_frame), proto_vb);
-  gtk_container_border_width(GTK_CONTAINER(proto_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(proto_vb), 5);
   gtk_widget_show(proto_vb);
 
   proto_sw = scrolled_window_new(NULL, NULL);

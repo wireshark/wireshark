@@ -135,7 +135,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 12);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
   gtk_container_add(GTK_CONTAINER(sum_open_w), main_vb);
 
   /* table */

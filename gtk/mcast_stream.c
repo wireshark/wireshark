@@ -144,7 +144,7 @@ static void mcaststream_reset_cb(void *arg)
 static void mcaststream_draw(void *arg _U_)
 {
 /* XXX: see mcaststream_on_update in mcast_streams_dlg.c for comments
-	gtk_signal_emit_by_name(top_level, "signal_mcaststream_update");
+	g_signal_emit_by_name(top_level, "signal_mcaststream_update");
 */
 	mcaststream_dlg_update(the_tapinfo_struct.strinfo_list);
 	return;

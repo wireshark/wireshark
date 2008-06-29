@@ -195,7 +195,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	g_free(title);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(current_dlg->dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 

@@ -414,7 +414,7 @@ mcast_on_params                      (GtkButton       *button _U_,
 	
         /* Container for each row of widgets */
         main_vb = gtk_vbox_new(FALSE, 3);
-        gtk_container_border_width(GTK_CONTAINER(main_vb), 2);
+        gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
         gtk_container_add(GTK_CONTAINER(mcast_params_dlg), main_vb);
         gtk_widget_show(main_vb);
 

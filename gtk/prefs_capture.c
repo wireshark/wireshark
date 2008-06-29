@@ -99,7 +99,7 @@ capture_prefs_show(void)
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 	/* Main table */
 	main_tb = gtk_table_new(CAPTURE_TABLE_ROWS, 2, FALSE);
@@ -277,7 +277,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_window_set_default_size(GTK_WINDOW(ifopts_edit_dlg), DEF_WIDTH, 340);
 
 	main_vb = gtk_vbox_new(FALSE, 1);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(ifopts_edit_dlg), main_vb);
 	gtk_widget_show(main_vb);
 
@@ -288,7 +288,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 
 	/* create a scrolled window to pack the current options CList widget into */
 	cur_scr_win = scrolled_window_new(NULL, NULL);
-	gtk_container_border_width(GTK_CONTAINER(cur_scr_win), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(cur_scr_win), 3);
 	gtk_container_add(GTK_CONTAINER(cur_opts_fr), cur_scr_win);
 	gtk_widget_show(cur_scr_win);
 
@@ -318,7 +318,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_widget_show(ed_opts_fr);
 
 	main_hb = gtk_hbox_new(TRUE, 5);
-	gtk_container_border_width(GTK_CONTAINER(main_hb), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
 	gtk_container_add(GTK_CONTAINER(ed_opts_fr), main_hb);
 	gtk_widget_show(main_hb);
 

@@ -61,7 +61,7 @@
 static void rtpstream_draw(void *arg _U_)
 {
 /* XXX: see rtpstream_on_update in rtp_streams_dlg.c for comments
-	gtk_signal_emit_by_name(top_level, "signal_rtpstream_update");
+	g_signal_emit_by_name(top_level, "signal_rtpstream_update");
 */
 	rtpstream_dlg_update(the_tapinfo_struct.strinfo_list);
 	return;

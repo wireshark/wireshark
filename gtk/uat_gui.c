@@ -422,7 +422,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 
 	main_vb = gtk_vbox_new(FALSE,5);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
 	main_tb = gtk_table_new(uat->ncols+1, 2, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
@@ -470,7 +470,7 @@ static void uat_edit_dialog(uat_t* uat, gint row) {
 					md->text = str;
 					md->valptr = valptr;
 					
-					gtk_menu_append(GTK_MENU(menu), menu_item);
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 					
 					if ( g_str_equal(str, text) ) {
 						menu_index = index;
@@ -565,7 +565,7 @@ static void uat_del_dlg(uat_t* uat, int idx) {
 
 	main_vb = gtk_vbox_new(FALSE,5);
 	gtk_container_add(GTK_CONTAINER(win), main_vb);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
 	main_tb = gtk_table_new(uat->ncols+1, 2, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);
@@ -784,7 +784,7 @@ static gboolean unsaved_dialog(GtkWindow *w _U_, GdkEvent* e _U_, gpointer u) {
 
 	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 	vbox = gtk_vbox_new(FALSE, 12);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
 
 	message  = ep_strdup_printf("Changes to '%s' are not being saved!\n"
@@ -834,18 +834,18 @@ static GtkWidget* uat_window(void* u) {
 	gtk_window_resize(GTK_WINDOW(rep->window), 720, 512);
 	gtk_window_set_position(GTK_WINDOW(rep->window), GTK_WIN_POS_CENTER_ON_PARENT);
 
-	gtk_container_border_width(GTK_CONTAINER(rep->window), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(rep->window), 6);
 
 	rep->vbox = gtk_vbox_new(FALSE, 12);
-	gtk_container_border_width(GTK_CONTAINER(rep->vbox), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(rep->vbox), 6);
 	gtk_container_add(GTK_CONTAINER(rep->window), rep->vbox);
 
 	hbox = gtk_hbox_new(FALSE,12);
-	gtk_container_border_width(GTK_CONTAINER(hbox), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
 	gtk_container_add(GTK_CONTAINER(rep->vbox), hbox);
 
 	vbox = gtk_vbox_new(FALSE, 12);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 6);
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, FALSE, 0);
 
 	rep->scrolledwindow = scrolled_window_new(NULL, NULL);

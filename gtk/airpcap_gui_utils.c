@@ -147,12 +147,12 @@ airpcap_set_toolbar_start_capture(airpcap_if_info_t* if_info)
 		gtk_widget_set_sensitive(airpcap_toolbar_keys_button,FALSE);
 
 		/*decription check box*/
-		gtk_signal_handler_block_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
+		g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
 		if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
 		else
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
-		gtk_signal_handler_unblock_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
+		g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
 
 		if_label_text = g_strdup_printf("Current Wireless Interface: #%s", airpcap_get_if_string_number(if_info));
 		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);
@@ -247,12 +247,12 @@ airpcap_set_toolbar_stop_capture(airpcap_if_info_t* if_info)
   		airpcap_validation_type_combo_set_by_type(GTK_WIDGET(airpcap_toolbar_crc_filter_combo),if_info->CrcValidationOn);
 
   		/*decription check box*/
-  		gtk_signal_handler_block_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
+  		g_signal_handlers_block_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
   		if(if_info->DecryptionOn == AIRPCAP_DECRYPTION_ON)
   			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),TRUE);
   		else
   			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(airpcap_toolbar_decryption),FALSE);
-  		gtk_signal_handler_unblock_by_func (GTK_OBJECT(airpcap_toolbar_decryption),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), airpcap_tb);
+  		g_signal_handlers_unblock_by_func (airpcap_toolbar_decryption,airpcap_toolbar_encryption_cb, airpcap_tb);
 
   		if_label_text = g_strdup_printf("Current Wireless Interface: #%s", airpcap_get_if_string_number(if_info));
   		gtk_label_set_text(GTK_LABEL(airpcap_toolbar_label),if_label_text);

@@ -1132,7 +1132,7 @@ wlanstat_dlg_create (void)
 	gtk_paned_pack1(GTK_PANED(wlanstat_pane), wlanstat_name_lb, FALSE, TRUE);
 	selected_vb = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(wlanstat_name_lb), selected_vb);
-	gtk_container_border_width(GTK_CONTAINER(selected_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(selected_vb), 5);
 
 	scrolled_window = scrolled_window_new (NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
@@ -1195,7 +1195,7 @@ wlanstat_dlg_create (void)
 	gtk_paned_pack2(GTK_PANED(wlanstat_pane), frame, FALSE, TRUE);
 	selected_vb = gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(frame), selected_vb);
-	gtk_container_border_width(GTK_CONTAINER(selected_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(selected_vb), 5);
 
 	scrolled_window = scrolled_window_new (NULL, NULL);
 	gtk_box_pack_start(GTK_BOX(selected_vb), scrolled_window, TRUE, TRUE, 0);
@@ -1270,7 +1270,7 @@ wlanstat_dlg_create (void)
 
 	resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
 	gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
 	gtk_tooltips_set_tip(tooltips, resolv_cb, "Show results of name resolutions rather than the \"raw\" values. "
 			     "Please note: The corresponding name resolution must be enabled.", NULL);
 
@@ -1278,13 +1278,13 @@ wlanstat_dlg_create (void)
 
 	filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
 	gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
 	gtk_tooltips_set_tip(tooltips, filter_cb, "Limit the list to entries matching the current display filter.", NULL);
 	g_signal_connect(filter_cb, "toggled", G_CALLBACK(wlan_filter_toggle_dest), hs);
 
 	existing_cb = gtk_check_button_new_with_mnemonic("Only show existing networks");
 	gtk_container_add(GTK_CONTAINER(hbox), existing_cb);
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(existing_cb), FALSE);
 	gtk_tooltips_set_tip(tooltips, existing_cb, "This option disables probe requests for "
 			     "unknown networks.", NULL);
 	g_signal_connect(existing_cb, "toggled", G_CALLBACK(wlan_existing_toggle_dest), hs);

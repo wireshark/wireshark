@@ -320,7 +320,7 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     gtk_box_pack_start(GTK_BOX(topic_vb), topic_header, FALSE, FALSE, 0);
 
     layout_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(layout_vb), 10);
+    gtk_container_set_border_width(GTK_CONTAINER(layout_vb), 10);
     gtk_box_pack_start(GTK_BOX(topic_vb), layout_vb, FALSE, FALSE, 0);
 
     /* colorize vbox (we need an event box for this!) */
@@ -695,7 +695,7 @@ welcome_new(void)
 
     /* content */
     welcome_hb = gtk_hbox_new(FALSE, 10);
-    gtk_container_border_width(GTK_CONTAINER(welcome_hb), 10);
+    gtk_container_set_border_width(GTK_CONTAINER(welcome_hb), 10);
     gtk_box_pack_start(GTK_BOX(welcome_vb), welcome_hb, TRUE, TRUE, 0);
 
 

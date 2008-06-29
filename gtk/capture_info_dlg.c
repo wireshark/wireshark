@@ -178,7 +178,7 @@ capture_options	*capture_opts)
 
   /* Container for capture display widgets */
   main_vb = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(info->cap_w), main_vb);
   gtk_widget_show(main_vb);
 
@@ -189,7 +189,7 @@ capture_options	*capture_opts)
   /* Individual statistic elements */
   counts_tb = gtk_table_new(PACKET_COUNTS_SIZE, 4, TRUE);
   gtk_container_add(GTK_CONTAINER(counts_fr), counts_tb);
-  gtk_container_border_width(GTK_CONTAINER(counts_tb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(counts_tb), 5);
   gtk_widget_show(counts_tb);
 
   gtk_table_set_row_spacings(GTK_TABLE(counts_tb), 0);

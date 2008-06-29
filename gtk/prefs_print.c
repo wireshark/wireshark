@@ -77,7 +77,7 @@ GtkWidget * printer_prefs_show(void)
 
 	/* Enclosing containers for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 5);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 	main_tb = gtk_table_new(4, 2, FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);

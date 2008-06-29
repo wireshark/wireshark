@@ -673,13 +673,13 @@ profile_dialog_new(void)
   gtk_window_set_default_size(GTK_WINDOW(main_w), 400, 400);
 
   main_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(main_w), main_vb);
   gtk_widget_show(main_vb);
 
   /* Container for each row of widgets */
   profile_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(profile_vb), 0);
+  gtk_container_set_border_width(GTK_CONTAINER(profile_vb), 0);
   gtk_container_add(GTK_CONTAINER(main_vb), profile_vb);
   gtk_widget_show(profile_vb);
 
@@ -693,7 +693,7 @@ profile_dialog_new(void)
   gtk_widget_show(edit_fr);
 
   list_bb = gtk_vbox_new(TRUE, 0);
-  gtk_container_border_width(GTK_CONTAINER(list_bb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(list_bb), 5);
   gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
   gtk_widget_show(list_bb);
 
@@ -761,7 +761,7 @@ profile_dialog_new(void)
   gtk_widget_show(props_fr);
 
   props_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(props_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(props_vb), 5);
   gtk_container_add(GTK_CONTAINER(props_fr), props_vb);
   gtk_widget_show(props_vb);
 

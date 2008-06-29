@@ -1142,7 +1142,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_box_pack_start(GTK_BOX(hbox), sack_bt, FALSE, FALSE, 0);
 	gtk_widget_show(sack_bt);
 
-	gtk_signal_connect(GTK_OBJECT(sack_bt), "clicked", (GtkSignalFunc)on_sack_bt, u_data);
+	g_signal_connect(sack_bt, "clicked", G_CALLBACK(on_sack_bt), u_data);
 
 	tsn_bt = gtk_button_new_with_label ("Show TSNs");
 	gtk_box_pack_start(GTK_BOX(hbox), tsn_bt, FALSE, FALSE, 0);
@@ -1174,8 +1174,8 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_show(bt_close);
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_graph_close_cb), u_data);
 
-	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_press_event",(GtkSignalFunc)on_button_press, u_data);
-	gtk_signal_connect(GTK_OBJECT(u_data->io->draw_area),"button_release_event",(GtkSignalFunc)on_button_release, u_data);
+	g_signal_connect(u_data->io->draw_area,"button_press_event",G_CALLBACK(on_button_press), u_data);
+	g_signal_connect(u_data->io->draw_area,"button_release_event",G_CALLBACK(on_button_release), u_data);
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
 
 	gtk_widget_show(u_data->io->window);

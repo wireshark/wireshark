@@ -194,7 +194,7 @@ statusbar_new(void)
 
     /* Sstatus hbox */
     status_hbox = gtk_hbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(status_hbox), 0);
+    gtk_container_set_border_width(GTK_CONTAINER(status_hbox), 0);
 
     /* info (main) statusbar */
     info_bar_new();

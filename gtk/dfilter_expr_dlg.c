@@ -950,15 +950,15 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_set_border_width(GTK_CONTAINER(window), 5);
 
     main_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(window), main_vb);
 
     main_hb = gtk_hbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(main_hb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_hb), 5);
     gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
 
     field_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(field_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(field_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), field_vb);
 
     field_tree_lb = gtk_label_new("Field name");
@@ -987,7 +987,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     gtk_container_add(GTK_CONTAINER(tree_scrolled_win), field_tree);
 
     relation_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(relation_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(relation_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), relation_vb);
 
     relation_label = gtk_label_new("Relation");
@@ -1062,7 +1062,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 */
     /* value column */
     value_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(value_vb), 5);
     gtk_container_add(GTK_CONTAINER(main_hb), value_vb);
 
     value_label = gtk_label_new("Value");

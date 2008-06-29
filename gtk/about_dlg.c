@@ -116,7 +116,7 @@ splash_new(const char *message)
     gtk_widget_realize(win);
 
     main_vb = gtk_vbox_new(FALSE, 6);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
     about_wireshark(win, main_vb);
@@ -277,7 +277,7 @@ about_wireshark_page_new(void)
   gchar       *message;
 
   main_vb = gtk_vbox_new(FALSE, 6);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 
   about_wireshark(top_level, main_vb);
 
@@ -370,8 +370,8 @@ about_folders_page_new(void)
   table = simple_list_new(3, titles);
 
   /* connect a callback so we can spot a double-click */
-  gtk_signal_connect(GTK_OBJECT(table), "button_press_event",
-		     GTK_SIGNAL_FUNC(about_folders_callback), (gpointer)0);
+  g_signal_connect(table, "button_press_event",
+		     G_CALLBACK(about_folders_callback), NULL);
 
   simple_list_url_col(table, 1);
 
@@ -483,10 +483,10 @@ about_wireshark_cb( GtkWidget *w _U_, gpointer data _U_ )
   /* default position is not appropriate for the about dialog */
   gtk_window_set_position(GTK_WINDOW(about_wireshark_w), GTK_WIN_POS_CENTER_ON_PARENT);
   gtk_window_set_default_size(GTK_WINDOW(about_wireshark_w), 600, 400);
-  gtk_container_border_width(GTK_CONTAINER(about_wireshark_w), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(about_wireshark_w), 6);
 
   main_vb = gtk_vbox_new(FALSE, 12);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(about_wireshark_w), main_vb);
 
   main_nb = gtk_notebook_new();

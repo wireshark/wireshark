@@ -1961,7 +1961,7 @@ rtp_player_dlg_create(void)
 
 	/* Filter/status hbox */
 	stat_hbox = gtk_hbox_new(FALSE, 1);
-	gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
+	gtk_container_set_border_width(GTK_CONTAINER(stat_hbox), 0);
 
 	/* statusbar */
 	info_bar = gtk_statusbar_new();

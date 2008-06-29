@@ -379,8 +379,7 @@ dnd_init(GtkWidget *w)
          (GdkDragAction)(GDK_ACTION_MOVE | GDK_ACTION_COPY) );
 
     /* get notified, if some dnd coming in */
-    gtk_signal_connect(GTK_OBJECT(w), "drag_data_received",
-        GTK_SIGNAL_FUNC(dnd_data_received), NULL);
+    g_signal_connect(w, "drag_data_received", G_CALLBACK(dnd_data_received), NULL);
 }
 
 

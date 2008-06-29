@@ -339,7 +339,7 @@ module_prefs_show(module_t *module, gpointer user_data)
 
     /* Main vertical box */
     main_vb = gtk_vbox_new(FALSE, 5);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(frame), main_vb);
 
     /* Main table */
@@ -450,7 +450,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 
   /* Container for each row of widgets */
   cts.main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(cts.main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(cts.main_vb), 5);
   gtk_container_add(GTK_CONTAINER(prefs_w), cts.main_vb);
   gtk_widget_show(cts.main_vb);
 
@@ -529,7 +529,7 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   prefs_tree_page_add(label_str, cts.page, store, &gui_iter, FALSE);
   cts.page++;
 
-  gtk_container_border_width( GTK_CONTAINER(gui_font_pg), 5 );
+  gtk_container_set_border_width( GTK_CONTAINER(gui_font_pg), 5 );
 
   /* IMPORTANT: the following gtk_font_selection_set_xy() functions will only
      work, if the widget and it's corresponding window is already shown
@@ -702,11 +702,11 @@ create_preference_radio_buttons(GtkWidget *main_tb, int table_position,
 		button = gtk_radio_button_new_with_label(rb_group,
 		    enum_valp->description);
 		gtk_widget_show(button);
-		rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+		rb_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
 		gtk_box_pack_start(GTK_BOX(radio_button_hbox), button, FALSE,
 		    FALSE, 10);
 		if (enum_valp->value == current_val) {
-			gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button),
+			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			    TRUE);
 		}
 	}
@@ -760,7 +760,7 @@ fetch_preference_radio_buttons_val(GtkWidget *button,
 	 * Go through the list of of radio buttons in the button's group,
 	 * and find the first one that's active.
 	 */
-	rb_group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
+	rb_group = gtk_radio_button_get_group(GTK_RADIO_BUTTON(button));
 	button = NULL;
 	for (rb_entry = rb_group; rb_entry != NULL;
 	    rb_entry = g_slist_next(rb_entry)) {
@@ -797,7 +797,7 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
 	for (enum_valp = enumvals, index = 0; enum_valp->name != NULL;
 	    enum_valp++, index++) {
 		menu_item = gtk_menu_item_new_with_label(enum_valp->description);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 		if (enum_valp->value == current_val)
 			menu_index = index;
 		gtk_widget_show(menu_item);
@@ -1746,6 +1746,6 @@ prefs_tree_select_cb(GtkTreeSelection *sel, gpointer dummy _U_)
   {
     gtk_tree_model_get(model, &iter, 1, &page, -1);
     if (page >= 0)
-        gtk_notebook_set_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page);
+        gtk_notebook_set_current_page(g_object_get_data(G_OBJECT(prefs_w), E_PREFSW_NOTEBOOK_KEY), page);
   }
 }

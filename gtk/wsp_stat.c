@@ -360,7 +360,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
 
 	/* container for the two frames */
 	main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
 
 	/* PDU Types frame */

@@ -110,7 +110,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
      * Container for dialog widgets.
      */
     main_vb = gtk_vbox_new(FALSE, 1);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(dlg_w), main_vb);
 
     /*

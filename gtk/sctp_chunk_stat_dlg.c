@@ -230,7 +230,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
 
 	/* Container for each row of widgets */
 	vbox1 = gtk_vbox_new(FALSE, 2);
-	gtk_container_border_width(GTK_CONTAINER(vbox1), 8);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox1), 8);
 	gtk_container_add(GTK_CONTAINER(u_data->io->window), vbox1);
 	gtk_widget_show(vbox1);
 
@@ -358,7 +358,7 @@ static void sctp_chunk_dlg(struct sctp_udata *u_data)
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 12);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(u_data->io->window), main_vb);
 	 
 	 /* table */

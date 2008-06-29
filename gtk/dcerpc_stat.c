@@ -406,7 +406,7 @@ dcerpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_
 	g_signal_connect(menu_item, "activate", G_CALLBACK(dcerpcstat_version_select),
                        (gpointer)((long)k->ver));
 	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(vers_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
 
 	if(dcerpc_version==0xffff){
 		dcerpc_version=k->ver;
@@ -458,7 +458,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 		gtk_widget_show(program_submenu_label);
 		gtk_widget_show(box);
 
-		gtk_menu_append(GTK_MENU(prog_menu), program_submenu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), program_submenu_item);
 		gtk_widget_show(program_submenu_item);
 
 		program_submenu_menu=gtk_menu_new();
@@ -476,7 +476,7 @@ dcerpcstat_add_program_to_menu(dcerpc_uuid_key *k, dcerpc_uuid_value *v)
 	g_signal_connect(program_menu_item, "activate", G_CALLBACK(dcerpcstat_program_select), k);
 
 	gtk_widget_show(program_menu_item);
-	gtk_menu_append(GTK_MENU(program_submenu_menu), program_menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(program_submenu_menu), program_menu_item);
 
 	if(!dcerpc_uuid_program){
 		dcerpc_uuid_program=&k->uuid;
@@ -568,7 +568,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 400, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 

@@ -89,22 +89,22 @@ static GtkWidget *layout_content_radio_vbox(GtkWidget *main_vb, GtkTooltips *too
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_lb);
 
     radio_none_rb = gtk_radio_button_new_with_mnemonic_from_widget(NULL, "None");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_none_rb), content == layout_pane_content_none);
     gtk_tooltips_set_tip (tooltips, radio_none_rb, "Put nothing in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_none_rb);
 
     radio_plist_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet List");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_plist_rb), content == layout_pane_content_plist);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_plist_rb), content == layout_pane_content_plist);
     gtk_tooltips_set_tip (tooltips, radio_plist_rb, "Put the packet list in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_plist_rb);
 
     radio_pdetails_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Details");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_pdetails_rb), content == layout_pane_content_pdetails);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pdetails_rb), content == layout_pane_content_pdetails);
     gtk_tooltips_set_tip (tooltips, radio_pdetails_rb, "Put the packet details tree in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pdetails_rb);
 
     radio_pbytes_rb = gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_none_rb), "Packet Bytes");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_pbytes_rb), content == layout_pane_content_pbytes);
     gtk_tooltips_set_tip (tooltips, radio_pbytes_rb, "Put the packet bytes hexdump in this pane.", NULL);
     gtk_container_add(GTK_CONTAINER(radio_vb), radio_pbytes_rb);
 
@@ -161,16 +161,16 @@ static void layout_pane_set_content(GtkWidget * radio_vb, layout_pane_content_e 
 
     switch(pane_content) {
     case(layout_pane_content_none):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY)), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_NONE_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_plist):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY)), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PLIST_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_pdetails):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY)), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PDETAILS_RB_KEY)), TRUE);
         break;
     case(layout_pane_content_pbytes):
-        gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY)), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(g_object_get_data(G_OBJECT(radio_vb), LAYOUT_PBYTES_RB_KEY)), TRUE);
         break;
     default:
         g_assert_not_reached();

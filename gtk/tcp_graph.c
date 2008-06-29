@@ -541,7 +541,7 @@ static void create_text_widget (struct graph *g)
 	streamwindow = dlg_window_new ("Wireshark: Packet chain");
 	gtk_widget_set_name (streamwindow, "Packet chain");
 	gtk_widget_set_size_request(streamwindow, TXT_WIDTH, TXT_HEIGHT);
-	gtk_container_border_width (GTK_CONTAINER(streamwindow), 2);
+	gtk_container_set_border_width (GTK_CONTAINER(streamwindow), 2);
 
 	box = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (streamwindow), box);
@@ -882,7 +882,7 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 	time_orig_cap =
 			gtk_radio_button_new_with_label (NULL, "beginning of capture");
 	time_orig_conn = gtk_radio_button_new_with_label (
-			gtk_radio_button_group (GTK_RADIO_BUTTON (time_orig_cap)),
+			gtk_radio_button_get_group (GTK_RADIO_BUTTON (time_orig_cap)),
 			"beginning of this TCP connection");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (time_orig_conn), TRUE);
 	time_orig_box = gtk_vbox_new (TRUE, 0);
@@ -895,7 +895,7 @@ static void control_panel_add_origin_page (struct graph *g, GtkWidget *n)
 	/* sequence number origin group */
 	seq_orig_isn =
 			gtk_radio_button_new_with_label (NULL, "initial sequence number");
-	seq_orig_zero = gtk_radio_button_new_with_label (gtk_radio_button_group (
+	seq_orig_zero = gtk_radio_button_new_with_label (gtk_radio_button_get_group (
 			GTK_RADIO_BUTTON (seq_orig_isn)), "0 (=absolute)");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (seq_orig_isn), TRUE);
 	seq_orig_box = gtk_vbox_new (TRUE, 0);
@@ -968,7 +968,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 	gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
 
 	vbox = gtk_vbox_new (FALSE, 3);
-    gtk_container_border_width(GTK_CONTAINER(vbox), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(vbox), 12);
 	gtk_container_add (GTK_CONTAINER (toplevel), vbox);
 
 	scroll = scrolled_window_new (NULL, NULL);
@@ -1018,7 +1018,7 @@ static GtkWidget *control_panel_create_zoom_group (struct graph *g)
 
 	zoom_in = gtk_radio_button_new_with_label (NULL, "in");
 	zoom_out = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (zoom_in)), "out");
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (zoom_in)), "out");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (zoom_in), TRUE);
 	zoom_inout_box = gtk_hbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (zoom_inout_box), zoom_in, FALSE, FALSE, 10);
@@ -1127,7 +1127,7 @@ static void callback_zoom_step (GtkWidget *spin, gpointer data)
 	double old_this;
 
 	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
-	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->zoom.step_y;
@@ -1328,7 +1328,7 @@ static void callback_mag_zoom (GtkWidget *spin, gpointer data)
 		return;
 	}
 	direction = (long)g_object_get_data(G_OBJECT(spin), "direction");
-	value = gtk_spin_button_get_value_as_float (GTK_SPIN_BUTTON (spin));
+	value = gtk_spin_button_get_value (GTK_SPIN_BUTTON (spin));
 
 	if (direction) {
 		zoom_this = &g->magnify.zoom.y;
@@ -1385,10 +1385,10 @@ static GtkWidget *control_panel_create_zoomlock_group (struct graph *g)
 
 	zoom_lock_none = gtk_radio_button_new_with_label (NULL, "none");
 	zoom_lock_h = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (zoom_lock_none)),
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (zoom_lock_none)),
 					"horizontal");
 	zoom_lock_v = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (zoom_lock_none)),
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (zoom_lock_none)),
 					"vertical");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (zoom_lock_none), TRUE);
 	zoom_lock_box = gtk_hbox_new (FALSE, 0);
@@ -1432,7 +1432,7 @@ static GtkWidget *control_panel_create_cross_group (struct graph *g)
 	label = gtk_label_new ("Crosshairs:");
 	off = gtk_radio_button_new_with_label (NULL, "off");
 	on = gtk_radio_button_new_with_label (
-				gtk_radio_button_group (GTK_RADIO_BUTTON (off)), "on");
+				gtk_radio_button_get_group (GTK_RADIO_BUTTON (off)), "on");
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (off), TRUE);
 	box = gtk_hbox_new (FALSE, 0);
 	gtk_box_pack_start (GTK_BOX (box), label, FALSE, FALSE, 10);
@@ -1475,13 +1475,13 @@ static GtkWidget *control_panel_create_graph_type_group (struct graph *g)
 
 	graph_tput = gtk_radio_button_new_with_label (NULL, "Throughput");
 	graph_tseqttrace = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (graph_tput)),
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (graph_tput)),
 					"Time/Sequence (tcptrace-style)");
 	graph_tseqstevens = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (graph_tput)),
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (graph_tput)),
 					"Time/Sequence (Stevens'-style)");
 	graph_rtt = gtk_radio_button_new_with_label (
-					gtk_radio_button_group (GTK_RADIO_BUTTON (graph_tput)),
+					gtk_radio_button_get_group (GTK_RADIO_BUTTON (graph_tput)),
 					"Round-trip Time");
 	switch (g->type) {
 	case GRAPH_TSEQ_STEVENS:

@@ -95,7 +95,7 @@ nameres_prefs_show(void)
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 7);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 
 	/* Main table */
 	main_tb = gtk_table_new(RESOLV_TABLE_ROWS, 3, FALSE);

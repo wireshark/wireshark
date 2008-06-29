@@ -335,7 +335,7 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
@@ -356,20 +356,20 @@ gtk_scsistat_cb(GtkWidget *w _U_, gpointer d _U_)
 	menu_item=gtk_menu_item_new_with_label("SBC (disk)");
 	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), SCSI_DEV_SBC);
 	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
 
 
 	/* SSC */
 	menu_item=gtk_menu_item_new_with_label("SSC (tape)");
 	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), (gpointer)SCSI_DEV_SSC);
 	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
 
 	/* MMC */
 	menu_item=gtk_menu_item_new_with_label("MMC (cd/dvd)");
 	g_signal_connect(menu_item, "activate", G_CALLBACK(scsistat_program_select), (gpointer)SCSI_DEV_CDROM);
 	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
 
 
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(prog_opt), prog_menu);

@@ -294,7 +294,7 @@ fileset_cb(GtkWidget *w _U_, gpointer d _U_)
   tooltips = gtk_tooltips_new();
 
   main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(fs_w), main_vb);
 
   fs_sw = gtk_scrolled_window_new(NULL, NULL);

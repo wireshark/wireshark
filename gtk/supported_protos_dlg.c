@@ -91,11 +91,11 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   supported_w = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Supported Protocols");
   gtk_window_set_default_size(GTK_WINDOW(supported_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
-  gtk_container_border_width(GTK_CONTAINER(supported_w), 2);
+  gtk_container_set_border_width(GTK_CONTAINER(supported_w), 2);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 1);
   gtk_container_add(GTK_CONTAINER(supported_w), main_vb);
   gtk_widget_show(main_vb);
 
@@ -108,7 +108,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* protocol list */
   proto_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(proto_vb), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(proto_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
@@ -126,7 +126,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   /* display filter fields */
   dfilter_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(dfilter_vb), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(dfilter_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 

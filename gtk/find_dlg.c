@@ -140,7 +140,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(find_frame_w), main_vb);
   gtk_widget_show(main_vb);
 
@@ -157,7 +157,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(find_type_frame);
 
   find_type_vb = gtk_vbox_new(FALSE, 3);
-  gtk_container_border_width(GTK_CONTAINER(find_type_vb), 3);
+  gtk_container_set_border_width(GTK_CONTAINER(find_type_vb), 3);
   gtk_container_add(GTK_CONTAINER(find_type_frame), find_type_vb);
   gtk_widget_show(find_type_vb);
 
@@ -226,7 +226,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* search in row */
   data_vb = gtk_vbox_new(TRUE, 0);
-  gtk_container_border_width(GTK_CONTAINER(data_vb), 3);
+  gtk_container_set_border_width(GTK_CONTAINER(data_vb), 3);
   gtk_container_add(GTK_CONTAINER(data_frame), data_vb);
   gtk_widget_show(data_vb);
 
@@ -258,7 +258,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   string_opt_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_add(GTK_CONTAINER(string_opt_frame), string_opt_vb);
-  gtk_container_border_width(GTK_CONTAINER(string_opt_vb), 3);
+  gtk_container_set_border_width(GTK_CONTAINER(string_opt_vb), 3);
   gtk_widget_show(string_opt_vb);
 
   case_cb = gtk_check_button_new_with_mnemonic("Case sensitive");
@@ -296,7 +296,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Direction row: Forward and reverse radio buttons */
   direction_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(direction_vb), 3);
+  gtk_container_set_border_width(GTK_CONTAINER(direction_vb), 3);
   gtk_container_add(GTK_CONTAINER(direction_frame), direction_vb);
   gtk_widget_show(direction_vb);
 

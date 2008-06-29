@@ -551,7 +551,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
 
     /* Create container for all widgets */
     main_vb = gtk_vbox_new(FALSE, 12);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
     gtk_container_add(GTK_CONTAINER(sp->win), main_vb);
 
     /* Initialise & show number of packets */
@@ -616,7 +616,7 @@ gtk_sipstat_init(const char *optarg, void *userdata _U_)
     /* Request table and frame */
     request_fr = gtk_frame_new("List of request methods");
     gtk_container_add(GTK_CONTAINER(main_vb), request_fr);
-    gtk_container_border_width(GTK_CONTAINER(request_fr), 0);
+    gtk_container_set_border_width(GTK_CONTAINER(request_fr), 0);
 
     sp->request_box = gtk_vbox_new(FALSE, 10);
     gtk_container_add(GTK_CONTAINER(request_fr), sp->request_box);

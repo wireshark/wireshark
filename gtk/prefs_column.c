@@ -82,7 +82,7 @@ column_prefs_show() {
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_widget_show(main_vb);
   g_object_set_data(G_OBJECT(GTK_OBJECT(main_vb)), E_COL_CM_KEY, (gpointer)FALSE);
 
@@ -211,7 +211,7 @@ column_prefs_show() {
 
   /* Colunm name entry and format selection */
   tb = gtk_table_new(2, 3, FALSE);
-  gtk_container_border_width(GTK_CONTAINER(tb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(tb), 5);
   gtk_container_add(GTK_CONTAINER(props_fr), tb);
   gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
   gtk_table_set_col_spacings(GTK_TABLE(tb), 15);

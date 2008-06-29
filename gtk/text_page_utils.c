@@ -57,7 +57,7 @@ GtkWidget * text_page_new(const char *absolute_path)
   GtkWidget *page_vb, *txt_scrollw, *txt;
 
   page_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(page_vb), 1);
   txt_scrollw = scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);

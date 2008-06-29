@@ -162,7 +162,7 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
 
     txt_scrollw = scrolled_window_new(NULL, NULL);
     main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 	gtk_container_add(GTK_CONTAINER(tw->win), main_vb);
     
     gtk_container_add(GTK_CONTAINER(main_vb), txt_scrollw);
@@ -421,7 +421,7 @@ static void funnel_new_dialog(const gchar* title,
     
     main_vb = gtk_vbox_new(TRUE,5);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
 
     main_tb = gtk_table_new(i+1, 2, FALSE);
     gtk_box_pack_start(GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0);

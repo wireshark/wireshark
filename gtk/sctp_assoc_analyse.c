@@ -478,7 +478,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 2);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
 
@@ -568,7 +568,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(page2), u_data->analyse_nb->page2->addr_frame);
 
 	addr_hb = gtk_hbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(addr_hb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(addr_hb), 5);
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page2->addr_frame), addr_hb);
 
 	u_data->analyse_nb->page2->scrolled_window = scrolled_window_new(NULL, NULL);
@@ -589,7 +589,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(page2), stat_fr);
 
 	hbox = gtk_hbox_new(FALSE,3);
-	gtk_container_border_width(GTK_CONTAINER(hbox), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
 	vbox_l = gtk_vbox_new(FALSE, 3);
@@ -679,7 +679,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(page3), u_data->analyse_nb->page3->addr_frame);
 
 	addr_hb = gtk_hbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(addr_hb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(addr_hb), 5);
 	gtk_container_add(GTK_CONTAINER(u_data->analyse_nb->page3->addr_frame), addr_hb);
 
 	u_data->analyse_nb->page3->scrolled_window = scrolled_window_new(NULL, NULL);
@@ -701,7 +701,7 @@ static void create_analyse_window(struct sctp_analyse* u_data)
 	gtk_container_add(GTK_CONTAINER(page3), stat_fr);
 
 	hbox = gtk_hbox_new(FALSE,3);
-	gtk_container_border_width(GTK_CONTAINER(hbox), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 5);
 	gtk_container_add(GTK_CONTAINER(stat_fr), hbox);
 
 	vbox_l = gtk_vbox_new(FALSE, 3);

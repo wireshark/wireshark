@@ -149,7 +149,7 @@ set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
     bv_tvb = g_object_get_data(G_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
     if (bv_tvb == tvb) {
       /* Found it. */
-      gtk_notebook_set_page(GTK_NOTEBOOK(nb_ptr), num);
+      gtk_notebook_set_current_page(GTK_NOTEBOOK(nb_ptr), num);
       break;
     }
   }
@@ -612,7 +612,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
         gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
   /* set this page (this will print the packet data) */
-  gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb),
+  gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb),
     gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_nb));
 
   return byte_view;
@@ -650,7 +650,7 @@ add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
 	/*
 	 * Initially select the first byte view.
 	 */
-	gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
+	gtk_notebook_set_current_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
 

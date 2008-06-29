@@ -534,7 +534,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(decode_show_w), main_vb);
 
     {
@@ -997,14 +997,14 @@ decode_add_yes_no (void)
     format_vb = gtk_vbox_new(FALSE, 2);
 
     radio_button = gtk_radio_button_new_with_label(NULL, "Decode");
-    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_YES));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
-    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_update_action),
                    GINT_TO_POINTER(E_DECODE_NO));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
@@ -1060,18 +1060,18 @@ decode_add_srcdst_menu (GtkWidget *page)
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     menuitem = gtk_menu_item_new_with_label("both");
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
@@ -1097,7 +1097,7 @@ decode_add_ppid_menu (GtkWidget *page)
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
@@ -1105,7 +1105,7 @@ decode_add_ppid_menu (GtkWidget *page)
         g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
         g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
         gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
@@ -1470,14 +1470,14 @@ decode_sctp_update_ppid_menu(GtkWidget *w _U_, GtkWidget *page)
     g_snprintf(tmp, 100, "PPID (%u)", 0);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
     for(number_of_ppid = 0; number_of_ppid < MAX_NUMBER_OF_PPIDS; number_of_ppid++)
       if (cfile.edt->pi.ppid[number_of_ppid] != 0) {
         g_snprintf(tmp, 100, "PPID (%u)", cfile.edt->pi.ppid[number_of_ppid]);
         menuitem = gtk_menu_item_new_with_label(tmp);
         g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_PPID + 1 + number_of_ppid));
-        gtk_menu_append(GTK_MENU(menu), menuitem);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
         gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
       } else
         break;
@@ -1506,18 +1506,18 @@ decode_sctp_update_srcdst_menu(GtkWidget *w _U_, GtkWidget *page)
     g_snprintf(tmp, 100, "source (%u)", cfile.edt->pi.srcport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_SPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_snprintf(tmp, 100, "destination (%u)", cfile.edt->pi.destport);
     menuitem = gtk_menu_item_new_with_label(tmp);
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_DPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     menuitem = gtk_menu_item_new_with_label("both");
     g_object_set_data(G_OBJECT(menuitem), "user_data", GINT_TO_POINTER(E_DECODE_BPORT));
-    gtk_menu_append(GTK_MENU(menu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
     g_object_set_data(G_OBJECT(page), E_MENU_SRCDST, menu);
@@ -1544,14 +1544,14 @@ decode_sctp_add_port_ppid (GtkWidget *page)
     format_vb = gtk_vbox_new(FALSE, 2);
 
     radio_button = gtk_radio_button_new_with_label(NULL, "PPID");
-    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_ppid_menu), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Port");
-    format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
+    format_grp = gtk_radio_button_get_group(GTK_RADIO_BUTTON(radio_button));
     g_signal_connect(radio_button, "clicked", G_CALLBACK(decode_sctp_update_srcdst_menu), page);
 
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
@@ -1693,7 +1693,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Select the last added page (selects first by default) */
     /* Notebook must be visible for set_page to work. */
     gtk_widget_show_all(notebook);
-    gtk_notebook_set_page(GTK_NOTEBOOK(notebook), -1);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(notebook), -1);
 
 }
 
@@ -1732,7 +1732,7 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+    gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
     gtk_container_add(GTK_CONTAINER(decode_w), main_vb);
 
     /* First row - Buttons and Notebook */

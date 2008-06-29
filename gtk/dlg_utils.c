@@ -70,7 +70,7 @@ dlg_button_focus_nth(GtkWidget *hbox, gint focus_item) {
 	return;
 
     button_hbox = g_object_get_data(G_OBJECT(hbox), BUTTON_HBOX_KEY);
-    children = gtk_container_children(GTK_CONTAINER(button_hbox));
+    children = gtk_container_get_children(GTK_CONTAINER(button_hbox));
 
     while (children) {
 	if (cur_item == focus_item) {

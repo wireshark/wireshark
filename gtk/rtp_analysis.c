@@ -730,7 +730,7 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 #endif
 
 	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exception using GTK1*/
-	gtk_signal_disconnect(GTK_OBJECT(user_data->dlg.notebook), user_data->dlg.notebook_signal_id);
+	g_signal_handler_disconnect(user_data->dlg.notebook, user_data->dlg.notebook_signal_id);
 
 	g_free(user_data->dlg.col_arrows_fwd);
 	g_free(user_data->dlg.col_arrows_rev);
@@ -785,7 +785,7 @@ static void graph_selection_callback(value_pair_t vp, user_data_t *user_data)
 					GUINT_TO_POINTER(vp.fnumber));
 		}
 		if (row!=-1) {
-			gtk_notebook_set_page(GTK_NOTEBOOK(user_data->dlg.notebook),
+			gtk_notebook_set_current_page(GTK_NOTEBOOK(user_data->dlg.notebook),
 				(clist == GTK_CLIST(user_data->dlg.clist_fwd)) ? 0 : 1);
 			gtk_clist_select_row(clist, row, 0);
 			gtk_clist_moveto(clist, row, 0, 0.5, 0);
@@ -1514,7 +1514,7 @@ static void create_filter_area(user_data_t* user_data, GtkWidget *box)
 
         vbox=gtk_vbox_new(FALSE, 1);
         gtk_container_add(GTK_CONTAINER(frame), vbox);
-    	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+    	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
         gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
         gtk_widget_show(vbox);
 
@@ -1586,7 +1586,7 @@ static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu
                                 GUINT_TO_POINTER(yscale_max[i]));
                 g_signal_connect(menu_item, "activate", G_CALLBACK(yscale_select), user_data);
                 gtk_widget_show(menu_item);
-                gtk_menu_append(GTK_MENU(menu), menu_item);
+                gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
         }
         return;
 }
@@ -1606,7 +1606,7 @@ static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget 
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
                 g_signal_connect(menu_item, "activate", G_CALLBACK(pixels_per_tick_select), user_data);
                 gtk_widget_show(menu_item);
-                gtk_menu_append(GTK_MENU(menu), menu_item);
+                gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
         }
         gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PIXELS_PER_TICK);
         return;
@@ -1636,7 +1636,7 @@ static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *m
                                 GUINT_TO_POINTER(tick_interval_values[i]));
                 g_signal_connect(menu_item, "activate", G_CALLBACK(tick_interval_select), (gpointer)user_data);
                 gtk_widget_show(menu_item);
-                gtk_menu_append(GTK_MENU(menu), menu_item);
+                gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
         }
         gtk_menu_set_active(GTK_MENU(menu), DEFAULT_TICK_VALUE);
         return;
@@ -1684,7 +1684,7 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 
         vbox=gtk_vbox_new(FALSE, 0);
         gtk_container_add(GTK_CONTAINER(frame), vbox);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
         gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
         gtk_widget_show(vbox);
 
@@ -1697,7 +1697,7 @@ static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
 
         vbox=gtk_vbox_new(FALSE, 0);
         gtk_container_add(GTK_CONTAINER(frame), vbox);
-    	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+    	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
         gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
         gtk_widget_show(vbox);
 
@@ -1724,7 +1724,7 @@ static void dialog_graph_init_window(user_data_t* user_data)
 
         hbox=gtk_hbox_new(FALSE, 3);
         gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
-    	gtk_container_border_width(GTK_CONTAINER(hbox), 3);
+    	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
         gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
         gtk_widget_show(hbox);
 
@@ -2007,7 +2007,7 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_csv_as_w)->action_area),
 		vertb, FALSE, FALSE, 0);
 	gtk_widget_show (vertb);
@@ -2033,21 +2033,21 @@ static void save_csv_as_cb(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
 
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (forward_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (reversed_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (both_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
@@ -2579,7 +2579,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	/* Container for each row of widgets */
 	vertb = gtk_vbox_new(FALSE, 0);
-	gtk_container_border_width(GTK_CONTAINER(vertb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(vertb), 5);
 	gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(user_data->dlg.save_voice_as_w)->action_area),
 		vertb, FALSE, FALSE, 0);
 	gtk_widget_show (vertb);
@@ -2605,7 +2605,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_misc_set_alignment (GTK_MISC (label_format), 0, 0.5);
 
 	raw_rb = gtk_radio_button_new_with_label (format_group, ".raw");
-	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (raw_rb));
+	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (raw_rb));
 	gtk_widget_show (raw_rb);
 	gtk_table_attach (GTK_TABLE (table1), raw_rb, 1, 2, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
@@ -2613,7 +2613,7 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 
 	au_rb = gtk_radio_button_new_with_label (format_group, ".au");
-	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (au_rb));
+	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (au_rb));
 	gtk_widget_show (au_rb);
 	gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
@@ -2621,20 +2621,20 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	/* we support .au - ulaw*/
 	/*	wav_rb = gtk_radio_button_new_with_label (format_group, ".wav");
-	format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (wav_rb));
+	format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (wav_rb));
 	gtk_widget_show (wav_rb);
 	gtk_table_attach (GTK_TABLE (table1), wav_rb, 1, 2, 0, 1,
 	(GtkAttachOptions) (GTK_FILL),
 	(GtkAttachOptions) (0), 0, 0);
 
 	  sw_rb = gtk_radio_button_new_with_label (format_group, "8 kHz, 16 bit  ");
-	  format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (sw_rb));
+	  format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (sw_rb));
 	  gtk_widget_show (sw_rb);
 	  gtk_table_attach (GTK_TABLE (table1), sw_rb, 2, 3, 0, 1,
 	  (GtkAttachOptions) (GTK_FILL),
 	  (GtkAttachOptions) (0), 0, 0);
 	  au_rb = gtk_radio_button_new_with_label (format_group, ".au");
-	  format_group = gtk_radio_button_group (GTK_RADIO_BUTTON (au_rb));
+	  format_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (au_rb));
 	  gtk_widget_show (au_rb);
 	  gtk_table_attach (GTK_TABLE (table1), au_rb, 3, 4, 0, 1,
 	  (GtkAttachOptions) (GTK_FILL),
@@ -2650,21 +2650,21 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_misc_set_alignment (GTK_MISC (channels_label), 0, 0.5);
 
 	forward_rb = gtk_radio_button_new_with_label (channels_group, "forward  ");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (forward_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (forward_rb));
 	gtk_widget_show (forward_rb);
 	gtk_table_attach (GTK_TABLE (table1), forward_rb, 1, 2, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
 	reversed_rb = gtk_radio_button_new_with_label (channels_group, "reversed");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (reversed_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (reversed_rb));
 	gtk_widget_show (reversed_rb);
 	gtk_table_attach (GTK_TABLE (table1), reversed_rb, 2, 3, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
 		(GtkAttachOptions) (0), 0, 0);
 
 	both_rb = gtk_radio_button_new_with_label (channels_group, "both");
-	channels_group = gtk_radio_button_group (GTK_RADIO_BUTTON (both_rb));
+	channels_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (both_rb));
 	gtk_widget_show (both_rb);
 	gtk_table_attach (GTK_TABLE (table1), both_rb, 3, 4, 1, 2,
 		(GtkAttachOptions) (GTK_FILL),
@@ -3001,7 +3001,7 @@ static void create_rtp_dialog(user_data_t* user_data)
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 2);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 2);
 	gtk_container_add(GTK_CONTAINER(window), main_vb);
 	gtk_widget_show(main_vb);
 

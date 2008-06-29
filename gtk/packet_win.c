@@ -130,13 +130,13 @@ void new_window_cb(GtkWidget *w _U_)
 
   /* Container for paned windows  */
   main_vbox = gtk_vbox_new(FALSE, 1);
-  gtk_container_border_width(GTK_CONTAINER(main_vbox), 1);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vbox), 1);
   gtk_container_add(GTK_CONTAINER(main_w), main_vbox);
   gtk_widget_show(main_vbox);
 
   /* Panes for the tree and byte view */
   pane = gtk_vpaned_new();
-  gtk_paned_gutter_size(GTK_PANED(pane), (GTK_PANED(pane))->handle_size);
+  gtk_paned_set_gutter_size(GTK_PANED(pane), (GTK_PANED(pane))->handle_size);
   gtk_container_add(GTK_CONTAINER(main_vbox), pane);
   gtk_widget_show(pane);
 

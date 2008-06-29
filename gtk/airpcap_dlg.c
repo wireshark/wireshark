@@ -741,12 +741,12 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
         airpcap_update_channel_combo(GTK_WIDGET(toolbar_channel_cm),airpcap_if_selected);
         airpcap_validation_type_combo_set_by_type(toolbar_wrong_crc_cm,airpcap_if_selected->CrcValidationOn);
 
-        gtk_signal_handler_block_by_func (GTK_OBJECT(toolbar_decryption_ck),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), toolbar);
+        g_signal_handlers_block_by_func (toolbar_decryption_ck,airpcap_toolbar_encryption_cb, toolbar);
         if (airpcap_if_active->DecryptionOn == AIRPCAP_DECRYPTION_ON)
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar_decryption_ck),TRUE);
         else
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toolbar_decryption_ck),FALSE);
-        gtk_signal_handler_unblock_by_func (GTK_OBJECT(toolbar_decryption_ck),GTK_SIGNAL_FUNC(airpcap_toolbar_encryption_cb), toolbar);
+        g_signal_handlers_unblock_by_func (toolbar_decryption_ck,airpcap_toolbar_encryption_cb, toolbar);
     }
 }
 
@@ -1878,11 +1878,11 @@ update_decryption_mode_list(GtkWidget *w)
         }
     }
 
-    gtk_signal_handler_block_by_data(GTK_OBJECT(entry),(gpointer)airpcap_tb);
+    g_signal_handlers_block_matched(entry,G_SIGNAL_MATCH_DATA,0,0,0,0,airpcap_tb);
     gtk_combo_set_popdown_strings (GTK_COMBO (w), enable_decryption_cb_items);
     /* The 'changed' callback will be called twice */
     gtk_entry_set_text(GTK_ENTRY(entry),current_text);
-    gtk_signal_handler_unblock_by_data(GTK_OBJECT(entry),(gpointer)airpcap_tb);
+    g_signal_handlers_unblock_matched(entry,G_SIGNAL_MATCH_DATA,0,0,0,0,airpcap_tb);
 
     if (current_text != NULL) g_free(current_text);
 

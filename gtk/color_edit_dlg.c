@@ -227,7 +227,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     gtk_container_add(GTK_CONTAINER(status_fr), status_vbox);
 
     disabled_cb = gtk_check_button_new_with_label("Disabled");
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(disabled_cb), colorf->disabled);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(disabled_cb), colorf->disabled);
     gtk_box_pack_start (GTK_BOX (status_vbox), disabled_cb, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, disabled_cb, ("Color rule won't be checked if this box is selected"), NULL);
     

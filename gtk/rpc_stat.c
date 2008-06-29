@@ -376,7 +376,7 @@ rpcstat_program_select(GtkWidget *item _U_, gpointer key)
                                (gpointer)(long) i);
 
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
 	}
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
 }
@@ -392,7 +392,7 @@ rpcstat_list_programs(gpointer *key, gpointer *value, gpointer *user_data _U_)
 	g_signal_connect(menu_item, "activate", G_CALLBACK(rpcstat_program_select), k);
 
 	gtk_widget_show(menu_item);
-	gtk_menu_append(GTK_MENU(prog_menu), menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(prog_menu), menu_item);
 
 	if(!rpc_program){
 		rpc_program=k->prog;
@@ -434,7 +434,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_window_set_default_size(GTK_WINDOW(dlg), 300, -1);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
-	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dlg_box), 10);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
 	gtk_widget_show(dlg_box);
 
@@ -477,7 +477,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
                                (gpointer)(long) i);
 
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(vers_menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(vers_menu), menu_item);
 	}
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(vers_opt), vers_menu);
 	gtk_box_pack_start(GTK_BOX(prog_box), vers_opt, TRUE, TRUE, 0);

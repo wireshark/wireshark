@@ -487,7 +487,7 @@ gtk_sctpstat_dlg(void)
 
 	/* Container for each row of widgets */
 	vbox1 = gtk_vbox_new(FALSE, 2);
-	gtk_container_border_width(GTK_CONTAINER(vbox1), 8);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox1), 8);
 	gtk_container_add(GTK_CONTAINER(sctp_stat_dlg_w), vbox1);
 	gtk_widget_show(vbox1);
 

@@ -379,7 +379,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Protocol Hierarchy Statistics");
 
 	vbox = gtk_vbox_new(FALSE, 5);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 5);
 	gtk_container_add(GTK_CONTAINER(dlg), vbox);
 
 	current_filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));

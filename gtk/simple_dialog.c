@@ -138,7 +138,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   }
 
   gtk_window_set_modal(GTK_WINDOW(win), TRUE);
-  gtk_container_border_width(GTK_CONTAINER(win), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(win), 6);
 
   /* Container for our rows */
   main_vb = gtk_vbox_new(FALSE, 12);
@@ -147,7 +147,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
 
   /* Top row: Icon and message text */
   top_hb = gtk_hbox_new(FALSE, 12);
-  gtk_container_border_width(GTK_CONTAINER(main_vb), 6);
+  gtk_container_set_border_width(GTK_CONTAINER(main_vb), 6);
   gtk_container_add(GTK_CONTAINER(main_vb), top_hb);
   gtk_widget_show(top_hb);
 

@@ -407,7 +407,7 @@ GtkWidget *range_new(packet_range_t *range)
 
   /* range table */
   range_tb = gtk_table_new(7, 3, FALSE);
-  gtk_container_border_width(GTK_CONTAINER(range_tb), 5);
+  gtk_container_set_border_width(GTK_CONTAINER(range_tb), 5);
 
   /* captured button */
   captured_bt = gtk_toggle_button_new_with_mnemonic("_Captured");

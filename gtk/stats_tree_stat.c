@@ -239,7 +239,7 @@ static void init_gtk_tree(const char* optarg, void *userdata _U_) {
 	g_free(title);
 
 	main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 12);
 	gtk_container_add(GTK_CONTAINER(st->pr->win), main_vb);
 
 	scr_win = scrolled_window_new(NULL, NULL);

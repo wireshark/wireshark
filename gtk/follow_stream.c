@@ -281,7 +281,7 @@ follow_find_cb(GtkWidget * w _U_, gpointer data)
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 3);
-	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
+	gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(find_dlg_w), main_vb);
 
 	/* Horizontal box for find label, entry field and up/down radio
@@ -680,7 +680,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_widget_set_name(streamwindow, title);
 	gtk_window_set_default_size(GTK_WINDOW(streamwindow),
 				    DEF_WIDTH, DEF_HEIGHT);
-	gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
+	gtk_container_set_border_width(GTK_CONTAINER(streamwindow), 6);
 
 	/* setup the container */
 	tooltips = gtk_tooltips_new ();
@@ -775,7 +775,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	follow_info->ascii_bt = radio_bt;
 
 	/* EBCDIC radio button */
-	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "EBCDIC");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"EBCDIC\" format", NULL);
@@ -787,7 +787,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	follow_info->ebcdic_bt = radio_bt;
 
 	/* HEX DUMP radio button */
-	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Hex Dump");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Hexdump\" format", NULL);
@@ -799,7 +799,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	follow_info->hexdump_bt = radio_bt;
 
 	/* C Array radio button */
-	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "C Arrays");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"C Array\" format", NULL);
@@ -811,7 +811,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	follow_info->carray_bt = radio_bt;
 
 	/* Raw radio button */
-	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_group
+	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Raw");
 	gtk_tooltips_set_tip (tooltips, radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format", NULL);

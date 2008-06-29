@@ -1798,7 +1798,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH);
 
 	/* convert container to a GList */
-	menu_item_list = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
+	menu_item_list = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
 
 	/* iterate through list items of menu_item_list,
 	 * removing special items, a maybe duplicate entry and every item above count_max */
@@ -1830,7 +1830,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
 	/* add new item at latest position */
 	menu_item = gtk_menu_item_new_with_label(normalized_cf_name);
 	g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
-	gtk_menu_prepend (GTK_MENU(submenu_recent_files), menu_item);
+	gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
 	g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
 		G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
 	gtk_widget_show (menu_item);
@@ -1888,7 +1888,7 @@ menu_recent_file_write_all(FILE *rf) {
     /* we have to iterate backwards through the children's list,
      * so we get the latest item last in the file.
      * (don't use gtk_container_foreach() here, it will return the wrong iteration order) */
-    children = gtk_container_children(GTK_CONTAINER(submenu_recent_files));
+    children = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
     child = g_list_last(children);
     while(child != NULL) {
         /* get capture filename from the menu item label */

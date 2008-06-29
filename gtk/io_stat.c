@@ -1455,7 +1455,7 @@ create_pixels_per_tick_menu_items(io_stat_t *io, GtkWidget *menu)
                                 GUINT_TO_POINTER(pixels_per_tick[i]));
 		g_signal_connect(menu_item, "activate", G_CALLBACK(pixels_per_tick_select), io);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PIXELS_PER_TICK);
 	return;
@@ -1500,7 +1500,7 @@ create_tick_interval_menu_items(io_stat_t *io, GtkWidget *menu)
                                 GUINT_TO_POINTER(tick_interval_values[i]));
 		g_signal_connect(menu_item, "activate", G_CALLBACK(tick_interval_select), (gpointer)io);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_TICK_VALUE);
 	return;
@@ -1526,7 +1526,7 @@ create_yscale_max_menu_items(io_stat_t *io, GtkWidget *menu)
 		                GUINT_TO_POINTER(yscale_max[i]));
 		g_signal_connect(menu_item, "activate", G_CALLBACK(yscale_select), io);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_YSCALE);
 	return;
@@ -1581,7 +1581,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 		g_object_set_data(G_OBJECT(menu_item), "count_type", GINT_TO_POINTER(i));
 		g_signal_connect(menu_item, "activate", G_CALLBACK(count_type_select), io);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	return;
 }
@@ -1640,7 +1640,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
@@ -1649,7 +1649,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	view_cb = gtk_check_button_new_with_mnemonic("_View as time of day");
 	gtk_container_add(GTK_CONTAINER(vbox), view_cb);
-	gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(view_cb), io->view_as_time);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(view_cb), io->view_as_time);
 	g_signal_connect(view_cb, "toggled", G_CALLBACK(view_as_time_toggle_dest), io);
 	gtk_widget_show(view_cb);
 
@@ -1659,7 +1659,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
@@ -1833,7 +1833,7 @@ create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
 		menu_item=gtk_menu_item_new_with_label(calc_type_names[i]);
 		g_signal_connect(menu_item, "activate", G_CALLBACK(calc_type_select), &gio->calc_types[i]);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	return;
 }
@@ -1868,7 +1868,8 @@ static void
 create_advanced_field(io_stat_graph_t *gio, GtkWidget *box)
 {
 
-	gio->calc_field=gtk_entry_new_with_max_length(50);
+	gio->calc_field=gtk_entry_new();
+	gtk_entry_set_max_length(GTK_ENTRY(gio->calc_field),50);
 	gtk_box_pack_start(GTK_BOX(box), gio->calc_field, TRUE, TRUE, 0);
 	gtk_widget_show(gio->calc_field);
 	g_signal_connect(gio->calc_field, "activate", G_CALLBACK(filter_callback), gio);
@@ -1933,7 +1934,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color); 
 	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color); 
-/*	gtk_signal_connect(GTK_OBJECT(gio->display_button), "toggled", GTK_SIGNAL_FUNC(filter_callback), gio);*/
+/*	g_signal_connect(gio->display_button, "toggled", filter_callback, gio);*/
 
 
 	/* filter prefs dialog */
@@ -1951,8 +1952,8 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), gio->filter_bt, FALSE, TRUE, 0);
 	gtk_widget_show(gio->filter_bt);
 
-	gio->filter_field=gtk_entry_new_with_max_length(256);
-
+	gio->filter_field=gtk_entry_new();
+        gtk_entry_set_max_length(GTK_ENTRY(gio->filter_field),256);
 	/* filter prefs dialog */
 	g_object_set_data(G_OBJECT(gio->filter_bt), E_FILT_TE_PTR_KEY, gio->filter_field);
 	/* filter prefs dialog */
@@ -1980,7 +1981,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 		g_object_set_data(G_OBJECT(menu_item), "plot_style", GINT_TO_POINTER(i));
 		g_signal_connect(menu_item, "activate", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);
 		gtk_widget_show(menu_item);
-		gtk_menu_append(GTK_MENU(menu), menu_item);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	}
 	gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PLOT_STYLE);
 
@@ -2005,7 +2006,7 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 
 	vbox=gtk_vbox_new(FALSE, 1);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
-	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(vbox);
 
@@ -2077,7 +2078,7 @@ init_io_stat_window(io_stat_t *io)
 
 	hbox=gtk_hbox_new(FALSE, 3);
 	gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
-	gtk_container_border_width(GTK_CONTAINER(hbox), 3);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 

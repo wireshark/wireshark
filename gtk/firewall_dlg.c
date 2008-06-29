@@ -222,7 +222,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     rule_w = dlg_window_new("Firewall ACL Rules");
 
     gtk_widget_set_name(rule_w, "Firewall ACL rule window");
-    gtk_container_border_width(GTK_CONTAINER(rule_w), 6);
+    gtk_container_set_border_width(GTK_CONTAINER(rule_w), 6);
 
     /* setup the container */
     tooltips = gtk_tooltips_new ();
@@ -244,7 +244,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
         menu_item = gtk_menu_item_new_with_label(products[i].name);
         g_signal_connect(menu_item, "activate", G_CALLBACK(select_product), GUINT_TO_POINTER(i));
         g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info);
-        gtk_menu_append(GTK_MENU(menu), menu_item);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
         /* if (i == 0)
             gtk_menu_item_select(GTK_MENU_ITEM(menu_item)); */
     }
@@ -328,7 +328,7 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
         g_signal_connect(menu_item, "activate", G_CALLBACK(select_filter), \
             GUINT_TO_POINTER(rt)); \
         g_object_set_data(G_OBJECT(menu_item), WS_RULE_INFO_KEY, rule_info); \
-        gtk_menu_append(GTK_MENU(menu), menu_item); \
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); \
         if (! rt_set) { \
             rt_set = TRUE; \
             first_mi = menu_item; \
