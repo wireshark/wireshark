@@ -2684,7 +2684,7 @@ create_console(void)
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
       return;   /* couldn't create console */
-    ws_freopen("CONIN$", "r", stdin);
+
     ws_freopen("CONOUT$", "w", stdout);
     ws_freopen("CONOUT$", "w", stderr);
 
