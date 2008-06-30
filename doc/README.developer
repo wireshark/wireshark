@@ -1114,8 +1114,8 @@ free() this buffer, it will happen automatically once the next packet is
 dissected.
 
 
-guint8 *tvb_fake_unicode(tvbuff_t*, gint offset, gint length);
-guint8 *tvb_get_ephemeral_faked_unicode(tvbuff_t*, gint offset, gint length);
+guint8 *tvb_fake_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);
+guint8 *tvb_get_ephemeral_faked_unicode(tvbuff_t*, gint offset, gint length, gboolean little_endian);
 
 Converts a 2-byte unicode string to an ASCII string.
 Returns a null-terminated buffer containing data from the specified
