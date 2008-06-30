@@ -1216,6 +1216,8 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	guint transport_slash_count = 0;
 	gboolean transport_name_started = FALSE;
 	gboolean colon_seen = FALSE;
+	gboolean ipv6_reference = FALSE;
+	gboolean ipv6_address = FALSE;
 	guchar c;
 	gchar *param_name = NULL;
 
@@ -1266,7 +1268,16 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 	{
 		c = tvb_get_guint8(tvb, current_offset);
 
-		if (colon_seen || (c == ' ') || (c == '\t') || (c == ':') || (c == ';'))
+		if (c == '[') {
+			ipv6_reference = TRUE;
+			ipv6_address = TRUE;
+		}
+		else if (c == ']')
+		{
+			ipv6_reference = FALSE;
+		}
+
+		if (colon_seen || (c == ' ') || (c == '\t') || ((c == ':') && (ipv6_reference == FALSE)) || (c == ';'))
 		{
 			break;
 		}
@@ -1274,8 +1285,13 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 		current_offset++;
 	}
 	/* Add address to tree */
-	proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
-	                    current_offset - address_start_offset, FALSE);
+	if (ipv6_address == TRUE) {
+		proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset + 1,
+		                    current_offset - address_start_offset - 2, FALSE);
+	} else {
+		proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
+		                    current_offset - address_start_offset, FALSE);
+	}
 
 	/* Transport port number may follow ([space] : [space])*/
 	current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
