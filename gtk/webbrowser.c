@@ -82,7 +82,7 @@
 #include <windows.h>
 /* We're using Unicode */
 #include <tchar.h>
-#include <epan/unicode-utils.h>
+#include <wsutil/unicode-utils.h>
 /* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
 #include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)

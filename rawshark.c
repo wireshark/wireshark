@@ -72,7 +72,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include <epan/privileges.h>
+#include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 
 #include "globals.h"
@@ -96,7 +96,7 @@
 #include <epan/epan_dissect.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/timestamp.h>
-#include <epan/unicode-utils.h>
+#include <wsutil/unicode-utils.h>
 #include "epan/column-utils.h"
 #include "epan/proto.h"
 #include <epan/tap.h>

@@ -47,7 +47,7 @@
 #ifdef HHC_DIR
 #include <windows.h>
 #include <htmlhelp.h>
-#include "epan/unicode-utils.h"
+#include <wsutil/unicode-utils.h>
 #endif
 
 

@@ -59,7 +59,7 @@
 
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include <epan/privileges.h>
+#include <wsutil/privileges.h>
 #include <epan/epan_dissect.h>
 #include <epan/timestamp.h>
 #include <epan/packet.h>

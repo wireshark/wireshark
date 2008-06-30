@@ -39,7 +39,7 @@
 #include "epan/filesystem.h"
 #include "epan/addr_resolv.h"
 #include "epan/prefs.h"
-#include "epan/unicode-utils.h"
+#include <wsutil/unicode-utils.h>
 
 #include "../globals.h"
 #include "../alert_box.h"

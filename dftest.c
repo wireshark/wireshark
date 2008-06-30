@@ -43,7 +43,7 @@
 #include <epan/timestamp.h>
 #include <epan/plugins.h>
 #include <epan/filesystem.h>
-#include <epan/privileges.h>
+#include <wsutil/privileges.h>
 #include <epan/prefs.h>
 #include "util.h"
 #include "epan/dfilter/dfilter.h"

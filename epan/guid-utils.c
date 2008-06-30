@@ -31,7 +31,7 @@
 
 #include <glib.h>
 #include <epan/epan.h>
-#include <epan/unicode-utils.h>
+#include <wsutil/unicode-utils.h>
 #include <epan/emem.h>
 #include "guid-utils.h"
 

@@ -79,10 +79,10 @@
 #endif
 
 #ifdef _WIN32
-#include "epan/unicode-utils.h"
+#include <wsutil/unicode-utils.h>
 #endif
 
-#include "epan/privileges.h"
+#include <wsutil/privileges.h>
 
 #include "sync_pipe.h"
 

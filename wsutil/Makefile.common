@@ -28,9 +28,13 @@
 # into a list of object files by replacing ".c" with ".obj") or files
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
-LIBWSUTIL_SRC = \
-	mpeg-audio.c
+LIBWSUTIL_SRC = 	\
+	mpeg-audio.c	\
+	privileges.c	\
+	unicode-utils.c
 
 # Header files that are not generated from other files
-LIBWSUTIL_INCLUDES = \
-	mpeg-audio.h
+LIBWSUTIL_INCLUDES = 	\
+	mpeg-audio.h	\
+	privileges.h	\
+	unicode-utils.h

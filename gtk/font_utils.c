@@ -37,7 +37,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <tchar.h>
-#include <epan/unicode-utils.h>
+#include <wsutil/unicode-utils.h>
 #endif
 
 #include "../simple_dialog.h"

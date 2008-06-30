@@ -35,7 +35,6 @@
 #include "privileges.h"
 
 #ifdef _WIN32
-#include "emem.h"
 #include <windows.h>
 #include <wchar.h>
 #include <tchar.h>
@@ -147,7 +146,6 @@ npf_sys_is_running() {
 #include <glib.h>
 #include <string.h>
 #include <errno.h>
-#include "emem.h"
 
 static uid_t ruid, euid;
 static gid_t rgid, egid;

@@ -44,7 +44,7 @@
 #include <signal.h>
 
 #ifdef _WIN32
-#include "epan/unicode-utils.h"
+#include <wsutil/unicode-utils.h>
 #endif
 
 #ifdef HAVE_SYS_WAIT_H

@@ -62,7 +62,7 @@
 #include <glib.h>
 #include <epan/epan.h>
 #include <epan/filesystem.h>
-#include <epan/privileges.h>
+#include <wsutil/privileges.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>

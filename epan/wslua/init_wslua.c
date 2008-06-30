@@ -31,7 +31,7 @@
 #include <math.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
-#include <epan/privileges.h>
+#include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 
 static lua_State* L = NULL;

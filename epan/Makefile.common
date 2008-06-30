@@ -69,7 +69,6 @@ LIBWIRESHARK_SRC = 		\
 	packet.c		\
 	plugins.c		\
 	prefs.c			\
-	privileges.c		\
 	proto.c			\
 	range.c			\
 	reassemble.c		\
@@ -93,7 +92,6 @@ LIBWIRESHARK_SRC = 		\
 	tvbparse.c		\
 	tvbuff.c		\
 	uat.c			\
-	unicode-utils.c		\
 	value_string.c		\
 	xdlc.c			\
 	xmlstub.c
@@ -201,7 +199,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	ppptypes.h		\
 	prefs.h			\
 	prefs-int.h		\
-	privileges.h		\
 	proto.h			\
 	ptvcursor.h		\
 	range.h			\

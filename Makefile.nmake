@@ -29,7 +29,6 @@ PLATFORM_SRC = capture-wpcap.c capture_wpcap_packet.c
 WTAP_PLUGIN_SOURCES = \
        epan/plugins.c \
        epan/report_err.c \
-       epan/privileges.c \
        epan/filesystem.c
 
 include Makefile.common
@@ -207,7 +206,7 @@ $(RESOURCES): image
 
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
-wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
+wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.obj inet_ntop.obj inet_pton.obj codecs epan gtk image\wireshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib codecs\codecs.lib gtk\libui.lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:wireshark.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:windows $(wireshark_LIBS) getopt.obj inet_ntop.obj inet_pton.obj $(GTK_LIBS) codecs\codecs.lib gtk\libui.lib $(wireshark_OBJECTS) image\wireshark.res
@@ -216,7 +215,7 @@ wireshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(wireshark_OBJECTS) getopt.
 	mt.exe -nologo -manifest "wireshark.exe.manifest" -outputresource:wireshark.exe;1
 !ENDIF
 
-tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj inet_ntop.obj epan image\tshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(tshark_LIBS) $(tshark_OBJECTS) getopt.obj inet_ntop.obj image\tshark.res
@@ -225,7 +224,7 @@ tshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(tshark_OBJECTS) getopt.obj in
 	mt.exe -nologo -manifest "tshark.exe.manifest" -outputresource:tshark.exe;1
 !ENDIF
 
-rawshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(rawshark_OBJECTS) getopt.obj inet_ntop.obj epan image\rawshark.res wiretap\wiretap-$(WTAP_VERSION).lib plugins
+rawshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(rawshark_OBJECTS) getopt.obj inet_ntop.obj epan image\rawshark.res wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib plugins
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:rawshark.exe $(conflags) $(conlibsdll) $(LDFLAGS) /LARGEADDRESSAWARE /SUBSYSTEM:console $(rawshark_LIBS) $(rawshark_OBJECTS) getopt.obj inet_ntop.obj image\rawshark.res
@@ -233,10 +232,10 @@ rawshark.exe	: $(LIBS_CHECK) config.h svnversion.h $(rawshark_OBJECTS) getopt.ob
 
 # XXX: This makefile does not properly handle doing a 'nmake ... capinfos.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
-capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) getopt.obj epan/unicode-utils.obj wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
+capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) getopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\capinfos.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) getopt.obj epan/unicode-utils.obj $(capinfos_LIBS) image\capinfos.res
+		/OUT:capinfos.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(capinfos_OBJECTS) getopt.obj $(capinfos_LIBS) image\capinfos.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "capinfos.exe.manifest" -outputresource:capinfos.exe;1
@@ -244,16 +243,16 @@ capinfos.exe	: $(LIBS_CHECK) config.h $(capinfos_OBJECTS) getopt.obj epan/unicod
 
 # XXX: This makefile does not properly handle doing a 'nmake ... editcap.exe' directly since some of the .objs
 #      (e.g. epan\plugins.obj) must be built first using epan\Makefile.nmake (which happens for 'nmake ... all').
-editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) getopt.obj strptime.obj epan/unicode-utils.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
+editcap.exe	: $(LIBS_CHECK) config.h $(editcap_OBJECTS) getopt.obj strptime.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
 	@echo Linking $@
 	$(LINK) @<<
-		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) getopt.obj strptime.obj epan/unicode-utils.obj $(editcap_LIBS) image\editcap.res
+		/OUT:editcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(editcap_OBJECTS) getopt.obj strptime.obj $(editcap_LIBS) image\editcap.res
 <<
 !IF "$(MSVC_VARIANT)" == "MSVC2005" || "$(MSVC_VARIANT)" == "MSVC2005EE" || "$(MSVC_VARIANT)" == "DOTNET20"
 	mt.exe -nologo -manifest "editcap.exe.manifest" -outputresource:editcap.exe;1
 !ENDIF
 
-mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
+mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\mergecap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:mergecap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console mergecap.obj merge.obj getopt.obj $(mergecap_LIBS) image\mergecap.res
@@ -262,7 +261,7 @@ mergecap.exe	: $(LIBS_CHECK)  config.h svnversion.h mergecap.obj merge.obj getop
 	mt.exe -nologo -manifest "mergecap.exe.manifest" -outputresource:mergecap.exe;1
 !ENDIF
 
-text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib strptime.obj image\text2pcap.res
+text2pcap.exe	: $(LIBS_CHECK) config.h text2pcap.obj text2pcap-scanner.obj getopt.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib strptime.obj image\text2pcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:text2pcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console text2pcap.obj text2pcap-scanner.obj getopt.obj $(text2pcap_LIBS) strptime.obj image\text2pcap.res
@@ -289,7 +288,7 @@ randpkt.exe	: $(randpkt_OBJECTS) getopt.obj
 	mt.exe -nologo -manifest "randpkt.exe.manifest" -outputresource:randpkt.exe;1
 !ENDIF
 
-dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj epan/unicode-utils.obj inet_ntop.obj mkstemp.obj wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
+dumpcap.exe	: $(LIBS_CHECK) config.h svnversion.h $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj wsutil\libwsutil.lib wiretap\wiretap-$(WTAP_VERSION).lib image\dumpcap.res
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:dumpcap.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(dumpcap_LIBS) $(dumpcap_OBJECTS) getopt.obj inet_ntop.obj mkstemp.obj image\dumpcap.res

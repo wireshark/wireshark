@@ -49,7 +49,7 @@
 #endif
 
 #include "filesystem.h"
-#include "privileges.h"
+#include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 #include "report_err.h"
 

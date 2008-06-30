@@ -50,13 +50,13 @@
 #include <windows.h>
 #include <tchar.h>
 #include <shlobj.h>
-#include "epan/unicode-utils.h"
+#include <wsutil/unicode-utils.h>
 #else
 #include <pwd.h>
 #endif
 
 #include "filesystem.h"
-#include "privileges.h"
+#include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
 
 #define PROFILES_DIR    "profiles"

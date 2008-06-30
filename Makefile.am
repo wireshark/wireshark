@@ -268,7 +268,6 @@ plugin_ldadd = \
 WTAP_PLUGIN_SOURCES = \
        epan/plugins.c \
        epan/report_err.c \
-       epan/privileges.c \
        epan/filesystem.c
 
 else		# HAVE_PLUGINS
