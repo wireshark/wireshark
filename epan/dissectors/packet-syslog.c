@@ -178,9 +178,10 @@ static dissector_handle_t mtp_handle;
  *  packet so that it can be passed on to the mtp3 dissector for decoding.
  */
 static tvbuff_t *
-mtp3_msu_present(gint fac, gint level, const char *msg_str)
+mtp3_msu_present(gint fac, gint level, const char *msg_str, gint chars_truncated)
 {
-  size_t nbytes, len;
+  size_t nbytes;
+  gint len;
   gchar **split_string, *msu_hex_dump;
   tvbuff_t *mtp3_tvb = NULL;
   guint8 *byte_array;
@@ -211,7 +212,8 @@ mtp3_msu_present(gint fac, gint level, const char *msg_str)
     byte_array = convert_string_to_hex(msu_hex_dump, &nbytes);
 
     if (byte_array) {
-	mtp3_tvb = tvb_new_real_data(byte_array, nbytes, nbytes);
+	mtp3_tvb = tvb_new_real_data(byte_array, nbytes,
+				     nbytes + chars_truncated / 2);
 	tvb_set_free_cb(mtp3_tvb, g_free);
     }
   }
@@ -226,7 +228,7 @@ static void
 dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   gint pri = -1, lev = -1, fac = -1;
-  gint msg_off = 0, msg_len;
+  gint msg_off = 0, msg_len, reported_msg_len;
   proto_item *ti;
   proto_tree *syslog_tree;
   const char *msg_str;
@@ -254,8 +256,10 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   msg_len = tvb_ensure_length_remaining(tvb, msg_off);
   msg_str = tvb_format_text(tvb, msg_off, msg_len);
+  reported_msg_len = tvb_reported_length_remaining(tvb, msg_off);
 
-  mtp3_tvb = mtp3_msu_present(fac, lev, msg_str);
+  mtp3_tvb = mtp3_msu_present(fac, lev, msg_str,
+			      (reported_msg_len - msg_len));
 
   if (mtp3_tvb == NULL && check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
