@@ -9,6 +9,16 @@
 ;
 EXPORTS
 
+; privileges.c
+get_credential_info
+get_cur_groupname
+get_cur_username
+npf_sys_is_running
+relinquish_special_privs_perm
+running_with_special_privs
+started_with_special_privs
+
+; mpeg-audio.c
 mpa_bitrate
 mpa_frequency
 mpa_layer
@@ -16,6 +26,11 @@ mpa_padding
 mpa_samples
 mpa_version
 
+; unicode-utils.c
+utf_16to8
+utf_8to16
+
+; file_util.c
 ws_stdio_open
 ws_stdio_rename
 ws_stdio_mkdir

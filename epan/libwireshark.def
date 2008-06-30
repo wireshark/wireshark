@@ -455,9 +455,6 @@ get_column_format_matches
 get_column_longest_string
 get_column_title
 get_column_width_string
-get_credential_info
-get_cur_groupname
-get_cur_username
 get_datafile_dir
 get_datafile_path
 get_dirname
@@ -554,7 +551,6 @@ mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
 new_create_dissector_handle
 new_register_dissector
-npf_sys_is_running
 nstime_cmp
 nstime_delta
 nstime_is_unset
@@ -783,7 +779,6 @@ register_tap_listener
 RegistrationRejectReason_vals   DATA
 rel_time_to_secs_str
 rel_time_to_str
-relinquish_special_privs_perm
 remove_tap_listener
 rename_persconffile_profile
 report_failure
@@ -807,7 +802,6 @@ rtp_free_hash_dyn_payload
 rtp_payload_type_short_vals    DATA
 rtp_payload_type_vals           DATA
 running_in_build_directory
-running_with_special_privs
 rval_to_str
 sccp_message_type_acro_values		DATA
 scsi_mmc_vals					DATA
@@ -841,7 +835,6 @@ ssl_dissector_add
 ssl_dissector_delete
 ssl_set_master_secret
 start_requested_stats
-started_with_special_privs
 stats_tree_branch_max_namelen
 stats_tree_branch_to_str
 stats_tree_create_node
@@ -995,8 +988,6 @@ uat_swap
 UnregRejectReason_vals          DATA
 UnregRequestReason_vals         DATA
 uri_str_to_bytes
-utf_16to8
-utf_8to16
 val_to_str
 vals_pdu_type                   DATA
 vals_status                     DATA
