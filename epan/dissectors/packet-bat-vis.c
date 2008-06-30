@@ -186,7 +186,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	SET_ADDRESS(&vis_packeth->sender_ip, FT_IPv4, 4, sender_ip_addr);
+	SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, 4, sender_ip_addr);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_ntohs(tvb, 6);
@@ -271,7 +271,7 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	vis_datah->data = tvb_get_ntohs(tvb, 1);
 	ip_addr = tvb_get_ptr(tvb, 3, 4);
 	ip = tvb_get_ipv4(tvb, 3);
-	SET_ADDRESS(&vis_datah->ip, FT_IPv4, 4, ip_addr);
+	SET_ADDRESS(&vis_datah->ip, AT_IPv4, 4, ip_addr);
 
 
 	/* Set tree info */
@@ -321,7 +321,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	sender_ip_addr = tvb_get_ptr(tvb, 0, 4);
 	sender_ip = tvb_get_ipv4(tvb, 0);
-	SET_ADDRESS(&vis_packeth->sender_ip, FT_IPv4, 4, sender_ip_addr);
+	SET_ADDRESS(&vis_packeth->sender_ip, AT_IPv4, 4, sender_ip_addr);
 	vis_packeth->version = tvb_get_guint8(tvb, 4);
 	vis_packeth->gw_class = tvb_get_guint8(tvb, 5);
 	vis_packeth->tq_max = tvb_get_guint8(tvb, 6);
@@ -406,7 +406,7 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	vis_datah->data = tvb_get_guint8(tvb, 1);
 	ip_addr = tvb_get_ptr(tvb, 2, 4);
 	ip = tvb_get_ipv4(tvb, 2);
-	SET_ADDRESS(&vis_datah->ip, FT_IPv4, 4, ip_addr);
+	SET_ADDRESS(&vis_datah->ip, AT_IPv4, 4, ip_addr);
 
 
 	/* Set tree info */

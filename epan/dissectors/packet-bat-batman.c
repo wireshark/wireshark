@@ -232,10 +232,10 @@ static void dissect_bat_batman_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	batman_packeth->gwport = tvb_get_ntohs(tvb, 6);
 	orig_addr = tvb_get_ptr(tvb, 8, 4);
 	orig = tvb_get_ipv4(tvb, 8);
-	SET_ADDRESS(&batman_packeth->orig, FT_IPv4, 4, orig_addr);
+	SET_ADDRESS(&batman_packeth->orig, AT_IPv4, 4, orig_addr);
 	old_orig_addr = tvb_get_ptr(tvb, 12, 4);
 	old_orig = tvb_get_ipv4(tvb, 12);
-	SET_ADDRESS(&batman_packeth->old_orig, FT_IPv4, 4, old_orig_addr);
+	SET_ADDRESS(&batman_packeth->old_orig, AT_IPv4, 4, old_orig_addr);
 	batman_packeth->tq = tvb_get_guint8(tvb, 16);
 	batman_packeth->hna_len = tvb_get_guint8(tvb, 17);
 
