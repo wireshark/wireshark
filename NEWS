@@ -24,9 +24,18 @@ What's New
 
        Versions affected: 0.99.3 to 1.0.0
 
-     o The RTMTP dissector could crash.
+     o The RTMPT dissector could crash.
 
        Versions affected: 0.99.8 to 1.0.0
+
+     o The RMI dissector could disclose system memory. Discovered by
+       Noam Rathus.
+
+       Versions affected: 0.9.5 to 1.0.0
+
+     o The syslog dissector could crash.
+
+       Versions affected: 1.0.0
 
    The following bugs have been fixed:
 
@@ -43,6 +52,8 @@ What's New
      o Failure to detect/open valid ERF files. (Bug 2359)
 
      o Window scaling bug. (Bug 2378)
+
+     o Bugs in the EIGRP dissector. (Bug 2381)
 
      o E212 Mobile network code 3rd digit is not correctly decoded.
        (Bug 2393)
@@ -122,8 +133,8 @@ What's New
 
   Updated Protocol Support
 
-   ACTRACE, BACnet BVLC, BOOTP, E212, iSCSI, LDAP, MGCP, MIKEY,
-   MSMMS, RPC, RTCP, RTP, SNMP, TCP, UNIStim, WiMAX
+   ACTRACE, BACnet BVLC, BOOTP, E212, iSCSI, IUA, LDAP, MGCP, MIKEY,
+   MSMMS, RMI, RPC, RTCP, RTP, SIP, SNMP, TCP, UNIStim, WiMAX
 
   New and Updated Capture File Support
 

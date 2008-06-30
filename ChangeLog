@@ -1000,3 +1000,234 @@ Changed paths:
 Update the GNUTLS and libsmi versions.
 
 ------------------------------------------------------------------------
+r25567 | gerald | 2008-06-23 16:18:41 -0700 (Mon, 23 Jun 2008) | 7 lines
+Changed paths:
+   M /trunk-1.0/Makefile.nmake
+   M /trunk-1.0/capture-wpcap.c
+   M /trunk-1.0/config.h.win32
+   M /trunk-1.0/config.nmake
+   M /trunk-1.0/epan/dissectors/packet-ppi.c
+
+From Dustin Johnson: Add support for TurboCap.
+  - packet-ppi.c: Add aggregation and 802.3 extended information.
+  - capture-wpcap.c: Add support for pcap_list_datalinks and pcap_set_datalink.
+
+(Normally I'd check this into /trunk and copy it over to /trunk-1.0, but
+/trunk is a rapidly moving target right now.)
+
+------------------------------------------------------------------------
+r25568 | gerald | 2008-06-23 16:19:24 -0700 (Mon, 23 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/ChangeLog
+   M /trunk-1.0/NEWS
+   M /trunk-1.0/version.conf
+
+Build 1.0.1pre1.
+
+------------------------------------------------------------------------
+r25569 | gerald | 2008-06-23 16:42:42 -0700 (Mon, 23 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/docbook/release-notes.xml
+
+Fix a typo.
+
+------------------------------------------------------------------------
+r25583 | jake | 2008-06-24 11:24:01 -0700 (Tue, 24 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/debian/changelog
+
+Update Debian changelog to correct maintenance release number.
+
+------------------------------------------------------------------------
+r25591 | gerald | 2008-06-24 13:44:47 -0700 (Tue, 24 Jun 2008) | 40 lines
+Changed paths:
+   M /trunk-1.0/Makefile.am
+   M /trunk-1.0/capture-wpcap.c
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/Makefile.am
+   M /trunk-1.0/epan/dissectors/packet-rmi.c
+   M /trunk-1.0/file.c
+   M /trunk-1.0/make-version.pl
+
+Another try for 1.0.1pre1.
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r24683 | stig | 2008-03-17 17:48:24 -0700 (Mon, 17 Mar 2008) | 2 lines
+Changed paths:
+   M /trunk/file.c
+
+Allow custom columns in export as CSV and PSML.
+
+------------------------------------------------------------------------
+r25579 | morriss | 2008-06-24 10:57:44 -0700 (Tue, 24 Jun 2008) | 1 line
+Changed paths:
+   M /trunk/Makefile.am
+   M /trunk/epan/Makefile.am
+
+Fix *NIX builds where we need our own inet_pton.c or inet_ntop.c .  This should fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2607
+------------------------------------------------------------------------
+r25584 | gerald | 2008-06-24 12:08:54 -0700 (Tue, 24 Jun 2008) | 5 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rmi.c
+
+Noam Rathus discovered that the RMI dissector was using g_strlcpy
+incorrectly, which could lead to information disclosure or worse. Use
+tvb_format_text instead. This lets us get rid of a character array and
+avoids feeding raw packet data to the GUI.
+
+------------------------------------------------------------------------
+r25586 | gerald | 2008-06-24 12:18:21 -0700 (Tue, 24 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-rmi.c
+
+Highlight the whole hostname, even if we've truncated it in the display.
+
+------------------------------------------------------------------------
+
+Fix a logic error in make-version.pl. Make pcap_list_datalinks and
+pcap_set_datalink mandatory on Windows. Update the release notes.
+
+------------------------------------------------------------------------
+r25595 | gerald | 2008-06-24 17:27:56 -0700 (Tue, 24 Jun 2008) | 10 lines
+Changed paths:
+   M /trunk-1.0/epan/Makefile.am
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r25590 | morriss | 2008-06-24 13:09:43 -0700 (Tue, 24 Jun 2008) | 1 line
+Changed paths:
+   M /trunk/epan/Makefile.am
+
+Make inet_ntop fix work for out-of-tree builds
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+r25603 | gerald | 2008-06-25 11:21:15 -0700 (Wed, 25 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk-1.0/version.conf
+
+Stop building -pre1.
+
+------------------------------------------------------------------------
+r25620 | gerald | 2008-06-27 16:12:19 -0700 (Fri, 27 Jun 2008) | 110 lines
+Changed paths:
+   M /trunk-1.0/README
+   M /trunk-1.0/docbook/release-notes.xml
+   M /trunk-1.0/epan/dissectors/packet-eigrp.c
+   M /trunk-1.0/epan/dissectors/packet-erf.c
+   M /trunk-1.0/epan/dissectors/packet-syslog.c
+
+Copy over revisions from the trunk:
+
+------------------------------------------------------------------------
+r24721 | jake | 2008-03-24 03:49:23 -0700 (Mon, 24 Mar 2008) | 4 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-eigrp.c
+
+FIx for bug 2381:
+The eigrp update packets may contain more than one destination advertisement
+per one "IP external route" or "IP internal route" TLV. Recurse over prefix/network
+address pairs until TLV is exhausted.
+------------------------------------------------------------------------
+r25598 | jake | 2008-06-24 23:18:23 -0700 (Tue, 24 Jun 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-eigrp.c
+
+From Max Ivanov:
+The destination unreachable indication for external IP routes is at offset 24, not 4 as in internal IP routes.
+------------------------------------------------------------------------
+r25604 | jake | 2008-06-25 14:21:33 -0700 (Wed, 25 Jun 2008) | 1 line
+Changed paths:
+   M /trunk/README
+
+Update the document to the current state of affairs.
+------------------------------------------------------------------------
+r25605 | guy | 2008-06-25 15:52:08 -0700 (Wed, 25 Jun 2008) | 17 lines
+Changed paths:
+   M /trunk/README
+
+We apper to spell it "TShark" rather than "Tshark", the fact that it's
+"Wireshark" rather than "WireShark" nonwithstanding.
+
+Say we run on NT 4.0 rather than "NT" - I don't know whether we run on
+NT 3.x (and 2000/2003/XP are really NT 5.x and Vista/2008 are really NT
+6.x - that's why Microsoft are talking about "Windows 7" as the next big
+release).
+
+In the capture-privileges paragraph, note that it's dumpcap that needs
+to run as root, and suggest not only that Wireshark shouldn't be set-UID
+root, but that it shouldn't even be run as root, and that the same
+applies to TShark.
+
+Update "How to Report a Bug" to reflect that we're telling people to
+report bugs on Bugzilla, and that "wireshark -v"/"tshark -v" give almost
+all the version information we want.
+
+------------------------------------------------------------------------
+r25606 | gerald | 2008-06-25 16:07:40 -0700 (Wed, 25 Jun 2008) | 4 lines
+Changed paths:
+   M /trunk/README
+
+We last supported NT 4.0 with version 0.99.4 (according to
+wireshark.nsi, at least). Drop it from the "supported" list and add a
+note about NT 4.0 and older Windows versions.
+
+------------------------------------------------------------------------
+r25273 | wmeier | 2008-05-11 10:18:59 -0700 (Sun, 11 May 2008) | 2 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+
+Convert C++ style comments ...
+
+------------------------------------------------------------------------
+r25608 | guy | 2008-06-25 18:38:38 -0700 (Wed, 25 Jun 2008) | 19 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+
+Make the preference settings for the dissector to use for various ERF
+link-layer types static.
+
+If the preference is set to "raw data" for any of those types, display
+the raw data with an indication that the preference in question has been
+set to "raw data", so people don't just wonder why ERF files aren't
+working right any more.  (See bug 2641; I had the same surprise when I
+tried it on some ERF captures I have.)
+
+Pull the dissect_erf_header() code into dissect_erf() - it's dissecting
+the *payload*, not the *header*.
+
+Fill in the Info column with the record type.
+
+When using tvb_new_subset() to chop a header off of a tvbuff, just
+specify lengths of -1, so we go all the way to the end.
+
+Clean up the Infiniband dissector call.
+
+------------------------------------------------------------------------
+r25609 | guy | 2008-06-25 18:47:59 -0700 (Wed, 25 Jun 2008) | 3 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-erf.c
+
+Make the default for HDLC traffic "Raw data", just as it is for other
+record types, so that people know they have to set the preference.
+
+------------------------------------------------------------------------
+r25612 | morriss | 2008-06-26 13:40:30 -0700 (Thu, 26 Jun 2008) | 7 lines
+Changed paths:
+   M /trunk/epan/dissectors/packet-syslog.c
+
+From Abhik Sarkar via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2647 :
+The syslog dissector could crash if the "packlog" MSU is truncated such that
+the hex string ends in with a nibble.
+
+From me: Check if that will happen and chop off the nibble before giving it to
+convert_string_to_hex() so we'll dissect as much of the MSU as possible.
+
+------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------

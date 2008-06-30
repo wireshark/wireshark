@@ -3277,7 +3277,7 @@ create_console(void)
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
       return;   /* couldn't create console */
-    eth_freopen("CONIN$", "r", stdin);
+
     eth_freopen("CONOUT$", "w", stdout);
     eth_freopen("CONOUT$", "w", stderr);
 
