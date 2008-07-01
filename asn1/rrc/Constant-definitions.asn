@@ -1,7 +1,8 @@
+-- $Id$
 -- Constant-definitions.asn
 --
--- Taken from 3GPP TS 25.331 V7.4.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-740.zip/25331-740.doc
+-- Taken from 3GPP TS 25.331 V8.2.0 (2008-04-21)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-820.zip
 --
 -- 11.4	Constant definitions
 --
@@ -22,6 +23,8 @@ maxCCTrCH					INTEGER ::= 8
 maxCellMeas 				INTEGER ::= 32
 maxCellMeas-1				INTEGER ::= 31
 maxCNdomains				INTEGER ::= 4
+maxCommonHRNTI				INTEGER ::= 4
+maxCommonQueueID			INTEGER ::= 2
 maxCPCHsets					INTEGER ::= 16
 maxDPCH-DLchan				INTEGER ::= 8
 maxDPDCH-UL					INTEGER ::= 6
@@ -35,6 +38,10 @@ maxFreqBandsFDD				INTEGER ::= 8
 maxFreqBandsFDD-ext			INTEGER ::= 15	-- maxFreqBandsFDD-ext ::= 22 - (maxFreqBandsFDD - 1)
 maxFreqBandsTDD				INTEGER ::= 4
 maxFreqBandsGSM				INTEGER ::= 16
+maxGANSS					INTEGER ::= 8
+maxGANSS-1					INTEGER ::= 7
+maxGANSSSat					INTEGER ::= 64
+maxGANSSSat-1				INTEGER ::= 63
 maxGERAN-SI					INTEGER ::= 8
 maxGSMTargetCells			INTEGER ::= 32
 maxHProcesses 				INTEGER ::= 8
@@ -57,11 +64,12 @@ maxMBMSservSched			INTEGER ::= 16
 maxMBMSservSelect			INTEGER ::= 8
 maxMBMSservUnmodif			INTEGER ::= 64
 maxMBMSTransmis				INTEGER ::= 4
+maxMBSFNClusters			INTEGER ::= 16
 maxMeasEvent				INTEGER ::= 8
 maxMeasIntervals			INTEGER ::= 3
 maxMeasParEvent				INTEGER ::= 2
 maxNumCDMA2000Freqs			INTEGER ::=  8
-maxNumE-AGCH				INTEGER ::= 8
+maxNumE-AGCH				INTEGER ::= 4
 maxNumE-HICH				INTEGER ::= 4
 maxNumGSMFreqRanges			INTEGER ::= 32
 maxNumFDDFreqs				INTEGER ::=  8
@@ -99,12 +107,15 @@ maxRFC3095-CID				INTEGER ::= 16384
 maxROHC-PacketSizes-r4		INTEGER ::= 16
 maxROHC-Profile-r4			INTEGER ::= 8
 maxSat						INTEGER ::= 16
+maxSatClockModels			INTEGER ::= 4
 maxSCCPCH					INTEGER ::= 16
+maxSgnType					INTEGER ::= 8
 maxSIB						INTEGER ::= 32
 maxSIB-FACH					INTEGER ::= 8
 maxSIBperMsg				INTEGER ::= 16
 maxSRBsetup					INTEGER ::= 8
 maxSystemCapability			INTEGER ::= 16
+maxTDD128Carrier			INTEGER ::= 6
 maxTF						INTEGER ::= 32
 maxTF-CPCH					INTEGER ::= 16
 maxTFC						INTEGER ::= 1024

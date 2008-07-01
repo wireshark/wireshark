@@ -1,7 +1,8 @@
+-- $Id$
 -- Class-definitions.asn
 --
--- Taken from 3GPP TS 25.331 V7.4.0 (2007-03)
--- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-740.zip/25331-740.doc
+-- Taken from 3GPP TS 25.331 V8.2.0 (2008-04-21)
+-- http://www.3gpp.org/ftp/Specs/archive/25_series/25.331/25331-820.zip
 --
 -- 11.1 General message structure
 --
@@ -12,88 +13,88 @@ BEGIN
 
 IMPORTS
 
-    ActiveSetUpdate,
-    ActiveSetUpdateComplete,
-    ActiveSetUpdateFailure, 
-    AssistanceDataDelivery,
-    CellChangeOrderFromUTRAN,
-    CellChangeOrderFromUTRANFailure,
-    CellUpdate,
-    CellUpdateConfirm-CCCH,
-    CellUpdateConfirm,
-    CounterCheck,
-    CounterCheckResponse,
-    DownlinkDirectTransfer,
-    HandoverToUTRANComplete,
-    InitialDirectTransfer,
-    HandoverFromUTRANCommand-GERANIu,
-    HandoverFromUTRANCommand-GSM,
-    HandoverFromUTRANCommand-CDMA2000,
-    HandoverFromUTRANFailure,
-    MBMSAccessInformation,
-    MBMSCommonPTMRBInformation,
-    MBMSCurrentCellPTMRBInformation,
-    MBMSGeneralInformation,
-    MBMSModificationRequest,
-    MBMSModifiedServicesInformation,
-    MBMSNeighbouringCellPTMRBInformation,
-    MBMSSchedulingInformation,
-    MBMSUnmodifiedServicesInformation,
-    MeasurementControl,
-    MeasurementControlFailure,
-    MeasurementReport,
-    PagingType1,
-    PagingType2,
-    PhysicalChannelReconfiguration,
-    PhysicalChannelReconfigurationComplete,
-    PhysicalChannelReconfigurationFailure,
-    PhysicalSharedChannelAllocation,
-    PUSCHCapacityRequest,
-    RadioBearerReconfiguration,
-    RadioBearerReconfigurationComplete,
-    RadioBearerReconfigurationFailure,
-    RadioBearerRelease,
-    RadioBearerReleaseComplete,
-    RadioBearerReleaseFailure,
-    RadioBearerSetup,
-    RadioBearerSetupComplete,
-    RadioBearerSetupFailure,
-    RRCConnectionReject,
-    RRCConnectionRelease,
-    RRCConnectionRelease-CCCH,
-    RRCConnectionReleaseComplete,
-    RRCConnectionRequest,
-    RRCConnectionSetup,
-    RRCConnectionSetupComplete,
-    RRCStatus,
-    SecurityModeCommand,
-    SecurityModeComplete,
-    SecurityModeFailure,
-    SignallingConnectionRelease,
-    SignallingConnectionReleaseIndication,
-    SystemInformation-BCH,
-    SystemInformation-FACH,
-    SystemInformationChangeIndication,
-    TransportChannelReconfiguration,
-    TransportChannelReconfigurationComplete,
-    TransportChannelReconfigurationFailure,
-    TransportFormatCombinationControl,
-    TransportFormatCombinationControlFailure,
-    UECapabilityEnquiry,
-    UECapabilityInformation,
-    UECapabilityInformationConfirm,
-    UplinkDirectTransfer,
-    UplinkPhysicalChannelControl,
-    URAUpdate,
-    URAUpdateConfirm,
-    URAUpdateConfirm-CCCH,
-    UTRANMobilityInformation,
-    UTRANMobilityInformationConfirm,
-    UTRANMobilityInformationFailure
+	ActiveSetUpdate,
+	ActiveSetUpdateComplete,
+	ActiveSetUpdateFailure,	
+	AssistanceDataDelivery,
+	CellChangeOrderFromUTRAN,
+	CellChangeOrderFromUTRANFailure,
+	CellUpdate,
+	CellUpdateConfirm-CCCH,
+	CellUpdateConfirm,
+	CounterCheck,
+	CounterCheckResponse,
+	DownlinkDirectTransfer,
+	HandoverToUTRANComplete,
+	InitialDirectTransfer,
+	HandoverFromUTRANCommand-GERANIu,
+	HandoverFromUTRANCommand-GSM,
+	HandoverFromUTRANCommand-CDMA2000,
+	HandoverFromUTRANFailure,
+	MBMSAccessInformation,
+	MBMSCommonPTMRBInformation,
+	MBMSCurrentCellPTMRBInformation,
+	MBMSGeneralInformation,
+	MBMSModificationRequest,
+	MBMSModifiedServicesInformation,
+	MBMSNeighbouringCellPTMRBInformation,
+	MBMSSchedulingInformation,
+	MBMSUnmodifiedServicesInformation,
+	MeasurementControl,
+	MeasurementControlFailure,
+	MeasurementReport,
+	PagingType1,
+	PagingType2,
+	PhysicalChannelReconfiguration,
+	PhysicalChannelReconfigurationComplete,
+	PhysicalChannelReconfigurationFailure,
+	PhysicalSharedChannelAllocation,
+	PUSCHCapacityRequest,
+	RadioBearerReconfiguration,
+	RadioBearerReconfigurationComplete,
+	RadioBearerReconfigurationFailure,
+	RadioBearerRelease,
+	RadioBearerReleaseComplete,
+	RadioBearerReleaseFailure,
+	RadioBearerSetup,
+	RadioBearerSetupComplete,
+	RadioBearerSetupFailure,
+	RRCConnectionReject,
+	RRCConnectionRelease,
+	RRCConnectionRelease-CCCH,
+	RRCConnectionReleaseComplete,
+	RRCConnectionRequest,
+	RRCConnectionSetup,
+	RRCConnectionSetupComplete,
+	RRCStatus,
+	SecurityModeCommand,
+	SecurityModeComplete,
+	SecurityModeFailure,
+	SignallingConnectionRelease,
+	SignallingConnectionReleaseIndication,
+	SystemInformation-BCH,
+	SystemInformation-FACH,
+	SystemInformationChangeIndication,
+	TransportChannelReconfiguration,
+	TransportChannelReconfigurationComplete,
+	TransportChannelReconfigurationFailure,
+	TransportFormatCombinationControl,
+	TransportFormatCombinationControlFailure,
+	UECapabilityEnquiry,
+	UECapabilityInformation,
+	UECapabilityInformationConfirm,
+	UplinkDirectTransfer,
+	UplinkPhysicalChannelControl,
+	URAUpdate,
+	URAUpdateConfirm,
+	URAUpdateConfirm-CCCH,
+	UTRANMobilityInformation,
+	UTRANMobilityInformationConfirm,
+	UTRANMobilityInformationFailure
 FROM PDU-definitions
 
 -- User Equipment IEs :
-    IntegrityCheckInfo
+	IntegrityCheckInfo
 FROM InformationElements;
 
 --**************************************************************
@@ -103,43 +104,43 @@ FROM InformationElements;
 --**************************************************************
 
 DL-DCCH-Message ::= SEQUENCE {
-    integrityCheckInfo      IntegrityCheckInfo      OPTIONAL,
-    message                 DL-DCCH-MessageType
+	integrityCheckInfo		IntegrityCheckInfo		OPTIONAL,
+	message					DL-DCCH-MessageType
 }
 
 DL-DCCH-MessageType ::= CHOICE {
-    activeSetUpdate                     ActiveSetUpdate,
-    assistanceDataDelivery              AssistanceDataDelivery,
-    cellChangeOrderFromUTRAN            CellChangeOrderFromUTRAN,
-    cellUpdateConfirm                   CellUpdateConfirm,
-    counterCheck                        CounterCheck,
-    downlinkDirectTransfer              DownlinkDirectTransfer,
-    handoverFromUTRANCommand-GSM        HandoverFromUTRANCommand-GSM,
-    handoverFromUTRANCommand-CDMA2000   HandoverFromUTRANCommand-CDMA2000,
-    measurementControl                  MeasurementControl,
-    pagingType2                         PagingType2,
-    physicalChannelReconfiguration      PhysicalChannelReconfiguration,
-    physicalSharedChannelAllocation     PhysicalSharedChannelAllocation,
-    radioBearerReconfiguration          RadioBearerReconfiguration,
-    radioBearerRelease                  RadioBearerRelease,
-    radioBearerSetup                    RadioBearerSetup,
-    rrcConnectionRelease                RRCConnectionRelease,
-    securityModeCommand                 SecurityModeCommand,
-    signallingConnectionRelease         SignallingConnectionRelease,
-    transportChannelReconfiguration     TransportChannelReconfiguration,
-    transportFormatCombinationControl   TransportFormatCombinationControl,
-    ueCapabilityEnquiry                 UECapabilityEnquiry,
-    ueCapabilityInformationConfirm      UECapabilityInformationConfirm,
-    uplinkPhysicalChannelControl        UplinkPhysicalChannelControl,
-    uraUpdateConfirm                    URAUpdateConfirm,
-    utranMobilityInformation            UTRANMobilityInformation,
-    handoverFromUTRANCommand-GERANIu    HandoverFromUTRANCommand-GERANIu,
-    mbmsModifiedServicesInformation     MBMSModifiedServicesInformation,
-    spare5                              NULL,
-    spare4                              NULL,
-    spare3                              NULL,
-    spare2                              NULL,
-    spare1                              NULL
+	activeSetUpdate						ActiveSetUpdate,
+	assistanceDataDelivery				AssistanceDataDelivery,
+	cellChangeOrderFromUTRAN 			CellChangeOrderFromUTRAN,
+	cellUpdateConfirm					CellUpdateConfirm,
+	counterCheck						CounterCheck,
+	downlinkDirectTransfer				DownlinkDirectTransfer,
+	handoverFromUTRANCommand-GSM		HandoverFromUTRANCommand-GSM,
+	handoverFromUTRANCommand-CDMA2000	HandoverFromUTRANCommand-CDMA2000,
+	measurementControl					MeasurementControl,
+	pagingType2							PagingType2,
+	physicalChannelReconfiguration		PhysicalChannelReconfiguration,
+	physicalSharedChannelAllocation		PhysicalSharedChannelAllocation,
+	radioBearerReconfiguration			RadioBearerReconfiguration,
+	radioBearerRelease					RadioBearerRelease,
+	radioBearerSetup					RadioBearerSetup,
+	rrcConnectionRelease				RRCConnectionRelease,
+	securityModeCommand					SecurityModeCommand,
+	signallingConnectionRelease			SignallingConnectionRelease,
+	transportChannelReconfiguration		TransportChannelReconfiguration,
+	transportFormatCombinationControl	TransportFormatCombinationControl,
+	ueCapabilityEnquiry					UECapabilityEnquiry,
+	ueCapabilityInformationConfirm		UECapabilityInformationConfirm,
+	uplinkPhysicalChannelControl		UplinkPhysicalChannelControl,
+	uraUpdateConfirm					URAUpdateConfirm,
+	utranMobilityInformation			UTRANMobilityInformation,
+	handoverFromUTRANCommand-GERANIu	HandoverFromUTRANCommand-GERANIu,
+	mbmsModifiedServicesInformation		MBMSModifiedServicesInformation,
+	spare5								NULL,
+	spare4								NULL,
+	spare3								NULL,
+	spare2								NULL,
+	spare1								NULL
 }
 
 --**************************************************************
@@ -149,49 +150,49 @@ DL-DCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 UL-DCCH-Message ::= SEQUENCE {
-    integrityCheckInfo      IntegrityCheckInfo      OPTIONAL,
-    message                 UL-DCCH-MessageType
+	integrityCheckInfo		IntegrityCheckInfo		OPTIONAL,
+	message					UL-DCCH-MessageType
 }
 
 UL-DCCH-MessageType ::= CHOICE {
-    activeSetUpdateComplete             ActiveSetUpdateComplete,
-    activeSetUpdateFailure              ActiveSetUpdateFailure,
-    cellChangeOrderFromUTRANFailure     CellChangeOrderFromUTRANFailure,
-    counterCheckResponse                CounterCheckResponse,
-    handoverToUTRANComplete             HandoverToUTRANComplete,
-    initialDirectTransfer               InitialDirectTransfer,
-    handoverFromUTRANFailure            HandoverFromUTRANFailure,
-    measurementControlFailure           MeasurementControlFailure,
-    measurementReport                   MeasurementReport,
-    physicalChannelReconfigurationComplete
-                                        PhysicalChannelReconfigurationComplete,
-    physicalChannelReconfigurationFailure
-                                        PhysicalChannelReconfigurationFailure,
-    radioBearerReconfigurationComplete  RadioBearerReconfigurationComplete,
-    radioBearerReconfigurationFailure   RadioBearerReconfigurationFailure,
-    radioBearerReleaseComplete          RadioBearerReleaseComplete,
-    radioBearerReleaseFailure           RadioBearerReleaseFailure,
-    radioBearerSetupComplete            RadioBearerSetupComplete,
-    radioBearerSetupFailure             RadioBearerSetupFailure,
-    rrcConnectionReleaseComplete        RRCConnectionReleaseComplete,
-    rrcConnectionSetupComplete          RRCConnectionSetupComplete,
-    rrcStatus                           RRCStatus,
-    securityModeComplete                SecurityModeComplete,
-    securityModeFailure                 SecurityModeFailure,
-    signallingConnectionReleaseIndication
-                                        SignallingConnectionReleaseIndication,
-    transportChannelReconfigurationComplete
-                                        TransportChannelReconfigurationComplete,
-    transportChannelReconfigurationFailure
-                                        TransportChannelReconfigurationFailure,
-    transportFormatCombinationControlFailure
-                                        TransportFormatCombinationControlFailure,
-    ueCapabilityInformation             UECapabilityInformation,
-    uplinkDirectTransfer                UplinkDirectTransfer,
-    utranMobilityInformationConfirm     UTRANMobilityInformationConfirm,
-    utranMobilityInformationFailure     UTRANMobilityInformationFailure,
-    mbmsModificationRequest             MBMSModificationRequest,
-    spare1                              NULL
+	activeSetUpdateComplete				ActiveSetUpdateComplete,
+	activeSetUpdateFailure				ActiveSetUpdateFailure,
+	cellChangeOrderFromUTRANFailure 	CellChangeOrderFromUTRANFailure,
+	counterCheckResponse				CounterCheckResponse,
+	handoverToUTRANComplete				HandoverToUTRANComplete,
+	initialDirectTransfer				InitialDirectTransfer,
+	handoverFromUTRANFailure			HandoverFromUTRANFailure,
+	measurementControlFailure			MeasurementControlFailure,
+	measurementReport					MeasurementReport,
+	physicalChannelReconfigurationComplete
+										PhysicalChannelReconfigurationComplete,
+	physicalChannelReconfigurationFailure
+										PhysicalChannelReconfigurationFailure,
+	radioBearerReconfigurationComplete	RadioBearerReconfigurationComplete,
+	radioBearerReconfigurationFailure	RadioBearerReconfigurationFailure,
+	radioBearerReleaseComplete			RadioBearerReleaseComplete,
+	radioBearerReleaseFailure			RadioBearerReleaseFailure,
+	radioBearerSetupComplete			RadioBearerSetupComplete,
+	radioBearerSetupFailure				RadioBearerSetupFailure,
+	rrcConnectionReleaseComplete		RRCConnectionReleaseComplete,
+	rrcConnectionSetupComplete			RRCConnectionSetupComplete,
+	rrcStatus							RRCStatus,
+	securityModeComplete				SecurityModeComplete,
+	securityModeFailure					SecurityModeFailure,
+	signallingConnectionReleaseIndication
+										SignallingConnectionReleaseIndication,
+	transportChannelReconfigurationComplete
+										TransportChannelReconfigurationComplete,
+	transportChannelReconfigurationFailure
+										TransportChannelReconfigurationFailure,
+	transportFormatCombinationControlFailure
+										TransportFormatCombinationControlFailure,
+	ueCapabilityInformation				UECapabilityInformation,
+	uplinkDirectTransfer				UplinkDirectTransfer,
+	utranMobilityInformationConfirm		UTRANMobilityInformationConfirm,
+	utranMobilityInformationFailure		UTRANMobilityInformationFailure,
+	mbmsModificationRequest				MBMSModificationRequest,
+	spare1								NULL
 }
 
 --**************************************************************
@@ -201,19 +202,19 @@ UL-DCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 DL-CCCH-Message ::= SEQUENCE {
-    integrityCheckInfo      IntegrityCheckInfo      OPTIONAL,
-    message                 DL-CCCH-MessageType
+	integrityCheckInfo		IntegrityCheckInfo		OPTIONAL,
+	message					DL-CCCH-MessageType
 }
 
-DL-CCCH-MessageType ::= CHOICE {    
-    cellUpdateConfirm                   CellUpdateConfirm-CCCH,
-    rrcConnectionReject                 RRCConnectionReject,
-    rrcConnectionRelease                RRCConnectionRelease-CCCH,
-    rrcConnectionSetup                  RRCConnectionSetup,
-    uraUpdateConfirm                    URAUpdateConfirm-CCCH,
-    spare3                              NULL,
-    spare2                              NULL,
-    spare1                              NULL
+DL-CCCH-MessageType ::= CHOICE {	
+	cellUpdateConfirm					CellUpdateConfirm-CCCH,
+	rrcConnectionReject					RRCConnectionReject,
+	rrcConnectionRelease				RRCConnectionRelease-CCCH,
+	rrcConnectionSetup					RRCConnectionSetup,
+	uraUpdateConfirm					URAUpdateConfirm-CCCH,
+	spare3								NULL,
+	spare2								NULL,
+	spare1								NULL
 }
 
 --**************************************************************
@@ -223,15 +224,15 @@ DL-CCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 UL-CCCH-Message ::= SEQUENCE {
-    integrityCheckInfo      IntegrityCheckInfo      OPTIONAL,
-    message                 UL-CCCH-MessageType
+	integrityCheckInfo		IntegrityCheckInfo		OPTIONAL,
+	message					UL-CCCH-MessageType
 }
 
 UL-CCCH-MessageType ::= CHOICE {
-    cellUpdate                          CellUpdate,
-    rrcConnectionRequest                RRCConnectionRequest,
-    uraUpdate                           URAUpdate,
-    spare                               NULL
+	cellUpdate							CellUpdate,
+	rrcConnectionRequest				RRCConnectionRequest,
+	uraUpdate							URAUpdate,
+	spare								NULL
 }
 
 --**************************************************************
@@ -241,12 +242,12 @@ UL-CCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 PCCH-Message ::= SEQUENCE {
-    message             PCCH-MessageType
+	message				PCCH-MessageType
 }
 
 PCCH-MessageType ::= CHOICE {
-    pagingType1                         PagingType1,
-    spare                               NULL
+	pagingType1							PagingType1,
+	spare								NULL
 }
 
 --**************************************************************
@@ -256,12 +257,12 @@ PCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 DL-SHCCH-Message ::= SEQUENCE {
-    message                 DL-SHCCH-MessageType
+	message					DL-SHCCH-MessageType
 }
 
 DL-SHCCH-MessageType ::= CHOICE {
-    physicalSharedChannelAllocation     PhysicalSharedChannelAllocation,
-    spare                               NULL
+	physicalSharedChannelAllocation		PhysicalSharedChannelAllocation,
+	spare								NULL
 }
 
 --**************************************************************
@@ -271,12 +272,12 @@ DL-SHCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 UL-SHCCH-Message ::= SEQUENCE {
-    message                 UL-SHCCH-MessageType
+	message					UL-SHCCH-MessageType
 }
 
 UL-SHCCH-MessageType ::= CHOICE {
-    puschCapacityRequest                PUSCHCapacityRequest,
-    spare                               NULL
+	puschCapacityRequest				PUSCHCapacityRequest,
+	spare								NULL
 }
 
 
@@ -287,14 +288,14 @@ UL-SHCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 BCCH-FACH-Message ::= SEQUENCE {
-    message             BCCH-FACH-MessageType
+	message				BCCH-FACH-MessageType
 }
 
 BCCH-FACH-MessageType ::= CHOICE {
-    systemInformation                   SystemInformation-FACH,
-    systemInformationChangeIndication   SystemInformationChangeIndication,
-    spare2                              NULL,
-    spare1                              NULL
+	systemInformation					SystemInformation-FACH,
+	systemInformationChangeIndication	SystemInformationChangeIndication,
+	spare2								NULL,
+	spare1								NULL
 }
 
 --**************************************************************
@@ -304,7 +305,7 @@ BCCH-FACH-MessageType ::= CHOICE {
 --**************************************************************
 
 BCCH-BCH-Message ::= SEQUENCE {
-    message             SystemInformation-BCH
+	message				SystemInformation-BCH
 }
 
 --**************************************************************
@@ -314,27 +315,27 @@ BCCH-BCH-Message ::= SEQUENCE {
 --**************************************************************
 
 MCCH-Message ::= SEQUENCE {
-    message             MCCH-MessageType
+	message				MCCH-MessageType
 }
 
 MCCH-MessageType ::= CHOICE {
-    mbmsAccessInformation               MBMSAccessInformation,
-    mbmsCommonPTMRBInformation          MBMSCommonPTMRBInformation,
-    mbmsCurrentCellPTMRBInformation     MBMSCurrentCellPTMRBInformation,
-    mbmsGeneralInformation              MBMSGeneralInformation,
-    mbmsModifiedServicesInformation     MBMSModifiedServicesInformation,
-    mbmsNeighbouringCellPTMRBInformation
-                                        MBMSNeighbouringCellPTMRBInformation,
-    mbmsUnmodifiedServicesInformation   MBMSUnmodifiedServicesInformation,
-    spare9                              NULL,
-    spare8                              NULL,
-    spare7                              NULL,
-    spare6                              NULL,
-    spare5                              NULL,
-    spare4                              NULL,
-    spare3                              NULL,
-    spare2                              NULL,
-    spare1                              NULL
+	mbmsAccessInformation				MBMSAccessInformation,
+	mbmsCommonPTMRBInformation			MBMSCommonPTMRBInformation,
+	mbmsCurrentCellPTMRBInformation		MBMSCurrentCellPTMRBInformation,
+	mbmsGeneralInformation				MBMSGeneralInformation,
+	mbmsModifiedServicesInformation		MBMSModifiedServicesInformation,
+	mbmsNeighbouringCellPTMRBInformation
+										MBMSNeighbouringCellPTMRBInformation,
+	mbmsUnmodifiedServicesInformation	MBMSUnmodifiedServicesInformation,
+	spare9								NULL,
+	spare8								NULL,
+	spare7								NULL,
+	spare6								NULL,
+	spare5								NULL,
+	spare4								NULL,
+	spare3								NULL,
+	spare2								NULL,
+	spare1								NULL
 }
 
 --**************************************************************
@@ -344,14 +345,14 @@ MCCH-MessageType ::= CHOICE {
 --**************************************************************
 
 MSCH-Message ::= SEQUENCE {
-    message             MSCH-MessageType
+	message				MSCH-MessageType
 }
 
 MSCH-MessageType ::= CHOICE {
-    mbmsSchedulingInformation           MBMSSchedulingInformation,
-    spare3                              NULL,
-    spare2                              NULL,
-    spare1                              NULL
+	mbmsSchedulingInformation			MBMSSchedulingInformation,
+	spare3								NULL,
+	spare2								NULL,
+	spare1								NULL
 }
 
 END

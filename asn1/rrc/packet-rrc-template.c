@@ -45,6 +45,8 @@
 #ifdef _MSC_VER
 /* disable: "warning C4049: compiler limit : terminating line number emission" */
 #pragma warning(disable:4049)
+/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
+#pragma warning(disable:4146)
 #endif
 
 #define PNAME  "Radio Resource Control (RRC) protocol"
