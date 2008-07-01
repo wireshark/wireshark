@@ -229,7 +229,6 @@ LIBWIRESHARK_INCLUDES = 	\
 	tvbuff.h		\
 	uat.h			\
 	uat-int.h		\
-	unicode-utils.h		\
 	value_string.h		\
 	x264_prt_id.h		\
 	xdlc.h			\
