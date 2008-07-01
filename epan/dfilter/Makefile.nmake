@@ -77,7 +77,7 @@ $(LEMON)\lemon.exe:
 	cd ../../epan/dfilter
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
 	scanner.l \
 	grammar.lemon		\
 	dfilter.c		\

@@ -310,4 +310,4 @@ dtd_grammar.c: $(LEMON)\lemon.exe $(LEMON)\lempar.c dtd_grammar.lemon
 	$(LEMON)\lemon t=$(LEMON)\lempar.c dtd_grammar.lemon
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl $(LIBWIRESHARK_SRC) \
+	$(PERL) ../tools/checkAPIs.pl -g termoutput $(LIBWIRESHARK_SRC) \

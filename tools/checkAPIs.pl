@@ -131,9 +131,8 @@ my %APIs = (
 		'g_scanner_foreach_symbol',
 		'g_scanner_freeze_symbol_table',
 		'g_scanner_thaw_symbol_table',
-		# Wireshark should not write to stdout (?)
-		# (Of course tshark should!)
-		'printf',
+		# Use strerror() and report messages in whatever
+		# fashion is appropriate for the code in question.
 		'perror',
 		# Use PROTO_ITEM_SET_HIDDEN instead of these:
 		'proto_tree_add_item_hidden',
@@ -159,6 +158,11 @@ my %APIs = (
 		'exit',
 		'g_assert',
 		'g_error',
+		]},
+
+	# APIs that print to the terminal. Dissectors shouldn't call these
+	'termoutput' => { 'count_errors' => 0, 'functions' => [
+		'printf',
 		]},
 
 );

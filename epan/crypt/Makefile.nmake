@@ -26,5 +26,5 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
 	$(LIBAIRPDCAP_SRC)

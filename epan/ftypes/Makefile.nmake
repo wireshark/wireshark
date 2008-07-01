@@ -41,7 +41,7 @@ distclean: clean
 maintainer-clean: distclean
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl \
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
 	ftypes.c		\
 	ftype-bytes.c		\
 	ftype-double.c	\
