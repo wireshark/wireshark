@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 
@@ -61,7 +61,6 @@ static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
 static int hf_x509sat_UniqueIdentifier_PDU = -1;  /* UniqueIdentifier */
 static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
 static int hf_x509sat_Guide_PDU = -1;             /* Guide */
-static int hf_x509sat_Criteria_PDU = -1;          /* Criteria */
 static int hf_x509sat_EnhancedGuide_PDU = -1;     /* EnhancedGuide */
 static int hf_x509sat_PostalAddress_PDU = -1;     /* PostalAddress */
 static int hf_x509sat_TelephoneNumber_PDU = -1;   /* TelephoneNumber */
@@ -75,7 +74,6 @@ static int hf_x509sat_PresentationAddress_PDU = -1;  /* PresentationAddress */
 static int hf_x509sat_ProtocolInformation_PDU = -1;  /* ProtocolInformation */
 static int hf_x509sat_NameAndOptionalUID_PDU = -1;  /* NameAndOptionalUID */
 static int hf_x509sat_CaseIgnoreListMatch_PDU = -1;  /* CaseIgnoreListMatch */
-static int hf_x509sat_DayTimeBand_PDU = -1;       /* DayTimeBand */
 static int hf_x509sat_DayTime_PDU = -1;           /* DayTime */
 static int hf_x509sat_ObjectIdentifier_PDU = -1;  /* ObjectIdentifier */
 static int hf_x509sat_OctetString_PDU = -1;       /* OctetString */
@@ -1512,7 +1510,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 305 "x509sat.cnf"
+#line 308 "x509sat.cnf"
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 
@@ -1520,7 +1518,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 310 "x509sat.cnf"
+#line 313 "x509sat.cnf"
 	if (! wide_tvb) {
 		return offset;
 	}
@@ -1634,7 +1632,7 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 316 "x509sat.cnf"
+#line 322 "x509sat.cnf"
   gint8 class;
   gboolean pc;
   gint32 tag;
@@ -1677,11 +1675,6 @@ static void dissect_Guide_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_Guide(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_Guide_PDU);
-}
-static void dissect_Criteria_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509sat_Criteria(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_Criteria_PDU);
 }
 static void dissect_EnhancedGuide_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1747,11 +1740,6 @@ static void dissect_CaseIgnoreListMatch_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_x509sat_CaseIgnoreListMatch(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_CaseIgnoreListMatch_PDU);
-}
-static void dissect_DayTimeBand_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_x509sat_DayTimeBand(FALSE, tvb, 0, &asn1_ctx, tree, hf_x509sat_DayTimeBand_PDU);
 }
 static void dissect_DayTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1893,10 +1881,6 @@ void proto_register_x509sat(void) {
       { "Guide", "x509sat.Guide",
         FT_NONE, BASE_NONE, NULL, 0,
         "x509sat.Guide", HFILL }},
-    { &hf_x509sat_Criteria_PDU,
-      { "Criteria", "x509sat.Criteria",
-        FT_UINT32, BASE_DEC, VALS(x509sat_Criteria_vals), 0,
-        "x509sat.Criteria", HFILL }},
     { &hf_x509sat_EnhancedGuide_PDU,
       { "EnhancedGuide", "x509sat.EnhancedGuide",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -1949,10 +1933,6 @@ void proto_register_x509sat(void) {
       { "CaseIgnoreListMatch", "x509sat.CaseIgnoreListMatch",
         FT_UINT32, BASE_DEC, NULL, 0,
         "x509sat.CaseIgnoreListMatch", HFILL }},
-    { &hf_x509sat_DayTimeBand_PDU,
-      { "DayTimeBand", "x509sat.DayTimeBand",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "x509sat.DayTimeBand", HFILL }},
     { &hf_x509sat_DayTime_PDU,
       { "DayTime", "x509sat.DayTime",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2636,7 +2616,7 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.11.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveOrganizationalUnitName");
   register_ber_oid_dissector("2.5.4.12", dissect_DirectoryString_PDU, proto_x509sat, "id-at-title");
   register_ber_oid_dissector("2.5.4.13", dissect_DirectoryString_PDU, proto_x509sat, "id-at-description");
-  register_ber_oid_dissector("2.5.4.14", dissect_EnhancedGuide_PDU, proto_x509sat, "id-at-searchGuide");
+  register_ber_oid_dissector("2.5.4.14", dissect_Guide_PDU, proto_x509sat, "id-at-searchGuide");
   register_ber_oid_dissector("2.5.4.15", dissect_DirectoryString_PDU, proto_x509sat, "id-at-businessCategory");
   register_ber_oid_dissector("2.5.4.16", dissect_PostalAddress_PDU, proto_x509sat, "id-at-postalAddress");
   register_ber_oid_dissector("2.5.4.17", dissect_DirectoryString_PDU, proto_x509sat, "id-at-postalCode");
@@ -2675,6 +2655,8 @@ void proto_reg_handoff_x509sat(void) {
   register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
   register_ber_oid_dissector("2.5.4.66", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsService");
   register_ber_oid_dissector("2.5.4.67", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-at-communuicationsNetwork");
+  register_ber_oid_dissector("2.5.13.11", dissect_CaseIgnoreListMatch_PDU, proto_x509sat, "id-mr-caseIgnoreListMatch");
+  register_ber_oid_dissector("2.5.13.16", dissect_BitString_PDU, proto_x509sat, "id-mr-bitStringMatch");
   register_ber_oid_dissector("2.5.18.1", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-oa-createTimeStamp");
   register_ber_oid_dissector("2.5.18.2", dissect_SyntaxGeneralizedTime_PDU, proto_x509sat, "id-oa-modifyTimeStamp");
   register_ber_oid_dissector("2.5.18.5", dissect_ObjectIdentifier_PDU, proto_x509sat, "id-oa-administrativeRole");

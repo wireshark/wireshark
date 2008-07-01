@@ -43,9 +43,7 @@ ZonalSelect
 #.PDU
 CaseIgnoreListMatch
 CountryName
-Criteria
 DayTime
-DayTimeBand
 DestinationIndicator
 DirectoryString
 EnhancedGuide
@@ -102,7 +100,7 @@ DirectoryString         B "2.5.4.11"   "id-at-organizationalUnitName"
 DirectoryString         B "2.5.4.11.1" "id-at-collectiveOrganizationalUnitName"
 DirectoryString         B "2.5.4.12"   "id-at-title"
 DirectoryString         B "2.5.4.13"   "id-at-description"
-EnhancedGuide	        B "2.5.4.14"   "id-at-searchGuide"
+Guide			        B "2.5.4.14"   "id-at-searchGuide"
 DirectoryString         B "2.5.4.15"   "id-at-businessCategory"
 PostalAddress           B "2.5.4.16"   "id-at-postalAddress"
 DirectoryString         B "2.5.4.17"   "id-at-postalCode"
@@ -156,20 +154,25 @@ DirectoryString         B "2.5.4.54"   "id-at-dmdName"
 # 58 "id-at-attributeCertificate" - see x509af.cnf
 # 59 "id-at-attributeCertificateRevocationLIst" - see x509af.cnf
 # 60 "id-at-confKeyInfo" - what syntax?
-# 61 ?
-# 62 ?
-# 63 ?
+# 61 ? aACertificate(61)
+# 62 ? attributeDescriptorCertificate(62)
+# 63 ? attributeAuthorityRevocationList(63) 
 # 64 "id-at-familyInformation" - what syntax?
 DirectoryString        B "2.5.4.65"   "id-at-pseudonym"
 ObjectIdentifier       B "2.5.4.66" "id-at-communuicationsService"
 ObjectIdentifier       B "2.5.4.67" "id-at-communuicationsNetwork"
+
+NumericString		   B "2.5.13.8" "id-mr-numericStringMatch"
+CaseIgnoreListMatch	   B "2.5.13.11" "id-mr-caseIgnoreListMatch"
+BitString			   B "2.5.13.16" "id-mr-bitStringMatch"
+UTCTime				   B "2.5.13.26" "id-mr-uTCTimeOrderingMatch"
 
 SyntaxGeneralizedTime  B "2.5.18.1" "id-oa-createTimeStamp"	
 SyntaxGeneralizedTime  B "2.5.18.2" "id-oa-modifyTimeStamp"	
 ObjectIdentifier       B "2.5.18.5" "id-oa-administrativeRole"
 ObjectIdentifier       B "2.5.18.7" "id-oa-collectiveExclusions"
 SyntaxGeneralizedTime  B "2.5.18.8" "id-oa-subschemaTimeStamp"	
-Boolean		       B "2.5.18.9" "id-oa-hasSubordinates"
+Boolean		           B "2.5.18.9" "id-oa-hasSubordinates"
 
 ObjectIdentifier       B "2.5.24.1" "id-aca-accessControlScheme"
 
