@@ -1471,7 +1471,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
       proto_tree_add_item (iax2_tree, hf_iax2_dcallno, tvb, offset, 2, FALSE );
 
-      proto_tree_add_boolean(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
+      proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
 
       if( iax_call ) {
         proto_item *item = 
