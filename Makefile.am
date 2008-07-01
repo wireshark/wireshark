@@ -967,16 +967,21 @@ debian-package: debian/rules
 	fi
 
 # XXX - This assumes we're building from the source directory.
-osx-package: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
+osx-app: $(PROGRAMS) $(SCRIPTS) $(MANS) $(DATA) packaging/macosx/Info.plist
 	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install; \
 		cd $(srcdir)/packaging/macosx ;  \
 		./osx-app.sh -bp ../staging/$(PACKAGE).inst/$(bindir) ; \
-		./osx-dmg.sh ; \
 	else \
 		echo "Error: OS X packaging tools not found." ; \
 		echo "Package build abandoned." ; \
+	fi
+
+osx-package: osx-app
+	@if test x$(HAVE_OSX_PACKAGING) = xyes ; then \
+		cd $(srcdir)/packaging/macosx ;  \
+		./osx-dmg.sh ; \
 	fi
 
 clean-local:
