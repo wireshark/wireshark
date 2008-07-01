@@ -23,6 +23,10 @@ ProtocolIE-ID
 
 #.NO_EMIT
 
+#.OMIT_ASSIGNMENT
+RateControlAllowed
+ProtocolError-IE-ContainerList
+
 #.TYPE_RENAME
 
 #.FIELD_RENAME
@@ -121,13 +125,14 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
   asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerPairList");
 #.END
 #ProtocolError-IE-ContainerList  { RANAP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfRABs,   {IEsSetParam} }
-#.FN_BODY ProtocolError-IE-ContainerList
-  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
-  asn1_param_push_integer(%(ACTX)s, 1);
-  asn1_param_push_integer(%(ACTX)s, maxNrOfRABs);
-%(DEFAULT_BODY)s
-  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
-#.END
+# Not used ?
+# FN_BODY ProtocolError-IE-ContainerList
+#  asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
+#  asn1_param_push_integer(%(ACTX)s, 1);
+#  asn1_param_push_integer(%(ACTX)s, maxNrOfRABs);
+#%(DEFAULT_BODY)s
+#  asn1_stack_frame_pop(%(ACTX)s, "ProtocolIE-ContainerList");
+# END
 #IuSigConId-IE-ContainerList     { RANAP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfIuSigConIds,   {IEsSetParam} }
 #.FN_BODY IuSigConId-IE-ContainerList
   asn1_stack_frame_push(%(ACTX)s, "ProtocolIE-ContainerList");
@@ -442,15 +447,17 @@ id-d-RNTI-for-NoIuCSUP									ProtocolIE-ID
 #.REGISTER_NEW
 
 #RANAP-PROTOCOL-IES
-Cause                              N ranap.ies id-Cause
-RAB-DataVolumeReportList           N ranap.ies id-RAB-DataVolumeReportList
-RAB-ReleasedList-IuRelComp         N ranap.ies id-RAB-ReleasedList-IuRelComp
-CriticalityDiagnostics             N ranap.ies id-CriticalityDiagnostics
-RAB-DataVolumeReportItem           N ranap.ies id-RAB-DataVolumeReportItem
-RAB-ReleasedItem-IuRelComp         N ranap.ies id-RAB-ReleasedItem-IuRelComp
-RelocationType                     N ranap.ies id-RelocationType
-SourceID                           N ranap.ies id-SourceID
-TargetID                           N ranap.ies id-TargetID
+Cause										N ranap.ies id-Cause
+RAB-DataVolumeReportList					N ranap.ies id-RAB-DataVolumeReportList
+RAB-ReleasedList-IuRelComp					N ranap.ies id-RAB-ReleasedList-IuRelComp
+CriticalityDiagnostics						N ranap.ies id-CriticalityDiagnostics
+RAB-DataVolumeReportItem					N ranap.ies id-RAB-DataVolumeReportItem
+RAB-ReleasedItem-IuRelComp					N ranap.ies id-RAB-ReleasedItem-IuRelComp
+RelocationType								N ranap.ies id-RelocationType
+SourceID									N ranap.ies id-SourceID
+SourceRNC-ToTargetRNC-TransparentContainer	N ranap.ies id-SourceRNC-ToTargetRNC-TransparentContainer
+TargetID									N ranap.ies id-TargetID
+TargetRNC-ToSourceRNC-TransparentContainer	N ranap.ies id-TargetRNC-ToSourceRNC-TransparentContainer
 ClassmarkInformation2              N ranap.ies id-ClassmarkInformation2
 ClassmarkInformation3              N ranap.ies id-ClassmarkInformation3
 OldBSS-ToNewBSS-Information        N ranap.ies id-OldBSS-ToNewBSS-Information
@@ -465,6 +472,8 @@ RAB-SetupList-RelocReq             N ranap.ies id-RAB-SetupList-RelocReq
 IntegrityProtectionInformation     N ranap.ies id-IntegrityProtectionInformation
 EncryptionInformation              N ranap.ies id-EncryptionInformation
 IuSignallingConnectionIdentifier   N ranap.ies id-IuSigConId
+DirectTransferInformationList-RANAP-RelocInf N ranap.ies id-DirectTransferInformationList-RANAP-RelocInf
+DirectTransferInformationItem-RANAP-RelocInf N ranap.ies id-DirectTransferInformationItem-RANAP-RelocInf
 RAB-SetupItem-RelocReq             N ranap.ies id-RAB-SetupItem-RelocReq
 RAB-SetupList-RelocReqAck          N ranap.ies id-RAB-SetupList-RelocReqAck
 RAB-FailedList                     N ranap.ies id-RAB-FailedList
@@ -484,8 +493,8 @@ RAB-DataVolumeReportRequestItem    N ranap.ies id-RAB-DataVolumeReportRequestIte
 RAB-FailedtoReportList             N ranap.ies id-RAB-FailedtoReportList
 RABs-failed-to-reportItem          N ranap.ies id-RAB-FailedtoReportItem
 GlobalRNC-ID                       N ranap.ies id-GlobalRNC-ID
-ResetResourceList                  N ranap.ies id-IuSigConIdList
-ResetResourceItem                  N ranap.ies id-IuSigConIdItem
+ResetResourceAckList               N ranap.ies id-IuSigConIdList
+ResetResourceAckItem               N ranap.ies id-IuSigConIdItem
 RAB-ReleaseList                    N ranap.ies id-RAB-ReleaseList
 RAB-ReleaseItem                    N ranap.ies id-RAB-ReleaseItem
 TemporaryUE-ID                     N ranap.ies id-TemporaryUE-ID
