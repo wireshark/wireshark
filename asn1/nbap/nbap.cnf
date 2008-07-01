@@ -862,6 +862,23 @@ TimeslotLCR-Extension												N nbap.extension id-MBSFN-SpecialTimeSlot-LCR
 Common-MACFlows-to-DeleteFDD										N nbap.extension id-Common-MACFlows-to-DeleteFDD
 Paging-MACFlows-to-DeleteFDD										N nbap.extension id-Paging-MACFlows-to-DeleteFDD
 Maximum-Target-ReceivedTotalWideBandPower-LCR						N nbap.extension id-Maximum-Target-ReceivedTotalWideBandPower-LCR
+E-DPDCH-PowerInterpolation											N nbap.extension id-E-DPDCH-PowerInterpolation
+E-TFCI-Boost-Information											N nbap.extension id-E-TFCI-Boost-Information
+Ext-Max-Bits-MACe-PDU-non-scheduled									N nbap.extension id-Ext-Max-Bits-MACe-PDU-non-scheduled
+Ext-Reference-E-TFCI-PO												N nbap.extension id-Ext-Reference-E-TFCI-PO
+HARQ-MemoryPartitioningInfoExtForMIMO								N nbap.extension id-HARQ-MemoryPartitioningInfoExtForMIMO
+IPMulticastDataBearerIndication										N nbap.extension id-IPMulticastDataBearerIndication
+MIMO-ActivationIndicator											N nbap.extension id-MIMO-ActivationIndicator
+MIMO-Mode-Indicator													N nbap.extension id-MIMO-Mode-Indicator
+MIMO-N-M-Ratio														N nbap.extension id-MIMO-N-M-Ratio
+Multicarrier-Number													N nbap.extension id-multicarrier-number
+Number-Of-Supported-Carriers										N nbap.extension id-number-Of-Supported-Carriers
+SixtyfourQAM-UsageAllowedIndicator									N nbap.extension id-SixtyfourQAM-UsageAllowedIndicator
+SixtyfourQAM-DL-UsageIndicator										N nbap.extension id-SixtyfourQAM-DL-UsageIndicator
+SixteenQAM-UL-Operation-Indicator									N nbap.extension id-SixteenQAM-UL-Operation-Indicator
+TransportBearerNotRequestedIndicator								N nbap.extension id-TransportBearerNotRequestedIndicator
+TransportBearerNotSetupIndicator									N nbap.extension id-TransportBearerNotSetupIndicator
+TSN-Length															N nbap.extension id-tSN-Length
 
 #NBAP-ELEMENTARY-PROCEDURE
 CellSetupRequestFDD                    S nbap.proc.imsg "id-cellSetup/fdd"

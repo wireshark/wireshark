@@ -1171,8 +1171,10 @@ static int hf_nbap_Maximum_Target_ReceivedTotalWideBandPower_PDU = -1;  /* Maxim
 static int hf_nbap_Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio_PDU = -1;  /* Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio */
 static int hf_nbap_E_DCH_RL_Indication_PDU = -1;  /* E_DCH_RL_Indication */
 static int hf_nbap_E_DCH_Serving_Cell_Change_Info_Response_PDU = -1;  /* E_DCH_Serving_Cell_Change_Info_Response */
+static int hf_nbap_E_DPDCH_PowerInterpolation_PDU = -1;  /* E_DPDCH_PowerInterpolation */
 static int hf_nbap_End_Of_Audit_Sequence_Indicator_PDU = -1;  /* End_Of_Audit_Sequence_Indicator */
 static int hf_nbap_E_RGCH_E_HICH_FDD_Code_Information_PDU = -1;  /* E_RGCH_E_HICH_FDD_Code_Information */
+static int hf_nbap_E_TFCI_Boost_Information_PDU = -1;  /* E_TFCI_Boost_Information */
 static int hf_nbap_E_DCHProvidedBitRate_PDU = -1;  /* E_DCHProvidedBitRate */
 static int hf_nbap_E_HICH_TimeOffset_PDU = -1;    /* E_HICH_TimeOffset */
 static int hf_nbap_E_HICH_TimeOffsetLCR_PDU = -1;  /* E_HICH_TimeOffsetLCR */
@@ -1186,6 +1188,8 @@ static int hf_nbap_E_DCH_LCR_Information_PDU = -1;  /* E_DCH_LCR_Information */
 static int hf_nbap_E_DCH_LCR_Information_Reconfig_PDU = -1;  /* E_DCH_LCR_Information_Reconfig */
 static int hf_nbap_Enhanced_FACH_Capability_PDU = -1;  /* Enhanced_FACH_Capability */
 static int hf_nbap_Enhanced_PCH_Capability_PDU = -1;  /* Enhanced_PCH_Capability */
+static int hf_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU = -1;  /* Ext_Max_Bits_MACe_PDU_non_scheduled */
+static int hf_nbap_Ext_Reference_E_TFCI_PO_PDU = -1;  /* Ext_Reference_E_TFCI_PO */
 static int hf_nbap_ExtendedPropagationDelay_PDU = -1;  /* ExtendedPropagationDelay */
 static int hf_nbap_Extended_RNC_ID_PDU = -1;      /* Extended_RNC_ID */
 static int hf_nbap_Extended_Round_Trip_Time_Value_PDU = -1;  /* Extended_Round_Trip_Time_Value */
@@ -1201,6 +1205,7 @@ static int hf_nbap_FNReportingIndicator_PDU = -1;  /* FNReportingIndicator */
 static int hf_nbap_GANSS_Common_Data_PDU = -1;    /* GANSS_Common_Data */
 static int hf_nbap_GANSS_Generic_Data_PDU = -1;   /* GANSS_Generic_Data */
 static int hf_nbap_GANSS_Information_PDU = -1;    /* GANSS_Information */
+static int hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_PDU = -1;  /* HARQ_MemoryPartitioningInfoExtForMIMO */
 static int hf_nbap_HARQ_Preamble_Mode_PDU = -1;   /* HARQ_Preamble_Mode */
 static int hf_nbap_HARQ_Preamble_Mode_Activation_Indicator_PDU = -1;  /* HARQ_Preamble_Mode_Activation_Indicator */
 static int hf_nbap_HSDPA_Capability_PDU = -1;     /* HSDPA_Capability */
@@ -1246,6 +1251,7 @@ static int hf_nbap_InformationType_PDU = -1;      /* InformationType */
 static int hf_nbap_Initial_DL_DPCH_TimingAdjustment_Allowed_PDU = -1;  /* Initial_DL_DPCH_TimingAdjustment_Allowed */
 static int hf_nbap_InnerLoopDLPCStatus_PDU = -1;  /* InnerLoopDLPCStatus */
 static int hf_nbap_IPMulticastIndication_PDU = -1;  /* IPMulticastIndication */
+static int hf_nbap_IPMulticastDataBearerIndication_PDU = -1;  /* IPMulticastDataBearerIndication */
 static int hf_nbap_Local_Cell_ID_PDU = -1;        /* Local_Cell_ID */
 static int hf_nbap_LCRTDD_Uplink_Physical_Channel_Capability_PDU = -1;  /* LCRTDD_Uplink_Physical_Channel_Capability */
 static int hf_nbap_MAC_PDU_SizeExtended_PDU = -1;  /* MAC_PDU_SizeExtended */
@@ -1260,7 +1266,10 @@ static int hf_nbap_MeasurementRecoveryReportingIndicator_PDU = -1;  /* Measureme
 static int hf_nbap_MeasurementRecoverySupportIndicator_PDU = -1;  /* MeasurementRecoverySupportIndicator */
 static int hf_nbap_MessageStructure_PDU = -1;     /* MessageStructure */
 static int hf_nbap_MICH_CFN_PDU = -1;             /* MICH_CFN */
+static int hf_nbap_MIMO_ActivationIndicator_PDU = -1;  /* MIMO_ActivationIndicator */
 static int hf_nbap_MIMO_Capability_PDU = -1;      /* MIMO_Capability */
+static int hf_nbap_MIMO_Mode_Indicator_PDU = -1;  /* MIMO_Mode_Indicator */
+static int hf_nbap_MIMO_N_M_Ratio_PDU = -1;       /* MIMO_N_M_Ratio */
 static int hf_nbap_MIMO_PilotConfiguration_PDU = -1;  /* MIMO_PilotConfiguration */
 static int hf_nbap_Modification_Period_PDU = -1;  /* Modification_Period */
 static int hf_nbap_MAChs_ResetIndicator_PDU = -1;  /* MAChs_ResetIndicator */
@@ -1268,6 +1277,7 @@ static int hf_nbap_ModulationMBSFN_PDU = -1;      /* ModulationMBSFN */
 static int hf_nbap_ModulationPO_MBSFN_PDU = -1;   /* ModulationPO_MBSFN */
 static int hf_nbap_MBSFN_Only_Mode_Indicator_PDU = -1;  /* MBSFN_Only_Mode_Indicator */
 static int hf_nbap_MBSFN_Only_Mode_Capability_PDU = -1;  /* MBSFN_Only_Mode_Capability */
+static int hf_nbap_Multicarrier_Number_PDU = -1;  /* Multicarrier_Number */
 static int hf_nbap_NCyclesPerSFNperiod_PDU = -1;  /* NCyclesPerSFNperiod */
 static int hf_nbap_NRepetitionsPerCyclePeriod_PDU = -1;  /* NRepetitionsPerCyclePeriod */
 static int hf_nbap_NeighbouringCellMeasurementInformation_PDU = -1;  /* NeighbouringCellMeasurementInformation */
@@ -1277,6 +1287,7 @@ static int hf_nbap_NI_Information_PDU = -1;       /* NI_Information */
 static int hf_nbap_NodeB_CommunicationContextID_PDU = -1;  /* NodeB_CommunicationContextID */
 static int hf_nbap_NumberOfReportedCellPortions_PDU = -1;  /* NumberOfReportedCellPortions */
 static int hf_nbap_NSubCyclesPerCyclePeriod_PDU = -1;  /* NSubCyclesPerCyclePeriod */
+static int hf_nbap_Number_Of_Supported_Carriers_PDU = -1;  /* Number_Of_Supported_Carriers */
 static int hf_nbap_Paging_MACFlows_to_DeleteFDD_PDU = -1;  /* Paging_MACFlows_to_DeleteFDD */
 static int hf_nbap_PLCCHinformation_PDU = -1;     /* PLCCHinformation */
 static int hf_nbap_PowerAdjustmentType_PDU = -1;  /* PowerAdjustmentType */
@@ -1317,8 +1328,11 @@ static int hf_nbap_SFNSFNMeasurementThresholdInformation_PDU = -1;  /* SFNSFNMea
 static int hf_nbap_SFNSFNMeasurementValueInformation_PDU = -1;  /* SFNSFNMeasurementValueInformation */
 static int hf_nbap_ShutdownTimer_PDU = -1;        /* ShutdownTimer */
 static int hf_nbap_SignallingBearerRequestIndicator_PDU = -1;  /* SignallingBearerRequestIndicator */
+static int hf_nbap_SixtyfourQAM_UsageAllowedIndicator_PDU = -1;  /* SixtyfourQAM_UsageAllowedIndicator */
+static int hf_nbap_SixtyfourQAM_DL_UsageIndicator_PDU = -1;  /* SixtyfourQAM_DL_UsageIndicator */
 static int hf_nbap_SixtyfourQAM_DL_Capability_PDU = -1;  /* SixtyfourQAM_DL_Capability */
 static int hf_nbap_SixteenQAM_UL_Capability_PDU = -1;  /* SixteenQAM_UL_Capability */
+static int hf_nbap_SixteenQAM_UL_Operation_Indicator_PDU = -1;  /* SixteenQAM_UL_Operation_Indicator */
 static int hf_nbap_Start_Of_Audit_Sequence_Indicator_PDU = -1;  /* Start_Of_Audit_Sequence_Indicator */
 static int hf_nbap_SyncCase_PDU = -1;             /* SyncCase */
 static int hf_nbap_SynchronisationReportCharacteristics_PDU = -1;  /* SynchronisationReportCharacteristics */
@@ -1344,8 +1358,11 @@ static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValu
 static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_PDU = -1;  /* Transmitted_Carrier_Power_For_CellPortion_Value */
 static int hf_nbap_Transmitted_Carrier_Power_Value_PDU = -1;  /* Transmitted_Carrier_Power_Value */
 static int hf_nbap_TransmissionDiversityApplied_PDU = -1;  /* TransmissionDiversityApplied */
+static int hf_nbap_TransportBearerNotRequestedIndicator_PDU = -1;  /* TransportBearerNotRequestedIndicator */
+static int hf_nbap_TransportBearerNotSetupIndicator_PDU = -1;  /* TransportBearerNotSetupIndicator */
 static int hf_nbap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
 static int hf_nbap_TSTD_Indicator_PDU = -1;       /* TSTD_Indicator */
+static int hf_nbap_TSN_Length_PDU = -1;           /* TSN_Length */
 static int hf_nbap_TUTRANGANSSMeasurementThresholdInformation_PDU = -1;  /* TUTRANGANSSMeasurementThresholdInformation */
 static int hf_nbap_TUTRANGANSSMeasurementValueInformation_PDU = -1;  /* TUTRANGANSSMeasurementValueInformation */
 static int hf_nbap_TUTRANGPSMeasurementThresholdInformation_PDU = -1;  /* TUTRANGPSMeasurementThresholdInformation */
@@ -36987,6 +37004,14 @@ static int dissect_E_DCH_Serving_Cell_Change_Info_Response_PDU(tvbuff_t *tvb _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_E_DPDCH_PowerInterpolation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_E_DPDCH_PowerInterpolation(tvb, offset, &asn1_ctx, tree, hf_nbap_E_DPDCH_PowerInterpolation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_End_Of_Audit_Sequence_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -37000,6 +37025,14 @@ static int dissect_E_RGCH_E_HICH_FDD_Code_Information_PDU(tvbuff_t *tvb _U_, pac
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_E_RGCH_E_HICH_FDD_Code_Information(tvb, offset, &asn1_ctx, tree, hf_nbap_E_RGCH_E_HICH_FDD_Code_Information_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_E_TFCI_Boost_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_E_TFCI_Boost_Information(tvb, offset, &asn1_ctx, tree, hf_nbap_E_TFCI_Boost_Information_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37104,6 +37137,22 @@ static int dissect_Enhanced_PCH_Capability_PDU(tvbuff_t *tvb _U_, packet_info *p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_Enhanced_PCH_Capability(tvb, offset, &asn1_ctx, tree, hf_nbap_Enhanced_PCH_Capability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled(tvb, offset, &asn1_ctx, tree, hf_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ext_Reference_E_TFCI_PO_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_Ext_Reference_E_TFCI_PO(tvb, offset, &asn1_ctx, tree, hf_nbap_Ext_Reference_E_TFCI_PO_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37224,6 +37273,14 @@ static int dissect_GANSS_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_GANSS_Information(tvb, offset, &asn1_ctx, tree, hf_nbap_GANSS_Information_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_HARQ_MemoryPartitioningInfoExtForMIMO_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_HARQ_MemoryPartitioningInfoExtForMIMO(tvb, offset, &asn1_ctx, tree, hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37587,6 +37644,14 @@ static int dissect_IPMulticastIndication_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_IPMulticastDataBearerIndication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_IPMulticastDataBearerIndication(tvb, offset, &asn1_ctx, tree, hf_nbap_IPMulticastDataBearerIndication_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Local_Cell_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -37699,11 +37764,35 @@ static int dissect_MICH_CFN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_MIMO_ActivationIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_MIMO_ActivationIndicator(tvb, offset, &asn1_ctx, tree, hf_nbap_MIMO_ActivationIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_MIMO_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_MIMO_Capability(tvb, offset, &asn1_ctx, tree, hf_nbap_MIMO_Capability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MIMO_Mode_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_MIMO_Mode_Indicator(tvb, offset, &asn1_ctx, tree, hf_nbap_MIMO_Mode_Indicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_MIMO_N_M_Ratio_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_MIMO_N_M_Ratio(tvb, offset, &asn1_ctx, tree, hf_nbap_MIMO_N_M_Ratio_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37760,6 +37849,14 @@ static int dissect_MBSFN_Only_Mode_Capability_PDU(tvbuff_t *tvb _U_, packet_info
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_MBSFN_Only_Mode_Capability(tvb, offset, &asn1_ctx, tree, hf_nbap_MBSFN_Only_Mode_Capability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Multicarrier_Number_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_Multicarrier_Number(tvb, offset, &asn1_ctx, tree, hf_nbap_Multicarrier_Number_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -37832,6 +37929,14 @@ static int dissect_NSubCyclesPerCyclePeriod_PDU(tvbuff_t *tvb _U_, packet_info *
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_NSubCyclesPerCyclePeriod(tvb, offset, &asn1_ctx, tree, hf_nbap_NSubCyclesPerCyclePeriod_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Number_Of_Supported_Carriers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_Number_Of_Supported_Carriers(tvb, offset, &asn1_ctx, tree, hf_nbap_Number_Of_Supported_Carriers_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -38155,6 +38260,22 @@ static int dissect_SignallingBearerRequestIndicator_PDU(tvbuff_t *tvb _U_, packe
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SixtyfourQAM_UsageAllowedIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_SixtyfourQAM_UsageAllowedIndicator(tvb, offset, &asn1_ctx, tree, hf_nbap_SixtyfourQAM_UsageAllowedIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SixtyfourQAM_DL_UsageIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_SixtyfourQAM_DL_UsageIndicator(tvb, offset, &asn1_ctx, tree, hf_nbap_SixtyfourQAM_DL_UsageIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_SixtyfourQAM_DL_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -38168,6 +38289,14 @@ static int dissect_SixteenQAM_UL_Capability_PDU(tvbuff_t *tvb _U_, packet_info *
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_SixteenQAM_UL_Capability(tvb, offset, &asn1_ctx, tree, hf_nbap_SixteenQAM_UL_Capability_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_SixteenQAM_UL_Operation_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_SixteenQAM_UL_Operation_Indicator(tvb, offset, &asn1_ctx, tree, hf_nbap_SixteenQAM_UL_Operation_Indicator_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -38371,6 +38500,22 @@ static int dissect_TransmissionDiversityApplied_PDU(tvbuff_t *tvb _U_, packet_in
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_TransportBearerNotRequestedIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_TransportBearerNotRequestedIndicator(tvb, offset, &asn1_ctx, tree, hf_nbap_TransportBearerNotRequestedIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TransportBearerNotSetupIndicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_TransportBearerNotSetupIndicator(tvb, offset, &asn1_ctx, tree, hf_nbap_TransportBearerNotSetupIndicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TransportLayerAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -38384,6 +38529,14 @@ static int dissect_TSTD_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_nbap_TSTD_Indicator(tvb, offset, &asn1_ctx, tree, hf_nbap_TSTD_Indicator_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_TSN_Length_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_nbap_TSN_Length(tvb, offset, &asn1_ctx, tree, hf_nbap_TSN_Length_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -42795,6 +42948,10 @@ void proto_register_nbap(void) {
       { "E-DCH-Serving-Cell-Change-Info-Response", "nbap.E_DCH_Serving_Cell_Change_Info_Response",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.E_DCH_Serving_Cell_Change_Info_Response", HFILL }},
+    { &hf_nbap_E_DPDCH_PowerInterpolation_PDU,
+      { "E-DPDCH-PowerInterpolation", "nbap.E_DPDCH_PowerInterpolation",
+        FT_BOOLEAN, 8, NULL, 0,
+        "nbap.E_DPDCH_PowerInterpolation", HFILL }},
     { &hf_nbap_End_Of_Audit_Sequence_Indicator_PDU,
       { "End-Of-Audit-Sequence-Indicator", "nbap.End_Of_Audit_Sequence_Indicator",
         FT_UINT32, BASE_DEC, VALS(nbap_End_Of_Audit_Sequence_Indicator_vals), 0,
@@ -42803,6 +42960,10 @@ void proto_register_nbap(void) {
       { "E-RGCH-E-HICH-FDD-Code-Information", "nbap.E_RGCH_E_HICH_FDD_Code_Information",
         FT_UINT32, BASE_DEC, VALS(nbap_E_RGCH_E_HICH_FDD_Code_Information_vals), 0,
         "nbap.E_RGCH_E_HICH_FDD_Code_Information", HFILL }},
+    { &hf_nbap_E_TFCI_Boost_Information_PDU,
+      { "E-TFCI-Boost-Information", "nbap.E_TFCI_Boost_Information",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "nbap.E_TFCI_Boost_Information", HFILL }},
     { &hf_nbap_E_DCHProvidedBitRate_PDU,
       { "E-DCHProvidedBitRate", "nbap.E_DCHProvidedBitRate",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -42855,6 +43016,14 @@ void proto_register_nbap(void) {
       { "Enhanced-PCH-Capability", "nbap.Enhanced_PCH_Capability",
         FT_UINT32, BASE_DEC, VALS(nbap_Enhanced_PCH_Capability_vals), 0,
         "nbap.Enhanced_PCH_Capability", HFILL }},
+    { &hf_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU,
+      { "Ext-Max-Bits-MACe-PDU-non-scheduled", "nbap.Ext_Max_Bits_MACe_PDU_non_scheduled",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "nbap.Ext_Max_Bits_MACe_PDU_non_scheduled", HFILL }},
+    { &hf_nbap_Ext_Reference_E_TFCI_PO_PDU,
+      { "Ext-Reference-E-TFCI-PO", "nbap.Ext_Reference_E_TFCI_PO",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "nbap.Ext_Reference_E_TFCI_PO", HFILL }},
     { &hf_nbap_ExtendedPropagationDelay_PDU,
       { "ExtendedPropagationDelay", "nbap.ExtendedPropagationDelay",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -42915,6 +43084,10 @@ void proto_register_nbap(void) {
       { "GANSS-Information", "nbap.GANSS_Information",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.GANSS_Information", HFILL }},
+    { &hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_PDU,
+      { "HARQ-MemoryPartitioningInfoExtForMIMO", "nbap.HARQ_MemoryPartitioningInfoExtForMIMO",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "nbap.HARQ_MemoryPartitioningInfoExtForMIMO", HFILL }},
     { &hf_nbap_HARQ_Preamble_Mode_PDU,
       { "HARQ-Preamble-Mode", "nbap.HARQ_Preamble_Mode",
         FT_UINT32, BASE_DEC, VALS(nbap_HARQ_Preamble_Mode_vals), 0,
@@ -43095,6 +43268,10 @@ void proto_register_nbap(void) {
       { "IPMulticastIndication", "nbap.IPMulticastIndication",
         FT_NONE, BASE_NONE, NULL, 0,
         "nbap.IPMulticastIndication", HFILL }},
+    { &hf_nbap_IPMulticastDataBearerIndication_PDU,
+      { "IPMulticastDataBearerIndication", "nbap.IPMulticastDataBearerIndication",
+        FT_BOOLEAN, 8, NULL, 0,
+        "nbap.IPMulticastDataBearerIndication", HFILL }},
     { &hf_nbap_Local_Cell_ID_PDU,
       { "Local-Cell-ID", "nbap.Local_Cell_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -43151,10 +43328,22 @@ void proto_register_nbap(void) {
       { "MICH-CFN", "nbap.MICH_CFN",
         FT_UINT32, BASE_DEC, NULL, 0,
         "nbap.MICH_CFN", HFILL }},
+    { &hf_nbap_MIMO_ActivationIndicator_PDU,
+      { "MIMO-ActivationIndicator", "nbap.MIMO_ActivationIndicator",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "nbap.MIMO_ActivationIndicator", HFILL }},
     { &hf_nbap_MIMO_Capability_PDU,
       { "MIMO-Capability", "nbap.MIMO_Capability",
         FT_UINT32, BASE_DEC, VALS(nbap_MIMO_Capability_vals), 0,
         "nbap.MIMO_Capability", HFILL }},
+    { &hf_nbap_MIMO_Mode_Indicator_PDU,
+      { "MIMO-Mode-Indicator", "nbap.MIMO_Mode_Indicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_MIMO_Mode_Indicator_vals), 0,
+        "nbap.MIMO_Mode_Indicator", HFILL }},
+    { &hf_nbap_MIMO_N_M_Ratio_PDU,
+      { "MIMO-N-M-Ratio", "nbap.MIMO_N_M_Ratio",
+        FT_UINT32, BASE_DEC, VALS(nbap_MIMO_N_M_Ratio_vals), 0,
+        "nbap.MIMO_N_M_Ratio", HFILL }},
     { &hf_nbap_MIMO_PilotConfiguration_PDU,
       { "MIMO-PilotConfiguration", "nbap.MIMO_PilotConfiguration",
         FT_UINT32, BASE_DEC, VALS(nbap_MIMO_PilotConfiguration_vals), 0,
@@ -43183,6 +43372,10 @@ void proto_register_nbap(void) {
       { "MBSFN-Only-Mode-Capability", "nbap.MBSFN_Only_Mode_Capability",
         FT_UINT32, BASE_DEC, VALS(nbap_MBSFN_Only_Mode_Capability_vals), 0,
         "nbap.MBSFN_Only_Mode_Capability", HFILL }},
+    { &hf_nbap_Multicarrier_Number_PDU,
+      { "Multicarrier-Number", "nbap.Multicarrier_Number",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "nbap.Multicarrier_Number", HFILL }},
     { &hf_nbap_NCyclesPerSFNperiod_PDU,
       { "NCyclesPerSFNperiod", "nbap.NCyclesPerSFNperiod",
         FT_UINT32, BASE_DEC, VALS(nbap_NCyclesPerSFNperiod_vals), 0,
@@ -43219,6 +43412,10 @@ void proto_register_nbap(void) {
       { "NSubCyclesPerCyclePeriod", "nbap.NSubCyclesPerCyclePeriod",
         FT_UINT32, BASE_DEC, NULL, 0,
         "nbap.NSubCyclesPerCyclePeriod", HFILL }},
+    { &hf_nbap_Number_Of_Supported_Carriers_PDU,
+      { "Number-Of-Supported-Carriers", "nbap.Number_Of_Supported_Carriers",
+        FT_UINT32, BASE_DEC, VALS(nbap_Number_Of_Supported_Carriers_vals), 0,
+        "nbap.Number_Of_Supported_Carriers", HFILL }},
     { &hf_nbap_Paging_MACFlows_to_DeleteFDD_PDU,
       { "Paging-MACFlows-to-DeleteFDD", "nbap.Paging_MACFlows_to_DeleteFDD",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -43379,6 +43576,14 @@ void proto_register_nbap(void) {
       { "SignallingBearerRequestIndicator", "nbap.SignallingBearerRequestIndicator",
         FT_UINT32, BASE_DEC, VALS(nbap_SignallingBearerRequestIndicator_vals), 0,
         "nbap.SignallingBearerRequestIndicator", HFILL }},
+    { &hf_nbap_SixtyfourQAM_UsageAllowedIndicator_PDU,
+      { "SixtyfourQAM-UsageAllowedIndicator", "nbap.SixtyfourQAM_UsageAllowedIndicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_SixtyfourQAM_UsageAllowedIndicator_vals), 0,
+        "nbap.SixtyfourQAM_UsageAllowedIndicator", HFILL }},
+    { &hf_nbap_SixtyfourQAM_DL_UsageIndicator_PDU,
+      { "SixtyfourQAM-DL-UsageIndicator", "nbap.SixtyfourQAM_DL_UsageIndicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_SixtyfourQAM_DL_UsageIndicator_vals), 0,
+        "nbap.SixtyfourQAM_DL_UsageIndicator", HFILL }},
     { &hf_nbap_SixtyfourQAM_DL_Capability_PDU,
       { "SixtyfourQAM-DL-Capability", "nbap.SixtyfourQAM_DL_Capability",
         FT_UINT32, BASE_DEC, VALS(nbap_SixtyfourQAM_DL_Capability_vals), 0,
@@ -43387,6 +43592,10 @@ void proto_register_nbap(void) {
       { "SixteenQAM-UL-Capability", "nbap.SixteenQAM_UL_Capability",
         FT_UINT32, BASE_DEC, VALS(nbap_SixteenQAM_UL_Capability_vals), 0,
         "nbap.SixteenQAM_UL_Capability", HFILL }},
+    { &hf_nbap_SixteenQAM_UL_Operation_Indicator_PDU,
+      { "SixteenQAM-UL-Operation-Indicator", "nbap.SixteenQAM_UL_Operation_Indicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_SixteenQAM_UL_Operation_Indicator_vals), 0,
+        "nbap.SixteenQAM_UL_Operation_Indicator", HFILL }},
     { &hf_nbap_Start_Of_Audit_Sequence_Indicator_PDU,
       { "Start-Of-Audit-Sequence-Indicator", "nbap.Start_Of_Audit_Sequence_Indicator",
         FT_UINT32, BASE_DEC, VALS(nbap_Start_Of_Audit_Sequence_Indicator_vals), 0,
@@ -43487,6 +43696,14 @@ void proto_register_nbap(void) {
       { "TransmissionDiversityApplied", "nbap.TransmissionDiversityApplied",
         FT_BOOLEAN, 8, NULL, 0,
         "nbap.TransmissionDiversityApplied", HFILL }},
+    { &hf_nbap_TransportBearerNotRequestedIndicator_PDU,
+      { "TransportBearerNotRequestedIndicator", "nbap.TransportBearerNotRequestedIndicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_TransportBearerNotRequestedIndicator_vals), 0,
+        "nbap.TransportBearerNotRequestedIndicator", HFILL }},
+    { &hf_nbap_TransportBearerNotSetupIndicator_PDU,
+      { "TransportBearerNotSetupIndicator", "nbap.TransportBearerNotSetupIndicator",
+        FT_UINT32, BASE_DEC, VALS(nbap_TransportBearerNotSetupIndicator_vals), 0,
+        "nbap.TransportBearerNotSetupIndicator", HFILL }},
     { &hf_nbap_TransportLayerAddress_PDU,
       { "TransportLayerAddress", "nbap.TransportLayerAddress",
         FT_BYTES, BASE_HEX, NULL, 0,
@@ -43495,6 +43712,10 @@ void proto_register_nbap(void) {
       { "TSTD-Indicator", "nbap.TSTD_Indicator",
         FT_UINT32, BASE_DEC, VALS(nbap_TSTD_Indicator_vals), 0,
         "nbap.TSTD_Indicator", HFILL }},
+    { &hf_nbap_TSN_Length_PDU,
+      { "TSN-Length", "nbap.TSN_Length",
+        FT_UINT32, BASE_DEC, VALS(nbap_TSN_Length_vals), 0,
+        "nbap.TSN_Length", HFILL }},
     { &hf_nbap_TUTRANGANSSMeasurementThresholdInformation_PDU,
       { "TUTRANGANSSMeasurementThresholdInformation", "nbap.TUTRANGANSSMeasurementThresholdInformation",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -54760,6 +54981,23 @@ proto_reg_handoff_nbap(void)
   dissector_add("nbap.extension", id_Common_MACFlows_to_DeleteFDD, new_create_dissector_handle(dissect_Common_MACFlows_to_DeleteFDD_PDU, proto_nbap));
   dissector_add("nbap.extension", id_Paging_MACFlows_to_DeleteFDD, new_create_dissector_handle(dissect_Paging_MACFlows_to_DeleteFDD_PDU, proto_nbap));
   dissector_add("nbap.extension", id_Maximum_Target_ReceivedTotalWideBandPower_LCR, new_create_dissector_handle(dissect_Maximum_Target_ReceivedTotalWideBandPower_LCR_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_E_DPDCH_PowerInterpolation, new_create_dissector_handle(dissect_E_DPDCH_PowerInterpolation_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_E_TFCI_Boost_Information, new_create_dissector_handle(dissect_E_TFCI_Boost_Information_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_Ext_Max_Bits_MACe_PDU_non_scheduled, new_create_dissector_handle(dissect_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_Ext_Reference_E_TFCI_PO, new_create_dissector_handle(dissect_Ext_Reference_E_TFCI_PO_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_HARQ_MemoryPartitioningInfoExtForMIMO, new_create_dissector_handle(dissect_HARQ_MemoryPartitioningInfoExtForMIMO_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_IPMulticastDataBearerIndication, new_create_dissector_handle(dissect_IPMulticastDataBearerIndication_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_MIMO_ActivationIndicator, new_create_dissector_handle(dissect_MIMO_ActivationIndicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_MIMO_Mode_Indicator, new_create_dissector_handle(dissect_MIMO_Mode_Indicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_MIMO_N_M_Ratio, new_create_dissector_handle(dissect_MIMO_N_M_Ratio_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_multicarrier_number, new_create_dissector_handle(dissect_Multicarrier_Number_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_number_Of_Supported_Carriers, new_create_dissector_handle(dissect_Number_Of_Supported_Carriers_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_SixtyfourQAM_UsageAllowedIndicator, new_create_dissector_handle(dissect_SixtyfourQAM_UsageAllowedIndicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_SixtyfourQAM_DL_UsageIndicator, new_create_dissector_handle(dissect_SixtyfourQAM_DL_UsageIndicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_SixteenQAM_UL_Operation_Indicator, new_create_dissector_handle(dissect_SixteenQAM_UL_Operation_Indicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_TransportBearerNotRequestedIndicator, new_create_dissector_handle(dissect_TransportBearerNotRequestedIndicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_TransportBearerNotSetupIndicator, new_create_dissector_handle(dissect_TransportBearerNotSetupIndicator_PDU, proto_nbap));
+  dissector_add("nbap.extension", id_tSN_Length, new_create_dissector_handle(dissect_TSN_Length_PDU, proto_nbap));
   dissector_add_string("nbap.proc.imsg", "id-cellSetup/fdd", new_create_dissector_handle(dissect_CellSetupRequestFDD_PDU, proto_nbap));
   dissector_add_string("nbap.proc.sout", "id-cellSetup/fdd", new_create_dissector_handle(dissect_CellSetupResponse_PDU, proto_nbap));
   dissector_add_string("nbap.proc.uout", "id-cellSetup/fdd", new_create_dissector_handle(dissect_CellSetupFailure_PDU, proto_nbap));
