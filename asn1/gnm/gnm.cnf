@@ -17,6 +17,8 @@
 #.FIELD_RENAME
 
 #.OMIT_ASSIGNMENT
+AddedTps
+AddLeg
 AddTpsToGtpInformation
 AddTpsToGtpResult
 AddTpsToTpPoolInformation
@@ -24,6 +26,8 @@ AddTpsToTpPoolResult
 AlarmEffectOnServiceParameter
 CircuitPackAvailabilityStatus
 ConnectInformation
+ConnectionType
+ConnectionTypeBi
 ConnectorType
 ConnectResult
 CreateError
@@ -32,8 +36,12 @@ CTPDownstreamPointer
 DisconnectInformation
 DisconnectResult
 GeneralError
+GeneralErrorCause
+IndividualSwitchOver
+IndividualResult
 ListOfTPs
 LocationName
+NamedCrossConnection' 
 PhysicalPortSignalRateAndMappingList
 PortNumber
 Reach
@@ -41,8 +49,12 @@ RemoveTpsFromGtpInformation
 RemoveTpsFromGtpResult
 RemoveTpsFromTpPoolInformation
 RemoveTpsFromTpPoolResult
+RemoveTpsResultInformation
+SignalRateAndMappingList
 SwitchOverInformation
 SwitchOverResult
+TerminationPointInformation
+TpsAddedToTpPool
 TypeText
 #.END
 
