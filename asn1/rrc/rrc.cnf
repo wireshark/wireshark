@@ -8,6 +8,15 @@ PER
 UNALIGNED
 #.END
 
+#.OMIT_ASSIGNMENT
+HandoverToUTRANCommand
+InterRATHandoverInfo
+UE-RadioAccessCapabilityInfo
+UL-PhysChCapabilityFDD-r6
+UE-Positioning-GANSS-Data
+MasterInformationBlock
+#.END
+
 #.PDU
 
 DL-DCCH-Message    @dl.dcch
