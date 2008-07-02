@@ -4,8 +4,6 @@
 
 include ..\config.nmake
 
-############### no need to modify below this line #########
-
 ## To add a plugin: Add entry to process-plugins and to install-plugins
 
 all:
@@ -160,6 +158,3 @@ install-plugins:
 
 clean-deps:
 	rm -rf $(VERSION)
-
-
-
