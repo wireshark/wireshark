@@ -6,6 +6,8 @@
 include ..\..\config.nmake
 include ..\..\Makefile.nmake.inc
 
+include Makefile.common
+
 LEMON=..\..\tools\lemon
 
 CFLAGS=-WX -DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
