@@ -745,31 +745,7 @@ EXTRA_DIST = \
 	text2pcap-scanner.l	\
 	text2pcap.c		\
 	text2pcap.h		\
-	packaging/makefile.nmake	\
-	packaging/ws-manifest.pl	\
-	packaging/portableapps/win32/Installer.nsi		\
-	packaging/portableapps/win32/WiresharkPortable.ini	\
-	packaging/portableapps/win32/WiresharkPortable.nsi	\
-	packaging/portableapps/win32/appinfo.tmpl		\
-	packaging/portableapps/win32/makefile.nmake		\
-	packaging/portableapps/win32/makenmake.pl		\
-	packaging/portableapps/win32/readme.txt			\
-	packaging/u3/win32/README.txt		\
-	packaging/u3/win32/makefile.nmake	\
-	packaging/u3/win32/makenmake.pl		\
-	packaging/u3/win32/manifest.tmpl	\
-	packaging/u3/win32/u3util.c		\
-	packaging/u3/win32/wireshark.bat	\
-	packaging/u3/tools/README.txt		\
-	packaging/u3/tools/makefile.nmake	\
-	packaging/u3/tools/sysdep.c		\
-	packaging/u3/tools/sysdep.h		\
-	packaging/u3/tools/utest.c		\
-	packaging/u3/tools/uuid.c		\
-	packaging/u3/tools/uuid.h		\
 	services		\
-	tools/idl2wrs.sh.in	\
-	tools/setuid-root.pl.in	\
 	wka.tmpl
 
 if SETUID_INSTALL

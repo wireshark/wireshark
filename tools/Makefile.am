@@ -90,6 +90,7 @@ EXTRA_DIST = \
 	dfilter-test.py 				\
 	fuzz-test.sh					\
 	idl2wrs.sh					\
+	idl2wrs.sh.in					\
 	lex.py						\
 	make-dissector-reg				\
 	make-dissector-reg.py				\
@@ -97,6 +98,7 @@ EXTRA_DIST = \
 	netscreen2dump.py				\
 	pkt-from-core.py				\
 	runlex.sh					\
+	setuid-root.pl.in				\
 	unix2dos.pl					\
 	win32-setup.sh					\
 	wireshark_be.py					\
@@ -120,4 +122,3 @@ DISTCLEANFILES = \
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
-
