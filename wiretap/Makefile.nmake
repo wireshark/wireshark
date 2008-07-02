@@ -24,7 +24,7 @@ wiretap_LIBS = \
 	..\wsutil\libwsutil.lib \
 	$(ZLIB_LIBS)
 
-all: checkapi wiretap-$(WTAP_VERSION).dll
+all: wiretap-$(WTAP_VERSION).dll
 
 wiretap-$(WTAP_VERSION).lib: wiretap-$(WTAP_VERSION).dll
 wiretap-$(WTAP_VERSION).exp: wiretap-$(WTAP_VERSION).dll
