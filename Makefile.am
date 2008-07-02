@@ -642,7 +642,6 @@ EXTRA_DIST = \
 	doxygen.cfg.in		\
 	dumpcap.c	\
 	editcap.c		\
-	epan/libwireshark.def	\
 	example_snmp_users_file	\
 	wireshark.desktop	\
 	image/capinfos.rc.in	\
