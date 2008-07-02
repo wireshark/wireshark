@@ -993,26 +993,14 @@ checkapi_local:
 #	$(EXTRA_wireshark_SOURCES)
 
 checkapi: checkapi_local
-	cd wiretap
-	$(MAKE) checkapi
-	cd ../codecs
-	$(MAKE) checkapi
-	cd ../gtk
-##	$(MAKE) checkapi
-	cd ../epan
-##	$(MAKE) checkapi
-	cd ../epan/crypt
-##	$(MAKE) checkapi
-	cd ../dfilter
-	$(MAKE) checkapi
-	cd ../ftypes
-##	$(MAKE) checkapi
-	cd ../wslua
-##	$(MAKE) checkapi
-	cd ../dissectors
-	$(MAKE) checkapi
-	cd ..
-	cd ../plugins
-	$(MAKE) checkapi
-	cd ../wsutil
-	$(MAKE) checkapi
+	cd wiretap && $(MAKE) checkapi
+	cd ../codecs && $(MAKE) checkapi
+##	cd ../gtk && $(MAKE) checkapi
+##	cd ../epan && $(MAKE) checkapi
+##	cd ../epan/crypt && $(MAKE) checkapi
+	cd ../dfilter && $(MAKE) checkapi
+##	cd ../ftypes && $(MAKE) checkapi
+##	cd ../wslua && $(MAKE) checkapi
+	cd ../dissectors && $(MAKE) checkapi
+	cd ../../plugins && $(MAKE) checkapi
+	cd ../wsutil && $(MAKE) checkapi
