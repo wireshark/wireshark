@@ -43,3 +43,7 @@ libcodec_a_DEPENDENCIES =
 EXTRA_DIST = \
        Makefile.nmake 
 
+checkapi: 
+	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
+	G711a/G711adecode.c \
+	G711u/G711udecode.c

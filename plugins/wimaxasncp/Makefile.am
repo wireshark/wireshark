@@ -143,3 +143,6 @@ wimaxasncp_dict.c:	wimaxasncp_dict.h
 
 wimaxasncpdir = $(pkgdatadir)/wimaxasncp
 
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

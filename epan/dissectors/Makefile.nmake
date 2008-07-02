@@ -112,5 +112,5 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
-	$(ALL_DISSECTORS_SRC) \
-	packet-dcerpc-nt.c
+		$(ALL_DISSECTORS_SRC) \
+		packet-dcerpc-nt.c

@@ -986,3 +986,33 @@ osx-package: osx-app
 clean-local:
 	rm -rf $(top_stagedir)
 
+checkapi_local:
+	$(PERL) tools/checkAPIs.pl \
+	$(TSHARK_TAP_SRC)
+#	$(wireshark_SOURCES)
+#	$(EXTRA_wireshark_SOURCES)
+
+checkapi: checkapi_local
+	cd wiretap
+	$(MAKE) checkapi
+	cd ../codecs
+	$(MAKE) checkapi
+	cd ../gtk
+##	$(MAKE) checkapi
+	cd ../epan
+##	$(MAKE) checkapi
+	cd ../epan/crypt
+##	$(MAKE) checkapi
+	cd ../dfilter
+	$(MAKE) checkapi
+	cd ../ftypes
+##	$(MAKE) checkapi
+	cd ../wslua
+##	$(MAKE) checkapi
+	cd ../dissectors
+	$(MAKE) checkapi
+	cd ..
+	cd ../plugins
+	$(MAKE) checkapi
+	cd ../wsutil
+	$(MAKE) checkapi

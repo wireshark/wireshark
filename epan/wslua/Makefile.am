@@ -109,3 +109,18 @@ dummy:
 
 init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wtap.h  ../proto.h ../../stat_menu.h
 	$(PERL) $(srcdir)/make-init-lua.pl $(srcdir) $(srcdir)/template-init.lua > init.lua
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+	init_wslua.c \
+	register_wslua.c \
+	taps_wslua.c \
+	wslua_dumper.c \
+	wslua_field.c \
+	wslua_gui.c \
+	wslua_pinfo.c \
+	wslua_proto.c \
+	wslua_listener.c \
+	wslua_tree.c \
+	wslua_tvb.c \
+	wslua_util.c

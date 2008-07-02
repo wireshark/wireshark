@@ -64,3 +64,10 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	Makefile.nmake
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput \
+	packet-cosnaming.c \
+	packet-coseventcomm.c \
+	packet-tango.c \
+	packet-parlay.c

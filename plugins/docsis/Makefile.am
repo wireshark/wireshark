@@ -123,3 +123,6 @@ EXTRA_DIST = \
 	moduleinfo.nmake	\
 	plugin.rc.in		\
 	README
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

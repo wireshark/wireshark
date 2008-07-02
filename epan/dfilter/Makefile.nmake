@@ -16,24 +16,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-OBJECTS = \
-	dfilter.obj		\
-	dfilter-macro.obj \
-	dfunctions.obj	\
-	dfvm.obj		\
-	drange.obj		\
-	gencode.obj		\
-	glib-util.obj		\
-	grammar.obj		\
-	scanner.obj		\
-	semcheck.obj		\
-	sttype-function.obj	\
-	sttype-integer.obj	\
-	sttype-pointer.obj	\
-	sttype-range.obj	\
-	sttype-string.obj	\
-	sttype-test.obj		\
-	syntax-tree.obj
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj) $(GENERATED_C_FILES:.c=.obj)
 
 dfilter.lib	: $(OBJECTS)
 	link /lib /out:dfilter.lib $(OBJECTS)
@@ -58,7 +41,7 @@ clean:
 # the same for now.
 #
 distclean: clean
-	rm -f scanner.c scanner_lex.h grammar.c grammar.h grammar.out
+	rm -f $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES) grammar.out
 
 maintainer-clean: distclean
 
@@ -78,21 +61,5 @@ $(LEMON)\lemon.exe:
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
-	scanner.l \
-	grammar.lemon		\
-	dfilter.c		\
-	dfilter-macro.c \
-	dfunctions.c	\
-	dfvm.c		\
-	drange.c		\
-	gencode.c		\
-	glib-util.c		\
-	semcheck.c		\
-	sttype-function.c	\
-	sttype-integer.c	\
-	sttype-pointer.c	\
-	sttype-range.c	\
-	sttype-string.c	\
-	sttype-test.c		\
-	syntax-tree.c
-
+		$(GENERATOR_FILES)	\
+		$(NONGENERATED_C_FILES)

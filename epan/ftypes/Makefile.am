@@ -6,7 +6,6 @@
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
 #
-#
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -25,6 +24,8 @@ if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS = -Werror
 endif
 
+include Makefile.common
+
 noinst_LTLIBRARIES = libftypes.la
 
 CLEANFILES = \
@@ -37,23 +38,14 @@ MAINTAINERCLEANFILES = \
 
 INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
-libftypes_la_SOURCES =	\
-	ftypes.c	\
-	ftypes.h	\
-	ftypes-int.h	\
-	ftype-bytes.c	\
-	ftype-double.c	\
-	ftype-integer.c	\
-	ftype-ipv4.c	\
-	ftype-guid.c	\
-	ftype-none.c	\
-	ftype-pcre.c	\
-	ftype-string.c	\
-	ftype-time.c	\
-	ftype-tvbuff.c
+libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 
 libftypes_la_LIBADD = @GLIB_LIBS@ @PCRE_LIBS@
 
 EXTRA_DIST = \
+	Makefile.common		\
 	Makefile.nmake
 
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
+		$(NONGENERATED_C_FILES)

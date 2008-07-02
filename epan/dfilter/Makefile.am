@@ -5,7 +5,6 @@
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2001 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,6 +26,8 @@ include ../../Makefile.am.inc
 if HAVE_WARNINGS_AS_ERRORS
 AM_NON_GENERATED_CFLAGS = -Werror
 endif
+
+include Makefile.common
 
 noinst_LTLIBRARIES = libdfilter_generated.la libdfilter.la
 
@@ -53,49 +54,19 @@ INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/.. -I$(srcdir)/$(LEMON)
 #libraries.  A single library is generated with the lex code without the barrier
 #"stop on warning". An other library is generated from the remaining source
 #files with the "stop on warning" barrier.
-libdfilter_la_SOURCES = \
-	dfilter.c		\
-	dfilter.h		\
-	dfilter-int.h		\
-	dfilter-macro.h 	\
-	dfilter-macro.c 	\
-	dfunctions.c		\
-	dfunctions.h		\
-	dfvm.c			\
-	dfvm.h			\
-	drange.c		\
-	drange.h		\
-	gencode.c		\
-	gencode.h		\
-	glib-util.c		\
-	glib-util.h		\
-	semcheck.c		\
-	semcheck.h		\
-	sttype-function.c	\
-	sttype-function.h	\
-	sttype-integer.c	\
-	sttype-pointer.c	\
-	sttype-range.c		\
-	sttype-range.h		\
-	sttype-string.c		\
-	sttype-test.c		\
-	sttype-test.h		\
-	syntax-tree.c		\
-	syntax-tree.h
+libdfilter_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 libdfilter_la_CFLAGS = $(AM_NON_GENERATED_CFLAGS)
 
 libdfilter_generated_la_SOURCES = \
-	grammar.c 		\
-	grammar.h 		\
-	scanner.c		\
-	scanner_lex.h
+	$(GENERATED_C_FILES)	\
+	$(GENERATED_HEADER_FILES)
 
 libdfilter_la_LIBADD = libdfilter_generated.la
 libdfilter_la_DEPENDENCIES = libdfilter_generated.la
 
 EXTRA_DIST = \
-	grammar.lemon		\
-	scanner.l		\
+	$(GENERATOR_FILES)	\
+	Makefile.common		\
 	Makefile.nmake		
 
 RUNLEX=$(top_srcdir)/tools/runlex.sh

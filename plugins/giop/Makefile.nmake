@@ -56,4 +56,3 @@ checkapi:
 	packet-coseventcomm.c \
 	packet-tango.c \
 	packet-parlay.c
-

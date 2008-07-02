@@ -73,3 +73,6 @@ $(TPG)/TPG.pm: $(TPG)/TPG.yp
 
 http-parser.c: http.tpg $(TPG)/tpg.pl $(TPG)/TPG.pm
 	$(PERL) -I$(TPG) $(TPG)/tpg.pl http.tpg
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput $(DISSECTOR_SRC)

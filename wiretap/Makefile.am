@@ -83,3 +83,6 @@ ascend-grammar.c ascend-grammar.h: ascend-grammar.y
 		exit 1; \
 	fi
 	$(YACC) -d -p ascend -o ascend-grammar.c $(srcdir)/ascend-grammar.y
+
+checkapi:
+	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)

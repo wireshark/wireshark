@@ -86,13 +86,4 @@ checkapi:
 	$(MODULES)	\
 	init_wslua.c \
 	register_wslua.c \
-	taps_wslua.c \
-	wslua_dumper.c \
-	wslua_field.c \
-	wslua_gui.c \
-	wslua_pinfo.c \
-	wslua_proto.c \
-	wslua_listener.c \
-	wslua_tree.c \
-	wslua_tvb.c \
-	wslua_util.c
+	taps_wslua.c

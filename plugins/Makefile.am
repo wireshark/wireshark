@@ -51,9 +51,7 @@ SUBDIRS = \
 	wimax \
 	wimaxasncp
 
-
 plugindir = @plugindir@
-
 
 EXTRA_DIST = \
 	Makefile.nmake
@@ -61,4 +59,8 @@ EXTRA_DIST = \
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
+checkapi:
+	for i in $(SUBDIRS); do \
+		(cd "$i"; $(MAKE) checkapi); \
+	done
 

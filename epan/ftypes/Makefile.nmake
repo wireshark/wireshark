@@ -15,20 +15,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
 
-
-OBJECTS = \
-	ftypes.obj		\
-	ftype-bytes.obj		\
-	ftype-double.obj	\
-	ftype-integer.obj	\
-	ftype-ipv4.obj		\
-	ftype-guid.obj		\
-	ftype-none.obj		\
-	ftype-pcre.obj		\
-	ftype-string.obj	\
-	ftype-time.obj		\
-	ftype-tvbuff.obj
-
+OBJECTS=$(NONGENERATED_C_FILES:.c=.obj)
 
 ftypes.lib	: $(OBJECTS)
 	link /lib /out:ftypes.lib $(OBJECTS)
@@ -42,14 +29,4 @@ maintainer-clean: distclean
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput \
-	ftypes.c		\
-	ftype-bytes.c		\
-	ftype-double.c	\
-	ftype-integer.c	\
-	ftype-ipv4.c		\
-	ftype-guid.c		\
-	ftype-none.c		\
-	ftype-pcre.c		\
-	ftype-string.c	\
-	ftype-time.c		\
-	ftype-tvbuff.c
+		$(NONGENERATED_C_FILES)

@@ -1,4 +1,7 @@
-# Makefile.am
+# Makefile.common
+#     Contains the stuff from Makefile.am and Makefile.nmake that is
+#     a) common to both files and
+#     b) portable between both files
 #
 # $Id$
 #
@@ -20,39 +23,25 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-ACLOCAL_AMFLAGS = `../aclocal-flags`
+# C source files that are part of the display filter source; this includes only
+# .c files, not YACC or Lex or... files (as Makefile.nmake maps this list
+# into a list of object files by replacing ".c" with ".obj") or files
+# generated from YACC or Lex files (as Automake doesn't want them in
+# _SOURCES variables).
+NONGENERATED_C_FILES = \
+	ftypes.c	\
+	ftype-bytes.c	\
+	ftype-double.c	\
+	ftype-integer.c	\
+	ftype-ipv4.c	\
+	ftype-guid.c	\
+	ftype-none.c	\
+	ftype-pcre.c	\
+	ftype-string.c	\
+	ftype-time.c	\
+	ftype-tvbuff.c
 
-include Makefile.common
-
-if HAVE_WARNINGS_AS_ERRORS
-AM_CFLAGS = -Werror
-endif
-
-lib_LTLIBRARIES = libwsutil.la
-
-INCLUDES = -I$(srcdir)/..
-
-libwsutil_la_SOURCES =	\
-	$(LIBWSUTIL_SRC)	\
-	$(LIBWSUTIL_INCLUDES)
-
-libwsutil_la_LIBADD = @GLIB_LIBS@
-
-EXTRA_DIST = \
-	Makefile.common	\
-	Makefile.nmake	\
-	file_util.c	\
-	file_util.h 
-
-CLEANFILES = \
-	libwsutil.a	\
-	libwsutil.la	\
-	*~
-
-MAINTAINERCLEANFILES = \
-	Makefile.in
-
-checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
-	$(LIBWSUTIL_SRC)
-#	file_util.c
+# Header files that are not generated from other files
+NONGENERATED_HEADER_FILES = \
+	ftypes.h	\
+	ftypes-int.h
