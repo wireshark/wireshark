@@ -196,3 +196,33 @@ DISTCLEANFILES =	\
 MAINTAINERCLEANFILES = \
 	Makefile.in
 
+EXTRA_DIST = \
+	Makefile.nmake	\
+	README.binarytrees	\
+	README.capture	\
+	README.design	\
+	README.developer	\
+	README.display_filter	\
+	README.idl2wrs	\
+	README.malloc	\
+	README.packaging	\
+	README.plugins	\
+	README.regression   \
+	README.request_response_tracking	\
+	README.stats_tree	\
+	README.tapping	\
+	README.xml-output	\
+	capinfos.pod		\
+	dfilter2pod.pl	\
+	dumpcap.pod		\
+	editcap.pod		\
+	eproto2sgml		\
+	idl2wrs.pod		\
+	mergecap.pod	\
+	randpkt.txt		\
+	rawshark.pod	\
+	sgml.doc.template	\
+	text2pcap.pod	\
+	tshark.pod		\
+	wireshark-filter.pod.template \
+	wireshark.pod

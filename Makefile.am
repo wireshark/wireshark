@@ -607,36 +607,6 @@ EXTRA_DIST = \
 	debian/wireshark.manpages \
 	debian/wireshark.menu	\
 	dfilters 		\
-	doc/Makefile.am		\
-	doc/Makefile.nmake	\
-	doc/README.binarytrees	\
-	doc/README.capture	\
-	doc/README.design	\
-	doc/README.developer	\
-	doc/README.display_filter	\
-	doc/README.idl2wrs	\
-	doc/README.malloc	\
-	doc/README.packaging	\
-	doc/README.plugins	\
-	doc/README.regression   \
-	doc/README.request_response_tracking	\
-	doc/README.stats_tree	\
-	doc/README.tapping	\
-	doc/README.xml-output	\
-	doc/capinfos.pod		\
-	doc/dfilter2pod.pl	\
-	doc/dumpcap.pod		\
-	doc/editcap.pod		\
-	doc/eproto2sgml		\
-	doc/idl2wrs.pod		\
-	doc/mergecap.pod	\
-	doc/randpkt.txt		\
-	doc/rawshark.pod	\
-	doc/sgml.doc.template	\
-	doc/text2pcap.pod	\
-	doc/tshark.pod		\
-	doc/wireshark-filter.pod.template \
-	doc/wireshark.pod	\
 	docbook/Makefile.auto.am	\
 	docbook/ws.css		\
 	doxygen.cfg.in		\
