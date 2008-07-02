@@ -3,7 +3,6 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	wireshark.nsi	\
-	../../COPYING	\
 	GetWindowsVersion.nsh \
 	servicelib.nsh \
 	VersionCompare.nsh \
