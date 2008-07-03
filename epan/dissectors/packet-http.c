@@ -138,12 +138,6 @@ static gboolean http_decompress_body = TRUE;
 static gboolean http_decompress_body = FALSE;
 #endif
 
-#define TCP_PORT_HTTP			80
-#define TCP_PORT_PROXY_HTTP		3128
-#define TCP_PORT_PROXY_ADMIN_HTTP	3132
-#define TCP_ALT_PORT_HTTP		8080
-#define TCP_RADAN_HTTP			8088
-#define TCP_PORT_HKP			11371
 #define TCP_PORT_DAAP			3689
 
 /*
