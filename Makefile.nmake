@@ -10,6 +10,7 @@ include <win32.mak>
 
 CC = cl
 LINK= link
+BSCMAKE= bscmake
 
 LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
 
@@ -201,6 +202,12 @@ packaging_zip: all
 	rm -f wireshark.zip
 	zip -r -9 wireshark.zip $(INSTALL_DIR)/
 
+wireshark.bsc: *.sbr epan\*.sbr epan\dfilter\*.sbr epan\ftypes\*.sbr epan\wslua\*.sbr epan\dissectors\*.sbr gtk\*.sbr wiretap\*.sbr
+	rm -f $@
+	$(BSCMAKE) @<<
+		/o $@ $?
+<<
+	xcopy $@ wireshark-gtk2\ /d
 
 $(RESOURCES): image
 
@@ -393,7 +400,8 @@ clean-local: clean-deps
 		dftest.obj dftest.exe randpkt.obj randpkt.ext \
 		doxygen.cfg \
 		$(RESOURCES) libwireshark.dll wiretap-$(WTAP_VERSION).dll \
-		libwsutil.dll
+		libwsutil.dll \
+		wireshark.bsc
 
 clean: clean-local
 	cd asn1
