@@ -139,7 +139,7 @@ AC_ARG_WITH([gcrypt],
 		  [use gcrypt library @<:@default=yes@:>@]),
   with_gcrypt="$withval", with_gcrypt="yes")
 if test "x$with_gcrypt" = "xyes"; then
-  AM_PATH_LIBGCRYPT(1.1.42,
+  AM_PATH_LIBGCRYPT(1.1.92,
         [
                 echo "libgcrypt found, enabling ipsec decryption"
                 AC_DEFINE(HAVE_LIBGCRYPT, 1, [Define to use libgcrypt])
