@@ -372,7 +372,7 @@ get_pcap_linktype_list(const char *devname, char **err_str)
 	pcap_t *pch;
 	int deflt;
 	char errbuf[PCAP_ERRBUF_SIZE];
-#ifdef HAVE_PCAP_SET_DATALINK
+#ifdef HAVE_PCAP_LIST_DATALINKS
 	int *linktypes;
 	int i, nlt;
 #endif
