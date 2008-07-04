@@ -111,6 +111,10 @@ static int 	(*p_pcap_list_datalinks)(pcap_t *, int **);
 static int	(*p_pcap_set_datalink)(pcap_t *, int);
 #endif
 
+#ifdef HAVE_FREE_DATALINKS
+static int 	(*p_pcap_free_datalinks)(int *);
+#endif
+
 typedef struct {
 	const char	*name;
 	gpointer	*ptr;
@@ -173,6 +177,9 @@ load_wpcap(void)
 #endif
 #ifdef HAVE_PCAP_SET_DATALINK
 		SYM(pcap_set_datalink, FALSE),
+#endif
+#ifdef HAVE_PCAP_FREE_DATALINKS
+		SYM(pcap_free_datalinks, TRUE),
 #endif
 		{ NULL, NULL, FALSE }
 	};
@@ -500,6 +507,25 @@ pcap_list_datalinks(pcap_t *p, int **ddlt)
 {
 	g_assert(has_wpcap);
 	return p_pcap_list_datalinks(p, ddlt);
+}
+#endif
+
+#ifdef HAVE_PCAP_FREE_DATALINKS
+void
+pcap_free_datalinks(int *ddlt)
+{
+	g_assert(has_wpcap);
+
+	/*
+	 * If we don't have pcap_free_datalinks() in WinPcap,
+	 * we don't free the memory - we can't use free(), as
+	 * we might not have been built with the same version
+	 * of the C runtime library as WinPcap was, and, if we're
+	 * not, free() isn't guaranteed to work on something
+	 * allocated by WinPcap.
+	 */
+	if (p_pcap_free_datalinks != NULL)
+		p_pcap_free_datalinks(ddlt);
 }
 #endif
 
