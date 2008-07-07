@@ -412,11 +412,34 @@ get_pcap_linktype_list(const char *devname, char **err_str)
 			linktype_list = g_list_append(linktype_list,
 			    data_link_info);
 	}
-	free(linktypes);
+#ifdef HAVE_PCAP_FREE_DATALINKS
+	pcap_free_datalinks(linktypes);
 #else
+	/*
+	 * In Windows, there's no guarantee that if you have a library
+	 * built with one version of the MSVC++ run-time library, and
+	 * it returns a pointer to allocated data, you can free that
+	 * data from a program linked with another version of the
+	 * MSVC++ run-time library.
+	 *
+	 * This is not an issue on UN*X.
+	 *
+	 * See the mail threads starting at
+	 *
+	 *	http://www.winpcap.org/pipermail/winpcap-users/2006-September/001421.html
+	 *
+	 * and
+	 *
+	 *	http://www.winpcap.org/pipermail/winpcap-users/2008-May/002498.html
+	 */
+#ifndef _WIN32
+	free(linktypes);
+#endif /* _WIN32 */
+#endif /* HAVE_PCAP_FREE_DATALINKS */
+#else /* HAVE_PCAP_LIST_DATALINKS */
 	data_link_info = create_data_link_info(deflt);
 	linktype_list = g_list_append(linktype_list, data_link_info);
-#endif
+#endif /* HAVE_PCAP_LIST_DATALINKS */
 
 	pcap_close(pch);
 	return linktype_list;
