@@ -875,7 +875,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, gint offset, guint length)
 	if (end_offset <= tvb->length) {
 		return tvb->real_data + u_offset;
 	}
-	
+
 	if (end_offset > tvb->reported_length) {
 		THROW(ReportedBoundsError);
 	}
@@ -2893,7 +2893,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & (1 << 3)) {
 				/* A null terminated filename */
 
-				while (*c != '\0') {
+				while ((c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
@@ -2903,7 +2903,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if (flags & (1 << 4)) {
 				/* A null terminated comment */
 
-				while (*c != '\0') {
+				while ((c - compr) < comprlen && *c != '\0') {
 					c++;
 				}
 
