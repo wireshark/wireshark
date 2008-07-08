@@ -3070,11 +3070,6 @@ void proto_register_sip(void)
         /* Setup list of header fields */
         static hf_register_info hf[] = {
 
-		{ &hf_raw_sip_line,
-				{ "Raw SIP Line",                "raw_sip.line",
-					FT_STRING, BASE_NONE,NULL,0x0,
-                       "Raw SIP Line", HFILL }
-                },
 		{ &hf_msg_hdr,
 				{ "Message Header",           "sip.msg_hdr",
                         FT_STRING, BASE_NONE, NULL, 0,
@@ -3814,6 +3809,14 @@ void proto_register_sip(void)
 				"Message Body in SIP message", HFILL }
 		}};
 
+        /* raw_sip header field(s) */
+        static hf_register_info raw_hf[] = {
+
+		{ &hf_raw_sip_line,
+				{ "Raw SIP Line",                "raw_sip.line",
+					FT_STRING, BASE_NONE,NULL,0x0,
+				"Raw SIP Line", HFILL }
+        }};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
@@ -3849,6 +3852,9 @@ void proto_register_sip(void)
 	proto_register_field_array(proto_sip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_subtree_array(ett_raw, array_length(ett_raw));
+
+	/* Register raw_sip field(s) */
+	proto_register_field_array(proto_raw_sip, raw_hf, array_length(raw_hf));
 
 	/* SIP content type and internet media type used by other dissectors are the same */
 	media_type_dissector_table = find_dissector_table("media_type");
