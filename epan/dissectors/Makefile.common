@@ -480,6 +480,7 @@ CLEAN_DISSECTOR_SRC = \
 	packet-ipsec.c		\
 	packet-ipsec-tcp.c	\
 	packet-ipsec-udp.c	\
+	packet-ipsi-ctl.c	\
 	packet-ipv6.c		\
 	packet-ipvs-syncd.c	\
 	packet-ipx.c		\

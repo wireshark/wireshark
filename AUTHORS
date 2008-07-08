@@ -826,9 +826,10 @@ Andy Hood               <ajhood [AT] fl.net.au> {
 	AODV6 dissector compile fixes for AIX
 }
 
-Randy McEoin            <rmceoin[AT]pe.net> {
+Randy McEoin            <rmceoin[AT]ahbelo.com> {
 	Appletalk Data Stream Interface (used by AFP-over-TCP) support
 	Xyplex protocol support
+	Avaya IPSI Control
 }
 
 Edgar Iglesias          <edgar.iglesias[AT]axis.com> {
