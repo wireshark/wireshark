@@ -685,9 +685,9 @@ gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint duci;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -707,6 +707,7 @@ gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     XBIT(data, 1, "ACK_disable");
     XBIT(data, 1, "Reserved");
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -720,6 +721,7 @@ gint UL_HARQ_Chase_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -732,9 +734,9 @@ gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gi
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint duci;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -754,6 +756,7 @@ gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gi
     XBIT(data, 1, "ACK_disable");
     XBIT(data, 3, "Reserved");
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -767,6 +770,7 @@ gint UL_HARQ_IR_CTC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gi
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -779,9 +783,9 @@ gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint duci;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -802,6 +806,7 @@ gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
     XBIT(data, 1, "ACK_disable");
     XBIT(data, 3, "Reserved");
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -815,6 +820,7 @@ gint UL_HARQ_IR_CC_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gin
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -827,9 +833,9 @@ gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint muin,dmci,ackd,i;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -860,6 +866,7 @@ gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr
         }
     }
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -873,6 +880,7 @@ gint MIMO_UL_Chase_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -885,9 +893,9 @@ gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint muin,dmci,ackd,i;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -918,6 +926,7 @@ gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
         }
     }
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -931,6 +940,7 @@ gint MIMO_UL_IR_HARQ__Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -943,9 +953,9 @@ gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const guint8 *b
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint muin,dmci,ackd,i;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -977,6 +987,7 @@ gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const guint8 *b
         }
     }
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -990,6 +1001,7 @@ gint MIMO_UL_IR_HARQ_for_CC_Sub_Burst_UIE(proto_tree *uiuc_tree, const guint8 *b
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -1002,9 +1014,9 @@ gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
     gint data;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
-    proto_item *generic_item = NULL;
+    //proto_item *generic_item = NULL;
     gint ackd,txct,sboi;
-    guint16 calculated_crc;
+    //guint16 calculated_crc;
 
     bit = offset;
 
@@ -1028,6 +1040,7 @@ gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
         XBIT(data, 4, "ACID");
     }
 
+#if 0
     if (include_cor2_changes)
     {
 	/* CRC-16 is always appended */
@@ -1041,6 +1054,7 @@ gint MIMO_UL_STC_HARQ_Sub_Burst_IE(proto_tree *uiuc_tree, const guint8 *bufptr, 
 	}
 	bit += 16;
     }
+#endif
 
     return (bit - offset); /* length in bits */
 }
@@ -1733,6 +1747,7 @@ gint HARQ_ULMAP_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gin
             XBIT(data, 1, "Reserved");
         }
         XBIT(nsub, 4, "N sub Burst");
+        nsub++;
         for (i = 0; i < nsub; i++) {
             if (mode == 0) {
                 bit += UL_HARQ_Chase_Sub_Burst_IE(tree, bufptr, bit, bitlength, tvb);
