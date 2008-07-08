@@ -241,7 +241,7 @@ combo_if_activate_cb(GtkWidget *w _U_, gpointer data);
 /*
  * Thread function used to blink the led
  */
-void update_blink(gpointer data _U_);
+gboolean update_blink(gpointer data _U_);
 
 /*
  * Blink button callback

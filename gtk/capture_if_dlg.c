@@ -277,7 +277,7 @@ capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
     int ifs;
     if_stat_cache_t *sc = user_data;
 
-    gtk_timeout_remove(timer_id);
+    g_source_remove(timer_id);
 
     for(ifs = 0; (curr = g_list_nth(if_data, ifs)); ifs++) {
         g_free(curr->data);
@@ -658,7 +658,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   set_capture_if_dialog_for_capture_in_progress(g_capture_in_progress);
 
     /* update the interface list every 1000ms */
-  timer_id = gtk_timeout_add(1000, update_all, sc);
+  timer_id = g_timeout_add(1000, update_all, sc);
 }
 
 #else /* HAVE_LIBPCAP */

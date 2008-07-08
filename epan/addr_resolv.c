@@ -2181,7 +2181,7 @@ host_name_lookup_init(void) {
 /* XXX - The ADNS "documentation" isn't very clear:
  * - Do we need to keep our query structures around?
  */
-gint
+gboolean
 host_name_lookup_process(gpointer data _U_) {
   adns_queue_msg_t *almsg;
   GList *cur;
@@ -2230,7 +2230,7 @@ host_name_lookup_process(gpointer data _U_) {
   }
 
   /* Keep the timeout in place */
-  return 1;
+  return TRUE;
 }
 
 void
@@ -2250,10 +2250,10 @@ host_name_lookup_cleanup(void) {
 
 #else
 
-gint
+gboolean
 host_name_lookup_process(gpointer data _U_) {
   /* Kill the timeout, as there's nothing for it to do */
-  return 0;
+  return FALSE;
 }
 
 void

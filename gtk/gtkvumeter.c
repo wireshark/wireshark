@@ -141,7 +141,7 @@ static void gtk_vumeter_destroy (GtkObject *object)
     GtkVUMeter *vumeter = GTK_VUMETER (object);
 
     if(vumeter->peak_timeout) {
-        gtk_timeout_remove(vumeter->peak_timeout);
+        g_source_remove(vumeter->peak_timeout);
     }
 
     gtk_vumeter_free_colors (vumeter);
@@ -1065,11 +1065,11 @@ void gtk_vumeter_set_peak (GtkVUMeter *vumeter, gboolean peak, guint redraw_rate
     vumeter->peak_redraw_rate = redraw_rate;
 
     if(vumeter->peak_timeout) {
-        gtk_timeout_remove(vumeter->peak_timeout);
+        g_source_remove(vumeter->peak_timeout);
     }
 
     if(redraw_rate != 0 && vumeter->peak) {
-        vumeter->peak_timeout = gtk_timeout_add (redraw_rate, (GtkFunction)gtk_vumeter_redraw_timeout, vumeter);
+        vumeter->peak_timeout = g_timeout_add (redraw_rate, gtk_vumeter_redraw_timeout, vumeter);
     }    
 }
 

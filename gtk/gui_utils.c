@@ -599,7 +599,7 @@ typedef struct pipe_input_tag {
 #ifdef _WIN32
 /* The timer has expired, see if there's stuff to read from the pipe,
    if so, do the callback */
-static gint
+static gboolean
 pipe_timer_cb(gpointer data)
 {
   HANDLE handle;
@@ -633,7 +633,7 @@ pipe_timer_cb(gpointer data)
 		if(pipe_input->pipe_input_id != 0) {
 		  /*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: stop timer");*/
 		  /* avoid reentrancy problems and stack overflow */
-		  gtk_timeout_remove(pipe_input->pipe_input_id);
+		  g_source_remove(pipe_input->pipe_input_id);
 		  pipe_input->pipe_input_id = 0;
 		}
 
@@ -655,7 +655,7 @@ pipe_timer_cb(gpointer data)
 
   if(pipe_input->pipe_input_id == 0) {
 	/* restore pipe handler */
-	pipe_input->pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, data);
+	pipe_input->pipe_input_id = g_timeout_add(200, pipe_timer_cb, data);
 	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_timer_cb: finished with iterations: %u, new timer", iterations);*/
 
 	/* Return false so that the old timer is not run again */
@@ -711,7 +711,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
        something similar here, start a timer and check for data on every
        timeout. */
 	/*g_log(NULL, G_LOG_LEVEL_DEBUG, "pipe_input_set_handler: new");*/
-    pipe_input.pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, &pipe_input);
+    pipe_input.pipe_input_id = g_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
     pipe_input.pipe_input_id = gtk_input_add_full(source,
 				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,

@@ -453,7 +453,7 @@ combo_if_activate_cb(GtkWidget *entry _U_, gpointer data)
 /*
  * Thread function used to blink the led
  */
-void update_blink(gpointer data _U_)
+gboolean update_blink(gpointer data _U_)
 {
     airpcap_if_info_t* sel;
     PAirpcapHandle ad;
@@ -476,6 +476,7 @@ void update_blink(gpointer data _U_)
         }
         airpcap_if_close(ad);
     }
+    return TRUE;
 }
 
 /*
@@ -491,19 +492,19 @@ on_blink_bt_clicked( GtkWidget *blink_bt _U_, gpointer if_data )
         if (!(airpcap_if_selected->blinking))
         {
             gtk_button_set_label(GTK_BUTTON(blink_bt),"Stop Blinking");
-            airpcap_if_selected->tag = gtk_timeout_add(500, (GtkFunction)update_blink,airpcap_if_selected);
+            airpcap_if_selected->tag = g_timeout_add(500,update_blink,airpcap_if_selected);
             airpcap_if_selected->blinking = TRUE;
         }
         else
         {
             gtk_button_set_label(GTK_BUTTON(blink_bt),"  Blink Led  ");
-            gtk_timeout_remove(airpcap_if_selected->tag);
+            g_source_remove(airpcap_if_selected->tag);
             airpcap_if_selected->blinking = FALSE;
             /* Switch on the led!  */
             ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
             if (ad)
             {
-                gtk_timeout_remove(airpcap_if_selected->tag);
+                g_source_remove(airpcap_if_selected->tag);
                 airpcap_if_turn_led_on(ad, 0);
                 airpcap_if_selected->blinking = FALSE;
                 airpcap_if_selected->led = TRUE;
@@ -697,13 +698,14 @@ on_advanced_apply_bt_clicked(GtkWidget *button, gpointer data _U_)
     }
 }
 
+#if 0 /* XXX: not used ?? */
 /*
  * Callback for the 'OK' button.
  */
 static void
 airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
 {
-    /* advenced window */
+    /* advanced window */
     GtkWidget	*main_w;
 
     /* widgets in the toolbar */
@@ -731,8 +733,8 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
     /* Save the configuration */
     airpcap_add_keys_from_list(key_ls,airpcap_if_selected);
     airpcap_save_selected_if_configuration(airpcap_if_selected);
-    /* Remove gtk timeout */
-    gtk_timeout_remove(airpcap_if_selected->tag);
+    /* Remove GLIB timeout */
+    g_source_remove(airpcap_if_selected->tag);
 
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
     if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
@@ -749,6 +751,7 @@ airpcap_advanced_ok_cb(GtkWidget *w, gpointer data _U_)
         g_signal_handlers_unblock_by_func (toolbar_decryption_ck,airpcap_toolbar_encryption_cb, toolbar);
     }
 }
+#endif
 
 /*
  * Callback for the 'Reset Configuration' button.
@@ -2362,7 +2365,7 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
         ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
         if (ad)
         {
-            gtk_timeout_remove(airpcap_if_selected->tag);
+            g_source_remove(airpcap_if_selected->tag);
             airpcap_if_turn_led_on(ad, 0);
             airpcap_if_selected->blinking = FALSE;
             airpcap_if_selected->led = TRUE;
@@ -2374,8 +2377,8 @@ on_advanced_ok_bt_clicked(GtkWidget *button, gpointer data _U_)
 
     /* Save the configuration */
     airpcap_save_selected_if_configuration(airpcap_if_selected);
-    /* Remove gtk timeout */
-    gtk_timeout_remove(airpcap_if_selected->tag);
+    /* Remove GLIB timeout */
+    g_source_remove(airpcap_if_selected->tag);
 
     /* Update toolbar (only if airpcap_if_selected is airpcap_if_active)*/
     if ( g_ascii_strcasecmp(airpcap_if_selected->description,airpcap_if_active->description) == 0)
@@ -2451,7 +2454,7 @@ on_advanced_cancel_bt_clicked(GtkWidget *button, gpointer data _U_)
         ad = airpcap_if_open(airpcap_if_selected->name, ebuf);
         if (ad)
         {
-            gtk_timeout_remove(airpcap_if_selected->tag);
+            g_source_remove(airpcap_if_selected->tag);
             airpcap_if_turn_led_on(ad, 0);
             airpcap_if_selected->blinking = FALSE;
             airpcap_if_selected->led = TRUE;

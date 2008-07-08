@@ -100,18 +100,18 @@ capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data) {
   return TRUE;
 }
 
-static gint
+static gboolean
 capture_info_ui_update_cb(gpointer data)
 {
   capture_info *cinfo = data;
   capture_info_ui_t *info = cinfo->ui;
 
   if (!info) /* ...which might happen on slow displays? */
-      return 1;
+      return TRUE;
 
   cinfo->running_time = time(NULL) - info->start_time;
   capture_info_ui_update(cinfo);
-  return 1;   /* call the timer again */
+  return TRUE;   /* call the timer again */
 }
 
 
@@ -279,7 +279,7 @@ capture_options	*capture_opts)
   cinfo->ui = info;
 
   /* update the dialog once a second, even if no packets rushing in */
-  info->timer_id = gtk_timeout_add(1000, (GtkFunction)capture_info_ui_update_cb,(gpointer)cinfo);
+  info->timer_id = g_timeout_add(1000, capture_info_ui_update_cb,cinfo);
 }
 
 
@@ -335,7 +335,7 @@ capture_info    *cinfo)
   if (!info) /* ...which probably shouldn't happen */
       return;
 
-  gtk_timeout_remove(info->timer_id);
+  g_source_remove(info->timer_id);
 
   /* called from capture engine, so it's ok to destroy the dialog here */
   gtk_grab_remove(GTK_WIDGET(info->cap_w));

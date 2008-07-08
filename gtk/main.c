@@ -1075,20 +1075,18 @@ cmdarg_err_cont(const char *fmt, ...)
    the tap extensions. Since Gtk1 is single threaded we dont have to
    worry about any locking or critical regions.
  */
-static gint
+static gboolean
 update_cb(gpointer data _U_)
 {
 	draw_tap_listeners(FALSE);
-	return 1;
+	return TRUE;
 }
 
 /* Restart the tap update display timer with new configured interval */
 void reset_tap_update_timer(void)
 {
-#if defined(_WIN32) || ! defined USE_THREADS
-    gtk_timeout_remove(tap_update_timer_id);
-    tap_update_timer_id = gtk_timeout_add(prefs.tap_update_interval, (GtkFunction)update_cb,(gpointer)NULL);
-#endif
+    g_source_remove(tap_update_timer_id);
+    tap_update_timer_id = g_timeout_add(prefs.tap_update_interval, update_cb, NULL);
 }
 
 #else
@@ -2050,11 +2048,11 @@ main(int argc, char *argv[])
   }
 #else  /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
   /* this is to keep tap extensions updating once every 3 seconds */
-  tap_update_timer_id = gtk_timeout_add(prefs->tap_update_interval, (GtkFunction)update_cb,(gpointer)NULL);
+  tap_update_timer_id = g_timeout_add(prefs->tap_update_interval, update_cb, NULL);
 #endif /* !_WIN32 && G_THREADS_ENABLED && USE_THREADS */
 
 #if HAVE_GNU_ADNS
-  gtk_timeout_add(750, (GtkFunction) host_name_lookup_process, NULL);
+  g_timeout_add(750, host_name_lookup_process, NULL);
 #endif
 
   splash_update(RA_CONFIGURATION, NULL, (gpointer)splash_win);
