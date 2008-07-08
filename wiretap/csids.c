@@ -84,7 +84,7 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
       return 0;
     }
   }
-  if( hdr.zeropad != 0 ) {
+  if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
 	return 0;
   }
   hdr.seconds = pntohl( &hdr.seconds );
@@ -108,6 +108,10 @@ int csids_open(wtap *wth, int *err, gchar **err_info _U_)
     }
   }
   iplen = pntohs(&iplen);
+
+  if ( iplen == 0 )
+    return(0);
+
   /* if iplen and hdr.caplen are equal, default to no byteswap. */
   if( iplen > hdr.caplen ) {
     /* maybe this is just a byteswapped version. the iplen ipflags */
