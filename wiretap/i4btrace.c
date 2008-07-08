@@ -49,9 +49,9 @@ static void i4btrace_close(wtap *wth);
  * Test some fields in the header to see if they make sense.
  */
 #define	I4B_HDR_IS_OK(hdr) \
-	(!((unsigned)hdr.length < 3 || (unsigned)hdr.unit > 4 || \
-	    (unsigned)hdr.type > 4 || (unsigned)hdr.dir > 2 || \
-	    (unsigned)hdr.trunc > 2048))
+	(!((unsigned)hdr.length < 3 || (unsigned)hdr.length > 16384 || \
+	    (unsigned)hdr.unit > 4 || (unsigned)hdr.type > 4 || \
+	    (unsigned)hdr.dir > 2 || (unsigned)hdr.trunc > 2048))
 
 int i4btrace_open(wtap *wth, int *err, gchar **err_info _U_)
 {
