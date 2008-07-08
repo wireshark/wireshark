@@ -163,7 +163,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout(GTK_BUTTON_BOX(bbox), GTK_BUTTONBOX_END);
-  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  gtk_box_set_spacing(GTK_BOX(bbox), 5);
   gtk_box_pack_start(GTK_BOX(proto_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 

@@ -1059,7 +1059,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 	gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX (hbox), GTK_BUTTONBOX_SPREAD);
-	gtk_button_box_set_spacing(GTK_BUTTON_BOX (hbox), 0);
+	gtk_box_set_spacing(GTK_BOX (hbox), 0);
 	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_show(hbox);
 

@@ -760,7 +760,7 @@ static void voip_calls_dlg_create (void)
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (main_vb), hbuttonbox, FALSE, FALSE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
+	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 
 	/*bt_unselect = gtk_button_new_with_label ("Unselect");
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);

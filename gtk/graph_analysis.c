@@ -1467,7 +1467,7 @@ static void dialog_graph_create_window(graph_analysis_data_t* user_data)
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (vbox), hbuttonbox, FALSE, FALSE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 30);
+	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 	gtk_widget_show(hbuttonbox);
 
 	bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);

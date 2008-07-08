@@ -1926,7 +1926,7 @@ rtp_player_dlg_create(void)
 	hbuttonbox = gtk_hbutton_box_new ();
 	gtk_box_pack_start (GTK_BOX (h_jitter_buttons_box), hbuttonbox, TRUE, TRUE, 0);
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
-	gtk_button_box_set_spacing (GTK_BUTTON_BOX (hbuttonbox), 10);
+	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 10);
 
 	bt_decode = gtk_button_new_with_label("Decode");
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
