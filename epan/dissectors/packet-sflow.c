@@ -55,6 +55,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/ipproto.h>
 
 /*#include "packet-sflow.h"*/
 
@@ -301,6 +302,17 @@ static int hf_sflow_numsamples = -1;
 static int hf_sflow_header_protocol = -1;
 static int hf_sflow_sampletype = -1;
 static int hf_sflow_header = -1;
+static int hf_sflow_ip_length = -1;
+static int hf_sflow_ip_protocol = -1;
+static int hf_sflow_src_ipv4 = -1;
+static int hf_sflow_dst_ipv4 = -1;
+static int hf_sflow_src_ipv6 = -1;
+static int hf_sflow_dst_ipv6 = -1;
+static int hf_sflow_src_port = -1;
+static int hf_sflow_dst_port = -1;
+static int hf_sflow_tcp_flags = -1;
+static int hf_sflow_tos = -1;
+static int hf_sflow_priority = -1;
 static int hf_sflow_packet_information_type = -1;
 static int hf_sflow_extended_information_type = -1;
 static int hf_sflow_vlan_in = -1;   /* incoming 802.1Q VLAN ID */
@@ -675,6 +687,7 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree 	*extended_data_tree;
 	proto_item *ti;
 	guint32 	packet_type, extended_data, ext_type, i;
+	guint32		ip_proto;
 
 	/* grab the flow header.  This will remain in network byte
 	   order, so must convert each item before use */
@@ -721,6 +734,38 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case SFLOW_PACKET_DATA_TYPE_IPV4:
 	case SFLOW_PACKET_DATA_TYPE_IPV6:
+		proto_tree_add_item(tree, hf_sflow_ip_length, tvb, offset, 4, FALSE);
+		offset += 4;
+		ip_proto = tvb_get_ntohl(tvb, offset);
+		proto_tree_add_uint_format(tree, hf_sflow_ip_protocol, tvb, offset,
+								   4, ip_proto, "Protocol: %s (0x%02x)",
+								   ipprotostr(ip_proto), ip_proto);
+		offset +=4;
+		if (packet_type == SFLOW_PACKET_DATA_TYPE_IPV4) {
+			proto_tree_add_item(tree, hf_sflow_src_ipv4, tvb, offset, 4, FALSE);
+			offset += 4;
+			proto_tree_add_item(tree, hf_sflow_dst_ipv4, tvb, offset, 4, FALSE);
+			offset += 4;
+		} else {
+			proto_tree_add_item(tree, hf_sflow_src_ipv6, tvb, offset, 16, FALSE);
+			offset += 16;
+			proto_tree_add_item(tree, hf_sflow_dst_ipv6, tvb, offset, 16, FALSE);
+			offset += 16;
+		}
+		proto_tree_add_item(tree, hf_sflow_src_port, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(tree, hf_sflow_dst_port, tvb, offset, 4, FALSE);
+		offset += 4;
+		proto_tree_add_item(tree, hf_sflow_tcp_flags, tvb, offset, 4, FALSE);
+		offset += 4;
+		if (packet_type == SFLOW_PACKET_DATA_TYPE_IPV4) {
+			proto_tree_add_item(tree, hf_sflow_tos, tvb, offset, 4, FALSE);
+			offset += 4;
+		} else {
+			proto_tree_add_item(tree, hf_sflow_priority, tvb, offset, 4, FALSE);
+			offset += 4;
+		}
+		break;
 	default:
 		break;
 	};
@@ -1134,6 +1179,61 @@ proto_register_sflow(void)
 		  { "Sample type", "sflow.packet_information_type",
 			FT_UINT32, BASE_DEC, VALS(sflow_packet_information_type), 0x0,
 			"Type of sampled information", HFILL }
+		},
+		{ &hf_sflow_ip_length,
+		  { "IP Packet Length", "sflow.ip_length",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Length of IP Packet excluding lower layer encapsulation", HFILL }
+		},
+		{ &hf_sflow_ip_protocol,
+		  { "Protocol", "sflow.ip_protocol",
+			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			"IP Protocol", HFILL }
+		},
+		{ &hf_sflow_src_ipv4,
+		  { "Src IP", "sflow.src_ipv4",
+			FT_IPv4, BASE_NONE, NULL, 0x0,          
+			"Source IPv4 Address", HFILL }
+		},
+		{ &hf_sflow_dst_ipv4,
+		  { "Dst IP", "sflow.dst_ipv4",
+			FT_IPv4, BASE_NONE, NULL, 0x0,          
+			"Destination IPv4 Address", HFILL }
+		},
+		{ &hf_sflow_src_ipv6,
+		  { "Src IP", "sflow.src_ipv6",
+			FT_IPv6, BASE_NONE, NULL, 0x0,          
+			"Source IPv6 Address", HFILL }
+		},
+		{ &hf_sflow_dst_ipv6,
+		  { "Dst IP", "sflow.dst_ipv6",
+			FT_IPv6, BASE_NONE, NULL, 0x0,          
+			"Destination IPv6 Address", HFILL }
+		},
+		{ &hf_sflow_src_port,
+		  { "Src Port", "sflow.src_port",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Source Port Number", HFILL }
+		},
+		{ &hf_sflow_dst_port,
+		  { "Dst Port", "sflow.dst_port",
+			FT_UINT32, BASE_DEC, NULL, 0x0,          
+			"Dst Port Number", HFILL }
+		},
+		{ &hf_sflow_tcp_flags,
+		  { "TCP Flags", "sflow.ip_protocol",
+			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			"TCP Flags", HFILL }
+		},
+		{ &hf_sflow_tos,
+		  { "ToS", "sflow.tos",
+			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			"Type of Service", HFILL }
+		},
+		{ &hf_sflow_priority,
+		  { "Priority", "sflow.priority",
+			FT_UINT32, BASE_HEX, NULL, 0x0,          
+			"Priority", HFILL }
 		},
 		{ &hf_sflow_extended_information_type,
 		  { "Extended information type", "sflow.extended_information_type",
