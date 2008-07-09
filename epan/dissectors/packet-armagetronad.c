@@ -145,7 +145,7 @@ static void
 add_message_data(tvbuff_t * tvb, gint offset, gint data_len,
 		 proto_tree * tree)
 {
-	guchar *data = NULL;
+	guint16 *data = NULL;
 
 	if (tree) {
 		data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
@@ -153,8 +153,8 @@ add_message_data(tvbuff_t * tvb, gint offset, gint data_len,
 	}
 
 	if (data) {
-		guint16 *ptr, *end = (guint16*) &data[data_len];
-		for (ptr = (guint16*) data; ptr != end; ptr++) {
+		guint16 *ptr, *end = &data[data_len];
+		for (ptr = data; ptr != end; ptr++) {
 			/*
 			 * There must be a better way to tell
 			 * Wireshark not to stop on null bytes
