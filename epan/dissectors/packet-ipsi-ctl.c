@@ -63,7 +63,7 @@ static void dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int		remaining_length;
   guint16       magic;
   guint16       length;
-  guint16       type;
+  guint16       type=0;
   guint16       sequence=0;
   int		first_sequence=-1;
   int		last_sequence=-1;
