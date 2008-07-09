@@ -2489,7 +2489,7 @@ get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
                         dest_buf[i+1] = '\0';
                         return;
                 }
-                if (i >= 1023) { /* Don't process beyond the size of our varible */
+                if (i >= 1023) { /* Don't process beyond the size of our variable */
                     break;       /* If string is too long just return the first 1K. */
                 }
         }
@@ -3582,12 +3582,12 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                         ioffset = ioffset + 4;
                         break;
                 case 1: /* Unicode String */
-                        value1 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                        value1 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                         ioffset = ioffset + 4;
                         get_string(tvb, ioffset, value1, mval_buf.buffer);
                         values->vstring = mval_buf.buffer;
                         proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
-                                value1, values->vstring, "Delimeter ->%s", values->vstring);
+                                value1, values->vstring, "Delimiter ->%s", values->vstring);
                         ioffset=ioffset + value1;
                         ioffset += align_4(tvb, ioffset);
                         value2 = tvb_get_letohl(tvb, ioffset);
@@ -3620,12 +3620,12 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                         ioffset = ioffset + 4;
                                         break;
                                 case 1: /* Unicode String */
-                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value2, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
                                         proto_tree_add_string_format(nestree, hf_mv_string, tvb, ioffset,
-                                                value2, values->vstring, "Delimeter ->%s", values->vstring);
+                                                value2, values->vstring, "Delimiter ->%s", values->vstring);
                                         ioffset=ioffset + value2;
                                         ioffset += align_4(tvb, ioffset);
                                         value3 = tvb_get_letohl(tvb, ioffset);
@@ -3663,7 +3663,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                         2, event_num);
                                                 ioffset = ioffset + 2;
                                         }
-                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value4, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
@@ -3709,12 +3709,12 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                         ioffset = ioffset + 4;
                                         break;
                                 case 1: /* Unicode String */
-                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value2, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
                                         proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
-                                                value2, values->vstring, "Delimeter ->%s", values->vstring);
+                                                value2, values->vstring, "Delimiter ->%s", values->vstring);
                                         ioffset=ioffset + value2;
                                         ioffset += align_4(tvb, ioffset);
                                         value3 = tvb_get_letohl(tvb, ioffset);
@@ -3752,7 +3752,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                         2, event_num);
                                                 ioffset = ioffset + 2;
                                         }
-                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value4, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
@@ -3860,12 +3860,12 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                         ioffset = ioffset + 4;
                                         break;
                                 case 1: /* Unicode String */
-                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value2 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value2, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
                                         proto_tree_add_string_format(estree, hf_mv_string, tvb, ioffset,
-                                                value2, values->vstring, "Delimeter ->%s", values->vstring);
+                                                value2, values->vstring, "Delimiter ->%s", values->vstring);
                                         ioffset=ioffset + value2;
                                         ioffset += align_4(tvb, ioffset);
                                         value3 = tvb_get_letohl(tvb, ioffset);
@@ -3903,7 +3903,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                                         2, event_num);
                                                 ioffset = ioffset + 2;
                                         }
-                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                                        value4 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                                         ioffset = ioffset + 4;
                                         get_string(tvb, ioffset, value4, mval_buf.buffer);
                                         values->vstring = mval_buf.buffer;
@@ -3956,7 +3956,7 @@ print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype,
                                         2, event_num);
                                 ioffset = ioffset + 2;
                         }
-                        value3 = tvb_get_letohl(tvb, ioffset);   /* Delimeter Set */
+                        value3 = tvb_get_letohl(tvb, ioffset);   /* Delimiter Set */
                         ioffset = ioffset + 4;
                         get_string(tvb, ioffset, value3, mval_buf.buffer);
                         values->vstring = mval_buf.buffer;
