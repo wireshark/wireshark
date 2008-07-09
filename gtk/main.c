@@ -206,6 +206,7 @@ guint  tap_update_timer_id;
 #ifdef _WIN32
 static gboolean has_console;	/* TRUE if app has console */
 static void destroy_console(void);
+static gboolean stdin_capture = FALSE; /* Don't grab stdin & stdout if TRUE */
 #endif
 static void console_log_handler(const char *log_domain,
     GLogLevelFlags log_level, const char *message, gpointer user_data);
@@ -1867,6 +1868,12 @@ main(int argc, char *argv[])
         print_usage(TRUE);
         exit(0);
         break;
+#ifdef _WIN32
+      case 'i':
+        if (strcmp(optarg, "-") == 0)
+          stdin_capture = TRUE;
+        break;
+#endif
       case 'P':        /* Path settings - change these before the Preferences and alike are processed */
         status = filesystem_opt(opt, optarg);
         if(status != 0) {
@@ -2677,12 +2684,18 @@ WinMain (struct HINSTANCE__ *hInstance,
 void
 create_console(void)
 {
+  if (stdin_capture) {
+    /* We've been handed "-i -". Don't mess with stdio. */
+    return;
+  }
+
   if (!has_console) {
     /* We have no console to which to print the version string, so
        create one and make it the standard input, output, and error. */
     if (!AllocConsole())
       return;   /* couldn't create console */
 
+    ws_freopen("CONIN$", "r", stdin);
     ws_freopen("CONOUT$", "w", stdout);
     ws_freopen("CONOUT$", "w", stderr);
 
