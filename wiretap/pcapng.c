@@ -555,7 +555,10 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			break;
 		    case(8): /* if_speed */
 			if(oh.option_length == 8) {
-				wblock->data.if_descr.if_speed = *((guint64 *)option_content);
+				/*  Don't cast a char[] into a guint64--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.if_descr.if_speed, option_content, sizeof(guint64));
 				if(pn->byte_swapped) 
 					wblock->data.if_descr.if_speed = BSWAP64(wblock->data.if_descr.if_speed);
 				pcapng_debug1("pcapng_read_if_descr_block: if_speed %" G_GINT64_MODIFIER "u (bps)", wblock->data.if_descr.if_speed);
@@ -708,7 +711,10 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			break;
 		    case(2): /* pack_flags / epb_flags */
 			if(oh.option_length == 4) {
-				wblock->data.packet.pack_flags = *((guint32 *)option_content);
+				/*  Don't cast a char[] into a guint32--the
+				 *  char[] may not be aligned correctly.
+				 */
+				memcpy(&wblock->data.packet.pack_flags, option_content, sizeof(guint32));
 				if(pn->byte_swapped) 
 					wblock->data.packet.pack_flags = BSWAP32(wblock->data.packet.pack_flags);
 				pcapng_debug1("pcapng_read_if_descr_block: pack_flags %u (ignored)", wblock->data.packet.pack_flags);
