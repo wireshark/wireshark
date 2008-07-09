@@ -60,11 +60,10 @@ void proto_reg_handoff_bat(void)
 	if (!inited) {
 		bat_tap = register_tap("batman");
 		bat_follow_tap = register_tap("batman_follow");
-
-		reg_handoff_bat_batman();
-		reg_handoff_bat_gw();
-		reg_handoff_bat_vis();
-
 		inited = TRUE;
 	}
+
+	reg_handoff_bat_batman();
+	reg_handoff_bat_gw();
+	reg_handoff_bat_vis();
 }

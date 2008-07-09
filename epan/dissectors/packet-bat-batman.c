@@ -162,6 +162,8 @@ void reg_handoff_bat_batman(void)
 	if (!inited) {
 		batman_handle = create_dissector_handle(dissect_bat_batman, proto_bat_plugin);
 		data_handle = find_dissector("data");
+
+		inited = TRUE;
 	} else {
 		dissector_delete("udp.port", udp_port, batman_handle);
 	}

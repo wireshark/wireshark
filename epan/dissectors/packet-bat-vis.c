@@ -136,6 +136,8 @@ void reg_handoff_bat_vis(void)
 	if (!inited) {
 		vis_handle = create_dissector_handle(dissect_bat_vis, proto_bat_plugin);
 		data_handle = find_dissector("data");
+
+		inited = TRUE;
 	} else {
 		dissector_delete("udp.port", udp_port, vis_handle);
 	}
