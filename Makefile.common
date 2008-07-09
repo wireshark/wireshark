@@ -211,10 +211,12 @@ mergecap_SOURCES = \
 editcap_SOURCES = \
 	editcap.c	\
 	epan/crypt/crypt-md5.c \
+	epan/privileges.c \
 	$(WTAP_PLUGIN_SOURCES)
 
 capinfos_SOURCES = \
 	capinfos.c \
+	epan/privileges.c \
 	$(WTAP_PLUGIN_SOURCES)
 
 # dftest specifics

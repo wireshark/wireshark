@@ -273,7 +273,7 @@ WTAP_PLUGIN_SOURCES = \
 else		# HAVE_PLUGINS
 
 plugin_ldadd =
-WTAP_PLUGIN_SOURCES =
+WTAP_PLUGIN_SOURCES = epan/privileges.c
 
 endif		# HAVE_PLUGINS
 

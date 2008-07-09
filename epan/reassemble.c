@@ -794,22 +794,19 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 	/* add all data fragments */
 	for (dfpos=0,fd_i=fd_head;fd_i;fd_i=fd_i->next) {
 		if (fd_i->len) {
-			if (fd_i->offset < dfpos) {
-				fd_i->flags    |= FD_OVERLAP;
-				fd_head->flags |= FD_OVERLAP;
-				if ( memcmp(fd_head->data+fd_i->offset,
-					fd_i->data,
-					MIN(fd_i->len,(dfpos-fd_i->offset))
-				   	) ){
-					fd_i->flags    |= FD_OVERLAPCONFLICT;
-					fd_head->flags |= FD_OVERLAPCONFLICT;
-				}
-			}
 			/* dfpos is always >= than fd_i->offset */
 			/* No gaps can exist here, max_loop(above) does this */
 			/* XXX - true? Can we get fd_i->offset+fd-i->len */
 			/* overflowing, for example? */
-			if( fd_i->offset+fd_i->len > dfpos ) {
+			/*  Actually: there is at least one pathological case wherein there can be fragments
+			    on the list which are for offsets greater than max (i.e.: following a gap after max).
+			    (Something related to "defrag_until_fin" where the fin packet has an offset less than
+			    the highestfragment  offset seen ? [Seen from a fuzz-test: bug #2470]).
+                            So: the "overlap" compare must only be done for fragments with (offset+len) <= max
+			    and thus within the newly g_malloc'd buffer.
+			*/
+			    
+			if ( fd_i->offset+fd_i->len > dfpos ) {
 				if (fd_i->offset+fd_i->len > max)
 					g_warning("Reassemble error in frame %u: offset %u + len %u > max %u",
 					    pinfo->fd->num, fd_i->offset,
@@ -821,10 +818,22 @@ fragment_add_work(fragment_data *fd_head, tvbuff_t *tvb, int offset,
 					g_warning("Reassemble error in frame %u: dfpos %u - offset %u > len %u",
 					    pinfo->fd->num, dfpos, fd_i->offset,
 					    fd_i->len);
-				else
+				else {
+					if (fd_i->offset < dfpos) {
+						fd_i->flags    |= FD_OVERLAP;
+						fd_head->flags |= FD_OVERLAP;
+						if ( memcmp(fd_head->data+fd_i->offset,
+							    fd_i->data,
+							    MIN(fd_i->len,(dfpos-fd_i->offset))
+							     ) ) {
+							fd_i->flags    |= FD_OVERLAPCONFLICT;
+							fd_head->flags |= FD_OVERLAPCONFLICT;
+						}
+					}
 					memcpy(fd_head->data+dfpos,
 					    fd_i->data+(dfpos-fd_i->offset),
 					    fd_i->len-(dfpos-fd_i->offset));
+				}
 			} else {
 				if (fd_i->offset+fd_i->len < fd_i->offset)
 					g_warning("Reassemble error in frame %u: offset %u + len %u < offset",

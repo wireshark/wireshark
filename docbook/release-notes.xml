@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.0.1">
+  <!ENTITY WiresharkCurrentVersion "1.0.2">
 
 ]>
 
@@ -37,59 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            The GSM SMS dissector could crash.
-            <!-- Fixed in r25462, r25466 -->
+            The packet reassembly code could crash.
+            <!-- Fixed in r25343 -->
+	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2470">2470</ulink>) -->
           </para>
-          <para>Versions affected: 0.99.2 to 1.0.0</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The PANA and KISMET dissectors could force Wireshark to quit
-	    unexpectedly.
-            <!-- Fixed in r25068, r25069 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2464">2464</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.3 to 1.0.0</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The RTMPT dissector could crash.
-            <!-- Fixed in r25497 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2620">2620</ulink>) -->
-          </para>
-          <para>Versions affected: 0.99.8 to 1.0.0</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The RMI dissector could disclose system memory. Discovered by
-	    Noam Rathus.
-            <!-- Fixed in r25584, r25586 -->
-          </para>
-          <para>Versions affected: 0.9.5 to 1.0.0</para>
-          <para>
-            <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            The syslog dissector could crash.
-            <!-- Fixed in r25612 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2647">2647</ulink>) -->
-          </para>
-          <para>Versions affected: 1.0.0</para>
+          <para>Versions affected: 0.8.19 to 1.0.0</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -106,201 +58,9 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          RPC portmap classification switched to TCP after filtering.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1392">Bug
-          1392</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Force the foreground color when the background is forced.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1735">Bug
-	  1735</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RPC stream shows malformed packets.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2148">Bug
-          2148</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SNMP trap dissection fails.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2253">Bug
-          2253</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Failure to detect/open valid ERF files.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2359">Bug
-          2359</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Window scaling bug.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2378">Bug
-          2378</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Bugs in the EIGRP dissector.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2381">Bug
-          2381</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          E212 Mobile network code 3rd digit is not correctly decoded.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2393">Bug
-          2393</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          The BOOTP dissector fails to initialize and display some values.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2395">Bug
-          2395</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Data string filter crash.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2402">Bug
-          2402</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Debian packaging problems.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2405">Bug
-          2405</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Expert info composite crash for LDAP.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2407">Bug
-          2407</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Statistics > Multicast Streams are broken.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2414">Bug
-          2414</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          "Read me first" file is empty in the OS X .dmg.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2425">Bug
-          2425</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Failed tshark PDML export to file.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2432">Bug
-          2432</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTCP MOS fields display wrong values.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2440">Bug
-          2440</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          SNMP trap parse error.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2442">Bug
-          2442</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Ports incorrectly decoded as DPLAY instead of RTP.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2452">Bug
-          2452</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Incorrect decoding of DST MAC address of frame containing ICMPv6 Echo Request.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2456">Bug
-          2456</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Fix wireshark-filter man page for packet-diameter_3gpp.c fields.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2457">Bug
-          2457</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Dissector bug, protocol SNMP: proto.c:932: failed assertion.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2468">Bug
-          2468</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          UDP not decoded as UNIStim.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2475">Bug
-          2475</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Debug text output from MIKEY dissector.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2481">Bug
-          2481</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Windows compilation errors with flex 2.5.35.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
-          2493</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTP heuristic interferes with STUN/T38 portion of heuristic.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2497">Bug
-          2497</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          WiMAX dissector assertion.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2501">Bug
-          2501</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          RTP header extensions with length>4 bytes dissected incorrectly.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2505">Bug
-          2505</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Compilation failure on non-european Windows systems.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2513">Bug
-          2513</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          BACnet BVLC NAK decoding.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2517">Bug
-          2517</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          'tshark -Tfields -e data' omits last character of data.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2518">Bug
-          2518</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          "Next file every" inconsistent behaviour.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2599">Bug
-          2599</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          Wireshark doest not parse iSCSI login PDU.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2616">Bug
-          2616</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-          URL and encoding for OUI listings in make-manuf.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2619">Bug
-          2619</ulink>)
+          Dumpcap could crash on Windows Vista.
+          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2677">Bug
+          2677</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -311,30 +71,8 @@ Wireshark Info
 
     <section id="NewFeatures"><title>New and Updated Features</title>
     <para>
-      The following features are new (or have been significantly updated)
-      since the last release:
 
-      <itemizedlist>
-
-        <listitem>
-          <para>
-            The "About" box finally displays version 1.0.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            Wireshark now supports custom columns.
-          </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            This release includes an experimental Mac OS X package.
-          </para>
-        </listitem>
-
-      </itemizedlist>
+There are no new or updated features in this release.
 
     </para>
     </section>
@@ -349,25 +87,7 @@ There are no new protocols in this release.
 
     <section id="UpdatedProtocols"><title>Updated Protocol Support</title> <para>
 
-ACTRACE,
-BACnet BVLC,
-BOOTP,
-E212,
-iSCSI,
-IUA,
-LDAP,
-MGCP,
-MIKEY,
-MSMMS,
-RMI,
-RPC,
-RTCP,
-RTP,
-SIP,
-SNMP,
-TCP,
-UNIStim,
-WiMAX
+There are no updated protocols in this release.
 
     </para>
     </section>
@@ -375,7 +95,7 @@ WiMAX
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Endace ERF
+There is no new or updated capture file support in this release.
 
     </para>
     </section>
