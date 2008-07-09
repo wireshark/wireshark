@@ -68,7 +68,7 @@
 #define SSL_VER_SSLv3                     2
 #define SSL_VER_TLS                       3
 #define SSL_VER_TLSv1DOT1                 4
-#define SSL_VER_DTLS     		  5
+#define SSL_VER_DTLS                      5
 #define SSL_VER_PCT                       6
 
 /* other defines */
@@ -99,54 +99,54 @@
 #define SSL2_HND_REQUEST_CERTIFICATE   0x07
 #define SSL2_HND_CLIENT_CERTIFICATE    0x08
 
-#define PCT_VERSION_1					0x8001
+#define PCT_VERSION_1                  0x8001
 
-#define PCT_MSG_CLIENT_HELLO			0x01
-#define PCT_MSG_SERVER_HELLO			0x02
-#define PCT_MSG_CLIENT_MASTER_KEY		0x03
-#define PCT_MSG_SERVER_VERIFY			0x04
-#define PCT_MSG_ERROR					0x05
+#define PCT_MSG_CLIENT_HELLO           0x01
+#define PCT_MSG_SERVER_HELLO           0x02
+#define PCT_MSG_CLIENT_MASTER_KEY      0x03
+#define PCT_MSG_SERVER_VERIFY          0x04
+#define PCT_MSG_ERROR                  0x05
 
-#define PCT_CH_OFFSET_V1				0xa
+#define PCT_CH_OFFSET_V1               0xa
 
-#define PCT_CIPHER_DES					0x01
-#define PCT_CIPHER_IDEA					0x02
-#define PCT_CIPHER_RC2					0x03
-#define PCT_CIPHER_RC4					0x04
-#define PCT_CIPHER_DES_112				0x05
-#define PCT_CIPHER_DES_168				0x06
+#define PCT_CIPHER_DES                 0x01
+#define PCT_CIPHER_IDEA                0x02
+#define PCT_CIPHER_RC2                 0x03
+#define PCT_CIPHER_RC4                 0x04
+#define PCT_CIPHER_DES_112             0x05
+#define PCT_CIPHER_DES_168             0x06
 
-#define PCT_HASH_MD5					0x0001
-#define PCT_HASH_MD5_TRUNC_64			0x0002
-#define PCT_HASH_SHA					0x0003
-#define PCT_HASH_SHA_TRUNC_80			0x0004
-#define PCT_HASH_DES_DM					0x0005
+#define PCT_HASH_MD5                   0x0001
+#define PCT_HASH_MD5_TRUNC_64          0x0002
+#define PCT_HASH_SHA                   0x0003
+#define PCT_HASH_SHA_TRUNC_80          0x0004
+#define PCT_HASH_DES_DM                0x0005
 
-#define PCT_CERT_NONE					0x00
-#define PCT_CERT_X509					0x01
-#define PCT_CERT_PKCS7					0x02
+#define PCT_CERT_NONE                  0x00
+#define PCT_CERT_X509                  0x01
+#define PCT_CERT_PKCS7                 0x02
 
-#define PCT_SIG_NONE					0x0000
-#define PCT_SIG_RSA_MD5					0x0001
-#define PCT_SIG_RSA_SHA					0x0002
-#define PCT_SIG_DSA_SHA					0x0003
+#define PCT_SIG_NONE                   0x0000
+#define PCT_SIG_RSA_MD5                0x0001
+#define PCT_SIG_RSA_SHA                0x0002
+#define PCT_SIG_DSA_SHA                0x0003
 
-#define PCT_EXCH_RSA_PKCS1				0x01
-#define PCT_EXCH_RSA_PKCS1_TOKEN_DES	0x02
-#define PCT_EXCH_RSA_PKCS1_TOKEN_DES3	0x03
-#define PCT_EXCH_RSA_PKCS1_TOKEN_RC2	0x04
-#define PCT_EXCH_RSA_PKCS1_TOKEN_RC4	0x05
-#define PCT_EXCH_DH_PKCS3				0x06
-#define PCT_EXCH_DH_PKCS3_TOKEN_DES		0x07
-#define PCT_EXCH_DH_PKCS3_TOKEN_DES3	0x08
-#define PCT_EXCH_FORTEZZA_TOKEN			0x09
+#define PCT_EXCH_RSA_PKCS1             0x01
+#define PCT_EXCH_RSA_PKCS1_TOKEN_DES   0x02
+#define PCT_EXCH_RSA_PKCS1_TOKEN_DES3  0x03
+#define PCT_EXCH_RSA_PKCS1_TOKEN_RC2   0x04
+#define PCT_EXCH_RSA_PKCS1_TOKEN_RC4   0x05
+#define PCT_EXCH_DH_PKCS3              0x06
+#define PCT_EXCH_DH_PKCS3_TOKEN_DES    0x07
+#define PCT_EXCH_DH_PKCS3_TOKEN_DES3   0x08
+#define PCT_EXCH_FORTEZZA_TOKEN        0x09
 
-#define PCT_ERR_BAD_CERTIFICATE			0x01
-#define PCT_ERR_CLIENT_AUTH_FAILED		0x02
-#define PCT_ERR_ILLEGAL_MESSAGE			0x03
-#define PCT_ERR_INTEGRITY_CHECK_FAILED	0x04
-#define PCT_ERR_SERVER_AUTH_FAILED		0x05
-#define PCT_ERR_SPECS_MISMATCH			0x06
+#define PCT_ERR_BAD_CERTIFICATE        0x01
+#define PCT_ERR_CLIENT_AUTH_FAILED     0x02
+#define PCT_ERR_ILLEGAL_MESSAGE        0x03
+#define PCT_ERR_INTEGRITY_CHECK_FAILED 0x04
+#define PCT_ERR_SERVER_AUTH_FAILED     0x05
+#define PCT_ERR_SPECS_MISMATCH         0x06
 
 /*
  * Lookup tables
@@ -189,12 +189,13 @@ typedef struct _StringInfo {
 #define DTLSV1DOT0_VERSION     0xfeff
 #define DTLSV1DOT0_VERSION_NOT 0x100
 
-#define SSL_CLIENT_RANDOM       1
-#define SSL_SERVER_RANDOM       2
-#define SSL_CIPHER              4
-#define SSL_HAVE_SESSION_KEY    8
-#define SSL_VERSION             0x10
-#define SSL_MASTER_SECRET       0x20
+#define SSL_CLIENT_RANDOM       (1<<0)
+#define SSL_SERVER_RANDOM       (1<<1)
+#define SSL_CIPHER              (1<<2)
+#define SSL_HAVE_SESSION_KEY    (1<<3)
+#define SSL_VERSION             (1<<4)
+#define SSL_MASTER_SECRET       (1<<5)
+#define SSL_PRE_MASTER_SECRET   (1<<6)
 
 #define SSL_CIPHER_MODE_STREAM  0
 #define SSL_CIPHER_MODE_CBC     1
@@ -219,8 +220,8 @@ typedef struct _SslCipherSuite {
 
 typedef struct _SslFlow {
     guint32 byte_seq;
-	guint16 flags;
-	emem_tree_t *multisegment_pdus;
+    guint16 flags;
+    emem_tree_t *multisegment_pdus;
 } SslFlow;
 
 typedef struct _SslDecompress SslDecompress;
@@ -287,6 +288,7 @@ typedef struct _SslDecryptSession {
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
+    /* the data store for this StringInfo must be allocated explicitly with a capture lifetime scope */
     StringInfo pre_master_secret;
     guchar _server_data_for_iv[24];
     StringInfo server_data_for_iv;
