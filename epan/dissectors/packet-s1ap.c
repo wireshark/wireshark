@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-s1ap.c                                                              */
-/* ../../tools/asn2wrs.py -p s1ap -c s1ap.cnf -s packet-s1ap-template S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p s1ap -c ./s1ap.cnf -s ./packet-s1ap-template -D . S1AP-CommonDataTypes.asn S1AP-Constants.asn S1AP-Containers.asn S1AP-IEs.asn S1AP-PDU-Contents.asn S1AP-PDU-Descriptions.asn */
 
 /* Input file: packet-s1ap-template.c */
 
@@ -45,6 +45,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
 #include <epan/asn1.h>
@@ -221,7 +222,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-s1ap-val.h ---*/
-#line 63 "packet-s1ap-template.c"
+#line 64 "packet-s1ap-template.c"
 
 static dissector_handle_t s1ap_handle = NULL;
 
@@ -516,7 +517,7 @@ static int hf_s1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_s1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-s1ap-hf.c ---*/
-#line 70 "packet-s1ap-template.c"
+#line 71 "packet-s1ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_s1ap = -1;
@@ -685,7 +686,7 @@ static gint ett_s1ap_SuccessfulOutcome = -1;
 static gint ett_s1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-s1ap-ett.c ---*/
-#line 75 "packet-s1ap-template.c"
+#line 76 "packet-s1ap-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -5534,7 +5535,7 @@ static int dissect_S1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-s1ap-fn.c ---*/
-#line 102 "packet-s1ap-template.c"
+#line 103 "packet-s1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -5763,7 +5764,7 @@ proto_reg_handoff_s1ap(void)
 
 
 /*--- End of included file: packet-s1ap-dis-tab.c ---*/
-#line 177 "packet-s1ap-template.c"
+#line 178 "packet-s1ap-template.c"
 }
 
 /*--- proto_register_s1ap -------------------------------------------*/
@@ -6910,7 +6911,7 @@ void proto_register_s1ap(void) {
         "s1ap.UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-s1ap-hfarr.c ---*/
-#line 187 "packet-s1ap-template.c"
+#line 188 "packet-s1ap-template.c"
   };
 
   /* List of subtrees */
@@ -7080,7 +7081,7 @@ void proto_register_s1ap(void) {
     &ett_s1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-s1ap-ettarr.c ---*/
-#line 193 "packet-s1ap-template.c"
+#line 194 "packet-s1ap-template.c"
   };
 
   module_t *s1ap_module;
