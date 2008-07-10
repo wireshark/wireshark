@@ -142,14 +142,16 @@ static gboolean is_armagetronad_packet(tvbuff_t * tvb)
 }
 
 static void
-add_message_data(tvbuff_t * tvb, gint offset, gint data_len,
-		 proto_tree * tree)
+add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 {
 	guint16 *data = NULL;
 
 	if (tree) {
+		gchar *bptr;
+
 		data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
-		data[data_len] = '\0';
+		bptr = (gchar *)data;
+		bptr[data_len] = '\0';
 	}
 
 	if (data) {
