@@ -61,6 +61,8 @@
  *	try directly launching a user-specified browser.  (Beast tries
  *	a bunch of browsers, with the user not being allowed to
  *	specify which one they want.)
+ *
+ * On the other hand, see bug 2699, in which xdg-open is itself buggy.
  */
 
 #ifdef HAVE_CONFIG_H
