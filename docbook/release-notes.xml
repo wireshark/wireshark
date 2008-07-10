@@ -37,11 +37,11 @@ Wireshark Info
 
         <listitem>
           <para>
-            The packet reassembly code could crash.
+            Wireshark could crash while reassembling packets.
             <!-- Fixed in r25343 -->
-	    <!-- (Bug <ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2470">2470</ulink>) -->
+	    <!-- (Bug <ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2470">2470</ulink>) -->
           </para>
-          <para>Versions affected: 0.8.19 to 1.0.0</para>
+          <para>Versions affected: 0.8.19 to 1.0.1</para>
           <para>
             <!-- <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-????">CVE-2008-????</ulink> -->
           </para>
@@ -58,8 +58,8 @@ Wireshark Info
       <itemizedlist>
 
         <listitem><para>
-          Dumpcap could crash on Windows Vista.
-          (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2677">Bug
+          Dumpcap could crash on some versions of Windows (primarily Vista).
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2677">Bug
           2677</ulink>)
         </para></listitem>
 
@@ -141,32 +141,32 @@ There is no new or updated capture file support in this release.
 
     <para>
       Wireshark may appear offscreen on multi-monitor Windows systems.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=553">Bug
       553</ulink>)
     </para>
 
     <para>
       Wireshark might make your system disassociate from a wireless network
       on OS X.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1315">Bug
       1315</ulink>)
     </para>
 
     <para>
       Dumpcap might not quit if Wireshark or TShark crashes.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419">Bug
       1419</ulink>)
     </para>
 
     <para>
       Wireshark is unable to decrypt WPA group keys.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1420">Bug
       1420</ulink>)
     </para>
 
     <para>
       The BER dissector might infinitely loop.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516">Bug
       1516</ulink>)
     </para>
 
@@ -174,31 +174,31 @@ There is no new or updated capture file support in this release.
       Wireshark can't dynamically update the packet list. This means that host
       name resolutions above a certain response time threshold won't show up in
       the packet list.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1605">Bug
       1605</ulink>)
     </para>
 
     <para>
       Capture filters aren't applied when capturing from named pipes.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814">Bug
       1814</ulink>)
     </para>
 
     <para>
       Wireshark might freeze when reading from a pipe.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2082">Bug
       2082</ulink>)
     </para>
 
     <para>
       Capturing from named pipes might be delayed on Windows.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2200">Bug
       2200</ulink>)
     </para>
 
     <para>
       Filtering tshark captures with display filters (-R) no longer works.
-      (<ulink url="http://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
+      (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234">Bug
       2234</ulink>)
     </para>
 

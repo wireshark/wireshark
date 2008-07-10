@@ -1,4 +1,4 @@
-Wireshark 1.0.1 Release Notes
+Wireshark 1.0.2 Release Notes
 
    ------------------------------------------------------------------
 
@@ -15,117 +15,18 @@ What's New
    The following vulnerabilities have been fixed. See the security
    advisory for details and a workaround.
 
-     o The GSM SMS dissector could crash.
+     o Wireshark could crash while reassembling packets.
 
-       Versions affected: 0.99.2 to 1.0.0
-
-     o The PANA and KISMET dissectors could force Wireshark to quit
-       unexpectedly.
-
-       Versions affected: 0.99.3 to 1.0.0
-
-     o The RTMPT dissector could crash.
-
-       Versions affected: 0.99.8 to 1.0.0
-
-     o The RMI dissector could disclose system memory. Discovered by
-       Noam Rathus.
-
-       Versions affected: 0.9.5 to 1.0.0
-
-     o The syslog dissector could crash.
-
-       Versions affected: 1.0.0
+       Versions affected: 0.8.19 to 1.0.1
 
    The following bugs have been fixed:
 
-     o RPC portmap classification switched to TCP after filtering.
-       (Bug 1392)
-
-     o Force the foreground color when the background is forced. (Bug
-       1735)
-
-     o RPC stream shows malformed packets. (Bug 2148)
-
-     o SNMP trap dissection fails. (Bug 2253)
-
-     o Failure to detect/open valid ERF files. (Bug 2359)
-
-     o Window scaling bug. (Bug 2378)
-
-     o Bugs in the EIGRP dissector. (Bug 2381)
-
-     o E212 Mobile network code 3rd digit is not correctly decoded.
-       (Bug 2393)
-
-     o The BOOTP dissector fails to initialize and display some
-       values. (Bug 2395)
-
-     o Data string filter crash. (Bug 2402)
-
-     o Debian packaging problems. (Bug 2405)
-
-     o Expert info composite crash for LDAP. (Bug 2407)
-
-     o Statistics > Multicast Streams are broken. (Bug 2414)
-
-     o "Read me first" file is empty in the OS X .dmg. (Bug 2425)
-
-     o Failed tshark PDML export to file. (Bug 2432)
-
-     o RTCP MOS fields display wrong values. (Bug 2440)
-
-     o SNMP trap parse error. (Bug 2442)
-
-     o Ports incorrectly decoded as DPLAY instead of RTP. (Bug 2452)
-
-     o Incorrect decoding of DST MAC address of frame containing
-       ICMPv6 Echo Request. (Bug 2456)
-
-     o Fix wireshark-filter man page for packet-diameter_3gpp.c
-       fields. (Bug 2457)
-
-     o Dissector bug, protocol SNMP: proto.c:932: failed assertion.
-       (Bug 2468)
-
-     o UDP not decoded as UNIStim. (Bug 2475)
-
-     o Debug text output from MIKEY dissector. (Bug 2481)
-
-     o Windows compilation errors with flex 2.5.35. (Bug 2493)
-
-     o RTP heuristic interferes with STUN/T38 portion of heuristic.
-       (Bug 2497)
-
-     o WiMAX dissector assertion. (Bug 2501)
-
-     o RTP header extensions with length>4 bytes dissected
-       incorrectly. (Bug 2505)
-
-     o Compilation failure on non-european Windows systems. (Bug
-       2513)
-
-     o BACnet BVLC NAK decoding. (Bug 2517)
-
-     o 'tshark -Tfields -e data' omits last character of data. (Bug
-       2518)
-
-     o "Next file every" inconsistent behaviour. (Bug 2599)
-
-     o Wireshark doest not parse iSCSI login PDU. (Bug 2616)
-
-     o URL and encoding for OUI listings in make-manuf. (Bug 2619)
+     o Dumpcap could crash on some versions of Windows (primarily
+       Vista). (Bug 2677)
 
   New and Updated Features
 
-   The following features are new (or have been significantly
-   updated) since the last release:
-
-     o The "About" box finally displays version 1.0.
-
-     o Wireshark now supports custom columns.
-
-     o This release includes an experimental Mac OS X package.
+   There are no new or updated features in this release.
 
   New Protocol Support
 
@@ -133,12 +34,11 @@ What's New
 
   Updated Protocol Support
 
-   ACTRACE, BACnet BVLC, BOOTP, E212, iSCSI, IUA, LDAP, MGCP, MIKEY,
-   MSMMS, RMI, RPC, RTCP, RTP, SIP, SNMP, TCP, UNIStim, WiMAX
+   There are no updated protocols in this release.
 
   New and Updated Capture File Support
 
-   Endace ERF
+   There is no new or updated capture file support in this release.
 
 Getting Wireshark
 
