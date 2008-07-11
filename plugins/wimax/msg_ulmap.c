@@ -1163,6 +1163,7 @@ gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gi
     /* offset of TLV in nibbles, length of TLV in nibbles */
     gint bit;
     gint data;
+    gint target;
     proto_item *ti = NULL;
     proto_item *tree = NULL;
     gint rci, rtype, ftype, zperm, mgi, api, pad;
@@ -1174,6 +1175,7 @@ gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gi
 
     XBIT(data, 4, "Extended UIUC");
     XBIT(data, 4, "Length");
+    target = bit + BYTE_TO_BIT(data);
 
     if (cqich_id_size == 0) {
         proto_tree_add_text(tree, tvb, BITHI(bit, 1), "CQICH_ID: n/a (size == 0 bits)");
@@ -1218,7 +1220,7 @@ gint CQICH_Alloc_IE(proto_tree *uiuc_tree, const guint8 *bufptr, gint offset, gi
     }
     XBIT(data, 2, "MIMO_permutation_feedback_cycle");
 
-    pad = BIT_PADDING(bit,8);
+    pad = target - bit;
     if (pad) {
         proto_tree_add_text(tree, tvb, BITHI(bit, pad), "Padding: %d bits", pad);
         bit += pad;
