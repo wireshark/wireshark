@@ -488,12 +488,8 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
     if (tree) {
       proto_tree_add_text(tree, tvb, offset, -1, "Decode Aborted: Invalid Bencoding");
     }
-    return -1;
   }
 
-  if (tree) {
-    proto_tree_add_text(tree, tvb, offset, -1, "Decode Aborted: Internal Error");
-  }
   return -1;
 }
 
