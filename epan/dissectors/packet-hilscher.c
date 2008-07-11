@@ -91,10 +91,10 @@ static const value_string gpio_edge[] = {
 static void
 dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
-	proto_item  *ti        = NULL;
-	guint       gpio_num;
-	guint       gpio_edgex;
-	guchar      *szInfo    = NULL;
+	proto_item	*ti        = NULL;
+	guint		gpio_num;
+	guint		gpio_edgex;
+	gchar		*szInfo    = NULL;
 
 	#define MAX_BUFFER 60
 	szInfo=ep_alloc(MAX_BUFFER);
