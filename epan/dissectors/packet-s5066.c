@@ -83,7 +83,7 @@ static gboolean s5066_desegment = TRUE;
 /* Dissect old 'edition 1' of STANAG 5066 (It lacks the 'version' field.) */
 static gboolean s5066_edition_one = FALSE;
 /* This port is registered with IANA */
-static gint global_s5066_port = 5066;
+static guint global_s5066_port = 5066;
 /* Size of header outside 'size' field */
 static gint s5066_header_size = 5;
 /* Offset of 'size' field */
@@ -784,20 +784,20 @@ proto_register_s5066(void)
 
 	s5066_module = prefs_register_protocol(proto_s5066, proto_reg_handoff_s5066);
 	prefs_register_bool_preference(s5066_module, "desegment_pdus",
-		"Reassemble S5066 PDUs spanning multiple TCP segments",
-		"Whether the S5066 dissector should reassemble PDUs spanning multiple TCP segments."
-		" The default is to use reassembly.",
-		&s5066_desegment);
+				       "Reassemble S5066 PDUs spanning multiple TCP segments",
+				       "Whether the S5066 dissector should reassemble PDUs spanning multiple TCP segments."
+				       " The default is to use reassembly.",
+				       &s5066_desegment);
 	prefs_register_bool_preference(s5066_module, "edition_one",
-		"Dissect edition 1.0 of STANAG 5066",
-		"Whether the S5066 dissector should dissect editon 1 of the STANAG."
-		" This editon was never formally approved and is very rare. The common edition is editon 1.2.",
-		&s5066_edition_one);
+				       "Dissect edition 1.0 of STANAG 5066",
+				       "Whether the S5066 dissector should dissect editon 1 of the STANAG."
+				       " This editon was never formally approved and is very rare. The common edition is editon 1.2.",
+				       &s5066_edition_one);
 	prefs_register_uint_preference(s5066_module, "tcp.port",
-		"STANAG 5066 TCP Port",
-		"Set the port for STANAG 5066. (If other than the default 5066."
-		" This number is registered with IANA.)",
-		10, &global_s5066_port);
+				       "STANAG 5066 TCP Port",
+				       "Set the port for STANAG 5066. (If other than the default 5066."
+				       " This number is registered with IANA.)",
+				       10, &global_s5066_port);
 }
 
 void
