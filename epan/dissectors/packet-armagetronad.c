@@ -110,7 +110,8 @@ static value_string descriptors[] = {
 	{0, NULL}
 };
 
-static gboolean is_armagetronad_packet(tvbuff_t * tvb)
+static gboolean
+is_armagetronad_packet(tvbuff_t * tvb)
 {
 	gint offset = 0;
 
@@ -144,44 +145,40 @@ static gboolean is_armagetronad_packet(tvbuff_t * tvb)
 static void
 add_message_data(tvbuff_t * tvb, gint offset, gint data_len, proto_tree * tree)
 {
-	guint16 *data = NULL;
+	gchar *data = NULL;
+	gchar tmp;
+	int i;
 
-	if (tree) {
-		gchar *bptr;
+	if (!tree)
+		return;
 
-		data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
-		bptr = (gchar *)data;
-		bptr[data_len] = '\0';
+	data = tvb_memcpy(tvb, ep_alloc(data_len + 1), offset, data_len);
+	data[data_len] = '\0';
+
+	for (i = 0; i < data_len; i += 2) {
+		/*
+		 * There must be a better way to tell
+		 * Wireshark not to stop on null bytes
+		 * as the length is known
+		 */
+		if (!data[i])
+			data[i] = ' ';
+
+		if (!data[i+1])
+			data[i+1] = ' ';
+
+		/* Armagetronad swaps unconditionally */
+		tmp = data[i];
+		data[i] = data[i+1];
+		data[i+1] = tmp;
 	}
 
-	if (data) {
-		guint16 *ptr, *end = &data[data_len];
-		for (ptr = data; ptr != end; ptr++) {
-			/*
-			 * There must be a better way to tell
-			 * Wireshark not to stop on null bytes
-			 * as the length is known
-			 */
-			gchar *bptr = (gchar *) ptr;
-			if (!bptr[0])
-				bptr[0] = ' ';
-
-			if (!bptr[1])
-				bptr[1] = ' ';
-
-			/* Armagetronad swaps unconditionally */
-			*ptr = GUINT16_SWAP_LE_BE(*ptr);
-		}
-
-		proto_tree_add_string(tree, hf_armagetronad_data, tvb, offset,
-				      data_len, (gchar *) data);
-	} else
-		proto_tree_add_item(tree, hf_armagetronad_data, tvb, offset,
-				    data_len, FALSE);
+	proto_tree_add_string(tree, hf_armagetronad_data, tvb, offset,
+			      data_len, (gchar *) data);
 }
 
-static gint add_message(tvbuff_t * tvb, gint offset, proto_tree * tree,
-			GString * info)
+static gint
+add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, GString * info)
 {
 	guint16 descriptor_id, message_id;
 	gint data_len;
