@@ -627,7 +627,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Retrieve RTPs idea of a converation */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
-	if(p_conv_data != NULL) 
+	if(p_conv_data != NULL)
 		finfo = p_conv_data->rtp_conv_info;
 
 	if(finfo == NULL || !desegment_rtp) {
@@ -657,7 +657,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(msp && msp->startseq < seqno && msp->endseq >= seqno) {
 		guint32 fid = msp->startseq;
 		fragment_data *fd_head;
-		
+
 #ifdef DEBUG_FRAGMENTS
 		g_debug("\tContinues fragment %d", fid);
 #endif
@@ -680,7 +680,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(newtvb != NULL) {
 			/* Hand off to the subdissector */
 			process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
-            
+
 			/*
 			 * Check to see if there were any complete fragments within the chunk
 			 */
@@ -691,11 +691,11 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 				/* Mark the fragments and not complete yet */
 				fragment_set_partial_reassembly(pinfo, fid, fragment_table);
-					
+
 				/* we must need another segment */
 				msp->endseq = MIN(msp->endseq,seqno) + 1;
 			}
-			else 
+			else
 			{
 				/*
 				 * Data was dissected so add the protocol tree to the display
@@ -708,33 +708,33 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				if( frag_tree_item && rtp_tree_item )
 					proto_tree_move_item( tree, rtp_tree_item, frag_tree_item );
 
-            
-				if(pinfo->desegment_len) 
+
+				if(pinfo->desegment_len)
 				{
 					/* the higher-level dissector has asked for some more data - ie,
 					   the end of this segment does not coincide with the end of a
 					   higher-level PDU. */
 					must_desegment = TRUE;
 				}
-			}	
-      		
-		} 
-    	
-	} 
+			}
+
+		}
+
+	}
 	else
 	{
 		/*
 		 * The segment is not the continuation of a fragmented segment
 		 * so process it as normal
-		 */		  
+		 */
 #ifdef DEBUG_FRAGMENTS
 		g_debug("\tRTP non-fragment payload");
 #endif
 		newtvb = tvb_new_subset( tvb, offset, data_len, data_reported_len );
-	
+
 		/* Hand off to the subdissector */
 		process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
- 	
+
 		if(pinfo->desegment_len) {
 			/* the higher-level dissector has asked for some more data - ie,
 			   the end of this segment does not coincide with the end of a
@@ -742,8 +742,8 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			must_desegment = TRUE;
 		}
 	}
-	
-	/* 
+
+	/*
 	 * There were bytes left over that the higher protocol couldn't dissect so save them
 	 */
 	if(must_desegment)
@@ -751,61 +751,61 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		guint32 deseg_offset = pinfo->desegment_offset;
 		guint32 frag_len = tvb_reported_length_remaining(newtvb, deseg_offset);
 		fragment_data *fd_head = NULL;
-    
+
 #ifdef DEBUG_FRAGMENTS
 		g_debug("\tRTP Must Desegment: tvb_len=%d ds_len=%d %d frag_len=%d ds_off=%d",
 			tvb_reported_length(newtvb),
 			pinfo->desegment_len,
 			pinfo->fd->flags.visited,
 			frag_len,
-			deseg_offset); 
+			deseg_offset);
 #endif
 		/* allocate a new msp for this pdu */
 		msp = se_alloc(sizeof(rtp_multisegment_pdu));
 		msp->startseq = seqno;
 		msp->endseq = seqno+1;
 		se_tree_insert32(finfo->multisegment_pdus,seqno,msp);
-			
+
 		/*
 		 * Add the fragment to the fragment table
-		 */    
+		 */
 		fd_head = fragment_add_seq(newtvb,deseg_offset, pinfo, seqno, fragment_table, 0, frag_len,
 					   TRUE );
 
 		if(fd_head != NULL)
 		{
-			if( fd_head->reassembled_in != 0 && !(fd_head->flags & FD_PARTIAL_REASSEMBLY) ) 
+			if( fd_head->reassembled_in != 0 && !(fd_head->flags & FD_PARTIAL_REASSEMBLY) )
 			{
 				proto_item *rtp_tree_item;
 				rtp_tree_item = proto_tree_add_uint( tree, hf_rtp_reassembled_in,
 								     newtvb, deseg_offset, tvb_reported_length_remaining(newtvb,deseg_offset),
 								     fd_head->reassembled_in);
-				PROTO_ITEM_SET_GENERATED(rtp_tree_item);     	  
+				PROTO_ITEM_SET_GENERATED(rtp_tree_item);
 #ifdef DEBUG_FRAGMENTS
 				g_debug("\tReassembled in %d", fd_head->reassembled_in);
 #endif
-			}         
-			else 
+			}
+			else
 			{
 #ifdef DEBUG_FRAGMENTS
 				g_debug("\tUnfinished fragment");
 #endif
 				/* this fragment is never reassembled */
 				proto_tree_add_text( tree, tvb, deseg_offset, -1,"RTP fragment, unfinished");
-			}	
+			}
 		}
 		else
 		{
-			/* 
+			/*
 			 * This fragment was the first fragment in a new entry in the
 			 * frag_table; we don't yet know where it is reassembled
-			 */      
+			 */
 #ifdef DEBUG_FRAGMENTS
 			g_debug("\tnew pdu");
 #endif
 		}
-			
-		if( pinfo->desegment_offset == 0 ) 
+
+		if( pinfo->desegment_offset == 0 )
 		{
 			if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			{
@@ -1398,7 +1398,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
 		proto_tree_add_bytes_format(pkt_ccc_tree, hf_pkt_ccc_ts, tvb,
-		    4, 8, "NTP timestamp: %s", ntp_fmt_ts(ptime));
+		    4, 8, ptime, "NTP timestamp: %s", ntp_fmt_ts(ptime));
 	}
 
 	dissect_rtp(tvb, pinfo, tree);
@@ -1780,7 +1780,7 @@ proto_register_rtp(void)
 				"Block Length", HFILL
 			}
 		},
-        
+
 		/* reassembly stuff */
 		{&hf_rtp_fragments,
 		 {"RTP Fragments", "rtp.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1875,7 +1875,7 @@ proto_register_rtp(void)
 												    "Dynamic RTP payload type", FT_STRING, BASE_NONE);
 
 
-	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext", 
+	rtp_hdr_ext_dissector_table = register_dissector_table("rtp_hdr_ext",
 													"RTP header extension", FT_STRING, BASE_NONE);
 
 	rtp_module = prefs_register_protocol(proto_rtp, proto_reg_handoff_rtp);
@@ -1907,7 +1907,7 @@ proto_register_rtp(void)
                                    "Payload Type for RFC2198 Redundant Audio Data",
                                    10,
                                    &rtp_rfc2198_pt);
-    
+
 	register_init_routine(rtp_fragment_init);
 }
 
