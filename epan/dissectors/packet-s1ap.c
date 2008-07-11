@@ -1757,19 +1757,19 @@ dissect_s1ap_ENBname(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
-if (!parameter_tvb)
- return offset;
+  if (!parameter_tvb)
+    return offset;
 
- length = tvb_length(parameter_tvb);
+  length = tvb_length(parameter_tvb);
  
- for (p_offset=0; p_offset < length; p_offset++){
+  is_ascii = TRUE;
+  for (p_offset=0; p_offset < length; p_offset++){
 	 if(!isalpha(tvb_get_guint8(parameter_tvb, p_offset ))){
 		is_ascii = FALSE;
 		break;
 	 }
-	 is_ascii = TRUE;
- }
- if (is_ascii)
+  }
+  if (is_ascii)
   		proto_item_append_text(actx->created_item,"(%s)",tvb_format_text(parameter_tvb, 0, length));
 
 
