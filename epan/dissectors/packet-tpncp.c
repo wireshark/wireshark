@@ -334,7 +334,7 @@ static void dissect_tpncp_data(gint data_id, tvbuff_t *tvb, proto_item *item,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
-                                proto_item *item, guint *offset) {
+                                proto_item *item, gint *offset) {
     switch (event_id) {
         /* Place non-standard events here. */
         default:
@@ -346,7 +346,7 @@ static void dissect_tpncp_event(gint event_id, tvbuff_t *tvb,
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
 
 static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
-                                  proto_item *item, guint *offset) {
+                                  proto_item *item, gint *offset) {
     switch (command_id) {
         /* Place non-standard commands here. */
         default:
@@ -360,7 +360,7 @@ static void dissect_tpncp_command(gint command_id, tvbuff_t *tvb,
 static void dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *item = NULL, *tpncp_item = NULL;
     proto_tree *tpncp_tree = NULL;
-    guint offset = 0;
+    gint offset = 0;
     guint32 id, cid = 0;
     guint16 seq_number, len, ver, reserved;
     gchar *tpncp_header = NULL;
