@@ -1231,7 +1231,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
             /* we don't understand this ie: add a generic one */
             guint32 value;
             const guint8 *ptr;
-            const guint8 *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
+            const gchar *ie_name = val_to_str(ies_type, iax_ies_type, "Unknown");
 	  
             switch(ies_len) {
               case 1:
