@@ -22,7 +22,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef _WIN32
+#ifndef _WIN32
+#error "This is only for Windows"
+#endif
 
 #include <glib.h>
 #include "unicode-utils.h"
@@ -125,4 +127,3 @@ gchar * utf_16to8(const wchar_t *utf16str) {
   return utf8buf[idx];
 }
 
-#endif	/* _WIN32 */

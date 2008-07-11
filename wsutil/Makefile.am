@@ -42,7 +42,9 @@ EXTRA_DIST = \
 	Makefile.common	\
 	Makefile.nmake	\
 	file_util.c	\
-	file_util.h 
+	file_util.h 	\
+	unicode-utils.c	\
+	unicode-utils.h
 
 CLEANFILES = \
 	libwsutil.a	\
@@ -55,4 +57,4 @@ MAINTAINERCLEANFILES = \
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
 	$(LIBWSUTIL_SRC)
-#	file_util.c
+#	file_util.c unicode-utils.c

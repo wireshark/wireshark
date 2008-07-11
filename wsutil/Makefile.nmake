@@ -22,7 +22,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 # For use when making libwsutil.dll
 libwsutil_LIBS = $(GLIB_LIBS)
 
-OBJECTS = file_util.obj $(LIBWSUTIL_SRC:.c=.obj)
+OBJECTS = file_util.obj unicode-utils.obj $(LIBWSUTIL_SRC:.c=.obj)
 
 
 # For use when making libwsutil.dll
@@ -55,4 +55,4 @@ maintainer-clean: distclean
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
 	$(LIBWSUTIL_SRC) \
-#	file_util.c
+#	file_util.c unicode-utils.c

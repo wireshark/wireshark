@@ -30,11 +30,9 @@
 # _SOURCES variables).
 LIBWSUTIL_SRC = 	\
 	mpeg-audio.c	\
-	privileges.c	\
-	unicode-utils.c
+	privileges.c
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
 	mpeg-audio.h	\
-	privileges.h	\
-	unicode-utils.h
+	privileges.h
